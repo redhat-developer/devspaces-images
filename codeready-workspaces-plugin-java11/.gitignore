@@ -1,0 +1,6 @@
+apache-maven/
+gradle/
+graalvm/
+Dockerfile.local
+/gradle.tgz
+/maven.tgz
