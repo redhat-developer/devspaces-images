@@ -3,15 +3,18 @@ platforms:
   # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
 
   only:
-  - x86_64   # can be a list (as here) or a string (as below)
-#  - s390x
-#  - ppc64le
+  # for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11-openj9/?h=crw-2.4-rhel-8
+  - x86_64 
 
 compose:
-  #packages:
-  #- java-11-openjdk  # package name, not an NVR.
-
+  inherit: true
+  packages:
+  - java-11-openjdk
+  - java-11-openjdk-headless
+  - java-11-openjdk-devel
+  - java-11-openjdk-src
   pulp_repos: true
+  signing_intent: release
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder

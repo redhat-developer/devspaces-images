@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.2-301.1593113563
+FROM ubi8-minimal:8.2-349
 
 USER root
 
@@ -33,12 +33,22 @@ COPY gradle.tgz maven.tgz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_sets.repo /etc/yum.repos.d/
-# NOTE: openshift-clients comes from OSE content set
-RUN microdnf install -y bash tar gzip which shadow-utils findutils wget curl openshift-clients-4.3.19 \
-    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
+
+# For OpenShift Client 4.4 (oc): rhocp-4.4-for-rhel-8-x86_64-rpms
+# For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
+# must hard code a version because otherwise we fail with
+## Failed component comparison for components: openshift-clients
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
+RUN microdnf install -y bash tar gzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
+    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9) \
+    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-devel \
+    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-src \
+    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-headless \    
     # we might not need all of this?
     sudo git procps-ng nss_wrapper bzip2 && \
-    microdnf update -y sqlite libarchive systemd && \
+    microdnf update -y librepo zlib gnutls systemd-libs sqlite libarchive systemd && \
     microdnf clean all && rm -rf /var/cache/yum && \
     mkdir -p /projects && \
     # add jboss user and configure it
@@ -87,7 +97,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="2.3" \
+      version="2.4" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
