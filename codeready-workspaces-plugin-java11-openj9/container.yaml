@@ -5,7 +5,7 @@ platforms:
   only:
   # for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11/?h=crw-2.4-rhel-8
   - s390x
-  # - ppc64le
+  - ppc64le
 
 compose:
   inherit: true
