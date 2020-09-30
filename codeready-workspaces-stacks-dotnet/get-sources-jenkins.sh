@@ -4,6 +4,7 @@
 scratchFlag=""
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+    '-n'|'--nobuild') exit 0; shift 0;;
     '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
   esac
   shift 1
