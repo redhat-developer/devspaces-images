@@ -140,10 +140,10 @@ LABEL summary="$SUMMARY" \
 
 # insert generated LABELs below this line
 LABEL \
-	  git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/62e97" \
-	  jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.4/6/" \
-	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.4/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz" \
-	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.4/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz" \
-	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.4/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz" \
-	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.4/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz" \
-	  jenkins.build.number="6"
+	  git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/0770" \
+	  jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/2/" \
+	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/2/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz" \
+	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/2/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz" \
+	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/2/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz" \
+	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/2/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz" \
+	  jenkins.build.number="2"
