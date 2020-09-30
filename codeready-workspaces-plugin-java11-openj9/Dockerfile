@@ -29,7 +29,7 @@ ENV \
 # contains 3rd party binaries
 # run './get-sources-jenkins.sh --force-pull --nobuild' to generate this file, or 
 # use 'rhpkg sources' to fetch existing version from dist-git.
-COPY gradle.tgz maven.tgz /tmp/
+COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_sets.repo /etc/yum.repos.d/
@@ -41,7 +41,7 @@ COPY gradle.tgz maven.tgz /tmp/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.x86_64.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
+RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
     java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9) \
     java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-devel \
     java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-src \
@@ -61,7 +61,11 @@ RUN microdnf install -y bash tar gzip which shadow-utils findutils wget curl ope
     > /home/jboss/group.template && \
     echo "jboss	ALL=(ALL)	NOPASSWD: ALL" >> /etc/sudoers && \
     # unpack gradle into /opt/gradle/, and maven into /opt/apache-maven/
-    mkdir -p /opt; tar xzf /tmp/gradle.tgz -C /opt/ && tar xzf /tmp/maven.tgz -C /opt/ && rm -fr /tmp/*.tgz && \
+    mkdir -p /opt; unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
+    mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
+    tar xzf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
+    mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
+    rm -f /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
     # fix permissions in bin/* files
     for d in $(find /opt/gradle /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     for f in "/home/jboss" "/etc/passwd" "/etc/group" "/projects"; do \

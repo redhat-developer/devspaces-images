@@ -57,19 +57,12 @@ sed Dockerfile \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! -f maven.tgz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
-	mkdir -p apache-maven/
+if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
-	curl -sSL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip \
-		-o gradle.zip && unzip gradle.zip && rm -f gradle.zip && mv gradle-${GRADLE_VERSION} gradle
-
-	curl -sSL http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | \
-		tar -xz --strip=1 -C apache-maven/
-
-  tar czf gradle.tgz gradle/
-  tar czf maven.tgz apache-maven/
-	log "[INFO] Upload new sources: gradle.tgz maven.tgz"
-	rhpkg new-sources gradle.tgz maven.tgz
+	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+	log "[INFO] Upload new sources: gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+	rhpkg new-sources gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz
 	log "[INFO] Commit new sources"
 	COMMIT_MSG="${COMMIT_MSG}Gradle ${GRADLE_VERSION}, Maven ${MAVEN_VERSION}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile) == *"nothing to commit, working tree clean"* ]]; then 
@@ -106,4 +99,4 @@ $ERRORS
 fi
 
 # cleanup
-rm -fr Dockerfile.2 gradle/ apache-maven/
+rm -fr Dockerfile.2
