@@ -1,0 +1,19 @@
+---
+platforms:
+  # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
+
+  only:
+  # for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java8-openj9/?h=crw-2.4-rhel-8
+  - x86_64 
+
+compose:
+  inherit: true
+  packages:
+  - java-1.8.0-openjdk
+  - java-1.8.0-openjdk-devel
+  - java-1.8.0-openjdk-headless
+  pulp_repos: true
+  signing_intent: release
+
+# instead of docker_api, use imagebuilder for multistage builds
+image_build_method: imagebuilder
