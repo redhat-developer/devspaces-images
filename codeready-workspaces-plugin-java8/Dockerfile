@@ -38,7 +38,7 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.x86_64.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
+RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
     java-1.8.0-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9) \
     java-1.8.0-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-devel \
     java-1.8.0-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-headless \        
@@ -65,7 +65,10 @@ RUN microdnf install -y bash tar gzip which shadow-utils findutils wget curl ope
     echo "jboss	ALL=(ALL)	NOPASSWD: ALL" >> /etc/sudoers && \
     \
     # maven stuff \
-    mkdir -p /opt; tar xzf /tmp/assets/maven.tgz -C /opt/ && \
+    mkdir -p /opt; \
+    tar xzf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
+    mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
+    rm -f /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
     # fix permissions in bin/* files \
     for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     \

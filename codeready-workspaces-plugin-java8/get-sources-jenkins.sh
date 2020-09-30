@@ -167,16 +167,12 @@ sed Dockerfile \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! -f maven.tgz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
-	mkdir -p apache-maven/
+if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 
-	curl -sSL http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz | \
-		tar -xz --strip=1 -C apache-maven/
-
-  tar czf maven.tgz apache-maven/
+	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 fi
-outputFiles="maven.tgz ${outputFiles}"
+outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz ${outputFiles}"
 
 if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"
@@ -221,4 +217,4 @@ $ERRORS
 fi
 
 # cleanup
-rm -fr Dockerfile.2 apache-maven/
+rm -fr Dockerfile.2
