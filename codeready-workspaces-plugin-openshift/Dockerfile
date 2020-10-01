@@ -15,8 +15,8 @@
 FROM ubi8-minimal:8.2-349
 
 ENV \
-    ODO_VERSION="v1.2.5" \
-    KUBECTL_VERSION="v1.18.3" \
+    ODO_VERSION="v1.2.6" \
+    KUBECTL_VERSION="v1.18.9" \
     HOME=/home/theia
 
 RUN mkdir -p /home/theia /projects && \
