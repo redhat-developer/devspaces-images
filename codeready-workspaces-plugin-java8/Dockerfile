@@ -39,9 +39,9 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
 RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
-    java-1.8.0-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9) \
-    java-1.8.0-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-devel \
-    java-1.8.0-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-headless \        
+    java-1.8.0-openjdk \
+    java-1.8.0-openjdk-devel \
+    java-1.8.0-openjdk-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     nodejs npm python36 python3-six python3-pip platform-python-pip \
     sudo git procps-ng nss_wrapper bzip2 && \

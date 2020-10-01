@@ -42,10 +42,10 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
 RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
-    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9) \
-    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-devel \
-    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-src \
-    java-11-$([[ $(uname -m) == x86_64 ]] && echo openjdk || echo openj9)-headless \    
+    java-11-openjdk \
+    java-11-openjdk-devel \
+    java-11-openjdk-src \
+    java-11-openjdk-headless \
     # we might not need all of this?
     sudo git procps-ng nss_wrapper bzip2 && \
     microdnf update -y librepo zlib gnutls systemd-libs sqlite libarchive systemd && \
