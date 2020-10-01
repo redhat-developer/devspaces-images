@@ -11,6 +11,7 @@ while [[ "$#" -gt 0 ]]; do
     '-f'|'--force-build') forceBuild=1; shift 0;;
     '-p'|'--force-pull') forcePull=1; shift 0;;
     '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+    *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
 done
@@ -22,12 +23,10 @@ function log()
   fi
 }
 
-KUBECTL_VERSION="v1.18.3" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
+KUBECTL_VERSION="v1.18.9" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
 KAMEL_VERSION="1.1.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 
-JOB_BRANCH="master"
-UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}"
-jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}/lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/kamel/target"
+jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/crw-deprecated_${JOB_BRANCH}/lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/kamel/target"
 
 # patch Dockerfile to record versions we expect
 sed Dockerfile \
