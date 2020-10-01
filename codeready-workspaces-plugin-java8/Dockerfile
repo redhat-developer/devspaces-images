@@ -143,8 +143,8 @@ LABEL summary="$SUMMARY" \
 
 # insert generated LABELs below this line
 LABEL \
-	  git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/9fe7" \
-	  jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/3/" \
-	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz" \
-	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz" \
-	  jenkins.build.number="3"
+	  git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/bb29a" \
+	  jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/" \
+	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz" \
+	  jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz" \
+	  jenkins.build.number="4"
