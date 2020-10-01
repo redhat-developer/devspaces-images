@@ -23,7 +23,7 @@ function log()
 }
 
 KUBECTL_VERSION="v1.18.3" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
-KAMEL_VERSION="1.0.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
+KAMEL_VERSION="1.1.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 
 JOB_BRANCH="master"
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}"
