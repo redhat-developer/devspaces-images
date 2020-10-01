@@ -5,7 +5,7 @@ platforms:
   only:
   - x86_64   # can be a list (as here) or a string (as below)
   - s390x
-  # - ppc64le
+  - ppc64le
 
 compose:
   #packages:
