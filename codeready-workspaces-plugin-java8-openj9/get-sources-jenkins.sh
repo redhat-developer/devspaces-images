@@ -171,7 +171,7 @@ sed Dockerfile \
 # pull maven (if not present, or forced, or new version in dockerfile)
 if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
-        curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 fi
 outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz ${outputFiles}"
 
@@ -184,7 +184,7 @@ if [[ ${outputFiles} ]]; then
 ::${outputFiles}"
 	parseCommitLog ${COMMIT_MSG}
 	insertLabels Dockerfile
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
@@ -204,9 +204,9 @@ $ERRORS
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
 	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
-	tmpfile=`mktemp` && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+	tmpfile=$(mktemp) && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-	ERRORS="$(egrep "image build failed" $tmpfile)" && rm -f $tmpfile
+	ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
 	if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
