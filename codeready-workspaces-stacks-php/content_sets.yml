@@ -14,12 +14,12 @@
 x86_64:
 - rhel-8-for-x86_64-baseos-rpms
 - rhel-8-for-x86_64-appstream-rpms
-- rhel-7-server-ose-4.3-rpms
+- rhocp-4.4-for-rhel-8-x86_64-rpms
 s390x:
 - rhel-8-for-s390x-baseos-rpms
 - rhel-8-for-s390x-appstream-rpms
-- rhel-7-for-system-z-ose-4.3-rpms
+- rhocp-4.4-for-rhel-8-s390x-rpms
 ppc64le:
 - rhel-8-for-ppc64le-baseos-rpms
 - rhel-8-for-ppc64le-appstream-rpms
-- rhel-7-for-power-le-ose-4.3-rpms
+- rhocp-4.4-for-rhel-8-ppc64le-rpms

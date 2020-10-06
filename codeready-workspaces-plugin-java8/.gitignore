@@ -3,3 +3,4 @@ gradle/
 graalvm/
 /maven.tgz
 /codeready-workspaces-stacks-language-servers-dependencies-*
+/apache-maven-3.6.3-bin.tar.gz
