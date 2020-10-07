@@ -15,7 +15,7 @@
 FROM ubi8-minimal:8.2-349
 
 ENV \
-    ODO_VERSION="v2.0.0" \
+    ODO_VERSION="v1.2.6" \
     KUBECTL_VERSION="v1.18.9" \
     HOME=/home/theia
 
