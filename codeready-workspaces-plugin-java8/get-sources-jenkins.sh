@@ -16,7 +16,6 @@ while [[ "$#" -gt 0 ]]; do
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-p'|'--force-pull') forcePull=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	'-t'|'--target') targetFlag="--target $2"; shift 1;;
 	*) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
@@ -39,16 +38,10 @@ if [ -z "$JOB_BRANCH" ] ; then
 		log "[ERROR] JOB_BRANCH was not specified"
 		exit 1
 fi
-if [[ ! ${targetFlag} ]]; then
-	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
-fi
 
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.4
 jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
-if [[ ! ${targetFlag} ]]; then
-	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
-fi
-log "[INFO] Using Brew with ${targetFlag}" 
+log "[INFO] Using Brew" 
 theTarGzs="
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/node10/target/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/python/target/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz
@@ -189,8 +182,8 @@ if [[ ${outputFiles} ]]; then
 		git pull; git push
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-		echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
-		tmpfile=`mktemp` && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		tmpfile=`mktemp` && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 		ERRORS="$(egrep "image build failed" $tmpfile)" && rm -f $tmpfile
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
@@ -201,8 +194,8 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
-	tmpfile=$(mktemp) && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 	ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
 	if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
