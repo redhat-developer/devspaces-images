@@ -68,9 +68,8 @@ RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget cu
     \
     # maven stuff \
     mkdir -p /opt; \
-    tar xzf /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
+    tar xzf /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
-    rm -f /tmp/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
     # fix permissions in bin/* files \
     for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     \
