@@ -4,3 +4,5 @@ graalvm/
 Dockerfile.local
 /gradle.tgz
 /maven.tgz
+/gradle-6.1-bin.zip
+/apache-maven-3.6.3-bin.tar.gz
