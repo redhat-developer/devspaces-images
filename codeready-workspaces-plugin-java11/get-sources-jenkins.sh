@@ -14,7 +14,6 @@ while [[ "$#" -gt 0 ]]; do
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-p'|'--force-pull') forcePull=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	'-t'|'--target') targetFlag="--target $2"; shift 1;;
 	*) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
@@ -36,9 +35,6 @@ function logn()
 if [ -z "$JOB_BRANCH" ] ; then
 		log "[ERROR] JOB_BRANCH was not specified"
 		exit 1
-fi
-if [[ ! ${targetFlag} ]]; then
-	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
 fi
 
 # CRW-611 GraalVM CE and native-image version from https://github.com/graalvm/graalvm-ce-builds/releases/ (includes JDK 11)
@@ -72,8 +68,8 @@ if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppr
 		git pull; git push
   fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-		echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
-		tmpfile=`mktemp` && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		tmpfile=`mktemp` && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 		ERRORS="$(egrep "image build failed" $tmpfile)" && rm -f $tmpfile
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
@@ -84,8 +80,8 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
-	tmpfile=`mktemp` && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	tmpfile=`mktemp` && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 	ERRORS="$(egrep "image build failed" $tmpfile)" && rm -f $tmpfile
 	if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
