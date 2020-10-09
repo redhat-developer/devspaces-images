@@ -9,11 +9,6 @@ platforms:
 
 compose:
   inherit: true
-  packages:
-  - java-11-openj9
-  - java-11-openj9-headless
-  - java-11-openj9-devel
-  - java-11-openj9-src
   pulp_repos: true
   signing_intent: release
 
