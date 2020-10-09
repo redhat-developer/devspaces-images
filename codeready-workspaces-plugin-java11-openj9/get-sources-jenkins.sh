@@ -7,6 +7,7 @@ JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
+targetFlag=""
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -37,9 +38,9 @@ if [ -z "$JOB_BRANCH" ] ; then
 		log "[ERROR] JOB_BRANCH was not specified"
 		exit 1
 fi
-if [[ ! ${targetFlag} ]]; then
-	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
-fi
+# if [[ ! ${targetFlag} ]]; then
+# 	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
+# fi
 
 # CRW-611 GraalVM CE and native-image version from https://github.com/graalvm/graalvm-ce-builds/releases/ (includes JDK 11)
 # GRAALVM_VERSION="19.3.1"

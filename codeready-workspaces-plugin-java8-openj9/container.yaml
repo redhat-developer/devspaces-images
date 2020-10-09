@@ -9,10 +9,6 @@ platforms:
 
 compose:
   inherit: true
-  packages:
-  - java-1.8.0-openj9
-  - java-1.8.0-openj9-devel
-  - java-1.8.0-openj9-headless
   pulp_repos: true
   signing_intent: release
 

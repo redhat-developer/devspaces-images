@@ -9,6 +9,7 @@ doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 generateDockerfileLABELs=1
+targetFlag=""
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -39,15 +40,11 @@ if [ -z "$JOB_BRANCH" ] ; then
 		log "[ERROR] JOB_BRANCH was not specified"
 		exit 1
 fi
-if [[ ! ${targetFlag} ]]; then
-	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
-fi
-
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.4
 jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
-if [[ ! ${targetFlag} ]]; then
-	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
-fi
+# if [[ ! ${targetFlag} ]]; then
+# 	targetFlag="--target crw-${JOB_BRANCH}-openj9-rhel-8-containers-candidate" # required for resolving openj9 artifacts 
+# fi
 log "[INFO] Using Brew with ${targetFlag}" 
 theTarGzs="
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/node10/target/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz
