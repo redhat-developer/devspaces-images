@@ -9,14 +9,13 @@ import groovy.transform.Field
 
 def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
 def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // source repo from which to find commits
-def NODE_LABEL = "s390x-rhel7-beaker" // s390x-rhel7-beaker, rhel7-releng where to run sync job
 def DWNSTM_BRANCH = SOURCE_BRANCH // target branch in dist-git repo, eg., crw-2.5-rhel-8
 
 def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 timeout(120) {
-  node("${NODE_LABEL}"){ stage "Sync repos"
+  node("rhel7-32gb||rhel7-16gb||rhel7-8gb"){ stage "Sync repos"
     wrap([$class: 'TimestamperBuildWrapper']) {
       sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2.5-rhel-8/product/util.groovy')
       def util = load "${WORKSPACE}/util.groovy"
