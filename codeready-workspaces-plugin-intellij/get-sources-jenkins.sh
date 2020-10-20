@@ -43,6 +43,12 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
   ARCHES="x86_64 s390x ppc64le"
 
   curl -sSLO https://download.jetbrains.com/idea/ideaIC-2020.2.2.tar.gz
+  # supervisor
+  curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/s/supervisor-4.2.0-1.el8.noarch.rpm
+  # novnc
+  curl -sSLO https://cbs.centos.org/kojifiles/packages/python-websockify/0.9.0/1.el8/noarch/python3-websockify-0.9.0-1.el8.noarch.rpm
+  curl -sSLO https://cbs.centos.org/kojifiles/packages/novnc/1.1.0/6.el8/noarch/novnc-1.1.0-6.el8.noarch.rpm
+  # fluxbox
   for ARCH in $ARCHES ; do
     curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/${ARCH}/Packages/f/fluxbox-${FLUXBOX_VERSION}.el8.${ARCH}.rpm
     curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/${ARCH}/Packages/i/imlib2-${IMLIB2_VERSION}.el8.${ARCH}.rpm

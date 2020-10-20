@@ -23,16 +23,19 @@ ENV \
 
 COPY . /tmp/assets/
 
+# NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
+# enable rhel 8 content sets (from Brew) to resolve buildah
+# COPY content_set*.repo /etc/yum.repos.d/
 
-#RUN microdnf install wget java-11-openjdk-devel which # tigervnc-server novnc
-#RUN microdnf install -y yum && cd /tmp/assets && yum localinstall *.rpm # fluxbox supervisor
+#RUN microdnf install wget java-11-openjdk-devel which # tigervnc-server
 RUN microdnf install -y yum
-RUN yum install -y tigervnc-server supervisor wget java-11-openjdk-devel novnc fluxbox which
+RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar
+RUN cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
 
 RUN mkdir /ideaIC-2020.2.2 && tar -zxvf /tmp/assets/ideaIC-2020.2.2.tar.gz --strip-components=1 -C /ideaIC-2020.2.2 && \
     mkdir -p /JetBrains/IdeaIC && \
     mkdir /etc/default/jetbrains && \
-    for f in "/JetBrains" "/ideaIC-2020.2.2" "/etc/passwd" "/etc/default/jetbrains"; do \
+    for f in "/JetBrains" "/ideaIC-2020.2.2" "/etc/default/jetbrains"; do \
       echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
       chmod -R g+rwX ${f}; \
     done
