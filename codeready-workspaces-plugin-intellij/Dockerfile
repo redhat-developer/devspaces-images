@@ -27,7 +27,6 @@ COPY . /tmp/assets/
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-#RUN microdnf install wget java-11-openjdk-devel which # tigervnc-server
 RUN microdnf install -y yum
 RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar
 RUN cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
