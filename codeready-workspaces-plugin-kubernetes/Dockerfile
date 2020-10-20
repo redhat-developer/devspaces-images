@@ -15,7 +15,7 @@
 FROM ubi8-minimal:8.2-349
 
 ENV \
-    KUBECTL_VERSION="v1.18.9" \
+    KUBECTL_VERSION="v1.18.10" \
     KAMEL_VERSION="1.2.0" \
     HOME=/home/theia
 

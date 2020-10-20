@@ -1,6 +1,3 @@
-01848cc064a9b32c59409f45ad58d4db  asset-ppc64le-kamel.tar.gz
-917e8cd35015fc01711f1ac656a37181  asset-ppc64le-kubectl.tar.gz
-dc9aee85364a24a82163a238bd2810c1  asset-s390x-kamel.tar.gz
-d478ab32c02bf4a89f8907f21bdf07a2  asset-s390x-kubectl.tar.gz
-02298862dfefb3efd6cd1a2038e529fc  asset-x86_64-kamel.tar.gz
-dfdcd404a024cb0a816c2881cccc571d  asset-x86_64-kubectl.tar.gz
+dd8b8a36db4d7248650ad92e9815f7f5  asset-ppc64le-kubectl.tar.gz
+a547300f250d24f78acf9e1d6302647e  asset-s390x-kubectl.tar.gz
+5d70ab7a4f0a66001d94feaec18915a4  asset-x86_64-kubectl.tar.gz
