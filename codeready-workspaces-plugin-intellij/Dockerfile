@@ -6,9 +6,30 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal FROM ubi8-minimal:8.2-349 ENV SUMMARY="Red Hat CodeReady Workspaces - IntelliJ Plugin"      DESCRIPTION="Red Hat CodeReady Workspaces - IntelliJ Plugin"      PRODNAME="codeready-workspaces"      COMPNAME="plugin-intellij-rhel8" ENV      FLUXBOX_VERSION="1.3.7-11"      IMLIB2_VERSION="1.4.9-8"      PYXDG_VERSION="0.25-16"      ALECZAPKA_FONTS_VERSION="1.3-25"      HOME=/home/user COPY . /tmp/assets/ # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com # enable rhel 8 content sets (from Brew) to resolve buildah # COPY content_set*.repo /etc/yum.repos.d/ 
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
+FROM ubi8-minimal:8.2-349 
+
+ENV SUMMARY="Red Hat CodeReady Workspaces - IntelliJ Plugin" \ 
+    DESCRIPTION="Red Hat CodeReady Workspaces - IntelliJ Plugin" \ 
+    PRODNAME="codeready-workspaces" \ 
+    COMPNAME="plugin-intellij-rhel8" 
+ENV \ 
+    FLUXBOX_VERSION="1.3.7-11" \ 
+    IMLIB2_VERSION="1.4.9-8" \ 
+    PYXDG_VERSION="0.25-16" \ 
+    ALECZAPKA_FONTS_VERSION="1.3-25" \ 
+    HOME=/home/user 
+
+COPY . /tmp/assets/ 
+
+# NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com 
+# enable rhel 8 content sets (from Brew) to resolve buildah 
+# COPY content_set*.repo /etc/yum.repos.d/ 
+
 # which is used by novnc to find websockify
-RUN microdnf install -y yum RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar RUN cd /tmp/assets && yum localinstall -y *.rpm # fluxbox supervisor novnc
+RUN microdnf install -y yum 
+RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar 
+RUN cd /tmp/assets && yum localinstall -y *.rpm # fluxbox supervisor novnc
 
 RUN mkdir /ideaIC-2020.2.2 && cat /tmp/assetsideaIC-2020.2.2.tar.gz | tar -zxv --strip-components=1 -C /ideaIC-2020.2.2 && \
     mkdir -p /JetBrains/IdeaIC && \
@@ -33,4 +54,5 @@ ENV IDEA_PROPERTIES=/JetBrains/idea.properties
 WORKDIR /projects
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null"]
+
 LABEL summary="$SUMMARY"        description="$DESCRIPTION"        io.k8s.description="$DESCRIPTION"        io.k8s.display-name="$DESCRIPTION"        io.openshift.tags="$PRODNAME,$COMPNAME"        com.redhat.component="$PRODNAME-$COMPNAME-container"        name="$PRODNAME/$COMPNAME"        version="2.5"        license="EPLv2"        maintainer="Nick Boldt <nboldt@redhat.com>"        io.openshift.expose-services=""        usage=""
