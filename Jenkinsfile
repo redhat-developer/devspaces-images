@@ -51,7 +51,7 @@ timeout(120) {
               cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
               if [[ \$(git diff --name-only) ]]; then # file changed
                 export KRB5CCNAME=/var/tmp/crw-build_ccache
-                git add .
+                git add -all .
                 git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA[0..7] + '''"
                 git push origin ''' + DWNSTM_BRANCH + ''' || true
               fi''')
