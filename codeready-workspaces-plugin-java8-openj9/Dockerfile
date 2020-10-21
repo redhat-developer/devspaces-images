@@ -17,6 +17,7 @@ USER root
 ENV HOME=/home/jboss \
     NODEJS_VERSION=12 \
     MAVEN_VERSION="3.6.3" \
+    PYTHON_VERSION="3.8" \
     JAVA_HOME=/usr/lib/jvm/java-1.8.0-openj9 \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/lib/jvm/java-1.8.0-openj9:/opt/apache-maven/bin:/usr/bin:$PATH \
     MANPATH="/usr/share/man:${MANPATH}" \
@@ -45,7 +46,6 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
     java-1.8.0-openj9-devel \
     java-1.8.0-openj9-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
-    python36 python3-six python3-pip platform-python-pip \
     sudo git procps-ng bzip2 && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
         yum -y module reset nodejs && yum -y module enable nodejs:$NODEJS_VERSION && \
@@ -56,6 +56,10 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
         rpm -V $INSTALL_PKGS && \
         yum -y clean all --enablerepo='*' && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+        yum -y module reset python38 && yum -y module enable python38:${PYTHON_VERSION} && \
+        yum -y install python38 python38-devel python38-setuptools python38-pip && \
+    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     # CVE updates
     microdnf update -y freetype librepo systemd pango libnghttp2 sqlite libarchive && \
     microdnf clean all && rm -rf /var/cache/yum && \
@@ -98,8 +102,8 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
     fi
 RUN \
     # python stuff
-    ln -s /usr/bin/python3.6 /usr/bin/python && \
-    ln -s /usr/bin/pip3.6 /usr/bin/pip && \
+    ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
+    ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
     if [[ -f /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz ]]; then \
         mkdir -p /tmp/py-unpack /opt/app-root/bin /opt/app-root/lib /opt/app-root/lib64 && \
         tar -xf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz -C /tmp/py-unpack && \
@@ -134,8 +138,8 @@ WORKDIR /projects
 CMD tail -f /dev/null
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces - Java 8 + Node 12 + Python 3 plugin container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces - Java 8 + Node 12 + Python 3 plugin container" \
+ENV SUMMARY="Red Hat CodeReady Workspaces - OpenJ9 8 + Node 12 + Python 3.8 plugin container" \
+    DESCRIPTION="Red Hat CodeReady Workspaces - OpenJ9 8 + Node 12 + Python 3.8 plugin container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="plugin-java8-openj9-rhel8"
 
