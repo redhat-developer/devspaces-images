@@ -15,7 +15,7 @@ FROM ubi8-minimal:8.2-349
 USER root
 
 ENV HOME=/home/jboss \
-    NODEJS_VERSION=10 \
+    NODEJS_VERSION=12 \
     MAVEN_VERSION="3.6.3" \
     JAVA_HOME=/usr/lib/jvm/java-1.8.0-openj9 \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/lib/jvm/java-1.8.0-openj9:/opt/apache-maven/bin:/usr/bin:$PATH \
@@ -40,13 +40,23 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
 #                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/java-1.8.0-openj9/1.8.0.262.10.0.21.0/1.el8j9/$(uname -m)/java-1.8.0-openj9-1.8.0.262.10.0.21.0-1.el8j9.$(uname -m).rpm
-RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
+RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
     java-1.8.0-openj9 \
     java-1.8.0-openj9-devel \
     java-1.8.0-openj9-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
-    nodejs npm python36 python3-six python3-pip platform-python-pip \
-    sudo git procps-ng nss_wrapper bzip2 && \
+    python36 python3-six python3-pip platform-python-pip \
+    sudo git procps-ng bzip2 && \
+    # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+        yum -y module reset nodejs && yum -y module enable nodejs:$NODEJS_VERSION && \
+        INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && \
+        ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
+        yum remove -y $INSTALL_PKGS && \
+        yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+        rpm -V $INSTALL_PKGS && \
+        yum -y clean all --enablerepo='*' && \
+    # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+    # CVE updates
     microdnf update -y librepo systemd pango libnghttp2 sqlite libarchive && \
     microdnf clean all && rm -rf /var/cache/yum && \
     # TODO: why do we need this jboss user?
