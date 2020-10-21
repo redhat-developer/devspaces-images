@@ -55,4 +55,15 @@ WORKDIR /projects
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["tail", "-f", "/dev/null"]
 
-LABEL summary="$SUMMARY"        description="$DESCRIPTION"        io.k8s.description="$DESCRIPTION"        io.k8s.display-name="$DESCRIPTION"        io.openshift.tags="$PRODNAME,$COMPNAME"        com.redhat.component="$PRODNAME-$COMPNAME-container"        name="$PRODNAME/$COMPNAME"        version="2.5"        license="EPLv2"        maintainer="Nick Boldt <nboldt@redhat.com>"        io.openshift.expose-services=""        usage=""
+LABEL summary="$SUMMARY" \ 
+      description="$DESCRIPTION" \ 
+      io.k8s.description="$DESCRIPTION" \ 
+      io.k8s.display-name="$DESCRIPTION" \ 
+      io.openshift.tags="$PRODNAME,$COMPNAME" \ 
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \ 
+      name="$PRODNAME/$COMPNAME" \ 
+      version="2.5" \ 
+      license="EPLv2" \ 
+      maintainer="Nick Boldt <nboldt@redhat.com>" \ 
+      io.openshift.expose-services="" \ 
+      usage=""
