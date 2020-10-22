@@ -31,7 +31,7 @@ RUN microdnf install -y yum
 RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar 
 RUN cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
 
-RUN mkdir /ideaIC-2020.2.2 && cat /tmp/assetsideaIC-2020.2.2.tar.gz | tar -zxv --strip-components=1 -C /ideaIC-2020.2.2 && \
+RUN mkdir /ideaIC-2020.2.2 && cat /tmp/assets/ideaIC-2020.2.2.tar.gz | tar -zxv --strip-components=1 -C /ideaIC-2020.2.2 && \
     mkdir -p /JetBrains/IdeaIC && \
     for f in "/JetBrains" "/ideaIC-2020.2.2" "/etc/passwd"; do \
       echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
