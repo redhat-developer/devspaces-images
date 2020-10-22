@@ -28,6 +28,8 @@ IMLIB2_VERSION="1.4.9-8" # see https://download-ib01.fedoraproject.org/pub/epel/
 PYXDG_VERSION="0.25-16" # see http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/
 ALECZAPKA_FONTS_VERSION="1.3-25" # see https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/a/
 
+ARCHES="x86_64 s390x ppc64le"
+
 # patch Dockerfile to record versions we expect
 sed Dockerfile \
     -e "s#FLUXBOX_VERSION=\"\([^\"]\+\)\"#FLUXBOX_VERSION=\"${FLUXBOX_VERSION}\"#" \
@@ -39,8 +41,6 @@ sed Dockerfile \
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ ${forcePull} -eq 1 ]]; then
   rm -fr *.rpm *.tar.gz
   mv -f Dockerfile.2 Dockerfile
-  
-  ARCHES="x86_64 s390x ppc64le"
 
   curl -sSLO https://download.jetbrains.com/idea/ideaIC-2020.2.2.tar.gz
   # supervisor
