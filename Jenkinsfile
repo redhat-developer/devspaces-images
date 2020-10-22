@@ -62,7 +62,7 @@ timeout(120) {
               cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
               ./get-sources-jenkins.sh -n ''' + CRW_VERSION + '''
               COMMIT_SHA="$(git log origin/''' + DWNSTM_BRANCH + '''..''' + DWNSTM_BRANCH + ''' --pretty=format:%H)"
-              COMMIT_MSG="$(git log origin/ ''' + DWNSTM_BRANCH + '''..''' + DWNSTM_BRANCH + ''' --pretty=format:%B)"
+              COMMIT_MSG="$(git log origin/''' + DWNSTM_BRANCH + '''..''' + DWNSTM_BRANCH + ''' --pretty=format:%B)"
               if [ ! -z "$COMMIT_SHA" ] ; then
                 for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
                   cp $f ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
