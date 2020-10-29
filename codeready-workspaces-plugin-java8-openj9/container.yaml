@@ -11,6 +11,8 @@ compose:
   inherit: true
   pulp_repos: true
   signing_intent: release
+  # Use caution with this setting, because you could end up publicly shipping container images with RPMs that you have not exposed publicly otherwise.
+  include_unpublished_pulp_repos: true
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
