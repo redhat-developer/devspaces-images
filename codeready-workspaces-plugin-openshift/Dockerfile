@@ -32,14 +32,14 @@ COPY bin.tgz /tmp/
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-# For OpenShift Client 4.4 (oc): rhocp-4.4-for-rhel-8-x86_64-rpms
+# For OpenShift Client 4.4 (oc): rhocp-4.6-for-rhel-8-x86_64-rpms
 # For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 && \
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
+RUN microdnf install -y bash tar gzip which openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     microdnf update -y systemd && microdnf clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     # NOTE: openshift-clients rpm also includes kubectl, but it's older 1.17 version, so replace that with the newer one from the tarball

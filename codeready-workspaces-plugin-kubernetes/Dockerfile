@@ -36,14 +36,14 @@ COPY . /tmp/assets
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-# For OpenShift Client 4.4 (oc): rhocp-4.4-for-rhel-8-x86_64-rpms
-# For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
+# For OpenShift Client 4.6 (oc): rhocp-4.6-for-rhel-8-x86_64-rpms
+# For OCP Tools (helm): ocp-tools-4.6-for-rhel-8-x86_64-rpms
 # must hard code a version if more than one version available
-## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.4/os/Packages/h/helm-3.1.3-3.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/ocp-tools/4.4/os/Packages/h/helm-3.1.3-3.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/ocp-tools/4.4/os/Packages/h/helm-3.1.3-3.el8.ppc64le.rpm
-RUN microdnf install -y which dnf && dnf install -y buildah nodejs npm helm-3.1.3-3.el8 && \
+## Failed component comparison for components: 
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.ppc64le.rpm
+RUN microdnf install -y which dnf && dnf install -y buildah nodejs npm helm-3.3.4-5.el8 && \
     dnf update -y zlib gnutls systemd buildah nodejs npm fuse-overlayfs slirp4netns && \
     dnf clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
