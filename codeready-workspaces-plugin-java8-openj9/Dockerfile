@@ -31,16 +31,16 @@ COPY . /tmp/assets/
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_set*.repo /etc/yum.repos.d/
 
-# For OpenShift Client 4.4 (oc): rhocp-4.4-for-rhel-8-x86_64-rpms
+# For OpenShift Client 4.4 (oc): rhocp-4.6-for-rhel-8-x86_64-rpms
 # For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.4/os/Packages/o/openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8.ppc64le.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
 #                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/java-1.8.0-openj9/1.8.0.262.10.0.21.0/1.el8j9/$(uname -m)/java-1.8.0-openj9-1.8.0.262.10.0.21.0-1.el8j9.$(uname -m).rpm
-RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.4.0-202005231254.git.1.1e3e6b3.el8 \
+RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 \
     java-1.8.0-openj9 \
     java-1.8.0-openj9-devel \
     java-1.8.0-openj9-headless \
