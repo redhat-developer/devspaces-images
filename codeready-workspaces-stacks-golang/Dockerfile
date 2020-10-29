@@ -88,9 +88,9 @@ CMD ${HOME}/gopath.sh & tail -f /dev/null
 
 # insert generated LABELs below this line
 LABEL \
-      git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/bb29a" \
-      jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-x86_64.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-s390x.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/4/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-ppc64le.tar.gz" \
-      jenkins.build.number="4"
+      git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/a183" \
+      jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/6/" \
+      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-x86_64.tar.gz" \
+      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-s390x.tar.gz" \
+      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/6/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-ppc64le.tar.gz" \
+      jenkins.build.number="6"
