@@ -89,7 +89,7 @@ timeout(120) {
                 curl \
                   "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/get-sources-rhpkg-container-build/buildWithParameters?\
 token=CI_BUILD&\
-cause=${QUAY_REPO_PATH}+respin+by+${BUILD_TAG}&\
+cause=''' + QUAY_REPO_PATH + '''+respin+by+${BUILD_TAG}&\
 GIT_BRANCH=''' + DWNSTM_BRANCH + '''&\
 GIT_PATHs=containers/''' + SYNC_REPOS[i] + '''&\
 QUAY_REPO_PATHs=''' + QUAY_REPO_PATH + '''&\
