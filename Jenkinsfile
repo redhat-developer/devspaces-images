@@ -41,7 +41,15 @@ timeout(120) {
             println "########################################################################################################"
             util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", DWNSTM_BRANCH)
 
-            sh('''rsync -avhz --checksum --delete --exclude .git/ ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/ ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i])
+            writeFile file: "rsync-upstream-exclude", text: '''.github
+.gitattributes'''
+            // ignore files that are ONLY in downstream (not midstream or upstream)
+            writeFile file: "rsync-brew-exclude", text: '''sources
+.gitignore'''
+            sh('''
+              rsync -avhz --checksum --exclude-from ${WORKSPACE}/rsync-upstream-exclude --exclude-from ${WORKSPACE}/rsync-brew-exclude --exclude .git/ --exclude .github/ --exclude .gitignore \
+                ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/ ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i]
+            )
 
             OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
             println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
