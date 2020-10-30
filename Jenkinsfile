@@ -51,7 +51,7 @@ timeout(120) {
               cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
               if [[ \$(git diff --name-only) ]]; then # file changed
                 export KRB5CCNAME=/var/tmp/crw-build_ccache
-                git add --all .
+                git add --all -f .
                 git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA[0..7] + '''"
                 git push origin ''' + DWNSTM_BRANCH + ''' || true
               fi''')
@@ -60,7 +60,7 @@ timeout(120) {
             sh('''#!/bin/bash -xe
               export KRB5CCNAME=/var/tmp/crw-build_ccache
               cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-              ./get-sources-jenkins.sh -n ''' + CRW_VERSION + '''
+              ./get-sources-jenkins.sh -n -p ''' + CRW_VERSION + '''
               COMMIT_SHA="$(git log origin/''' + DWNSTM_BRANCH + '''..''' + DWNSTM_BRANCH + ''' --pretty=format:%H)"
               COMMIT_MSG="$(git log origin/''' + DWNSTM_BRANCH + '''..''' + DWNSTM_BRANCH + ''' --pretty=format:%B)"
               if [ ! -z "$COMMIT_SHA" ] ; then
@@ -71,7 +71,8 @@ timeout(120) {
 
                 # update source repo with updates from running get-sources-jenkins
                 cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
-                git commit -am "$COMMIT_MSG" || true
+                git add --all -f .
+                git commit -m "$COMMIT_MSG" || true
                 git push origin ''' + SOURCE_BRANCH + ''' || true
               fi
             ''')
