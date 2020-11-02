@@ -5,11 +5,11 @@ import groovy.transform.Field
 //   SCRATCH
 //   FORCE_BUILD
 //   REPOS
-//   SOURCE_BRANCH
 
-def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
+def List SYNC_REPOS = REPOS.trim().tokenize(",").collect { it.trim() }
 def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // source repo from which to find commits
-def DWNSTM_BRANCH = SOURCE_BRANCH // target branch in dist-git repo, eg., crw-2.5-rhel-8
+def String SOURCE_BRANCH = "crw-2.5-rhel-8" // target branch in dist-git repo, eg., crw-2.5-rhel-8
+def DWNSTM_BRANCH = SOURCE_BRANCH
 
 def OLD_SHA=""
 def NEW_SHA=""
