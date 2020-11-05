@@ -21,8 +21,8 @@ http://localhost:8080/vnc.html?resize=remote&autoconnect=1
 current meta.yaml
 ```yaml
 apiVersion: v2
-publisher: eclipse
-name: ideaic-NOVNC
+publisher: fbenoit
+name: intellij-NOVNC
 version: 2020.2.2
 type: Che Editor
 displayName:  IntelliJ IDEA Community Edition
@@ -43,14 +43,20 @@ spec:
         type: ide
         path: /vnc.html?resize=remote&autoconnect=true&reconnect=true
   containers:
-   - name: ideaic-novnc
+   - name: intellij-novnc
      image: "quay.io/che-incubator/che-editor-intellij-community:latest"
      mountSources: true
      volumes:
-         - mountPath: "/JetBrains/ideaIC"
-           name: idea-configuration
+         - mountPath: "/intellij-config"
+           name: intellij-config     
+     volumes:
+         - mountPath: "/home/user/.local"
+           name: intellij-local
+     volumes:
+         - mountPath: "/home/user/.java"
+           name: intellij-java
      ports:
          - exposedPort: 8080
      memoryLimit: "2048M"
      
-```
+```     
