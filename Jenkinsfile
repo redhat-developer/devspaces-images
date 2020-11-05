@@ -24,6 +24,8 @@ timeout(120) {
       println "CRW_VERSION = '" + CRW_VERSION + "'"
       util.installSkopeo(CRW_VERSION)
 
+      currentBuild.description=""
+
       withCredentials([string(credentialsId:'devstudio-release.token', variable: 'GITHUB_TOKEN'),
         file(credentialsId: 'crw-build.keytab', variable: 'CRW_KEYTAB')]) {
           util.bootstrap(CRW_KEYTAB)
@@ -36,6 +38,7 @@ timeout(120) {
           println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
           for (int i=0; i < SYNC_REPOS.size(); i++) {
+            currentBuild.description+="${SYNC_REPOS[i]}"
             println "########################################################################################################"
             println "##  Sync ${SYNC_REPOS[i]} to pkgs.devel"
             println "########################################################################################################"
@@ -86,19 +89,57 @@ timeout(120) {
                 QUAY_REPO_PATH=util.getCRWShortName(SYNC_REPOS[i]) + "-rhel8"
               }
               // kick off get-sources-rhpkg-container-build job
-              sh('''#!/bin/bash -xe
-                curl \
-                  "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/get-sources-rhpkg-container-build/buildWithParameters?\
-token=CI_BUILD&\
-cause=''' + QUAY_REPO_PATH + '''+respin+by+${BUILD_TAG}&\
-GIT_BRANCH=''' + DWNSTM_BRANCH + '''&\
-GIT_PATHs=containers/''' + SYNC_REPOS[i] + '''&\
-QUAY_REPO_PATHs=''' + QUAY_REPO_PATH + '''&\
-JOB_BRANCH=''' + CRW_VERSION + '''&\
-FORCE_BUILD=true&\
-SCRATCH=''' + SCRATCH + '''"''')
+              build(
+                job: 'get-sources-rhpkg-container-build',
+                wait: false,
+                propagate: false,
+                parameters: [
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'token',
+                    value: "CI_BUILD"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'cause',
+                    value: QUAY_REPO_PATH + "+respin+by+${BUILD_TAG}"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'GIT_BRANCH',
+                    value: "${DWNSTM_BRANCH}"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'GIT_PATHs',
+                    value: "containers/" + SYNC_REPOS[i]
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'QUAY_REPO_PATHs',
+                    value: "${QUAY_REPO_PATH}"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'JOB_BRANCH',
+                    value: "${CRW_VERSION}"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'FORCE_BUILD',
+                    value: "true"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'SCRATCH',
+                    value: "${SCRATCH}"
+                  ]
+                ]
+              )
+              currentBuild.description+=" (brew trigger); "
             } else {
-              println "No changes upstream, nothing to commit"
+              println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
+              currentBuild.description+=" (no changes);"
             }
           } // for
 
