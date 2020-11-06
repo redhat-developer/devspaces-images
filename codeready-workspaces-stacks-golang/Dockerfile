@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.13.15-1
+FROM rhel8/go-toolset:1.14.7-15
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - Golang Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - Golang Stack container" \
@@ -55,6 +55,7 @@ RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
     sudo git wget curl nss_wrapper bzip2 nodejs nodejs-nodemon npm openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     yum update -y cryptsetup-libs gnutls systemd systemd-libs systemd-pam subscription-manager python3-syspurpose dnf-plugin-subscription-manager python3-subscription-manager-rhsm \
         subscription-manager-rhsm-certificates kernel-headers pango libnghttp2 systemd go-toolset-rhel8 gnutls && \
+    if [[ $(uname -m) == "ppc64le" ]]; then yum update -y freetype freetype-devel; fi && \
     yum clean all && rm -rf /var/cache/yum && \
     mkdir -p ${HOME}/che/ls-golang/node_modules /projects/.che/gopath /.cache && \
     cat /etc/passwd | \
