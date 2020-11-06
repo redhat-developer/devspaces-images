@@ -16,7 +16,6 @@ ENV SUMMARY="Red Hat CodeReady Workspaces - IntelliJ Plugin" \
 ENV \ 
     FLUXBOX_VERSION="1.3.7-11" \ 
     IMLIB2_VERSION="1.4.9-8" \ 
-    PYXDG_VERSION="0.25-16" \ 
     ALECZAPKA_FONTS_VERSION="1.3-25" \ 
     HOME=/home/user 
 
@@ -28,7 +27,7 @@ COPY . /tmp/assets/
 
 # which is used by novnc to find websockify
 RUN microdnf install -y yum 
-RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar 
+RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar python3-pyxdg
 RUN cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
 
 RUN mkdir /ideaIC-2020.2.2 && cat /tmp/assets/ideaIC-2020.2.2.tar.gz | tar -zxv --strip-components=1 -C /ideaIC-2020.2.2 && \

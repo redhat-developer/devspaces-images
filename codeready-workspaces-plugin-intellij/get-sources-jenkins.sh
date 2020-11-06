@@ -25,7 +25,7 @@ function log()
 
 FLUXBOX_VERSION="1.3.7-11" # see https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/f/
 IMLIB2_VERSION="1.4.9-8" # see https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/i/
-PYXDG_VERSION="0.25-16" # see http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/
+# PYXDG_VERSION="0.25-16" # see http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/
 ALECZAPKA_FONTS_VERSION="1.3-25" # see https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/a/
 
 ARCHES="x86_64 s390x ppc64le"
@@ -34,7 +34,6 @@ ARCHES="x86_64 s390x ppc64le"
 sed Dockerfile \
     -e "s#FLUXBOX_VERSION=\"\([^\"]\+\)\"#FLUXBOX_VERSION=\"${FLUXBOX_VERSION}\"#" \
     -e "s#IMLIB2_VERSION=\"\([^\"]\+\)\"#IMLIB2_VERSION=\"${IMLIB2_VERSION}\"#" \
-    -e "s#PYXDG_VERSION=\"\([^\"]\+\)\"#PYXDG_VERSION=\"${PYXDG_VERSION}\"#" \
     -e "s#ALECZAPKA_FONTS_VERSION=\"\([^\"]\+\)\"#ALECZAPKA_FONTS_VERSION=\"${ALECZAPKA_FONTS_VERSION}\"#" \
     > Dockerfile.2
 
@@ -53,7 +52,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
     curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/${ARCH}/Packages/f/fluxbox-${FLUXBOX_VERSION}.el8.${ARCH}.rpm
     curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/${ARCH}/Packages/i/imlib2-${IMLIB2_VERSION}.el8.${ARCH}.rpm
   done
-  curl -sSLO http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/python3-pyxdg-${PYXDG_VERSION}.el8.noarch.rpm
+  # curl -sSLO http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/python3-pyxdg-${PYXDG_VERSION}.el8.noarch.rpm
   curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/a/artwiz-aleczapka-fonts-${ALECZAPKA_FONTS_VERSION}.el8.noarch.rpm
   curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/a/artwiz-aleczapka-anorexia-fonts-${ALECZAPKA_FONTS_VERSION}.el8.noarch.rpm
   curl -sSLO https://download-ib01.fedoraproject.org/pub/epel/8/Everything/x86_64/Packages/a/artwiz-aleczapka-aqui-fonts-${ALECZAPKA_FONTS_VERSION}.el8.noarch.rpm
