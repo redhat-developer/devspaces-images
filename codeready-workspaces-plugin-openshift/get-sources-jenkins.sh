@@ -29,7 +29,7 @@ function log()
 # get correct version of odo from upstream
 # toolsJson="https://github.com/redhat-developer/vscode-openshift-tools/raw/master/src/tools.json"
 # curl -sSL $toolsJson -o - |   jq ".odo.platform.linux.url" -r | sed -r -e "s#.+/clients/odo/v(.+)/odo.+#\1#"
-ODO_VERSION="v2.0.1"
+ODO_VERSION="v1.2.6"
 KUBECTL_VERSION="v1.18.10" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
 
 # update Dockerfile to record versions we expect
