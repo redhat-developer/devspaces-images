@@ -55,7 +55,7 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
         yum -y clean all --enablerepo='*' && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     # CVE updates
-    microdnf update -y zlib gnutls systemd-libs systemd pango libnghttp2 sqlite libarchive && \
+    microdnf update -y freetype zlib gnutls systemd-libs systemd pango libnghttp2 sqlite libarchive && \
     microdnf clean all && rm -rf /var/cache/yum && \
     # TODO: why do we need this jboss user?
     useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
