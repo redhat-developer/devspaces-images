@@ -50,7 +50,7 @@ RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget cu
     java-11-openj9-headless \
     # we might not need all of this?
     sudo git procps-ng nss_wrapper bzip2 && \
-    microdnf update -y librepo zlib gnutls systemd-libs sqlite libarchive systemd && \
+    microdnf update -y freetype librepo zlib gnutls systemd-libs sqlite libarchive systemd && \
     microdnf clean all && rm -rf /var/cache/yum && \
     mkdir -p /projects && \
     # add jboss user and configure it
