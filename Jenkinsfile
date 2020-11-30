@@ -15,7 +15,7 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 timeout(120) {
-  node("rhel7-32gb||rhel7-16gb||rhel7-8gb"){ stage "Sync repos"
+  node("rhel7-32gb||rhel7-16gb||rhel7-8gb||rhel7-releng"){ stage "Sync repos"
     wrap([$class: 'TimestamperBuildWrapper']) {
       sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2.5-rhel-8/product/util.groovy')
       def util = load "${WORKSPACE}/util.groovy"
