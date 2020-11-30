@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/dotnet-31
-FROM ubi8/dotnet-31:3.1-11
+FROM ubi8/dotnet-31:3.1-21
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - Dotnet Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - Dotnet Stack container" \
