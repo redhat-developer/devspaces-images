@@ -49,15 +49,16 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
+    dnf remove -y nodejs && \
     yum install -y \
     # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
     make cmake gcc gcc-c++ glibc-devel zlib-devel libstdc++ libstdc++-devel \
-    sudo git wget curl nss_wrapper bzip2 nodejs nodejs-nodemon npm openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
+    sudo git wget curl nss_wrapper bzip2 npm openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     yum update -y cryptsetup-libs gnutls systemd systemd-libs systemd-pam subscription-manager python3-syspurpose dnf-plugin-subscription-manager python3-subscription-manager-rhsm \
         subscription-manager-rhsm-certificates kernel-headers pango libnghttp2 systemd go-toolset-rhel8 gnutls && \
     if [[ $(uname -m) == "ppc64le" ]]; then yum update -y freetype freetype-devel; fi && \
     yum clean all && rm -rf /var/cache/yum && \
-    mkdir -p ${HOME}/che/ls-golang/node_modules /projects/.che/gopath /.cache && \
+    mkdir -p /projects/.che/gopath /.cache && \
     cat /etc/passwd | \
     sed s#jboss:x.*#jboss:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
     > /home/jboss/passwd.template && \
@@ -72,13 +73,11 @@ RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
 ADD entrypoint.sh ${HOME}/entrypoint.sh
 RUN mkdir -p ${HOME}/go && \
     tar -xvf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-golang-$(uname -m).tar.gz -C /tmp && \
-    cp -R /tmp/node_modules ${HOME}/che/ls-golang && \
-    rm -fr /tmp/node_modules tmp/go /tmp/assets && \
+    rm -fr tmp/go /tmp/assets && \
     for f in "/home/jboss" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done && \
-    ln -s /usr/bin/node /usr/local/bin/nodejs && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 USER jboss

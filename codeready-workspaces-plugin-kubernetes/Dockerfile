@@ -43,8 +43,9 @@ COPY . /tmp/assets
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.x86_64.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.ppc64le.rpm
-RUN microdnf install -y which dnf && dnf install -y buildah nodejs npm helm-3.3.4-5.el8 && \
-    dnf update -y zlib gnutls systemd buildah nodejs npm fuse-overlayfs slirp4netns && \
+RUN microdnf install -y which dnf && dnf module reset -y nodejs && dnf module install -y nodejs:12 && \
+    dnf install -y buildah npm helm-3.3.4-5.el8 && \
+    dnf update -y zlib gnutls systemd buildah npm fuse-overlayfs slirp4netns && \
     dnf clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     cat /etc/passwd | \
