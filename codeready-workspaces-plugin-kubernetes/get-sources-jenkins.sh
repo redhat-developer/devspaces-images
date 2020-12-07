@@ -24,7 +24,7 @@ function log()
 }
 
 KUBECTL_VERSION="v1.18.10" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
-KAMEL_VERSION="1.2.0" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
+KAMEL_VERSION="1.2.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 
 jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/crw-deprecated_${JOB_BRANCH}/lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/kamel/target"
 
