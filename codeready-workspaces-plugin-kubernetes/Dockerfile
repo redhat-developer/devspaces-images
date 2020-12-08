@@ -16,7 +16,7 @@ FROM ubi8-minimal:8.2-349
 
 ENV \
     KUBECTL_VERSION="v1.18.10" \
-    KAMEL_VERSION="1.2.0" \
+    KAMEL_VERSION="1.2.1" \
     HOME=/home/theia
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
