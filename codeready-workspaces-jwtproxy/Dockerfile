@@ -15,7 +15,7 @@
 # ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:$PATH
 # DOWNSTREAM: use rhel8/go-toolset; no path modification needed
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.13.4-15 as builder
+FROM rhel8/go-toolset:1.14.7-15 as builder
 
 ENV GOPATH=/go/
 USER root
