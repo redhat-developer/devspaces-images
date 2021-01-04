@@ -1,9 +1,5 @@
 #!/bin/bash -xe
-# script to get the tarball from Jenkins
-# 
-# could fetch multiple artifacts from api:
-# https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/crw-operator-installer-and-ls-deps_stable-branch/lastSuccessfulBuild/api/xml?wrapper=artifacts&xpath=//artifact[(fileName=%27codeready-workspaces-stacks-language-servers-dependencies-node.tar.gz%27%20or%20fileName=%27codeready-workspaces-stacks-language-servers-dependencies-bayesian.tar.gz%27)]
-# 
+# script to get tarball(s) from Jenkins
 field=description
 verbose=1
 scratchFlag=""
@@ -23,8 +19,38 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift 1
 done
+
+# if not set, compute from current branch
+if [[ ! ${JOB_BRANCH} ]]; then 
+	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}; 
+fi
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}"
-jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
+
+jenkinsURL=""
+checkJenkinsURL() {
+	checkURL="$1"
+	if [[ ! $(curl -sSLI ${checkURL} 2>&1 | grep -E "404|Not Found|Failed to connect|No route to host|Could not resolve host|Connection refused") ]]; then
+		jenkinsURL="$checkURL"
+	else
+		jenkinsURL=""
+	fi
+}
+# try local env var first
+if [[ ${JENKINS_URL} ]]; then 
+	checkJenkinsURL "${JENKINS_URL}job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
+fi
+# new jenkins & path
+if [[ ! $jenkinsURL ]]; then
+	checkJenkinsURL "https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
+fi
+# old jenkins & path
+if [[ ! $jenkinsURL ]]; then
+	checkJenkinsURL "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
+fi
+if [[ ! $jenkinsURL ]]; then
+	echo "[ERROR] Cannot resolve artifact(s) for this build. Must abort!"
+	exit 1
+fi
 theTarGzs="
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/golang/target/codeready-workspaces-stacks-language-servers-dependencies-golang-x86_64.tar.gz
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/golang/target/codeready-workspaces-stacks-language-servers-dependencies-golang-s390x.tar.gz
@@ -125,7 +151,7 @@ function insertLabels () {
 function getFingerprints ()
 {
 	outputFile=$1
-	latestFingerprint="$(curl -L ${jenkinsURL}/lastSuccessfulBuild/fingerprints/ | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
+	latestFingerprint="$(curl -L ${jenkinsURL}/lastSuccessfulBuild/fingerprints/ 2>&1 | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
 	currentFingerprint="$(cat sources | grep ${outputFile} | sed -e "s#\([0-9a-f]\+\) .\+#\1#")"
 }
 
@@ -138,6 +164,10 @@ for theTarGz in ${theTarGzs}; do
 	log "[INFO] Download ${jenkinsURL}/${theTarGz}:"
 	rm -f ${outputFile}
 	getFingerprints ${outputFile}
+	if [[ ! ${latestFingerprint} ]]; then 
+		echo "[WARNING] Cannot resolve artifact fingerprints for ${outputFile}"
+	fi
+	
 	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${forcePull} -eq 1 ]]; then 
 		curl -L -o ${outputFile} ${jenkinsURL}/${theTarGz}
 		outputFiles="${outputFiles} ${outputFile}"
@@ -148,8 +178,14 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="Update from Jenkins :: ${UPSTREAM_JOB_NAME} :: $(curl -L -s -S ${lastSuccessfulURL}${field} | \
+	ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | \
 		sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
+	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
+		echo $ID
+		echo "[ERROR] Problem loading ID from $lastSuccessfulURL :: NOT FOUND!"
+		exit 1;
+	fi
+	COMMIT_MSG="Update from Jenkins :: ${UPSTREAM_JOB_NAME} :: ${ID}
 ::${outputFiles}"
 	parseCommitLog ${COMMIT_MSG}
 	insertLabels Dockerfile
@@ -160,7 +196,8 @@ if [[ ${outputFiles} ]]; then
 		git pull; git push
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-    echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+    echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	git status || true
     tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
     taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
     ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
@@ -172,7 +209,8 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-    echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+    echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	git status || true
     tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
     taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
     ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile

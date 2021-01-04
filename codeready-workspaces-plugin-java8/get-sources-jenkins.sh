@@ -34,14 +34,38 @@ function logn()
   fi
 }
 
-if [ -z "$JOB_BRANCH" ] ; then
-		log "[ERROR] JOB_BRANCH was not specified"
-		exit 1
+# if not set, compute from current branch
+if [[ ! ${JOB_BRANCH} ]]; then 
+	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}; 
 fi
 
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.4
-jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
-log "[INFO] Using Brew" 
+
+jenkinsURL=""
+checkJenkinsURL() {
+	checkURL="$1"
+	if [[ ! $(curl -sSLI ${checkURL} 2>&1 | grep -E "404|Not Found|Failed to connect|No route to host|Could not resolve host|Connection refused") ]]; then
+		jenkinsURL="$checkURL"
+	else
+		jenkinsURL=""
+	fi
+}
+# try local env var first
+if [[ ${JENKINS_URL} ]]; then 
+	checkJenkinsURL "${JENKINS_URL}job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
+fi
+# new jenkins & path
+if [[ ! $jenkinsURL ]]; then
+	checkJenkinsURL "https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
+fi
+# old jenkins & path
+if [[ ! $jenkinsURL ]]; then
+	checkJenkinsURL "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
+fi
+if [[ ! $jenkinsURL ]]; then
+	echo "[ERROR] Cannot resolve artifact(s) for this build. Must abort!"
+	exit 1
+fi
 theTarGzs="
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/node10/target/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/python/target/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz
@@ -131,13 +155,9 @@ function insertLabels () {
 function getFingerprints ()
 {
 	outputFile=$1
-	latestFingerprint="$(curl -L ${jenkinsURL}/lastSuccessfulBuild/fingerprints/ | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
+	latestFingerprint="$(curl -L ${jenkinsURL}/lastSuccessfulBuild/fingerprints/ 2>&1 | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
 	currentFingerprint="$(cat sources | grep ${outputFile} | sed -e "s#\([0-9a-f]\+\) .\+#\1#")"
 }
-
-#### fetch MANUALLY ADDED ARTIFACTS FROM kcrane - these are build by hand and therefore are not allowed in a GA
-#log "[WARN] p and z sources not updated.  Manually built until have VM"
-#rhpkg sources
 
 # get the public URL for the tarball(s)
 outputFiles=""
@@ -148,6 +168,10 @@ for theTarGz in ${theTarGzs}; do
 	log "[INFO] Download ${jenkinsURL}/${theTarGz}:"
 	rm -f ${outputFile}
 	getFingerprints ${outputFile}
+	if [[ ! ${latestFingerprint} ]]; then 
+		echo "[WARNING] Cannot resolve artifact fingerprints for ${outputFile}"
+	fi
+	
 	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${forcePull} -eq 1 ]]; then 
 		curl -L -o ${outputFile} ${jenkinsURL}/${theTarGz}
 		outputFiles="${outputFiles} ${outputFile}"
@@ -170,23 +194,30 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="Update from Jenkins :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} :: $(curl -L -s -S ${lastSuccessfulURL}${field} | \
+	ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | \
 		sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
+	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
+		echo $ID
+		echo "[ERROR] Problem loading ID from $lastSuccessfulURL :: NOT FOUND!"
+		exit 1;
+	fi
+	COMMIT_MSG="Update from Jenkins :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} :: ${ID}
 ::${outputFiles}"
 	parseCommitLog ${COMMIT_MSG}
 	insertLabels Dockerfile
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
 		git pull; git push
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-		echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
-		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
+    echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	git status || true
+    tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+    taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
+    ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+    if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
 
@@ -194,11 +225,12 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-	ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
-	if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
+    echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	git status || true
+    tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+    taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
+    ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+    if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
 

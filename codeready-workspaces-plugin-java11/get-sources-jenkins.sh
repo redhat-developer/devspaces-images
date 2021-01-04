@@ -32,9 +32,9 @@ function logn()
   fi
 }
 
-if [ -z "$JOB_BRANCH" ] ; then
-		log "[ERROR] JOB_BRANCH was not specified"
-		exit 1
+# if not set, compute from current branch
+if [[ ! ${JOB_BRANCH} ]]; then 
+	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}; 
 fi
 
 # CRW-611 GraalVM CE and native-image version from https://github.com/graalvm/graalvm-ce-builds/releases/ (includes JDK 11)
@@ -68,7 +68,8 @@ if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppr
 		git pull; git push
   fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-		echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	    git status || true
 		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
@@ -80,7 +81,8 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-	echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	git status || true
 	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 	ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile

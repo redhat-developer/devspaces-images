@@ -1,9 +1,5 @@
 #!/bin/bash -xe
-# script to get the tarball from Jenkins
-# 
-# could fetch multiple artifacts from api:
-# https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/crw-operator-installer-and-ls-deps_stable-branch/lastSuccessfulBuild/api/xml?wrapper=artifacts&xpath=//artifact[(fileName=%27codeready-workspaces-stacks-language-servers-dependencies-node.tar.gz%27%20or%20fileName=%27codeready-workspaces-stacks-language-servers-dependencies-bayesian.tar.gz%27)]
-# 
+# script to get tarball(s) from Jenkins
 field=description
 verbose=1
 scratchFlag=""
@@ -24,7 +20,32 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}"
-jenkinsURL="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
+
+jenkinsURL=""
+checkJenkinsURL() {
+	checkURL="$1"
+	if [[ ! $(curl -sSLI ${checkURL} 2>&1 | grep -E "404|Not Found|Failed to connect|No route to host|Could not resolve host|Connection refused") ]]; then
+		jenkinsURL="$checkURL"
+	else
+		jenkinsURL=""
+	fi
+}
+# try local env var first
+if [[ ${JENKINS_URL} ]]; then 
+	checkJenkinsURL "${JENKINS_URL}job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
+fi
+# new jenkins & path
+if [[ ! $jenkinsURL ]]; then
+	checkJenkinsURL "https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
+fi
+# old jenkins & path
+if [[ ! $jenkinsURL ]]; then
+	checkJenkinsURL "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
+fi
+if [[ ! $jenkinsURL ]]; then
+	echo "[ERROR] Cannot resolve artifact(s) for this build. Must abort!"
+	exit 1
+fi
 theTarGzs="
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/php/target/codeready-workspaces-stacks-language-servers-dependencies-php-x86_64.tar.gz
 lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/php/target/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-x86_64.tar.gz
@@ -151,8 +172,14 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="Update from Jenkins :: ${UPSTREAM_JOB_NAME} :: $(curl -L -s -S ${lastSuccessfulURL}${field} | \
+	ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | \
 		sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
+	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
+		echo $ID
+		echo "[ERROR] Problem loading ID from $lastSuccessfulURL :: NOT FOUND!"
+		exit 1;
+	fi
+	COMMIT_MSG="Update from Jenkins :: ${UPSTREAM_JOB_NAME} :: ${ID}
 ::${outputFiles}"
 	parseCommitLog ${COMMIT_MSG}
 	insertLabels Dockerfile
