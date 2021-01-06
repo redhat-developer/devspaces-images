@@ -1,6 +1,4 @@
-50a007d2362cef3e9a6f0425426e8710  asset-ppc64le-kamel.tar.gz
-fb5807a25172a73cc57ca3dede29b8d6  asset-ppc64le-kubectl.tar.gz
-322fe7ee0d5b6224100b21438c60f756  asset-s390x-kamel.tar.gz
-be2f9aca0274665703c18927feff19fb  asset-s390x-kubectl.tar.gz
-bcb35bd08ae6110b29b3be62ab8b253b  asset-x86_64-kamel.tar.gz
-1e72860c62982d0bb470508666296c9c  asset-x86_64-kubectl.tar.gz
+SHA512 (asset-ppc64le-kubectl.tar.gz) = 9e99a8ec47df676859b706736a977be9208fba8230bed6a29ad42644f3ce407f434d086b84e8f1dba35272cc2b033f21e4001f889fb45a1bab939e6394b37a10
+SHA512 (asset-s390x-kubectl.tar.gz) = 4bb2f1fce5f2e3e8a0cbabede367675eb1f5fc3a40fb71febb77fe9bfe6ed83382fe6c309edd5abe1badd0baedd5379532ae1c77db75fe40af345863457753f7
+SHA512 (asset-x86_64-kamel.tar.gz) = bcda9b3e28f88896f6d218015021c271c9053b2c33664325e31cf0cab79bde1525b8abaabbdfe5bb93ca66db47e074058e0639359204155bcae9a122a9a367fa
+SHA512 (asset-x86_64-kubectl.tar.gz) = 4b75bad0f82b6d02e5908d73049da88cdfcdef884addc8719dabd3019334ed6442f4da6d5ec5c56056784283c059d8af409c1a6a10e8f1c574e8c41e5a3d40ae
