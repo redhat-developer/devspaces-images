@@ -90,12 +90,11 @@ CMD tail -f /dev/null
 
 # insert generated LABELs below this line
 LABEL \
-      git.commit.redhat-developer__codeready-workspaces-deprecated="https://github.com/redhat-developer/codeready-workspaces-deprecated/commit/5e50" \
-      jenkins.build.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-x86_64.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-x86_64.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-s390x.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-s390x.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-ppc64le.tar.gz" \
-      jenkins.artifact.url="https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.5/7/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-ppc64le.tar.gz" \
-      jenkins.build.number="7"
+      jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/" \
+      jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-x86_64.tar.gz" \
+      jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-x86_64.tar.gz" \
+      jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-s390x.tar.gz" \
+      jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-s390x.tar.gz" \
+      jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-ppc64le.tar.gz" \
+      jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/3/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-ppc64le.tar.gz" \
+      jenkins.build.number="3"
