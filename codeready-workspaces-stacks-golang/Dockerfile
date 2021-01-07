@@ -49,7 +49,7 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
-    dnf remove -y nodejs && \
+    yum remove -y nodejs && \
     yum install -y \
     # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
     make cmake gcc gcc-c++ glibc-devel zlib-devel libstdc++ libstdc++-devel \
