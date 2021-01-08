@@ -7,7 +7,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.2-349 
+FROM ubi8-minimal:8.3-230 
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - IntelliJ Plugin" \ 
     DESCRIPTION="Red Hat CodeReady Workspaces - IntelliJ Plugin" \ 
@@ -20,16 +20,15 @@ ENV \
     ALECZAPKA_FONTS_VERSION="1.3-25" \ 
     HOME=/home/user 
 
-COPY . /tmp/assets/ 
-
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com 
 # enable rhel 8 content sets (from Brew) to resolve buildah 
 # COPY content_set*.repo /etc/yum.repos.d/ 
 
 # which is used by novnc to find websockify
-RUN microdnf install -y yum 
-RUN yum install -y tigervnc-server wget java-11-openjdk-devel which tar git && \
-    cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
+RUN microdnf install -y yum && \
+    yum install -y tigervnc-server wget java-11-openjdk-devel which tar git
+COPY . /tmp/assets/ 
+RUN cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
 
 RUN mkdir /ideaIC-2020.2.2 && cat /tmp/assets/ideaIC-2020.2.2.tar.gz | tar -zxv --strip-components=1 -C /ideaIC-2020.2.2 && \
     mkdir -p /JetBrains/IdeaIC && \
