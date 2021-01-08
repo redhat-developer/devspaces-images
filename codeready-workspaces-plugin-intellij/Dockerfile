@@ -28,7 +28,9 @@ ENV \
 RUN microdnf install -y yum && \
     yum install -y tigervnc-server wget java-11-openjdk-devel which tar git
 COPY . /tmp/assets/ 
-RUN cd /tmp/assets && yum localinstall -y *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
+
+# WARNING: this will attempt to install unsigned RPMS, which makes the container unreleaseable via Errata
+RUN cd /tmp/assets && yum localinstall -y --nogpgcheck *.noarch.rpm *.$(uname -m).rpm # fluxbox supervisor novnc
 
 RUN mkdir /ideaIC-2020.2.2 && cat /tmp/assets/ideaIC-2020.2.2.tar.gz | tar -zxv --strip-components=1 -C /ideaIC-2020.2.2 && \
     mkdir -p /JetBrains/IdeaIC && \
