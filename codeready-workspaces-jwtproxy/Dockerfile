@@ -25,7 +25,7 @@ RUN adduser appuser && \
     CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w -s' -a -installsuffix cgo -o jwtproxy cmd/jwtproxy/main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-201
+FROM ubi8-minimal:8.3-230
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /go/src/github.com/eclipse/che-jwtproxy/jwtproxy /usr/local/bin
