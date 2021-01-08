@@ -7,7 +7,8 @@ projects:
     name: java-jboss-fuse
     source:
       type: git
-      location: 'https://github.com/jboss-fuse/fuse-rest-http-booster/'
+      location: 'https://github.com/crw-samples/fuse-rest-http-booster.git'
+      branch: redhat-crw
 components:
   -
     type: chePlugin
@@ -22,7 +23,7 @@ components:
   -
     type: dockerimage
     alias: maven
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.5
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.6
     env:
       - name: JAVA_OPTS
         value: "-XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
