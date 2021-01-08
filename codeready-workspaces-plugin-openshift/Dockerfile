@@ -15,8 +15,7 @@
 FROM ubi8-minimal:8.2-349
 
 ENV \
-    ODO_VERSION="v2.0.1" \
-    KUBECTL_VERSION="v1.18.10" \
+    ODO_VERSION="v1.2.6" \
     HOME=/home/theia
 
 RUN mkdir -p /home/theia /projects && \
@@ -42,8 +41,7 @@ COPY bin.tgz /tmp/
 RUN microdnf install -y bash tar gzip which openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     microdnf update -y systemd && microdnf clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
-    # NOTE: openshift-clients rpm also includes kubectl, but it's older 1.17 version, so replace that with the newer one from the tarball
-    for d in odo kubectl; do if [[ -f /usr/local/bin/${d} ]]; then rm -f /usr/local/bin/${d}; fi; done && \
+    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; done && \
     tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo $(uname -m)/kubectl && rm -fr /tmp/bin.tgz && chmod 755 /usr/local/bin/* && \
     \
     oc version && \

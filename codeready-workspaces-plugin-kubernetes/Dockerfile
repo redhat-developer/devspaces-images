@@ -15,7 +15,6 @@
 FROM ubi8-minimal:8.2-349
 
 ENV \
-    KUBECTL_VERSION="v1.18.10" \
     KAMEL_VERSION="1.2.1" \
     HOME=/home/theia
 
@@ -54,9 +53,8 @@ RUN microdnf install -y which dnf && dnf module reset -y nodejs && dnf module in
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template && \
-    for d in kubectl kamel; do \
-      if [[ -f /usr/local/bin/${d} ]]; then rm -f /usr/local/bin/${d}; fi; \
-      if [[ -f /tmp/assets/asset-$(uname -m)-${d}.tar.gz ]]; then tar xzf /tmp/assets/asset-$(uname -m)-${d}.tar.gz -C /usr/local/bin/; fi; \
+    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
+    if [[ -f /tmp/assets/asset-$(uname -m)-kamel.tar.gz ]]; then tar xzf /tmp/assets/asset-$(uname -m)-kamel.tar.gz -C /usr/local/bin/; fi; \
     done && chmod 755 /usr/local/bin/* && rm -fr /tmp/assets && \
     echo "========" && \
     echo -n "helm:    "; helm version --short --client; \
