@@ -41,9 +41,8 @@ COPY bin.tgz /tmp/
 RUN microdnf install -y bash tar gzip which openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     microdnf update -y systemd && microdnf clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
-    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; done && \
-    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo $(uname -m)/kubectl && rm -fr /tmp/bin.tgz && chmod 755 /usr/local/bin/* && \
-    \
+    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
+    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz && chmod 755 /usr/local/bin/* && \
     oc version && \
     odo version && \
     echo -n "kubectl: "; kubectl version --short --client=true

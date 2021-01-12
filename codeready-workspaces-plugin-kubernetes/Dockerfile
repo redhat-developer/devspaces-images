@@ -42,7 +42,8 @@ COPY . /tmp/assets
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.x86_64.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.ppc64le.rpm
-RUN microdnf install -y which dnf && dnf module reset -y nodejs && dnf module install -y nodejs:12 && \
+RUN microdnf install -y which dnf openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && dnf module reset -y nodejs && \
+    dnf module install -y nodejs:12 && \
     dnf install -y buildah npm helm-3.3.4-5.el8 && \
     dnf update -y zlib gnutls systemd buildah npm fuse-overlayfs slirp4netns && \
     dnf clean all && rm -rf /var/cache/yum && \
@@ -55,7 +56,7 @@ RUN microdnf install -y which dnf && dnf module reset -y nodejs && dnf module in
     > ${HOME}/group.template && \
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
     if [[ -f /tmp/assets/asset-$(uname -m)-kamel.tar.gz ]]; then tar xzf /tmp/assets/asset-$(uname -m)-kamel.tar.gz -C /usr/local/bin/; fi; \
-    done && chmod 755 /usr/local/bin/* && rm -fr /tmp/assets && \
+    chmod 755 /usr/local/bin/* && rm -fr /tmp/assets && \
     echo "========" && \
     echo -n "helm:    "; helm version --short --client; \
     echo -n "kubectl: "; kubectl version --short --client=true; \
