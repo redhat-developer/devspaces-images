@@ -88,11 +88,12 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
   rm -fr asset-*-unpacked
 fi
 
-outputFiles=" $(ls asset-*.tar.gz)"
+# rhpkg sources
+outputFiles="$(ls asset-*.tar.gz || true)"
 if [[ ${outputFiles} ]]; then
-  log "[INFO] Upload new sources:${outputFiles}"
+  log "[INFO] Upload new sources: ${outputFiles}"
   rhpkg new-sources ${outputFiles}
-  log "[INFO] Commit new sources from:${outputFiles}"
+  log "[INFO] Commit new sources from: ${outputFiles}"
 	ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | \
 		sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
 	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
@@ -101,7 +102,7 @@ if [[ ${outputFiles} ]]; then
 		exit 1;
 	fi
   COMMIT_MSG="Update from Jenkins :: kubectl ${KUBECTL_VERSION}; kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME} :: ${ID}
-::${outputFiles}"
+:: ${outputFiles}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
