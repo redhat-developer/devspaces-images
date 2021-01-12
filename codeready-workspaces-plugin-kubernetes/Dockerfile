@@ -38,13 +38,16 @@ COPY . /tmp/assets
 # For OpenShift Client 4.6 (oc): rhocp-4.6-for-rhel-8-x86_64-rpms
 # For OCP Tools (helm): ocp-tools-4.6-for-rhel-8-x86_64-rpms
 # must hard code a version if more than one version available
-## Failed component comparison for components: 
+## Failed component comparison for components: openshift-clients
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.x86_64.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.ppc64le.rpm
-RUN microdnf install -y which dnf openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && dnf module reset -y nodejs && \
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
+RUN microdnf install -y which dnf && dnf module reset -y nodejs && \
     dnf module install -y nodejs:12 && \
-    dnf install -y buildah npm helm-3.3.4-5.el8 && \
+    dnf install -y buildah npm helm-3.3.4-5.el8 openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     dnf update -y zlib gnutls systemd buildah npm fuse-overlayfs slirp4netns && \
     dnf clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
