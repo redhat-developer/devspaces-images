@@ -29,33 +29,27 @@ function log()
 # get correct version of odo from upstream
 # toolsJson="https://github.com/redhat-developer/vscode-openshift-tools/raw/master/src/tools.json"
 # curl -sSL $toolsJson -o - |   jq ".odo.platform.linux.url" -r | sed -r -e "s#.+/clients/odo/v(.+)/odo.+#\1#"
-ODO_VERSION="v2.0.1"
-KUBECTL_VERSION="v1.18.10" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
+ODO_VERSION="v1.2.6"
 
 # update Dockerfile to record versions we expect
 sed Dockerfile \
     -e "s#ODO_VERSION=\"\([^\"]\+\)\"#ODO_VERSION=\"${ODO_VERSION}\"#" \
-    -e "s#KUBECTL_VERSION=\"\([^\"]\+\)\"#KUBECTL_VERSION=\"${KUBECTL_VERSION}\"#" \
     > Dockerfile.2
 
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
   mv -f Dockerfile.2 Dockerfile
   mkdir x86_64 s390x ppc64le
   curl -sSLo x86_64/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo
-  # https://v1-16.docs.kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-with-curl-on-linux
-  curl -sSLo x86_64/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod +x x86_64/kubectl
   # s390x
   curl -sSLo s390x/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-s390x && chmod +x s390x/odo
-  curl -sSLo s390x/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/s390x/kubectl && chmod +x s390x/kubectl
   # ppc64le
   curl -sSLo ppc64le/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-ppc64le && chmod +x ppc64le/odo
-  curl -sSLo ppc64le/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/ppc64le/kubectl && chmod +x ppc64le/kubectl
   tar czf bin.tgz s390x x86_64 ppc64le
   rm -Rf s390x x86_64 ppc64le
 	log "[INFO] Upload new sources: bin.tgz"
   rhpkg new-sources bin.tgz
 	log "[INFO] Commit new sources"
-  COMMIT_MSG="odo ${ODO_VERSION}, kubectl ${KUBECTL_VERSION}"
+  COMMIT_MSG="odo ${ODO_VERSION}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

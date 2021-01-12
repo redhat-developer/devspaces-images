@@ -65,7 +65,6 @@ jenkinsURL=${jenkinsURL}/lastSuccessfulBuild/artifact/codeready-workspaces-depre
 
 # patch Dockerfile to record versions we expect
 sed Dockerfile \
-    -e "s#KUBECTL_VERSION=\"\([^\"]\+\)\"#KUBECTL_VERSION=\"${KUBECTL_VERSION}\"#" \
     -e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
     > Dockerfile.2
 
@@ -73,15 +72,12 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
   rm -fr asset-*
   mv -f Dockerfile.2 Dockerfile
   # x86
-  curl -sSLo asset-x86_64-kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl 
   curl -sSLo - ${jenkinsURL}/kamel-${KAMEL_VERSION}-x86_64.tar.gz | tar -xz && mv kamel asset-x86_64-kamel
 
   # s390x
-  curl -sSLo asset-s390x-kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/s390x/kubectl 
   curl -sSLo - ${jenkinsURL}/kamel-${KAMEL_VERSION}-s390x.tar.gz | tar -xz && mv kamel asset-s390x-kamel
 
   # ppc64le
-  curl -sSLo asset-ppc64le-kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/ppc64le/kubectl 
   curl -sSLo - ${jenkinsURL}/kamel-${KAMEL_VERSION}-ppc64le.tar.gz | tar -xz && mv kamel asset-ppc64le-kamel
   
   for d in asset-*; do echo "[INFO] Pack ${d}.tar.gz"; mv ${d} ${d##*-}; tar -cvzf ${d}.tar.gz ${d##*-}; mv ${d##*-} ${d}-unpacked; done
@@ -101,7 +97,7 @@ if [[ ${outputFiles} ]]; then
 		echo "[ERROR] Problem loading ID from $lastSuccessfulURL :: NOT FOUND!"
 		exit 1;
 	fi
-  COMMIT_MSG="Update from Jenkins :: kubectl ${KUBECTL_VERSION}; kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME} :: ${ID}
+  COMMIT_MSG="Update from Jenkins :: kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME} :: ${ID}
 :: ${outputFiles}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
