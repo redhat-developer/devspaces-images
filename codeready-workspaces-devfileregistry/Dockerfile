@@ -12,7 +12,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-201 as builder
+FROM ubi8-minimal:8.3-230 as builder
 USER 0
 
 ################# 
@@ -75,11 +75,11 @@ CMD tail -f /dev/null
 # Build registry, copying meta.yamls and index.json from builder
 # UPSTREAM: use RHEL7/RHSCL/httpd image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhscl/httpd-24-rhel7
-# FROM rhscl/httpd-24-rhel7:2.4-131 AS registry
+# FROM rhscl/httpd-24-rhel7:2.4-133.1608869526 AS registry
 
 # DOWNSTREAM: use RHEL8/httpd
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-FROM rhel8/httpd-24:1-118 AS registry
+FROM rhel8/httpd-24:1-120 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
