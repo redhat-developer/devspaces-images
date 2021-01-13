@@ -103,12 +103,13 @@ RUN \
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
     if [[ -f /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz ]]; then \
-        mkdir -p /tmp/py-unpack /opt/app-root/bin /opt/app-root/lib /opt/app-root/lib64 && \
+        mkdir -p /tmp/py-unpack && \
         tar -xf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz -C /tmp/py-unpack && \
-        cp -R /tmp/py-unpack/bin/* /opt/app-root/bin && \
-        cp -R /tmp/py-unpack/lib/* /opt/app-root/lib && \
-        cp -R /tmp/py-unpack/lib64/* /opt/app-root/lib64 && \
-        for f in /opt/app-root/; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
+        for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
+        cp -R /tmp/py-unpack/bin/* /usr/bin && \
+        cp -R /tmp/py-unpack/lib/* /usr/lib && \
+        cp -R /tmp/py-unpack/lib64/* /usr/lib64 && \
+        rm -f /tmp/py-unpack \
     else \
         echo "[WARNING] Python lang server dependency tarball not found. Python support may be more limited on $(uname -m)"; \
     fi
