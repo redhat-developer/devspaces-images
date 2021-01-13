@@ -58,7 +58,7 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
         yum -y module reset python38 && yum -y module enable python38:${PYTHON_VERSION} && \
-        yum -y install python38 python38-devel python38-setuptools python38-pip && \
+        yum -y install python38 python38-devel python38-setuptools python38-pip python38-pylint && \
     # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     # CVE updates
     microdnf update -y freetype librepo systemd pango libnghttp2 sqlite libarchive && \
