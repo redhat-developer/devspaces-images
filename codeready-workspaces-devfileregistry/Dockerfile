@@ -61,6 +61,7 @@ RUN ./check_mandatory_fields.sh devfiles
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
 
+RUN ./swap_yamlfiles.sh devfiles
 RUN ./swap_images.sh devfiles
 RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh devfiles; fi
 RUN ./index.sh > /build/devfiles/index.json
