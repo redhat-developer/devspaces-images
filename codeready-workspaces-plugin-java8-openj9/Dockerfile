@@ -41,7 +41,8 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
 #                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/java-1.8.0-openj9/1.8.0.262.10.0.21.0/1.el8j9/$(uname -m)/java-1.8.0-openj9-1.8.0.262.10.0.21.0-1.el8j9.$(uname -m).rpm
-RUN microdnf -y -q install yum bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 \
+RUN microdnf -y install yum && \
+    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 \
     java-1.8.0-openj9 java-1.8.0-openj9-devel java-1.8.0-openj9-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     sudo git procps-ng bzip2 && \
@@ -59,8 +60,8 @@ RUN microdnf -y -q install yum bash tar gzip unzip which shadow-utils findutils 
         yum -y -q install python38 python38-devel python38-setuptools python38-pip && \
     # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     # CVE updates
-    microdnf -y -q update freetype librepo systemd pango libnghttp2 sqlite libarchive && \
-    microdnf -y -q clean all && rm -rf /var/cache/yum && \
+    yum -y -q update freetype librepo systemd pango libnghttp2 sqlite libarchive && \
+    yum -y -q clean all && rm -rf /var/cache/yum && \
     # TODO: why do we need this jboss user?
     useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     mkdir -p ${HOME}/che /projects && \
