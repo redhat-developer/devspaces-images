@@ -41,28 +41,26 @@ COPY . /tmp/assets/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
 #                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/java-1.8.0-openj9/1.8.0.262.10.0.21.0/1.el8j9/$(uname -m)/java-1.8.0-openj9-1.8.0.262.10.0.21.0-1.el8j9.$(uname -m).rpm
-RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 \
-    java-1.8.0-openj9 \
-    java-1.8.0-openj9-devel \
-    java-1.8.0-openj9-headless \
+RUN microdnf -y -q install yum bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 \
+    java-1.8.0-openj9 java-1.8.0-openj9-devel java-1.8.0-openj9-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     sudo git procps-ng bzip2 && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
-        yum -y module reset nodejs && yum -y module enable nodejs:$NODEJS_VERSION && \
-        INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && \
-        ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-        yum remove -y $INSTALL_PKGS && \
-        yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
-        rpm -V $INSTALL_PKGS && \
-        yum -y clean all --enablerepo='*' && \
+        yum -y -q module reset nodejs && \
+        yum -y -q module enable nodejs:$NODEJS_VERSION && \
+        INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
+        yum -y -q remove $INSTALL_PKGS && \
+        yum -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && rpm -V $INSTALL_PKGS && \
+        yum -y -q clean all --enablerepo='*' && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-        yum -y module reset python38 && yum -y module enable python38:${PYTHON_VERSION} && \
-        yum -y install python38 python38-devel python38-setuptools python38-pip && \
+        yum -y -q module reset python38 && \
+        yum -y -q module enable python38:${PYTHON_VERSION} && \
+        yum -y -q install python38 python38-devel python38-setuptools python38-pip && \
     # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     # CVE updates
-    microdnf update -y freetype librepo systemd pango libnghttp2 sqlite libarchive && \
-    microdnf clean all && rm -rf /var/cache/yum && \
+    microdnf -y -q update freetype librepo systemd pango libnghttp2 sqlite libarchive && \
+    microdnf -y -q clean all && rm -rf /var/cache/yum && \
     # TODO: why do we need this jboss user?
     useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     mkdir -p ${HOME}/che /projects && \
@@ -87,7 +85,7 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
     # fix permissions in bin/* files \
     for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     \
-    # node stuff \
+    # additional node stuff \
     mkdir -p ${HOME}/lang-server /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
     if [[ -f /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-node10-$(uname -m).tar.gz ]]; then \
@@ -101,16 +99,17 @@ RUN microdnf install -y yum bash tar gzip unzip which shadow-utils findutils wge
         echo "[WARNING] Node lang server dependency tarball not found. Node support may be more limited on $(uname -m)"; \
     fi
 RUN \
-    # python stuff
+    # additional python stuff
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
     if [[ -f /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz ]]; then \
-        mkdir -p /tmp/py-unpack /opt/app-root/bin /opt/app-root/lib /opt/app-root/lib64 && \
+        mkdir -p /tmp/py-unpack && \
         tar -xf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz -C /tmp/py-unpack && \
-        cp -R /tmp/py-unpack/bin/* /opt/app-root/bin && \
-        cp -R /tmp/py-unpack/lib/* /opt/app-root/lib && \
-        cp -R /tmp/py-unpack/lib64/* /opt/app-root/lib64 && \
-        for f in /opt/app-root/; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
+        for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
+        cp -R /tmp/py-unpack/bin/* /usr/bin && \
+        cp -R /tmp/py-unpack/lib/* /usr/lib && \
+        cp -R /tmp/py-unpack/lib64/* /usr/lib64 && \
+        rm -fr /tmp/py-unpack \
     else \
         echo "[WARNING] Python lang server dependency tarball not found. Python support may be more limited on $(uname -m)"; \
     fi
@@ -127,6 +126,7 @@ RUN \
     echo "========" && \
     python -V && \
     pip -V && \
+    pylint --version && \
     echo "========"
 
 ADD entrypoint.sh ${HOME}/
