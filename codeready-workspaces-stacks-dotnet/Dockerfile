@@ -55,8 +55,7 @@ USER root
 RUN yum install -y --setopt=tsflags=nodocs wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 dotnet dotnet-host \
     dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION} && \
     yum remove -y nodejs && \
-    yum update -y librepo python3-librepo libnghttp2 dbus dbus dbus-common dbus-daemon dbus-libs dbus-tools systemd libicu gnutls \
-        aspnetcore-runtime dotnet-sdk dotnet-runtime && \
+    yum update -y && \
     useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     mkdir -p ${HOME}/che/ls-csharp /projects && \
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \

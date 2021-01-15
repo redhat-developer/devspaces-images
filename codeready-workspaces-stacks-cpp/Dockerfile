@@ -54,8 +54,7 @@ RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
     openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
-    yum update -y freetype freetype-devel cryptsetup-libs gnutls systemd systemd-libs systemd-pam subscription-manager python3-syspurpose dnf-plugin-subscription-manager python3-subscription-manager-rhsm \
-        subscription-manager-rhsm-certificates kernel-headers pango libnghttp2 systemd git git-core perl-Git git-core-doc && \
+    yum update -y && \
     yum clean all && rm -rf /var/cache/yum && \
     cat /etc/passwd | \
     sed s#jboss:x.*#jboss:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
