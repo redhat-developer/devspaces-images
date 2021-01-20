@@ -53,7 +53,7 @@ RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
     yum install -y \
     # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
     make cmake gcc gcc-c++ glibc-devel zlib-devel libstdc++ libstdc++-devel \
-    sudo git wget curl nss_wrapper bzip2 npm openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
+    sudo git wget curl nss_wrapper bzip2 openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
     yum update -y && \
     yum clean all && rm -rf /var/cache/yum && \
     mkdir -p /projects/.che/gopath /.cache && \
