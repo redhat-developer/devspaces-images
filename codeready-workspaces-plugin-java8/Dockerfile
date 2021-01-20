@@ -36,11 +36,11 @@ COPY . /tmp/assets/
 # For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.ppc64le.rpm
 RUN microdnf -y install yum && \
-    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 \
+    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 \
     java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     sudo git procps-ng bzip2 && \
@@ -81,6 +81,7 @@ RUN microdnf -y install yum && \
     mkdir -p /opt; \
     tar xzf /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
+    rm -f /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
     # fix permissions in bin/* files \
     for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     \
