@@ -47,12 +47,12 @@ RUN dnf install -y php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-
 # For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     yum remove -y nodejs kernel-headers && \
-    yum install -y sudo openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
+    yum install -y sudo openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
     yum update -y freetype freetype-devel libcroco librepo python3-librepo gnutls pango libnghttp2 php php-cli php-bcmath php-common php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl php-pecl-apcu php-pecl-zip libzip systemd libicu && \
     yum clean all && rm -rf /var/cache/yum && \
     mkdir -p ${HOME}/che /projects && \

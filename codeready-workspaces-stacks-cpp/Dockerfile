@@ -45,13 +45,13 @@ USER root
 # For OCP Tools (helm): ocp-tools-4.4-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8.ppc64le.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
     yum remove -y nodejs && \
     yum install -y llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb wget bzip2 sudo make cmake gcc gcc-c++ \
-    openshift-clients-4.6.0-202010081244.p0.git.3794.4743d24.el8 && \
+    openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
     # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
     yum update -y && \
