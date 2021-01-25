@@ -1,0 +1,40 @@
+#!/usr/bin/env groovy
+
+// PARAMETERS for this pipeline:
+//   MIDSTM_BRANCH
+//   CSV_VERSION
+
+def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
+
+def buildNode = "rhel8" // node label
+timeout(120) {
+    node("${buildNode}"){ 
+        stage ("update version and registry tags") {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+                    file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) 
+                {
+                    cleanWs()
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
+                    def util = load "${WORKSPACE}/util.groovy"
+                    JAVA_VERSION="11"; util.installRPMs("java-"+JAVA_VERSION+"-openjdk java-"+JAVA_VERSION+"-openjdk-devel java-"+JAVA_VERSION+"-openjdk-headless")
+                    util.installMaven("3.6.3", JAVA_VERSION)
+                    util.bootstrap(CRW_KEYTAB)
+                    util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
+                    currentBuild.description="Update ${MIDSTM_BRANCH} to ${CSV_VERSION} ..."
+                    sh '''
+cd ${WORKSPACE}/targetmid
+./product/updateVersionAndRegistryTags.sh -b ''' + MIDSTM_BRANCH + ''' -v ''' + CSV_VERSION + ''' -w $(pwd)
+'''
+
+                    // TODO also bump versions in other repos:
+                    // crw-theia, crw-chectl, etc.
+
+                    currentBuild.description="Updated ${MIDSTM_BRANCH} to ${CSV_VERSION}"
+                }
+            }
+        }
+    }
+}
+
+// TODO now that we have updated the crw repo, time to enable jobs and trigger them!
