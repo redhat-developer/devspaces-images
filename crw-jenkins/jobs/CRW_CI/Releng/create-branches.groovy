@@ -1,0 +1,46 @@
+def JOB_BRANCHES = ["2.7"] // , "2.8"]
+for (String JOB_BRANCH : JOB_BRANCHES) {
+    pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
+        MIDSTM_BRANCH="crw-2-rhel-8"
+        FUTURE_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+
+        description('''
+This job is meant to be run after upstream deps are available to start the new crw-2.y-rhel-8 github branches for the upcoming release.
+<p>
+See <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/tagRelease.sh>
+https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/tagRelease.sh</a>
+
+<p>To create branches of pkgs.devel repos, open a ticket like <a href=https://projects.engineering.redhat.com/browse/SPMM-4820>SPMM-4820</a>
+
+  <p>NOTE: this job is not meant to create tags in repos, as branching occurs BEFORE GA, and tagging occurs AFTER.
+        ''')
+
+        properties {
+            ownership {
+                primaryOwnerId("nboldt")
+            }
+        }
+
+        logRotator {
+            daysToKeep(5)
+            numToKeep(5)
+            artifactDaysToKeep(2)
+            artifactNumToKeep(2)
+        }
+
+        parameters{
+            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use as source of the new branches")
+            stringParam("FUTURE_BRANCH",FUTURE_BRANCH,"branch to create")
+        }
+
+        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
+        authenticationToken('CI_BUILD')
+
+        definition {
+            cps{
+                sandbox(true)
+                script(readFileFromWorkspace('jobs/CRW_CI/Releng/create-branches.jenkinsfile'))
+            }
+        }
+    }
+}
