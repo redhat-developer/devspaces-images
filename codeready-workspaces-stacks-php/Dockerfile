@@ -53,8 +53,8 @@ RUN dnf install -y php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-
 RUN useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     yum remove -y nodejs kernel-headers && \
     yum install -y sudo openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
-    yum update -y freetype freetype-devel libcroco librepo python3-librepo gnutls pango libnghttp2 php php-cli php-bcmath php-common php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl php-pecl-apcu php-pecl-zip libzip systemd libicu && \
-    yum clean all && rm -rf /var/cache/yum && \
+    yum -y -q update && \
+    yum -y -q clean all && rm -rf /var/cache/yum && \
     mkdir -p ${HOME}/che /projects && \
     cat /etc/passwd | \
     sed s#jboss:x.*#jboss:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \

@@ -54,8 +54,8 @@ RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
     # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
     make cmake gcc gcc-c++ glibc-devel zlib-devel libstdc++ libstdc++-devel \
     sudo git wget curl nss_wrapper bzip2 openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
-    yum update -y && \
-    yum clean all && rm -rf /var/cache/yum && \
+    yum -y -q update && \
+    yum -y -q clean all && rm -rf /var/cache/yum && \
     mkdir -p /projects/.che/gopath /.cache && \
     cat /etc/passwd | \
     sed s#jboss:x.*#jboss:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \

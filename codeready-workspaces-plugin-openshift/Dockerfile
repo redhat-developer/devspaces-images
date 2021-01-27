@@ -38,8 +38,9 @@ COPY bin.tgz /tmp/
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.x86_64.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.s390x.rpm
 # http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
-    microdnf update -y systemd && microdnf clean all && rm -rf /var/cache/yum && \
+RUN microdnf install -y bash tar gzip which dnf openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
+    dnf -y -q update && \
+    dnf -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
     tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz && chmod 755 /usr/local/bin/* && \

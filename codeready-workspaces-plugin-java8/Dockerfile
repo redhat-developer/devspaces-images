@@ -58,7 +58,7 @@ RUN microdnf -y install yum && \
         yum -y -q install python38 python38-devel python38-setuptools python38-pip && \
     # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     # CVE updates
-    yum -y -q update freetype zlib gnutls systemd-libs systemd pango libnghttp2 sqlite libarchive && \
+    yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     # TODO: why do we need this jboss user?
     useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
