@@ -48,8 +48,8 @@ COPY . /tmp/assets
 RUN microdnf install -y which dnf && dnf module reset -y nodejs && \
     dnf module install -y nodejs:12 && \
     dnf install -y buildah npm helm-3.3.4-5.el8 openshift-clients-4.6.0-202012172338.p0.git.3800.30af700.el8 && \
-    dnf update -y zlib gnutls systemd buildah npm fuse-overlayfs slirp4netns && \
-    dnf clean all && rm -rf /var/cache/yum && \
+    dnf -y -q update && \
+    dnf -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     cat /etc/passwd | \
     sed s#theia:x.*#theia:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
