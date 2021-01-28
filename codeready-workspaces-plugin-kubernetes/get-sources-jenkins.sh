@@ -58,7 +58,6 @@ if [[ ! $jenkinsURL ]]; then
 fi
 lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=//" # id or description
 
-KUBECTL_VERSION="v1.18.10" # see https://github.com/kubernetes/kubernetes/releases/ or $(curl -s https://storage.googleapis.googleapis.com/kubernetes-release/release/stable.txt)
 KAMEL_VERSION="1.2.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 
 jenkinsURL=${jenkinsURL}/lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/kamel/target
