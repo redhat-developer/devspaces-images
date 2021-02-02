@@ -1,19 +1,9 @@
 #!/usr/bin/env groovy
 import groovy.transform.Field
-import groovy.json.JsonSlurper
 
 // PARAMETERS for this pipeline:
-@Field String MIDSTM_BRANCH = "crw-2.6-rhel-8"
-
-def notifyFailed() {
-    emailext (
-        subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-        body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
-        <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>""",
-        recipientProviders: [culprits(), developers(), requestor()]
-        // [$class: 'CulpritsRecipientProvider'],[$class: 'DevelopersRecipientProvider']]
-    )
-}
+// JOB_BRANCH
+// MIDSTM_BRANCH
 
 def String nodeLabel = 'rhel8'
 timeout(120) {
@@ -23,46 +13,39 @@ timeout(120) {
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                 def util = load "${WORKSPACE}/util.groovy"
                 withCredentials([
+                    string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                     string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
                     usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
                 ]) {
                     cleanWs()
-                    // util.installRhpkg()
-                    // util.installSkopeoFromContainer("registry.redhat.io/rhel8/skopeo")
-                    // util.installYq()
-                    // util.bootstrap(CRW_KEYTAB)
-                    // util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", GIT_BRANCH)
+                    util.installSkopeoFromContainer("")
+                    util.installYq()
+                    CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                    println "CRW_VERSION = '" + CRW_VERSION + "'"
+                    util.bootstrap(CRW_KEYTAB)
 
                     try {
-                        sh('''#!/bin/bash -xe
-                        # do some stuff here 
-                        echo "REPO_PATH=\\"2.6-5 2.6 latest 2.6-5 2.6 latest quay.io/crw/machineexec-rhel8:2.6-5 quay.io/crw/machineexec-rhel8:2.6-5 \\"" > ${WORKSPACE}/repos.txt
+                        SOURCE_REPO = "eclipse/che-operator"
+                        SOURCE_BRANCH = "7.24.x" 
+                        util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
+                        SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+                        println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
-                        echo "https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33900172" > ${WORKSPACE}/task_url.txt
-                        ''')
-                        TASK_URL = sh(returnStdout:true,script:'''cat ${WORKSPACE}/task_url.txt''').trim()
-                        // turn 2.6-5 2.6 latest 2.6-5 2.6 ...
-                        // into unique list ["2.6-5","2.6","latest","2.6-5","2.6","..."]
-                        BUILD_DESC = sh(returnStdout:true,script:'''cat ${WORKSPACE}/repos.txt''').trim().replaceAll('REPO_PATH="','').replaceAll('"','').replaceAll(" ", '","')
-                        def BUILD_DESC_LIST = new JsonSlurper().parseText('["' + BUILD_DESC + '"]').unique()
-                        BUILD_DESC=BUILD_DESC_LIST.join(" ").replaceAll("(quay.io/crw/.+-rhel8:[0-9.-]+) ", '<a href="https://$1">$1</a> ')
+                        UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " // CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
 
-                        // TODO can this work? Needs jenkins auth permission: .split(" ").collect().unique().join(" ")
-                        if (BUILD_DESC.indexOf("ERROR")>=0) {
-                          currentBuild.result = "FAILURE"
-                        }
-                        if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
-                          currentBuild.result = "UNSTABLE"
-                        }
+                        println "Using UPDATE_BASE_IMAGES_FLAGS = ${UPDATE_BASE_IMAGES_FLAGS} ..."
+                        util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, "-v --no-commit " + UPDATE_BASE_IMAGES_FLAGS)
 
-                        // set build desc with image created eg., "2.5-65 quay.io/crw/pluginregistry-rhel8:2.5-65"
-                        def descriptString="<a href='" + TASK_URL + "'>" + (currentBuild.result.equals("FAILURE") ? "Failed in ":"Build ") + TASK_URL.replaceAll(".+taskID=","") + "</a> : " + BUILD_DESC
-                        echo "${descriptString}"
-                        currentBuild.description="${descriptString}"
+                        diff=sh(returnStdout:true, script:'''#!/bin/bash -xe
+# do some stuff here 
+
+cd sources; git diff
+'''
+                        ).trim()
+                        println diff
                     } catch (e) {
                         currentBuild.result = "FAILURE"
-                        notifyFailed()
                         throw e
                     }
                 } // with

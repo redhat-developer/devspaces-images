@@ -65,11 +65,22 @@ for (int i=0; i < nodeLabels.size(); i++) {
               println "CRW_VERSION = '" + CRW_VERSION + "'"
               util.installSkopeoFromContainer("")
               def buildLog = ""
-              new File("${WORKSPACE}/crw-theia/conf/").traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.+from.+dockerfile/) { it ->
-                println "Update base images in " + it + "..."
-                util.updateBaseImages("${WORKSPACE}/crw-theia", MIDSTM_BRANCH, 
-                  "-w " + it.toString().replaceAll(/\/[^\/]+$/,"") + " -f " + it.toString().replaceAll(/^.+\//,"") + " -q")
-              }
+
+              sh '''#!/bin/bash -x
+curl -ssLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/product/updateBaseImages.sh && chmod +x ${WORKSPACE}/updateBaseImages.sh
+cd ${WORKSPACE}/crw-theia
+  # update base images for the *from*dockerfile in conf/ folder
+  for df in $(find ${WORKSPACE}/crw-theia/conf/ -name "*from*dockerfile"); do
+    ${WORKSPACE}/updateBaseImages.sh -b ''' + MIDSTM_BRANCH + ''' -w ${df%/*} -f ${df##*/} -q
+  done
+cd ..
+'''
+              // CRW-1546 Doesn't work (conf/ folder not found!), and requires lots of security holes
+              // new File("${WORKSPACE}/crw-theia/conf/").traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.+from.+dockerfile/) { itme ->
+              //   println "Update base images in " + itme + "..."
+              //   util.updateBaseImages("${WORKSPACE}/crw-theia", MIDSTM_BRANCH, 
+              //     "-w " + itme.toString().replaceAll(/\/[^\/]+$/,"") + " -f " + itme.toString().replaceAll(/^.+\//,"") + " -q")
+              // }
 
               def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${CHE_THEIA_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
               if (!THEIA_COMMIT_SHA.equals("")) {

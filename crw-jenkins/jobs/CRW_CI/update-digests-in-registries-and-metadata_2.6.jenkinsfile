@@ -146,12 +146,11 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                             popd >/dev/null
                         '''
 
-                        def buildDescription="Running..."
+                        currentBuild.description="Checking for changed images..."
 
                         if (!DIFF_LATEST_IMAGES_METADATA_ONLY.equals("") && DIFF_LATEST_IMAGES_ANY_BUT_METADATA.equals("")) { 
                             // no changes, but a newer metadata image exists
-                            buildDescription="New metadata image detected: commit changes to LATEST_IMAGES"
-                            currentBuild.description=buildDescription
+                            currentBuild.description="New metadata image detected: commit changes to LATEST_IMAGES"
                             echo currentBuild.description
                             echo DIFF_LATEST_IMAGES_METADATA_ONLY
 
@@ -159,17 +158,15 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                             currentBuild.result='UNSTABLE'
                         } else if (DIFF_LATEST_IMAGES_ANY_BUT_METADATA.equals("")) { 
                             // no changes
-                            buildDescription="No new images detected, including registries: nothing to do!"
-                            currentBuild.description=buildDescription
+                            currentBuild.description="No new images detected, including registries: nothing to do!"
                             echo currentBuild.description
                             currentBuild.result='UNSTABLE'
                         } else {
                             // changes that don't include a registry rebuild itself, but rather images ref'd by registries
                             if (!DIFF_LATEST_IMAGES_IN_DEVFILE_REGISTRY.equals("") || !DIFF_LATEST_IMAGES_IN_PLUGIN_REGISTRY.equals("")) {
-                                buildDescription="Detected new images (not registries): rebuild registries + operator-metadata"
+                                currentBuild.description="Detected new images (not registries): rebuild registries + operator-metadata"
                                 listChangedImages=(DIFF_LATEST_IMAGES_IN_DEVFILE_REGISTRY+"\n"+DIFF_LATEST_IMAGES_IN_PLUGIN_REGISTRY).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("-|\\+",",").tokenize(',').unique()
-                                for (String imgChanged : listChangedImages) { buildDescription += "<br/>" + imgChanged }
-                                currentBuild.description=buildDescription
+                                for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
                                 echo currentBuild.description
                                 echo "================================================>"
                                 echo "All changes (excluding metadata):"
@@ -242,8 +239,9 @@ cat ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new
 echo "<============ LATEST_IMAGES.new 2 ============"
 '''
                             } else {
-                                buildDescription="Detected new registries: rebuild operator-metadata"
-                                currentBuild.description=buildDescription
+                                currentBuild.description="Detected new images: rebuild operator-metadata"
+                                listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_METADATA).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("-|\\+",",").tokenize(',').unique()
+                                for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
                                 echo currentBuild.description
                                 echo DIFF_LATEST_IMAGES_ANY_BUT_METADATA
                             }

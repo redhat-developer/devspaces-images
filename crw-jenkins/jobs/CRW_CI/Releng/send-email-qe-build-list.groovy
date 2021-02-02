@@ -43,7 +43,7 @@ stuff goes here if applicable''',"Stuff to mention after the lists of images")
             booleanParam("doStage",false,'''if checked, include RHCC stage images in email''')
             stringParam("recipientOverride","nboldt@redhat.com",'''if set, send mail to recipient(s) listed rather than default mailing lists''')
 
-            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to update")
+            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
             stringParam("JOB_BRANCH", JOB_BRANCH)
         }
 

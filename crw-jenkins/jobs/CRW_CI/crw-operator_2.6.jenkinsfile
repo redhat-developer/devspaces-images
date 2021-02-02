@@ -15,7 +15,10 @@ def DWNSTM_REPO = "containers/codeready-workspaces-operator" // dist-git repo to
 def SCRATCH = "false"
 def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "operator"
-def UPDATE_BASE_IMAGES_FLAGS="--tag 1.13" // when using updateBaseImages, restrict image tag to 1.13-zzz (not latest 1.14-zzz)
+
+// CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
+// NOTE: maxdepth 1 here is to prevent attempting to transform empty dockerfile in che-operator/build/Dockerfile
+def UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " 
 
 def SOURCE_SHA=""
 def OLD_SHA_MID=""
@@ -64,7 +67,6 @@ timeout(120) {
 
           util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
           sh '''#!/bin/bash -xe
-
 # rsync files in upstream github to dist-git
 for d in ''' + SYNC_FILES_UP2DWN + '''; do
   if [[ -f ${WORKSPACE}/sources/${d} ]]; then
