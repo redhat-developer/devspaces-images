@@ -47,7 +47,8 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
         }
 
         parameters{
-            stringParam("CSV_VERSION", "2.6.0", "Full version (x.y.z), used in CSV and crwctl version")
+            stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("CSV_VERSION", JOB_BRANCH + ".0", "Full version (x.y.z), used in CSV and crwctl version")
             stringParam("CRW_SERVER_TAG", JOB_BRANCH, "set 2.y-zz for GA release")
             stringParam("CRW_OPERATOR_TAG", JOB_BRANCH, "set 2.y-zz for GA release")
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
@@ -59,7 +60,6 @@ if unset, version is CRW_VERSION-YYYYmmdd-commitSHA \n\
 :: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a")
             booleanParam("PUBLISH_ARTIFACTS_TO_GITHUB", false, "default false; check box to publish to GH releases")
             booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")
-            stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
