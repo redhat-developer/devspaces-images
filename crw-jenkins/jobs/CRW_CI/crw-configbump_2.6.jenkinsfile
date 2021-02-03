@@ -11,7 +11,6 @@ def DWNSTM_REPO = "containers/codeready-workspaces-configbump" // repo to use as
 def SYNC_REPO="configbump"
 
 String SOURCE_BRANCH = "master" // or a tag like "v0.1.4"
-String MIDSTM_BRANCH = "crw-2.6-rhel-8" // target branch, eg., crw-2.5-rhel-8
 
 def OLD_SHA=""
 def SOURCE_SHA=""

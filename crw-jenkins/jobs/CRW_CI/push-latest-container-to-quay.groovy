@@ -59,8 +59,8 @@ Images to copy to quay:
   </table>
 </ul>
             <p>NOTE:  If no nodes are available, run: <br/>
-    <b><a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2.5-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
-    -c "codeready-workspaces-plugin-openshift-rhel8" --osbs --pushtoquay="2.5 latest"</b>
+    <b><a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2.y-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
+    -c "codeready-workspaces-plugin-openshift-rhel8" --osbs --pushtoquay="2.y latest"</b>
   
   to get latest from osbs and push to quay.
     ''')
@@ -100,7 +100,8 @@ plugin-openshift pluginregistry server stacks-cpp stacks-dotnet \
 stacks-golang stacks-php theia theia-dev theia-endpoint \
 traefik''', "list of containers to copy: can 1, all or some, as needed")
 
-        stringParam("TAGS", "latest", "By default, update :latest tag in addition to the latest one (2.5-4) and the base one (2.5).")
+        stringParam("TAGS", "latest", "By default, update :latest tag in addition to the latest one (2.y-4) and the base one (2.y).")
+        stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
     }
 
     // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

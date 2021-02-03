@@ -106,7 +106,6 @@ echo "[INFO] CSV_FILE = ${CSV_FILE}"
 
           sh '''
 # rsync files in github midstream to dist-git downstream
-# TODO CRW 2.5 / OCP 4.6 switch to use manifests metadata folders
 for d in ''' + SYNC_FILES_MID2DWN + '''; do
   if [[ -f ${WORKSPACE}/targetmid/${d} ]]; then
     rsync -zrlt ${WORKSPACE}/targetmid/${d} ${WORKSPACE}/targetdwn/${d}

@@ -12,6 +12,14 @@ Sync CRW_CI jobs in gitlab repo to github.
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            pipelineTriggers {
+                triggers {
+                    cron {
+                        spec ('H H/12 * * *') // every 12 hrs
+                    }
+                }
+            }
         }
 
         logRotator {
@@ -19,6 +27,12 @@ Sync CRW_CI jobs in gitlab repo to github.
             numToKeep(5)
             artifactDaysToKeep(5)
             artifactNumToKeep(2)
+        }
+
+
+        throttleConcurrentBuilds {
+            maxPerNode(1)
+            maxTotal(1)
         }
 
         parameters{

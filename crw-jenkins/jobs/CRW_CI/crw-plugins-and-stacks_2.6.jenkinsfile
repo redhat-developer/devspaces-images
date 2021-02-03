@@ -4,7 +4,7 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 //   REPOS
 //   JOB_BRANCH = 2.y
-//   MIDSTM_BRANCH = crw-2.y-rhel-8
+//   MIDSTM_BRANCH
 //   SCRATCH = false (do push to Quay) or true (don't push to Quay)
 //   FORCE_BUILD
 

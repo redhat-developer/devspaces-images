@@ -6,14 +6,14 @@ import groovy.transform.Field
 //   MIDSTM_BRANCH
 //   FORCE_BUILD
 
-// NOTE: can use https://github.com/redhat-developer/traefik/tree/crw-2.5-rhel-8 if need to fork or use a commit that's not behind a tag/branch
+// NOTE: can use https://github.com/redhat-developer/traefik/tree/crw-2.y-rhel-8 if need to fork or use a commit that's not behind a tag/branch
 def SOURCE_REPO = "traefik/traefik" // upstream source repo should be https://github.com/traefik/traefik
 def DWNSTM_REPO = "containers/codeready-workspaces-traefik" // repo to use as target
 def SYNC_REPO="traefik"
 
 String GOLANG_VERSION = "1.15.3"
 
-String SOURCE_BRANCH = "master" // upstream source repo branch, eg., crw-2.5-rhel-8 from fork
+String SOURCE_BRANCH = "master" // upstream source repo branch, eg., crw-2.y-rhel-8 from fork
 String SOURCE_TAG = "v2.3.2" // after fetching from a branch, switch to this tag
 
 def OLD_SHA=""

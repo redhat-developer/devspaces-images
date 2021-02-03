@@ -84,7 +84,7 @@ fi
 
 # TODO make these console parsers smarter and remove all old flavours that don't work any more
 
-# OPTION 2/4: Compute build desc with image created eg., "2.5-65 quay.io/crw/pluginregistry-rhel8:2.5-65"
+# OPTION 2/4: Compute build desc with image created eg., "2.y-65 quay.io/crw/pluginregistry-rhel8:2.y-65"
 if [[ ! ${REPOS} ]] || [[ ${REPOS} == " " ]]; then
   # for scratch builds look for this line:
   # platform:- - atomic_reactor.plugins.tag_from_config - DEBUG - Using additional unique tag 
@@ -149,7 +149,7 @@ grep "Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=" $
                         currentBuild.result = "UNSTABLE"
                       }
 
-                      // set build desc with image created eg., "2.5-65 quay.io/crw/pluginregistry-rhel8:2.5-65"
+                      // set build desc with image created eg., "2.y-65 quay.io/crw/pluginregistry-rhel8:2.y-65"
                       def descriptString="<a href='" + TASK_URL + "'>" + (currentBuild.result.equals("FAILURE") ? "Failed in ":"Build ") + TASK_URL.replaceAll(".+taskID=","") + "</a> : " + BUILD_DESC
                       echo "${descriptString}"
                       currentBuild.description+=" :: ${descriptString}"

@@ -3,10 +3,9 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
+//   MIDSTM_BRANCH
 //   CONTAINERS - list of containers to push, without the crw/ or codeready-workspaces- prefix and without -rhel8 suffix
-//   TAGS       - tags to push in addition to the latest one (2.5-4) and the base one (2.5), eg., also update latest tag
-
-String MIDSTM_BRANCH = "crw-2.6-rhel-8" // target branch, eg., crw-2.5-rhel-8
+//   TAGS       - tags to push in addition to the latest one (2.y-4) and the base one (2.y), eg., also update latest tag
 
 def checkFailure(arrayLines,serverName,errorOccurred)
 {

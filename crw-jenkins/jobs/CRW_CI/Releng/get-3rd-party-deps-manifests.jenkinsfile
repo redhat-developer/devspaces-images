@@ -6,7 +6,8 @@ import groovy.transform.Field
 // MIDSTM_BRANCH="crw-2.y-rhel-8"
 // TAG_RELEASE = true/false. If true, tag the repos; if false, proceed w/o tagging
 
-def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.5-rhel-8
+def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
+def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
 def nodeVersion = "12.19.1"
 def yarnVersion = "1.17.3"
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
@@ -75,6 +76,14 @@ tree ${WORKSPACE}/crw/product/manifest/${CSV_VERSION}
 git add ${CSV_VERSION}
 git commit -s -m "[prodsec] Update product security manifests for ${CSV_VERSION}" ${CSV_VERSION}
 git push origin ''' + MIDSTM_BRANCH + '''
+
+# push manifests to MIDSTM_BRANCHNEXT branch too
+lastcommit="$(git rev-parse HEAD)"
+git fetch || true
+git checkout --track origin/''' + MIDSTM_BRANCHNEXT + '''
+git pull origin ''' + MIDSTM_BRANCHNEXT + '''
+git cherry-pick $lastcommit
+git push origin ''' + MIDSTM_BRANCHNEXT + '''
 '''
           if (ARCHIVE_ARTIFACTS_IN_JENKINS.equals("true")) {
             archiveArtifacts allowEmptyArchive: true, artifacts: "crw/product/manifest/${CSV_VERSION}/**"
