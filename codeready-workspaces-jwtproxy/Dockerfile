@@ -12,7 +12,7 @@
 # UPSTREAM: use devtools/go/-toolset-rhel7 image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
 # FROM registry.access.redhat.com/rhel8/go-toolset:1.14.12-11 as builder
-# ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:$PATH
+# ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH
 # DOWNSTREAM: use rhel8/go-toolset; no path modification needed
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.14.12-11 as builder
@@ -38,18 +38,18 @@ ENTRYPOINT ["jwtproxy"]
 
 # append Brew metadata here
 ENV SUMMARY="Red Hat CodeReady Workspaces jwtproxy container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces jwtproxy container" \
-    PRODNAME="codeready-workspaces" \
-    COMPNAME="jwtproxy-rhel8" 
+DESCRIPTION="Red Hat CodeReady Workspaces jwtproxy container" \
+PRODNAME="codeready-workspaces" \
+COMPNAME="jwtproxy-rhel8" 
 LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="2.6" \
-      license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage="" 
+description="$DESCRIPTION" \
+io.k8s.description="$DESCRIPTION" \
+io.k8s.display-name="$DESCRIPTION" \
+io.openshift.tags="$PRODNAME,$COMPNAME" \
+com.redhat.component="$PRODNAME-$COMPNAME-container" \
+name="$PRODNAME/$COMPNAME" \
+version="2.7" \
+license="EPLv2" \
+maintainer="Nick Boldt <nboldt@redhat.com>" \
+io.openshift.expose-services="" \
+usage="" 
