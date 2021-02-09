@@ -158,8 +158,8 @@ LABEL summary="$SUMMARY" \
 
 # insert generated LABELs below this line
 LABEL \
-	  jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/12/" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/12/artifact/**/::apache-maven-3.6.3-bin.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/12/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.6/12/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz" \
-	  jenkins.build.number="12"
+	  jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.7/1/" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.7/1/artifact/**/::apache-maven-3.6.3-bin.tar.gz" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.7/1/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.7/1/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz" \
+	  jenkins.build.number="1"
