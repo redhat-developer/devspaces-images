@@ -42,6 +42,7 @@ If false, push to:\n\
 * quay.io/crw/theia-dev-rhel8, \n\
 * quay.io/crw/theia-rhel8, and \n\
 * quay.io/crw/theia-endpoint-rhel8")
+            stringParam("PLATFORMS", "x86_64, s390x, ppc64le")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

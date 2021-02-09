@@ -14,10 +14,24 @@ timeout(120) {
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
           sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
           def util = load "${WORKSPACE}/util.groovy"
+          currentBuild.description="Set up environment ..."
+
           cleanWs()
           util.installSkopeoFromContainer("")
           util.installRhpkg()
           util.installYq()
+
+          // TODO move this to util.installRPMsFromPulpRepos() method see https://github.com/redhat-developer/codeready-workspaces/pull/412
+          sh '''#!/bin/bash -xe
+sudo yum install -y -q yum-utils sudo || true # needed for yum-config-manager
+for repo in \
+http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/ \
+http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/ \
+http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/x86_64/codeready-builder/os/; do
+  sudo yum-config-manager -y -q --add-repo $repo
+done
+'''
+          util.installRPMs("fuse-sshfs") // need fuse-sshfs for mounting drive to copy to rcm-guest
 
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           println "CRW_VERSION = '" + CRW_VERSION + "'"
@@ -43,6 +57,10 @@ cd ${WORKSPACE}/crw/product/manifest/ && ./get-3rd-party-sources.sh --clean -b '
           if (PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
             sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/crw/product/manifest/
+
+# accept host key
+echo "rcm-guest.app.eng.bos.redhat.com,10.16.101.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApd6cnyFVRnS2EFf4qeNvav0o+xwd7g7AYeR9dxzJmCR3nSoVHA4Q/kV0qvWkyuslvdA41wziMgSpwq6H/DPLt41RPGDgJ5iGB5/EDo3HAKfnFmVAXzYUrJSrYd25A1eUDYHLeObtcL/sC/5bGPp/0deohUxLtgyLya4NjZoYPQY8vZE6fW56/CTyTdCEWohDRUqX76sgKlVBkYVbZ3uj92GZ9M88NgdlZk74lOsy5QiMJsFQ6cpNw+IPW3MBCd5NHVYFv/nbA3cTJHy25akvAwzk8Oi3o9Vo0Z4PSs2SsD9K9+UvCfP1TUTI4PXS8WpJV6cxknprk0PSIkDdNODzjw==
+" >> ~/.ssh/known_hosts
 
 # set up sshfs mount
 DESTHOST="crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@rcm-guest.app.eng.bos.redhat.com"
