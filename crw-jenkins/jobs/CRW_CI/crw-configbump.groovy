@@ -1,8 +1,11 @@
-def JOB_BRANCHES = ["2.6"] // , "2.7"]
-for (String JOB_BRANCH : JOB_BRANCHES) {
-    pipelineJob("${FOLDER_PATH}/${ITEM_NAME}_${JOB_BRANCH}"){
-        MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
-
+def JOB_BRANCHES = ["2.6":"master", "2.7":"master", "2":"master"] // special case, no Che branches; could also use a tag like "v0.1.4"
+for (JB in JOB_BRANCHES) {
+    SOURCE_BRANCH=JB.value
+    JOB_BRANCH=JB.key
+    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
+    pipelineJob(jobPath){
         UPSTM_NAME="configbump"
         MIDSTM_NAME="configbump"
         UPSTM_REPO="https://github.com/che-incubator/" + UPSTM_NAME
@@ -39,6 +42,7 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
+            stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }

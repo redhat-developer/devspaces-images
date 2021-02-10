@@ -1,8 +1,11 @@
-def JOB_BRANCHES = ["2.6"] // , "2.7"]
-for (String JOB_BRANCH : JOB_BRANCHES) {
-    pipelineJob("${FOLDER_PATH}/${ITEM_NAME}_${JOB_BRANCH}"){
-        MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
-
+def JOB_BRANCHES = ["2.6":"", "2.7":"", "2":""] // special case, no upstream branches
+for (JB in JOB_BRANCHES) {
+    SOURCE_BRANCH=JB.value // note: not used
+    JOB_BRANCH=JB.key
+    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
+    pipelineJob(jobPath){
         description('''
 Lang server dependency builder
 <ul>

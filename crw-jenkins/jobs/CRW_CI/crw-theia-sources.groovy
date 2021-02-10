@@ -1,8 +1,11 @@
-def JOB_BRANCHES = ["2.6"] // , "2.7"]
-for (String JOB_BRANCH : JOB_BRANCHES) {
-    pipelineJob("${FOLDER_PATH}/${ITEM_NAME}_${JOB_BRANCH}"){
-        MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
-
+def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.25.x", "2":"master"] // TODO switch to 7.26.x
+for (JB in JOB_BRANCHES) {
+    SOURCE_BRANCH=JB.value
+    JOB_BRANCH=JB.key
+    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
+    pipelineJob(jobPath){
         description('''
 1. <a href=../crw-theia-sources_''' + JOB_BRANCH + '''>crw-theia-sources_''' + JOB_BRANCH + '''</a>: Build CRW Theia components needed for the Theia images (built in Brew), then <br/>
 2. <a href=../crw-theia-containers_''' + JOB_BRANCH + '''>crw-theia-containers_''' + JOB_BRANCH + '''</a>: Trigger 3 Brew builds, then <br/>
@@ -36,6 +39,7 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         }
 
         parameters{
+            stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("SCRATCH", false, "If true, just do a scratch build.\n\
 If false, push to:\n\
