@@ -26,7 +26,7 @@ timeout(120) {
           util.installYq()
           util.installRhpkg()
           util.installNPM(nodeVersion, yarnVersion)
-          util.installRPMs("golang php-devel php-json python3-six python3-pip python3-virtualenv")
+          util.installRPMs("tree golang php-devel php-json python3-six python3-pip python3-virtualenv")
           JAVA_VERSION="11"; util.installRPMs("java-"+JAVA_VERSION+"-openjdk java-"+JAVA_VERSION+"-openjdk-devel java-"+JAVA_VERSION+"-openjdk-headless")
           util.installMaven("3.6.3", JAVA_VERSION)
           sh '''#!/bin/bash -xe

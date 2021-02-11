@@ -9,7 +9,7 @@ import groovy.transform.Field
 
 @Field String branchToBuildDev = "refs/tags/19"
 @Field String branchToBuildParent = "refs/tags/7.15.0"
-def SOURCE_BRANCH_Dashboard = SOURCE_BRANCH // or set to "7.25.x" to use old dashboard
+def SOURCE_BRANCH_Dashboard = SOURCE_BRANCH // use new dashboard https://issues.redhat.com/browse/CRW-1435
 
 // TODO re-enable all tests here
 // additional flags for maven, eg., to disable a module -pl '!org.eclipse.che.infrastructure:che-infrastructures-parent,!...'

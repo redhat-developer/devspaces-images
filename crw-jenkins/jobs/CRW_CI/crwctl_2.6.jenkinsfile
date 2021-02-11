@@ -38,18 +38,9 @@ timeout(90) {
           util.bootstrap(CRW_KEYTAB)
           util.installNPM(nodeVersion, yarnVersion, installP7zip)
           util.installYq() // sync script needs this for transforms
-
-          // TODO move this to util.installRPMsFromPulpRepos()  method see https://github.com/redhat-developer/codeready-workspaces/pull/412
-          sh '''#!/bin/bash -xe
-sudo yum install -y -q yum-utils sudo || true # needed for yum-config-manager
-for repo in \
-http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/x86_64/appstream/os/ \
-http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/ \
-http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/x86_64/codeready-builder/os/; do
-  sudo yum-config-manager -y -q --add-repo $repo
-done
-'''
-          util.installRPMs("perl-Digest-SHA fuse-sshfs") // provides shasum for oclif-dev; need fuse-sshfs for mounting drive to copy to rcm-guest
+          // perl-Digest provides shasum for oclif-dev
+          // need fuse-sshfs for mounting drive to copy to rcm-guest
+          util.installRPMs("fuse-sshfs perl-Digest-SHA", true)
 
           currentBuild.description="Check out code ..."
           util.cloneRepo("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", branchCHECTL)
