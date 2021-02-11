@@ -14,7 +14,7 @@ while [[ "$#" -gt 0 ]]; do
     '-f'|'--force-build') forceBuild=1; shift 0;;
     '-p'|'--force-pull') forcePull=1; shift 0;;
     '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-    *) JOB_BRANCH="$1"; shift 0;;
+    *) shift 0;;
   esac
   shift 1
 done
@@ -30,7 +30,6 @@ function log()
 # create tarballs
 #
 # step 1 - build the container
-CONTAINERNAME="imagepullerbuilder"
 # transform Brew friendly Dockerfile so we can use it in Jenkins where base images need full registry path
 sed Dockerfile --regexp-extended \
   -e 's|^ *COPY resources.tgz|# &|' \
@@ -46,13 +45,13 @@ echo "======= BOOTSTRAP DOCKERFILE =======>"
 cat bootstrap.Dockerfile
 echo "<======= BOOTSTRAP DOCKERFILE ======="
 echo "======= START BOOTSTRAP BUILD =======>"
-docker build -t ${CONTAINERNAME} . --no-cache -f bootstrap.Dockerfile \
+docker build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
   --target builder --build-arg BOOTSTRAP=true
 echo "<======= END BOOTSTRAP BUILD ======="
 # update tarballs - step 2 - create tarballs in targetdwn folder
 RESOURCES_TAR=$(mktemp --suffix=.tar.gz)
 RESOURCES_DIR=$(mktemp -d)
-docker run --rm --entrypoint sh ${CONTAINERNAME} -c 'tar -pzcf - \
+docker run --rm --entrypoint sh ${tmpContainer} -c 'tar -pzcf - \
     /opt/app-root/src/go/pkg/mod' > $RESOURCES_TAR
 mkdir -p $RESOURCES_DIR
 tar xvzf $RESOURCES_TAR -C $RESOURCES_DIR
