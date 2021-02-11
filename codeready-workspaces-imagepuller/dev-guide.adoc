@@ -1,0 +1,75 @@
+= Dev guide for k8s-image-puller
+
+== High level overview
+
+The bulk of the logic is in package `utils`. Here, we have three generic interfaces:
+
+* `operations.go` has abstracted functions, and is how implementations of the puller should interact with the cluster. These functions handle resource creation/deletion and also ensuring no issues occur in that process.
+* `clusterutils.go` is a lower-level interface to the cluster, meant to be called from `operations.go` functions. It is responsible for holding k8s-specific logic, actually interfacing with the cluster API, and waiting for resources to be created.
+
+The functions in `operations.go` are called from `puller.go` files in `pkg`.
+
+Implementations in `pkg` basically create a k8s client config, set up some channels, and start goroutines that recreates the daemonset on a delay.
+
+== Code structure
+
+* `cfg` - read configuration from env vars into global vars. This can be accessed by calling `cfg.GetConfig()`
+
+* `cmd` - Entrypoint for service
+
+* `deploy` - Helm chart and openshift templates to deploy the image puller
+
+* `docker` - dockerfiles
+
+* `pkg` - core logic for the puller. Should satisfy the interface
++
+[source,go]
+----
+type Puller interface {
+  CacheImages()
+}
+----
+
+* `utils` - generic utility files, described above
+
+
+== Makefile targets
+
+The included Makefile supports
+|===
+| Target | Function
+
+| build
+| Run the go build for k8s-image-puller
+
+| docker
+| Build a docker container (see below)
+
+| docker-dev
+| Build a docker container without multi-stage builds, for compatibility (see below).
+
+| clean
+| Remove build artifacts.
+|===
+
+== The docker build
+
+The docker build, by default, will use a multi-stage build that
+1. Grabs all dependencies defined in `go.mod` (`--target=dependencies`)
+2. Builds the Go project (`--target=builder`)
+3. Copies the binary into a clean image
+
+Since multi-stage builds are not supported by all versions of docker, there is also a simpler dockerfile (see `./docker/dev.Dockerfile`) that copies an already-built binary into a distroless image. This build can be invoked using the `docker-dev` target in the Makefile.
+
+== Outstanding issues
+
+* The docker build should be improved to take advantage of multi-stage builds, rather than requiring a local build that is copied into a docker image
+
+* The version of `client-go` is quite old; in particular, newer versions have migrated to use go modules isntead of Glide, so updating would require restructuring how dependencies are pulled in
+
+* Currently k8s-image-puller starts a pod with regular containers, which limits us in a number of ways:
+** We bump into memory limits more readily, since for a daemonset it's calculated per pod. This can cause failures on larger clusters unexpectedly (e.g. 75 pods * `40Mi` per pod is `~3Gi`)
+** Some containers cannot be cached since they cannot be slept (e.g. from scratch)
+
++
+we could instead try to use init containers, so that pods don't have to stay running constantly.
