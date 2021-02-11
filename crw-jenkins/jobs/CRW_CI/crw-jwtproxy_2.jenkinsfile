@@ -134,7 +134,7 @@ usage="" \r'
   } // node
 } // timeout
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 node(nodeLabel) {
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"

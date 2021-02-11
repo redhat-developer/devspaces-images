@@ -115,7 +115,6 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
                 fi
 
                 # add special patches to convert theia bootstrap build into brew-compatible one
-                # TODO should this be in build.sh instead?
                 if [[ \$targetN == "target2" ]] && [[ ${TARGETDOCKERFILE} != "" ]]; then
                   sed -r \
                   `# fix up theia loader patch inclusion (3 steps)` \
@@ -194,12 +193,12 @@ timeout(360) {
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
 
         def QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-dev-rhel8"))
-        echo "[INFO] Trigger get-sources-rhpkg-container-build " + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":"") + \
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
         "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
 
         // trigger OSBS build
         build(
-          job: 'get-sources-rhpkg-container-build',
+          job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
           wait: true,
           propagate: true,
           parameters: [
@@ -232,12 +231,12 @@ timeout(360) {
         )
 
         QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-rhel8"))
-        echo "[INFO] Trigger get-sources-rhpkg-container-build " + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":"") + \
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
         "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
 
         // trigger OSBS build
         build(
-          job: 'get-sources-rhpkg-container-build',
+          job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
           wait: true,
           propagate: true,
           parameters: [
@@ -270,12 +269,12 @@ timeout(360) {
         )
 
         QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-endpoint-rhel8"))
-        echo "[INFO] Trigger get-sources-rhpkg-container-build " + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":"") + \
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
         "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
 
         // trigger OSBS build
         build(
-          job: 'get-sources-rhpkg-container-build',
+          job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
           wait: true,
           propagate: true,
           parameters: [

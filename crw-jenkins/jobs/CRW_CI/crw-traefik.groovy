@@ -1,4 +1,5 @@
 def JOB_BRANCHES = ["2.6":"v2.3.2", "2.7":"v2.3.2", "2":"master"] // special case: use tags for stable branches, master for 2.x
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_TAG=JB.value
     JOB_BRANCH=JB.key
@@ -6,6 +7,7 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
+        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="traefik"
         MIDSTM_NAME="traefik"
         UPSTM_REPO="https://github.com/traefik/" + UPSTM_NAME

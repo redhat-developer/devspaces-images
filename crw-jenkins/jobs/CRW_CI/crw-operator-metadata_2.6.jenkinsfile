@@ -48,7 +48,6 @@ timeout(120) {
           util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
 
           // UP2MID are right now ONLY files in olm/ folder upstream copied to build/scripts/ folder midstream
-          // TODO add in addDigests.sh buildDigestMap.sh from upstream (which are very different from downsteam versions)
           def SYNC_FILES_UP2MID = "digestExcludeList images.sh olm.sh" 
 
           SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
@@ -201,7 +200,7 @@ cd ..
   } // node
 } // timeout
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 node(nodeLabel){ 
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"
@@ -213,7 +212,7 @@ node(nodeLabel){
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
       if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD == "true") {
         build(
-              job: 'get-sources-rhpkg-container-build',
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [

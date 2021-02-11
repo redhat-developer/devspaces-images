@@ -3,8 +3,8 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-// SCRATCH = true (don't push to Quay) or false (do push to Quay)
 // SOURCE_BRANCH
+// MIDSTM_BRANCH
 // FORCE_BUILD = "false"
 
 @Field String branchToBuildDev = "refs/tags/19"
@@ -16,6 +16,8 @@ def SOURCE_BRANCH_Dashboard = SOURCE_BRANCH // use new dashboard https://issues.
 @Field String MVN_EXTRA_FLAGS = "" 
 
 def DWNSTM_REPO = "containers/codeready-workspaces" // dist-git repo to use as target for everything
+
+def SYNC_REPO = "server"
 
 // TODO move to node 12?
 // current version used for crw-theia:
@@ -351,15 +353,7 @@ rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/co
 
                 def brewwebQuery = \
                 "https://brewweb.engineering.redhat.com/brew/tasks?method=buildContainer&owner=crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com&state=all&view=flat&order=-id"
-                def descriptString=(
-                    env.ghprbPullId && env.ghprbPullId?.trim()?\
-                        "<a href=https://github.com/redhat-developer/${CRW_path}/pull/${env.ghprbPullId}>PR-${env.ghprbPullId}</a> ":\
-                        ("${SCRATCH}"=="true"?\
-                            "<a href=${brewwebQuery}>Scratch</a> ":\
-                            "<a href=https://quay.io/repository/crw/server-rhel8?tab=tags>Quay</a> "\
-                        )\
-                    )\
-                    + "Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/>\
+                def descriptString="<a href=https://quay.io/repository/crw/server-rhel8?tab=tags>Quay</a> " + "Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/>\
  :: ${DEV_path} @ ${SHA_DEV} (${VER_DEV}) <br/>\
  :: ${PAR_path} @ ${SHA_PAR} (${VER_PAR}) <br/>\
  :: ${CHE_DB_path} @ ${SHA_CHE_DB} (${VER_CHE_DB}) <br/>\
@@ -375,51 +369,74 @@ rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/co
   } // node
 } // timeout
 
-timeout(120) {
-  node(nodeLabel){ 
-    stage ("Run get-sources-rhpkg-container-build") {
-      def QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"server-rhel8"))
+// kick off get-sources-rhpkg-container-build_2.y job
+node(nodeLabel){ 
+  stage ("Build container on ${nodeLabel}") {
+    println "########################################################################################################"
+    println "##  Build ${SYNC_REPO} containers"
+    println "########################################################################################################"
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+    def util = load "${WORKSPACE}/util.groovy"
+    echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
       if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
-        echo "[INFO] Trigger get-sources-rhpkg-container-build " + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":"") + \
-        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${MIDSTM_BRANCH}"
-
-        // trigger OSBS build
+        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+        println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-          job: 'get-sources-rhpkg-container-build',
-          wait: false,
-          propagate: false,
-          parameters: [
-            [
-            $class: 'StringParameterValue',
-            name: 'GIT_PATHs',
-            value: "containers/codeready-workspaces",
-            ],
-            [
-            $class: 'StringParameterValue',
-            name: 'GIT_BRANCH',
-            value: "${MIDSTM_BRANCH}",
-            ],
-            [
-            $class: 'StringParameterValue',
-            name: 'QUAY_REPO_PATHs',
-            value: "${QUAY_REPO_PATHs}",
-            ],
-            [
-            $class: 'BooleanParameterValue',
-            name: 'SCRATCH',
-            value: "${SCRATCH}",
-            ],
-            [
-            $class: 'StringParameterValue',
-            name: 'JOB_BRANCH',
-            value: "${CRW_VERSION_F}",
-            ]
-          ]
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
+              wait: false,
+              propagate: false,
+              parameters: [
+                [
+                  $class: 'StringParameterValue',
+                  name: 'token',
+                  value: "CI_BUILD"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'cause',
+                  value: "${SYNC_REPO}+respin+by+${BUILD_TAG}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'GIT_BRANCH',
+                  value: "${MIDSTM_BRANCH}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'GIT_PATHs',
+                  value: "${DWNSTM_REPO}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'QUAY_REPO_PATHs',
+                  value: util.getCRWShortName(SYNC_REPO) + "-rhel8"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'JOB_BRANCH',
+                  value: "${CRW_VERSION}"
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'FORCE_BUILD',
+                  value: true
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'SCRATCH',
+                  value: false
+                ]
+              ]
         )
+        currentBuild.description="Brew build triggered"
       } else {
-        echo "No changes upstream, Brew build not triggered"
-        currentBuild.result='UNSTABLE'
-      } // if else 
-    } // stage
-  } // node
-} // timeout
+        println "No changes upstream, nothing to build in brew!"
+        currentBuild.description="No Brew build"
+        currentBuild.result = 'UNSTABLE'
+      }
+    } else {
+      util.notifyBuildFailed()
+    } // if
+  } // stage
+} //node

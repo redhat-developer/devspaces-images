@@ -209,7 +209,7 @@ stage("Builds") {
   parallel(tasks)
 }
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 nodeLabel = "${nodeLabels[0]}"
 node(nodeLabel) {
   stage ("Build containers on ${nodeLabel}") {
@@ -224,7 +224,7 @@ node(nodeLabel) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'get-sources-rhpkg-container-build',
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [

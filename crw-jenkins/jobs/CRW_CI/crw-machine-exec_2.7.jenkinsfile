@@ -3,14 +3,12 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-//   SOURCE_BRANCH
-//   MIDSTM_BRANCH
-//   def FORCE_BUILD = "false"
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
+// FORCE_BUILD = "false"
 
 def SOURCE_REPO = "eclipse/che-machine-exec" // upstream source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "containers/codeready-workspaces-machineexec" // dist-git repo to use as target
-def SCRATCH = "false"
-def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "machineexec"
 def SYNC_FILES="activity api auth build cfg client cloud-shell common exec exec-info filter kubeconfig mocks output shell vendor ws-conn compile.sh CONTRIBUTING.md devfile.yaml go.mod go.sum LICENSE main.go VERSION README.md"
 
@@ -113,21 +111,21 @@ cd ..
   }
 }
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 node(nodeLabel){ 
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"
-    println "##  Build ${SYNC_REPO} container"
+    println "##  Build ${SYNC_REPO} containers"
     println "########################################################################################################"
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-      if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
+      if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'get-sources-rhpkg-container-build',
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [

@@ -162,7 +162,7 @@ stage("Builds") {
   parallel(tasks)
 }
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 nodeLabel = "${nodeLabels[0]}"
 node(nodeLabel) {
   stage ("Build containers on ${nodeLabel}") {

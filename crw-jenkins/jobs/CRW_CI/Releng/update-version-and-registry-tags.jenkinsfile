@@ -26,9 +26,7 @@ timeout(120) {
 cd ${WORKSPACE}/targetmid
 ./product/updateVersionAndRegistryTags.sh -b ''' + MIDSTM_BRANCH + ''' -v ''' + CSV_VERSION + ''' -w $(pwd)
 '''
-
-                    // TODO also bump versions in other repos:
-                    // crw-theia, crw-chectl, etc.
+                    // NOTE: no need to bump versions in other repos: crw-theia, crw-chectl are generic and generative
 
                     currentBuild.description="Updated ${MIDSTM_BRANCH} to ${CSV_VERSION}"
                 }
@@ -37,4 +35,5 @@ cd ${WORKSPACE}/targetmid
     }
 }
 
-// TODO now that we have updated the crw repo, time to enable jobs and trigger them!
+// NOTE: now that crw repo is updated and ready to build, time to enable jobs and trigger them!
+// TODO: could we have a job that does the job enablement automatically?

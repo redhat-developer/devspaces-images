@@ -183,6 +183,16 @@ LABEL summary="$SUMMARY" \\\r
                   value: "${SYNC_REPO}"
                 ],
                 [
+                  $class: 'StringParameterValue',
+                  name: 'JOB_BRANCH',
+                  value: "${CRW_VERSION}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: "${MIDSTM_BRANCH}"
+                ],
+                [
                   $class: 'BooleanParameterValue',
                   name: 'FORCE_BUILD',
                   value: true

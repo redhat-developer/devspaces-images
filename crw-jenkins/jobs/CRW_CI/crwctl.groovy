@@ -1,4 +1,5 @@
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.25.x", "2":"master"] // TODO switch to 7.26.x
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=JB.key
@@ -6,6 +7,7 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
+        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="chectl"
         UPSTM_REPO="https://github.com/che-incubator/" + UPSTM_NAME
 
@@ -56,12 +58,10 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
             stringParam("CRW_SERVER_TAG", JOB_BRANCH, "set 2.y-zz for GA release")
             stringParam("CRW_OPERATOR_TAG", JOB_BRANCH, "set 2.y-zz for GA release")
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
-            stringParam("versionSuffix", "", 
-                "if set, use as version suffix before commitSHA: RC-" + MMdd + " --> " + JOB_BRANCH + ".0-RC-" + MMdd + "-commitSHA; \n\
-<br/>\n\
-if unset, version is CRW_VERSION-YYYYmmdd-commitSHA \n\
-<br/>\n\
-:: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a")
+            stringParam("versionSuffix", "", '''
+if set, use as version suffix before commitSHA: RC-''' + MMdd + ''' --> ''' + JOB_BRANCH + '''.0-RC-''' + MMdd + '''-commitSHA;<br/>
+if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
+:: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a''')
             booleanParam("PUBLISH_ARTIFACTS_TO_GITHUB", false, "default false; check box to publish to GH releases")
             booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")
         }

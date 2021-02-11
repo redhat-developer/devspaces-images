@@ -23,11 +23,6 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
   <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-''' + JOB_BRANCH + '''-rhel-8/dependencies/LATEST_IMAGES.sh>LATEST_IMAGES.sh</a>
-  
-  <p>
-    TODO: this job should ONLY rebuild a registry if an image ref'd in that registry is rebuilt, or 
-    if an image is rebuilt from the list in the operator-metadata csv's relatedImages. 
-    Right now, we rebuild these 3 images WAY TOO OFTEN - if server is updated, no need to rebuild registries (only metadata)
         ''')
 
         properties {

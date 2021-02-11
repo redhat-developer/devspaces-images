@@ -242,7 +242,7 @@ fi
   } // node
 } // timeout
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 node(buildNode) {
   stage ("Build container on ${buildNode}") {
     println "########################################################################################################"
@@ -256,7 +256,7 @@ node(buildNode) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'get-sources-rhpkg-container-build',
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [

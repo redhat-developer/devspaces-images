@@ -6,8 +6,6 @@ import groovy.transform.Field
 // def FORCE_BUILD = "false"
 // MIDSTM_BRANCH
 
-// TODO source from eclipse/che-plugin-registry too
-
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "containers/codeready-workspaces-pluginregistry" // dist-git repo to use as target
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
@@ -180,7 +178,6 @@ fi
           echo "<======= END BOOTSTRAP BUILD ======="
           # update tarballs - step 2 - check old sources' tarballs
           cd ${WORKSPACE}/targetdwn
-          # TODO is there a better way to determine if we need to push sources?
           rhpkg sources
           # update tarballs - step 3 - create tarballs in targetdwn folder
           mkdir -p /tmp/root-local/ && docker run --rm -v \
@@ -242,7 +239,7 @@ fi
   } // node
 } // timeout
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 node(buildNode) {
   stage ("Build container on ${buildNode}") {
     println "########################################################################################################"
@@ -256,7 +253,7 @@ node(buildNode) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'get-sources-rhpkg-container-build',
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [

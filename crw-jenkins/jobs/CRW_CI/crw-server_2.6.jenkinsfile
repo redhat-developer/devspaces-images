@@ -3,21 +3,22 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-// SCRATCH = true (don't push to Quay) or false (do push to Quay)
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
 // FORCE_BUILD = "false"
+
+def SCRATCH = false
 
 @Field String branchToBuildDev = "refs/tags/19"
 @Field String branchToBuildParent = "refs/tags/7.15.0"
 @Field String branchToBuildChe = "7.24.x"
 @Field String branchToBuildCheDashboard = "7.24.x"
 
-// TODO re-enable all tests here
 // additional flags for maven, eg., to disable a module -pl '!org.eclipse.che.infrastructure:che-infrastructures-parent,!...'
 @Field String MVN_EXTRA_FLAGS = "" 
 
 def DWNSTM_REPO = "containers/codeready-workspaces" // dist-git repo to use as target for everything
 
-// TODO move to node 12?
 // current version used for crw-theia:
 //def nodeVersion = "12.18.2"
 // def yarnVersion = "1.17.3"
@@ -43,19 +44,6 @@ def installMaven(String MAVEN_VERSION, String JAVA_VERSION){
   env.JAVA_HOME="/usr/lib/jvm/java-"+JAVA_VERSION+"-openjdk"
   env.M2_HOME="/opt/apache-maven" 
   sh ("mvn -v")
-}
-
-// TODO do we need go installed locally? And should we still be on 1.10 or is 1.15.6 better?
-def installGo(String GO_VERSION){
-  gURL="https://golang.org/dl/go" + GO_VERSION + ".linux-amd64.tar.gz"
-  sh(script: '''#!/bin/bash -xe
-    cd /tmp; curl -sSLO ''' + gURL + '''
-    tar -C /usr/local -xzf go1.15.6.linux-amd64.tar.gz
-    export PATH=$PATH:/usr/local/go/bin
-    go version
-  ''')
-  env.PATH="${env.PATH}:/usr/local/go/bin"
-  sh "go version;go env"
 }
 
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
@@ -218,8 +206,6 @@ docker run --rm --entrypoint sh crw-workspace-loader:tmp -c 'tar -pzcf - /usr/lo
 
                 echo "===== Build che server assembly =====>"
 
-                // TODO re-enable tests
-                // TESTS_TO_EXCLUDE="-pl '!org.eclipse.che.infrastructure:che-infrastructures-parent,!org.eclipse.che.infrastructure:infrastructure-distributed,!org.eclipse.che.infrastructure:infrastructure-metrics,!org.eclipse.che.infrastructure:infrastructure-permission,!org.eclipse.che.infrastructure:infrastructure-kubernetes,!org.eclipse.che.infrastructure:infrastructure-openshift,!org.eclipse.che.core:cascade-removal'"
                 sh "mvn -DskipTests clean install ${MVN_FLAGS} -P native -f ${CHE_path}/pom.xml ${MVN_EXTRA_FLAGS}"
                 echo "<==== Build che server assembly ====="
 
@@ -410,15 +396,15 @@ rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/co
 
 timeout(120) {
   node(nodeLabel){ 
-    stage ("Run get-sources-rhpkg-container-build") {
+    stage ("Run get-sources-rhpkg-container-build_2.y") {
       def QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"server-rhel8"))
       if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
-        echo "[INFO] Trigger get-sources-rhpkg-container-build " + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":"") + \
-        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${MIDSTM_BRANCH}"
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + CRW_VERSION_F + " " + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":"") + \
+        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${CRW_VERSION_F}"
 
         // trigger OSBS build
         build(
-          job: 'get-sources-rhpkg-container-build',
+          job: 'get-sources-rhpkg-container-build_' + CRW_VERSION_F,
           wait: false,
           propagate: false,
           parameters: [

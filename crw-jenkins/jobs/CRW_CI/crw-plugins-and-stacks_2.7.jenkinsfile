@@ -91,10 +91,10 @@ timeout(120) {
                   if (SCRATCH == true || SCRATCH.toString().equals("true")) {
                     QUAY_REPO_PATH=""
                   }
-                  println ("Trigger get-sources-rhpkg-container-build for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
-                  // kick off get-sources-rhpkg-container-build job
+                  println ("Trigger get-sources-rhpkg-container-build_" + CRW_VERSION + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
+                  // kick off get-sources-rhpkg-container-build_2.y job
                   build(
-                    job: 'get-sources-rhpkg-container-build',
+                    job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
                     wait: false,
                     propagate: false,
                     parameters: [

@@ -44,7 +44,6 @@ timeout(120) {
 
         // can't yet generate a PR against eclipse/che-* repos, and can't push directly
         // so check for a new base image but DO NOT commit/push/pull-request
-        //TODO updateBaseImages should use SOURCE_BRANCH, but curl from CRW_VERSION
         util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, "-f Dockerfile --nocommit")
 
         println "########################################################################################################"
@@ -151,7 +150,6 @@ LABEL summary="$SUMMARY" \\\r
           tar xvzf /tmp/resources.tgz -C /tmp/resources
           # update tarballs - step 3 - check old sources' tarballs
           cd ${WORKSPACE}/targetdwn
-          # TODO is there a better way to determine if we need to push sources?
           rhpkg sources
           # check diff
           if [[ -f ${WORKSPACE}/targetdwn/resources.tgz ]]; then
@@ -191,7 +189,7 @@ LABEL summary="$SUMMARY" \\\r
   } // node
 } // timeout
 
-// kick off get-sources-rhpkg-container-build job
+// kick off get-sources-rhpkg-container-build_2.y job
 node(nodeLabel) {
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"
@@ -205,7 +203,7 @@ node(nodeLabel) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'get-sources-rhpkg-container-build',
+              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [

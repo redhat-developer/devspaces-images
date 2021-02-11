@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.6"] // , "2.7"]
+def JOB_BRANCHES = ["2.7"] // only one release at a time
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"

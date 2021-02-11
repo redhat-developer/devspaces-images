@@ -121,7 +121,6 @@ cd ..
 
                 archiveArtifacts fingerprint: true, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "crw-theia/dockerfiles/**, logs/*"
 
-                // TODO start collecting shas with "git rev-parse --short=4 HEAD"
                 def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${CHE_THEIA_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
                 echo "${descriptString}"
                 currentBuild.description="${descriptString}"
