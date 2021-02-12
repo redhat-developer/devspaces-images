@@ -33,6 +33,8 @@ timeout(120) {
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
             util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
+            // ensure static Dockerfiles have the correct version encoded in them
+            util.updateDockerfileVersions()
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH)
             SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")

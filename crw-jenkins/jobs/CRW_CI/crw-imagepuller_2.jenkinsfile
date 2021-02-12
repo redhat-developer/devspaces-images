@@ -7,8 +7,8 @@
 
 import groovy.transform.Field
 
-def SOURCE_REPO = "che-incubator/kubernetes-image-puller" // upstream source repo from which to find and sync commits to pkgs.devel repo
-def DWNSTM_REPO = "containers/codeready-workspaces-imagepuller" // dist-git repo to use as target
+def SOURCE_REPO = "che-incubator/kubernetes-image-puller" // upstream source repo from which to find and sync commits
+def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 
 def SCRATCH = "false"
 def SYNC_REPO =  "imagepuller" // also used for the Brew dockerfile params
@@ -39,19 +39,21 @@ timeout(120) {
         println "########################################################################################################"
         println "##  Clone and update github.com/${SOURCE_REPO}.git"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
-        SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+        SOURCE_DIR="${WORKSPACE}/sources"
+        util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
+        SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
 
         // can't yet generate a PR against eclipse/che-* repos, and can't push directly
         // so check for a new base image but DO NOT commit/push/pull-request
         //TODO updateBaseImages should use SOURCE_BRANCH, but curl from CRW_VERSION
-        util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, "-f Dockerfile --nocommit")
+        util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit")
 
         println "########################################################################################################"
-        println "##  Sync ${SYNC_REPO} to pkgs.devel"
+        println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
         println "########################################################################################################"
-        util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn",  MIDSTM_BRANCH)
-        OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+        util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn/", MIDSTM_BRANCH)
+        TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
+        OLD_SHA = util.getLastCommitSHA(TARGET_DIR)
         println "Got OLD_SHA in targetdwn folder: " + OLD_SHA
 
         // rsync files in github to dist-git
@@ -59,21 +61,21 @@ timeout(120) {
           SYNC_FILES="''' + SYNC_FILES + '''"
           for d in ${SYNC_FILES}; do
             if [[ -f ${WORKSPACE}/sources/${d} ]]; then
-              rsync -zrlt ${WORKSPACE}/sources/${d} ${WORKSPACE}/targetdwn/${d}
+              rsync -zrlt ${WORKSPACE}/sources/${d} ''' + TARGET_DIR + '''/${d}
             elif [[ -d ${WORKSPACE}/sources/${d} ]]; then
               # copy over the files
-              rsync -zrlt ${WORKSPACE}/sources/${d}/* ${WORKSPACE}/targetdwn/${d}/
+              rsync -zrlt ${WORKSPACE}/sources/${d}/* ''' + TARGET_DIR + '''/${d}/
               # sync the directory and delete from targetdwn if deleted from source
-              rsync -zrlt --delete ${WORKSPACE}/sources/${d}/ ${WORKSPACE}/targetdwn/${d}/
+              rsync -zrlt --delete ${WORKSPACE}/sources/${d}/ ''' + TARGET_DIR + '''/${d}/
             fi
           done
         ''')
 
         sh('''#!/bin/bash -xe
-          cp -f ${WORKSPACE}/sources/docker/Dockerfile ${WORKSPACE}/targetdwn/Dockerfile
+          cp -f ${WORKSPACE}/sources/docker/Dockerfile ''' + TARGET_DIR + '''/Dockerfile
           CRW_VERSION="''' + CRW_VERSION_F + '''"
-          # apply patches to transform Che upstream to pkgs.devel version
-          sed -i ${WORKSPACE}/targetdwn/Dockerfile --regexp-extended \
+          # apply patches to transform Che upstream to brew version
+          sed -i ''' + TARGET_DIR + '''/Dockerfile --regexp-extended \
             `# Replace ubi8 with rhel8 version` \
             -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
             `# more replacements` \
@@ -99,88 +101,27 @@ LABEL summary="$SUMMARY" \\\r
       io.openshift.expose-services="" \\\r
       usage="" \r'
 
-          echo -e "$METADATA" >> ${WORKSPACE}/targetdwn/Dockerfile
+          echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
         ''')
 
-        // push changes in github to dist-git
-        util.updateBaseImages("${WORKSPACE}/targetdwn", MIDSTM_BRANCH, "--nocommit")
+        // push changes to github
+        util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit")
         sh('''#!/bin/bash -xe
           export KRB5CCNAME=/var/tmp/crw-build_ccache
           SYNC_FILES="''' + SYNC_FILES + '''"
           cd ${WORKSPACE}/targetdwn
-          if [[ \$(git diff --name-only) ]]; then # file changed
+          git add ''' + util.getCRWLongName(SYNC_REPO) + '''
+          git update-index --refresh  # ignore timestamp updates
+          if [[ \$(git diff-index HEAD --) ]]; then # file changed
+            cd ''' + TARGET_DIR + '''
             git add Dockerfile ${SYNC_FILES}
             # note this might fail if we're syncing from a tag vs. a branch
             git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" Dockerfile ${SYNC_FILES}
             git push origin ''' + MIDSTM_BRANCH + ''' || true
-            echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+            echo "[sync] Updated codeready-workspaces-images @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
           fi
         ''')
-        NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
-
-        println "########################################################################################################"
-        println "##  Update the tarballs"
-        println "########################################################################################################"
-        sh('''#!/bin/bash -xe
-          export KRB5CCNAME=/var/tmp/crw-build_ccache
-          # step 1 - build the container
-          cd ${WORKSPACE}/targetdwn
-          CONTAINERNAME="imagepullerbuilder"
-          # transform Brew friendly Dockerfile so we can use it in Jenkins where base images need full registry path
-          sed ${WORKSPACE}/targetdwn/Dockerfile --regexp-extended \
-            -e 's|^ *COPY resources.tgz|# &|' \
-            -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=true|' \
-            `# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
-            `# DISABLED -e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\\1-\\2:\\3#"` \
-            -e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry.redhat.io/\\1/\\2:\\3#" \
-            `# replace ubi8-minimal:tag with reg-proxy/rh-osbs/ubi-minimal:tag` \
-            `# DISABLED -e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\\1:\\2#"` \
-            -e "s#^FROM ([^/:]+):([^/:]+)#FROM registry.redhat.io/\\1:\\2#" \
-            > ${WORKSPACE}/bootstrap.Dockerfile
-          echo "======= BOOTSTRAP DOCKERFILE =======>"
-          cat ${WORKSPACE}/bootstrap.Dockerfile
-          echo "<======= BOOTSTRAP DOCKERFILE ======="
-          echo "======= START BOOTSTRAP BUILD =======>"
-          docker build -t ${CONTAINERNAME} . --no-cache -f ${WORKSPACE}/bootstrap.Dockerfile \
-            --target builder --build-arg BOOTSTRAP=true
-          echo "<======= END BOOTSTRAP BUILD ======="
-          # update tarballs - step 2 - create tarballs in targetdwn folder
-          docker run --rm --entrypoint sh ${CONTAINERNAME} -c 'tar -pzcf - \
-              /opt/app-root/src/go/pkg/mod' > /tmp/resources.tgz
-          mkdir -p /tmp/resources
-          tar xvzf /tmp/resources.tgz -C /tmp/resources
-          # update tarballs - step 3 - check old sources' tarballs
-          cd ${WORKSPACE}/targetdwn
-          # TODO is there a better way to determine if we need to push sources?
-          rhpkg sources
-          # check diff
-          if [[ -f ${WORKSPACE}/targetdwn/resources.tgz ]]; then
-            BEFORE_DIR=/tmp/resources-before
-            rm -fr ${BEFORE_DIR}; mkdir ${BEFORE_DIR} && tar xzf ${WORKSPACE}/targetdwn/resources.tgz -C ${BEFORE_DIR}
-            TAR_DIFF=$(sudo diff --suppress-common-lines -u -r ${BEFORE_DIR} /tmp/resources) || true
-          else
-            TAR_DIFF="No such file ${WORKSPACE}/targetdwn/resources.tgz -- creating a new one for the first time"
-          fi
-          if [[ ${TAR_DIFF} ]]; then
-            echo "DIFF START *****"
-            echo "${TAR_DIFF}"
-            echo "***** END DIFF"
-            mv -f /tmp/resources.tgz ${WORKSPACE}/targetdwn/resources.tgz
-          fi
-          # update tarballs - step 4 - commit changes if diff different
-          if [[ ${TAR_DIFF} ]]; then
-            rhpkg new-sources resources.tgz
-            git commit -s -m "[tgz] Update resources.tgz" sources
-            git push origin ''' + MIDSTM_BRANCH + '''
-          else
-            echo "No changes since previous tarball was created."
-          fi
-          # clean up diff dirs
-          sudo rm -fr /tmp/resources /tmp/resources-before
-        ''')
-
-                NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
-          println "Got NEW_SHA in targetdwn folder: " + NEW_SHA
+        NEW_SHA = util.getLastCommitSHA(TARGET_DIR)
 
         if (NEW_SHA.equals(OLD_SHA) && !FORCE_BUILD.equals("true")) {
           currentBuild.result='UNSTABLE'
@@ -191,7 +132,7 @@ LABEL summary="$SUMMARY" \\\r
   } // node
 } // timeout
 
-// kick off get-sources-rhpkg-container-build_2.y job
+// kick off get-sources-rhpkg-container-build job
 node(nodeLabel) {
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"
@@ -205,7 +146,7 @@ node(nodeLabel) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
+              job: 'crw-plugins-and-stacks_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [
@@ -221,23 +162,18 @@ node(nodeLabel) {
                 ],
                 [
                   $class: 'StringParameterValue',
-                  name: 'GIT_BRANCH',
-                  value: "${MIDSTM_BRANCH}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'GIT_PATHs',
-                  value: "${DWNSTM_REPO}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'QUAY_REPO_PATHs',
-                  value: util.getCRWShortName(SYNC_REPO) + "-rhel8"
+                  name: 'REPOS',
+                  value: util.getCRWLongName(SYNC_REPO)
                 ],
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
                   value: "${CRW_VERSION}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: "${MIDSTM_BRANCH}"
                 ],
                 [
                   $class: 'BooleanParameterValue',
@@ -262,4 +198,3 @@ node(nodeLabel) {
     } // if
   } // stage
 } //node
-
