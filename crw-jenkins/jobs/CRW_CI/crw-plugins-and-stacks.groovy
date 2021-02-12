@@ -14,7 +14,7 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
 <p>Several builds triggered by this job depend on artifacts from 
 <a href=../crw-deprecated_''' + JOB_BRANCH + '''/>crw-deprecated_''' + JOB_BRANCH + '''</a>
 
-<p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build/>get-sources-rhpkg-container-build</a>.
+<p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.
 
 <p>TODO: tie this into overall orchestration job, see <a href=https://issues.redhat.com/browse/CRW-668>CRW-668</a>
         ''')

@@ -10,7 +10,7 @@ for (JB in JOB_BRANCHES) {
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
 Push 1 or more containers from OSBS to quay.io/crw/. 
-Triggered by  <a href=../get-sources-rhpkg-container-build/>get-sources-rhpkg-container-build</a>, but can be used manually too.
+Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, but can be used manually too.
    
 <p>
   

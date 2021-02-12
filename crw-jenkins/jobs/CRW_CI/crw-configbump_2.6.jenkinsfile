@@ -20,7 +20,7 @@ def NEW_SHA=""
 def List nodeLabels = ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
 def Map tasks = [failFast: false]
 
-timeout(30) {
+timeout(120) {
     def String nodeLabel = "${nodeLabels[0]}"
     node(nodeLabel) {
         stage ("Sync repos on " + nodeLabel) {

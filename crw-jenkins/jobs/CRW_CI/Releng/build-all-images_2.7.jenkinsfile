@@ -1,0 +1,75 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   MIDSTM_BRANCH
+
+def jobsList = [
+    "server":"server-rhel8", 
+    "configbump":"configbump-rhel8", 
+    "operator":"crw-2-rhel8-operator", 
+    "imagepuller":"imagepuller-rhel8", 
+    "jwtproxy":"jwtproxy-rhel8",
+    "machine-exec":"machineexec-rhel8", 
+    "pluginbrokers":"pluginbroker-artifacts-rhel8", // don't bother checking for pluginbroker-metadata-rhel8 too
+    "traefik":"traefik-rhel8" // multiarch assets
+    ]
+def String nodeLabel = 'rhel8'
+node(nodeLabel) {
+    stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
+        wrap([$class: 'TimestamperBuildWrapper']) {
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
+            def util = load "${WORKSPACE}/util.groovy"
+            cleanWs()
+            util.installSkopeoFromContainer("")
+            util.installYq()
+            util.installRhpkg()
+            util.installBrewKoji()
+            CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+            currentBuild.description="Jobs run: "
+            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+                    file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+
+                def currentJob="" // name of job
+                def lastSuccesfulBuildId="" // lastSuccesfulBuild id
+                def currentQuayImage="" // last successful quay tag
+                def jenkinsURL="${JENKINS_URL}job/CRW_CI/job/"
+
+                // rebuild lang server artifacts
+                currentJob="crw-deprecated_" + CRW_VERSION
+                lastSuccesfulBuildId = util.runJob("../" + currentJob, "${jenkinsURL}", true, true)
+                waitForNewBuild("${jenkinsURL}" + currentJob, lastSuccesfulBuildId)
+                currentBuild.description+=currentJob + "#" + lastSuccesfulBuildId
+
+                // all the sidecars - start this early since it's 10 builds
+                currentJob="crw-plugins-and-stacks_" + CRW_VERSION
+                lastSuccesfulBuildId = util.runJob("../" + currentJob, "${jenkinsURL}", false, true) // don't wait for this to finish
+                currentBuild.description+=", "+currentJob + "#" + lastSuccesfulBuildId
+
+                // theia assets (sources) + theia-containers and akamai update too - start early since it's long running 
+                currentJob="crw-theia-sources_" + CRW_VERSION
+                currentQuayImageTheia=util.getLatestQuayImageAndTag("crw/theia-rhel8")
+                currentQuayImageTheiaEndpoint=util.getLatestQuayImageAndTag("crw/theia-endpoint-rhel8")
+                lastSuccesfulBuildId = util.runJob("../" + currentJob, "${jenkinsURL}", false, true) // don't wait for this to finish
+                currentBuild.description+=", "+currentJob + "#" + lastSuccesfulBuildId
+
+                // rebuild other containers and wait for results in quay.io
+                for (job in jobsList) {
+                    currentQuayImage = util.getLatestQuayImageAndTag("crw/" + job.value)
+                    lastSuccesfulBuildId = util.runJob("../" + job.key, "${jenkinsURL}", false, true)
+                    util.waitForNewQuayImage("crw/" + job.value, currentQuayImage)
+                    currentBuild.description+=", "+job.key + "#" + lastSuccesfulBuildId
+                }
+
+                // wait until theia is rebuilt too
+                util.waitForNewQuayImage("crw/theia-rhel8", currentQuayImageTheia)
+                util.waitForNewQuayImage("crw/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint)
+
+                // trigger update-digests job (to rebuild registries and metadata images)
+                currentJob="update-digests-in-registries-and-metadata_" + CRW_VERSION
+                lastSuccesfulBuildId = util.runJob("../" + currentJob, "${jenkinsURL}", false, true) // don't wait for this to finish
+                currentBuild.description+=", "+currentJob + "#" + lastSuccesfulBuildId
+            } // withCredentials
+        } // wrap
+    } // stage
+} // node

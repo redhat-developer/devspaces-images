@@ -20,7 +20,7 @@ Artifact builder + sync job; triggers brew after syncing
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces?h=''' + MIDSTM_BRANCH + '''>crw server</a></li>
 </ul>
 
-<p>If <b style="color:green">downstream job fires</b>, see <a href=../get-sources-rhpkg-container-build/>get-sources-rhpkg-container-build</a>. <br/>
+<p>If <b style="color:green">downstream job fires</b>, see <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
         ''')
 
