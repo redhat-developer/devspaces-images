@@ -1,3 +1,9 @@
+// map branch to floating quay tag to create
+def FLOATING_QUAY_TAGS = [
+    "2.6":"2.6",
+    "2.7":"latest",
+    "2"  :"nightly"
+    ]
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
 def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
 for (JB in JOB_BRANCHES) {
@@ -100,13 +106,15 @@ Images to copy to quay:
         parameters{
             textParam("CONTAINERS", '''configbump devfileregistry operator operator-metadata imagepuller \
 jwtproxy machineexec pluginbroker-metadata pluginbroker-artifacts plugin-intellij \
-plugin-java11-openj9 plugin-java11  plugin-java8-openj9 plugin-java8 plugin-kubernetes \
+plugin-java11-openj9 plugin-java11 plugin-java8-openj9 plugin-java8 plugin-kubernetes \
 plugin-openshift pluginregistry server stacks-cpp stacks-dotnet \
 stacks-golang stacks-php theia theia-dev theia-endpoint \
-traefik''', "list of containers to copy: can 1, all or some, as needed")
-
-            stringParam("TAGS", "latest", "By default, update :latest tag in addition to the latest one (2.y-4) and the base one (2.y).")
+traefik''', '''list of containers to copy:<br/>
+* no 'crw/' or 'codeready-workspaces-' prefix><br/>
+* no '-rhel8' suffix<br/>
+* include one, some, or all as needed''')
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
+            stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS[JB.key], "Update :" + FLOATING_QUAY_TAGS[JB.key] + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

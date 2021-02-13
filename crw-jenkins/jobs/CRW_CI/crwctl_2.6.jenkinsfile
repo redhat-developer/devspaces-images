@@ -3,13 +3,13 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
 // CSV_VERSION
-// CRW_SERVER_TAG
-// CRW_OPERATOR_TAG
+// CSV_QUAY_TAG
 // versionSuffix
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
-// MIDSTM_BRANCH
 
 @Field String branchCHECTL = "7.24.x" // branch or tag of https://github.com/che-incubator/chectl
 

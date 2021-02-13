@@ -141,7 +141,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
                               chmod +x ./build/dockerfiles/*.sh
                               ./build/dockerfiles/rhel.Dockerfile.extract.assets.sh
                             ''')
-                            archiveArtifacts fingerprint: true, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "asset-*.tar.gz, logs/*"
+                            archiveArtifacts fingerprint: false, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "asset-*.tar.gz, logs/*"
                             currentBuild.description+="; New ${nodeLabel} artifacts built"
                         } else {
                             println "No changes upstream, nothing to build in Jenkins!"

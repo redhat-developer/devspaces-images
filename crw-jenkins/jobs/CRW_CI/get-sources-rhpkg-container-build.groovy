@@ -1,3 +1,9 @@
+// map branch to floating quay tag to create
+def FLOATING_QUAY_TAGS = [
+    "2.6":"2.6",
+    "2.7":"latest",
+    "2"  :"nightly"
+    ]
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
 def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
 for (JB in JOB_BRANCHES) {
@@ -19,11 +25,6 @@ OSBS build</a>
 
 <p>TODO: migrate old job <a href=https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines_2.4/job/rebuild-all-rhpkg-container-builds_2.4/>rebuild-all-rhpkg-container-builds_2.4</a> to this server. 
 <!-- Looking to rebuild all the containers? See <a href="../rebuild-all-rhpkg-container-builds_''' + JOB_BRANCH + '''/">rebuild-all-rhpkg-container-builds_''' + JOB_BRANCH + '''</a> -->
-
-<p>TODO: need a way to identify builds which should NOT update the <b>:latest</b> tag so we can use this job for 2.6.x and 2.7 builds in parallel.<br/>
-
-Workaround is to re-run the <a href=../push-latest-containers-to-quay_''' + JOB_BRANCH + '''>push-latest-containers-to-quay_2.6</a> job again for any containers that have the wrong :latest value, 
-or use skopeo copy --all to explicitly copy from :2.6 to :latest. 
 ''')
 
         properties {
@@ -71,6 +72,7 @@ eg., one or more of these (space-separated values): <br/>
 ---<br/>
 See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''>push-latest-container-to-quay</a>''')
             stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
+            stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS[JB.key], "Update :" + FLOATING_QUAY_TAGS[JB.key] + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
             booleanParam("SCRATCH", true, "By default make a scratch build. Set to false to NOT do a scratch build.")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }

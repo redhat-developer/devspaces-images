@@ -3,14 +3,13 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
 // CSV_VERSION
-// CRW_SERVER_TAG
-// CRW_OPERATOR_TAG
+// CSV_QUAY_TAG
 // versionSuffix
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
-// SOURCE_BRANCH
-// MIDSTM_BRANCH
 
 def nodeVersion = "12.18.2" // Note: theia using newer 12.19.1
 def yarnVersion = "1.17.3"
@@ -63,26 +62,42 @@ timeout(90) {
           def TARBALL_PREFIX="codeready-workspaces-${CHECTL_VERSION}"
 
           SHA_CTL = util.getLastCommitSHA("${WORKSPACE}/${CTL_path}")
-
           currentBuild.description="Sync from upstream chectl ..."
+
+          // set default CRW_SERVER_TAG and CRW_OPERATOR_TAG = 2.y
+          CRW_SERVER_TAG=CRW_VERSION
+          CRW_OPERATOR_TAG=CRW_VERSION
+          // compute CRW_SERVER_TAG and CRW_OPERATOR_TAG = 2.y-zzz
+          if (versionSuffix.equals("GA")) {
+            // get latest tags from RHEC stage repo, since we're rebuilding for GA
+            CRW_SERVER_TAG=util.getLatestImageAndTag("codeready-workspaces/server-rhel8", "stage").replaceAll(".+:(.+)",'$1')
+            CRW_OPERATOR_TAG=util.getLatestImageAndTag("codeready-workspaces/crw-2-rhel8-operator", "stage").replaceAll(".+:(.+)",'$1')
+          } else if (versionSuffix.contains("RC")) {
+            // get latest tags from quay, as we might not have the latest builds in RHEC stage
+            CRW_SERVER_TAG=util.getLatestImageAndTag("crw/server-rhel8", "quay").replaceAll(".+:(.+)",'$1')
+            CRW_OPERATOR_TAG=util.getLatestImageAndTag("crw/crw-2-rhel8-operator", "quay").replaceAll(".+:(.+)",'$1')
+          }
+          println "Using server:${CRW_SERVER_TAG} + operator:${CRW_OPERATOR_TAG}"
+          
           sh '''#!/bin/bash -xe
 echo "0. Sync from upstream chectl"
 cd ${WORKSPACE}/''' + CTL_path + '''
 git checkout ''' + MIDSTM_BRANCH + '''
 
+# CRW-1579 change yamls to use :2.y tag, not :latest or :nightly - use that only for quay version of crwctl
+pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
+  FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
+  for d in ${FILES}; do
+    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#registry.redhat.io/codeready-workspaces/\\1:''' + CRW_VERSION + '''#g"
+  done
+popd >/dev/null
+
 ./build/scripts/sync-chectl-to-crwctl.sh -b ''' + MIDSTM_BRANCH + ''' -s ${WORKSPACE}/chectl -t ${WORKSPACE}/''' + CTL_path + ''' \
-  --server-tag ${CRW_SERVER_TAG} --operator-tag ${CRW_OPERATOR_TAG}
-
-# CRW-1579 change yamls to use :2.x tag, not :latest (use that only for quay version of crwctl)
-FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
-for d in ${FILES}; do
-  sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):latest#registry.redhat.io/codeready-workspaces/\1:''' + CRW_VERSION + '''#g"
-done
-
+  --server-tag ''' + CRW_SERVER_TAG + ''' --operator-tag ''' + CRW_OPERATOR_TAG + '''
 # commit changes
 set -x
 git add .
-git commit -s -m "[sync] Push latest in chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
+git commit -s -m "[sync] Push chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 '''
 
@@ -107,7 +122,7 @@ while IFS= read -r -d '' d; do
 done <   <(find dist/channels/redhat -type f -name "*gz" -print0)
 pwd; du ./dist/channels/*/*gz
 
-git commit -s -m "[update] commit latest package.json + README.md" package.json README.md || true
+git commit -s -m "[update] package.json + README.md" package.json README.md || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 '''
 
@@ -116,19 +131,20 @@ git push origin ''' + MIDSTM_BRANCH + ''' || true
 echo "2. Prepare ''' + MIDSTM_BRANCH + '''-quay branch of crw operator repo"
 
 # check out from MIDSTM_BRANCH
-pushd ${WORKSPACE}/codeready-workspaces-operator/  >/dev/null
+pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
   git branch ''' + MIDSTM_BRANCH + '''-quay -f
   git checkout ''' + MIDSTM_BRANCH + '''-quay
   ls -la . deploy manifests
 
-  # CRW-1579 change yamls to use quay image, and :latest tag (not :2.x)
+  # CRW-1579 change yamls to use quay image, and :latest or :nightly (depending on CSV_QUAY_TAG set in .groovy)
+  # do not use :2.y to allow stable builds to be auto-updated via crwctl on ocp3.11 - :latest tag triggers always-update (?)
   FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
-    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:latest#g"
+    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + CSV_QUAY_TAG + '''#g"
   done
 
   # push to ''' + MIDSTM_BRANCH + '''-quay branch
-  git commit -s -m "[update] Push latest in ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
+  git commit -s -m "[update] Push ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
   git push origin ''' + MIDSTM_BRANCH + '''-quay -f
 popd >/dev/null
 # cleanup

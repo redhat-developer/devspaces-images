@@ -34,7 +34,7 @@ export KRB5CCNAME=/var/tmp/crw-build_ccache
                     if (MISSING_SIGS.equals("")){
                         currentBuild.description="RPM signatures checked: OK"
                     } else {
-                        archiveArtifacts fingerprint: true, artifacts:"missing.signatures.txt"
+                        archiveArtifacts fingerprint: false, artifacts:"missing.signatures.txt"
                         currentBuild.description="Unsigned RPM content found!"
                         currentBuild.result = 'FAILED'
                     }

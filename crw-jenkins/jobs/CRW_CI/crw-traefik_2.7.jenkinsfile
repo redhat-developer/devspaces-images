@@ -187,7 +187,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
 		                tar czf ${WORKSPACE}/asset-traefik-$(uname -m).tar.gz -C $PWD/brew-assets .
 		                docker rmi -f $TMP_IMG
                             ''')
-                            archiveArtifacts fingerprint: true, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "asset-*.tar.gz, logs/*"
+                            archiveArtifacts fingerprint: false, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "asset-*.tar.gz, logs/*"
                             currentBuild.description+="; New ${nodeLabel} artifacts built"
                         } else {
                             println "No changes upstream, nothing to build in Jenkins!"

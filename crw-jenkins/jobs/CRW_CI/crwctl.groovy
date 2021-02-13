@@ -1,3 +1,9 @@
+// map branch to tag to use in operator.yaml and csv.yaml
+def CSV_QUAY_TAGS = [
+    "2.6":"2.6",
+    "2.7":"latest",
+    "2"  :"nightly"
+    ]
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
 def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
 for (JB in JOB_BRANCHES) {
@@ -20,12 +26,6 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 </ul>
 
 Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases>chectl/releases</a>
-  
-  <p>
-  TODO: get image tags using one of these and set them automatically:
-  <li>$➔ getLatestImageTags.sh --quay  -c "crw/server-rhel8 crw/crw-2-rhel8-operator"
-    <li>$➔ getLatestImageTags.sh --stage  -c "codeready-workspaces/server-rhel8 codeready-workspaces/crw-2-rhel8-operator"
-
         ''')
 
         properties {
@@ -55,12 +55,14 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("CSV_VERSION", JOB_BRANCH + ".0", "Full version (x.y.z), used in CSV and crwctl version")
-            stringParam("CRW_SERVER_TAG", JOB_BRANCH, "set 2.y-zz for GA release")
-            stringParam("CRW_OPERATOR_TAG", JOB_BRANCH, "set 2.y-zz for GA release")
+            stringParam("CSV_QUAY_TAG", CSV_QUAY_TAGS[JB.key], "Floating tag to use operator.yaml and csv.yaml")
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
             stringParam("versionSuffix", "", '''
 if set, use as version suffix before commitSHA: RC-''' + MMdd + ''' --> ''' + JOB_BRANCH + '''.0-RC-''' + MMdd + '''-commitSHA;<br/>
 if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
+:: if suffix = GA, use server and operator tags from RHEC stage<br/>
+:: if suffix contains RC, use server and operator tags from Quay<br/>
+:: for all other suffixes, use server and operator tags = ''' + JOB_BRANCH + '''<br/>
 :: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a''')
             booleanParam("PUBLISH_ARTIFACTS_TO_GITHUB", false, "default false; check box to publish to GH releases")
             booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")

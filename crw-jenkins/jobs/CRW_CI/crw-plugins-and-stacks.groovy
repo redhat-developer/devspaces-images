@@ -31,8 +31,8 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
         }
 
         logRotator {
-            daysToKeep(5)
-            numToKeep(5)
+            daysToKeep(15)
+            numToKeep(40)
             artifactDaysToKeep(2)
             artifactNumToKeep(1)
         }
@@ -40,7 +40,7 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
         parameters{
             // remove codeready-workspaces-plugin-intellij as it can't currently be built this way
             textParam("REPOS", '''codeready-workspaces-plugin-java11-openj9, 
-codeready-workspaces-plugin-java11,  
+codeready-workspaces-plugin-java11, 
 codeready-workspaces-plugin-java8-openj9, 
 codeready-workspaces-plugin-java8, 
 codeready-workspaces-plugin-kubernetes, 

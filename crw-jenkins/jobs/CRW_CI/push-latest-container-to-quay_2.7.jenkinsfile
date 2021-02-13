@@ -3,9 +3,9 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
+//   CONTAINERS
 //   MIDSTM_BRANCH
-//   CONTAINERS - list of containers to push, without the crw/ or codeready-workspaces- prefix and without -rhel8 suffix
-//   TAGS       - tags to push in addition to the latest one (2.y-4) and the base one (2.y), eg., also update latest tag
+//   FLOATING_QUAY_TAGS
 
 def checkFailure(arrayLines,serverName,errorOccurred)
 {
@@ -64,7 +64,7 @@ for c in ''' + CONTAINERS.trim() + '''; do
     if [[ $c == "operator" ]] || [[ $c == "operator-metadata" ]]; then 
         d=codeready-workspaces-${c}
     fi 
-    ./getLatestImageTags.sh -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + TAGS + '''" &
+    ./getLatestImageTags.sh -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
                             ''')

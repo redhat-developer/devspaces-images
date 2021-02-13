@@ -347,7 +347,7 @@ mv /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main.ta
 rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main-no-dashboard-no-workspace-loader.tar.gz
 '''
 
-                archiveArtifacts fingerprint: true, artifacts:"**/*.log, **/assembly/*xml, **/assembly/**/*xml, ${CRW_path}/assembly/${CRW_path}-assembly-main/target/*.tar.*, **/asset-*.gz"
+                archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/assembly/*xml, **/assembly/**/*xml, ${CRW_path}/assembly/${CRW_path}-assembly-main/target/*.tar.*, **/asset-*.gz"
 
                 echo "<===== Build CRW server assembly ====="
 

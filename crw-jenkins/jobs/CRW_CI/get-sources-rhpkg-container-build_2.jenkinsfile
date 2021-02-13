@@ -3,14 +3,15 @@ import groovy.transform.Field
 import groovy.json.JsonSlurper
 
 // PARAMETERS for this pipeline:
-  // MIDSTM_BRANCH
-  // GIT_BRANCH (alias for MIDSTM_BRANCH)
-  // JOB_BRANCH
-  // GIT_PATHs
-  // QUAY_REPO_PATHs
-  // UPDATE_BASE_IMAGES_FLAGS
-  // SCRATCH
-  // FORCE_BUILD
+// MIDSTM_BRANCH
+// GIT_BRANCH (alias for MIDSTM_BRANCH)
+// JOB_BRANCH
+// GIT_PATHs
+// QUAY_REPO_PATHs
+// UPDATE_BASE_IMAGES_FLAGS
+// FLOATING_QUAY_TAGS
+// SCRATCH
+// FORCE_BUILD
 
 @Field String NEW_TAG = ""
 def String nodeLabel = 'rhel8'
@@ -202,8 +203,8 @@ node(nodeLabel){
           ],
           [
             $class: 'StringParameterValue',
-            name: 'TAGS',
-            value: 'latest'
+            name: 'FLOATING_QUAY_TAGS',
+            value: FLOATING_QUAY_TAGS
           ]
         ]
       )

@@ -40,7 +40,8 @@ for (int i=0; i < nodeLabels.size(); i++) {
                         if (statusCode > 0) {
                             currentBuild.result = 'FAILURE'
                         }
-                        archiveArtifacts fingerprint: true, artifacts: "${CRW_path}/*/target/*.tar.*"
+                        util.createSums("${CRW_path}/*/target/", "*.tar.*")
+                        archiveArtifacts fingerprint: false, artifacts: "${CRW_path}/*/target/*.tar.*"
 
                         SHA_CRW = util.getLastCommitSHA("${WORKSPACE}/${CRW_path}")
                         echo "Built ${CRW_path} from SHA: ${SHA_CRW}"
