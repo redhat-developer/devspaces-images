@@ -21,7 +21,7 @@ def List nodeLabels = ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
 def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
 def List platforms = []
 def Map tasks = [failFast: false]
-timeout(20) {
+timeout(120) {
   def String nodeLabel = "${nodeLabels[0]}"
   node(nodeLabel) {
     stage ("Checkout Che Theia on " + nodeLabel) {
