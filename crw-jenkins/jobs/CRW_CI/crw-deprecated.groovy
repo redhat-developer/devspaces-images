@@ -16,7 +16,7 @@ Lang server dependency builder
 </ul>
 
 <p>When done, downstream builds can be triggered using these artifacts using 
-<a href=../crw-plugins-and-stacks_''' + JOB_BRANCH + '''/>crw-plugins-and-stacks_''' + JOB_BRANCH + '''</a>
+<a href=../crw-sync-to-downstream_''' + JOB_BRANCH + '''/>crw-sync-to-downstream_''' + JOB_BRANCH + '''</a>
         ''')
 
         properties {

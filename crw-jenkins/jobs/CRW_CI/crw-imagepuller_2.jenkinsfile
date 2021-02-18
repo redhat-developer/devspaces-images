@@ -146,7 +146,7 @@ node(nodeLabel) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'crw-plugins-and-stacks_' + CRW_VERSION,
+              job: 'crw-sync-to-downstream_' + CRW_VERSION,
               wait: false,
               propagate: false,
               parameters: [
