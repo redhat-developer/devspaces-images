@@ -15,7 +15,7 @@ import groovy.json.JsonSlurper
 
 @Field String NEW_TAG = ""
 def String nodeLabel = 'rhel8'
-timeout(180) {
+timeout(240) {
     node(nodeLabel) { 
         stage ("Build on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
@@ -39,7 +39,9 @@ timeout(180) {
                       println "CRW_VERSION = '" + CRW_VERSION + "'"
                       util.updateBaseImages("${WORKSPACE}/sources", GIT_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
 
-                      sh('''#!/bin/bash -xe
+                      echo "[INFO] Attempt to run get-sources-jenkins.sh, with up to 2 retries"
+                      retry(2) {
+                        sh('''#!/bin/bash -xe
 pushd ${WORKSPACE}/sources >/dev/null
 
 SCRATCH_FLAG=""; if [[ "''' + SCRATCH + '''" == "true" ]]; then   SCRATCH_FLAG="--scratch"; fi
@@ -114,7 +116,8 @@ if [[ ! ${REPOS} ]] || [[ ${REPOS} == " " ]]; then
   # OPTION 4/4: unknown
   echo "REPO_PATH=\\"BREW:BUILD/STATUS:UNKNOWN\\"" | tee -a ${WORKSPACE}/build_desc.txt
 fi
-                      ''')
+                        ''')
+                      }
 
                       ERRORS_FOUND=sh(returnStdout:true,script:'''
 grep -E "Brew build has failed|failed with exit code|Problem loading ID" ${WORKSPACE}/get-sources-jenkins.log.txt || true

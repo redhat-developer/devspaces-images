@@ -43,13 +43,13 @@ for (JB in JOB_BRANCHES) {
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("PLATFORMS", "x86_64, s390x, ppc64le", "list of platforms on which to build assets; normally: x86_64, s390x, ppc64le")
             booleanParam("SCRATCH", false, '''If true, just do a scratch build.<br/>
 If false, push to:<br/>
 * quay.io/crw/theia-dev-rhel8,<br/>
 * quay.io/crw/theia-rhel8, and<br/>
 * quay.io/crw/theia-endpoint-rhel8
             ''')
-            stringParam("PLATFORMS", "x86_64, s390x, ppc64le")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

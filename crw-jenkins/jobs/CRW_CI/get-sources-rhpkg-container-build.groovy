@@ -45,14 +45,7 @@ OSBS build</a>
             artifactNumToKeep(1)
         }
 
-        /* requires naginator plugin */
-        /* publishers {
-            retryBuild {
-                rerunIfUnstable()
-                retryLimit(1)
-                progressiveDelay(30,90)
-            }
-        } */
+        // NOTE: send email notification to culprits(), developers(), requestor() for failure - use util.notifyBuildFailed() in .jenkinsfile
 
         parameters{
             // TODO refactor to remove all refs to GIT_BRANCH
@@ -79,12 +72,6 @@ See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH +
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
         authenticationToken('CI_BUILD')
-
-        // TODO: enable naginator plugin to re-trigger if job fails
-
-        // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.
-
-        // TODO: enable console log parser ?
 
         definition {
             cps{
