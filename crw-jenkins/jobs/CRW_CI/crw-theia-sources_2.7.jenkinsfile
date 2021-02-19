@@ -66,6 +66,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
               CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
               println "CRW_VERSION = '" + CRW_VERSION + "'"
               util.installSkopeoFromContainer("")
+              util.installYq()
               def buildLog = ""
 
               // CRW-1546 update base images the bash way, since can't find a good way to call util.updateBaseImages inside a for loop
@@ -85,7 +86,6 @@ cd ${WORKSPACE}/crw-theia
   done
 cd ..
 '''
-
               def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
               if (!THEIA_COMMIT_SHA.equals("")) {
                 BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
@@ -102,6 +102,7 @@ echo -n $THEIA_COMMIT_SHA
 
               // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
               sh """
+pushd ${WORKSPACE}/crw-theia >/dev/null
 echo nodeVersion=${nodeVersion} > BUILD_PARAMS
 echo CRW_VERSION=${CRW_VERSION} >> BUILD_PARAMS
 echo SOURCE_BRANCH=${SOURCE_BRANCH} >> BUILD_PARAMS
@@ -111,8 +112,8 @@ echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
 echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
 git add BUILD_COMMAND BUILD_PARAMS || true
 git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND" BUILD_COMMAND BUILD_PARAMS
+popd >/dev/null
 """
-
               def buildStatusCode = 0
               ansiColor('xterm') {
                 echo "[INFO] Attempt to build crw-theia, with up to 2 retries"
