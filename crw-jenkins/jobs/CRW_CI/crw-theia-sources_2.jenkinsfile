@@ -41,10 +41,59 @@ timeout(120) {
           submoduleCfg: [],
           userRemoteConfigs: [[url: "https://github.com/eclipse/che-theia.git"]]])
         sh "rm -fr tmp"
-      }
-    }
-  }
-}
+      } // wrap
+    } // stage
+
+    stage ("Update CRW Theia base images and build params on " + nodeLabel) {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+        def util = load "${WORKSPACE}/util.groovy"
+        cleanWs()
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH)
+          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+          println "CRW_VERSION = '" + CRW_VERSION + "'"
+          util.installSkopeoFromContainer("")
+          util.installYq()
+
+          def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
+          if (!THEIA_COMMIT_SHA.equals("")) {
+            BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
+          } else {
+            THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash -xe
+pushd /tmp >/dev/null || true
+curl -sSLO https://raw.githubusercontent.com/eclipse/che-theia/''' + SOURCE_BRANCH + '''/build.include
+export $(cat build.include | egrep "^THEIA_COMMIT_SHA") && THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA//\\"/}
+popd >/dev/null || true
+echo -n $THEIA_COMMIT_SHA
+''', returnStdout: true).trim()
+            echo "[INFO] Store Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA}"
+          }
+
+          // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
+          sh """
+pushd crw-theia >/dev/null
+echo nodeVersion=${nodeVersion} > BUILD_PARAMS
+echo CRW_VERSION=${CRW_VERSION} >> BUILD_PARAMS
+echo SOURCE_BRANCH=${SOURCE_BRANCH} >> BUILD_PARAMS
+echo THEIA_BRANCH=${THEIA_BRANCH} >> BUILD_PARAMS
+echo THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} >> BUILD_PARAMS
+echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
+echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
+if [[ \$(git diff --name-only) ]]; then
+  git add BUILD_COMMAND BUILD_PARAMS || true
+  git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
+  git push origin ${MIDSTM_BRANCH} || true
+fi
+popd >/dev/null
+"""
+        } // with
+      } // wrap
+    } // stage
+  } // node
+} // timeout
+
 
 for (int i=0; i < nodeLabels.size(); i++) {
   def String nodeLabel = "${nodeLabels[i]}"
@@ -66,52 +115,14 @@ for (int i=0; i < nodeLabels.size(); i++) {
               CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
               println "CRW_VERSION = '" + CRW_VERSION + "'"
               util.installSkopeoFromContainer("")
+              util.installYq()
               def buildLog = ""
 
-              // CRW-1546 update base images the bash way, since can't find a good way to call util.updateBaseImages inside a for loop
-              //
-              // this doesn't work (conf/ folder not found!), and requires lots of security holes
-              // new File("${WORKSPACE}/crw-theia/conf/").traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.+from.+dockerfile/) { itme ->
-              //   println "Update base images in " + itme + "..."
-              //   util.updateBaseImages("${WORKSPACE}/crw-theia", MIDSTM_BRANCH,
-              //     "-w " + itme.toString().replaceAll(/\/[^\/]+$/,"") + " -f " + itme.toString().replaceAll(/^.+\//,"") + " -q")
-              // }
-              sh '''#!/bin/bash -x
-curl -ssLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/product/updateBaseImages.sh && chmod +x ${WORKSPACE}/updateBaseImages.sh
-cd ${WORKSPACE}/crw-theia
-  # update base images for the *from*dockerfile in conf/ folder
-  for df in $(find ${WORKSPACE}/crw-theia/conf/ -name "*from*dockerfile"); do
-    ${WORKSPACE}/updateBaseImages.sh -b ''' + MIDSTM_BRANCH + ''' -w ${df%/*} -f ${df##*/} -q
-  done
-cd ..
-'''
-
-              def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
-              if (!THEIA_COMMIT_SHA.equals("")) {
-                BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
-              } else {
-                THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash -xe
-pushd /tmp >/dev/null || true
-curl -sSLO https://raw.githubusercontent.com/eclipse/che-theia/''' + SOURCE_BRANCH + '''/build.include
-export $(cat build.include | egrep "^THEIA_COMMIT_SHA") && THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA//\\"/}
-popd >/dev/null || true
-echo -n $THEIA_COMMIT_SHA
-''', returnStdout: true)
-                echo "[INFO] Using Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA} from ${SOURCE_BRANCH} branch"
-              }
-
-              // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
-              sh """
-echo nodeVersion=${nodeVersion} > BUILD_PARAMS
-echo CRW_VERSION=${CRW_VERSION} >> BUILD_PARAMS
-echo SOURCE_BRANCH=${SOURCE_BRANCH} >> BUILD_PARAMS
-echo THEIA_BRANCH=${THEIA_BRANCH} >> BUILD_PARAMS
-echo THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} >> BUILD_PARAMS
-echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
-echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
-git add BUILD_COMMAND BUILD_PARAMS || true
-git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND" BUILD_COMMAND BUILD_PARAMS
-"""
+              // parse THEIA_COMMIT_SHA from BUILD_PARAMS file
+              THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash
+cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARAMS
+''', returnStdout: true).trim()
+              echo "[INFO] Using Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA} from ${SOURCE_BRANCH} branch"
 
               def buildStatusCode = 0
               ansiColor('xterm') {
@@ -122,7 +133,7 @@ export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
 mkdir -p ${WORKSPACE}/logs/
 pushd ${WORKSPACE}/crw-theia >/dev/null
     node --version
-    ./build.sh ''' + BUILD_PARAMS + ''' 2>&1 | tee ${WORKSPACE}/logs/crw-theia_buildlog.txt
+    $(cat BUILD_COMMAND) 2>&1 | tee ${WORKSPACE}/logs/crw-theia_buildlog.txt
 popd >/dev/null
 ''', returnStatus: true
                 }
@@ -141,7 +152,6 @@ popd >/dev/null
 
                 archiveArtifacts fingerprint: false, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "crw-theia/dockerfiles/**, logs/*"
 
-                // TODO start collecting shas with "git rev-parse --short=4 HEAD"
                 def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
                 echo "${descriptString}"
                 currentBuild.description="${descriptString}"
@@ -153,7 +163,6 @@ popd >/dev/null
                     error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
                     currentBuild.result = 'FAILED'
                     util.notifyBuildFailed()
-
                 }
                 echo "currentBuild.result = " + currentBuild.result
               } // ansiColor

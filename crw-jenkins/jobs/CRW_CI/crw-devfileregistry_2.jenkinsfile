@@ -45,7 +45,7 @@ timeout(120) {
         println "Got OLD_SHA_MID in targetmid folder: " + OLD_SHA_MID
 
         SOURCE_DIR="${WORKSPACE}/targetmid/dependencies/che-devfile-registry/"
-        util.updateBaseImages(SOURCE_DIR + "build/dockerfiles", DWNSTM_BRANCH, "-f rhel.Dockerfile")
+        util.updateBaseImages(SOURCE_DIR + "build/dockerfiles", DWNSTM_BRANCH)
         NEW_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
         println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
 
@@ -78,7 +78,7 @@ timeout(120) {
         ''')
 
         sh('''#!/bin/bash -xe
-          cp -f ''' + SOURCE_DIR + '''build/dockerfiles/rhel.Dockerfile  ''' + TARGET_DIR + '''Dockerfile
+          cp -f ''' + SOURCE_DIR + '''build/dockerfiles/Dockerfile  ''' + TARGET_DIR + '''Dockerfile
           CRW_VERSION="''' + CRW_VERSION_F + '''"
           # apply patches to transform CRW upstream to pkgs.devel version
           sed -i ''' + TARGET_DIR + '''Dockerfile --regexp-extended \
