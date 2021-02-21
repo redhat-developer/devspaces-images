@@ -32,17 +32,17 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 * CRW ''' + JOB_BRANCH + '''.0.ER-''' + MMdd + ''' ready for QE
 * CRW ''' + JOB_BRANCH + '''.0.RC-''' + MMdd + ''' ready for QE
 ''')
-            stringParam("errataURL","https://errata.devel.redhat.com/advisory/65969",'')
-            stringParam("unresolvedCriticalsBlockersURL","https://issues.redhat.com/browse/CRW-1479?jql=fixversion%20%3D%20" + JOB_BRANCH + ".0.GA%20AND%20project%20%3D%20CRW%20AND%20priority%20%3E%20Major%20AND%20resolution%20is%20null",'''query for unresolved criticals/blockers for the current release''')
+            stringParam("errataURL","https://errata.devel.redhat.com/advisory/69656",'')
+            stringParam("unresolvedCriticalsBlockersURL","https://issues.redhat.com/browse/CRW-1601?jql=fixversion%20%3D%20" + JOB_BRANCH + ".0.GA%20AND%20project%20%3D%20CRW%20AND%20priority%20%3E%20Major%20AND%20resolution%20is%20null",'''query for unresolved criticals/blockers for the current release''')
             textParam("additionalNotes",
 '''Additional Info:
 
 stuff goes here if applicable''',"Stuff to mention after the lists of images")
-            booleanParam("doSendEmail",false,'''if checked, send mail; if not, draft email but do not send''')
+            booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
             booleanParam("doOSBS",false,'''if checked, include OSBS images in email''')
             booleanParam("doStage",false,'''if checked, include RHCC stage images in email''')
-            stringParam("recipientOverride","nboldt@redhat.com",'''if set, send mail to recipient(s) listed rather than default mailing lists''')
-
+            // # RECIPIENTS - comma and space separated list of recipient email addresses
+            stringParam("RECIPIENTS","codeready-workspaces-qa@redhat.com, che-prod@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
             stringParam("JOB_BRANCH", JOB_BRANCH)
         }

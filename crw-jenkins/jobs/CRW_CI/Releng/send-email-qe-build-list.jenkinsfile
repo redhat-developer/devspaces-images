@@ -11,23 +11,17 @@ import groovy.transform.Field
 // doSendEmail
 // doOSBS
 // doStage
-// recipientOverride
+// RECIPIENTS
 // MIDSTM_BRANCH
 // JOB_BRANCH
 
 def sendMail(mailSubject,mailBody) { // NEW_OSBS
     def sender="nboldt@redhat.com" // # use a bot instead?
-    // # TOrecipients - comma and space separated list of recipient email addresses
-    def TOrecipients = "codeready-workspaces-qa@redhat.com, che-prod@redhat.com"
-    if (!recipientOverride.equals("")) {
-        TOrecipients="${recipientOverride}"
-    }
-
     emailext(
         subject: mailSubject,
         body: mailBody, 
         from: sender,
-        to: TOrecipients,
+        to: RECIPIENTS,
         recipientProviders: [requestor()]
     )
 }
