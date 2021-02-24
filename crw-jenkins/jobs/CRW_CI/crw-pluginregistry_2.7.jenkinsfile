@@ -183,9 +183,10 @@ fi
           # TODO is there a better way to determine if we need to push sources?
           rhpkg sources
           # update tarballs - step 3 - create tarballs in targetdwn folder
+          # NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
           mkdir -p /tmp/root-local/ && docker run --rm -v \
             /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash \
-            -c "cd /root/.local/ && cp -r bin/ lib/ /tmp/root-local/"
+            -c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
           # check diff
           BEFORE_DIR=/tmp/root-local-before
           rm -fr ${BEFORE_DIR}; mkdir ${BEFORE_DIR} && tar xzf ${WORKSPACE}/targetdwn/root-local.tgz -C ${BEFORE_DIR}
