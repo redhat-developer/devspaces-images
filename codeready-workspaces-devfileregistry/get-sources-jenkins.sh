@@ -48,8 +48,9 @@ rhpkg sources
 
 # root-local.tgz
 tmpDir=$(mktemp -d)
+# NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
 docker run --rm -v $tmpDir:/tmp/root-local/ $tmpContainer /bin/bash \
-  -c "cd /root/.local/ && cp -r bin/ lib/ /tmp/root-local/"
+  -c "cd /opt/app-root/src/.local && cp -r bin/ lib/ /tmp/root-local/"
 MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
 BEFORE_DIR=$(mktemp -d -t before-XXXXXXXXX)
 tar xzf root-local.tgz -C ${BEFORE_DIR}
