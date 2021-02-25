@@ -8,7 +8,7 @@ platforms:
   - ppc64le
 
 compose:
-  inherit: true
+  inherit: false
   pulp_repos: true
   signing_intent: release
 

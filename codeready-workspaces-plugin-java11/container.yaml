@@ -7,7 +7,7 @@ platforms:
   - x86_64 
 
 compose:
-  inherit: true
+  inherit: false
   packages:
   - java-11-openjdk
   - java-11-openjdk-headless
