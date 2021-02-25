@@ -10,7 +10,7 @@ platforms:
 compose:
   #packages:
   #- java-1.8.0-openjdk  # package name, not an NVR.
-  inherit: true
+  inherit: false
   pulp_repos: true
   signing_intent: release
 
