@@ -10,8 +10,8 @@ baseurl=http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/rhel8/8/$basearch
 enabled=1
 gpgcheck=0
 
-[rhocp-4.6-for-rhel-8-rpms]
-name=rhocp-4.6-for-rhel-8-rpms
+[rhocp-4.7-for-rhel-8-rpms]
+name=rhocp-4.7-for-rhel-8-rpms
 baseurl=http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/$basearch/rhocp/4.6/os/
 enabled=1
 gpgcheck=0
