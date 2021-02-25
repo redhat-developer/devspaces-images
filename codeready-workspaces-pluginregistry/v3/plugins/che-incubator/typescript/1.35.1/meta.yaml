@@ -1,0 +1,23 @@
+apiVersion: v2
+publisher: che-incubator
+name: typescript
+version: 1.35.1
+type: VS Code extension
+displayName: Typescript
+title: Typescript language features
+description: Typescript language features
+icon: v3/images/vscode-typescript-language-features-icon.png
+repository: https://github.com/Microsoft/vscode
+category: Language
+firstPublicationDate: '2019-06-20'
+spec:
+  containers:
+  - image: "registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.6"
+    name: vscode-typescript
+    memoryLimit: '512Mi'
+    args:
+      - sh
+      - -c
+      - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+  extensions:
+  - https://download.jboss.org/jbosstools/vscode/3rdparty/ms-code.typescript/che-typescript-language-1.35.1.vsix
