@@ -30,8 +30,8 @@ node(nodeLabel) {
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
 
                 def currentJob="" // name of job
-                def prevSuccesfulBuildId="" // lastSuccesfulBuild id (last one before this started)
-                def lastSuccesfulBuildId="" // lastSuccesfulBuild id (build in progress)
+                def prevSuccesfulBuildId="" // previous lastSuccesfulBuildId (last one before this started)
+                def lastBuildId="" // build in progress
                 def currentQuayImage="" // last successful quay tag
                 def jenkinsPath="/job/CRW_CI/job/"
                 def jenkinsURL="${JENKINS_URL}${jenkinsPath}".replaceAll("//job","/job")
@@ -41,18 +41,15 @@ node(nodeLabel) {
                 if (PHASE_LIST.contains("1")) {
                     // rebuild lang server artifacts
                     currentJob="crw-deprecated_" + CRW_VERSION
-                    prevSuccesfulBuildId = util.getLastBuildId(JENKINS_URL + jenkinsPath + currentJob) // eg., #5
-                    println ("Got prevSuccesfulBuildId = " + prevSuccesfulBuildId)
-                    lastSuccesfulBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
-                    util.waitForNewBuild("${jenkinsURL}" + currentJob, prevSuccesfulBuildId) // eg., wait until #5 -> #6
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastSuccesfulBuildId}>${currentJob}#${lastSuccesfulBuildId}</a>"
+                    lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 if (PHASE_LIST.contains("2")) {
                     // all the sidecars - start this early since it's 10 builds
                     currentJob="crw-sync-to-downstream_" + CRW_VERSION
-                    lastSuccesfulBuildId = util.runJob(jenkinsPath + currentJob) // don't wait for this to finish
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastSuccesfulBuildId}>${currentJob}#${lastSuccesfulBuildId}</a>"
+                    lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this set of 10 builds to finish
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 currentQuayImageTheia=""
@@ -64,8 +61,8 @@ node(nodeLabel) {
                     println ("Got currentQuayImageTheia = " + currentQuayImageTheia)
                     currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("crw/theia-endpoint-rhel8", "quay")
                     println ("Got currentQuayImageTheiaEndpoint = " + currentQuayImageTheiaEndpoint)
-                    lastSuccesfulBuildId = util.runJob(jenkinsPath + currentJob) // don't wait for this to finish
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastSuccesfulBuildId}>${currentJob}#${lastSuccesfulBuildId}</a>"
+                    lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 if (PHASE_LIST.contains("4")) {
@@ -80,6 +77,8 @@ node(nodeLabel) {
                         "traefik":"traefik-rhel8"
                         ]
 
+                    def Map tasks = [failFast: false]
+
                     // rebuild other containers and wait for results in quay.io
                     currentQuayImagePluginbrokerMetadata = util.getLatestImageAndTag("crw/pluginbroker-metadata-rhel8", "quay")
                     println ("Got currentQuayImagePluginbrokerMetadata = " + currentQuayImagePluginbrokerMetadata)
@@ -87,13 +86,16 @@ node(nodeLabel) {
                         // .key = kv[0]
                         // .value = kv[1]
                         currentJob="crw-" + kv[0] + "_" + CRW_VERSION
-                        currentQuayImage = util.getLatestImageAndTag("crw/" + kv[1], "quay")
-                        println ("Got currentQuayImage (" + kv[0] + ") = " + currentQuayImage)
-                        lastSuccesfulBuildId = util.runJob(jenkinsPath + currentJob) // don't wait for these to finish
-                        util.waitForNewQuayImage("crw/" + kv[1], currentQuayImage)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastSuccesfulBuildId}>${currentJob}#${lastSuccesfulBuildId}</a>"
+                        tasks[currentJob] = { ->
+                            currentQuayImage = util.getLatestImageAndTag("crw/" + kv[1], "quay")
+                            println ("Got currentQuayImage (" + kv[0] + ") = " + currentQuayImage)
+                            lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for these to finish, but in parallel
+                            util.waitForNewQuayImage("crw/" + kv[1], currentQuayImage)
+                            currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
+                        }
                     }
-                    // TODO: should these wait checks all run in parallel? if so need to store unique currentQuayImage* values to compare them
+                    // wait in parallel
+                    parallel(tasks)
                     util.waitForNewQuayImage("crw/pluginbroker-metadata-rhel8", currentQuayImagePluginbrokerMetadata)
                 }
 
@@ -109,8 +111,8 @@ node(nodeLabel) {
 
                     // trigger update-digests job (to rebuild registries and metadata images)
                     currentJob="update-digests-in-registries-and-metadata_" + CRW_VERSION
-                    lastSuccesfulBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastSuccesfulBuildId}>${currentJob}#${lastSuccesfulBuildId}</a>"
+                    lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                     util.waitForNewQuayImage("crw/crw-2-rhel8-operator-metadata", currentQuayImageMetadata)
                 }
 

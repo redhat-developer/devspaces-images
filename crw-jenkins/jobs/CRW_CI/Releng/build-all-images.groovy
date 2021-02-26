@@ -30,11 +30,11 @@ This job is meant to be used to orchestrate rebuilding everything in CRW after a
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
             stringParam("PHASES", "1 2 3 4 5", '''Phases:<br/>
-1 - build lang server dependencies (tarballs)<br/>
-2 - build plugin and stack sidecar images (10 images)<br/>
+1 - build lang server dependencies (6 builds -> tarballs)<br/>
+2 - build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)<br/>
 3 - build theia assets and images (tarballs + 3 images)<br/>
-4 - build server, operator and internals (tarballs + 8 images)<br/>
-5 - build registries and metadata (3 images)
+4 - build server, operator and internals (tarballs + 9 images)<br/>
+5 - build registries and metadata (tarballs + 3 images + iib)
             ''')
         }
 

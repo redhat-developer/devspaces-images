@@ -33,9 +33,12 @@ timeout(120) {
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
             util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
-            // ensure static Dockerfiles have the correct version encoded in them
-            util.updateDockerfileVersions()
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+            // ensure static Dockerfiles have the correct version encoded in them
+            util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
+            // ensure static Dockerfiles have the latest oc and helm rpms installed
+            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.7"); }
+            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.7"); }
             util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH)
             SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
             println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
