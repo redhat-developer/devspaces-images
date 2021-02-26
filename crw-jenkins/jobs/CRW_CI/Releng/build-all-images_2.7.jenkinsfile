@@ -82,16 +82,19 @@ node(nodeLabel) {
                     // rebuild other containers and wait for results in quay.io
                     currentQuayImagePluginbrokerMetadata = util.getLatestImageAndTag("crw/pluginbroker-metadata-rhel8", "quay")
                     println ("Got currentQuayImagePluginbrokerMetadata = " + currentQuayImagePluginbrokerMetadata)
+
+                    // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
                     for (kv in mapToList(jobsList)) {
-                        // .key = kv[0]
-                        // .value = kv[1]
-                        currentJob="crw-" + kv[0] + "_" + CRW_VERSION
-                        tasks[currentJob] = { ->
-                            currentQuayImage = util.getLatestImageAndTag("crw/" + kv[1], "quay")
-                            println ("Got currentQuayImage (" + kv[0] + ") = " + currentQuayImage)
-                            lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for these to finish, but in parallel
-                            util.waitForNewQuayImage("crw/" + kv[1], currentQuayImage)
-                            currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
+                        def key=kv[0] // .key = kv[0]
+                        def val=kv[1] // .value = kv[1]
+                        def currentJobLoc="crw-" + key + "_" + CRW_VERSION
+                        def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + val, "quay")
+                        tasks[currentJobLoc] = { ->
+                            println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
+                            def lastBuildIdLoc = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
+                            lastBuildIdLoc = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                            util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)
+                            currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildIdLoc}>${currentJobLoc}#${lastBuildIdLoc}</a>"
                         }
                     }
                     // wait in parallel

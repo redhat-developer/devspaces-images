@@ -13,7 +13,7 @@ def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // dist-git rep
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
 def SCRATCH = "false"
 def PUSH_TO_QUAY = "true"
-def QUAY_PROJECT = "devfileregistry" // also used for the Brew dockerfile params
+def SYNC_REPO = "devfileregistry" // also used for the Brew dockerfile params
 def USE_DIGESTS = "true" // if true, use @sha256:digest in registry; if false, use :tag
 def SYNC_FILES="arbitrary-users-patch build devfiles images .gitignore .htaccess LICENSE README.md VERSION"
 
@@ -50,12 +50,12 @@ timeout(120) {
         println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
 
         println "########################################################################################################"
-        println "##  Sync ${QUAY_PROJECT} to codeready-workspaces-images"
+        println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
         println "########################################################################################################"
         util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", DWNSTM_BRANCH)
         OLD_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
-        TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(QUAY_PROJECT) + "/"
+        TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO) + "/"
 
         // rsync files to codeready-workspaces-images
         sh('''#!/bin/bash -xe
@@ -111,10 +111,10 @@ RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /t
           `# Enable swap in arch specific devfiles` \
           -e '\\|swap_images.sh|i RUN ./swap_yamlfiles.sh devfiles' \
 
-          METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + QUAY_PROJECT + ''' container" \\\r
-    DESCRIPTION="Red Hat CodeReady Workspaces ''' + QUAY_PROJECT + ''' container" \\\r
+          METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
+    DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     PRODNAME="codeready-workspaces" \\\r
-    COMPNAME="''' + QUAY_PROJECT + '''-rhel8" \r
+    COMPNAME="''' + SYNC_REPO + '''-rhel8" \r
 LABEL summary="$SUMMARY" \\\r
       description="$DESCRIPTION" \\\r
       io.k8s.description="$DESCRIPTION" \\\r
@@ -138,7 +138,7 @@ LABEL summary="$SUMMARY" \\\r
         sh('''#!/bin/bash -xe
           SYNC_FILES="''' + SYNC_FILES + '''"
           cd ${WORKSPACE}/targetdwn
-          git add ''' + util.getCRWLongName(QUAY_PROJECT) + '''
+          git add ''' + util.getCRWLongName(SYNC_REPO) + '''
           git update-index --refresh  # ignore timestamp updates
           if [[ \$(git diff-index HEAD --) ]]; then # file changed
             cd ''' + TARGET_DIR + '''
@@ -153,15 +153,14 @@ LABEL summary="$SUMMARY" \\\r
         NEW_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN
 
-        if (OLD_SHA_MID.equals(NEW_SHA_MID) && OLD_SHA_DWN.equals(NEW_SHA_MID) && !FORCE_BUILD.equals("true")) {
+        if (NEW_SHA_DWN.equals(OLD_SHA_DWN) && NEW_SHA_MID.equals(OLD_SHA_MID) && !FORCE_BUILD.equals("true")) {
           currentBuild.result='UNSTABLE'
         }
 
         println "########################################################################################################"
         println "##  Kickoff Sync to downstream job"
         println "########################################################################################################"
-        if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_MID) || FORCE_BUILD == "true") {
-          SYNC_REPO = util.getCRWLongName(QUAY_PROJECT)
+        if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_DWN) || FORCE_BUILD == "true") {
           build(
               job: 'crw-sync-to-downstream_' + CRW_VERSION,
               wait: false,
@@ -175,12 +174,12 @@ LABEL summary="$SUMMARY" \\\r
                 [
                   $class: 'StringParameterValue',
                   name: 'cause',
-                  value: SYNC_REPO.replaceAll("codeready-workspaces-","") + "+respin+by+${BUILD_TAG}"
+                  value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
                 ],
                 [
                   $class: 'StringParameterValue',
                   name: 'REPOS',
-                  value: "${SYNC_REPO}"
+                  value: util.getCRWLongName(SYNC_REPO)
                 ],
                 [
                   $class: 'StringParameterValue',
