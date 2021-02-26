@@ -53,15 +53,15 @@ RESOURCES_DIR=$(mktemp -d)
 docker run --rm --entrypoint sh ${tmpContainer} -c 'tar -pzcf - \
     /opt/app-root/src/go/pkg/mod' > $RESOURCES_TAR
 mkdir -p $RESOURCES_DIR
-tar xvzf $RESOURCES_TAR -C $RESOURCES_DIR
+tar xzf $RESOURCES_TAR -C $RESOURCES_DIR
 # update tarballs - step 3 - check old sources' tarballs
 # TODO is there a better way to determine if we need to push sources?
 rhpkg sources
 # check diff
 if [[ -f resources.tgz ]]; then
   BEFORE_DIR=$(mktemp -d)
-  mkdir ${BEFORE_DIR} && tar xzf resources.tgz -C ${BEFORE_DIR}
-  TAR_DIFF=$(sudo diff --suppress-common-lines -u -r ${BEFORE_DIR} $RESOURCES_DIR) || true
+  mkdir -p ${BEFORE_DIR} && tar xzf resources.tgz -C ${BEFORE_DIR}
+  TAR_DIFF=$(sudo diff --suppress-common-lines -u -r ${BEFORE_DIR} $RESOURCES_DIR || true)
 else
   TAR_DIFF="No such file resources.tgz -- creating a new one for the first time"
 fi
@@ -82,6 +82,9 @@ else
 fi
 # clean up diff dirs
 sudo rm -fr "$RESOURCES_DIR" "$BEFORE_DIR"
+
+# anything left over not committed?
+git status || true
 
 #
 # do build
