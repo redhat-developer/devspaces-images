@@ -1,6 +1,8 @@
 #!/bin/bash -xe
 # script to get tarball(s) from Jenkins
 
+KAMEL_VERSION="1.3.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
+
 scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
@@ -57,8 +59,6 @@ if [[ ! $jenkinsURL ]]; then
 	exit 1
 fi
 lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/" # id
-
-KAMEL_VERSION="1.2.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 
 jenkinsURL=${jenkinsURL}/lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/kamel/target
 
