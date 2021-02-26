@@ -34,10 +34,10 @@ COPY bin.tgz /tmp/
 # For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.x86_64.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.s390x.rpm
-# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which dnf openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8 && \
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202102120217.p0.git.3834.1ca3c6e.el8.x86_64.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202102120217.p0.git.3834.1ca3c6e.el8.s390x.rpm
+# http://pulp.dist.prod.ext.phx2.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.6.0-202102120217.p0.git.3834.1ca3c6e.el8.ppc64le.rpm
+RUN microdnf install -y bash tar gzip which dnf openshift-clients-4.6.0-202102120217.p0.git.3834.1ca3c6e.el8 && \
     dnf -y -q update && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
