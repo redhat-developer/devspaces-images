@@ -1,13 +1,11 @@
 #!/bin/bash -xe
 # script to get tarball(s) from Jenkins, plus additional dependencies as needed
-# 
 verbose=1
 scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
-
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;

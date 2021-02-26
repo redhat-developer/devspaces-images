@@ -56,7 +56,7 @@ if [[ ! $jenkinsURL ]]; then
 	echo "[ERROR] Cannot resolve artifact(s) for this build. Must abort!"
 	exit 1
 fi
-lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=//" # id or description
+lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/" # id
 
 KAMEL_VERSION="1.2.1" # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/master/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 
@@ -89,11 +89,10 @@ if [[ ${outputFiles} ]]; then
   log "[INFO] Upload new sources: ${outputFiles}"
   rhpkg new-sources ${outputFiles}
   log "[INFO] Commit new sources from: ${outputFiles}"
-	ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | \
-		sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
+	field=id; ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
 	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
 		echo $ID
-		echo "[ERROR] Problem loading ID from $lastSuccessfulURL :: NOT FOUND!"
+		echo "[ERROR] Problem loading ID from ${lastSuccessfulURL}${field} :: NOT FOUND!"
 		exit 1;
 	fi
   COMMIT_MSG="Update from Jenkins :: kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME} :: ${ID}

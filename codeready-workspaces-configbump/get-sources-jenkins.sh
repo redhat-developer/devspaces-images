@@ -1,7 +1,5 @@
 #!/bin/bash -xe
 # script to get tarball(s) from Jenkins
-# 
-field=id
 verbose=1
 scratchFlag=""
 JOB_BRANCH=""
@@ -9,7 +7,6 @@ doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 generateDockerfileLABELs=1
-
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
@@ -57,8 +54,7 @@ lastSuccessfulBuild/artifact/asset-configbump-x86_64.tar.gz
 lastSuccessfulBuild/artifact/asset-configbump-s390x.tar.gz
 lastSuccessfulBuild/artifact/asset-configbump-ppc64le.tar.gz
 "
-lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=//" # id or description
-
+lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/" # id
 function log()
 {
   if [[ ${verbose} -gt 0 ]]; then
@@ -117,11 +113,10 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from:${outputFiles}"
-	ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | \
-		sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
+	field=id; ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
 	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
 		echo $ID
-		echo "[ERROR] Problem loading ID from $lastSuccessfulURL :: NOT FOUND!"
+		echo "[ERROR] Problem loading ID from ${lastSuccessfulURL}${field} :: NOT FOUND!"
 		exit 1;
 	fi
 	COMMIT_MSG="Update from Jenkins :: ${UPSTREAM_JOB_NAME} :: ${ID}
