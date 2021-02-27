@@ -17,9 +17,7 @@ timeout(30) {
                 cleanWs()
                 CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                 println "CRW_VERSION = '" + CRW_VERSION + "'"
-                util.installSkopeoFromContainer("")
                 util.installBrewKoji()
-                util.installYq()
 
                 withCredentials([file(credentialsId:'che_akamai-properties', variable: 'AKAMAI_CHE_AUTH'),
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {

@@ -42,9 +42,7 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
       } else {
         wrap([$class: 'TimestamperBuildWrapper']) {
           cleanWs()
-          util.installSkopeoFromContainer("")
           util.installPodman()
-          util.installYq()
 
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {

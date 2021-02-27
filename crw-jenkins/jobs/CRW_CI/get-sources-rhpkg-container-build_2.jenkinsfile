@@ -28,9 +28,6 @@ timeout(240) {
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ GIT_BRANCH + '/product/util.groovy')
                     def util = load "${WORKSPACE}/util.groovy"
                     cleanWs()
-                    util.installSkopeoFromContainer("registry.redhat.io/rhel8/skopeo")
-                    util.installYq()
-                    util.installRhpkg()
                     util.bootstrap(CRW_KEYTAB)
                     util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", GIT_BRANCH)
                     currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"

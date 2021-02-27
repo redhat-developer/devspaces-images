@@ -51,12 +51,10 @@ timeout(120) {
         cleanWs()
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH)
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           println "CRW_VERSION = '" + CRW_VERSION + "'"
-          util.installSkopeoFromContainer("")
-          util.installYq()
-
+          util.bootstrap(CRW_KEYTAB)
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH)
           def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
           if (!THEIA_COMMIT_SHA.equals("")) {
             BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
