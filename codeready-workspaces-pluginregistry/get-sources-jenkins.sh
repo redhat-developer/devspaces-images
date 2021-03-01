@@ -71,7 +71,7 @@ if [[ ${TAR_DIFF} ]]; then
   echo "***** END DIFF"
   pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz .
 fi
-rm -fr ${tmpDir} ${BEFORE_DIR}
+sudo rm -fr ${tmpDir} ${BEFORE_DIR}
 
 # resources.tgz
 tmpDir=$(mktemp -d)
@@ -83,7 +83,7 @@ if [[ -f resources.tgz ]]; then
   BEFORE_DIR="$(mktemp -d)"
   tar xzf resources.tgz -C ${BEFORE_DIR}
   TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} ${filesToExclude}) || true
-  rm -fr ${BEFORE_DIR}
+  sudo rm -fr ${BEFORE_DIR}
 else
   TAR_DIFF2="No such file resources.tgz -- creating a new one for the first time"
 fi
@@ -94,7 +94,7 @@ if [[ ${TAR_DIFF2} ]]; then
   pushd ${tmpDir} >/dev/null && tar czf resources.tgz ./* && popd >/dev/null
   mv -f ${tmpDir}/resources.tgz .
 fi
-rm -fr ${tmpDir}
+sudo rm -fr ${tmpDir}
 rm bootstrap.Dockerfile
 docker rmi ${tmpContainer}
 # update tarballs - step 4 - commit changes if diff different

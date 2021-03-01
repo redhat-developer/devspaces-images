@@ -38,7 +38,7 @@ sed Dockerfile \
 
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
   mv -f Dockerfile.2 Dockerfile
-  mkdir x86_64 s390x ppc64le
+  mkdir -p x86_64 s390x ppc64le
   curl -sSLo x86_64/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo
   # s390x
   curl -sSLo s390x/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-s390x && chmod +x s390x/odo
