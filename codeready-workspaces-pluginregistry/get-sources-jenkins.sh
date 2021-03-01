@@ -1,12 +1,14 @@
 #!/bin/bash -xe
 
-set -e
-
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
+
 tmpContainer=pluginregistry:tmp
+filesToInclude='./v3/*'
+filesToExclude='-x "resources/*" -x "*.vsix" -x "*.theia"'
+
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
@@ -26,15 +28,13 @@ function log()
 }
 
 #
-# update the tarballs
+# create/update sources tarballs (needed for offline Brew builds)
 #
 
 # transform Brew friendly Dockerfile so we can use it in Jenkins where base images need full registry path
 sed Dockerfile --regexp-extended \
   -e 's|COPY (.*) resources.tgz (.*)|COPY \1 \2|' \
   -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=true|' \
-  `# enable LATEST_ONLY for bootstrap build only` \
-  -e 's|ARG LATEST_ONLY=.*|ARG LATEST_ONLY=true|' \
   -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=false|' \
   -e 's|^ *COPY root-local.tgz|# &|' \
   `# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
@@ -48,14 +48,14 @@ echo "======= BOOTSTRAP DOCKERFILE =======>"
 cat bootstrap.Dockerfile
 echo "<======= BOOTSTRAP DOCKERFILE ======="
 echo "======= START BOOTSTRAP BUILD =======>"
-# do not need digests in the BOOTSTRAP build so override default with false
+# do not want digests in the BOOTSTRAP build so override default with false
 docker build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
   --target builder --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false
 echo "<======= END BOOTSTRAP BUILD ======="
 # update tarballs - step 2 - check old sources' tarballs
 rhpkg sources
 # update tarballs - step 3 - create tarballs in targetdwn folder
-# NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
+# NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
 tmpDir="$(mktemp -d)"
 docker run --rm -v \
   ${tmpDir}/:/tmp/root-local/ ${tmpContainer} /bin/bash \
@@ -69,20 +69,20 @@ if [[ ${TAR_DIFF} ]]; then
   echo "DIFF START *****"
   echo "${TAR_DIFF}"
   echo "***** END DIFF"
-  pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz . 
+  pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz .
 fi
 rm -fr ${tmpDir} ${BEFORE_DIR}
 
 # resources.tgz
 tmpDir=$(mktemp -d)
 docker run --rm -v ${tmpDir}/:/tmp/resources/ --entrypoint /bin/bash ${tmpContainer} -c \
-  "cd /build && cp -r v3/* /tmp/resources/"
+  "cd /build && cp -r ${filesToInclude} /tmp/resources/"
 MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
 # check diff
 if [[ -f resources.tgz ]]; then
   BEFORE_DIR="$(mktemp -d)"
   tar xzf resources.tgz -C ${BEFORE_DIR}
-  TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "resources/*" -x "*.vsix" -x "*.theia") || true
+  TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} ${filesToExclude}) || true
   rm -fr ${BEFORE_DIR}
 else
   TAR_DIFF2="No such file resources.tgz -- creating a new one for the first time"
@@ -95,6 +95,8 @@ if [[ ${TAR_DIFF2} ]]; then
   mv -f ${tmpDir}/resources.tgz .
 fi
 rm -fr ${tmpDir}
+rm bootstrap.Dockerfile
+docker rmi $tmpContainer
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${forcePull} -ne 0 ]]; then
   log "[INFO] Commit new sources"
@@ -133,5 +135,4 @@ $ERRORS
     log "[INFO] No new sources, so nothing to build."
   fi
 fi
-
 
