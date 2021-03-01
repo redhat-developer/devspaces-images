@@ -43,7 +43,6 @@ sed Dockerfile --regexp-extended \
   -e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#" \
   -e 's|# (COPY .*content_sets.*)|\1|' \
   > bootstrap.Dockerfile
-
 echo "======= BOOTSTRAP DOCKERFILE =======>"
 cat bootstrap.Dockerfile
 echo "<======= BOOTSTRAP DOCKERFILE ======="
@@ -54,7 +53,8 @@ docker build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
 echo "<======= END BOOTSTRAP BUILD ======="
 # update tarballs - step 2 - check old sources' tarballs
 rhpkg sources
-# update tarballs - step 3 - create tarballs in targetdwn folder
+
+# update tarballs - step 3 - create new tarballs 
 # NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
 tmpDir="$(mktemp -d)"
 docker run --rm -v \
@@ -96,33 +96,34 @@ if [[ ${TAR_DIFF2} ]]; then
 fi
 rm -fr ${tmpDir}
 rm bootstrap.Dockerfile
-docker rmi $tmpContainer
+docker rmi ${tmpContainer}
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${forcePull} -ne 0 ]]; then
   log "[INFO] Commit new sources"
   rhpkg new-sources root-local.tgz resources.tgz
   COMMIT_MSG="Update root-local.tgz and resources.tgz"
-  if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
+  git add . -A -f
+  if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
     log "[INFO] No new sources, so nothing to build."
   elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
     log "[INFO] Push change:"
     git pull; git push
   fi
 
-if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-  echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-  tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-  taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-  ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
-  if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
+  if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
+    log "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+    tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+    taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
+    ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+    if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
 
 "; exit 1; fi
-fi
+  fi
 else
   if [[ ${forceBuild} -eq 1 ]]; then
-    echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+    log "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
     tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
     taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
     ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
