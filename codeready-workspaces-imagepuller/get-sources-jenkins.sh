@@ -53,7 +53,7 @@ RESOURCES_DIR=$(mktemp -d)
 docker run --rm --entrypoint sh ${tmpContainer} -c 'tar -pzcf - \
     /opt/app-root/src/go/pkg/mod' > $RESOURCES_TAR
 mkdir -p $RESOURCES_DIR
-tar xvzf $RESOURCES_TAR -C $RESOURCES_DIR
+tar xzf $RESOURCES_TAR -C $RESOURCES_DIR
 # check diff
 if [[ -f resources.tgz ]]; then
   BEFORE_DIR=$(mktemp -d)
