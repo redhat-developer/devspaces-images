@@ -77,7 +77,12 @@ docker rmi ${tmpContainer}
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${forcePull} -ne 0 ]]; then
   log "[INFO] Commit new sources"
-  rhpkg new-sources resources.tgz
+  if [[ $(du -b resources.tgz | sed -r -e "s#[^0-9]+##") -gt 10485760 ]]; then
+    log "[WARN] File resources.tgz is too big for a sources file; must use 'rhpkg upload'"
+    rhpkg upload resources.tgz
+  else
+    rhpkg new-sources resources.tgz
+  fi
   COMMIT_MSG="Update resources.tgz"
   git add . -A -f
   if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
