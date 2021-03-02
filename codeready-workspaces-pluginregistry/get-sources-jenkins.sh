@@ -103,7 +103,10 @@ if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${forcePull} -ne 0 ]]; then
   rhpkg new-sources root-local.tgz resources.tgz
   COMMIT_MSG="Update root-local.tgz and resources.tgz"
   git add . -A -f
-  if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
+  # CRW-1621 a gz resource is larger than 10485760b, so use MaxFileSize to force dist-git to shut up and take my sources!
+  if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}
+    - MaxFileSize: $(du -b *gz | sed -r -e "s#\t.+##" | sort -Vr | head -1)
+" sources Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
     log "[INFO] No new sources, so nothing to build."
   elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
     log "[INFO] Push change:"
