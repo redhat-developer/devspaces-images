@@ -4,10 +4,11 @@ scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
+verbose=0
 
 tmpContainer=devfileregistry:tmp
 filesToInclude='./devfiles ./resources'
-filesToExclude='' # nothing to exclude; if there was, use '-x rsync-pattern-to--exclude' (See pluginregistry's get-sources script)
+filesToExclude=() # nothing to exclude; if there was, use (-x rsync-pattern-to--exclude) (See pluginregistry's get-sources script)
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -15,7 +16,6 @@ while [[ "$#" -gt 0 ]]; do
     '-f'|'--force-build') forceBuild=1; shift 0;;
     '-p'|'--force-pull') forcePull=1; shift 0;;
     '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-    *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
 done
@@ -84,7 +84,7 @@ MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
 if [[ -f resources.tgz ]]; then
   BEFORE_DIR="$(mktemp -d)"
   tar xzf resources.tgz -C ${BEFORE_DIR}
-  TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} ${filesToExclude}) || true
+  TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} "${filesToExclude[@]}") || true
   sudo rm -fr ${BEFORE_DIR}
 else
   TAR_DIFF2="No such file resources.tgz -- creating a new one for the first time"
