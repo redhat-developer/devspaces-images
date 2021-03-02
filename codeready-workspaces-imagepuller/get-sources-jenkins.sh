@@ -1,11 +1,12 @@
 #!/bin/bash -xe
 
-verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 tmpContainer=imagepuller:tmp
+verbose=0
+
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
