@@ -76,16 +76,12 @@ docker rmi ${tmpContainer}
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${forcePull} -ne 0 ]]; then
   log "[INFO] Commit new sources"
-  # if [[ $(du -b resources.tgz | sed -r -e "s#[^0-9]+##") -gt 10485760 ]]; then
-  #   log "[WARN] File resources.tgz is too big for a sources file; must use 'rhpkg upload'"
-  #   rhpkg upload resources.tgz
-  # else
-    rhpkg new-sources resources.tgz
-  # fi
+  rhpkg new-sources resources.tgz
   COMMIT_MSG="Update resources.tgz"
   git add . -A -f
+  # CRW-1621 a gz resource is larger than 10485760b, so use MaxFileSize to force dist-git to shut up and take my sources!
   if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}
-    - MaxFileSize: $(du -b resources.tgz | sed -r -e "s#[^0-9]+##")
+    - MaxFileSize: $(du -b *gz | sed -r -e "s#\t.+##" | sort -Vr | head -1)
 " sources Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
     log "[INFO] No new sources, so nothing to build."
   elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
