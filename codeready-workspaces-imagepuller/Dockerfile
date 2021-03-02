@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.14.12-13 as builder
+FROM rhel8/go-toolset:2.6-2 as builder
 ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH \
     GO111MODULE=on
 
@@ -39,7 +39,7 @@ RUN adduser appuser && \
     make build 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-291
+FROM ubi8-minimal:8.3-230
 USER root
 # CRW-528 copy actual cert
 COPY --from=builder /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/pki/ca-trust/extracted/pem/
