@@ -44,6 +44,8 @@ docker build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
   --target builder --build-arg BOOTSTRAP=true
 echo "<======= END BOOTSTRAP BUILD ======="
 # update tarballs - step 2 - check old sources' tarballs
+TARGZs="resources.tgz"
+git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 rhpkg sources
 
 # update tarballs - step 3 - create new tarballs 
@@ -76,8 +78,8 @@ docker rmi ${tmpContainer}
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${forcePull} -ne 0 ]]; then
   log "[INFO] Commit new sources"
-  rhpkg new-sources resources.tgz
-  COMMIT_MSG="Update resources.tgz"
+  rhpkg new-sources ${TARGZs}
+  COMMIT_MSG="Update ${TARGZs}"
   git add . -A -f
   # CRW-1621 a gz resource is larger than 10485760b, so use MaxFileSize to force dist-git to shut up and take my sources!
   if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}
