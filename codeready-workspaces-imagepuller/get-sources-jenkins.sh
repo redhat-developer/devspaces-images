@@ -12,7 +12,6 @@ while [[ "$#" -gt 0 ]]; do
     '-f'|'--force-build') forceBuild=1; shift 0;;
     '-p'|'--force-pull') forcePull=1; shift 0;;
     '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-    *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
 done
