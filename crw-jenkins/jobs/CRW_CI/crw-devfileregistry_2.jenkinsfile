@@ -203,8 +203,11 @@ LABEL summary="$SUMMARY" \\\r
                 ]
               ]
             )
+            currentBuild.description="Brew build triggered"
         } else {
-          println "No changes upstream, nothing to commit"
+          println "No changes upstream, nothing to build in brew!"
+          currentBuild.description="No Brew build"
+          currentBuild.result = 'UNSTABLE'
         }
       } // withCredentials
     } // wrap
