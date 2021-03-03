@@ -14,13 +14,15 @@ Sync CRW_CI jobs in gitlab repo to github.
             }
 
             pipelineTriggers {
-
-                // TODO enable git trigger instead of 2x daily trigger
-
-                triggers {
-                    cron {
-                        spec ('H H/12 * * *') // every 12 hrs
+                triggers{
+                    pollSCM{
+                        // every 30 mins
+                        scmpoll_spec("20,50 * * * *")
                     }
+
+                    /* cron {
+                        spec ('H H/12 * * *') // every 12 hrs
+                    }*/
                 }
             }
         }
