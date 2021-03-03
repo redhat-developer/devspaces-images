@@ -64,7 +64,7 @@ COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/
 RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz 
 
 RUN ./swap_images.sh v3
-RUN ./swap_theia_memory.sh v3
+RUN ./swap_plugins_memory.sh v3
 RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh v3; fi
 RUN ./index.sh v3 > /build/v3/plugins/index.json
 RUN ./list_referenced_images.sh v3 > /build/v3/external_images.txt
