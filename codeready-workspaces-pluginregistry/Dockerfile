@@ -43,9 +43,6 @@ ENV USE_DIGESTS=${USE_DIGESTS}
 # built in Brew, use tarball in lookaside cache; built locally, comment this out
 COPY root-local.tgz /tmp/root-local.tgz
 
-# NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
-# enable rhel 7 or 8 content sets (from Brew) to resolve jq as rpm
-COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
