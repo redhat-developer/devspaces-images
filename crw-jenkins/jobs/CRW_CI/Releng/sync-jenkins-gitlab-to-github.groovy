@@ -15,14 +15,9 @@ Sync CRW_CI jobs in gitlab repo to github.
 
             pipelineTriggers {
                 triggers{
-                    pollSCM{
-                        // every 30 mins
-                        scmpoll_spec("20,50 * * * *")
-                    }
-
-                    /* cron {
+                    cron {
                         spec ('H H/12 * * *') // every 12 hrs
-                    }*/
+                    }
                 }
             }
         }

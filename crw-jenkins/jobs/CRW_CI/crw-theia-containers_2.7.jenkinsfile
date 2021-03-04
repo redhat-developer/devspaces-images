@@ -155,9 +155,8 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
                       echo "[WARNING] File or folder ${WORKSPACE}/${targetN}/$f does not exist. Skipping!"
                     fi
                   done
-                  git add Dockerfile
-                  git add container.yaml
-                  git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
+                  git add Dockerfile container.yaml . -A -f
+                  git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + SOURCE_SHA + '''" . || true
                   git push origin ''' + MIDSTM_BRANCH + ''' || true
                 fi
               done

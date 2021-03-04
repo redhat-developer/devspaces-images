@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=JB.key
@@ -29,9 +29,13 @@ Artifact builder + sync job; triggers brew after syncing
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM every 2 hrs for changes in upstream
             pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
+                triggers{
+                    pollSCM{
+                        // TODO: test with every 2 mins, then switch to every 2hrs: H H/2 * * *
+                        scmpoll_spec("H/2 * * * *")
+                    }
+                }
             }
         }
 

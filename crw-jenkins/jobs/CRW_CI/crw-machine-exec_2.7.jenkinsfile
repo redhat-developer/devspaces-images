@@ -91,9 +91,9 @@ echo -e "$METADATA" >> ${WORKSPACE}/targetdwn/Dockerfile
 export KRB5CCNAME=/var/tmp/crw-build_ccache
 cd ${WORKSPACE}/targetdwn
 if [[ \$(git diff --name-only) ]]; then # file changed
-  git add Dockerfile ''' + SYNC_FILES + '''
+  git add Dockerfile ''' + SYNC_FILES + ''' . -A -f
   # note this might fail if we're syncing from a tag vs. a branch
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" Dockerfile ''' + SYNC_FILES + '''
+  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" Dockerfile ''' + SYNC_FILES + ''' . || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
 fi

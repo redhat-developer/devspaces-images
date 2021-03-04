@@ -144,9 +144,9 @@ LABEL summary="$SUMMARY" \\\r
           git update-index --refresh  # ignore timestamp updates
           if [[ \$(git diff-index HEAD --) ]]; then # file changed
             cd ''' + TARGET_DIR + '''
-            git add Dockerfile ${SYNC_FILES}
+            git add Dockerfile ${SYNC_FILES} . -A -f
             # note this might fail if we're syncing from a tag vs. a branch
-            git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ${SYNC_FILES}
+            git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ${SYNC_FILES} . || true
             git push origin ''' + DWNSTM_BRANCH + ''' || true
             echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
           fi
