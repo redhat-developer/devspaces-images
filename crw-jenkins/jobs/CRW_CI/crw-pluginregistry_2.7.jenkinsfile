@@ -15,7 +15,7 @@ def SCRATCH = "false"
 def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "pluginregistry" // also used for the Brew dockerfile params
 def USE_DIGESTS = "true" // if true, use @sha256:digest in registry; if false, use :tag
-def SYNC_FILES="build openshift v3 .gitignore .htaccess LICENSE README.md VERSION"
+def SYNC_FILES="build deploy openshift v3 .gitignore .htaccess LICENSE README.md VERSION"
 
 def OLD_SHA_MID=""
 def OLD_SHA_DWN=""
@@ -24,7 +24,7 @@ def NEW_SHA_DWN=""
 
 def buildNode = "rhel8" // node label
 timeout(120) {
-	node("${buildNode}"){ stage "Sync repos"
+  node("${buildNode}"){ stage "Sync repos"
     wrap([$class: 'TimestamperBuildWrapper']) {
       sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
       def util = load "${WORKSPACE}/util.groovy"
@@ -33,8 +33,8 @@ timeout(120) {
       println "CRW_VERSION = '" + CRW_VERSION + "'"
       util.installSkopeoFromContainer("registry.redhat.io/rhel8/skopeo")
       util.installRhpkg()
-      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
-        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+          file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
         util.bootstrap(CRW_KEYTAB)
 
         println "########################################################################################################"
@@ -113,6 +113,7 @@ timeout(120) {
 COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/ \\
 RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz \\
 '
+
           METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     PRODNAME="codeready-workspaces" \\\r
@@ -154,6 +155,7 @@ LABEL summary="$SUMMARY" \\\r
 
         NEW_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN
+        currentBuild.description="Upstream sync done"
 
         if (NEW_SHA_DWN.equals(OLD_SHA_DWN) && NEW_SHA_MID.equals(OLD_SHA_MID) && !FORCE_BUILD.equals("true")) {
           currentBuild.result='UNSTABLE'
@@ -165,8 +167,8 @@ LABEL summary="$SUMMARY" \\\r
         if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_DWN) || FORCE_BUILD == "true") {
           build(
               job: 'crw-sync-to-downstream_' + CRW_VERSION,
-              wait: false,
-              propagate: false,
+              wait: true,
+              propagate: true,
               parameters: [
                 [
                   $class: 'StringParameterValue',
@@ -205,10 +207,10 @@ LABEL summary="$SUMMARY" \\\r
                 ]
               ]
             )
-            currentBuild.description="Brew build triggered"
+          currentBuild.description+="; Downstream sync job triggered"
         } else {
-          println "No changes upstream, nothing to build in brew!"
-          currentBuild.description="No Brew build"
+          println "No changes upstream, nothing to sync / build in brew!"
+          currentBuild.description+="; No sync or Brew build"
           currentBuild.result = 'UNSTABLE'
         }
       } // withCredentials

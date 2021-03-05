@@ -124,6 +124,7 @@ usage="" \r'
           ''')
           NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
           println "Got NEW_SHA in targetdwn folder: " + NEW_SHA
+          currentBuild.description="Upstream sync done"
 
           if (NEW_SHA.equals(OLD_SHA) && !FORCE_BUILD.equals("true")) {
             currentBuild.result='UNSTABLE'
@@ -149,8 +150,8 @@ node(nodeLabel) {
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
               job: 'crw-sync-to-downstream_' + CRW_VERSION,
-              wait: false,
-              propagate: false,
+              wait: true,
+              propagate: true,
               parameters: [
                 [
                   $class: 'StringParameterValue',
@@ -189,12 +190,14 @@ node(nodeLabel) {
                 ]
               ]
         )
-        currentBuild.description="Brew build triggered"
+        currentBuild.description+="; Downstream sync job triggered"
       } else {
-        println "No changes upstream, nothing to build in brew!"
-        currentBuild.description="No Brew build"
+        println "No changes upstream, nothing to sync / build in brew!"
+        currentBuild.description+="; No sync or Brew build"
         currentBuild.result = 'UNSTABLE'
       }
+    } else {
+      util.notifyBuildFailed()
     } // if
   } // stage
 } //node

@@ -43,10 +43,6 @@ def CHE_DB_path = "che-dashboard"
 def VER_CHE_DB = "VER_CHE_DB"
 def SHA_CHE_DB = "SHA_CHE_DB"
 
-def CHE_WL_path = "che-workspace-loader"
-def VER_CHE_WL = "VER_CHE_WL"
-def SHA_CHE_WL = "SHA_CHE_WL"
-
 def CHE_path = "che"
 def VER_CHE = "VER_CHE"
 def SHA_CHE = "SHA_CHE"
@@ -63,7 +59,7 @@ def NEW_SHA_DWN=""
 def String nodeLabel = 'rhel8'
 timeout(240) {
   node(nodeLabel) {
-    stage("Build ${DEV_path}, ${PAR_path}, ${CHE_DB_path}, ${CHE_WL_path}, and ${CRW_path}") {
+    stage("Build ${DEV_path}, ${PAR_path}, ${CHE_DB_path}, and ${CRW_path}") {
         wrap([$class: 'TimestamperBuildWrapper']) {
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
                 file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
@@ -133,10 +129,6 @@ egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<v
 :: ${CRW_path} @ ${SHA_CRW} (${VER_CRW})"
                 echo "CRW_SHAs (for dashboard) = ${CRW_SHAs}"
 
-                // insert a longer version string which includes both CRW and Che, plus build and SHA info
-                sh "sed -r -i -e \"s#(.+productVersion = ).+#\\1'${CRW_SHAs}';#g\" ${CHE_DB_path}/src/components/api/che-service.factory.ts"
-                sh "egrep 'productVersion = ' ${CHE_DB_path}/src/components/api/che-service.factory.ts"
-
                 // apply CRW CSS + fix doc links
                 DOCS_VERSION = sh(returnStdout:true,script:"grep crw.docs.version ${CRW_path}/pom.xml | sed -r -e \"s#.*<.+>([0-9.SNAPSHOT-]+)</.+>#\\1#\"")
                 def CRW_DOCS_BASEURL = ("https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/" + DOCS_VERSION).trim()
@@ -144,38 +136,24 @@ egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<v
 
                 sh '''#!/bin/bash -xe
 cd ''' + CHE_DB_path + '''
-# ls -la src/assets/branding/
-rsync -aPr ../''' + CRW_path + '''/assembly/branding/* src/assets/branding/
-# ls -la src/assets/branding/
-mv -f src/assets/branding/branding{-crw,}.css
+# ls -la assets/branding/
+rsync -aPr ../''' + CRW_path + '''/assembly/branding/* assets/branding/
+# ls -la assets/branding/
+mv -f assets/branding/branding{-crw,}.css
 
 # process product.json template
 sed -r \
     -e "s#@@crw.version@@#'''+CRW_SHAs + '''#g" \
     -e "s#@@crw.docs.baseurl@@#''' + CRW_DOCS_BASEURL + '''#g" \
-src/assets/branding/product.json.template > src/assets/branding/product.json
-rm -f src/assets/branding/product.json.template
-# cat src/assets/branding/product.json
+assets/branding/product.json.template > assets/branding/product.json
+rm -f assets/branding/product.json.template
+# cat assets/branding/product.json
 
 docker build -f apache.Dockerfile -t crw-dashboard:tmp .
 docker run --rm --entrypoint sh crw-dashboard:tmp -c 'tar -pzcf - /usr/local/apache2/htdocs/dashboard' > asset-dashboard.tar.gz
 '''
 
                 echo "<===== Build che-dashboard ====="
-
-                echo "===== Build che-workspace-loader =====>"
-                util.cloneRepoPoll("https://github.com/eclipse/${CHE_WL_path}.git", CHE_WL_path, SOURCE_BRANCH, true)
-
-                VER_CHE_WL = sh(returnStdout:true,script:"cat ${CHE_WL_path}/package.json | jq -r '.version'").trim()
-                SHA_CHE_WL = util.getLastCommitSHA("${WORKSPACE}/${CHE_WL_path}")
-                
-                sh '''#!/bin/bash -xe
-cd ''' + CHE_WL_path + '''
-docker build -f apache.Dockerfile -t crw-workspace-loader:tmp .
-docker run --rm --entrypoint sh crw-workspace-loader:tmp -c 'tar -pzcf - /usr/local/apache2/htdocs/workspace-loader' > asset-workspace-loader.tar.gz
-'''
-
-                echo "<===== Build che-workspace-loader ====="
 
                 echo "===== Build che server assembly =====>"
 
@@ -189,7 +167,6 @@ docker run --rm --entrypoint sh crw-workspace-loader:tmp -c 'tar -pzcf - /usr/lo
 :: ${DEV_path} @ ${SHA_DEV} (${VER_DEV}) \
 :: ${PAR_path} @ ${SHA_PAR} (${VER_PAR}) \
 :: ${CHE_DB_path} @ ${SHA_CHE_DB} (${VER_CHE_DB}) \
-:: ${CHE_WL_path} @ ${SHA_CHE_WL} (${VER_CHE_WL}) \
 :: ${CHE_path} @ ${SHA_CHE} (${VER_CHE}) \
 :: ${CRW_path} @ ${SHA_CRW} (${VER_CRW})"
                 echo "CRW_SHAs (overall) = ${CRW_SHAs}"
@@ -309,34 +286,29 @@ cd ..
 
                 sh "mvn clean install ${MVN_FLAGS} -f ${CRW_path}/pom.xml -Dparent.version=\"${VER_PAR}\" -Dche.version=\"${VER_CHE}\" -Dcrw.dashboard.version=\"${CRW_SHAs}\" ${MVN_EXTRA_FLAGS}"
 
-                // Add dashboard and workspace-loader to server assembly
+                // Add dashboard and to server assembly
                 sh '''#!/bin/bash -xe
 # unpack incomplete assembly
-mkdir -p /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/ /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/workspace-loader/
+mkdir -p /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/
 tar xvzf ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main.tar.gz -C /tmp/''' + CRW_path + '''-assembly-main/
 
 # rename incomplete assembly
-mv ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main{,-no-dashboard-no-workspace-loader}.tar.gz 
+mv ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main{,-no-dashboard}.tar.gz 
 
 # unpack + move dashboard artifacts
 tar xvzf ''' + CHE_DB_path + '''/asset-dashboard.tar.gz -C /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/
 mv /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/usr/local/apache2/htdocs/dashboard/* \
     /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main/tomcat/webapps/dashboard/
 
-# unpack + move workspace-loader artifacts
-tar xvzf ''' + CHE_WL_path + '''/asset-workspace-loader.tar.gz -C /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/workspace-loader/
-mv /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/workspace-loader/usr/local/apache2/htdocs/workspace-loader/* \
-    /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main/tomcat/webapps/workspace-loader/
-
 # clean up temp folder
 rm -fr /tmp/''' + CRW_path + '''-assembly-main/tomcat/
 
-# build new complete tarball assemlby with che server, dashboard, and workspace-loader
+# build new complete tarball assemlby with che server + dashboard
 pushd /tmp/''' + CRW_path + '''-assembly-main/ >/dev/null; tar -pzcf codeready-workspaces-assembly-main.tar.gz ./*; popd >/dev/null
 mv /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main.tar.gz ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/
 
 # clean up incomplete assembly
-rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main-no-dashboard-no-workspace-loader.tar.gz
+rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main-no-dashboard.tar.gz
 '''
 
                 archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/assembly/*xml, **/assembly/**/*xml, ${CRW_path}/assembly/${CRW_path}-assembly-main/target/*.tar.*, **/asset-*.gz"
@@ -349,7 +321,6 @@ rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/co
  :: ${DEV_path} @ ${SHA_DEV} (${VER_DEV}) <br/>\
  :: ${PAR_path} @ ${SHA_PAR} (${VER_PAR}) <br/>\
  :: ${CHE_DB_path} @ ${SHA_CHE_DB} (${VER_CHE_DB}) <br/>\
- :: ${CHE_WL_path} @ ${SHA_CHE_WL} (${VER_CHE_WL}) <br/>\
  :: ${CHE_path} @ ${SHA_CHE} (${VER_CHE}) <br/>\
  :: ${CRW_path} @ ${SHA_CRW} (${VER_CRW})"
                 echo "${descriptString}"
