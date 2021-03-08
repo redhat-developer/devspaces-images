@@ -35,9 +35,9 @@ COPY . /tmp/assets/
 # For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.6/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.6/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.6/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.ppc64le.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8.ppc64le.rpm
 RUN microdnf -y install yum && \
     yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.7.0-202102032256.p0.git.3951.0e656ef.el8 \
     java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
