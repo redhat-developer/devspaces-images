@@ -36,7 +36,7 @@ COPY . /tmp/assets
 # COPY content_set*.repo /etc/yum.repos.d/
 
 # For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
-# For OCP Tools (helm): ocp-tools-4.7-for-rhel-8-x86_64-rpms
+# For OCP Tools (helm): ocp-tools-4.6-for-rhel-8-x86_64-rpms
 # must hard code a version if more than one version available
 ## Failed component comparison for components: openshift-clients
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.x86_64.rpm
