@@ -1,9 +1,12 @@
-// only sync to main branch 2, not sub-branches 2.6, 2.7
-def JOB_BRANCHES = ["2"]
-for (String JOB_BRANCH : JOB_BRANCHES) {
-    pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
-        MIDSTM_BRANCH="crw-"+2+"-rhel-8"
-
+def JOB_BRANCHES = ["2.x":"master"] // only sync to main branch 2, not sub-branches 2.6, 2.7
+def JOB_DISABLED = ["2.x":false]
+for (JB in JOB_BRANCHES) {
+    SOURCE_BRANCH=JB.value
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+    pipelineJob(jobPath){
+        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
 Sync CRW_CI jobs in gitlab repo to github.
         ''')
@@ -36,7 +39,7 @@ Sync CRW_CI jobs in gitlab repo to github.
         }
 
         parameters{
-            stringParam("GITLAB_BRANCH", "master", "branch of https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins from which to sync")
+            stringParam("GITLAB_BRANCH", SOURCE_BRANCH, "branch of https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins from which to sync")
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH,"branch of https://github.com/redhat-developer/codeready-workspaces-images to which to sync")
         }
 
@@ -46,7 +49,7 @@ Sync CRW_CI jobs in gitlab repo to github.
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/Releng/' + ITEM_NAME + '.jenkinsfile'))
+                script(readFileFromWorkspace('jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github_' + JOB_BRANCH + '.jenkinsfile'))
             }
         }
     }

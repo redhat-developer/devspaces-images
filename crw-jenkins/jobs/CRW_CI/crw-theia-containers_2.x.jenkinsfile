@@ -1,0 +1,314 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   MIDSTM_BRANCH
+//   SCRATCH = false (do push to Quay) or true (don't push to Quay)
+
+def MIDSTM_REPO = "https://github.com/redhat-developer/codeready-workspaces-theia.git" //source repo from which to find and sync commits to pkgs.devel repo
+def DWNSTM_REPO1 = "ssh://crw-build@pkgs.devel.redhat.com/containers/codeready-workspaces-theia-dev" // dist-git repo to use as target
+def DWNSTM_REPO2 = "ssh://crw-build@pkgs.devel.redhat.com/containers/codeready-workspaces-theia" // dist-git repo to use as target
+def DWNSTM_REPO3 = "ssh://crw-build@pkgs.devel.redhat.com/containers/codeready-workspaces-theia-endpoint" // dist-git repo to use as target
+def SYNC_FILES = "src etc"
+
+def OLD_SHA1=""
+def OLD_SHA2=""
+def OLD_SHA3=""
+def SOURCE_SHA=""
+
+def assetPath="/lastSuccessfulBuild/artifact/crw-theia/dockerfiles/*zip*/dockerfiles.zip"
+def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
+
+def String nodeLabel = 'rhel8'
+timeout(120) {
+  node(nodeLabel) {
+    stage ("Sync repos on ${nodeLabel}") {
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+      // upstream job name from which to collect sources
+      jenkinsURL="${JENKINS_URL}job/CRW_CI/job/crw-theia-sources_${JOB_BRANCH}"
+
+      def jenkinsURLCheck = sh(script: '''#!/bin/bash +x
+cd /tmp
+curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerfiles/ | grep -E "404|Not Found|Failed to connect|No route to host" || true
+      ''', returnStdout: true)
+      if (jenkinsURLCheck?.trim()) {
+        currentBuild.result="FAILURE"
+        currentBuild.description = jenkinsURLCheck + " for " + jenkinsURL + "/lastSuccessfulBuild/artifact/crw-theia/dockerfiles/"
+        util.notifyBuildFailed()
+      } else {
+        wrap([$class: 'TimestamperBuildWrapper']) {
+          cleanWs()
+          util.installPodman()
+
+          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+            util.bootstrap(CRW_KEYTAB)
+            util.cloneRepo(MIDSTM_REPO, "crw-theia", MIDSTM_BRANCH)
+
+            println("Retrieve dockerfiles from build and extract in crw-theia")
+            sh('''#!/bin/bash +x
+              cd ${WORKSPACE}/crw-theia
+              curl -sSLO "''' + jenkinsURL + assetPath + '''"
+              if [[ -f dockerfiles.zip ]]; then
+                unzip -o dockerfiles.zip
+                rm dockerfiles.zip
+              else 
+                echo "Error downloading ''' + jenkinsURL + assetPath + ''' !"
+                exit 1
+              fi
+              ''')
+            SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/crw-theia")
+            println "Got SOURCE_SHA in crw-theia folder: " + SOURCE_SHA
+
+            util.cloneRepo(DWNSTM_REPO1, "target1", MIDSTM_BRANCH)
+            util.cloneRepo(DWNSTM_REPO2, "target2", MIDSTM_BRANCH)
+            util.cloneRepo(DWNSTM_REPO3, "target3", MIDSTM_BRANCH)
+            OLD_SHA1 = util.getLastCommitSHA("${WORKSPACE}/target1")
+            OLD_SHA2 = util.getLastCommitSHA("${WORKSPACE}/target2")
+            OLD_SHA3 = util.getLastCommitSHA("${WORKSPACE}/target3")
+
+            println("Sync Changes and do Dockerfile transformations")
+            sh('''#!/bin/bash -xe
+              for targetN in target1 target2 target3; do
+                if [[ \$targetN == "target1" ]]; then SRC_PATH="${WORKSPACE}/crw-theia/dockerfiles/theia-dev"; fi
+                if [[ \$targetN == "target2" ]]; then SRC_PATH="${WORKSPACE}/crw-theia/dockerfiles/theia"; fi
+                if [[ \$targetN == "target3" ]]; then SRC_PATH="${WORKSPACE}/crw-theia/dockerfiles/theia-endpoint-runtime-binary"; fi
+                # rsync files in github to dist-git
+                SYNC_FILES="''' + SYNC_FILES + '''"
+                for d in ${SYNC_FILES}; do
+                  if [[ -f ${SRC_PATH}/${d} ]]; then
+                    rsync -zrlt ${SRC_PATH}/${d} ${WORKSPACE}/${targetN}/${d}
+                  elif [[ -d ${SRC_PATH}/${d} ]]; then
+                    # copy over the files
+                    rsync -zrlt ${SRC_PATH}/${d}/* ${WORKSPACE}/${targetN}/${d}/
+                    # sync the directory and delete from target if deleted from source
+                    rsync -zrlt --delete ${SRC_PATH}/${d}/ ${WORKSPACE}/${targetN}/${d}/
+                  fi
+                done
+
+                # apply changes from upstream Dockerfile to downstream Dockerfile
+                find ${SRC_PATH} -name "*ockerfile*" || true
+                SOURCEDOCKERFILE="${SRC_PATH}/Dockerfile"
+                TARGETDOCKERFILE=""
+                if [[ \$targetN == "target1" ]]; then TARGETDOCKERFILE="${WORKSPACE}/target1/Dockerfile"; fi
+                if [[ \$targetN == "target2" ]]; then TARGETDOCKERFILE="${WORKSPACE}/target2/Dockerfile"; fi
+                if [[ \$targetN == "target3" ]]; then TARGETDOCKERFILE="${WORKSPACE}/target3/Dockerfile"; fi
+
+                # apply generic patches to convert source -> target dockerfile (for use in Brew)
+                if [[ ${SOURCEDOCKERFILE} != "" ]] && [[ -f ${SOURCEDOCKERFILE} ]] && [[ ${TARGETDOCKERFILE} != "" ]]; then
+                  sed ${SOURCEDOCKERFILE} -r \
+                  `# cannot resolve RHCC from inside Brew so use no registry to resolve from Brew using same container name` \
+                  -e "s#FROM registry.redhat.io/#FROM #g" \
+                  -e "s#FROM registry.access.redhat.com/#FROM #g" \
+                  `# cannot resolve quay from inside Brew so use internal mirror w/ revised container name` \
+                  -e "s#quay.io/crw/#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g" \
+                  `# cannot resolve theia-rhel8:next, theia-dev-rhel8:next from inside Brew so use revised container tag` \
+                  -e "s#(theia-.+):next#\\1:''' + CRW_VERSION + '''#g" \
+                  > ${TARGETDOCKERFILE}
+                else
+                  echo "[WARNING] ${SOURCEDOCKERFILE} does not exist, so cannot sync to ${TARGETDOCKERFILE}"
+                fi
+
+                # add special patches to convert theia bootstrap build into brew-compatible one
+                # TODO should this be in build.sh instead?
+                if [[ \$targetN == "target2" ]] && [[ ${TARGETDOCKERFILE} != "" ]]; then
+                  sed -r \
+                  `# fix up theia loader patch inclusion (3 steps)` \
+                  -e "s#ADD branding/loader/loader.patch .+#COPY asset-branding.tar.gz /tmp/asset-branding.tar.gz#g" \
+                  -e "s#ADD (branding/loader/CodeReady_icon_loader.svg .+)#RUN tar xvzf /tmp/asset-branding.tar.gz -C /tmp; cp /tmp/\\1#g" \
+                  -e "s#(RUN cd .+/theia-source-code && git apply).+#\\1 /tmp/branding/loader/loader.patch#g" \
+                  `# don't create tarballs` \
+                  -e "s#.+tar zcf.+##g" \
+                  `# don't do node-gyp installs, etc.` \
+                  -e "s#.+node-gyp.+##g" \
+                  `# copy from builder` \
+                  -e "s#^COPY branding #COPY --from=builder /tmp/branding #g" \
+                  -i ${TARGETDOCKERFILE}
+                fi
+
+                # update platforms in container.yaml
+                platforms="''' + req_platforms.join(' ') + '''"
+                cd ${WORKSPACE}/${targetN}
+                yq -iy '.platforms.only |= ([])' container.yaml
+                for platform in $platforms ; do
+                  echo "Add platform = $platform to ${WORKSPACE}/${targetN}/container.yaml"
+                  yq -iy '.platforms.only |= (.+ ["'$platform'"] | unique)' container.yaml
+                done
+              done
+            ''')
+
+            println("Push changes to dist-git and run updateBaseImages in all three target folders")
+            sh('''#!/bin/bash -xe
+              for targetN in target1 target2 target3; do
+                SYNC_FILES="''' + SYNC_FILES + '''"
+                cd ${WORKSPACE}/${targetN}
+                if [[ \$(git diff --name-only) ]]; then # file changed
+                  export KRB5CCNAME=/var/tmp/crw-build_ccache
+                  for f in ${SYNC_FILES}; do
+                    if [[ -f $f ]] || [[ -d $f ]]; then
+                      git add $f
+                    else
+                      echo "[WARNING] File or folder ${WORKSPACE}/${targetN}/$f does not exist. Skipping!"
+                    fi
+                  done
+                  git add Dockerfile
+                  git add container.yaml
+                  git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
+                  git push origin ''' + MIDSTM_BRANCH + ''' || true
+                fi
+              done
+              ''')
+            util.updateBaseImages("${WORKSPACE}/target1", MIDSTM_BRANCH, "-q")
+            util.updateBaseImages("${WORKSPACE}/target2", MIDSTM_BRANCH, "-q")
+            util.updateBaseImages("${WORKSPACE}/target3", MIDSTM_BRANCH, "-q")
+          } // with credentials
+
+          NEW_SHA1 = util.getLastCommitSHA("${WORKSPACE}/target1")
+          NEW_SHA2 = util.getLastCommitSHA("${WORKSPACE}/target2")
+          NEW_SHA3 = util.getLastCommitSHA("${WORKSPACE}/target3")
+          println "Got NEW_SHA1 in target1 folder: " + NEW_SHA1
+          println "Got NEW_SHA2 in target1 folder: " + NEW_SHA2
+          println "Got NEW_SHA3 in target1 folder: " + NEW_SHA3
+          if (NEW_SHA1.equals(OLD_SHA1) && NEW_SHA2.equals(OLD_SHA2) && NEW_SHA3.equals(OLD_SHA3)) {
+            currentBuild.result='UNSTABLE'
+          }
+        } // wrap
+      } // if
+    } // stage
+  } // node
+} // timeout
+
+timeout(360) {
+  node(nodeLabel){
+    stage "rhpkg container-builds"
+	  wrap([$class: 'TimestamperBuildWrapper']) {
+
+    echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+        def util = load "${WORKSPACE}/util.groovy"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+        def QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-dev-rhel8"))
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
+        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
+
+        // trigger OSBS build
+        build(
+          job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+          wait: true,
+          propagate: true,
+          parameters: [
+            [
+              $class: 'StringParameterValue',
+              name: 'GIT_PATHs',
+              value: "containers/codeready-workspaces-theia-dev",
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'MIDSTM_BRANCH',
+              value: MIDSTM_BRANCH,
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'QUAY_REPO_PATHs',
+              value: QUAY_REPO_PATHs,
+            ],
+            [
+              $class: 'BooleanParameterValue',
+              name: 'SCRATCH',
+              value: SCRATCH,
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'JOB_BRANCH',
+              value: JOB_BRANCH,
+            ]
+          ]
+        )
+
+        QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-rhel8"))
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
+        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
+
+        // trigger OSBS build
+        build(
+          job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+          wait: true,
+          propagate: true,
+          parameters: [
+            [
+              $class: 'StringParameterValue',
+              name: 'GIT_PATHs',
+              value: "containers/codeready-workspaces-theia",
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'MIDSTM_BRANCH',
+              value: MIDSTM_BRANCH
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'QUAY_REPO_PATHs',
+              value: QUAY_REPO_PATHs
+            ],
+            [
+              $class: 'BooleanParameterValue',
+              name: 'SCRATCH',
+              value: SCRATCH
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'JOB_BRANCH',
+              value: JOB_BRANCH
+            ]
+          ]
+        )
+
+        QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-endpoint-rhel8"))
+        echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
+        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
+
+        // trigger OSBS build
+        build(
+          job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+          wait: true,
+          propagate: true,
+          parameters: [
+            [
+              $class: 'StringParameterValue',
+              name: 'GIT_PATHs',
+              value: "containers/codeready-workspaces-theia-endpoint",
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'MIDSTM_BRANCH',
+              value: MIDSTM_BRANCH
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'QUAY_REPO_PATHs',
+              value: QUAY_REPO_PATHs
+            ],
+            [
+              $class: 'BooleanParameterValue',
+              name: 'SCRATCH',
+              value: SCRATCH
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'JOB_BRANCH',
+              value: JOB_BRANCH
+            ]
+          ]
+        )
+    } else {
+      echo "[ERROR] Build status is " + currentBuild.result + " from previous stage. Skip!"
+    }
+   }
+  }
+}

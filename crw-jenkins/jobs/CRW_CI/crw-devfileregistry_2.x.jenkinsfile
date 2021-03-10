@@ -1,0 +1,216 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// def FORCE_BUILD = "false"
+// MIDSTM_BRANCH
+
+// TODO source from eclipse/che-devfile-registry too
+
+def MIDSTM_REPO = "redhat-developer/codeready-workspaces" //source repo from which to find and sync commits to pkgs.devel repo
+def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // dist-git repo to use as target
+def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
+def SCRATCH = "false"
+def PUSH_TO_QUAY = "true"
+def SYNC_REPO = "devfileregistry" // also used for the Brew dockerfile params
+def USE_DIGESTS = "true" // if true, use @sha256:digest in registry; if false, use :tag
+def SYNC_FILES="arbitrary-users-patch build devfiles images .gitignore .htaccess LICENSE README.md VERSION"
+
+def OLD_SHA_MID=""
+def OLD_SHA_DWN=""
+def NEW_SHA_MID=""
+def NEW_SHA_DWN=""
+
+def buildNode = "rhel8" // node label
+timeout(120) {
+  node("${buildNode}"){ stage "Sync repos"
+    wrap([$class: 'TimestamperBuildWrapper']) {
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      cleanWs()
+      CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+      println "CRW_VERSION = '" + CRW_VERSION + "'"
+      util.installSkopeoFromContainer("registry.redhat.io/rhel8/skopeo")
+      util.installRhpkg()
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+          file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+        util.bootstrap(CRW_KEYTAB)
+
+        println "########################################################################################################"
+        println "##  Clone and update github.com/${MIDSTM_REPO}.git"
+        println "########################################################################################################"
+        util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
+        OLD_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
+        println "Got OLD_SHA_MID in targetmid folder: " + OLD_SHA_MID
+        SOURCE_DIR="${WORKSPACE}/targetmid/dependencies/che-devfile-registry/"
+        util.updateBaseImages(SOURCE_DIR + "build/dockerfiles", DWNSTM_BRANCH)
+        NEW_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
+        println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
+
+        println "########################################################################################################"
+        println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
+        println "########################################################################################################"
+        util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", DWNSTM_BRANCH)
+        OLD_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+        println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
+        TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO) + "/"
+
+        // rsync files to codeready-workspaces-images
+        sh('''#!/bin/bash -xe
+          SOURCEDIR="''' + SOURCE_DIR + '''"
+          TARGETDIR="''' + TARGET_DIR + '''"
+          SYNC_FILES="''' + SYNC_FILES + '''"
+          [ ! -d ${TARGETDIR} ] && mkdir -p ${TARGETDIR}
+          for d in ${SYNC_FILES}; do
+            if [[ -f ${SOURCEDIR}/${d} ]]; then
+              rsync -azrlt ${SOURCEDIR}/${d} ${TARGETDIR}/${d}
+            elif [[ -d ${SOURCEDIR}/${d} ]]; then
+              # copy over the dir contents
+              rsync -azrlt ${SOURCEDIR}/${d}/* ${TARGETDIR}/${d}/
+              # sync the directory and delete from targetdwn if deleted from source
+              rsync -azrlt --delete ${SOURCEDIR}/${d}/ ${TARGETDIR}/${d}/
+            else
+              echo "[WARN] Could not find ${SOURCEDIR}/${d} to sync to ${TARGETDIR}/${d}"
+            fi
+          done
+        ''')
+
+        sh('''#!/bin/bash -xe
+          cp -f ''' + SOURCE_DIR + '''build/dockerfiles/Dockerfile  ''' + TARGET_DIR + '''Dockerfile
+          CRW_VERSION="''' + CRW_VERSION_F + '''"
+          # apply patches to transform CRW upstream to pkgs.devel version
+          sed -i ''' + TARGET_DIR + '''Dockerfile --regexp-extended \
+            `# Replace image used for registry with rhel8/httpd-24` \
+            -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
+            -e 's|# *(FROM.*rhel8/httpd.*)|\\1|' \
+            `# Strip registry from image references` \
+            -e 's|FROM registry.access.redhat.com/|FROM |' \
+            -e 's|FROM registry.redhat.io/|FROM |' \
+            `# Set arg options: enable USE_DIGESTS and disable BOOTSTRAP` \
+            -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=''' + USE_DIGESTS + '''|' \
+            -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
+            `# Enable offline build - copy in built binaries` \
+            -e 's|# (COPY root-local.tgz)|\\1|' \
+            `# only enable rhel8 here -- don't want centos or epel ` \
+            -e 's|^ *(COPY .*)/content_set.*repo (.+)|\\1/content_sets_rhel8.repo \\2|' \
+            `# Comment out PATCHED_* args from build and disable update_devfile_patched_image_tags.sh` \
+            -e 's|^ *ARG PATCHED.*|# &|' \
+            -e '/^ *RUN TAG/,+3 s|.*|# &| ' \
+            `# Disable intermediate build targets` \
+            -e 's|^ *FROM registry AS offline-registry|# &|' \
+            -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
+            -e 's|^[^#]*--from=offline-builder.*|# &|' \
+            -e '/COPY --from=builder/a COPY --from=builder /build/resources /var/www/html/resources' \
+            `# Enable cache_projects.sh` \
+            -e '\\|swap_images.sh|i # Cache projects in CRW \\
+COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \\
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz \\
+' \
+            `# Enable swap in arch specific devfiles` \
+            -e '\\|swap_images.sh|i RUN ./swap_yamlfiles.sh devfiles' \
+
+          METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
+    DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
+    PRODNAME="codeready-workspaces" \\\r
+    COMPNAME="''' + SYNC_REPO + '''-rhel8" \r
+LABEL summary="$SUMMARY" \\\r
+      description="$DESCRIPTION" \\\r
+      io.k8s.description="$DESCRIPTION" \\\r
+      io.k8s.display-name=\"$DESCRIPTION" \\\r
+      io.openshift.tags="$PRODNAME,$COMPNAME" \\\r
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \\\r
+      name="$PRODNAME/$COMPNAME" \\\r
+      version="'${CRW_VERSION}'" \\\r
+      license="EPLv2" \\\r
+      maintainer="Nick Boldt <nboldt@redhat.com>" \\\r
+      io.openshift.expose-services="" \\\r
+      usage="" \r'
+          echo -e "$METADATA" >> ''' + TARGET_DIR + '''Dockerfile
+          echo "======= DOWNSTREAM DOCKERFILE =======>"
+          cat ''' + TARGET_DIR + '''Dockerfile
+          echo "<======= DOWNSTREAM DOCKERFILE ======="
+        ''')
+
+        // push changes to codeready-workspaces-images
+        util.updateBaseImages(TARGET_DIR, DWNSTM_BRANCH, "--nocommit")
+        sh('''#!/bin/bash -xe
+          SYNC_FILES="''' + SYNC_FILES + '''"
+          cd ${WORKSPACE}/targetdwn
+          git add ''' + util.getCRWLongName(SYNC_REPO) + '''
+          git update-index --refresh  # ignore timestamp updates
+          if [[ \$(git diff-index HEAD --) ]]; then # file changed
+            cd ''' + TARGET_DIR + '''
+            git add Dockerfile ${SYNC_FILES} . -A -f
+            # note this might fail if we're syncing from a tag vs. a branch
+            git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ${SYNC_FILES} . || true
+            git push origin ''' + DWNSTM_BRANCH + ''' || true
+            echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
+          fi
+        ''')
+
+        NEW_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+        println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN
+        currentBuild.description="Upstream sync done"
+
+        if (NEW_SHA_DWN.equals(OLD_SHA_DWN) && NEW_SHA_MID.equals(OLD_SHA_MID) && !FORCE_BUILD.equals("true")) {
+          currentBuild.result='UNSTABLE'
+        }
+
+        println "########################################################################################################"
+        println "##  Kickoff Sync to downstream job"
+        println "########################################################################################################"
+        if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_DWN) || FORCE_BUILD == "true") {
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          build(
+              job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+              wait: true,
+              propagate: true,
+              parameters: [
+                [
+                  $class: 'StringParameterValue',
+                  name: 'token',
+                  value: "CI_BUILD"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'cause',
+                  value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'REPOS',
+                  value: util.getCRWLongName(SYNC_REPO)
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'JOB_BRANCH',
+                  value: "${CRW_VERSION}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: "${MIDSTM_BRANCH}"
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'FORCE_BUILD',
+                  value: true
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'SCRATCH',
+                  value: false
+                ]
+              ]
+            )
+          currentBuild.description+="; Downstream sync job triggered"
+        } else {
+          println "No changes upstream, nothing to sync / build in brew!"
+          currentBuild.description+="; No sync or Brew build"
+          currentBuild.result = 'UNSTABLE'
+        }
+      } // withCredentials
+    } // wrap
+  } // node
+} // timeout

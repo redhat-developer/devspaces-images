@@ -1,10 +1,9 @@
-def JOB_BRANCHES = ["2.7":""] // , "2":""] // TODO enable this for 2.x once we know it works for 2.7; 2.8 version will have more images (devworkspace)
-def JOB_DISABLED = ["2.7":false, "2":true]
+def JOB_BRANCHES = ["2.7":"", "2.x":""] // TODO 2.8 version will have more images (devworkspace)
+def JOB_DISABLED = ["2.7":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=JB.key
-    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
         // keep job disabled until we explicitly need it
         disabled(JOB_DISABLED[JB.key]) 

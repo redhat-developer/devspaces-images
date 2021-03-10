@@ -1,7 +1,7 @@
 def JOB_BRANCHES = ["2.7"] // only one release at a time
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
-        MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
         description('''
 Send an email to QE announcing an ER or RC build, including a list of images.
@@ -33,7 +33,7 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 * CRW ''' + JOB_BRANCH + '''.0.RC-''' + MMdd + ''' ready for QE
 ''')
             stringParam("errataURL","https://errata.devel.redhat.com/advisory/69656",'')
-            stringParam("unresolvedCriticalsBlockersURL","https://issues.redhat.com/browse/CRW-1601?jql=fixversion%20%3D%20" + JOB_BRANCH + ".0.GA%20AND%20project%20%3D%20CRW%20AND%20priority%20%3E%20Major%20AND%20resolution%20is%20null",'''query for unresolved criticals/blockers for the current release''')
+            stringParam("epicURL", "https://issues.redhat.com/browse/CRW-1566")
             textParam("additionalNotes",
 '''Additional Info:
 
@@ -44,6 +44,7 @@ stuff goes here if applicable''',"Stuff to mention after the lists of images")
             // # RECIPIENTS - comma and space separated list of recipient email addresses
             stringParam("RECIPIENTS","codeready-workspaces-qa@redhat.com, che-prod@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
+            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
             stringParam("JOB_BRANCH", JOB_BRANCH)
         }
 

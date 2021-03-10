@@ -2,16 +2,15 @@
 def CSV_VERSIONS = [
     "2.6":["2.6.0","2.5.1"],
     "2.7":["2.7.0","2.6.0"],
-    "2"  :["2.8.0","2.7.0"]
+    "2.x"  :["2.8.0","2.7.0"]
     ]
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
+def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
-    JOB_BRANCH=JB.key
-    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-operator"
@@ -60,9 +59,10 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
+            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
+            stringParam("JOB_BRANCH", JOB_BRANCH)
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("JOB_BRANCH", JOB_BRANCH)
             stringParam("CSV_VERSION", CSV_VERSIONS[JB.key][0])
             stringParam("CSV_VERSION_PREV", CSV_VERSIONS[JB.key][1])
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")

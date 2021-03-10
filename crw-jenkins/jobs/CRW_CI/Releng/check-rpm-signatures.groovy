@@ -1,7 +1,7 @@
 def JOB_BRANCHES = ["2.7"] // , "2.8"]
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
-        MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
         description('''
 This job is meant to be run before code freeze and when adding new containers to the BOM for CRW, in order to make sure we don't have

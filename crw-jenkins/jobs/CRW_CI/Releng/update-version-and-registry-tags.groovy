@@ -4,7 +4,7 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         // keep job disabled until we explicitly need it
         disabled(true)
 
-        MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         CSV_VERSION=JOB_BRANCH+".0"
 
         description('''

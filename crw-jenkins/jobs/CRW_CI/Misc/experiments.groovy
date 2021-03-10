@@ -1,7 +1,7 @@
 pipelineJob(ITEM_PATH){
 
-    JOB_BRANCH=2.6
-    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    JOB_BRANCH="2.x"
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
     description('''
 Job for testing stuff out in bash or groovy
@@ -25,26 +25,12 @@ Job for testing stuff out in bash or groovy
         artifactNumToKeep(1)
     }
 
-    /* requires naginator plugin */
-    /* publishers {
-        retryBuild {
-            rerunIfUnstable()
-            retryLimit(1)
-            progressiveDelay(30,90)
-        }
-    } */
-
     parameters{
-        stringParam("JOB_BRANCH", ""+JOB_BRANCH, "Normally we build from crw-2.y-rhel-8 jobs' tarballs, eg., job = crw-theia-sources_2.y")
         stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
     }
 
     // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
     authenticationToken('CI_BUILD')
-
-    // TODO: enable naginator plugin to re-trigger if job fails
-
-    // TODO: enable console log parser ?
 
     definition {
         // cpsScm {

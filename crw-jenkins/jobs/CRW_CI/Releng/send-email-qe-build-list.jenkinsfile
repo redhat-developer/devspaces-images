@@ -6,14 +6,13 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // mailSubject
 // errataURL
-// unresolvedCriticalsBlockersURL
+// epicURL
 // additionalNotes
 // doSendEmail
 // doOSBS
 // doStage
 // RECIPIENTS
 // MIDSTM_BRANCH
-// JOB_BRANCH
 
 def sendMail(mailSubject,mailBody) { // NEW_OSBS
     def sender="nboldt@redhat.com" // # use a bot instead?
@@ -46,6 +45,8 @@ timeout(90) {
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
             def util = load "${WORKSPACE}/util.groovy"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             try { 
                 stage "Fetch latest image tags and send email"
                 cleanWs()
@@ -194,7 +195,8 @@ Brew NVRs (for use in ''' + errataURL + '''):
 
     mailBody = mailBody + '''
 Unresolved blockers + criticals:
-''' + unresolvedCriticalsBlockersURL
+''' + epicURL + '''?jql=fixversion%20%3D%20''' + CRW_VERSION +
+'''.0.GA%20AND%20project%20%3D%20CRW%20AND%20priority%20%3E%20Major%20AND%20resolution%20is%20null'''
 
     if (!additionalNotes.equals("")) {
     mailBody = mailBody + '''

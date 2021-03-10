@@ -1,11 +1,10 @@
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
+def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
-    JOB_BRANCH=JB.key
-    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
@@ -60,10 +59,11 @@ codeready-workspaces-stacks-cpp,
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
 codeready-workspaces-stacks-php''')
-            stringParam("JOB_BRANCH", JOB_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("SCRATCH", false, "If true, just do a scratch build. If false, push to quay.io/crw")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
+            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
+            stringParam("JOB_BRANCH", JOB_BRANCH)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

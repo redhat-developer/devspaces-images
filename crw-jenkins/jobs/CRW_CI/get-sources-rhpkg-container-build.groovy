@@ -2,16 +2,15 @@
 def FLOATING_QUAY_TAGS = [
     "2.6":"2.6",
     "2.7":"latest",
-    "2"  :"nightly"
+    "2.x"  :"nightly"
     ]
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
+def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
-    JOB_BRANCH=JB.key
-    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
@@ -48,10 +47,11 @@ OSBS build</a>
         // NOTE: send email notification to culprits(), developers(), requestor() for failure - use util.notifyBuildFailed() in .jenkinsfile
 
         parameters{
-            // TODO refactor to remove all refs to GIT_BRANCH
+            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
+            stringParam("JOB_BRANCH", JOB_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
+            // TODO refactor to remove all refs to GIT_BRANCH
             stringParam("GIT_BRANCH", MIDSTM_BRANCH, "")
-            stringParam("JOB_BRANCH", ""+JOB_BRANCH, "Normally we build from crw-2.y-rhel-8 jobs' tarballs, eg., job = crw-theia-sources_2.y")
             stringParam("GIT_PATHs", "containers/codeready-workspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
 update sources, and run rhpkg container-build: <br/>
 * containers/codeready-workspaces, <br/>

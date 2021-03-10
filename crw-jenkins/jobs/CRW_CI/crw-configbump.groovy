@@ -1,11 +1,10 @@
-def JOB_BRANCHES = ["2.6":"master", "2.7":"master", "2":"master"] // special case, no Che branches; could also use a tag like "v0.1.4"
-def JOB_DISABLED = ["2.6":true, "2.7":false, "2":true]
+def JOB_BRANCHES = ["2.6":"master", "2.7":"master", "2.x":"master"] // special case, no Che branches; could also use a tag like "v0.1.4"
+def JOB_DISABLED = ["2.6":true, "2.7":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
-    JOB_BRANCH=JB.key
-    MIDSTM_BRANCH="crw-"+JOB_BRANCH+"-rhel-8"
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    if (JOB_BRANCH.equals("2")) { jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH + ".x" }
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="configbump"

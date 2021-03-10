@@ -2,7 +2,6 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-// JOB_BRANCH
 // MIDSTM_BRANCH
 
 def String nodeLabel = 'rhel8'
@@ -23,6 +22,7 @@ timeout(120) {
                     util.installYq()
                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                     println "CRW_VERSION = '" + CRW_VERSION + "'"
+                    JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
                     util.bootstrap(CRW_KEYTAB)
 
                     try {
