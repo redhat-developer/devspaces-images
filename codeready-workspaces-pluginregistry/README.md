@@ -1,15 +1,29 @@
-[![CircleCI](https://circleci.com/gh/eclipse/che-plugin-registry.svg?style=svg)](https://circleci.com/gh/eclipse/che-plugin-registry)
-[![Master Build Status](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-plugin-registry-build-master/)](https://ci.centos.org/job/devtools-che-plugin-registry-build-master/)
-[![Nightly Build Status](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-che-plugin-registry-nightly/)](https://ci.centos.org/job/devtools-che-plugin-registry-nightly/)
-[![Release Build Status](https://ci.centos.org/buildStatus/icon?subject=release&job=devtools-che-plugin-registry-release/)](https://ci.centos.org/job/devtools-che-plugin-registry-release/)
-[![Release Preview Build Status](https://ci.centos.org/buildStatus/icon?subject=release-preview&job=devtools-che-plugin-registry-release-preview/)](https://ci.centos.org/job/devtools-che-plugin-registry-release-preview/)
-
-# Eclipse Che plugin registry
+# CodeReady Workspaces plugin registry
 
 This repository holds ready-to-use plugins for different languages and technologies.
 
+
 ## Building and publishing third party VSIX extensions for plugin registry
-See: https://github.com/redhat-developer/codeready-workspaces/blob/master/devdoc/building/build-vsix-extension.adoc
+
+See: https://github.com/redhat-developer/codeready-workspaces-vscode-extensions/blob/main/README.md
+
+
+## Building and publishing third party binaries for and plugin registry sidecar containers
+
+Executables and language server dependencies needed in plugin sidecar containers can be built from this repo:
+
+* [redhat-developer/codeready-workspaces-deprecated](https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/crw-2-rhel-8/)
+
+For example, [kamel](https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/crw-2-rhel-8/kamel/build.sh) binaries are used in the kubernetes sidecar:
+
+* [codeready-workspaces/plugin-kubernetes-rhel8](https://catalog.redhat.com/software/containers/codeready-workspaces/plugin-kubernetes-rhel8/5dae28895a13461646def87a)
+* [crw/plugin-kubernetes-rhel8](https://quay.io/repository/crw/plugin-kubernetes-rhel8?tag=latest&tab=tags)
+
+Sidecar image sources are then synced from the [codeready-workspaces-images](https://github.com/redhat-developer/codeready-workspaces-images) repo to a dist-git repo at Red Hat, and from built in Brew. For example, the kubernetes sidecar:
+
+* [codeready-workspaces-images/codeready-workspaces-plugin-kubernetes](https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/codeready-workspaces-plugin-kubernetes)
+* [containers/codeready-workspaces-plugin-kubernetes](http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-kubernetes/tree/sources?h=crw-2-rhel-8)
+
 
 ## Build registry container image
 
@@ -24,21 +38,36 @@ Options:
     --registry, -r [REGISTRY]
         Docker registry to be used for image; default 'quay.io'
     --organization, -o [ORGANIZATION]
-        Docker image organization to be used for image; default: 'eclipse'
+        Docker image organization to be used for image; default: 'crw'
     --latest-only
         Build registry to only contain 'latest' meta.yamls; default: 'false'
     --offline
         Build offline version of registry, with all artifacts included
         cached in the registry; disabled by default.
-    --rhel
-        Build using the rhel.Dockerfile (UBI images) instead of default
 ```
 
+This script listens to the `BUILDER` variable, and will use the tool specified there to build the image. For example:
+```sh
+BUILDER=buildah ./build.sh
+```
+
+will force the build to use `buildah`. If `BUILDER` is not specified, the script will try to use `podman` by default. If `podman` is not installed, then `buildah` will be chosen. If neither `podman` nor `buildah` are installed, the script will finally try to build with `docker`.
+
 Note that the Dockerfiles in this repository utilize multi-stage builds, so Docker version 17.05 or higher is required.
+
+
+### Build in Brew
+
+The Jenkinsfile in this repo has moved. See:
+
+* https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/tree/master/jobs/CRW_CI
+* https://github.com/redhat-developer/codeready-workspaces-images#jenkins-jobs
+
 
 ### Offline and airgapped registry images
 
 Using the `--offline` option in `build.sh` will build the registry to contain all referenced extension artifacts (i.e. all `.theia` and `.vsix` archives). The offline version of the plugin registry is useful in network-limited scenarios, as it avoids the need to download plugin extensions from the outside internet.
+
 
 ## Deploy the registry to OpenShift
 
@@ -46,16 +75,18 @@ You can deploy the registry to Openshift as follows:
 
 ```bash
   oc new-app -f deploy/openshift/che-plugin-registry.yml \
-             -p IMAGE="quay.io/eclipse/che-plugin-registry" \
+             -p IMAGE="quay.io/crw/pluginregistry-rhel8" \
              -p IMAGE_TAG="nightly" \
              -p PULL_POLICY="Always"
 ```
 
+
 ## Run the registry 
 
 ```bash
-docker run -it  --rm  -p 8080:8080 quay.io/eclipse/che-plugin-registry:nightly
+docker run -it  --rm  -p 8080:8080 quay.io/crw/pluginregistry-rhel8:nightly
 ```
+
 
 ## Plugin meta YAML structure
 
@@ -182,6 +213,7 @@ Note that the `spec` section above comes from the older `che-plugin.yaml` spec. 
 
 At the moment, some of these fields (that are related to plugin viewer) are validated during the Plugin Registry dockerimage build.
 
+
 ## Get index list of all plugins
 
 Example:
@@ -254,6 +286,7 @@ Response:
   }
 ]
 ```
+
 
 ## Get meta.yaml of a plugin
 
@@ -344,14 +377,7 @@ spec:
 latestUpdateDate: "2019-07-05"
 ```
 
-## CI
-The following [CentOS CI jobs](https://ci.centos.org/) are associated with the repository:
-
-- [`master`](https://ci.centos.org/job/devtools-che-plugin-registry-build-master/) - builds CentOS images on each commit to the [`master`](https://github.com/eclipse/che-plugin-registry/tree/master) branch and pushes them to [quay.io](https://quay.io/organization/eclipse).
-- [`nightly`](https://ci.centos.org/job/devtools-che-plugin-registry-nightly/) - builds CentOS images and pushes them to [quay.io](https://quay.io/organization/eclipse) on a daily basis from the [`master`](https://github.com/eclipse/che-plugin-registry/tree/master) branch. The `nightly` version of the plugin registry is used by default by the `nightly` version of the [Eclipse Che](https://github.com/eclipse/che), which is also built on a daily basis by the [`all-che-docker-images-nightly`](all-che-docker-images-nightly/) CI job.
-- [`release`](https://ci.centos.org/job/devtools-che-plugin-registry-release/) - builds CentOS and corresponding RHEL images from the [`release`](https://github.com/eclipse/che-plugin-registry/tree/release) branch. CentOS images are public and pushed to [quay.io](https://quay.io/organization/eclipse). RHEL images are also pushed to quay.io, but to the private repositories and then used by the ["Hosted Che"](https://www.eclipse.org/che/docs/che-7/hosted-che/) plugin registry - https://che-plugin-registry.openshift.io/.
-- [`release-preview`](https://ci.centos.org/job/devtools-che-plugin-registry-release-preview/) - builds CentOS and corresponding RHEL images from the [`release-preview`](https://github.com/eclipse/che-plugin-registry/tree/release-preview) branch and automatically updates ["Hosted Che"](https://www.eclipse.org/che/docs/che-7/hosted-che/) staging plugin registry deployment based on the new version of images - https://che-plugin-registry.prod-preview.openshift.io/. CentOS images are public and pushed to [quay.io](https://quay.io/organization/eclipse). RHEL images are also pushed to quay.io, but to the private repositories.
 
 ### License
 
-Che is open sourced under the Eclipse Public License 2.0.
+CodeReady Workspaces is open sourced under the Eclipse Public License 2.0.

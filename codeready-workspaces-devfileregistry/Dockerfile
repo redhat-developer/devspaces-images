@@ -11,12 +11,12 @@
 #
 
 # Builder: check meta.yamls and create index.json
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-230 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
+FROM ubi8/python-38:1-47.1614874861 as builder
 USER 0
 
 ################# 
-# PHASE ONE: create ubi8-minimal image with yq
+# PHASE ONE: create ubi8 image with yq
 ################# 
 
 ARG BOOTSTRAP=false
@@ -27,9 +27,15 @@ ENV USE_DIGESTS=${USE_DIGESTS}
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
 #    find v3 -type f -exec dos2unix {} \;
-#    CONTAINERNAME="tmpregistrybuilder" && docker build -t ${CONTAINERNAME} . --target=builder --no-cache --squash --build-arg BOOTSTRAP=true
-#    mkdir -p /tmp/root-local/ && docker run -it -v /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash -c "cd /root/.local/ && cp -r bin/ lib/ /tmp/root-local/"
-#    pushd /tmp/root-local >/dev/null && sudo tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f /tmp/root-local/root-local.tgz . && sudo rm -fr /tmp/root-local/
+
+# NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
+# CONTAINERNAME=devfileregistryoffline && \
+# docker build -t ${CONTAINERNAME} . --no-cache  --target builder \
+#   --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false -f build/dockerfiles/Dockerfile 
+# mkdir -p /tmp/root-local/ && docker run --rm -v \
+#   /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash \
+#   -c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
+# pushd /tmp/root-local >/dev/null && sudo tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f /tmp/root-local/root-local.tgz . && sudo rm -fr /tmp/root-local/
 
 # 2. then add it to dist-git so it's part of this repo
 #    rhpkg new-sources root-local.tgz 
@@ -67,7 +73,6 @@ RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh devfiles; f
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
-CMD tail -f /dev/null
 
 ################# 
 # PHASE TWO: configure registry image
@@ -76,11 +81,11 @@ CMD tail -f /dev/null
 # Build registry, copying meta.yamls and index.json from builder
 # UPSTREAM: use RHEL7/RHSCL/httpd image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhscl/httpd-24-rhel7
-# FROM rhscl/httpd-24-rhel7:2.6-2 AS registry
+# FROM rhscl/httpd-24-rhel7:2.4-136.1614612498 AS registry
 
 # DOWNSTREAM: use RHEL8/httpd
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-FROM rhel8/httpd-24:2.6-2 AS registry
+FROM rhel8/httpd-24:1-123.1614609239 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
@@ -104,7 +109,7 @@ STOPSIGNAL SIGWINCH
 WORKDIR /var/www/html
 
 RUN mkdir -m 777 /var/www/html/devfiles
-COPY .htaccess README.md /var/www/html/
+COPY README.md .htaccess /var/www/html/
 COPY --from=builder /build/devfiles /var/www/html/devfiles
 COPY --from=builder /build/resources /var/www/html/resources
 COPY ./images /var/www/html/images
@@ -114,7 +119,7 @@ RUN chmod g+rwX /usr/local/bin/entrypoint.sh /usr/local/bin/rhel.entrypoint.sh &
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 
-# Offline registry build
+# Offline build
 # FROM builder AS offline-builder
 # RUN ./cache_projects.sh devfiles resources && \
 #     ./cache_images.sh devfiles resources && \

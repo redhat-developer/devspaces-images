@@ -11,27 +11,31 @@
 #
 
 # Builder: check meta.yamls and create index.json
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-230 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
+FROM ubi8/python-38:1-47.1614874861 as builder
 USER 0
 
 ################# 
-# PHASE ONE: create ubi8-minimal image with yq
+# PHASE ONE: create ubi8 image with yq
 ################# 
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
 ARG USE_DIGESTS=true
 ENV USE_DIGESTS=${USE_DIGESTS}
-ARG LATEST_ONLY=false
-ENV LATEST_ONLY=${LATEST_ONLY}
 
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
 #    find v3 -type f -exec dos2unix {} \;
-#    CONTAINERNAME="tmpregistrybuilder" && docker build -t ${CONTAINERNAME} . --target=builder --no-cache --squash --build-arg BOOTSTRAP=true
-#    mkdir -p /tmp/root-local/ && docker run -it -v /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash -c "cd /root/.local/ && cp -r bin/ lib/ /tmp/root-local/"
-#    pushd /tmp/root-local >/dev/null && sudo tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f /tmp/root-local/root-local.tgz . && sudo rm -fr /tmp/root-local/
+
+# NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
+# CONTAINERNAME=pluginregistryoffline && \
+# docker build -t ${CONTAINERNAME} . --no-cache  --target builder \
+#   --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false -f build/dockerfiles/Dockerfile 
+# mkdir -p /tmp/root-local/ && docker run --rm -v \
+#   /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash \
+#   -c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
+# pushd /tmp/root-local >/dev/null && sudo tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f /tmp/root-local/root-local.tgz . && sudo rm -fr /tmp/root-local/
 
 # 2. then add it to dist-git so it's part of this repo
 #    rhpkg new-sources root-local.tgz 
@@ -42,23 +46,15 @@ COPY root-local.tgz /tmp/root-local.tgz
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 7 or 8 content sets (from Brew) to resolve jq as rpm
 COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
-
 COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
-
-################# 
-# PHASE TWO: configure registry image
-#################
 
 COPY ./build/scripts/*.sh ./build/scripts/meta.yaml.schema /build/
 COPY ./v3 /build/v3
 WORKDIR /build/
 
 # if only including the /latest/ plugins, apply this line to remove them from builder
-RUN if [[ ${LATEST_ONLY} == "true" ]]; then \
-      ./keep_only_latest.sh; \
-    fi
-
+RUN ./keep_only_latest.sh
 RUN ./generate_latest_metas.sh v3
 RUN ./check_plugins_location.sh v3
 RUN ./set_plugin_dates.sh v3
@@ -68,28 +64,32 @@ COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/
 RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz 
 
 RUN ./swap_images.sh v3
+RUN ./swap_plugins_memory.sh v3
 RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh v3; fi
 RUN ./index.sh v3 > /build/v3/plugins/index.json
 RUN ./list_referenced_images.sh v3 > /build/v3/external_images.txt
 RUN chmod -R g+rwX /build
 
 ################# 
-# PHASE THREE: configure registry image
+# PHASE TWO: configure registry image
 ################# 
 
 # Build registry, copying meta.yamls and index.json from builder
 # UPSTREAM: use RHEL7/RHSCL/httpd image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhscl/httpd-24-rhel7
-# FROM rhscl/httpd-24-rhel7:2.6-2 AS registry
+# FROM rhscl/httpd-24-rhel7:2.4-136.1614612498 AS registry
 
 # DOWNSTREAM: use RHEL8/httpd
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-FROM rhel8/httpd-24:2.6-2 AS registry
+FROM rhel8/httpd-24:1-123.1614609239 AS registry
 USER 0
+
 # latest httpd container doesn't include ssl cert, so generate one
 RUN chmod +x /usr/share/container-scripts/httpd/pre-init/40-ssl-certs.sh && \
     /usr/share/container-scripts/httpd/pre-init/40-ssl-certs.sh
-RUN yum -y -q update && yum clean all && rm -rf /var/cache/yum && \
+RUN \
+    yum -y -q update && \
+    yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 # BEGIN these steps might not be required
