@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.14.12-11
+FROM rhel8/go-toolset:2.6-2
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - Golang Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - Golang Stack container" \
