@@ -6,13 +6,13 @@ type: Theia plugin
 displayName: Omnisharp Theia Plug-in
 title: C# Language Support for Theia
 description: This plug-in registers omnisharp-roslyn as a language server and provides project dependencies and language syntax.
-icon: v3/images/eclipse-che-logo.png
+icon: /v3/images/eclipse-che-logo.png
 repository: https://github.com/redhat-developer/omnisharp-theia-plugin
 category: Language
 firstPublicationDate: "2020-01-05"
 spec:
   containers:
-  - image: "registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8:2.6"
+  - image: "registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8:2.7"
     name: theia-omnisharp
     memoryLimit: "1024Mi"
     args:

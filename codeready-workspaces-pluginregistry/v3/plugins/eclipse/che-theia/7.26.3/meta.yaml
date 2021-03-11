@@ -1,15 +1,15 @@
 apiVersion: v2
 publisher: eclipse
 name: che-theia
-version: 7.24.2
+version: 7.26.3
 type: Che Editor
 displayName: theia-ide
 title: Eclipse Theia
 description: Eclipse Theia
-icon: v3/images/eclipse-che-logo.png
+icon: /v3/images/eclipse-che-logo.png
 category: Editor
 repository: https://github.com/eclipse/che-theia
-firstPublicationDate: "2021-01-15"
+firstPublicationDate: "2021-02-26"
 spec:
   endpoints:
    -  name: "theia"
@@ -27,6 +27,16 @@ spec:
       attributes:
         protocol: http
         type: webview
+        secure: true
+        cookiesAuthEnabled: true
+        discoverable: false
+        unique: true
+   -  name: "mini-browser"
+      public: true
+      targetPort: 3100
+      attributes:
+        protocol: http
+        type: mini-browser
         secure: true
         cookiesAuthEnabled: true
         discoverable: false
@@ -58,7 +68,7 @@ spec:
         discoverable: false
   containers:
    - name: theia-ide
-     image: "registry.redhat.io/codeready-workspaces/theia-rhel8:2.6"
+     image: "registry.redhat.io/codeready-workspaces/theia-rhel8:2.7"
      env:
          - name: THEIA_PLUGINS
            value: local-dir:///plugins
@@ -81,7 +91,7 @@ spec:
      memoryLimit: "512M"
   initContainers:
   - name: remote-runtime-injector
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8:2.6
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8:2.7
     volumes:
       - mountPath: "/remote-endpoint"
         name: remote-endpoint
