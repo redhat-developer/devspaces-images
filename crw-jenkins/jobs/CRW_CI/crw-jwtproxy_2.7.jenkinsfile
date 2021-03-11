@@ -13,7 +13,7 @@ def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use 
 def SCRATCH = "false"
 def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "jwtproxy" // also used for the Brew dockerfile params
-def SYNC_FILES="cmd  config  examples  jwt  proxy  stop  vendor  Gopkg.lock  Gopkg.toml  README.md  jwtproxy.go"
+def SYNC_FILES="cmd config examples jwt proxy stop go.mod go.sum jwtproxy.go LICENSE README.md"
 
 def OLD_SHA=""
 def NEW_SHA=""

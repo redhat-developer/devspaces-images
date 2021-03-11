@@ -160,8 +160,9 @@ node(nodeLabel) {
       if (!NEW_SHA1.equals(OLD_SHA1) || !NEW_SHA2.equals(OLD_SHA2) || FORCE_BUILD.equals("true")) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         for (QUAY_REPO_PATH in [QUAY_PROJECT1, QUAY_PROJECT2]) {
-          println ("Trigger get-sources-rhpkg-container-build_" + CRW_VERSION + " for ${QUAY_REPO_PATH}-rhel8 from containers/codeready-workspaces-${QUAY_REPO_PATH} branch ${MIDSTM_BRANCH}, job branch ${CRW_VERSION} ...")
+          println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH}-rhel8 from containers/codeready-workspaces-${QUAY_REPO_PATH} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           build(
             job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
