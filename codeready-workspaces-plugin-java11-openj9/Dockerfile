@@ -17,6 +17,7 @@ USER root
 ENV \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
+    LOMBOK_VERSION="1.18.18" \
     JAVA_HOME=/usr/lib/jvm/java-11-openj9 \
     PATH="/usr/lib/jvm/java-11-openj9:/opt/gradle/bin:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
@@ -30,6 +31,7 @@ ENV \
 # run './get-sources-jenkins.sh --force-pull --nobuild' to generate this file, or 
 # use 'rhpkg sources' to fetch existing version from dist-git.
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
+COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_sets.repo /etc/yum.repos.d/
