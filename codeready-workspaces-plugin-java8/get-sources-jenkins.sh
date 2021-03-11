@@ -72,6 +72,8 @@ lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 
+LOMBOK_VERSION="1.18.18"
+
 LABELs=""
 function addLabel () {
 	addLabeln "${1}" "${2}" "${3}"
@@ -178,14 +180,16 @@ done
 # update Dockerfile to record version we expect for MAVEN_VERSION
 sed Dockerfile \
 	-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
+	-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
 if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+	curl -sSL -O https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
 fi
-outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz ${outputFiles}"
+outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar ${outputFiles}"
 
 if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"

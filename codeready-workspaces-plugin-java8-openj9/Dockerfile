@@ -17,6 +17,7 @@ USER root
 ENV HOME=/home/jboss \
     NODEJS_VERSION=12 \
     MAVEN_VERSION="3.6.3" \
+    LOMBOK_VERSION="1.18.18" \
     PYTHON_VERSION="3.8" \
     JAVA_HOME=/usr/lib/jvm/java-1.8.0-openj9 \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/lib/jvm/java-1.8.0-openj9:/opt/apache-maven/bin:/usr/bin:$PATH \
@@ -28,6 +29,7 @@ ENV HOME=/home/jboss \
 
 # built in Brew, use get-sources-jenkins.sh to pull latest
 COPY . /tmp/assets/
+COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_set*.repo /etc/yum.repos.d/
