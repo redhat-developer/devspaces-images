@@ -12,7 +12,7 @@
 # https://github.com/eclipse/che-theia/tree/v7.3.2/dockerfiles/remote-plugin-kubernetes-tooling-1.0.4
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-230
+FROM ubi8-minimal:8.3-291
 
 ENV \
     KAMEL_VERSION="1.3.1" \
@@ -36,7 +36,7 @@ COPY . /tmp/assets
 # COPY content_set*.repo /etc/yum.repos.d/
 
 # For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
-# For OCP Tools (helm): ocp-tools-4.6-for-rhel-8-x86_64-rpms
+# For OCP Tools (helm): ocp-tools-4.7-for-rhel-8-x86_64-rpms
 # must hard code a version if more than one version available
 ## Failed component comparison for components: openshift-clients
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.6/os/Packages/h/helm-3.3.4-5.el8.x86_64.rpm

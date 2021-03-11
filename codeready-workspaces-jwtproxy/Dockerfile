@@ -11,11 +11,11 @@
 
 # UPSTREAM: use devtools/go/-toolset-rhel7 image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-# FROM registry.access.redhat.com/rhel8/go-toolset:2.6-2 as builder
+# FROM registry.access.redhat.com/rhel8/go-toolset:1.14.12-13 as builder
 # ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH
 # DOWNSTREAM: use rhel8/go-toolset; no path modification needed
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:2.6-2 as builder
+FROM rhel8/go-toolset:1.14.12-13 as builder
 
 ENV GOPATH=/go/
 USER root
@@ -25,7 +25,7 @@ RUN adduser appuser && \
     CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w -s' -a -installsuffix cgo -o jwtproxy cmd/jwtproxy/main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-230
+FROM ubi8-minimal:8.3-291
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /go/src/github.com/eclipse/che-jwtproxy/jwtproxy /usr/local/bin
