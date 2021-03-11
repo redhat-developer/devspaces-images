@@ -156,7 +156,7 @@ node(nodeLabel){
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
-                  value: "${JOB_BRANCH}"
+                  value: JOB_BRANCH
                 ],
                 [
                   $class: 'BooleanParameterValue',

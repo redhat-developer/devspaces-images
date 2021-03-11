@@ -189,7 +189,7 @@ LABEL summary="$SUMMARY" \\\r
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
-                  value: "${CRW_VERSION}"
+                  value: JOB_BRANCH
                 ],
                 [
                   $class: 'StringParameterValue',

@@ -1,7 +1,10 @@
-def JOB_BRANCHES = ["2.7"] // only one release at a time
-for (String JOB_BRANCH : JOB_BRANCHES) {
-    pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
-        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+def JOB_BRANCHES = ["2.7":"", "2.x":""]
+def JOB_DISABLED = ["2.7":true, "2.x":false]
+for (JB in JOB_BRANCHES) {
+    JOB_BRANCH=""+JB.key
+    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+    pipelineJob(jobPath){
 
         description('''
 Send an email to QE announcing an ER or RC build, including a list of images.
@@ -28,14 +31,13 @@ Send an email to QE announcing an ER or RC build, including a list of images.
         parameters{
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
             stringParam("mailSubject","CRW " + JOB_BRANCH + ".0.tt-" + MMdd + " ready for QE",
-'''email subject should be one of two formats:
-* CRW ''' + JOB_BRANCH + '''.0.ER-''' + MMdd + ''' ready for QE
+'''email subject should be one of two formats: <br/>
+* CRW ''' + JOB_BRANCH + '''.0.ER-''' + MMdd + ''' ready for QE<br/>
 * CRW ''' + JOB_BRANCH + '''.0.RC-''' + MMdd + ''' ready for QE
 ''')
             stringParam("errataURL","https://errata.devel.redhat.com/advisory/69656",'')
             stringParam("epicURL", "https://issues.redhat.com/browse/CRW-1566")
-            textParam("additionalNotes",
-'''Additional Info:
+            textParam("additionalNotes",'''Additional Info:
 
 stuff goes here if applicable''',"Stuff to mention after the lists of images")
             booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
@@ -54,7 +56,7 @@ stuff goes here if applicable''',"Stuff to mention after the lists of images")
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/Releng/send-email-qe-build-list.jenkinsfile'))
+                script(readFileFromWorkspace('jobs/CRW_CI/Releng/send-email-qe-build-list_' + JOB_BRANCH + '.jenkinsfile'))
             }
         }
     }

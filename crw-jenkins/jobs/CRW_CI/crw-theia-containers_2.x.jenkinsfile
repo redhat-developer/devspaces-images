@@ -206,27 +206,27 @@ timeout(360) {
             [
               $class: 'StringParameterValue',
               name: 'GIT_PATHs',
-              value: "containers/codeready-workspaces-theia-dev",
+              value: "containers/codeready-workspaces-theia-dev"
             ],
             [
               $class: 'StringParameterValue',
               name: 'MIDSTM_BRANCH',
-              value: MIDSTM_BRANCH,
+              value: MIDSTM_BRANCH
             ],
             [
               $class: 'StringParameterValue',
               name: 'QUAY_REPO_PATHs',
-              value: QUAY_REPO_PATHs,
+              value: QUAY_REPO_PATHs
             ],
             [
               $class: 'BooleanParameterValue',
               name: 'SCRATCH',
-              value: SCRATCH,
+              value: SCRATCH
             ],
             [
               $class: 'StringParameterValue',
               name: 'JOB_BRANCH',
-              value: JOB_BRANCH,
+              value: JOB_BRANCH
             ]
           ]
         )
@@ -244,7 +244,7 @@ timeout(360) {
             [
               $class: 'StringParameterValue',
               name: 'GIT_PATHs',
-              value: "containers/codeready-workspaces-theia",
+              value: "containers/codeready-workspaces-theia"
             ],
             [
               $class: 'StringParameterValue',
@@ -282,7 +282,7 @@ timeout(360) {
             [
               $class: 'StringParameterValue',
               name: 'GIT_PATHs',
-              value: "containers/codeready-workspaces-theia-endpoint",
+              value: "containers/codeready-workspaces-theia-endpoint"
             ],
             [
               $class: 'StringParameterValue',
