@@ -94,6 +94,7 @@ node(nodeLabel) {
                             println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
                             def lastBuildIdLoc = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
                             lastBuildIdLoc = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                            println ("Started job for " + key + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildIdLoc)
                             util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)
                             currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildIdLoc}>${currentJobLoc}#${lastBuildIdLoc}</a>"
                         }
