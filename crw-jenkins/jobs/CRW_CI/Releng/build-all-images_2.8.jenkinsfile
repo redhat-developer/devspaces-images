@@ -25,6 +25,7 @@ node(nodeLabel) {
             util.installRhpkg()
             util.installBrewKoji()
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             currentBuild.description="Jobs run:"
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
@@ -40,14 +41,14 @@ node(nodeLabel) {
 
                 if (PHASE_LIST.contains("1")) {
                     // rebuild lang server artifacts
-                    currentJob="crw-deprecated_" + CRW_VERSION
+                    currentJob="crw-deprecated_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 if (PHASE_LIST.contains("2")) {
                     // all the sidecars - start this early since it's 10 builds
-                    currentJob="crw-sync-to-downstream_" + CRW_VERSION
+                    currentJob="crw-sync-to-downstream_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this set of 10 builds to finish
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
@@ -56,7 +57,7 @@ node(nodeLabel) {
                 currentQuayImageTheiaEndpoint=""
                 if (PHASE_LIST.contains("3")) {
                     // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
-                    currentJob="crw-theia-sources_" + CRW_VERSION
+                    currentJob="crw-theia-sources_" + JOB_BRANCH
                     currentQuayImageTheia = util.getLatestImageAndTag("crw/theia-rhel8", "quay")
                     println ("Got currentQuayImageTheia = " + currentQuayImageTheia)
                     currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("crw/theia-endpoint-rhel8", "quay")
@@ -87,12 +88,13 @@ node(nodeLabel) {
                     for (kv in mapToList(jobsList)) {
                         def key=kv[0] // .key = kv[0]
                         def val=kv[1] // .value = kv[1]
-                        def currentJobLoc="crw-" + key + "_" + CRW_VERSION
+                        def currentJobLoc="crw-" + key + "_" + JOB_BRANCH
                         def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + val, "quay")
                         tasks[currentJobLoc] = { ->
                             println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
                             def lastBuildIdLoc = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
                             lastBuildIdLoc = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                            println ("Started job for " + key + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildIdLoc)
                             util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)
                             currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildIdLoc}>${currentJobLoc}#${lastBuildIdLoc}</a>"
                         }
@@ -113,7 +115,7 @@ node(nodeLabel) {
                     println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
 
                     // trigger update-digests job (to rebuild registries and metadata images)
-                    currentJob="update-digests-in-registries-and-metadata_" + CRW_VERSION
+                    currentJob="update-digests-in-registries-and-metadata_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                     util.waitForNewQuayImage("crw/crw-2-rhel8-operator-metadata", currentQuayImageMetadata)

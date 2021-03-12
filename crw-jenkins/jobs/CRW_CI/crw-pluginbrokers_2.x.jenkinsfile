@@ -10,8 +10,6 @@ import groovy.transform.Field
 def SOURCE_REPO = "eclipse/che-plugin-broker" // upstream source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO1 = "containers/codeready-workspaces-pluginbroker-metadata" // dist-git repo to use as target
 def DWNSTM_REPO2 = "containers/codeready-workspaces-pluginbroker-artifacts" // dist-git repo to use as target
-def SCRATCH = "false"
-def PUSH_TO_QUAY = "true"
 def QUAY_PROJECT1 = "pluginbroker-metadata" // also used for the Brew dockerfile params
 def QUAY_PROJECT2 = "pluginbroker-artifacts" // also used for the Brew dockerfile params
 def SYNC_FILES = "brokers build cfg common CONTRIBUTING.md .dockerignore devfile.yaml .gitignore go.mod go.sum LICENSE Makefile model README.md utils vendor VERSION"
@@ -207,7 +205,7 @@ node(nodeLabel) {
               [
                 $class: 'BooleanParameterValue',
                 name: 'SCRATCH',
-                value: SCRATCH
+                value: false
               ]
             ]
           )

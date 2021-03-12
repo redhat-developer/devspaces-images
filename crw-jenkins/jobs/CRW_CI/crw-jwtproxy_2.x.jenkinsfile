@@ -10,8 +10,6 @@ import groovy.transform.Field
 def SOURCE_REPO = "eclipse/che-jwtproxy" // upstream source repo from which to find and sync commits
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 
-def SCRATCH = "false"
-def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "jwtproxy" // also used for the Brew dockerfile params
 def SYNC_FILES="cmd config examples jwt proxy stop go.mod go.sum jwtproxy.go LICENSE README.md"
 
@@ -187,7 +185,7 @@ node(nodeLabel) {
                 [
                   $class: 'BooleanParameterValue',
                   name: 'SCRATCH',
-                  value: SCRATCH
+                  value: false
                 ]
               ]
         )

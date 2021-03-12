@@ -5,7 +5,6 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 //   SOURCE_BRANCH
 //   MIDSTM_BRANCH
-//   SCRATCH = true (don't push to Quay) or false (do push to Quay)
 
 // DO NOT CHANGE THIS until newer version exists in crw-theia ubi base images, or build will fail.
 def nodeVersion = "12.19.1"
@@ -201,7 +200,7 @@ node(nodeLabel) {
               [
                 $class: 'BooleanParameterValue',
                 name: 'SCRATCH',
-                value: SCRATCH,
+                value: false,
               ],
               [
                 $class: 'StringParameterValue',

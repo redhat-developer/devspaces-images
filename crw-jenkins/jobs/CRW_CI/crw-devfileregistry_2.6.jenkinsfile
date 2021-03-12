@@ -10,7 +10,6 @@ def MIDSTM_REPO = "redhat-developer/codeready-workspaces" //source repo from whi
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // dist-git repo to use as target
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
 def SCRATCH = "false"
-def PUSH_TO_QUAY = "true"
 def QUAY_PROJECT = "devfileregistry" // also used for the Brew dockerfile params
 def USE_DIGESTS = "true" // if true, use @sha256:digest in registry; if false, use :tag
 def SYNC_FILES="arbitrary-users-patch build devfiles images .gitignore .htaccess LICENSE README.md VERSION"

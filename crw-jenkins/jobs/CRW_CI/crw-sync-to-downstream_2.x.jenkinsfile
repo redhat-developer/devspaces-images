@@ -4,7 +4,6 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 //   REPOS
 //   MIDSTM_BRANCH
-//   SCRATCH = false (do push to Quay) or true (don't push to Quay)
 //   FORCE_BUILD
 
 def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
@@ -94,9 +93,6 @@ timeout(120) {
 
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
-                  if (SCRATCH == true || SCRATCH.toString().equals("true")) {
-                    QUAY_REPO_PATH=""
-                  }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
                   // kick off get-sources-rhpkg-container-build_2.y job
                   build(
@@ -142,7 +138,7 @@ timeout(120) {
                       [
                         $class: 'BooleanParameterValue',
                         name: 'SCRATCH',
-                        value: SCRATCH
+                        value: false
                       ]
                     ]
                   )

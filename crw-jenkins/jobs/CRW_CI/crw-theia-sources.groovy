@@ -11,6 +11,14 @@ for (JB in JOB_BRANCHES) {
 1. <a href=../crw-theia-sources_''' + JOB_BRANCH + '''>crw-theia-sources_''' + JOB_BRANCH + '''</a>: Build CRW Theia components needed for the Theia images (built in Brew), then <br/>
 2. <a href=../crw-theia-containers_''' + JOB_BRANCH + '''>crw-theia-containers_''' + JOB_BRANCH + '''</a>: Trigger 3 Brew builds, then <br/>
 3. <a href=../crw-theia-akamai_''' + JOB_BRANCH + '''>crw-theia-akamai_''' + JOB_BRANCH + '''</a>: Push Theia artifacts to akamai CDN <br/>
+
+<p>
+Results:
+<ul>
+<li><a href=https://quay.io/crw/theia-dev-rhel8>quay.io/crw/theia-dev-rhel8</a></li>
+<li><a href=https://quay.io/crw/theia-rhel8>quay.io/crw/theia-rhel8</a></li>
+<li><a href=https://quay.io/crw/theia-endpoint-rhel8>quay.io/crw/theia-endpoint-rhel8</a></li>
+</ul>
         ''')
 
         properties {
@@ -43,12 +51,9 @@ for (JB in JOB_BRANCHES) {
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("PLATFORMS", "x86_64, s390x, ppc64le", "list of platforms on which to build assets; normally: x86_64, s390x, ppc64le")
-            booleanParam("SCRATCH", false, '''If true, just do a scratch build.<br/>
-If false, push to:<br/>
-* quay.io/crw/theia-dev-rhel8,<br/>
-* quay.io/crw/theia-rhel8, and<br/>
-* quay.io/crw/theia-endpoint-rhel8
-            ''')
+
+            // TODO CRW-1644 remove SCRATCH param once 2.7 is done
+            booleanParam("SCRATCH", false)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

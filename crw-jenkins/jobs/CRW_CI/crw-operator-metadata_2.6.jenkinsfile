@@ -15,7 +15,6 @@ def SOURCE_REPO = "eclipse/che-operator" //source repo from which to find and sy
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "containers/codeready-workspaces-operator-metadata" // dist-git repo to use as target
 def SCRATCH = "false"
-def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "operator-metadata" // also used for the Brew dockerfile params
 
 def SOURCE_SHA=""

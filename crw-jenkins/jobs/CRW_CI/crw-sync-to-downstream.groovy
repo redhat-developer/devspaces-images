@@ -60,10 +60,11 @@ codeready-workspaces-stacks-dotnet,
 codeready-workspaces-stacks-golang, 
 codeready-workspaces-stacks-php''')
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            booleanParam("SCRATCH", false, "If true, just do a scratch build. If false, push to quay.io/crw")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
-            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
+
+            // TODO CRW-1644 remove SCRATCH + JOB_BRANCH params once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
             stringParam("JOB_BRANCH", JOB_BRANCH)
+            booleanParam("SCRATCH", false)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

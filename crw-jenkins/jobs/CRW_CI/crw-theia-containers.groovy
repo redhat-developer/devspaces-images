@@ -14,6 +14,14 @@ for (JB in JOB_BRANCHES) {
 
 <p>If <b style="color:green">downstream job fires</b>, see <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
+
+<p>
+Results:
+<ul>
+<li><a href=https://quay.io/crw/theia-dev-rhel8>quay.io/crw/theia-dev-rhel8</a></li>
+<li><a href=https://quay.io/crw/theia-rhel8>quay.io/crw/theia-rhel8</a></li>
+<li><a href=https://quay.io/crw/theia-endpoint-rhel8>quay.io/crw/theia-endpoint-rhel8</a></li>
+</ul>
         ''')
 
         properties {
@@ -38,15 +46,12 @@ for (JB in JOB_BRANCHES) {
         }
 
         parameters{
-            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
-            stringParam("JOB_BRANCH", JOB_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            booleanParam("SCRATCH", false, '''If true, just do a scratch build.<br/>
-If false, push to:<br/>
-* quay.io/crw/theia-dev-rhel8,<br/>
-* quay.io/crw/theia-rhel8, and<br/>
-* quay.io/crw/theia-endpoint-rhel8''')
             stringParam("PLATFORMS", "x86_64, s390x, ppc64le")
+
+            // TODO CRW-1644 remove SCRATCH + JOB_BRANCH params once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
+            stringParam("JOB_BRANCH", JOB_BRANCH)
+            booleanParam("SCRATCH", false)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

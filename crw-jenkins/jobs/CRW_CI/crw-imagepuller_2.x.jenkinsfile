@@ -10,7 +10,6 @@ import groovy.transform.Field
 def SOURCE_REPO = "che-incubator/kubernetes-image-puller" // upstream source repo from which to find and sync commits
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 
-def SCRATCH = "false"
 def SYNC_REPO =  "imagepuller" // also used for the Brew dockerfile params
 def SYNC_FILES = "cfg cmd deploy docker e2e hack pkg utils dev-guide.adoc go.mod go.sum LICENSE Makefile README.md"
 
@@ -185,7 +184,7 @@ node(nodeLabel) {
                 [
                   $class: 'BooleanParameterValue',
                   name: 'SCRATCH',
-                  value: SCRATCH
+                  value: false
                 ]
               ]
         )

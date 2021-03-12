@@ -10,8 +10,6 @@ import groovy.transform.Field
 def SOURCE_REPO = "eclipse/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" // GH repo to use as target for deploy/ folder
 def DWNSTM_REPO = "containers/codeready-workspaces-operator" // dist-git repo to use as target for everything
-def SCRATCH = "false"
-def PUSH_TO_QUAY = "true"
 def SYNC_REPO = "operator"
 
 // CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
@@ -287,7 +285,7 @@ node(nodeLabel){
                 [
                   $class: 'BooleanParameterValue',
                   name: 'SCRATCH',
-                  value: SCRATCH
+                  value: false
                 ]
               ]
         )

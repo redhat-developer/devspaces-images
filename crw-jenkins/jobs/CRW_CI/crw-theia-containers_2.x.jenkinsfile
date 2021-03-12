@@ -4,7 +4,6 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
-//   SCRATCH = false (do push to Quay) or true (don't push to Quay)
 
 def MIDSTM_REPO = "https://github.com/redhat-developer/codeready-workspaces-theia.git" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO1 = "ssh://crw-build@pkgs.devel.redhat.com/containers/codeready-workspaces-theia-dev" // dist-git repo to use as target
@@ -193,9 +192,9 @@ timeout(360) {
         def util = load "${WORKSPACE}/util.groovy"
         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
-        def QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-dev-rhel8"))
+        def QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":"theia-dev-rhel8")
         echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
-        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
+        "with QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
 
         // trigger OSBS build
         build(
@@ -221,7 +220,7 @@ timeout(360) {
             [
               $class: 'BooleanParameterValue',
               name: 'SCRATCH',
-              value: SCRATCH
+              value: false
             ],
             [
               $class: 'StringParameterValue',
@@ -231,9 +230,9 @@ timeout(360) {
           ]
         )
 
-        QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-rhel8"))
+        QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":"theia-rhel8")
         echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
-        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
+        "with QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
 
         // trigger OSBS build
         build(
@@ -259,7 +258,7 @@ timeout(360) {
             [
               $class: 'BooleanParameterValue',
               name: 'SCRATCH',
-              value: SCRATCH
+              value: false
             ],
             [
               $class: 'StringParameterValue',
@@ -269,9 +268,9 @@ timeout(360) {
           ]
         )
 
-        QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":("${SCRATCH}"=="true"?"":"theia-endpoint-rhel8"))
+        QUAY_REPO_PATHs=(env.ghprbPullId && env.ghprbPullId?.trim()?"":"theia-endpoint-rhel8")
         echo "[INFO] Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + (env.ghprbPullId && env.ghprbPullId?.trim()?"for PR-${ghprbPullId} ":" ") + \
-        "with SCRATCH = ${SCRATCH}, QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
+        "with QUAY_REPO_PATHs = ${QUAY_REPO_PATHs}, JOB_BRANCH = ${JOB_BRANCH}"
 
         // trigger OSBS build
         build(
@@ -297,7 +296,7 @@ timeout(360) {
             [
               $class: 'BooleanParameterValue',
               name: 'SCRATCH',
-              value: SCRATCH
+              value: false
             ],
             [
               $class: 'StringParameterValue',
