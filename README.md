@@ -12,10 +12,11 @@ This repo also contains an identical copy of the [Jenkinsfiles and groovy](https
 * To run a local Jenkins, see [README](https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/blob/master/README.md#first-time-user-setup)
 * [Job](https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/job/Releng/job/sync-jenkins-gitlab-to-github/) that performs the sync from [gitlab](https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/blob/master/jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github.jenkinsfile) to [github](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github.jenkinsfile) at intervals
 * Other jobs are used to:
-    * [build artifacts](https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/), 
-    * [orchestrate Brew builds](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/get-sources-rhpkg-container-build.groovy), 
-    * [copy containers to quay](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/push-latest-container-to-quay.groovy)
-    * [check digests in registries/metadata images](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/update-digests-in-registries-and-metadata.groovy)
+    * [sync midstream to downstream](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-sync-to-downstream.groovy),
+    * [build artifacts](https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/),
+    * [orchestrate Brew builds](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/get-sources-rhpkg-container-build.groovy),
+    * [copy containers to quay](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/push-latest-container-to-quay.groovy),
+    * [check & update digests in registries/metadata images](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/update-digests-in-registries-and-metadata.groovy)
 * Or, to:
     * [send email notifications](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/Releng/send-email-qe-build-list.groovy) of ER and RC builds
     * [tag sources & collect manifests](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/Releng/get-3rd-party-deps-manifests.groovy), [collect sources](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/Releng/get-3rd-party-sources.groovy) to create a release
