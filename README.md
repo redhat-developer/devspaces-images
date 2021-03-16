@@ -3,11 +3,11 @@ This repo is used to house identical copies of the code used to build the **Code
 
 * Downstream code can be found in http://pkgs.devel.redhat.com/cgit/?q=codeready-workspaces
     - select the `crw-2-rhel-8` branch for the latest `2.x` synced from upstream main branches, or 
-    - select a branch like `crw-2.7-rhel-8` for a specific release, synced to a stable branch like `7.26.x`.
+    - select a branch like `crw-2.8-rhel-8` for a specific release, synced to a stable branch like `7.28.x`.
 
 ## Jenkins jobs
 
-This repo also contains an identical copy of the [Jenkinsfiles and groovy](https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/tree/master/jobs/CRW_CI) sources used to configure the [jenkins-csb](https://gitlab.cee.redhat.com/ccit/jenkins-csb) Configuration-as-Code (casc) Jenkins instance used to build the artifacts needed for Brew/OSBS builds. Since the server and config sources are internally-facing, this copy is provided to make it easier to see how CodeReady Workspaces is built. Hooray for open source!
+This repo also contains an identical copy of the [Jenkinsfiles and groovy](https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/tree/master/jobs/CRW_CI) sources used to configure the [jenkins-csb](https://gitlab.cee.redhat.com/ccit/jenkins-csb) Configuration-as-Code (casc) Jenkins instance used to build the artifacts needed for Brew/OSBS builds. Since the server and config sources are internally-facing, [this copy](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/) is provided to make it easier to see how CodeReady Workspaces is built. Hooray for open source!
 
 * To run a local Jenkins, see [README](https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/blob/master/README.md#first-time-user-setup)
 * [Job](https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/job/Releng/job/sync-jenkins-gitlab-to-github/) that performs the sync from [gitlab](https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/blob/master/jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github.jenkinsfile) to [github](https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github.jenkinsfile) at intervals
