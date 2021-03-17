@@ -9,7 +9,7 @@ import groovy.transform.Field
 // CSV_VERSION_PREV
 // FORCE_BUILD = "false"
 
-def SOURCE_REPO = "eclipse/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
+def SOURCE_REPO = "eclipse-che/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "containers/codeready-workspaces-operator-metadata" // dist-git repo to use as target
 def SYNC_REPO = "operator-metadata" // also used for the Brew dockerfile params

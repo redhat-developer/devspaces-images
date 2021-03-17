@@ -7,7 +7,7 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // FORCE_BUILD = "false"
 
-def SOURCE_REPO = "eclipse/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
+def SOURCE_REPO = "eclipse-che/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" // GH repo to use as target for deploy/ folder
 def DWNSTM_REPO = "containers/codeready-workspaces-operator" // dist-git repo to use as target for everything
 def SYNC_REPO = "operator"

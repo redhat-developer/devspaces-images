@@ -7,7 +7,7 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // FORCE_BUILD = "false"
 
-def SOURCE_REPO = "eclipse/che-machine-exec" // upstream source repo from which to find and sync commits to pkgs.devel repo
+def SOURCE_REPO = "eclipse-che/che-machine-exec" // upstream source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "containers/codeready-workspaces-machineexec" // dist-git repo to use as target
 def SYNC_REPO = "machineexec"
 def SYNC_FILES="activity api auth build cfg client cloud-shell common exec exec-info filter kubeconfig mocks output shell vendor ws-conn compile.sh CONTRIBUTING.md devfile.yaml go.mod go.sum LICENSE main.go VERSION README.md"

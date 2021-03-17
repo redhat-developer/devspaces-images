@@ -26,7 +26,7 @@ timeout(120) {
                     util.bootstrap(CRW_KEYTAB)
 
                     try {
-                        SOURCE_REPO = "eclipse/che-operator"
+                        SOURCE_REPO = "eclipse-che/che-operator"
                         SOURCE_BRANCH = "7.24.x" 
                         util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
                         SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")

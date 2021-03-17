@@ -146,7 +146,7 @@ node(nodeLabel){
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"
     echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILED")) {
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
@@ -216,7 +216,7 @@ node(nodeLabel){
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"
     echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILED")) {
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
         // if CONTAINERS contains theia
         println "Containers: " + CONTAINERS.trim()
         if (CONTAINERS.trim().equals("theia") || CONTAINERS.trim().matches(".*theia .*")) {
