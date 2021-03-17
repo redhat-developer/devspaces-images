@@ -74,14 +74,14 @@ timeout(90) {
                     def NEW_NVR = ""
                     parallel quay_check: {
                         NEW_QUAY = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
                             returnStdout: true).trim().split( '\n' )
                             errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
                     }, 
                     osbs_check: {
                         if (doOSBS.equals("true")) {
                             NEW_OSBS = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs | tee ${WORKSPACE}/LATEST_IMAGES.osbs",
+                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.osbs",
                             returnStdout: true).trim().split( '\n' )
                             errorOccurred = checkFailure(NEW_OSBS, "OSBS", errorOccurred)
                         }

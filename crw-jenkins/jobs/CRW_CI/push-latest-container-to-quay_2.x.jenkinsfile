@@ -80,7 +80,7 @@ wait
 
                         def NEW_QUAY = ""
                         NEW_QUAY = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
                             returnStdout: true).trim().split( '\n' )
                             errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
 
@@ -147,14 +147,15 @@ node(nodeLabel){
     def util = load "${WORKSPACE}/util.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILED")) {
+        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+        println "CRW_VERSION = '" + CRW_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
         // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
         // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
         if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
             println "Scheduling update-digests-in-registries-and-metadata for this update:"
             println DIFF_LATEST_IMAGES_QUAY_V_STORED
-            CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-            println "CRW_VERSION = '" + CRW_VERSION + "'"
-            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             build(
                 job: 'update-digests-in-registries-and-metadata_' + JOB_BRANCH,
                 wait: false,
@@ -173,6 +174,33 @@ node(nodeLabel){
                 ]
             )
             currentBuild.description=currentBuild.description+"; update-digests-in-registries-and-metadata triggered"
+
+        } else if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
+            // https://issues.redhat.com/browse/CRW-1564 if an update to operator-metadata, push new csv content into crw-images repo, 
+            // in codeready-workspaces-operator-metadata-generated folder (outside where we sync from up->mid->down, as this should NOT
+            // be synced to downstream or overwritten by upstream)
+            util.installSkopeoFromContainer("")
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh')
+            SOURCE_REPO="redhat-developer/codeready-workspaces-images"
+            println "####################################################################################################################"
+            println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
+            println "####################################################################################################################"
+            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
+              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+                util.bootstrap(CRW_KEYTAB)
+                util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
+                sh(script: '''#!/bin/bash -xe
+rm -fr /tmp/quay.io-crw-crw-2-rhel8-operator-metadata-''' + CRW_VERSION + '''-* || true
+chmod +x containerExtract.sh && ./containerExtract.sh quay.io/crw/crw-2-rhel8-operator-metadata:''' + CRW_VERSION + ''' || true
+rsync -zrlt /tmp/quay.io-crw-crw-2-rhel8-operator-metadata-''' + CRW_VERSION + '''-*/* \
+    ${WORKSPACE}/sources/codeready-workspaces-operator-metadata-generated/
+pushd ${WORKSPACE}/sources/ >/dev/null
+    git add codeready-workspaces-operator-metadata-generated || true
+    git commit -m "[brew] Publish CSV with generated digests" codeready-workspaces-operator-metadata-generated || true
+    git pull origin ''' + MIDSTM_BRANCH + ''' || true
+    git push origin ''' + MIDSTM_BRANCH + '''
+popd >/dev/null ''')
+            }
         } else {
             println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-registries-and-metadata_" + CRW_VERSION
             currentBuild.result = 'UNSTABLE'
