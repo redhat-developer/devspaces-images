@@ -1,0 +1,15 @@
+# developers
+nboldt@redhat.com:
+    - UNSTABLE
+    - FAILURE
+kcrane@redhat.com:
+    - UNSTABLE
+    - FAILURE
+aghatwal@redhat.com: 
+    - UNSTABLE
+    - FAILURE
+
+#qe
+rxu@redhat.com: SUCCESS
+djoahi@redhat.com: SUCCESS
+dnochevn@redhat.com: SUCCESS
