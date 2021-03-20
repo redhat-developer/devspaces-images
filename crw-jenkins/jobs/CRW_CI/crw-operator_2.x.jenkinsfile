@@ -148,6 +148,10 @@ sed -i ${WORKSPACE}/targetdwn/Dockerfile \
   -e "s#FROM registry.access.redhat.com/#FROM #g" \
   -e "s/# *RUN yum /RUN yum /g"
 
+# CRW-1655 apply patches to support fetching sources directly from DWO and DWCO upstream projects
+sed -i ${WORKSPACE}/targetdwn/Dockerfile -r \
+  -e "s#RUN curl .+/tmp/((devworkspace|devworkspace-che)-operator.zip)(.+)#COPY \\1 /tmp\\3#g" \
+
 METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     PRODNAME="codeready-workspaces" \\\r
