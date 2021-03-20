@@ -23,12 +23,12 @@ UBI_TAG=8.3
 POSTGRES_TAG=1
 
 usage () {
-	echo "Usage:   $0 -v [VERSION] [-s /path/to/sources] [-t /path/to/generated]"
+	echo "Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
 	echo "Example: $0 -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
 	echo "Options:
-	--sso-tag 7.4
-	--ubi-tag 8.3
-	--postgres-tag 1
+	--sso-tag ${SSO_TAG}
+	--ubi-tag ${UBI_TAG}
+	--postgres-tag ${POSTGRES_TAG}
 	"
 	exit
 }

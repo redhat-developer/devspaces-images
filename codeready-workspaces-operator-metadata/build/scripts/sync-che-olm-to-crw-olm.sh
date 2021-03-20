@@ -46,7 +46,7 @@ usage () {
 	echo "Options:
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
-	--postgres-tag 1
+	--postgres-tag ${POSTGRES_TAG}
 	"
 	exit
 }
