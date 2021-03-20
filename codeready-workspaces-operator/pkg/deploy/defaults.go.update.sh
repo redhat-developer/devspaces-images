@@ -7,7 +7,7 @@ defaultsFile=${0%/*}/defaults.go
 if [[ ! -f ${defaultsFile} ]]; then
     echo "$defaultsFile not found, downloading from master..."
     defaultsFile="/tmp/defaults.go"
-    curl -ssL https://raw.githubusercontent.com/eclipse/che-operator/master/pkg/deploy/defaults.go -o ${defaultsFile}
+    curl -ssL https://raw.githubusercontent.com/eclipse-che/che-operator/master/pkg/deploy/defaults.go -o ${defaultsFile}
 fi
 
 excludes="eclipse/che-keycloak|centos/postgresql-96-centos7"

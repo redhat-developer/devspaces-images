@@ -13,8 +13,8 @@
 # NOTE: using registry.redhat.io/rhel8/go-toolset requires login, which complicates automation
 # NOTE: since updateBaseImages.sh does not support other registries than RHCC, update to RHEL8
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.1.x"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.27.x"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
 
 FROM devtools/go-toolset-rhel7:1.13.15-4  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
@@ -31,12 +31,12 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/che-operator/che-operator cmd/manager/main.go
 
 # download devworkspace-operator templates
-COPY devworkspace-operator.zip /tmp && \
-    unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp
+COPY devworkspace-operator.zip /tmp
+RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp
 
 # download devworkspace-che-operator templates
-COPY devworkspace-che-operator.zip /tmp && \
-    unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp
+COPY devworkspace-che-operator.zip /tmp
+RUN unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp
 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
@@ -59,7 +59,8 @@ ENV SUMMARY="Red Hat CodeReady Workspaces operator container" \
     DESCRIPTION="Red Hat CodeReady Workspaces operator container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="operator" 
-LABEL summary="$SUMMARY" \
+LABEL com.redhat.delivery.appregistry="false" \
+      summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="$DESCRIPTION" \
@@ -68,7 +69,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="2.8" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
-      com.redhat.delivery.appregistry="false" \
       usage="" 

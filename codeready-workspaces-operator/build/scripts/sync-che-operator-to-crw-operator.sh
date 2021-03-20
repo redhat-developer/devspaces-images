@@ -23,12 +23,12 @@ UBI_TAG=8.3
 POSTGRES_TAG=1
 
 usage () {
-	echo "Usage:   $0 -v [VERSION] [-s /path/to/sources] [-t /path/to/generated]"
+	echo "Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
 	echo "Example: $0 -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
 	echo "Options:
-	--sso-tag 7.4
-	--ubi-tag 8.3
-	--postgres-tag 1
+	--sso-tag ${SSO_TAG}
+	--ubi-tag ${UBI_TAG}
+	--postgres-tag ${POSTGRES_TAG}
 	"
 	exit
 }
@@ -86,7 +86,7 @@ pushd "${SOURCEDIR}" >/dev/null
 			-e 's|name: eclipse-che|name: codeready-workspaces|' \
 			-e "s|cheImageTag: 'nightly'|cheImageTag: ''|" \
 			-e 's|/bin/codeready-operator|/bin/che-operator|' \
-			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse/che-operator#g' \
+			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse-che/che-operator#g' \
 		"$d" > "${TARGETDIR}/${d}"
 		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
 			echo "Converted (sed) ${d}"

@@ -20,9 +20,10 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
+OLM_CHANNEL="nightly" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/deploy/olm-catalog
 
 SSO_TAG=7.4
-UBI_TAG=8.2
+UBI_TAG=8.3
 POSTGRES_TAG=1
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
@@ -43,9 +44,9 @@ usage () {
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) -b ${MIDSTM_BRANCH}"
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from codeready-workspaces/crw-branch/pom.xml]"
 	echo "Options:
-	--sso-tag 7.4
-	--ubi-tag 8.2
-	--postgres-tag 1
+	--sso-tag ${SSO_TAG}
+	--ubi-tag ${UBI_TAG}
+	--postgres-tag ${POSTGRES_TAG}
 	"
 	exit
 }
@@ -55,6 +56,7 @@ if [[ $# -lt 8 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '--che') CHE_VERSION="$2"; shift 1;;
+	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/master/deploy/olm-catalog
     '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/codeready-workspaces/pom.xml to check as default CHE_VERSION
 	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
 	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
@@ -108,7 +110,7 @@ mkdir -p ${TARGETDIR}/deploy/crds ${TARGETDIR}/manifests/
 for CRDFILE in \
 	"${TARGETDIR}/manifests/codeready-workspaces.crd.yaml" \
 	"${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml"; do
-	cp "${SOURCEDIR}"/deploy/olm-catalog/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
+	cp "${SOURCEDIR}"/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
 done
 
 replaceField()
@@ -179,7 +181,7 @@ replaceEnvVarOperatorYaml()
 	fi
 }
 
-SOURCE_CSVFILE="${SOURCEDIR}/deploy/olm-catalog/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
+SOURCE_CSVFILE="${SOURCEDIR}/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
 
 ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-crw-olm.icon.txt")"
 for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
@@ -188,6 +190,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	NOW="$(date -u +%FT%T+00:00)"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
+		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
 		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
 		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces|g" \
 		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/codeready-workspaces/overview/|g" \
