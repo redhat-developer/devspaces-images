@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 Red Hat, Inc.
+# Copyright (c) 2018-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -30,14 +30,15 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     go test -mod=vendor -v ./... && \
     GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/che-operator/che-operator cmd/manager/main.go
 
-# download devworkspace-operator templates
+# upstream, download devworkspace-operator templates for every build
+# downstream, copy prefetched zip into /tmp
 COPY devworkspace-operator.zip /tmp
 RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp
 
-# download devworkspace-che-operator templates
+# upstream, download devworkspace-che-operator templates for every build
+# downstream, copy prefetched zip into /tmp
 COPY devworkspace-che-operator.zip /tmp
 RUN unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp
-
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.3-291
@@ -54,7 +55,7 @@ COPY --from=builder /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/d
 RUN microdnf update -y librepo libnghttp2 && microdnf install httpd-tools && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 CMD ["che-operator"]
 
-# append Brew metadata here (it will be appended via https://github.com/redhat-developer/codeready-workspaces-operator/blob/master/operator.Jenkinsfile)
+# append Brew metadata here - see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-operator_2.x.jenkinsfile
 ENV SUMMARY="Red Hat CodeReady Workspaces operator container" \
     DESCRIPTION="Red Hat CodeReady Workspaces operator container" \
     PRODNAME="codeready-workspaces" \

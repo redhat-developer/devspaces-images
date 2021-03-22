@@ -15,8 +15,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/eclipse-che/che-operator/pkg/deploy"
-	"github.com/eclipse-che/che-operator/pkg/util"
+	"github.com/eclipse-che/codeready-operator/pkg/deploy"
+	"github.com/eclipse-che/codeready-operator/pkg/util"
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -123,7 +123,7 @@ func ReconcileDevWorkspace(deployContext *deploy.DeployContext) (bool, error) {
 		return true, nil
 	}
 
-	devWorkspaceWebhookExists, err := deploy.IsExists(
+	devWorkspaceWebhookExists, err := deploy.Get(
 		deployContext,
 		client.ObjectKey{Name: DevWorkspaceWebhookName},
 		&admissionregistrationv1.MutatingWebhookConfiguration{},
