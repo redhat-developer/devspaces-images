@@ -93,6 +93,10 @@ timeout(120) {
 
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
+                  if ("${SYNC_REPOS[i]}".contains("-operator-")) {
+                    // SPECIAL CASE FOR operator (and operator-metadata)
+                    QUAY_REPO_PATH="crw-2-rhel8-" + util.getCRWShortName("${SYNC_REPOS[i]}")
+                  }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
                   // kick off get-sources-rhpkg-container-build_2.y job
                   build(
@@ -154,3 +158,55 @@ timeout(120) {
     } // stage
   } // node
 } // timeout
+
+// kick off crwctl_2.y job if operator or metadata were synced above 
+node(nodeLabel){ 
+  stage ("Build crwctl on ${nodeLabel}") {
+    if (REPOS.contains("-operator-")) { 
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+      println "########################################################################################################"
+      println "##  Build crwctl ${JOB_BRANCH}"
+      println "########################################################################################################"
+      echo "currentBuild.result = " + currentBuild.result
+      if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+        if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
+          build(
+                job: 'crwctl_' + JOB_BRANCH,
+                wait: false,
+                propagate: false,
+                parameters: [
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'token',
+                    value: "CI_BUILD"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'cause',
+                    value: (
+                        REPOS.contains("-operator-metadata") ? 
+                          "build+crwctl+for+operator-metadata+sync+from+${BUILD_TAG}" : 
+                          "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
+                    )
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'versionSuffix',
+                    value: "CI"
+                  ]
+                ]
+          )
+          currentBuild.description+="; crwctl build triggered"
+        } else {
+          println "No changes upstream, nothing to rebuild in crwctl!"
+          currentBuild.description+="; no crwctl build"
+          currentBuild.result = 'UNSTABLE'
+        }
+      } else {
+        util.notifyBuildFailed()
+      } // if
+    } // if operator
+  } // stage
+} //node

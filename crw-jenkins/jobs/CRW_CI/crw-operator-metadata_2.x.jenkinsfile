@@ -7,11 +7,11 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // CSV_VERSION
 // CSV_VERSION_PREV
-// FORCE_BUILD = "false"
+// FORCE_BUILD
 
 def SOURCE_REPO = "eclipse-che/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" //source repo from which to find and sync commits to pkgs.devel repo
-def DWNSTM_REPO = "containers/codeready-workspaces-operator-metadata" // dist-git repo to use as target
+def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // downstream repo (before pkgs.devel)
 def SYNC_REPO = "operator-metadata" // also used for the Brew dockerfile params
 
 def SOURCE_SHA=""
@@ -42,7 +42,7 @@ timeout(120) {
 
           util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
           util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
-          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+          util.cloneRepo("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
 
           // UP2MID are right now ONLY files in olm/ folder upstream copied to build/scripts/ folder midstream
           // TODO add in addDigests.sh buildDigestMap.sh from upstream (which are very different from downsteam versions)
@@ -54,31 +54,37 @@ timeout(120) {
           OLD_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
           println "Got OLD_SHA_MID in targetmid folder: " + OLD_SHA_MID
 
-          OLD_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+          TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO) + "/"
+          OLD_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
 
           def SOURCEDOCKERFILE="${WORKSPACE}/targetmid/operator-metadata.Dockerfile"
           sh '''
-# rsync files in upstream github to dist-git
+# rsync files in upstream github to crw-images repo
+SOURCEDIR="${WORKSPACE}/sources"
+TARGET_DIR="''' + TARGET_DIR + '''"
+[ ! -d ${TARGET_DIR} ] && mkdir -p ${TARGET_DIR}
 for d in ''' + SYNC_FILES_UP2MID + '''; do
-  if [[ -f ${WORKSPACE}/sources/olm/${d} ]]; then
-    rsync -zrlt ${WORKSPACE}/sources/olm/${d} ${WORKSPACE}/targetmid/build/scripts/${d}
-  elif [[ -d ${WORKSPACE}/sources/olm/${d} ]]; then
-    # copy over the files
-    rsync -zrlt ${WORKSPACE}/sources/olm/${d}/* ${WORKSPACE}/targetmid/build/scripts/${d}/
-    # sync the directory and delete from targetmid if deleted from source
-    rsync -zrlt --delete ${WORKSPACE}/sources/olm/${d}/ ${WORKSPACE}/targetmid/build/scripts/${d}/
+  if [[ -f ${SOURCEDIR}/olm/${d} ]]; then
+    rsync -azrlt ${SOURCEDIR}/olm/${d} ${TARGET_DIR}/build/scripts/${d}
+  elif [[ -d ${SOURCEDIR}/olm/${d} ]]; then
+    # copy over the dir contents
+    rsync -azrlt ${SOURCEDIR}/olm/${d}/* ${TARGET_DIR}/build/scripts/${d}/
+    # sync the directory and delete if deleted from source
+    rsync -azrlt --delete ${SOURCEDIR}/olm/${d}/ ${TARGET_DIR}/build/scripts/${d}/
+  else
+   echo "[WARN] Could not find ${SOURCEDIR}/${d} to sync to ${TARGET_DIR}/${d}"
   fi
 done
 
 CSV_NAME="codeready-workspaces"
-CSV_FILE="\$( { find ${WORKSPACE}/targetdwn/manifests/ -name "${CSV_NAME}.csv.yaml" | tail -1; } || true)"; 
+CSV_FILE="\$( { find ${TARGET_DIR}/manifests/ -name "${CSV_NAME}.csv.yaml" | tail -1; } || true)"; 
 echo "[INFO] CSV_FILE = ${CSV_FILE}"
 # if [[ ! ${CSV_FILE} ]]; then 
   # CRW-878 generate CSV and update CRD from upstream
   cd ${WORKSPACE}/targetmid/build/scripts
   ./sync-che-olm-to-crw-olm.sh -v ''' + CSV_VERSION + ''' -p ''' + CSV_VERSION_PREV + ''' \
-    -s ${WORKSPACE}/sources -t ${WORKSPACE}/targetmid --crw-branch ''' + MIDSTM_BRANCH
+    -s ${WORKSPACE}/sources -t ${WORKSPACE}/targetmid --olm-channel ''' + OLM_CHANNEL + ''' --crw-branch ''' + MIDSTM_BRANCH
 
           util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, 
             "-f " + SOURCEDOCKERFILE.replaceAll(/^.+\//,"") + " -maxdepth 1 --nocommit")
@@ -102,30 +108,31 @@ echo "[INFO] CSV_FILE = ${CSV_FILE}"
           def SYNC_FILES_MID2DWN = "manifests metadata build" // folders in mid/dwn
 
           sh '''
-# rsync files in github midstream to dist-git downstream
+TARGET_DIR="''' + TARGET_DIR + '''"
+# rsync files in midstream github to dist-git
 for d in ''' + SYNC_FILES_MID2DWN + '''; do
   if [[ -f ${WORKSPACE}/targetmid/${d} ]]; then
-    rsync -zrlt ${WORKSPACE}/targetmid/${d} ${WORKSPACE}/targetdwn/${d}
+    rsync -azrlt ${WORKSPACE}/targetmid/${d} ${TARGET_DIR}/${d}
   elif [[ -d ${WORKSPACE}/targetmid/${d} ]]; then
     # copy over the files
-    rsync -zrlt ${WORKSPACE}/targetmid/${d}/* ${WORKSPACE}/targetdwn/${d}/
-    # sync the directory and delete from targetdwn if deleted from targetmid
-    rsync -zrlt --delete ${WORKSPACE}/targetmid/${d}/ ${WORKSPACE}/targetdwn/${d}/
+    rsync -azrlt ${WORKSPACE}/targetmid/${d}/* ${TARGET_DIR}/${d}/
+    # sync the directory and delete if deleted from source
+    rsync -azrlt --delete ${WORKSPACE}/targetmid/${d}/ ${TARGET_DIR}/${d}/
   fi
 done
 
-cp -f ''' + SOURCEDOCKERFILE + ''' ${WORKSPACE}/targetdwn/Dockerfile
+cp -f ''' + SOURCEDOCKERFILE + ''' ${TARGET_DIR}/Dockerfile
 
-#apply patches
-sed -i ${WORKSPACE}/targetdwn/Dockerfile \
+# apply standard patches to convert from midstream public to downstream Brew build
+sed -i ${TARGET_DIR}/Dockerfile \
   -e "s#FROM registry.redhat.io/#FROM #g" \
   -e "s#FROM registry.access.redhat.com/#FROM #g" \
-  -e "s/# *RUN yum /RUN yum /g" \
+  -e "s/# *RUN yum /RUN yum /g"
 
 # generate digests from tags
 # 1. convert csv to use brew container refs so we can resolve stuff
 CSV_NAME="codeready-workspaces"
-CSV_FILE="\$(find ${WORKSPACE}/targetdwn/manifests/ -name "${CSV_NAME}.csv.yaml" | tail -1)"; # echo "[INFO] CSV = ${CSV_FILE}"
+CSV_FILE="\$(find ${TARGET_DIR}/manifests/ -name "${CSV_NAME}.csv.yaml" | tail -1)"; # echo "[INFO] CSV = ${CSV_FILE}"
 sed -r \
     `# for plugin & devfile registries, use internal Brew versions` \
     -e "s|registry.redhat.io/codeready-workspaces/(pluginregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\\1|g" \
@@ -167,30 +174,37 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\\r
       io.openshift.expose-services="" \\\r
       usage="" \r'
 
-echo -e "$METADATA" >> ${WORKSPACE}/targetdwn/Dockerfile
+echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
 '''
 
-          // push changes in github to dist-git
-          util.updateBaseImages("${WORKSPACE}/targetdwn", MIDSTM_BRANCH, "--nocommit")
-          sh '''#!/bin/bash -xe
-export KRB5CCNAME=/var/tmp/crw-build_ccache
+          // don't commit yet, we'll do it later
+          util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit")
+
+          // if anything changed, push changes in gh to dist-git
+          if ((sh(script: "cd ${TARGET_DIR}; git diff --name-only", returnStdout: true))?.trim()) {
+            sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
-if [[ \$(git diff --name-only) ]]; then # file changed
+git add ''' + util.getCRWLongName(SYNC_REPO) + '''
+git update-index --refresh  # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
+  cd ''' + TARGET_DIR + '''
   git add Dockerfile ''' + SYNC_FILES_MID2DWN + '''
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" \
-    Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
-  git push origin ''' + MIDSTM_BRANCH + '''
-  echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
+  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+  NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
+  echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
 fi
-cd ..
 '''
-          NEW_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
-          println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN
-
-          if (NEW_SHA_MID.equals(OLD_SHA_MID) && NEW_SHA_DWN.equals(OLD_SHA_DWN) && !FORCE_BUILD.equals("true")) {
-            currentBuild.result='UNSTABLE'
           }
 
+          NEW_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
+          println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN
+          currentBuild.description="Upstream sync done"
+
+          if (NEW_SHA_MID.equals(OLD_SHA_MID) && NEW_SHA_DWN.equals(OLD_SHA_DWN) && !FORCE_BUILD.equals("true")) {
+            println "No changes upstream, nothing to commit"
+            currentBuild.result='UNSTABLE'
+          }
         } // with
       } // wrap
     } // stage
@@ -198,7 +212,7 @@ cd ..
 } // timeout
 
 // kick off get-sources-rhpkg-container-build_2.y job
-node(nodeLabel){ 
+node(nodeLabel) {
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"
     println "##  Build ${SYNC_REPO} container"
@@ -207,12 +221,12 @@ node(nodeLabel){
     def util = load "${WORKSPACE}/util.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-      if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD == "true") {
+      if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         build(
-              job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
-              wait: false,
-              propagate: false,
+              job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+              wait: true,
+              propagate: true,
               parameters: [
                 [
                   $class: 'StringParameterValue',
@@ -222,28 +236,22 @@ node(nodeLabel){
                 [
                   $class: 'StringParameterValue',
                   name: 'cause',
-                  value: "${SYNC_REPO}+respin+by+${BUILD_TAG}"
+                  value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
                 ],
                 [
                   $class: 'StringParameterValue',
-                  name: 'GIT_BRANCH',
-                  value: "${MIDSTM_BRANCH}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'GIT_PATHs',
-                  value: "${DWNSTM_REPO}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'QUAY_REPO_PATHs',
-                  // SPECIAL CASE FOR operator-metadata (and operator)
-                  value: "crw-2-rhel8-" + util.getCRWShortName(SYNC_REPO)
+                  name: 'REPOS',
+                  value: util.getCRWLongName(SYNC_REPO)
                 ],
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
                   value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: MIDSTM_BRANCH
                 ],
                 [
                   $class: 'BooleanParameterValue',
@@ -257,10 +265,10 @@ node(nodeLabel){
                 ]
               ]
         )
-        currentBuild.description="Brew build triggered"
+        currentBuild.description+="; Downstream sync job triggered"
       } else {
-        println "No changes upstream, nothing to build in brew!"
-        currentBuild.description="No Brew build"
+        println "No changes upstream, nothing to sync / build in brew!"
+        currentBuild.description+="; No sync or Brew build"
         currentBuild.result = 'UNSTABLE'
       }
     } else {
@@ -269,49 +277,3 @@ node(nodeLabel){
   } // stage
 } //node
 
-// kick off crwctl_2.y job
-node(nodeLabel){ 
-  stage ("Build crwctl on ${nodeLabel}") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-    def util = load "${WORKSPACE}/util.groovy"
-    CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-    println "########################################################################################################"
-    println "##  Build crwctl ${CRW_VERSION}"
-    println "########################################################################################################"
-    echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-      if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-        build(
-              job: 'crwctl_' + JOB_BRANCH,
-              wait: false,
-              propagate: false,
-              parameters: [
-                [
-                  $class: 'StringParameterValue',
-                  name: 'token',
-                  value: "CI_BUILD"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'cause',
-                  value: "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'versionSuffix',
-                  value: "CI"
-                ]
-              ]
-        )
-        currentBuild.description+="; crwctl build triggered"
-      } else {
-        println "No changes upstream, nothing to rebuild in crwctl!"
-        currentBuild.description+="; no crwctl build"
-        currentBuild.result = 'UNSTABLE'
-      }
-    } else {
-      util.notifyBuildFailed()
-    } // if
-  } // stage
-} //node
