@@ -13,7 +13,7 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 def String nodeLabel = 'rhel8'
-timeout(120) {
+timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
@@ -101,8 +101,8 @@ timeout(120) {
                   // kick off get-sources-rhpkg-container-build_2.y job
                   build(
                     job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
-                    wait: false,
-                    propagate: false,
+                    wait: true,
+                    propagate: true,
                     parameters: [
                       [
                         $class: 'StringParameterValue',

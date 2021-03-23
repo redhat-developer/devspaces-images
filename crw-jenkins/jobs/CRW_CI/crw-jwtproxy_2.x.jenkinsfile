@@ -11,7 +11,7 @@ def SOURCE_REPO = "eclipse/che-jwtproxy" // upstream source repo from which to f
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 
 def SYNC_REPO = "jwtproxy" // also used for the Brew dockerfile params
-def SYNC_FILES="cmd config examples jwt proxy stop go.mod go.sum jwtproxy.go LICENSE README.md"
+def SYNC_FILES="cmd config examples jwt proxy stop go.mod go.sum jwtproxy.go LICENSE README.md vendor"
 
 def OLD_SHA=""
 def NEW_SHA=""
@@ -101,6 +101,10 @@ usage="" \r'
 
             echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
           ''')
+
+          // update vendor folder
+          util.installRPMs("golang-bin")
+          sh("cd ${TARGET_DIR} && go mod vendor && git add vendor || true; git commit -s -m '[sync] Update vendor files' vendor || true; git push origin ${MIDSTM_BRANCH} || true")
 
           // push changes in github to codeready-workspaces-images
           util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit")

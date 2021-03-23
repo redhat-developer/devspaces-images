@@ -1,4 +1,9 @@
-def JOB_BRANCHES = ["2.6":"v2.3.2", "2.7":"v2.3.2", "2.x":"master"] // special case: use tags for stable branches, master for 2.x
+def GOLANG_VERSIONS = [
+    "2.7": "1.15.3",
+    "2.x": "1.15.3"
+    // "2.x": "1.16.2" // if in future we use traefik from master, we need golang 1.16
+    ]
+def JOB_BRANCHES = ["2.6":"v2.3.2", "2.7":"v2.3.2", "2.x":"v2.3.2"] // in future, could switch to use "2.x":"master"] 
 def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_TAG=JB.value
@@ -43,7 +48,8 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
-            stringParam("SOURCE_TAG", SOURCE_TAG, "Fetch master branch, then build from tag (if present)")
+            stringParam("SOURCE_TAG", SOURCE_TAG, "Fetch master branch, then build from tag (if set)")
+            stringParam("GOLANG_VERSION", GOLANG_VERSIONS.containsKey(JB.key) ? GOLANG_VERSIONS[JB.key] : "1.15.3", "for 2.y, use 1.15.3 (traefik from v2.3.2); for 2.x (traefik from master), use 1.16.2; @since 2.8")
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }

@@ -4,6 +4,7 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 //   SOURCE_TAG
+//   GOLANG_VERSION = "1.16.2" (master branch needs something newer)
 //   MIDSTM_BRANCH
 //   FORCE_BUILD
 
@@ -11,9 +12,6 @@ import groovy.transform.Field
 def SOURCE_REPO = "traefik/traefik" // upstream source repo should be https://github.com/traefik/traefik
 def DWNSTM_REPO = "containers/codeready-workspaces-traefik" // repo to use as target
 def SYNC_REPO="traefik"
-
-String GOLANG_VERSION = "1.15.3"
-
 String SOURCE_BRANCH = "master" // upstream source repo branch, eg., crw-2.y-rhel-8 from fork
 
 def OLD_SHA=""
@@ -223,6 +221,7 @@ node(nodeLabel) {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           build(
               job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+              // if get-sources fetches from this job's artifacts, cannot set wait: true or we won't fetch the latest artifacts (build will still be running)
               wait: false,
               propagate: false,
               parameters: [

@@ -175,8 +175,9 @@ node(nodeLabel) {
         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         build(
               job: 'crw-sync-to-downstream_' + JOB_BRANCH,
-              wait: true,
-              propagate: true,
+              // if get-sources fetches from this job's artifacts, cannot set wait: true or we won't fetch the latest artifacts (build will still be running)
+              wait: false,
+              propagate: false,
               parameters: [
                 [
                   $class: 'StringParameterValue',

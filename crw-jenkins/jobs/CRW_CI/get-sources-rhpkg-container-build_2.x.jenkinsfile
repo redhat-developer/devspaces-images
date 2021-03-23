@@ -182,6 +182,7 @@ node(nodeLabel){
       JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
       build(
         job: 'push-latest-container-to-quay_' + JOB_BRANCH,
+        // TODO should these be set to wait and propagate: true?
         wait: false,
         propagate: false,
         parameters: [

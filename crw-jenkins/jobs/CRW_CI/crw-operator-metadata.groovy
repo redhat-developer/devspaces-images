@@ -11,7 +11,7 @@ def OLM_CHANNELS = [
     "2.x": "nightly"
     ]
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -71,7 +71,7 @@ Artifact builder + sync job; triggers brew after syncing
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("CSV_VERSION", CSV_VERSIONS[JB.key][0])
             stringParam("CSV_VERSION_PREV", CSV_VERSIONS[JB.key][1])
-            stringParam("OLM_CHANNEL", OLM_CHANNELS[JB.key], "for 2.y, use stable; for 2.x, use nightly channel; @since 2.8")
+            stringParam("OLM_CHANNEL", OLM_CHANNELS.containsKey(JB.key) ? OLM_CHANNELS[JB.key] : "n/a", "for 2.y, use stable; for 2.x, use nightly channel; @since 2.8")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

@@ -22,8 +22,7 @@ href=https://brewweb.engineering.redhat.com/brew/tasks?state=all&owner=crw-build
 OSBS build</a>
 <li>Then <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''/>push the latest container to quay</a>
 
-<p>TODO: migrate old job <a href=https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/view/CRW_CI/view/Pipelines_2.4/job/rebuild-all-rhpkg-container-builds_2.4/>rebuild-all-rhpkg-container-builds_2.4</a> to this server. 
-<!-- Looking to rebuild all the containers? See <a href="../rebuild-all-rhpkg-container-builds_''' + JOB_BRANCH + '''/">rebuild-all-rhpkg-container-builds_''' + JOB_BRANCH + '''</a> -->
+To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' + JOB_BRANCH + '''/">build-all-images_''' + JOB_BRANCH + '''</a>
 ''')
 
         properties {
