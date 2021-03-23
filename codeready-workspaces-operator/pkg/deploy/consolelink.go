@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/eclipse-che/codeready-operator/pkg/util"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	consolev1 "github.com/openshift/api/console/v1"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

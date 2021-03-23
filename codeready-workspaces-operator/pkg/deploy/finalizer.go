@@ -14,7 +14,7 @@ package deploy
 import (
 	"context"
 
-	"github.com/eclipse-che/codeready-operator/pkg/util"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
