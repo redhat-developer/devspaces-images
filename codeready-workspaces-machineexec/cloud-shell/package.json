@@ -1,0 +1,28 @@
+{
+  "name": "cloud.shell",
+  "version": "0.1.0",
+  "description": "Che Cloud Shell Workspace",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev-build": "webpack --mode development"
+  },
+  "publisher": "Eclipse Che",
+  "author": "Oleksandr Andriienko",
+  "license": "EPL-2.0",
+  "devDependencies": {
+    "css-loader": "^0.28.9",
+    "style-loader": "^0.20.1",
+    "ts-loader": "^5.3.3",
+    "typescript": "3.4.5",
+    "webpack": "^4.0.0",
+    "webpack-cli": "^3.2.1"
+  },
+  "dependencies": {
+    "reconnecting-websocket": "^4.2.0",
+    "vscode-uri": "^2.1.1",
+    "vscode-ws-jsonrpc": "^0.1.1",
+    "xterm": "^4.3.0",
+    "xterm-addon-fit": "^0.3.0"
+  }
+}
