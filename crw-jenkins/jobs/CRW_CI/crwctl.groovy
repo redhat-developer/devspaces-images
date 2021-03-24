@@ -1,8 +1,13 @@
 // map branch to tag to use in operator.yaml and csv.yaml
 def CSV_QUAY_TAGS = [
-    "2.6":"2.6",
-    "2.7":"latest",
-    "2.x"  :"nightly"
+    "2.6": "2.6",
+    "2.7": "latest",
+    "2.x": "nightly"
+    ]
+def CSV_VERSIONS = [
+    "2.6": "2.6.0",
+    "2.7": "2.7.1",
+    "2.x": "2.8.0"
     ]
 def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
 def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
@@ -53,7 +58,7 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("CSV_VERSION", JOB_BRANCH + ".0", "Full version (x.y.z), used in CSV and crwctl version")
+            stringParam("CSV_VERSION", CSV_VERSIONS[JB.key], "Full version (x.y.z), used in CSV and crwctl version")
             stringParam("CSV_QUAY_TAG", CSV_QUAY_TAGS[JB.key], "Floating tag to use operator.yaml and csv.yaml")
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
             stringParam("versionSuffix", "", '''

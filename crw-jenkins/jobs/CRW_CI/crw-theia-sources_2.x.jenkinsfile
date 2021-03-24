@@ -78,11 +78,9 @@ echo THEIA_BRANCH=${THEIA_BRANCH} >> BUILD_PARAMS
 echo THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} >> BUILD_PARAMS
 echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
 echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
-if [[ \$(git diff --name-only) ]]; then
-  git add BUILD_COMMAND BUILD_PARAMS || true
-  git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
-  git push origin ${MIDSTM_BRANCH} || true
-fi
+git add BUILD_COMMAND BUILD_PARAMS || true
+git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
+git push origin ${MIDSTM_BRANCH} || true
 popd >/dev/null
 """
         } // with

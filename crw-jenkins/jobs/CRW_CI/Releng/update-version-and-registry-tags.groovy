@@ -1,10 +1,10 @@
-def JOB_BRANCHES = ["2.7"] // only one release at a time
+def JOB_BRANCHES = ["2.9"] // only one release at a time
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         // keep job disabled until we explicitly need it
         disabled(true)
 
-        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        MIDSTM_BRANCH="crw-2-rhel-8"
         CSV_VERSION=JOB_BRANCH+".0"
 
         description('''

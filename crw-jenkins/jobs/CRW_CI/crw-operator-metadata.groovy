@@ -1,7 +1,7 @@
 // map branch to current/previous CSV versions + OLM channel (nightly or stable)
 def CSV_VERSIONS = [
     "2.6":["2.6.0","2.5.1"],
-    "2.7":["2.7.0","2.6.0"],
+    "2.7":["2.7.1","2.7.0"],
     // "2.8"  :["2.8.0","2.7.1"],
     "2.x"  :["2.8.0","2.7.1"]
     //"2.x"  :["2.9.0","2.8.0"]

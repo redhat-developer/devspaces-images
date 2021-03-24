@@ -201,6 +201,28 @@ pushd ${WORKSPACE}/sources/ >/dev/null
     git push origin ''' + MIDSTM_BRANCH + '''
 popd >/dev/null ''')
             }
+
+            sh (script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh', returnStdout: true).trim().split( '\n' )
+            def NEW_OSBS_IMAGE = sh(script: '''./getLatestImageTags.sh --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION.toString().replaceAll("\\.","\\\\.")), returnStdout: true).trim().split( '\n' )
+            println "####################################################################################################################"
+            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for ${NEW_OSBS_IMAGE}"
+            println "####################################################################################################################"
+            def statusCode = sh(script: '''#!/bin/bash -xe
+# eg., registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator-metadata:2.7-30
+curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=6&contains=codeready-workspaces" | jq ".raw_messages[].msg.index" > datagrepper.json
+FOUND=$(jq --arg NEW_OSBS_IMAGE "''' + NEW_OSBS_IMAGE + '''" '. | select(.added_bundle_images[] == $NEW_OSBS_IMAGE)' 2>/dev/null datagrepper.json)
+if [[ $FOUND ]]; then
+  echo $FOUND
+  rm -f datagrepper.json
+else
+  echo "[ERROR] Could not find ''' + NEW_OSBS_IMAGE + ''' in https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=6&contains=codeready-workspaces (when piped to jq '.raw_messages[].msg.index')
+  exit 1
+fi
+''', returnStatus:true)
+            if (statusCode > 0) {
+                currentBuild.result = 'FAILURE'
+                currentBuild.description=currentBuild.description+"; ERROR: rh-osbs/iib NOT updated!"
+            }
         } else {
             println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-registries-and-metadata_" + CRW_VERSION
             currentBuild.result = 'UNSTABLE'
