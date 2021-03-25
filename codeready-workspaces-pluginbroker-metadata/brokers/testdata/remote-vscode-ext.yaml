@@ -1,0 +1,8 @@
+id: test-plugin
+type: VS Code extension
+spec:
+  containers:
+  - name: test-plugin-container
+    image: "myregistry.io/mycontainer"
+  extensions:
+  - "https://my-extension.url"
