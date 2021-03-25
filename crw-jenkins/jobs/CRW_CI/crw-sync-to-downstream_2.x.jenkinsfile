@@ -60,9 +60,9 @@ timeout(180) {
                 // push to dist-git
                 sh('''#!/bin/bash -xe
                   cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-                  if [[ \$(git diff --name-only) ]]; then # file changed
+                  if [[ \$(git diff --name-only) ]] || [[ \$(git status -s) ]]; then # existing files changed or new files added
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
-                    git add --all -f .
+                    git add . -A -f
                     git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi''')
@@ -82,7 +82,7 @@ timeout(180) {
 
                     # update source repo with updates from running get-sources-jenkins
                     cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
-                    git add --all -f .
+                    git add . -A -f
                     git commit -m "$COMMIT_MSG" || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi
