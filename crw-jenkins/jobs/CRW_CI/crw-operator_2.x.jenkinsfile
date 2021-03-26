@@ -199,18 +199,17 @@ echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
 
           // don't commit yet, we'll do it later
           util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
-          if ((sh(script: '''cd ${WORKSPACE}/targetmid; git diff --name-only''', returnStdout: true))?.trim()) {
-            sh '''#!/bin/bash -xe
+          sh '''#!/bin/bash -xe
 # push changes to github from codeready-workspaces-images
 cd ${WORKSPACE}/targetmid
-if [[ \$(git diff --name-only) ]]; then # file changed
+git update-index --refresh  # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
   git add ''' + SYNC_FILES_DWN2MID + '''
   git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" ''' + SYNC_FILES_DWN2MID + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   echo "[sync] Updated GH @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
 fi
 '''
-          }
           NEW_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
           println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
 
@@ -218,8 +217,7 @@ fi
           util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
 
           // if anything changed, push changes in gh to dist-git
-          if ((sh(script: "cd ${TARGET_DIR}; git diff --name-only", returnStdout: true))?.trim()) {
-            sh '''#!/bin/bash -xe
+          sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
 git update-index --refresh  # ignore timestamp updates
@@ -249,7 +247,6 @@ fi
 # TODO should this be done higher up, before we commit to midstream repo crw-operator?
 # or is this obsoleted by some other sync script? ~Nick
 '''
-          }
 
           NEW_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN

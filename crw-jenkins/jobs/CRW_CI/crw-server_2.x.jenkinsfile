@@ -254,7 +254,8 @@ echo -e "$METADATA" >> ${WORKSPACE}/targetdwn/Dockerfile
 export KRB5CCNAME=/var/tmp/crw-build_ccache
 cd ${WORKSPACE}/targetdwn
 
-if [[ \$(git diff --name-only) ]]; then # file changed
+git update-index --refresh  # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
   git add Dockerfile ''' + SYNC_FILES_UP2DWN + ''' . -A -f
   # note this might fail if we're syncing from a tag vs. a branch
   git commit -s -m "[sync] Update from ''' + CHE_path + ''' @ ''' + SHA_CHE + ''' + ''' + CRW_path + ''' @ ''' + SHA_CRW + '''" \
@@ -268,7 +269,8 @@ cd ..
                 util.updateBaseImages("${WORKSPACE}/${CRW_path}", MIDSTM_BRANCH, "--nocommit")
                 sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/''' + CRW_path + '''
-if [[ \$(git diff --name-only) ]]; then # file changed
+git update-index --refresh  # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
     git add Dockerfile ''' + SYNC_FILES_UP2DWN + ''' . -A -f
     git commit -s -m "[sync] Update from ''' + CHE_path + ''' @ ''' + SHA_CHE + '''" \
       Dockerfile ''' + SYNC_FILES_UP2DWN + ''' . || true

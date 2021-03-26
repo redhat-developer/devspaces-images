@@ -181,8 +181,7 @@ echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
           util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit")
 
           // if anything changed, push changes in gh to dist-git
-          if ((sh(script: "cd ${TARGET_DIR}; git diff --name-only", returnStdout: true))?.trim()) {
-            sh '''#!/bin/bash -xe
+          sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
 git update-index --refresh  # ignore timestamp updates
@@ -195,7 +194,6 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
   echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
 fi
 '''
-          }
 
           NEW_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN

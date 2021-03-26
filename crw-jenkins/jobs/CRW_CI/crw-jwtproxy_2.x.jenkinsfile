@@ -102,10 +102,6 @@ usage="" \r'
             echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
           ''')
 
-          // update vendor folder
-          util.installRPMs("golang-bin")
-          sh("cd ${TARGET_DIR} && go mod vendor && git add vendor || true; git commit -s -m '[sync] Update vendor files' vendor || true; git push origin ${MIDSTM_BRANCH} || true")
-
           // push changes in github to codeready-workspaces-images
           util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit")
           sh('''#!/bin/bash -xe

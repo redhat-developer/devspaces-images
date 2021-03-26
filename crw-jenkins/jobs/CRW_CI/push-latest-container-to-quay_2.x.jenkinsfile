@@ -203,7 +203,7 @@ popd >/dev/null ''')
             }
 
             sh (script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh', returnStdout: true).trim().split( '\n' )
-            def NEW_OSBS_IMAGE = sh(script: '''./getLatestImageTags.sh --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION.toString().replaceAll("\\.","\\\\.")), returnStdout: true).trim().split( '\n' )
+            def NEW_OSBS_IMAGE = sh(script: '''./getLatestImageTags.sh --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION.toString().replaceAll("\\.","\\\\."), returnStdout: true).trim().split( '\n' )
             println "####################################################################################################################"
             println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for ${NEW_OSBS_IMAGE}"
             println "####################################################################################################################"

@@ -145,7 +145,8 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
               for targetN in target1 target2 target3; do
                 SYNC_FILES="''' + SYNC_FILES + '''"
                 cd ${WORKSPACE}/${targetN}
-                if [[ \$(git diff --name-only) ]]; then # file changed
+                git update-index --refresh  # ignore timestamp updates
+                if [[ \$(git diff-index HEAD --) ]]; then # file changed
                   export KRB5CCNAME=/var/tmp/crw-build_ccache
                   for f in ${SYNC_FILES}; do
                     if [[ -f $f ]] || [[ -d $f ]]; then

@@ -86,6 +86,9 @@ Images to copy to quay:
             maxTotal(10)
         }
 
+        // limit builds to 1 every 2 mins
+        quietPeriod(120) // in sec
+
         logRotator {
             daysToKeep(10)
             numToKeep(10)

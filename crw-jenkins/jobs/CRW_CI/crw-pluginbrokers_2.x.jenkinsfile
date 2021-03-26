@@ -7,15 +7,13 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // def FORCE_BUILD = "false"
 
-def SOURCE_REPO = "eclipse/che-plugin-broker" // upstream source repo from which to find and sync commits to pkgs.devel repo
-def DWNSTM_REPO1 = "containers/codeready-workspaces-pluginbroker-metadata" // dist-git repo to use as target
-def DWNSTM_REPO2 = "containers/codeready-workspaces-pluginbroker-artifacts" // dist-git repo to use as target
-def QUAY_PROJECT1 = "pluginbroker-metadata" // also used for the Brew dockerfile params
-def QUAY_PROJECT2 = "pluginbroker-artifacts" // also used for the Brew dockerfile params
+def SOURCE_REPO = "eclipse/che-plugin-broker" // upstream source repo from which to find and sync commits to midstream repo
+def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
+def SYNC_REPO1 = "pluginbroker-metadata" // also used for the Brew dockerfile params
+def SYNC_REPO2 = "pluginbroker-artifacts" // also used for the Brew dockerfile params
 def SYNC_FILES = "brokers build cfg common CONTRIBUTING.md .dockerignore devfile.yaml .gitignore go.mod go.sum LICENSE Makefile model README.md utils vendor VERSION"
 
-def OLD_SHA1=""
-def OLD_SHA2=""
+def OLD_SHA=""
 def NEW_SHA1=""
 def NEW_SHA2=""
 def SOURCE_SHA=""
@@ -39,48 +37,57 @@ timeout(120) {
           println "########################################################################################################"
           println "##  Clone and update github.com/${SOURCE_REPO}.git"
           println "########################################################################################################"
+          SOURCE_DIR="${WORKSPACE}/sources"
           util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
           SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
           println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
           println "########################################################################################################"
-          println "##  Sync ${QUAY_PROJECT1} and ${QUAY_PROJECT2} to pkgs.devel"
+          println "##  Sync ${SYNC_REPO1} and ${SYNC_REPO2} to codeready-workspaces-images"
           println "########################################################################################################"
-          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO1}", "${WORKSPACE}/target1", MIDSTM_BRANCH)
-          OLD_SHA1 = util.getLastCommitSHA("${WORKSPACE}/target1")
-          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO2}", "${WORKSPACE}/target2", MIDSTM_BRANCH)
-          OLD_SHA2 = util.getLastCommitSHA("${WORKSPACE}/target2")
+          util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH)
+          OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/target")
+          TARGET_DIR1="${WORKSPACE}/target/" + util.getCRWLongName(SYNC_REPO1)
+          TARGET_DIR2="${WORKSPACE}/target/" + util.getCRWLongName(SYNC_REPO2)
 
-          // rsync files in github to dist-git
+          // rsync files to codeready-workspaces-images
           sh('''#!/bin/bash -xe
+            SOURCEDIR="''' + SOURCE_DIR + '''"
+            TARGETDIR1="''' + TARGET_DIR1 + '''"
+            TARGETDIR2="''' + TARGET_DIR2 + '''"
             SYNC_FILES="''' + SYNC_FILES + '''"
-            for targetN in target1 target2; do
+            [ ! -d ${TARGETDIR1} ] && mkdir -p ${TARGETDIR1}
+            [ ! -d ${TARGETDIR2} ] && mkdir -p ${TARGETDIR2}
+            for targetN in $TARGETDIR1 $TARGETDIR2; do
               for d in ${SYNC_FILES}; do
-                if [[ -f ${WORKSPACE}/sources/${d} ]]; then
-                  rsync -zrlt ${WORKSPACE}/sources/${d} ${WORKSPACE}/${targetN}/${d}
-                elif [[ -d ${WORKSPACE}/sources/${d} ]]; then
+                if [[ -f ${SOURCEDIR}/${d} ]]; then
+                  rsync -zrlt ${SOURCEDIR}/${d} ${targetN}/${d}
+                elif [[ -d ${SOURCEDIR}/${d} ]]; then
                   # copy over the files
-                  rsync -zrlt ${WORKSPACE}/sources/${d}/* ${WORKSPACE}/${targetN}/${d}/
+                  rsync -zrlt ${SOURCEDIR}/${d}/* ${targetN}/${d}/
                   # sync the directory and delete from target if deleted from source
-                  rsync -zrlt --delete ${WORKSPACE}/sources/${d}/ ${WORKSPACE}/${targetN}/${d}/
+                  rsync -zrlt --delete ${SOURCEDIR}/${d}/ ${targetN}/${d}/
                 fi
               done
             done
           ''')
 
           sh('''#!/bin/bash -xe
-            for targetN in target1 target2; do
+            SOURCEDIR="''' + SOURCE_DIR + '''"
+            TARGETDIR1="''' + TARGET_DIR1 + '''"
+            TARGETDIR2="''' + TARGET_DIR2 + '''"
+            for targetN in $TARGETDIR1 $TARGETDIR2; do
               # apply changes from upstream che-pluginbroker/build/*/rhel.Dockerfile to downstream Dockerfile
               SOURCEDOCKERFILE=""
               TARGETDOCKERFILE=""
-              if [[ \$targetN == "target1" ]]; then
-                SOURCEDOCKERFILE="${WORKSPACE}/sources/build/metadata/rhel.Dockerfile"
-                TARGETDOCKERFILE="${WORKSPACE}/target1/Dockerfile"
-                QUAY_PROJECT="''' + QUAY_PROJECT1 + '''"
-              elif [[ \$targetN == "target2" ]]; then
-                SOURCEDOCKERFILE="${WORKSPACE}/sources/build/artifacts/rhel.Dockerfile"
-                TARGETDOCKERFILE="${WORKSPACE}/target2/Dockerfile"
-                QUAY_PROJECT="''' + QUAY_PROJECT2 + '''"
+              if [[ \$targetN == "${TARGETDIR1}" ]]; then
+                SOURCEDOCKERFILE="${SOURCEDIR}/build/metadata/rhel.Dockerfile"
+                TARGETDOCKERFILE="${TARGETDIR1}/Dockerfile"
+                QUAY_PROJECT="''' + SYNC_REPO1 + '''"
+              elif [[ \$targetN == "${TARGETDIR2}" ]]; then
+                SOURCEDOCKERFILE="${SOURCEDIR}/build/artifacts/rhel.Dockerfile"
+                TARGETDOCKERFILE="${TARGETDIR2}/Dockerfile"
+                QUAY_PROJECT="''' + SYNC_REPO2 + '''"
               fi
 
               CRW_VERSION="''' + CRW_VERSION_F + '''"
@@ -113,112 +120,89 @@ usage="" \r'
             done
           ''')
 
-          // push changes in github to dist-git
+          // push changes in github to codeready-workspaces-images
+          util.updateBaseImages(TARGET_DIR1, MIDSTM_BRANCH, "--nocommit")
+          util.updateBaseImages(TARGET_DIR2, MIDSTM_BRANCH, "--nocommit")
           sh('''#!/bin/bash -xe
-            export KRB5CCNAME=/var/tmp/crw-build_ccache
             SYNC_FILES="''' + SYNC_FILES + '''"
-            for targetN in target1 target2; do
-              cd ${WORKSPACE}/${targetN}
-              if [[ \$(git diff --name-only) ]]; then # file changed
-                git add Dockerfile ${SYNC_FILES}
-                git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" Dockerfile ${SYNC_FILES}
-                git push origin ''' + MIDSTM_BRANCH + '''
-                echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
-              fi
-            done
+            cd ${WORKSPACE}/target
+            git add ''' + util.getCRWLongName(SYNC_REPO1) + '''
+            git add ''' + util.getCRWLongName(SYNC_REPO2) + '''
+            git update-index --refresh  # ignore timestamp updates
+            if [[ \$(git diff-index HEAD --) ]]; then # file changed
+              cd ''' + TARGET_DIR1 + '''
+              git add Dockerfile ${SYNC_FILES} . -A -f
+              cd ''' + TARGET_DIR2 + '''
+              git add Dockerfile ${SYNC_FILES} . -A -f
+              # note this might fail if we're syncing from a tag vs. a branch
+              git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
+              git push origin ''' + MIDSTM_BRANCH + ''' || true
+              echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+            fi
           ''')
+          NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/target")
+          println "Got NEW_SHA in target folder: " + NEW_SHA
 
-          util.updateBaseImages("${WORKSPACE}/target1", MIDSTM_BRANCH)
-          NEW_SHA1 = util.getLastCommitSHA("${WORKSPACE}/target1")
-          println "Got NEW_SHA1 in target1 folder: " + NEW_SHA1
-
-          util.updateBaseImages("${WORKSPACE}/target2", MIDSTM_BRANCH)
-          NEW_SHA2 = util.getLastCommitSHA("${WORKSPACE}/target2")
-          println "Got NEW_SHA2 in target2 folder: " + NEW_SHA2
-
-          if (NEW_SHA1.equals(OLD_SHA1) && NEW_SHA2.equals(OLD_SHA2) && !FORCE_BUILD.equals("true")) {
+          if (NEW_SHA.equals(OLD_SHA) && !FORCE_BUILD.equals("true")) {
             currentBuild.result='UNSTABLE'
           }
+
+          println "########################################################################################################"
+          println "##  Kickoff Sync to downstream job"
+          println "########################################################################################################"
+          if (!OLD_SHA.equals(NEW_SHA) || FORCE_BUILD == "true") {
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            build(
+                job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+                wait: true,
+                propagate: true,
+                parameters: [
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'token',
+                    value: "CI_BUILD"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'cause',
+                    value: SYNC_REPO1 + "+respin+by+${BUILD_TAG}"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'REPOS',
+                    value: util.getCRWLongName(SYNC_REPO1) + ", " + util.getCRWLongName(SYNC_REPO2)
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'JOB_BRANCH',
+                    value: JOB_BRANCH
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'MIDSTM_BRANCH',
+                    value: "${MIDSTM_BRANCH}"
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'FORCE_BUILD',
+                    value: true
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'SCRATCH',
+                    value: false
+                  ]
+                ]
+              )
+            currentBuild.description+="; Downstream sync job triggered"
+          } else {
+            println "No changes upstream, nothing to sync / build in brew!"
+            currentBuild.description+="; No sync or Brew build"
+            currentBuild.result = 'UNSTABLE'
+          }        
+
         } // withCredentials
       } // wrap
     } // stage
   } // node
 } // timeout
-
-// kick off get-sources-rhpkg-container-build_2.y job
-node(nodeLabel) {
-  stage ("Build containers on ${nodeLabel}") {
-    println "########################################################################################################"
-    println "##  Build ${QUAY_PROJECT1} and ${QUAY_PROJECT2} containers"
-    println "########################################################################################################"
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-    def util = load "${WORKSPACE}/util.groovy"
-    echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-      if (!NEW_SHA1.equals(OLD_SHA1) || !NEW_SHA2.equals(OLD_SHA2) || FORCE_BUILD.equals("true")) {
-        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-        println "CRW_VERSION = '" + CRW_VERSION + "'"
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-        for (QUAY_REPO_PATH in [QUAY_PROJECT1, QUAY_PROJECT2]) {
-          println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH}-rhel8 from containers/codeready-workspaces-${QUAY_REPO_PATH} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
-          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-          build(
-            job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
-            wait: true,
-            propagate: true,
-            parameters: [
-              [
-                $class: 'StringParameterValue',
-                name: 'token',
-                value: "CI_BUILD"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'cause',
-                value: "${QUAY_REPO_PATH}+respin+by+${BUILD_TAG}"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'GIT_BRANCH',
-                value: "${MIDSTM_BRANCH}"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'GIT_PATHs',
-                value: "containers/codeready-workspaces-${QUAY_REPO_PATH}"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'QUAY_REPO_PATHs',
-                value: "${QUAY_REPO_PATH}-rhel8"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'JOB_BRANCH',
-                value: JOB_BRANCH
-              ],
-              [
-                $class: 'BooleanParameterValue',
-                name: 'FORCE_BUILD',
-                value: true
-              ],
-              [
-                $class: 'BooleanParameterValue',
-                name: 'SCRATCH',
-                value: false
-              ]
-            ]
-          )
-        }
-        currentBuild.description="Brew build triggered"
-      } else {
-        println "No changes upstream, nothing to build in brew!"
-        currentBuild.description="No Brew build"
-        currentBuild.result = 'UNSTABLE'
-      }
-    } else {
-      util.notifyBuildFailed()
-    } // if
-  } // stage
-} //node
-

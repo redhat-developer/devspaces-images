@@ -222,7 +222,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                         echo "Plugin registry has been rebuilt!"
                                         break
                                     }
-                                    sleep(time:60,unit:"SECONDS")
+                                    sleep(time:120,unit:"SECONDS")
                                 }
                                 sh '''#!/bin/bash -xe
 echo "============ LATEST_IMAGES.new 2 ============>"
@@ -255,7 +255,7 @@ echo "<============ LATEST_IMAGES.new 2 ============"
                                     echo "Operator metadata has been rebuilt!"
                                     break
                                 }
-                                sleep(time:60,unit:"SECONDS")
+                                sleep(time:120,unit:"SECONDS")
                             }
 
                             sh COMMITCHANGES

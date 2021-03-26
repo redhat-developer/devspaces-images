@@ -60,7 +60,8 @@ timeout(180) {
                 // push to dist-git
                 sh('''#!/bin/bash -xe
                   cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-                  if [[ \$(git diff --name-only) ]] || [[ \$(git status -s) ]]; then # existing files changed or new files added
+                  git update-index --refresh  # ignore timestamp updates
+                  if [[ \$(git diff-index HEAD --) ]]; then # file changed
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
                     git add . -A -f
                     git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
