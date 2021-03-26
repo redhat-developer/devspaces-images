@@ -13,8 +13,8 @@
 # NOTE: using registry.redhat.io/rhel8/go-toolset requires login, which complicates automation
 # NOTE: since updateBaseImages.sh does not support other registries than RHCC, update to RHEL8
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.1.x"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.27.x"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
 
 FROM devtools/go-toolset-rhel7:1.13.15-4  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
@@ -33,16 +33,12 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
 # upstream, download devworkspace-operator templates for every build
 # downstream, copy prefetched zip into /tmp
 COPY devworkspace-operator.zip /tmp
-RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
-    mkdir -p /tmp/devworkspace-operator/templates/ && \
-    mv /tmp/devfile-devworkspace-operator-*/deploy /tmp/devworkspace-operator/templates/
+RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp && \n    mkdir -p /tmp/devworkspace-operator/templates/ && \n    mv /tmp/devfile-devworkspace-operator-*/deploy /tmp/devworkspace-operator/templates/
 
 # upstream, download devworkspace-che-operator templates for every build
 # downstream, copy prefetched zip into /tmp
 COPY devworkspace-che-operator.zip /tmp
-RUN unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \
-    mkdir -p /tmp/devworkspace-che-operator/templates/ && \
-    mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
+RUN unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \n    mkdir -p /tmp/devworkspace-che-operator/templates/ && \n    mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.3-291
@@ -55,9 +51,8 @@ COPY --from=builder /che-operator/templates/create-github-identity-provider.sh /
 COPY --from=builder /tmp/devworkspace-operator/templates/deploy /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/devworkspace-che-operator/templates/deploy /tmp/devworkspace-che-operator/templates
 
-# install dnf so we can update RPMs w/ latest CVE fixes
-# install httpd-tools for /usr/bin/htpasswd
-RUN microdnf install -y dnf httpd-tools && dnf -y -q update && dnf -y -q clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+# apply CVE fixes, if required
+RUN microdnf update -y librepo libnghttp2 && microdnf install httpd-tools && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 CMD ["che-operator"]
 
 # append Brew metadata here - see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-operator_2.x.jenkinsfile
