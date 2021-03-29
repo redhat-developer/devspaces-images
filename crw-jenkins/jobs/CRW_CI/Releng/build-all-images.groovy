@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.8":"", "2.x":""] // TODO 2.8 version will have more images (devworkspace)
-def JOB_DISABLED = ["2.8":true, "2.x":false]
+def JOB_BRANCHES = ["2.8":"", "2.x":""]
+def JOB_DISABLED = ["2.8":true, "2.x":true]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"

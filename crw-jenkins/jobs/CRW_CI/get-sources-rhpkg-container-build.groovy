@@ -1,11 +1,11 @@
 // map branch to floating quay tag to create
 def FLOATING_QUAY_TAGS = [
-    "2.6":"2.6",
-    "2.7":"latest",
+    "2.7":"2.7",
+    "2.8":"latest",
     "2.x"  :"nightly"
     ]
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -29,6 +29,8 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            disableResumeJobProperty()
         }
 
         throttleConcurrentBuilds {
@@ -49,11 +51,7 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
         // NOTE: send email notification to culprits(), developers(), requestor() for failure - use util.notifyBuildFailed() in .jenkinsfile
 
         parameters{
-            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
-            stringParam("JOB_BRANCH", JOB_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
-            // TODO refactor to remove all refs to GIT_BRANCH
-            stringParam("GIT_BRANCH", MIDSTM_BRANCH, "")
             stringParam("GIT_PATHs", "containers/codeready-workspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
 update sources, and run rhpkg container-build: <br/>
 * containers/codeready-workspaces, <br/>

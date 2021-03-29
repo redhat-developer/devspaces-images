@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.x":"master"] // only sync to main branch 2, not sub-branches 2.6, 2.7
+def JOB_BRANCHES = ["2.x":"master"] // only sync to main branch 2, not the 2.y sub-branches
 def JOB_DISABLED = ["2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value

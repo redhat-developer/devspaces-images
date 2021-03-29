@@ -11,6 +11,8 @@ Job for testing stuff out in bash or groovy
         ownership {
             primaryOwnerId("nboldt")
         }
+
+        disableResumeJobProperty()
     }
 
     throttleConcurrentBuilds {
@@ -35,7 +37,7 @@ Job for testing stuff out in bash or groovy
     definition {
         // cpsScm {
         //     lightweight(true)
-        //     scm { git ("https://github.com/redhat-developer/codeready-workspaces.git", "crw-2.6-rhel-8") } 
+        //     scm { git ("https://github.com/redhat-developer/codeready-workspaces.git", "crw-2-rhel-8") } 
         //     scriptPath("product/check-rpm-signatures.Jenkinsfile")
         // }
         cps{

@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -22,7 +22,8 @@ Results:
         ''')
 
         properties {
-            disableConcurrentBuilds()
+            disableConcurrentBuildsJobProperty()
+            disableResumeJobProperty()
             // quietPeriod(30) // no more than one build every 30s
 
             ownership {
@@ -51,9 +52,6 @@ Results:
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("PLATFORMS", "x86_64, s390x, ppc64le", "list of platforms on which to build assets; normally: x86_64, s390x, ppc64le")
-
-            // TODO CRW-1644 remove SCRATCH param once 2.7 is done
-            booleanParam("SCRATCH", false)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

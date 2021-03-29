@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.6":"master", "2.7":"master", "2.x":"master"] // special case, no Che branches; could also use a tag like "v0.1.4"
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"master", "2.8":"master", "2.x":"master"] // special case, no Che branches; could also use a tag like "v0.1.4"
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -35,6 +35,8 @@ Artifact builder + sync job; triggers brew after syncing
             pipelineTriggers {
                 [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
             }
+
+            disableResumeJobProperty()
         }
 
         logRotator {

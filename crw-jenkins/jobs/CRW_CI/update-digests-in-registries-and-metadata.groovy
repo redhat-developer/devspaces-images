@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":true]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key
@@ -36,6 +36,8 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
                     }
                 }
             }
+
+            disableResumeJobProperty()
         }
 
         throttleConcurrentBuilds {

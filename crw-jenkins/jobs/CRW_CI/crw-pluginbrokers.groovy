@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.6":"v3.4.x", "2.7":"v3.4.x", "2.x":"master"] // TODO switch to 7.26.x
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"v3.4.x", "2.8":"v3.4.x", "2.x":"master"] 
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used yet
     JOB_BRANCH=""+JB.key
@@ -37,6 +37,8 @@ Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/plug
             pipelineTriggers {
                 [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
             }
+
+            disableResumeJobProperty()
         }
 
         logRotator {

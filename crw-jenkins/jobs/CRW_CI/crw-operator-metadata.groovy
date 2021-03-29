@@ -1,17 +1,15 @@
 // map branch to current/previous CSV versions + OLM channel (nightly or stable)
 def CSV_VERSIONS = [
-    "2.6":["2.6.0","2.5.1"],
     "2.7":["2.7.1","2.7.0"],
-    // "2.8"  :["2.8.0","2.7.1"],
-    "2.x"  :["2.8.0","2.7.1"]
-    //"2.x"  :["2.9.0","2.8.0"]
+    "2.8"  :["2.8.0","2.7.1"],
+    "2.x"  :["2.9.0","2.8.0"]
     ]
 def OLM_CHANNELS = [
-    // "2.8": "stable",
+    "2.8": "stable",
     "2.x": "nightly"
     ]
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":true]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -57,6 +55,8 @@ Artifact builder + sync job; triggers brew after syncing
                 // [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
                 [$class: "SCMTrigger", scmpoll_spec: "@daily"]
             }
+
+            disableResumeJobProperty()
         }
 
         // limit builds to 1 every 20 min
@@ -70,8 +70,6 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
-            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
-            stringParam("JOB_BRANCH", JOB_BRANCH, "@deprecated 2.7")
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("CSV_VERSION", CSV_VERSIONS[JB.key][0])

@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key
@@ -14,7 +14,8 @@ for (JB in JOB_BRANCHES) {
         ''')
 
         properties {
-            disableConcurrentBuilds()
+            disableConcurrentBuildsJobProperty()
+            disableResumeJobProperty()
             // quietPeriod(30) // no more than one build every 30s
 
             ownership {

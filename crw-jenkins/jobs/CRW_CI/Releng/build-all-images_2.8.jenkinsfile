@@ -70,6 +70,7 @@ node(nodeLabel) {
                     def jobsList = [
                         "server":"server-rhel8",
                         "configbump":"configbump-rhel8",
+                        // TODO 2.8 version will have more images (devworkspace, che devworkspace)
                         "operator":"crw-2-rhel8-operator",
                         "imagepuller":"imagepuller-rhel8",
                         "jwtproxy":"jwtproxy-rhel8",

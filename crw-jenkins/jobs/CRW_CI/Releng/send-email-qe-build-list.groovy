@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.7":"", "2.x":""]
-def JOB_DISABLED = ["2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.8":"", "2.x":""]
+def JOB_DISABLED = ["2.8":true, "2.x":true]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
@@ -46,8 +46,6 @@ stuff goes here if applicable''',"Stuff to mention after the lists of images")
             // # RECIPIENTS - comma and space separated list of recipient email addresses
             stringParam("RECIPIENTS","codeready-workspaces-qa@redhat.com, che-prod@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
-            // TODO CRW-1644 remove JOB_BRANCH param once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
-            stringParam("JOB_BRANCH", JOB_BRANCH)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

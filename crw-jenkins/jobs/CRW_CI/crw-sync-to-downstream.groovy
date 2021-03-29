@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key
@@ -14,8 +14,6 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
 <a href=../crw-deprecated_''' + JOB_BRANCH + '''/>crw-deprecated_''' + JOB_BRANCH + '''</a>
 
 <p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.
-
-<p>TODO: tie this into overall orchestration job, see <a href=https://issues.redhat.com/browse/CRW-668>CRW-668</a>
         ''')
 
         properties {
@@ -61,10 +59,6 @@ codeready-workspaces-stacks-golang,
 codeready-workspaces-stacks-php''')
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
-
-            // TODO CRW-1644 remove SCRATCH + JOB_BRANCH params once 2.7 is done (it can be computed from MIDSTM_BRANCH as of 2.8)
-            stringParam("JOB_BRANCH", JOB_BRANCH)
-            booleanParam("SCRATCH", false)
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

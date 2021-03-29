@@ -1,16 +1,16 @@
 // map branch to tag to use in operator.yaml and csv.yaml
 def CSV_QUAY_TAGS = [
-    "2.6": "2.6",
-    "2.7": "latest",
+    "2.7": "2.7",
+    "2.8": "latest",
     "2.x": "nightly"
     ]
 def CSV_VERSIONS = [
-    "2.6": "2.6.0",
     "2.7": "2.7.1",
-    "2.x": "2.8.0"
+    "2.8": "2.8.0",
+    "2.x": "2.9.0"
     ]
-def JOB_BRANCHES = ["2.6":"7.24.x", "2.7":"7.26.x", "2.x":"master"]
-def JOB_DISABLED = ["2.6":true, "2.7":true, "2.x":false]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -41,6 +41,8 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
             pipelineTriggers {
                 [$class: "SCMTrigger", scmpoll_spec: "H H/12 * * *"] // every 12 hrs
             }
+
+            disableResumeJobProperty()
         }
 
         throttleConcurrentBuilds {
