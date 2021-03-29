@@ -67,13 +67,13 @@ metadata:
     categories: Developer Tools, OpenShift Optional
     certified: "false"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:latest
-    createdAt: "2021-03-22T07:33:58Z"
+    createdAt: "2021-03-26T10:57:13Z"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: eclipse-che
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: codeready-workspaces-preview-openshift.v7.28.0-128.nightly
+  name: codeready-workspaces-preview-openshift.v7.28.0-130.nightly
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -866,4 +866,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.28.0-128.nightly
+  version: 7.28.0-130.nightly
