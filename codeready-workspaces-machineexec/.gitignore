@@ -1,5 +1,4 @@
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
-che-plugin-broker
 *.o
 *.a
 *.so
@@ -26,4 +25,3 @@ _testmain.go
 .idea/
 
 che-machine-exec
-assembly/che-service-plugin.tar.gz
