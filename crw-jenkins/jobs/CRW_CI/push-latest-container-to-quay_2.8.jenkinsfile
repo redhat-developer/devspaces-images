@@ -49,7 +49,7 @@ timeout(30) {
 
                         def NEW_NVR = ""
                         parallel copy_to_quay: {
-                            sh('''#!/bin/bash -xe
+                            def statusCode = sh('''#!/bin/bash -xe
 QUAY_REGISTRY="quay.io/crw/"
 QUAY_USER="crw+crwci"
 
@@ -68,7 +68,12 @@ for c in ''' + CONTAINERS.trim() + '''; do
     ./getLatestImageTags.sh -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
-                            ''')
+                            ''', returnStatus:true)
+                            if (statusCode > 0) {
+                                errorOccurred = errorOccurred + 'error pushing to quay\n'; 
+                                currentBuild.description+="; error pushing to quay!"
+                                currentBuild.result = 'FAILURE'
+                            }
                         }, 
                         nvr_check: {
                             NEW_NVR = sh (
