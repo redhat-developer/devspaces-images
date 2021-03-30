@@ -22,12 +22,15 @@ def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
 def String nodeLabel = 'rhel8'
+currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(30) {
     node(nodeLabel) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         try { 
             stage("Copy from OSBS to Quay") {
+                currentBuild.description="Copying: " + CONTAINERS.trim().replaceAll(" ",", ")
+
                 wrap([$class: 'TimestamperBuildWrapper']) {
                     cleanWs()
                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
@@ -43,8 +46,6 @@ timeout(30) {
                         sh (
                             script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
                             returnStdout: true).trim().split( '\n' )
-
-                        currentBuild.description="Copying: " + CONTAINERS.trim().replaceAll(" ",", ")
 
                         def NEW_NVR = ""
                         parallel copy_to_quay: {
@@ -106,7 +107,7 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             "=================== QUAY v NVR ===================\n" + 
                             DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
                             ' Failure!\n'
-                            currentBuild.description="Quay/Brew version mismatch!"
+                            currentBuild.description+="; Quay/Brew version mismatch!"
                             currentBuild.result = 'FAILURE'
                         }
 

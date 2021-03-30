@@ -4,10 +4,6 @@ def CSV_VERSIONS = [
     "2.8"  :["2.8.0","2.7.1"],
     "2.x"  :["2.9.0","2.8.0"]
     ]
-def OLM_CHANNELS = [
-    "2.8": "stable",
-    "2.x": "nightly"
-    ]
 def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
 def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
@@ -50,10 +46,12 @@ Artifact builder + sync job; triggers brew after syncing
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM daily for changes in upstream
             pipelineTriggers {
-                // [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
-                [$class: "SCMTrigger", scmpoll_spec: "@daily"]
+                triggers{
+                    pollSCM{
+                        scmpoll_spec("H H/24 * * *") // every 24hrs
+                    }
+                }
             }
 
             disableResumeJobProperty()
@@ -74,7 +72,6 @@ Artifact builder + sync job; triggers brew after syncing
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("CSV_VERSION", CSV_VERSIONS[JB.key][0])
             stringParam("CSV_VERSION_PREV", CSV_VERSIONS[JB.key][1])
-            stringParam("OLM_CHANNEL", OLM_CHANNELS.containsKey(JB.key) ? OLM_CHANNELS[JB.key] : "n/a", "for 2.y, use stable; for 2.x, use nightly channel; @since 2.8")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

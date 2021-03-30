@@ -14,13 +14,13 @@ for (JB in JOB_BRANCHES) {
         ''')
 
         properties {
-            disableConcurrentBuildsJobProperty()
-            disableResumeJobProperty()
-            // quietPeriod(30) // no more than one build every 30s
-
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            disableResumeJobProperty()
+            disableConcurrentBuildsJobProperty()
+            quietPeriod(30) // no more than one build every 30s
         }
 
         logRotator {

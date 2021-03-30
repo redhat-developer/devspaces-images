@@ -13,6 +13,7 @@ def SOURCE_REPO = "eclipse-che/che-operator" //source repo from which to find an
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // downstream repo (before pkgs.devel)
 def SYNC_REPO = "operator-metadata" // also used for the Brew dockerfile params
+def OLM_CHANNEL = "nightly" // use nightly: stable channel has generated relatedImages section, which conflicts with Brew's digest pinning
 
 def SOURCE_SHA=""
 def OLD_SHA_MID=""

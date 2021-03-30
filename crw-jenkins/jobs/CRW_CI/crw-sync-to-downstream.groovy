@@ -20,11 +20,6 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
             ownership {
                 primaryOwnerId("nboldt")
             }
-
-            // poll SCM every 2 hrs for changes in upstream
-            pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
-            }
         }
 
         logRotator {

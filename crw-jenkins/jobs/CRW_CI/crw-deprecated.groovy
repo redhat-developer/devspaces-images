@@ -19,19 +19,23 @@ Lang server dependency builder
         ''')
 
         properties {
-            disableConcurrentBuilds()
-            // quietPeriod(30) // no more than one build every 30s
 
             ownership {
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM every 2 hrs for changes in upstream
-            pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
-            }
+            // disabled because no changes in the branch / run this manually 
+            // pipelineTriggers {
+            //     triggers{
+            //         pollSCM{
+            //             scmpoll_spec("H H/24 * * *") // every 24hrs
+            //         }
+            //     }
+            // }
 
             disableResumeJobProperty()
+            disableConcurrentBuildsJobProperty()
+            quietPeriod(30) // no more than one build every 30s
         }
 
         logRotator {

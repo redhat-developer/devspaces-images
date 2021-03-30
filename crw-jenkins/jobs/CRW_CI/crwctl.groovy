@@ -37,9 +37,12 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM every 2 hrs for changes in upstream
             pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/12 * * *"] // every 12 hrs
+                triggers{
+                    pollSCM{
+                        scmpoll_spec("H H/8 * * *") // every 8hrs
+                    }
+                }
             }
 
             disableResumeJobProperty()

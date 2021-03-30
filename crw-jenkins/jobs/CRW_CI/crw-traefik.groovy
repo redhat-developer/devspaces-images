@@ -35,10 +35,14 @@ Artifact builder + sync job; triggers brew after syncing
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM every 2 hrs for changes in upstream
-            pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
-            }
+            // disabled because no changes in the branch / run this manually 
+            // pipelineTriggers {
+            //     triggers{
+            //         pollSCM{
+            //             scmpoll_spec("H H/24 * * *") // every 24hrs
+            //         }
+            //     }
+            // }
 
             disableResumeJobProperty()
         }

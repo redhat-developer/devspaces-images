@@ -5,7 +5,7 @@ for (JB in JOB_BRANCHES) {
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-
+        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
 Send an email to QE announcing an ER or RC build, including a list of images.
         ''')

@@ -2,10 +2,8 @@ pipelineJob(ITEM_PATH){
 
     JOB_BRANCH="2.x"
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-
-    description('''
-Job for testing stuff out in bash or groovy
-''')
+    disabled(true) // on reload of job, disable to avoid churn
+    description('''Job for testing stuff out in bash or groovy''')
 
     properties {
         ownership {

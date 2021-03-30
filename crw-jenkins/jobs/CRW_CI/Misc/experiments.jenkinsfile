@@ -5,9 +5,13 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 
 def String nodeLabel = 'rhel8'
+
+currentBuild.description="Experimental build " + BUILD_DISPLAY_NAME
+
 timeout(120) {
     node(nodeLabel) { 
         stage ("Build on ${nodeLabel}") {
+            currentBuild.description+="; running on " + NODE_NAME + " (" + NODE_LABELS + ")"
             wrap([$class: 'TimestamperBuildWrapper']) {
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                 def util = load "${WORKSPACE}/util.groovy"

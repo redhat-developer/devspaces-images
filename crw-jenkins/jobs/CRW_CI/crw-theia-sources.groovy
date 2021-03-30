@@ -22,18 +22,21 @@ Results:
         ''')
 
         properties {
-            disableConcurrentBuildsJobProperty()
-            disableResumeJobProperty()
-            // quietPeriod(30) // no more than one build every 30s
-
             ownership {
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM every 2 hrs for changes in upstream
             pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
+                triggers{
+                    pollSCM{
+                        scmpoll_spec("H H/8 * * *") // every 8hrs
+                    }
+                }
             }
+
+            disableResumeJobProperty()
+            disableConcurrentBuildsJobProperty()
+            quietPeriod(30) // no more than one build every 30s
         }
 
         throttleConcurrentBuilds {

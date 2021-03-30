@@ -172,7 +172,7 @@ node(nodeLabel){
       println "########################################################################################################"
       echo "currentBuild.result = " + currentBuild.result
       if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-        if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
+        if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
           build(
                 job: 'crwctl_' + JOB_BRANCH,
                 wait: false,

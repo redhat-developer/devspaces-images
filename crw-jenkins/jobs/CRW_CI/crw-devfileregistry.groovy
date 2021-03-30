@@ -31,11 +31,14 @@ Artifact builder + sync job; triggers brew after syncing
                 primaryOwnerId("nboldt")
             }
 
-            // poll SCM every 2 hrs for changes in upstream
             pipelineTriggers {
-                [$class: "SCMTrigger", scmpoll_spec: "H H/2 * * *"]
+                triggers{
+                    pollSCM{
+                        scmpoll_spec("H H/12 * * *") // every 12hrs
+                    }
+                }
             }
-
+            
             disableResumeJobProperty()
         }
 
