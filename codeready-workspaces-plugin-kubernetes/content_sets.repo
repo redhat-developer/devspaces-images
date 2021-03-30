@@ -12,7 +12,7 @@ gpgcheck=0
 
 [ocp-tools-4.7-for-rhel-8-x86_64-rpms]
 name=ocp-tools-4.7-for-rhel-8-x86_64-rpms
-baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/ocp-tools/4.6/os/
+baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/ocp-tools/4.7/os/
 enabled=1
 gpgcheck=0
 
