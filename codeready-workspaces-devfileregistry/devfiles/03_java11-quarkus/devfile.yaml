@@ -17,7 +17,7 @@ components:
   -
     type: dockerimage
     alias: maven
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8:2.8
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8:2.9
     env:
       - name: JAVA_OPTS
         value: "-XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
@@ -25,7 +25,7 @@ components:
           -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom
           -Duser.home=/home/jboss"
       - name: MAVEN_OPTS
-        value: $(JAVA_OPTS)  
+        value: $(JAVA_OPTS) 
     memoryLimit: 512Mi
     mountSources: true
     volumes:

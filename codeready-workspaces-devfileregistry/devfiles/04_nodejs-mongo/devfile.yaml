@@ -10,12 +10,11 @@ projects:
 components:
   - type: chePlugin
     id: vscode/typescript-language-features/latest
-    memoryLimit: 512Mi
   - type: chePlugin
     id: ms-vscode/node-debug2/latest
   - type: dockerimage
     alias: nodejs
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.8
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.9
     env:
       # The values below are used to set up the environment for running the application
       - name: SECRET

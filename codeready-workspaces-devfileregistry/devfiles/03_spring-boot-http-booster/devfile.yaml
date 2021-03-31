@@ -17,13 +17,13 @@ components:
     endpoints:
       - name: 8080-tcp
         port: 8080
-    memoryLimit: 768Mi
     type: dockerimage
+    memoryLimit: 768Mi
     volumes:
       - name: m2
         containerPath: /home/jboss/.m2
     alias: maven
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.8
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.9
     env:
       - value: >-
           -XX:MaxRAMPercentage=50.0 -XX:+UseParallelGC -XX:MinHeapFreeRatio=10
