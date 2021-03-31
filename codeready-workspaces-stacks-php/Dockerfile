@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/php-73
-FROM ubi8/php-73:1-72.1614874890
+FROM ubi8/php-74:1-17.1614874881
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - PHP Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - PHP Stack container" \
