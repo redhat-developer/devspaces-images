@@ -12,8 +12,9 @@ category: Language
 firstPublicationDate: "2019-04-16"
 spec:
   containers:
-    - image: "registry.redhat.io/codeready-workspaces/stacks-php-rhel8:2.8"
+    - image: "registry.redhat.io/codeready-workspaces/stacks-php-rhel8:2.9"
       name: php-debugger
+      memoryLimit: 512Mi
       args:
         - sh
         - -c
