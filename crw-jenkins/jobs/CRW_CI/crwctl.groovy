@@ -40,7 +40,7 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
             pipelineTriggers {
                 triggers{
                     pollSCM{
-                        scmpoll_spec("H H/8 * * *") // every 8hrs
+                        scmpoll_spec("H H/3 * * *") // every 3hrs
                     }
                 }
             }

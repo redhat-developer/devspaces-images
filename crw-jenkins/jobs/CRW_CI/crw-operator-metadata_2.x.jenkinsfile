@@ -39,11 +39,10 @@ timeout(120) {
           println "CRW_VERSION = '" + CRW_VERSION + "'"
 
           QUAY_REPO_PATH=util.getCRWShortName(SYNC_REPO) + "-rhel8"
-          util.bootstrap(CRW_KEYTAB)
 
-          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
-          util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
-          util.cloneRepo("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
 
           // UP2MID are right now ONLY files in olm/ folder upstream copied to build/scripts/ folder midstream
           // TODO add in addDigests.sh buildDigestMap.sh from upstream (which are very different from downsteam versions)

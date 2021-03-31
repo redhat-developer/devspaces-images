@@ -25,20 +25,12 @@ timeout(120) {
   node(nodeLabel) {
     stage ("Checkout Che Theia on " + nodeLabel) {
       wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+        def util = load "${WORKSPACE}/util.groovy"
         // check out che-theia before we need it in build.sh so we can use it as a poll basis
         // then discard this folder as we need to check them out and massage them for crw
         sh "mkdir -p tmp"
-        checkout([$class: 'GitSCM',
-          branches: [[name: "${SOURCE_BRANCH}"]],
-          doGenerateSubmoduleConfigurations: false,
-          poll: true,
-          extensions: [
-            [$class: 'RelativeTargetDirectory', relativeTargetDir: "tmp/che-theia"]
-            // ,
-            // [$class: 'CloneOption', shallow: true, depth: 1]
-          ],
-          submoduleCfg: [],
-          userRemoteConfigs: [[url: "https://github.com/eclipse-che/che-theia.git"]]])
+        util.cloneRepoWithBootstrap("https://github.com/eclipse-che/che-theia.git", "tmp/che-theia", SOURCE_BRANCH, true)
         sh "rm -fr tmp"
       } // wrap
     } // stage
@@ -48,12 +40,11 @@ timeout(120) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           println "CRW_VERSION = '" + CRW_VERSION + "'"
-          util.bootstrap(CRW_KEYTAB)
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH)
           def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
           if (!THEIA_COMMIT_SHA.equals("")) {
             BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
@@ -103,9 +94,9 @@ for (int i=0; i < nodeLabels.size(); i++) {
             cleanWs()
             sh "docker system prune -af || true"
             platforms.add(sh(script: '''uname -m''', returnStdout:true).trim())
+            util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                 file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-              util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH)
               util.installNPM(nodeVersion, yarnVersion)
               CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
               println "CRW_VERSION = '" + CRW_VERSION + "'"

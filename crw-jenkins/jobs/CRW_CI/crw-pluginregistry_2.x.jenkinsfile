@@ -33,12 +33,11 @@ timeout(120) {
       util.installRhpkg()
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
           file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-        util.bootstrap(CRW_KEYTAB)
 
         println "########################################################################################################"
         println "##  Clone and update github.com/${MIDSTM_REPO}.git"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, true)
         OLD_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
         println "Got OLD_SHA_MID in targetmid folder: " + OLD_SHA_MID
         SOURCE_DIR="${WORKSPACE}/targetmid/dependencies/che-plugin-registry/"
@@ -56,7 +55,7 @@ timeout(120) {
         println "########################################################################################################"
         println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", DWNSTM_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", DWNSTM_BRANCH, false)
         OLD_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
         TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO) + "/"
