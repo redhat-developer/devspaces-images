@@ -170,9 +170,9 @@ timeout(90) {
 
 Latest crwctl builds:
 
-''' + JENKINS_URL + ''' job/CRW_CI/job/crwctl_''' + JOB_BRANCH + '''/lastSuccessfulBuild/artifact/codeready-workspaces-chectl/dist/channels/
+''' + JENKINS_URL + '''job/CRW_CI/job/crwctl_''' + JOB_BRANCH + '''/lastSuccessfulBuild/artifact/codeready-workspaces-chectl/dist/channels/
 - or -
-https://github.com/redhat-developer/codeready-workspaces-chectl/releases
+https://github.com/redhat-developer/codeready-workspaces-chectl/releases (if copied there)
 
 Quay Images:
 ''' + NEW_QUAY_L

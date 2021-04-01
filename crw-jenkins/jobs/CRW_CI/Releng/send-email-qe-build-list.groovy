@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.8":"", "2.x":""]
-def JOB_DISABLED = ["2.8":true, "2.x":true]
+def JOB_DISABLED = ["2.8": true, "2.x": true]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
@@ -35,7 +35,7 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 * CRW ''' + JOB_BRANCH + '''.0.ER-''' + MMdd + ''' ready for QE<br/>
 * CRW ''' + JOB_BRANCH + '''.0.RC-''' + MMdd + ''' ready for QE
 ''')
-            stringParam("errataURL","https://errata.devel.redhat.com/advisory/69656",'')
+            stringParam("errataURL","https://errata.devel.redhat.com/advisory/70364",'')
             stringParam("epicURL", "https://issues.redhat.com/browse/CRW-1566")
             textParam("additionalNotes",'''Additional Info:
 
