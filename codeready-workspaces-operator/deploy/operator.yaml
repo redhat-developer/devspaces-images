@@ -48,13 +48,13 @@ spec:
             - name: OPERATOR_NAME
               value: codeready-operator
             - name: CHE_VERSION
-              value: 2.8.0
+              value: 2.9.0
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.8
+              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.9
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.8
+              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.9
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.8
+              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.9
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.3
             - name: RELATED_IMAGE_postgres
@@ -62,11 +62,11 @@ spec:
             - name: RELATED_IMAGE_keycloak
               value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.8
+              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.9
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.8
+              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.9
             - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.8
+              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.9
             - name: RELATED_IMAGE_single_host_gateway
               value: docker.io/traefik:v2.2.8
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
