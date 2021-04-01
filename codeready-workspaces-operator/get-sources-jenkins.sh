@@ -38,9 +38,9 @@ if [[ ! ${JOB_BRANCH} ]]; then
   if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-DEV_WORKSPACE_CONTROLLER_VERSION="0.1.x" # or "main"
+DEV_WORKSPACE_CONTROLLER_VERSION="0.2.x" # or "main"
 # TODO remove DWCO when it's no longer needed (merged into che-operator)
-DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.27.x" # or "main"
+DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.28.x" # or "main"
 
 # update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION and DEV_WORKSPACE_CONTROLLER_VERSION
 sed Dockerfile \
