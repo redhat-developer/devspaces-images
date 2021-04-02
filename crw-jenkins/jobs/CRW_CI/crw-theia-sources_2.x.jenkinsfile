@@ -23,16 +23,12 @@ def Map tasks = [failFast: false]
 timeout(120) {
   def String nodeLabel = "${nodeLabels[0]}"
   node(nodeLabel) {
-    stage ("Checkout Che Theia on " + nodeLabel) {
-      wrap([$class: 'TimestamperBuildWrapper']) {
+    stage ("SCM Poll: Che Theia") {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
-        // check out che-theia before we need it in build.sh so we can use it as a poll basis
-        // then discard this folder as we need to check them out and massage them for crw
         sh "mkdir -p tmp"
         util.cloneRepoWithBootstrap("https://github.com/eclipse-che/che-theia.git", "tmp/che-theia", SOURCE_BRANCH, true)
         sh "rm -fr tmp"
-      } // wrap
     } // stage
 
     stage ("Update CRW Theia base images and build params on " + nodeLabel) {

@@ -59,6 +59,15 @@ def NEW_SHA_DWN=""
 def String nodeLabel = 'rhel8'
 timeout(240) {
   node(nodeLabel) {
+    stage ("SCM Poll: Che/CRW server") {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+        def util = load "${WORKSPACE}/util.groovy"
+        sh "mkdir -p tmp"
+        util.cloneRepoWithBootstrap("https://github.com/eclipse/" + CHE_path + ".git", "tmp/che", SOURCE_BRANCH, true)
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/" + CRW_path + ".git", "tmp/crw", MIDSTM_BRANCH, true)
+        sh "rm -fr tmp"
+    } // stage
+
     stage("Build ${DEV_path}, ${PAR_path}, ${CHE_DB_path}, and ${CRW_path}") {
         wrap([$class: 'TimestamperBuildWrapper']) {
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
@@ -76,15 +85,13 @@ timeout(240) {
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             println "CRW_VERSION = '" + CRW_VERSION + "'"
 
-            util.bootstrap(CRW_KEYTAB)
-
             // log in to registries
             def statusCode = util.loginToRegistries()
             if (statusCode > 0) {
                 currentBuild.result = 'FAILURE'
             } else {
                 echo "===== Build che-dev =====>"
-                util.cloneRepo("https://github.com/eclipse/${DEV_path}.git", DEV_path, branchToBuildDev)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${DEV_path}.git", DEV_path, branchToBuildDev, false)
                 sh "mvn clean install ${MVN_FLAGS} -f ${DEV_path}/pom.xml ${MVN_EXTRA_FLAGS}"
 
                 VER_DEV = sh(returnStdout:true,script:"egrep \"<version>\" ${DEV_path}/pom.xml|head -1|sed -e \"s#.*<version>\\(.\\+\\)</version>#\\1#\"").trim()
@@ -92,7 +99,7 @@ timeout(240) {
                 echo "<===== Build che-dev ====="
 
                 echo "===== Build che-parent =====>"
-                util.cloneRepo("https://github.com/eclipse/${PAR_path}.git", PAR_path, branchToBuildParent)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${PAR_path}.git", PAR_path, branchToBuildParent, false)
                 sh "mvn clean install ${MVN_FLAGS} -f ${PAR_path}/pom.xml ${MVN_EXTRA_FLAGS}"
 
                 VER_PAR = sh(returnStdout:true,script:"egrep \"<version>\" ${PAR_path}/pom.xml|head -1|sed -e \"s#.*<version>\\(.\\+\\)</version>#\\1#\"").trim()
@@ -100,13 +107,13 @@ timeout(240) {
                 echo "<===== Build che-parent ====="
 
                 echo "===== Get CRW sources + compute version =====>"
-                util.cloneRepoPoll("https://github.com/redhat-developer/codeready-workspaces.git", CRW_path, MIDSTM_BRANCH, true, 'dependencies/*')
+                util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", CRW_path, MIDSTM_BRANCH, true, 'dependencies/*')
                 VER_CRW = sh(returnStdout:true,script:"egrep \"<version>\" ${CRW_path}/pom.xml|head -2|tail -1|sed -e \"s#.*<version>\\(.\\+\\)</version>#\\1#\"").trim()
                 SHA_CRW = util.getLastCommitSHA("${WORKSPACE}/${CRW_path}")
                 echo "<===== Get CRW version ====="
 
                 echo "===== Get Che sources + compute version =====>"
-                util.cloneRepoPoll("https://github.com/eclipse/${CHE_path}.git", CHE_path, SOURCE_BRANCH, true)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${CHE_path}.git", CHE_path, SOURCE_BRANCH, true)
 
                 VER_CHE = sh(returnStdout:true,script:'''#!/bin/bash -xe
 egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<version>(.+)</version>#\\1#"
@@ -116,7 +123,7 @@ egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<v
                 echo "<==== Get Che version ====="
 
                 echo "===== Build che-dashboard =====>"
-                util.cloneRepoPoll("https://github.com/eclipse/${CHE_DB_path}.git", CHE_DB_path, SOURCE_BRANCH_Dashboard, true)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${CHE_DB_path}.git", CHE_DB_path, SOURCE_BRANCH_Dashboard, true)
 
                 VER_CHE_DB = sh(returnStdout:true,script:"cat ${CHE_DB_path}/package.json | jq -r .version").trim()
                 SHA_CHE_DB = util.getLastCommitSHA("${WORKSPACE}/${CHE_DB_path}")
@@ -159,7 +166,7 @@ docker run --rm --entrypoint sh crw-dashboard:tmp -c 'tar -pzcf - /usr/local/apa
                 echo "<==== Build che server assembly ====="
 
                 echo "===== Build CRW server assembly =====>"
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
 
                 def SYNC_FILES_UP2DWN = "entrypoint.sh" // in che/dockerfiles/che/ folder
 
