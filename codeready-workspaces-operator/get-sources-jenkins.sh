@@ -8,12 +8,18 @@ doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 
+DEV_WORKSPACE_CONTROLLER_VERSION="0.2.x" # main or 0.y.x
+# TODO remove DWCO when it's no longer needed (merged into che-operator)
+DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.28.x" # main or 7.yy.x
+
 while [[ "$#" -gt 0 ]]; do
   case $1 in
   '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
   '-f'|'--force-build') forceBuild=1; shift 0;;
   '-p'|'--force-pull') forcePull=1; shift 0;;
   '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+  '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
+  '--dwcob'|'--dwcov') DEV_WORKSPACE_CHE_OPERATOR_VERSION="$2"; shift 1;;
   *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
@@ -38,14 +44,12 @@ if [[ ! ${JOB_BRANCH} ]]; then
   if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-DEV_WORKSPACE_CONTROLLER_VERSION="0.2.x" # or "main"
-# TODO remove DWCO when it's no longer needed (merged into che-operator)
-DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.28.x" # or "main"
 
 # update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION and DEV_WORKSPACE_CONTROLLER_VERSION
-sed Dockerfile \
-  -e "s#DEV_WORKSPACE_CONTROLLER_VERSION=\"\([^\"]\+\)\"#DEV_WORKSPACE_CONTROLLER_VERSION=\"${DEV_WORKSPACE_CONTROLLER_VERSION}\"#" \
-  -e "s#DEV_WORKSPACE_CHE_OPERATOR_VERSION=\"\([^\"]\+\)\"#DEV_WORKSPACE_CHE_OPERATOR_VERSION=\"${DEV_WORKSPACE_CHE_OPERATOR_VERSION}\"#" \
+# CRW-1674 this step also done in crw-operator_2.*.jenkinsfile
+sed Dockerfile -r \
+  -e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+  -e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
   > Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
