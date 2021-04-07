@@ -1,0 +1,10 @@
+whoami1:
+  image: traefik/whoami
+  labels:
+    - traefik.enable=true
+    - traefik.http.routers.router1.rule=PathPrefix("/whoami")
+
+whoami2:
+  image: traefik/whoami
+  labels:
+    - traefik.enable=false

@@ -1,0 +1,5 @@
+whoami1:
+  image: traefik/whoami
+
+whoami2:
+  image: traefik/whoami

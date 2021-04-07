@@ -1,0 +1,2 @@
+whoami1:
+  image: traefik/whoami
