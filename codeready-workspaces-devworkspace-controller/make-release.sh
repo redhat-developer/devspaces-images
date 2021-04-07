@@ -32,7 +32,7 @@ bump_version () {
   git checkout "${BUMP_BRANCH}"
 
   echo "Updating project version to ${NEXT_VERSION}"
-  echo "${VERSION}" > VERSION
+  echo "${NEXT_VERSION}" > VERSION
   git add VERSION
   COMMIT_MSG="[release] Bump to ${NEXT_VERSION} in ${BUMP_BRANCH}"
   git commit -asm "${COMMIT_MSG}"
@@ -136,9 +136,8 @@ fi
 NEXT_VERSION_Z="${BASE}.${NEXT}-SNAPSHOT"
 bump_version "${NEXT_VERSION_Z}" "${BRANCH}"
 
-popd > /dev/null || exit
-
 # cleanup tmp dir
 if [[ $TMP ]] && [[ -d $TMP ]]; then
+  popd > /dev/null || exit
   rm -fr "$TMP"
 fi
