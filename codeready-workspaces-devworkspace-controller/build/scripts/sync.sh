@@ -71,7 +71,6 @@ fi
 # global / generic changes
 echo ".github/
 .git/
-.gitignore
 .gitattributes
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
