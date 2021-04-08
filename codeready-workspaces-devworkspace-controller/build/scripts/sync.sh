@@ -86,7 +86,26 @@ sed build/rhel.Dockerfile -r \
 -e "s#FROM registry.access.redhat.com/#FROM #g" \
 -e "s/(RUN go mod download$)/#\1/g" \
 -e "s/# *RUN yum /RUN yum /g" \
-> Dockerfile
+> ${TARGETDIR}/Dockerfile
+cat << EOT >> ${TARGETDIR}/Dockerfile
+ENV SUMMARY="Red Hat CodeReady Workspaces devworkspace-controller container" \\
+    DESCRIPTION="Red Hat CodeReady Workspaces devworkspace-controller container" \\
+    PRODNAME="codeready-workspaces" \\
+    COMPNAME="devworkspace-controller-rhel8"
+LABEL summary="$SUMMARY" \\
+      description="\$DESCRIPTION" \\
+      io.k8s.description="\$DESCRIPTION" \\
+      io.k8s.display-name="\$DESCRIPTION" \\
+      io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
+      com.redhat.component="$PRODNAME-\$COMPNAME-container" \\
+      name="\$PRODNAME/\$COMPNAME" \\
+      version="${CRW_VERSION}" \\
+      license="EPLv2" \\
+      maintainer="Nick Boldt <nboldt@redhat.com>" \\
+      io.openshift.expose-services="" \\
+      usage=""
+EOT
+echo "Converted Dockerfile"
 
 if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     DOCKERFILELOCAL=bootstrap.Dockerfile
