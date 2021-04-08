@@ -68,8 +68,6 @@ if [[ ! -x $BUILDER ]]; then
   fi
 fi
 
-pushd "${SOURCEDIR}" >/dev/null
-
 # global / generic changes
 echo ".github/
 .git/
@@ -77,8 +75,10 @@ echo ".github/
 .gitattributes
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes ./* ${TARGETDIR}/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes ${SOURCEDIR}/* ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
+
+pushd "${SOURCEDIR}" >/dev/null
 
 # transform rhel.Dockefile -> Dockerfile
 sed build/rhel.Dockerfile -r \
@@ -122,19 +122,31 @@ COPYRIGHT="#
 #    Red Hat, Inc. - initial API and implementation
 "
 
+replaceField()
+{
+  theFile="$1"
+  updateName="$2"
+  updateVal="$3"
+  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
+  changed=$(cat ${theFile} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+    ${updateName}' = $updateVal')
+  echo "${COPYRIGHT}${changed}" > "${theFile}"
+}
+
 # transform deployment yamls
     # - name: RELATED_IMAGE_devworkspace_webhook_server                         CRW_DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
     # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0          CRW_MACHINEEXEC_IMAGE
     #   value: quay.io/eclipse/che-machine-exec:nightly
+    # - name: RELATED_IMAGE_pvc_cleanup_job                                     UBI_IMAGE
+    #   value: quay.io/libpod/busybox:1.30.1
+
     # - name: RELATED_IMAGE_web_terminal_tooling                            REMOVE
     #   value: quay.io/wto/web-terminal-tooling:latest
     # - name: RELATED_IMAGE_openshift_oauth_proxy                           REMOVE
     #   value: openshift/oauth-proxy:latest
     # - name: RELATED_IMAGE_default_tls_secrets_creation_job                REMOVE
     #   value: quay.io/eclipse/che-tls-secret-creator:alpine-3029769
-    # - name: RELATED_IMAGE_pvc_cleanup_job                                     UBI_IMAGE
-    #   value: quay.io/libpod/busybox:1.30.1
     # - name: RELATED_IMAGE_async_storage_server                            REMOVE
     #   value: quay.io/eclipse/che-workspace-data-sync-storage:0.0.1
     # - name: RELATED_IMAGE_async_storage_sidecar                           REMOVE
@@ -158,6 +170,11 @@ yq  -y --arg updateName "${updateName}" --arg updateVal "${operator_replacements
     fi
 done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
+# replace image: quay.io/devfile/devworkspace-controller:v0.2.3 with CRW path and version
+while IFS= read -r -d '' d; do
+    replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[].image" "${CRW_DWO_IMAGE}"
+done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+
 declare -A operator_deletions=(
     ["RELATED_IMAGE_web_terminal_tooling"]=""
     ["RELATED_IMAGE_openshift_oauth_proxy"]=""
@@ -168,7 +185,7 @@ declare -A operator_deletions=(
 while IFS= read -r -d '' d; do
     for updateName in "${!operator_deletions[@]}"; do
         changed="$(cat "${TARGETDIR}/${d}" | \
-yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].env[] | select(.name == "$updateName"))')" && \
+yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].env[] | select(.name == $updateName))')" && \
         echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
     done
     if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
@@ -176,10 +193,13 @@ yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].e
     fi
 done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
-    # sort env vars
-    # while IFS= read -r -d '' d; do
-    #     cat "${d}" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[].env |= sort_by(.name)' > "${d}.2"
-    #     mv "${d}.2" "${d}"
-    # done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+# sort env vars
+while IFS= read -r -d '' d; do
+    cat "${TARGETDIR}/${d}" | yq -Y '.spec.template.spec.containers[].env |= sort_by(.name)' > "${TARGETDIR}/${d}.2"
+    mv "${TARGETDIR}/${d}.2" "${TARGETDIR}/${d}"
+done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+
+# remove k8s deployment files
+rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
 popd >/dev/null || exit
