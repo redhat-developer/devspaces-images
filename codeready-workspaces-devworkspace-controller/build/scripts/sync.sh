@@ -111,10 +111,10 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     DOCKERFILELOCAL=${TARGETDIR}/bootstrap.Dockerfile
     cat ${TARGETDIR}/build/rhel.Dockerfile | sed -r \
         `# CRW-1680 ignore vendor folder and fetch new content` \
-        -e "s@(\ +)(.+go build)@\1go mod vendor \&\& go get -d -t -u \&\& \2@" \
+        -e "s@(\ +)(.+go build)@\1go mod vendor \&\& go get -d -t \&\& \2@" \
     > ${DOCKERFILELOCAL}
     tag=$(pwd);tag=${tag##*/}
-    ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap --no-cache
+    ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap # --no-cache
     rm -f ${DOCKERFILELOCAL}
 
     # step two - extract vendor folder to tarball
