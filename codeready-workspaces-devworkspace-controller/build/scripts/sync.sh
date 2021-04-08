@@ -77,10 +77,11 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes ${SOURCEDIR}/* ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-pushd "${SOURCEDIR}" >/dev/null
+# remove k8s deployment files
+rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
 # transform rhel.Dockefile -> Dockerfile
-sed build/rhel.Dockerfile -r \
+sed ${TARGETDIR}/build/rhel.Dockerfile -r \
 -e "s#FROM registry.redhat.io/#FROM #g" \
 -e "s#FROM registry.access.redhat.com/#FROM #g" \
 -e "s/(RUN go mod download$)/#\1/g" \
@@ -107,24 +108,25 @@ EOT
 echo "Converted Dockerfile"
 
 if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
-    DOCKERFILELOCAL=bootstrap.Dockerfile
-    cat build/rhel.Dockerfile | sed -r \
-    `# CRW-1680 ignore vendor folder and fetch new content` \
-    -e "s@(\ +)(.+go build)@\1go mod vendor \&\& go get -d -t -u \&\& \2@" \
+    DOCKERFILELOCAL=${TARGETDIR}/bootstrap.Dockerfile
+    cat ${TARGETDIR}/build/rhel.Dockerfile | sed -r \
+        `# CRW-1680 ignore vendor folder and fetch new content` \
+        -e "s@(\ +)(.+go build)@\1go mod vendor \&\& go get -d -t -u \&\& \2@" \
     > ${DOCKERFILELOCAL}
     tag=$(pwd);tag=${tag##*/}
-    ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
+    ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap --no-cache
     rm -f ${DOCKERFILELOCAL}
 
     # step two - extract vendor folder to tarball
     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /devworkspace-operator/vendor' > "asset-vendor-$(uname -m).tgz"
     ${BUILDER} rmi ${tag}:bootstrap
 
-    # step three - include that tarball's contents in this repo, under the vendor folder
-    tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz" 
-    rm -f "asset-vendor-$(uname -m).tgz"
-
-    git add vendor || true
+    pushd "${TARGETDIR}" >/dev/null || exit 1
+        # step three - include that tarball's contents in this repo, under the vendor folder
+        tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz" 
+        rm -f "asset-vendor-$(uname -m).tgz"
+        git add vendor || true
+    popd || exit
 fi
 
 # header to reattach to yaml files after yq transform removes it
@@ -151,14 +153,32 @@ replaceField()
   echo "${COPYRIGHT}${changed}" > "${theFile}"
 }
 
-# transform deployment yamls
+pushd ${TARGETDIR} >/dev/null || exit 1
+
+    # transform env vars in deployment yaml
     # - name: RELATED_IMAGE_devworkspace_webhook_server                         CRW_DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
     # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0          CRW_MACHINEEXEC_IMAGE
     #   value: quay.io/eclipse/che-machine-exec:nightly
     # - name: RELATED_IMAGE_pvc_cleanup_job                                     UBI_IMAGE
     #   value: quay.io/libpod/busybox:1.30.1
+    declare -A operator_replacements=(
+        ["RELATED_IMAGE_devworkspace_webhook_server"]="${CRW_DWO_IMAGE}"
+        ["RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0"]="${CRW_MACHINEEXEC_IMAGE}"
+        ["RELATED_IMAGE_pvc_cleanup_job"]="${UBI_IMAGE}"
+    )
+    while IFS= read -r -d '' d; do
+        for updateName in "${!operator_replacements[@]}"; do
+            changed="$(cat "${TARGETDIR}/${d}" | yq  -y --arg updateName "${updateName}" --arg updateVal "${operator_replacements[$updateName]}" \
+            '.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')" && \
+            echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
+        done
+        if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
+            echo "Converted (yq #1) ${d}"
+        fi
+    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
+    # remove env vars from deployment yaml
     # - name: RELATED_IMAGE_web_terminal_tooling                            REMOVE
     #   value: quay.io/wto/web-terminal-tooling:latest
     # - name: RELATED_IMAGE_openshift_oauth_proxy                           REMOVE
@@ -169,55 +189,32 @@ replaceField()
     #   value: quay.io/eclipse/che-workspace-data-sync-storage:0.0.1
     # - name: RELATED_IMAGE_async_storage_sidecar                           REMOVE
     #   value: quay.io/eclipse/che-sidecar-workspace-data-sync:0.0.1
+    declare -A operator_deletions=(
+        ["RELATED_IMAGE_web_terminal_tooling"]=""
+        ["RELATED_IMAGE_openshift_oauth_proxy"]=""
+        ["RELATED_IMAGE_default_tls_secrets_creation_job"]=""
+        ["RELATED_IMAGE_async_storage_server"]=""
+        ["RELATED_IMAGE_async_storage_sidecar"]=""
+    )
+    while IFS= read -r -d '' d; do
+        for updateName in "${!operator_deletions[@]}"; do
+            changed="$(cat "${TARGETDIR}/${d}" | yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].env[] | select(.name == $updateName))')" && \
+            echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
+        done
+        if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
+            echo "Converted (yq #2) ${d}"
+        fi
+    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
-    # image: quay.io/devfile/devworkspace-controller:next
-declare -A operator_replacements=(
-    ["RELATED_IMAGE_devworkspace_webhook_server"]="${CRW_DWO_IMAGE}"
-    ["RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0"]="${CRW_MACHINEEXEC_IMAGE}"
-    ["RELATED_IMAGE_pvc_cleanup_job"]="${UBI_IMAGE}"
-)
-while IFS= read -r -d '' d; do
-    for updateName in "${!operator_replacements[@]}"; do
-        changed="$(cat "${TARGETDIR}/${d}" | \
-yq  -y --arg updateName "${updateName}" --arg updateVal "${operator_replacements[$updateName]}" \
-'.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')" && \
-        echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
-    done
-    if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-        echo "Converted (yq #1) ${d}"
-    fi
-done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    # replace image: quay.io/devfile/devworkspace-controller:v0.2.3 with CRW_DWO_IMAGE
+    while IFS= read -r -d '' d; do
+        replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[].image" "${CRW_DWO_IMAGE}"
+    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
-# replace image: quay.io/devfile/devworkspace-controller:v0.2.3 with CRW path and version
-while IFS= read -r -d '' d; do
-    replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[].image" "${CRW_DWO_IMAGE}"
-done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
-
-declare -A operator_deletions=(
-    ["RELATED_IMAGE_web_terminal_tooling"]=""
-    ["RELATED_IMAGE_openshift_oauth_proxy"]=""
-    ["RELATED_IMAGE_default_tls_secrets_creation_job"]=""
-    ["RELATED_IMAGE_async_storage_server"]=""
-    ["RELATED_IMAGE_async_storage_sidecar"]=""
-)
-while IFS= read -r -d '' d; do
-    for updateName in "${!operator_deletions[@]}"; do
-        changed="$(cat "${TARGETDIR}/${d}" | \
-yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].env[] | select(.name == $updateName))')" && \
-        echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
-    done
-    if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-        echo "Converted (yq #2) ${d}"
-    fi
-done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
-
-# sort env vars
-while IFS= read -r -d '' d; do
-    cat "${TARGETDIR}/${d}" | yq -Y '.spec.template.spec.containers[].env |= sort_by(.name)' > "${TARGETDIR}/${d}.2"
-    mv "${TARGETDIR}/${d}.2" "${TARGETDIR}/${d}"
-done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
-
-# remove k8s deployment files
-rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
+    # sort env vars
+    while IFS= read -r -d '' d; do
+        cat "${TARGETDIR}/${d}" | yq -Y '.spec.template.spec.containers[].env |= sort_by(.name)' > "${TARGETDIR}/${d}.2"
+        mv "${TARGETDIR}/${d}.2" "${TARGETDIR}/${d}"
+    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
 popd >/dev/null || exit
