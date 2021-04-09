@@ -85,8 +85,10 @@ sed ${TARGETDIR}/build/rhel.Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
     -e "s/(RUN go mod download$)/#\1/g" \
-    `# https://github.com/devfile/devworkspace-operator/issues/166 DON'T use proxy for Brew` \
+    `# https://github.com/devfile/devworkspace-operator/issues/166 https://golang.org/doc/go1.13 DON'T use proxy for Brew` \
     -e "s@(RUN go env GOPROXY$)@#\1@g" \
+    `# CRW-1680 use vendor folder (no internet); print commands (-x)` \
+    -e "s@(go build)@\1 -mod=vendor -x@" \
     -e "s/# *RUN yum /RUN yum /g" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
@@ -110,17 +112,19 @@ EOT
 echo "Converted Dockerfile"
 
 if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
-    DOCKERFILELOCAL=${TARGETDIR}/bootstrap.Dockerfile
-    gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
+    BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
+    # Angel says we don't neet go get and go mod download
+    # gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
+    gomodvendoring="go mod tidy || true; go mod vendor || true;"
     cat ${TARGETDIR}/build/rhel.Dockerfile | sed -r \
         `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
         -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
-        `# CRW-1680 ignore vendor folder and fetch new content` \
+        `# CRW-1680 fetch new vendor content` \
         -e "s@(\ +)(.+go build)@\1${gomodvendoring} \2@" \
-    > ${DOCKERFILELOCAL}
+    > ${BOOTSTRAPFILE}
     tag=$(pwd);tag=${tag##*/}
-    ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap # --no-cache
-    rm -f ${DOCKERFILELOCAL}
+    ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
+    rm -f ${BOOTSTRAPFILE}
 
     # step two - extract vendor folder to tarball
     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /devworkspace-operator/vendor' > "asset-vendor-$(uname -m).tgz"
@@ -133,6 +137,7 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
         git add vendor || true
     popd || exit
 fi
+echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
 
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
