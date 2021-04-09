@@ -15,7 +15,7 @@ ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
     GOPATH=/go/
 USER root
 
-RUN go env GOPROXY
+#RUN go env GOPROXY
 WORKDIR /devworkspace-operator
 # Copy the Go Modules manifests
 COPY go.mod go.mod

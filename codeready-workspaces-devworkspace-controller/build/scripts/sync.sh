@@ -82,10 +82,12 @@ rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
 # transform rhel.Dockefile -> Dockerfile
 sed ${TARGETDIR}/build/rhel.Dockerfile -r \
--e "s#FROM registry.redhat.io/#FROM #g" \
--e "s#FROM registry.access.redhat.com/#FROM #g" \
--e "s/(RUN go mod download$)/#\1/g" \
--e "s/# *RUN yum /RUN yum /g" \
+    -e "s#FROM registry.redhat.io/#FROM #g" \
+    -e "s#FROM registry.access.redhat.com/#FROM #g" \
+    -e "s/(RUN go mod download$)/#\1/g" \
+        `# https://github.com/devfile/devworkspace-operator/issues/166 DON'T use proxy for Brew` \
+    -e "s@(RUN go env GOPROXY$)@#\1@g" \
+    -e "s/# *RUN yum /RUN yum /g" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces devworkspace-controller container" \\
@@ -109,9 +111,12 @@ echo "Converted Dockerfile"
 
 if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     DOCKERFILELOCAL=${TARGETDIR}/bootstrap.Dockerfile
+    gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
     cat ${TARGETDIR}/build/rhel.Dockerfile | sed -r \
+        `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
+        -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
         `# CRW-1680 ignore vendor folder and fetch new content` \
-        -e "s@(\ +)(.+go build)@\1go mod vendor \&\& go get -d -t \&\& \2@" \
+        -e "s@(\ +)(.+go build)@\1${gomodvendoring} \2@" \
     > ${DOCKERFILELOCAL}
     tag=$(pwd);tag=${tag##*/}
     ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap # --no-cache
