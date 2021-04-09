@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: devworkspace-che-operator
+    app.kubernetes.io/part-of: devworkspace-che-operator
+  name: devworkspace-che-leader-election-rolebinding
+  namespace: devworkspace-che
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: devworkspace-che-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: devworkspace-che-serviceaccount
+  namespace: devworkspace-che

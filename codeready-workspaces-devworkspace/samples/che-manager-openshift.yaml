@@ -1,0 +1,5 @@
+kind: CheManager
+apiVersion: che.eclipse.org/v1alpha1
+metadata:
+  name: che
+
