@@ -85,7 +85,7 @@ sed ${TARGETDIR}/build/rhel.Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
     -e "s/(RUN go mod download$)/#\1/g" \
-        `# https://github.com/devfile/devworkspace-operator/issues/166 DON'T use proxy for Brew` \
+    `# https://github.com/devfile/devworkspace-operator/issues/166 DON'T use proxy for Brew` \
     -e "s@(RUN go env GOPROXY$)@#\1@g" \
     -e "s/# *RUN yum /RUN yum /g" \
 > ${TARGETDIR}/Dockerfile
