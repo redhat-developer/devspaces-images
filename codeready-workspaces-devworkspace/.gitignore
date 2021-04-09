@@ -32,4 +32,4 @@ bin
 *.swo
 *~
 .history
-
+asset-vendor*
