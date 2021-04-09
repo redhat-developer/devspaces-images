@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: devworkspace-controller
+    app.kubernetes.io/part-of: devworkspace-operator
+  name: devworkspace-controller-manager
+  namespace: devworkspace-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: devworkspace-controller
+      app.kubernetes.io/part-of: devworkspace-operator
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: devworkspace-controller
+        app.kubernetes.io/part-of: devworkspace-operator
+    spec:
+      containers:
+        - args:
+            - /usr/local/bin/devworkspace-controller
+            - --enable-leader-election
+          env:
+            - name: CONTROLLER_SERVICE_ACCOUNT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: DEVELOPMENT_MODE
+              value: 'true'
+            - name: OPERATOR_NAME
+              value: devworkspace-operator
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RELATED_IMAGE_devworkspace_webhook_server
+              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.8
+            - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
+              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.8
+            - name: RELATED_IMAGE_pvc_cleanup_job
+              value: registry.redhat.io/ubi8/ubi-minimal:8.3
+            - name: WATCH_NAMESPACE
+              value: ''
+          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.8
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /healthz
+              port: liveness-port
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: devworkspace-controller
+          ports:
+            - containerPort: 6789
+              name: liveness-port
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: liveness-port
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 200m
+              memory: 300Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
+      serviceAccountName: devworkspace-controller-serviceaccount
+      terminationGracePeriodSeconds: 10
