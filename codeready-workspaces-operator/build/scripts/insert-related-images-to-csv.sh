@@ -18,12 +18,12 @@ set -e
 # defaults
 CSV_VERSION=2.y.0
 CRW_VERSION=${CSV_VERSION%.*}
-MIDSTM_BRANCH=crw-2.5-rhel8
+MIDSTM_BRANCH=crw-2.8-rhel8
 
 # TODO handle cmdline input
 usage () {
 	echo "Usage:   $0 -v [CRW CSV_VERSION] -t [/path/to/generated] --crw-branch ${MIDSTM_BRANCH}"
-	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch crw-2.5-rhel8"
+	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch crw-2.8-rhel8"
   exit
 }
 
