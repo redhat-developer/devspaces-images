@@ -8,11 +8,11 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM registry.access.redhat.com/devtools/go-toolset-rhel7:1.14.12-4.1608220101 as builder
+FROM registry.access.redhat.com/devtools/go-toolset-rhel7:1.13.4-18  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
     GOPATH=/go/
+
 USER root
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -21,7 +21,7 @@ COPY go.sum go.sum
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 # NOTE: downstream this needs to be a vendor folder
-#RUN go mod tidy; go mod vendor
+RUN go mod tidy; go mod vendor
 
 # Copy the go source
 COPY . .
@@ -49,3 +49,5 @@ USER ${USER_UID}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 CMD /usr/local/bin/devworkspace-che-operator
+
+# append Brew metadata here

@@ -77,8 +77,8 @@ rm -f /tmp/rsync-excludes
 # remove k8s deployment files
 rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
-# transform rhel.Dockefile -> Dockerfile
-sed ${TARGETDIR}/build/rhel.Dockerfile -r \
+# transform Dockefile
+sed ${TARGETDIR}/build/dockerfiles/Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
     -e "s/(RUN go mod download$)/#\1/g" \
@@ -114,7 +114,7 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     # Angel says we don't neet go get and go mod download
     # gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
     gomodvendoring="go mod tidy || true; go mod vendor || true;"
-    cat ${TARGETDIR}/build/rhel.Dockerfile | sed -r \
+    cat ${TARGETDIR}/build/dockerfiles/Dockerfile | sed -r \
         `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
         -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
         `# CRW-1680 fetch new vendor content` \
