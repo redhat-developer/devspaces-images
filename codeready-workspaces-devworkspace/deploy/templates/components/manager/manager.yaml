@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: manager
+  namespace: system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      terminationGracePeriodSeconds: 10
+      serviceAccountName: $(CONTROLLER_SERVICE_ACCOUNT)
+      containers:
+      - image: quay.io/che-incubator/devworkspace-che-operator:latest
+        name: devworkspace-che-operator
+        command:
+        - /usr/local/bin/devworkspace-che-operator
+        args:
+        - --enable-leader-election
+        resources:
+          limits:
+            cpu: 100m
+            memory: 100Mi
+          requests:
+            cpu: 100m
+            memory: 20Mi
+        env:
+          - name: WATCH_NAMESPACE
+            value: ""
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: OPERATOR_NAME
+            value: "devworkspace-operator"
+          - name: CONTROLLER_SERVICE_ACCOUNT_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.serviceAccountName
+          - name: RELATED_IMAGE_gateway
+            value: "docker.io/traefik:v2.2.8"
+          - name: RELATED_IMAGE_gateway_configurer
+            value: "quay.io/che-incubator/configbump:0.1.4"

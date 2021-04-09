@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/name: devworkspace-che-operator
+    app.kubernetes.io/part-of: devworkspace-che-operator
+    control-plane: controller-manager
+  name: devworkspace-che-controller-manager-metrics-service
+  namespace: devworkspace-che
+spec:
+  ports:
+  - name: https
+    port: 8443
+    targetPort: https
+  selector:
+    app.kubernetes.io/name: devworkspace-che-operator
+    app.kubernetes.io/part-of: devworkspace-che-operator
+    control-plane: controller-manager
