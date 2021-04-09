@@ -137,8 +137,8 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
         rm -f "asset-vendor-$(uname -m).tgz"
         git add vendor || true
     popd || exit
+    echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
 fi
-echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
 
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
