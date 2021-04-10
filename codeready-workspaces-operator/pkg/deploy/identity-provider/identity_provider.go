@@ -64,14 +64,12 @@ func SyncIdentityProviderToCluster(deployContext *deploy.DeployContext) (bool, e
 }
 
 func syncService(deployContext *deploy.DeployContext) (bool, error) {
-	serviceStatus := deploy.SyncServiceToCluster(
+	return deploy.SyncServiceToCluster(
 		deployContext,
 		deploy.IdentityProviderName,
 		[]string{"http"},
 		[]int32{8080},
 		deploy.IdentityProviderName)
-
-	return serviceStatus.Continue, serviceStatus.Err
 }
 
 func syncExposure(deployContext *deploy.DeployContext) (bool, error) {
@@ -82,17 +80,15 @@ func syncExposure(deployContext *deploy.DeployContext) (bool, error) {
 		false: "http"})[cr.Spec.Server.TlsSupport]
 	endpoint, done, err := expose.Expose(
 		deployContext,
-		cr.Spec.Server.CheHost,
 		deploy.IdentityProviderName,
 		cr.Spec.Auth.IdentityProviderRoute,
-		cr.Spec.Auth.IdentityProviderIngress,
-		deploy.IdentityProviderName)
+		cr.Spec.Auth.IdentityProviderIngress)
 	if !done {
 		return false, err
 	}
 
 	keycloakURL := protocol + "://" + endpoint
-	deployContext.InternalService.KeycloakHost = fmt.Sprintf("%s://%s.%s.svc:%d", "http", deploy.IdentityProviderName, cr.Namespace, 8080)
+	deployContext.InternalService.KeycloakHost = fmt.Sprintf("%s://%s.%s.svc:%d/auth", "http", deploy.IdentityProviderName, cr.Namespace, 8080)
 
 	if cr.Spec.Auth.IdentityProviderURL != keycloakURL {
 		cr.Spec.Auth.IdentityProviderURL = keycloakURL
@@ -165,7 +161,7 @@ func SyncOpenShiftIdentityProviderItems(deployContext *deploy.DeployContext) (bo
 	keycloakURL := cr.Spec.Auth.IdentityProviderURL
 	cheFlavor := deploy.DefaultCheFlavor(cr)
 	keycloakRealm := util.GetValue(cr.Spec.Auth.IdentityProviderRealm, cheFlavor)
-	oAuthClient := deploy.NewOAuthClient(oAuthClientName, oauthSecret, keycloakURL, keycloakRealm, util.IsOpenShift4)
+	oAuthClient := deploy.GetOAuthClientSpec(oAuthClientName, oauthSecret, keycloakURL, keycloakRealm, util.IsOpenShift4)
 	provisioned, err := deploy.Sync(deployContext, oAuthClient, oAuthClientDiffOpts)
 	if !provisioned {
 		return false, err

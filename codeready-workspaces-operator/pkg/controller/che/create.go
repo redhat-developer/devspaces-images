@@ -14,6 +14,7 @@ package che
 import (
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/util"
+	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -33,7 +34,7 @@ func (r *ReconcileChe) GenerateAndSaveFields(deployContext *deploy.DeployContext
 		if len(deployContext.CheCluster.Spec.Database.ChePostgresSecret) < 1 {
 			if len(deployContext.CheCluster.Spec.Database.ChePostgresUser) < 1 || len(deployContext.CheCluster.Spec.Database.ChePostgresPassword) < 1 {
 				chePostgresSecret := deploy.DefaultChePostgresSecret()
-				_, err := deploy.SyncSecret(deployContext, chePostgresSecret, cheNamespace, map[string][]byte{"user": []byte(deploy.DefaultChePostgresUser), "password": []byte(util.GeneratePasswd(12))})
+				_, err := deploy.SyncSecretToCluster(deployContext, chePostgresSecret, cheNamespace, map[string][]byte{"user": []byte(deploy.DefaultChePostgresUser), "password": []byte(util.GeneratePasswd(12))})
 				if err != nil {
 					return err
 				}
@@ -59,14 +60,17 @@ func (r *ReconcileChe) GenerateAndSaveFields(deployContext *deploy.DeployContext
 		if len(deployContext.CheCluster.Spec.Auth.IdentityProviderPostgresSecret) < 1 {
 			keycloakPostgresPassword := util.GeneratePasswd(12)
 			keycloakDeployment := &appsv1.Deployment{}
-			exists, _ := deploy.GetNamespacedObject(deployContext, deploy.IdentityProviderName, keycloakDeployment)
+			exists, err := deploy.GetNamespacedObject(deployContext, deploy.IdentityProviderName, keycloakDeployment)
+			if err != nil {
+				logrus.Error(err)
+			}
 			if exists {
 				keycloakPostgresPassword = util.GetDeploymentEnv(keycloakDeployment, "DB_PASSWORD")
 			}
 
 			if len(deployContext.CheCluster.Spec.Auth.IdentityProviderPostgresPassword) < 1 {
 				identityPostgresSecret := deploy.DefaultCheIdentityPostgresSecret()
-				_, err := deploy.SyncSecret(deployContext, identityPostgresSecret, cheNamespace, map[string][]byte{"password": []byte(keycloakPostgresPassword)})
+				_, err := deploy.SyncSecretToCluster(deployContext, identityPostgresSecret, cheNamespace, map[string][]byte{"password": []byte(keycloakPostgresPassword)})
 				if err != nil {
 					return err
 				}
@@ -90,7 +94,7 @@ func (r *ReconcileChe) GenerateAndSaveFields(deployContext *deploy.DeployContext
 
 			if len(deployContext.CheCluster.Spec.Auth.IdentityProviderAdminUserName) < 1 || len(deployContext.CheCluster.Spec.Auth.IdentityProviderPassword) < 1 {
 				identityProviderSecret := deploy.DefaultCheIdentitySecret()
-				_, err = deploy.SyncSecret(deployContext, identityProviderSecret, cheNamespace, map[string][]byte{"user": []byte(keycloakAdminUserName), "password": []byte(keycloakAdminPassword)})
+				_, err = deploy.SyncSecretToCluster(deployContext, identityProviderSecret, cheNamespace, map[string][]byte{"user": []byte(keycloakAdminUserName), "password": []byte(keycloakAdminPassword)})
 				if err != nil {
 					return err
 				}
@@ -231,6 +235,14 @@ func (r *ReconcileChe) GenerateAndSaveFields(deployContext *deploy.DeployContext
 		deployContext.CheCluster.Spec.Server.CheImageTag == deploy.OldDefaultCodeReadyServerImageTag {
 		deployContext.CheCluster.Spec.Server.CheImageTag = ""
 		if err := r.UpdateCheCRSpec(deployContext.CheCluster, "che image tag", deployContext.CheCluster.Spec.Server.CheImageTag); err != nil {
+			return err
+		}
+	}
+
+	if deployContext.CheCluster.Spec.Server.ServerExposureStrategy == "" && deployContext.CheCluster.Spec.K8s.IngressStrategy == "" {
+		strategy := util.GetServerExposureStrategy(deployContext.CheCluster)
+		deployContext.CheCluster.Spec.Server.ServerExposureStrategy = strategy
+		if err := deploy.UpdateCheCRSpec(deployContext, "serverExposureStrategy", strategy); err != nil {
 			return err
 		}
 	}

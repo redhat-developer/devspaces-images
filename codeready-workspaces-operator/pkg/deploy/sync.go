@@ -1,3 +1,14 @@
+//
+// Copyright (c) 2021 Red Hat, Inc.
+// This program and the accompanying materials are made
+// available under the terms of the Eclipse Public License 2.0
+// which is available at https://www.eclipse.org/legal/epl-2.0/
+//
+// SPDX-License-Identifier: EPL-2.0
+//
+// Contributors:
+//   Red Hat, Inc. - initial API and implementation
+//
 package deploy
 
 import (
@@ -206,6 +217,26 @@ func Update(deployContext *DeployContext, actual runtime.Object, blueprint metav
 		logrus.Infof("Updating existing object: %s, name: %s", kind, actualMeta.GetName())
 		fmt.Printf("Difference:\n%s", diff)
 
+		targetLabels := map[string]string{}
+		targetAnnos := map[string]string{}
+
+		for k, v := range actualMeta.GetAnnotations() {
+			targetAnnos[k] = v
+		}
+		for k, v := range actualMeta.GetLabels() {
+			targetLabels[k] = v
+		}
+
+		for k, v := range blueprint.GetAnnotations() {
+			targetAnnos[k] = v
+		}
+		for k, v := range blueprint.GetLabels() {
+			targetLabels[k] = v
+		}
+
+		blueprint.SetAnnotations(targetAnnos)
+		blueprint.SetLabels(targetLabels)
+
 		client := getClientForObject(actualMeta.GetNamespace(), deployContext)
 		if isUpdateUsingDeleteCreate(actual.GetObjectKind().GroupVersionKind().Kind) {
 			done, err := doDelete(client, actual)
@@ -280,11 +311,7 @@ func doDelete(client client.Client, actual runtime.Object) (bool, error) {
 
 func doUpdate(client client.Client, object runtime.Object) (bool, error) {
 	err := client.Update(context.TODO(), object)
-	if err == nil {
-		return true, nil
-	} else {
-		return false, err
-	}
+	return false, err
 }
 
 func doGet(client client.Client, key client.ObjectKey, object runtime.Object) (bool, error) {
@@ -299,7 +326,7 @@ func doGet(client client.Client, key client.ObjectKey, object runtime.Object) (b
 }
 
 func isUpdateUsingDeleteCreate(kind string) bool {
-	return "Service" == kind || "Ingress" == kind || "Route" == kind
+	return "Service" == kind || "Ingress" == kind || "Route" == kind || "Job" == kind || "Secret" == kind
 }
 
 func setOwnerReferenceIfNeeded(deployContext *DeployContext, blueprint metav1.Object) error {

@@ -54,7 +54,7 @@ const (
 	DefaultChePostgresPort     = "5432"
 	DefaultChePostgresDb       = "dbche"
 	DefaultPvcStrategy         = "per-workspace"
-	DefaultPvcClaimSize        = "1Gi"
+	DefaultPvcClaimSize        = "10Gi"
 	DefaultIngressClass        = "nginx"
 
 	DefaultKeycloakAdminUserName   = "admin"

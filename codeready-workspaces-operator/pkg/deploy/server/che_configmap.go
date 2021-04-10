@@ -158,7 +158,7 @@ func GetCheConfigMapData(deployContext *deploy.DeployContext) (cheEnv map[string
 	chePostgresDb := util.GetValue(deployContext.CheCluster.Spec.Database.ChePostgresDb, deploy.DefaultChePostgresDb)
 	keycloakRealm := util.GetValue(deployContext.CheCluster.Spec.Auth.IdentityProviderRealm, cheFlavor)
 	keycloakClientId := util.GetValue(deployContext.CheCluster.Spec.Auth.IdentityProviderClientId, cheFlavor+"-public")
-	ingressStrategy := util.GetServerExposureStrategy(deployContext.CheCluster, deploy.DefaultServerExposureStrategy)
+	ingressStrategy := util.GetServerExposureStrategy(deployContext.CheCluster)
 	ingressClass := util.GetValue(deployContext.CheCluster.Spec.K8s.IngressClass, deploy.DefaultIngressClass)
 	devfileRegistryURL := deployContext.CheCluster.Status.DevfileRegistryURL
 	pluginRegistryURL := deployContext.CheCluster.Status.PluginRegistryURL
@@ -261,8 +261,8 @@ func GetCheConfigMapData(deployContext *deploy.DeployContext) (cheEnv map[string
 	}
 
 	if cheMultiUser == "true" {
-		data.KeycloakURL = keycloakURL + "/auth"
-		data.KeycloakInternalURL = keycloakInternalURL + "/auth"
+		data.KeycloakURL = keycloakURL
+		data.KeycloakInternalURL = keycloakInternalURL
 		data.KeycloakRealm = keycloakRealm
 		data.KeycloakClientId = keycloakClientId
 		data.DatabaseURL = "jdbc:postgresql://" + chePostgresHostName + ":" + chePostgresPort + "/" + chePostgresDb
@@ -294,11 +294,12 @@ func GetCheConfigMapData(deployContext *deploy.DeployContext) (cheEnv map[string
 		// than Che server namespace, from where the Che TLS secret is not accessable
 		if !util.IsWorkspaceInSameNamespaceWithChe(deployContext.CheCluster) {
 			if deployContext.CheCluster.Spec.K8s.TlsSecretName != "" {
-				cheTLSSecret, err := deploy.GetSecret(deployContext, deployContext.CheCluster.Spec.K8s.TlsSecretName, deployContext.CheCluster.ObjectMeta.Namespace)
+				cheTLSSecret := &corev1.Secret{}
+				exists, err := deploy.GetNamespacedObject(deployContext, deployContext.CheCluster.Spec.K8s.TlsSecretName, cheTLSSecret)
 				if err != nil {
 					return nil, err
 				}
-				if cheTLSSecret == nil {
+				if !exists {
 					return nil, fmt.Errorf("%s secret not found", deployContext.CheCluster.Spec.K8s.TlsSecretName)
 				} else {
 					if _, exists := cheTLSSecret.Data["tls.key"]; !exists {
