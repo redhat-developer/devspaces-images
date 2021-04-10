@@ -1,3 +1,13 @@
+def DEV_WORKSPACE_CONTROLLER_VERSIONS = [
+    "2.7":"n/a", // not used in 2.7
+    "2.8":"0.2.x", // should be 0.4.x for 2.9
+    "2.x":"main"
+    ]
+def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [
+    "2.7":"n/a", // not used in 2.7
+    "2.8":"7.28.x",
+    "2.x":"main"
+    ]
 def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", , "2.x":"master"]
 def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
@@ -61,6 +71,8 @@ Artifact builder + sync job; triggers brew after syncing
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", DEV_WORKSPACE_CONTROLLER_VERSIONS[JB.key], "Branch (0.y.x or main) used to get deployment templates")
+            stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", DEV_WORKSPACE_CHE_OPERATOR_VERSIONS[JB.key], "Branch (7.yy.x or main) used to get deployment templates")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

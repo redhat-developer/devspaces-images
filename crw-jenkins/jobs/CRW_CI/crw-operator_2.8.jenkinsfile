@@ -5,6 +5,8 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
+// DEV_WORKSPACE_CONTROLLER_VERSION
+// DEV_WORKSPACE_CHE_OPERATOR_VERSION
 // FORCE_BUILD
 
 def SOURCE_REPO = "eclipse-che/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
@@ -144,6 +146,8 @@ grep -E -v 'source|latest|RC' | grep "''' + CRW_VERSION + '''-" | tail -1 || tru
           sh '''
 hasChanged=0
 TARGET_DIR="''' + TARGET_DIR + '''"
+DEV_WORKSPACE_CONTROLLER_VERSION="''' + DEV_WORKSPACE_CONTROLLER_VERSION + '''"
+DEV_WORKSPACE_CHE_OPERATOR_VERSION="''' + DEV_WORKSPACE_CHE_OPERATOR_VERSION + '''"
 
 # remove unneeded olm files
 rm -fr ${TARGET_DIR}/olm/eclipse-che-preview-openshift ${TARGET_DIR}/olm/eclipse-che-preview-kubernetes
@@ -162,6 +166,10 @@ sed -i ${TARGET_DIR}/Dockerfile \
 # +COPY devworkspace-operator.zip /tmp
 # +RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d tmp
 sed -i ${TARGET_DIR}/Dockerfile -r \
+  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources-jenkins.sh` \
+  -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+  -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+  `# CRW-1655 use local zips instead of fetching from the internet` \
   -e "s#RUN curl .+/tmp/((devworkspace|devworkspace-che)-operator.zip)(.+)#COPY \\1 /tmp#g" \
   -e "s# +(unzip /tmp/.+ -d /tmp)#RUN \\1#g"
 
@@ -184,6 +192,14 @@ LABEL com.redhat.delivery.appregistry="false" \\\r
       usage="" \r'
 
 echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
+
+# CRW-1674 update get-sources-jenkins.sh to refer to the correct template source branches
+sed -r \
+  -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+  -e 's#^DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+  -i ${TARGET_DIR}/get-sources-jenkins.sh
+git add ${TARGET_DIR}/get-sources-jenkins.sh || true
+git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTROLLER_VERSION} / ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ${TARGET_DIR}/get-sources-jenkins.sh || true
 '''
 
           // don't commit yet, we'll do it later
