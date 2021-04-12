@@ -55,7 +55,7 @@ if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
-CRW_MACHINEEXEC_IMAGE="${CRW_RRIO}/machineexec-rhel8:${CRW_VERSION}"
+# not used at the moment CRW_MACHINEEXEC_IMAGE="${CRW_RRIO}/machineexec-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 
 # step one - build the builder image
@@ -86,6 +86,7 @@ sed ${TARGETDIR}/build/rhel.Dockerfile -r \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
     -e "s/(RUN go mod download$)/#\1/g" \
     -e "s/(RUN go mod tidy)/#\1/g" \
+    -e "s/(RUN go mod vendor)/#\1/g" \
     `# https://github.com/devfile/devworkspace-operator/issues/166 https://golang.org/doc/go1.13 DON'T use proxy for Brew` \
     -e "s@(RUN go env GOPROXY$)@#\1@g" \
     `# CRW-1680 use vendor folder (no internet); print commands (-x)` \
@@ -166,16 +167,13 @@ replaceField()
 
 pushd ${TARGETDIR} >/dev/null || exit 1
 
-    # transform env vars in deployment yaml
+    # transform env vars in manager yaml
     # - name: RELATED_IMAGE_devworkspace_webhook_server                         CRW_DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
-    # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0          CRW_MACHINEEXEC_IMAGE
-    #   value: quay.io/eclipse/che-machine-exec:nightly
     # - name: RELATED_IMAGE_pvc_cleanup_job                                     UBI_IMAGE
     #   value: quay.io/libpod/busybox:1.30.1
     declare -A operator_replacements=(
         ["RELATED_IMAGE_devworkspace_webhook_server"]="${CRW_DWO_IMAGE}"
-        ["RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0"]="${CRW_MACHINEEXEC_IMAGE}"
         ["RELATED_IMAGE_pvc_cleanup_job"]="${UBI_IMAGE}"
     )
     while IFS= read -r -d '' d; do
@@ -187,9 +185,11 @@ pushd ${TARGETDIR} >/dev/null || exit 1
         if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
             echo "Converted (yq #1) ${d}"
         fi
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    done <   <(find deploy -type f -name "manager.yaml" -print0)
 
-    # remove env vars from deployment yaml
+    # remove env vars from manager yaml
+    # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0      REMOVE
+    #   value: quay.io/eclipse/che-machine-exec:nightly
     # - name: RELATED_IMAGE_web_terminal_tooling                            REMOVE
     #   value: quay.io/wto/web-terminal-tooling:latest
     # - name: RELATED_IMAGE_openshift_oauth_proxy                           REMOVE
@@ -201,6 +201,7 @@ pushd ${TARGETDIR} >/dev/null || exit 1
     # - name: RELATED_IMAGE_async_storage_sidecar                           REMOVE
     #   value: quay.io/eclipse/che-sidecar-workspace-data-sync:0.0.1
     declare -A operator_deletions=(
+        ["RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0"]=""
         ["RELATED_IMAGE_web_terminal_tooling"]=""
         ["RELATED_IMAGE_openshift_oauth_proxy"]=""
         ["RELATED_IMAGE_default_tls_secrets_creation_job"]=""
@@ -215,17 +216,16 @@ pushd ${TARGETDIR} >/dev/null || exit 1
         if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
             echo "Converted (yq #2) ${d}"
         fi
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    done <   <(find deploy -type f -name "manager.yaml" -print0)
 
-    # replace image: quay.io/devfile/devworkspace-controller:v0.2.3 with CRW_DWO_IMAGE
-    while IFS= read -r -d '' d; do
-        replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[].image" "${CRW_DWO_IMAGE}"
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    ${SCRIPTS_DIR}/../../deploy/generate-deployment.sh --use-defaults --default-image ${CRW_DWO_IMAGE}
+    # remove regenerated k8s deployment files
+    rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
     # sort env vars
     while IFS= read -r -d '' d; do
         cat "${TARGETDIR}/${d}" | yq -Y '.spec.template.spec.containers[].env |= sort_by(.name)' > "${TARGETDIR}/${d}.2"
         mv "${TARGETDIR}/${d}.2" "${TARGETDIR}/${d}"
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    done <   <(find deploy -type f \( -name "manager.yaml" -o -name "*Deployment.yaml" \) -print0)
 
 popd >/dev/null || exit

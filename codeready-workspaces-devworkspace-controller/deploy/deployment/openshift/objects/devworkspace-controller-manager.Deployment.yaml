@@ -28,7 +28,7 @@ spec:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
             - name: DEVELOPMENT_MODE
-              value: 'true'
+              value: "true"
             - name: OPERATOR_NAME
               value: devworkspace-operator
             - name: POD_NAME
@@ -37,12 +37,10 @@ spec:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_devworkspace_webhook_server
               value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.8
-            - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
-              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.8
             - name: RELATED_IMAGE_pvc_cleanup_job
               value: registry.redhat.io/ubi8/ubi-minimal:8.3
             - name: WATCH_NAMESPACE
-              value: ''
+              value: ""
           image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.8
           imagePullPolicy: Always
           livenessProbe:
