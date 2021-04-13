@@ -62,7 +62,8 @@ git update-index --refresh || true  # ignore timestamp updates
 if [[ $(git diff-index HEAD --) ]] || [[ ${forcePull} -ne 0 ]]; then # file changed
   # include any new files...
   git add . -A -f
-  if [[ $(git commit -s -m "[get sources] Update sources" Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
+  projdir=$(pwd -P); projdir=${projdir##*/}; # echo $dir
+  if [[ $(git commit -s -m "[get sources] Update sources for ${projdir}" Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
     log "[INFO] No new sources, so nothing to build."
   elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
     log "[INFO] Push change:"
