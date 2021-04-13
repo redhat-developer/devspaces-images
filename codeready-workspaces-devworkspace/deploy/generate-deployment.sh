@@ -29,8 +29,6 @@ set -e
 
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
 
-EXPECTED_KUSTOMIZE_VERSION="4.0.5"
-
 source "${SCRIPT_DIR%/}/defaults.sh"
 DEFAULT_OUTPUT_DIR="${SCRIPT_DIR%/}/deployment"
 DEFAULT_DWCO_GENERATED_OVERLAY=everything
@@ -41,7 +39,12 @@ function print_help() {
   echo "  --use-defaults"
   echo "      Output deployment files to deploy/deployment, using default"
   echo "      environment variables rather than current shell variables."
-  echo "      Implies '--split yaml'"
+  echo "      Implies '--split yaml'
+  --default-image
+      Controller (and webhook) image to use for the default deployment.
+      Used only when '--use-defaults' is passed; otherwise, the value of
+      the IMG environment variable is used. If unspecified, the default
+      value of 'quay.io/che-incubator/devworkspace-che-operator:ci' is used"
   echo "  --split-yaml"
   echo "      Parse output file combined.yaml into a yaml file for each record"
   echo "      in combined yaml. Files are output to the 'objects' subdirectory"
@@ -70,7 +73,11 @@ while [[ "$#" -gt 0 ]]; do
       USE_DEFAULT_ENV=true
       SPLIT_YAMLS=true
       ;;
-      --split-yaml)
+      --default-image)
+      DEFAULT_IMAGE=$2
+      shift
+      ;;
+      --split-yaml|--split-yamls)
       SPLIT_YAMLS=true
       ;;
       -h|--help)
@@ -115,32 +122,35 @@ OPENSHIFT_DIR="${OUTPUT_DIR}/openshift"
 COMBINED_FILENAME="combined.yaml"
 OBJECTS_DIR="objects"
 
+KUSTOMIZE_VER=4.0.5
+KUSTOMIZE_DIR="${SCRIPT_DIR}/../bin/kustomize"
+KUSTOMIZE=${KUSTOMIZE_DIR}/kustomize
+
+rm -rf $KUBERNETES_DIR $OPENSHIFT_DIR
 mkdir -p "$KUBERNETES_DIR" "$OPENSHIFT_DIR"
 
-for bin in kustomize envsubst csplit yq; do
+mkdir -p "$KUSTOMIZE_DIR"
+if [ ! -f "$KUSTOMIZE" ]; then
+  curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
+    | bash -s "$KUSTOMIZE_VER" "$KUSTOMIZE_DIR"
+elif [ $("$KUSTOMIZE" version | grep -o 'Version:[^ ]*') != "Version:kustomize/v${KUSTOMIZE_VER}" ]; then
+  echo "Wrong version of kustomize at ${KUSTOMIZE}. Redownloading."
+  rm "$KUSTOMIZE"
+  curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
+    | bash -s "$KUSTOMIZE_VER" "$KUSTOMIZE_DIR"
+fi
+
+for bin in envsubst csplit yq; do
     if ! which "${bin}" &> /dev/null; then
         echo "ERROR: Program $bin is required by this script but it could not be found on PATH."
         exit 1
     fi
 done
 
-echo "Using kustomize $(kustomize version)"
+echo "Using kustomize $(${KUSTOMIZE} version)"
 echo "Using envsubst $(envsubst --version | head -1 | cut -d' ' -f4)"
 echo "Using csplit $(csplit --version | head -1 | cut -d' ' -f4)"
 echo "Using yq $(yq --version | head -1 | cut -d' ' -f2)"
-
-# check that we're using compatible versions of the tools
-KUSTOMIZE_VERSION=$(kustomize version | cut -d: -f2 | cut -d' ' -f1 | awk -F '/v' '{print $2}')
-if [[ $KUSTOMIZE_VERSION != $EXPECTED_KUSTOMIZE_VERSION ]]; then
-    echo "WARNING: The last known version of kustomize in Github actions is $EXPECTED_KUSTOMIZE_VERSION but we're using $KUSTOMIZE_VERSION."
-    echo "WARNING: Kustomize changes formatting from time to time, which may result in errors in the Github action that we're using to check that the deployment files"
-    echo "WARNING: have been properly generated."
-    echo "WARNING: If you see this message on Github action, that version has changed and you need to upgrade this script (deploy/generate-deployment.sh)."
-    echo "WARNING: If you see this locally, make sure to install kustomize $EXPECTED_KUSTOMIZE_VERSION:"
-    echo "WARNING: curl -s \"https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh\" | bash -s $EXPECTED_KUSTOMIZE_VERSION"
-    echo "WARNING:"
-    echo "WARNING: Let's just try generating the deployment files anyway. Maybe, the difference in the versions doesn't matter."
-fi
 
 #space separated list of templates to interpolate
 TEMPLATES="templates/overlays/support/kustomization.yaml templates/overlays/everything/kustomization.yaml templates/overlays/everything/manager_image_patch.yaml"
@@ -153,13 +163,13 @@ done
 
 # run kustomize on the substituted templates
 echo "Generating config for Kubernetes"
-kustomize build "${SCRIPT_DIR}/templates/overlays/${DWCO_GENERATED_OVERLAY}" > "${KUBERNETES_DIR}/${COMBINED_FILENAME}"
+${KUSTOMIZE} build "${SCRIPT_DIR}/templates/overlays/${DWCO_GENERATED_OVERLAY}" > "${KUBERNETES_DIR}/${COMBINED_FILENAME}"
 echo "File saved to ${KUBERNETES_DIR}/${COMBINED_FILENAME}"
 
 # for now, this is the same as for kubernetes. I assume they will start to diverge as soon as we start
 # playing with auth.
 echo "Generating config for OpenShift"
-kustomize build "${SCRIPT_DIR}/templates/overlays/${DWCO_GENERATED_OVERLAY}" > "${OPENSHIFT_DIR}/${COMBINED_FILENAME}"
+${KUSTOMIZE} build "${SCRIPT_DIR}/templates/overlays/${DWCO_GENERATED_OVERLAY}" > "${OPENSHIFT_DIR}/${COMBINED_FILENAME}"
 echo "File saved to ${OPENSHIFT_DIR}/${COMBINED_FILENAME}"
 
 # Restore the backups

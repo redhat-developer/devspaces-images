@@ -482,10 +482,10 @@ spec:
             fieldRef:
               fieldPath: spec.serviceAccountName
         - name: RELATED_IMAGE_gateway
-          value: docker.io/traefik:v2.2.8
+          value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.8
         - name: RELATED_IMAGE_gateway_configurer
-          value: quay.io/che-incubator/configbump:0.1.4
-        image: quay.io/che-incubator/devworkspace-che-operator:v7.28.2
+          value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.8
+        image: quay.io/che-incubator/devworkspace-che-operator:ci
         imagePullPolicy: Always
         name: devworkspace-che-operator
         resources:

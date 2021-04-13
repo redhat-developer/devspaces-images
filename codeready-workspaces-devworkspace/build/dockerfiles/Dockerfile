@@ -20,20 +20,18 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
-# NOTE: downstream this needs to be a vendor folder
-RUN go mod tidy; go mod vendor
+RUN go mod download
 
 # Copy the go source
 COPY . .
 
 # Build
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
-  CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -x \
+  CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build \
   -a -o _output/bin/devworkspace-che-operator \
   -gcflags all=-trimpath=/ \
   -asmflags all=-trimpath=/ \
   main.go
-
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM registry.access.redhat.com/ubi8-minimal:8.3-298

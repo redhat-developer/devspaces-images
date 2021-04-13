@@ -77,16 +77,17 @@ rm -f /tmp/rsync-excludes
 # remove k8s deployment files
 rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
-# transform Dockefile
+# transform Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
     -e "s/(RUN go mod download$)/#\1/g" \
     -e "s/(RUN go mod tidy)/#\1/g" \
+    -e "s/(RUN go mod vendor)/#\1/g" \
     `# https://github.com/devfile/devworkspace-operator/issues/166 https://golang.org/doc/go1.13 DON'T use proxy for Brew` \
     -e "s@(RUN go env GOPROXY$)@#\1@g" \
     `# CRW-1680 use vendor folder (no internet); print commands (-x)` \
-    -e "s@(go build \\\\)@\1 -mod=vendor -x \\\\@" \
+    -e "s@(go build) \\\\\$@\1 -mod=vendor -x \\\\@" \
     -e "s/# *RUN yum /RUN yum /g" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
@@ -108,34 +109,6 @@ LABEL summary="$SUMMARY" \\
       usage=""
 EOT
 echo "Converted Dockerfile"
-
-if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
-    BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
-    # Angel says we don't neet go get and go mod download
-    # gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
-    gomodvendoring="go mod tidy || true; go mod vendor || true;"
-    cat ${TARGETDIR}/build/dockerfiles/Dockerfile | sed -r \
-        `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
-        -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
-        `# CRW-1680 fetch new vendor content` \
-        -e "s@(\ +)(.+go build)@\1${gomodvendoring} \2@" \
-    > ${BOOTSTRAPFILE}
-    tag=$(pwd);tag=${tag##*/}
-    ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
-    rm -f ${BOOTSTRAPFILE}
-
-    # step two - extract vendor folder to tarball
-    ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /workspace/vendor' > "asset-vendor-$(uname -m).tgz"
-    ${BUILDER} rmi ${tag}:bootstrap
-
-    pushd "${TARGETDIR}" >/dev/null || exit 1
-        # step three - include that tarball's contents in this repo, under the vendor folder
-        tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz" 
-        rm -f "asset-vendor-$(uname -m).tgz"
-        git add vendor || true
-    popd || exit
-    echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
-fi
 
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
@@ -181,7 +154,7 @@ pushd ${TARGETDIR} >/dev/null || exit 1
         if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
             echo "Converted (yq #1) ${d}"
         fi
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    done <   <(find deploy -type f -name "manager.yaml" -print0)
 
     # remove env vars from deployment yaml
     declare -A operator_deletions=(
@@ -194,12 +167,11 @@ pushd ${TARGETDIR} >/dev/null || exit 1
         if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
             echo "Converted (yq #2) ${d}"
         fi
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    done <   <(find deploy -type f -name "manager.yaml" -print0)
 
-    # replace image: quay.io/che-incubator/devworkspace-che-operator:v7.28.2 with CRW_DWCO_IMAGE
-    while IFS= read -r -d '' d; do
-        replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[].image" "${CRW_DWCO_IMAGE}"
-    done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
+    ${SCRIPTS_DIR}/../../deploy/generate-deployment.sh --use-defaults --default-image ${CRW_DWCO_IMAGE}
+    # remove regenerated k8s deployment files
+    rm -fr ${TARGETDIR}/deploy/*/kubernetes
 
     # sort env vars
     while IFS= read -r -d '' d; do
@@ -208,3 +180,33 @@ pushd ${TARGETDIR} >/dev/null || exit 1
     done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
 popd >/dev/null || exit
+
+if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
+    BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
+    # Angel says we don't neet go get and go mod download
+    # gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
+    gomodvendoring="go mod tidy || true; go mod vendor || true;"
+    cat ${TARGETDIR}/build/dockerfiles/Dockerfile | sed -r \
+        `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
+        -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
+        `# CRW-1680 fetch new vendor content` \
+        -e "s@(\ +)(.+go build)@\1${gomodvendoring} \2@" \
+        `# CRW-1680 use vendor folder (no internet); print commands (-x)` \
+        -e "s@(go build) \\\\\$@\1 -mod=vendor -x \\\\@" \
+    > ${BOOTSTRAPFILE}
+    tag=$(pwd);tag=${tag##*/}
+    ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
+    rm -f ${BOOTSTRAPFILE}
+
+    # step two - extract vendor folder to tarball
+    ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /workspace/vendor' > "asset-vendor-$(uname -m).tgz"
+    ${BUILDER} rmi ${tag}:bootstrap
+
+    pushd "${TARGETDIR}" >/dev/null || exit 1
+        # step three - include that tarball's contents in this repo, under the vendor folder
+        tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz"
+        rm -f "asset-vendor-$(uname -m).tgz"
+        git add vendor || true
+    popd || exit
+    echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
+fi
