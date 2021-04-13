@@ -53,7 +53,7 @@ chmod +x ./build/scripts/sync.sh
 ./build/scripts/sync.sh -v ${CSV_VERSION}.0 -s ${TMPDIR}/tmp -t ${SCRIPTS_DIR} ${UPDATE_VENDOR}
 
 # cleanup
-rm -fr ${TMPDIR}
+rm -fr ${TMPDIR} bin/ bootstrap.Dockerfile 
 
 git update-index --refresh || true  # ignore timestamp updates
 if [[ $(git diff-index HEAD --) ]] || [[ ${forcePull} -ne 0 ]]; then # file changed
