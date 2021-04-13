@@ -1,12 +1,15 @@
 #!/bin/bash -xe
 # script to pull latest sources from upstream, transform, and commit changes
 scratchFlag=""
-SOURCE_BRANCH="main" # or 0.2.x
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 verbose=0
+
+# specific flags for sync.sh
+UPDATE_VENDOR=""
+SOURCE_BRANCH="main" # or 0.2.x
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -15,6 +18,7 @@ while [[ "$#" -gt 0 ]]; do
     '-p'|'--force-pull') forcePull=1; shift 0;;
     '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
     '--source-branch'|'-sb') SOURCE_BRANCH="$2"; shift 1;;
+    '--no-vendor'|'-nv') UPDATE_VENDOR="--no-vendor";;
     *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
@@ -46,7 +50,7 @@ pushd $TMPDIR >/dev/null
 popd >/dev/null
 
 chmod +x ./build/scripts/sync.sh
-./build/scripts/sync.sh -v ${CSV_VERSION}.0 -s ${TMPDIR}/tmp -t ${SCRIPTS_DIR}
+./build/scripts/sync.sh -v ${CSV_VERSION}.0 -s ${TMPDIR}/tmp -t ${SCRIPTS_DIR} ${UPDATE_VENDOR}
 
 # cleanup
 rm -fr ${TMPDIR}
