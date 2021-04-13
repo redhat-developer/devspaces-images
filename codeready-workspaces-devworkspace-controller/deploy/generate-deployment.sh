@@ -62,7 +62,7 @@ while [[ "$#" -gt 0 ]]; do
       DEFAULT_IMAGE=$2
       shift
       ;;
-      --split-yamls)
+      --split-yaml|--split-yamls)
       SPLIT_YAMLS=true
       ;;
       -h|--help)
