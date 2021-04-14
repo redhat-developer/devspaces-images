@@ -10,7 +10,7 @@ import groovy.transform.Field
 
 // NOTE: can use https://github.com/redhat-developer/traefik/tree/crw-2.y-rhel-8 if need to fork or use a commit that's not behind a tag/branch
 def SOURCE_REPO = "traefik/traefik" // upstream source repo should be https://github.com/traefik/traefik
-def DWNSTM_REPO = "containers/codeready-workspaces-traefik" // repo to use as target
+def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 def SYNC_REPO="traefik"
 String SOURCE_BRANCH = "master" // upstream source repo branch, eg., crw-2.y-rhel-8 from fork
 
@@ -39,19 +39,21 @@ timeout(120) {
                     println "########################################################################################################"
                     println "##  Clone and update github.com/${SOURCE_REPO}.git"
                     println "########################################################################################################"
-                    util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/source", SOURCE_BRANCH)
+                    SOURCE_DIR="${WORKSPACE}/source"
+                    util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
                     sh('''#!/bin/bash
-                    cd ${WORKSPACE}/source
+                    cd ''' + SOURCE_DIR + '''
                     git checkout ''' + SOURCE_TAG + '''
                     ''')
-                    SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/source")
+                    SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
                     println "Got SOURCE_SHA in source folder: " + SOURCE_SHA
 
                     println "########################################################################################################"
-                    println "##  Sync ${SYNC_REPO} to pkgs.devel"
+                    println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
                     println "########################################################################################################"
-                    util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH)
+                    util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH)
                     OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/target")
+                    TARGET_DIR="${WORKSPACE}/target/" + util.getCRWLongName(SYNC_REPO)
                     println "Got OLD_SHA in target folder: " + OLD_SHA
 
                     writeFile file: "rsync-upstream-exclude", text: '''.semaphoreci
@@ -72,12 +74,12 @@ container.yaml
 rhel.Dockerfile'''
                     sh('''
                       rsync -avhz --checksum --exclude-from ${WORKSPACE}/rsync-upstream-exclude --exclude-from ${WORKSPACE}/rsync-brew-exclude --exclude .git/ --exclude .github/ --exclude .gitignore \
-                        ${WORKSPACE}/source/ ${WORKSPACE}/target/ | grep -E -v '/$'
+                        ''' + SOURCE_DIR + '''/ ''' + TARGET_DIR + '''/ | grep -E -v '/$'
                     ''')
 
                     // transform exp.Dockerfile into rhel.Dockerfile and add brew metadata 
                     sh('''#!/bin/bash
-          cd ${WORKSPACE}/target
+          cd ''' + TARGET_DIR + '''
           sed -e 's|^FROM node:12.*|FROM registry.redhat.io/rhel8/nodejs-12 as webui \\
 USER root \\
 RUN yum install -y python2|g' \\
@@ -136,7 +138,7 @@ Dockerfile
                     // push to dist-git
                     sh('''#!/bin/bash -xe
                        export KRB5CCNAME=/var/tmp/crw-build_ccache
-                       cd ${WORKSPACE}/target
+                       cd ''' + TARGET_DIR + '''
                        git add . -A -f
                        git commit -m "sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
                        COMMIT_SHA="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%H)"
@@ -144,7 +146,7 @@ Dockerfile
                          git push origin ''' + MIDSTM_BRANCH + ''' || true
                        fi
                     ''')
-                    NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/target")
+                    NEW_SHA = util.getLastCommitSHA(TARGET_DIR)
                     println "Got NEW_SHA in target folder: " + NEW_SHA
                     currentBuild.description="Upstream sync done"
                 } // withCredentials
@@ -163,17 +165,18 @@ for (int i=0; i < nodeLabels.size(); i++) {
                 wrap([$class: 'TimestamperBuildWrapper']) {
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                     def util = load "${WORKSPACE}/util.groovy"
+                    cleanWs()
                     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                         usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
                         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
                         util.bootstrap(CRW_KEYTAB)
                         // build project in Jenkins so we can collect asset-* files later via get-sources-jenkins.sh, then trigger a build brew with those files
                         if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
-                            util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/${SYNC_REPO}", MIDSTM_BRANCH)
+                            util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/${SYNC_REPO}", MIDSTM_BRANCH)
                             util.loginToRegistries()
                             sh('''#!/bin/bash -xe
 		                export TMP_IMG="traefik.tmp"
-                                cd ${WORKSPACE}/''' + SYNC_REPO + '''
+                                cd ${WORKSPACE}/''' + SYNC_REPO + '''/''' + util.getCRWLongName(SYNC_REPO) + '''
 		                docker build -t $TMP_IMG -f rhel.Dockerfile .
 		                mkdir -p brew-assets
 		                docker run --rm -v $PWD/brew-assets:/brew-assets $TMP_IMG sh -c "
@@ -209,70 +212,62 @@ nodeLabel = "${nodeLabels[0]}"
 node(nodeLabel) {
   stage ("Build containers on ${nodeLabel}") {
     println "########################################################################################################"
-    println "##  Build ${SYNC_REPO} containers"
+    println "##  Kickoff Sync to downstream job"
     println "########################################################################################################"
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-      if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
-        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-        println "CRW_VERSION = '" + CRW_VERSION + "'"
-          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-          build(
-              job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
-              // if get-sources fetches from this job's artifacts, cannot set wait: true or we won't fetch the latest artifacts (build will still be running)
-              wait: false,
-              propagate: false,
-              parameters: [
-                [
-                  $class: 'StringParameterValue',
-                  name: 'token',
-                  value: "CI_BUILD"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'cause',
-                  value: "${SYNC_REPO}+respin+by+${BUILD_TAG}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'MIDSTM_BRANCH',
-                  value: "${MIDSTM_BRANCH}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'GIT_PATHs',
-                  value: "${DWNSTM_REPO}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'QUAY_REPO_PATHs',
-                  value: util.getCRWShortName(SYNC_REPO) + "-rhel8"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'JOB_BRANCH',
-                  value: JOB_BRANCH
-                ],
-                [
-                  $class: 'BooleanParameterValue',
-                  name: 'FORCE_BUILD',
-                  value: true
-                ],
-                [
-                  $class: 'BooleanParameterValue',
-                  name: 'SCRATCH',
-                  value: false
+        if (!OLD_SHA.equals(NEW_SHA) || FORCE_BUILD == "true") {
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            build(
+                job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+                wait: true,
+                propagate: true,
+                parameters: [
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'token',
+                    value: "CI_BUILD"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'cause',
+                    value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'REPOS',
+                    value: util.getCRWLongName(SYNC_REPO)
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'JOB_BRANCH',
+                    value: JOB_BRANCH
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'MIDSTM_BRANCH',
+                    value: "${MIDSTM_BRANCH}"
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'FORCE_BUILD',
+                    value: FORCE_BUILD
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'SCRATCH',
+                    value: false
+                  ]
                 ]
-              ]
-        )
-        currentBuild.description+="; Brew build triggered"
-      } else {
-        println "No changes upstream, nothing to build in brew!"
-        currentBuild.description+="; No Brew build"
-        currentBuild.result = 'UNSTABLE'
-      }
+              )
+            currentBuild.description+="; Downstream sync job triggered"
+          } else {
+            println "No changes upstream, nothing to sync / build in brew!"
+            currentBuild.description+="; No sync or Brew build"
+            currentBuild.result = 'UNSTABLE'
+          }
     } else {
       util.notifyBuildFailed()
     } // if
