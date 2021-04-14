@@ -1,0 +1,379 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = true
+
+[serversTransport]
+  insecureSkipVerify = true
+  rootCAs = ["foobar", "foobar"]
+  maxIdleConnsPerHost = 42
+  [serversTransport.forwardingTimeouts]
+    dialTimeout = 42
+    responseHeaderTimeout = 42
+    idleConnTimeout = 42
+
+[entryPoints]
+  [entryPoints.EntryPoint0]
+    address = "foobar"
+    [entryPoints.EntryPoint0.transport]
+      [entryPoints.EntryPoint0.transport.lifeCycle]
+        requestAcceptGraceTimeout = 42
+        graceTimeOut = 42
+      [entryPoints.EntryPoint0.transport.respondingTimeouts]
+        readTimeout = 42
+        writeTimeout = 42
+        idleTimeout = 42
+    [entryPoints.EntryPoint0.proxyProtocol]
+      insecure = true
+      trustedIPs = ["foobar", "foobar"]
+    [entryPoints.EntryPoint0.forwardedHeaders]
+      insecure = true
+      trustedIPs = ["foobar", "foobar"]
+    [entryPoints.EntryPoint0.http]
+      middlewares = ["foobar", "foobar"]
+      [entryPoints.EntryPoint0.http.redirections]
+        [entryPoints.EntryPoint0.http.redirections.entryPoint]
+          to = "foobar"
+          scheme = "foobar"
+          permanent = true
+          priority = 42
+      [entryPoints.EntryPoint0.http.tls]
+        options = "foobar"
+        certResolver = "foobar"
+
+        [[entryPoints.EntryPoint0.http.tls.domains]]
+          main = "foobar"
+          sans = ["foobar", "foobar"]
+
+        [[entryPoints.EntryPoint0.http.tls.domains]]
+          main = "foobar"
+          sans = ["foobar", "foobar"]
+
+[providers]
+  providersThrottleDuration = 42
+  [providers.docker]
+    constraints = "foobar"
+    watch = true
+    endpoint = "foobar"
+    defaultRule = "foobar"
+    exposedByDefault = true
+    useBindPortIP = true
+    swarmMode = true
+    network = "foobar"
+    swarmModeRefreshSeconds = 42
+    [providers.docker.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+  [providers.file]
+    directory = "foobar"
+    watch = true
+    filename = "foobar"
+    debugLogGeneratedTemplate = true
+  [providers.marathon]
+    constraints = "foobar"
+    trace = true
+    watch = true
+    endpoint = "foobar"
+    defaultRule = "foobar"
+    exposedByDefault = true
+    dcosToken = "foobar"
+    dialerTimeout = 42
+    responseHeaderTimeout = 42
+    tlsHandshakeTimeout = 42
+    keepAlive = 42
+    forceTaskHostname = true
+    respectReadinessChecks = true
+    [providers.marathon.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+    [providers.marathon.basic]
+      httpBasicAuthUser = "foobar"
+      httpBasicPassword = "foobar"
+  [providers.kubernetesIngress]
+    endpoint = "foobar"
+    token = "foobar"
+    certAuthFilePath = "foobar"
+    disablePassHostHeaders = true
+    namespaces = ["foobar", "foobar"]
+    labelSelector = "foobar"
+    ingressClass = "foobar"
+    throttleDuration = "10s"
+    [providers.kubernetesIngress.ingressEndpoint]
+      ip = "foobar"
+      hostname = "foobar"
+      publishedService = "foobar"
+  [providers.kubernetesCRD]
+    endpoint = "foobar"
+    token = "foobar"
+    certAuthFilePath = "foobar"
+    disablePassHostHeaders = true
+    namespaces = ["foobar", "foobar"]
+    labelSelector = "foobar"
+    ingressClass = "foobar"
+    throttleDuration = 42
+  [providers.rest]
+    insecure = true
+  [providers.rancher]
+    constraints = "foobar"
+    watch = true
+    defaultRule = "foobar"
+    exposedByDefault = true
+    enableServiceHealthFilter = true
+    refreshSeconds = 42
+    intervalPoll = true
+    prefix = "foobar"
+  [providers.consulCatalog]
+    constraints = "foobar"
+    prefix = "foobar"
+    refreshInterval = 42
+    requireConsistent = true
+    stale = true
+    cache = true
+    exposedByDefault = true
+    defaultRule = "foobar"
+    [providers.consulCatalog.endpoint]
+      address = "foobar"
+      scheme = "foobar"
+      datacenter = "foobar"
+      token = "foobar"
+      endpointWaitTime = 42
+      [providers.consulCatalog.endpoint.tls]
+        ca = "foobar"
+        caOptional = true
+        cert = "foobar"
+        key = "foobar"
+        insecureSkipVerify = true
+      [providers.consulCatalog.endpoint.httpAuth]
+        username = "foobar"
+        password = "foobar"
+  [providers.ecs]
+    constraints = "foobar"
+    exposedByDefault = true
+    refreshSeconds = 42
+    defaultRule = "foobar"
+    clusters = ["foobar", "foobar"]
+    autoDiscoverClusters = true
+    region = "foobar"
+    accessKeyID = "foobar"
+    secretAccessKey = "foobar"
+  [providers.consul]
+    rootKey = "foobar"
+    endpoints = ["foobar", "foobar"]
+    username = "foobar"
+    password = "foobar"
+    [providers.consul.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+  [providers.etcd]
+    rootKey = "foobar"
+    endpoints = ["foobar", "foobar"]
+    username = "foobar"
+    password = "foobar"
+    [providers.etcd.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+  [providers.zooKeeper]
+    rootKey = "foobar"
+    endpoints = ["foobar", "foobar"]
+    username = "foobar"
+    password = "foobar"
+    [providers.zooKeeper.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+  [providers.redis]
+    rootKey = "foobar"
+    endpoints = ["foobar", "foobar"]
+    username = "foobar"
+    password = "foobar"
+    [providers.redis.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+  [providers.http]
+    endpoint = "foobar"
+    pollInterval = 42
+    pollTimeout = 42
+    [providers.http.tls]
+      ca = "foobar"
+      caOptional = true
+      cert = "foobar"
+      key = "foobar"
+      insecureSkipVerify = true
+
+[api]
+  insecure = true
+  dashboard = true
+  debug = true
+
+[metrics]
+  [metrics.prometheus]
+    buckets = [42.0, 42.0]
+    addEntryPointsLabels = true
+    addServicesLabels = true
+    entryPoint = "foobar"
+    manualRouting = true
+  [metrics.datadog]
+    address = "foobar"
+    pushInterval = "42s"
+    addEntryPointsLabels = true
+    addServicesLabels = true
+  [metrics.statsD]
+    address = "foobar"
+    pushInterval = "42s"
+    addEntryPointsLabels = true
+    addServicesLabels = true
+    prefix = "foobar"
+  [metrics.influxDB]
+    address = "foobar"
+    protocol = "foobar"
+    pushInterval = "42s"
+    database = "foobar"
+    retentionPolicy = "foobar"
+    username = "foobar"
+    password = "foobar"
+    addEntryPointsLabels = true
+    addServicesLabels = true
+
+[pilot]
+  token = "foobar"
+
+[ping]
+  entryPoint = "foobar"
+  manualRouting = true
+  terminatingStatusCode = 42
+
+[log]
+  level = "foobar"
+  filePath = "foobar"
+  format = "foobar"
+
+[accessLog]
+  filePath = "foobar"
+  format = "foobar"
+  bufferingSize = 42
+  [accessLog.filters]
+    statusCodes = ["foobar", "foobar"]
+    retryAttempts = true
+    minDuration = 42
+  [accessLog.fields]
+    defaultMode = "foobar"
+    [accessLog.fields.names]
+      name0 = "foobar"
+      name1 = "foobar"
+    [accessLog.fields.headers]
+      defaultMode = "foobar"
+      [accessLog.fields.headers.names]
+        name0 = "foobar"
+        name1 = "foobar"
+
+[tracing]
+  serviceName = "foobar"
+  spanNameLimit = 42
+  [tracing.jaeger]
+    samplingServerURL = "foobar"
+    samplingType = "foobar"
+    samplingParam = 42.0
+    localAgentHostPort = "foobar"
+    gen128Bit = true
+    propagation = "foobar"
+    traceContextHeaderName = "foobar"
+    disableAttemptReconnecting = true
+    [tracing.jaeger.collector]
+      endpoint = "foobar"
+      user = "foobar"
+      password = "foobar"
+  [tracing.zipkin]
+    httpEndpoint = "foobar"
+    sameSpan = true
+    id128Bit = true
+    sampleRate = 42.0
+  [tracing.datadog]
+    localAgentHostPort = "foobar"
+    globalTag = "foobar"
+    debug = true
+    prioritySampling = true
+    traceIDHeaderName = "foobar"
+    parentIDHeaderName = "foobar"
+    samplingPriorityHeaderName = "foobar"
+    bagagePrefixHeaderName = "foobar"
+  [tracing.instana]
+    localAgentHost = "foobar"
+    localAgentPort = 42
+    logLevel = "foobar"
+  [tracing.haystack]
+    localAgentHost = "foobar"
+    localAgentPort = 42
+    globalTag = "foobar"
+    traceIDHeaderName = "foobar"
+    parentIDHeaderName = "foobar"
+    spanIDHeaderName = "foobar"
+    baggagePrefixHeaderName = "foobar"
+  [tracing.elastic]
+    serverURL = "foobar"
+    secretToken = "foobar"
+    serviceEnvironment = "foobar"
+
+[hostResolver]
+  cnameFlattening = true
+  resolvConfig = "foobar"
+  resolvDepth = 42
+
+[certificatesResolvers]
+  [certificatesResolvers.CertificateResolver0]
+    [certificatesResolvers.CertificateResolver0.acme]
+      email = "foobar"
+      caServer = "foobar"
+      preferredChain = "foobar"
+      storage = "foobar"
+      keyType = "foobar"
+      [certificatesResolvers.CertificateResolver0.acme.dnsChallenge]
+        provider = "foobar"
+        delayBeforeCheck = 42
+        resolvers = ["foobar", "foobar"]
+        disablePropagationCheck = true
+      [certificatesResolvers.CertificateResolver0.acme.httpChallenge]
+        entryPoint = "foobar"
+      [certificatesResolvers.CertificateResolver0.acme.tlsChallenge]
+  [certificatesResolvers.CertificateResolver1]
+    [certificatesResolvers.CertificateResolver1.acme]
+      email = "foobar"
+      caServer = "foobar"
+      preferredChain = "foobar"
+      storage = "foobar"
+      keyType = "foobar"
+      [certificatesResolvers.CertificateResolver1.acme.dnsChallenge]
+        provider = "foobar"
+        delayBeforeCheck = 42
+        resolvers = ["foobar", "foobar"]
+        disablePropagationCheck = true
+      [certificatesResolvers.CertificateResolver1.acme.httpChallenge]
+        entryPoint = "foobar"
+      [certificatesResolvers.CertificateResolver1.acme.tlsChallenge]
+
+[experimental]
+  [experimental.plugins]
+    [experimental.plugins.Descriptor0]
+      moduleName = "foobar"
+      version = "foobar"
+    [experimental.plugins.Descriptor1]
+      moduleName = "foobar"
+      version = "foobar"
+  [experimental.devPlugin]
+    goPath = "foobar"
+    moduleName = "foobar"
