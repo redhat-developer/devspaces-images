@@ -41,7 +41,7 @@ spec:
               value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.8
             - name: WATCH_NAMESPACE
               value: ""
-          image: quay.io/che-incubator/devworkspace-che-operator:ci
+          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.8
           imagePullPolicy: Always
           name: devworkspace-che-operator
           resources:
