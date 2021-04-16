@@ -14,7 +14,7 @@ RUN microdnf -y install tar gzip && \
     rm -fr /tmp/assets/ && \ 
     chmod 755 /traefik && \ 
     microdnf -y update || true && \ 
-    microdnf -y remove tar gzip && \ 
+    microdnf -y remove tar gzip || true && \ 
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" 
 
 EXPOSE 80
