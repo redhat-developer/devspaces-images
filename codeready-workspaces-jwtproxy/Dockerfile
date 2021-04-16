@@ -29,6 +29,8 @@ FROM ubi8-minimal:8.3-298
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /go/src/github.com/eclipse/che-jwtproxy/jwtproxy /usr/local/bin
+RUN microdnf -y update || true && \
+    microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 ENTRYPOINT ["jwtproxy"]
 # The JWT proxy needs 2 things:
 # * the location of the configuration file supplied as an argument:
