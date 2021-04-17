@@ -21,8 +21,6 @@ RUN microdnf -y install tar gzip shadow-utils && \
     rm -fr /tmp/assets/ && \
     chmod 755 /usr/local/bin/configbump && \
     microdnf -y remove tar gzip shadow-utils && \
-    microdnf -y update || true && \
-    microdnf -y clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 USER appuser
 ENTRYPOINT ["configbump"]
