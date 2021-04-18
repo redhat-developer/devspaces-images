@@ -22,7 +22,7 @@ RUN adduser appuser && \
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.3-298
 
-RUN microdnf update -y systemd && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
