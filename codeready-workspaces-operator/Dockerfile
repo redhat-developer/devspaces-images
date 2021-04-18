@@ -13,16 +13,16 @@
 # NOTE: using registry.redhat.io/rhel8/go-toolset requires login, which complicates automation
 # NOTE: since updateBaseImages.sh does not support other registries than RHCC, update to RHEL8
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM devtools/go-toolset-rhel7:1.14.12-4.1615820747  as builder
+FROM devtools/go-toolset-rhel7:1.13.15-4  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
     GOPATH=/go/
+
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.2.x"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.28.x"
 
 USER root
 ADD . /che-operator
 WORKDIR /che-operator
-
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.2.x"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.28.x"
 
 # build operator
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
