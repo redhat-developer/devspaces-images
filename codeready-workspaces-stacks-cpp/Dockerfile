@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/llvm-toolset
-FROM rhel8/llvm-toolset:10.0.1-33
+FROM rhel8/llvm-toolset:10.0.1-33.1618436979
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - C/CPP Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - C/CPP Stack container" \
