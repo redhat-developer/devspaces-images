@@ -7,12 +7,10 @@ platforms:
   - s390x
   - ppc64le
 
-# nothing to compose, no repos in content_sets.yaml
-#compose:
-  #packages:
-  #- java-1.8.0-openjdk  # package name, not an NVR.
-
-#  pulp_repos: true
+# scratch image requires no compose
+# compose:
+#   inherit: false
+#   pulp_repos: true
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
