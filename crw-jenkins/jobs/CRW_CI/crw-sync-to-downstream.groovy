@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"master"]
-def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key
@@ -52,6 +52,7 @@ codeready-workspaces-stacks-cpp,
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
 codeready-workspaces-stacks-php''')
+            stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }

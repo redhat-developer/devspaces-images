@@ -9,7 +9,7 @@ def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [
     "2.x":"main"
     ]
 def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"main"]
-def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
+def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -35,11 +35,9 @@ Artifact builder + sync job; triggers brew after syncing
 <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 
-<p>Note that there are two operator sync jobs:
-<ul>
-<li>  crw-operator_2.x</li>
-<li>  crw-operator-metadata_2.x</li>
-</ul>
+<p>Note that there are two operator-related sync jobs:<br/>
+1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
+2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a></p>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>

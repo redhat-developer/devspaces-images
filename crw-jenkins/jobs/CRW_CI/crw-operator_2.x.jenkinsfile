@@ -210,7 +210,7 @@ cd ${WORKSPACE}/targetmid
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   git add ''' + SYNC_FILES_DWN2MID + '''
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" ''' + SYNC_FILES_DWN2MID + ''' || true
+  git commit -s -m "[sync] [1] Update operator from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" ''' + SYNC_FILES_DWN2MID + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   echo "[sync] Updated GH @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
 fi
@@ -230,7 +230,7 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
   git add . -A -f
   # note this might fail if we're syncing from a tag vs. a branch
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" . || true
+  git commit -s -m "[sync] [2] Update operator from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" . || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
   echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
@@ -303,6 +303,11 @@ node(nodeLabel) {
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
                   value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'UPDATE_BASE_IMAGES_FLAGS',
+                  value: UPDATE_BASE_IMAGES_FLAGS
                 ],
                 [
                   $class: 'StringParameterValue',

@@ -189,7 +189,7 @@ git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
   git add Dockerfile ''' + SYNC_FILES_MID2DWN + '''
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
+  git commit -s -m "[sync] Update operator-metadata from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
   echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
