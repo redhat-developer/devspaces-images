@@ -13,7 +13,6 @@ package che
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -22,10 +21,10 @@ import (
 	orgv1 "github.com/eclipse-che/che-operator/pkg/apis/org/v1"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	devworkspace "github.com/eclipse-che/che-operator/pkg/deploy/dev-workspace"
-	devfile_registry "github.com/eclipse-che/che-operator/pkg/deploy/devfile-registry"
+	"github.com/eclipse-che/che-operator/pkg/deploy/devfileregistry"
 	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
 	identity_provider "github.com/eclipse-che/che-operator/pkg/deploy/identity-provider"
-	plugin_registry "github.com/eclipse-che/che-operator/pkg/deploy/plugin-registry"
+	"github.com/eclipse-che/che-operator/pkg/deploy/pluginregistry"
 	"github.com/eclipse-che/che-operator/pkg/deploy/postgres"
 	"github.com/eclipse-che/che-operator/pkg/deploy/server"
 	"github.com/eclipse-che/che-operator/pkg/util"
@@ -136,10 +135,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		if err := corev1.AddToScheme(mgr.GetScheme()); err != nil {
 			logrus.Errorf("Failed to add OpenShift Core to scheme: %s", err)
 		}
-		if util.HasAPIResourceName(deploy.ConsoleLinksResourceName) {
-			if err := consolev1.AddToScheme(mgr.GetScheme()); err != nil {
-				logrus.Errorf("Failed to add OpenShift ConsoleLink to scheme: %s", err)
-			}
+		if err := consolev1.AddToScheme(mgr.GetScheme()); err != nil {
+			logrus.Errorf("Failed to add OpenShift ConsoleLink to scheme: %s", err)
 		}
 	}
 
@@ -277,8 +274,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 var (
 	_ reconcile.Reconciler = &ReconcileChe{}
 
-	cheWorkspacesClusterPermissionsFinalizerName = "cheWorkspaces.clusterpermissions.finalizers.che.eclipse.org"
-
 	// CheServiceAccountName - service account name for che-server.
 	CheServiceAccountName = "che"
 )
@@ -343,9 +338,8 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	deployContext := &deploy.DeployContext{
-		ClusterAPI:      clusterAPI,
-		CheCluster:      instance,
-		InternalService: deploy.InternalService{},
+		ClusterAPI: clusterAPI,
+		CheCluster: instance,
 	}
 
 	// Reconcile finalizers before CR is deleted
@@ -408,16 +402,16 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, nil
 	}
 
+	// Update status if OpenShift initial user is deleted (in the previous step)
 	if instance.Spec.Auth.InitialOpenShiftOAuthUser == nil && instance.Status.OpenShiftOAuthUserCredentialsSecret != "" {
 		secret := &corev1.Secret{}
-		exists, err := deploy.GetNamespacedObject(deployContext, openShiftOAuthUserCredentialsSecret, secret)
-		if !exists {
-			if err == nil {
-				instance.Status.OpenShiftOAuthUserCredentialsSecret = ""
-				if err := r.UpdateCheCRStatus(instance, "openShiftOAuthUserCredentialsSecret", ""); err != nil {
-					return reconcile.Result{}, err
-				}
-			} else {
+		exists, err := getOpenShiftOAuthUserCredentialsSecret(deployContext, secret)
+		if err != nil {
+			// We should `Requeue` since we deal with cluster scope objects
+			return reconcile.Result{RequeueAfter: time.Second}, err
+		} else if !exists {
+			instance.Status.OpenShiftOAuthUserCredentialsSecret = ""
+			if err := r.UpdateCheCRStatus(instance, "openShiftOAuthUserCredentialsSecret", ""); err != nil {
 				return reconcile.Result{}, err
 			}
 		}
@@ -566,38 +560,6 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{RequeueAfter: 5 * time.Second}, nil
 	}
 
-	// If the devfile-registry ConfigMap exists, and we are not in airgapped mode, delete the ConfigMap
-	devfileRegistryConfigMap := &corev1.ConfigMap{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Namespace: instance.Namespace, Name: deploy.DevfileRegistryName}, devfileRegistryConfigMap)
-	if err != nil && !errors.IsNotFound(err) {
-		logrus.Errorf("Error getting devfile-registry ConfigMap: %v", err)
-		return reconcile.Result{}, err
-	}
-	if err == nil && instance.Spec.Server.ExternalDevfileRegistry {
-		logrus.Info("Found devfile-registry ConfigMap and while using an external devfile registry.  Deleting.")
-		if err = r.client.Delete(context.TODO(), devfileRegistryConfigMap); err != nil {
-			logrus.Errorf("Error deleting devfile-registry ConfigMap: %v", err)
-			return reconcile.Result{}, err
-		}
-		return reconcile.Result{Requeue: true}, nil
-	}
-
-	// If the plugin-registry ConfigMap exists, and we are not in airgapped mode, delete the ConfigMap
-	pluginRegistryConfigMap := &corev1.ConfigMap{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Namespace: instance.Namespace, Name: deploy.PluginRegistryName}, pluginRegistryConfigMap)
-	if err != nil && !errors.IsNotFound(err) {
-		logrus.Errorf("Error getting plugin-registry ConfigMap: %v", err)
-		return reconcile.Result{}, err
-	}
-	if err == nil && !instance.IsAirGapMode() {
-		logrus.Info("Found plugin-registry ConfigMap and not in airgap mode.  Deleting.")
-		if err = r.client.Delete(context.TODO(), pluginRegistryConfigMap); err != nil {
-			logrus.Errorf("Error deleting plugin-registry ConfigMap: %v", err)
-			return reconcile.Result{}, err
-		}
-		return reconcile.Result{Requeue: true}, nil
-	}
-
 	if err := r.SetStatusDetails(instance, request, "", "", ""); err != nil {
 		return reconcile.Result{}, err
 	}
@@ -613,52 +575,21 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{RequeueAfter: time.Second}, err
 	}
 
-	if !util.IsOAuthEnabled(instance) && !util.IsWorkspaceInSameNamespaceWithChe(instance) {
-		сheWorkspacesClusterRoleName := fmt.Sprintf(CheWorkspacesClusterRoleNameTemplate, instance.Namespace)
-		exists, err := deploy.Get(deployContext, types.NamespacedName{Name: сheWorkspacesClusterRoleName}, &rbac.ClusterRole{})
+	done, err = r.checkWorkspacePermissions(deployContext)
+	if !done {
 		if err != nil {
 			logrus.Error(err)
-			return reconcile.Result{RequeueAfter: time.Second}, err
 		}
-		if !exists {
-			policies := append(getCheWorkspacesNamespacePolicy(), getCheWorkspacesPolicy()...)
-			deniedRules, err := r.permissionChecker.GetNotPermittedPolicyRules(policies, "")
-			if err != nil {
-				logrus.Error(err)
-				return reconcile.Result{RequeueAfter: time.Second}, err
-			}
-			// fall back to the "narrower" workspace namespace strategy
-			if len(deniedRules) > 0 {
-				logrus.Warnf("Not enough permissions to start a workspace in dedicated namespace. Denied policies: %v", deniedRules)
-				logrus.Warnf("Fall back to '%s' namespace for workspaces.", instance.Namespace)
-				delete(instance.Spec.Server.CustomCheProperties, "CHE_INFRA_KUBERNETES_NAMESPACE_DEFAULT")
-				instance.Spec.Server.WorkspaceNamespaceDefault = instance.Namespace
-				err := r.UpdateCheCRSpec(instance, "Default namespace for workspaces", instance.Namespace)
-				if err != nil {
-					logrus.Error(err)
-					return reconcile.Result{RequeueAfter: time.Second * 1}, err
-				}
-			} else {
-				reconcileResult, err := r.delegateWorkspacePermissionsInTheDifferNamespaceThanChe(deployContext)
-				if err != nil {
-					logrus.Error(err)
-					return reconcile.Result{RequeueAfter: time.Second}, err
-				}
-				if reconcileResult.Requeue {
-					return reconcileResult, err
-				}
-			}
-		}
+		return reconcile.Result{}, err
 	}
 
-	if util.IsOAuthEnabled(instance) || util.IsWorkspaceInSameNamespaceWithChe(instance) {
-		reconcile, err := r.delegateWorkspacePermissionsInTheSameNamespaceWithChe(deployContext)
+	done, err = r.reconcileWorkspacePermissions(deployContext)
+	if !done {
 		if err != nil {
 			logrus.Error(err)
 		}
-		if reconcile.Requeue && !tests {
-			return reconcile, err
-		}
+		// reconcile after 1 seconds since we deal with cluster objects
+		return reconcile.Result{RequeueAfter: time.Second}, err
 	}
 
 	if len(instance.Spec.Server.CheClusterRoles) > 0 {
@@ -719,13 +650,15 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		}
 	}
 
-	postgres := postgres.NewPostgres(deployContext)
-	done, err = postgres.Sync()
-	if !done {
-		if err != nil {
-			logrus.Error(err)
+	if !deployContext.CheCluster.Spec.Database.ExternalDb {
+		postgres := postgres.NewPostgres(deployContext)
+		done, err = postgres.SyncAll()
+		if !done {
+			if err != nil {
+				logrus.Error(err)
+			}
+			return reconcile.Result{}, err
 		}
-		return reconcile.Result{}, err
 	}
 
 	tlsSupport := instance.Spec.Server.TlsSupport
@@ -744,15 +677,13 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, err
 	}
 
-	deployContext.InternalService.CheHost = fmt.Sprintf("http://%s.%s.svc:8080", deploy.CheServiceName, deployContext.CheCluster.Namespace)
-
 	exposedServiceName := getServerExposingServiceName(instance)
 	cheHost := ""
 	if !isOpenShift {
 		_, done, err := deploy.SyncIngressToCluster(
 			deployContext,
 			cheFlavor,
-			instance.Spec.K8s.IngressDomain,
+			instance.Spec.Server.CheHost,
 			"",
 			exposedServiceName,
 			8080,
@@ -831,23 +762,44 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		}
 	}
 
-	provisioned, err = devfile_registry.SyncDevfileRegistryToCluster(deployContext)
-	if !tests {
-		if !provisioned {
+	if !instance.Spec.Server.ExternalPluginRegistry {
+		pluginRegistry := pluginregistry.NewPluginRegistry(deployContext)
+		done, err := pluginRegistry.SyncAll()
+		if !done {
 			if err != nil {
-				logrus.Errorf("Error provisioning '%s' to cluster: %v", deploy.DevfileRegistryName, err)
+				logrus.Error(err)
 			}
-			return reconcile.Result{RequeueAfter: time.Second * 1}, err
+			return reconcile.Result{}, err
+		}
+	} else {
+		if instance.Spec.Server.PluginRegistryUrl != instance.Status.PluginRegistryURL {
+			instance.Status.PluginRegistryURL = instance.Spec.Server.PluginRegistryUrl
+			if err := r.UpdateCheCRStatus(instance, "status: Plugin Registry URL", instance.Spec.Server.PluginRegistryUrl); err != nil {
+				return reconcile.Result{}, err
+			}
 		}
 	}
 
-	provisioned, err = plugin_registry.SyncPluginRegistryToCluster(deployContext)
-	if !tests {
-		if !provisioned {
+	if !instance.Spec.Server.ExternalDevfileRegistry {
+		devfileRegistry := devfileregistry.NewDevfileRegistry(deployContext)
+		done, err := devfileRegistry.SyncAll()
+		if !done {
 			if err != nil {
-				logrus.Errorf("Error provisioning '%s' to cluster: %v", deploy.PluginRegistryName, err)
+				logrus.Error(err)
 			}
-			return reconcile.Result{RequeueAfter: time.Second * 1}, err
+			return reconcile.Result{}, err
+		}
+	} else {
+		done, err := deploy.DeleteNamespacedObject(deployContext, deploy.DevfileRegistryName, &corev1.ConfigMap{})
+		if !done {
+			return reconcile.Result{}, err
+		}
+
+		if instance.Spec.Server.DevfileRegistryUrl != instance.Status.DevfileRegistryURL {
+			instance.Status.DevfileRegistryURL = instance.Spec.Server.DevfileRegistryUrl
+			if err := r.UpdateCheCRStatus(instance, "status: Devfile Registry URL", instance.Spec.Server.DevfileRegistryUrl); err != nil {
+				return reconcile.Result{}, err
+			}
 		}
 	}
 
@@ -1146,7 +1098,13 @@ func (r *ReconcileChe) reconcileFinalizers(deployContext *deploy.DeployContext) 
 		}
 	}
 
-	if err := r.reconcileWorkspacePermissionsFinalizer(deployContext); err != nil {
+	if util.IsOpenShift4 && util.IsInitialOpenShiftOAuthUserEnabled(deployContext.CheCluster) {
+		if !deployContext.CheCluster.ObjectMeta.DeletionTimestamp.IsZero() {
+			r.userHandler.DeleteOAuthInitialUser(deployContext)
+		}
+	}
+
+	if _, err := r.reconcileWorkspacePermissionsFinalizers(deployContext); err != nil {
 		logrus.Error(err)
 	}
 

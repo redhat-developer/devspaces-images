@@ -144,18 +144,13 @@ func getApiList() ([]v1.APIGroup, error) {
 	return apiList.Groups, nil
 }
 
-func HasAPIResourceName(name string) bool {
-	discoveryClient, err := getDiscoveryClient()
+func HasK8SResourceObject(discoveryClient discovery.DiscoveryInterface, resourceName string) bool {
+	_, resourceList, err := discoveryClient.ServerGroupsAndResources()
 	if err != nil {
 		return false
 	}
 
-	_, resourcesList, err := discoveryClient.ServerGroupsAndResources()
-	if err != nil {
-		return false
-	}
-
-	return HasAPIResourceNameInList(name, resourcesList)
+	return HasAPIResourceNameInList(resourceName, resourceList)
 }
 
 func HasAPIResourceNameInList(name string, resources []*metav1.APIResourceList) bool {
@@ -372,23 +367,22 @@ func NewBoolPointer(value bool) *bool {
 
 // IsOAuthEnabled returns true when oAuth is enable for CheCluster resource, otherwise false.
 func IsOAuthEnabled(c *orgv1.CheCluster) bool {
-	if c.Spec.Auth.OpenShiftoAuth != nil && *c.Spec.Auth.OpenShiftoAuth {
-		return true
-	}
-	return false
+	return c.Spec.Auth.OpenShiftoAuth != nil && *c.Spec.Auth.OpenShiftoAuth
 }
 
 // IsInitialOpenShiftOAuthUserEnabled returns true when initial Openshift oAuth user is enabled for CheCluster resource, otherwise false.
 func IsInitialOpenShiftOAuthUserEnabled(c *orgv1.CheCluster) bool {
-	if c.Spec.Auth.InitialOpenShiftOAuthUser != nil && *c.Spec.Auth.InitialOpenShiftOAuthUser {
-		return true
-	}
-	return false
+	return c.Spec.Auth.InitialOpenShiftOAuthUser != nil && *c.Spec.Auth.InitialOpenShiftOAuthUser
 }
 
-// IsWorkspaceInSameNamespaceWithChe return true when Che workspaces will be executed in the same namespace with Che, otherwise returns false.
-func IsWorkspaceInSameNamespaceWithChe(cr *orgv1.CheCluster) bool {
-	return GetWorkspaceNamespaceDefault(cr) == cr.Namespace
+// IsWorkspaceInDifferentNamespaceThanChe return true when Che workspaces will be executed
+// in the different namespace with Che otherwise returns false.
+func IsWorkspaceInDifferentNamespaceThanChe(cr *orgv1.CheCluster) bool {
+	return GetWorkspaceNamespaceDefault(cr) != cr.Namespace
+}
+
+func IsWorkspacePermissionsInTheDifferNamespaceThanCheRequired(cr *orgv1.CheCluster) bool {
+	return !IsOAuthEnabled(cr) && IsWorkspaceInDifferentNamespaceThanChe(cr)
 }
 
 // GetWorkspaceNamespaceDefault - returns workspace namespace default strategy, which points on the namespaces used for workspaces execution.

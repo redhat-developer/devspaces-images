@@ -43,7 +43,7 @@ esac
 
 if [ -z "${GOROOT}" ]; then
   echo "[ERROR] set up '\$GOROOT' env variable to make operator-sdk working"
-  exit 0
+  exit 1
 fi
 
 OPERATOR_YAML="${ROOT_PROJECT_DIR}/deploy/operator.yaml"
@@ -104,7 +104,9 @@ do
   cp -rf "${operatorYaml}" "${generateFolder}/"
 
   crdsDir=${ROOT_PROJECT_DIR}/deploy/crds
-  cp -rf "${crdsDir}" "${generateFolder}/"
+  mkdir -p ${generateFolder}/crds
+  cp -f "${crdsDir}/org_v1_che_cr.yaml" "${generateFolder}/crds"
+  cp -f "${crdsDir}/org_v1_che_crd.yaml" "${generateFolder}/crds"
 
   "${OPERATOR_SDK_BINARY}" generate csv \
   --csv-version "${newNightlyBundleVersion}" \
@@ -134,7 +136,6 @@ do
   cp -rf $templateCRD $platformCRD
   if [[ $platform == "openshift" ]]; then
     yq -riSY  '.spec.preserveUnknownFields = false' $platformCRD
-    yq -riSY  '.spec.validation.openAPIV3Schema.type = "object"' $platformCRD
     eval head -10 $templateCRD | cat - ${platformCRD} > tmp.crd && mv tmp.crd ${platformCRD}
   fi
 

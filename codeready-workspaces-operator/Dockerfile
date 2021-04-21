@@ -13,16 +13,16 @@
 # NOTE: using registry.redhat.io/rhel8/go-toolset requires login, which complicates automation
 # NOTE: since updateBaseImages.sh does not support other registries than RHCC, update to RHEL8
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM devtools/go-toolset-rhel7:1.14.12-4.1615820747  as builder
+FROM devtools/go-toolset-rhel7:1.13.15-4  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
     GOPATH=/go/
+
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
 
 USER root
 ADD . /che-operator
 WORKDIR /che-operator
-
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
 
 # build operator
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
@@ -45,7 +45,7 @@ RUN unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \
     mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-298
+FROM ubi8-minimal:8.3-298.1618432845
 
 COPY --from=builder /tmp/che-operator/che-operator /usr/local/bin/che-operator
 COPY --from=builder /che-operator/templates/keycloak-provision.sh /tmp/keycloak-provision.sh
