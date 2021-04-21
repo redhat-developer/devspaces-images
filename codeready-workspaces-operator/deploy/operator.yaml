@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: codeready-operator
-          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:latest
+          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.8
           ports:
             - containerPort: 60000
               name: metrics
