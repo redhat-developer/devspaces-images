@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: codeready-operator
-          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:latest
+          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.9
           ports:
             - containerPort: 60000
               name: metrics
@@ -51,6 +51,8 @@ spec:
               value: 2.9.0
             - name: RELATED_IMAGE_che_server
               value: registry.redhat.io/codeready-workspaces/server-rhel8:2.9
+            - name: RELATED_IMAGE_dashboard
+              value: quay.io/eclipse/che-dashboard:next
             - name: RELATED_IMAGE_plugin_registry
               value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.9
             - name: RELATED_IMAGE_devfile_registry

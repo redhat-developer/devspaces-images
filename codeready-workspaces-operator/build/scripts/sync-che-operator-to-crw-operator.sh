@@ -66,6 +66,17 @@ UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
 
+replaceField()
+{
+  theFile="$1"
+  updateName="$2"
+  updateVal="$3"
+  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
+  changed=$(cat ${theFile} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+    ${updateName}' = $updateVal')
+  echo "${COPYRIGHT}${changed}" > "${theFile}"
+}
+
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
 	COPY_FOLDERS="cmd mocks olm pkg templates vendor version"
@@ -180,6 +191,12 @@ yq -y --arg updateName "${updateName}" --arg updateVal "${operator_insertions[$u
 			echo "Converted (yq #2) ${d}"
 		fi
 	done <   <(find deploy -type f -name "operator*.yaml" -print0)
+
+	# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator.yaml
+	oldImage=$(yq -r '.spec.template.spec.containers[].image' "${TARGETDIR}/deploy/operator.yaml")
+	if [[ $oldImage ]]; then 
+		replaceField "${TARGETDIR}/deploy/operator.yaml" ".spec.template.spec.containers[].image" "${oldImage%%:*}:${CRW_VERSION}"
+	fi
 
 	# yq changes - transform env vars from Che to CRW values
 	while IFS= read -r -d '' d; do
