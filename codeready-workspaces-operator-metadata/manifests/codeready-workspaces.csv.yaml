@@ -71,7 +71,7 @@ metadata:
     categories: Developer Tools, OpenShift Optional
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.8
-    createdAt: "2021-03-30T02:55:56+00:00"
+    createdAt: "2021-04-21T20:37:57+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -682,12 +682,20 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-machineexec-rhel8:2.8
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java11
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-rhel8:2.8
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-rhel8:2.9
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.8
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.9
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.8
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.9
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.8
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.9
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java8
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-rhel8:2.8
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9
