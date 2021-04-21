@@ -39,7 +39,7 @@ const (
 	DevWorkspaceDeploymentName = "devworkspace-controller-manager"
 
 	DevWorkspaceTemplates    = "/tmp/devworkspace-operator/templates/deployment/openshift/objects"
-	DevWorkspaceCheTemplates = "/tmp/devworkspace-codeready-operator/templates/deployment/openshift/objects/"
+	DevWorkspaceCheTemplates = "/tmp/devworkspace-che-operator/templates/deployment/openshift/objects/"
 
 	DevWorkspaceServiceAccountFile            = DevWorkspaceTemplates + "/devworkspace-controller-serviceaccount.ServiceAccount.yaml"
 	DevWorkspaceRoleFile                      = DevWorkspaceTemplates + "/devworkspace-controller-leader-election-role.Role.yaml"
@@ -309,7 +309,7 @@ func syncDwCheMetricsService(deployContext *deploy.DeployContext) (bool, error) 
 func synDwCheCR(deployContext *deploy.DeployContext) (bool, error) {
 	// We want to create a default CheManager instance to be able to configure the che-specific
 	// parts of the installation, but at the same time we don't want to add a dependency on
-	// devworkspace-codeready-operator. Note that this way of initializing will probably see changes
+	// devworkspace-che-operator. Note that this way of initializing will probably see changes
 	// once we figure out https://github.com/eclipse/che/issues/19220
 	obj := &unstructured.Unstructured{}
 	obj.SetGroupVersionKind(schema.GroupVersionKind{Group: "che.eclipse.org", Version: "v1alpha1", Kind: "CheManager"})

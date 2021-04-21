@@ -374,7 +374,7 @@ rules:
     resources:
       - deployments/finalizers
     resourceNames:
-      - devworkspace-codeready-operator
+      - devworkspace-che-operator
     verbs:
       - update
   - nonResourceURLs: 

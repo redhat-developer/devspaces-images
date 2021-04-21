@@ -522,7 +522,7 @@ spec:
             - apiGroups:
                 - apps
               resourceNames:
-                - devworkspace-codeready-operator
+                - devworkspace-che-operator
               resources:
                 - deployments/finalizers
               verbs:

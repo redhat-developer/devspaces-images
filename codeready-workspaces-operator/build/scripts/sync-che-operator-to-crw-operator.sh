@@ -88,6 +88,7 @@ pushd "${SOURCEDIR}" >/dev/null
 			-e 's|/bin/codeready-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/codeready-operator#\1.com/eclipse-che/che-operator#g' \
+			-e 's|devworkspace-codeready-operator|devworkspace-che-operator|' \
 		"$d" > "${TARGETDIR}/${d}"
 		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
 			echo "Converted (sed) ${d}"
