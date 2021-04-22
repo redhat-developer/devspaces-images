@@ -22,22 +22,28 @@ for (JB in JOB_BRANCHES) {
         UPSTM_REPO="https://github.com/eclipse/" + UPSTM_NAME
 
         description('''
-Artifact builder + sync job; triggers brew after syncing
+Syncs/generates code from upstream into midstream, then triggers sync, Brew build, and copy to quay jobs
+
+<p>There are two operator-related sync jobs:<br/>
+1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
+2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV</p>
 
 <ul>
 <li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces-''' + MIDSTM_NAME + '''/tree/''' + MIDSTM_BRANCH + '''/>operator</a></li>
-<li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
+<li>Midstream 1 (transformation code): 
+<a href=https://github.com/redhat-developer/codeready-workspaces-operator/tree/''' + MIDSTM_BRANCH + '''/>crw-operator</a></li>
+<li>Midstream 2 (transformed code): <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Downstream (copied from midstream 2): <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>crw-''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
 <p>If <b style="color:green">downstream job fires</b>, see 
-<a href=../crw-sync-to-downstream_''' + JOB_BRANCH + '''/>crw-sync-to-downstream</a>, then
-<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
-   If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
-
-<p>Note that there are two operator-related sync jobs:<br/>
-1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
-2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a></p>
+<ol>
+<li><a href=../crw-sync-to-downstream_''' + JOB_BRANCH + '''/>crw-sync-to-downstream</a>, then</li>
+<li><a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, then</li>
+<li><a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''/>push to quay</a></li>
+</ol>
+<br/>
+If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
