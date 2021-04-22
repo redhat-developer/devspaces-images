@@ -88,11 +88,15 @@ if [[ ! ${CHE_VERSION} ]]; then
 	CHE_VERSION="$(curl -sSLo - https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/pom.xml | grep -E "<che.version>" | sed -r -e "s#.+<che.version>(.+)</che.version>#\1#" || exit 1)"
 fi
 
+CRW_RRIO="registry.redhat.io/codeready-workspaces"
+CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
+CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
+# TODO switch to "${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" once it exists in quay
+CRW_DASHBOARD_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}" 
+
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
-TRAEFIK_IMAGE="registry.redhat.io/codeready-workspaces/traefik-rhel8:${CRW_VERSION}"
-CONFIGBUMP_IMAGE="registry.redhat.io/codeready-workspaces/configbump-rhel8:${CRW_VERSION}"
 
 pushd "${SOURCEDIR}" >/dev/null || exit
 
@@ -288,8 +292,11 @@ yq -r --arg updateName "RELATED_IMAGE_keycloak" '.spec.install.spec.deployments[
 	declare -A operator_insertions=(
 		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
 		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-		["RELATED_IMAGE_single_host_gateway"]="${TRAEFIK_IMAGE}"
-		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CONFIGBUMP_IMAGE}"
+
+		# also insert other RELATED_IMAGE env vars (do we actually need these?)
+		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
 	)
 	for updateName in "${!operator_insertions[@]}"; do
 		updateVal="${operator_insertions[$updateName]}"
