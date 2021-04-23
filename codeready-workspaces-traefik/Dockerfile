@@ -1,5 +1,5 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.3-298.1618432845 
+FROM ubi8-minimal:8.3 
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - Traefik" \ 
     DESCRIPTION="Red Hat CodeReady Workspaces - Traefik" \ 
@@ -13,9 +13,9 @@ RUN microdnf -y install tar gzip && \
     tar xzf /tmp/assets/asset-traefik-$(uname -m).tar.gz -C / && \ 
     rm -fr /tmp/assets/ && \ 
     chmod 755 /traefik && \ 
-    microdnf -y remove tar gzip || true && \
-    microdnf -y update || true && \
-    microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+    microdnf -y remove tar gzip && \ 
+    microdnf -y update || true && \ 
+    microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" 
 
 EXPOSE 80
 VOLUME ["/tmp"]

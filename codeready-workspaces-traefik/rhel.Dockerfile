@@ -42,5 +42,5 @@ COPY . /go/src/github.com/traefik/traefik
 RUN rm -rf /go/src/github.com/traefik/traefik/static/
 COPY --from=webui /src/static/ /go/src/github.com/traefik/traefik/static/
 
-RUN ./script/make.sh generate binary
+RUN export VERSION="3e61d" && ./script/make.sh generate binary
 
