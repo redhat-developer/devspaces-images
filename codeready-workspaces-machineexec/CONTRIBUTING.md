@@ -11,7 +11,7 @@ To create development Eclipse CHE workspace we provide che-machine-exec devfile 
 To start Eclipse CHE workspace, [install the latest chectl](https://www.eclipse.org/che/docs/che-7/che-quick-starts.html#installing-the-chectl-management-tool) and start new workspace from devfile:
 
 ```shell
-$ chectl workspace:start --devfile=https://raw.githubusercontent.com/eclipse/che-machine-exec/master/devfile.yaml
+$ chectl workspace:start --devfile=https://raw.githubusercontent.com/eclipse/che-machine-exec/main/devfile.yaml
 ```
 
 Open link to the workspace. After workspace start Eclipse CHE editor
@@ -22,7 +22,7 @@ This source code available inside development linux containers with names `dev` 
 
 To test che-machine-exec with ui-part you can use [che-theia](https://github.com/eclipse/che-theia.git).
 In this case you need compile che-theia inside development container `theia-dev`.
-See more: [che-theia develompent flow](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md).
+See more: [che-theia development flow](https://github.com/eclipse/che-theia/blob/master/CONTRIBUTING.md).
 
 ### Development commands
 

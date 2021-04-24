@@ -91,7 +91,7 @@ func init() {
 	if !isFound {
 		workspaceID := os.Getenv("DEVWORKSPACE_ID")
 		if workspaceID != "" {
-			defaultPodSelector = fmt.Sprintf("controller.devfile.io/workspace_id=%s", workspaceID)
+			defaultPodSelector = fmt.Sprintf("controller.devfile.io/devworkspace_id=%s", workspaceID)
 		} else {
 			workspaceID = os.Getenv("CHE_WORKSPACE_ID")
 			if workspaceID != "" {
@@ -99,7 +99,7 @@ func init() {
 			}
 		}
 	}
-	flag.StringVar(&PodSelector, "pod-selector", defaultPodSelector, "Selector that is used to find workspace pod. Default value is `che.workspace_id=${CHE_WORKSPACE_ID}` or controller.devfile.io/workspace_id={DEVWORKSPACE_ID} if che env var is not defined")
+	flag.StringVar(&PodSelector, "pod-selector", defaultPodSelector, "Selector that is used to find workspace pod. Default value is `che.workspace_id=${CHE_WORKSPACE_ID}` or controller.devfile.io/devworkspace_id={DEVWORKSPACE_ID} if che env var is not defined")
 
 	setLogLevel()
 }
