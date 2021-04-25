@@ -127,10 +127,10 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                             echo "<============ LATEST_IMAGES new 3 ============"
 
                             # commit changes
-                            git add dependencies/LATEST_IMAGES* || true
-                            git commit -m "[update] Update dependencies/LATEST_IMAGES" dependencies/LATEST_IMAGES*
+                            git add dependencies/LATEST_IMAGES dependencies/LATEST_IMAGES_* || true
+                            git commit -m "[update] Update dependencies/LATEST_IMAGES, COMMITS, DIGESTS" dependencies/LATEST_IMAGES dependencies/LATEST_IMAGES_* || true
                             git pull origin ''' + MIDSTM_BRANCH + ''' || true
-                            git push origin ''' + MIDSTM_BRANCH + '''
+                            git push origin ''' + MIDSTM_BRANCH + ''' || true
 
                             popd >/dev/null
                         '''
