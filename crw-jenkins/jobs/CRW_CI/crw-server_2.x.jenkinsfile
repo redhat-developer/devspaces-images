@@ -9,7 +9,8 @@ import groovy.transform.Field
 
 @Field String branchToBuildDev = "refs/tags/19"
 @Field String branchToBuildParent = "refs/tags/7.15.0"
-def SOURCE_BRANCH_Dashboard = SOURCE_BRANCH // use new dashboard https://issues.redhat.com/browse/CRW-1435
+// TODO when che server moves to main as its default branch, change this too
+def SOURCE_BRANCH_Dashboard = "main" // use new dashboard https://issues.redhat.com/browse/CRW-1435
 
 // TODO re-enable all tests here
 // additional flags for maven, eg., to disable a module -pl '!org.eclipse.che.infrastructure:che-infrastructures-parent,!...'
