@@ -219,7 +219,12 @@ yq  -y 'del(.spec.k8s)')" && \
 
 	# delete unneeded files
 	echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
-	rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes olm/eclipse-che-preview-openshift"
+	rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes ${TARGETDIR}/olm/eclipse-che-preview-openshift"
+	echo "Delete deploy/*/eclipse-che-preview-kubernetes and deploy/olm-catalog/stable"
+	rm -fr "${TARGETDIR}/deploy/olm-catalog/eclipse-che-preview-kubernetes"
+	rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
+	# remove files with embedded RELATED_IMAGE_* values for Che stable releases
+	rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
 
 popd >/dev/null
 
