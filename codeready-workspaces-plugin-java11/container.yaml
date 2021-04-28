@@ -8,13 +8,13 @@ platforms:
 
 compose:
   inherit: false
+  pulp_repos: true
+  signing_intent: release
   packages:
   - java-11-openjdk
   - java-11-openjdk-headless
   - java-11-openjdk-devel
   - java-11-openjdk-src
-  pulp_repos: true
-  signing_intent: release
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder

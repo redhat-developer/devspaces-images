@@ -8,10 +8,9 @@ platforms:
   - ppc64le
 
 compose:
-  #packages:
-  #- java-1.8.0-openjdk  # package name, not an NVR.
-
+  inherit: false
   pulp_repos: true
+  signing_intent: release
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder

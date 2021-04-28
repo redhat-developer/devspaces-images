@@ -10,6 +10,7 @@ platforms:
 compose:
   inherit: false
   pulp_repos: true
+  signing_intent: release
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
