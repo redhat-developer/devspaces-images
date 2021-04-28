@@ -10,7 +10,7 @@ verbose=0
 
 # specific flags for sync.sh
 UPDATE_VENDOR=""
-SOURCE_BRANCH="rhel-dockerfile" # or 0.2.x
+SOURCE_BRANCH="main" # or 0.2.x
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
