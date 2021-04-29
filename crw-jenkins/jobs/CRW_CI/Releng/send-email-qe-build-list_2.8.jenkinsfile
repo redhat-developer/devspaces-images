@@ -10,9 +10,10 @@ import groovy.transform.Field
 // additionalNotes
 // doSendEmail
 // doOSBS
-// doStage
 // RECIPIENTS
 // MIDSTM_BRANCH
+
+def doStage = false
 
 def sendMail(mailSubject,mailBody) { // NEW_OSBS
     def sender="nboldt@redhat.com" // # use a bot instead?

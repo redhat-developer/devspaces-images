@@ -10,7 +10,6 @@ import groovy.transform.Field
 // additionalNotes
 // doSendEmail
 // doOSBS
-// doStage
 // RECIPIENTS
 // MIDSTM_BRANCH
 
@@ -70,7 +69,6 @@ timeout(90) {
                         returnStdout: true).trim().split( '\n' )
                     def NEW_QUAY = ""
                     def NEW_OSBS = ""
-                    def NEW_STG = ""
                     def NEW_NVR = ""
                     parallel quay_check: {
                         NEW_QUAY = sh (
@@ -84,14 +82,6 @@ timeout(90) {
                             script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.osbs",
                             returnStdout: true).trim().split( '\n' )
                             errorOccurred = checkFailure(NEW_OSBS, "OSBS", errorOccurred)
-                        }
-                    }, 
-                    stg_check: {
-                        if (doStage.equals("true")) {
-                            NEW_STG = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --stage | tee ${WORKSPACE}/LATEST_IMAGES.stage",
-                            returnStdout: true).trim().split( '\n' )
-                            errorOccurred = checkFailure(NEW_STG, "Stage", errorOccurred)
                         }
                     }, 
                     nvr_check: {
@@ -111,7 +101,6 @@ timeout(90) {
                     ).trim()
 
                     def DIFF_LATEST_IMAGES_QUAY_V_OSBS = ""
-                    def DIFF_LATEST_IMAGES_QUAY_V_STG = ""
 
                     if (doOSBS.equals("true")) {
                         // diff quay tag list vs. OSBS tag list
@@ -123,27 +112,15 @@ timeout(90) {
                             returnStdout: true
                         ).trim()
                     }
-                    if (doStage.equals("true")) {
-                        // diff quay tag list vs. stage tag list
-                        sh(script: '''#!/bin/bash -xe
-            ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.stage)  > ${WORKSPACE}/LATEST_IMAGES.stage.tagsonly
-            ''', returnStdout: true)
-                        DIFF_LATEST_IMAGES_QUAY_V_STG = sh (
-                            script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,stage}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
-                            returnStdout: true
-                        ).trim()
-                    }
 
                     archiveArtifacts fingerprint: false, artifacts:"LATEST_IMAGES*"
-                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("") || !DIFF_LATEST_IMAGES_QUAY_V_OSBS.equals("") || !DIFF_LATEST_IMAGES_QUAY_V_STG.equals("")) {
+                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("") || !DIFF_LATEST_IMAGES_QUAY_V_OSBS.equals("")) {
                         // error! quay and nvr versions do not match
                         errorOccurred = errorOccurred + 'Error: Quay & Brew image versions not aligned:\n' + 
                         "=================== QUAY v NVR ===================\n" + 
                         DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
                         "=================== QUAY v OSBS ===================\n" + 
                         DIFF_LATEST_IMAGES_QUAY_V_OSBS + '\n' + 
-                        "=================== QUAY v STG ===================\n" + 
-                        DIFF_LATEST_IMAGES_QUAY_V_STG + '\n' + 
                         ' Failure!\n'
                         currentBuild.description="Quay/Brew version mismatch!"
                         currentBuild.result = 'FAILURE'
@@ -163,7 +140,6 @@ timeout(90) {
 
                     def NEW_QUAY_L=""; NEW_QUAY.each { line -> if (line?.trim()) { NEW_QUAY_L=NEW_QUAY_L+"- ${line}\n" } }
                     def NEW_OSBS_L=""; NEW_OSBS.each { line -> if (line?.trim()) { NEW_OSBS_L=NEW_OSBS_L+"= ${line}\n" } }
-                    def NEW_STG_L="";  NEW_STG.each  { line -> if (line?.trim()) { NEW_STG_L=NEW_STG_L + "* ${line}\n" } }
                     def NEW_NVR_L="";  NEW_NVR.each  { line -> if (line?.trim()) { NEW_NVR_L=NEW_NVR_L + "  ${line}\n" } } 
 
                     def mailBody = mailSubject + '''
@@ -181,12 +157,6 @@ Quay Images:
         mailBody = mailBody + '''
 OSBS Images:
 ''' + NEW_OSBS_L
-    }
-
-    if (doStage.equals("true")) {
-        mailBody = mailBody + '''
-Stage Images:
-''' + NEW_STG_L
     }
 
     mailBody = mailBody + '''

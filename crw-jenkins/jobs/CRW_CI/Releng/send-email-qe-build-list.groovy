@@ -42,7 +42,6 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 stuff goes here if applicable''',"Stuff to mention after the lists of images")
             booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
             booleanParam("doOSBS",false,'''if checked, include OSBS images in email''')
-            booleanParam("doStage",false,'''if checked, include RHCC stage images in email''')
             // # RECIPIENTS - comma and space separated list of recipient email addresses
             stringParam("RECIPIENTS","codeready-workspaces-qa@redhat.com, che-prod@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")

@@ -5,7 +5,7 @@ def FLOATING_QUAY_TAGS = [
     "2.x"  :"nightly"
     ]
 def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"master"]
-def JOB_DISABLED = ["2.7":true, "2.8":false, "2.x":false]
+def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
