@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM registry.access.redhat.com/devtools/go-toolset-rhel7:1.14.12-4.1608220101 as builder
+FROM registry.access.redhat.com/devtools/go-toolset-rhel7:1.14.12-4.1615820747 as builder
 ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH \
     GOPATH=/go/
 USER root
@@ -20,9 +20,9 @@ RUN adduser appuser && \
     CGO_ENABLED=0 GOOS=linux go build -mod vendor -a -ldflags '-w -s' -installsuffix cgo -o metadata-broker main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.3-291
+FROM registry.access.redhat.com/ubi8-minimal:8.3-298
 
-RUN microdnf update -y systemd && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
