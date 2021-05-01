@@ -48,10 +48,10 @@ USER root
 # For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202103251046.p0.git.3957.c4da68b.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202103251046.p0.git.3957.c4da68b.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202103251046.p0.git.3957.c4da68b.el8.ppc64le.rpm
-RUN yum install -y --setopt=tsflags=nodocs wget curl openshift-clients-4.7.0-202103251046.p0.git.3957.c4da68b.el8 dotnet dotnet-host \
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202104141511.p0.git.3964.ac5b995.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202104141511.p0.git.3964.ac5b995.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202104141511.p0.git.3964.ac5b995.el8.ppc64le.rpm
+RUN yum install -y --setopt=tsflags=nodocs wget curl openshift-clients-4.7.0-202104141511.p0.git.3964.ac5b995.el8 dotnet dotnet-host \
     dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION} && \
     yum remove -y nodejs && \
     yum -y -q update && \
