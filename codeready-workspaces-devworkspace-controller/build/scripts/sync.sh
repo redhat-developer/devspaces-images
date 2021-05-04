@@ -72,9 +72,14 @@ fi
 echo ".github/
 .git/
 .gitattributes
+build/scripts/sync.sh
+get-sources-jenkins.sh
+container.yaml
+content_sets.yml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes ${SOURCEDIR}/* ${TARGETDIR}/
+rm -fr ${TARGETDIR}/vendor/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
 # remove k8s deployment files
