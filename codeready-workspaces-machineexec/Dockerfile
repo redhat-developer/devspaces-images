@@ -9,28 +9,29 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
+# UPSTREAM: use devtools/go/-toolset-rhel7 image so we're not required to authenticate with registry.redhat.io
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
+# FROM registry.access.redhat.com/rhel8/go-toolset:1.14.12-17.1618436992 as builder
+# ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH
+# DOWNSTREAM: use rhel8/go-toolset; no path modification needed
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.14.12-17.1618436992 as builder
+
 ENV GOPATH=/go/
 USER root
-WORKDIR /che-machine-exec/
-COPY . .
-RUN adduser unprivilegeduser && \
-    CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
-    mkdir -p /rootfs/tmp /rootfs/etc /rootfs/go/bin && \
-    # In the `scratch` you can't use Dockerfile#RUN, because there is no shell and no standard commands (mkdir and so on).
-    # That's why prepare absent `/tmp` folder for scratch image 
-    chmod 1777 /rootfs/tmp && \
-    cp -rf /etc/passwd /rootfs/etc && \
-    cp -rf /che-machine-exec/che-machine-exec /rootfs/go/bin
+WORKDIR /go/src/github.com/eclipse/che-machine-exec/
+COPY . /go/src/github.com/eclipse/che-machine-exec/
+RUN adduser appuser && \
+    CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec .
 
-FROM scratch
-
-COPY --from=builder /rootfs /
-COPY --from=builder /usr/bin/sleep /usr/bin/sleep
-
-USER unprivilegeduser
-ENTRYPOINT ["/go/bin/che-machine-exec"]
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM ubi8-minimal:8.3-298.1618432845
+RUN microdnf -y update || true && \
+    microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+USER appuser
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /go/src/github.com/eclipse/che-machine-exec/che-machine-exec /usr/local/bin
+ENTRYPOINT ["che-machine-exec"]
 
 # append Brew metadata here
 ENV SUMMARY="Red Hat CodeReady Workspaces machineexec container" \
