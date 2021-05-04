@@ -141,7 +141,8 @@ sed -r \
 
 # 2. generation of digests already done as part of sync-che-olm-to-crw-olm.sh above
 
-# NOTE about openshift.versions field below: "v4.6" is special. Do not change it. 
+# NOTE about openshift.versions field below: "v4.6" is special, meaning 4.6+. 
+# Do not change it (unless we want to restrict CRW from being available on specific OCP versions (eg., v4.6,v4.8 would exclude support for v4.7)
 # See details in https://docs.engineering.redhat.com/display/CFC/Delivery
 
 # 3. revert to OSBS image refs, since digest pinning will automatically switch them to RHCC values
@@ -160,7 +161,7 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\\r
       operators.operatorframework.io.bundle.channel.default.v1=latest \\\r
       com.redhat.delivery.operator.bundle="true" \\\r
       com.redhat.openshift.versions="v4.6" \\\r
-      com.redhat.delivery.backport=true \\\r
+      com.redhat.delivery.backport=false \\\r
       summary="$SUMMARY" \\\r
       description="$DESCRIPTION" \\\r
       io.k8s.description="$DESCRIPTION" \\\r

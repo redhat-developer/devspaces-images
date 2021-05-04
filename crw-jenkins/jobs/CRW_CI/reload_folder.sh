@@ -4,7 +4,7 @@
 # temporarily delete all but this folder, then 
 # curl a rebuild of the job-configurator
 
-foldersToExclude="Che/ CodereadyWorkspaces/ Examples/ DevSandbox/ Flexy/ Playground/ system/"
+foldersToExclude="Che/ CodereadyWorkspaces/ Examples/ DevSandbox/ Flexy/ Playground/ system/ WTO/"
 clear
 pushd .. >/dev/null || exit
 

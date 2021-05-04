@@ -40,7 +40,7 @@ timeout(120) {
         util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
         OLD_SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
         println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
-        util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit")        
+        util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit")
 
         println "########################################################################################################"
         println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"

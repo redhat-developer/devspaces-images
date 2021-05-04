@@ -65,10 +65,10 @@ for c in ''' + CONTAINERS.trim() + '''; do
     if [[ $c == "operator" ]] || [[ $c == "operator-metadata" ]]; then 
         d=codeready-workspaces-${c}
     fi 
-    ./getLatestImageTags.sh -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
-                            ''', returnStatus:true)
+                            ''', returnStatus: true)
                             if (statusCode > 0) {
                                 errorOccurred = errorOccurred + 'error pushing to quay\n'; 
                                 currentBuild.description+="; error pushing to quay!"
@@ -159,7 +159,10 @@ node(nodeLabel){
 
         // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
         // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
-        if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
+        if (CONTAINERS.trim().equals("operator-metadata")) {
+            println "NOTE: Skip scheduling update-digests-in-registries-and-metadata for this update, as we have just updated operator-metadata."
+            currentBuild.description+="; update-digests-in-registries-and-metadata NOT triggered"
+        } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
             println "Scheduling update-digests-in-registries-and-metadata for this update:"
             println DIFF_LATEST_IMAGES_QUAY_V_STORED
             build(
@@ -179,14 +182,18 @@ node(nodeLabel){
                     ]
                 ]
             )
-            currentBuild.description=currentBuild.description+"; update-digests-in-registries-and-metadata triggered"
+            currentBuild.description+="; update-digests-in-registries-and-metadata triggered"
+        } else {
+            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-registries-and-metadata_" + CRW_VERSION
+            currentBuild.result = 'UNSTABLE'
+            currentBuild.description+="; update-digests-in-registries-and-metadata NOT triggered"
+        }
 
-        } else if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
+        if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
             // https://issues.redhat.com/browse/CRW-1564 if an update to operator-metadata, push new csv content into crw-images repo, 
             // in codeready-workspaces-operator-metadata-generated folder (outside where we sync from up->mid->down, as this should NOT
             // be synced to downstream or overwritten by upstream)
             util.installSkopeoFromContainer("")
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh')
             SOURCE_REPO="redhat-developer/codeready-workspaces-images"
             println "####################################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
@@ -196,44 +203,39 @@ node(nodeLabel){
                 util.bootstrap(CRW_KEYTAB)
                 util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
                 sh(script: '''#!/bin/bash -xe
-rm -fr /tmp/quay.io-crw-crw-2-rhel8-operator-metadata-''' + CRW_VERSION + '''-* || true
-chmod +x containerExtract.sh && ./containerExtract.sh quay.io/crw/crw-2-rhel8-operator-metadata:''' + CRW_VERSION + ''' || true
-rsync -zrlt /tmp/quay.io-crw-crw-2-rhel8-operator-metadata-''' + CRW_VERSION + '''-*/* \
-    ${WORKSPACE}/sources/codeready-workspaces-operator-metadata-generated/
-pushd ${WORKSPACE}/sources/ >/dev/null
-    git add codeready-workspaces-operator-metadata-generated || true
-    git commit -m "[brew] Publish CSV with generated digests" codeready-workspaces-operator-metadata-generated || true
-    git pull origin ''' + MIDSTM_BRANCH + ''' || true
-    git push origin ''' + MIDSTM_BRANCH + '''
-popd >/dev/null ''')
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
+chmod +x updateGeneratedOperatorMetadata.sh
+./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + CRW_VERSION + ''' -s ${WORKSPACE}/sources
+''')
             }
+            currentBuild.description+="; operator-metadata-generated updated"
 
-            sh (script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh', returnStdout: true).trim().split( '\n' )
-            def NEW_OSBS_IMAGE = sh(script: '''./getLatestImageTags.sh --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION.toString().replaceAll("\\.","\\\\."), returnStdout: true).trim().split( '\n' )
             println "####################################################################################################################"
-            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for ${NEW_OSBS_IMAGE}"
+            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest operator-metadata ${CRW_VERSION}"
             println "####################################################################################################################"
             def statusCode = sh(script: '''#!/bin/bash -xe
-# eg., registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator-metadata:2.7-30
-curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=6&contains=codeready-workspaces" | jq ".raw_messages[].msg.index" > datagrepper.json
-FOUND=$(jq --arg NEW_OSBS_IMAGE "''' + NEW_OSBS_IMAGE + '''" '. | select(.added_bundle_images[] == $NEW_OSBS_IMAGE)' 2>/dev/null datagrepper.json)
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh
+chmod +x getLatestImageTags.sh
+NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION + '''-)
+
+# registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator-metadata:2.9-2	registry-proxy.engineering.redhat.com/rh-osbs/iib:69346	v4.7
+curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -u | tail -20 > datagrepper.tsv.txt
+
+FOUND=$(grep "${NEW_OSBS_IMAGE}" datagrepper.tsv.txt)
 if [[ $FOUND ]]; then
   echo $FOUND
-  rm -f datagrepper.json
+  rm -f datagrepper.tsv.txt
 else
-  echo "[ERROR] Could not find ''' + NEW_OSBS_IMAGE + ''' in https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=6&contains=codeready-workspaces (when piped to jq '.raw_messages[].msg.index')
+  echo "[ERROR] Could not find ${NEW_OSBS_IMAGE} in registry-proxy.engineering.redhat.com/rh-osbs/iib !
+  echo '  curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -u | tail -20'
   exit 1
 fi
-''', returnStatus:true)
+''', returnStatus: true)
             if (statusCode > 0) {
                 currentBuild.result = 'FAILURE'
-                currentBuild.description=currentBuild.description+"; ERROR: rh-osbs/iib NOT updated!"
+                currentBuild.description+="; ERROR: rh-osbs/iib NOT updated!"
             }
-        } else {
-            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-registries-and-metadata_" + CRW_VERSION
-            currentBuild.result = 'UNSTABLE'
-            currentBuild.description=currentBuild.description+"; update-digests-in-registries-and-metadata NOT triggered"
-        } // if 2
+        } // if metadata 
     } // if
   } // stage
 } //node
@@ -269,7 +271,7 @@ node(nodeLabel){
                     ]
                 ]
             )
-            currentBuild.description=currentBuild.description+"; crw-theia-akamai triggered"
+            currentBuild.description+="; crw-theia-akamai triggered"
         } // if 2
     } // if
   } // stage

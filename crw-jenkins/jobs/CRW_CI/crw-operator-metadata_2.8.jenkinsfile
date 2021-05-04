@@ -142,7 +142,8 @@ sed -r \
 
 # 2. generation of digests already done as part of sync-che-olm-to-crw-olm.sh above
 
-# NOTE about openshift.versions field below: "v4.5,v4.6" is special. Do not change it. 
+# NOTE about openshift.versions field below: "v4.5,v4.6" is special. Do not change it.
+# use backport=true for v4.5 support
 # See details in https://docs.engineering.redhat.com/display/CFC/Delivery
 
 # 3. revert to OSBS image refs, since digest pinning will automatically switch them to RHCC values

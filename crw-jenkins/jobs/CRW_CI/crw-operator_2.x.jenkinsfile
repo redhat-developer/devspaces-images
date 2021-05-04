@@ -235,22 +235,6 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
   NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
   echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
 fi
-
-# TODO why do we do this sync from down -> mid?
-# if it's never committed what's the point? ~Nick
-# now rsync files to MIDSTM GH repo from changes in dist-git
-## for d in ''' + SYNC_FILES_DWN2MID + '''; do
-##   if [[ -f ${TARGET_DIR}/${d} ]]; then
-##     rsync -zrlt ${TARGET_DIR}/${d} ${WORKSPACE}/targetmid/${d}
-##   elif [[ -d ${TARGET_DIR}/${d} ]]; then
-##     # copy over the files
-##     rsync -zrlt ${TARGET_DIR}/${d}/* ${WORKSPACE}/targetmid/${d}/
-##     # sync the directory and delete from targetmid if deleted from source
-##     rsync -zrlt --delete ${TARGET_DIR}/${d}/ ${WORKSPACE}/targetmid/${d}/
-##   fi
-## done
-# TODO should this be done higher up, before we commit to midstream repo crw-operator?
-# or is this obsoleted by some other sync script? ~Nick
 '''
 
           NEW_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")

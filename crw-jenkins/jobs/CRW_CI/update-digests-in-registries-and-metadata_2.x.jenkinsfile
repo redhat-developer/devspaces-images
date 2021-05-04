@@ -199,7 +199,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                 //parallel jobs
                                 while (true) {
                                     def REBUILT_IMAGES = sh (
-                                    script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -c 'crw/devfileregistry-rhel8 crw/pluginregistry-rhel8' --quay --tag ${CRW_VERSION}- --hide",
+                                    script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/devfileregistry-rhel8 crw/pluginregistry-rhel8' --quay --tag ${CRW_VERSION}- --hide",
                                     returnStdout: true
                                     ).trim().split()
                                     def rebuiltImagesSet = REBUILT_IMAGES as Set
@@ -247,7 +247,7 @@ echo "<============ LATEST_IMAGES.new 2 ============"
                             while (true) 
                             {
                                 def rebuiltOperatorMetadataImage = sh (
-                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
+                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
                                 returnStdout: true
                                 ).trim()
                                 echo "${rebuiltOperatorMetadataImage}"
