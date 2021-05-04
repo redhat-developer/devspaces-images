@@ -1042,7 +1042,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:d6c4a7cc4fa904463cae1af2c945cc51e5358be77bec436db91c4c00ece39243
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:4218a96427874068d1bce40a7015e078c4e438d10b38bb29842e473a8854be02
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:955724beabe33a70c050dee7149e13bfb8d8e470a5cdf5102b7c7b786b27e5ec
                 - name: RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7
                   value: registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7@sha256:d16cfe30eaf20a157cd5d5980a6c34f3fcbcfd2fd225e670a0138d81007dd919
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_openj9_11_openshift
@@ -1303,7 +1303,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:d6c4a7cc4fa904463cae1af2c945cc51e5358be77bec436db91c4c00ece39243
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:4218a96427874068d1bce40a7015e078c4e438d10b38bb29842e473a8854be02
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:955724beabe33a70c050dee7149e13bfb8d8e470a5cdf5102b7c7b786b27e5ec
   - name: jboss_eap_7_eap73_openjdk8_openshift_rhel7
     image: registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7@sha256:d16cfe30eaf20a157cd5d5980a6c34f3fcbcfd2fd225e670a0138d81007dd919
   - name: jboss_eap_7_eap_xp2_openj9_11_openshift
