@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2019 Red Hat, Inc.
+# Copyright (c) 2012-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,7 +11,11 @@
 #
 # Dockerfile defines che-machine-exec production image eclipse/che-machine-exec-dev
 #
-FROM golang:1.12.8-alpine as go_builder
+
+# https://quay.io/repository/eclipse/kubernetes-image-puller?tab=tags
+FROM quay.io/eclipse/kubernetes-image-puller:e28a7fb as k8s-image-puller
+
+FROM docker.io/golang:1.12.8-alpine as go_builder
 
 ENV USER=machine-exec
 ENV UID=12345
@@ -37,7 +41,7 @@ WORKDIR /che-machine-exec/
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o /go/bin/che-machine-exec .
 
-FROM node:10.16-alpine as cloud_shell_builder
+FROM docker.io/node:10.16-alpine as cloud_shell_builder
 COPY --from=go_builder /che-machine-exec/cloud-shell cloud-shell-src
 WORKDIR cloud-shell-src
 RUN yarn && \
@@ -49,10 +53,10 @@ FROM scratch
 COPY --from=go_builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=go_builder /etc/passwd /etc/passwd
 COPY --from=go_builder /etc/group /etc/group
-COPY --from=go_builder /bin/sleep /bin/sleep
 USER machine-exec
 
 COPY --from=go_builder /go/bin/che-machine-exec /go/bin/che-machine-exec
 COPY --from=cloud_shell_builder /app /cloud-shell
+COPY --from=k8s-image-puller /bin/sleep /bin/sleep
 
 ENTRYPOINT ["/go/bin/che-machine-exec", "--static", "/cloud-shell"]
