@@ -9,8 +9,8 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.14.12-17.1618436992 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
+FROM ubi8/go-toolset:1.14.12-17.1618436992 as builder
 ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH \
     GO111MODULE=on
 
@@ -50,6 +50,7 @@ COPY --from=builder /etc/passwd /etc/passwd
 
 USER appuser
 COPY --from=builder /kubernetes-image-puller/bin/kubernetes-image-puller /
+COPY --from=builder /kubernetes-image-puller/bin/sleep /bin/sleep
 # NOTE: To use this container, need a configmap. See example at ./deploy/openshift/configmap.yaml
 # See also https://github.com/che-incubator/kubernetes-image-puller#configuration
 CMD ["/kubernetes-image-puller"]
