@@ -226,7 +226,7 @@ if [[ $FOUND ]]; then
   echo $FOUND
   rm -f datagrepper.tsv.txt
 else
-  echo "[ERROR] Could not find ${NEW_OSBS_IMAGE} in registry-proxy.engineering.redhat.com/rh-osbs/iib !
+  echo "[ERROR] Could not find ${NEW_OSBS_IMAGE} in registry-proxy.engineering.redhat.com/rh-osbs/iib !"
   echo '  curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -u | tail -20'
   exit 1
 fi
