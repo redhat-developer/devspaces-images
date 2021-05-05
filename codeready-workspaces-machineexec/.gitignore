@@ -23,5 +23,6 @@ _testmain.go
 *.test
 *.prof
 .idea/
-
+sleep
+*.tar.gz
 che-machine-exec
