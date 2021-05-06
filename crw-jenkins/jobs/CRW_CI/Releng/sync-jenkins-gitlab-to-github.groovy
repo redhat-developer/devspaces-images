@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.x":"master"] // only sync to main branch 2, not the 2.y sub-branches
+def JOB_BRANCHES = [ "2.x" : "master" ] // gitlab repo uses master, do not change - only sync to main branch 2, not the 2.y sub-branches
 def JOB_DISABLED = ["2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value

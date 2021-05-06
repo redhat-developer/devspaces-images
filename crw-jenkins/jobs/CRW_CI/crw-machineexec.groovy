@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"main"]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"7.30.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
 def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
@@ -9,14 +9,15 @@ for (JB in JOB_BRANCHES) {
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-machine-exec"
         MIDSTM_NAME="machineexec"
-        UPSTM_REPO="https://github.com/eclipse/" + UPSTM_NAME
+        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
+        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <ul>
-<li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
+<li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
@@ -49,8 +50,11 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
+            stringParam("SOURCE_REPO", SOURCE_REPO)
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+            stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("MIDSTM_NAME", MIDSTM_NAME)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
@@ -60,7 +64,7 @@ Artifact builder + sync job; triggers brew after syncing
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/crw-machine-exec_'+JOB_BRANCH+'.jenkinsfile'))
+                script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
             }
         }
     }

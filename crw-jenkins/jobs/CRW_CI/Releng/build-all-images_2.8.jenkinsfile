@@ -74,7 +74,7 @@ node(nodeLabel) {
                         "operator":"crw-2-rhel8-operator",
                         "imagepuller":"imagepuller-rhel8",
                         "jwtproxy":"jwtproxy-rhel8",
-                        "machine-exec":"machineexec-rhel8",
+                        "machineexec":"machineexec-rhel8",
                         "pluginbrokers":"pluginbroker-artifacts-rhel8",
                         "traefik":"traefik-rhel8"
                         ]

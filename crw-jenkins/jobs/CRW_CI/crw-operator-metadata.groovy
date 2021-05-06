@@ -4,7 +4,7 @@ def CSV_VERSIONS = [
     "2.8"  :["2.8.0","2.7.1"],
     "2.x"  :["2.9.0","2.8.0"]
     ]
-def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"main"]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"7.30.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
 def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value

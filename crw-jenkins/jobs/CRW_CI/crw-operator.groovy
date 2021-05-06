@@ -1,14 +1,14 @@
 def DEV_WORKSPACE_CONTROLLER_VERSIONS = [
     "2.7":"n/a", // not used in 2.7
     "2.8":"0.2.x", // should be 0.4.x for 2.9
-    "2.x":"main"
+    "2.x":"0.4.x" // TODO switch 2.x to main, when 2.9 branches/jobs created
     ]
 def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [
     "2.7":"n/a", // not used in 2.7
     "2.8":"7.28.x",
-    "2.x":"main"
+    "2.x":"7.30.x" // TODO switch 2.x to main, when 2.9 branches/jobs created
     ]
-def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"main"]
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"7.30.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
 def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
