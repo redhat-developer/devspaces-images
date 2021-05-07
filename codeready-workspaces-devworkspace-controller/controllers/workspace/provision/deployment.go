@@ -18,13 +18,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
+	"github.com/devfile/devworkspace-operator/controllers/workspace/env"
 	maputils "github.com/devfile/devworkspace-operator/internal/map"
+	"github.com/devfile/devworkspace-operator/pkg/common"
+	"github.com/devfile/devworkspace-operator/pkg/config"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 
-	"github.com/devfile/devworkspace-operator/pkg/common"
+	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 
-	devworkspace "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	appsv1 "k8s.io/api/apps/v1"
@@ -33,13 +36,17 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 	runtimeClient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
-	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
-	"github.com/devfile/devworkspace-operator/controllers/workspace/env"
-	"github.com/devfile/devworkspace-operator/pkg/config"
 )
+
+var ContainerFailureStateReasons = []string{
+	"CrashLoopBackOff",
+	"ImagePullBackOff",
+	"CreateContainerError",
+	"RunContainerError",
+}
 
 type DeploymentProvisioningStatus struct {
 	ProvisioningStatus
@@ -59,11 +66,10 @@ var deploymentDiffOpts = cmp.Options{
 }
 
 func SyncDeploymentToCluster(
-	workspace *devworkspace.DevWorkspace,
+	workspace *dw.DevWorkspace,
 	podAdditions []v1alpha1.PodAdditions,
 	saName string,
 	clusterAPI ClusterAPI) DeploymentProvisioningStatus {
-
 	// [design] we have to pass components and routing pod additions separately because we need mountsources from each
 	// component.
 	specDeployment, err := getSpecDeployment(workspace, podAdditions, saName, clusterAPI.Scheme)
@@ -75,7 +81,6 @@ func SyncDeploymentToCluster(
 			},
 		}
 	}
-
 	clusterDeployment, err := getClusterDeployment(specDeployment.Name, workspace.Namespace, clusterAPI.Client)
 	if err != nil {
 		return DeploymentProvisioningStatus{
@@ -91,6 +96,18 @@ func SyncDeploymentToCluster(
 				Requeue: true,
 				Err:     err,
 			},
+		}
+	}
+
+	if !cmp.Equal(specDeployment.Spec.Selector, clusterDeployment.Spec.Selector) {
+		clusterAPI.Logger.Info("Deployment selector is different. Recreating deployment...")
+		clusterDeployment.Spec = specDeployment.Spec
+		err := clusterAPI.Client.Delete(context.TODO(), clusterDeployment)
+		if err != nil {
+			return DeploymentProvisioningStatus{ProvisioningStatus{Err: err}}
+		}
+		return DeploymentProvisioningStatus{
+			ProvisioningStatus: ProvisioningStatus{Requeue: true},
 		}
 	}
 
@@ -118,12 +135,26 @@ func SyncDeploymentToCluster(
 		}
 	}
 
-	return DeploymentProvisioningStatus{}
+	failureMsg, checkErr := checkFailedPods(workspace, clusterAPI)
+	if checkErr != nil {
+		return DeploymentProvisioningStatus{
+			ProvisioningStatus: ProvisioningStatus{
+				Err: checkErr,
+			},
+		}
+	}
+
+	return DeploymentProvisioningStatus{
+		ProvisioningStatus: ProvisioningStatus{
+			FailStartup: failureMsg != "",
+			Message:     failureMsg,
+		},
+	}
 }
 
 // DeleteWorkspaceDeployment deletes the deployment for the DevWorkspace
-func DeleteWorkspaceDeployment(ctx context.Context, workspace *devworkspace.DevWorkspace, client runtimeClient.Client) (wait bool, err error) {
-	clusterDeployment, err := getClusterDeployment(common.DeploymentName(workspace.Status.WorkspaceId), workspace.Namespace, client)
+func DeleteWorkspaceDeployment(ctx context.Context, workspace *dw.DevWorkspace, client runtimeClient.Client) (wait bool, err error) {
+	clusterDeployment, err := getClusterDeployment(common.DeploymentName(workspace.Status.DevWorkspaceId), workspace.Namespace, client)
 	if err != nil {
 		return false, err
 	}
@@ -138,6 +169,23 @@ func DeleteWorkspaceDeployment(ctx context.Context, workspace *devworkspace.DevW
 		return false, err
 	}
 	return true, nil
+}
+
+// ScaleDeploymentToZero scales the cluster deployment to zero
+func ScaleDeploymentToZero(workspace *dw.DevWorkspace, client runtimeClient.Client) error {
+	patch := []byte(`{"spec":{"replicas": 0}}`)
+	err := client.Patch(context.Background(), &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: workspace.Namespace,
+			Name:      common.DeploymentName(workspace.Status.DevWorkspaceId),
+		},
+	}, runtimeClient.RawPatch(types.StrategicMergePatchType, patch))
+
+	if err != nil && !k8sErrors.IsNotFound(err) {
+		return err
+	}
+
+	return nil
 }
 
 func GetDevWorkspaceSecurityContext() *corev1.PodSecurityContext {
@@ -159,7 +207,7 @@ func checkDeploymentStatus(deployment *appsv1.Deployment) (ready bool) {
 }
 
 func getSpecDeployment(
-	workspace *devworkspace.DevWorkspace,
+	workspace *dw.DevWorkspace,
 	podAdditionsList []v1alpha1.PodAdditions,
 	saName string,
 	scheme *runtime.Scheme) (*appsv1.Deployment, error) {
@@ -171,8 +219,8 @@ func getSpecDeployment(
 		return nil, err
 	}
 
-	creator := workspace.Labels[constants.WorkspaceCreatorLabel]
-	commonEnv := env.CommonEnvironmentVariables(workspace.Name, workspace.Status.WorkspaceId, workspace.Namespace, creator)
+	creator := workspace.Labels[constants.DevWorkspaceCreatorLabel]
+	commonEnv := env.CommonEnvironmentVariables(workspace.Name, workspace.Status.DevWorkspaceId, workspace.Namespace, creator)
 	for idx := range podAdditions.Containers {
 		podAdditions.Containers[idx].Env = append(podAdditions.Containers[idx].Env, commonEnv...)
 		podAdditions.Containers[idx].VolumeMounts = append(podAdditions.Containers[idx].VolumeMounts, podAdditions.VolumeMounts...)
@@ -184,18 +232,18 @@ func getSpecDeployment(
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      common.DeploymentName(workspace.Status.WorkspaceId),
+			Name:      common.DeploymentName(workspace.Status.DevWorkspaceId),
 			Namespace: workspace.Namespace,
 			Labels: map[string]string{
-				constants.WorkspaceIDLabel: workspace.Status.WorkspaceId,
+				constants.DevWorkspaceIDLabel:   workspace.Status.DevWorkspaceId,
+				constants.DevWorkspaceNameLabel: workspace.Name,
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					constants.WorkspaceIDLabel:   workspace.Status.WorkspaceId,
-					constants.WorkspaceNameLabel: workspace.Name,
+					constants.DevWorkspaceIDLabel: workspace.Status.DevWorkspaceId,
 				},
 			},
 			Strategy: appsv1.DeploymentStrategy{
@@ -203,11 +251,11 @@ func getSpecDeployment(
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      workspace.Status.WorkspaceId,
+					Name:      workspace.Status.DevWorkspaceId,
 					Namespace: workspace.Namespace,
 					Labels: map[string]string{
-						constants.WorkspaceIDLabel:   workspace.Status.WorkspaceId,
-						constants.WorkspaceNameLabel: workspace.Name,
+						constants.DevWorkspaceIDLabel:   workspace.Status.DevWorkspaceId,
+						constants.DevWorkspaceNameLabel: workspace.Name,
 					},
 				},
 				Spec: corev1.PodSpec{
@@ -232,27 +280,27 @@ func getSpecDeployment(
 		// To avoid this issue, we need to ensure that the first volumeMount encountered is for the <workspace-id> subpath.
 		if len(deployment.Spec.Template.Spec.InitContainers) > 0 {
 			volumeMounts := deployment.Spec.Template.Spec.InitContainers[0].VolumeMounts
-			volumeMounts = append([]corev1.VolumeMount{getWorkspaceSubpathVolumeMount(workspace.Status.WorkspaceId)}, volumeMounts...)
+			volumeMounts = append([]corev1.VolumeMount{getWorkspaceSubpathVolumeMount(workspace.Status.DevWorkspaceId)}, volumeMounts...)
 			deployment.Spec.Template.Spec.InitContainers[0].VolumeMounts = volumeMounts
 		} else {
 			volumeMounts := deployment.Spec.Template.Spec.Containers[0].VolumeMounts
-			volumeMounts = append([]corev1.VolumeMount{getWorkspaceSubpathVolumeMount(workspace.Status.WorkspaceId)}, volumeMounts...)
+			volumeMounts = append([]corev1.VolumeMount{getWorkspaceSubpathVolumeMount(workspace.Status.DevWorkspaceId)}, volumeMounts...)
 			deployment.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
 		}
 	}
 
-	workspaceCreator, present := workspace.Labels[constants.WorkspaceCreatorLabel]
+	workspaceCreator, present := workspace.Labels[constants.DevWorkspaceCreatorLabel]
 	if present {
-		deployment.Labels[constants.WorkspaceCreatorLabel] = workspaceCreator
-		deployment.Spec.Template.Labels[constants.WorkspaceCreatorLabel] = workspaceCreator
+		deployment.Labels[constants.DevWorkspaceCreatorLabel] = workspaceCreator
+		deployment.Spec.Template.Labels[constants.DevWorkspaceCreatorLabel] = workspaceCreator
 	} else {
 		return nil, errors.New("workspace must have creator specified to be run. Recreate it to fix an issue")
 	}
 
-	restrictedAccess, present := workspace.Annotations[constants.WorkspaceRestrictedAccessAnnotation]
+	restrictedAccess, present := workspace.Annotations[constants.DevWorkspaceRestrictedAccessAnnotation]
 	if present {
-		deployment.Annotations = maputils.Append(deployment.Annotations, constants.WorkspaceRestrictedAccessAnnotation, restrictedAccess)
-		deployment.Spec.Template.Annotations = maputils.Append(deployment.Spec.Template.Annotations, constants.WorkspaceRestrictedAccessAnnotation, restrictedAccess)
+		deployment.Annotations = maputils.Append(deployment.Annotations, constants.DevWorkspaceRestrictedAccessAnnotation, restrictedAccess)
+		deployment.Spec.Template.Annotations = maputils.Append(deployment.Spec.Template.Annotations, constants.DevWorkspaceRestrictedAccessAnnotation, restrictedAccess)
 	}
 
 	err = controllerutil.SetControllerReference(workspace, deployment, scheme)
@@ -277,6 +325,41 @@ func getClusterDeployment(name string, namespace string, client runtimeClient.Cl
 		return nil, err
 	}
 	return deployment, nil
+}
+
+func getPods(workspace *dw.DevWorkspace, client runtimeClient.Client) (*corev1.PodList, error) {
+	pods := &corev1.PodList{}
+	if err := client.List(context.TODO(), pods, k8sclient.InNamespace(workspace.Namespace), k8sclient.MatchingLabels{
+		constants.DevWorkspaceIDLabel: workspace.Status.DevWorkspaceId,
+	}); err != nil {
+		return nil, err
+	}
+	return pods, nil
+}
+
+// checkFailedPods check if related pods has unrecoverable states: CrashLoopBackOffReason, ImagePullErr
+// Returns optional message with detected unrecoverable state details
+//         error is any happens during check
+func checkFailedPods(workspace *dw.DevWorkspace,
+	clusterAPI ClusterAPI) (stateMsg string, checkFailure error) {
+	podList, err := getPods(workspace, clusterAPI.Client)
+	if err != nil {
+		return "", err
+	}
+
+	for _, pod := range podList.Items {
+		for _, containerStatus := range pod.Status.ContainerStatuses {
+			if !checkContainerStatusForFailure(&containerStatus) {
+				return fmt.Sprintf("Container %s has state %s", containerStatus.Name, containerStatus.State.Waiting.Reason), nil
+			}
+		}
+		for _, initContainerStatus := range pod.Status.InitContainerStatuses {
+			if !checkContainerStatusForFailure(&initContainerStatus) {
+				return fmt.Sprintf("Init Container %s has state %s", initContainerStatus.Name, initContainerStatus.State.Waiting.Reason), nil
+			}
+		}
+	}
+	return "", nil
 }
 
 func mergePodAdditions(toMerge []v1alpha1.PodAdditions) (*v1alpha1.PodAdditions, error) {
@@ -358,4 +441,15 @@ func needsPVCWorkaround(podAdditions *v1alpha1.PodAdditions) bool {
 		}
 	}
 	return false
+}
+
+func checkContainerStatusForFailure(containerStatus *corev1.ContainerStatus) (ok bool) {
+	if containerStatus.State.Waiting != nil {
+		for _, failureReason := range ContainerFailureStateReasons {
+			if containerStatus.State.Waiting.Reason == failureReason {
+				return false
+			}
+		}
+	}
+	return true
 }

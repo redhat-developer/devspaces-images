@@ -40,7 +40,7 @@ var (
 	logger = ctrl.Log.WithName("solver")
 )
 
-// CheRoutingSolver is a struct representing the routing solver for Che specific routing of workspaces
+// CheRoutingSolver is a struct representing the routing solver for Che specific routing of devworkspaces
 type CheRoutingSolver struct {
 	client client.Client
 	scheme *runtime.Scheme
@@ -75,9 +75,9 @@ func (g *CheRouterGetter) GetSolver(client client.Client, routingClass controlle
 
 func (g *CheRouterGetter) SetupControllerManager(mgr *builder.Builder) error {
 
-	// We want to watch configmaps and re-map the reconcile on the workspace routing, if possible
+	// We want to watch configmaps and re-map the reconcile on the devworkspace routing, if possible
 	// This way we can react on changes of the gateway configmap changes by re-reconciling the corresponding
-	// workspace routing and thus keeping the workspace routing in a functional state
+	// devworkspace routing and thus keeping the devworkspace routing in a functional state
 	// TODO is this going to be performant enough in a big cluster with very many configmaps?
 	mgr.Watches(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestsFromMapFunc{ToRequests: handler.ToRequestsFunc(func(mo handler.MapObject) []reconcile.Request {
 		applicable, key := isGatewayWorkspaceConfig(mo.Meta)
@@ -98,7 +98,7 @@ func (g *CheRouterGetter) SetupControllerManager(mgr *builder.Builder) error {
 }
 
 func isGatewayWorkspaceConfig(obj metav1.Object) (bool, types.NamespacedName) {
-	workspaceID := obj.GetLabels()[constants.WorkspaceIDLabel]
+	workspaceID := obj.GetLabels()[constants.DevWorkspaceIDLabel]
 	objectName := obj.GetName()
 
 	// bail out quickly if we're not dealing with a configmap with an expected name
@@ -114,7 +114,7 @@ func isGatewayWorkspaceConfig(obj metav1.Object) (bool, types.NamespacedName) {
 		return false, types.NamespacedName{}
 	}
 
-	// cool, we found a configmap belonging to a concrete workspace routing
+	// cool, we found a configmap belonging to a concrete devworkspace routing
 	return true, types.NamespacedName{Name: routingName, Namespace: routingNamespace}
 }
 
@@ -132,7 +132,7 @@ func (c *CheRoutingSolver) Finalize(routing *controllerv1alpha1.DevWorkspaceRout
 }
 
 // GetSpecObjects constructs cluster routing objects which should be applied on the cluster
-func (c *CheRoutingSolver) GetSpecObjects(routing *controllerv1alpha1.DevWorkspaceRouting, workspaceMeta solvers.WorkspaceMetadata) (solvers.RoutingObjects, error) {
+func (c *CheRoutingSolver) GetSpecObjects(routing *controllerv1alpha1.DevWorkspaceRouting, workspaceMeta solvers.DevWorkspaceMetadata) (solvers.RoutingObjects, error) {
 	cheManager, err := cheManagerOfRouting(routing)
 	if err != nil {
 		return solvers.RoutingObjects{}, err
@@ -152,7 +152,7 @@ func (c *CheRoutingSolver) GetExposedEndpoints(endpoints map[string]controllerv1
 
 	managerName := routingObj.Services[0].Annotations[defaults.ConfigAnnotationCheManagerName]
 	managerNamespace := routingObj.Services[0].Annotations[defaults.ConfigAnnotationCheManagerNamespace]
-	workspaceID := routingObj.Services[0].Labels[constants.WorkspaceIDLabel]
+	workspaceID := routingObj.Services[0].Labels[constants.DevWorkspaceIDLabel]
 
 	manager, err := findCheManager(client.ObjectKey{Name: managerName, Namespace: managerNamespace})
 	if err != nil {

@@ -13,7 +13,7 @@
 package provision
 
 import (
-	devworkspace "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 
@@ -25,11 +25,11 @@ import (
 )
 
 // SyncRBAC generates RBAC and synchronizes the runtime objects
-func SyncRBAC(workspace *devworkspace.DevWorkspace, client client.Client, reqLogger logr.Logger) ProvisioningStatus {
+func SyncRBAC(workspace *dw.DevWorkspace, client client.Client, reqLogger logr.Logger) ProvisioningStatus {
 	rbac := generateRBAC(workspace.Namespace)
 
-	didChange, err := SyncMutableObjects(rbac, client, reqLogger)
-	return ProvisioningStatus{Continue: !didChange, Err: err}
+	requeue, err := SyncMutableObjects(rbac, client, reqLogger)
+	return ProvisioningStatus{Continue: !requeue, Err: err}
 }
 
 func generateRBAC(namespace string) []runtime.Object {
@@ -75,7 +75,7 @@ func generateRBAC(namespace string) []runtime.Object {
 		},
 		&rbacv1.RoleBinding{
 			ObjectMeta: metav1.ObjectMeta{
-				Name:      constants.ServiceAccount + "-workspace",
+				Name:      constants.ServiceAccount + "-dw",
 				Namespace: namespace,
 			},
 			RoleRef: rbacv1.RoleRef{

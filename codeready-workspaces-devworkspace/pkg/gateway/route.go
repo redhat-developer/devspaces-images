@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	routev1 "github.com/openshift/api/route/v1"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -91,6 +92,16 @@ func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, mgr
 
 		var inCluster runtime.Object
 
+		// ok, another complication with routes is that they inline their TLS key and secret - they cannot
+		// use an external secret as ingresses do. We use a secret name in our config to be compatible with
+		// the ingresses, which means that we need to read the secret and inline its contents into the route.
+		// We only finalize the route config here, because might not have gotten here the first couple of
+		// reconciliation rounds and don't want to read the secret repeatedly unnecessarily.
+		err = g.updateTlsConfig(ctx, mgr, route)
+		if err != nil {
+			return changed, "", err
+		}
+
 		changed, inCluster, err = syncer.Sync(ctx, mgr, route, diffOpts)
 		if err != nil {
 			return changed, "", err
@@ -101,6 +112,8 @@ func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, mgr
 	return changed, routeHost, err
 }
 
+// getRouteSpec gets the basic spec of the route. It DOESN'T include the TLS configuration. You should use
+// updateTlsConfig function for that.
 func getRouteSpec(manager *v1alpha1.CheManager) *routev1.Route {
 	return &routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
@@ -123,4 +136,21 @@ func getRouteSpec(manager *v1alpha1.CheManager) *routev1.Route {
 			},
 		},
 	}
+}
+
+func (g *CheGateway) updateTlsConfig(ctx context.Context, manager *v1alpha1.CheManager, route *routev1.Route) error {
+	if manager.Spec.TlsSecretName == "" {
+		return nil
+	}
+
+	secret := &corev1.Secret{}
+	err := g.client.Get(ctx, client.ObjectKey{Name: manager.Spec.TlsSecretName, Namespace: manager.Namespace}, secret)
+	if err != nil {
+		return err
+	}
+
+	route.Spec.TLS.Key = string(secret.Data["tls.key"])
+	route.Spec.TLS.Certificate = string(secret.Data["tls.crt"])
+
+	return nil
 }

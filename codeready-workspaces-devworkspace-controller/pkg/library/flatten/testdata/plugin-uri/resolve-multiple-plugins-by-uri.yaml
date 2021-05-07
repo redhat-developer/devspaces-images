@@ -1,7 +1,7 @@
 name: "DevWorkspace references plugins from multiple plugin registries"
 
 input:
-  workspace:
+  devworkspace:
     components:
       - name: test-plugin
         plugin:
@@ -9,7 +9,7 @@ input:
       - name: test-plugin-2
         plugin:
           uri: "https://my-plugin-alt.io/test"
-  devfilePlugins:
+  devfileResources:
     "https://my-plugin.io/test":
       schemaVersion: 2.0.0
       metadata:
@@ -30,7 +30,7 @@ input:
             image: test-image
 
 output:
-  workspace:
+  devworkspace:
     components:
       - name: plugin-a
         attributes:

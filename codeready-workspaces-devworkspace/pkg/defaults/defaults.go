@@ -26,6 +26,13 @@ const (
 
 var (
 	log = ctrl.Log.WithName("defaults")
+
+	DefaultIngressAnnotations = map[string]string{
+		"kubernetes.io/ingress.class":                       "nginx",
+		"nginx.ingress.kubernetes.io/proxy-read-timeout":    "3600",
+		"nginx.ingress.kubernetes.io/proxy-connect-timeout": "3600",
+		"nginx.ingress.kubernetes.io/ssl-redirect":          "true",
+	}
 )
 
 func GetGatewayWorkpaceConfigMapName(workspaceID string) string {
@@ -50,6 +57,13 @@ func GetGatewayImage() string {
 
 func GetGatewayConfigurerImage() string {
 	return read(gatewayConfigurerImageEnvVarName, defaultGatewayConfigurerImage)
+}
+
+func GetIngressAnnotations(manager *v1alpha1.CheManager) map[string]string {
+	if len(manager.Spec.K8s.IngressAnnotations) > 0 {
+		return manager.Spec.K8s.IngressAnnotations
+	}
+	return DefaultIngressAnnotations
 }
 
 func read(varName string, fallback string) string {

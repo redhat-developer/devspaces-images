@@ -28,10 +28,10 @@ func (r *CheReconciler) gatewayReconcile(ctx context.Context, manager *v1alpha1.
 	return changed, host, err
 }
 
-// Checks that there are no workspace configurations for the gateway (which would mean running workspaces).
+// Checks that there are no devworkspace configurations for the gateway (which would mean running devworkspaces).
 // If there are some, an error is returned.
 func (r *CheReconciler) gatewayConfigFinalize(ctx context.Context, manager *v1alpha1.CheManager) error {
-	// we need to stop the reconcile if there are workspaces handled by it.
+	// we need to stop the reconcile if there are devworkspaces handled by it.
 	// we detect that by the presence of the gateway configmaps in the namespace of the manager
 	list := corev1.ConfigMapList{}
 
@@ -52,7 +52,7 @@ func (r *CheReconciler) gatewayConfigFinalize(ctx context.Context, manager *v1al
 	}
 
 	if workspaceCount > 0 {
-		return fmt.Errorf("there are %d workspaces associated with this Che manager", workspaceCount)
+		return fmt.Errorf("there are %d devworkspaces associated with this Che manager", workspaceCount)
 	}
 
 	return nil

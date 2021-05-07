@@ -61,16 +61,12 @@ func RouteName(workspaceId, endpointName string) string {
 	return fmt.Sprintf("%s-%s", workspaceId, endpointName)
 }
 
-func OAuthProxySecretName(workspaceId string) string {
-	return fmt.Sprintf("%s-%s", workspaceId, "proxy-tls")
-}
-
 func DeploymentName(workspaceId string) string {
 	return workspaceId
 }
 
 func ServingCertVolumeName(serviceName string) string {
-	return fmt.Sprintf("workspace-serving-cert-%s", serviceName)
+	return fmt.Sprintf("devworkspace-serving-cert-%s", serviceName)
 }
 
 func PVCCleanupJobName(workspaceId string) string {

@@ -19,20 +19,23 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
-	"strings"
 
-	"github.com/go-logr/logr"
-
-	devworkspace "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/controllers/workspace/provision"
+
+	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kubeclock "k8s.io/apimachinery/pkg/util/clock"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const PullSecretsReadyCondition devworkspace.WorkspaceConditionType = "PullSecretsReady"
+type currentStatus struct {
+	workspaceConditions
+	// Current workspace phase
+	phase dw.DevWorkspacePhase
+}
 
 // clock is used to set status condition timestamps.
 // This variable makes it easier to test conditions.
@@ -48,40 +51,12 @@ var healthHttpClient = &http.Client{
 // updateWorkspaceStatus updates the current workspace's status field with conditions and phase from the passed in status.
 // Parameters for result and error are returned unmodified, unless error is nil and another error is encountered while
 // updating the status.
-func (r *DevWorkspaceReconciler) updateWorkspaceStatus(workspace *devworkspace.DevWorkspace, logger logr.Logger, status *currentStatus, reconcileResult reconcile.Result, reconcileError error) (reconcile.Result, error) {
-	workspace.Status.Phase = status.Phase
-	currTransitionTime := metav1.Time{Time: clock.Now()}
-	for conditionType, conditionMsg := range status.Conditions {
-		conditionExists := false
-		for idx, condition := range workspace.Status.Conditions {
-			if condition.Type == conditionType && condition.LastTransitionTime.Before(&currTransitionTime) {
-				workspace.Status.Conditions[idx].LastTransitionTime = currTransitionTime
-				workspace.Status.Conditions[idx].Status = corev1.ConditionTrue
-				workspace.Status.Conditions[idx].Message = conditionMsg
-				conditionExists = true
-				break
-			}
-		}
-		if !conditionExists {
-			workspace.Status.Conditions = append(workspace.Status.Conditions, devworkspace.WorkspaceCondition{
-				Type:               conditionType,
-				Message:            conditionMsg,
-				Status:             corev1.ConditionTrue,
-				LastTransitionTime: currTransitionTime,
-			})
-		}
-	}
-	for idx, condition := range workspace.Status.Conditions {
-		if condition.LastTransitionTime.Before(&currTransitionTime) {
-			workspace.Status.Conditions[idx].LastTransitionTime = currTransitionTime
-			workspace.Status.Conditions[idx].Status = corev1.ConditionUnknown
-			workspace.Status.Conditions[idx].Message = ""
-		}
-	}
-	sort.SliceStable(workspace.Status.Conditions, func(i, j int) bool {
-		return strings.Compare(string(workspace.Status.Conditions[i].Type), string(workspace.Status.Conditions[j].Type)) > 0
-	})
-	infoMessage := getInfoMessage(workspace, status.Conditions)
+func (r *DevWorkspaceReconciler) updateWorkspaceStatus(workspace *dw.DevWorkspace, logger logr.Logger, status *currentStatus, reconcileResult reconcile.Result, reconcileError error) (reconcile.Result, error) {
+	workspace.Status.Phase = status.phase
+
+	syncConditions(&workspace.Status, status)
+
+	infoMessage := getInfoMessage(workspace, status)
 	if workspace.Status.Message != infoMessage {
 		workspace.Status.Message = infoMessage
 	}
@@ -96,7 +71,52 @@ func (r *DevWorkspaceReconciler) updateWorkspaceStatus(workspace *devworkspace.D
 	return reconcileResult, reconcileError
 }
 
-func syncWorkspaceIdeURL(workspace *devworkspace.DevWorkspace, exposedEndpoints map[string]v1alpha1.ExposedEndpointList, clusterAPI provision.ClusterAPI) (ok bool, err error) {
+func syncConditions(workspaceStatus *dw.DevWorkspaceStatus, currentStatus *currentStatus) {
+	currTransitionTime := metav1.Time{Time: clock.Now()}
+
+	// Set of conditions already set on the workspace
+	existingConditions := map[dw.DevWorkspaceConditionType]bool{}
+	for idx, workspaceCondition := range workspaceStatus.Conditions {
+		existingConditions[workspaceCondition.Type] = true
+
+		currCondition, ok := currentStatus.conditions[workspaceCondition.Type]
+		if !ok {
+			// Didn't observe this condition this time; set status to unknown
+			workspaceStatus.Conditions[idx].LastTransitionTime = currTransitionTime
+			workspaceStatus.Conditions[idx].Status = corev1.ConditionUnknown
+			workspaceStatus.Conditions[idx].Message = ""
+			continue
+		}
+
+		// Update condition if needed
+		if workspaceCondition.Status != currCondition.Status || workspaceCondition.Message != currCondition.Message {
+			workspaceStatus.Conditions[idx].LastTransitionTime = currTransitionTime
+			workspaceStatus.Conditions[idx].Status = currCondition.Status
+			workspaceStatus.Conditions[idx].Message = currCondition.Message
+		}
+	}
+
+	// Check for conditions we need to add
+	for condType, cond := range currentStatus.conditions {
+		if existingConditions[condType] {
+			// Condition is already present and was updated (if necessary) above
+			continue
+		}
+		workspaceStatus.Conditions = append(workspaceStatus.Conditions, dw.DevWorkspaceCondition{
+			LastTransitionTime: currTransitionTime,
+			Type:               condType,
+			Status:             cond.Status,
+			Message:            cond.Message,
+		})
+	}
+
+	// Sort conditions to avoid unnecessary updates
+	sort.SliceStable(workspaceStatus.Conditions, func(i, j int) bool {
+		return getConditionIndexInOrder(workspaceStatus.Conditions[i].Type) < getConditionIndexInOrder(workspaceStatus.Conditions[j].Type)
+	})
+}
+
+func syncWorkspaceIdeURL(workspace *dw.DevWorkspace, exposedEndpoints map[string]v1alpha1.ExposedEndpointList, clusterAPI provision.ClusterAPI) (ok bool, err error) {
 	ideUrl := getIdeUrl(exposedEndpoints)
 
 	if workspace.Status.IdeUrl == ideUrl {
@@ -107,7 +127,7 @@ func syncWorkspaceIdeURL(workspace *devworkspace.DevWorkspace, exposedEndpoints 
 	return false, err
 }
 
-func checkServerStatus(workspace *devworkspace.DevWorkspace) (ok bool, err error) {
+func checkServerStatus(workspace *dw.DevWorkspace) (ok bool, err error) {
 	ideUrl := workspace.Status.IdeUrl
 	if ideUrl == "" {
 		// Support DevWorkspaces that do not specify an ideUrl
@@ -146,60 +166,34 @@ func getIdeUrl(exposedEndpoints map[string]v1alpha1.ExposedEndpointList) string 
 	return ""
 }
 
-type PhaseStatus struct {
-	Condition devworkspace.WorkspaceConditionType
-	Message   string
-}
-
-// Defines the order in which DevWorkspace Controller processes phases on reconcile
-// The last unready condition should be shown
-var PhaseStatusesOrder = []PhaseStatus{
-	{
-		devworkspace.WorkspaceComponentsReady,
-		"Processing DevWorkspace components",
-	},
-	{
-		devworkspace.WorkspaceRoutingReady,
-		"Waiting for workspace routing objects",
-	},
-	{
-		devworkspace.WorkspaceServiceAccountReady,
-		"Waiting for workspace serviceaccount",
-	},
-	{
-		PullSecretsReadyCondition,
-		"Waiting for workspace pull secrets",
-	},
-	{
-		devworkspace.WorkspaceReady,
-		"Waiting for deployment to be ready",
-	},
-}
-
-func getInfoMessage(workspace *devworkspace.DevWorkspace, conditions map[devworkspace.WorkspaceConditionType]string) string {
+func getInfoMessage(workspace *dw.DevWorkspace, status *currentStatus) string {
 	// Check for errors and failure
-	if msg, ok := conditions[devworkspace.WorkspaceError]; ok {
-		return msg
+	if cond, ok := status.conditions[dw.DevWorkspaceError]; ok {
+		return cond.Message
 	}
-	if msg, ok := conditions[devworkspace.WorkspaceFailedStart]; ok {
-		return msg
+	if cond, ok := status.conditions[dw.DevWorkspaceFailedStart]; ok {
+		return cond.Message
 	}
 	switch workspace.Status.Phase {
-	case devworkspace.WorkspaceStatusRunning:
+	case dw.DevWorkspaceStatusRunning:
 		if workspace.Status.IdeUrl == "" {
 			return "Workspace is running"
 		}
 		return workspace.Status.IdeUrl
-	case devworkspace.WorkspaceStatusStopped, devworkspace.WorkspaceStatusStopping:
+	case dw.DevWorkspaceStatusStopped, dw.DevWorkspaceStatusStopping:
 		return string(workspace.Status.Phase)
 	}
 
-	for _, phaseStatus := range PhaseStatusesOrder {
-		if _, present := conditions[phaseStatus.Condition]; !present {
-			return phaseStatus.Message
-		}
+	latestCondition := status.getFirstFalse()
+	if latestCondition != nil {
+		return latestCondition.Message
 	}
 
-	//All listed conditions are true, if workspace is not started yet, it's due editor server health check
-	return "Waiting on editor to start"
+	latestTrueCondition := status.getLastTrue()
+	if latestTrueCondition != nil {
+		return latestTrueCondition.Message
+	}
+
+	// No conditions are set but workspace is not running; unclear what value should be set.
+	return ""
 }

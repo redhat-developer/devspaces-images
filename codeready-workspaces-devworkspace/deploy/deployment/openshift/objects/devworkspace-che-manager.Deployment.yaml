@@ -20,36 +20,36 @@ spec:
         control-plane: controller-manager
     spec:
       containers:
-        - args:
-            - --enable-leader-election
-          command:
-            - /usr/local/bin/devworkspace-che-operator
-          env:
-            - name: CONTROLLER_SERVICE_ACCOUNT_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.serviceAccountName
-            - name: OPERATOR_NAME
-              value: devworkspace-operator
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: RELATED_IMAGE_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.8
-            - name: RELATED_IMAGE_gateway_configurer
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.8
-            - name: WATCH_NAMESPACE
-              value: ''
-          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.8
-          imagePullPolicy: Always
-          name: devworkspace-che-operator
-          resources:
-            limits:
-              cpu: 100m
-              memory: 100Mi
-            requests:
-              cpu: 100m
-              memory: 20Mi
+      - args:
+        - --enable-leader-election
+        command:
+        - /usr/local/bin/devworkspace-che-operator
+        env:
+        - name: WATCH_NAMESPACE
+          value: ""
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: OPERATOR_NAME
+          value: devworkspace-operator
+        - name: CONTROLLER_SERVICE_ACCOUNT_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.serviceAccountName
+        - name: RELATED_IMAGE_gateway
+          value: docker.io/traefik:v2.2.8
+        - name: RELATED_IMAGE_gateway_configurer
+          value: quay.io/che-incubator/configbump:0.1.4
+        image: quay.io/che-incubator/devworkspace-che-operator:v7.30.0
+        imagePullPolicy: Always
+        name: devworkspace-che-operator
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 32Mi
       serviceAccountName: devworkspace-che-serviceaccount
       terminationGracePeriodSeconds: 10

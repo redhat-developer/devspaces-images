@@ -27,12 +27,6 @@ else
 K8S_CLI := kubectl
 endif
 
-ifeq ($(shell $(K8S_CLI) api-resources --api-group='route.openshift.io'  2>&1 | grep -o routes),routes)
-PLATFORM := openshift
-else
-PLATFORM := kubernetes
-endif
-
 # our targets don't generate files in a way make assumes
 .PHONY: all clean test compile prepare run run_as_current_user debug deploy undeploy generate_deployment manifests fmt vet generate docker-build docker-push controller-gen help
 
@@ -51,16 +45,16 @@ compile: generate fmt vet
 	go build -o bin/manager main.go
 
 ### prepare: Prepares the cluster for running the operator - deploys CRDs, rbac and the service account
-prepare: _mk_temp manifests
-# hiding the definition the variable in an eval makes it only defined in this target. Otherwise it would
-# be evaluated eagerly at the make start regardless of the target run, resulting in a temporary directory
-# being created needlessly.
-	$(eval PREPAPRE_OUTPUT_DIR := $(shell mktemp -p $(TEMP_DIR) -d))
-	OUTPUT_DIR=$(PREPAPRE_OUTPUT_DIR) DWCO_GENERATED_OVERLAY=support deploy/generate-deployment.sh --split-yaml
+prepare: _mk_temp _platform manifests
+# hiding the definition the variable in an eval makes it only defined once this target has run.
+# Otherwise it would be evaluated eagerly at the make start regardless of the target run, resulting
+# in a temporary directory being created needlessly.
+	$(eval PREPARE_OUTPUT_DIR := $(shell mktemp -p $(TEMP_DIR) -d))
+	OUTPUT_DIR=$(PREPARE_OUTPUT_DIR) DWCO_GENERATED_OVERLAY=support deploy/generate-deployment.sh --split-yaml
 # We want to tolerate if the namespace already exists, so || true to ensure the success exit code
 	$(K8S_CLI) create namespace $(DWCO_NAMESPACE) || true
-	$(K8S_CLI) apply -f $(PREPAPRE_OUTPUT_DIR)/$(PLATFORM)/combined.yaml
-	rm -Rf $(PREPAPRE_OUTPUT_DIR)
+	$(K8S_CLI) apply -f $(PREPARE_OUTPUT_DIR)/$(PLATFORM)/combined.yaml
+	rm -Rf $(PREPARE_OUTPUT_DIR)
 
 ### run: Run against the configured Kubernetes cluster in ~/.kube/config using the deployed service account
 run: generate fmt vet prepare
@@ -74,14 +68,14 @@ run_as_current_user: generate fmt vet prepare
 
 debug: generate fmt vet prepare
 	dlv debug --listen=:2345 --headless=true --api-version=2 ./main.go --
-	
+
 ### install: Deploy controller in the configured Kubernetes cluster in ~/.kube/config
-install: generate_deployment
+install: _platform generate_deployment
 	$(K8S_CLI) create namespace $(DWCO_NAMESPACE) || true
 	$(K8S_CLI) apply -f deploy/deployment/$(PLATFORM)/combined.yaml
 
 ### uninstall: Removes everything related to Devworkspace Che from the cluster.
-uninstall: generate_deployment
+uninstall: _platform generate_deployment
 	$(K8S_CLI) delete devworkspaces.workspace.devfile.io --all-namespaces --all --wait || true
 	$(K8S_CLI) delete devworkspacetemplates.workspace.devfile.io --all-namespaces --all || true
 	$(K8S_CLI) delete workspaceroutings.controller.devfile.io --all-namespaces --all --wait || true
@@ -95,7 +89,7 @@ generate_deployment: manifests
 
 ### manifests: Generate manifests e.g. CRD, RBAC etc.
 manifests: controller-gen
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=deploy/templates/crd/bases
+	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:artifacts:config=deploy/templates/components/crd crd:crdVersions=v1
 
 ### fmt: Run go fmt against code
 fmt:
@@ -126,13 +120,17 @@ ifeq (, $(shell which controller-gen))
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1 ;\
+	go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.5.0 ;\
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
 CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
 CONTROLLER_GEN=$(shell which controller-gen)
 endif
+
+### install_cert_manager: install Cert Mananger v1.0.4 on the cluster. This is not mandatory for the operator to work but simplifies creating custom certificates if needed.
+install_cert_manager:
+	kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
 
 ### help: print this message
 help: Makefile
@@ -147,3 +145,7 @@ help: Makefile
 _mk_temp:
 	@mkdir -p $(TEMP_DIR)
 
+# detects the kubernetes platform we're currently logged in to.
+_platform:
+	$(eval PLATFORM := $(shell deploy/detect-platform.sh $(K8S_CLI)))
+	@echo Detected Kubernetes platform: $(PLATFORM)

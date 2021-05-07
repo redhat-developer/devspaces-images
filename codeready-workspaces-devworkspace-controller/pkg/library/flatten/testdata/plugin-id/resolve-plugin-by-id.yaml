@@ -1,14 +1,14 @@
 name: "DevWorkspace references plugin from plugin registry"
 
 input:
-  workspace:
+  devworkspace:
     components:
       - name: test-plugin
         plugin:
           id: my/test/plugin
           registryUrl: "https://test-registry.io/subpath"
-  devfilePlugins:
-    "https://test-registry.io/subpath/plugins/my/test/plugin":
+  devfileResources:
+    "https://test-registry.io/subpath/my/test/plugin":
       schemaVersion: 2.0.0
       metadata:
         name: "plugin-a"
@@ -19,7 +19,7 @@ input:
             image: test-image
 
 output:
-  workspace:
+  devworkspace:
     components:
       - name: plugin-a
         attributes:

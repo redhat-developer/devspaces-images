@@ -18,27 +18,27 @@ import (
 	"log"
 	"time"
 
-	workspacev1alpha2 "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"k8s.io/apimachinery/pkg/types"
 )
 
 //get workspace current dev workspace status from the Custom Resource object
-func (w *K8sClient) GetDevWsStatus(name, namespace string) (*workspacev1alpha2.WorkspacePhase, error) {
+func (w *K8sClient) GetDevWsStatus(name, namespace string) (*dw.DevWorkspaceStatus, error) {
 	namespacedName := types.NamespacedName{
 		Name:      name,
 		Namespace: namespace,
 	}
 
-	workspace := &workspacev1alpha2.DevWorkspace{}
+	workspace := &dw.DevWorkspace{}
 	err := w.crClient.Get(context.TODO(), namespacedName, workspace)
 
 	if err != nil {
 		return nil, err
 	}
-	return &workspace.Status.Phase, nil
+	return &workspace.Status, nil
 }
 
-func (w *K8sClient) WaitDevWsStatus(name, namespace string, expectedStatus workspacev1alpha2.WorkspacePhase) (bool, error) {
+func (w *K8sClient) WaitDevWsStatus(name, namespace string, expectedStatus dw.DevWorkspacePhase) (bool, error) {
 	timeout := time.After(15 * time.Minute)
 	tick := time.Tick(2 * time.Second)
 
@@ -51,11 +51,11 @@ func (w *K8sClient) WaitDevWsStatus(name, namespace string, expectedStatus works
 			if err != nil {
 				return false, err
 			}
-			log.Printf("Now current status of developer workspace is: %s", *currentStatus)
-			if *currentStatus == workspacev1alpha2.WorkspaceStatusFailed {
-				return false, errors.New("workspace has been failed unexpectedly")
+			log.Printf("Now current status of developer workspace is: %s. Message: %s", currentStatus.Phase, currentStatus.Message)
+			if currentStatus.Phase == dw.DevWorkspaceStatusFailed {
+				return false, errors.New("workspace has been failed unexpectedly. Message: " + currentStatus.Message)
 			}
-			if *currentStatus == expectedStatus {
+			if currentStatus.Phase == expectedStatus {
 				return true, nil
 			}
 		}

@@ -1,12 +1,12 @@
 name: "DevWorkspace references plugin by URI"
 
 input:
-  workspace:
+  devworkspace:
     components:
       - name: test-plugin
         plugin:
           uri: "https://my-plugin.io/test"
-  devfilePlugins:
+  devfileResources:
     "https://my-plugin.io/test":
       schemaVersion: 2.0.0
       metadata:
@@ -18,7 +18,7 @@ input:
             image: test-image
 
 output:
-  workspace:
+  devworkspace:
     components:
       - name: plugin-a
         attributes:

@@ -18,7 +18,6 @@ import (
 	"path"
 	"strings"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	dwoche "github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/sync"
@@ -50,7 +49,15 @@ var (
 	configMapDiffOpts = cmpopts.IgnoreFields(corev1.ConfigMap{}, "TypeMeta", "ObjectMeta")
 )
 
-func (c *CheRoutingSolver) cheSpecObjects(cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting, workspaceMeta solvers.WorkspaceMetadata) (solvers.RoutingObjects, error) {
+// keys are port numbers, values are maps where keys are endpoint names (in case we need more than 1 endpoint for a single port) and values
+// contain info about the intended endpoint scheme and the order in which the port is defined (used for unique naming)
+type portMapping map[int32]map[string]portMappingValue
+type portMappingValue struct {
+	endpointScheme string
+	order          int
+}
+
+func (c *CheRoutingSolver) cheSpecObjects(cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting, workspaceMeta solvers.DevWorkspaceMetadata) (solvers.RoutingObjects, error) {
 	objs := solvers.RoutingObjects{}
 
 	objs.Services = solvers.GetDiscoverableServicesForEndpoints(routing.Spec.Endpoints, workspaceMeta)
@@ -94,7 +101,7 @@ func (c *CheRoutingSolver) cheSpecObjects(cheManager *dwoche.CheManager, routing
 	}
 
 	// k, now we have to create our own objects for configuring the gateway
-	configMaps, err := c.getGatewayConfigsAndFillRoutingObjects(cheManager, workspaceMeta.WorkspaceId, routing, &objs)
+	configMaps, err := c.getGatewayConfigsAndFillRoutingObjects(cheManager, workspaceMeta.DevWorkspaceId, routing, &objs)
 	if err != nil {
 		return solvers.RoutingObjects{}, err
 	}
@@ -128,23 +135,11 @@ func (c *CheRoutingSolver) cheExposedEndpoints(manager *dwoche.CheManager, works
 				continue
 			}
 
-			var scheme string
-			if endpoint.Protocol == "" {
-				scheme = "http"
-			} else {
-				scheme = string(endpoint.Protocol)
-			}
+			scheme := determineEndpointScheme(!manager.Spec.GatewayDisabled, endpoint)
 
 			if !isExposableScheme(scheme) {
 				// we cannot expose non-http endpoints publicly, because ingresses/routes only support http(s)
 				continue
-			}
-
-			if endpoint.Secure {
-				scheme = secureScheme(scheme)
-
-				// TODO this should also do the magic of ensuring user authentication however we are going to do it
-				// in the future
 			}
 
 			// try to find the endpoint in the ingresses/routes first. If it is there, it is exposed on a subdomain
@@ -209,13 +204,17 @@ func secureScheme(scheme string) string {
 	}
 }
 
+func isSecureScheme(scheme string) bool {
+	return scheme == "https" || scheme == "wss"
+}
+
 func (c *CheRoutingSolver) getGatewayConfigsAndFillRoutingObjects(cheManager *dwoche.CheManager, workspaceID string, routing *dwo.DevWorkspaceRouting, objs *solvers.RoutingObjects) ([]corev1.ConfigMap, error) {
-	restrictedAnno, setRestrictedAnno := routing.Annotations[constants.WorkspaceRestrictedAccessAnnotation]
+	restrictedAnno, setRestrictedAnno := routing.Annotations[constants.DevWorkspaceRestrictedAccessAnnotation]
 
 	labels := defaults.GetLabelsForComponent(cheManager, "gateway-config")
-	labels[constants.WorkspaceIDLabel] = workspaceID
+	labels[constants.DevWorkspaceIDLabel] = workspaceID
 	if setRestrictedAnno {
-		labels[constants.WorkspaceRestrictedAccessAnnotation] = restrictedAnno
+		labels[constants.DevWorkspaceRestrictedAccessAnnotation] = restrictedAnno
 	}
 
 	configMap := corev1.ConfigMap{
@@ -244,14 +243,29 @@ func (c *CheRoutingSolver) getGatewayConfigsAndFillRoutingObjects(cheManager *dw
 	// suffix, the easiest of which is the iteration order in the map.
 	// Note that this means that the endpoints might get a different route/ingress name on each workspace start because
 	// the iteration order is not guaranteed in Go maps. If we want stable ingress/route names for the endpoints, we need
-	// to devise a different algorithm to produce them. Some kind of hash of workspaceID, machine name, endpoint name and port
+	// to devise a different algorithm to produce them. Some kind of hash of workspaceID, component name, endpoint name and port
 	// might work but will not be relatable to the workspace ID just by looking at it anymore.
 	order := 0
-	for machineName, endpoints := range routing.Spec.Endpoints {
-		singlehostPorts, multihostPorts := classifyEndpoints(!cheManager.Spec.GatewayDisabled, &order, &endpoints)
+	if infrastructure.IsOpenShift() {
+		exposer := &RouteExposer{}
+		if err := exposer.initFrom(context.TODO(), c.client, cheManager, routing); err != nil {
+			return []corev1.ConfigMap{}, err
+		}
 
-		addToTraefikConfig(routing.Namespace, workspaceID, machineName, singlehostPorts, &config)
-		addToRoutingObjects(cheManager, routing.Namespace, routing.Spec.RoutingSuffix, workspaceID, machineName, multihostPorts, objs)
+		exposeAllEndpoints(&order, cheManager, routing, &config, objs, func(info *EndpointInfo) {
+			route := exposer.getRouteForService(info)
+			objs.Routes = append(objs.Routes, route)
+		})
+	} else {
+		exposer := &IngressExposer{}
+		if err := exposer.initFrom(context.TODO(), c.client, cheManager, routing, defaults.GetIngressAnnotations(cheManager)); err != nil {
+			return []corev1.ConfigMap{}, err
+		}
+
+		exposeAllEndpoints(&order, cheManager, routing, &config, objs, func(info *EndpointInfo) {
+			ingress := exposer.getIngressForService(info)
+			objs.Ingresses = append(objs.Ingresses, ingress)
+		})
 	}
 
 	if len(config.HTTP.Routers) > 0 {
@@ -268,6 +282,29 @@ func (c *CheRoutingSolver) getGatewayConfigsAndFillRoutingObjects(cheManager *dw
 	return []corev1.ConfigMap{}, nil
 }
 
+func exposeAllEndpoints(order *int, cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting, config *traefikConfig, objs *solvers.RoutingObjects, ingressExpose func(*EndpointInfo)) {
+	info := &EndpointInfo{}
+	for componentName, endpoints := range routing.Spec.Endpoints {
+		info.componentName = componentName
+		singlehostPorts, multihostPorts := classifyEndpoints(!cheManager.Spec.GatewayDisabled, order, &endpoints)
+
+		addToTraefikConfig(routing.Namespace, routing.Spec.DevWorkspaceId, componentName, singlehostPorts, config)
+
+		for port, names := range multihostPorts {
+			backingService := findServiceForPort(port, objs)
+			for endpointName, val := range names {
+				info.endpointName = endpointName
+				info.order = val.order
+				info.port = port
+				info.scheme = val.endpointScheme
+				info.service = backingService
+
+				ingressExpose(info)
+			}
+		}
+	}
+}
+
 func getTrackedEndpointName(endpoint *dw.Endpoint) string {
 	name := ""
 	if endpoint.Attributes.GetString(uniqueEndpointAttributeName, nil) == "true" {
@@ -280,9 +317,9 @@ func getTrackedEndpointName(endpoint *dw.Endpoint) string {
 // we need to support unique endpoints - so 1 port can actually be accessible
 // multiple times, each time using a different resulting external URL.
 // non-unique endpoints are all represented using a single external URL
-func classifyEndpoints(gatewayEnabled bool, order *int, endpoints *dwo.EndpointList) (singlehostPorts map[int32]map[string]int, multihostPorts map[int32]map[string]int) {
-	singlehostPorts = map[int32]map[string]int{}
-	multihostPorts = map[int32]map[string]int{}
+func classifyEndpoints(gatewayEnabled bool, order *int, endpoints *dwo.EndpointList) (singlehostPorts portMapping, multihostPorts portMapping) {
+	singlehostPorts = portMapping{}
+	multihostPorts = portMapping{}
 	for _, e := range *endpoints {
 		if e.Exposure != dw.PublicEndpointExposure {
 			continue
@@ -301,11 +338,14 @@ func classifyEndpoints(gatewayEnabled bool, order *int, endpoints *dwo.EndpointL
 		}
 
 		if ports[i] == nil {
-			ports[i] = map[string]int{}
+			ports[i] = map[string]portMappingValue{}
 		}
 
 		if _, ok := ports[i][name]; !ok {
-			ports[i][name] = *order
+			ports[i][name] = portMappingValue{
+				order:          *order,
+				endpointScheme: determineEndpointScheme(gatewayEnabled, e),
+			}
 			*order = *order + 1
 		}
 	}
@@ -313,7 +353,7 @@ func classifyEndpoints(gatewayEnabled bool, order *int, endpoints *dwo.EndpointL
 	return
 }
 
-func addToTraefikConfig(namespace string, workspaceID string, machineName string, portMapping map[int32]map[string]int, cfg *traefikConfig) {
+func addToTraefikConfig(namespace string, workspaceID string, machineName string, portMapping portMapping, cfg *traefikConfig) {
 	rtrs := cfg.HTTP.Routers
 	srvcs := cfg.HTTP.Services
 	mdls := cfg.HTTP.Middlewares
@@ -348,23 +388,6 @@ func addToTraefikConfig(namespace string, workspaceID string, machineName string
 				StripPrefix: traefikConfigStripPrefix{
 					Prefixes: []string{prefix},
 				},
-			}
-		}
-	}
-}
-
-func addToRoutingObjects(cheManager *v1alpha1.CheManager, namespace string, baseDomain string, workspaceID string, machineName string, portMapping map[int32]map[string]int, objs *solvers.RoutingObjects) {
-	isOpenShift := infrastructure.IsOpenShift()
-
-	for port, names := range portMapping {
-		backingService := findServiceForPort(port, objs)
-		for endpointName, order := range names {
-			if isOpenShift {
-				route := getRouteForService(order, machineName, endpointName, port, baseDomain, workspaceID, backingService)
-				objs.Routes = append(objs.Routes, route)
-			} else {
-				ingress := getIngressForService(order, machineName, endpointName, port, baseDomain, workspaceID, backingService)
-				objs.Ingresses = append(objs.Ingresses, ingress)
 			}
 		}
 	}
@@ -426,7 +449,7 @@ func findRouteForEndpoint(machineName string, endpoint dw.Endpoint, objs *solver
 func (c *CheRoutingSolver) cheRoutingFinalize(cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting) error {
 	configs := &corev1.ConfigMapList{}
 
-	selector, err := labels.Parse(fmt.Sprintf("%s=%s", constants.WorkspaceIDLabel, routing.Spec.WorkspaceId))
+	selector, err := labels.Parse(fmt.Sprintf("%s=%s", constants.DevWorkspaceIDLabel, routing.Spec.DevWorkspaceId))
 	if err != nil {
 		return err
 	}
@@ -471,4 +494,26 @@ func getPublicURLPrefix(workspaceID string, machineName string, port int32, uniq
 		return fmt.Sprintf(endpointURLPrefixPattern, workspaceID, machineName, port)
 	}
 	return fmt.Sprintf(uniqueEndpointURLPrefixPattern, workspaceID, machineName, uniqueEndpointName)
+}
+
+func determineEndpointScheme(gatewayEnabled bool, e dw.Endpoint) string {
+	var scheme string
+	if e.Protocol == "" {
+		scheme = "http"
+	} else {
+		scheme = string(e.Protocol)
+	}
+
+	upgradeToSecure := e.Secure
+
+	// gateway is always on HTTPS, so if the endpoint is served through the gateway, we need to use the TLS'd variant.
+	if gatewayEnabled && e.Attributes.GetString(urlRewriteSupportedEndpointAttributeName, nil) == "true" {
+		upgradeToSecure = true
+	}
+
+	if upgradeToSecure {
+		scheme = secureScheme(scheme)
+	}
+
+	return scheme
 }

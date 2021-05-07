@@ -19,21 +19,21 @@ import (
 // CheManagerSpec holds the configuration of the Che controller.
 // +k8s:openapi-gen=true
 type CheManagerSpec struct {
-	// GatewayHost is the full host name used to expose workspace endpoints that support url rewriting reverse proxy.
-	// See the GatewayDisabled attribute for a more detailed description of where and how are workspace endpoints
+	// GatewayHost is the full host name used to expose devworkspace endpoints that support url rewriting reverse proxy.
+	// See the GatewayDisabled attribute for a more detailed description of where and how are devworkspace endpoints
 	// exposed in various configurations.
 	//
 	// This attribute is mandatory on Kubernetes, optional on OpenShift.
 	GatewayHost string `json:"gatewayHost,omitempty"`
 
-	// GatewayDisabled enables or disables routing of the url rewrite supporting workspace endpoints
+	// GatewayDisabled enables or disables routing of the url rewrite supporting devworkspace endpoints
 	// through a common gateway (the hostname of which is defined by the GatewayHost).
 	//
 	// Default value is "false" meaning that the gateway is enabled.
 	//
 	// If set to false (i.e. the gateway is enabled), endpoints marked using the "urlRewriteSupported" attribute
-	// are exposed on unique subpaths of the GatewayHost, while the rest of the workspace endpoints are exposed
-	// on subdomains of the RoutingSuffix specified by the DevWorkspaceRouting of the workspace.
+	// are exposed on unique subpaths of the GatewayHost, while the rest of the devworkspace endpoints are exposed
+	// on subdomains of the RoutingSuffix specified by the DevWorkspaceRouting of the devworkspace.
 	//
 	// If set to true (i.e. the gateway is disabled), all endpoints are deployed on subdomains of
 	// the RoutingSuffix.
@@ -50,6 +50,36 @@ type CheManagerSpec struct {
 	// it is taken from the `RELATED_IMAGE_gateway_configurer` environment variable of the che
 	// operator deployment/pod. If not defined there, it defaults to a hardcoded value.
 	GatewayConfigurerImage string `json:"gatewayConfigurerImage,omitempty"`
+
+	// Name of a secret that will be used to setup ingress/route TLS certificate.
+	// When the field is empty string, the default cluster certificate will be used.
+	// The same secret is assumed to exist in the same namespace as the CheManager CR and is used for both
+	// the gateway and all devworkspace endpoints.
+	// In case of the devworkspace endpoints, the secret is copied to the namespace of the devworkspace.
+	//
+	// The secret has to be of type "tls".
+	//
+	// +optional
+	TlsSecretName string `json:"tlsSecretName,omitempty"`
+
+	// K8s contains the configuration specific only to Kubernetes
+	K8s CheManagerSpecK8s `json:"k8s,omitempty"`
+}
+
+// CheManagerSpecK8s contains the configuration options specific to Kubernetes only.
+type CheManagerSpecK8s struct {
+	// IngressAnnotations are the annotations to be put on the generated ingresses. This can be used to
+	// configure the ingress class and the ingress-controller-specific behavior for both the gateway
+	// and the ingresses created to expose the Devworkspace component endpoints.
+	// When not specified, this defaults to:
+	//
+	//     kubernetes.io/ingress.class:                       "nginx"
+	//     nginx.ingress.kubernetes.io/proxy-read-timeout:    "3600",
+	//     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600",
+	//     nginx.ingress.kubernetes.io/ssl-redirect:          "true"
+	//
+	// +optional
+	IngressAnnotations map[string]string `json:"ingressAnnotations,omitempty"`
 }
 
 type GatewayPhase string

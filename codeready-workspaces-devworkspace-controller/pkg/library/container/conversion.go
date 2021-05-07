@@ -15,7 +15,8 @@ package container
 import (
 	"fmt"
 
-	"github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	dwEnv "github.com/devfile/devworkspace-operator/controllers/workspace/env"
 
 	"github.com/devfile/devworkspace-operator/pkg/config"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
@@ -24,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-func convertContainerToK8s(devfileComponent v1alpha2.Component) (*v1.Container, error) {
+func convertContainerToK8s(devfileComponent dw.Component) (*v1.Container, error) {
 	if devfileComponent.Container == nil {
 		return nil, fmt.Errorf("cannot get k8s container from non-container component")
 	}
@@ -42,7 +43,7 @@ func convertContainerToK8s(devfileComponent v1alpha2.Component) (*v1.Container, 
 		Args:            devfileContainer.Args,
 		Resources:       *containerResources,
 		Ports:           devfileEndpointsToContainerPorts(devfileContainer.Endpoints),
-		Env:             devfileEnvToContainerEnv(devfileContainer.Env),
+		Env:             devfileEnvToContainerEnv(devfileComponent.Name, devfileContainer.Env),
 		VolumeMounts:    devfileVolumeMountsToContainerVolumeMounts(devfileContainer.VolumeMounts),
 		ImagePullPolicy: v1.PullPolicy(config.ControllerCfg.GetSidecarPullPolicy()),
 	}
@@ -50,7 +51,7 @@ func convertContainerToK8s(devfileComponent v1alpha2.Component) (*v1.Container, 
 	return container, nil
 }
 
-func devfileEndpointsToContainerPorts(endpoints []v1alpha2.Endpoint) []v1.ContainerPort {
+func devfileEndpointsToContainerPorts(endpoints []dw.Endpoint) []v1.ContainerPort {
 	var containerPorts []v1.ContainerPort
 	exposedPorts := map[int]bool{}
 	for _, endpoint := range endpoints {
@@ -68,7 +69,7 @@ func devfileEndpointsToContainerPorts(endpoints []v1alpha2.Endpoint) []v1.Contai
 	return containerPorts
 }
 
-func devfileResourcesToContainerResources(devfileContainer *v1alpha2.ContainerComponent) (*v1.ResourceRequirements, error) {
+func devfileResourcesToContainerResources(devfileContainer *dw.ContainerComponent) (*v1.ResourceRequirements, error) {
 	// TODO: Handle memory request and CPU when implemented in devfile API
 	memLimit := devfileContainer.MemoryLimit
 	if memLimit == "" {
@@ -85,7 +86,7 @@ func devfileResourcesToContainerResources(devfileContainer *v1alpha2.ContainerCo
 	}, nil
 }
 
-func devfileVolumeMountsToContainerVolumeMounts(devfileVolumeMounts []v1alpha2.VolumeMount) []v1.VolumeMount {
+func devfileVolumeMountsToContainerVolumeMounts(devfileVolumeMounts []dw.VolumeMount) []v1.VolumeMount {
 	var volumeMounts []v1.VolumeMount
 	for _, vm := range devfileVolumeMounts {
 		path := vm.Path
@@ -101,8 +102,14 @@ func devfileVolumeMountsToContainerVolumeMounts(devfileVolumeMounts []v1alpha2.V
 	return volumeMounts
 }
 
-func devfileEnvToContainerEnv(devfileEnvVars []v1alpha2.EnvVar) []v1.EnvVar {
-	var env []v1.EnvVar
+func devfileEnvToContainerEnv(componentName string, devfileEnvVars []dw.EnvVar) []v1.EnvVar {
+	var env = []v1.EnvVar{
+		{
+			Name:  dwEnv.DevWorkspaceComponentName,
+			Value: componentName,
+		},
+	}
+
 	for _, devfileEnv := range devfileEnvVars {
 		env = append(env, v1.EnvVar{
 			Name:  devfileEnv.Name,

@@ -37,8 +37,13 @@ Arguments:
   --default-image
       Controller (and webhook) image to use for the default deployment.
       Used only when '--use-defaults' is passed; otherwise, the value of
-      the IMG environment variable is used. If unspecified, the default
+      the DWO_IMG environment variable is used. If unspecified, the default
       value of 'quay.io/devfile/devworkspace-controller:next' is used
+  --project-clone-image
+      Image to use for the project clone init container. Used only when
+      '--use-defaults' is passed; otherwise, the value of the PROJECT_CLONE_IMG
+      environment variable is used. If unspecifed, the default value of
+      'quay.io/devfile/project-clone:next' is used.
   --split-yaml
       Parse output file combined.yaml into a yaml file for each record
       in combined yaml. Files are output to the 'objects' subdirectory
@@ -62,6 +67,10 @@ while [[ "$#" -gt 0 ]]; do
       DEFAULT_IMAGE=$2
       shift
       ;;
+      --project-clone-image)
+      PROJECT_CLONE_IMG=$2
+      shift
+      ;;
       --split-yamls)
       SPLIT_YAMLS=true
       ;;
@@ -82,9 +91,10 @@ if $USE_DEFAULT_ENV; then
   echo "Using defaults for environment variables"
   export NAMESPACE=devworkspace-controller
   export DWO_IMG=${DEFAULT_IMAGE:-"quay.io/devfile/devworkspace-controller:next"}
+  export PROJECT_CLONE_IMG=${PROJECT_CLONE_IMG:-"quay.io/devfile/project-clone:next"}
   export PULL_POLICY=Always
   export DEFAULT_ROUTING=basic
-  export DEVWORKSPACE_API_VERSION=283b0c54946e9fea9872c25e1e086c303688f0e8
+  export DEVWORKSPACE_API_VERSION=ff3c01bf82927e2936d66f31b93e9463f9be25b3
   export ROUTING_SUFFIX=""
   export FORCE_DEVWORKSPACE_CRDS_UPDATE=true
 fi
@@ -98,7 +108,7 @@ KUSTOMIZE_VER=4.0.5
 KUSTOMIZE_DIR="${SCRIPT_DIR}/../bin/kustomize"
 KUSTOMIZE=${KUSTOMIZE_DIR}/kustomize
 
-rm -rf $KUBERNETES_DIR $OPENSHIFT_DIR
+rm -rf "$KUBERNETES_DIR" "$OPENSHIFT_DIR"
 mkdir -p "$KUBERNETES_DIR" "$OPENSHIFT_DIR"
 
 required_vars=(NAMESPACE DWO_IMG PULL_POLICY DEFAULT_ROUTING \
@@ -131,7 +141,7 @@ mkdir -p "$KUSTOMIZE_DIR"
 if [ ! -f "$KUSTOMIZE" ]; then
   curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \
     | bash -s "$KUSTOMIZE_VER" "$KUSTOMIZE_DIR"
-elif [ $("$KUSTOMIZE" version | grep -o 'Version:[^ ]*') != "Version:kustomize/v${KUSTOMIZE_VER}" ]; then
+elif [ "$($KUSTOMIZE version | grep -o 'Version:[^ ]*')" != "Version:kustomize/v${KUSTOMIZE_VER}" ]; then
   echo "Wrong version of kustomize at ${KUSTOMIZE}. Redownloading."
   rm "$KUSTOMIZE"
   curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" \

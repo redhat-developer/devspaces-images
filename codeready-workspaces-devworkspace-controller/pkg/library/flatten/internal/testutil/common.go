@@ -19,12 +19,12 @@ import (
 	"testing"
 
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
-	"github.com/devfile/devworkspace-operator/pkg/config"
-	"github.com/devfile/devworkspace-operator/pkg/library/flatten/network"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/yaml"
+
+	"github.com/devfile/devworkspace-operator/pkg/config"
 )
 
 var WorkspaceTemplateDiffOpts = cmp.Options{
@@ -35,7 +35,7 @@ var WorkspaceTemplateDiffOpts = cmp.Options{
 		return strings.Compare(a, b) > 0
 	}),
 	// TODO: Devworkspace overriding results in empty []string instead of nil
-	cmpopts.IgnoreFields(dw.WorkspaceEvents{}, "PostStart", "PreStop", "PostStop"),
+	cmpopts.IgnoreFields(dw.DevWorkspaceEvents{}, "PostStart", "PreStop", "PostStop"),
 }
 
 var testControllerCfg = &corev1.ConfigMap{
@@ -60,11 +60,11 @@ type TestCase struct {
 }
 
 type TestInput struct {
-	Workspace dw.DevWorkspaceTemplateSpec `json:"workspace,omitempty"`
-	// Plugins is a map of plugin "name" to devworkspace template; namespace is ignored.
-	Plugins map[string]dw.DevWorkspaceTemplate `json:"plugins,omitempty"`
-	// DevfilePlugins is a map of plugin "name" to devfile
-	DevfilePlugins map[string]network.Devfile `json:"devfilePlugins,omitempty"`
+	DevWorkspace *dw.DevWorkspaceTemplateSpec `json:"devworkspace,omitempty"`
+	// DevWorkspaceResources is a map of string keys to devworkspace templates
+	DevWorkspaceResources map[string]dw.DevWorkspaceTemplate `json:"devworkspaceResources,omitempty"`
+	// DevfileResources is a map of string keys to devfile resources
+	DevfileResources map[string]dw.Devfile `json:"devfileResources,omitempty"`
 	// Errors is a map of plugin name to the error that should be returned when attempting to retrieve it.
 	Errors map[string]TestPluginError `json:"errors,omitempty"`
 }
@@ -79,8 +79,8 @@ type TestPluginError struct {
 }
 
 type TestOutput struct {
-	Workspace *dw.DevWorkspaceTemplateSpec `json:"workspace,omitempty"`
-	ErrRegexp *string                      `json:"errRegexp,omitempty"`
+	DevWorkspace *dw.DevWorkspaceTemplateSpec `json:"devworkspace,omitempty"`
+	ErrRegexp    *string                      `json:"errRegexp,omitempty"`
 }
 
 func LoadTestCaseOrPanic(t *testing.T, testFilepath string) TestCase {

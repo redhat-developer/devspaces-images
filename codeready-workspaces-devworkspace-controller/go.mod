@@ -3,11 +3,11 @@ module github.com/devfile/devworkspace-operator
 go 1.13
 
 require (
-	github.com/devfile/api/v2 v2.0.0-20210212161736-283b0c54946e
+	github.com/devfile/api/v2 v2.0.0-20210420202853-ff3c01bf8292
+	github.com/go-git/go-git/v5 v5.2.0
 	github.com/go-logr/logr v0.1.0
 	github.com/google/go-cmp v0.5.0
 	github.com/google/uuid v1.1.1
-	github.com/kr/pretty v0.2.0 // indirect
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.1
 	github.com/openshift/api v0.0.0-20200205133042-34f0ec8dab87

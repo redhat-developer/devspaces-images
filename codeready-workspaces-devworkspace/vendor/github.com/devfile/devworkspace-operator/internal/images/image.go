@@ -25,7 +25,7 @@ import (
 	"os"
 	"regexp"
 
-	devworkspace "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -34,13 +34,12 @@ var log = logf.Log.WithName("container-images")
 var envRegexp = regexp.MustCompile(`\${(RELATED_IMAGE_.*)}`)
 
 const (
-	webTerminalToolingImageEnvVar       = "RELATED_IMAGE_web_terminal_tooling"
-	openshiftOAuthProxyImageEnvVar      = "RELATED_IMAGE_openshift_oauth_proxy"
-	webhookServerImageEnvVar            = "RELATED_IMAGE_devworkspace_webhook_server"
-	webhookKubernetesCertJobImageEnvVar = "RELATED_IMAGE_default_tls_secrets_creation_job"
-	pvcCleanupJobImageEnvVar            = "RELATED_IMAGE_pvc_cleanup_job"
-	asyncStorageServerImageEnvVar       = "RELATED_IMAGE_async_storage_server"
-	asyncStorageSidecarImageEnvVar      = "RELATED_IMAGE_async_storage_sidecar"
+	webTerminalToolingImageEnvVar  = "RELATED_IMAGE_web_terminal_tooling"
+	webhookServerImageEnvVar       = "RELATED_IMAGE_devworkspace_webhook_server"
+	pvcCleanupJobImageEnvVar       = "RELATED_IMAGE_pvc_cleanup_job"
+	asyncStorageServerImageEnvVar  = "RELATED_IMAGE_async_storage_server"
+	asyncStorageSidecarImageEnvVar = "RELATED_IMAGE_async_storage_sidecar"
+	projectCloneImageEnvVar        = "RELATED_IMAGE_project_clone"
 )
 
 // GetWebhookServerImage returns the image reference for the webhook server image. Returns
@@ -60,29 +59,6 @@ func GetWebTerminalToolingImage() string {
 	val, ok := os.LookupEnv(webTerminalToolingImageEnvVar)
 	if !ok {
 		log.Error(fmt.Errorf("environment variable %s is not set", webTerminalToolingImageEnvVar), "Could not get web terminal tooling image")
-		return ""
-	}
-	return val
-}
-
-// GetOpenShiftOAuthProxyImage returns the image reference for the openshift OAuth proxy image, used
-// for openshift-oauth workspace routingClass. Returns empty string if env var RELATED_IMAGE_openshift_oauth_proxy
-// is not defined.
-func GetOpenShiftOAuthProxyImage() string {
-	val, ok := os.LookupEnv(openshiftOAuthProxyImageEnvVar)
-	if !ok {
-		log.Error(fmt.Errorf("environment variable %s is not set", openshiftOAuthProxyImageEnvVar), "Could not get OpenShift OAuth proxy image")
-		return ""
-	}
-	return val
-}
-
-// GetWebhookCertJobImage returns the image reference for the webhook cert job image. Returns
-// the empty string if environment variable RELATED_IMAGE_default_tls_secrets_creation_job is not defined
-func GetWebhookCertJobImage() string {
-	val, ok := os.LookupEnv(webhookKubernetesCertJobImageEnvVar)
-	if !ok {
-		log.Error(fmt.Errorf("environment variable %s is not set", webhookKubernetesCertJobImageEnvVar), "Could not get webhook cert job image")
 		return ""
 	}
 	return val
@@ -117,11 +93,20 @@ func GetAsyncStorageSidecarImage() string {
 	return val
 }
 
+func GetProjectClonerImage() string {
+	val, ok := os.LookupEnv(projectCloneImageEnvVar)
+	if !ok {
+		log.Info(fmt.Sprintf("Could not get initial project clone image: environment variable %s is not set", projectCloneImageEnvVar))
+		return ""
+	}
+	return val
+}
+
 // FillPluginEnvVars replaces plugin devworkspaceTemplate .spec.components[].container.image environment
 // variables of the form ${RELATED_IMAGE_*} with values from environment variables with the same name.
 //
 // Returns error if any referenced environment variable is undefined.
-func FillPluginEnvVars(pluginDWT *devworkspace.DevWorkspaceTemplate) (*devworkspace.DevWorkspaceTemplate, error) {
+func FillPluginEnvVars(pluginDWT *dw.DevWorkspaceTemplate) (*dw.DevWorkspaceTemplate, error) {
 	for idx, component := range pluginDWT.Spec.Components {
 		if component.Container == nil {
 			continue

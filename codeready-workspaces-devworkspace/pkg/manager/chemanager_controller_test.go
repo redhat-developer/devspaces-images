@@ -67,7 +67,7 @@ func TestCreatesObjectsInSingleHost(t *testing.T) {
 		t.Fatalf("Failed to reconcile che manager with error: %s", err)
 	}
 
-	gateway.TestGatewayObjectsExist(t, ctx, cl, managerName, ns)
+	gateway.AssertGatewayObjectsExist(t, ctx, cl, managerName, ns)
 }
 
 func TestUpdatesObjectsInSingleHost(t *testing.T) {
@@ -137,7 +137,7 @@ func TestUpdatesObjectsInSingleHost(t *testing.T) {
 		t.Fatalf("Failed to reconcile che manager with error: %s", err)
 	}
 
-	gateway.TestGatewayObjectsExist(t, ctx, cl, managerName, ns)
+	gateway.AssertGatewayObjectsExist(t, ctx, cl, managerName, ns)
 
 	depl := &appsv1.Deployment{}
 	if err = cl.Get(ctx, client.ObjectKey{Name: managerName, Namespace: ns}, depl); err != nil {
@@ -177,7 +177,7 @@ func TestDoesntCreateObjectsInMultiHost(t *testing.T) {
 		t.Fatalf("Failed to reconcile che manager with error: %s", err)
 	}
 
-	gateway.TestGatewayObjectsDontExist(t, ctx, cl, managerName, ns)
+	gateway.AssertGatewayObjectsDontExist(t, ctx, cl, managerName, ns)
 }
 
 func TestDeletesObjectsInMultiHost(t *testing.T) {
@@ -244,7 +244,7 @@ func TestDeletesObjectsInMultiHost(t *testing.T) {
 		t.Fatalf("Failed to reconcile che manager with error: %s", err)
 	}
 
-	gateway.TestGatewayObjectsDontExist(t, ctx, cl, managerName, ns)
+	gateway.AssertGatewayObjectsDontExist(t, ctx, cl, managerName, ns)
 }
 
 func TestNoManagerSharedWhenReconcilingNonExistent(t *testing.T) {

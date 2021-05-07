@@ -1,13 +1,13 @@
 name: "Plugins have reference cycle"
 
 input:
-  workspace:
+  devworkspace:
     components:
       - name: "plugin-a"
         plugin:
           kubernetes:
             name: plugin-a
-  plugins:
+  devworkspaceResources:
     plugin-a:
       kind: DevWorkspaceTemplate
       apiVersion: workspace.devfile.io/v1alpha2

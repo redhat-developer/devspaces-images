@@ -131,15 +131,17 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
 
     # step two - extract vendor folder to tarball
     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /workspace/vendor' > "asset-vendor-$(uname -m).tgz"
-    ${BUILDER} rmi ${tag}:bootstrap
 
     pushd "${TARGETDIR}" >/dev/null || exit 1
         # step three - include that tarball's contents in this repo, under the vendor folder
         tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz" 
-        rm -f "asset-vendor-$(uname -m).tgz"
         git add vendor || true
     popd || exit
     echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
+
+    # cleanup
+    #${BUILDER} rmi ${tag}:bootstrap
+    # rm -f "asset-vendor-$(uname -m).tgz"
 fi
 
 # header to reattach to yaml files after yq transform removes it

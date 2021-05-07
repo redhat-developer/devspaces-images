@@ -15,6 +15,10 @@ package main
 import (
 	"flag"
 	"os"
+	"strconv"
+	"time"
+
+	sysruntime "runtime"
 
 	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/controllers/controller/devworkspacerouting"
@@ -37,6 +41,7 @@ import (
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
+	memLog   = ctrl.Log.WithName("mem")
 )
 
 func init() {
@@ -82,6 +87,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	debugMemUsage()
+
 	cheReconciler := &manager.CheReconciler{}
 	if err = cheReconciler.SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Che")
@@ -105,4 +112,23 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+// If we get OOMs from kubernetes, it might be useful to see what activity causes the memory usage spikes in
+// the operator. This just prints basic mem usage stats to the log in a configurable interval.
+func debugMemUsage() {
+	val, err := strconv.Atoi(os.Getenv("DEBUG_PRINT_MEMORY_INTERVAL"))
+	if err != nil {
+		return
+	}
+
+	go func() {
+		ticker := time.NewTicker(time.Duration(val) * time.Millisecond)
+
+		for range ticker.C {
+			var m sysruntime.MemStats
+			sysruntime.ReadMemStats(&m)
+			memLog.Info("stats", "alloc", m.Alloc, "sys", m.Sys, "gcs", m.NumGC)
+		}
+	}()
 }

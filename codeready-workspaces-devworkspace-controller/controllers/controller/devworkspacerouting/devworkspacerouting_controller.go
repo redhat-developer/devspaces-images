@@ -15,10 +15,12 @@ package devworkspacerouting
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/devfile/devworkspace-operator/controllers/controller/devworkspacerouting/solvers"
 	maputils "github.com/devfile/devworkspace-operator/internal/map"
+	"github.com/devfile/devworkspace-operator/pkg/config"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 
@@ -31,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
@@ -78,12 +81,11 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 		// Error reading the object - requeue the request.
 		return reconcile.Result{}, err
 	}
-	reqLogger = reqLogger.WithValues(constants.WorkspaceIDLoggerKey, instance.Spec.WorkspaceId)
+	reqLogger = reqLogger.WithValues(constants.DevWorkspaceIDLoggerKey, instance.Spec.DevWorkspaceId)
 	reqLogger.Info("Reconciling DevWorkspaceRouting")
 
 	if instance.Spec.RoutingClass == "" {
-		reqLogger.Info("workspace routing without an explicit routing class is invalid", "name", instance.Name, "namespace", instance.Namespace)
-		return reconcile.Result{}, r.markRoutingFailed(instance)
+		return reconcile.Result{}, r.markRoutingFailed(instance, "DevWorkspaceRouting requires field routingClass to be set")
 	}
 
 	solver, err := r.SolverGetter.GetSolver(r.Client, instance.Spec.RoutingClass)
@@ -91,8 +93,7 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 		if errors.Is(err, solvers.RoutingNotSupported) {
 			return reconcile.Result{}, nil
 		}
-		reqLogger.Error(err, "Invalid routing class for workspace")
-		return reconcile.Result{}, r.markRoutingFailed(instance)
+		return reconcile.Result{}, r.markRoutingFailed(instance, fmt.Sprintf("Invalid routingClass for DevWorkspace: %s", err))
 	}
 
 	// Check if the DevWorkspaceRouting instance is marked to be deleted, which is
@@ -111,14 +112,14 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 		return reconcile.Result{}, err
 	}
 
-	workspaceMeta := solvers.WorkspaceMetadata{
-		WorkspaceId:   instance.Spec.WorkspaceId,
-		Namespace:     instance.Namespace,
-		PodSelector:   instance.Spec.PodSelector,
-		RoutingSuffix: instance.Spec.RoutingSuffix,
+	workspaceMeta := solvers.DevWorkspaceMetadata{
+		DevWorkspaceId: instance.Spec.DevWorkspaceId,
+		Namespace:      instance.Namespace,
+		PodSelector:    instance.Spec.PodSelector,
+		RoutingSuffix:  instance.Spec.RoutingSuffix,
 	}
 
-	restrictedAccess, setRestrictedAccess := instance.Annotations[constants.WorkspaceRestrictedAccessAnnotation]
+	restrictedAccess, setRestrictedAccess := instance.Annotations[constants.DevWorkspaceRestrictedAccessAnnotation]
 	routingObjects, err := solver.GetSpecObjects(instance, workspaceMeta)
 	if err != nil {
 		var notReady *solvers.RoutingNotReady
@@ -127,14 +128,14 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 			if duration.Milliseconds() == 0 {
 				duration = 1 * time.Second
 			}
-			reqLogger.Info("controller not ready for workspace routing. Retrying", "DelayMs", duration.Milliseconds())
-			return reconcile.Result{RequeueAfter: duration}, nil
+			reqLogger.Info("controller not ready for devworkspace routing. Retrying", "DelayMs", duration.Milliseconds())
+			return reconcile.Result{RequeueAfter: duration}, r.reconcileStatus(instance, nil, nil, false, "Waiting for DevWorkspaceRouting controller to be ready")
 		}
 
 		var invalid *solvers.RoutingInvalid
 		if errors.As(err, &invalid) {
 			reqLogger.Error(invalid, "routing controller considers routing invalid")
-			return reconcile.Result{}, r.markRoutingFailed(instance)
+			return reconcile.Result{}, r.markRoutingFailed(instance, fmt.Sprintf("Unable to provision networking for DevWorkspace: %s", invalid))
 		}
 
 		// generic error, just fail the reconciliation
@@ -148,7 +149,7 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 			return reconcile.Result{}, err
 		}
 		if setRestrictedAccess {
-			services[idx].Annotations = maputils.Append(services[idx].Annotations, constants.WorkspaceRestrictedAccessAnnotation, restrictedAccess)
+			services[idx].Annotations = maputils.Append(services[idx].Annotations, constants.DevWorkspaceRestrictedAccessAnnotation, restrictedAccess)
 		}
 	}
 	ingresses := routingObjects.Ingresses
@@ -158,7 +159,7 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 			return reconcile.Result{}, err
 		}
 		if setRestrictedAccess {
-			ingresses[idx].Annotations = maputils.Append(ingresses[idx].Annotations, constants.WorkspaceRestrictedAccessAnnotation, restrictedAccess)
+			ingresses[idx].Annotations = maputils.Append(ingresses[idx].Annotations, constants.DevWorkspaceRestrictedAccessAnnotation, restrictedAccess)
 		}
 	}
 	routes := routingObjects.Routes
@@ -168,14 +169,17 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 			return reconcile.Result{}, err
 		}
 		if setRestrictedAccess {
-			routes[idx].Annotations = maputils.Append(routes[idx].Annotations, constants.WorkspaceRestrictedAccessAnnotation, restrictedAccess)
+			routes[idx].Annotations = maputils.Append(routes[idx].Annotations, constants.DevWorkspaceRestrictedAccessAnnotation, restrictedAccess)
 		}
 	}
 
 	servicesInSync, clusterServices, err := r.syncServices(instance, services)
-	if err != nil || !servicesInSync {
+	if err != nil {
+		reqLogger.Error(err, "Error syncing services")
+		return reconcile.Result{Requeue: true}, r.reconcileStatus(instance, nil, nil, false, "Preparing services")
+	} else if !servicesInSync {
 		reqLogger.Info("Services not in sync")
-		return reconcile.Result{Requeue: true}, err
+		return reconcile.Result{Requeue: true}, r.reconcileStatus(instance, nil, nil, false, "Preparing services")
 	}
 
 	clusterRoutingObj := solvers.RoutingObjects{
@@ -184,27 +188,33 @@ func (r *DevWorkspaceRoutingReconciler) Reconcile(req ctrl.Request) (ctrl.Result
 
 	if infrastructure.IsOpenShift() {
 		routesInSync, clusterRoutes, err := r.syncRoutes(instance, routes)
-		if err != nil || !routesInSync {
+		if err != nil {
+			reqLogger.Error(err, "Error syncing routes")
+			return reconcile.Result{Requeue: true}, r.reconcileStatus(instance, nil, nil, false, "Preparing routes")
+		} else if !routesInSync {
 			reqLogger.Info("Routes not in sync")
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{Requeue: true}, r.reconcileStatus(instance, nil, nil, false, "Preparing routes")
 		}
 		clusterRoutingObj.Routes = clusterRoutes
 	} else {
 		ingressesInSync, clusterIngresses, err := r.syncIngresses(instance, ingresses)
-		if err != nil || !ingressesInSync {
+		if err != nil {
+			reqLogger.Error(err, "Error syncing ingresses")
+			return reconcile.Result{Requeue: true}, r.reconcileStatus(instance, nil, nil, false, "Preparing ingresses")
+		} else if !ingressesInSync {
 			reqLogger.Info("Ingresses not in sync")
-			return reconcile.Result{Requeue: true}, err
+			return reconcile.Result{Requeue: true}, r.reconcileStatus(instance, nil, nil, false, "Preparing ingresses")
 		}
 		clusterRoutingObj.Ingresses = clusterIngresses
 	}
 
 	exposedEndpoints, endpointsAreReady, err := solver.GetExposedEndpoints(instance.Spec.Endpoints, clusterRoutingObj)
 	if err != nil {
-		reqLogger.Error(err, "Could not get exposed endpoints for workspace")
-		return reconcile.Result{}, r.markRoutingFailed(instance)
+		reqLogger.Error(err, "Could not get exposed endpoints for devworkspace")
+		return reconcile.Result{}, r.markRoutingFailed(instance, fmt.Sprintf("Could not get exposed endpoints for DevWorkspace: %s", err))
 	}
 
-	return reconcile.Result{}, r.reconcileStatus(instance, routingObjects, exposedEndpoints, endpointsAreReady)
+	return reconcile.Result{}, r.reconcileStatus(instance, &routingObjects, exposedEndpoints, endpointsAreReady, "")
 }
 
 // setFinalizer ensures a finalizer is set on a devWorkspaceRouting instance; no-op if finalizer is already present.
@@ -244,19 +254,22 @@ func (r *DevWorkspaceRoutingReconciler) finalize(solver solvers.RoutingSolver, i
 	return nil
 }
 
-func (r *DevWorkspaceRoutingReconciler) markRoutingFailed(instance *controllerv1alpha1.DevWorkspaceRouting) error {
+func (r *DevWorkspaceRoutingReconciler) markRoutingFailed(instance *controllerv1alpha1.DevWorkspaceRouting, message string) error {
+	instance.Status.Message = message
 	instance.Status.Phase = controllerv1alpha1.RoutingFailed
 	return r.Status().Update(context.TODO(), instance)
 }
 
 func (r *DevWorkspaceRoutingReconciler) reconcileStatus(
 	instance *controllerv1alpha1.DevWorkspaceRouting,
-	routingObjects solvers.RoutingObjects,
+	routingObjects *solvers.RoutingObjects,
 	exposedEndpoints map[string]controllerv1alpha1.ExposedEndpointList,
-	endpointsReady bool) error {
+	endpointsReady bool,
+	message string) error {
 
 	if !endpointsReady {
 		instance.Status.Phase = controllerv1alpha1.RoutingPreparing
+		instance.Status.Message = message
 		return r.Status().Update(context.TODO(), instance)
 	}
 	if instance.Status.Phase == controllerv1alpha1.RoutingReady &&
@@ -265,6 +278,7 @@ func (r *DevWorkspaceRoutingReconciler) reconcileStatus(
 		return nil
 	}
 	instance.Status.Phase = controllerv1alpha1.RoutingReady
+	instance.Status.Message = "DevWorkspaceRouting prepared"
 	instance.Status.PodAdditions = routingObjects.PodAdditions
 	instance.Status.ExposedEndpoints = exposedEndpoints
 	return r.Status().Update(context.TODO(), instance)
@@ -289,7 +303,13 @@ func remove(list []string, s string) []string {
 }
 
 func (r *DevWorkspaceRoutingReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	maxConcurrentReconciles, err := config.GetMaxConcurrentReconciles()
+	if err != nil {
+		return err
+	}
+
 	bld := ctrl.NewControllerManagedBy(mgr).
+		WithOptions(controller.Options{MaxConcurrentReconciles: maxConcurrentReconciles}).
 		For(&controllerv1alpha1.DevWorkspaceRouting{}).
 		Owns(&corev1.Service{}).
 		Owns(&v1beta1.Ingress{})

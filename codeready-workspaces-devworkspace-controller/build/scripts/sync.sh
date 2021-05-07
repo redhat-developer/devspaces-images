@@ -125,24 +125,25 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     cat ${TARGETDIR}/build/rhel.Dockerfile | sed -r \
         `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
         -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
-        `# CRW-1680 fetch new vendor content` \
-        -e "s@(\ +)(.+go build)@\1${gomodvendoring} \2@" \
+        `# CRW-1680 fetch new vendor content before running make (to run go build)` \
+        -e "s@(.+)(\ *make )@\1${gomodvendoring} \2@" \
     > ${BOOTSTRAPFILE}
     tag=$(pwd);tag=${tag##*/}
     ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
-    rm -f ${BOOTSTRAPFILE}
 
     # step two - extract vendor folder to tarball
     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /devworkspace-operator/vendor' > "asset-vendor-$(uname -m).tgz"
-    ${BUILDER} rmi ${tag}:bootstrap
 
     pushd "${TARGETDIR}" >/dev/null || exit 1
         # step three - include that tarball's contents in this repo, under the vendor folder
         tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz" 
-        rm -f "asset-vendor-$(uname -m).tgz"
         git add vendor || true
     popd || exit
     echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
+
+    # cleanup
+    ${BUILDER} rmi ${tag}:bootstrap
+    rm -f ${BOOTSTRAPFILE} "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
 fi
 
 # header to reattach to yaml files after yq transform removes it

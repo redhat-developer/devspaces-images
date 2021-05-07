@@ -49,7 +49,7 @@ type RoutingSolver interface {
 	// The implementors can also create any additional objects not captured by the RoutingObjects struct. If that's
 	// the case they are required to set the restricted access annotation on any objects created according to the
 	// restricted access specified by the routing.
-	GetSpecObjects(routing *controllerv1alpha1.DevWorkspaceRouting, workspaceMeta WorkspaceMetadata) (RoutingObjects, error)
+	GetSpecObjects(routing *controllerv1alpha1.DevWorkspaceRouting, workspaceMeta DevWorkspaceMetadata) (RoutingObjects, error)
 
 	// GetExposedEndpoints retreives the URL for each endpoint in a devfile spec from a set of RoutingObjects.
 	// Returns is a map from component ids (as defined in the devfile) to the list of endpoints for that component
@@ -88,7 +88,6 @@ func (_ *SolverGetter) HasSolver(routingClass controllerv1alpha1.DevWorkspaceRou
 	}
 	switch routingClass {
 	case controllerv1alpha1.DevWorkspaceRoutingBasic,
-		controllerv1alpha1.DevWorkspaceRoutingOpenShiftOauth,
 		controllerv1alpha1.DevWorkspaceRoutingCluster,
 		controllerv1alpha1.DevWorkspaceRoutingClusterTLS,
 		controllerv1alpha1.DevWorkspaceRoutingWebTerminal:
@@ -98,16 +97,11 @@ func (_ *SolverGetter) HasSolver(routingClass controllerv1alpha1.DevWorkspaceRou
 	}
 }
 
-func (_ *SolverGetter) GetSolver(client client.Client, routingClass controllerv1alpha1.DevWorkspaceRoutingClass) (RoutingSolver, error) {
+func (_ *SolverGetter) GetSolver(_ client.Client, routingClass controllerv1alpha1.DevWorkspaceRoutingClass) (RoutingSolver, error) {
 	isOpenShift := infrastructure.IsOpenShift()
 	switch routingClass {
 	case controllerv1alpha1.DevWorkspaceRoutingBasic:
 		return &BasicSolver{}, nil
-	case controllerv1alpha1.DevWorkspaceRoutingOpenShiftOauth:
-		if !isOpenShift {
-			return nil, fmt.Errorf("routing class %s only supported on OpenShift", routingClass)
-		}
-		return &OpenShiftOAuthSolver{Client: client}, nil
 	case controllerv1alpha1.DevWorkspaceRoutingCluster:
 		return &ClusterSolver{}, nil
 	case controllerv1alpha1.DevWorkspaceRoutingClusterTLS, controllerv1alpha1.DevWorkspaceRoutingWebTerminal:

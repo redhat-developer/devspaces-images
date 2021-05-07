@@ -1,12 +1,12 @@
 name: "DevWorkspace references plugin from internal registry"
 
 input:
-  workspace:
+  devworkspace:
     components:
       - name: test-plugin
         plugin:
           id: my/test/plugin
-  plugins:
+  devworkspaceResources:
     my/test/plugin:
       kind: DevWorkspaceTemplate
       apiVersion: workspace.devfile.io/v1alpha2
@@ -20,7 +20,7 @@ input:
               image: test-image
 
 output:
-  workspace:
+  devworkspace:
     components:
       - name: plugin-a
         attributes:
