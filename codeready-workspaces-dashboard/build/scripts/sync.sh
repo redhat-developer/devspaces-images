@@ -14,42 +14,43 @@
 
 set -e
 
+SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
+
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-UBI_TAG=8.3
 
 UPDATE_VENDOR=1 # update the cache folder via bootstrap.Dockerfile
 
 usage () {
     echo "
-Usage:   $0 [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -s ${HOME}/projects/dashboard -t /tmp/dashboard
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard
 Options:
-	--ubi-tag ${UBI_TAG}
-	--no-cache # don't rebuild the cache folder
+	--no-vendor # don't rebuild the vendor folder
 "
     exit
 }
 
-if [[ $# -lt 4 ]]; then usage; fi
+if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+    # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
+    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    '--no-cache') UPDATE_VENDOR=0;;
+    '--no-vendor') UPDATE_VENDOR=0;;
     '--help'|'-h') usage;;
     # optional tag overrides
-    '--ubi-tag') UBI_TAG="$2"; shift 1;;
   esac
   shift 1
 done
 
+if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
-CRW_DWO_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
-UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 
 # step one - build the builder image
 BUILDER=$(command -v podman || true)
@@ -65,19 +66,21 @@ fi
 echo ".github/
 .git/
 .gitattributes
+build/scripts/sync.sh
+get-sources-jenkins.sh
+container.yaml
+content_sets.yml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes ${SOURCEDIR}/* ${TARGETDIR}/
+rm -fr ${TARGETDIR}/vendor/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
 # transform rhel.Dockefile -> Dockerfile
-sed ${TARGETDIR}/dockerfiles/rhel.Dockerfile -r \
+sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
 > ${TARGETDIR}/Dockerfile
-
-ls
-
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces dashboard container" \\
@@ -92,7 +95,7 @@ LABEL summary="$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${CRW_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Josh Pinkney <jpinkney@redhat.com>" \\
+      maintainer="Josh Pinkney <jpinkney@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
@@ -100,7 +103,8 @@ echo "Converted Dockerfile"
 
 if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
-    cat ${TARGETDIR}/dockerfiles/rhel.Dockerfile > ${BOOTSTRAPFILE}
+    # with yarn 2, no need to change the dockerfile (unlike with go vendoring or yarn 1)
+    cp ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile ${BOOTSTRAPFILE}
     tag=$(pwd);tag=${tag##*/}
     ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
     rm -f ${BOOTSTRAPFILE}
@@ -110,7 +114,7 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     ${BUILDER} rmi ${tag}:bootstrap
 
     pushd "${TARGETDIR}" >/dev/null || exit 1
-        # step three - include that tarball's contents in this repo, under the yarn cache folder
+        # step three - include that tarball's contents in this repo, under the cache folder
         tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz"
         rm -f "asset-vendor-$(uname -m).tgz"
         git add .yarn/cache || true
