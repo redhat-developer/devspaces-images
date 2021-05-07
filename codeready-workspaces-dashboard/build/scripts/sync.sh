@@ -108,14 +108,16 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     rm -f ${BOOTSTRAPFILE}
 
     # step two - extract cache folder to tarball
-    ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-vendor-$(uname -m).tgz"
-    ${BUILDER} rmi ${tag}:bootstrap
+    ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-yarn-cache-$(uname -m).tgz"
 
     pushd "${TARGETDIR}" >/dev/null || exit 1
         # step three - include that tarball's contents in this repo, under the cache folder
-        tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz"
-        rm -f "asset-vendor-$(uname -m).tgz"
+        tar -xzf "asset-yarn-cache-$(uname -m).tgz"
         git add .yarn/cache || true
     popd || exit
     echo "Collected .yarn/cache/ folder - don't forget to commit it and sync it downstream"
+
+    # cleanup
+    rm -f "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
+    ${BUILDER} rmi ${tag}:bootstrap
 fi
