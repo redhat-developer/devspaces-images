@@ -44,7 +44,6 @@ BOOTSTRAPFILE=./build/dockerfiles/rhel.Dockerfile
 # with yarn 2, no need to change the dockerfile (unlike with go vendoring or yarn 1)
 tag=$(pwd);tag=${tag##*/}
 ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
-rm -f ${BOOTSTRAPFILE}
 
 # step two - extract cache folder to tarball (let's hope there's nothing arch-specific we need here!)
 ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-yarn-cache.tgz"
