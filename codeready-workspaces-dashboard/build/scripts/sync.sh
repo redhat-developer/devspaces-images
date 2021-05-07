@@ -20,15 +20,14 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
-UPDATE_VENDOR=1 # update the cache folder via bootstrap.Dockerfile
+UPDATE_VENDOR=0 # vendoring will be done in get-sources*.sh just before the brew build, so we can also commit the tarball
 
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard
-Options:
-	--no-vendor # don't rebuild the vendor folder
-"
+Example: $0 -v 2.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard"
+#echo "Options:
+#    --no-vendor # don't rebuild the vendor folder"
     exit
 }
 
@@ -41,7 +40,7 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    '--no-vendor') UPDATE_VENDOR=0;;
+    # '--no-vendor') UPDATE_VENDOR=0;;
     '--help'|'-h') usage;;
     # optional tag overrides
   esac
@@ -99,25 +98,26 @@ LABEL summary="$SUMMARY" \\
 EOT
 echo "Converted Dockerfile"
 
-if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
-    BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
-    # with yarn 2, no need to change the dockerfile (unlike with go vendoring or yarn 1)
-    cp ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile ${BOOTSTRAPFILE}
-    tag=$(pwd);tag=${tag##*/}
-    ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
-    rm -f ${BOOTSTRAPFILE}
+# do vendoring downstream as part of get-sources-jenkins.sh (if nothing is arch-specific, we can do it later)
+# if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
+#     BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
+#     # with yarn 2, no need to change the dockerfile (unlike with go vendoring or yarn 1)
+#     cp ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile ${BOOTSTRAPFILE}
+#     tag=$(pwd);tag=${tag##*/}
+#     ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
+#     rm -f ${BOOTSTRAPFILE}
 
-    # step two - extract cache folder to tarball
-    ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-yarn-cache-$(uname -m).tgz"
+#     # step two - extract cache folder to tarball
+#     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-yarn-cache-$(uname -m).tgz"
 
-    pushd "${TARGETDIR}" >/dev/null || exit 1
-        # step three - include that tarball's contents in this repo, under the cache folder
-        tar -xzf "asset-yarn-cache-$(uname -m).tgz"
-        git add .yarn/cache || true
-    popd || exit
-    echo "Collected .yarn/cache/ folder - don't forget to commit it and sync it downstream"
+#     pushd "${TARGETDIR}" >/dev/null || exit 1
+#         # step three - include that tarball's contents in this repo, under the cache folder
+#         tar -xzf "asset-yarn-cache-$(uname -m).tgz"
+#         git add .yarn/cache || true
+#     popd || exit
+#     echo "Collected .yarn/cache/ folder - don't forget to commit it and sync it downstream"
 
-    # cleanup
-    rm -f "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
-    ${BUILDER} rmi ${tag}:bootstrap
-fi
+#     # cleanup
+#     rm -f "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
+#     ${BUILDER} rmi ${tag}:bootstrap
+# fi
