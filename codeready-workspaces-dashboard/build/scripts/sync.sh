@@ -50,8 +50,6 @@ done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
-CRW_RRIO="registry.redhat.io/codeready-workspaces"
-
 # step one - build the builder image
 BUILDER=$(command -v podman || true)
 if [[ ! -x $BUILDER ]]; then
