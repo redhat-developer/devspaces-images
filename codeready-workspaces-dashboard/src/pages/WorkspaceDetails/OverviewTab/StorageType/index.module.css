@@ -1,0 +1,38 @@
+/*
+* Copyright (c) 2018-2020 Red Hat, Inc.
+* This program and the accompanying materials are made
+* available under the terms of the Eclipse Public License 2.0
+* which is available at https://www.eclipse.org/legal/epl-2.0/
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Contributors:
+*   Red Hat, Inc. - initial API and implementation
+*/
+
+.experimentalStorageType {
+  color: var(--pf-global--palette--orange-300);
+  font-size: 0.8em;
+}
+
+.labelIcon {
+  margin-left: 5px;
+  padding: 0;
+  outline: none;
+}
+
+button.labelIcon {
+  color: inherit;
+}
+
+.warningAlert h4 {
+  margin-top: 0;
+}
+
+.modalEditStorageType {
+  min-width: 800px;
+}
+
+.modalEditStorageType footer button {
+  margin: 0 0 10px 10px;
+}

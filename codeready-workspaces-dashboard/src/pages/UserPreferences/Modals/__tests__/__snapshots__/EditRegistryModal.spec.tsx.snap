@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Edit Registry Modal should correctly render the closed modal component 1`] = `null`;

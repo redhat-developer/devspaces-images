@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Progress component should render progress with loading correctly 1`] = `
+<span>
+  <div
+    className="pf-c-progress pf-m-sm pf-m-singleline"
+    id="che-progress-ind"
+  >
+    <div
+      aria-hidden="true"
+      className="pf-c-progress__description"
+      id="che-progress-ind-description"
+      onMouseEnter={null}
+    >
+      
+    </div>
+    <div
+      aria-hidden="true"
+      className="pf-c-progress__status"
+    />
+    <div
+      aria-labelledby="che-progress-ind-description"
+      aria-valuemax={100}
+      aria-valuemin={0}
+      aria-valuenow={0}
+      className="pf-c-progress__bar"
+      role="progressbar"
+    >
+      <div
+        className="pf-c-progress__indicator"
+        style={
+          Object {
+            "width": "0%",
+          }
+        }
+      >
+        <span
+          className="pf-c-progress__measure"
+        />
+      </div>
+    </div>
+  </div>
+</span>
+`;
+
+exports[`Progress component should render progress without loading correctly 1`] = `
+<span>
+  
+</span>
+`;

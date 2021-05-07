@@ -1,0 +1,2751 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The Ide Loader page  component should render INITIALIZING step correctly 1`] = `
+Array [
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <div
+      className="pf-l-flex"
+    >
+      <div
+        className="pf-m-align-self-center"
+      >
+        <div
+          className="pf-c-content"
+        >
+          <h1
+            className=""
+            data-pf-content={true}
+          >
+            Starting workspace wksp-test
+          </h1>
+        </div>
+      </div>
+      <div
+        className=""
+      >
+        <span
+          className="pf-c-label undefined undefined"
+          data-tip=""
+        >
+          <span
+            className="pf-c-label__content"
+          >
+            <span
+              className="pf-c-label__icon"
+            >
+              <svg
+                aria-hidden="true"
+                fill=""
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 16 16"
+                width="1em"
+              >
+                <path
+                  d="M8.001,0 C3.589,0 0,3.590 0,8 C0,12.410 3.590,16 8.001,16 C12.412,16 16,12.410
+              16,8 C16,3.589 12.4125,0 8.001,0 Z M8,14 C4.690,14 2,11.310 2,8 C2,4.692 4.690,2
+              8,2 C11.307,2 14,4.690 14,8 C14,11.309 11.307,14 8,14 Z"
+                />
+                <path
+                  d="M8.001,3.5 C5.519,3.5 3.5,5.520 3.5,8 C3.5,10.481 5.520,12.5 8.000,12.5 C10.482,12.5 12.5,10.481
+              12.5,8 C12.5,5.519 10.482,3.5 8.000,3.5 Z M8,10.75 C6.483,10.75 5.25,9.517 5.25,8 C5.25,6.484
+              6.483,5.25 8,5.25 C9.516,5.25 10.75,6.483 10.75,8 C10.75,9.516 9.516,10.75 8,10.75 Z"
+                />
+              </svg>
+            </span>
+            Stopped
+          </span>
+        </span>
+        <div>
+          Dummy Tooltip
+        </div>
+      </div>
+    </div>
+  </section>,
+  <section
+    className="pf-c-page__main-section pf-m-light pf-m-fill ide-loader-page"
+  >
+    <div
+      className="pf-c-tabs pf-m-inset-lg"
+      data-ouia-component-id="OUIA-Generated-Tabs-1"
+      data-ouia-component-type="PF4/Tabs"
+      data-ouia-safe={true}
+      id="ide-loader-page-tabs"
+      onSelect={[Function]}
+    >
+      <button
+        aria-hidden={false}
+        aria-label="Scroll left"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+          />
+        </svg>
+      </button>
+      <ul
+        className="pf-c-tabs__list"
+        onScroll={[Function]}
+      >
+        <li
+          className="pf-c-tabs__item pf-m-current"
+        >
+          <button
+            aria-controls="pf-tab-section-0-ide-loader-page-wizard-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-0-ide-loader-page-wizard-tab"
+            onClick={[Function]}
+          >
+            Progress
+          </button>
+        </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-1-ide-loader-page-logs-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-1-ide-loader-page-logs-tab"
+            onClick={[Function]}
+          >
+            Logs
+          </button>
+        </li>
+      </ul>
+      <button
+        aria-hidden={false}
+        aria-label="Scroll right"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </button>
+    </div>
+    <section
+      aria-labelledby="pf-tab-0-ide-loader-page-wizard-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={false}
+      id="pf-tab-section-0-ide-loader-page-wizard-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section"
+      >
+        
+        <div
+          className="pf-c-wizard ide-loader-wizard"
+          style={
+            Object {
+              "height": 500,
+            }
+          }
+        >
+          <button
+            aria-expanded={false}
+            aria-label="Wizard Toggle"
+            className="pf-c-wizard__toggle"
+            onClick={[Function]}
+          >
+            <ol
+              className="pf-c-wizard__toggle-list"
+            >
+              <li
+                className="pf-c-wizard__toggle-list-item"
+              >
+                <span
+                  className="pf-c-wizard__toggle-num"
+                >
+                  1
+                </span>
+                 
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  className="undefined wizard-icon"
+                  fill="#0e6fe0"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 64 1024 1024"
+                  width="1em"
+                >
+                  <path
+                    d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                    transform="rotate(180 0 512) scale(-1 1)"
+                  />
+                </svg>
+                <span
+                  className="progress"
+                >
+                  Initializing
+                </span>
+              </li>
+            </ol>
+            <span
+              className="pf-c-wizard__toggle-icon"
+            >
+              <svg
+                aria-hidden="true"
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 320 512"
+                width="1em"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className="pf-c-wizard__outer-wrap"
+          >
+            <div
+              className="pf-c-wizard__inner-wrap"
+            >
+              <nav
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__nav"
+              >
+                <ol
+                  className="pf-c-wizard__nav-list"
+                >
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current="page"
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link pf-m-current"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="undefined wizard-icon"
+                        fill="#0e6fe0"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 64 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                          transform="rotate(180 0 512) scale(-1 1)"
+                        />
+                      </svg>
+                      <span
+                        className="progress"
+                      >
+                        Initializing
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={true}
+                      className="pf-c-wizard__nav-link pf-m-disabled"
+                      disabled={true}
+                      onClick={[Function]}
+                    >
+                      
+                      <span
+                        className=""
+                      >
+                        Waiting for workspace to start
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={true}
+                      className="pf-c-wizard__nav-link pf-m-disabled"
+                      disabled={true}
+                      onClick={[Function]}
+                    >
+                      
+                      <span
+                        className=""
+                      >
+                        Open IDE
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </nav>
+              <div
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__main"
+              >
+                <div
+                  className="pf-c-wizard__main-body"
+                />
+              </div>
+            </div>
+            <span />
+          </div>
+        </div>
+      </section>
+    </section>
+    <section
+      aria-labelledby="pf-tab-1-ide-loader-page-logs-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-1-ide-loader-page-logs-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <div
+        className="pf-c-empty-state"
+        style={
+          Object {
+            "backgroundColor": "#f1f1f1",
+          }
+        }
+      >
+        <div
+          className="pf-c-empty-state__content"
+        >
+          <svg
+            aria-hidden="true"
+            aria-labelledby={null}
+            className="pf-c-empty-state__icon"
+            fill="currentColor"
+            height="1em"
+            role="img"
+            style={
+              Object {
+                "verticalAlign": "-0.125em",
+              }
+            }
+            viewBox="0 0 384 512"
+            width="1em"
+          >
+            <path
+              d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z"
+              transform=""
+            />
+          </svg>
+          <h4
+            className="pf-c-title pf-m-lg"
+          >
+            No Logs to display
+          </h4>
+          <div
+            className="pf-c-empty-state__body"
+          >
+            Logs will be displayed in a running workspace.
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>,
+]
+`;
+
+exports[`The Ide Loader page  component should render INITIALIZING step with an error correctly 1`] = `
+Array [
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <div
+      className="pf-l-flex"
+    >
+      <div
+        className="pf-m-align-self-center"
+      >
+        <div
+          className="pf-c-content"
+        >
+          <h1
+            className=""
+            data-pf-content={true}
+          >
+            Starting workspace wksp-test
+          </h1>
+        </div>
+      </div>
+      <div
+        className=""
+      >
+        <span
+          className="pf-c-label pf-m-red"
+          data-tip=""
+        >
+          <span
+            className="pf-c-label__content"
+          >
+            <span
+              className="pf-c-label__icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 512 512"
+                width="1em"
+              >
+                <path
+                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                  transform=""
+                />
+              </svg>
+            </span>
+            Error
+          </span>
+        </span>
+        <div>
+          Dummy Tooltip
+        </div>
+      </div>
+    </div>
+  </section>,
+  <section
+    className="pf-c-page__main-section pf-m-light pf-m-fill ide-loader-page"
+  >
+    <div
+      className="pf-c-tabs pf-m-inset-lg"
+      data-ouia-component-id="OUIA-Generated-Tabs-2"
+      data-ouia-component-type="PF4/Tabs"
+      data-ouia-safe={true}
+      id="ide-loader-page-tabs"
+      onSelect={[Function]}
+    >
+      <button
+        aria-hidden={false}
+        aria-label="Scroll left"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+          />
+        </svg>
+      </button>
+      <ul
+        className="pf-c-tabs__list"
+        onScroll={[Function]}
+      >
+        <li
+          className="pf-c-tabs__item pf-m-current"
+        >
+          <button
+            aria-controls="pf-tab-section-0-ide-loader-page-wizard-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-0-ide-loader-page-wizard-tab"
+            onClick={[Function]}
+          >
+            Progress
+          </button>
+        </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-1-ide-loader-page-logs-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-1-ide-loader-page-logs-tab"
+            onClick={[Function]}
+          >
+            Logs
+          </button>
+        </li>
+      </ul>
+      <button
+        aria-hidden={false}
+        aria-label="Scroll right"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </button>
+    </div>
+    <section
+      aria-labelledby="pf-tab-0-ide-loader-page-wizard-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={false}
+      id="pf-tab-section-0-ide-loader-page-wizard-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section"
+      >
+        
+        <div
+          className="pf-c-wizard ide-loader-wizard"
+          style={
+            Object {
+              "height": 500,
+            }
+          }
+        >
+          <button
+            aria-expanded={false}
+            aria-label="Wizard Toggle"
+            className="pf-c-wizard__toggle"
+            onClick={[Function]}
+          >
+            <ol
+              className="pf-c-wizard__toggle-list"
+            >
+              <li
+                className="pf-c-wizard__toggle-list-item"
+              >
+                <span
+                  className="pf-c-wizard__toggle-num"
+                >
+                  1
+                </span>
+                 
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  className="wizard-icon"
+                  fill="red"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 512 512"
+                  width="1em"
+                >
+                  <path
+                    d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                    transform=""
+                  />
+                </svg>
+                <span
+                  className="error"
+                >
+                  Initializing
+                </span>
+              </li>
+            </ol>
+            <span
+              className="pf-c-wizard__toggle-icon"
+            >
+              <svg
+                aria-hidden="true"
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 320 512"
+                width="1em"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className="pf-c-wizard__outer-wrap"
+          >
+            <div
+              className="pf-c-wizard__inner-wrap"
+            >
+              <nav
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__nav"
+              >
+                <ol
+                  className="pf-c-wizard__nav-list"
+                >
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current="page"
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link pf-m-current"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="red"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className="error"
+                      >
+                        Initializing
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={true}
+                      className="pf-c-wizard__nav-link pf-m-disabled"
+                      disabled={true}
+                      onClick={[Function]}
+                    >
+                      
+                      <span
+                        className=""
+                      >
+                        Waiting for workspace to start
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={true}
+                      className="pf-c-wizard__nav-link pf-m-disabled"
+                      disabled={true}
+                      onClick={[Function]}
+                    >
+                      
+                      <span
+                        className=""
+                      >
+                        Open IDE
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </nav>
+              <div
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__main"
+              >
+                <div
+                  className="pf-c-wizard__main-body"
+                />
+              </div>
+            </div>
+            <span />
+          </div>
+        </div>
+      </section>
+    </section>
+    <section
+      aria-labelledby="pf-tab-1-ide-loader-page-logs-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-1-ide-loader-page-logs-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section pf-m-light"
+      >
+        <div
+          className=""
+        >
+          <div>
+            <div
+              className="pf-l-flex"
+            >
+              <div
+                className=""
+              >
+                <a
+                  download="logs.txt"
+                  href=""
+                >
+                  <svg
+                    aria-hidden={true}
+                    aria-labelledby={null}
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style={
+                      Object {
+                        "verticalAlign": "-0.125em",
+                      }
+                    }
+                    viewBox="0 0 512 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"
+                      transform=""
+                    />
+                  </svg>
+                  Download
+                </a>
+              </div>
+              <hr
+                className="pf-c-divider pf-m-vertical"
+              />
+              <div
+                className=""
+              >
+                <button
+                  aria-disabled={false}
+                  aria-label={null}
+                  className="pf-c-button pf-m-link"
+                  data-ouia-component-id="OUIA-Generated-Button-link-1"
+                  data-ouia-component-type="PF4/Button"
+                  data-ouia-safe={true}
+                  disabled={false}
+                  onClick={[Function]}
+                  role={null}
+                  type="button"
+                >
+                  <svg
+                    aria-hidden={true}
+                    aria-labelledby={null}
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style={
+                      Object {
+                        "verticalAlign": "-0.125em",
+                      }
+                    }
+                    viewBox="0 0 448 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"
+                      transform=""
+                    />
+                  </svg>
+                  Expand
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              0
+               lines
+            </div>
+            <pre />
+          </div>
+        </div>
+      </section>
+    </section>
+  </section>,
+]
+`;
+
+exports[`The Ide Loader page  component should render OPEN_IDE step correctly 1`] = `
+Array [
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <div
+      className="pf-l-flex"
+    >
+      <div
+        className="pf-m-align-self-center"
+      >
+        <div
+          className="pf-c-content"
+        >
+          <h1
+            className=""
+            data-pf-content={true}
+          >
+            Starting workspace wksp-test
+          </h1>
+        </div>
+      </div>
+      <div
+        className=""
+      >
+        <span
+          className="pf-c-label pf-m-green"
+          data-tip=""
+        >
+          <span
+            className="pf-c-label__content"
+          >
+            <span
+              className="pf-c-label__icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 64 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M512 109.714c-181.486 0-329.143 147.657-329.143 329.143s147.657 329.143 329.143 329.143c181.486 0 329.143-147.657 329.143-329.143s-147.657-329.143-329.143-329.143zM954.743 694.171c45.714-78.4 68.571-164.114 68.571-256.914s-22.857-178.514-68.571-256.914c-45.714-78.4-107.886-140.571-186.286-186.286s-164.114-68.571-256.914-68.571c-92.8 0-178.514 22.857-256.914 68.571s-140.571 107.886-186.286 186.286c-45.486 78.4-68.343 164.114-68.343 256.914s22.857 178.514 68.571 256.914c45.714 78.4 107.886 140.343 186.286 186.057s164.114 68.571 256.914 68.571c92.8 0 178.514-22.857 256.914-68.571 78.171-45.714 140.343-107.657 186.057-186.057zM677.257 829.714c-52.571 22.629-107.886 34.057-165.486 34.057-57.829 0-112.914-11.429-165.486-34.057s-97.829-53.029-136-90.971c-37.943-37.943-68.343-83.2-90.971-136-22.629-52.571-34.057-107.886-34.057-165.486 0-57.829 11.429-112.914 34.057-165.486s53.029-97.829 90.971-136c37.943-37.943 83.2-68.343 136-90.971 52.571-22.629 107.886-34.057 165.486-34.057 57.829 0 112.914 11.429 165.486 34.057s97.829 53.029 136 90.971c37.943 37.943 68.343 83.2 90.971 136 22.629 52.571 34.057 107.886 34.057 165.486 0 57.829-11.429 112.914-34.057 165.486s-53.029 97.829-90.971 136c-37.943 37.943-83.429 68.343-136 90.971z"
+                  transform="rotate(180 0 512) scale(-1 1)"
+                />
+              </svg>
+            </span>
+            Running
+          </span>
+        </span>
+        <div>
+          Dummy Tooltip
+        </div>
+      </div>
+    </div>
+  </section>,
+  <section
+    className="pf-c-page__main-section pf-m-light pf-m-fill ide-loader-page"
+  >
+    <div
+      className="pf-c-tabs pf-m-inset-lg"
+      data-ouia-component-id="OUIA-Generated-Tabs-5"
+      data-ouia-component-type="PF4/Tabs"
+      data-ouia-safe={true}
+      id="ide-loader-page-tabs"
+      onSelect={[Function]}
+    >
+      <button
+        aria-hidden={false}
+        aria-label="Scroll left"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+          />
+        </svg>
+      </button>
+      <ul
+        className="pf-c-tabs__list"
+        onScroll={[Function]}
+      >
+        <li
+          className="pf-c-tabs__item pf-m-current"
+        >
+          <button
+            aria-controls="pf-tab-section-0-ide-loader-page-wizard-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-0-ide-loader-page-wizard-tab"
+            onClick={[Function]}
+          >
+            Progress
+          </button>
+        </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-1-ide-loader-page-logs-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-1-ide-loader-page-logs-tab"
+            onClick={[Function]}
+          >
+            Logs
+          </button>
+        </li>
+      </ul>
+      <button
+        aria-hidden={false}
+        aria-label="Scroll right"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </button>
+    </div>
+    <section
+      aria-labelledby="pf-tab-0-ide-loader-page-wizard-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={false}
+      id="pf-tab-section-0-ide-loader-page-wizard-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section"
+      >
+        
+        <div
+          className="pf-c-wizard ide-loader-wizard"
+          style={
+            Object {
+              "height": 500,
+            }
+          }
+        >
+          <button
+            aria-expanded={false}
+            aria-label="Wizard Toggle"
+            className="pf-c-wizard__toggle"
+            onClick={[Function]}
+          >
+            <ol
+              className="pf-c-wizard__toggle-list"
+            >
+              <li
+                className="pf-c-wizard__toggle-list-item"
+              >
+                <span
+                  className="pf-c-wizard__toggle-num"
+                >
+                  3
+                </span>
+                 
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  className="undefined wizard-icon"
+                  fill="#0e6fe0"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 64 1024 1024"
+                  width="1em"
+                >
+                  <path
+                    d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                    transform="rotate(180 0 512) scale(-1 1)"
+                  />
+                </svg>
+                <span
+                  className="progress"
+                >
+                  Open IDE
+                </span>
+              </li>
+            </ol>
+            <span
+              className="pf-c-wizard__toggle-icon"
+            >
+              <svg
+                aria-hidden="true"
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 320 512"
+                width="1em"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className="pf-c-wizard__outer-wrap"
+          >
+            <div
+              className="pf-c-wizard__inner-wrap"
+            >
+              <nav
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__nav"
+              >
+                <ol
+                  className="pf-c-wizard__nav-list"
+                >
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="green"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className=""
+                      >
+                        Initializing
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="green"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className=""
+                      >
+                        Waiting for workspace to start
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current="page"
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link pf-m-current"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="undefined wizard-icon"
+                        fill="#0e6fe0"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 64 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                          transform="rotate(180 0 512) scale(-1 1)"
+                        />
+                      </svg>
+                      <span
+                        className="progress"
+                      >
+                        Open IDE
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </nav>
+              <div
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__main"
+              >
+                <div
+                  className="pf-c-wizard__main-body"
+                />
+              </div>
+            </div>
+            <span />
+          </div>
+        </div>
+      </section>
+    </section>
+    <section
+      aria-labelledby="pf-tab-1-ide-loader-page-logs-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-1-ide-loader-page-logs-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section pf-m-light"
+      >
+        <div
+          className=""
+        >
+          <div>
+            <div
+              className="pf-l-flex"
+            >
+              <div
+                className=""
+              >
+                <a
+                  download="logs.txt"
+                  href=""
+                >
+                  <svg
+                    aria-hidden={true}
+                    aria-labelledby={null}
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style={
+                      Object {
+                        "verticalAlign": "-0.125em",
+                      }
+                    }
+                    viewBox="0 0 512 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"
+                      transform=""
+                    />
+                  </svg>
+                  Download
+                </a>
+              </div>
+              <hr
+                className="pf-c-divider pf-m-vertical"
+              />
+              <div
+                className=""
+              >
+                <button
+                  aria-disabled={false}
+                  aria-label={null}
+                  className="pf-c-button pf-m-link"
+                  data-ouia-component-id="OUIA-Generated-Button-link-3"
+                  data-ouia-component-type="PF4/Button"
+                  data-ouia-safe={true}
+                  disabled={false}
+                  onClick={[Function]}
+                  role={null}
+                  type="button"
+                >
+                  <svg
+                    aria-hidden={true}
+                    aria-labelledby={null}
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style={
+                      Object {
+                        "verticalAlign": "-0.125em",
+                      }
+                    }
+                    viewBox="0 0 448 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"
+                      transform=""
+                    />
+                  </svg>
+                  Expand
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              0
+               lines
+            </div>
+            <pre />
+          </div>
+        </div>
+      </section>
+    </section>
+  </section>,
+]
+`;
+
+exports[`The Ide Loader page  component should render OPEN_IDE step with an error correctly 1`] = `
+Array [
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <div
+      className="pf-l-flex"
+    >
+      <div
+        className="pf-m-align-self-center"
+      >
+        <div
+          className="pf-c-content"
+        >
+          <h1
+            className=""
+            data-pf-content={true}
+          >
+            Starting workspace wksp-test
+          </h1>
+        </div>
+      </div>
+      <div
+        className=""
+      >
+        <span
+          className="pf-c-label pf-m-red"
+          data-tip=""
+        >
+          <span
+            className="pf-c-label__content"
+          >
+            <span
+              className="pf-c-label__icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 512 512"
+                width="1em"
+              >
+                <path
+                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                  transform=""
+                />
+              </svg>
+            </span>
+            Error
+          </span>
+        </span>
+        <div>
+          Dummy Tooltip
+        </div>
+      </div>
+    </div>
+  </section>,
+  <section
+    className="pf-c-page__main-section pf-m-light pf-m-fill ide-loader-page"
+  >
+    <div
+      className="pf-c-tabs pf-m-inset-lg"
+      data-ouia-component-id="OUIA-Generated-Tabs-6"
+      data-ouia-component-type="PF4/Tabs"
+      data-ouia-safe={true}
+      id="ide-loader-page-tabs"
+      onSelect={[Function]}
+    >
+      <button
+        aria-hidden={false}
+        aria-label="Scroll left"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+          />
+        </svg>
+      </button>
+      <ul
+        className="pf-c-tabs__list"
+        onScroll={[Function]}
+      >
+        <li
+          className="pf-c-tabs__item pf-m-current"
+        >
+          <button
+            aria-controls="pf-tab-section-0-ide-loader-page-wizard-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-0-ide-loader-page-wizard-tab"
+            onClick={[Function]}
+          >
+            Progress
+          </button>
+        </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-1-ide-loader-page-logs-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-1-ide-loader-page-logs-tab"
+            onClick={[Function]}
+          >
+            Logs
+          </button>
+        </li>
+      </ul>
+      <button
+        aria-hidden={false}
+        aria-label="Scroll right"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </button>
+    </div>
+    <section
+      aria-labelledby="pf-tab-0-ide-loader-page-wizard-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={false}
+      id="pf-tab-section-0-ide-loader-page-wizard-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section"
+      >
+        
+        <div
+          className="pf-c-wizard ide-loader-wizard"
+          style={
+            Object {
+              "height": 500,
+            }
+          }
+        >
+          <button
+            aria-expanded={false}
+            aria-label="Wizard Toggle"
+            className="pf-c-wizard__toggle"
+            onClick={[Function]}
+          >
+            <ol
+              className="pf-c-wizard__toggle-list"
+            >
+              <li
+                className="pf-c-wizard__toggle-list-item"
+              >
+                <span
+                  className="pf-c-wizard__toggle-num"
+                >
+                  3
+                </span>
+                 
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  className="wizard-icon"
+                  fill="red"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 512 512"
+                  width="1em"
+                >
+                  <path
+                    d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                    transform=""
+                  />
+                </svg>
+                <span
+                  className="error"
+                >
+                  Open IDE
+                </span>
+              </li>
+            </ol>
+            <span
+              className="pf-c-wizard__toggle-icon"
+            >
+              <svg
+                aria-hidden="true"
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 320 512"
+                width="1em"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className="pf-c-wizard__outer-wrap"
+          >
+            <div
+              className="pf-c-wizard__inner-wrap"
+            >
+              <nav
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__nav"
+              >
+                <ol
+                  className="pf-c-wizard__nav-list"
+                >
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="green"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className=""
+                      >
+                        Initializing
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="green"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className=""
+                      >
+                        Waiting for workspace to start
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current="page"
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link pf-m-current"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="red"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className="error"
+                      >
+                        Open IDE
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </nav>
+              <div
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__main"
+              >
+                <div
+                  className="pf-c-wizard__main-body"
+                />
+              </div>
+            </div>
+            <span />
+          </div>
+        </div>
+      </section>
+    </section>
+    <section
+      aria-labelledby="pf-tab-1-ide-loader-page-logs-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-1-ide-loader-page-logs-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <div
+        className="pf-c-empty-state"
+        style={
+          Object {
+            "backgroundColor": "#f1f1f1",
+          }
+        }
+      >
+        <div
+          className="pf-c-empty-state__content"
+        >
+          <svg
+            aria-hidden="true"
+            aria-labelledby={null}
+            className="pf-c-empty-state__icon"
+            fill="currentColor"
+            height="1em"
+            role="img"
+            style={
+              Object {
+                "verticalAlign": "-0.125em",
+              }
+            }
+            viewBox="0 0 384 512"
+            width="1em"
+          >
+            <path
+              d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z"
+              transform=""
+            />
+          </svg>
+          <h4
+            className="pf-c-title pf-m-lg"
+          >
+            No Logs to display
+          </h4>
+          <div
+            className="pf-c-empty-state__body"
+          >
+            Logs will be displayed in a running workspace.
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>,
+]
+`;
+
+exports[`The Ide Loader page  component should render Open IDE in the iframe correctly 1`] = `
+<div
+  className="ide-iframe-page"
+>
+  <iframe
+    allow="fullscreen *"
+    id="ide-iframe"
+    src="./static/loader.html"
+  />
+</div>
+`;
+
+exports[`The Ide Loader page  component should render START_WORKSPACE step correctly 1`] = `
+Array [
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <div
+      className="pf-l-flex"
+    >
+      <div
+        className="pf-m-align-self-center"
+      >
+        <div
+          className="pf-c-content"
+        >
+          <h1
+            className=""
+            data-pf-content={true}
+          >
+            Starting workspace wksp-test
+          </h1>
+        </div>
+      </div>
+      <div
+        className=""
+      >
+        <span
+          className="pf-c-label pf-m-blue"
+          data-tip=""
+        >
+          <span
+            className="pf-c-label__content"
+          >
+            <span
+              className="pf-c-label__icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 64 1024 1024"
+                width="1em"
+              >
+                <path
+                  d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                  transform="rotate(180 0 512) scale(-1 1)"
+                />
+              </svg>
+            </span>
+            Starting
+          </span>
+        </span>
+        <div>
+          Dummy Tooltip
+        </div>
+      </div>
+    </div>
+  </section>,
+  <section
+    className="pf-c-page__main-section pf-m-light pf-m-fill ide-loader-page"
+  >
+    <div
+      className="pf-c-tabs pf-m-inset-lg"
+      data-ouia-component-id="OUIA-Generated-Tabs-3"
+      data-ouia-component-type="PF4/Tabs"
+      data-ouia-safe={true}
+      id="ide-loader-page-tabs"
+      onSelect={[Function]}
+    >
+      <button
+        aria-hidden={false}
+        aria-label="Scroll left"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+          />
+        </svg>
+      </button>
+      <ul
+        className="pf-c-tabs__list"
+        onScroll={[Function]}
+      >
+        <li
+          className="pf-c-tabs__item pf-m-current"
+        >
+          <button
+            aria-controls="pf-tab-section-0-ide-loader-page-wizard-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-0-ide-loader-page-wizard-tab"
+            onClick={[Function]}
+          >
+            Progress
+          </button>
+        </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-1-ide-loader-page-logs-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-1-ide-loader-page-logs-tab"
+            onClick={[Function]}
+          >
+            Logs
+          </button>
+        </li>
+      </ul>
+      <button
+        aria-hidden={false}
+        aria-label="Scroll right"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </button>
+    </div>
+    <section
+      aria-labelledby="pf-tab-0-ide-loader-page-wizard-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={false}
+      id="pf-tab-section-0-ide-loader-page-wizard-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section"
+      >
+        
+        <div
+          className="pf-c-wizard ide-loader-wizard"
+          style={
+            Object {
+              "height": 500,
+            }
+          }
+        >
+          <button
+            aria-expanded={false}
+            aria-label="Wizard Toggle"
+            className="pf-c-wizard__toggle"
+            onClick={[Function]}
+          >
+            <ol
+              className="pf-c-wizard__toggle-list"
+            >
+              <li
+                className="pf-c-wizard__toggle-list-item"
+              >
+                <span
+                  className="pf-c-wizard__toggle-num"
+                >
+                  2
+                </span>
+                 
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  className="undefined wizard-icon"
+                  fill="#0e6fe0"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 64 1024 1024"
+                  width="1em"
+                >
+                  <path
+                    d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                    transform="rotate(180 0 512) scale(-1 1)"
+                  />
+                </svg>
+                <span
+                  className="progress"
+                >
+                  Waiting for workspace to start
+                </span>
+              </li>
+            </ol>
+            <span
+              className="pf-c-wizard__toggle-icon"
+            >
+              <svg
+                aria-hidden="true"
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 320 512"
+                width="1em"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className="pf-c-wizard__outer-wrap"
+          >
+            <div
+              className="pf-c-wizard__inner-wrap"
+            >
+              <nav
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__nav"
+              >
+                <ol
+                  className="pf-c-wizard__nav-list"
+                >
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="green"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className=""
+                      >
+                        Initializing
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current="page"
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link pf-m-current"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="undefined wizard-icon"
+                        fill="#0e6fe0"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 64 1024 1024"
+                        width="1em"
+                      >
+                        <path
+                          d="M193.536 38.18l67.438 116.736c-5.705 5.047-11.337 10.24-16.75 15.579-34.231 33.938-61.221 73.801-80.896 119.662-6.729 15.653-12.215 31.598-16.677 47.909l-134.875-9.289c6.729-30.574 16.311-60.27 28.818-89.015 26.99-62.025 63.634-116.37 110.007-162.962 13.678-13.751 28.014-26.624 43.081-38.619zM175.689 608.548l-120.32 60.709c-5.266-10.24-10.167-20.699-14.848-31.378-22.382-51.419-35.474-105.765-39.278-163.109l135.387 9.362c4.242 34.231 13.093 66.999 26.697 98.304 3.877 8.923 7.973 17.627 12.434 26.112v0zM983.479 637.879c-26.99 62.025-63.707 116.151-110.007 162.523s-100.498 83.017-162.523 110.007-128.366 40.521-199.022 40.521v-138.313c50.834-0.293 98.67-10.094 143.579-29.55 45.568-19.675 85.431-46.665 119.662-80.896s61.221-74.094 80.896-119.662 29.55-94.135 29.55-145.847-9.874-100.425-29.55-146.359c-19.675-45.861-46.665-85.723-80.896-119.662s-74.094-60.709-119.662-80.457-94.135-29.55-145.847-29.55c-42.935 0-83.822 6.802-122.514 20.407l-67.511-116.955c60.123-24.795 124.197-37.23 192.293-37.23 70.656 0 136.997 13.385 199.022 40.009s116.151 63.342 162.523 110.007 83.017 101.010 110.007 162.962 40.521 128.366 40.521 199.022c0 70.656-13.531 136.997-40.521 199.022z"
+                          transform="rotate(180 0 512) scale(-1 1)"
+                        />
+                      </svg>
+                      <span
+                        className="progress"
+                      >
+                        Waiting for workspace to start
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={true}
+                      className="pf-c-wizard__nav-link pf-m-disabled"
+                      disabled={true}
+                      onClick={[Function]}
+                    >
+                      
+                      <span
+                        className=""
+                      >
+                        Open IDE
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </nav>
+              <div
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__main"
+              >
+                <div
+                  className="pf-c-wizard__main-body"
+                />
+              </div>
+            </div>
+            <span />
+          </div>
+        </div>
+      </section>
+    </section>
+    <section
+      aria-labelledby="pf-tab-1-ide-loader-page-logs-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-1-ide-loader-page-logs-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section pf-m-light"
+      >
+        <div
+          className=""
+        >
+          <div>
+            <div
+              className="pf-l-flex"
+            >
+              <div
+                className=""
+              >
+                <a
+                  download="logs.txt"
+                  href=""
+                >
+                  <svg
+                    aria-hidden={true}
+                    aria-labelledby={null}
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style={
+                      Object {
+                        "verticalAlign": "-0.125em",
+                      }
+                    }
+                    viewBox="0 0 512 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"
+                      transform=""
+                    />
+                  </svg>
+                  Download
+                </a>
+              </div>
+              <hr
+                className="pf-c-divider pf-m-vertical"
+              />
+              <div
+                className=""
+              >
+                <button
+                  aria-disabled={false}
+                  aria-label={null}
+                  className="pf-c-button pf-m-link"
+                  data-ouia-component-id="OUIA-Generated-Button-link-2"
+                  data-ouia-component-type="PF4/Button"
+                  data-ouia-safe={true}
+                  disabled={false}
+                  onClick={[Function]}
+                  role={null}
+                  type="button"
+                >
+                  <svg
+                    aria-hidden={true}
+                    aria-labelledby={null}
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    style={
+                      Object {
+                        "verticalAlign": "-0.125em",
+                      }
+                    }
+                    viewBox="0 0 448 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"
+                      transform=""
+                    />
+                  </svg>
+                  Expand
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div>
+              0
+               lines
+            </div>
+            <pre />
+          </div>
+        </div>
+      </section>
+    </section>
+  </section>,
+]
+`;
+
+exports[`The Ide Loader page  component should render START_WORKSPACE step with an error correctly 1`] = `
+Array [
+  <section
+    className="pf-c-page__main-section pf-m-light"
+  >
+    <div
+      className="pf-l-flex"
+    >
+      <div
+        className="pf-m-align-self-center"
+      >
+        <div
+          className="pf-c-content"
+        >
+          <h1
+            className=""
+            data-pf-content={true}
+          >
+            Starting workspace wksp-test
+          </h1>
+        </div>
+      </div>
+      <div
+        className=""
+      >
+        <span
+          className="pf-c-label pf-m-red"
+          data-tip=""
+        >
+          <span
+            className="pf-c-label__content"
+          >
+            <span
+              className="pf-c-label__icon"
+            >
+              <svg
+                aria-hidden={true}
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 512 512"
+                width="1em"
+              >
+                <path
+                  d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                  transform=""
+                />
+              </svg>
+            </span>
+            Error
+          </span>
+        </span>
+        <div>
+          Dummy Tooltip
+        </div>
+      </div>
+    </div>
+  </section>,
+  <section
+    className="pf-c-page__main-section pf-m-light pf-m-fill ide-loader-page"
+  >
+    <div
+      className="pf-c-tabs pf-m-inset-lg"
+      data-ouia-component-id="OUIA-Generated-Tabs-4"
+      data-ouia-component-type="PF4/Tabs"
+      data-ouia-safe={true}
+      id="ide-loader-page-tabs"
+      onSelect={[Function]}
+    >
+      <button
+        aria-hidden={false}
+        aria-label="Scroll left"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+          />
+        </svg>
+      </button>
+      <ul
+        className="pf-c-tabs__list"
+        onScroll={[Function]}
+      >
+        <li
+          className="pf-c-tabs__item pf-m-current"
+        >
+          <button
+            aria-controls="pf-tab-section-0-ide-loader-page-wizard-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-0-ide-loader-page-wizard-tab"
+            onClick={[Function]}
+          >
+            Progress
+          </button>
+        </li>
+        <li
+          className="pf-c-tabs__item"
+        >
+          <button
+            aria-controls="pf-tab-section-1-ide-loader-page-logs-tab"
+            className="pf-c-tabs__link"
+            data-ouia-component-type="PF4/TabButton"
+            data-ouia-safe={true}
+            id="pf-tab-1-ide-loader-page-logs-tab"
+            onClick={[Function]}
+          >
+            Logs
+          </button>
+        </li>
+      </ul>
+      <button
+        aria-hidden={false}
+        aria-label="Scroll right"
+        className="pf-c-tabs__scroll-button"
+        disabled={false}
+        onClick={[Function]}
+      >
+        <svg
+          aria-hidden={true}
+          aria-labelledby={null}
+          fill="currentColor"
+          height="1em"
+          role="img"
+          style={
+            Object {
+              "verticalAlign": "-0.125em",
+            }
+          }
+          viewBox="0 0 256 512"
+          width="1em"
+        >
+          <path
+            d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+          />
+        </svg>
+      </button>
+    </div>
+    <section
+      aria-labelledby="pf-tab-0-ide-loader-page-wizard-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={false}
+      id="pf-tab-section-0-ide-loader-page-wizard-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <section
+        className="pf-c-page__main-section"
+      >
+        
+        <div
+          className="pf-c-wizard ide-loader-wizard"
+          style={
+            Object {
+              "height": 500,
+            }
+          }
+        >
+          <button
+            aria-expanded={false}
+            aria-label="Wizard Toggle"
+            className="pf-c-wizard__toggle"
+            onClick={[Function]}
+          >
+            <ol
+              className="pf-c-wizard__toggle-list"
+            >
+              <li
+                className="pf-c-wizard__toggle-list-item"
+              >
+                <span
+                  className="pf-c-wizard__toggle-num"
+                >
+                  2
+                </span>
+                 
+                <svg
+                  aria-hidden={true}
+                  aria-labelledby={null}
+                  className="wizard-icon"
+                  fill="red"
+                  height="1em"
+                  role="img"
+                  style={
+                    Object {
+                      "verticalAlign": "-0.125em",
+                    }
+                  }
+                  viewBox="0 0 512 512"
+                  width="1em"
+                >
+                  <path
+                    d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                    transform=""
+                  />
+                </svg>
+                <span
+                  className="error"
+                >
+                  Waiting for workspace to start
+                </span>
+              </li>
+            </ol>
+            <span
+              className="pf-c-wizard__toggle-icon"
+            >
+              <svg
+                aria-hidden="true"
+                aria-labelledby={null}
+                fill="currentColor"
+                height="1em"
+                role="img"
+                style={
+                  Object {
+                    "verticalAlign": "-0.125em",
+                  }
+                }
+                viewBox="0 0 320 512"
+                width="1em"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+            </span>
+          </button>
+          <div
+            className="pf-c-wizard__outer-wrap"
+          >
+            <div
+              className="pf-c-wizard__inner-wrap"
+            >
+              <nav
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__nav"
+              >
+                <ol
+                  className="pf-c-wizard__nav-list"
+                >
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="green"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className=""
+                      >
+                        Initializing
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current="page"
+                      aria-disabled={null}
+                      className="pf-c-wizard__nav-link pf-m-current"
+                      disabled={false}
+                      onClick={[Function]}
+                    >
+                      <svg
+                        aria-hidden={true}
+                        aria-labelledby={null}
+                        className="wizard-icon"
+                        fill="red"
+                        height="1em"
+                        role="img"
+                        style={
+                          Object {
+                            "verticalAlign": "-0.125em",
+                          }
+                        }
+                        viewBox="0 0 512 512"
+                        width="1em"
+                      >
+                        <path
+                          d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zm-248 50c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+                          transform=""
+                        />
+                      </svg>
+                      <span
+                        className="error"
+                      >
+                        Waiting for workspace to start
+                      </span>
+                    </button>
+                  </li>
+                  <li
+                    className="pf-c-wizard__nav-item"
+                  >
+                    <button
+                      aria-current={false}
+                      aria-disabled={true}
+                      className="pf-c-wizard__nav-link pf-m-disabled"
+                      disabled={true}
+                      onClick={[Function]}
+                    >
+                      
+                      <span
+                        className=""
+                      >
+                        Open IDE
+                      </span>
+                    </button>
+                  </li>
+                </ol>
+              </nav>
+              <div
+                aria-label={null}
+                aria-labelledby={null}
+                className="pf-c-wizard__main"
+              >
+                <div
+                  className="pf-c-wizard__main-body"
+                />
+              </div>
+            </div>
+            <span />
+          </div>
+        </div>
+      </section>
+    </section>
+    <section
+      aria-labelledby="pf-tab-1-ide-loader-page-logs-tab"
+      className="pf-c-tab-content"
+      data-ouia-component-type="PF4/TabContent"
+      data-ouia-safe={true}
+      hidden={true}
+      id="pf-tab-section-1-ide-loader-page-logs-tab"
+      role="tabpanel"
+      tabIndex={0}
+    >
+      <div
+        className="pf-c-empty-state"
+        style={
+          Object {
+            "backgroundColor": "#f1f1f1",
+          }
+        }
+      >
+        <div
+          className="pf-c-empty-state__content"
+        >
+          <svg
+            aria-hidden="true"
+            aria-labelledby={null}
+            className="pf-c-empty-state__icon"
+            fill="currentColor"
+            height="1em"
+            role="img"
+            style={
+              Object {
+                "verticalAlign": "-0.125em",
+              }
+            }
+            viewBox="0 0 384 512"
+            width="1em"
+          >
+            <path
+              d="M224 136V0H24C10.7 0 0 10.7 0 24v464c0 13.3 10.7 24 24 24h336c13.3 0 24-10.7 24-24V160H248c-13.2 0-24-10.8-24-24zm160-14.1v6.1H256V0h6.1c6.4 0 12.5 2.5 17 7l97.9 98c4.5 4.5 7 10.6 7 16.9z"
+              transform=""
+            />
+          </svg>
+          <h4
+            className="pf-c-title pf-m-lg"
+          >
+            No Logs to display
+          </h4>
+          <div
+            className="pf-c-empty-state__body"
+          >
+            Logs will be displayed in a running workspace.
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>,
+]
+`;
