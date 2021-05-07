@@ -1,0 +1,40 @@
+/* Add your branding customizations here. */
+.main-page-loader {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 80;
+  margin: auto;
+  color: #fff;
+  font-size: 24px;
+  font-family: Helvetica, Arial, sans-serif;
+  background-color: #000;
+}
+
+.main-page-loader .ide-page-loader-content img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  max-width: 140px;
+  max-height: 140px;
+  margin: auto;
+  animation-name: opacity;
+  animation-duration: 2s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes opacity {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}

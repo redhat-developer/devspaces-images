@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`React element that is rendered while waiting for the component to load should render fallback correctly 1`] = `
+<div
+  style={
+    Object {
+      "height": "100%",
+      "opacity": "0.5",
+      "textAlign": "center",
+    }
+  }
+>
+  <span
+    aria-valuetext="Loading..."
+    className="pf-c-spinner pf-m-xl"
+    data-testid="fallback-spinner"
+    role="progressbar"
+    style={
+      Object {
+        "top": "calc(50% - 18px)",
+      }
+    }
+  >
+    <span
+      className="pf-c-spinner__clipper"
+    />
+    <span
+      className="pf-c-spinner__lead-ball"
+    />
+    <span
+      className="pf-c-spinner__tail-ball"
+    />
+  </span>
+</div>
+`;

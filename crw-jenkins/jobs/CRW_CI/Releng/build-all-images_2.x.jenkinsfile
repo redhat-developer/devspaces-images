@@ -81,7 +81,8 @@ node(nodeLabel) {
                         "jwtproxy":"jwtproxy-rhel8",
                         "machineexec":"machineexec-rhel8",
                         "pluginbrokers":"pluginbroker-artifacts-rhel8",
-                        "traefik":"traefik-rhel8"
+                        "traefik":"traefik-rhel8",
+                        "dashboard":"dashboard-rhel8"
                         ]
 
                     def Map tasks = [failFast: false]
