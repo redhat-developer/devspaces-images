@@ -59,15 +59,14 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
             // push changes to codeready-workspaces-images
             util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit")
             sh('''#!/bin/bash -xe
-SYNC_FILES="''' + SYNC_FILES + '''"
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
-  git add Dockerfile ${SYNC_FILES} . -A -f
+  git add Dockerfile . -A -f
   # note this might fail if we're syncing from a tag vs. a branch
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''" Dockerfile ${SYNC_FILES} . || true
+  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''" Dockerfile . || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''"
 fi

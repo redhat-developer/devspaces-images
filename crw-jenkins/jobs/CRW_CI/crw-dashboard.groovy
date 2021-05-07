@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.x":"0.4.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
+def JOB_BRANCHES = ["2.x":"7.30.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
 def JOB_DISABLED = ["2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
@@ -7,9 +7,9 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
-        UPSTM_NAME="devworkspace-operator"
-        MIDSTM_NAME="devworkspace-controller"
-        SOURCE_REPO="devfile/" + UPSTM_NAME
+        UPSTM_NAME="che-dashboard"
+        MIDSTM_NAME="dashboard"
+        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
