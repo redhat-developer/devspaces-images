@@ -76,20 +76,21 @@ done
 popd >/dev/null || exit
 
 # transform Dockefile
-sed "${TARGETDIR}/build/dockerfiles/Dockerfile" -r \
+sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Replace image used for registry with rhel8/httpd-24` \
     -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
-    -e 's|# *(FROM.*rhel8/httpd.*)|\\1|' \
+    -e 's|# *(FROM.*rhel8/httpd.*)|\1|' \
+    -e 's|^ *(FROM rhscl/httpd.*)|#\1|' \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# Set arg options: enable USE_DIGESTS and disable BOOTSTRAP` \
-    -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=''' + USE_DIGESTS + '''|' \
+    -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=true|' \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     `# Enable offline build - copy in built binaries` \
-    -e 's|# (COPY root-local.tgz)|\\1|' \
+    -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
-    -e 's|^ *(COPY .*)/content_set.*repo (.+)|\\1/content_sets_rhel8.repo \\2|' \
+    -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
     `# Comment out PATCHED_* args from build and disable update_devfile_patched_image_tags.sh` \
     -e 's|^ *ARG PATCHED.*|# &|' \
     -e '/^ *RUN TAG/,+3 s|.*|# &| ' \
@@ -98,9 +99,9 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" -r \
     -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
     -e 's|^[^#]*--from=offline-builder.*|# &|' \
     `# Enable cache_artifacts.sh` \
-    -e '\|swap_images.sh|i # Cache projects in CRW \\
-COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/ \\
-RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz \\
+    -e '\|swap_images.sh|i # Cache projects in CRW \
+COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/ \
+RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz \
 ' > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
