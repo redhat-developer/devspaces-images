@@ -60,9 +60,11 @@ echo ".github/
 .git/
 .gitattributes
 build/scripts/sync.sh
-get-sources-jenkins.sh
+cvp.yml
 container.yaml
 content_sets.yml
+get-sources-jenkins.sh
+tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
@@ -78,9 +80,9 @@ popd >/dev/null || exit
 # transform Dockefile
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Replace image used for registry with rhel8/httpd-24` \
+    -e 's|^ *(FROM.*rhscl/httpd.*)|#\1|' \
     -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
     -e 's|# *(FROM.*rhel8/httpd.*)|\1|' \
-    -e 's|^ *(FROM rhscl/httpd.*)|#\1|' \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
