@@ -13,7 +13,7 @@
 # Build registry
 # UPSTREAM: use RHEL7/RHSCL/httpd image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhscl/httpd-24-rhel7
-FROM rhscl/httpd-24-rhel7:2.4-143.1619800879
+#FROM rhscl/httpd-24-rhel7:2.4-143.1619800879
 
 # DOWNSTREAM: use RHEL8/httpd
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
@@ -52,8 +52,8 @@ CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 ENV SUMMARY="Red Hat CodeReady Workspaces pluginregistry container" \
     DESCRIPTION="Red Hat CodeReady Workspaces pluginregistry container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="pluginregistry-rhel8" 
-LABEL summary="$SUMMARY" \
+    COMPNAME="pluginregistry-rhel8"
+LABEL summary="" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="$DESCRIPTION" \
@@ -62,6 +62,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="2.9" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Eric Williams <ericwill@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
-      usage="" 
+      usage=""
