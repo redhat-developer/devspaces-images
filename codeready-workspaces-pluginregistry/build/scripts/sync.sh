@@ -22,8 +22,8 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces/dependencies/che-plugin-registry -t /tmp/codeready-workspaces-images/codeready-workspaces-pluginregistry
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources/repo] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces -t /tmp/codeready-workspaces-images/codeready-workspaces-pluginregistry
 "
     exit
 }
@@ -35,7 +35,7 @@ while [[ "$#" -gt 0 ]]; do
     # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
     '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
-    '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
+    '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}/dependencies/che-plugin-registry"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--help'|'-h') usage;;
     # optional tag overrides
