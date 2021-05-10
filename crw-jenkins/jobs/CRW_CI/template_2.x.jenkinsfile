@@ -9,6 +9,7 @@ import groovy.transform.Field
 // MIDSTM_REPO
 // MIDSTM_NAME
 // FORCE_BUILD = "false"
+// UPDATE_BASE_IMAGES_FLAGS = "" or "--tag \"1\\\\.13|8\\\\.[0-9]-\" " (if project is locked on golang 1.13 instead of latest)
 
 def SYNC_REPO = MIDSTM_NAME
 
@@ -39,7 +40,7 @@ timeout(120) {
             util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
             OLD_SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
             println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
-            util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit")
+            util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + UPDATE_BASE_IMAGES_FLAGS)
 
             println "########################################################################################################"
             println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
@@ -57,7 +58,7 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
             )
 
             // push changes to codeready-workspaces-images
-            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit")
+            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
             sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
