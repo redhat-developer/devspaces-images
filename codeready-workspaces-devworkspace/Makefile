@@ -130,7 +130,7 @@ endif
 
 ### install_cert_manager: install Cert Mananger v1.0.4 on the cluster. This is not mandatory for the operator to work but simplifies creating custom certificates if needed.
 install_cert_manager:
-	kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+	$(K8S_CLI) apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
 
 ### help: print this message
 help: Makefile
