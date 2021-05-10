@@ -31,5 +31,4 @@ bin
 *.swp
 *.swo
 *~
-!vendor/
-asset-vendor-x86_64.tgz
+vendor/
