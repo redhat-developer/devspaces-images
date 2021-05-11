@@ -12,7 +12,7 @@ import groovy.json.JsonSlurper
 // FORCE_BUILD
 
 @Field String NEW_TAG = ""
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Building " + QUAY_REPO_PATHs + "..."
 timeout(240) {
     node(nodeLabel) { 

@@ -13,7 +13,7 @@ List<List<?>> mapToList(Map map) {
   }
 }
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 node(nodeLabel) {
     stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
         wrap([$class: 'TimestamperBuildWrapper']) {

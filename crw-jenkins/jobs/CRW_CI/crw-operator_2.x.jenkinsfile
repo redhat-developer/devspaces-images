@@ -24,7 +24,7 @@ def OLD_SHA_DWN=""
 def NEW_SHA_MID=""
 def NEW_SHA_DWN=""
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {

@@ -1,7 +1,7 @@
-def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"7.30.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created
+def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"crw-2-rhel-8"]
 def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value // note: not used yet
+    SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
@@ -9,15 +9,19 @@ for (JB in JOB_BRANCHES) {
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-plugin-registry"
         MIDSTM_NAME="pluginregistry"
-        UPSTM_REPO="https://github.com/eclipse/" + UPSTM_NAME
+        SOURCE_REPO_CHE="eclipse-che/" + UPSTM_NAME
+        SOURCE_REPO="redhat-developer/codeready-workspaces"
+        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <ul>
-<li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
+<li>Upstream Che: <a href=https://github.com/''' + SOURCE_REPO_CHE + '''>''' + UPSTM_NAME + '''</a></li>
+<li>Upstream CRW: <a href=https://github.com/''' + SOURCE_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/dependencies/''' + UPSTM_NAME + '''/>''' + UPSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
+
 </ul>
 
 <p>If <b style="color:green">downstream job fires</b>, see 
@@ -53,8 +57,11 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
-            // TODO when we start syncing to upstream, add SOURCE_BRANCH here
+            stringParam("SOURCE_REPO", SOURCE_REPO)
+            stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+            stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("MIDSTM_NAME", MIDSTM_NAME)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
@@ -64,7 +71,11 @@ Artifact builder + sync job; triggers brew after syncing
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/crw-pluginregistry_'+JOB_BRANCH+'.jenkinsfile'))
+                if (JOB_BRANCH.equals("2.7") || JOB_BRANCH.equals("2.8")) { 
+                    script(readFileFromWorkspace('jobs/CRW_CI/crw-pluginregistry_'+JOB_BRANCH+'.jenkinsfile'))
+                } else {
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }
