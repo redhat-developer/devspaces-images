@@ -9,31 +9,26 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-77 as builder
+FROM ubi8/nodejs-12:1-77.1618436962 as builder
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
-
-RUN npm install yarn -g && \
-    yarn -v && \
-    # Set the default to yarn 2
-    yarn set version berry
 
 COPY package.json /dashboard/
 COPY yarn.lock /dashboard/
 COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/
 COPY .yarnrc.yml /dashboard/
 WORKDIR /dashboard
-RUN yarn install
+RUN /dashboard/.yarn/releases/yarn-*.cjs install
 COPY . /dashboard/
-RUN yarn compile
+RUN /dashboard/.yarn/releases/yarn-*.cjs compile
 
 # https://access.redhat.com/containers/?tab=support#/registry.access.redhat.com/ubi8/ubi
 FROM rhscl/httpd-24-rhel7:2.4-114
 
 # DOWNSTREAM: use RHEL8/httpd
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-# FROM rhel8/httpd-24:1-92
+# FROM rhel8/httpd-24:1-130.1618434979
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
