@@ -77,7 +77,7 @@ rm -f /tmp/rsync-excludes
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
-    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-yarn-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-yarn-cache.tgz -C .yarn/cache && rm -f /tmp/asset-yarn-cache.tgz" \
+    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-yarn-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-yarn-cache.tgz && rm -f /tmp/asset-yarn-cache.tgz" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
