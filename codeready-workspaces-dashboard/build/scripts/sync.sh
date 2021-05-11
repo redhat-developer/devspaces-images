@@ -67,6 +67,7 @@ build/scripts/sync.sh
 get-sources-jenkins.sh
 container.yaml
 content_sets.yml
+sources
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rm -fr ${TARGETDIR}/vendor/
@@ -77,7 +78,8 @@ rm -f /tmp/rsync-excludes
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
-    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-yarn-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-yarn-cache.tgz -C .yarn/cache && rm -f /tmp/asset-yarn-cache.tgz" \
+	`# insert logic to unpack asset-yarn-cache.tgz into /dashboard/.yarn/cache` \
+    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-yarn-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-yarn-cache.tgz && rm -f /tmp/asset-yarn-cache.tgz" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
@@ -98,6 +100,10 @@ LABEL summary="$SUMMARY" \\
       usage=""
 EOT
 echo "Converted Dockerfile"
+
+# add ignore for the tarball in mid and downstream
+echo "/asset-yarn-cache.tgz" >> ${TARGETDIR}/.gitignore
+echo "Adjusted .gitignore"
 
 # do vendoring downstream as part of get-sources-jenkins.sh (if nothing is arch-specific, we can do it later)
 # if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
