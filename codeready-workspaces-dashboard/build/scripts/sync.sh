@@ -76,8 +76,13 @@ rm -f /tmp/rsync-excludes
 
 # transform rhel.Dockefile -> Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
-    -e "s#FROM registry.redhat.io/#FROM #g" \
-    -e "s#FROM registry.access.redhat.com/#FROM #g" \
+    `# Replace image used for registry with rhel8/httpd-24` \
+    -e 's|^ *(FROM.*rhscl/httpd.*)|#\1|' \
+    -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
+    -e 's|# *(FROM.*rhel8/httpd.*)|\1|' \
+    `# Strip registry from image references` \
+    -e 's|FROM registry.access.redhat.com/|FROM |' \
+    -e 's|FROM registry.redhat.io/|FROM |' \
 	`# insert logic to unpack asset-yarn-cache.tgz into /dashboard/.yarn/cache` \
     -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-yarn-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-yarn-cache.tgz && rm -f /tmp/asset-yarn-cache.tgz" \
 > ${TARGETDIR}/Dockerfile
