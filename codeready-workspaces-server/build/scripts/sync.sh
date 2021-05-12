@@ -78,6 +78,9 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
+# copy entrypoint.sh
+rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
+
 # TODO move upstream dockefile into standard path build/dockerfiles/rhel.Dockerfile (instead of dockerfiles/che/rhel.Dockerfile) ?
 sed ${SOURCEDIR}/dockerfiles/che/rhel.Dockerfile -r \
     `# Strip registry from image references` \
