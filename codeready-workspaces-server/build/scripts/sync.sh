@@ -52,9 +52,9 @@ echo ".github/
 dockerfiles/
 assets/branding/
 build/scripts/sync.sh
-container.yaml
-content_sets.*
-cvp.yaml
+/container.yaml
+/content_sets.*
+/cvp.yml
 get-sources-jenkins.sh
 tests/basic-test.yaml
 sources
