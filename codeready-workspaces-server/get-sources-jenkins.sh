@@ -3,6 +3,7 @@
 # 
 scratchFlag=""
 doRhpkgContainerBuild=1
+doMavenBuild=1
 forceBuild=0
 
 while [[ "$#" -gt 0 ]]; do
@@ -10,23 +11,25 @@ while [[ "$#" -gt 0 ]]; do
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	*) JOB_BRANCH="$1"; shift 0;;
+	'-m'|'--nomaven') doMavenBuild=0; shift 0;;
   esac
   shift 1
 done
 
-# build che server with maven
-mvn -B clean install
-# tarball created in ${TARGETDIR}/assembly/assembly-main/target/eclipse-che-*.tar.gz
-mv assembly/assembly-main/target/eclipse-che-*.tar.gz asset-server.tgz
-outputFiles="asset-server.tgz"
+outputFile="asset-server.tgz"
+rm -f $outputFile
+if [[ ${doMavenBuild} -eq 1 ]]; then
+	# build che server with maven
+	mvn -B clean install -Pintegration -DskipTests
+	# tarball created in ${TARGETDIR}/assembly/assembly-main/target/eclipse-che-*.tar.gz
+	mv assembly/assembly-main/target/eclipse-che-*.tar.gz ${outputFile}
+fi
 
-if [[ ${outputFiles} ]]; then
-	echo "[INFO] Upload new sources:${outputFiles}"
-	rhpkg new-sources ${outputFiles}
-	echo "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="Update from Maven :: ${UPSTREAM_JOB_NAME}
-::${outputFiles}"
+if [[ -f ${outputFile} ]]; then
+	echo "[INFO] Upload new sources: ${outputFile}"
+	rhpkg new-sources ${outputFile}
+	echo "[INFO] Commit new sources from: ${outputFile}"
+	COMMIT_MSG="Update from Maven :: ${outputFile}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		echo "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
