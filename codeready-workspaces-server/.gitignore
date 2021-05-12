@@ -1,0 +1,105 @@
+# Eclipse  #
+###################
+
+*.launch
+.classpath
+.project
+.settings/
+target/
+bin/
+test-output/
+maven-eclipse.xml
+.factorypath
+
+# Theia #
+##################
+.theia/
+
+# Idea #
+##################
+*.iml
+*.ipr
+*.iws
+.idea/
+
+.vscode/
+
+# Compiled source #
+###################
+!*.com/
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.war
+*.ear
+
+
+
+# Logs and databases #
+######################
+*.log
+*.sqlite
+npm-debug.log.*
+
+# OS generated files #
+######################
+.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+*/overlays
+*~
+.directory
+assembly/**/overlays/
+
+# Che files #
+#############
+.che
+dockerfiles/che/eclipse-che.tar.gz
+dockerfiles/che/eclipse-che/
+.unison*
+docs/_site
+docs/.sass-cache
+docs/.jekyll-metadata
+docs/assets/imgs
+!assembly/assembly-main/src/assembly/bin/
+
+# NodeJs modules #
+##################
+plugins/plugin-terminal-ui/node_modules/
+plugins/plugin-terminal-ui/build/
+requirements.lock
+tests/e2e/dist/
+tests/e2e/node_modules/
+tests/e2e/report/
+tests/e2e/load-test-folder
+
+# Cypress modules #
+###################
+*/cypress/screenshots
+*/cypress/videos
+*/node_modules
+*/pids
+*/.pid
+*/.seed
+*/lib-cov
+*/coverage
+*/.grunt
+*/.lock-wscript
+*/cypress-tests/dist
+/asset-server.tgz
