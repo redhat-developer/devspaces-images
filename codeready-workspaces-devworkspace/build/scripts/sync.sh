@@ -43,7 +43,6 @@ while [[ "$#" -gt 0 ]]; do
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--no-vendor') UPDATE_VENDOR=0;;
     '--help'|'-h') usage;;
-    # optional tag overrides
   esac
   shift 1
 done
