@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert devworkspace-operator upstream to downstream using yq, jq, sed & perl transforms, and deleting files
+# convert DWO devworkspace-operator (controller) upstream to downstream devworkspace-controller using yq, sed, and deleting k8s files
 
 set -e
 

@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert devworkspace-operator upstream to downstream using yq, jq, sed & perl transforms, and deleting files
+# convert DWCO devworkspace-che-operator upstream to downstream devworkspace using yq, sed, and deleting k8s files
 
 set -e
 
@@ -25,7 +25,7 @@ UPDATE_VENDOR=1 # update the vendor folder via bootstrap.Dockerfile
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/devworkspace-operator -t /tmp/devworkspace-controller
+Example: $0 -v 2.y.0 -s ${HOME}/projects/devworkspace-che-operator -t /tmp/devworkspace
 Options:
 	--no-vendor # don't rebuild the vendor folder
 "
