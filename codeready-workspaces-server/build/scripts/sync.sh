@@ -53,7 +53,8 @@ dockerfiles/
 assets/branding/
 build/scripts/sync.sh
 container.yaml
-content_sets.yml
+content_sets.*
+cvp.yaml
 get-sources-jenkins.sh
 tests/basic-test.yaml
 sources
