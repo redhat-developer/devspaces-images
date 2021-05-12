@@ -93,18 +93,7 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
     -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
-    `# Comment out PATCHED_* args from build and disable update_devfile_patched_image_tags.sh` \
-    -e 's|^ *ARG PATCHED.*|# &|' \
-    -e '/^ *RUN TAG/,+3 s|.*|# &| ' \
-    `# Disable intermediate build targets` \
-    -e 's|^ *FROM registry AS offline-registry|# &|' \
-    -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
-    -e 's|^[^#]*--from=offline-builder.*|# &|' \
-    `# Enable cache_artifacts.sh` \
-    -e '\|swap_images.sh|i # Cache projects in CRW \
-COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/ \
-RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz \
-' > "${TARGETDIR}/Dockerfile"
+  > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
 ENV SUMMARY="Red Hat CodeReady Workspaces pluginregistry container" \\
