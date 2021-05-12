@@ -59,20 +59,18 @@ tests/basic-test.yaml
 sources
 .ci
 .dependabot
-.mvn
 .repositories-update-contributing.sh
 .repositories.yaml
-check_properties_description.sh
-CHANGELOG.md
-CODE_OF_CONDUCT.md
-CONTRIBUTING.md
-Dockerfile
-LICENSE
-NUMBERING.md
-README.md
-RELEASE.md
-devfile.yaml
-make-release.sh
+/CHANGELOG.md
+/CODE_OF_CONDUCT.md
+/CONTRIBUTING.md
+/Dockerfile
+/LICENSE
+/NUMBERING.md
+/README.md
+/RELEASE.md
+/devfile.yaml
+/make-release.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
