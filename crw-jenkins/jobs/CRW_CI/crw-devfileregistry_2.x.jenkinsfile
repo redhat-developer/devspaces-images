@@ -160,7 +160,7 @@ LABEL summary="$SUMMARY" \\\r
         if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_DWN) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           build(
-              job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+              job: 'sync-to-downstream_' + JOB_BRANCH,
               wait: true,
               propagate: true,
               parameters: [

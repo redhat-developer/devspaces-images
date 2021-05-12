@@ -129,7 +129,7 @@ usage="" \r'
         if (!OLD_SHA.equals(NEW_SHA) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           build(
-              job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+              job: 'sync-to-downstream_' + JOB_BRANCH,
               wait: true,
               propagate: true,
               parameters: [

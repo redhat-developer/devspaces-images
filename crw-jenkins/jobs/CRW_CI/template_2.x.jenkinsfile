@@ -93,7 +93,7 @@ fi
         if (!OLD_MID_SHA.equals(NEW_MID_SHA) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           build(
-              job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+              job: 'sync-to-downstream_' + JOB_BRANCH,
               wait: true,
               propagate: true,
               parameters: [
@@ -116,6 +116,11 @@ fi
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
                   value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'UPDATE_BASE_IMAGES_FLAGS',
+                  value: "${UPDATE_BASE_IMAGES_FLAGS}"
                 ],
                 [
                   $class: 'StringParameterValue',

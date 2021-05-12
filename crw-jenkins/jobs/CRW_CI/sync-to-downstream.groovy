@@ -63,7 +63,7 @@ codeready-workspaces-stacks-php''')
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/crw-sync-to-downstream_'+JOB_BRANCH+'.jenkinsfile'))
+                script(readFileFromWorkspace('jobs/CRW_CI/sync-to-downstream_'+JOB_BRANCH+'.jenkinsfile'))
             }
         }
     }

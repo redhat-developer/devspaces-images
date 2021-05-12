@@ -48,7 +48,7 @@ pushd .. >/dev/null || exit
             USERTOKEN=$(cat /tmp/token)
             for VER in "2.x"; do # "2.9"
                 for JOB in \
-                    crw-sync-to-downstream \
+                    sync-to-downstream \
                     get-sources-rhpkg-container-build \
                     push-latest-container-to-quay \
                     update-digests-in-registries-and-metadata crw-pluginregistry crw-devfileregistry crw-operator-metadata \

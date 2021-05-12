@@ -148,7 +148,7 @@ node(nodeLabel) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
         build(
-              job: 'crw-sync-to-downstream_' + CRW_VERSION,
+              job: 'sync-to-downstream_' + CRW_VERSION,
               wait: true,
               propagate: true,
               parameters: [

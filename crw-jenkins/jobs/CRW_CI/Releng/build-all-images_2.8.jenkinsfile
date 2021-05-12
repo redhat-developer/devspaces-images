@@ -48,7 +48,7 @@ node(nodeLabel) {
 
                 if (PHASE_LIST.contains("2")) {
                     // all the sidecars - start this early since it's 10 builds
-                    currentJob="crw-sync-to-downstream_" + JOB_BRANCH
+                    currentJob="sync-to-downstream_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this set of 10 builds to finish
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }

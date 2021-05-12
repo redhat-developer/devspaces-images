@@ -34,7 +34,7 @@ Syncs/generates code from upstream into midstream, then triggers sync, Brew buil
 
 <p>If <b style="color:green">downstream job fires</b>, see 
 <ol>
-<li><a href=../crw-sync-to-downstream_''' + JOB_BRANCH + '''/>crw-sync-to-downstream</a>, then</li>
+<li><a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then</li>
 <li><a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, then</li>
 <li><a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''/>push to quay</a></li>
 </ol>

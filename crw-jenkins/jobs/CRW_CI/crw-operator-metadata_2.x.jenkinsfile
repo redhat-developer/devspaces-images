@@ -223,7 +223,7 @@ node(nodeLabel) {
       if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         build(
-              job: 'crw-sync-to-downstream_' + JOB_BRANCH,
+              job: 'sync-to-downstream_' + JOB_BRANCH,
               wait: true,
               propagate: true,
               parameters: [
