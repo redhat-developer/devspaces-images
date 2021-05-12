@@ -63,10 +63,11 @@ fi
 echo ".github/
 .git/
 .gitattributes
+assets/branding/
 build/scripts/sync.sh
-get-sources-jenkins.sh
 container.yaml
 content_sets.yml
+get-sources-jenkins.sh
 sources
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
@@ -109,6 +110,30 @@ echo "Converted Dockerfile"
 # add ignore for the tarball in mid and downstream
 echo "/asset-yarn-cache.tgz" >> ${TARGETDIR}/.gitignore
 echo "Adjusted .gitignore"
+
+# apply CRW branding styles
+cp -f ${TARGETDIR}/assets/branding/branding{-crw,}.css
+
+# process product.json template to apply CRW branding
+SHA_CHE=$(cd ${SOURCEDIR}; git rev-parse --short=4 HEAD)
+VER_CHE=$(jq -r .version package.json)
+if [[ $VER_CHE =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-SNAPSHOT ]]; then # reduce the z digit, remove the snapshot suffix
+  XX=${BASH_REMATCH[1]}
+  YY=${BASH_REMATCH[2]}
+  ZZ=${BASH_REMATCH[3]}; (( ZZ=ZZ-1 )); if [[ ZZ -lt 0 ]]; then ZZ=0; fi
+  VER_CHE="${XX}.${YY}.${ZZ}"
+fi
+echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
+
+SHA_CRW=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
+echo "Using: CRW_VERSION = $CRW_VERSION (SHA_CRW = $SHA_CRW)"
+
+CRW_SHAs="${CRW_VERSION} @ ${SHA_CRW} #${BUILD_NUMBER} :: Eclipse Che Dashboard ${VER_CHE} @ ${SHA_CHE}"
+CRW_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/${CRW_VERSION}"
+sed -r \
+    -e "s|@@crw.version@@|${CRW_SHAs}|g" \
+    -e "s#@@crw.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
+${TARGETDIR}/assets/branding/product.json.template > ${TARGETDIR}/assets/branding/product.json
 
 # do vendoring downstream as part of get-sources-jenkins.sh (if nothing is arch-specific, we can do it later)
 # if [[ ${UPDATE_VENDOR} -eq 1 ]]; then

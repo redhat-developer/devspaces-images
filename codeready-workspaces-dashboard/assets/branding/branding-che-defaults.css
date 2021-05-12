@@ -9,25 +9,14 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-/*
+/* 
 
-This file contains the branding changes needed for CodeReady Workspaces Dashboard.
-It should override settings in default Che.
+This file contains the default branding in Eclipse Che Dashboard.
+See branding-crw.css for the overrides to be applied for CodeReady Workspaces.
 
 Copy this file to https://github.com/eclipse/che-dashboard/blob/master/assets/branding/branding.css
 before building Che, apply these changes to the dashboard war.
-
-Then use that reskinned dashboard war when building CodeReady Workspaces.
-
-See also https://github.com/redhat-developer/codeready-workspaces/blob/master/Jenkinsfile
-
 */
-
-/* dashboard background color */
-#page-sidebar {
-	background-color: #191c28;
-	border-right: 1px solid #242a3a;
-}
 
 .main-page-loader {
 	position: absolute;

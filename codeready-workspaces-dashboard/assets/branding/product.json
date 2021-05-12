@@ -1,1 +1,22 @@
-{}
+{
+  "title": "CodeReady Workspaces ",
+  "name": "CodeReady Workspaces",
+  "productVersion": "2.9 @ a603 #99 :: Eclipse Che 7.30.1 @ 892bf",
+  "logoFile": "che-logo.svg",
+  "logoTextFile": "che-logo-text.svg",
+  "helpPath": "https://access.redhat.com/products/red-hat-codeready-workspaces/",
+  "helpTitle": "Support",
+  "supportEmail": "codeready-workspaces-wish@redhat.com",
+  "docs": {
+    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.9/html-single/end-user_guide/index#configuring-a-workspace-using-a-devfile_crw",
+    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.9/html-single/end-user_guide/index#workspaces-overview_crw",
+    "converting": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.0/html-single/end-user_guide/index#converting-a-codeready-workspaces-1.2-workspace-to-a-codeready-workspaces-2.0-devfile",
+    "certificate": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.9/html-single/end-user_guide/index#importing-certificates-to-browsers_crw",
+    "general": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.9/",
+    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.9/html-single/installation_guide/index#configuring-storage-types_crw",
+    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.9/html-single/end-user_guide/index#troubleshooting-network-problems_crw"
+  },
+  "configuration": {
+    "cheCliTool": "crwctl"
+  }
+}
