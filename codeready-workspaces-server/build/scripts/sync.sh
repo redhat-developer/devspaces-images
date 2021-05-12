@@ -22,8 +22,8 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-sp /path/to/che-parent] [-s /path/to/che-server] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -sp ${HOME}/projects/che-parent -s ${HOME}/projects/che -t /tmp/crw-server"
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/che-server] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/che -t /tmp/crw-server"
     exit
 }
 
