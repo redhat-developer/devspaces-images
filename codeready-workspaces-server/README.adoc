@@ -1,0 +1,50 @@
+Links marked with this icon :door: are _internal to Red Hat_. This includes Jenkins servers, job configs in gitlab, and container sources in dist-git. 
+
+Because these services are internal, in the interest of making all things open, we've copied as much as possible into the link:https://github.com/redhat-developer/codeready-workspaces-images[codeready-workspaces-images] repo.
+
+## What's inside?
+
+NOTE: The so-called master branch is deprecated and is no longer kept up to date. Instead, the latest nightly sources are in **crw-2-rhel-8 branch**, synced to upstream projects' main (or master) branches.
+
+For the latest stable release, see the **crw-2.y-rhel-8** branch with the largest y value.
+
+
+## How to build locally
+
+1. Sync code from upstream using `build/scripts/sync.sh`.
+
+2. Build the Server assembly with maven 3.6 and JDK 11:
++
+```
+  mvn clean install -Dmaven.repo.local=.repository/ -V -B -e -DskipTests # -Pintegration
+  mv assembly/assembly-main/target/eclipse-che-*.tar.gz asset-server.tgz
+```
++
+3. Build the Server image using `Dockerfile`. Note that you will need to change one line:
+```
+-FROM ubi8-minimal:8.3
++FROM registry.access.redhat.com/ubi8-minimal:8.3
+```
+
+## How to build in Brew
+
+1. To build in Brew, see the `get-sources*.sh` script, which will:
+
+* build the Che server assembly (step 2),
+* trigger a Brew build using that tarball.
+
+## Branding
+
+Branding is done in two places.
+
+### Dashboard
+
+To reskin the Che Dashboard, see link:https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/codeready-workspaces-dashboard/README.adoc
+
+#### Theia
+
+To reskin link:https://github.com/eclipse-che/che-theia[Che Theia], see link:https://github.com/redhat-developer/codeready-workspaces-theia/tree/crw-2-rhel-8/conf/theia/branding[codeready-workspaces-theia/conf/theia/branding]. 
+
+#### A note about SVG files 
+
+If using Inkscape to save files, make sure you export as *Plain SVG*, then edit the resulting .svg file to remove any `<metadata>...</metadata>` tags and all their contents. You can also remove the `xmlns:rdf` definition. This will ensure they compile correctly.

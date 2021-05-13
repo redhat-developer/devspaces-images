@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert devworkspace-operator upstream to downstream using yq, jq, sed & perl transforms, and deleting files
+# convert che-dashboard upstream to crw-dashboard downstream using yq, sed, and deleting files
 
 set -e
 
@@ -69,6 +69,7 @@ container.yaml
 content_sets.yml
 get-sources-jenkins.sh
 sources
+/README.adoc
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rm -fr ${TARGETDIR}/vendor/

@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert che-server upstream to crw-server tarball downstream using yq, jq, sed & perl transforms, and deleting files
+# convert che-server upstream to crw-server tarball downstream using sed
 
 set -e
 
@@ -72,6 +72,7 @@ sources
 /RELEASE.md
 /devfile.yaml
 /make-release.sh
+/README.adoc
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/

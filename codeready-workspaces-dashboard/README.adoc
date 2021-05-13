@@ -1,0 +1,49 @@
+Links marked with this icon :door: are _internal to Red Hat_. This includes Jenkins servers, job configs in gitlab, and container sources in dist-git. 
+
+Because these services are internal, in the interest of making all things open, we've copied as much as possible into the link:https://github.com/redhat-developer/codeready-workspaces-images[codeready-workspaces-images] repo.
+
+## What's inside?
+
+NOTE: The so-called master branch is deprecated and is no longer kept up to date. Instead, the latest nightly sources are in **crw-2-rhel-8 branch**, synced to upstream projects' main (or master) branches.
+
+For the latest stable release, see the **crw-2.y-rhel-8** branch with the largest y value.
+
+
+## How to build locally
+
+1. Sync code from upstream using `build/scripts/sync.sh`.
+
+2. Build the Dashboard image using `build/dockerfiles/rhel.Dockerfile`.
+
+## How to build in Brew
+
+1. To build in Brew, see the `get-sources*.sh` script, which will:
+
+* build the dashboard image locally, extract the yarn cache into a tarball, then
+* trigger a Brew build using that tarball.
+
+## Branding
+
+Branding is currently in two places.
+
+### Dashboard
+
+To reskin the Che server assembly, you need to edit the following files, which are used in the link:https://github.com/eclipse-che/che-dashboard/tree/main/assets/branding[Che Dashboard]:
+
+* link:assets/branding/branding-crw.css[assets/branding/branding-crw.css] - replacement for link:https://github.com/eclipse-che/che-dashboard/tree/main/assets/branding/branding.css[Che default css], copied via link:https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/codeready-workspaces-dashboard/build/scripts/sync.sh#L114[build/scripts/sync.sh].
+
+* link:assets/branding/product.json.template[assets/branding/product.json.template] - includes variable links to CRW docs
+** link:assets/branding/favicon.ico[assets/branding/favicon.ico] - browser tab favicon
+** link:assets/branding/che-logo-text.svg[assets/branding/che-logo-text.svg] - top left wordmark
+** link:assets/branding/che-logo.svg[assets/branding/che-logo.svg] - bottom left icon
+** link:assets/branding/loader.svg[assets/branding/loader.svg] - dashboard loading animation
+
+See also SVG assets in link:assets/branding/[assets/branding/] folder.
+
+#### Theia
+
+To reskin link:https://github.com/eclipse-che/che-theia[Che Theia], see link:https://github.com/redhat-developer/codeready-workspaces-theia/tree/crw-2-rhel-8/conf/theia/branding[codeready-workspaces-theia/conf/theia/branding]. 
+
+#### A note about SVG files 
+
+If using Inkscape to save files, make sure you export as *Plain SVG*, then edit the resulting .svg file to remove any `<metadata>...</metadata>` tags and all their contents. You can also remove the `xmlns:rdf` definition. This will ensure they compile correctly.
