@@ -23,7 +23,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 # NOTE: if built in Brew, use get-sources-jenkins.sh to pull latest
 COPY asset-server.tgz /tmp/asset-server.tgz
-RUN tar xzf /tmp/asset-server.tgz --transform="s#.*eclipse-che-.*/*##" -C /home/user/codeready; rm -f /tmp/asset-server.tgz
+RUN tar xzf /tmp/asset-server.tgz --strip-components=1 -C /home/user/codeready; rm -f /tmp/asset-server.tgz
 
 # this should fail if the startup script is not found in correct path /home/user/codeready/tomcat/bin/catalina.sh
 RUN mkdir /logs /data && \

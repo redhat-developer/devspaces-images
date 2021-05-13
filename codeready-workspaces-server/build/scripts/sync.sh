@@ -87,7 +87,7 @@ sed ${SOURCEDIR}/dockerfiles/che/rhel.Dockerfile -r \
     -e 's|FROM registry.redhat.io/|FROM |' \
     -e 's@/home/user/eclipse-che@/home/user/codeready@g' \
 	`# insert logic to unpack asset-*.tgz` \
-    -e 's@ADD eclipse-che .+@# NOTE: if built in Brew, use get-sources-jenkins.sh to pull latest\nCOPY asset-server.tgz /tmp/asset-server.tgz\nRUN tar xzf /tmp/asset-server.tgz --transform="s#.*eclipse-che-.*/*##" -C /home/user/codeready; rm -f /tmp/asset-server.tgz\n@g' \
+    -e 's@ADD eclipse-che .+@# NOTE: To build in Brew, use get-sources-jenkins.sh to build new server.tgz\nCOPY asset-server.tgz /tmp/asset-server.tgz\nRUN tar xzf /tmp/asset-server.tgz --strip-components=1 -C /home/user/codeready; rm -f /tmp/asset-server.tgz\n@g' \
     -e 's@chmod g\\+w /home/user/cacerts@chmod 777 /home/user/cacerts@g' \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
