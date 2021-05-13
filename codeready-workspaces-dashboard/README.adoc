@@ -40,10 +40,10 @@ To reskin the Che server assembly, you need to edit the following files, which a
 
 See also SVG assets in link:assets/branding/[assets/branding/] folder.
 
-#### Theia
+### Theia
 
 To reskin link:https://github.com/eclipse-che/che-theia[Che Theia], see link:https://github.com/redhat-developer/codeready-workspaces-theia/tree/crw-2-rhel-8/conf/theia/branding[codeready-workspaces-theia/conf/theia/branding]. 
 
-#### A note about SVG files 
+### A note about SVG files 
 
 If using Inkscape to save files, make sure you export as *Plain SVG*, then edit the resulting .svg file to remove any `<metadata>...</metadata>` tags and all their contents. You can also remove the `xmlns:rdf` definition. This will ensure they compile correctly.
