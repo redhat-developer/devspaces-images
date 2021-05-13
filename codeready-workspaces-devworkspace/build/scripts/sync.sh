@@ -90,7 +90,6 @@ sed ${TARGETDIR}/build/dockerfiles/Dockerfile -r \
     `# https://github.com/devfile/devworkspace-operator/issues/166 https://golang.org/doc/go1.13 DON'T use proxy for Brew` \
     -e "s@(RUN go env GOPROXY$)@#\1@g" \
     `# CRW-1680 use vendor folder (no internet); print commands (-x)` \
-    -e "s@(go build \\\\)@\1\n  -mod=vendor -x \\\\@" \
     -e "s/# *RUN yum /RUN yum /g" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
