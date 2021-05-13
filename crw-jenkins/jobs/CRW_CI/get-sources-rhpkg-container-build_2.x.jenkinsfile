@@ -69,9 +69,9 @@ if [[ -n "''' + QUAY_REPO_PATHs + '''" ]]; then
   # make sure these files exist, in case get-sources-jenkins.sh didn't produce useful output
   touch ${WORKSPACE}/get-sources-jenkins.log.txt
 
-  # get list of reg-proxy repo:tag as 'latest 2.y-2 2.y '
+  # get list of reg-proxy repo:tag as '2.y-zz'
   TAGs=$(grep -E -A2 '"(tags|floating_tags)": \\[' ${WORKSPACE}/get-sources-jenkins.log.txt | grep -E -v "tags|\\]|\\[|--|latest" \\
-    | sed -r -e "s@.+\\"(.+)\\",*@\\1@" | sort -u -r -V | tr "\\n\\r" " " || true)
+    | grep -E "[0-9]+\.[0-9]+-[0-9]+" | tr -d ' "' | sort -urV || true)
 
   # OPTION 1/4: Compute build desc from tag(s)
   echo "REPO_PATH=\\"${TAGs}$(cat ${WORKSPACE}/get-sources-jenkins.log.txt \\
