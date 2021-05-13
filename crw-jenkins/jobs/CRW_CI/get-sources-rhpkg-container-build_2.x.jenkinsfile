@@ -15,205 +15,135 @@ import groovy.json.JsonSlurper
 def String nodeLabel = 'rhel8'
 currentBuild.description="Building " + QUAY_REPO_PATHs + "..."
 timeout(240) {
-    node(nodeLabel) { 
-        stage ("Build on ${nodeLabel}") {
-            wrap([$class: 'TimestamperBuildWrapper']) {
-                currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "..."
-                withCredentials([
-                    string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                    string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
-                    file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
-                    usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
-                ]) {
-                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                    def util = load "${WORKSPACE}/util.groovy"
-                    JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                    cleanWs()
-                    util.bootstrap(CRW_KEYTAB)
-                    util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH)
-                    currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
-                    try {
-                      CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-                      println "CRW_VERSION = '" + CRW_VERSION + "'"
-                      util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
+  node(nodeLabel) { 
+    stage ("Build on ${nodeLabel}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "..."
+        withCredentials([
+            string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+            string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
+            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
+            usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
+        ]) {
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+            def util = load "${WORKSPACE}/util.groovy"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            cleanWs()
+            util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+            currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
+            try {
+              util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
 
-                      echo "[INFO] Attempt to run get-sources-jenkins.sh, with up to 2 retries"
-                      retry(2) {
-                        sh('''#!/bin/bash -xe
-pushd ${WORKSPACE}/sources >/dev/null
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
+              echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
+              retry(2) {
+                sh('''#!/bin/bash -xe
+./rhpkg-container-build.sh ''' + JOB_BRANCH + ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
+                ''')
+              }
 
-SCRATCH_FLAG=""; if [[ "''' + SCRATCH + '''" == "true" ]]; then   SCRATCH_FLAG="--scratch"; fi
-# could also add --force-pull flag
-FORCE_FLAG="";   if [[ "''' + FORCE_BUILD + '''" == "true" ]]; then FORCE_FLAG="--force-build";   fi
+              // compute BUILD_RESULT from output of rhpkg-container-build.sh, after BUILD_RESULT=
+              BUILD_RESULT=sh(returnStdout:true,script:'''sed -n '/BUILD_RESULT=/{:loop;n;p;b loop;}' ${WORKSPACE}/rhpkg-container-build.txt''').trim()
+              // compute the new tag (eg., 2.y-zz)
+              NEW_TAG=sh(returnStdout:true,script:'''grep 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
+              // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
+              TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
+              BUILD_DESC=sh(returnStdout:true,script:'''grep 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
 
-# REQUIRE: rhpkg
-# get latest from Jenkins, then trigger a new OSBS build. Note: do not wrap JOB_BRANCH in quotes in case it includes trailing \\n
-./get-sources-jenkins.sh "${SCRATCH_FLAG}" "${FORCE_FLAG}" ''' + JOB_BRANCH + ''' | tee ${WORKSPACE}/get-sources-jenkins.log.txt
+              if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
+                currentBuild.result = "UNSTABLE"
+              }
+              if (BUILD_RESULT.indexOf("ERROR")>=0 || BUILD_RESULT.indexOf("FAILURE")>=0 || !TASK_URL?.trim()) {
+                currentBuild.result = "FAILURE"
+              }
+
+              currentBuild.description=BUILD_DESC + " :: " + BUILD_RESULT
+
+              // if build has passed, trigger a copy to quay 
+              if (!currentBuild.result.equals("ABORTED") && 
+                  !currentBuild.result.equals("FAILURE") && 
+                  !currentBuild.result.equals("UNSTABLE")) {
+                withCredentials([string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
+                  sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
+                  CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                  CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+                  sh(script: '''#!/bin/bash -xe
+QUAY_REGISTRY="quay.io/crw/"
+QUAY_USER="crw+crwci"
+
+echo "[INFO]: Log into quay.io..."
+echo "${QUAY_TOKEN}" | docker login -u="${QUAY_USER}" --password-stdin ${QUAY_REGISTRY}
+
+echo " ########################################### "
+echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
+echo " ########################################### "
+for c in ''' + CONTAINERS.trim() + '''; do
+    d=codeready-workspaces-${c}-rhel8
+    # special case for operator; all other images follow the pattern
+    if [[ $c == "operator" ]] || [[ $c == "operator-metadata" ]]; then 
+        d=codeready-workspaces-${c}
+    fi 
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+done
 wait
-cd ..
-rm -fr sources
+                      ''', returnStatus: true)
+                  }
+                }
+            } catch (e) {
+              currentBuild.result = "FAILURE"
+              util.notifyBuildFailed()
+              throw e
+          }
+        } // with
+      } // wrap
 
-#  "floating_tags": [
-#      "latest",
-#      "2.0"
-#  ],
-#  "pull": [
-#      "registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-pluginregistry-rhel8@sha256:85c89a1d9e382bebe70f4204f05f06f0fc2b9c76f1c3ca2983c17989b92239fe",
-#      "registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-pluginregistry-rhel8:2.0-212"
-#  ],
-#  "tags": [
-#      "2.0-212"
-#  ],
-
-if [[ -n "''' + QUAY_REPO_PATHs + '''" ]]; then
-  # make sure these files exist, in case get-sources-jenkins.sh didn't produce useful output
-  touch ${WORKSPACE}/get-sources-jenkins.log.txt
-
-  # get list of reg-proxy repo:tag as '2.y-zz'
-  TAGs=$(grep -E -A2 '"(tags|floating_tags)": \\[' ${WORKSPACE}/get-sources-jenkins.log.txt | grep -E -v "tags|\\]|\\[|--|latest" \\
-    | grep -E "[0-9]+\.[0-9]+-[0-9]+" | tr -d ' "' | sort -urV || true)
-
-  # OPTION 1/4: Compute build desc from tag(s)
-  echo "REPO_PATH=\\"${TAGs}$(cat ${WORKSPACE}/get-sources-jenkins.log.txt \\
-     | grep -E -A2 '"(pull)": \\[' | grep -E -v "candidate" | grep -E "registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-" \\
-     | grep -E -v "@sha" | sed -r -e "s@.+\\"(.+)\\",*@\\1@" | tr "\\n\\r" " " )\\"" \\
-     | tee ${WORKSPACE}/build_desc.txt
-  source ${WORKSPACE}/build_desc.txt
-  REPOS="${REPO_PATH}" # used for build description
-  if [[ $REPOS ]]; then echo "#1 Console parser successful!"; fi
-fi
-
-# TODO make these console parsers smarter and remove all old flavours that don't work any more
-
-# OPTION 2/4: Compute build desc with image created eg., "2.y-65 quay.io/crw/pluginregistry-rhel8:2.y-65"
-if [[ ! ${REPOS} ]] || [[ ${REPOS} == " " ]]; then
-  # for scratch builds look for this line:
-  # platform:- - atomic_reactor.plugins.tag_from_config - DEBUG - Using additional unique tag 
-  # rh-osbs/codeready-workspaces-server-rhel8:crw-2.0-rhel-8-containers-candidate-89319-20191122035915
-  echo "REPO_PATH=\\"$(grep -E "platform:- - atomic_reactor.plugins.tag_from_config - DEBUG - Using additional unique tag " ${WORKSPACE}/get-sources-jenkins.log.txt \\
-    | sed -r -e "s@.+Using additional primary tag (.+)@registry-proxy.engineering.redhat.com/\\1@" | tr "\\n\\r" " " )\\"" \\
-    | tee ${WORKSPACE}/build_desc.txt
-  source ${WORKSPACE}/build_desc.txt
-  REPOS="${REPO_PATH}" # used for build description
-  if [[ $REPOS ]]; then echo "#2 Console parser successful!"; fi
-fi
-
-# OPTION 3/4
-if [[ ! ${REPOS} ]] || [[ ${REPOS} == " " ]]; then
-  # for scratch builds look for this line:
-  # ^ADD Dockerfile-codeready-workspaces-server-rhel8-2.0-scratch-89319-20191122035915 /root/buildinfo/Dockerfile-codeready-workspaces-server-rhel8-2.0-scratch-89319-20191122035915
-  echo "REPO_PATH=\\"$(grep -E "^ADD Dockerfile-codeready-workspaces-" ${WORKSPACE}/get-sources-jenkins.log.txt \\
-    | sed -r -e "s@^ADD Dockerfile-codeready-workspaces-(.+) /root/.+@\\1@" | tr "\\n\\r" " " )\\"" \\
-    | tee ${WORKSPACE}/build_desc.txt
-  source ${WORKSPACE}/build_desc.txt
-  REPOS="${REPO_PATH}" # used for build description
-  if [[ $REPOS ]]; then echo "#3 Console parser successful!"; fi
-fi
-
-if [[ ! ${REPOS} ]] || [[ ${REPOS} == " " ]]; then
-  # OPTION 4/4: unknown
-  echo "REPO_PATH=\\"BREW:BUILD/STATUS:UNKNOWN\\"" | tee -a ${WORKSPACE}/build_desc.txt
-fi
-                        ''')
-                      }
-
-                      ERRORS_FOUND=sh(returnStdout:true,script:'''
-grep -E "Brew build has failed|failed with exit code|Problem loading ID" ${WORKSPACE}/get-sources-jenkins.log.txt || true
-                      ''').trim()
-
-                      // compute the new tag (eg., 2.y-8)
-                      NEW_TAG=sh(returnStdout:true,script:'''
-grep -E -A2 '"tags": \\[' ${WORKSPACE}/get-sources-jenkins.log.txt | grep -E -v "tags|\\]|\\[|--" | tr -d " " | uniq || true
-                      ''')
-
-                      // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
-                      TASK_URL = sh(returnStdout:true,script:'''
-grep "Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=" ${WORKSPACE}/get-sources-jenkins.log.txt || true
-                      ''').trim().replaceAll("Task info: ","")
-
-                      // turn 2.y-5 2.y latest 2.y-5 2.y ...
-                      // into unique list ["2.y-5","2.y","latest","2.y-5","2.y","..."]
-                      BUILD_DESC = sh(returnStdout:true,script:'''cat ${WORKSPACE}/build_desc.txt''').trim().replaceAll('REPO_PATH="','').replaceAll('"','').replaceAll(" ", '","')
-
-                      // for non-scratch builds, use shorter quay URLs
-                      if (!SCRATCH.equals("true") && SCRATCH!=true) {
-                        BUILD_DESC = BUILD_DESC.replaceAll("registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-","quay.io/crw/")
-                      }
-
-                      def BUILD_DESC_LIST = new JsonSlurper().parseText('["' + BUILD_DESC + '"]').unique()
-                      BUILD_DESC=BUILD_DESC_LIST.join(" ").replaceAll("(quay.io/crw/.+-rhel8:[0-9.-]+) ", '<a href="https://$1">$1</a> ').replaceAll("(quay.io/crw)/(operator|operator-metadata):([0-9.-]+) ", '<a href="https://$1/crw-2-rhel8-$2:$3">$1/crw-2-rhel8-$2:$3</a> ')
-
-                      // TODO can this work? Needs jenkins auth permission: .split(" ").collect().unique().join(" ")
-                      if (BUILD_DESC.indexOf("ERROR")>=0 || ERRORS_FOUND?.trim() || !TASK_URL?.trim()) {
-                        currentBuild.result = "FAILURE: " + ERRORS_FOUND
-                      }
-                      if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
-                        currentBuild.result = "UNSTABLE"
-                      }
-
-                      // set build desc with image created eg., "2.y-65 quay.io/crw/pluginregistry-rhel8:2.y-65"
-                      def descriptString="<a href='" + TASK_URL + "'>" + (currentBuild.result.equals("FAILURE") ? "Failed in ":"Build ") + TASK_URL.replaceAll(".+taskID=","") + "</a> : " + BUILD_DESC
-                      echo "${descriptString}"
-                      currentBuild.description+=" :: ${descriptString}"
-                    } catch (e) {
-                      currentBuild.result = "FAILURE"
-                      util.notifyBuildFailed()
-                      throw e
-                    }
-                } // with
-            } // wrap
-        } // stage
-    } // node 
-} // timeout
-
-// kick off push-latest-container-to-quay_2.y job
-node(nodeLabel){ 
-  stage ("Copy OSBS container to Quay") {
-    CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
-    println "########################################################################################################"
-    println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
-    println "########################################################################################################"
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-    def util = load "${WORKSPACE}/util.groovy"
-    echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && 
-        !currentBuild.result.equals("FAILURE") && 
-        !SCRATCH.equals("true") && SCRATCH!=true && 
-        QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
-      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-      build(
-        job: 'push-latest-container-to-quay_' + JOB_BRANCH,
-        // TODO should these be set to wait and propagate: true?
-        wait: false,
-        propagate: false,
-        parameters: [
-          [
-            $class: 'StringParameterValue',
-            name: 'token',
-            value: "CI_BUILD"
-          ],
-          [
-            $class: 'StringParameterValue',
-            name: 'cause',
-            value: "push+latest+${CONTAINERS}+to+quay"
-          ],
-          [
-            $class: 'StringParameterValue',
-            name: 'CONTAINERS',
-            value: CONTAINERS
-          ],
-          [
-            $class: 'StringParameterValue',
-            name: 'FLOATING_QUAY_TAGS',
-            value: FLOATING_QUAY_TAGS
+      CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+      println "########################################################################################################"
+      println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
+      println "########################################################################################################"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      echo "currentBuild.result = " + currentBuild.result
+      if (!currentBuild.result.equals("ABORTED") && 
+          !currentBuild.result.equals("FAILURE") && 
+          !currentBuild.result.equals("UNSTABLE") && 
+          !SCRATCH.equals("true") && SCRATCH!=true && 
+          QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+        build(
+          job: 'push-latest-container-to-quay_' + JOB_BRANCH,
+          // TODO should these be set to wait and propagate: true?
+          wait: false,
+          propagate: false,
+          parameters: [
+            [
+              $class: 'StringParameterValue',
+              name: 'token',
+              value: "CI_BUILD"
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'cause',
+              value: "push+latest+${CONTAINERS}+to+quay"
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'CONTAINERS',
+              value: CONTAINERS
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'FLOATING_QUAY_TAGS',
+              value: FLOATING_QUAY_TAGS
+            ]
           ]
-        ]
-      )
-      currentBuild.description+="; copied to quay"
-    } else {
-      println "No changes upstream, nothing to copy to quay!"
-      currentBuild.description+="; no quay copy"
-      currentBuild.result = 'UNSTABLE'
-    } // if
-  } // stage
-} //node
+        )
+        currentBuild.description+="; copied to quay"
+      } else {
+        println "No changes upstream, nothing to copy to quay!"
+        currentBuild.description+="; no quay copy"
+        currentBuild.result = 'UNSTABLE'
+      } // if
+    } // stage
+  } //node
+} // timeout

@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.7":"v3.4.x", "2.8":"v3.4.x", "2.x":"7.30.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created
+def JOB_BRANCHES = ["2.7":"v3.4.x", "2.8":"v3.4.x", "2.x":"v3.4.x"] 
 def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used yet

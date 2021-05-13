@@ -3,13 +3,13 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-// SOURCE_BRANCH
 // SOURCE_REPO
-// MIDSTM_BRANCH
+// SOURCE_BRANCH
 // MIDSTM_REPO
+// MIDSTM_BRANCH
 // MIDSTM_NAME
-// FORCE_BUILD = "false"
 // UPDATE_BASE_IMAGES_FLAGS = "" or "--tag \"1\\\\.13|8\\\\.[0-9]-\" " (if project is locked on golang 1.13 instead of latest)
+// FORCE_BUILD = "false"
 
 def SYNC_REPO = MIDSTM_NAME
 

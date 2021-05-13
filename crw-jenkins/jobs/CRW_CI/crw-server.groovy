@@ -8,18 +8,22 @@ for (JB in JOB_BRANCHES) {
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che"
-        UPSTM_REPO="https://github.com/eclipse/" + UPSTM_NAME
+        MIDSTM_NAME="server"
+        SOURCE_REPO="eclipse/" + UPSTM_NAME
+        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <ul>
-<li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + ''' server</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/>crw server</a></li>
-<li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces?h=''' + MIDSTM_BRANCH + '''>crw server</a></li>
+<li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
-<p>If <b style="color:green">downstream job fires</b>, see <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
+<p>If <b style="color:green">downstream job fires</b>, see 
+<a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
+<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
         ''')
 
@@ -31,11 +35,10 @@ Artifact builder + sync job; triggers brew after syncing
             pipelineTriggers {
                 triggers{
                     pollSCM{
-                        scmpoll_spec("H H/8 * * *") // every 8hrs
+                        scmpoll_spec("H H/24 * * *") // every 24hrs
                     }
                 }
             }
-
             disableResumeJobProperty()
         }
 
@@ -47,8 +50,12 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
+            stringParam("SOURCE_REPO", SOURCE_REPO)
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+            stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("MIDSTM_NAME", MIDSTM_NAME)
+            stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
