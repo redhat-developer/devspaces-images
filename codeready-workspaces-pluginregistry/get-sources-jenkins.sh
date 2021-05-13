@@ -7,8 +7,6 @@ forcePull=0
 verbose=0
 
 tmpContainer=pluginregistry:tmp
-filesToInclude='./v3/*'
-filesToExclude=(-x "resources/*" -x "*.vsix" -x "*.theia") # use (-x rsync-pattern-to--exclude)
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -31,32 +29,27 @@ function log()
 # create/update sources tarballs (needed for offline Brew builds)
 #
 
-# transform Brew friendly Dockerfile so we can use it in Jenkins where base images need full registry path
-sed Dockerfile --regexp-extended \
-  -e 's|COPY (.*) resources.tgz (.*)|COPY \1 \2|' \
-  -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=true|' \
-  -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=false|' \
-  -e 's|^ *COPY root-local.tgz|# &|' \
+# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
+sed bootstrap.Dockerfile -i --regexp-extended \
   `# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
   -e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1-\2:\3#" \
   `# replace ubi8-minimal:tag with reg-proxy/rh-osbs/ubi-minimal:tag` \
-  -e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#" \
-  -e 's|# (COPY .*content_sets.*)|\1|' \
-  > bootstrap.Dockerfile
+  -e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#"
 echo "======= BOOTSTRAP DOCKERFILE =======>"
 cat bootstrap.Dockerfile
 echo "<======= BOOTSTRAP DOCKERFILE ======="
 echo "======= START BOOTSTRAP BUILD =======>"
-# do not want digests in the BOOTSTRAP build so override default with false
+
 docker build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
-  --target builder --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false
+  --target builder --build-arg BOOTSTRAP=true
+
 echo "<======= END BOOTSTRAP BUILD ======="
 # update tarballs - step 2 - check old sources' tarballs
 TARGZs="root-local.tgz resources.tgz"
 git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 rhpkg sources
 
-# update tarballs - step 3 - create new tarballs 
+# update tarballs - step 3 - create new tarballs
 # NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
 tmpDir="$(mktemp -d)"
 docker run --rm -v \
@@ -75,30 +68,14 @@ if [[ ${TAR_DIFF} ]]; then
 fi
 sudo rm -fr ${tmpDir} ${BEFORE_DIR}
 
-# resources.tgz
-tmpDir=$(mktemp -d)
-docker run --rm -v ${tmpDir}/:/tmp/resources/ --entrypoint /bin/bash ${tmpContainer} -c \
-  "cd /build && cp -r ${filesToInclude} /tmp/resources/"
-MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
-# check diff
-if [[ -f resources.tgz ]]; then
-  BEFORE_DIR="$(mktemp -d)"
-  tar xzf resources.tgz -C ${BEFORE_DIR}
-  TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} "${filesToExclude[@]}") || true
-  sudo rm -fr ${BEFORE_DIR}
-else
-  TAR_DIFF2="No such file resources.tgz -- creating a new one for the first time"
-fi
-if [[ ${TAR_DIFF2} ]]; then
-  echo "DIFF START *****"
-  echo "${TAR_DIFF2}"
-  echo "***** END DIFF"
-  pushd ${tmpDir} >/dev/null && tar czf resources.tgz ./* && popd >/dev/null
-  mv -f ${tmpDir}/resources.tgz .
-fi
-sudo rm -fr ${tmpDir}
-rm bootstrap.Dockerfile
+# we always need a fresh resources.tgz to guarantee proper timestamps and latest vsix files
+rm -f ./resources.tgz
+docker create --name pluginregistryBuilder ${tmpContainer}
+docker cp pluginregistryBuilder:/tmp/resources/resources.tgz .
+docker rm -f pluginregistryBuilder
+
 docker rmi ${tmpContainer}
+
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${forcePull} -ne 0 ]]; then
   log "[INFO] Commit new sources"
