@@ -21,6 +21,7 @@ rm -f $outputFile .repository/
 if [[ ${doMavenBuild} -eq 1 ]]; then
   MVN_VER="3.6.3"
   JDK_VER="11"
+  sudo yum -y install java-${JDK_VER}-openjdk java-${JDK_VER}-openjdk-devel
   if [[ ! -x /tmp/apache-maven/bin/mvn ]]; then
     # check if maven installed
     mvnURL="https://www.apache.org/dyn/mirrors/mirrors.cgi?action=download&filename=maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz"
