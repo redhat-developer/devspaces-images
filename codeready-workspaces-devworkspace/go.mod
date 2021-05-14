@@ -1,6 +1,6 @@
 module github.com/che-incubator/devworkspace-che-operator
 
-go 1.13
+go 1.14
 
 require (
 	github.com/devfile/api/v2 v2.0.0-20210420202853-ff3c01bf8292
