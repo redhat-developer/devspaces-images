@@ -24,45 +24,48 @@ Images to copy to quay:
 <tr><td>
 
   <li> <a href=https://quay.io/repository/crw/configbump-rhel8?tab=tags>configbump</a> </li>
-  <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator?tab=tags>operator</a> 
-  <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a></li>
-  <li><a href=https://quay.io/repository/crw/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
-  <li> <a href=https://quay.io/repository/crw/imagepuller-rhel8?tab=tags>imagepuller</a></li>
+  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator?tab=tags>operator</a> 
+  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a></li>
+  <li> <a href=https://quay.io/repository/crw/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
+  <li> <a href=https://quay.io/repository/crw/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
 
   </td><td>
 
+  <li> <a href=https://quay.io/repository/crw/devworkspace-controller-rhel8?tab=tags>devworkspace-controller</a> @since 2.8</li>
+  <li> <a href=https://quay.io/repository/crw/devworkspace-rhel8?tab=tags>devworkspace</a> @since 2.8</li>
+  <li> <a href=https://quay.io/repository/crw/imagepuller-rhel8?tab=tags>imagepuller</a></li>
   <li> <a href=https://quay.io/repository/crw/jwtproxy-rhel8?tab=tags>jwtproxy</a> </li>
   <li> <a href=https://quay.io/repository/crw/machineexec-rhel8?tab=tags>machineexec</a> </li>
-  <li> <a href=https://quay.io/repository/crw/pluginbroker-artifacts-rhel8?tab=tags>pluginbroker-artifacts</a> </li>
-  <li> <a href=https://quay.io/repository/crw/pluginbroker-metadata-rhel8?tab=tags>pluginbroker-metadata</a>   </li>
-  <li> <a href=https://quay.io/repository/crw/plugin-intellij-rhel8?tab=tags>plugin-intellij</a></li>
 
   </td><td>
 
+  <li> <a href=https://quay.io/repository/crw/pluginbroker-artifacts-rhel8?tab=tags>pluginbroker-artifacts</a> </li>
+  <li> <a href=https://quay.io/repository/crw/pluginbroker-metadata-rhel8?tab=tags>pluginbroker-metadata</a></li>
+<!--   <li> <a href=https://quay.io/repository/crw/plugin-intellij-rhel8?tab=tags>plugin-intellij</a></li> -->
   <li> <a href=https://quay.io/repository/crw/plugin-java11-openj9-rhel8?tab=tags>plugin-java11-openj9</a></li>
   <li> <a href=https://quay.io/repository/crw/plugin-java11-rhel8?tab=tags>plugin-java11</a></li>
   <li> <a href=https://quay.io/repository/crw/plugin-java8-openj9-rhel8?tab=tags>plugin-java8-openj9</a> 
-  <li> <a href=https://quay.io/repository/crw/plugin-java8-rhel8?tab=tags>plugin-java8</a> 
-  <li> <a href=https://quay.io/repository/crw/plugin-kubernetes-rhel8?tab=tags>plugin-kubernetes</a></li>
 
   </td><td>
 
+  <li> <a href=https://quay.io/repository/crw/plugin-java8-rhel8?tab=tags>plugin-java8</a> 
+  <li> <a href=https://quay.io/repository/crw/plugin-kubernetes-rhel8?tab=tags>plugin-kubernetes</a></li>
   <li> <a href=https://quay.io/repository/crw/plugin-openshift-rhel8?tab=tags>plugin-openshift</a> </li>
-  <li><a href=https://quay.io/repository/crw/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
-  <li><a href=https://quay.io/repository/crw/server-rhel8?tab=tags>server</a> </li>
-  <li> <a href=https://quay.io/repository/crw/stacks-cpp-rhel8?tab=tags>stacks-cpp</a> </li>
-  <li> <a href=https://quay.io/repository/crw/stacks-dotnet-rhel8?tab=tags>stacks-dotnet</a> </li>
+  <li> <a href=https://quay.io/repository/crw/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
+  <li> <a href=https://quay.io/repository/crw/server-rhel8?tab=tags>server</a> </li>
 
   </td></tr><tr><td>
 
+  <li> <a href=https://quay.io/repository/crw/stacks-cpp-rhel8?tab=tags>stacks-cpp</a> </li>
+  <li> <a href=https://quay.io/repository/crw/stacks-dotnet-rhel8?tab=tags>stacks-dotnet</a> </li>
   <li> <a href=https://quay.io/repository/crw/stacks-golang-rhel8?tab=tags>stacks-golang</a> </li>
   <li> <a href=https://quay.io/repository/crw/stacks-php-rhel8?tab=tags>stacks-php</a> </li>
   <li> <a href=https://quay.io/repository/crw/theia-rhel8?tab=tags>theia</a> </li>
-  <li> <a href=https://quay.io/repository/crw/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
-  <li> <a href=https://quay.io/repository/crw/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
 
   </td><td>
 
+  <li> <a href=https://quay.io/repository/crw/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
+  <li> <a href=https://quay.io/repository/crw/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
   <li> <a href=https://quay.io/repository/crw/traefik-rhel8?tab=tags>traefik</a> </li>
 
   </td></tr>
@@ -107,13 +110,14 @@ Images to copy to quay:
             }
         } */
 
-        parameters{
-            textParam("CONTAINERS", '''configbump devfileregistry operator operator-metadata imagepuller \
-jwtproxy machineexec pluginbroker-metadata pluginbroker-artifacts plugin-intellij \
-plugin-java11-openj9 plugin-java11 plugin-java8-openj9 plugin-java8 plugin-kubernetes \
-plugin-openshift pluginregistry server stacks-cpp stacks-dotnet \
-stacks-golang stacks-php theia theia-dev theia-endpoint \
-traefik''', '''list of containers to copy:<br/>
+        parameters{ // plugin-intellij
+            textParam("CONTAINERS", '''\
+configbump operator operator-metadata dashboard devfileregistry \
+devworkspace-controller devworkspace imagepuller jwtproxy machineexec \
+pluginbroker-metadata pluginbroker-artifacts plugin-java11-openj9 plugin-java11 plugin-java8-openj9 \
+plugin-java8 plugin-kubernetes plugin-openshift pluginregistry server \
+stacks-cpp stacks-dotnet stacks-golang stacks-php theia \
+theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')

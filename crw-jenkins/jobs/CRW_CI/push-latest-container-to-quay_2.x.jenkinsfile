@@ -112,8 +112,12 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             "=================== QUAY v NVR ===================\n" + 
                             DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
                             ' Failure!\n'
-                            currentBuild.description+="; Quay/Brew version mismatch!"
-                            currentBuild.result = 'FAILURE'
+                            currentBuild.description+="; Quay/Brew version mismatch"
+                            currentBuild.result = 'UNSTABLE'
+                            sh(script: '''#!/bin/bash -xe
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
+                            ''', returnStdout: true)
+                            currentBuild.description+="; all Quay images updated"
                         }
 
                         DIFF_LATEST_IMAGES_QUAY_V_STORED = sh (
