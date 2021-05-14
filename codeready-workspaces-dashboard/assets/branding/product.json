@@ -1,7 +1,7 @@
 {
   "title": "CodeReady Workspaces ",
   "name": "CodeReady Workspaces",
-  "productVersion": "2.9 @ b8c0 #7 :: Eclipse Che Dashboard 7.30.1 @ 892bf",
+  "productVersion": "2.9 @ c82b5 #8 :: Eclipse Che Dashboard 7.30.1 @ 892bf",
   "logoFile": "che-logo.svg",
   "logoTextFile": "che-logo-text.svg",
   "helpPath": "https://access.redhat.com/products/red-hat-codeready-workspaces/",
