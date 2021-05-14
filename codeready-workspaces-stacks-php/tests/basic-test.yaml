@@ -49,7 +49,7 @@
         - debug:
             msg: "{{ phpls_cmd_run.stdout }}"
         - name: 2/4 Verify Zend Debugger is loaded
-          shell: if [[ $(echo '{{ phpls_cmd_run.stdout }}' | egrep 'later version of Zend Debugger|which is installed, is newer') ]]; then echo '{{ phpls_cmd_run.stdout }}'; exit 1; fi
+          shell: if [[ $(echo '{{ phpls_cmd_run.stdout }}' | grep -E 'later version of Zend Debugger|which is installed, is newer') ]]; then echo '{{ phpls_cmd_run.stdout }}'; exit 1; fi
           register: phpls_read_startup
         - debug:
             msg: "{{ phpls_read_startup.stdout }}"

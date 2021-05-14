@@ -11,10 +11,10 @@ if [[ ! -f ${defaultsFile} ]]; then
 fi
 
 excludes="eclipse/che-keycloak|centos/postgresql-96-centos7"
-for d in $(cat /tmp/defaults.go | egrep "Keycloak|Postgres|Pvc" | egrep Image | egrep -v "func|return|Old|ToDetect|$excludes" | sed -e "s#.\+= \"\(.\+\)\"#\1#"); do
+for d in $(cat /tmp/defaults.go | grep -E "Keycloak|Postgres|Pvc" | grep -E Image | grep -E -v "func|return|Old|ToDetect|$excludes" | sed -e "s#.\+= \"\(.\+\)\"#\1#"); do
     echo "- ${d}"
     echo -n "+ ${d%:*}:";
-    e=$(skopeo inspect docker://${d%:*}  | yq .RepoTags | egrep -v "\[|\]|latest" | tr -d ",\" " | sort -V | tail -1)
+    e=$(skopeo inspect docker://${d%:*}  | yq .RepoTags | grep -E -v "\[|\]|latest" | tr -d ",\" " | sort -V | tail -1)
     echo ${e}
     sed -i ${defaultsFile} -e "s@${d}@${d%:*}:${e}@g"
 done
