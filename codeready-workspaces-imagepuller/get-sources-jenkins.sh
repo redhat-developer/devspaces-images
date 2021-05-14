@@ -93,7 +93,7 @@ if [[ ${TAR_DIFF} ]] || [[ ${forcePull} -ne 0 ]]; then
     log "[INFO] No new sources, so nothing to build."
   elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
     log "[INFO] Push change:"
-    git pull; git push
+    git pull; git push; git status -s || true
   fi
 
   if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

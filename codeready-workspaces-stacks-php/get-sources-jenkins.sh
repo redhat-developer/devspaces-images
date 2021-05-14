@@ -183,10 +183,11 @@ if [[ ${outputFiles} ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
-		git pull; git push
+		git pull; git push; git status -s || true
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
     echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+    git status || true
     tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
     taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
     ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
@@ -199,6 +200,7 @@ $ERRORS
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
     echo "[INFO] Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+    git status || true
     tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
     taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
     ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile

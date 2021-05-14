@@ -7,27 +7,27 @@ doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 while [[ "$#" -gt 0 ]]; do
-  case $1 in
+	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-p'|'--force-pull') forcePull=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	*) JOB_BRANCH="$1"; shift 0;;
-  esac
-  shift 1
+	esac
+	shift 1
 done
 
 function log()
 {
-  if [[ ${verbose} -gt 0 ]]; then
+	if [[ ${verbose} -gt 0 ]]; then
 	echo "$1"
-  fi
+	fi
 }
 function logn()
 {
-  if [[ ${verbose} -gt 0 ]]; then
+	if [[ ${verbose} -gt 0 ]]; then
 	echo -n "$1"
-  fi
+	fi
 }
 
 # if not set, compute from current branch
@@ -68,11 +68,11 @@ if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppr
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
-		git pull; git push
-  fi
+		git pull; git push; git status -s || true
+	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-	    git status || true
+		git status || true
 		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
@@ -84,12 +84,12 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-	echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-	git status || true
-	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-	ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
-	if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
+		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		git status || true
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
+		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
 

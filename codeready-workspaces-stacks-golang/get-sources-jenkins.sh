@@ -8,14 +8,14 @@ forceBuild=0
 forcePull=0
 generateDockerfileLABELs=1
 while [[ "$#" -gt 0 ]]; do
-  case $1 in
+	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
-    '-f'|'--force-build') forceBuild=1; shift 0;;
-    '-p'|'--force-pull') forcePull=1; shift 0;;
+		'-f'|'--force-build') forceBuild=1; shift 0;;
+		'-p'|'--force-pull') forcePull=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	*) JOB_BRANCH="$1"; shift 0;;
-  esac
-  shift 1
+	esac
+	shift 1
 done
 
 # if not set, compute from current branch
@@ -58,15 +58,15 @@ lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/golang/target/coder
 lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/" # id
 function log()
 {
-  if [[ ${verbose} -gt 0 ]]; then
+	if [[ ${verbose} -gt 0 ]]; then
 	echo "$1"
-  fi
+	fi
 }
 function logn()
 {
-  if [[ ${verbose} -gt 0 ]]; then
+	if [[ ${verbose} -gt 0 ]]; then
 	echo -n "$1"
-  fi
+	fi
 }
 
 LABELs=""
@@ -77,7 +77,7 @@ function addLabel () {
 function addLabeln () {
 	LABEL_VAR=$1
 	if [[ "${2}" ]]; then LABEL_VAL=$2; else LABEL_VAL="${!LABEL_VAR}"; fi
-	if [[ "${3}" ]]; then PREFIX=$3; else PREFIX="  << "; fi
+	if [[ "${3}" ]]; then PREFIX=$3; else PREFIX="	<< "; fi
 	if [[ ${generateDockerfileLABELs} -eq 1 ]]; then 
 		LABELs="${LABELs} ${LABEL_VAR}=\"${LABEL_VAL}\""
 	fi
@@ -102,7 +102,7 @@ function parseCommitLog ()
 	GHE="https://github.com/eclipse/"
 	GHR="https://github.com/redhat-developer/"
 	while [[ "$#" -gt 0 ]]; do
-	  case $1 in
+		case $1 in
 		'crw_master'|'crw_stable-branch'|'crw-deprecated_'*) JOB_NAME="$1"; shift 2;;
 		'Build'*) BUILD_NUMBER="$2"; BUILD_NUMBER=${BUILD_NUMBER#\#}; shift 6;; # trim # from the number, ignore timestamp
 		'che-dev'|'che-parent'|'che-lib'|'che-ls-jdt'|'che') 
@@ -113,13 +113,13 @@ function parseCommitLog ()
 			sha="$3"; addLabeln "git.commit.redhat-developer__${1}" "${GHR}${1}/commit/${sha:0:7}"; shift 4;;
 		*'tar.gz') tarballs="${tarballs} $1"; shift 1;;
 		*) OTHER="${OTHER} $1"; shift 1;; 
-	  esac
+		esac
 	done
 	if [[ $JOB_NAME ]]; then
-        jenkinsServer="${jenkinsURL%/job/*}"
+				jenkinsServer="${jenkinsURL%/job/*}"
 		addLabel "jenkins.build.url" "${jenkinsServer}/view/CRW_CI/view/Pipelines/job/${JOB_NAME}/${BUILD_NUMBER}/"
 		for t in $tarballs; do
-            addLabel "jenkins.artifact.url" "${jenkinsServer}/view/CRW_CI/view/Pipelines/job/${JOB_NAME}/${BUILD_NUMBER}/artifact/**/${t}" "     ++ "
+						addLabel "jenkins.artifact.url" "${jenkinsServer}/view/CRW_CI/view/Pipelines/job/${JOB_NAME}/${BUILD_NUMBER}/artifact/**/${t}" "		 ++ "
 		done
 	else
 		addLabel "jenkins.tarball.url" "${jenkinsServer}/view/CRW_CI/view/Pipelines #${BUILD_NUMBER} /${tarballs}"
@@ -140,9 +140,9 @@ function insertLabels () {
 	# add new labels
 	echo "LABEL \\" >> ${DOCKERFILE}
 	for l in $LABELs; do
-        echo "      ${l} \\" >> ${DOCKERFILE}
+				echo "			${l} \\" >> ${DOCKERFILE}
 	done
-    echo "      jenkins.build.number=\"${BUILD_NUMBER}\"" >> ${DOCKERFILE}
+		echo "			jenkins.build.number=\"${BUILD_NUMBER}\"" >> ${DOCKERFILE}
 	rm -f ${DOCKERFILE}.bak
 }
 
@@ -190,15 +190,15 @@ if [[ ${outputFiles} ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
-		git pull; git push
+		git pull; git push; git status -s || true
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-    echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-	git status || true
-    tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-    taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-    ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
-    if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
+		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		git status || true
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
+		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
 
@@ -206,12 +206,12 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-    echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
-	git status || true
-    tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-    taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-    ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
-    if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
+		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		git status || true
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
+		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
 
