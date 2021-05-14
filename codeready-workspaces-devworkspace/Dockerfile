@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM devtools/go-toolset-rhel7:1.13.15-4  as builder
+FROM devtools/go-toolset-rhel7:1.14.12-4.1615820747  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
     GOPATH=/go/
 
@@ -27,7 +27,7 @@ COPY . .
 
 # Build
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
-  CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build \ -mod=vendor -x \
+  CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build \
   -a -o _output/bin/devworkspace-che-operator \
   -gcflags all=-trimpath=/ \
   -asmflags all=-trimpath=/ \
