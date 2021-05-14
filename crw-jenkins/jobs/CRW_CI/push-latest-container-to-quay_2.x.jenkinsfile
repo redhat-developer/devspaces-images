@@ -116,7 +116,7 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             currentBuild.result = 'UNSTABLE'
                             sh(script: '''#!/bin/bash -xe
     ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
-                            ''', returnStdout: true)
+                            ''', returnStatus: true)
                             currentBuild.description+="; all Quay images updated"
                         }
 
