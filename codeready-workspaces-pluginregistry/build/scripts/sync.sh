@@ -64,6 +64,7 @@ cvp.yml
 container.yaml
 content_sets.yml
 get-sources-jenkins.sh
+bootstrap.Dockerfile
 tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
