@@ -60,6 +60,7 @@ echo ".github/
 .git/
 .gitattributes
 build/scripts/sync.sh
+/bootstrap.Dockerfile
 cvp.yml
 container.yaml
 content_sets.yml
