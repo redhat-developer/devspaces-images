@@ -19,7 +19,11 @@ plugins:
           cookiesAuthEnabled: true
     containers:
       - name: che-machine-exec
-        image: 'quay.io/crw/machineexec-rhel8:nightly'
+        image: 'registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.9'
+        memoryLimit: 128Mi
+        memoryRequest: 32Mi
+        cpuLimit: 500m
+        cpuRequest: 30m
         ports:
           - exposedPort: 4444
         command:
@@ -45,7 +49,11 @@ plugins:
           cookiesAuthEnabled: true
     containers:
       - name: che-machine-exec
-        image: 'quay.io/crw/machineexec-rhel8:2.9'
+        image: 'registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.9'
+        memoryLimit: 128Mi
+        memoryRequest: 32Mi
+        cpuLimit: 500m
+        cpuRequest: 30m
         ports:
           - exposedPort: 4444
         command:
