@@ -57,7 +57,7 @@ timeout(240) {
                 currentBuild.result = "FAILURE"
               }
 
-              currentBuild.description=BUILD_DESC + " :: " + BUILD_RESULT
+              currentBuild.description+=" :: " + BUILD_DESC + " </br/> " + BUILD_RESULT
 
               // if build has passed, trigger a copy to quay 
               if (!currentBuild.result.equals("ABORTED") && 

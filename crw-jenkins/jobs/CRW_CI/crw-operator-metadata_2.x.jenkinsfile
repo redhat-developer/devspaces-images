@@ -92,13 +92,13 @@ echo "[INFO] CSV_FILE = ${CSV_FILE}"
           sh '''
   cd ${WORKSPACE}/targetmid/
   # if anything has changed other than the createdAt date, then we commit this
-  if [[ $(git diff | grep -v createdAt | egrep "^(-|\\+) ") ]]; then
-    git add . -A -f
-    git commit -s -m "[csv] Add CSV ''' + CSV_VERSION + '''" .
+  if [[ $(git diff | grep -v createdAt | egrep "^(-|\\+) " || true) ]]; then
+    git add . -A -f || true
+    git commit -s -m "[csv] Add CSV ''' + CSV_VERSION + '''" . || true
     git push origin ''' + MIDSTM_BRANCH + '''
   else # no need to push this so revert
     echo "[INFO] No significant changes (other than createdAt date) so revert and do not commit"
-    git checkout manifests/ build/scripts/
+    git checkout manifests/ build/scripts/ || true
   fi
 # fi
 '''
@@ -188,7 +188,7 @@ git add ''' + util.getCRWLongName(SYNC_REPO) + '''
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
-  git add Dockerfile ''' + SYNC_FILES_MID2DWN + '''
+  git add Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
   git commit -s -m "[sync] Update operator-metadata from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
