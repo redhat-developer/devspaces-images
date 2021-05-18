@@ -59,6 +59,7 @@ CRW_OPERATOR="crw-2-rhel8-operator"
 
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
+CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
 CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
 CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}" 
@@ -66,6 +67,7 @@ CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
+CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -167,6 +169,10 @@ pushd "${SOURCEDIR}" >/dev/null
 		["RELATED_IMAGE_che_workspace_plugin_broker_artifacts"]="${CRW_BROKER_ARTIFACTS_IMAGE}"
 		["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
 
+		# @since CRW 2.9 - moved from sync-che-operator*.sh
+		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
@@ -220,6 +226,7 @@ yq  -y 'del(.spec.k8s)')" && \
 			echo "Converted (yq #3) ${d}"
 		fi
 	done <   <(find deploy/crds -type f -name "org_v1_che_cr.yaml" -print0)
+	cp "${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
 
 	# delete unneeded files
 	echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
