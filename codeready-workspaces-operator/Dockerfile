@@ -17,8 +17,8 @@ FROM devtools/go-toolset-rhel7:1.13.15-4  as builder
 ENV PATH=/opt/rh/go-toolset-1.13/root/usr/bin:${PATH} \
     GOPATH=/go/
 
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.4.x"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.30.x"
 
 USER root
 ADD . /che-operator

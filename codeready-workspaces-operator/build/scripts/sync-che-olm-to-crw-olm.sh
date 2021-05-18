@@ -91,8 +91,7 @@ fi
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-# TODO switch to "${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" once it exists in quay
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}" 
+CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
