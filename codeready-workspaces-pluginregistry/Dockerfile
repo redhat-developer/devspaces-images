@@ -46,20 +46,21 @@ COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
 COPY ./build/scripts/*.sh /build/
+COPY che-*.yaml /build/
 COPY resources.tgz /build/
 WORKDIR /build/
 
 RUN tar -xvf resources.tgz -C ./
-RUN ./swap_images.sh output/v3
+RUN ./swap_images.sh ./
 RUN ./swap_plugins_memory.sh output/v3
 RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh output/v3; fi
-RUN ./list_referenced_images.sh output/v3 > /build/output/v3/external_images.txt
+RUN ./list_referenced_images.sh ./ > /build/output/v3/external_images.txt
 RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # UPSTREAM: use RHEL7/RHSCL/httpd image so we're not required to authenticate with registry.redhat.io
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhscl/httpd-24-rhel7
-#FROM rhscl/httpd-24-rhel7:2.4-143 AS registry
+#FROM rhscl/httpd-24-rhel7:2.4-143.1619800879 AS registry
 
 # DOWNSTREAM: use RHEL8/httpd
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
