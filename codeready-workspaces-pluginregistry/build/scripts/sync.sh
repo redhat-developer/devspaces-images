@@ -59,13 +59,14 @@ fi
 echo ".github/
 .git/
 .gitattributes
-build/scripts/sync.sh
+/build/scripts/sync.sh
 /bootstrap.Dockerfile
-cvp.yml
-container.yaml
-content_sets.yml
-get-sources-jenkins.sh
-tests/basic-test.yaml
+/cvp.yml
+/container.yaml
+/content_sets.yml
+/sources
+/get-sources-jenkins.sh
+/tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
