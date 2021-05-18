@@ -70,8 +70,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools, OpenShift Optional
     certified: "true"
-    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.9
-    createdAt: "2021-05-03T15:36:31+00:00"
+    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-crw-2-rhel8-operator:2.9nightly
+    createdAt: "2021-05-18T15:15:06+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1041,9 +1041,13 @@ spec:
                       - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-endpoint-rhel8:2.9
                       - name: RELATED_IMAGE_dashboard
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-server-rhel8:2.9
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-dashboard-rhel8:2.9
                       - name: RELATED_IMAGE_devfile_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devfileregistry-rhel8:2.9
+                      - name: RELATED_IMAGE_devworkspace_che_operator
+                        value: quay.io/che-incubator/devworkspace-che-operator:ci
+                      - name: RELATED_IMAGE_devworkspace_controller
+                        value: quay.io/devfile/devworkspace-controller:next
                       - name: RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7
                         value: registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7:7.3.6
                       - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_openj9_11_openshift
@@ -1076,7 +1080,7 @@ spec:
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
-                    image: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.9
+                    image: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-crw-2-rhel8-operator:2.9nightly
                     imagePullPolicy: Always
                     livenessProbe:
                       failureThreshold: 10

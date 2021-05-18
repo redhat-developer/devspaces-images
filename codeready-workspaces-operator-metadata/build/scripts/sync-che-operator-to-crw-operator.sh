@@ -57,8 +57,7 @@ if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_OPERATOR="crw-2-rhel8-operator"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
-# TODO switch to "${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" once it exists in quay
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}" 
+CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"

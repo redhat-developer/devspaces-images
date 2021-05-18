@@ -56,9 +56,9 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
     # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
-    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh v3/ | grep ${CRW_VERSION})"
-    pushd crw/dependencies/che-plugin-registry >/dev/null;  ./build/scripts/swap_images.sh v3/ -f; popd >/dev/null # include openj9 images too
-    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh v3/ | grep ${CRW_VERSION})"
+    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
+    pushd crw/dependencies/che-plugin-registry >/dev/null;  ./build/scripts/swap_images.sh ./ -f; popd >/dev/null # include openj9 images too
+    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
 popd >/dev/null
 rm -fr $tmpdir
 
