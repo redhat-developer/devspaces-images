@@ -13,7 +13,12 @@ def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // sourc
 def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
+
+// CRW-1826 don't use s390x-rhel8 for dashboard or plugin reg (Yarn 2 + s390x = fail)
+def String nodeLabel = (REPOS.contains("-dashboard") || REPOS.contains("-pluginregistry") ? 
+  'rhel8||ppc64le-rhel8' : 
+  'rhel8||s390x-rhel8||ppc64le-rhel8' 
+
 timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
