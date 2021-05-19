@@ -22,6 +22,7 @@ ENV BOOTSTRAP=${BOOTSTRAP}
 COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+RUN npm install --global yarn
 
 # Copy files needed for the plugin registry build/artifact creation
 COPY ./build.sh ./*.yml ./*.yaml ./*.js ./*.json ./yarn.lock /build/
