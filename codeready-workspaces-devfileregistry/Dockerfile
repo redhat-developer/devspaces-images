@@ -80,7 +80,7 @@ RUN chmod -R g+rwX /build/devfiles
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-# FROM ubi8/httpd-24:1-140 AS registry
+FROM ubi8/httpd-24:1-140 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
@@ -128,7 +128,7 @@ CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 ENV SUMMARY="Red Hat CodeReady Workspaces devfileregistry container" \
     DESCRIPTION="Red Hat CodeReady Workspaces devfileregistry container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="devfileregistry-rhel8" 
+    COMPNAME="devfileregistry-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
@@ -138,6 +138,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="2.9" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Eric Williams <ericwill@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
-      usage="" 
+      usage=""
