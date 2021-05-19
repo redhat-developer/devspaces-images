@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-87 as builder
+FROM ubi8/nodejs-12:1-77.1618436962 as builder
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
