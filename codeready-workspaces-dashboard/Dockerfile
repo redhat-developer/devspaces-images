@@ -26,7 +26,7 @@ COPY . /dashboard/
 RUN /dashboard/.yarn/releases/yarn-*.cjs compile
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-# FROM ubi8/httpd-24:1-140 AS registry
+FROM ubi8/httpd-24:1-140 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one

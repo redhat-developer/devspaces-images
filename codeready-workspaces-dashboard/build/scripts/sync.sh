@@ -78,10 +78,6 @@ rm -f /tmp/rsync-excludes
 
 # transform rhel.Dockefile -> Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
-    `# Replace image used for registry with rhel8/httpd-24` \
-    -e 's|^ *(FROM.*rhscl/httpd.*)|#\1|' \
-    -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
-    -e 's|# *(FROM.*rhel8/httpd.*)|\1|' \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
