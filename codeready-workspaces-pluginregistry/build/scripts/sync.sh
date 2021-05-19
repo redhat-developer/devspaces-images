@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert plugin registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (crw-images repo) using yq, sed
+# convert registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (crw-images repo) using yq, sed
 
 set -e
 
@@ -20,10 +20,13 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
+UPSTM_NAME="che-plugin-registry"
+MIDSTM_NAME="pluginregistry"
+
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources/repo] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces -t /tmp/codeready-workspaces-images/codeready-workspaces-pluginregistry
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces -t /tmp/codeready-workspaces-images/codeready-workspaces-${MIDSTM_NAME}
 "
     exit
 }
@@ -35,7 +38,8 @@ while [[ "$#" -gt 0 ]]; do
     # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
     '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
-    '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}/dependencies/che-plugin-registry"; shift 1;;
+    '-s') SOURCEDIR="$2"; SOURCEDIR=${SOURCEDIR%/}/dependencies/${UPSTM_NAME};
+        if [[ ! -d ${SOURCEDIR} ]]; then echo "Cannot find ${SOURCEDIR} !"; exit 1; fi;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--help'|'-h') usage;;
     # optional tag overrides
@@ -94,10 +98,10 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
   > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
-ENV SUMMARY="Red Hat CodeReady Workspaces pluginregistry container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces pluginregistry container" \\
+ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
-    COMPNAME="pluginregistry-rhel8"
+    COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\
