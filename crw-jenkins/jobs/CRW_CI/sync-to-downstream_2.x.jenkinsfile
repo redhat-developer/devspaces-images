@@ -17,7 +17,7 @@ def SOURCE_SHA=""
 // CRW-1826 don't use s390x-rhel8 for dashboard or plugin reg (Yarn 2 + s390x = fail)
 def String nodeLabel = (REPOS.contains("-dashboard") || REPOS.contains("-pluginregistry") ? 
   'rhel8||ppc64le-rhel8' : 
-  'rhel8||s390x-rhel8||ppc64le-rhel8' 
+  'rhel8||s390x-rhel8||ppc64le-rhel8')
 
 timeout(180) {
   node(nodeLabel) {
@@ -62,7 +62,18 @@ timeout(180) {
                 println "########################################################################################################"
                 util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH)
 
-                sh('''rsync -avhz --checksum --delete --exclude .git/ ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/ ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i])
+                sh('''
+SOURCEDIR="${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/"
+TARGETDIR="${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''"
+echo ".github/
+.git/
+.gitattributes
+sources
+" > /tmp/rsync-excludes
+echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rm -f /tmp/rsync-excludes
+                ''')
 
                 OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
                 println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
