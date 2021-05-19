@@ -59,7 +59,7 @@ RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM registry.redhat.io/ubi8/httpd-24:1-130.1618434979 AS registry
+FROM registry.access.redhat.com/ubi8/httpd-24:1-140 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
