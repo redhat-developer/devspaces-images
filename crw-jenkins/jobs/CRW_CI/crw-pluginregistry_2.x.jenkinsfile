@@ -76,9 +76,6 @@ rsync -azrlt --delete ${SOURCEDIR} ${TARGETDIR}
           CRW_VERSION="''' + CRW_VERSION_F + '''"
           # apply patches to transform CRW upstream to pkgs.devel version
           sed -i ''' + TARGET_DIR + '''Dockerfile --regexp-extended \
-            `# Replace image used for registry with rhel8/httpd-24` \
-            -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
-            -e 's|# *(FROM.*rhel8/httpd.*)|\\1|' \
             `# Strip registry from image references` \
             -e 's|FROM registry.access.redhat.com/|FROM |' \
             -e 's|FROM registry.redhat.io/|FROM |' \

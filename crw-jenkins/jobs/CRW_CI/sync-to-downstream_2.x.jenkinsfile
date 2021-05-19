@@ -100,12 +100,14 @@ rm -f /tmp/rsync-excludes
                     for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
                       cp $f ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
                     done
+                    git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
 
                     # update source repo with updates from running get-sources-jenkins
                     cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
                     git add . -A -f
                     git commit -m "$COMMIT_MSG" || true
+                    git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi
                 ''')
