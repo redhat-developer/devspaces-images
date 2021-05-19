@@ -88,38 +88,24 @@ if [[ ! ${CHE_VERSION} ]]; then
 	CHE_VERSION="$(curl -sSLo - https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/pom.xml | grep -E "<che.version>" | sed -r -e "s#.+<che.version>(.+)</che.version>#\1#" || exit 1)"
 fi
 
-# @since CRW 2.9 - moved to sync-che-operator*.sh
-# CRW_RRIO="registry.redhat.io/codeready-workspaces"
-# CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
-# CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-# CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
+# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+CRW_RRIO="registry.redhat.io/codeready-workspaces"
+CRW_OPERATOR="crw-2-rhel8-operator"
+CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
+CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
+CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
+CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
+CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
+CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}" 
+CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}" 
+CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
+CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
+CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
+CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
-
-pushd "${SOURCEDIR}" >/dev/null || exit
-
-# simple copy
-mkdir -p ${TARGETDIR}/deploy/crds ${TARGETDIR}/manifests/
-
-# @since CRW 2.9 - moved to sync-che-operator*.sh
-# for CRDFILE in \
-# 	"${TARGETDIR}/manifests/codeready-workspaces.crd.yaml" \
-# 	"${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml"; do
-# 	cp "${SOURCEDIR}"/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
-# done
-
-replaceField()
-{
-  theFile="$1"
-  updateName="$2"
-  updateVal="$3"
-  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
-  changed=$(cat ${theFile} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-    ${updateName}' = $updateVal')
-  echo "${COPYRIGHT}${changed}" > "${theFile}"
-}
 
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
@@ -134,49 +120,52 @@ COPYRIGHT="#
 #    Red Hat, Inc. - initial API and implementation
 "
 
+replaceField()
+{
+  theFile="$1"
+  updateName="$2"
+  updateVal="$3"
+  header="$4"
+  echo "[INFO] ${0##*/} rF :: * ${updateName}: ${updateVal}"
+  # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
+  if [[ $updateVal == "DELETEME" ]]; then
+	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})')
+  else
+	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal')
+  fi
+  echo "${header}${changed}" > "${theFile}"
+}
+
 # similar method to insertEnvVar() used in insert-related-images-to-csv.sh; uses += instead of =
 replaceEnvVar()
 {
 	fileToChange="$1"
+	header="$2"
 	# don't do anything if the existing value is the same as the replacement one
-	if [[ "$(cat ${fileToChange} | yq -r --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
-		echo "[INFO] ${0##*/} :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
-		cat ${fileToChange} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-		'.spec.install.spec.deployments[].spec.template.spec.containers[].env = [.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]' \
-		> ${fileToChange}.2
-		# echo "replaced?"
-		# diff -u ${fileToChange} ${fileToChange}.2 || true
-		if [[ ! $(diff -u ${fileToChange} ${fileToChange}.2) ]]; then
-			# echo "insert $updateName = $updateVal"
-			cat ${fileToChange} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-				'.spec.install.spec.deployments[].spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]' \
-				> ${fileToChange}.2
+	# shellcheck disable=SC2016 disable=SC2002
+	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
+		echo "[INFO] ${0##*/} rEV :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
+		if [[ $updateVal == "DELETEME" ]]; then
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del(.spec.install.spec.deployments[].spec.template.spec.containers[].env[]|select(.name == $updateName))')
+			echo "${header}${changed}" > "${fileToChange}.2"
+		else
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+'.spec.install.spec.deployments[].spec.template.spec.containers[].env = [.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
+			echo "${header}${changed}" > "${fileToChange}.2"
+			# echo "replaced?"
+			# diff -u ${fileToChange} ${fileToChange}.2 || true
+			if [[ ! $(diff -u "${fileToChange}" "${fileToChange}.2") ]]; then
+				# echo "insert $updateName = $updateVal"
+				changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+					'.spec.install.spec.deployments[].spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]')
+				echo "${header}${changed}" > "${fileToChange}.2"
+			fi
 		fi
-		mv ${fileToChange}.2 ${fileToChange}
+		mv "${fileToChange}.2" "${fileToChange}"
 	fi
 }
 
-# similar method to replaceEnvVar() but for a different path within the yaml
-replaceEnvVarOperatorYaml()
-{
-	fileToChange="$1"
-	# don't do anything if the existing value is the same as the replacement one
-	if [[ "$(cat ${fileToChange} | yq -r --arg updateName "${updateName}" '.spec.template.spec.containers[].env[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
-		echo "[INFO] ${0##*/} :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
-		changed=$(cat ${fileToChange} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-		'.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
-		echo "${COPYRIGHT}${changed}" > "${fileToChange}.2"
-		# echo "replaced?"
-		# diff -u ${fileToChange} ${fileToChange}.2 || true
-		if [[ ! $(diff -u ${fileToChange} ${fileToChange}.2) ]]; then
-		#echo "insert $updateName = $updateVal"
-		changed=$(cat ${fileToChange} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-			'.spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]')
-		echo "${COPYRIGHT}${changed}" > "${fileToChange}.2"
-		fi
-		mv ${fileToChange}.2 ${fileToChange}
-	fi
-}
+pushd "${SOURCEDIR}" >/dev/null || exit
 
 SOURCE_CSVFILE="${SOURCEDIR}/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
 
@@ -220,7 +209,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e 's|"identityProviderImage":.".+"|"identityProviderImage": ""|' \
 		-e 's|"workspaceNamespaceDefault":.".*"|"workspaceNamespaceDefault": "<username>-codeready"|' \
 		\
-		-e "s|quay.io/eclipse/codeready-operator:${CHE_VERSION}|registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/codeready-operator:${CHE_VERSION}|registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
+		-e "s|(registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
 		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/codeready-workspaces/server-rhel8:${CRW_VERSION}|" \
 		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:${CRW_VERSION}|" \
 		-e "s|quay.io/eclipse/che-devfile-registry:.+|registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:${CRW_VERSION}|" \
@@ -267,39 +257,49 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		done
 	fi
 
+	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# yq changes - transform env vars from Che to CRW values
 	declare -A operator_replacements=(
 		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 		["CHE_FLAVOR"]="codeready"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
+
+		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
+		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
+		["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
+		["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
+		["RELATED_IMAGE_devworkspace_controller"]="${CRW_DWO_IMAGE}"
+		["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
+
+		["RELATED_IMAGE_che_workspace_plugin_broker_metadata"]="${CRW_BROKER_METADATA_IMAGE}"
+		["RELATED_IMAGE_che_workspace_plugin_broker_artifacts"]="${CRW_BROKER_ARTIFACTS_IMAGE}"
+		["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
+
+		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+
+		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
+		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
+		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
+
+		# TODO: remove this image using DELETEME keyword (script not working)
+		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
-# 		# .spec.install.spec.deployments[].spec.template.spec.containers[].env[].CHE_VERSION
- 		changed="$(cat "${CSVFILE}" | yq  -Y --arg updateName "${updateName}" --arg updateVal "${operator_replacements[$updateName]}" \
-		 	'.spec.install.spec.deployments[].spec.template.spec.containers[].env = [.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')" && \
- 		echo "${changed}" > "${CSVFILE}"
+		updateVal="${operator_replacements[$updateName]}"
+		replaceEnvVar "${CSVFILE}" ""
 	done
 
-# @since CRW 2.9 - moved to sync-che-operator*.sh
-# 	# insert keycloak image references for s390x and ppc64le
-# 	SSO_IMAGE=$(cat "${CSVFILE}" | \
-# yq -r --arg updateName "RELATED_IMAGE_keycloak" '.spec.install.spec.deployments[].spec.template.spec.containers[].env? | .[] | select(.name == $updateName) | .value')
-# 	declare -A operator_insertions=(
-# 		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-# 		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-# 	)
-# 	for updateName in "${!operator_insertions[@]}"; do
-# 		updateVal="${operator_insertions[$updateName]}"
-# 		replaceEnvVar "${CSVFILE}"
-# 		# apply same transforms in operator.yaml
-# 		replaceEnvVarOperatorYaml "${TARGETDIR}/deploy/operator.yaml"
-# 	done
-
-	# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator.yaml
-	oldImage=$(yq -r '.spec.template.spec.containers[].image' "${TARGETDIR}/deploy/operator.yaml")
-	if [[ $oldImage ]]; then 
-		replaceField "${TARGETDIR}/deploy/operator.yaml" ".spec.template.spec.containers[].image" "${oldImage%%:*}:${CRW_VERSION}"
-	fi
+	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+	# insert keycloak image references for s390x and ppc64le
+	declare -A operator_insertions=(
+		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
+		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
+	)
+	for updateName in "${!operator_insertions[@]}"; do
+		updateVal="${operator_insertions[$updateName]}"
+		replaceEnvVar "${CSVFILE}" ""
+	done
 
 	# insert replaces: field
 	declare -A spec_insertions=(
@@ -308,7 +308,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
-		replaceField "${CSVFILE}" "${updateName}" "${updateVal}"
+		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
@@ -326,5 +326,30 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		done
 	fi
 done
+
+	# simple copy - old way CRW 2.8
+	# mkdir -p ${TARGETDIR}/deploy/crds ${TARGETDIR}/manifests/
+	# for CRDFILE in \
+	# 	"${TARGETDIR}/manifests/codeready-workspaces.crd.yaml" \
+	# 	"${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml"; do
+	# 	cp "${SOURCEDIR}"/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
+	# done
+
+	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+	# yq changes - transform env vars from Che to CRW values
+	while IFS= read -r -d '' d; do
+		changed="$(cat "${TARGETDIR}/${d}" | \
+yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
+yq  -y '.spec.server.cheFlavor="codeready"' | \
+yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
+yq  -y '.spec.storage.pvcStrategy="per-workspace"' | \
+yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
+yq  -y 'del(.spec.k8s)')" && \
+		echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
+		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
+			echo "Converted (yq #3) ${d}"
+		fi
+	done <   <(find deploy/crds -type f -name "org_v1_che_cr.yaml" -print0)
+	cp "${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
 
 popd >/dev/null || exit

@@ -55,7 +55,7 @@ const (
 	DefaultChePostgresHostName = "postgres"
 	DefaultChePostgresPort     = "5432"
 	DefaultChePostgresDb       = "dbche"
-	DefaultPvcStrategy         = "common"
+	DefaultPvcStrategy         = "per-workspace"
 	DefaultPvcClaimSize        = "10Gi"
 	DefaultIngressClass        = "nginx"
 

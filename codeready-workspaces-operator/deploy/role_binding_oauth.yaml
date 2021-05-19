@@ -8,18 +8,29 @@
 #
 #  Contributors:
 #    Red Hat, Inc. - initial API and implementation
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
+kind: Template
+apiVersion: v1
 metadata:
   name: codeready-operator
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/component: codeready-operator
-subjects:
-- kind: ServiceAccount
-  name: codeready-operator
-roleRef:
-  kind: Role
-  name: codeready-operator
-  apiGroup: rbac.authorization.k8s.io
+objects:
+- kind: ClusterRoleBinding
+  apiVersion: rbac.authorization.k8s.io/v1
+  metadata:
+    name: codeready-operator
+  subjects:
+    - kind: ServiceAccount
+      name: codeready-operator
+      namespace: ${NAMESPACE}
+  roleRef:
+    kind: ClusterRole
+    name: codeready-operator
+    apiGroup: rbac.authorization.k8s.io
+parameters:
+  - name: NAMESPACE
+    displayName: Namespace
+    description: Namespace
+    required: true

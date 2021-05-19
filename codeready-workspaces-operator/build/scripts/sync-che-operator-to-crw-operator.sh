@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert che-operator upstream to downstream using sed & perl transforms, and deleting files
+# convert che-operator upstream to downstream using sed & yq transforms, and deleting files
 
 set -e
 SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
@@ -23,8 +23,8 @@ UBI_TAG=8.3
 POSTGRES_TAG=1
 
 usage () {
-	echo "Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
-	echo "Example: $0 -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
+	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
+	echo "Example: ${0##*/} -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
 	echo "Options:
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
@@ -52,11 +52,11 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
+# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_OPERATOR="crw-2-rhel8-operator"
-
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
@@ -73,27 +73,26 @@ UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
 
-replaceField()
-{
-  theFile="$1"
-  updateName="$2"
-  updateVal="$3"
-  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
-  changed=$(cat ${theFile} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-    ${updateName}' = $updateVal')
-  echo "${COPYRIGHT}${changed}" > "${theFile}"
-}
-
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
-	COPY_FOLDERS="cmd mocks olm pkg templates vendor version"
-	echo "Rsync ${COPY_FOLDERS} to ${TARGETDIR}"
-	rsync -azrlt ${COPY_FOLDERS} ${TARGETDIR}/
+COPY_FOLDERS="cmd deploy mocks olm pkg templates vendor version"
+echo "Rsync ${COPY_FOLDERS} to ${TARGETDIR}"
+rsync -azrlt ${COPY_FOLDERS} ${TARGETDIR}/
 
-	# sed changes
-	while IFS= read -r -d '' d; do
-		if [[ -d "${SOURCEDIR}/${d%/*}" ]]; then mkdir -p "${TARGETDIR}"/"${d%/*}"; fi
-		sed -r \
+# delete unneeded files
+echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
+rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes ${TARGETDIR}/olm/eclipse-che-preview-openshift"
+echo "Delete deploy/*/eclipse-che-preview-kubernetes and deploy/olm-catalog/stable"
+rm -fr "${TARGETDIR}/deploy/olm-catalog/eclipse-che-preview-kubernetes"
+rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
+# remove files with embedded RELATED_IMAGE_* values for Che stable releases
+rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
+
+# sed changes
+while IFS= read -r -d '' d; do
+	if [[ -d "${SOURCEDIR}/${d%/*}" ]]; then mkdir -p "${TARGETDIR}"/"${d%/*}"; fi
+	if [[ -f "${TARGETDIR}/${d}" ]]; then 
+		sed -i "${TARGETDIR}/${d}" -r \
 			-e "s|identityProviderPassword: ''|identityProviderPassword: 'admin'|g" \
 			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
 			-e "s|Eclipse Che|CodeReady Workspaces|g" \
@@ -106,44 +105,42 @@ pushd "${SOURCEDIR}" >/dev/null
 			-e 's|/bin/codeready-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/codeready-operator#\1.com/eclipse-che/che-operator#g' \
-			-e 's|devworkspace-codeready-operator|devworkspace-che-operator|' \
-		"$d" > "${TARGETDIR}/${d}"
-		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
+			-e 's|devworkspace-codeready-operator|devworkspace-che-operator|'
+		if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
 			echo "Converted (sed) ${d}"
 		fi
-	done <   <(find deploy pkg/deploy -type f -not -name "defaults_test.go" -print0)
+	fi
+done <   <(find deploy pkg/deploy -type f -not -name "defaults_test.go" -print0)
 
-	while IFS= read -r -d '' d; do
-		sed -r \
-			-e 's|(cheVersionTest.*=) ".+"|\1 "'${CRW_VERSION}'"|' \
-			\
-			-e 's|(cheServerImageTest.*=) ".+"|\1 "'${CRW_SERVER_IMAGE}'"|' \
-			-e 's|(pluginRegistryImageTest.*=) ".+"|\1 "'${CRW_PLUGINREGISTRY_IMAGE}'"|' \
-			-e 's|(devfileRegistryImageTest.*=) ".+"|\1 "'${CRW_DEVFILEREGISTRY_IMAGE}'"|' \
-			\
-			-e 's|(brokerMetadataTest.*=) ".+"|\1 "'${CRW_BROKER_METADATA_IMAGE}'"|' \
-			-e 's|(brokerArtifactsTest.*=) ".+"|\1 "'${CRW_BROKER_ARTIFACTS_IMAGE}'"|' \
-			-e 's|(jwtProxyTest.*=) ".+"|\1 "'${CRW_JWTPROXY_IMAGE}'"|' \
-			\
-			-e 's|(pvcJobsImageTest.*=) ".+"|\1 "'${UBI_IMAGE}'"|' \
-			-e 's|(postgresImageTest.*=) ".+"|\1 "'${POSTGRES_IMAGE}'"|' \
-			-e 's|(keycloakImageTest.*=) ".+"|\1 "'${SSO_IMAGE}'"|' \
-			\
-			`# hardcoded test values` \
-			-e 's|"docker.io/eclipse/che-operator:latest": * "che-operator:latest"|"'${CRW_RRIO}/${CRW_OPERATOR}':latest":  "'${CRW_OPERATOR}':latest"|' \
-			-e 's|"quay.io/eclipse/che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}'/server-operator-rhel8:2.0": "server-operator-rhel8:2.0"|' \
-			-e 's|"che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}/${CRW_OPERATOR}:${CRW_VERSION}'":  "'${CRW_OPERATOR}:${CRW_VERSION}'"|' \
-		"$d" > "${TARGETDIR}/${d}"
-		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-			echo "Converted (sed) ${d}"
-		fi
-	done <   <(find pkg/deploy -type f -name "defaults_test.go" -print0)
+while IFS= read -r -d '' d; do
+	sed -r \
+		-e 's|(cheVersionTest.*=) ".+"|\1 "'${CRW_VERSION}'"|' \
+		\
+		-e 's|(cheServerImageTest.*=) ".+"|\1 "'${CRW_SERVER_IMAGE}'"|' \
+		-e 's|(pluginRegistryImageTest.*=) ".+"|\1 "'${CRW_PLUGINREGISTRY_IMAGE}'"|' \
+		-e 's|(devfileRegistryImageTest.*=) ".+"|\1 "'${CRW_DEVFILEREGISTRY_IMAGE}'"|' \
+		\
+		-e 's|(brokerMetadataTest.*=) ".+"|\1 "'${CRW_BROKER_METADATA_IMAGE}'"|' \
+		-e 's|(brokerArtifactsTest.*=) ".+"|\1 "'${CRW_BROKER_ARTIFACTS_IMAGE}'"|' \
+		-e 's|(jwtProxyTest.*=) ".+"|\1 "'${CRW_JWTPROXY_IMAGE}'"|' \
+		\
+		-e 's|(pvcJobsImageTest.*=) ".+"|\1 "'${UBI_IMAGE}'"|' \
+		-e 's|(postgresImageTest.*=) ".+"|\1 "'${POSTGRES_IMAGE}'"|' \
+		-e 's|(keycloakImageTest.*=) ".+"|\1 "'${SSO_IMAGE}'"|' \
+		\
+		`# hardcoded test values` \
+		-e 's|"docker.io/eclipse/che-operator:latest": * "che-operator:latest"|"'${CRW_RRIO}/${CRW_OPERATOR}':latest":  "'${CRW_OPERATOR}':latest"|' \
+		-e 's|"quay.io/eclipse/che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}'/server-operator-rhel8:2.0": "server-operator-rhel8:2.0"|' \
+		-e 's|"che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}/${CRW_OPERATOR}:${CRW_VERSION}'":  "'${CRW_OPERATOR}:${CRW_VERSION}'"|' \
+	"$d" > "${TARGETDIR}/${d}"
+	if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
+		echo "Converted (sed) ${d}"
+	fi
+done <   <(find pkg/deploy -type f -name "defaults_test.go" -print0)
 
-	# yq changes - transform env vars from Che to CRW values
-
-	# header to reattach to yaml files after yq transform removes it
-	COPYRIGHT="#
-#  Copyright (c) 2018-2021 Red Hat, Inc.
+# header to reattach to yaml files after yq transform removes it
+COPYRIGHT="#
+#  Copyright (c) 2018-$(date +%Y) Red Hat, Inc.
 #    This program and the accompanying materials are made
 #    available under the terms of the Eclipse Public License 2.0
 #    which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -153,10 +150,58 @@ pushd "${SOURCEDIR}" >/dev/null
 #  Contributors:
 #    Red Hat, Inc. - initial API and implementation
 "
+
+replaceField()
+{
+  theFile="$1"
+  updateName="$2"
+  updateVal="$3"
+  header="$4"
+  echo "[INFO] ${0##*/} rF :: * ${updateName}: ${updateVal}"
+  # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
+  if [[ $updateVal == "DELETEME" ]]; then
+	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})')
+  else
+	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal')
+  fi
+  echo "${header}${changed}" > "${theFile}"
+}
+
+# similar method to replaceEnvVar() but for a different path within the yaml
+replaceEnvVarOperatorYaml()
+{
+	fileToChange="$1"
+	header="$2"
+	# don't do anything if the existing value is the same as the replacement one
+	# shellcheck disable=SC2016 disable=SC2002
+	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" '.spec.template.spec.containers[].env[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
+		echo "[INFO] ${0##*/} rEVOY :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
+		if [[ $updateVal == "DELETEME" ]]; then
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[].env[]|select(.name == $updateName))')
+			echo "${header}${changed}" > "${fileToChange}.2"
+		else
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+'.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
+			echo "${header}${changed}" > "${fileToChange}.2"
+			# echo "replaced?"
+			# diff -u "${fileToChange}" "${fileToChange}.2" || true
+			if [[ ! $(diff -u "${fileToChange}" "${fileToChange}.2") ]]; then
+			#echo "insert $updateName = $updateVal"
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+				'.spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]')
+			echo "${header}${changed}" > "${fileToChange}.2"
+			fi
+		fi
+		mv "${fileToChange}.2" "${fileToChange}"
+	fi
+}
+# yq changes - transform env vars from Che to CRW values
+	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+	# yq changes - transform env vars from Che to CRW values
 	declare -A operator_replacements=(
-		["CHE_VERSION"]="${CSV_VERSION}"
+		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 		["CHE_FLAVOR"]="codeready"
-		["CONSOLE_LINK_NAME"]="che"
+		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
 		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
@@ -169,73 +214,65 @@ pushd "${SOURCEDIR}" >/dev/null
 		["RELATED_IMAGE_che_workspace_plugin_broker_artifacts"]="${CRW_BROKER_ARTIFACTS_IMAGE}"
 		["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
 
-		# @since CRW 2.9 - moved from sync-che-operator*.sh
 		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
+
+		# remove this env var using DELETEME keyword
+		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 	)
 	while IFS= read -r -d '' d; do
 		for updateName in "${!operator_replacements[@]}"; do
-			changed="$(cat "${TARGETDIR}/${d}" | \
-yq  -y --arg updateName "${updateName}" --arg updateVal "${operator_replacements[$updateName]}" \
-'.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]' | \
-yq  -y 'del(.spec.template.spec.containers[0].env[] | select(.name == "RELATED_IMAGE_che_tls_secrets_creation_job"))')" && \
-			echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
+			updateVal="${operator_replacements[$updateName]}"
+			replaceEnvVarOperatorYaml "${d}" "${COPYRIGHT}"
 		done
-		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-			echo "Converted (yq #1) ${d}"
-		fi
-	done <   <(find deploy -type f -name "operator*.yaml" -print0)
+	done <   <(find "${TARGETDIR}/deploy" -type f -name "operator*.yaml" -print0)
 
+	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+	# insert keycloak image references for s390x and ppc64le
 	declare -A operator_insertions=(
 		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
 		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
 	)
-	while IFS= read -r -d '' d; do
-		for updateName in "${!operator_insertions[@]}"; do
-			changed="$(cat "${TARGETDIR}/${d}" | \
-yq -y --arg updateName "${updateName}" --arg updateVal "${operator_insertions[$updateName]}" \
-'.spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]')" && \
-			echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
-		done
-		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-			echo "Converted (yq #2) ${d}"
-		fi
-	done <   <(find deploy -type f -name "operator*.yaml" -print0)
+	for updateName in "${!operator_insertions[@]}"; do
+		updateVal="${operator_insertions[$updateName]}"
+		# apply same transforms in operator.yaml
+		replaceEnvVarOperatorYaml "${TARGETDIR}/deploy/operator.yaml" "${COPYRIGHT}"
+	done
 
 	# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator.yaml
 	oldImage=$(yq -r '.spec.template.spec.containers[].image' "${TARGETDIR}/deploy/operator.yaml")
 	if [[ $oldImage ]]; then 
-		replaceField "${TARGETDIR}/deploy/operator.yaml" ".spec.template.spec.containers[].image" "${oldImage%%:*}:${CRW_VERSION}"
+		replaceField "${TARGETDIR}/deploy/operator.yaml" ".spec.template.spec.containers[].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
 	fi
 
+	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# yq changes - transform env vars from Che to CRW values
 	while IFS= read -r -d '' d; do
-		changed="$(cat "${TARGETDIR}/${d}" | \
+		changed="$(cat "${d}" | \
 yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
 yq  -y '.spec.server.cheFlavor="codeready"' | \
 yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
 yq  -y '.spec.storage.pvcStrategy="per-workspace"' | \
 yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
 yq  -y 'del(.spec.k8s)')" && \
-		echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
-		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
+		echo "${COPYRIGHT}${changed}" > "${d}"
+		if [[ $(diff -u "$d" "${d}") ]]; then
 			echo "Converted (yq #3) ${d}"
 		fi
-	done <   <(find deploy/crds -type f -name "org_v1_che_cr.yaml" -print0)
-	cp "${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
+	done <   <(find "${TARGETDIR}/deploy/crds" -type f -name "org_v1_che_cr.yaml" -print0)
 
-	# delete unneeded files
-	echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
-	rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes ${TARGETDIR}/olm/eclipse-che-preview-openshift"
-	echo "Delete deploy/*/eclipse-che-preview-kubernetes and deploy/olm-catalog/stable"
-	rm -fr "${TARGETDIR}/deploy/olm-catalog/eclipse-che-preview-kubernetes"
-	rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
-	# remove files with embedded RELATED_IMAGE_* values for Che stable releases
-	rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
+	# # delete unneeded files
+	# echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
+	# rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes ${TARGETDIR}/olm/eclipse-che-preview-openshift"
+	# echo "Delete deploy/*/eclipse-che-preview-kubernetes and deploy/olm-catalog/stable"
+	# rm -fr "${TARGETDIR}/deploy/olm-catalog/eclipse-che-preview-kubernetes"
+	# rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
+	# # remove files with embedded RELATED_IMAGE_* values for Che stable releases
+	# rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
 
-popd >/dev/null
+popd >/dev/null || exit
 

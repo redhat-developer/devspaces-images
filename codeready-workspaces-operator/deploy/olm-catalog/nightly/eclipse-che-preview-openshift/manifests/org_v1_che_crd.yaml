@@ -449,7 +449,7 @@ spec:
                         registry to pull images from. This value overrides the container
                         registry organization defined in all the default container
                         images involved in a Che deployment. This is particularly
-                        useful to install Eclipse Che in a restricted environment.
+                        useful to install CodeReady Workspaces in a restricted environment.
                       type: string
                     allowUserDefinedWorkspaceNamespaces:
                       description: Defines that a user is allowed to specify a Kubernetes
