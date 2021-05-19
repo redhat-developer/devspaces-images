@@ -45,6 +45,7 @@ if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # check out crw sources
+    echo "[INFO] ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/codeready-workspaces/dependencies/"
     rm -fr crw && git clone -q https://github.com/redhat-developer/codeready-workspaces crw
     cd crw/
     git checkout ${MIDSTM_BRANCH} || true

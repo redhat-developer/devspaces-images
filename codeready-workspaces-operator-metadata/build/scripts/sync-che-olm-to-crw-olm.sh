@@ -88,10 +88,11 @@ if [[ ! ${CHE_VERSION} ]]; then
 	CHE_VERSION="$(curl -sSLo - https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/pom.xml | grep -E "<che.version>" | sed -r -e "s#.+<che.version>(.+)</che.version>#\1#" || exit 1)"
 fi
 
-CRW_RRIO="registry.redhat.io/codeready-workspaces"
-CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
-CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
+# @since CRW 2.9 - moved to sync-che-operator*.sh
+# CRW_RRIO="registry.redhat.io/codeready-workspaces"
+# CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
+# CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
+# CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -99,22 +100,15 @@ SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and r
 
 pushd "${SOURCEDIR}" >/dev/null || exit
 
-# CRW-1044 do we need these?
-# Copy digests scripts & adjust help messages
-# for d in addDigests.sh buildDigestMap.sh digestExcludeList images.sh olm.sh; do rsync -zrltq "${SOURCEDIR}/olm/${d}" "${SCRIPTS_DIR}"; done
-# sed -r -e 's|("Example:).*"|\1 ${0##*/} -w $(pwd) -s manifests -r \\".*.csv.yaml\\" -t '${CRW_VERSION}'"|g' \
-# 	-i "${SCRIPTS_DIR}/addDigests.sh"
-# sed -r -e 's|("Example:).*"|\1 ${0##*/} -w $(pwd) -c $(pwd)/manifests/codeready-workspaces.csv.yaml -t '${CRW_VERSION}'"|g' \
-# 	-i "${SCRIPTS_DIR}/buildDigestMap.sh"
-
 # simple copy
 mkdir -p ${TARGETDIR}/deploy/crds ${TARGETDIR}/manifests/
 
-for CRDFILE in \
-	"${TARGETDIR}/manifests/codeready-workspaces.crd.yaml" \
-	"${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml"; do
-	cp "${SOURCEDIR}"/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
-done
+# @since CRW 2.9 - moved to sync-che-operator*.sh
+# for CRDFILE in \
+# 	"${TARGETDIR}/manifests/codeready-workspaces.crd.yaml" \
+# 	"${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml"; do
+# 	cp "${SOURCEDIR}"/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
+# done
 
 replaceField()
 {
@@ -286,24 +280,20 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
  		echo "${changed}" > "${CSVFILE}"
 	done
 
-	# insert keycloak image references for s390x and ppc64le
-	SSO_IMAGE=$(cat "${CSVFILE}" | \
-yq -r --arg updateName "RELATED_IMAGE_keycloak" '.spec.install.spec.deployments[].spec.template.spec.containers[].env? | .[] | select(.name == $updateName) | .value')
-	declare -A operator_insertions=(
-		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-
-		# also insert other RELATED_IMAGE env vars (do we actually need these?)
-		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
-		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
-	)
-	for updateName in "${!operator_insertions[@]}"; do
-		updateVal="${operator_insertions[$updateName]}"
-		replaceEnvVar "${CSVFILE}"
-		# apply same transforms in operator.yaml
-		replaceEnvVarOperatorYaml "${TARGETDIR}/deploy/operator.yaml"
-	done
+# @since CRW 2.9 - moved to sync-che-operator*.sh
+# 	# insert keycloak image references for s390x and ppc64le
+# 	SSO_IMAGE=$(cat "${CSVFILE}" | \
+# yq -r --arg updateName "RELATED_IMAGE_keycloak" '.spec.install.spec.deployments[].spec.template.spec.containers[].env? | .[] | select(.name == $updateName) | .value')
+# 	declare -A operator_insertions=(
+# 		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
+# 		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
+# 	)
+# 	for updateName in "${!operator_insertions[@]}"; do
+# 		updateVal="${operator_insertions[$updateName]}"
+# 		replaceEnvVar "${CSVFILE}"
+# 		# apply same transforms in operator.yaml
+# 		replaceEnvVarOperatorYaml "${TARGETDIR}/deploy/operator.yaml"
+# 	done
 
 	# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator.yaml
 	oldImage=$(yq -r '.spec.template.spec.containers[].image' "${TARGETDIR}/deploy/operator.yaml")
@@ -336,11 +326,5 @@ yq -r --arg updateName "RELATED_IMAGE_keycloak" '.spec.install.spec.deployments[
 		done
 	fi
 done
-
-# CRW-1202 old way of injecting digests from tags, until we switch to OSBS digest pinning
-#pushd ${TARGETDIR} >/dev/null
-#	${SCRIPTS_DIR}/addDigests.sh -w ${TARGETDIR} -s manifests -r ".*.csv.yaml" -t ${CRW_VERSION} \
-#		-n codeready-workspaces -v ${CSV_VERSION}
-#popd >/dev/null
 
 popd >/dev/null || exit
