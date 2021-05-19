@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.14.12-17.1618436992 as builder
+FROM rhel8/go-toolset:1.15.7-11 as builder
 ENV GOPATH=/go/
 USER root
 WORKDIR /che-machine-exec/
@@ -54,12 +54,3 @@ license="EPLv2" \
 maintainer="Nick Boldt <nboldt@redhat.com>" \
 io.openshift.expose-services="" \
 usage="" 
-
-
-# insert generated LABELs below this line
-LABEL \
-			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/88/" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/88/artifact/**/codeready-workspaces-sleep-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/88/artifact/**/codeready-workspaces-sleep-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/88/artifact/**/codeready-workspaces-sleep-ppc64le.tar.gz" \
-			jenkins.build.number="88"
