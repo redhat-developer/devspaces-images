@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-77.1618436962 as builder
+FROM ubi8/nodejs-12:1-87 as builder
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
@@ -25,12 +25,8 @@ RUN /dashboard/.yarn/releases/yarn-*.cjs install
 COPY . /dashboard/
 RUN /dashboard/.yarn/releases/yarn-*.cjs compile
 
-# UPSTREAM: use RHEL7/RHSCL/httpd image so we're not required to authenticate with registry.redhat.io
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhscl/httpd-24-rhel7
-#FROM rhscl/httpd-24-rhel7:2.4-143.1619800879
-# DOWNSTREAM: use RHEL8/httpd
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-FROM rhel8/httpd-24:1-130.1618434979
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
+# FROM ubi8/httpd-24:1-140 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
