@@ -12,11 +12,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   creationTimestamp: null
-  name: codeready-operator
+  name: che-operator
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
-    app.kubernetes.io/component: codeready-operator
+    app.kubernetes.io/component: che-operator
 rules:
 - apiGroups:
   - extensions

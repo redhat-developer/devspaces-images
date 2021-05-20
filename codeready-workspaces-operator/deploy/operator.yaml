@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2018-2021 Red Hat, Inc.
+#  Copyright (c) 2019-2021 Red Hat, Inc.
 #    This program and the accompanying materials are made
 #    available under the terms of the Eclipse Public License 2.0
 #    which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,25 +11,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: codeready-operator
+  name: che-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: codeready-operator
+      app: che-operator
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: codeready-operator
+        app: che-operator
         app.kubernetes.io/name: che
         app.kubernetes.io/instance: che
-        app.kubernetes.io/component: codeready-operator
+        app.kubernetes.io/component: che-operator
     spec:
       containers:
-        - name: codeready-operator
-          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.9
+        - name: che-operator
+          image: quay.io/eclipse/che-operator:7.30.2
           ports:
             - containerPort: 60000
               name: metrics
@@ -46,43 +46,45 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
-              value: codeready-operator
+              value: che-operator
             - name: CHE_VERSION
-              value: 2.9.0
+              value: 7.30.2
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.9
+              value: quay.io/eclipse/che-server:7.30.2
             - name: RELATED_IMAGE_dashboard
-              value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.9
+              value: quay.io/eclipse/che-dashboard:7.30.2
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.9
+              value: quay.io/eclipse/che-plugin-registry:7.30.2
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.9
+              value: quay.io/eclipse/che-devfile-registry:7.30.2
+            - name: RELATED_IMAGE_che_tls_secrets_creation_job
+              value: quay.io/eclipse/che-tls-secret-creator:alpine-d1ed4ad
             - name: RELATED_IMAGE_pvc_jobs
-              value: registry.redhat.io/ubi8/ubi-minimal:8.3
+              value: registry.access.redhat.com/ubi8-minimal:8.3-298.1618432845
             - name: RELATED_IMAGE_postgres
-              value: registry.redhat.io/rhel8/postgresql-96:1
+              value: quay.io/eclipse/che--centos--postgresql-96-centos7:9.6-b681d78125361519180a6ac05242c296f8906c11eab7e207b5ca9a89b6344392
             - name: RELATED_IMAGE_keycloak
-              value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
+              value: quay.io/eclipse/che-keycloak:7.30.2
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.9
+              value: quay.io/eclipse/che-plugin-metadata-broker:v3.4.0
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.9
+              value: quay.io/eclipse/che-plugin-artifacts-broker:v3.4.0
             - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.9
+              value: quay.io/eclipse/che-jwtproxy:0.10.0
             - name: RELATED_IMAGE_single_host_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.9
+              value: quay.io/eclipse/che--traefik:v2.3.2-6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.9
+              value: quay.io/che-incubator/configbump:0.1.4
             - name: RELATED_IMAGE_devworkspace_che_operator
-              value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.9
+              value: quay.io/che-incubator/devworkspace-che-operator:7.30.2
             - name: RELATED_IMAGE_devworkspace_controller
-              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.9
+              value: quay.io/devfile/devworkspace-controller:7.30.2
             - name: CHE_FLAVOR
-              value: codeready
+              value: che
             - name: CONSOLE_LINK_NAME
               value: che
             - name: CONSOLE_LINK_DISPLAY_NAME
-              value: CodeReady Workspaces
+              value: Eclipse Che
             - name: CONSOLE_LINK_SECTION
               value: Red Hat Applications
             - name: CONSOLE_LINK_IMAGE
@@ -95,10 +97,6 @@ spec:
               value: che-postgres-secret
             - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
               value: ca-certs
-            - name: RELATED_IMAGE_keycloak_ppc64le
-              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
-            - name: RELATED_IMAGE_keycloak_s390x
-              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
           livenessProbe:
             httpGet:
               path: /healthz
@@ -130,5 +128,5 @@ spec:
               memory: 256Mi
               cpu: 500m
       restartPolicy: Always
-      serviceAccountName: codeready-operator
+      serviceAccountName: che-operator
       terminationGracePeriodSeconds: 20

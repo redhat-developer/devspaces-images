@@ -37,7 +37,7 @@ func GetKeycloakProvisionCommand(cr *v1.CheCluster) (command string, err error) 
 	cheFlavor := deploy.DefaultCheFlavor(cr)
 	requiredActions := (map[bool]string{true: "\"UPDATE_PASSWORD\"", false: ""})[cr.Spec.Auth.UpdateAdminPassword]
 	keycloakTheme := (map[bool]string{true: "rh-sso", false: "che"})[cheFlavor == "codeready"]
-	realmDisplayName := (map[bool]string{true: "CodeReady Workspaces", false: "CodeReady Workspaces"})[cheFlavor == "codeready"]
+	realmDisplayName := (map[bool]string{true: "CodeReady Workspaces", false: "Eclipse Che"})[cheFlavor == "codeready"]
 
 	script, keycloakRealm, keycloakClientId, keycloakUserEnvVar, keycloakPasswordEnvVar := getDefaults(cr)
 	data := struct {
@@ -66,7 +66,7 @@ func GetKeycloakProvisionCommand(cr *v1.CheCluster) (command string, err error) 
 
 func GetKeycloakUpdateCommand(cr *v1.CheCluster) (command string, err error) {
 	cheFlavor := deploy.DefaultCheFlavor(cr)
-	realmDisplayName := (map[bool]string{true: "CodeReady Workspaces", false: "CodeReady Workspaces"})[cheFlavor == "codeready"]
+	realmDisplayName := (map[bool]string{true: "CodeReady Workspaces", false: "Eclipse Che"})[cheFlavor == "codeready"]
 
 	script, keycloakRealm, keycloakClientId, keycloakUserEnvVar, keycloakPasswordEnvVar := getDefaults(cr)
 	data := struct {

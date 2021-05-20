@@ -66,7 +66,7 @@ func createConsoleLink(deployContext *DeployContext) (bool, error) {
 		return false, err
 	}
 
-	// consolelink is for this specific instance of CodeReady Workspaces
+	// consolelink is for this specific instance of Eclipse Che
 	if strings.Index(consoleLink.Spec.Link.Href, deployContext.CheCluster.Spec.Server.CheHost) != -1 {
 		err = AppendFinalizer(deployContext, ConsoleLinkFinalizerName)
 		return err == nil, err
