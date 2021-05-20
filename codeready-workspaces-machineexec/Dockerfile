@@ -54,3 +54,12 @@ license="EPLv2" \
 maintainer="Nick Boldt <nboldt@redhat.com>" \
 io.openshift.expose-services="" \
 usage="" 
+
+
+# insert generated LABELs below this line
+LABEL \
+			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/111/" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/111/artifact/**/codeready-workspaces-sleep-x86_64.tar.gz" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/111/artifact/**/codeready-workspaces-sleep-s390x.tar.gz" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/111/artifact/**/codeready-workspaces-sleep-ppc64le.tar.gz" \
+			jenkins.build.number="111"
