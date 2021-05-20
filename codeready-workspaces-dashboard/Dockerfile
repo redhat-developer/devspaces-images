@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-77.1618436962 as builder
+FROM ubi8/nodejs-12:1-87 as builder
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
@@ -56,7 +56,7 @@ ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \
     DESCRIPTION="Red Hat CodeReady Workspaces dashboard container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="dashboard-rhel8"
-LABEL summary="" \
+LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="$DESCRIPTION" \
