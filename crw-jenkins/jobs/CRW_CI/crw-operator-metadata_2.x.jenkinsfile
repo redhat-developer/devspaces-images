@@ -146,8 +146,11 @@ sed -r \
 # See details in https://docs.engineering.redhat.com/display/CFC/Delivery
 
 # 3. revert to OSBS image refs, since digest pinning will automatically switch them to RHCC values
+CRW_OPERATOR="crw-2-rhel8-operator" # but in OSBS, want just operator
 sed -r \
     -e "s#(quay.io/crw/|registry.redhat.io/codeready-workspaces/)#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g" \
+		`# use internal image for codeready-workspaces-operator, as codeready-workspaces-crw-2-rhel8-operator only exists in RHEC and Quay repos` \
+		-e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-${CRW_OPERATOR}#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator#" \
     -i "${CSV_FILE}"
 METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
