@@ -1,0 +1,25 @@
+diff --git a/codeready-workspaces-dashboard/webpack.config.common.js b/codeready-workspaces-dashboard/webpack.config.common.js
+index 87be2e40..ee585e9c 100644
+--- a/codeready-workspaces-dashboard/webpack.config.common.js
++++ b/codeready-workspaces-dashboard/webpack.config.common.js
+@@ -10,7 +10,6 @@
+  *   Red Hat, Inc. - initial API and implementation
+  */
+ 
+-const PnpPlugin = require('pnp-webpack-plugin');
+ const HtmlWebpackPlugin = require('html-webpack-plugin');
+ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+ const stylus_plugin = require('poststylus');
+@@ -112,12 +111,8 @@ module.exports = {
+     ]
+   },
+   resolve: {
+-    plugins: [PnpPlugin],
+     extensions: ['.js', '.ts', '.tsx']
+   },
+-  resolveLoader: {
+-    plugins: [PnpPlugin.moduleLoader(module)],
+-  },
+   node: {
+     fs: 'empty',
+     net: 'empty',
