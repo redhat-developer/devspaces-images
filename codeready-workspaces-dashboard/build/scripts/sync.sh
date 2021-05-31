@@ -64,7 +64,7 @@ echo ".github/
 .git/
 .gitattributes
 assets/branding/
-build/scripts/sync.sh
+build/scripts/
 container.yaml
 content_sets.yml
 get-sources-jenkins.sh
@@ -72,17 +72,36 @@ sources
 /README.adoc
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rm -fr ${TARGETDIR}/vendor/
+rm -fr ${TARGETDIR}/node_modules/
+rm -fr ${TARGETDIR}/.yarn/
+rm -fr ${TARGETDIR}/.yarn2-backup/
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-# transform rhel.Dockefile -> Dockerfile
+# switch to yarn 1
+echo "Switching dashboard to yarn 1"
+
+# prepare node_modules with yarn 2
+echo "nodeLinker: node-modules" >> .yarnrc.yml
+yarn install
+
+# switch project to yarn 1 and regenerate yarn.lock in corresponding format
+pushd "${TARGETDIR}" >/dev/null
+mkdir -p .yarn2-backup/.yarn
+cp -r ./.yarn/* ./.yarn2-backup/.yarn && rm -rf ./yarn
+mv yarn.lock .yarnrc.yml .yarn2-backup
+cp webpack.config.common.js .yarn2-backup
+git apply $SCRIPTS_DIR/patch-remove-pnp-plugin.diff
+popd >/dev/null
+yarn install
+
+# transform rhel.Dockerfile -> Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-	`# insert logic to unpack asset-yarn-cache.tgz into /dashboard/.yarn/cache` \
-    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-yarn-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-yarn-cache.tgz && rm -f /tmp/asset-yarn-cache.tgz" \
+	`# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
+    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-node-modules-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
@@ -105,7 +124,7 @@ EOT
 echo "Converted Dockerfile"
 
 # add ignore for the tarball in mid and downstream
-echo "/asset-yarn-cache.tgz" >> ${TARGETDIR}/.gitignore
+echo "/asset-node-modules-cache.tgz" >> ${TARGETDIR}/.gitignore
 echo "Adjusted .gitignore"
 
 # apply CRW branding styles
