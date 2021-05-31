@@ -46,10 +46,10 @@ tag=$(pwd);tag=${tag##*/}
 ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
 
 # step two - extract cache folder to tarball (let's hope there's nothing arch-specific we need here!)
-${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-yarn-cache.tgz"
+${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - node-modules' > "asset-node-modules-cache.tgz"
 ${BUILDER} rmi ${tag}:bootstrap
 
-outputFiles=asset-yarn-cache.tgz
+outputFiles=asset-node-modules-cache.tgz
 if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources:${outputFiles}"
 	rhpkg new-sources ${outputFiles}
