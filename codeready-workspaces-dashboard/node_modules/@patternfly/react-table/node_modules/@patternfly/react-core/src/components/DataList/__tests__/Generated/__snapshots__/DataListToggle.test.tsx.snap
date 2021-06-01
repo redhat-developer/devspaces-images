@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DataListToggle should match snapshot (auto-generated) 1`] = `
+<div
+  aria-labelledby="''"
+  className="pf-c-data-list__item-control ''"
+>
+  <div
+    className="pf-c-data-list__toggle"
+  >
+    <Button
+      aria-controls="''"
+      aria-expanded={false}
+      aria-label="'Details'"
+      aria-labelledby={null}
+      id="string"
+      variant="plain"
+    >
+      <div
+        className="pf-c-data-list__toggle-icon"
+      >
+        <AngleRightIcon
+          color="currentColor"
+          noVerticalAlign={false}
+          size="sm"
+        />
+      </div>
+    </Button>
+  </div>
+</div>
+`;

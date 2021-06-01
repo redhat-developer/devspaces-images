@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`toggle button render 1`] = `
+<Button
+  aria-controls="my-id my-content-id"
+  aria-expanded={false}
+  aria-label="toggle content"
+  aria-labelledby="my-id my-text-id"
+  className="myclassName"
+  id="my-id"
+  onClick={[MockFunction]}
+  type="button"
+  variant="control"
+>
+  <AngleRightIcon
+    aria-hidden="true"
+    color="currentColor"
+    noVerticalAlign={false}
+    size="sm"
+  />
+</Button>
+`;

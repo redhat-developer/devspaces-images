@@ -1,0 +1,5 @@
+import { YAMLDocument, SingleYAMLDocument } from '../parser/yamlParser07';
+export declare function getLineOffsets(textDocString: string): number[];
+export declare function removeDuplicatesObj(objArray: any[]): any[];
+export declare function matchOffsetToDocument(offset: number, jsonDocuments: YAMLDocument): SingleYAMLDocument | null;
+export declare function filterInvalidCustomTags(customTags: string[]): string[];

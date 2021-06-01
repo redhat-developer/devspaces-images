@@ -1,0 +1,18 @@
+"use strict";
+exports.__esModule = true;
+require('./form-control.css');
+exports.default = {
+  "formControl": "pf-c-form-control",
+  "modifiers": {
+    "success": "pf-m-success",
+    "expanded": "pf-m-expanded",
+    "icon": "pf-m-icon",
+    "warning": "pf-m-warning",
+    "search": "pf-m-search",
+    "calendar": "pf-m-calendar",
+    "clock": "pf-m-clock",
+    "placeholder": "pf-m-placeholder",
+    "resizeVertical": "pf-m-resize-vertical",
+    "resizeHorizontal": "pf-m-resize-horizontal"
+  }
+};

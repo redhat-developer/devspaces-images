@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NotificationDrawerGroup should match snapshot (auto-generated) 1`] = `
+<section
+  className="pf-c-notification-drawer__group pf-m-expanded ''"
+>
+  <h1>
+    <button
+      aria-expanded={true}
+      className="pf-c-notification-drawer__group-toggle"
+      onClick={[Function]}
+      onKeyDown={[Function]}
+    >
+      <div
+        className="pf-c-notification-drawer__group-toggle-title"
+      >
+        string
+      </div>
+      <div
+        className="pf-c-notification-drawer__group-toggle-count"
+      >
+        <Badge
+          isRead={false}
+        >
+          42
+        </Badge>
+      </div>
+      <span
+        className="pf-c-notification-drawer__group-toggle-icon"
+      >
+        <AngleRightIcon
+          color="currentColor"
+          noVerticalAlign={false}
+          size="sm"
+        />
+      </span>
+    </button>
+  </h1>
+  <div>
+    ReactNode
+  </div>
+</section>
+`;

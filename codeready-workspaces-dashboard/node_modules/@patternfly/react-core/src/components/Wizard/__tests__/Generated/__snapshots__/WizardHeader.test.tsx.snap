@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WizardHeader should match snapshot (auto-generated) 1`] = `
+<div
+  className="pf-c-wizard__header"
+>
+  <Title
+    aria-label="string"
+    className="pf-c-wizard__title"
+    headingLevel="h2"
+    id="string"
+    size="3xl"
+  >
+    string
+  </Title>
+  <p
+    className="pf-c-wizard__description"
+    id="string"
+  >
+    <div>
+      ReactNode
+    </div>
+  </p>
+</div>
+`;

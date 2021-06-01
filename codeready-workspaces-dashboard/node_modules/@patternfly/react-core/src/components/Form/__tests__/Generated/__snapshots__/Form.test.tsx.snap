@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Form should match snapshot (auto-generated) 1`] = `
+<form
+  className="pf-c-form ''"
+  noValidate={true}
+>
+  ReactNode
+</form>
+`;

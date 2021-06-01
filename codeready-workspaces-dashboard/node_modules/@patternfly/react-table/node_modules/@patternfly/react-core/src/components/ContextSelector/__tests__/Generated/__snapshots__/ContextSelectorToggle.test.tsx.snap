@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ContextSelectorToggle should match snapshot (auto-generated) 1`] = `
+<button
+  aria-expanded={false}
+  className="pf-c-context-selector__toggle ''"
+  id="string"
+  isFocused={false}
+  isHovered={false}
+  onClick={[Function]}
+  onKeyDown={[Function]}
+  type="button"
+>
+  <span
+    className="pf-c-context-selector__toggle-text"
+  >
+    ''
+  </span>
+  <span
+    className="pf-c-context-selector__toggle-icon"
+  >
+    <CaretDownIcon
+      aria-hidden={true}
+      color="currentColor"
+      noVerticalAlign={false}
+      size="sm"
+    />
+  </span>
+</button>
+`;

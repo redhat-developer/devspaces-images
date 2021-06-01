@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TextArea should match snapshot (auto-generated) 1`] = `
+<TextArea
+  aria-label="null"
+  className="''"
+  innerRef={null}
+  isDisabled={false}
+  isRequired={false}
+  onChange={[Function]}
+  resizeOrientation="both"
+  validated="default"
+  value="string"
+/>
+`;

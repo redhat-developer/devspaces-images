@@ -1,0 +1,16 @@
+import { __rest } from "tslib";
+import * as React from 'react';
+import styles from '@patternfly/react-styles/css/components/Drawer/drawer';
+import { css } from '@patternfly/react-styles';
+import { DrawerMain } from './DrawerMain';
+import { DrawerColorVariant } from './Drawer';
+export const DrawerContent = (_a) => {
+    var { 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    className = '', children, panelContent, colorVariant = DrawerColorVariant.default } = _a, props = __rest(_a, ["className", "children", "panelContent", "colorVariant"]);
+    return (React.createElement(DrawerMain, null,
+        React.createElement("div", Object.assign({ className: css(styles.drawerContent, colorVariant === DrawerColorVariant.light200 && styles.modifiers.light_200, className) }, props), children),
+        panelContent));
+};
+DrawerContent.displayName = 'DrawerContent';
+//# sourceMappingURL=DrawerContent.js.map

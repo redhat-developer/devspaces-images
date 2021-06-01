@@ -1,0 +1,145 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders ContextSelector 1`] = `
+<div
+  className="pf-c-context-selector"
+  data-ouia-component-id="OUIA-Generated-ContextSelector-1"
+  data-ouia-component-type="PF4/ContextSelector"
+  data-ouia-safe={true}
+>
+  <ContextSelectorToggle
+    aria-labelledby="pf-context-selector-label-id-0 pf-context-selector-toggle-id-0"
+    className=""
+    id="pf-context-selector-toggle-id-0"
+    isActive={false}
+    isOpen={false}
+    onEnter={[Function]}
+    onToggle={[Function]}
+    parentRef={null}
+    toggleText=""
+  />
+</div>
+`;
+
+exports[`Renders ContextSelector open 1`] = `
+<div
+  className="pf-c-context-selector pf-m-expanded"
+  data-ouia-component-id="OUIA-Generated-ContextSelector-2"
+  data-ouia-component-type="PF4/ContextSelector"
+  data-ouia-safe={true}
+>
+  <ContextSelectorToggle
+    aria-labelledby="pf-context-selector-label-id-0 pf-context-selector-toggle-id-0"
+    className=""
+    id="pf-context-selector-toggle-id-0"
+    isActive={false}
+    isOpen={true}
+    onEnter={[Function]}
+    onToggle={[Function]}
+    parentRef={null}
+    toggleText=""
+  />
+  <div
+    className="pf-c-context-selector__menu"
+  >
+    <FocusTrap
+      active={true}
+      focusTrapOptions={
+        Object {
+          "clickOutsideDeactivates": true,
+        }
+      }
+      paused={false}
+      preventScrollOnDeactivate={false}
+    >
+      <div
+        className="pf-c-context-selector__menu-search"
+      >
+        <InputGroup>
+          <TextInput
+            aria-labelledby="pf-context-selector-search-button-id-0"
+            onChange={[Function]}
+            onKeyPress={[Function]}
+            placeholder="Search"
+            type="search"
+            value=""
+          />
+          <Button
+            aria-label="Search menu items"
+            id="pf-context-selector-search-button-id-0"
+            onClick={[Function]}
+            variant="control"
+          >
+            <SearchIcon
+              aria-hidden="true"
+              color="currentColor"
+              noVerticalAlign={false}
+              size="sm"
+            />
+          </Button>
+        </InputGroup>
+      </div>
+      <ContextProvider
+        value={
+          Object {
+            "onSelect": [Function],
+          }
+        }
+      >
+        <ContextSelectorMenuList
+          className=""
+          isOpen={true}
+        >
+           
+          <ContextSelectorItem
+            className=""
+            isDisabled={false}
+            key="0"
+            onClick={[Function]}
+            sendRef={[Function]}
+          >
+            My Project
+          </ContextSelectorItem>
+          <ContextSelectorItem
+            className=""
+            isDisabled={false}
+            key="1"
+            onClick={[Function]}
+            sendRef={[Function]}
+          >
+            OpenShift Cluster
+          </ContextSelectorItem>
+          <ContextSelectorItem
+            className=""
+            isDisabled={false}
+            key="2"
+            onClick={[Function]}
+            sendRef={[Function]}
+          >
+            Production Ansible
+          </ContextSelectorItem>
+          <ContextSelectorItem
+            className=""
+            isDisabled={false}
+            key="3"
+            onClick={[Function]}
+            sendRef={[Function]}
+          >
+            AWS
+          </ContextSelectorItem>
+          <ContextSelectorItem
+            className=""
+            isDisabled={false}
+            key="4"
+            onClick={[Function]}
+            sendRef={[Function]}
+          >
+            Azure
+          </ContextSelectorItem>
+           
+        </ContextSelectorMenuList>
+      </ContextProvider>
+    </FocusTrap>
+  </div>
+</div>
+`;

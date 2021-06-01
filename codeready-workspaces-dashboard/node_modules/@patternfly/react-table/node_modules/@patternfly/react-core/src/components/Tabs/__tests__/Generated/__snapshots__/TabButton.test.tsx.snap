@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TabButton should match snapshot (auto-generated) 1`] = `
+<a
+  className="''"
+  data-ouia-component-type="PF4/TabButton"
+  data-ouia-safe={true}
+  href="string"
+>
+  <div>
+    ReactNode
+  </div>
+</a>
+`;

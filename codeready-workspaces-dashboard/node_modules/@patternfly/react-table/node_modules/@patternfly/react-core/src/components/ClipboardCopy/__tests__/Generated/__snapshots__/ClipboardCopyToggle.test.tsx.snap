@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ClipboardCopyToggle should match snapshot (auto-generated) 1`] = `
+<Button
+  aria-controls="string string"
+  aria-expanded={false}
+  aria-labelledby="string string"
+  className="''"
+  id="string"
+  onClick={[Function]}
+  type="button"
+  variant="control"
+>
+  <AngleRightIcon
+    aria-hidden="true"
+    color="currentColor"
+    noVerticalAlign={false}
+    size="sm"
+  />
+</Button>
+`;

@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const PnpPlugin = require('pnp-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const stylus_plugin = require('poststylus');
@@ -112,11 +111,7 @@ module.exports = {
     ]
   },
   resolve: {
-    plugins: [PnpPlugin],
     extensions: ['.js', '.ts', '.tsx']
-  },
-  resolveLoader: {
-    plugins: [PnpPlugin.moduleLoader(module)],
   },
   node: {
     fs: 'empty',

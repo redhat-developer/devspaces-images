@@ -1,0 +1,26 @@
+{
+    "name": "@types/stream-buffers",
+    "version": "3.0.3",
+    "description": "TypeScript definitions for stream-buffers",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Jason Dent",
+            "url": "https://github.com/Jason3S",
+            "githubUsername": "Jason3S"
+        }
+    ],
+    "main": "",
+    "types": "index",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/stream-buffers"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "ec8c06cb2710f2ccd4d96a149bcad943fb51ff92068f557b01c714cdfc6f51ad",
+    "typeScriptVersion": "2.0"
+}

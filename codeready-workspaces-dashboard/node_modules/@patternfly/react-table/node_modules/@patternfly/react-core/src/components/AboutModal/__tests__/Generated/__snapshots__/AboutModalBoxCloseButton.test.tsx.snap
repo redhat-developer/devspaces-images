@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AboutModalBoxCloseButton should match snapshot (auto-generated) 1`] = `
+<div
+  className="pf-c-about-modal-box__close ''"
+>
+  <Button
+    aria-label="Close Dialog"
+    onClick={[Function]}
+    variant="plain"
+  >
+    <TimesIcon
+      color="currentColor"
+      noVerticalAlign={false}
+      size="sm"
+    />
+  </Button>
+</div>
+`;

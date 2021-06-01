@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`basic not selected 1`] = `
+<div
+  className="pf-c-toggle-group__item"
+>
+  <button
+    aria-label="basic not selected"
+    aria-pressed={false}
+    className="pf-c-toggle-group__button"
+    id="toggleGroupItem"
+    onClick={[Function]}
+    type="button"
+  >
+    <ToggleGroupItemElement
+      variant="text"
+    >
+      test
+    </ToggleGroupItemElement>
+  </button>
+</div>
+`;
+
+exports[`basic selected 1`] = `
+<div
+  className="pf-c-toggle-group__item"
+  selected={true}
+>
+  <button
+    aria-label="basic selected"
+    aria-pressed={false}
+    className="pf-c-toggle-group__button"
+    id="toggleGroupItem"
+    onClick={[Function]}
+    type="button"
+  >
+    <ToggleGroupItemElement
+      variant="text"
+    >
+      test
+    </ToggleGroupItemElement>
+  </button>
+</div>
+`;
+
+exports[`icon variant 1`] = `
+<div
+  className="pf-c-toggle-group__item"
+  selected={true}
+>
+  <button
+    aria-label="icon variant"
+    aria-pressed={false}
+    className="pf-c-toggle-group__button"
+    id="toggleGroupItem"
+    onClick={[Function]}
+    type="button"
+  >
+    <ToggleGroupItemElement
+      variant="icon"
+    >
+      icon
+    </ToggleGroupItemElement>
+  </button>
+</div>
+`;
+
+exports[`isCompact 1`] = `
+<div
+  className="pf-c-toggle-group pf-m-compact"
+  role="group"
+>
+  <ToggleGroupItem
+    text="Test"
+  />
+  <ToggleGroupItem
+    text="Test"
+  />
+</div>
+`;
+
+exports[`isDisabled 1`] = `
+<div
+  className="pf-c-toggle-group__item"
+>
+  <button
+    aria-label="isDisabled"
+    aria-pressed={false}
+    className="pf-c-toggle-group__button"
+    disabled={true}
+    id="toggleGroupItem"
+    onClick={[Function]}
+    type="button"
+  >
+    <ToggleGroupItemElement
+      variant="text"
+    >
+      test
+    </ToggleGroupItemElement>
+  </button>
+</div>
+`;

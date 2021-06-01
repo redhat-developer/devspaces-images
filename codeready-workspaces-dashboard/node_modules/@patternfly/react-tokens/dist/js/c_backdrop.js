@@ -1,0 +1,26 @@
+"use strict";
+exports.__esModule = true;
+exports.c_backdrop = {
+  ".pf-c-backdrop": {
+    "c_backdrop_ZIndex": {
+      "name": "--pf-c-backdrop--ZIndex",
+      "value": "400",
+      "values": [
+        "--pf-global--ZIndex--lg",
+        "$pf-global--ZIndex--lg",
+        "400"
+      ]
+    },
+    "c_backdrop_BackgroundColor": {
+      "name": "--pf-c-backdrop--BackgroundColor",
+      "value": "rgba(#030303, .62)",
+      "values": [
+        "--pf-global--BackgroundColor--dark-transparent-100",
+        "$pf-global--BackgroundColor--dark-transparent-100",
+        "rgba($pf-color-black-1000, .62)",
+        "rgba(#030303, .62)"
+      ]
+    }
+  }
+};
+exports["default"] = exports.c_backdrop;

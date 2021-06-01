@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ClipboardCopyButton should match snapshot (auto-generated) 1`] = `
+<Tooltip
+  content={
+    <div>
+      <div>
+        ReactNode
+      </div>
+    </div>
+  }
+  entryDelay={100}
+  exitDelay={100}
+  maxWidth="'100px'"
+  position="top"
+  trigger="mouseenter focus click"
+>
+  <Button
+    aria-label="'Copyable input'"
+    aria-labelledby="string string"
+    className="''"
+    id="string"
+    onClick={[Function]}
+    type="button"
+    variant="control"
+  >
+    <CopyIcon
+      color="currentColor"
+      noVerticalAlign={false}
+      size="sm"
+    />
+  </Button>
+</Tooltip>
+`;

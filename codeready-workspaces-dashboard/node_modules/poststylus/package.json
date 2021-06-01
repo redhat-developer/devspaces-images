@@ -1,0 +1,36 @@
+{
+  "name": "poststylus",
+  "version": "1.0.1",
+  "description": "PostCSS adapter for stylus",
+  "homepage": "http://github.com/seaneking/poststylus",
+  "author": {
+    "name": "Sean King",
+    "email": "sean@seanking.org"
+  },
+  "repository": "seaneking/poststylus",
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "poststylus",
+    "postcss",
+    "stylus",
+    "preprocessor"
+  ],
+  "dependencies": {
+    "multi-stage-sourcemap": "0.3.1",
+    "postcss": "8.0.9"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "css-parse": "^2.0.0",
+    "eslint": "7.9.0",
+    "mocha": "8.1.3",
+    "stylus": "0.54.8"
+  },
+  "scripts": {
+    "test": "mocha test",
+    "posttest": "eslint ."
+  }
+}

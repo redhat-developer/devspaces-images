@@ -1,0 +1,39 @@
+{
+    "name": "@types/less",
+    "version": "3.0.2",
+    "description": "TypeScript definitions for LESS",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Tom Hasner",
+            "url": "https://github.com/thasner",
+            "githubUsername": "thasner"
+        },
+        {
+            "name": "Pranay Prakash",
+            "url": "https://github.com/pranaygp",
+            "githubUsername": "pranaygp"
+        },
+        {
+            "name": "Daniel Waxweiler",
+            "url": "https://github.com/dwaxweiler",
+            "githubUsername": "dwaxweiler"
+        },
+        {
+            "name": "Richard Lea",
+            "url": "https://github.com/chigix",
+            "githubUsername": "chigix"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/less"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "typesPublisherContentHash": "80a7d917306801b6b1fa53c2982004471dd64640f849b3d7096c2e0d2eddf9f6",
+    "typeScriptVersion": "3.3"
+}

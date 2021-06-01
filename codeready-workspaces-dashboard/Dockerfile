@@ -19,8 +19,8 @@ COPY yarn.lock /dashboard/
 COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/
 COPY .yarnrc.yml /dashboard/
 WORKDIR /dashboard
-COPY asset-yarn-cache.tgz /tmp/
-RUN tar xzf /tmp/asset-yarn-cache.tgz && rm -f /tmp/asset-yarn-cache.tgz
+COPY asset-node-modules-cache.tgz /tmp/
+RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz
 RUN /dashboard/.yarn/releases/yarn-*.cjs install
 COPY . /dashboard/
 RUN /dashboard/.yarn/releases/yarn-*.cjs compile

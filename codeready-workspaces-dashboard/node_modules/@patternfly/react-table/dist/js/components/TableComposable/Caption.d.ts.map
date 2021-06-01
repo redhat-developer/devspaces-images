@@ -1,0 +1,1 @@
+{"version":3,"file":"Caption.d.ts","sourceRoot":"","sources":["../../../../src/components/TableComposable/Caption.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,KAAK,MAAM,OAAO,CAAC;AAE/B,MAAM,WAAW,YAAY;IAC3B,oDAAoD;IACpD,QAAQ,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC;IAC3B,yDAAyD;IACzD,SAAS,CAAC,EAAE,MAAM,CAAC;CACpB;AAED,eAAO,MAAM,OAAO,EAAE,KAAK,CAAC,iBAAiB,CAAC,YAAY,CAIzD,CAAC"}

@@ -18,4 +18,4 @@ lib/
 .idea/
 
 coverage
-/asset-yarn-cache.tgz
+/asset-node-modules-cache.tgz

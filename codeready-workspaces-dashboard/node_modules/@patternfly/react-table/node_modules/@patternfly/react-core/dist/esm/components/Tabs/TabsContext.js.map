@@ -1,0 +1,1 @@
+{"version":3,"file":"TabsContext.js","sourceRoot":"","sources":["../../../../src/components/Tabs/TabsContext.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,KAAK,MAAM,OAAO,CAAC;AAM/B,MAAM,WAAW,GAAG,KAAK,CAAC,aAAa,CAAmB;IACxD,OAAO,EAAE,SAAS;CACnB,CAAC,CAAC;AAEH,MAAM,CAAC,MAAM,mBAAmB,GAAG,WAAW,CAAC,QAAQ,CAAC;AACxD,MAAM,CAAC,MAAM,mBAAmB,GAAG,WAAW,CAAC,QAAQ,CAAC"}

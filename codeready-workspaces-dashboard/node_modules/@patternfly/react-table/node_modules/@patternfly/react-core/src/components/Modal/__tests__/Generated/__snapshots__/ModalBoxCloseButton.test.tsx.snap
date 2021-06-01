@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModalBoxCloseButton should match snapshot (auto-generated) 1`] = `
+<Button
+  aria-label="Close"
+  className="''"
+  onClick={[Function]}
+  variant="plain"
+>
+  <TimesIcon
+    color="currentColor"
+    noVerticalAlign={false}
+    size="sm"
+  />
+</Button>
+`;

@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Check page vertical layout example against snapshot 1`] = `
+<PageHeader
+  headerTools="PageHeaderTools | Avatar"
+  logo="Logo"
+  onNavToggle={[Function]}
+>
+  <header
+    className="pf-c-page__header"
+  >
+    <div
+      className="pf-c-page__header-brand"
+    >
+      <a
+        className="pf-c-page__header-brand-link"
+      >
+        Logo
+      </a>
+    </div>
+    PageHeaderTools | Avatar
+  </header>
+</PageHeader>
+`;

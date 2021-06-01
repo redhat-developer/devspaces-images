@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`disabled text input 1`] = `
+<input
+  aria-invalid={false}
+  aria-label="disabled text input"
+  className="pf-c-form-control"
+  disabled={true}
+  onBlur={[Function]}
+  onChange={[Function]}
+  onFocus={[Function]}
+  readOnly={false}
+  required={false}
+  type="text"
+/>
+`;
+
+exports[`invalid text input 1`] = `
+<input
+  aria-invalid={true}
+  aria-label="invalid text input"
+  className="pf-c-form-control"
+  disabled={false}
+  onBlur={[Function]}
+  onChange={[Function]}
+  onFocus={[Function]}
+  readOnly={false}
+  required={false}
+  type="text"
+  value="test input"
+/>
+`;
+
+exports[`readonly text input 1`] = `
+<input
+  aria-invalid={false}
+  aria-label="readonly text input"
+  className="pf-c-form-control"
+  disabled={false}
+  onBlur={[Function]}
+  onChange={[Function]}
+  onFocus={[Function]}
+  readOnly={true}
+  required={false}
+  type="text"
+  value="read only"
+/>
+`;
+
+exports[`simple text input 1`] = `
+<input
+  aria-invalid={false}
+  aria-label="simple text input"
+  className="pf-c-form-control"
+  disabled={false}
+  onBlur={[Function]}
+  onChange={[Function]}
+  onFocus={[Function]}
+  readOnly={false}
+  required={false}
+  type="text"
+  value="test input"
+/>
+`;
+
+exports[`validated text input 1`] = `
+<TextInputBase
+  aria-label="validated text input"
+  className=""
+  innerRef={null}
+  isDisabled={false}
+  isLeftTruncated={false}
+  isReadOnly={false}
+  isRequired={false}
+  onChange={[MockFunction]}
+  required={true}
+  type="text"
+  validated="error"
+  value="test input"
+/>
+`;
+
+exports[`validated text input success 1`] = `
+<TextInput
+  aria-label="validated text input"
+  onChange={[MockFunction]}
+  required={true}
+  validated="success"
+  value="test input"
+>
+  <TextInputBase
+    aria-label="validated text input"
+    className=""
+    innerRef={null}
+    isDisabled={false}
+    isLeftTruncated={false}
+    isReadOnly={false}
+    isRequired={false}
+    onChange={[MockFunction]}
+    required={true}
+    type="text"
+    validated="success"
+    value="test input"
+  >
+    <input
+      aria-invalid={false}
+      aria-label="validated text input"
+      className="pf-c-form-control pf-m-success"
+      disabled={false}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onFocus={[Function]}
+      readOnly={false}
+      required={false}
+      type="text"
+      value="test input"
+    />
+  </TextInputBase>
+</TextInput>
+`;
+
+exports[`validated text input success 2`] = `
+<TextInput
+  aria-label="validated text input"
+  onChange={[MockFunction]}
+  required={true}
+  validated="warning"
+  value="test input"
+>
+  <TextInputBase
+    aria-label="validated text input"
+    className=""
+    innerRef={null}
+    isDisabled={false}
+    isLeftTruncated={false}
+    isReadOnly={false}
+    isRequired={false}
+    onChange={[MockFunction]}
+    required={true}
+    type="text"
+    validated="warning"
+    value="test input"
+  >
+    <input
+      aria-invalid={false}
+      aria-label="validated text input"
+      className="pf-c-form-control pf-m-warning"
+      disabled={false}
+      onBlur={[Function]}
+      onChange={[Function]}
+      onFocus={[Function]}
+      readOnly={false}
+      required={false}
+      type="text"
+      value="test input"
+    />
+  </TextInputBase>
+</TextInput>
+`;

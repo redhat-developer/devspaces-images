@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Popover should match snapshot (auto-generated) 1`] = `
+<Popper
+  appendTo={[Function]}
+  distance={25}
+  enableFlip={true}
+  flipBehavior={
+    Array [
+      "top",
+      "right",
+      "bottom",
+      "left",
+      "top",
+      "right",
+      "bottom",
+    ]
+  }
+  isVisible={false}
+  onDocumentClick={[Function]}
+  onDocumentKeyDown={[Function]}
+  onTriggerClick={[Function]}
+  onTriggerEnter={[Function]}
+  placement="top"
+  popper={
+    <FocusTrap
+      active={false}
+      aria-describedby="popover-test-body"
+      aria-label="''"
+      aria-modal="true"
+      className="pf-c-popover ''"
+      focusTrapOptions={
+        Object {
+          "clickOutsideDeactivates": true,
+          "fallbackFocus": [Function],
+          "returnFocusOnDeactivate": true,
+        }
+      }
+      onMouseDown={[Function]}
+      paused={false}
+      preventScrollOnDeactivate={true}
+      role="dialog"
+      style={
+        Object {
+          "maxWidth": "string",
+          "minWidth": "string",
+          "opacity": 0,
+          "transition": "opacity 300ms cubic-bezier(.54, 1.5, .38, 1.11)",
+        }
+      }
+    >
+      <PopoverArrow />
+      <PopoverContent>
+        <PopoverCloseButton
+          aria-label="'Close'"
+          onClose={[Function]}
+        />
+        <PopoverBody
+          id="popover-test-body"
+        >
+          <div>
+            ReactNode
+          </div>
+        </PopoverBody>
+      </PopoverContent>
+    </FocusTrap>
+  }
+  popperMatchesTriggerWidth={false}
+  positionModifiers={
+    Object {
+      "bottom": "pf-m-bottom",
+      "left": "pf-m-left",
+      "right": "pf-m-right",
+      "top": "pf-m-top",
+    }
+  }
+  trigger={
+    <p>
+      ReactElement
+    </p>
+  }
+  zIndex={9999}
+/>
+`;

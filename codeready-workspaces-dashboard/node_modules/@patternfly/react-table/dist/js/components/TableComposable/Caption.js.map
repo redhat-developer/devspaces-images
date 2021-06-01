@@ -1,0 +1,1 @@
+{"version":3,"file":"Caption.js","sourceRoot":"","sources":["../../../../src/components/TableComposable/Caption.tsx"],"names":[],"mappings":";;;;AAAA,qDAA+B;AASlB,QAAA,OAAO,GAA0C,CAAC,EAA+C,EAAE,EAAE;QAAnD,EAAE,QAAQ,EAAE,SAAS,OAA0B,EAArB,KAAK,sBAA/B,yBAAiC,CAAF;IAAqB,OAAA,CACjH,+CAAS,SAAS,EAAE,SAAS,IAAM,KAAK,GACrC,QAAQ,CACD,CACX,CAAA;CAAA,CAAC;AACF,eAAO,CAAC,WAAW,GAAG,SAAS,CAAC"}

@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FormSection = void 0;
+const tslib_1 = require("tslib");
+const React = tslib_1.__importStar(require("react"));
+const form_1 = tslib_1.__importDefault(require("@patternfly/react-styles/css/components/Form/form"));
+const react_styles_1 = require("@patternfly/react-styles");
+exports.FormSection = (_a) => {
+    var { className = '', children } = _a, props = tslib_1.__rest(_a, ["className", "children"]);
+    return (React.createElement("section", Object.assign({}, props, { className: react_styles_1.css(form_1.default.formSection, className) }), children));
+};
+exports.FormSection.displayName = 'FormSection';
+//# sourceMappingURL=FormSection.js.map

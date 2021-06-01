@@ -1,0 +1,364 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Modal Content Test description 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Content title"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+        <ModalBoxDescription>
+          This is a test description.
+        </ModalBoxDescription>
+      </ModalBoxHeader>
+      <ModalBoxBody
+        id="id"
+      >
+        This is a ModalBox header
+      </ModalBoxBody>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Content Test isOpen 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Content title"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+      </ModalBoxHeader>
+      <ModalBoxBody>
+        This is a ModalBox header
+      </ModalBoxBody>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Content Test only body 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Content title"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+      </ModalBoxHeader>
+      <ModalBoxBody>
+        This is a ModalBox header
+      </ModalBoxBody>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Content Test with footer 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Content title"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+      </ModalBoxHeader>
+      <ModalBoxBody>
+        This is a ModalBox header
+      </ModalBoxBody>
+      <ModalBoxFooter>
+        Testing
+      </ModalBoxFooter>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Content Test with onclose 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Content title"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+      </ModalBoxHeader>
+      <ModalBoxBody
+        isLarge={true}
+      >
+        This is a ModalBox header
+      </ModalBoxBody>
+      <ModalBoxFooter>
+        Testing footer
+      </ModalBoxFooter>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Content test without footer 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Content title"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+      </ModalBoxHeader>
+      <ModalBoxBody>
+        This is a ModalBox header
+      </ModalBoxBody>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Test with custom footer 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <ModalBoxTitle
+          title="Test Modal Custom Footer"
+          titleIconVariant={null}
+          titleLabel=""
+        />
+      </ModalBoxHeader>
+      <ModalBoxBody
+        isLarge={true}
+      >
+        This is a ModalBox header
+      </ModalBoxBody>
+      <ModalBoxFooter>
+        <span
+          id="test-custom-footer"
+        >
+          TEST
+        </span>
+      </ModalBoxFooter>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;
+
+exports[`Modal Test with custom header 1`] = `
+<Backdrop>
+  <FocusTrap
+    active={true}
+    className="pf-l-bullseye"
+    focusTrapOptions={
+      Object {
+        "clickOutsideDeactivates": true,
+      }
+    }
+    paused={false}
+    preventScrollOnDeactivate={false}
+  >
+    <ModalBox
+      aria-label=""
+      aria-labelledby=""
+      className=""
+      data-ouia-component-type="PF4/ModalContent"
+      data-ouia-safe={true}
+      style={Object {}}
+      variant="default"
+    >
+      <ModalBoxCloseButton
+        onClose={[Function]}
+      />
+      <ModalBoxHeader
+        help={null}
+      >
+        <span
+          id="test-custom-header"
+        >
+          TEST
+        </span>
+      </ModalBoxHeader>
+      <ModalBoxBody
+        isLarge={true}
+      >
+        This is a ModalBox header
+      </ModalBoxBody>
+      <ModalBoxFooter>
+        Testing footer
+      </ModalBoxFooter>
+    </ModalBox>
+  </FocusTrap>
+</Backdrop>
+`;

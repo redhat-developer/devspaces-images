@@ -1,0 +1,134 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Check page main nav section against snapshot 1`] = `
+<PageSection
+  type="nav"
+>
+  <section
+    className="pf-c-page__main-nav"
+  />
+</PageSection>
+`;
+
+exports[`Check page section with fill and no padding example against snapshot 1`] = `
+<PageSection
+  isFilled={true}
+  padding={
+    Object {
+      "default": "noPadding",
+    }
+  }
+>
+  <section
+    className="pf-c-page__main-section pf-m-no-padding pf-m-fill"
+  />
+</PageSection>
+`;
+
+exports[`Check page section with fill example against snapshot 1`] = `
+<PageSection
+  isFilled={true}
+>
+  <section
+    className="pf-c-page__main-section pf-m-fill"
+  />
+</PageSection>
+`;
+
+exports[`Check page section with limited width 1`] = `
+<PageSection
+  isWidthLimited={true}
+>
+  <section
+    className="pf-c-page__main-section pf-m-limit-width"
+  >
+    <div
+      className="pf-c-page__main-body"
+    />
+  </section>
+</PageSection>
+`;
+
+exports[`Check page section with no fill example against snapshot 1`] = `
+<PageSection
+  isFilled={false}
+>
+  <section
+    className="pf-c-page__main-section pf-m-no-fill"
+  />
+</PageSection>
+`;
+
+exports[`Check page section with no padding example against snapshot 1`] = `
+<PageSection
+  padding={
+    Object {
+      "default": "noPadding",
+    }
+  }
+>
+  <section
+    className="pf-c-page__main-section pf-m-no-padding"
+  />
+</PageSection>
+`;
+
+exports[`Verify page section bottom shadow 1`] = `
+<PageSection
+  hasShadowBottom={true}
+>
+  <section
+    className="pf-c-page__main-section pf-m-shadow-bottom"
+  >
+    test
+  </section>
+</PageSection>
+`;
+
+exports[`Verify page section bottom sticky 1`] = `
+<PageSection
+  sticky="bottom"
+>
+  <section
+    className="pf-c-page__main-section pf-m-sticky-bottom"
+  >
+    test
+  </section>
+</PageSection>
+`;
+
+exports[`Verify page section overflow scroll 1`] = `
+<PageSection
+  hasOverflowScroll={true}
+>
+  <section
+    className="pf-c-page__main-section pf-m-overflow-scroll"
+  >
+    test
+  </section>
+</PageSection>
+`;
+
+exports[`Verify page section top shadow 1`] = `
+<PageSection
+  hasShadowTop={true}
+>
+  <section
+    className="pf-c-page__main-section pf-m-shadow-top"
+  >
+    test
+  </section>
+</PageSection>
+`;
+
+exports[`Verify page section top sticky 1`] = `
+<PageSection
+  sticky="top"
+>
+  <section
+    className="pf-c-page__main-section pf-m-sticky-top"
+  >
+    test
+  </section>
+</PageSection>
+`;
