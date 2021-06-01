@@ -95,6 +95,11 @@ git apply $SCRIPTS_DIR/patch-remove-pnp-plugin.diff
 popd >/dev/null
 yarn install
 
+# Remove all the dependencies since they aren't actually needed
+rm -fr ${TARGETDIR}/node_modules/
+rm -fr ${TARGETDIR}/.yarn/cache
+rm -fr ${TARGETDIR}/.yarn2-backup/.yarn/cache
+
 # transform rhel.Dockerfile -> Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     `# Strip registry from image references` \
