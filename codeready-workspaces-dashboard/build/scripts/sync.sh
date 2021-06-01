@@ -95,6 +95,11 @@ git apply $SCRIPTS_DIR/patch-remove-pnp-plugin.diff
 popd >/dev/null
 yarn install
 
+# Remove all the dependencies since they aren't actually needed
+rm -fr ${TARGETDIR}/node_modules/
+rm -fr ${TARGETDIR}/.yarn/cache
+rm -fr ${TARGETDIR}/.yarn2-backup/.yarn/cache
+
 # transform rhel.Dockerfile -> Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     `# Strip registry from image references` \
@@ -102,6 +107,8 @@ sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     -e 's|FROM registry.redhat.io/|FROM |' \
 	`# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
     -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-node-modules-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz" \
+    # .yarnrc.yml won't exist while we're still building with yarn 1 so we will have to remove it temporarily
+    -e 's|COPY .yarnrc.yml /dashboard/||' \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
