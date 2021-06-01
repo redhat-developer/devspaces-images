@@ -17,7 +17,7 @@ RUN yum -y -q update && \
 COPY package.json /dashboard/
 COPY yarn.lock /dashboard/
 COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/
-COPY .yarnrc.yml /dashboard/
+
 WORKDIR /dashboard
 RUN /dashboard/.yarn/releases/yarn-*.cjs install
 COPY . /dashboard/
