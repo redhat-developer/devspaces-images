@@ -100,6 +100,9 @@ rm -fr ${TARGETDIR}/node_modules/
 rm -fr ${TARGETDIR}/.yarn/cache
 rm -fr ${TARGETDIR}/.yarn2-backup/.yarn/cache
 
+# Temporarily remove .yarn2-backup/.yarnrc.yml becuase it's automatically used in the build if found and is messing up the build process
+rm -rf ${TARGETDIR}/.yarn2-backup/.yarnrc.yml
+
 # .yarnrc.yml won't exist while we're still building with yarn 1 so we will have to remove it temporarily
 sed -i 's|COPY .yarnrc.yml /dashboard/||' ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
 
