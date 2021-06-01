@@ -1042,7 +1042,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2f5daa6ce4ad8bbc3810f408e41ba99267b4c3427b52bef381ebd2725a39f63f
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:5988ec9037cce6491dd7ed6d2c9fff966c52669b919e565bcf56e979251286df
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:39ef885a8fec886665cc9955c441fbcfe765cbdd2d780efb6e718b3c598409bb
                 - name: RELATED_IMAGE_devworkspace_che_operator
                   value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:3147404d9bfe39c1f93d85860e36462604d9fdfc3be48fedcd3ea9a98d9f4471
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1307,7 +1307,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2f5daa6ce4ad8bbc3810f408e41ba99267b4c3427b52bef381ebd2725a39f63f
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:5988ec9037cce6491dd7ed6d2c9fff966c52669b919e565bcf56e979251286df
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:39ef885a8fec886665cc9955c441fbcfe765cbdd2d780efb6e718b3c598409bb
   - name: devworkspace_che_operator
     image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:3147404d9bfe39c1f93d85860e36462604d9fdfc3be48fedcd3ea9a98d9f4471
   - name: devworkspace_controller
