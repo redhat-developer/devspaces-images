@@ -11,8 +11,8 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
 
-def nodeVersion = "12.18.2" // Note: theia using newer 12.19.1
-def yarnVersion = "1.17.3"
+def nodeVersion = "12.21.0" // was 12.18.2
+def yarnVersion = "1.21.1" // was 1.17.3
 def installP7zip = true // p7zip install and use that to build crwctl
 
 def nodeLabel = "rhel8"

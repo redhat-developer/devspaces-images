@@ -4,9 +4,19 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8||amd64-rhel8||x86_64-rhel8'
+// String yarnVersion = "1.21.1"
 
 currentBuild.description="Experimental build " + BUILD_DISPLAY_NAME
+
+// Example usage: globalVar({myVar})
+def globalVar(varNameExpr) {
+    try {
+        varNameExpr()
+    } catch (exc) {
+        ""
+    }
+}
 
 timeout(120) {
     node(nodeLabel) { 
@@ -22,36 +32,44 @@ timeout(120) {
                     usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
                 ]) {
                     cleanWs()
-                    util.installSkopeoFromContainer("")
-                    util.installYq()
-                    CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-                    println "CRW_VERSION = '" + CRW_VERSION + "'"
-                    JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                    util.bootstrap(CRW_KEYTAB)
-
-                    try {
-                        SOURCE_REPO = "eclipse-che/che-operator"
-                        SOURCE_BRANCH = "7.28.x" 
-                        util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
-                        SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
-                        println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
-
-                        UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " // CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
-
-                        println "Using UPDATE_BASE_IMAGES_FLAGS = ${UPDATE_BASE_IMAGES_FLAGS} ..."
-                        util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, "-v --no-commit " + UPDATE_BASE_IMAGES_FLAGS)
-
-                        diff=sh(returnStdout:true, script:'''#!/bin/bash -xe
-# do some stuff here 
-
-cd sources; git diff
-'''
-                        ).trim()
-                        println diff
-                    } catch (e) {
-                        currentBuild.result = "FAILURE"
-                        throw e
+                    if (globalVar({nodeVersion})?.trim() && globalVar({yarnVersion})?.trim()) { 
+                        print "install because params or properties"
+                        util.installNPM(globalVar({nodeVersion}), globalVar({yarnVersion})) 
+                    } else {
+                        println "Got no nodeVersion = " + globalVar({nodeVersion})
+                        println "Got no yarnVersion = " + globalVar({yarnVersion})
                     }
+
+//                     util.installSkopeoFromContainer("")
+//                     util.installYq()
+//                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+//                     println "CRW_VERSION = '" + CRW_VERSION + "'"
+//                     JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+//                     util.bootstrap(CRW_KEYTAB)
+
+//                     try {
+//                         SOURCE_REPO = "eclipse-che/che-operator"
+//                         SOURCE_BRANCH = "7.28.x" 
+//                         util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
+//                         SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+//                         println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
+
+//                         UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " // CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
+
+//                         println "Using UPDATE_BASE_IMAGES_FLAGS = ${UPDATE_BASE_IMAGES_FLAGS} ..."
+//                         util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, "-v --no-commit " + UPDATE_BASE_IMAGES_FLAGS)
+
+//                         diff=sh(returnStdout:true, script:'''#!/bin/bash -xe
+// # do some stuff here 
+
+// cd sources; git diff
+// '''
+//                         ).trim()
+//                         println diff
+//                     } catch (e) {
+//                         currentBuild.result = "FAILURE"
+//                         throw e
+//                     }
                 } // with
             } // wrap
         } // stage

@@ -53,7 +53,7 @@ timeout(180) {
 
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
                 // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
-                util.updateBaseImages("${WORKSPACE}/sources/" + SYNC_REPOS[i], MIDSTM_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
+                util.updateBaseImages("${WORKSPACE}/sources/" + SYNC_REPOS[i], MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
                 SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
                 println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
@@ -141,7 +141,7 @@ rm -f /tmp/rsync-excludes
                       [
                         $class: 'StringParameterValue',
                         name: 'UPDATE_BASE_IMAGES_FLAGS',
-                        value: UPDATE_BASE_IMAGES_FLAGS
+                        value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
                       ],
                       [
                         $class: 'StringParameterValue',

@@ -20,14 +20,6 @@ def DWNSTM_REPO = "containers/codeready-workspaces" // dist-git repo to use as t
 
 def SYNC_REPO = "server"
 
-// TODO move to node 12?
-// current version used for crw-theia:
-//def nodeVersion = "12.18.2"
-// def yarnVersion = "1.17.3"
-// current version used for crw-server:
-def nodeVersion="10.19.0"
-def yarnVersion="1.21.0"
-
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
 
 def CRW_SHAs = ""

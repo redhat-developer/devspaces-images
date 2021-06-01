@@ -14,10 +14,6 @@ def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" // GH repo to
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // downstream repo (before pkgs.devel)
 def SYNC_REPO = "operator"
 
-// CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
-// NOTE: maxdepth 1 here is to prevent attempting to transform empty dockerfile in che-operator/build/Dockerfile
-def UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " 
-
 def SOURCE_SHA=""
 def OLD_SHA_MID=""
 def OLD_SHA_DWN=""
@@ -64,7 +60,7 @@ timeout(120) {
           OLD_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
 
-          util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
 	  def SOURCEDOCKERFILE="${WORKSPACE}/sources/Dockerfile"
           sh '''#!/bin/bash -xe
@@ -203,7 +199,7 @@ git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTR
 '''
 
           // don't commit yet, we'll do it later
-          util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
           sh '''#!/bin/bash -xe
 # push changes to github from codeready-workspaces-images
 cd ${WORKSPACE}/targetmid
@@ -219,7 +215,7 @@ fi
           println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
 
           // don't commit yet, we'll do it later
-          util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
           // if anything changed, push changes in gh to dist-git
           sh '''#!/bin/bash -xe
@@ -291,7 +287,7 @@ node(nodeLabel) {
                 [
                   $class: 'StringParameterValue',
                   name: 'UPDATE_BASE_IMAGES_FLAGS',
-                  value: UPDATE_BASE_IMAGES_FLAGS
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
                 ],
                 [
                   $class: 'StringParameterValue',

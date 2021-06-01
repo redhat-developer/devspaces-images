@@ -32,6 +32,8 @@ timeout(120) {
           file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
             util.installSkopeoFromContainer("")
             util.installYq()
+            // install node and yarn if versions defined
+            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
 
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
@@ -43,9 +45,9 @@ timeout(120) {
 
             // TODO switch to dependabot for dockerfiles?
             if(SOURCE_REPO.contains("codeready-workspaces")) {
-              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile " + UPDATE_BASE_IMAGES_FLAGS) // push updated base image change to upstream
+              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS})) // push updated base image change to upstream
             } else {
-              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + UPDATE_BASE_IMAGES_FLAGS)
+              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
             }
 
             println "########################################################################################################"
@@ -64,7 +66,7 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
             )
 
             // push changes to codeready-workspaces-images
-            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
+            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
             sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
@@ -120,7 +122,7 @@ fi
                 [
                   $class: 'StringParameterValue',
                   name: 'UPDATE_BASE_IMAGES_FLAGS',
-                  value: "${UPDATE_BASE_IMAGES_FLAGS}"
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
                 ],
                 [
                   $class: 'StringParameterValue',

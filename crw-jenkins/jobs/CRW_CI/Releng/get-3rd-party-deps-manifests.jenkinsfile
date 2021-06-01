@@ -8,8 +8,8 @@ import groovy.transform.Field
 
 def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
-def nodeVersion = "12.19.1"
-def yarnVersion = "1.17.3"
+def nodeVersion = "12.21.0"
+def yarnVersion = "1.20.0"
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
 
 def buildNode = "rhel8"

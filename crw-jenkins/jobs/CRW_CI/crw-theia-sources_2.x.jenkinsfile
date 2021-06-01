@@ -7,8 +7,8 @@ import groovy.transform.Field
 //   MIDSTM_BRANCH
 
 // DO NOT CHANGE THIS until newer version exists in crw-theia ubi base images, or build will fail.
-def nodeVersion = "12.19.1"
-def yarnVersion = "1.17.3"
+def nodeVersion = "12.21.0" // was 12.19.1
+def yarnVersion = "1.21.1" // was 1.17.3
 
 // other params not worth setting in Jenkins (they don't change)
 def THEIA_BRANCH = "master" // theia branch/tag to build: master (will then compute the correct SHA to use)
