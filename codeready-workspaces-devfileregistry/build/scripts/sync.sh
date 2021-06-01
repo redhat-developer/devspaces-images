@@ -76,7 +76,10 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-# transform Dockefile
+# ensure shell scripts are executable
+find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+
+# transform Dockerfile
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \

@@ -78,10 +78,13 @@ rm -fr ${TARGETDIR}/vendor/
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
+# ensure shell scripts are executable
+find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+
 # remove k8s deployment files
 rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
-# transform Dockefile
+# transform Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/Dockerfile -r \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \

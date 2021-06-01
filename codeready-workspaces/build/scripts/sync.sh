@@ -81,7 +81,10 @@ rm -f /tmp/rsync-excludes
 # copy entrypoint.sh
 rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
 
-# TODO move upstream dockefile into standard path build/dockerfiles/rhel.Dockerfile (instead of dockerfiles/che/rhel.Dockerfile) ?
+# ensure shell scripts are executable
+find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+
+# TODO move upstream Dockerfile into standard path build/dockerfiles/rhel.Dockerfile (instead of dockerfiles/che/rhel.Dockerfile) ?
 sed ${SOURCEDIR}/dockerfiles/che/rhel.Dockerfile -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \

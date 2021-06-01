@@ -76,6 +76,9 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
+# ensure shell scripts are executable
+find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+
 # CRW-1792 transform che-editors.yaml#L5 and che-plugins.yaml#L3 to refer to /latest
 pushd "${TARGETDIR}" >/dev/null || exit 1
 for d in che-editors.yaml che-plugins.yaml; do 
@@ -83,7 +86,7 @@ for d in che-editors.yaml che-plugins.yaml; do
 done
 popd >/dev/null || exit
 
-# transform Dockefile
+# transform Dockerfile
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
@@ -145,6 +148,5 @@ pushd ${TARGETDIR} >/dev/null || exit 1
 
 # TODO transform che-theia references to CRW theia references, including:
 # descritpion, icon, attributes.version, attributes.title, attributes.repository
-
 
 popd >/dev/null || exit

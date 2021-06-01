@@ -181,3 +181,6 @@ ${TARGETDIR}/assets/branding/product.json.template > ${TARGETDIR}/assets/brandin
 #     rm -f "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
 #     ${BUILDER} rmi ${tag}:bootstrap
 # fi
+
+# ensure shell scripts are executable
+find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
