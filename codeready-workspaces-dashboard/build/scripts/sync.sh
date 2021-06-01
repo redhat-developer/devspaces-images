@@ -105,9 +105,9 @@ sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-	`# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
+    `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
     -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/i COPY asset-node-modules-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz" \
-    # .yarnrc.yml won't exist while we're still building with yarn 1 so we will have to remove it temporarily
+    `# .yarnrc.yml won't exist while we're still building with yarn 1 so we will have to remove it temporarily` \
     -e 's|COPY .yarnrc.yml /dashboard/||' \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
