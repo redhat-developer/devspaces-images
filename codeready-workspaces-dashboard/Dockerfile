@@ -21,7 +21,6 @@ COPY .yarnrc.yml /dashboard/
 WORKDIR /dashboard
 COPY asset-node-modules-cache.tgz /tmp/
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz
-RUN /dashboard/.yarn/releases/yarn-*.cjs install
 COPY . /dashboard/
 RUN /dashboard/.yarn/releases/yarn-*.cjs compile
 

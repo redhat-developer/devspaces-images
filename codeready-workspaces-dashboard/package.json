@@ -31,7 +31,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@eclipse-che/devworkspace-client": "0.0.1-1619438984",
+    "@eclipse-che/devworkspace-client": "^0.0.1-1619438984",
     "@eclipse-che/workspace-client": "^0.0.1-1618916247",
     "@patternfly/react-core": "~4.84.4",
     "@patternfly/react-icons": "^4.3.5",
