@@ -19,13 +19,13 @@ for (JB in JOB_BRANCHES) {
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="chectl"
-        UPSTM_REPO="https://github.com/che-incubator/" + UPSTM_NAME
+        SOURCE_REPO="che-incubator/" + UPSTM_NAME
 
         description('''
 Artifact builder + sync job; triggers cli build after syncing from upstream
 
 <ul>
-<li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + '''</a></li>
+<li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
 <li>Downstream: <a href=https://github.com/redhat-developer/codeready-workspaces-chectl/tree/''' + MIDSTM_BRANCH + '''>crwctl</a></li>
 </ul>
 
@@ -36,6 +36,8 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
             pipelineTriggers {
                 triggers{

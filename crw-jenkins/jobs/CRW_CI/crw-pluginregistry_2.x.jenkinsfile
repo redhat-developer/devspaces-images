@@ -63,14 +63,6 @@ TARGETDIR="''' + TARGET_DIR + '''"
 rsync -azrlt --delete ${SOURCEDIR} ${TARGETDIR}
         ''')
 
-        // CRW-1792 transform che-editors.yaml#L5 and che-plugins.yaml#L3 to refer to /latest
-        sh('''#!/bin/bash -xe
-          cd ''' + TARGET_DIR + '''
-          for d in che-editors.yaml che-plugins.yaml; do 
-            sed -i ${d} -r -e "s|/nightly|/latest|" -e "s|/next|/latest|"
-          done
-        ''')
-
         sh('''#!/bin/bash -xe
           cp -f ''' + SOURCE_DIR + '''build/dockerfiles/Dockerfile  ''' + TARGET_DIR + '''Dockerfile
           CRW_VERSION="''' + CRW_VERSION_F + '''"

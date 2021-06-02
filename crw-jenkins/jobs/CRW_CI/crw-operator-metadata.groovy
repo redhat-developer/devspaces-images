@@ -15,7 +15,7 @@ for (JB in JOB_BRANCHES) {
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-operator"
         MIDSTM_NAME="operator-metadata"
-        UPSTM_REPO="https://github.com/eclipse/" + UPSTM_NAME
+        SOURCE_REPO="eclipse/" + UPSTM_NAME
 
         description('''
 Syncs/generates code from upstream into midstream, then triggers sync, Brew build, and copy to quay jobs
@@ -25,7 +25,7 @@ Syncs/generates code from upstream into midstream, then triggers sync, Brew buil
 2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV</p>
 
 <ul>
-<li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + '''</a></li>
+<li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
 <li>Midstream 1 (transformation code): 
 <a href=https://github.com/redhat-developer/codeready-workspaces-operator/tree/''' + MIDSTM_BRANCH + '''/>crw-operator</a></li>
 <li>Midstream 2 (transformed code): <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
@@ -49,6 +49,8 @@ If <b style="color:orange">job is yellow</b>, no changes found to push, so no co
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
             pipelineTriggers {
                 triggers{

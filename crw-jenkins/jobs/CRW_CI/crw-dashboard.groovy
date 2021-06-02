@@ -32,10 +32,12 @@ Artifact builder + sync job; triggers brew after syncing
                 primaryOwnerId("nboldt")
             }
 
+            githubProjectUrl("https://github.com/" + SOURCE_REPO)
+
             pipelineTriggers {
                 triggers{
                     pollSCM{
-                        scmpoll_spec("H H/24 * * *") // every 24hrs
+                        scmpoll_spec("H H/4 * * *") // every 4hrs
                     }
                 }
             }

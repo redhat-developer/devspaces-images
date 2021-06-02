@@ -4,14 +4,17 @@ for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+    UPSTM_NAME="codeready-workspaces-deprecated"
+    SOURCE_REPO="redhat-developer/" + UPSTM_NAME
+
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
 Lang server dependency builder
 <ul>
-<li>Upstream: <a href=https://github.com/redhat-developer/codeready-workspaces-deprecated/tree/''' + MIDSTM_BRANCH + '''/>codeready-workspaces-deprecated</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''>codeready-workspaces-images</a></li>
+<li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/>''' + UPSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''>codeready-workspaces-images</a> (used by various container builds, including plugin sidecars and stacks)</li>
 </ul>
 
 <p>When done, downstream builds can be triggered using these artifacts using 
@@ -23,6 +26,8 @@ Lang server dependency builder
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
             // disabled because no changes in the branch / run this manually 
             // pipelineTriggers {

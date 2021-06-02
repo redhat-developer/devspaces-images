@@ -9,13 +9,13 @@ for (JB in JOB_BRANCHES) {
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="kubernetes-image-puller"
         MIDSTM_NAME="imagepuller"
-        UPSTM_REPO="https://github.com/che-incubator/" + UPSTM_NAME
+        SOURCE_REPO="che-incubator/" + UPSTM_NAME
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <ul>
-<li>Upstream: <a href=''' + UPSTM_REPO + '''>''' + UPSTM_NAME + '''</a></li>
+<li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
 <li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
@@ -30,6 +30,8 @@ Artifact builder + sync job; triggers brew after syncing
             ownership {
                 primaryOwnerId("nboldt")
             }
+
+            githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
             // disabled because no changes in the branch / run this manually 
             // pipelineTriggers {

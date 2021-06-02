@@ -35,6 +35,8 @@ Artifact builder + sync job; triggers brew after syncing
                 primaryOwnerId("nboldt")
             }
 
+            githubProjectUrl("https://github.com/" + SOURCE_REPO)
+
             pipelineTriggers {
                 triggers{
                     pollSCM{

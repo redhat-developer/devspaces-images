@@ -7,6 +7,10 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // FORCE_BUILD = "false"
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used for 2.9 see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 @Field String branchToBuildDev = "refs/tags/19"
 @Field String branchToBuildParent = "refs/tags/7.15.0"
 // TODO when che server moves to main as its default branch, change this too
