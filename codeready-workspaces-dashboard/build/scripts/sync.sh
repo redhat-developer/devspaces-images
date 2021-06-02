@@ -69,6 +69,7 @@ container.yaml
 content_sets.yml
 get-sources-jenkins.sh
 sources
+yarn.lock
 /README.adoc
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
@@ -79,17 +80,10 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 
 # switch to yarn 1
-echo "Switching dashboard to yarn 1"
-
-# prepare node_modules with yarn 2
-echo "nodeLinker: node-modules" >> .yarnrc.yml
-yarn install
+yarn policies set-version 1.21.1
 
 # switch project to yarn 1 and regenerate yarn.lock in corresponding format
 pushd "${TARGETDIR}" >/dev/null
-mkdir -p .yarn2-backup/.yarn
-cp -r ./.yarn/* ./.yarn2-backup/.yarn && rm -rf ./yarn
-mv yarn.lock .yarnrc.yml .yarn2-backup
 cp webpack.config.common.js .yarn2-backup
 git apply $SCRIPTS_DIR/patch-remove-pnp-plugin.diff
 popd >/dev/null
