@@ -88,9 +88,6 @@ rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
 # remove files with embedded RELATED_IMAGE_* values for Che stable releases
 rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
 
-# ensure shell scripts are executable
-find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
-
 # sed changes
 while IFS= read -r -d '' d; do
 	if [[ -d "${SOURCEDIR}/${d%/*}" ]]; then mkdir -p "${TARGETDIR}"/"${d%/*}"; fi
