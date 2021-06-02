@@ -97,7 +97,7 @@ yarn install
 
 # Dashboard requires a very specific version of the devworkspace-client
 # we can't just rely on the one that the regenerated yarn.lock file gives us
-yarn install @eclipse-che/devworkspace-client@0.0.1-1619438984
+yarn add @eclipse-che/devworkspace-client@0.0.1-1619438984
 
 # Remove all the dependencies since they aren't actually needed
 rm -fr ${TARGETDIR}/node_modules/
