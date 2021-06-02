@@ -46,7 +46,7 @@ tag=$(pwd);tag=${tag##*/}
 ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
 
 # step two - extract cache folder to tarball (let's hope there's nothing arch-specific we need here!)
-${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - node-modules' > "asset-node-modules-cache.tgz"
+${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - node_modules' > "asset-node-modules-cache.tgz"
 ${BUILDER} rmi ${tag}:bootstrap
 
 outputFiles=asset-node-modules-cache.tgz
