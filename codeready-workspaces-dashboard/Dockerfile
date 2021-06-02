@@ -11,13 +11,13 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
 FROM ubi8/nodejs-12:1-87 as builder
 USER 0
-RUN yum -y -q --nobest update && \
+RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
 
 COPY package.json /dashboard/
 COPY yarn.lock /dashboard/
 COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/
-
+COPY .yarnrc.yml /dashboard/
 WORKDIR /dashboard
 COPY asset-node-modules-cache.tgz /tmp/
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz
