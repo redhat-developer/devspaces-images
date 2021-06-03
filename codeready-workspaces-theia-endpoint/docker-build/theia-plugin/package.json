@@ -1,0 +1,25 @@
+{
+    "name": "@eclipse-che/plugin",
+    "version": "0.0.1",
+    "description": "Eclipse Che specific Theia plugin API",
+    "publishConfig": {
+        "access": "public"
+    },
+    "license": "EPL-2.0",
+    "types": "./src/che.d.ts",
+    "files": [
+        "src"
+    ],
+    "dependencies": {
+        "@eclipse-che/api": "latest"
+    },
+    "scripts": {
+        "prepare": "",
+        "clean": "rimraf lib",
+        "build": "",
+        "watch": "",
+        "publish:next": "yarn publish  --registry=https://registry.npmjs.org/ --no-git-tag-version --new-version 0.0.1-\"$(date +%s)\""
+    },
+    "devDependencies": {
+    }
+}

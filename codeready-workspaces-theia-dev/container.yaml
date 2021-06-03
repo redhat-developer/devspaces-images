@@ -1,0 +1,8 @@
+platforms:
+  only:
+    - ppc64le
+    - s390x
+    - x86_64
+compose:
+  pulp_repos: true
+image_build_method: imagebuilder
