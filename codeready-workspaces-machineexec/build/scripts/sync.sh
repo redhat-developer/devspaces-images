@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert che-machine-exec upstream to crw-machineexec downstream using sed
+# convert upstream che project to crw downstream project using sed
 
 set -e
 
@@ -20,10 +20,13 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
+UPSTM_NAME="che-machine-exec"
+MIDSTM_NAME="machineexec"
+
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/che-machine-exec] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/che-machine-exec -t /tmp/crw-machineexec"
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME}"
     exit
 }
 
@@ -76,10 +79,10 @@ sed ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile -r \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
-ENV SUMMARY="Red Hat CodeReady Workspaces machineexec container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces machineexec container" \\
+ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
-    COMPNAME="machineexec-rhel8"
+    COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\
