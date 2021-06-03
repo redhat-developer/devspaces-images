@@ -30,20 +30,19 @@ timeout(120) {
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
         util.installSkopeoFromContainer("")
         util.installYq()
-        util.bootstrap(CRW_KEYTAB)
 
         println "########################################################################################################"
         println "##  Clone and update github.com/${SOURCE_REPO}.git"
         println "########################################################################################################"
         SOURCE_DIR="${WORKSPACE}/sources"
-        util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
         SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
         util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit")
 
         println "########################################################################################################"
         println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
         TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
         OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got OLD_SHA in targetdwn folder: " + OLD_SHA

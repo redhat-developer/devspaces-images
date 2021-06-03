@@ -22,7 +22,7 @@ timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
       def util = load "${WORKSPACE}/util.groovy"
       cleanWs()
       CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
