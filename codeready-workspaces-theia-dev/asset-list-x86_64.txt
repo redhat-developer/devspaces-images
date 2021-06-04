@@ -1,2 +1,0 @@
-asset-eclipse-che-theia-generator.tgz
-asset-yarn-x86_64.tgz

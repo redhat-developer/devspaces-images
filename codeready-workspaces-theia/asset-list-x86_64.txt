@@ -1,8 +1,0 @@
-asset-branding.tar.gz
-asset-node-headers.tar.gz
-asset-post-download-dependencies-x86_64.tar.gz
-asset-sshpass-sources.tar.gz
-asset-theia-source-code.tar.gz
-asset-yarn-runtime-image-x86_64.tar.gz
-asset-yarn-x86_64.lock
-asset-yarn-x86_64.tgz
