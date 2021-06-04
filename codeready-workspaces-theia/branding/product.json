@@ -1,0 +1,22 @@
+{
+    "name": "Red Hat CodeReady Workspaces",
+    "icon": "codeready-workspaces-icon.png",
+    "logo": {
+        "dark": "codeready-workspaces-logo-light.png",
+        "light": "codeready-workspaces-logo-dark.png"
+    },
+    "welcome": {
+        "title": "Welcome to Your Workspace",
+        "links": ["website", "documentation"]
+    },
+    "links": {
+        "website": {
+            "name": "Discover CodeReady Workspaces",
+            "url": "https://developers.redhat.com/products/codeready-workspaces/overview"
+        },
+        "documentation": {
+            "name": "Browse Documentation",
+            "url": "https://www.redhat.com/docs"
+        }
+    }
+}

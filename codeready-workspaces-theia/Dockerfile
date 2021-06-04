@@ -174,7 +174,7 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-77.1618436962 as build-result
+FROM ubi8/nodejs-12:1-87 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
@@ -190,9 +190,9 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-77.1618436962 as runtime
+FROM ubi8/nodejs-12:1-87 as runtime
 USER 0
-RUN yum -y -q update && \
+RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
@@ -296,25 +296,3 @@ USER theia
 WORKDIR /projects
 COPY src/entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
-
-
-# insert generated LABELs below this line
-LABEL \
-      jenkins.tarball.url="/job/ \
-      #25 \
-      / \
-      asset-branding.tar.gz \
-      asset-che-theia.tar.gz \
-      asset-node-headers.tar.gz \
-      asset-post-download-dependencies-ppc64le.tar.gz \
-      asset-post-download-dependencies-s390x.tar.gz \
-      asset-post-download-dependencies-x86_64.tar.gz \
-      asset-sshpass-sources.tar.gz \
-      asset-theia-source-code.tar.gz \
-      asset-yarn-ppc64le.tar.gz \
-      asset-yarn-runtime-image-ppc64le.tar.gz \
-      asset-yarn-runtime-image-s390x.tar.gz \
-      asset-yarn-runtime-image-x86_64.tar.gz \
-      asset-yarn-s390x.tar.gz \
-      asset-yarn-x86_64.tar.gz" \
-      jenkins.build.number="25"

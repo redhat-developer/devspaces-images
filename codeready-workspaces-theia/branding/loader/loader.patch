@@ -1,0 +1,102 @@
+diff --git a/packages/core/src/browser/style/index.css b/packages/core/src/browser/style/index.css
+index ce0551792..d3b7c362a 100644
+--- a/packages/core/src/browser/style/index.css
++++ b/packages/core/src/browser/style/index.css
+@@ -95,12 +95,30 @@ blockquote {
+   bottom: 0;
+   z-index: 50000;
+   background: var(--theia-editor-background);
+-  background-image: var(--theia-preloader);
+-  background-size: 60px 60px;
++}
++
++.theia-preload::before {
++  position: absolute;
++  top: 0;
++  right: 0;
++  bottom: 0;
++  left: 0;
++  content: "";
++  opacity: 1;
++  background-image: url(../icons/CodeReady_icon_loader.svg);
++  background-size: 160px 160px;
+   background-repeat: no-repeat;
+-  background-attachment: fixed;
+   background-position: center;
+-  transition: opacity 0.8s;
++  animation: 1s infinite fadein;
++  animation-timing-function: ease-out;
++  animation-play-state: running;
++  animation-fill-mode: none;
++  animation-direction: alternate;
++}
++
++@keyframes fadein {
++  0% { opacity: 0.9; }
++  100% { opacity: 1; }
+ }
+ 
+ .theia-preload.theia-hidden {
+diff --git a/packages/core/src/browser/style/variables-bright.useable.css b/packages/core/src/browser/style/variables-bright.useable.css
+index 8521a0ded..ca5fd77ea 100644
+--- a/packages/core/src/browser/style/variables-bright.useable.css
++++ b/packages/core/src/browser/style/variables-bright.useable.css
+@@ -61,7 +61,7 @@ is not optimized for dense, information rich UIs.
+   --theia-icon-arrow-down: url(../icons/arrow-down-bright.svg);
+   --theia-sprite-y-offset: 0px;
+   --theia-icon-circle: url(../icons/circle-bright.svg);
+-  --theia-preloader: url(../icons/spinner.gif);
++  --theia-preloader: url(../icons/CodeReady_icon_loader.svg);
+   --theia-icon-case-sensitive: url(../icons/case-sensitive.svg);
+   --theia-icon-regex: url(../icons/regex.svg);
+   --theia-icon-whole-word: url(../icons/whole-word.svg);
+diff --git a/packages/core/src/browser/style/variables-dark.useable.css b/packages/core/src/browser/style/variables-dark.useable.css
+index 8d290a4ac..5a0218245 100644
+--- a/packages/core/src/browser/style/variables-dark.useable.css
++++ b/packages/core/src/browser/style/variables-dark.useable.css
+@@ -61,7 +61,7 @@ is not optimized for dense, information rich UIs.
+   --theia-icon-arrow-down: url(../icons/arrow-down-dark.svg);
+   --theia-sprite-y-offset: -20px;
+   --theia-icon-circle: url(../icons/circle-dark.svg);
+-  --theia-preloader: url(../icons/spinner.gif);
++  --theia-preloader: url(../icons/CodeReady_icon_loader.svg);
+   --theia-icon-case-sensitive: url(../icons/case-sensitive-dark.svg);
+   --theia-icon-regex: url(../icons/regex-dark.svg);
+   --theia-icon-whole-word: url(../icons/whole-word-dark.svg);
+diff --git a/packages/mini-browser/src/browser/style/index.css b/packages/mini-browser/src/browser/style/index.css
+index 8718a9d02..925c3b790 100644
+--- a/packages/mini-browser/src/browser/style/index.css
++++ b/packages/mini-browser/src/browser/style/index.css
+@@ -129,11 +129,30 @@
+     left: 0;
+     z-index: 10;
+     background: var(--theia-editor-background);
++}
++
++.theia-mini-browser-load-indicator::before {
++    position: absolute;
++    top: 0;
++    right: 0;
++    bottom: 0;
++    left: 0;
++    content: "";
++    opacity: 1;
+     background-image: var(--theia-preloader);
+-    background-size: 60px 60px;
++    background-size: 120px 120px;
+     background-repeat: no-repeat;
+     background-position: center;
+-    transition: opacity 0.8s;
++    animation: 1s infinite fadein;
++    animation-timing-function: ease-out;
++    animation-play-state: running;
++    animation-fill-mode: none;
++    animation-direction: alternate;
++}
++
++@keyframes fadein {
++    0% { opacity: 0.9; }
++    100% { opacity: 1; }
+ }
+ 
+ .theia-mini-browser-load-indicator.theia-fade-out {

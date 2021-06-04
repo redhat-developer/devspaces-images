@@ -1,3 +1,2 @@
 asset-eclipse-che-theia-generator.tgz
-asset-list-x86_64.txt
-asset-yarn-ppc64le.tgz
+asset-yarn-x86_64.tgz
