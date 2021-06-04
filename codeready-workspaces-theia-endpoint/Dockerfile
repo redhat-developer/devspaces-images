@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Red Hat, Inc.
+# Copyright (c) 2019-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -45,7 +45,7 @@ RUN /tmp/nexe/index.js -v && \
 
 # Light image without node. We include remote binary to this image.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-200 as runtime
+FROM ubi8-minimal:8.4-200.1622548483 as runtime
 USER 0
 RUN microdnf -y install yum && \
     yum -y -q update --nobest && \
