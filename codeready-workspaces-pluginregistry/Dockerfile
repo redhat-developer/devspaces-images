@@ -66,7 +66,7 @@ USER 0
 RUN chmod +x /usr/share/container-scripts/httpd/pre-init/40-ssl-certs.sh && \
     /usr/share/container-scripts/httpd/pre-init/40-ssl-certs.sh
 RUN \
-    yum -y -q update && \
+    yum -y -q --nobest update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
@@ -84,6 +84,7 @@ WORKDIR /var/www/html
 
 RUN mkdir -m 777 /var/www/html/v3
 COPY README.md .htaccess /var/www/html/
+COPY /v3/plugins/.htaccess /var/www/html/v3/plugins/
 COPY --from=builder /build/output/v3 /var/www/html/v3
 COPY ./build/dockerfiles/rhel.entrypoint.sh ./build/dockerfiles/entrypoint.sh /usr/local/bin/
 RUN chmod g+rwX /usr/local/bin/entrypoint.sh /usr/local/bin/rhel.entrypoint.sh && \
