@@ -8,7 +8,7 @@ import groovy.transform.Field
 // FORCE_BUILD = "false"
 
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
-///// THIS FILE IS DEPRECATED and not used for 2.9 see template_2.x.jenkinsfile
+///// THIS FILE IS DEPRECATED and not used; for 2.9+, see template_2.x.jenkinsfile
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
 @Field String branchToBuildDev = "refs/tags/19"

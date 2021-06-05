@@ -3,9 +3,8 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 //   REPOS
-//   JOB_BRANCH = 2.y
+//   UPDATE_BASE_IMAGES_FLAGS
 //   MIDSTM_BRANCH
-//   SCRATCH = false (do push to Quay) or true (don't push to Quay)
 //   FORCE_BUILD
 
 def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
@@ -14,8 +13,13 @@ def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // sourc
 def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
-def String nodeLabel = 'rhel8'
-timeout(120) {
+
+// CRW-1826 don't use s390x-rhel8 for dashboard or plugin reg (Yarn 2 + s390x = fail)
+def String nodeLabel = (REPOS.contains("-dashboard") || REPOS.contains("-pluginregistry") ? 
+  'rhel8||ppc64le-rhel8' : 
+  'rhel8||s390x-rhel8||ppc64le-rhel8')
+
+timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
@@ -34,25 +38,42 @@ timeout(120) {
             println "########################################################################################################"
             util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
             // ensure static Dockerfiles have the correct version encoded in them
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.6"); }
-            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.6"); }
-            util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH)
-            SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
-            println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
+            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.7"); }
+            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.7"); }
 
             def QUAY_REPO_PATH=""
             for (int i=0; i < SYNC_REPOS.size(); i++) {
               if (SYNC_REPOS[i]?.trim()) { 
                 currentBuild.description+="${SYNC_REPOS[i]}"
+
+                // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
+                // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
+                util.updateBaseImages("${WORKSPACE}/sources/" + SYNC_REPOS[i], MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+                SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+                println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
+
                 println "########################################################################################################"
                 println "##  Sync [${SYNC_REPOS[i]}] to pkgs.devel"
                 println "########################################################################################################"
                 util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH)
 
-                sh('''rsync -avhz --checksum --delete --exclude .git/ ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/ ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i])
+                sh('''
+SOURCEDIR="${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/"
+TARGETDIR="${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''"
+echo ".github/
+.git/
+.gitattributes
+sources
+" > /tmp/rsync-excludes
+echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rm -f /tmp/rsync-excludes
+                ''')
 
                 OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
                 println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
@@ -60,10 +81,11 @@ timeout(120) {
                 // push to dist-git
                 sh('''#!/bin/bash -xe
                   cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-                  if [[ \$(git diff --name-only) ]]; then # file changed
+                  git update-index --refresh || true # ignore timestamp updates
+                  if [[ \$(git diff-index HEAD --) ]]; then # file changed
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
-                    git add --all -f .
-                    git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+                    git add . -A -f
+                    git commit -s -m "[mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi''')
 
@@ -78,12 +100,14 @@ timeout(120) {
                     for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
                       cp $f ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
                     done
+                    git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
 
                     # update source repo with updates from running get-sources-jenkins
                     cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
-                    git add --all -f .
+                    git add . -A -f
                     git commit -m "$COMMIT_MSG" || true
+                    git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi
                 ''')
@@ -93,15 +117,16 @@ timeout(120) {
 
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
-                  if (SCRATCH == true || SCRATCH.toString().equals("true")) {
-                    QUAY_REPO_PATH=""
+                  if ("${SYNC_REPOS[i]}".contains("-operator-")) {
+                    // SPECIAL CASE FOR operator (and operator-metadata)
+                    QUAY_REPO_PATH="crw-2-rhel8-" + util.getCRWShortName("${SYNC_REPOS[i]}")
                   }
-                  println ("Trigger get-sources-rhpkg-container-build_" + CRW_VERSION + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
+                  println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
                   // kick off get-sources-rhpkg-container-build_2.y job
                   build(
-                    job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
-                    wait: false,
-                    propagate: false,
+                    job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+                    wait: true,
+                    propagate: true,
                     parameters: [
                       [
                         $class: 'StringParameterValue',
@@ -115,7 +140,12 @@ timeout(120) {
                       ],
                       [
                         $class: 'StringParameterValue',
-                        name: 'GIT_BRANCH',
+                        name: 'UPDATE_BASE_IMAGES_FLAGS',
+                        value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'MIDSTM_BRANCH',
                         value: MIDSTM_BRANCH
                       ],
                       [
@@ -141,7 +171,7 @@ timeout(120) {
                       [
                         $class: 'BooleanParameterValue',
                         name: 'SCRATCH',
-                        value: SCRATCH
+                        value: false
                       ]
                     ]
                   )
@@ -157,3 +187,55 @@ timeout(120) {
     } // stage
   } // node
 } // timeout
+
+// kick off crwctl_2.y job if operator or metadata were synced above 
+node(nodeLabel){ 
+  stage ("Build crwctl on ${nodeLabel}") {
+    if (REPOS.contains("-operator-")) { 
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+      println "########################################################################################################"
+      println "##  Build crwctl ${JOB_BRANCH}"
+      println "########################################################################################################"
+      echo "currentBuild.result = " + currentBuild.result
+      if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+        if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
+          build(
+                job: 'crwctl_' + JOB_BRANCH,
+                wait: false,
+                propagate: false,
+                parameters: [
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'token',
+                    value: "CI_BUILD"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'cause',
+                    value: (
+                        REPOS.contains("-operator-metadata") ? 
+                          "build+crwctl+for+operator-metadata+sync+from+${BUILD_TAG}" : 
+                          "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
+                    )
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'versionSuffix',
+                    value: "CI"
+                  ]
+                ]
+          )
+          currentBuild.description+="; crwctl build triggered"
+        } else {
+          println "No changes upstream, nothing to rebuild in crwctl!"
+          currentBuild.description+="; no crwctl build"
+          currentBuild.result = 'UNSTABLE'
+        }
+      } else {
+        util.notifyBuildFailed()
+      } // if
+    } // if operator
+  } // stage
+} //node

@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"7.30.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created // TODO when che server moves to main as its default branch, change this too
-def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
+def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.31.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created // TODO when che server moves to main as its default branch, change this too
+def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -66,7 +66,7 @@ Artifact builder + sync job; triggers brew after syncing
         definition {
             cps{
                 sandbox(true)
-                if (JOB_BRANCH.equals("2.7") || JOB_BRANCH.equals("2.8")) {
+                if (JOB_BRANCH.equals("2.8")) {
                     script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
                 } else {
                     script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))

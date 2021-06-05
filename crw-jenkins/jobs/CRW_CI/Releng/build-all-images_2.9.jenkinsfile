@@ -13,7 +13,7 @@ List<List<?>> mapToList(Map map) {
   }
 }
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8'
 node(nodeLabel) {
     stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
         wrap([$class: 'TimestamperBuildWrapper']) {
@@ -41,21 +41,28 @@ node(nodeLabel) {
 
                 if (PHASE_LIST.contains("1")) {
                     // rebuild lang server artifacts
-                    currentJob="crw-deprecated_" + JOB_BRANCH
+                    currentJob="crw-imagepuller_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 if (PHASE_LIST.contains("2")) {
+                    // rebuild lang server artifacts
+                    currentJob="crw-deprecated_" + JOB_BRANCH
+                    lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
+                }
+
+                if (PHASE_LIST.contains("3")) {
                     // all the sidecars - start this early since it's 10 builds
                     currentJob="sync-to-downstream_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this set of 10 builds to finish
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
+                    currentBuild.description+="<br/>* sidecars: <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 currentQuayImageTheia=""
                 currentQuayImageTheiaEndpoint=""
-                if (PHASE_LIST.contains("3")) {
+                if (PHASE_LIST.contains("4")) {
                     // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
                     currentJob="crw-theia-sources_" + JOB_BRANCH
                     currentQuayImageTheia = util.getLatestImageAndTag("crw/theia-rhel8", "quay")
@@ -66,13 +73,11 @@ node(nodeLabel) {
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
-                if (PHASE_LIST.contains("4")) {
+                if (PHASE_LIST.contains("5")) {
                     def jobsList = [
                         "server":"server-rhel8",
                         "configbump":"configbump-rhel8",
-                        // TODO 2.8 version will have more images (devworkspace, che devworkspace)
                         "operator":"crw-2-rhel8-operator",
-                        "imagepuller":"imagepuller-rhel8",
                         "jwtproxy":"jwtproxy-rhel8",
                         "machineexec":"machineexec-rhel8",
                         "pluginbrokers":"pluginbroker-artifacts-rhel8",
@@ -105,20 +110,20 @@ node(nodeLabel) {
                     util.waitForNewQuayImage("crw/pluginbroker-metadata-rhel8", currentQuayImagePluginbrokerMetadata)
                 }
 
-                if (PHASE_LIST.contains("3")) {
+                if (PHASE_LIST.contains("4")) {
                     // wait until theia is rebuilt too
                     util.waitForNewQuayImage("crw/theia-rhel8", currentQuayImageTheia)
                     util.waitForNewQuayImage("crw/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint)
                 }
 
-                if (PHASE_LIST.contains("5")) {
+                if (PHASE_LIST.contains("6")) {
                     currentQuayImageMetadata = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-metadata", "quay")
                     println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
 
                     // trigger update-digests job (to rebuild registries and metadata images)
                     currentJob="update-digests-in-registries-and-metadata_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>update-digests#${lastBuildId}</a>"
                     util.waitForNewQuayImage("crw/crw-2-rhel8-operator-metadata", currentQuayImageMetadata)
                 }
 

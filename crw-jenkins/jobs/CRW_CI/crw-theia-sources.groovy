@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.7":"7.26.x", "2.8":"7.28.x", "2.x":"7.30.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created
-def JOB_DISABLED = ["2.7":true, "2.8":true, "2.x":false]
+def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.31.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created
+def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -29,9 +29,8 @@ for (JB in JOB_BRANCHES) {
 </ul>
 
 <p>
-1. <a href=../crw-theia-sources_''' + JOB_BRANCH + '''>crw-theia-sources_''' + JOB_BRANCH + '''</a>: Build CRW Theia components needed for the Theia images (built in Brew), then <br/>
-2. <a href=../crw-theia-containers_''' + JOB_BRANCH + '''>crw-theia-containers_''' + JOB_BRANCH + '''</a>: Trigger 3 Brew builds, then <br/>
-3. <a href=../crw-theia-akamai_''' + JOB_BRANCH + '''>crw-theia-akamai_''' + JOB_BRANCH + '''</a>: Push Theia artifacts to akamai CDN <br/>
+1. <a href=../crw-theia-sources_''' + JOB_BRANCH + '''>crw-theia-sources_''' + JOB_BRANCH + '''</a>: Bootstrap CRW Theia components by building temporary containers and pushing them to quay, then trigger <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream_''' + JOB_BRANCH + '''</a> and <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.<br/>
+2. <a href=../crw-theia-akamai_''' + JOB_BRANCH + '''>crw-theia-akamai_''' + JOB_BRANCH + '''</a>: Push Theia artifacts to akamai CDN <br/>
 
 <p>
 Results:
@@ -77,7 +76,18 @@ Results:
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("PLATFORMS", "x86_64, s390x, ppc64le", "list of platforms on which to build assets; normally: x86_64, s390x, ppc64le")
+            stringParam("nodeVersion", "12.21.0", "Leave blank if not needed")
+            stringParam("yarnVersion", "1.21.1", "Leave blank if not needed")
+            // TODO CRW-1609 implement tag deletion option
+            // booleanParam("cleanTmpImages", false, "If true, delete tmp images from quay before starting build(s)")
+            textParam("CONTAINERS", '''codeready-workspaces-theia-dev codeready-workspaces-theia codeready-workspaces-theia-endpoint''', '''comma- or space-separated list of containers to build, in order<br/>
+* include one, some, or all as needed<br/>
+* default: codeready-workspaces-theia-dev codeready-workspaces-theia codeready-workspaces-theia-endpoint''')
+            // TODO CRW 2.10 refactor this to use space-separated like everywhere else #consistency!
+            stringParam("PLATFORMS", "x86_64, s390x, ppc64le", '''comma-separated list of architectures on which to build containers<br/>
+* include one, some, or all as needed<br/>
+* default: x86_64, s390x, ppc64le''')
+            booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

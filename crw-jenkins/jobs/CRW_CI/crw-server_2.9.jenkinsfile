@@ -7,9 +7,14 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // FORCE_BUILD = "false"
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used for 2.9 see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 @Field String branchToBuildDev = "refs/tags/19"
 @Field String branchToBuildParent = "refs/tags/7.15.0"
-def SOURCE_BRANCH_Dashboard = "7.25.x" // or set to "7.25.x" to use old dashboard
+// TODO when che server moves to main as its default branch, change this too
+def SOURCE_BRANCH_Dashboard = "main" // use new dashboard https://issues.redhat.com/browse/CRW-1435
 
 // TODO re-enable all tests here
 // additional flags for maven, eg., to disable a module -pl '!org.eclipse.che.infrastructure:che-infrastructures-parent,!...'
@@ -18,14 +23,6 @@ def SOURCE_BRANCH_Dashboard = "7.25.x" // or set to "7.25.x" to use old dashboar
 def DWNSTM_REPO = "containers/codeready-workspaces" // dist-git repo to use as target for everything
 
 def SYNC_REPO = "server"
-
-// TODO move to node 12?
-// current version used for crw-theia:
-//def nodeVersion = "12.18.2"
-// def yarnVersion = "1.17.3"
-// current version used for crw-server:
-def nodeVersion="10.19.0"
-def yarnVersion="1.21.0"
 
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
 
@@ -43,10 +40,6 @@ def CHE_DB_path = "che-dashboard"
 def VER_CHE_DB = "VER_CHE_DB"
 def SHA_CHE_DB = "SHA_CHE_DB"
 
-def CHE_WL_path = "che-workspace-loader"
-def VER_CHE_WL = "VER_CHE_WL"
-def SHA_CHE_WL = "SHA_CHE_WL"
-
 def CHE_path = "che"
 def VER_CHE = "VER_CHE"
 def SHA_CHE = "SHA_CHE"
@@ -60,10 +53,19 @@ def OLD_SHA_DWN=""
 def NEW_SHA_MID=""
 def NEW_SHA_DWN=""
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(240) {
   node(nodeLabel) {
-    stage("Build ${DEV_path}, ${PAR_path}, ${CHE_DB_path}, ${CHE_WL_path}, and ${CRW_path}") {
+    stage ("SCM Poll: Che/CRW server") {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+        def util = load "${WORKSPACE}/util.groovy"
+        sh "mkdir -p tmp"
+        util.cloneRepoWithBootstrap("https://github.com/eclipse/" + CHE_path + ".git", "tmp/che", SOURCE_BRANCH, true)
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/" + CRW_path + ".git", "tmp/crw", MIDSTM_BRANCH, true)
+        sh "rm -fr tmp"
+    } // stage
+
+    stage("Build ${DEV_path}, ${PAR_path}, ${CHE_DB_path}, and ${CRW_path}") {
         wrap([$class: 'TimestamperBuildWrapper']) {
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
                 file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
@@ -80,15 +82,13 @@ timeout(240) {
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             println "CRW_VERSION = '" + CRW_VERSION + "'"
 
-            util.bootstrap(CRW_KEYTAB)
-
             // log in to registries
             def statusCode = util.loginToRegistries()
             if (statusCode > 0) {
                 currentBuild.result = 'FAILURE'
             } else {
                 echo "===== Build che-dev =====>"
-                util.cloneRepo("https://github.com/eclipse/${DEV_path}.git", DEV_path, branchToBuildDev)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${DEV_path}.git", DEV_path, branchToBuildDev, false)
                 sh "mvn clean install ${MVN_FLAGS} -f ${DEV_path}/pom.xml ${MVN_EXTRA_FLAGS}"
 
                 VER_DEV = sh(returnStdout:true,script:"egrep \"<version>\" ${DEV_path}/pom.xml|head -1|sed -e \"s#.*<version>\\(.\\+\\)</version>#\\1#\"").trim()
@@ -96,21 +96,21 @@ timeout(240) {
                 echo "<===== Build che-dev ====="
 
                 echo "===== Build che-parent =====>"
-                util.cloneRepo("https://github.com/eclipse/${PAR_path}.git", PAR_path, branchToBuildParent)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${PAR_path}.git", PAR_path, branchToBuildParent, false)
                 sh "mvn clean install ${MVN_FLAGS} -f ${PAR_path}/pom.xml ${MVN_EXTRA_FLAGS}"
 
                 VER_PAR = sh(returnStdout:true,script:"egrep \"<version>\" ${PAR_path}/pom.xml|head -1|sed -e \"s#.*<version>\\(.\\+\\)</version>#\\1#\"").trim()
                 SHA_PAR = util.getLastCommitSHA("${WORKSPACE}/${PAR_path}")
                 echo "<===== Build che-parent ====="
 
-                echo "===== Get CRW version =====>"
-                util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", CRW_path, MIDSTM_BRANCH)
+                echo "===== Get CRW sources + compute version =====>"
+                util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", CRW_path, MIDSTM_BRANCH, true, 'dependencies/*')
                 VER_CRW = sh(returnStdout:true,script:"egrep \"<version>\" ${CRW_path}/pom.xml|head -2|tail -1|sed -e \"s#.*<version>\\(.\\+\\)</version>#\\1#\"").trim()
                 SHA_CRW = util.getLastCommitSHA("${WORKSPACE}/${CRW_path}")
                 echo "<===== Get CRW version ====="
 
-                echo "===== Get Che version =====>"
-                util.cloneRepo("https://github.com/eclipse/${CHE_path}.git", CHE_path, SOURCE_BRANCH)
+                echo "===== Get Che sources + compute version =====>"
+                util.cloneRepoWithBootstrap("https://github.com/eclipse/${CHE_path}.git", CHE_path, SOURCE_BRANCH, true)
 
                 VER_CHE = sh(returnStdout:true,script:'''#!/bin/bash -xe
 egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<version>(.+)</version>#\\1#"
@@ -120,22 +120,14 @@ egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<v
                 echo "<==== Get Che version ====="
 
                 echo "===== Build che-dashboard =====>"
-                util.cloneRepo("https://github.com/eclipse/${CHE_DB_path}.git", CHE_DB_path, SOURCE_BRANCH_Dashboard)
+                util.cloneRepoWithBootstrap("https://github.com/eclipse-che/${CHE_DB_path}.git", CHE_DB_path, SOURCE_BRANCH_Dashboard, true)
 
                 VER_CHE_DB = sh(returnStdout:true,script:"cat ${CHE_DB_path}/package.json | jq -r .version").trim()
                 SHA_CHE_DB = util.getLastCommitSHA("${WORKSPACE}/${CHE_DB_path}")
 
-                // set correct version of CRW Dashboard
-                CRW_SHAs="${VER_CRW} :: ${JOB_NAME}/${BUILD_NUMBER} \
-:: ${DEV_path} @ ${SHA_DEV} (${VER_DEV}) \
-:: ${PAR_path} @ ${SHA_PAR} (${VER_PAR}) \
-:: ${CHE_path} @ ${SHA_CHE} (${VER_CHE}) \
-:: ${CRW_path} @ ${SHA_CRW} (${VER_CRW})"
-                echo "CRW_SHAs (for dashboard) = ${CRW_SHAs}"
-
-                // insert a longer version string which includes both CRW and Che, plus build and SHA info
-                sh "sed -r -i -e \"s#(.+productVersion = ).+#\\1'${CRW_SHAs}';#g\" ${CHE_DB_path}/src/components/api/che-service.factory.ts"
-                sh "egrep 'productVersion = ' ${CHE_DB_path}/src/components/api/che-service.factory.ts"
+                // CRW-1676 set simpler CRW Dashboard version string
+                CRW_SHAs="${VER_CRW} @ ${SHA_CRW} #${BUILD_NUMBER} :: Eclipse Che " + VER_CHE.replaceAll("-SNAPSHOT","") + "  @ ${SHA_CHE}"
+                echo "CRW_SHAs (dashboard version string) = ${CRW_SHAs}"
 
                 // apply CRW CSS + fix doc links
                 DOCS_VERSION = sh(returnStdout:true,script:"grep crw.docs.version ${CRW_path}/pom.xml | sed -r -e \"s#.*<.+>([0-9.SNAPSHOT-]+)</.+>#\\1#\"")
@@ -144,38 +136,24 @@ egrep "<version>" ''' + CHE_path + '''/pom.xml|head -2|tail -1|sed -r -e "s#.*<v
 
                 sh '''#!/bin/bash -xe
 cd ''' + CHE_DB_path + '''
-# ls -la src/assets/branding/
-rsync -aPr ../''' + CRW_path + '''/assembly/branding/* src/assets/branding/
-# ls -la src/assets/branding/
-mv -f src/assets/branding/branding{-crw,}.css
+# ls -la assets/branding/
+rsync -aPr ../''' + CRW_path + '''/assembly/branding/* assets/branding/
+# ls -la assets/branding/
+mv -f assets/branding/branding{-crw,}.css
 
 # process product.json template
 sed -r \
-    -e "s#@@crw.version@@#'''+CRW_SHAs + '''#g" \
+    -e "s|@@crw.version@@|'''+CRW_SHAs + '''|g" \
     -e "s#@@crw.docs.baseurl@@#''' + CRW_DOCS_BASEURL + '''#g" \
-src/assets/branding/product.json.template > src/assets/branding/product.json
-rm -f src/assets/branding/product.json.template
-# cat src/assets/branding/product.json
+assets/branding/product.json.template > assets/branding/product.json
+rm -f assets/branding/product.json.template
+# cat assets/branding/product.json
 
 docker build -f apache.Dockerfile -t crw-dashboard:tmp .
 docker run --rm --entrypoint sh crw-dashboard:tmp -c 'tar -pzcf - /usr/local/apache2/htdocs/dashboard' > asset-dashboard.tar.gz
 '''
 
                 echo "<===== Build che-dashboard ====="
-
-                echo "===== Build che-workspace-loader =====>"
-                util.cloneRepo("https://github.com/eclipse/${CHE_WL_path}.git", CHE_WL_path, SOURCE_BRANCH)
-
-                VER_CHE_WL = sh(returnStdout:true,script:"cat ${CHE_WL_path}/package.json | jq -r '.version'").trim()
-                SHA_CHE_WL = util.getLastCommitSHA("${WORKSPACE}/${CHE_WL_path}")
-                
-                sh '''#!/bin/bash -xe
-cd ''' + CHE_WL_path + '''
-docker build -f apache.Dockerfile -t crw-workspace-loader:tmp .
-docker run --rm --entrypoint sh crw-workspace-loader:tmp -c 'tar -pzcf - /usr/local/apache2/htdocs/workspace-loader' > asset-workspace-loader.tar.gz
-'''
-
-                echo "<===== Build che-workspace-loader ====="
 
                 echo "===== Build che server assembly =====>"
 
@@ -185,16 +163,7 @@ docker run --rm --entrypoint sh crw-workspace-loader:tmp -c 'tar -pzcf - /usr/lo
                 echo "<==== Build che server assembly ====="
 
                 echo "===== Build CRW server assembly =====>"
-                CRW_SHAs="${VER_CRW} :: ${JOB_NAME}/${BUILD_NUMBER} \
-:: ${DEV_path} @ ${SHA_DEV} (${VER_DEV}) \
-:: ${PAR_path} @ ${SHA_PAR} (${VER_PAR}) \
-:: ${CHE_DB_path} @ ${SHA_CHE_DB} (${VER_CHE_DB}) \
-:: ${CHE_WL_path} @ ${SHA_CHE_WL} (${VER_CHE_WL}) \
-:: ${CHE_path} @ ${SHA_CHE} (${VER_CHE}) \
-:: ${CRW_path} @ ${SHA_CRW} (${VER_CRW})"
-                echo "CRW_SHAs (overall) = ${CRW_SHAs}"
-
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
 
                 def SYNC_FILES_UP2DWN = "entrypoint.sh" // in che/dockerfiles/che/ folder
 
@@ -209,11 +178,6 @@ cd ''' + CRW_path + '''
 
 # CRW-1213 update the che.version in the pom, so we have the latest from the upstream branch
 sed -i pom.xml -r -e "s#<che.version>.+</che.version>#<che.version>''' + VER_CHE.replaceAll("-SNAPSHOT","") + '''</che.version>#g"
-
-# Check if che-machine-exec and che-theia plugins are current in upstream repo and if not, add them
-pushd dependencies/che-plugin-registry >/dev/null
-    ./build/scripts/add_che_plugins.sh -b ''' + MIDSTM_BRANCH + ''' ''' + VER_CHE.replaceAll("-SNAPSHOT","") + '''
-popd >/dev/null
 
 # updated downstream sources
 DWNSTM_REPO="''' + DWNSTM_REPO + '''"
@@ -277,7 +241,8 @@ echo -e "$METADATA" >> ${WORKSPACE}/targetdwn/Dockerfile
 export KRB5CCNAME=/var/tmp/crw-build_ccache
 cd ${WORKSPACE}/targetdwn
 
-if [[ \$(git diff --name-only) ]]; then # file changed
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
   git add Dockerfile ''' + SYNC_FILES_UP2DWN + ''' . -A -f
   # note this might fail if we're syncing from a tag vs. a branch
   git commit -s -m "[sync] Update from ''' + CHE_path + ''' @ ''' + SHA_CHE + ''' + ''' + CRW_path + ''' @ ''' + SHA_CRW + '''" \
@@ -291,7 +256,8 @@ cd ..
                 util.updateBaseImages("${WORKSPACE}/${CRW_path}", MIDSTM_BRANCH, "--nocommit")
                 sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/''' + CRW_path + '''
-if [[ \$(git diff --name-only) ]]; then # file changed
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
     git add Dockerfile ''' + SYNC_FILES_UP2DWN + ''' . -A -f
     git commit -s -m "[sync] Update from ''' + CHE_path + ''' @ ''' + SHA_CHE + '''" \
       Dockerfile ''' + SYNC_FILES_UP2DWN + ''' . || true
@@ -309,34 +275,29 @@ cd ..
 
                 sh "mvn clean install ${MVN_FLAGS} -f ${CRW_path}/pom.xml -Dparent.version=\"${VER_PAR}\" -Dche.version=\"${VER_CHE}\" -Dcrw.dashboard.version=\"${CRW_SHAs}\" ${MVN_EXTRA_FLAGS}"
 
-                // Add dashboard and workspace-loader to server assembly
+                // Add dashboard and to server assembly
                 sh '''#!/bin/bash -xe
 # unpack incomplete assembly
-mkdir -p /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/ /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/workspace-loader/
+mkdir -p /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/
 tar xvzf ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main.tar.gz -C /tmp/''' + CRW_path + '''-assembly-main/
 
 # rename incomplete assembly
-mv ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main{,-no-dashboard-no-workspace-loader}.tar.gz 
+mv ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main{,-no-dashboard}.tar.gz 
 
 # unpack + move dashboard artifacts
 tar xvzf ''' + CHE_DB_path + '''/asset-dashboard.tar.gz -C /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/
 mv /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/dashboard/usr/local/apache2/htdocs/dashboard/* \
     /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main/tomcat/webapps/dashboard/
 
-# unpack + move workspace-loader artifacts
-tar xvzf ''' + CHE_WL_path + '''/asset-workspace-loader.tar.gz -C /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/workspace-loader/
-mv /tmp/''' + CRW_path + '''-assembly-main/tomcat/webapps/workspace-loader/usr/local/apache2/htdocs/workspace-loader/* \
-    /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main/tomcat/webapps/workspace-loader/
-
 # clean up temp folder
 rm -fr /tmp/''' + CRW_path + '''-assembly-main/tomcat/
 
-# build new complete tarball assemlby with che server, dashboard, and workspace-loader
+# build new complete tarball assemlby with che server + dashboard
 pushd /tmp/''' + CRW_path + '''-assembly-main/ >/dev/null; tar -pzcf codeready-workspaces-assembly-main.tar.gz ./*; popd >/dev/null
 mv /tmp/''' + CRW_path + '''-assembly-main/codeready-workspaces-assembly-main.tar.gz ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/
 
 # clean up incomplete assembly
-rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main-no-dashboard-no-workspace-loader.tar.gz
+rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/codeready-workspaces-assembly-main-no-dashboard.tar.gz
 '''
 
                 archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/assembly/*xml, **/assembly/**/*xml, ${CRW_path}/assembly/${CRW_path}-assembly-main/target/*.tar.*, **/asset-*.gz"
@@ -345,11 +306,10 @@ rm -f ''' + CRW_path + '''/assembly/''' + CRW_path + '''-assembly-main/target/co
 
                 def brewwebQuery = \
                 "https://brewweb.engineering.redhat.com/brew/tasks?method=buildContainer&owner=crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com&state=all&view=flat&order=-id"
-                def descriptString="<a href=https://quay.io/repository/crw/server-rhel8?tab=tags>Quay</a> " + "Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/>\
+                def descriptString="Upstream sync & artifact build done: <a href=https://quay.io/repository/crw/server-rhel8?tab=tags>Quay</a> " + "Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/>\
  :: ${DEV_path} @ ${SHA_DEV} (${VER_DEV}) <br/>\
  :: ${PAR_path} @ ${SHA_PAR} (${VER_PAR}) <br/>\
  :: ${CHE_DB_path} @ ${SHA_CHE_DB} (${VER_CHE_DB}) <br/>\
- :: ${CHE_WL_path} @ ${SHA_CHE_WL} (${VER_CHE_WL}) <br/>\
  :: ${CHE_path} @ ${SHA_CHE} (${VER_CHE}) <br/>\
  :: ${CRW_path} @ ${SHA_CRW} (${VER_CRW})"
                 echo "${descriptString}"
@@ -374,8 +334,10 @@ node(nodeLabel){
       if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
-        build(
-              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          build(
+              job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+              // if get-sources fetches from this job's artifacts, cannot set wait: true or we won't fetch the latest artifacts (build will still be running)
               wait: false,
               propagate: false,
               parameters: [
@@ -391,7 +353,7 @@ node(nodeLabel){
                 ],
                 [
                   $class: 'StringParameterValue',
-                  name: 'GIT_BRANCH',
+                  name: 'MIDSTM_BRANCH',
                   value: "${MIDSTM_BRANCH}"
                 ],
                 [
@@ -407,7 +369,7 @@ node(nodeLabel){
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
-                  value: "${CRW_VERSION}"
+                  value: JOB_BRANCH
                 ],
                 [
                   $class: 'BooleanParameterValue',

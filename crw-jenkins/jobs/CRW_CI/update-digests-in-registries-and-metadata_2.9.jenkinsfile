@@ -6,7 +6,7 @@ import groovy.transform.Field
     // MIDSTM_BRANCH
 
 def errorOccurred = false
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
     node(nodeLabel){ 
         try { 
@@ -23,13 +23,11 @@ timeout(120) {
                         util.installYq()
                         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                         println "CRW_VERSION = '" + CRW_VERSION + "'"
-
+                        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
                         util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH)
 
                         def NEW_IMAGES = sh (
-                            script: '''#!/bin/bash -xe
-                            cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --quay | \
-                                tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new''',
+                            script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new",
                             returnStdout: true
                         ).trim().split()
 
@@ -119,29 +117,20 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
 
                         // define what to do when we are ready to push changes
                         def COMMITCHANGES = '''#!/bin/bash -xe
-                            pushd ${WORKSPACE}/crw/product >/dev/null
-                            ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --quay > ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new
-                            popd >/dev/null
-
                             pushd ${WORKSPACE}/crw >/dev/null
 
-                            echo "============ LATEST_IMAGES.new 3 ============>"
-                            cat dependencies/LATEST_IMAGES.new
-                            echo "<============ LATEST_IMAGES.new 3 ============"
+                            # regenerate LATEST_IMAGES, LATEST_IMAGES_COMMITS, and LATEST_IMAGES_DIGESTS.json
+                            ./dependencies/LATEST_IMAGES.sh
 
-                            # replace LATEST_IMAGES with new values
-                            cat dependencies/LATEST_IMAGES.new > dependencies/LATEST_IMAGES
-                            rm -f dependencies/LATEST_IMAGES.new
-
-                            # generate list of NVRs, builds, and commit SHAs
-                            rm -f dependencies/LATEST_IMAGES_COMMITS
-                            for d in $(cat dependencies/LATEST_IMAGES); do ./product/getCommitSHAForTag.sh $d >> dependencies/LATEST_IMAGES_COMMITS; done
+                            echo "============ LATEST_IMAGES new 3 ============>"
+                            cat dependencies/LATEST_IMAGES
+                            echo "<============ LATEST_IMAGES new 3 ============"
 
                             # commit changes
-                            git add dependencies/LATEST_IMAGES dependencies/LATEST_IMAGES_COMMITS || true
-                            git commit -m "[update] Update dependencies/LATEST_IMAGES" dependencies/LATEST_IMAGES dependencies/LATEST_IMAGES_COMMITS
+                            git add dependencies/LATEST_IMAGES dependencies/LATEST_IMAGES_* || true
+                            git commit -m "[update] Update dependencies/LATEST_IMAGES, COMMITS, DIGESTS" dependencies/LATEST_IMAGES dependencies/LATEST_IMAGES_* || true
                             git pull origin ''' + MIDSTM_BRANCH + ''' || true
-                            git push origin ''' + MIDSTM_BRANCH + '''
+                            git push origin ''' + MIDSTM_BRANCH + ''' || true
 
                             popd >/dev/null
                         '''
@@ -187,8 +176,9 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                 parallel devfileregistry: {
                                     if (!DIFF_LATEST_IMAGES_IN_DEVFILE_REGISTRY.equals("")) {
                                         build(
-                                            job: 'crw-devfileregistry_' + CRW_VERSION, 
-                                            wait: true, propagate: true,
+                                            job: 'crw-devfileregistry_' + JOB_BRANCH,
+                                            wait: true,
+                                            propagate: true,
                                             parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                                         )
                                     } else {
@@ -197,8 +187,9 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                 }, pluginregistry: {
                                     if (!DIFF_LATEST_IMAGES_IN_PLUGIN_REGISTRY.equals("")) {
                                         build(
-                                            job: 'crw-pluginregistry_' + CRW_VERSION, 
-                                            wait: true, propagate: true,
+                                            job: 'crw-pluginregistry_' + JOB_BRANCH,
+                                            wait: true,
+                                            propagate: true,
                                             parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                                         )
                                     } else {
@@ -208,7 +199,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                 //parallel jobs
                                 while (true) {
                                     def REBUILT_IMAGES = sh (
-                                    script: 'cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -c "crw/devfileregistry-rhel8 crw/pluginregistry-rhel8" --quay',
+                                    script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/devfileregistry-rhel8 crw/pluginregistry-rhel8' --quay --tag ${CRW_VERSION}- --hide",
                                     returnStdout: true
                                     ).trim().split()
                                     def rebuiltImagesSet = REBUILT_IMAGES as Set
@@ -231,7 +222,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                         echo "Plugin registry has been rebuilt!"
                                         break
                                     }
-                                    sleep(time:60,unit:"SECONDS")
+                                    sleep(time:120,unit:"SECONDS")
                                 }
                                 sh '''#!/bin/bash -xe
 echo "============ LATEST_IMAGES.new 2 ============>"
@@ -247,15 +238,16 @@ echo "<============ LATEST_IMAGES.new 2 ============"
                             }
 
                             build(
-                                job: 'crw-operator-metadata_' + CRW_VERSION,
-                                wait: true, propagate: true,
+                                job: 'crw-operator-metadata_' + JOB_BRANCH,
+                                wait: true,
+                                propagate: true,
                                 parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                             )
 
                             while (true) 
                             {
                                 def rebuiltOperatorMetadataImage = sh (
-                                script: 'cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -c "crw/crw-2-rhel8-operator-metadata" --quay',
+                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
                                 returnStdout: true
                                 ).trim()
                                 echo "${rebuiltOperatorMetadataImage}"
@@ -263,7 +255,7 @@ echo "<============ LATEST_IMAGES.new 2 ============"
                                     echo "Operator metadata has been rebuilt!"
                                     break
                                 }
-                                sleep(time:60,unit:"SECONDS")
+                                sleep(time:120,unit:"SECONDS")
                             }
 
                             sh COMMITCHANGES

@@ -5,18 +5,14 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
-// JOB_BRANCH
-// FORCE_BUILD = "false"
+// DEV_WORKSPACE_CONTROLLER_VERSION
+// DEV_WORKSPACE_CHE_OPERATOR_VERSION
+// FORCE_BUILD
 
-def SOURCE_REPO = "eclipse/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
+def SOURCE_REPO = "eclipse-che/che-operator" //source repo from which to find and sync commits to pkgs.devel repo
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" // GH repo to use as target for deploy/ folder
-def DWNSTM_REPO = "containers/codeready-workspaces-operator" // dist-git repo to use as target for everything
-def SCRATCH = "false"
+def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // downstream repo (before pkgs.devel)
 def SYNC_REPO = "operator"
-
-// CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
-// NOTE: maxdepth 1 here is to prevent attempting to transform empty dockerfile in che-operator/build/Dockerfile
-def UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " 
 
 def SOURCE_SHA=""
 def OLD_SHA_MID=""
@@ -24,7 +20,7 @@ def OLD_SHA_DWN=""
 def NEW_SHA_MID=""
 def NEW_SHA_DWN=""
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
@@ -34,21 +30,21 @@ timeout(120) {
           sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
           def util = load "${WORKSPACE}/util.groovy"
           cleanWs()
-          // need to call this to set CRW_BRANCH_F for util.updateBaseImages
-          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-          println "CRW_VERSION = '" + CRW_VERSION + "'"
-
           // not sure why we need this but seems to help w/ rhel8 nodes
           sh ('''sudo yum-config-manager --disable epel-modular || true''')
 
           util.installSkopeoFromContainer("")
           util.installYq()
+          // need to call this to set CRW_BRANCH_F for util.updateBaseImages
+          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+          println "CRW_VERSION = '" + CRW_VERSION + "'"
+
           QUAY_REPO_PATH=util.getCRWShortName(SYNC_REPO) + "-rhel8"
           util.bootstrap(CRW_KEYTAB)
 
           util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
           util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
-          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+          util.cloneRepo("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
   
           def SYNC_FILES_UP2DWN = ".dockerignore .gitignore cmd deploy deploy.sh e2e go.mod go.sum LICENSE olm pkg README.md templates vendor version"
           def SYNC_FILES_MID2DWN = "build"
@@ -60,43 +56,51 @@ timeout(120) {
           OLD_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
           println "Got OLD_SHA_MID in targetmid folder: " + OLD_SHA_MID
 
-          OLD_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+          TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO) + "/"
+          OLD_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
 
-          util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+
+	  def SOURCEDOCKERFILE="${WORKSPACE}/sources/Dockerfile"
           sh '''#!/bin/bash -xe
-# rsync files in upstream github to dist-git
+# rsync files in upstream github to crw-images repo
+SOURCEDIR="${WORKSPACE}/sources"
+TARGET_DIR="''' + TARGET_DIR + '''"
+[ ! -d ${TARGET_DIR} ] && mkdir -p ${TARGET_DIR}
 for d in ''' + SYNC_FILES_UP2DWN + '''; do
-  if [[ -f ${WORKSPACE}/sources/${d} ]]; then
-    rsync -zrlt ${WORKSPACE}/sources/${d} ${WORKSPACE}/targetdwn/${d}
-  elif [[ -d ${WORKSPACE}/sources/${d} ]]; then
-    # copy over the files
-    rsync -zrlt ${WORKSPACE}/sources/${d}/* ${WORKSPACE}/targetdwn/${d}/
-    # sync the directory and delete from targetdwn if deleted from source
-    rsync -zrlt --delete ${WORKSPACE}/sources/${d}/ ${WORKSPACE}/targetdwn/${d}/
+  if [[ -f ${SOURCEDIR}/${d} ]]; then
+    rsync -azrlt ${SOURCEDIR}/${d} ${TARGET_DIR}/${d}
+  elif [[ -d ${SOURCEDIR}/${d} ]]; then
+    # copy over the dir contents
+    rsync -azrlt ${SOURCEDIR}/${d}/* ${TARGET_DIR}/${d}/
+    # sync the directory and delete if deleted from source
+    rsync -azrlt --delete ${SOURCEDIR}/${d}/ ${TARGET_DIR}/${d}/
+  else
+   echo "[WARN] Could not find ${SOURCEDIR}/${d} to sync to ${TARGET_DIR}/${d}"
   fi
 done
 
 # rsync files in midstream github to dist-git
 for d in ''' + SYNC_FILES_MID2DWN + '''; do
   if [[ -f ${WORKSPACE}/targetmid/${d} ]]; then
-    rsync -zrlt ${WORKSPACE}/targetmid/${d} ${WORKSPACE}/targetdwn/${d}
+    rsync -azrlt ${WORKSPACE}/targetmid/${d} ${TARGET_DIR}/${d}
   elif [[ -d ${WORKSPACE}/targetmid/${d} ]]; then
     # copy over the files
-    rsync -zrlt ${WORKSPACE}/targetmid/${d}/* ${WORKSPACE}/targetdwn/${d}/
-    # sync the directory and delete from targetdwn if deleted from source
-    rsync -zrlt --delete ${WORKSPACE}/targetmid/${d}/ ${WORKSPACE}/targetdwn/${d}/
+    rsync -azrlt ${WORKSPACE}/targetmid/${d}/* ${TARGET_DIR}/${d}/
+    # sync the directory and delete if deleted from source
+    rsync -azrlt --delete ${WORKSPACE}/targetmid/${d}/ ${TARGET_DIR}/${d}/
   fi
 done
 
 CSV_VERSION="$(curl -sSLo - https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/pom.xml | grep "<version>" | head -2 | tail -1 | \
   sed -r -e "s#.*<version>(.+)</version>.*#\\1#" -e "s#\\.GA##")" # 2.y.0 but not 2.y.0.GA
-${WORKSPACE}/targetdwn/build/scripts/sync-che-operator-to-crw-operator.sh -v ${CSV_VERSION} -s ${WORKSPACE}/sources/ -t ${WORKSPACE}/targetmid/
-${WORKSPACE}/targetdwn/build/scripts/sync-che-operator-to-crw-operator.sh -v ${CSV_VERSION} -s ${WORKSPACE}/sources/ -t ${WORKSPACE}/targetdwn/
+${TARGET_DIR}/build/scripts/sync-che-operator-to-crw-operator.sh -v ${CSV_VERSION} -s ${WORKSPACE}/sources/ -t ${WORKSPACE}/targetmid/
+${TARGET_DIR}/build/scripts/sync-che-operator-to-crw-operator.sh -v ${CSV_VERSION} -s ${WORKSPACE}/sources/ -t ${TARGET_DIR}/
 '''
 
           // get latest tags for the operator deployed images
-          def opyaml = "${WORKSPACE}/targetdwn/deploy/operator.yaml"
+          def opyaml = "${TARGET_DIR}/deploy/operator.yaml"
           def images = [
             /* IF IMAGES DON'T YET EXIST, fall back to quay.io/crw versions */
             "registry.redhat.io/codeready-workspaces/server-rhel8",
@@ -113,23 +117,23 @@ ${WORKSPACE}/targetdwn/build/scripts/sync-che-operator-to-crw-operator.sh -v ${C
           images.each() {
             latestTag = sh(returnStdout:true,script:'''
 skopeo inspect docker://''' + it + ''' | jq -r .RepoTags[] | sort -V | \
-grep -E -v 'source|latest|RC' | grep "''' + JOB_BRANCH + '''-" | tail -1 || true
+grep -E -v 'source|latest|RC' | grep "''' + CRW_VERSION + '''-" | tail -1 || true
             ''').trim()
             if (latestTag?.trim()) {
               echo "[INFO] Got image+tag: $it : $latestTag"
               result.replaceAll("$it:.+", "$it:" + latestTag)
             } else {
-              echo "[WARNING] No such image $it found for tag " + JOB_BRANCH + ": checking quay.io/crw for pre-released image..."
+              echo "[WARNING] No such image $it found for tag " + CRW_VERSION + ": checking quay.io/crw for pre-released image..."
               it2=it.replaceAll("registry.redhat.io/codeready-workspaces/", "quay.io/crw/")
               latestTag = sh(returnStdout:true,script:'''
 skopeo inspect docker://''' + it2 + ''' | jq -r .RepoTags[] | sort -V | \
-grep -E -v 'source|latest|RC' | grep "''' + JOB_BRANCH + '''-" | tail -1 || true
+grep -E -v 'source|latest|RC' | grep "''' + CRW_VERSION + '''-" | tail -1 || true
               ''').trim()
               if (latestTag?.trim()) {
                 echo "[INFO] Got image+tag: $it2 : $latestTag; using quay tag with RHEC image name"
                 result.replaceAll("$it:.+", "$it:" + latestTag)
               } else {
-                echo "[WARNING] No such image $it2 found for tag " + JOB_BRANCH + "; nothing to do!"
+                echo "[WARNING] No such image $it2 found for tag " + CRW_VERSION + "; nothing to do!"
               }
             }
           }
@@ -137,86 +141,101 @@ grep -E -v 'source|latest|RC' | grep "''' + JOB_BRANCH + '''-" | tail -1 || true
           
           sh '''
 hasChanged=0
-SOURCEDOCKERFILE=${WORKSPACE}/sources/Dockerfile
+TARGET_DIR="''' + TARGET_DIR + '''"
+DEV_WORKSPACE_CONTROLLER_VERSION="''' + DEV_WORKSPACE_CONTROLLER_VERSION + '''"
+DEV_WORKSPACE_CHE_OPERATOR_VERSION="''' + DEV_WORKSPACE_CHE_OPERATOR_VERSION + '''"
 
 # remove unneeded olm files
-rm -fr ${WORKSPACE}/targetdwn/olm/eclipse-che-preview-openshift ${WORKSPACE}/targetdwn/olm/eclipse-che-preview-kubernetes
+rm -fr ${TARGET_DIR}/olm/eclipse-che-preview-openshift ${TARGET_DIR}/olm/eclipse-che-preview-kubernetes
 
-cp -f ${SOURCEDOCKERFILE} ${WORKSPACE}/targetdwn/Dockerfile
-
-JOB_BRANCH="''' + JOB_BRANCH + '''"
+cp -f ''' + SOURCEDOCKERFILE + ''' ${TARGET_DIR}/Dockerfile
 
 # apply standard patches to convert from midstream public to downstream Brew build
-sed -i ${WORKSPACE}/targetdwn/Dockerfile \
+sed -i ${TARGET_DIR}/Dockerfile \
   -e "s#FROM registry.redhat.io/#FROM #g" \
   -e "s#FROM registry.access.redhat.com/#FROM #g" \
   -e "s/# *RUN yum /RUN yum /g"
+
+# CRW-1655 apply patches to support fetching sources directly from DWO and DWCO upstream projects
+# -RUN curl -L https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION} > /tmp/devworkspace-operator.zip && \
+# -    unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp
+# +COPY devworkspace-operator.zip /tmp
+# +RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d tmp
+sed -i ${TARGET_DIR}/Dockerfile -r \
+  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources-jenkins.sh` \
+  -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+  -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+  `# CRW-1655 use local zips instead of fetching from the internet` \
+  -e "s#RUN curl .+/tmp/((devworkspace|devworkspace-che)-operator.zip)(.+)#COPY \\1 /tmp#g" \
+  -e "s# +(unzip /tmp/.+ -d /tmp)#RUN \\1#g"
 
 METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     PRODNAME="codeready-workspaces" \\\r
     COMPNAME="''' + SYNC_REPO + '''" \r
-LABEL summary="$SUMMARY" \\\r
+LABEL com.redhat.delivery.appregistry="false" \\\r
+      summary="$SUMMARY" \\\r
       description="$DESCRIPTION" \\\r
       io.k8s.description="$DESCRIPTION" \\\r
       io.k8s.display-name=\"$DESCRIPTION" \\\r
       io.openshift.tags="$PRODNAME,$COMPNAME" \\\r
       com.redhat.component="$PRODNAME-rhel8-$COMPNAME-container" \\\r
       name="$PRODNAME/$COMPNAME" \\\r
-      version="'$JOB_BRANCH'" \\\r
+      version="''' + CRW_VERSION + '''" \\\r
       license="EPLv2" \\\r
-      maintainer="Nick Boldt <nboldt@redhat.com>" \\\r
+      maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \\\r
       io.openshift.expose-services="" \\\r
-      com.redhat.delivery.appregistry="false" \\\r
       usage="" \r'
 
-echo -e "$METADATA" >> ${WORKSPACE}/targetdwn/Dockerfile
-          '''
+echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
+
+# CRW-1674 update get-sources-jenkins.sh to refer to the correct template source branches
+sed -r \
+  -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+  -e 's#^DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+  -i ${TARGET_DIR}/get-sources-jenkins.sh
+git add ${TARGET_DIR}/get-sources-jenkins.sh || true
+git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTROLLER_VERSION} / ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ${TARGET_DIR}/get-sources-jenkins.sh || true
+'''
 
           // don't commit yet, we'll do it later
-          util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
-          if ((sh(script: '''cd ${WORKSPACE}/targetmid; git diff --name-only''', returnStdout: true))?.trim()) {
-            sh '''#!/bin/bash -xe
-# push changes to github from dist-git
+          util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+          sh '''#!/bin/bash -xe
+# push changes to github from codeready-workspaces-images
 cd ${WORKSPACE}/targetmid
-if [[ \$(git diff --name-only) ]]; then # file changed
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
   git add ''' + SYNC_FILES_DWN2MID + '''
-  git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" ''' + SYNC_FILES_DWN2MID + ''' || true
+  git commit -s -m "[sync] [1] Update operator from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" ''' + SYNC_FILES_DWN2MID + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   echo "[sync] Updated GH @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
 fi
 '''
-          }
           NEW_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
           println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
 
           // don't commit yet, we'll do it later
-          util.updateBaseImages("${WORKSPACE}/targetdwn", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
-          // if anything changed in targetdwn, push changes in gh to dist-git
-          if ((sh(script: '''cd ${WORKSPACE}/targetdwn; git diff --name-only''', returnStdout: true))?.trim()) {
-            sh '''#!/bin/bash -xe
+          util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+
+          // if anything changed, push changes in gh to dist-git
+          sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
-git add . -A -f
-git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" . || true
-git push origin ''' + MIDSTM_BRANCH + ''' || true
-echo "[sync] Updated pkgs.devel @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
-
-# now rsync files to MIDSTM GH repo from changes in dist-git
-for d in ''' + SYNC_FILES_DWN2MID + '''; do
-  if [[ -f ${WORKSPACE}/targetdwn/${d} ]]; then
-    rsync -zrlt ${WORKSPACE}/targetdwn/${d} ${WORKSPACE}/targetmid/${d}
-  elif [[ -d ${WORKSPACE}/targetdwn/${d} ]]; then
-    # copy over the files
-    rsync -zrlt ${WORKSPACE}/targetdwn/${d}/* ${WORKSPACE}/targetmid/${d}/
-    # sync the directory and delete from targetmid if deleted from source
-    rsync -zrlt --delete ${WORKSPACE}/targetdwn/${d}/ ${WORKSPACE}/targetmid/${d}/
-  fi
-done
+git add ''' + util.getCRWLongName(SYNC_REPO) + '''
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
+  cd ''' + TARGET_DIR + '''
+  git add . -A -f
+  # note this might fail if we're syncing from a tag vs. a branch
+  git commit -s -m "[sync] [2] Update operator from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" . || true
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+  NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
+  echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
+fi
 '''
-          }
 
-          NEW_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+          NEW_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got NEW_SHA_DWN in targetdwn folder: " + NEW_SHA_DWN
+          currentBuild.description="Upstream sync done"
 
           if (NEW_SHA_MID.equals(OLD_SHA_MID) && NEW_SHA_DWN.equals(OLD_SHA_DWN) && !FORCE_BUILD.equals("true")) {
             println "No changes upstream, nothing to commit"
@@ -229,7 +248,7 @@ done
 } // timeout
 
 // kick off get-sources-rhpkg-container-build_2.y job
-node(nodeLabel){ 
+node(nodeLabel) {
   stage ("Build container on ${nodeLabel}") {
     println "########################################################################################################"
     println "##  Build ${SYNC_REPO} container"
@@ -239,10 +258,11 @@ node(nodeLabel){
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
       if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         build(
-              job: 'get-sources-rhpkg-container-build_' + CRW_VERSION,
-              wait: false,
-              propagate: false,
+              job: 'sync-to-downstream_' + JOB_BRANCH,
+              wait: true,
+              propagate: true,
               parameters: [
                 [
                   $class: 'StringParameterValue',
@@ -252,33 +272,27 @@ node(nodeLabel){
                 [
                   $class: 'StringParameterValue',
                   name: 'cause',
-                  value: "${SYNC_REPO}+respin+by+${BUILD_TAG}"
+                  value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
                 ],
                 [
                   $class: 'StringParameterValue',
-                  name: 'GIT_BRANCH',
-                  value: "${MIDSTM_BRANCH}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'GIT_PATHs',
-                  value: "${DWNSTM_REPO}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'QUAY_REPO_PATHs',
-                  // SPECIAL CASE FOR operator (and operator-metadata)
-                  value: "crw-2-rhel8-" + util.getCRWShortName(SYNC_REPO)
+                  name: 'REPOS',
+                  value: util.getCRWLongName(SYNC_REPO)
                 ],
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
-                  value: "${JOB_BRANCH}"
+                  value: JOB_BRANCH
                 ],
                 [
                   $class: 'StringParameterValue',
                   name: 'UPDATE_BASE_IMAGES_FLAGS',
-                  value: UPDATE_BASE_IMAGES_FLAGS
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: MIDSTM_BRANCH
                 ],
                 [
                   $class: 'BooleanParameterValue',
@@ -288,59 +302,14 @@ node(nodeLabel){
                 [
                   $class: 'BooleanParameterValue',
                   name: 'SCRATCH',
-                  value: SCRATCH
+                  value: false
                 ]
               ]
         )
-        currentBuild.description="Brew build triggered"
+        currentBuild.description+="; Downstream sync job triggered"
       } else {
-        println "No changes upstream, nothing to build in brew!"
-        currentBuild.description="No Brew build"
-        currentBuild.result = 'UNSTABLE'
-      }
-   } else {
-      util.notifyBuildFailed()
-   } // if
-  } // stage
-} //node
-
-// kick off crwctl_2.y job
-node(nodeLabel){ 
-  stage ("Build crwctl on ${nodeLabel}") {
-    println "########################################################################################################"
-    println "##  Build crwctl ${JOB_BRANCH}"
-    println "########################################################################################################"
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-    def util = load "${WORKSPACE}/util.groovy"
-    echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-      if (!NEW_SHA_MID.equals(OLD_SHA_MID) || !NEW_SHA_DWN.equals(OLD_SHA_DWN) || FORCE_BUILD.equals("true")) {
-        build(
-              job: 'crwctl_' + JOB_BRANCH,
-              wait: false,
-              propagate: false,
-              parameters: [
-                [
-                  $class: 'StringParameterValue',
-                  name: 'token',
-                  value: "CI_BUILD"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'cause',
-                  value: "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'versionSuffix',
-                  value: "CI"
-                ]
-              ]
-        )
-        currentBuild.description+="; crwctl build triggered"
-      } else {
-        println "No changes upstream, nothing to rebuild in crwctl!"
-        currentBuild.description+="; no crwctl build"
+        println "No changes upstream, nothing to sync / build in brew!"
+        currentBuild.description+="; No sync or Brew build"
         currentBuild.result = 'UNSTABLE'
       }
     } else {
@@ -348,3 +317,4 @@ node(nodeLabel){
     } // if
   } // stage
 } //node
+

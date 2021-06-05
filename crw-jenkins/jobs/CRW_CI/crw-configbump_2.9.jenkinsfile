@@ -95,7 +95,7 @@ echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
                       export KRB5CCNAME=/var/tmp/crw-build_ccache
                       cd ${WORKSPACE}/targetdwn
                       git add ''' + util.getCRWLongName(SYNC_REPO) + '''
-                      git update-index --refresh  # ignore timestamp updates
+                      git update-index --refresh || true  # ignore timestamp updates
                       if [[ \$(git diff-index HEAD --) ]]; then # file changed
                         cd ''' + TARGET_DIR + '''
                         git add . -A -f
@@ -172,10 +172,12 @@ node(nodeLabel) {
       if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         build(
-              job: 'sync-to-downstream_' + CRW_VERSION,
-              wait: true,
-              propagate: true,
+              job: 'sync-to-downstream_' + JOB_BRANCH,
+              // if get-sources fetches from this job's artifacts, cannot set wait: true or we won't fetch the latest artifacts (build will still be running)
+              wait: false,
+              propagate: false,
               parameters: [
                 [
                   $class: 'StringParameterValue',
@@ -195,7 +197,7 @@ node(nodeLabel) {
                 [
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
-                  value: "${CRW_VERSION}"
+                  value: JOB_BRANCH
                 ],
                 [
                   $class: 'StringParameterValue',
