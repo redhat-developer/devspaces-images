@@ -100,7 +100,7 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
     if [[ $(git diff-index HEAD --) ]]; then # file changed
       git add codeready-workspaces-theia*/
       echo "[INFO] Commit generated dockerfiles, lock files, and asset lists"
-      git commit -s -m "chore: sync crw-theia to crw-images/crw-theia*/"
+      git commit -s -m "chore: sync crw-theia @ $(cd $SOURCEDIR; git rev-parse --short=4 HEAD) to crw-images/crw-theia*/"
       git pull || true
       git push || true
     fi
