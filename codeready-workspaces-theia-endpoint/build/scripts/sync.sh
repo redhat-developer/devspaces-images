@@ -58,8 +58,14 @@ bootstrap.Dockerfile
 asset-unpacked-generator
 " > /tmp/rsync-excludes
 
+sync_branding_to_crwimages() {
+  echo "Rsync ${SOURCEDIR}/branding to ${TARGETDIR}/codeready-workspaces-theia"
+  rsync -azrlt --checksum --delete "${SOURCEDIR}/conf/theia/branding" "${TARGETDIR}/codeready-workspaces-theia"
+}
+
 sync_build_scripts_to_crwimages() {
   for targDir in theia-dev theia theia-endpoint; do
+    echo "Rsync ${SOURCEDIR}/build and BUILD_* to ${TARGETDIR}/codeready-workspaces-${targDir}"
     rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes \
       "${SOURCEDIR}/build" "${SOURCEDIR}/BUILD_COMMAND" "${SOURCEDIR}/BUILD_PARAMS" \
       "${TARGETDIR}/codeready-workspaces-${targDir}"
@@ -80,6 +86,7 @@ sync_crwtheia_to_crwimages() {
 }
 
 # sync build scripts, then dockerfiles/* folders
+sync_branding_to_crwimages
 sync_build_scripts_to_crwimages
 sync_crwtheia_to_crwimages
 
