@@ -3,12 +3,12 @@
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
-//   SOURCE_BRANCH
-//   MIDSTM_BRANCH
-
-// DO NOT CHANGE THIS until newer version exists in crw-theia ubi base images, or build will fail.
-def nodeVersion = "12.21.0" // was 12.19.1
-def yarnVersion = "1.21.1" // was 1.17.3
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
+// nodeVersion
+// yarnVersion
+// CONTAINERS
+// PLATFORMS
 
 // other params not worth setting in Jenkins (they don't change)
 def THEIA_BRANCH = "master" // theia branch/tag to build: master (will then compute the correct SHA to use)
@@ -23,12 +23,22 @@ def Map tasks = [failFast: false]
 timeout(120) {
   def String nodeLabel = "${nodeLabels[0]}"
   node(nodeLabel) {
-    stage ("SCM Poll: Che Theia") {
+    stage ("SCM Poll: Che Theia + update from.dockerfile stubs") {
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         sh "mkdir -p tmp"
         util.cloneRepoWithBootstrap("https://github.com/eclipse-che/che-theia.git", "tmp/che-theia", SOURCE_BRANCH, true)
+
+        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+        println "CRW_VERSION = '" + CRW_VERSION + "'"
+        util.installSkopeoFromContainer("")
+        util.installYq()
+        // updateBaseImages.sh -b 7.30.x -w dockerfiles -f \*from.dockerfile -maxdepth 5
+        util.updateBaseImages("tmp/che-theia", SOURCE_BRANCH, "-w dockerfiles -f \\*from.dockerfile -maxdepth 5", MIDSTM_BRANCH)
+
         sh "rm -fr tmp"
+      } // with
     } // stage
 
     stage ("Update CRW Theia base images and build params on " + nodeLabel) {
@@ -38,17 +48,36 @@ timeout(120) {
         cleanWs()
         util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
+            string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           println "CRW_VERSION = '" + CRW_VERSION + "'"
-          def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} -d -t -b --no-cache --rmi:all --no-async-tests"
+
+          // TODO CRW-1609 implement tag deletion option (as script to delete quay images for a given CRW_VERSION)
+          // if (cleanTmpImages == "true") {
+              // println "TODO: Delete tmp images from Quay"
+              // https://docs.quay.io/api/swagger/#!/tag/deleteFullTag
+              // $➔ curl -H 'Accept: application/json' -H "Authorization: Bearer token-here" -X DELETE https://quay.io/api/v1/repository/crw/theia-endpoint-rhel8/tag/TAG-HERE
+              // sh('curl -sSL -H "Authorization: Bearer " ...')
+          // }
+
+          // set up build command, using -ci- image tags 
+          def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} --no-cache --rm-cache --rmi:all --no-async-tests --ci"
+          // commit changes into crw-theia/dockerfiles/ directly, so we can more easily sync to lower-midstream (crw-images) and downstream (pkgs.devel)
+          BUILD_PARAMS=BUILD_PARAMS+" --commit"
+
+          // define which containers to build via flags to build.sh
+          if (CONTAINERS.trim().contains("codeready-workspaces-theia-dev")) { BUILD_PARAMS=BUILD_PARAMS+" -d" }
+          if (CONTAINERS.trim().contains("codeready-workspaces-theia,") || CONTAINERS.trim().equals("codeready-workspaces-theia")) { BUILD_PARAMS=BUILD_PARAMS+" -t" }
+          if (CONTAINERS.trim().contains("codeready-workspaces-theia-endpoint")) { BUILD_PARAMS=BUILD_PARAMS+" -e" }
+
           if (!THEIA_COMMIT_SHA.equals("")) {
             BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
           } else {
             THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash -xe
 pushd /tmp >/dev/null || true
 curl -sSLO https://raw.githubusercontent.com/eclipse-che/che-theia/''' + SOURCE_BRANCH + '''/build.include
-export $(cat build.include | egrep "^THEIA_COMMIT_SHA") && THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA//\\"/}
+export "$(cat build.include | egrep "^THEIA_COMMIT_SHA")" && THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA//\\"/}
 popd >/dev/null || true
 echo -n $THEIA_COMMIT_SHA
 ''', returnStdout: true).trim()
@@ -59,14 +88,17 @@ echo -n $THEIA_COMMIT_SHA
           sh """
 pushd crw-theia >/dev/null
 echo nodeVersion=${nodeVersion} > BUILD_PARAMS
+echo yarnVersion=${yarnVersion} >> BUILD_PARAMS
 echo CRW_VERSION=${CRW_VERSION} >> BUILD_PARAMS
 echo SOURCE_BRANCH=${SOURCE_BRANCH} >> BUILD_PARAMS
 echo THEIA_BRANCH=${THEIA_BRANCH} >> BUILD_PARAMS
 echo THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} >> BUILD_PARAMS
 echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
+
 echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
 git add BUILD_COMMAND BUILD_PARAMS || true
 git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
+git pull origin ${MIDSTM_BRANCH} || true
 git push origin ${MIDSTM_BRANCH} || true
 popd >/dev/null
 """
@@ -83,22 +115,26 @@ for (int i=0; i < nodeLabels.size(); i++) {
   tasks[nodeLabels[i]] = { ->
     timeout(600) {
       node(nodeLabel) {
-        stage ("Build artifacts on " + nodeLabel) {
+        stage ("Build artifacts containers on " + nodeLabel + " and push to quay.io") {
           wrap([$class: 'TimestamperBuildWrapper']) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
             def util = load "${WORKSPACE}/util.groovy"
             cleanWs()
             sh "docker system prune -af || true"
             platforms.add(sh(script: '''uname -m''', returnStdout:true).trim())
-            util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
+            util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, false)
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+                file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
+                string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
               util.installNPM(nodeVersion, yarnVersion)
               CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
               println "CRW_VERSION = '" + CRW_VERSION + "'"
               util.installSkopeoFromContainer("")
               util.installYq()
               def buildLog = ""
+
+              // updateBaseImages.sh -b crw-2-rhel-8 -w conf -f \*from.dockerfile -maxdepth 3
+              util.updateBaseImages("${WORKSPACE}/crw-theia", MIDSTM_BRANCH, "-w conf -f \\*from.dockerfile -maxdepth 3")
 
               // parse THEIA_COMMIT_SHA from BUILD_PARAMS file
               THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash
@@ -108,8 +144,12 @@ cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARA
 
               def buildStatusCode = 0
               ansiColor('xterm') {
-                echo "[INFO] Attempt to build crw-theia, with up to 2 retries"
-                retry(2) {
+                def statusCode = util.loginToRegistries()
+                if (statusCode > 0) {
+                  currentBuild.result = 'FAILURE'
+                } else {
+                  echo "[INFO] Build images: " + CONTAINERS
+                  // retry(2) {
                   buildStatusCode = sh script:'''#!/bin/bash -xe
 export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
 mkdir -p ${WORKSPACE}/logs/
@@ -118,35 +158,34 @@ pushd ${WORKSPACE}/crw-theia >/dev/null
     $(cat BUILD_COMMAND) 2>&1 | tee ${WORKSPACE}/logs/crw-theia_buildlog.txt
 popd >/dev/null
 ''', returnStatus: true
-                }
+                // }
 
-                buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
-                if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
-                {
-                  ansiColor('xterm') {
-                    echo ""
-                    echo "=============================================================================================="
-                    echo ""
-                    error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
-                  }
-                  currentBuild.result = 'FAILED'
-                }
-
-                archiveArtifacts fingerprint: false, onlyIfSuccessful: true, allowEmptyArchive: false, artifacts: "crw-theia/dockerfiles/**, logs/*"
-
-                def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
-                echo "${descriptString}"
-                currentBuild.description="${descriptString}"
-                echo "currentBuild.result = " + currentBuild.result
-
-                buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
-                if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
-                {
-                    error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                  buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
+                  if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
+                  {
+                    ansiColor('xterm') {
+                      echo ""
+                      echo "=============================================================================================="
+                      echo ""
+                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                    }
                     currentBuild.result = 'FAILED'
-                    util.notifyBuildFailed()
+                  }
+
+                  def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
+                  echo "${descriptString}"
+                  currentBuild.description="${descriptString}"
+                  echo "currentBuild.result = " + currentBuild.result
+
+                  buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
+                  if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
+                  {
+                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                      currentBuild.result = 'FAILED'
+                      util.notifyBuildFailed()
+                  }
+                  echo "currentBuild.result = " + currentBuild.result
                 }
-                echo "currentBuild.result = " + currentBuild.result
               } // ansiColor
             } // with credentials
           } // wrap
@@ -177,24 +216,75 @@ node(nodeLabel) {
       CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
       println "CRW_VERSION = '" + CRW_VERSION + "'"
       JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-      build(
-            job: 'crw-theia-containers_' + JOB_BRANCH,
-            // if get-sources fetches from this job's artifacts, cannot set wait: true or we won't fetch the latest artifacts (build will still be running)
-            wait: false,
-            propagate: false,
-            parameters: [
-              [
-                $class: 'BooleanParameterValue',
-                name: 'SCRATCH',
-                value: false,
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'PLATFORMS',
-                value: PLATFORMS,
+
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        // sync crw-theia to crw-images
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
+        def statusCode = util.loginToRegistries()
+        if (statusCode > 0) {
+            currentBuild.result = 'FAILURE'
+        } else {
+          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+            sh """
+  pushd crw-theia >/dev/null
+    ./build/scripts/sync.sh -s ${WORKSPACE}/crw-theia -t ${WORKSPACE}/crw-images --commit
+  popd >/dev/null
+  """
+          }
+
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          build(
+              job: 'sync-to-downstream_' + JOB_BRANCH,
+              wait: true,
+              propagate: true,
+              parameters: [
+                [
+                  $class: 'StringParameterValue',
+                  name: 'token',
+                  value: "CI_BUILD"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'cause',
+                  value: "theia+respins+by+${BUILD_TAG}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'REPOS',
+                  value: CONTAINERS
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'JOB_BRANCH',
+                  value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'UPDATE_BASE_IMAGES_FLAGS',
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: MIDSTM_BRANCH
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'FORCE_BUILD',
+                  value: FORCE_BUILD
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'SCRATCH',
+                  value: false
+                ]
               ]
-            ]
-          )
+            )
+            currentBuild.description+="; Downstream sync job triggered"
+        }
+      } // wrap
     } else {
       util.notifyBuildFailed()
     } // if

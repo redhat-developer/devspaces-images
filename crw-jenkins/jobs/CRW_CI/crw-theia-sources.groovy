@@ -80,10 +80,10 @@ Results:
             stringParam("yarnVersion", "1.21.1", "Leave blank if not needed")
             // TODO CRW-1609 implement tag deletion option
             // booleanParam("cleanTmpImages", false, "If true, delete tmp images from quay before starting build(s)")
-            textParam("CONTAINERS", '''codeready-workspaces-theia-dev codeready-workspaces-theia codeready-workspaces-theia-endpoint''', '''comma- or space-separated list of containers to build, in order<br/>
+            // @since 2.9 - sync-to-downstream expects comma separated values
+            textParam("CONTAINERS", '''codeready-workspaces-theia-dev, codeready-workspaces-theia, codeready-workspaces-theia-endpoint''', '''comma-separated list of containers to build, in order<br/>
 * include one, some, or all as needed<br/>
-* default: codeready-workspaces-theia-dev codeready-workspaces-theia codeready-workspaces-theia-endpoint''')
-            // TODO CRW 2.10 refactor this to use space-separated like everywhere else #consistency!
+* default: codeready-workspaces-theia-dev, codeready-workspaces-theia, codeready-workspaces-theia-endpoint''')
             stringParam("PLATFORMS", "x86_64, s390x, ppc64le", '''comma-separated list of architectures on which to build containers<br/>
 * include one, some, or all as needed<br/>
 * default: x86_64, s390x, ppc64le''')
