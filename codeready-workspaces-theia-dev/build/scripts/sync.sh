@@ -74,6 +74,7 @@ sync_crwtheia_to_crwimages() {
     # TODO: should we use --delete?
     echo "Rsync ${SOURCEDIR}/dockerfiles/${sourceDir} to ${TARGETDIR}/codeready-workspaces-${targDir}"
     rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}" "${TARGETDIR}/codeready-workspaces-${targDir}"
+    # ensure shell scripts are executable
     find "${TARGETDIR}/codeready-workspaces-${targDir}" -name "*.sh" -exec chmod +x {} \;
   done
 }
@@ -82,21 +83,7 @@ sync_crwtheia_to_crwimages() {
 sync_build_scripts_to_crwimages
 sync_crwtheia_to_crwimages
 
-# ensure shell scripts are executable
-find "${TARGETDIR}/" -name "*.sh" -exec chmod +x {} \;
-rm -f /tmp/rsync-excludes
-
 pushd "${TARGETDIR}" >/dev/null || exit 1
-  # TODO verify this works
-  # undelete any files that might not exist in crw-theia (because they're created from container builds? multiarch?)
-  # deletedFiles="$(git status -s | sed -e "s# D ##")"
-  # if [[ $deletedFiles ]]; then 
-  #   echo "Undelete these files:"
-  #   for df in $deletedFiles; do
-  #     echo "* $df"; git restore $df
-  #   done
-  # fi
-
   # commit changed files to this repo
   if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
     git update-index --refresh || true  # ignore timestamp updates
@@ -111,3 +98,5 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
 
 popd >/dev/null || exit
 
+# cleanup
+rm -f /tmp/rsync-excludes
