@@ -981,9 +981,9 @@
   integrity sha512-gTNKintzNXxxb2ImVoG+/T9Fv59ID9UZqxdV/O5W+DP/j4gECGwM4NRMUf49PWmKtHD03DAu5wmtQskh2VJ05A==
 
 "@eclipse-che/api@^7.0.0-beta-4.0", "@eclipse-che/api@^7.3.2":
-  version "7.31.0"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.31.0.tgz#603b58050c5a0163edba5ebcf2ecaf35147f25e7"
-  integrity sha512-Lzbkw2EAHxIiaX1rVUaxhNhc6voY/P9wsDa9qIi6U7Q3tPI/bjPvGh1F5S1PAVLAjsBMXpq2N1FRrfH2MOo+0A==
+  version "7.31.1"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.31.1.tgz#3debf2ad299ffbf12d996c60542427610a9b8055"
+  integrity sha512-xJOBZ19RwWVhSXrDjp0Bj9gKVnE5oYm83ERTsthMyzcV2DQ3785J6S9iKDhh4XGUSWppEIClbzFwq1nH2uYfvA==
 
 "@eclipse-che/workspace-client@0.0.1-1618916247":
   version "0.0.1-1618916247"
