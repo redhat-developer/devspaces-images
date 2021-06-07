@@ -74,6 +74,7 @@ sync_crwtheia_to_crwimages() {
     # TODO: should we use --delete?
     echo "Rsync ${SOURCEDIR}/dockerfiles/${sourceDir} to ${TARGETDIR}/codeready-workspaces-${targDir}"
     rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}" "${TARGETDIR}/codeready-workspaces-${targDir}"
+    find "${TARGETDIR}/codeready-workspaces-${targDir}" -name "*.sh" -exec chmod +x {} \;
   done
 }
 
