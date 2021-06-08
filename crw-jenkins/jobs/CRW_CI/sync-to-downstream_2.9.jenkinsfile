@@ -89,11 +89,17 @@ rm -f /tmp/rsync-excludes
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi''')
 
-                // run get-sources-jenkins to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
+                // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
                 sh('''#!/bin/bash -xe
                   export KRB5CCNAME=/var/tmp/crw-build_ccache
                   cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-                  ./get-sources-jenkins.sh -n -p ''' + JOB_BRANCH + '''
+                  if [[ -f get-sources.sh ]]; then 
+                    ./get-sources.sh -n -p ''' + JOB_BRANCH + '''
+                  elif [[ -f get-sources-jenkins.sh ]]; then # old name
+                    ./get-sources-jenkins.sh -n -p ''' + JOB_BRANCH + '''
+                  else 
+                    echo "[ERROR] Could not run get-sources.sh or get-sources-jenkins.sh!"; exit 1
+                  fi
                   COMMIT_SHA="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%H)"
                   COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
                   if [ ! -z "$COMMIT_SHA" ] ; then
@@ -103,7 +109,7 @@ rm -f /tmp/rsync-excludes
                     git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
 
-                    # update source repo with updates from running get-sources-jenkins
+                    # update source repo with updates from running get-sources
                     cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
                     git add . -A -f
                     git commit -m "$COMMIT_MSG" || true
