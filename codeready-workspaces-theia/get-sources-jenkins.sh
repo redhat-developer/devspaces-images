@@ -39,7 +39,7 @@ function log()
 
 OLD_SHA="$(git rev-parse --short=4 HEAD)"
 # collect assets by running collect-assets.sh
-./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target . -t --rmi:tmp --ci --commit
+./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target $(pwd)/ -t --rmi:tmp --ci --commit
 NEW_SHA="$(git rev-parse --short=4 HEAD)"
 
 if [[ "${OLD_SHA}" != "${NEW_SHA}" ]]; then
