@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM devtools/go-toolset-rhel7:1.14.12-4.1615820747 as builder
+FROM devtools/go-toolset-rhel7:1.15.11-1 as builder
 ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:${PATH} \
     GOPATH=/go/
 
@@ -34,7 +34,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
   main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-298.1618432845
+FROM ubi8-minimal:8.4-200.1622548483
 RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 COPY --from=builder /workspace/_output/bin/devworkspace-che-operator /usr/local/bin/devworkspace-che-operator
 
@@ -54,14 +54,14 @@ ENV SUMMARY="Red Hat CodeReady Workspaces devworkspace container" \
     DESCRIPTION="Red Hat CodeReady Workspaces devworkspace container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="devworkspace-rhel8"
-LABEL summary="" \
+LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="$DESCRIPTION" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="2.9" \
+      version="2.10" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \

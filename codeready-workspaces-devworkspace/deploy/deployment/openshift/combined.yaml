@@ -521,7 +521,7 @@ spec:
           value: docker.io/traefik:v2.2.8
         - name: RELATED_IMAGE_gateway_configurer
           value: quay.io/che-incubator/configbump:0.1.4
-        image: quay.io/che-incubator/devworkspace-che-operator:v7.30.1
+        image: quay.io/che-incubator/devworkspace-che-operator:v7.30.2
         imagePullPolicy: Always
         name: devworkspace-che-operator
         resources:

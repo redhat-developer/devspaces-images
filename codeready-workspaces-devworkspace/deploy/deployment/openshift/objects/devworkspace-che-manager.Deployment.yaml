@@ -36,12 +36,12 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.9
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.10
             - name: RELATED_IMAGE_gateway_configurer
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.9
+              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.10
             - name: WATCH_NAMESPACE
               value: ''
-          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.9
+          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.10
           imagePullPolicy: Always
           name: devworkspace-che-operator
           resources:
