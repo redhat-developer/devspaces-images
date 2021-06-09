@@ -9,8 +9,8 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/llvm-toolset
-FROM rhel8/llvm-toolset:10.0.1-33.1618436979
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
+FROM ubi8:8.4-203.1622660121
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - C/CPP Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - C/CPP Stack container" \
@@ -48,12 +48,10 @@ USER root
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202105111743.p0.git.95881af.el8.s390x.rpm
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202105111743.p0.git.95881af.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
-    yum remove -y nodejs && \
-    yum install -y --nobest llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb wget bzip2 sudo make cmake gcc gcc-c++ \
+    yum install -y llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb wget bzip2 sudo make cmake gcc gcc-c++ \
     openshift-clients-4.7.0-202105111743.p0.git.95881af.el8 && \
     # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
-    yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     cat /etc/passwd | \
     sed s#jboss:x.*#jboss:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
