@@ -28,6 +28,8 @@ timeout(180) {
         cleanWs()
         util.installSkopeoFromContainer("")
         util.installRhpkg()
+        // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
+        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
         currentBuild.description=""
 
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
@@ -148,6 +150,16 @@ rm -f /tmp/rsync-excludes
                         $class: 'StringParameterValue',
                         name: 'UPDATE_BASE_IMAGES_FLAGS',
                         value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'nodeVersion',
+                        value: util.globalVar({nodeVersion})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'yarnVersion',
+                        value: util.globalVar({yarnVersion})
                       ],
                       [
                         $class: 'StringParameterValue',

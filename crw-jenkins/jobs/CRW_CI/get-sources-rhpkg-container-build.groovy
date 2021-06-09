@@ -65,6 +65,8 @@ eg., one or more of these (space-separated values): <br/>
 ---<br/>
 See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''>push-latest-container-to-quay</a>''')
             stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
+            stringParam("nodeVersion", "", "Leave blank if not needed")
+            stringParam("yarnVersion", "", "Leave blank if not needed")
             stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS[JB.key], "Update :" + FLOATING_QUAY_TAGS[JB.key] + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
             booleanParam("SCRATCH", true, "By default make a scratch build. Set to false to NOT do a scratch build.")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")

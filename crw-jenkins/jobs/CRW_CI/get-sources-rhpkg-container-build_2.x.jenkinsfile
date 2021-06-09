@@ -29,6 +29,7 @@ timeout(240) {
             def util = load "${WORKSPACE}/util.groovy"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             cleanWs()
+            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
             util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
             try {

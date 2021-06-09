@@ -267,6 +267,16 @@ node(nodeLabel) {
                 ],
                 [
                   $class: 'StringParameterValue',
+                  name: 'nodeVersion',
+                  value: util.globalVar({nodeVersion})
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'yarnVersion',
+                  value: util.globalVar({yarnVersion})
+                ],
+                [
+                  $class: 'StringParameterValue',
                   name: 'MIDSTM_BRANCH',
                   value: MIDSTM_BRANCH
                 ],
