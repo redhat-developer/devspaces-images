@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.x":"7.30.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
-def JOB_DISABLED = ["2.x":false]
+def JOB_BRANCHES = ["2.9":"7.30.x", "2.x":"7.31.x"] // TODO switch 2.x to main, when 2.9 branches/jobs created
+def JOB_DISABLED = ["2.9":false, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -57,6 +57,7 @@ Artifact builder + sync job; triggers brew after syncing
             stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("MIDSTM_NAME", MIDSTM_NAME)
+            stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.14|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.14'") // TODO remove this once we move to 1.15 in CRW 2.10 (or if backported in 7.30.x?)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
