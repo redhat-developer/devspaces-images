@@ -339,7 +339,12 @@ echo
 if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
   newFiles="$(ls asset-*)"
   pushd "${TARGETDIR}" >/dev/null || exit 1
+    set -x 
     echo "[INFO] Upload new sources: ${newFiles}"
+    for nf in ${newFiles}; do
+      # make sure asset files are not tracked by git so we can push 'em to lookaside cache
+      git rm --cached $nf || true
+    done
     if [[ $(git remote -v | grep origin | grep pkgs.devel || true) ]]; then
     # shellcheck disable=SC2046
       rhpkg new-sources ${newFiles}
@@ -360,5 +365,6 @@ if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
       echo "[INFO] Push change:"
       git pull; git push
     fi
+    set +x
   popd >/dev/null || exit 1
 fi
