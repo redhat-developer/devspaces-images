@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM devtools/go-toolset-rhel7:1.14.12-4.1615820747  as builder
+FROM devtools/go-toolset-rhel7:1.15.11-1  as builder
 ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:${PATH} \
     GOPATH=/go/
 USER root
@@ -32,7 +32,7 @@ RUN make compile-devworkspace-controller
 RUN make compile-webhook-server
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.3-298.1618432845
+FROM ubi8-minimal:8.4-200.1622548483
 RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 WORKDIR /
 COPY --from=builder /devworkspace-operator/_output/bin/devworkspace-controller /usr/local/bin/devworkspace-controller
@@ -55,7 +55,7 @@ ENV SUMMARY="Red Hat CodeReady Workspaces devworkspace-controller container" \
     DESCRIPTION="Red Hat CodeReady Workspaces devworkspace-controller container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="devworkspace-controller-rhel8"
-LABEL summary="" \
+LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="$DESCRIPTION" \
