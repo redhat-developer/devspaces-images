@@ -350,15 +350,12 @@ if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
       rhpkg new-sources ${newFiles}
     fi
 
-    maxfilesize=$(du -b asset-* | sed -r -e "s#\t.+##" | sort -Vr | head -1)
-    # include any new files...
-    git add . -A -f
-    # but DON'T include asset-* files in git
+    # DON'T include asset-* files in git
     git rm -fr asset-* ./*.orig 2>/dev/null || true 
-    # CRW-1621 if any gz resources are larger than 10485760b, must use MaxFileSize to force dist-git to shut up and take my sources!
-    if [[ $(git commit -a -s -m "[get sources] ${newFiles}
-      - MaxFileSize: $maxfilesize
-  ". || true) == *"nothing to commit, working tree clean"* ]]; then
+    rm -fr asset-* ./*.orig 2>/dev/null || true 
+    # include any new files, ignoring files we've removed
+    git add . -f --ignore-removal
+    if [[ $(git commit -s -m "[get sources] ${newFiles}" . || true) == *"nothing to commit, working tree clean"* ]]; then
       echo "[INFO] No new sources committed."
     else
       git status -s -b --ignored
