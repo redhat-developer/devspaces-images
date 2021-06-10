@@ -283,13 +283,18 @@ collect_noarch_assets_crw_theia() {
     tar -pcvzf "${TARGETDIR}"/asset-branding.tar.gz branding/*
   fi
 
-  # build sources tarball
+  # create che-theia archive
   export "$(cat BUILD_PARAMS | grep -E "^SOURCE_BRANCH")" && SOURCE_BRANCH=${SOURCE_BRANCH//\"/}
   cheTheiaSourcesDir="$(mktemp -d)"
   pushd "$cheTheiaSourcesDir" >/dev/null || exit 1
     git clone https://github.com/eclipse-che/che-theia
     cd che-theia && git checkout $SOURCE_BRANCH
-    git ls-files -c -o --exclude-standard | tar czf "${TARGETDIR}"/asset-eclipse-che-theia-generator.tgz  -T - 
+    DIR="${TARGETDIR}"
+    # see https://github.com/eclipse-che/che-theia/blob/7.30.x/dockerfiles/theia/build.sh#L19-L22
+    git ls-files -c -o --exclude-standard | tar cf "${DIR}"/asset-che-theia.tar  -T - 
+    git rev-parse --short HEAD > .git-che-theia-sha1
+    tar rf ${DIR}/asset-che-theia.tar .git-che-theia-sha1
+    gzip -f ${DIR}/asset-che-theia.tar
   popd >/dev/null || exit 1
   rm -fr "${cheTheiaSourcesDir}"
 
