@@ -81,6 +81,8 @@ sync_crwtheia_to_crwimages() {
     # TODO: should we use --delete?
     echo "Rsync ${SOURCEDIR}/dockerfiles/${sourceDir} to ${TARGETDIR}/codeready-workspaces-${targDir}"
     rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}" "${TARGETDIR}/codeready-workspaces-${targDir}"
+    # don't need two copies of the Dockerfile, so move from subdir into root
+    mv -f "${TARGETDIR}/codeready-workspaces-${targDir}/${sourceDir}/Dockerfile" "${TARGETDIR}/codeready-workspaces-${targDir}/Dockerfile"
     # ensure shell scripts are executable
     find "${TARGETDIR}/codeready-workspaces-${targDir}" -name "*.sh" -exec chmod +x {} \;
   done
