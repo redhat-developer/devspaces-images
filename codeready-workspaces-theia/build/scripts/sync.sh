@@ -50,8 +50,6 @@ echo ".github/
 /container.yaml
 /content_sets.*
 /cvp.yml
-get-sources-jenkins.sh
-get-sources.sh
 tests/basic-test.yaml
 sources
 rhel.Dockerfile
@@ -66,9 +64,9 @@ sync_branding_to_crwimages() {
 
 sync_build_scripts_to_crwimages() {
   for targDir in theia-dev theia theia-endpoint; do
-    echo "Rsync ${SOURCEDIR}/build and BUILD_* to ${TARGETDIR}/codeready-workspaces-${targDir}"
+    echo "Rsync ${SOURCEDIR}/build, get-sources.sh and BUILD_* to ${TARGETDIR}/codeready-workspaces-${targDir}"
     rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes \
-      "${SOURCEDIR}/build" "${SOURCEDIR}/BUILD_COMMAND" "${SOURCEDIR}/BUILD_PARAMS" \
+      "${SOURCEDIR}/build" "${SOURCEDIR}/BUILD_COMMAND" "${SOURCEDIR}/BUILD_PARAMS" "${SOURCEDIR}/get-sources.sh" \
       "${TARGETDIR}/codeready-workspaces-${targDir}"
   done
 }
