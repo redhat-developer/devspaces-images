@@ -19,6 +19,15 @@ BUILD_TYPE="tmp" # use "tmp" prefix for temporary build tags in Quay, but if we'
 # load defaults from file, if it exists
 if [[ -r ./BUILD_PARAMS ]]; then source ./BUILD_PARAMS; fi
 
+# try to compute a value for MIDSTM_BRANCH based on current dir
+if [[ ! ${MIDSTM_BRANCH} ]]; then 
+  MIDSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  if [[ $MIDSTM_BRANCH != "crw-2."*"-rhel-8" ]] && [[ $MIDSTM_BRANCH != "crw-2-rhel-8" ]]; then
+    MIDSTM_BRANCH="" # invalid branch, so reset
+  fi
+fi
+
+if [[ ${MIDSTM_BRANCH} ]]; then usage_branch="${MIDSTM_BRANCH}"; else usage_branch="crw-2-rhel-8"; fi
 usage () {
   echo "Run this script from the destination folder where you want asset files created, eg., where you have 
 pkgs.devel codeready-workspaces-theia-dev checked out. Repeat for theia and theia-endpoint pkgs.devel repos.
@@ -27,17 +36,17 @@ Usage:
   $0 --cb MIDSTM_BRANCH --target /path/to/pkgs.devel/crw-theia-dev/ [options]
 
 Examples:
-  $0 --cb crw-2-rhel-8 --target /path/to/pkgs.devel/crw-theia-dev/      -d --rmi:tmp --ci --commit
-  $0 --cb crw-2-rhel-8 --target /path/to/pkgs.devel/crw-theia/          -t --rmi:tmp --ci --commit
-  $0 --cb crw-2-rhel-8 --target /path/to/pkgs.devel/crw-theia-endpoint/ -e --rmi:tmp --ci --commit
-
-Options:
-  -d           | collect assets for theia-dev
-  -t           | collect assets for theia
-  -e           | collect assets for theia-endpoint
+  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/crw-theia-dev/      -d --rmi:tmp --ci --commit
+  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/crw-theia/          -t --rmi:tmp --ci --commit
+  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/crw-theia-endpoint/ -e --rmi:tmp --ci --commit
 
 Directory flags:
   --target     | instead of writing assets into current dir $(pwd)/, target a different place
+
+Options:
+  -d,--theia-dev      | if writing to a folder not named *theia-dev,      tell script to collect theia-dev assets
+  -t,--theia          | if writing to a folder not named *theia,          tell script to collect theia assets
+  -e,--theia-endpoint | if writing to a folder not named *theia-endpoint, tell script to collect theia-endpoint assets
 
 Architecture flags:
   --platforms \"${PLATFORMS}\" | architectures for which to collect assets
@@ -65,9 +74,9 @@ COMMIT_CHANGES=0
 
 for key in "$@"; do
   case $key in 
-      '-d') ARCHSTEPS="collect_arch_assets_crw_theia_dev"; NOARCHSTEPS="collect_noarch_assets_crw_theia_dev"; shift 1;;
-      '-t') ARCHSTEPS="collect_arch_assets_crw_theia"; NOARCHSTEPS="collect_noarch_assets_crw_theia"; shift 1;;
-      '-e'|'-b') ARCHSTEPS="collect_arch_assets_crw_theia_endpoint_runtime_binary"; NOARCHSTEPS="collect_noarch_assets_crw_theia_endpoint_runtime_binary"; shift 1;;
+      '-d'|'--theia-dev') ARCHSTEPS="collect_arch_assets_crw_theia_dev"; NOARCHSTEPS="collect_noarch_assets_crw_theia_dev"; shift 1;;
+      '-t'|'--theia') ARCHSTEPS="collect_arch_assets_crw_theia"; NOARCHSTEPS="collect_noarch_assets_crw_theia"; shift 1;;
+      '-e'|'-b'|'--theia-endpoint'|'--theia-endpoint-runtime-binary') ARCHSTEPS="collect_arch_assets_crw_theia_endpoint_runtime_binary"; NOARCHSTEPS="collect_noarch_assets_crw_theia_endpoint_runtime_binary"; shift 1;;
       '--target') TARGETDIR="$2"; shift 2;;
       '--platforms') PLATFORMS="$2"; shift 2;;
       '--cb')  MIDSTM_BRANCH="$2"; shift 2;;
@@ -89,9 +98,21 @@ if [[ ! ${CRW_VERSION} ]]; then
   echo "[ERROR] Must set either --cb crw-2.y-rhel-8 or --cv 2.y to define the version of CRW Theia for which to collect assets."; echo
   usage
 fi
+echo "[INFO] Using MIDSTM_BRANCH = ${MIDSTM_BRANCH} and CRW_VERSION = ${CRW_VERSION}"
 if [[ ! $ARCHSTEPS ]] || [[ ! $NOARCHSTEPS ]]; then 
-  echo "[ERROR] Nothing to do! set steps to perform with -d, -t-, -e flags."; echo
-  usage
+  if [[ ${TARGETDIR} = *"theia-dev"* ]]; then 
+    echo "[INFO] No step flag set, but TARGETDIR appears to be a theia-dev folder."
+    ARCHSTEPS="collect_arch_assets_crw_theia_dev"; NOARCHSTEPS="collect_noarch_assets_crw_theia_dev";
+  elif [[ ${TARGETDIR} = *"theia" ]] || [[ ${TARGETDIR} = *"theia/" ]]; then 
+    echo "[INFO] No step flag set, but TARGETDIR appears to be a theia folder."
+    ARCHSTEPS="collect_arch_assets_crw_theia"; NOARCHSTEPS="collect_noarch_assets_crw_theia";
+  elif [[ ${TARGETDIR} = *"theia-endpoint"* ]] || [[ ${TARGETDIR} = *"theia-endpoint-runtime-binary"* ]]; then 
+    echo "[INFO] No step flag set, but TARGETDIR appears to be a theia-endpoint folder."
+    ARCHSTEPS="collect_arch_assets_crw_theia_endpoint_runtime_binary"; NOARCHSTEPS="collect_noarch_assets_crw_theia_endpoint_runtime_binary";
+  else 
+    echo "[ERROR] Nothing to do! set steps to perform with -d, -t-, -e flags."; echo
+    usage
+  fi
 fi
 
 getContainerExtract() {

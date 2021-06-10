@@ -5,9 +5,14 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
+# NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
+# here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
+# so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
+pullAssets=1 
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+  '-p'|'--pull-assets') pullAssets=0; shift 0;;
   '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
   '-f'|'--force-build') forceBuild=1; shift 0;;
   '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
@@ -38,8 +43,11 @@ function log()
 }
 
 OLD_SHA="$(git rev-parse --short=4 HEAD)"
-# collect assets by running collect-assets.sh
-./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target $(pwd)/ -e --rmi:tmp --ci --commit
+if [[ ${pullAssets} -eq 1 ]]; then 
+  # collect assets. NOTE: target folder must end in theia-dev/, theia/ or theia-endpoint/ to auto-compute what to collect; 
+  # otherwise an override flag is needed: -d, --theia-dev, -t, --theia, -e, --theia-endpoint
+  ./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target $(pwd)/ --rmi:tmp --ci --commit
+fi
 NEW_SHA="$(git rev-parse --short=4 HEAD)"
 
 if [[ "${OLD_SHA}" != "${NEW_SHA}" ]]; then
