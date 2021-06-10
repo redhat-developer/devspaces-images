@@ -20,8 +20,15 @@ done
 if [[ ! ${JOB_BRANCH} ]]; then 
   DWNSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   JOB_BRANCH=${DWNSTM_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
-  if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
+else
+  if [[ ${JOB_BRANCH} == "2.x" ]]; then 
+    DWNSTM_BRANCH="crw-2-rhel-8"
+  else
+    DWNSTM_BRANCH="crw-${JOB_BRANCH}-rhel-8"
+  fi
 fi
+if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
+# echo "Got DWNSTM_BRANCH=${DWNSTM_BRANCH} and JOB_BRANCH=${JOB_BRANCH}"
 
 function log()
 {
@@ -32,7 +39,7 @@ function log()
 
 OLD_SHA="$(git rev-parse --short=4 HEAD)"
 # collect assets by running collect-assets.sh
-./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target . -d --rmi:tmp --ci --commit
+./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target $(pwd)/ -d --rmi:tmp --ci --commit
 NEW_SHA="$(git rev-parse --short=4 HEAD)"
 
 if [[ "${OLD_SHA}" != "${NEW_SHA}" ]]; then

@@ -51,6 +51,7 @@ echo ".github/
 /content_sets.*
 /cvp.yml
 get-sources-jenkins.sh
+get-sources.sh
 tests/basic-test.yaml
 sources
 rhel.Dockerfile
