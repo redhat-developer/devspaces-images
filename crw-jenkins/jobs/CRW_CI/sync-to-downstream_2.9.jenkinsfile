@@ -14,10 +14,8 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 
-// CRW-1826 don't use s390x-rhel8 for dashboard or plugin reg (Yarn 2 + s390x = fail)
-def String nodeLabel = (REPOS.contains("-dashboard") || REPOS.contains("-pluginregistry") ? 
-  'rhel8||ppc64le-rhel8' : 
-  'rhel8||s390x-rhel8||ppc64le-rhel8')
+// NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
+def String nodeLabel =  'rhel8||s390x-rhel8||ppc64le-rhel8'
 
 timeout(180) {
   node(nodeLabel) {
@@ -26,11 +24,19 @@ timeout(180) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
+        currentBuild.description="Install skopeo and rhpkg;<br/> "
         util.installSkopeoFromContainer("")
         util.installRhpkg()
         // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
-        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
-        currentBuild.description=""
+        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
+          if (REPOS.contains("-theia-dev") || REPOS.contains("-dashboard")) { // need make, c++ for node-gyp
+            currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
+            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
+          } else {
+            currentBuild.description+="install node, yarn;<br/> "
+            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
+          }
+        }
 
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {

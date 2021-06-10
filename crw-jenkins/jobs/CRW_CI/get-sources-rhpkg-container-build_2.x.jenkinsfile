@@ -13,12 +13,12 @@ import groovy.json.JsonSlurper
 
 @Field String NEW_TAG = ""
 def String nodeLabel = 'rhel8'
-currentBuild.description="Building " + QUAY_REPO_PATHs + "..."
+currentBuild.description="Building " + QUAY_REPO_PATHs + "... "
 timeout(240) {
   node(nodeLabel) { 
     stage ("Build on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-        currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "..."
+        currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "... "
         withCredentials([
             string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
@@ -29,7 +29,17 @@ timeout(240) {
             def util = load "${WORKSPACE}/util.groovy"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             cleanWs()
-            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
+            // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
+            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
+              if (QUAY_REPO_PATHs.contains("theia-dev") || QUAY_REPO_PATHs.contains("dashboard")) { // need make, c++ for node-gyp
+                currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
+                util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
+              } else {
+                currentBuild.description+="install node, yarn;<br/> "
+                util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
+              }
+            }
+
             util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
             try {
