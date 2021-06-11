@@ -46,9 +46,7 @@ SOURCE_SHA=$(cd "$SOURCEDIR"; git rev-parse --short=4 HEAD)
 # global / generic changes
 echo ".github/
 .git/
-.gitignore
 .gitattributes
-/asset-yarn-*.lock
 /container.yaml
 /content_sets.*
 /cvp.yml
