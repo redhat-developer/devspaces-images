@@ -8,11 +8,11 @@ forceBuild=0
 # NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
-pullAssets=1 
+pullAssets=0
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-  '-p'|'--pull-assets') pullAssets=0; shift 0;;
+  '-p'|'--pull-assets') pullAssets=1; shift 0;;
   '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
   '-f'|'--force-build') forceBuild=1; shift 0;;
   '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
