@@ -46,6 +46,7 @@ SOURCE_SHA=$(cd "$SOURCEDIR"; git rev-parse --short=4 HEAD)
 # global / generic changes
 echo ".github/
 .git/
+.gitignore
 .gitattributes
 /container.yaml
 /content_sets.*
@@ -54,7 +55,7 @@ tests/basic-test.yaml
 sources
 rhel.Dockerfile
 bootstrap.Dockerfile
-asset-unpacked-generator
+asset-*
 " > /tmp/rsync-excludes
 
 sync_branding_to_crwimages() {
