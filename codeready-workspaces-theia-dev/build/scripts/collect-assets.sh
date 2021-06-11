@@ -283,18 +283,24 @@ collect_noarch_assets_crw_theia() {
     tar -pcvzf "${TARGETDIR}"/asset-branding.tar.gz branding/*
   fi
 
-  # create che-theia archive
+  # create che-theia archive; use checked out sources to determine which yeoman plugin to collect
   export "$(cat BUILD_PARAMS | grep -E "^SOURCE_BRANCH")" && SOURCE_BRANCH=${SOURCE_BRANCH//\"/}
   cheTheiaSourcesDir="$(mktemp -d)"
   pushd "$cheTheiaSourcesDir" >/dev/null || exit 1
     git clone https://github.com/eclipse-che/che-theia
-    cd che-theia && git checkout $SOURCE_BRANCH
-    DIR="${TARGETDIR}"
-    # see https://github.com/eclipse-che/che-theia/blob/7.30.x/dockerfiles/theia/build.sh#L19-L22
-    git ls-files -c -o --exclude-standard | tar cf "${DIR}"/asset-che-theia.tar  -T - 
-    git rev-parse --short HEAD > .git-che-theia-sha1
-    tar rf ${DIR}/asset-che-theia.tar .git-che-theia-sha1
-    gzip -f ${DIR}/asset-che-theia.tar
+    pushd che-theia >/dev/null || exit 1 
+      git checkout $SOURCE_BRANCH
+      DIR="${TARGETDIR}"
+      # see https://github.com/eclipse-che/che-theia/blob/7.30.x/dockerfiles/theia/build.sh#L19-L22
+      git ls-files -c -o --exclude-standard | tar cf "${DIR}"/asset-che-theia.tar  -T - 
+      git rev-parse --short HEAD > .git-che-theia-sha1
+      tar rf ${DIR}/asset-che-theia.tar .git-che-theia-sha1
+      gzip -f ${DIR}/asset-che-theia.tar
+
+      # get the yeoman plugin using the version hardcoded in eclipse-che/che-theia/dockerfiles/theia/build.sh
+      THEIA_YEOMAN_PLUGIN_URL=$(cat dockerfiles/theia/build.sh | grep THEIA_YEOMAN_PLUGIN | grep download | sed -r -e "s#.* (http.+theia).*#\1#")
+      curl -sSLo ${DIR}/asset-untagged-theia_yeoman_plugin.theia ${THEIA_YEOMAN_PLUGIN_URL}
+    popd >/dev/null || exit 1
   popd >/dev/null || exit 1
   rm -fr "${cheTheiaSourcesDir}"
 
