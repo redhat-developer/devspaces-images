@@ -35,6 +35,8 @@ spec:
                 fieldPath: metadata.name
           - name: OPERATOR_NAME
             value: "devworkspace-operator"
+          - name: MAX_CONCURRENT_RECONCILES
+            value: "1"
           - name: CONTROLLER_SERVICE_ACCOUNT_NAME
             valueFrom:
               fieldRef:
