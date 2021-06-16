@@ -1058,15 +1058,15 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_openjdk11_openshift_s390x
                   value: registry.redhat.io/jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8@sha256:7cdfbf16587dd8688f26595df43c8c30e069625997581e898368203cb059c88b
                 - name: RELATED_IMAGE_keycloak
-                  value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:f403bee5f506f37858a4a984ef83ed069999516e12518ea14855a2584932227d
+                  value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:05f97328bafa615ceca025a6a93051a1ecdc08ae6123a78bf6ce56096f2ad233
                 - name: RELATED_IMAGE_keycloak_ppc64le
-                  value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:e61ed86f894c18bd0c5f3fe6d2dce00967b496b69ac3287663772faf3c63956d
+                  value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:eb5110c22109412b5101f95d353603c7e3080844ee48f89186f139be5b5faa42
                 - name: RELATED_IMAGE_keycloak_s390x
-                  value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:e61ed86f894c18bd0c5f3fe6d2dce00967b496b69ac3287663772faf3c63956d
+                  value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:eb5110c22109412b5101f95d353603c7e3080844ee48f89186f139be5b5faa42
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:3f44904a9c8777c593fbff8522fa7f54a805a62bec9f56917ae8b44190ae2126
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:197ce935fdd51e876233f678c95ee47a9673314ba9689bee671bf2c80e3cbfec
                 - name: RELATED_IMAGE_postgres
-                  value: registry.redhat.io/rhel8/postgresql-96@sha256:b8657c7e0cea4cdaede257fce3535cdad8e57bed2e4732e0688f0a43c27347f8
+                  value: registry.redhat.io/rhel8/postgresql-96@sha256:1088070ff2f1404a312485de2ac3aaa8360539d0a0e59429520bde6b2facd5d6
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:2f6b88c037c0503da7704bccd3fc73cb76324101af39ad28f16460e7bce98324
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7
@@ -1323,15 +1323,15 @@ spec:
   - name: jboss_eap_7_eap_xp2_openjdk11_openshift_s390x
     image: registry.redhat.io/jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8@sha256:7cdfbf16587dd8688f26595df43c8c30e069625997581e898368203cb059c88b
   - name: keycloak
-    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:f403bee5f506f37858a4a984ef83ed069999516e12518ea14855a2584932227d
+    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:05f97328bafa615ceca025a6a93051a1ecdc08ae6123a78bf6ce56096f2ad233
   - name: keycloak_ppc64le
-    image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:e61ed86f894c18bd0c5f3fe6d2dce00967b496b69ac3287663772faf3c63956d
+    image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:eb5110c22109412b5101f95d353603c7e3080844ee48f89186f139be5b5faa42
   - name: keycloak_s390x
-    image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:e61ed86f894c18bd0c5f3fe6d2dce00967b496b69ac3287663772faf3c63956d
+    image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:eb5110c22109412b5101f95d353603c7e3080844ee48f89186f139be5b5faa42
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:3f44904a9c8777c593fbff8522fa7f54a805a62bec9f56917ae8b44190ae2126
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:197ce935fdd51e876233f678c95ee47a9673314ba9689bee671bf2c80e3cbfec
   - name: postgres
-    image: registry.redhat.io/rhel8/postgresql-96@sha256:b8657c7e0cea4cdaede257fce3535cdad8e57bed2e4732e0688f0a43c27347f8
+    image: registry.redhat.io/rhel8/postgresql-96@sha256:1088070ff2f1404a312485de2ac3aaa8360539d0a0e59429520bde6b2facd5d6
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:2f6b88c037c0503da7704bccd3fc73cb76324101af39ad28f16460e7bce98324
   - name: rhscl_mongodb_36_rhel7
