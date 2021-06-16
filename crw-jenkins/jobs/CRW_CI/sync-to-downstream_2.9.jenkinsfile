@@ -15,9 +15,9 @@ def NEW_SHA=""
 def SOURCE_SHA=""
 
 // NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
-def String nodeLabel =  'rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 
-timeout(180) {
+timeout(300) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {

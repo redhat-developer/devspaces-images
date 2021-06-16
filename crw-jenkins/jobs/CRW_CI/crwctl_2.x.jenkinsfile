@@ -15,7 +15,7 @@ def nodeVersion = "12.21.0" // was 12.18.2
 def yarnVersion = "1.21.1" // was 1.17.3
 def installP7zip = true // p7zip install and use that to build crwctl
 
-def nodeLabel = "rhel8"
+def String nodeLabel = 'rhel8||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 def platforms = "linux-x64,darwin-x64,win32-x64"
 def CTL_path = "codeready-workspaces-chectl"
 def SHA_CTL = "SHA_CTL"

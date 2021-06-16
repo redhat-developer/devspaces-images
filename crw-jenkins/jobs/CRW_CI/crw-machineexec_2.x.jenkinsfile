@@ -7,6 +7,10 @@ import groovy.transform.Field
 // SOURCE_BRANCH
 // MIDSTM_BRANCH 
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.9+, see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 def SOURCE_REPO = "eclipse/che-machine-exec" // upstream source repo from which to find and sync commits
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 def SYNC_REPO = "machineexec"
@@ -123,7 +127,7 @@ usage="" \r'
         currentBuild.description="Upstream sync done"
 
         println "########################################################################################################"
-        println "##  Kickoff Sync to downstream job"
+        println "##  Trigger sync to downstream job"
         println "########################################################################################################"
         if (!OLD_SHA.equals(NEW_SHA) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)

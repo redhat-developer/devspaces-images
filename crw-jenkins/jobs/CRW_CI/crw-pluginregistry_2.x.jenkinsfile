@@ -2,13 +2,13 @@
 
 import groovy.transform.Field
 
-// DEPRECATED! See template_2.x.jenkinsfile for replacement
-
 // PARAMETERS for this pipeline:
 // def FORCE_BUILD = "false"
 // MIDSTM_BRANCH
 
-// TODO source from eclipse/che-plugin-registry too
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.9+, see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // dist-git repo to use as target
@@ -138,7 +138,7 @@ fi
         }
 
         println "########################################################################################################"
-        println "##  Kickoff Sync to downstream job"
+        println "##  Trigger sync to downstream job"
         println "########################################################################################################"
         if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_DWN) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)

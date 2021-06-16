@@ -150,7 +150,7 @@ usage="" \r'
           }
 
           println "########################################################################################################"
-          println "##  Kickoff Sync to downstream job"
+          println "##  Trigger sync to downstream job"
           println "########################################################################################################"
           if (!OLD_SHA.equals(NEW_SHA) || FORCE_BUILD == "true") {
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)

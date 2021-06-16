@@ -15,13 +15,13 @@ def THEIA_BRANCH = "master" // theia branch/tag to build: master (will then comp
 def THEIA_GITHUB_REPO = "eclipse-theia/theia" // default: eclipse-theia/theia; optional: redhat-developer/eclipse-theia
 def THEIA_COMMIT_SHA = "" // leave blank to compute within build.sh; or look at https://github.com/eclipse-che/che-theia/blob/7.y.x/build.include#L16 = 4641a298
 
-// Nodes to run artifact build on ex. ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
-def List nodeLabels = ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+// Nodes to run artifact build on ex. ['rhel8||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+def List nodeLabels = ['rhel8||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
 def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
 def List platforms = []
 def Map tasks = [failFast: false]
 timeout(120) {
-  def String nodeLabel = "${nodeLabels[0]}"
+  def String nodeLabel = "${nodeLabels[1]}" // use static z builder for better polling support 
   node(nodeLabel) {
     stage ("SCM Poll: Che Theia + update from.dockerfile stubs") {
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
@@ -148,8 +148,8 @@ cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARA
                 if (statusCode > 0) {
                   currentBuild.result = 'FAILURE'
                 } else {
-                echo "[INFO] Build images: " + CONTAINERS
-                // retry(2) {
+                  echo "[INFO] Build images: " + CONTAINERS
+                  // retry(2) {
                   buildStatusCode = sh script:'''#!/bin/bash -xe
 export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
 mkdir -p ${WORKSPACE}/logs/
@@ -160,31 +160,31 @@ popd >/dev/null
 ''', returnStatus: true
                 // }
 
-                buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
-                if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
-                {
-                  ansiColor('xterm') {
-                    echo ""
-                    echo "=============================================================================================="
-                    echo ""
-                    error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
-                  }
-                  currentBuild.result = 'FAILED'
-                }
-
-                def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
-                echo "${descriptString}"
-                currentBuild.description="${descriptString}"
-                echo "currentBuild.result = " + currentBuild.result
-
-                buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
-                if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
-                {
-                    error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                  buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
+                  if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
+                  {
+                    ansiColor('xterm') {
+                      echo ""
+                      echo "=============================================================================================="
+                      echo ""
+                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                    }
                     currentBuild.result = 'FAILED'
-                    util.notifyBuildFailed()
-                }
-                echo "currentBuild.result = " + currentBuild.result
+                  }
+
+                  def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
+                  echo "${descriptString}"
+                  currentBuild.description="${descriptString}"
+                  echo "currentBuild.result = " + currentBuild.result
+
+                  buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
+                  if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
+                  {
+                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                      currentBuild.result = 'FAILED'
+                      util.notifyBuildFailed()
+                  }
+                  echo "currentBuild.result = " + currentBuild.result
                 }
               } // ansiColor
             } // with credentials
@@ -206,9 +206,9 @@ stage("Builds") {
     }
 }
 
-nodeLabel = "${nodeLabels[0]}"
+nodeLabel = "${nodeLabels[1]}"
 node(nodeLabel) {
-  stage ("Build containers on ${nodeLabel}") {
+  stage ("Trigger sync to downstream job on ${nodeLabel}") {
     echo "currentBuild.result = " + currentBuild.result
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"

@@ -212,7 +212,7 @@ nodeLabel = "${nodeLabels[0]}"
 node(nodeLabel) {
   stage ("Build containers on ${nodeLabel}") {
     println "########################################################################################################"
-    println "##  Kickoff Sync to downstream job"
+    println "##  Trigger sync to downstream job"
     println "########################################################################################################"
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"
