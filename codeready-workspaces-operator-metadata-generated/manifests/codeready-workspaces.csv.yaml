@@ -69,13 +69,12 @@ metadata:
       ]
     capabilities: Seamless Upgrades
     categories: Developer Tools, OpenShift Optional
-    certified: 'true'
+    certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:988678240190374ab5763e79bead711767a51b80c0e5a4a0894879a5080337ce
-    createdAt: '2021-05-18T21:07:26+00:00'
-    description: A Kube-native development solution that delivers portable and collaborative
-      developer workspaces in OpenShift.
+    createdAt: "2021-05-18T21:07:26+00:00"
+    description: A Kube-native development solution that delivers portable and collaborative developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: openshift-workspaces
-    operatorframework.io/cluster-monitoring: 'true'
+    operatorframework.io/cluster-monitoring: "true"
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
   name: crwoperator.v2.9.0
@@ -84,14 +83,12 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - description: The `CheCluster` custom resource allows defining and managing a
-        Che server installation
+    - description: The `CheCluster` custom resource allows defining and managing a Che server installation
       displayName: CodeReady Workspaces Cluster
       kind: CheCluster
       name: checlusters.org.eclipse.che
       statusDescriptors:
-      - description: Status of a Che installation. Can be `Available`, `Unavailable`,
-          or `Available, Rolling Update in Progress`.
+      - description: Status of a Che installation. Can be `Available`, `Unavailable`, or `Available, Rolling Update in Progress`.
         displayName: Status
         path: cheClusterRunning
         x-descriptors:
@@ -111,8 +108,7 @@ spec:
         path: devfileRegistryURL
         x-descriptors:
         - urn:alm:descriptor:org.w3:link
-      - description: A URL that points to some URL where to find help related to the
-          current Operator status.
+      - description: A URL that points to some URL where to find help related to the current Operator status.
         displayName: Help link
         path: helpLink
         x-descriptors:
@@ -122,16 +118,13 @@ spec:
         path: keycloakURL
         x-descriptors:
         - urn:alm:descriptor:org.w3:link
-      - description: A human readable message indicating details about why the Pod
-          is in this condition.
+      - description: A human readable message indicating details about why the Pod is in this condition.
         displayName: Message
         path: message
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: OpenShift OAuth secret in `openshift-config` namespace that contains
-          user credentials for HTPasswd identity provider.
-        displayName: OpenShift OAuth secret in `openshift-config` namespace that contains
-          user credentials for HTPasswd identity provider.
+      - description: OpenShift OAuth secret in `openshift-config` namespace that contains user credentials for HTPasswd identity provider.
+        displayName: OpenShift OAuth secret in `openshift-config` namespace that contains user credentials for HTPasswd identity provider.
         path: openShiftOAuthUserCredentialsSecret
         x-descriptors:
         - urn:alm:descriptor:text
@@ -140,8 +133,7 @@ spec:
         path: pluginRegistryURL
         x-descriptors:
         - urn:alm:descriptor:org.w3:link
-      - description: A brief CamelCase message indicating details about why the Pod
-          is in this state.
+      - description: A brief CamelCase message indicating details about why the Pod is in this state.
         displayName: Reason
         path: reason
         x-descriptors:
@@ -378,7 +370,7 @@ spec:
           - get
           - list
         - apiGroups:
-          - ''
+          - ""
           resources:
           - namespaces
           verbs:
@@ -387,7 +379,7 @@ spec:
           - create
           - update
         - apiGroups:
-          - ''
+          - ""
           resources:
           - serviceaccounts
           verbs:
@@ -395,7 +387,7 @@ spec:
           - create
           - watch
         - apiGroups:
-          - ''
+          - ""
           resources:
           - pods/exec
           verbs:
@@ -407,7 +399,7 @@ spec:
           verbs:
           - list
         - apiGroups:
-          - ''
+          - ""
           resources:
           - secrets
           verbs:
@@ -416,7 +408,7 @@ spec:
           - create
           - delete
         - apiGroups:
-          - ''
+          - ""
           resources:
           - persistentvolumeclaims
           verbs:
@@ -425,7 +417,7 @@ spec:
           - list
           - watch
         - apiGroups:
-          - ''
+          - ""
           resources:
           - pods
           verbs:
@@ -446,7 +438,7 @@ spec:
           - watch
           - delete
         - apiGroups:
-          - ''
+          - ""
           resources:
           - services
           verbs:
@@ -454,7 +446,7 @@ spec:
           - create
           - delete
         - apiGroups:
-          - ''
+          - ""
           resources:
           - configmaps
           verbs:
@@ -471,7 +463,7 @@ spec:
           - create
           - delete
         - apiGroups:
-          - ''
+          - ""
           resources:
           - events
           verbs:
@@ -543,7 +535,7 @@ spec:
           verbs:
           - create
         - apiGroups:
-          - ''
+          - ""
           resources:
           - configmaps
           - persistentvolumeclaims
@@ -553,7 +545,7 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - ''
+          - ""
           resources:
           - namespaces
           verbs:
@@ -571,13 +563,13 @@ spec:
           - watch
         - apiGroups:
           - batch
-          - ''
+          - ""
           resources:
           - pods/exec
           verbs:
           - create
         - apiGroups:
-          - ''
+          - ""
           resources:
           - services
           verbs:
@@ -741,7 +733,7 @@ spec:
           verbs:
           - get
         - apiGroups:
-          - ''
+          - ""
           resources:
           - configmaps
           verbs:
@@ -753,7 +745,7 @@ spec:
           - patch
           - delete
         - apiGroups:
-          - ''
+          - ""
           resources:
           - configmaps/status
           verbs:
@@ -761,14 +753,14 @@ spec:
           - update
           - patch
         - apiGroups:
-          - ''
+          - ""
           resources:
           - events
           verbs:
           - create
           - patch
         - apiGroups:
-          - ''
+          - ""
           resources:
           - configmaps
           - persistentvolumeclaims
@@ -778,19 +770,19 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - ''
+          - ""
           resources:
           - namespaces
           verbs:
           - get
         - apiGroups:
-          - ''
+          - ""
           resources:
           - pods/exec
           verbs:
           - create
         - apiGroups:
-          - ''
+          - ""
           resources:
           - services
           verbs:
@@ -886,7 +878,7 @@ spec:
           - patch
           - update
         - apiGroups:
-          - ''
+          - ""
           resources:
           - configmap
           verbs:
@@ -1154,7 +1146,7 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - ''
+          - ""
           resources:
           - pods
           - services
@@ -1169,7 +1161,7 @@ spec:
           verbs:
           - '*'
         - apiGroups:
-          - ''
+          - ""
           resources:
           - namespaces
           verbs:
