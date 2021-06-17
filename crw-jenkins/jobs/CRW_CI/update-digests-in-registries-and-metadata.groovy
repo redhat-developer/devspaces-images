@@ -1,7 +1,6 @@
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.31.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created
-def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":true]
+def JOB_BRANCHES = ["2.8":"", "2.9":"", "2.x":""]
+def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
@@ -10,7 +9,7 @@ for (JB in JOB_BRANCHES) {
         description('''
 This job will cause the registry containers, then operator-metadata container to rebuild in both Brew and Quay
 if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> using 
-<a href=https://github.com/redhat-developer/codeready-workspaces/blob/master/product/getLatestImageTags.sh>
+<a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>
 ./getLatestTags.sh --quay</a>.
 <p>
   Results:

@@ -1,7 +1,6 @@
-def JOB_BRANCHES = [ "2.x" : "master" ] // gitlab repo uses master, do not change - only sync to main branch 2, not the 2.y sub-branches
+def JOB_BRANCHES = [ "2.x" : "" ] 
 def JOB_DISABLED = ["2.x":false]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
@@ -39,7 +38,8 @@ Sync CRW_CI jobs in gitlab repo to github.
         }
 
         parameters{
-            stringParam("GITLAB_BRANCH", SOURCE_BRANCH, "branch of https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins from which to sync")
+            // gitlab repo uses master: do not change. Only sync to main branch crw-2, not the 2.y sub-branches
+            stringParam("GITLAB_BRANCH", "master", "branch of https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins from which to sync")
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH,"branch of https://github.com/redhat-developer/codeready-workspaces-images to which to sync")
         }
 

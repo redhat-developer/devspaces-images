@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.31.x"] // TODO switch 2.x to master, when 2.9 branches/jobs created // TODO when che server moves to main as its default branch, change this too
-def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":true]
+def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
+def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
