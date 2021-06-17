@@ -1,5 +1,5 @@
 [![CircleCI](https://circleci.com/gh/eclipse/che-plugin-broker.svg?style=svg)](https://circleci.com/gh/eclipse/che-plugin-broker)
-[![codecov](https://img.shields.io/codecov/c/github/eclipse/che-plugin-broker)](https://codecov.io/gh/eclipse/che-plugin-broker)
+[![codecov](https://codecov.io/gh/eclipse/che-plugin-broker/branch/master/graph/badge.svg)](https://codecov.io/gh/eclipse/che-plugin-broker)
 
 [![Master Build Status](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-plugin-broker-build-master/)](https://ci.centos.org/job/devtools-che-plugin-broker-build-master/)
 [![Nightly Build Status](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-che-plugin-broker-nightly/)](https://ci.centos.org/job/devtools-che-plugin-broker-nightly/)

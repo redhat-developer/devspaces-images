@@ -9,7 +9,7 @@ projects:
       branch: master
     clonePath: src/github.com/eclipse/che-plugin-broker
 components:
-  - id: golang/go/latest
+  - id: ms-vscode/go/0.11.0
     type: chePlugin
     alias: ms-vscode.go
 
