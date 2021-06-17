@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2021 Red Hat, Inc.
+# Copyright (c) 2019-21 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.9 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.10 as builder
 ARG NEXE_SHA1=0f0869b292f1d7b68ba6e170d628de68a10c009f
 
 WORKDIR /home/theia

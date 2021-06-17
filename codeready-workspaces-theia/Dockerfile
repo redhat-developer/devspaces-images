@@ -10,7 +10,7 @@
 ###
 # Builder Image
 #
-FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-dev-rhel8:2.9 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-dev-rhel8:2.10 as builder
 
 WORKDIR ${HOME}
 
@@ -190,7 +190,7 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-87 as runtime
+FROM ubi8/nodejs-12:1-88 as runtime
 USER 0
 RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
@@ -274,7 +274,7 @@ RUN tar xzf /tmp/asset-yarn-runtime-image-$(uname -m).tar.gz -C / && \
     && cat /etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > ${HOME}/passwd.template \
     && cat /etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > ${HOME}/group.template \
     # Add yeoman, theia plugin & VS Code generator and typescript (to have tsc/typescript working)
-    && yarn global add ${YARN_FLAGS} yo @theia/generator-plugin@0.0.1-1562578105 generator-code typescript@3.5.3 \
+    && yarn global add ${YARN_FLAGS} yo @theia/generator-plugin@0.0.1-1622834185 generator-code typescript@3.5.3 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
     && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman
