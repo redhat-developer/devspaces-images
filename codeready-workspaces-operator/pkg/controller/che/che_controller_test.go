@@ -34,7 +34,7 @@ import (
 	console "github.com/openshift/api/console/v1"
 
 	orgv1 "github.com/eclipse-che/che-operator/pkg/apis/org/v1"
-	oauth_config "github.com/openshift/api/config/v1"
+	configv1 "github.com/openshift/api/config/v1"
 	oauth "github.com/openshift/api/oauth/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	userv1 "github.com/openshift/api/user/v1"
@@ -171,19 +171,19 @@ var (
 		},
 	}
 	oAuthClient                  = &oauth.OAuthClient{}
-	oAuthWithNoIdentityProviders = &oauth_config.OAuth{
+	oAuthWithNoIdentityProviders = &configv1.OAuth{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "cluster",
 			Namespace: namespace,
 		},
 	}
-	oAuthWithIdentityProvider = &oauth_config.OAuth{
+	oAuthWithIdentityProvider = &configv1.OAuth{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "cluster",
 			Namespace: namespace,
 		},
-		Spec: oauth_config.OAuthSpec{
-			IdentityProviders: []oauth_config.IdentityProvider{
+		Spec: configv1.OAuthSpec{
+			IdentityProviders: []configv1.IdentityProvider{
 				{
 					Name: "htpasswd",
 				},
@@ -357,7 +357,7 @@ func TestCaseAutoDetectOAuth(t *testing.T) {
 			orgv1.SchemeBuilder.AddToScheme(scheme)
 			scheme.AddKnownTypes(oauth.SchemeGroupVersion, oAuthClient)
 			scheme.AddKnownTypes(userv1.SchemeGroupVersion, &userv1.UserList{}, &userv1.User{})
-			scheme.AddKnownTypes(oauth_config.SchemeGroupVersion, &oauth_config.OAuth{})
+			scheme.AddKnownTypes(configv1.SchemeGroupVersion, &configv1.OAuth{}, &configv1.Proxy{})
 			scheme.AddKnownTypes(routev1.GroupVersion, route)
 			initCR := InitCheWithSimpleCR().DeepCopy()
 			initCR.Spec.Auth.OpenShiftoAuth = testCase.initialOAuthValue
@@ -397,7 +397,8 @@ func TestCaseAutoDetectOAuth(t *testing.T) {
 				},
 			}
 
-			os.Setenv("OPENSHIFT_VERSION", testCase.openshiftVersion)
+			util.IsOpenShift = true
+			util.IsOpenShift4 = testCase.openshiftVersion == "4"
 
 			_, err := r.Reconcile(req)
 			if err != nil {
@@ -502,6 +503,134 @@ func TestEnsureServerExposureStrategy(t *testing.T) {
 			}
 			if !reflect.DeepEqual(testCase.expectedCr.Spec.Server.ServerExposureStrategy, cr.Spec.Server.ServerExposureStrategy) {
 				t.Errorf("Expected CR and CR returned from API server are different (-want +got): %v", cmp.Diff(testCase.expectedCr.Spec.Server.ServerExposureStrategy, cr.Spec.Server.ServerExposureStrategy))
+			}
+		})
+	}
+}
+
+func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
+	type testCase struct {
+		name                       string
+		isOpenShift                bool
+		isOpenShift4               bool
+		initObjects                []runtime.Object
+		cheCluster                 *orgv1.CheCluster
+		expectedDevfileRegistryURL string
+	}
+
+	testCases := []testCase{
+		{
+			name: "Test Status.DevfileRegistryURL #1",
+			cheCluster: &orgv1.CheCluster{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "CheCluster",
+					APIVersion: "org.eclipse.che/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "eclipse-che",
+					Name:      "eclipse-che",
+				},
+				Spec: orgv1.CheClusterSpec{
+					Server: orgv1.CheClusterSpecServer{
+						ExternalDevfileRegistry: false,
+					},
+				},
+			},
+			expectedDevfileRegistryURL: "http://devfile-registry-eclipse-che./",
+		},
+		{
+			name: "Test Status.DevfileRegistryURL #2",
+			cheCluster: &orgv1.CheCluster{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "CheCluster",
+					APIVersion: "org.eclipse.che/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "eclipse-che",
+					Name:      "eclipse-che",
+				},
+				Spec: orgv1.CheClusterSpec{
+					Server: orgv1.CheClusterSpecServer{
+						ExternalDevfileRegistry: false,
+						DevfileRegistryUrl:      "https://devfile-registry.external.1",
+						ExternalDevfileRegistries: []orgv1.ExternalDevfileRegistries{
+							{Url: "https://devfile-registry.external.2"},
+						},
+					},
+				},
+			},
+			expectedDevfileRegistryURL: "http://devfile-registry-eclipse-che./",
+		},
+		{
+			name: "Test Status.DevfileRegistryURL #2",
+			cheCluster: &orgv1.CheCluster{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "CheCluster",
+					APIVersion: "org.eclipse.che/v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Namespace: "eclipse-che",
+					Name:      "eclipse-che",
+				},
+				Spec: orgv1.CheClusterSpec{
+					Server: orgv1.CheClusterSpecServer{
+						ExternalDevfileRegistry: true,
+						DevfileRegistryUrl:      "https://devfile-registry.external.1",
+						ExternalDevfileRegistries: []orgv1.ExternalDevfileRegistries{
+							{Url: "https://devfile-registry.external.2"},
+						},
+					},
+				},
+			},
+			expectedDevfileRegistryURL: "",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			logf.SetLogger(zap.LoggerTo(os.Stdout, true))
+
+			scheme := scheme.Scheme
+			orgv1.SchemeBuilder.AddToScheme(scheme)
+			testCase.initObjects = append(testCase.initObjects, testCase.cheCluster)
+			cli := fake.NewFakeClientWithScheme(scheme, testCase.initObjects...)
+			nonCachedClient := fake.NewFakeClientWithScheme(scheme, testCase.initObjects...)
+			clientSet := fakeclientset.NewSimpleClientset()
+			fakeDiscovery, ok := clientSet.Discovery().(*fakeDiscovery.FakeDiscovery)
+			if !ok {
+				t.Fatal("Error creating fake discovery client")
+			}
+			fakeDiscovery.Fake.Resources = []*metav1.APIResourceList{}
+
+			r := &ReconcileChe{
+				client:          cli,
+				nonCachedClient: nonCachedClient,
+				discoveryClient: fakeDiscovery,
+				scheme:          scheme,
+				tests:           true,
+			}
+			req := reconcile.Request{
+				NamespacedName: types.NamespacedName{
+					Name:      name,
+					Namespace: namespace,
+				},
+			}
+
+			util.IsOpenShift = testCase.isOpenShift
+			util.IsOpenShift4 = testCase.isOpenShift4
+
+			_, err := r.Reconcile(req)
+			if err != nil {
+				t.Fatalf("Error reconciling: %v", err)
+			}
+
+			cr := &orgv1.CheCluster{}
+			if err := r.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: namespace}, cr); err != nil {
+				t.Errorf("CR not found")
+			}
+
+			if cr.Status.DevfileRegistryURL != testCase.expectedDevfileRegistryURL {
+				t.Fatalf("Exected: %s, but found: %s", testCase.expectedDevfileRegistryURL, cr.Status.DevfileRegistryURL)
 			}
 		})
 	}
@@ -786,7 +915,9 @@ func TestImagePullerConfiguration(t *testing.T) {
 }
 
 func TestCheController(t *testing.T) {
-	os.Setenv("OPENSHIFT_VERSION", "3")
+	util.IsOpenShift = true
+	util.IsOpenShift4 = false
+
 	// Set the logger to development mode for verbose logs.
 	logf.SetLogger(logf.ZapLogger(true))
 
@@ -901,9 +1032,6 @@ func TestCheController(t *testing.T) {
 	if err := cl.Get(context.TODO(), types.NamespacedName{Name: "che", Namespace: cheCR.Namespace}, cm); err != nil {
 		t.Errorf("ConfigMap %s not found: %s", cm.Name, err)
 	}
-	if cm.Data["CHE_INFRA_OPENSHIFT_PROJECT"] != "" {
-		t.Errorf("ConfigMap wasn't updated properly. Extecting empty string, got: '%s'", cm.Data["CHE_INFRA_OPENSHIFT_PROJECT"])
-	}
 
 	_, isOpenshiftv4, err := util.DetectOpenShift()
 	if err != nil {
@@ -1010,7 +1138,7 @@ func TestCheController(t *testing.T) {
 }
 
 func TestConfiguringLabelsForRoutes(t *testing.T) {
-	os.Setenv("OPENSHIFT_VERSION", "3")
+	util.IsOpenShift = true
 	// Set the logger to development mode for verbose logs.
 	logf.SetLogger(logf.ZapLogger(true))
 
@@ -1063,7 +1191,8 @@ func TestConfiguringLabelsForRoutes(t *testing.T) {
 }
 
 func TestShouldDelegatePermissionsForCheWorkspaces(t *testing.T) {
-	os.Setenv("OPENSHIFT_VERSION", "3")
+	util.IsOpenShift = true
+
 	type testCase struct {
 		name        string
 		initObjects []runtime.Object
@@ -1102,30 +1231,6 @@ func TestShouldDelegatePermissionsForCheWorkspaces(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:        "che-operator should delegate permission for workspaces in the same namespace with Che. WorkspaceNamespaceDefault=" + crWsInTheSameNs1.Namespace,
-			initObjects: []runtime.Object{},
-			clusterRole: false,
-			checluster:  crWsInTheSameNs1,
-		},
-		{
-			name:        "che-operator should delegate permission for workspaces in the same namespace with Che. WorkspaceNamespaceDefault=''",
-			initObjects: []runtime.Object{},
-			clusterRole: false,
-			checluster:  crWsInTheSameNs2,
-		},
-		{
-			name:        "che-operator should delegate permission for workspaces in the same namespace with Che. Property CHE_INFRA_KUBERNETES_NAMESPACE_DEFAULT=''",
-			initObjects: []runtime.Object{},
-			clusterRole: false,
-			checluster:  crWsInTheSameNs3,
-		},
-		{
-			name:        "che-operator should delegate permission for workspaces in the same namespace with Che. Property CHE_INFRA_KUBERNETES_NAMESPACE_DEFAULT=" + crWsInTheSameNs1.Namespace,
-			initObjects: []runtime.Object{},
-			clusterRole: false,
-			checluster:  crWsInTheSameNs4,
-		},
-		{
 			name:        "che-operator should delegate permission for workspaces in differ namespace than Che. WorkspaceNamespaceDefault = 'some-test-namespace'",
 			initObjects: []runtime.Object{},
 			clusterRole: true,
@@ -1137,12 +1242,6 @@ func TestShouldDelegatePermissionsForCheWorkspaces(t *testing.T) {
 			clusterRole: true,
 			checluster:  crWsInAnotherNs2,
 		},
-		{
-			name:        "che-operator should delegate permission for workspaces in differ namespace than Che. Property CHE_INFRA_KUBERNETES_NAMESPACE_DEFAULT points to Che namespace with higher priority WorkspaceNamespaceDefault = 'some-test-namespace'.",
-			initObjects: []runtime.Object{},
-			clusterRole: false,
-			checluster:  crWsInAnotherNs3,
-		},
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -1152,7 +1251,7 @@ func TestShouldDelegatePermissionsForCheWorkspaces(t *testing.T) {
 			orgv1.SchemeBuilder.AddToScheme(scheme)
 			scheme.AddKnownTypes(oauth.SchemeGroupVersion, oAuthClient)
 			scheme.AddKnownTypes(userv1.SchemeGroupVersion, &userv1.UserList{}, &userv1.User{})
-			scheme.AddKnownTypes(oauth_config.SchemeGroupVersion, &oauth_config.OAuth{})
+			scheme.AddKnownTypes(configv1.SchemeGroupVersion, &configv1.OAuth{}, &configv1.Proxy{})
 			scheme.AddKnownTypes(routev1.GroupVersion, route)
 
 			initCR := testCase.checluster
@@ -1250,78 +1349,6 @@ func TestShouldDelegatePermissionsForCheWorkspaces(t *testing.T) {
 	}
 }
 
-func TestShouldFallBackWorspaceNamespaceDefaultBecauseNotEnoughtPermissions(t *testing.T) {
-	// the same namespace with Che
-	cr := InitCheWithSimpleCR().DeepCopy()
-	cr.Spec.Server.WorkspaceNamespaceDefault = "che-workspace-<username>"
-
-	logf.SetLogger(zap.LoggerTo(os.Stdout, true))
-
-	scheme := scheme.Scheme
-	orgv1.SchemeBuilder.AddToScheme(scheme)
-	scheme.AddKnownTypes(oauth.SchemeGroupVersion, oAuthClient)
-	scheme.AddKnownTypes(userv1.SchemeGroupVersion, &userv1.UserList{}, &userv1.User{})
-	scheme.AddKnownTypes(oauth_config.SchemeGroupVersion, &oauth_config.OAuth{})
-	scheme.AddKnownTypes(routev1.GroupVersion, route)
-
-	cr.Spec.Auth.OpenShiftoAuth = util.NewBoolPointer(false)
-
-	cli := fake.NewFakeClientWithScheme(scheme, cr)
-	nonCachedClient := fake.NewFakeClientWithScheme(scheme, cr)
-	clientSet := fakeclientset.NewSimpleClientset()
-	// todo do we need fake discovery
-	fakeDiscovery, ok := clientSet.Discovery().(*fakeDiscovery.FakeDiscovery)
-	fakeDiscovery.Fake.Resources = []*metav1.APIResourceList{}
-
-	if !ok {
-		t.Fatal("Error creating fake discovery client")
-	}
-
-	var m *mocks.MockPermissionChecker
-	ctrl := gomock.NewController(t)
-	m = mocks.NewMockPermissionChecker(ctrl)
-	m.EXPECT().GetNotPermittedPolicyRules(gomock.Any(), "").Return([]rbac.PolicyRule{
-		{
-			APIGroups: []string{""},
-			Resources: []string{"namespaces"},
-			Verbs:     []string{"get", "create", "update"},
-		},
-	}, nil).MaxTimes(2)
-	defer ctrl.Finish()
-
-	r := &ReconcileChe{
-		client:            cli,
-		nonCachedClient:   nonCachedClient,
-		discoveryClient:   fakeDiscovery,
-		scheme:            scheme,
-		permissionChecker: m,
-		tests:             true,
-	}
-	req := reconcile.Request{
-		NamespacedName: types.NamespacedName{
-			Name:      name,
-			Namespace: namespace,
-		},
-	}
-
-	_, err := r.Reconcile(req)
-	if err != nil {
-		t.Fatalf("Error reconciling: %v", err)
-	}
-	_, err = r.Reconcile(req)
-	if err != nil {
-		t.Fatalf("Error reconciling: %v", err)
-	}
-
-	cheCluster := &orgv1.CheCluster{}
-	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: namespace}, cheCluster); err != nil {
-		t.Errorf("Unable to get checluster")
-	}
-	if cheCluster.Spec.Server.WorkspaceNamespaceDefault != namespace {
-		t.Error("Failed fallback workspaceNamespaceDefault to execute workspaces in the same namespace with Che")
-	}
-}
-
 func Init() (client.Client, discovery.DiscoveryInterface, runtime.Scheme) {
 	objs, ds, scheme := createAPIObjects()
 
@@ -1332,6 +1359,7 @@ func Init() (client.Client, discovery.DiscoveryInterface, runtime.Scheme) {
 	// Register operator types with the runtime scheme
 	scheme.AddKnownTypes(oauth.SchemeGroupVersion, oAuthClient)
 	scheme.AddKnownTypes(userv1.SchemeGroupVersion, users, user)
+	scheme.AddKnownTypes(configv1.SchemeGroupVersion, &configv1.Proxy{})
 
 	// Create a fake client to mock API calls
 	return fake.NewFakeClient(objs...), ds, scheme

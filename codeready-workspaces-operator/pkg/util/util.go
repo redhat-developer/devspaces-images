@@ -13,8 +13,9 @@ package util
 
 import (
 	"bytes"
-	"context"
+	"crypto/sha256"
 	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -36,9 +37,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/discovery"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/yaml"
 )
@@ -216,21 +215,24 @@ func IsTestMode() (isTesting bool) {
 	return true
 }
 
-func GetClusterPublicHostname(isOpenShift4 bool) (hostname string, err error) {
-	// Could be set for debug scripts.
-	CLUSTER_API_URL := os.Getenv("CLUSTER_API_URL")
-	if CLUSTER_API_URL != "" {
-		return CLUSTER_API_URL, nil
+func GetOpenShiftAPIUrls() (string, string, error) {
+	// for debug purpose
+	apiUrl := os.Getenv("CLUSTER_API_URL")
+	apiInternalUrl := os.Getenv("CLUSTER_API_INTERNAL_URL")
+	if apiUrl != "" && apiInternalUrl != "" {
+		return apiUrl, apiInternalUrl, nil
 	}
-	if isOpenShift4 {
-		return getClusterPublicHostnameForOpenshiftV4()
+
+	if IsOpenShift4 {
+		return getAPIUrlsForOpenShiftV4()
 	}
-	return getClusterPublicHostnameForOpenshiftV3()
+
+	return getAPIUrlsForOpenShiftV3()
 }
 
-// getClusterPublicHostnameForOpenshiftV3 is a hacky way to get OpenShift API public DNS/IP
+// getAPIUrlsForOpenShiftV3 is a hacky way to get OpenShift API public DNS/IP
 // to be used in OpenShift oAuth provider as baseURL
-func getClusterPublicHostnameForOpenshiftV3() (hostname string, err error) {
+func getAPIUrlsForOpenShiftV3() (apiUrl string, apiInternalUrl string, err error) {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 	kubeApi := os.Getenv("KUBERNETES_PORT_443_TCP_ADDR")
@@ -239,27 +241,27 @@ func getClusterPublicHostnameForOpenshiftV3() (hostname string, err error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Errorf("An error occurred when getting API public hostname: %s", err)
-		return "", err
+		return "", "", err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Errorf("An error occurred when getting API public hostname: %s", err)
-		return "", err
+		return "", "", err
 	}
 	var jsonData map[string]interface{}
 	err = json.Unmarshal(body, &jsonData)
 	if err != nil {
 		logrus.Errorf("An error occurred when unmarshalling: %s", err)
-		return "", err
+		return "", "", err
 	}
-	hostname = jsonData["issuer"].(string)
-	return hostname, nil
+	apiUrl = jsonData["issuer"].(string)
+	return apiUrl, "", nil
 }
 
 // getClusterPublicHostnameForOpenshiftV3 is a way to get OpenShift API public DNS/IP
 // to be used in OpenShift oAuth provider as baseURL
-func getClusterPublicHostnameForOpenshiftV4() (hostname string, err error) {
+func getAPIUrlsForOpenShiftV4() (apiUrl string, apiInternalUrl string, err error) {
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 	kubeApi := os.Getenv("KUBERNETES_PORT_443_TCP_ADDR")
@@ -268,7 +270,7 @@ func getClusterPublicHostnameForOpenshiftV4() (hostname string, err error) {
 	file, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 	if err != nil {
 		logrus.Errorf("Failed to locate token file: %s", err)
-		return "", err
+		return "", "", err
 	}
 	token := string(file)
 
@@ -278,35 +280,36 @@ func getClusterPublicHostnameForOpenshiftV4() (hostname string, err error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		logrus.Errorf("An error occurred when getting API public hostname: %s", err)
-		return "", err
+		return "", "", err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode/100 != 2 {
 		message := url + " - " + resp.Status
 		logrus.Errorf("An error occurred when getting API public hostname: %s", message)
-		return "", errors.New(message)
+		return "", "", errors.New(message)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logrus.Errorf("An error occurred when getting API public hostname: %s", err)
-		return "", err
+		return "", "", err
 	}
 	var jsonData map[string]interface{}
 	err = json.Unmarshal(body, &jsonData)
 	if err != nil {
 		logrus.Errorf("An error occurred when unmarshalling while getting API public hostname: %s", err)
-		return "", err
+		return "", "", err
 	}
 	switch status := jsonData["status"].(type) {
 	case map[string]interface{}:
-		hostname = status["apiServerURL"].(string)
+		apiUrl = status["apiServerURL"].(string)
+		apiInternalUrl = status["apiServerInternalURI"].(string)
 	default:
 		logrus.Errorf("An error occurred when unmarshalling while getting API public hostname: %s", body)
-		return "", errors.New(string(body))
+		return "", "", errors.New(string(body))
 	}
 
-	return hostname, nil
+	return apiUrl, apiInternalUrl, nil
 }
 
 func GetDeploymentEnv(deployment *appsv1.Deployment, key string) (value string) {
@@ -367,22 +370,12 @@ func NewBoolPointer(value bool) *bool {
 
 // IsOAuthEnabled returns true when oAuth is enable for CheCluster resource, otherwise false.
 func IsOAuthEnabled(c *orgv1.CheCluster) bool {
-	return c.Spec.Auth.OpenShiftoAuth != nil && *c.Spec.Auth.OpenShiftoAuth
+	return IsOpenShift && c.Spec.Auth.OpenShiftoAuth != nil && *c.Spec.Auth.OpenShiftoAuth
 }
 
 // IsInitialOpenShiftOAuthUserEnabled returns true when initial Openshift oAuth user is enabled for CheCluster resource, otherwise false.
 func IsInitialOpenShiftOAuthUserEnabled(c *orgv1.CheCluster) bool {
 	return c.Spec.Auth.InitialOpenShiftOAuthUser != nil && *c.Spec.Auth.InitialOpenShiftOAuthUser
-}
-
-// IsWorkspaceInDifferentNamespaceThanChe return true when Che workspaces will be executed
-// in the different namespace with Che otherwise returns false.
-func IsWorkspaceInDifferentNamespaceThanChe(cr *orgv1.CheCluster) bool {
-	return GetWorkspaceNamespaceDefault(cr) != cr.Namespace
-}
-
-func IsWorkspacePermissionsInTheDifferNamespaceThanCheRequired(cr *orgv1.CheCluster) bool {
-	return !IsOAuthEnabled(cr) && IsWorkspaceInDifferentNamespaceThanChe(cr)
 }
 
 // GetWorkspaceNamespaceDefault - returns workspace namespace default strategy, which points on the namespaces used for workspaces execution.
@@ -438,9 +431,8 @@ func ReadObject(yamlFile string, obj interface{}) error {
 	return nil
 }
 
-func ReloadCheCluster(client client.Client, cheCluster *orgv1.CheCluster) error {
-	return client.Get(
-		context.TODO(),
-		types.NamespacedName{Name: cheCluster.Name, Namespace: cheCluster.Namespace},
-		cheCluster)
+func ComputeHash256(data []byte) string {
+	hasher := sha256.New()
+	hasher.Write(data)
+	return base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 }

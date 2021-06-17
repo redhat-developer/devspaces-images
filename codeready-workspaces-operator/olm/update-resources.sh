@@ -60,6 +60,9 @@ generateCRD() {
     mv ${ROOT_PROJECT_DIR}/deploy/crds/org.eclipse.che_checlusters_crd.yaml ${ROOT_PROJECT_DIR}/deploy/crds/org_v1_che_crd-v1beta1.yaml
     echo "[INFO] Generated CRD v1beta1 ${ROOT_PROJECT_DIR}/deploy/crds/org_v1_che_crd-v1beta1.yaml"
   fi
+
+  # removes some left overs after operator-sdk
+  rm ${ROOT_PROJECT_DIR}/deploy/crds/__crd.yaml
 }
 
 # Removes `required` attributes for fields to be compatible with OCP 3.11
@@ -91,7 +94,7 @@ detectImages() {
   UBI8_MINIMAL_IMAGE="registry.access.redhat.com/ubi8-minimal:"$ubiMinimal8Version"-"$ubiMinimal8Release
   skopeo inspect docker://$UBI8_MINIMAL_IMAGE > /dev/null
 
-  wget https://raw.githubusercontent.com/eclipse/che/master/assembly/assembly-wsmaster-war/src/main/webapp/WEB-INF/classes/che/che.properties -q -O /tmp/che.properties
+  wget https://raw.githubusercontent.com/eclipse-che/che-server/main/assembly/assembly-wsmaster-war/src/main/webapp/WEB-INF/classes/che/che.properties -q -O /tmp/che.properties
   PLUGIN_BROKER_METADATA_IMAGE=$(cat /tmp/che.properties| grep "che.workspace.plugin_broker.metadata.image" | cut -d = -f2)
   PLUGIN_BROKER_ARTIFACTS_IMAGE=$(cat /tmp/che.properties | grep "che.workspace.plugin_broker.artifacts.image" | cut -d = -f2)
   JWT_PROXY_IMAGE=$(cat /tmp/che.properties | grep "che.server.secure_exposer.jwtproxy.image" | cut -d = -f2)
@@ -113,7 +116,7 @@ updateOperatorYaml() {
 
 updateDockerfile() {
   DOCKERFILE="${ROOT_PROJECT_DIR}/Dockerfile"
-  sed -i 's|registry.access.redhat.com/ubi8-minimal:.*|'${UBI8_MINIMAL_IMAGE}'|g' $DOCKERFILE
+  sed -i 's|registry.access.redhat.com/ubi8-minimal:[^\s]* |'${UBI8_MINIMAL_IMAGE}' |g' $DOCKERFILE
 }
 
 updateNighltyBundle() {
@@ -222,6 +225,15 @@ updateNighltyBundle() {
 
     # set `app.kubernetes.io/managed-by` label
     yq -riSY  '(.spec.install.spec.deployments[0].spec.template.metadata.labels."app.kubernetes.io/managed-by") = "olm"' "${NEW_CSV}"
+
+    # set Pod Security Context Posture
+    yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec."hostIPC") = false' "${NEW_CSV}"
+    yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec."hostNetwork") = false' "${NEW_CSV}"
+    yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec."hostPID") = false' "${NEW_CSV}"
+    if [ "${platform}" == "openshift" ]; then
+      yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec.containers[0].securityContext."allowPrivilegeEscalation") = false' "${NEW_CSV}"
+      yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec.containers[0].securityContext."runAsNonRoot") = true' "${NEW_CSV}"
+    fi
 
     # Format code.
     yq -rY "." "${NEW_CSV}" > "${NEW_CSV}.old"
