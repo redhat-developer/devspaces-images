@@ -3,12 +3,11 @@
 
 [![Contribute](https://www.eclipse.org/che/contribute.svg)](https://che.openshift.io/f?url=https://github.com/che-incubator/kubernetes-image-puller)
 
-## Requirements
-This is an upstream version of the [kubernetes-image-puller](https://github.com/redhat-developer/kubernetes-image-puller).  Where the downstream puller requires integrations with [fabric-oso-proxy](https://github.com/fabric8-services/fabric8-oso-proxy) and [fabric8-auth](https://github.com/fabric8-services/fabric8-auth), and impersonates users in multiple clusters, this application is meant to run on a single cluster, and pre-pull Eclipse Che images.
+## About
 
-To cache images, this app creates a Daemonset on the desired cluster, which in turn creates a pod on each node in the cluster consisting of a list of containers with command `sleep 30d`. This ensures that all nodes in the cluster have those images cached. We also periodically check the health of the daemonset and re-create it if necessary.
+To cache images, Kubernetes Image Puller creates a Daemonset on the desired cluster, which in turn creates a pod on each node in the cluster consisting of a list of containers with command `sleep 30d`. This ensures that all nodes in the cluster have those images cached. We also periodically check the health of the daemonset and re-create it if necessary.
 
-The application can be deployed via Helm or by processing and applying OpenShift Templates.
+The application can be deployed via Helm or by processing and applying OpenShift Templates. Also, there is a community supported operator available on the [OperatorHub](https://operatorhub.io/operator/kubernetes-imagepuller-operator).
 
 ## Configuration
 Configuration is done via env vars pulled from `./deploy/helm/templates/configmap.yaml`, or `./deploy/openshift/configmap.yaml`, depending on the deployment method.
@@ -26,6 +25,7 @@ The config values to be set are:
 | `IMAGES`                 | List of images to be cached, in the format `<name>=<image>;...` | Contains a default list of images, but should be configured when deploying |
 | `NODE_SELECTOR` | Node selector applied to pods created by the daemonset       | `'{}'` |
 | `IMAGE_PULL_SECRETS` | List of image pull secrets, in the format `pullsecret1;...` to add to pods created by the DaemonSet. Those secrets need to be in the image puller's namespace and a cluster administrator must create them.       | `""` |
+| `AFFINITY` | Affinity applied to pods created by the daemonset       | `'{}'` |
 
 ### Configuration - Helm 
 
@@ -46,6 +46,7 @@ The following values can be set:
 | `configMap.cachingCpuLimit`      | The value of `CACHING_CPU_LIMIT` to be set in the ConfigMap  | `.2`                                                  |
 | `configMap.nodeSelector`         | The value of `NODE_SELECTOR` to be set in the ConfigMap      | `"{}"`                                                |
 | `configMap.imagePullSecrets` | The value of `IMAGE_PULL_SECRETS`       | `""` |
+| `configMap.affinity`         | The value of `AFFINITY` to be set in the ConfigMap      | `"{}"`                                                |
 
 ### Configuration - Openshift
 
@@ -65,6 +66,7 @@ The following values can be set:
 | `CACHING_CPU_LIMIT` | The value of `CACHING_CPU_LIMIT` to be set in the ConfigMap | `.2` |
 | `NODE_SELECTOR` | The value of `NODE_SELECTOR` to be set in the ConfigMap | `"{}"` |
 | `IMAGE_PULL_SECRETS` | The value of `IMAGE_PULL_SECRETS`       | `""` |
+| `AFFINITY` | The value of `AFFINITY` to be set in the ConfigMap | `"{}"` |
 
 ### Installation - Helm
 
@@ -142,3 +144,23 @@ GO111MODULE="on" go get sigs.k8s.io/kind@v0.7.0
 ```
 
 Will start a kind cluster and run the end-to-end tests in `./e2e`.  To remove the cluster after running the tests, pass the `--rm` argument to the script, or run `kind delete cluster --name k8s-image-puller-e2e`.
+
+## Scratch Images
+
+Normally, the image puller cannot pull scratch images, as they do not contain a `sleep` command.
+
+But as of [2021-05-06](https://github.com/che-incubator/kubernetes-image-puller/commit/662f9817d0240043616531d3a2b180a5423c726d), image puller builds contain a golang-based `sleep` binary that can be copied to your scratch image so that it can then be pulled.
+
+See [this example](https://github.com/eclipse-che/che-machine-exec/commit/62632f753636b5b5ec19ef31ab1928679b193097) showing how to use the sleep command in your container:
+
+```
+FROM quay.io/eclipse/kubernetes-image-puller:e28a7fb as k8s-image-puller
+...
+COPY --from=k8s-image-puller /bin/sleep /bin/sleep
+```
+
+Refs: 
+* https://github.com/eclipse-che/che-machine-exec/blob/main/build/dockerfiles/Dockerfile#L16
+* https://github.com/eclipse-che/che-machine-exec/blob/main/build/dockerfiles/Dockerfile#L60
+
+NOTE: the `sleep` binary is statically compiled and is therefore arch-specific. If you need it for more than one architecture, you'll need to build the image puller image for your specific architecture(s) and copy the correct `sleep` binary into your downstream container.
