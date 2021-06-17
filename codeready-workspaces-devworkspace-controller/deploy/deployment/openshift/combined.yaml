@@ -142,14 +142,10 @@ spec:
                 description: 'Class of the routing: this drives which DevWorkspaceRouting
                   controller will manage this routing'
                 type: string
-              routingSuffix:
-                description: Routing suffix for cluster
-                type: string
             required:
             - devworkspaceId
             - endpoints
             - podSelector
-            - routingSuffix
             type: object
           status:
             description: DevWorkspaceRoutingStatus defines the observed state of DevWorkspaceRouting
@@ -3706,6 +3702,7 @@ spec:
           name: devworkspace-webhookserver
           namespace: devworkspace-controller
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
   group: workspace.devfile.io
@@ -11180,8 +11177,8 @@ spec:
               devworkspaceId:
                 description: Id of the DevWorkspace
                 type: string
-              ideUrl:
-                description: URL at which the DevWorkspace Editor can be joined
+              mainUrl:
+                description: Main URL for this DevWorkspace
                 type: string
               message:
                 description: Message is a short user-readable message giving additional
@@ -11223,6 +11220,7 @@ spec:
           name: devworkspace-webhookserver
           namespace: devworkspace-controller
           path: /convert
+          port: 443
       conversionReviewVersions:
       - v1
   group: workspace.devfile.io
@@ -18685,7 +18683,6 @@ subjects:
 ---
 apiVersion: v1
 data:
-  controller.plugin_artifacts_broker.image: quay.io/eclipse/che-plugin-artifacts-broker:v3.4.0
   devworkspace.default_routing_class: basic
   devworkspace.experimental_features_enabled: "true"
   devworkspace.routing.cluster_host_suffix: ""
@@ -18740,12 +18737,10 @@ spec:
         - /usr/local/bin/devworkspace-controller
         - --enable-leader-election
         env:
-        - name: DEVELOPMENT_MODE
-          value: "true"
         - name: RELATED_IMAGE_devworkspace_webhook_server
-          value: quay.io/devfile/devworkspace-controller:v0.4.1
+          value: quay.io/devfile/devworkspace-controller:v0.6.0
         - name: RELATED_IMAGE_project_clone
-          value: quay.io/devfile/project-clone:v0.4.1
+          value: quay.io/devfile/project-clone:v0.6.0
         - name: WATCH_NAMESPACE
           value: ""
         - name: POD_NAME
@@ -18778,7 +18773,7 @@ spec:
           value: quay.io/eclipse/che-workspace-data-sync-storage:0.0.1
         - name: RELATED_IMAGE_async_storage_sidecar
           value: quay.io/eclipse/che-sidecar-workspace-data-sync:0.0.1
-        image: quay.io/devfile/devworkspace-controller:v0.4.1
+        image: quay.io/devfile/devworkspace-controller:v0.6.0
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 5

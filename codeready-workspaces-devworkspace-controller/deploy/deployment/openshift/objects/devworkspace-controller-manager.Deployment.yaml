@@ -27,8 +27,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
-            - name: DEVELOPMENT_MODE
-              value: 'true'
             - name: MAX_CONCURRENT_RECONCILES
               value: '1'
             - name: OPERATOR_NAME
@@ -38,11 +36,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_devworkspace_webhook_server
-              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.9
+              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.10
             - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
-              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.9
+              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.10
             - name: RELATED_IMAGE_project_clone
-              value: quay.io/devfile/project-clone:v0.4.1
+              value: quay.io/devfile/project-clone:v0.6.0
             - name: RELATED_IMAGE_pvc_cleanup_job
               value: registry.redhat.io/ubi8/ubi-minimal:8.3
             - name: WATCH_NAMESPACE
@@ -55,7 +53,7 @@ spec:
               value: 300Mi
             - name: WEBHOOKS_SERVER_MEMORY_REQUEST
               value: 20Mi
-          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.9
+          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.10
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 5

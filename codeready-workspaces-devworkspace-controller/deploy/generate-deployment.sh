@@ -24,6 +24,9 @@
 
 set -e
 
+# List of environment variables that will be replaced by envsubst
+SUBST_VARS='$NAMESPACE $DWO_IMG $RBAC_PROXY_IMAGE $PROJECT_CLONE_IMG $ROUTING_SUFFIX $DEFAULT_ROUTING $PULL_POLICY'
+
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
 
 function print_help() {
@@ -48,17 +51,28 @@ Arguments:
       Parse output file combined.yaml into a yaml file for each record
       in combined yaml. Files are output to the 'objects' subdirectory
       for each platform and are named <object-name>.<kind>.yaml
+  --generate-olm
+      Generate deployment files to be consumed by operator-sdk in creating
+      a bundle. If this option is set, --use-defaults is set as well (i.e.
+      output directory is always deploy/deployment)
   -h, --help
       Print this help description
 EOF
 }
 
 USE_DEFAULT_ENV=false
+GEN_OLM=false
 OUTPUT_DIR="${SCRIPT_DIR%/}/current"
 SPLIT_YAMLS=false
 while [[ "$#" -gt 0 ]]; do
   case $1 in
       --use-defaults)
+      USE_DEFAULT_ENV=true
+      SPLIT_YAMLS=true
+      OUTPUT_DIR="${SCRIPT_DIR%/}/deployment"
+      ;;
+      --generate-olm)
+      GEN_OLM=true
       USE_DEFAULT_ENV=true
       SPLIT_YAMLS=true
       OUTPUT_DIR="${SCRIPT_DIR%/}/deployment"
@@ -74,6 +88,7 @@ while [[ "$#" -gt 0 ]]; do
       --split-yamls)
       SPLIT_YAMLS=true
       ;;
+
       -h|--help)
       print_help
       exit 0
@@ -94,13 +109,14 @@ if $USE_DEFAULT_ENV; then
   export PROJECT_CLONE_IMG=${PROJECT_CLONE_IMG:-"quay.io/devfile/project-clone:next"}
   export PULL_POLICY=Always
   export DEFAULT_ROUTING=basic
-  export DEVWORKSPACE_API_VERSION=ff3c01bf82927e2936d66f31b93e9463f9be25b3
-  export ROUTING_SUFFIX=""
+  export DEVWORKSPACE_API_VERSION=cd9c30e6aa05b15445bb05386692f470323c826f
+  export ROUTING_SUFFIX='""'
   export FORCE_DEVWORKSPACE_CRDS_UPDATE=true
 fi
 
 KUBERNETES_DIR="${OUTPUT_DIR}/kubernetes"
 OPENSHIFT_DIR="${OUTPUT_DIR}/openshift"
+OLM_DIR="${OUTPUT_DIR}/olm"
 COMBINED_FILENAME="combined.yaml"
 OBJECTS_DIR="objects"
 
@@ -109,7 +125,7 @@ KUSTOMIZE_DIR="${SCRIPT_DIR}/../bin/kustomize"
 KUSTOMIZE=${KUSTOMIZE_DIR}/kustomize
 
 rm -rf "$KUBERNETES_DIR" "$OPENSHIFT_DIR"
-mkdir -p "$KUBERNETES_DIR" "$OPENSHIFT_DIR"
+mkdir -p "$KUBERNETES_DIR" "$OPENSHIFT_DIR" "$OLM_DIR"
 
 required_vars=(NAMESPACE DWO_IMG PULL_POLICY DEFAULT_ROUTING \
   DEVWORKSPACE_API_VERSION)
@@ -148,31 +164,27 @@ elif [ "$($KUSTOMIZE version | grep -o 'Version:[^ ]*')" != "Version:kustomize/v
     | bash -s "$KUSTOMIZE_VER" "$KUSTOMIZE_DIR"
 fi
 
-# Create backups of templates with env vars
-mv "${SCRIPT_DIR}/templates/cert-manager/kustomization.yaml" "${SCRIPT_DIR}/templates/cert-manager/kustomization.yaml.bak"
-mv "${SCRIPT_DIR}/templates/service-ca/kustomization.yaml" "${SCRIPT_DIR}/templates/service-ca/kustomization.yaml.bak"
-mv "${SCRIPT_DIR}/templates/base/config.properties" "${SCRIPT_DIR}/templates/base/config.properties.bak"
-mv "${SCRIPT_DIR}/templates/base/manager_image_patch.yaml" "${SCRIPT_DIR}/templates/base/manager_image_patch.yaml.bak"
-
-# Fill env vars in templates
-envsubst < "${SCRIPT_DIR}/templates/cert-manager/kustomization.yaml.bak" > "${SCRIPT_DIR}/templates/cert-manager/kustomization.yaml"
-envsubst < "${SCRIPT_DIR}/templates/service-ca/kustomization.yaml.bak" > "${SCRIPT_DIR}/templates/service-ca/kustomization.yaml"
-envsubst < "${SCRIPT_DIR}/templates/base/config.properties.bak" > "${SCRIPT_DIR}/templates/base/config.properties"
-envsubst < "${SCRIPT_DIR}/templates/base/manager_image_patch.yaml.bak" > "${SCRIPT_DIR}/templates/base/manager_image_patch.yaml"
-
 # Run kustomize to build yamls
 echo "Generating config for Kubernetes"
-${KUSTOMIZE} build "${SCRIPT_DIR}/templates/cert-manager" > "${KUBERNETES_DIR}/${COMBINED_FILENAME}"
+${KUSTOMIZE} build "${SCRIPT_DIR}/templates/cert-manager" \
+  | envsubst "$SUBST_VARS" \
+  > "${KUBERNETES_DIR}/${COMBINED_FILENAME}"
 echo "File saved to ${KUBERNETES_DIR}/${COMBINED_FILENAME}"
+
 echo "Generating config for OpenShift"
-${KUSTOMIZE} build "${SCRIPT_DIR}/templates/service-ca" > "${OPENSHIFT_DIR}/${COMBINED_FILENAME}"
+${KUSTOMIZE} build "${SCRIPT_DIR}/templates/service-ca" \
+  | envsubst "$SUBST_VARS" \
+  > "${OPENSHIFT_DIR}/${COMBINED_FILENAME}"
 echo "File saved to ${OPENSHIFT_DIR}/${COMBINED_FILENAME}"
 
-# Restore backups to not change templates
-mv "${SCRIPT_DIR}/templates/cert-manager/kustomization.yaml.bak" "${SCRIPT_DIR}/templates/cert-manager/kustomization.yaml"
-mv "${SCRIPT_DIR}/templates/service-ca/kustomization.yaml.bak" "${SCRIPT_DIR}/templates/service-ca/kustomization.yaml"
-mv "${SCRIPT_DIR}/templates/base/config.properties.bak" "${SCRIPT_DIR}/templates/base/config.properties"
-mv "${SCRIPT_DIR}/templates/base/manager_image_patch.yaml.bak" "${SCRIPT_DIR}/templates/base/manager_image_patch.yaml"
+if $GEN_OLM; then
+  echo "Generating base deployment files for OLM"
+  export NAMESPACE=openshift-operators
+  ${KUSTOMIZE} build "${SCRIPT_DIR}/templates/olm" \
+    | envsubst "$SUBST_VARS" \
+    > "${OLM_DIR}/${COMBINED_FILENAME}"
+  echo "File saved to ${OLM_DIR}/${COMBINED_FILENAME}"
+fi
 
 if ! $SPLIT_YAMLS; then
   echo "Skipping split combined.yaml step. To split the combined yaml, use the --split-yamls argument."
@@ -185,6 +197,8 @@ if ! command -v yq &>/dev/null; then
 fi
 
 # Split the giant files output by kustomize per-object
+# Do not split the OLM files as the `operator-sdk generate bundle` will generate
+# duplicate files when using $OLM_DIR as a --deploy-dir
 for dir in "$KUBERNETES_DIR" "$OPENSHIFT_DIR"; do
   echo "Parsing objects from ${dir}/${COMBINED_FILENAME}"
   mkdir -p "$dir/$OBJECTS_DIR"

@@ -3,6 +3,8 @@ deploy/templates/crd/bases/workspace.devfile.io_devworkspaces.yaml
 deploy/templates/crd/bases/workspace.devfile.io_devworkspacetemplates.yaml
 deploy/templates/crd/bases/devfile_version
 deploy/current
+deploy/deployment/olm
+generated
 .vscode
 __debug_bin
 

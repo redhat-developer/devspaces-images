@@ -70,7 +70,9 @@ func devfileEndpointsToContainerPorts(endpoints []dw.Endpoint) []v1.ContainerPor
 }
 
 func devfileResourcesToContainerResources(devfileContainer *dw.ContainerComponent) (*v1.ResourceRequirements, error) {
-	// TODO: Handle memory request and CPU when implemented in devfile API
+	limits := v1.ResourceList{}
+	requests := v1.ResourceList{}
+
 	memLimit := devfileContainer.MemoryLimit
 	if memLimit == "" {
 		memLimit = constants.SidecarDefaultMemoryLimit
@@ -79,10 +81,45 @@ func devfileResourcesToContainerResources(devfileContainer *dw.ContainerComponen
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse memory limit %q: %w", memLimit, err)
 	}
+	limits[v1.ResourceMemory] = memLimitQuantity
+
+	memReq := devfileContainer.MemoryRequest
+	if memReq == "" {
+		memReq = constants.SidecarDefaultMemoryRequest
+	}
+	memReqQuantity, err := resource.ParseQuantity(memReq)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse memory request %q: %w", memReq, err)
+	}
+	requests[v1.ResourceMemory] = memReqQuantity
+
+	cpuLimit := devfileContainer.CpuLimit
+	if cpuLimit == "" {
+		cpuLimit = constants.SidecarDefaultCpuLimit
+	}
+	if cpuLimit != "" {
+		cpuLimitQuantity, err := resource.ParseQuantity(cpuLimit)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse cpu limit %q: %w", cpuLimit, err)
+		}
+		limits[v1.ResourceCPU] = cpuLimitQuantity
+	}
+
+	cpuReq := devfileContainer.CpuRequest
+	if cpuReq == "" {
+		cpuReq = constants.SidecarDefaultCpuRequest
+	}
+	if cpuReq != "" {
+		cpuReqQuantity, err := resource.ParseQuantity(cpuReq)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse cpu request %q: %w", cpuReq, err)
+		}
+		requests[v1.ResourceCPU] = cpuReqQuantity
+	}
+
 	return &v1.ResourceRequirements{
-		Limits: v1.ResourceList{
-			v1.ResourceMemory: memLimitQuantity,
-		},
+		Limits:   limits,
+		Requests: requests,
 	}, nil
 }
 

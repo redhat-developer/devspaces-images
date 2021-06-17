@@ -30,9 +30,6 @@ import (
 
 const (
 	storageCleanupFinalizer = "storage.controller.devfile.io"
-	// devworkspacePhaseTerminating represents a DevWorkspace that has been deleted but is waiting on a finalizer.
-	// TODO: Should be moved to devfile/api side.
-	devworkspacePhaseTerminating dw.DevWorkspacePhase = "Terminating"
 )
 
 func (r *DevWorkspaceReconciler) finalize(ctx context.Context, log logr.Logger, workspace *dw.DevWorkspace) (reconcile.Result, error) {
@@ -68,7 +65,7 @@ func (r *DevWorkspaceReconciler) finalize(ctx context.Context, log logr.Logger, 
 	storageProvisioner, err := storage.GetProvisioner(workspace)
 	if err != nil {
 		log.Error(err, "Failed to clean up DevWorkspace storage")
-		failedStatus := currentStatus{phase: "Error"}
+		failedStatus := currentStatus{phase: dw.DevWorkspaceStatusError}
 		failedStatus.setConditionTrue(dw.DevWorkspaceError, err.Error())
 		return r.updateWorkspaceStatus(workspace, r.Log, &failedStatus, reconcile.Result{}, nil)
 	}
@@ -85,7 +82,7 @@ func (r *DevWorkspaceReconciler) finalize(ctx context.Context, log logr.Logger, 
 			return reconcile.Result{RequeueAfter: storageErr.RequeueAfter}, nil
 		case *storage.ProvisioningError:
 			log.Error(storageErr, "Failed to clean up DevWorkspace storage")
-			failedStatus := currentStatus{phase: "Error"}
+			failedStatus := currentStatus{phase: dw.DevWorkspaceStatusError}
 			failedStatus.setConditionTrue(dw.DevWorkspaceError, err.Error())
 			return r.updateWorkspaceStatus(workspace, r.Log, &failedStatus, reconcile.Result{}, nil)
 		default:

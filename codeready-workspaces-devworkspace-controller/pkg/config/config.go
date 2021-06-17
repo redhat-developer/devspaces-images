@@ -69,10 +69,6 @@ func (wc *ControllerConfig) GetExperimentalFeaturesEnabled() bool {
 	return wc.GetPropertyOrDefault(experimentalFeaturesEnabled, defaultExperimentalFeaturesEnabled) == "true"
 }
 
-func (wc *ControllerConfig) GetRoutingSuffix() string {
-	return wc.GetPropertyOrDefault(routingSuffix, defaultRoutingSuffix)
-}
-
 func (wc *ControllerConfig) GetPVCStorageClassName() *string {
 	return wc.GetProperty(workspacePVCStorageClassName)
 }
@@ -255,7 +251,7 @@ func fillOpenShiftRouteSuffixIfNecessary(nonCachedClient client.Client, configMa
 	host := testRoute.Spec.Host
 	if host != "" {
 		prefixToRemove := "devworkspace-controller-test-route-" + configMap.Namespace + "."
-		configMap.Data[routingSuffix] = strings.TrimPrefix(host, prefixToRemove)
+		configMap.Data[RoutingSuffix] = strings.TrimPrefix(host, prefixToRemove)
 	}
 
 	err = nonCachedClient.Update(context.TODO(), configMap)
