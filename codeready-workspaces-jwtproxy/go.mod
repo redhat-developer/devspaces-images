@@ -1,6 +1,6 @@
 module github.com/eclipse/che-jwtproxy
 
-go 1.14
+go 1.15
 
 require (
 	github.com/Sirupsen/logrus v0.11.5
