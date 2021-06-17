@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,12 +8,12 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package client
 
 import (
 	"errors"
+
 	"github.com/eclipse-che/che-machine-exec/api/model"
 	"github.com/eclipse-che/che-machine-exec/auth"
 	"github.com/sirupsen/logrus"
@@ -82,6 +82,7 @@ func (clientProvider *K8sAPIProvider) getK8sAPIWithBearerToken(token string) (*K
 	}
 
 	config.BearerToken = token
+	config.BearerTokenFile = ""
 
 	client, err := kubernetes.NewForConfig(config)
 	if err != nil {

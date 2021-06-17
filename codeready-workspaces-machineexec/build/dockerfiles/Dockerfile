@@ -15,7 +15,7 @@
 # https://quay.io/repository/eclipse/kubernetes-image-puller?tab=tags
 FROM quay.io/eclipse/kubernetes-image-puller:e28a7fb as k8s-image-puller
 
-FROM docker.io/golang:1.12.8-alpine as go_builder
+FROM golang:1.15.0-alpine as go_builder
 
 ENV USER=machine-exec
 ENV UID=12345

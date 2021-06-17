@@ -16,20 +16,35 @@ package compiler
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
+	"sync"
+
+	yaml "gopkg.in/yaml.v2"
 )
+
+var verboseReader = false
 
 var fileCache map[string][]byte
 var infoCache map[string]interface{}
-var count int64
 
-var verboseReader = false
+var fileCacheEnable = true
+var infoCacheEnable = true
+
+// These locks are used to synchronize accesses to the fileCache and infoCache
+// maps (above). They are global state and can throw thread-related errors
+// when modified from separate goroutines. The general strategy is to protect
+// all public functions in this file with mutex Lock() calls. As a result, to
+// avoid deadlock, these public functions should not call other public
+// functions, so some public functions have private equivalents.
+// In the future, we might consider replacing the maps with sync.Map and
+// eliminating these mutexes.
+var fileCacheMutex sync.Mutex
+var infoCacheMutex sync.Mutex
 
 func initializeFileCache() {
 	if fileCache == nil {
@@ -43,24 +58,118 @@ func initializeInfoCache() {
 	}
 }
 
+// EnableFileCache turns on file caching.
+func EnableFileCache() {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	fileCacheEnable = true
+}
+
+// EnableInfoCache turns on parsed info caching.
+func EnableInfoCache() {
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
+	infoCacheEnable = true
+}
+
+// DisableFileCache turns off file caching.
+func DisableFileCache() {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	fileCacheEnable = false
+}
+
+// DisableInfoCache turns off parsed info caching.
+func DisableInfoCache() {
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
+	infoCacheEnable = false
+}
+
+// RemoveFromFileCache removes an entry from the file cache.
+func RemoveFromFileCache(fileurl string) {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	if !fileCacheEnable {
+		return
+	}
+	initializeFileCache()
+	delete(fileCache, fileurl)
+}
+
+// RemoveFromInfoCache removes an entry from the info cache.
+func RemoveFromInfoCache(filename string) {
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
+	if !infoCacheEnable {
+		return
+	}
+	initializeInfoCache()
+	delete(infoCache, filename)
+}
+
+// GetInfoCache returns the info cache map.
+func GetInfoCache() map[string]interface{} {
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
+	if infoCache == nil {
+		initializeInfoCache()
+	}
+	return infoCache
+}
+
+// ClearFileCache clears the file cache.
+func ClearFileCache() {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	fileCache = make(map[string][]byte, 0)
+}
+
+// ClearInfoCache clears the info cache.
+func ClearInfoCache() {
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
+	infoCache = make(map[string]interface{})
+}
+
+// ClearCaches clears all caches.
+func ClearCaches() {
+	ClearFileCache()
+	ClearInfoCache()
+}
+
 // FetchFile gets a specified file from the local filesystem or a remote location.
 func FetchFile(fileurl string) ([]byte, error) {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	return fetchFile(fileurl)
+}
+
+func fetchFile(fileurl string) ([]byte, error) {
+	var bytes []byte
 	initializeFileCache()
-	bytes, ok := fileCache[fileurl]
-	if ok {
-		if verboseReader {
-			log.Printf("Cache hit %s", fileurl)
+	if fileCacheEnable {
+		bytes, ok := fileCache[fileurl]
+		if ok {
+			if verboseReader {
+				log.Printf("Cache hit %s", fileurl)
+			}
+			return bytes, nil
 		}
-		return bytes, nil
+		if verboseReader {
+			log.Printf("Fetching %s", fileurl)
+		}
 	}
-	log.Printf("Fetching %s", fileurl)
 	response, err := http.Get(fileurl)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
+	if response.StatusCode != 200 {
+		return nil, fmt.Errorf("Error downloading %s: %s", fileurl, response.Status)
+	}
 	bytes, err = ioutil.ReadAll(response.Body)
-	if err == nil {
+	if fileCacheEnable && err == nil {
 		fileCache[fileurl] = bytes
 	}
 	return bytes, err
@@ -68,11 +177,17 @@ func FetchFile(fileurl string) ([]byte, error) {
 
 // ReadBytesForFile reads the bytes of a file.
 func ReadBytesForFile(filename string) ([]byte, error) {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	return readBytesForFile(filename)
+}
+
+func readBytesForFile(filename string) ([]byte, error) {
 	// is the filename a url?
 	fileurl, _ := url.Parse(filename)
 	if fileurl.Scheme != "" {
 		// yes, fetch it
-		bytes, err := FetchFile(filename)
+		bytes, err := fetchFile(filename)
 		if err != nil {
 			return nil, err
 		}
@@ -88,30 +203,44 @@ func ReadBytesForFile(filename string) ([]byte, error) {
 
 // ReadInfoFromBytes unmarshals a file as a yaml.MapSlice.
 func ReadInfoFromBytes(filename string, bytes []byte) (interface{}, error) {
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
+	return readInfoFromBytes(filename, bytes)
+}
+
+func readInfoFromBytes(filename string, bytes []byte) (interface{}, error) {
 	initializeInfoCache()
-	cachedInfo, ok := infoCache[filename]
-	if ok {
-		if verboseReader {
-			log.Printf("Cache hit info for file %s", filename)
+	if infoCacheEnable {
+		cachedInfo, ok := infoCache[filename]
+		if ok {
+			if verboseReader {
+				log.Printf("Cache hit info for file %s", filename)
+			}
+			return cachedInfo, nil
 		}
-		return cachedInfo, nil
-	}
-	if verboseReader {
-		log.Printf("Reading info for file %s", filename)
+		if verboseReader {
+			log.Printf("Reading info for file %s", filename)
+		}
 	}
 	var info yaml.MapSlice
 	err := yaml.Unmarshal(bytes, &info)
 	if err != nil {
 		return nil, err
 	}
-	infoCache[filename] = info
+	if infoCacheEnable && len(filename) > 0 {
+		infoCache[filename] = info
+	}
 	return info, nil
 }
 
 // ReadInfoForRef reads a file and return the fragment needed to resolve a $ref.
 func ReadInfoForRef(basefile string, ref string) (interface{}, error) {
+	fileCacheMutex.Lock()
+	defer fileCacheMutex.Unlock()
+	infoCacheMutex.Lock()
+	defer infoCacheMutex.Unlock()
 	initializeInfoCache()
-	{
+	if infoCacheEnable {
 		info, ok := infoCache[ref]
 		if ok {
 			if verboseReader {
@@ -119,24 +248,27 @@ func ReadInfoForRef(basefile string, ref string) (interface{}, error) {
 			}
 			return info, nil
 		}
+		if verboseReader {
+			log.Printf("Reading info for ref %s#%s", basefile, ref)
+		}
 	}
-	if verboseReader {
-		log.Printf("Reading info for ref %s#%s", basefile, ref)
-	}
-	count = count + 1
 	basedir, _ := filepath.Split(basefile)
 	parts := strings.Split(ref, "#")
 	var filename string
 	if parts[0] != "" {
-		filename = basedir + parts[0]
+		filename = parts[0]
+		if _, err := url.ParseRequestURI(parts[0]); err != nil {
+			// It is not an URL, so the file is local
+			filename = basedir + parts[0]
+		}
 	} else {
 		filename = basefile
 	}
-	bytes, err := ReadBytesForFile(filename)
+	bytes, err := readBytesForFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	info, err := ReadInfoFromBytes(filename, bytes)
+	info, err := readInfoFromBytes(filename, bytes)
 	if err != nil {
 		log.Printf("File error: %v\n", err)
 	} else {
@@ -162,6 +294,8 @@ func ReadInfoForRef(basefile string, ref string) (interface{}, error) {
 			}
 		}
 	}
-	infoCache[ref] = info
+	if infoCacheEnable {
+		infoCache[ref] = info
+	}
 	return info, nil
 }

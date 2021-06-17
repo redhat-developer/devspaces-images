@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,19 +8,19 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package main
 
 import (
-	"github.com/eclipse-che/che-machine-exec/activity"
 	"net/http"
 
-	jsonrpc "github.com/eclipse/che-go-jsonrpc"
+	"github.com/eclipse-che/che-machine-exec/activity"
+
 	jsonRpcApi "github.com/eclipse-che/che-machine-exec/api/jsonrpc"
 	"github.com/eclipse-che/che-machine-exec/api/rest"
 	"github.com/eclipse-che/che-machine-exec/api/websocket"
 	"github.com/eclipse-che/che-machine-exec/cfg"
+	jsonrpc "github.com/eclipse/che-go-jsonrpc"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )

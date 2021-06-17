@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2020 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,12 +8,13 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package auth
 
 import (
+	"context"
 	"errors"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -32,6 +33,10 @@ var (
 		Group:   "user.openshift.io",
 		Version: "v1",
 	}
+	UserGroupResource = &schema.GroupResource{
+		Group:    "user.openshift.io",
+		Resource: "users",
+	}
 )
 
 func getCurrentUserID(token string) (string, error) {
@@ -40,7 +45,7 @@ func getCurrentUserID(token string) (string, error) {
 		return "", err
 	}
 
-	userInfo, err := client.Resource(UserAPIResource, "").Get("~", metav1.GetOptions{})
+	userInfo, err := client.Resource(UserGroupResource.WithVersion("v1")).Namespace("").Get(context.TODO(), "~", metav1.GetOptions{})
 	if err != nil {
 		return "", errors.New("Failed to retrieve the current user info. Cause: " + err.Error())
 	}
@@ -55,10 +60,11 @@ func newDynamicForUsersWithToken(token string) (dynamic.Interface, error) {
 	}
 
 	config.BearerToken = token
+	config.BearerTokenFile = ""
 	config.GroupVersion = UserGroupVersion
 	config.APIPath = "apis"
 
-	client, err := dynamic.NewClient(config)
+	client, err := dynamic.NewForConfig(config)
 	if err != nil {
 		return nil, err
 	}

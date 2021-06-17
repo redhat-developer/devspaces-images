@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,7 +8,6 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package filter
 
@@ -56,7 +55,7 @@ func TestShouldReturnContainerInfoWhenWorkspaceContainsOneContainerInThePod(t *t
 	podList := corev1.PodList{Items: []corev1.Pod{pod}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, _ := containerFilter.FindContainerInfo(identifier)
@@ -78,7 +77,7 @@ func TestShouldReturnContainerInfoWhenWorkspaceContainsTwoContainerInThePod(t *t
 	podList := corev1.PodList{Items: []corev1.Pod{pod}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, _ := containerFilter.FindContainerInfo(identifier)
@@ -103,7 +102,7 @@ func TestShouldReturnContainerInfoWhenWorkspaceContainsTwoPods(t *testing.T) {
 	podList := corev1.PodList{Items: []corev1.Pod{pod1, pod2}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, _ := containerFilter.FindContainerInfo(identifier)
@@ -122,7 +121,7 @@ func TestShouldReturnErrorOnGetPods(t *testing.T) {
 	errorMsg := "Internal server error"
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(nil, errors.New(errorMsg))
+	podInterface.On("List", mock.Anything, mock.Anything).Return(nil, errors.New(errorMsg))
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, err := containerFilter.FindContainerInfo(identifier)
@@ -140,7 +139,7 @@ func TestShouldReturnErrorIfPodListIsEmpty(t *testing.T) {
 	podList := corev1.PodList{Items: []corev1.Pod{}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, err := containerFilter.FindContainerInfo(identifier)
@@ -160,7 +159,7 @@ func TestShouldNotFindContainerInTheEmptyPod(t *testing.T) {
 	podList := corev1.PodList{Items: []corev1.Pod{pod}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, err := containerFilter.FindContainerInfo(identifier)
@@ -182,7 +181,7 @@ func TestShouldNotFindInfoContainerInThePod(t *testing.T) {
 	podList := corev1.PodList{Items: []corev1.Pod{pod}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, err := containerFilter.FindContainerInfo(identifier)
@@ -206,7 +205,7 @@ func TestShouldNotFindInfoContainerInTwoPods(t *testing.T) {
 	podList := corev1.PodList{Items: []corev1.Pod{pod1, pod2}}
 
 	podGetter.On("Pods", Namespace).Return(podInterface).Once()
-	podInterface.On("List", mock.Anything).Return(&podList, nil)
+	podInterface.On("List", mock.Anything, mock.Anything).Return(&podList, nil)
 
 	containerFilter := NewKubernetesContainerFilter(Namespace, podGetter)
 	containerInfo, err := containerFilter.FindContainerInfo(identifier)

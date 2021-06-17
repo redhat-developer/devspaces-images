@@ -1,3 +1,14 @@
+#
+# Copyright (c) 2019-2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+
 apiVersion: 1.0.0
 metadata:
   name: che-machine-exec
@@ -32,7 +43,7 @@ components:
 
   - alias: dev
     type: dockerimage
-    image: quay.io/eclipse/che-golang-1.12:7.12.1
+    image: quay.io/eclipse/che-golang-1.14:next
     mountSources: true
     endpoints:
       - name: exec-server

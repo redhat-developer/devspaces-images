@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,11 +8,11 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package filter
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -98,7 +98,7 @@ func (filter *KubernetesContainerFilter) FindContainerInfo(identifier *model.Mac
 
 func (filter *KubernetesContainerFilter) getWorkspacePods() (*v1.PodList, error) {
 	filterOptions := metav1.ListOptions{LabelSelector: cfg.PodSelector, FieldSelector: "status.phase=Running"}
-	wsPods, err := filter.podGetterApi.Pods(filter.namespace).List(filterOptions)
+	wsPods, err := filter.podGetterApi.Pods(filter.namespace).List(context.TODO(), filterOptions)
 	if err != nil {
 		return nil, err
 	}

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,7 +8,6 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package exec
 
@@ -35,7 +34,7 @@ type CmdResolver struct {
 // NewCmdResolver creates new instance CmdResolver.
 func NewCmdResolver(k8sAPI *client.K8sAPI, namespace string) *CmdResolver {
 	shellDetector := shell.NewShellDetector(k8sAPI, namespace)
-	infoExecCreator := exec_info.NewKubernetesInfoExecCreator(namespace, k8sAPI.GetClient().Core(), k8sAPI.GetConfig())
+	infoExecCreator := exec_info.NewKubernetesInfoExecCreator(namespace, k8sAPI.GetClient().CoreV1(), k8sAPI.GetConfig())
 	return &CmdResolver{
 		ContainerShellDetector: shellDetector,
 		InfoExecCreator:        infoExecCreator,

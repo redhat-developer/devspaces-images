@@ -9,9 +9,12 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.14.12-17.1618436992 as builder
-ENV GOPATH=/go/
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM ubi8-minimal:8.4-200.1622548483 as builder
+# shadow-utils is needed to install `adduser` tool
+RUN microdnf install -y golang shadow-utils && \
+    go version
+
 USER root
 WORKDIR /che-machine-exec/
 COPY . .
@@ -24,7 +27,7 @@ RUN adduser unprivilegeduser && \
     CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec . && \
     mkdir -p /rootfs/tmp /rootfs/etc /rootfs/go/bin && \
     # In the `scratch` you can't use Dockerfile#RUN, because there is no shell and no standard commands (mkdir and so on).
-    # That's why prepare absent `/tmp` folder for scratch image 
+    # That's why prepare absent `/tmp` folder for scratch image
     chmod 1777 /rootfs/tmp && \
     cp -rf /etc/passwd /rootfs/etc && \
     cp -rf /che-machine-exec/che-machine-exec /rootfs/go/bin

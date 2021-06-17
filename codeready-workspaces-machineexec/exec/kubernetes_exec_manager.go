@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,7 +8,6 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package exec
 
@@ -258,8 +257,10 @@ func (*KubernetesExecManager) Remove(execID int) {
 func (*KubernetesExecManager) Check(id int) (int, error) {
 	machineExec := getByID(id)
 	if machineExec == nil {
+		logrus.Debugf("Exec '%d' was not found", id)
 		return -1, errors.New("Exec '" + strconv.Itoa(id) + "' was not found")
 	}
+	logrus.Debugf("Exec was found after check: %d", id)
 	return machineExec.ID, nil
 }
 
@@ -267,9 +268,10 @@ func (*KubernetesExecManager) Check(id int) (int, error) {
 func (*KubernetesExecManager) Attach(id int, conn *websocket.Conn) error {
 	machineExec := getByID(id)
 	if machineExec == nil {
+		logrus.Debugf("Exec '%d' to attach was not found", id)
 		return errors.New("Exec '" + strconv.Itoa(id) + "' to attach was not found")
 	}
-	logrus.Debugf("Attach to exec %b", id)
+	logrus.Debugf("Attach to exec %d", id)
 
 	machineExec.ReadConnection(conn, machineExec.MsgChan)
 
@@ -327,7 +329,7 @@ func (manager *KubernetesExecManager) CreateKubeConfig(kubeConfigParams *model.K
 	}
 
 	currentNamespace := GetNamespace()
-	infoExecCreator := exec_info.NewKubernetesInfoExecCreator(currentNamespace, k8sAPI.GetClient().Core(), k8sAPI.GetConfig())
+	infoExecCreator := exec_info.NewKubernetesInfoExecCreator(currentNamespace, k8sAPI.GetClient().CoreV1(), k8sAPI.GetConfig())
 
 	if kubeConfigParams.Namespace == "" {
 		kubeConfigParams.Namespace = currentNamespace

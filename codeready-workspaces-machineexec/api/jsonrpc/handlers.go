@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,12 +8,12 @@
 //
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
-//
 
 package jsonrpc
 
 import (
 	"errors"
+
 	"github.com/eclipse-che/che-machine-exec/auth"
 
 	"github.com/eclipse-che/che-machine-exec/api/events"
@@ -22,8 +22,8 @@ import (
 
 	"strconv"
 
-	"github.com/eclipse/che-go-jsonrpc"
 	"github.com/eclipse-che/che-machine-exec/exec"
+	jsonrpc "github.com/eclipse/che-go-jsonrpc"
 )
 
 const (
@@ -75,8 +75,8 @@ func jsonRpcCreateExec(tunnel *jsonrpc.Tunnel, params interface{}, t jsonrpc.Res
 	}
 
 	if id == -1 {
-		logrus.Errorln("A container where it's possible to initialize terminal is not found")
-		t.SendError(jsonrpc.NewArgsError(errors.New("A container where it's possible to initialize terminal is not found")))
+		logrus.Errorln("A container where it's possible to initialize terminal was not found")
+		t.SendError(jsonrpc.NewArgsError(errors.New("A container where is possible to initialize terminal was not found")))
 		return
 	}
 
