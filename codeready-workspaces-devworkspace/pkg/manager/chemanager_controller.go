@@ -14,9 +14,13 @@ package manager
 
 import (
 	"context"
+	"encoding/hex"
 	stdErrors "errors"
 	"fmt"
+	"math/rand"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/gateway"
@@ -28,6 +32,7 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 	rbac "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -152,7 +157,7 @@ func (r *CheReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	err = r.validate(current)
 	if err != nil {
 		log.Info("validation errors", "errors", err.Error())
-		res, err := r.updateStatus(ctx, current, nil, "", v1alpha1.ManagerPhaseInactive, err.Error())
+		res, err := r.updateStatus(ctx, current, nil, current.Status.GatewayHost, current.Status.WorkspaceBaseDomain, v1alpha1.ManagerPhaseInactive, err.Error())
 		if err != nil {
 			return res, err
 		}
@@ -168,7 +173,25 @@ func (r *CheReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, err
 	}
 
-	res, err := r.updateStatus(ctx, current, &changed, host, v1alpha1.ManagerPhaseActive, "")
+	workspaceBaseDomain := current.Spec.WorkspaceBaseDomain
+
+	if workspaceBaseDomain == "" {
+		workspaceBaseDomain, err = r.detectOpenShiftRouteBaseDomain(current)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		if workspaceBaseDomain == "" {
+			res, err := r.updateStatus(ctx, current, nil, current.Status.GatewayHost, current.Status.WorkspaceBaseDomain, v1alpha1.ManagerPhaseInactive, "Could not auto-detect the workspaceBaseDomain. Please set it explicitly in the spec.")
+			if err != nil {
+				return res, err
+			}
+
+			return res, nil
+		}
+	}
+
+	res, err := r.updateStatus(ctx, current, &changed, host, workspaceBaseDomain, v1alpha1.ManagerPhaseActive, "")
 
 	if err != nil {
 		return res, err
@@ -180,7 +203,7 @@ func (r *CheReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	return res, nil
 }
 
-func (r *CheReconciler) updateStatus(ctx context.Context, manager *v1alpha1.CheManager, changed *bool, host string, phase v1alpha1.ManagerPhase, phaseMessage string) (ctrl.Result, error) {
+func (r *CheReconciler) updateStatus(ctx context.Context, manager *v1alpha1.CheManager, changed *bool, host string, workspaceDomain string, phase v1alpha1.ManagerPhase, phaseMessage string) (ctrl.Result, error) {
 	currentPhase := manager.Status.GatewayPhase
 	currentHost := manager.Status.GatewayHost
 
@@ -195,6 +218,7 @@ func (r *CheReconciler) updateStatus(ctx context.Context, manager *v1alpha1.CheM
 	}
 
 	manager.Status.GatewayHost = host
+	manager.Status.WorkspaceBaseDomain = workspaceDomain
 
 	// set this unconditionally, because the only other value is set using the finalizer
 	manager.Status.Phase = phase
@@ -213,6 +237,9 @@ func (r *CheReconciler) validate(manager *v1alpha1.CheManager) error {
 	if !infrastructure.IsOpenShift() {
 		if manager.Spec.GatewayHost == "" {
 			validationErrors = append(validationErrors, "gatewayHost must be specified")
+		}
+		if manager.Spec.WorkspaceBaseDomain == "" {
+			validationErrors = append(validationErrors, "workspaceBaseDomain must be specified")
 		}
 	}
 
@@ -271,4 +298,44 @@ func (r *CheReconciler) ensureFinalizer(ctx context.Context, manager *v1alpha1.C
 	}
 
 	return needsUpdate, err
+}
+
+// Tries to autodetect the route base domain.
+func (r *CheReconciler) detectOpenShiftRouteBaseDomain(mgr *v1alpha1.CheManager) (string, error) {
+	if !infrastructure.IsOpenShift() {
+		return "", nil
+	}
+
+	name := "devworkspace-che-test-" + randomSuffix(8)
+	testRoute := &routev1.Route{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: mgr.Namespace,
+			Name:      name,
+		},
+		Spec: routev1.RouteSpec{
+			To: routev1.RouteTargetReference{
+				Kind: "Service",
+				Name: name,
+			},
+		},
+	}
+
+	err := r.client.Create(context.TODO(), testRoute)
+	if err != nil {
+		return "", err
+	}
+	defer r.client.Delete(context.TODO(), testRoute)
+	host := testRoute.Spec.Host
+
+	prefixToRemove := name + "-" + mgr.Namespace + "."
+	return strings.TrimPrefix(host, prefixToRemove), nil
+}
+
+func randomSuffix(length int) string {
+	var rnd = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	arr := make([]byte, (length+1)/2) // to make even-length array so that it is convertible to hex
+	rnd.Read(arr)
+
+	return hex.EncodeToString(arr)
 }

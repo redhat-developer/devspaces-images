@@ -12,7 +12,7 @@ const (
 	gatewayImageEnvVarName           = "RELATED_IMAGE_gateway"
 	gatewayConfigurerImageEnvVarName = "RELATED_IMAGE_gateway_configurer"
 
-	defaultGatewayImage           = "docker.io/traefik:v2.2.8"
+	defaultGatewayImage           = "quay.io/eclipse/che--traefik:v2.3.2-6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23"
 	defaultGatewayConfigurerImage = "quay.io/che-incubator/configbump:0.1.4"
 
 	configAnnotationPrefix                       = "che.routing.controller.devfile.io/"

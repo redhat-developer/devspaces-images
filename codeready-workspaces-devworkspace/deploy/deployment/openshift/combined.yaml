@@ -98,6 +98,13 @@ spec:
                   endpoints, the secret is copied to the namespace of the devworkspace.
                   \n The secret has to be of type \"tls\"."
                 type: string
+              workspaceBaseDomain:
+                description: The workspace endpoints that need to be deployed on a
+                  subdomain will be deployed on subdomains of this base domain. This
+                  is mandatory on Kubernetes. On OpenShift, an attempt is made to
+                  automatically figure out the base domain of the routes. The resolved
+                  value of this property is written to the status.
+                type: string
             type: object
           status:
             properties:
@@ -117,6 +124,12 @@ spec:
               phase:
                 description: Phase is the phase in which the manager as a whole finds
                   itself in.
+                type: string
+              workspaceBaseDomain:
+                description: The resolved workspace base domain. This is either the
+                  copy of the explicitly defined property of the same name in the
+                  spec or, if it is undefined in the spec and we're running on OpenShift,
+                  the automatically resolved basedomain for routes.
                 type: string
             type: object
         type: object
@@ -513,15 +526,17 @@ spec:
               fieldPath: metadata.name
         - name: OPERATOR_NAME
           value: devworkspace-operator
+        - name: MAX_CONCURRENT_RECONCILES
+          value: "1"
         - name: CONTROLLER_SERVICE_ACCOUNT_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.serviceAccountName
         - name: RELATED_IMAGE_gateway
-          value: docker.io/traefik:v2.2.8
+          value: quay.io/eclipse/che--traefik:v2.3.2-6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23
         - name: RELATED_IMAGE_gateway_configurer
           value: quay.io/che-incubator/configbump:0.1.4
-        image: quay.io/che-incubator/devworkspace-che-operator:v7.30.2
+        image: quay.io/che-incubator/devworkspace-che-operator:v7.32.0
         imagePullPolicy: Always
         name: devworkspace-che-operator
         resources:

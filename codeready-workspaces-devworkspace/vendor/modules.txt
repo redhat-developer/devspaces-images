@@ -2,12 +2,12 @@
 github.com/beorn7/perks/quantile
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/devfile/api/v2 v2.0.0-20210420202853-ff3c01bf8292
+# github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05
 ## explicit
 github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2
 github.com/devfile/api/v2/pkg/attributes
 github.com/devfile/api/v2/pkg/devfile
-# github.com/devfile/devworkspace-operator v0.4.2
+# github.com/devfile/devworkspace-operator v0.6.0
 ## explicit
 github.com/devfile/devworkspace-operator/apis/controller/v1alpha1
 github.com/devfile/devworkspace-operator/controllers/controller/devworkspacerouting

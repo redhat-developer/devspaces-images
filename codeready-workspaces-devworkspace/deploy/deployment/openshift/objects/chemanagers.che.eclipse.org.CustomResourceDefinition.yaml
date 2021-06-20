@@ -98,6 +98,13 @@ spec:
                   endpoints, the secret is copied to the namespace of the devworkspace.
                   \n The secret has to be of type \"tls\"."
                 type: string
+              workspaceBaseDomain:
+                description: The workspace endpoints that need to be deployed on a
+                  subdomain will be deployed on subdomains of this base domain. This
+                  is mandatory on Kubernetes. On OpenShift, an attempt is made to
+                  automatically figure out the base domain of the routes. The resolved
+                  value of this property is written to the status.
+                type: string
             type: object
           status:
             properties:
@@ -117,6 +124,12 @@ spec:
               phase:
                 description: Phase is the phase in which the manager as a whole finds
                   itself in.
+                type: string
+              workspaceBaseDomain:
+                description: The resolved workspace base domain. This is either the
+                  copy of the explicitly defined property of the same name in the
+                  spec or, if it is undefined in the spec and we're running on OpenShift,
+                  the automatically resolved basedomain for routes.
                 type: string
             type: object
         type: object

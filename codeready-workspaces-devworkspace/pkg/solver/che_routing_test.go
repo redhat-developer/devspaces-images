@@ -63,7 +63,6 @@ func getSpecObjectsForManager(t *testing.T, mgr *v1alpha1.CheManager, routing *d
 		DevWorkspaceId: routing.Spec.DevWorkspaceId,
 		Namespace:      routing.GetNamespace(),
 		PodSelector:    routing.Spec.PodSelector,
-		RoutingSuffix:  routing.Spec.RoutingSuffix,
 	}
 
 	// we need to do 1 round of che manager reconciliation so that the solver gets initialized
@@ -92,7 +91,8 @@ func getSpecObjects(t *testing.T, routing *dwo.DevWorkspaceRouting) (client.Clie
 			Finalizers: []string{manager.FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost: "over.the.rainbow",
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
 		},
 	}, routing)
 }
@@ -106,7 +106,6 @@ func subdomainDevWorkspaceRouting() *dwo.DevWorkspaceRouting {
 		Spec: dwo.DevWorkspaceRoutingSpec{
 			DevWorkspaceId: "wsid",
 			RoutingClass:   "che",
-			RoutingSuffix:  "over.the.rainbow",
 			Endpoints: map[string]dwo.EndpointList{
 				"m1": {
 					{
@@ -144,7 +143,6 @@ func relocatableDevWorkspaceRouting() *dwo.DevWorkspaceRouting {
 		Spec: dwo.DevWorkspaceRoutingSpec{
 			DevWorkspaceId: "wsid",
 			RoutingClass:   "che",
-			RoutingSuffix:  "over.the.rainbow",
 			Endpoints: map[string]dwo.EndpointList{
 				"m1": {
 					{
@@ -322,11 +320,17 @@ func TestCreateSubDomainObjects(t *testing.T) {
 		if len(objs.Ingresses) != 1 {
 			t.Error()
 		}
+		if objs.Ingresses[0].Spec.Rules[0].Host != "wsid-1.down.on.earth" {
+			t.Error()
+		}
 	})
 
 	t.Run("expectedRoutes", func(t *testing.T) {
 		objs := testCommon(infrastructure.OpenShiftv4)
 		if len(objs.Routes) != 1 {
+			t.Error()
+		}
+		if objs.Routes[0].Spec.Host != "wsid-1.down.on.earth" {
 			t.Error()
 		}
 	})
@@ -415,24 +419,24 @@ func TestReportSubdomainExposedEndpoints(t *testing.T) {
 	if e1.Name != "e1" {
 		t.Errorf("The first endpoint should have been e1 but is %s", e1.Name)
 	}
-	if e1.Url != "https://wsid-1.over.the.rainbow/1/" {
-		t.Errorf("The e1 endpoint should have the following URL: '%s' but has '%s'.", "https://wsid-1.over.the.rainbow/1/", e1.Url)
+	if e1.Url != "https://wsid-1.down.on.earth/1/" {
+		t.Errorf("The e1 endpoint should have the following URL: '%s' but has '%s'.", "https://wsid-1.down.on.earth/1/", e1.Url)
 	}
 
 	e2 := m1[1]
 	if e2.Name != "e2" {
 		t.Errorf("The second endpoint should have been e2 but is %s", e1.Name)
 	}
-	if e2.Url != "https://wsid-1.over.the.rainbow/2.js" {
-		t.Errorf("The e2 endpoint should have the following URL: '%s' but has '%s'.", "https://wsid-1.over.the.rainbow/2.js", e2.Url)
+	if e2.Url != "https://wsid-1.down.on.earth/2.js" {
+		t.Errorf("The e2 endpoint should have the following URL: '%s' but has '%s'.", "https://wsid-1.down.on.earth/2.js", e2.Url)
 	}
 
 	e3 := m1[2]
 	if e3.Name != "e3" {
 		t.Errorf("The third endpoint should have been e3 but is %s", e1.Name)
 	}
-	if e3.Url != "http://wsid-1.over.the.rainbow/" {
-		t.Errorf("The e3 endpoint should have the following URL: '%s' but has '%s'.", "https://wsid-1.over.the.rainbow/", e3.Url)
+	if e3.Url != "http://wsid-1.down.on.earth/" {
+		t.Errorf("The e3 endpoint should have the following URL: '%s' but has '%s'.", "https://wsid-1.down.on.earth/", e3.Url)
 	}
 }
 
@@ -495,7 +499,8 @@ func TestUsesIngressAnnotationsForWorkspaceEndpointIngresses(t *testing.T) {
 			Finalizers: []string{manager.FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost: "over.the.rainbow",
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
 			K8s: v1alpha1.CheManagerSpecK8s{
 				IngressAnnotations: map[string]string{
 					"a": "b",
@@ -531,8 +536,9 @@ func TestUsesCustomCertificateForWorkspaceEndpointIngresses(t *testing.T) {
 			Finalizers: []string{manager.FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:   "beyond.comprehension",
-			TlsSecretName: "tlsSecret",
+			GatewayHost:         "beyond.comprehension",
+			WorkspaceBaseDomain: "almost.trivial",
+			TlsSecretName:       "tlsSecret",
 		},
 	}
 
@@ -565,7 +571,7 @@ func TestUsesCustomCertificateForWorkspaceEndpointIngresses(t *testing.T) {
 		t.Fatalf("Unexpected number of host records on the TLS spec: %d", len(ingress.Spec.TLS[0].Hosts))
 	}
 
-	if ingress.Spec.TLS[0].Hosts[0] != "wsid-1.over.the.rainbow" {
+	if ingress.Spec.TLS[0].Hosts[0] != "wsid-1.almost.trivial" {
 		t.Errorf("Unexpected host name of the TLS spec: %s", ingress.Spec.TLS[0].Hosts[0])
 	}
 }
@@ -580,8 +586,9 @@ func TestUsesCustomCertificateForWorkspaceEndpointRoutes(t *testing.T) {
 			Finalizers: []string{manager.FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:   "beyond.comprehension",
-			TlsSecretName: "tlsSecret",
+			GatewayHost:         "beyond.comprehension",
+			WorkspaceBaseDomain: "almost.trivial",
+			TlsSecretName:       "tlsSecret",
 		},
 	}
 

@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM devtools/go-toolset-rhel7:1.15.11-1 as builder
+FROM devtools/go-toolset-rhel7:1.14.12-4.1615820747 as builder
 ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:${PATH} \
     GOPATH=/go/
 

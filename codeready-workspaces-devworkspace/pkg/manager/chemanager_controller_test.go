@@ -51,7 +51,8 @@ func TestCreatesObjectsInSingleHost(t *testing.T) {
 			Namespace: ns,
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost: "over.the.rainbow",
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
 		},
 	})
 
@@ -124,7 +125,8 @@ func TestUpdatesObjectsInSingleHost(t *testing.T) {
 				Finalizers: []string{FinalizerName},
 			},
 			Spec: v1alpha1.CheManagerSpec{
-				GatewayHost: "over.the.rainbow",
+				GatewayHost:         "over.the.rainbow",
+				WorkspaceBaseDomain: "down.on.earth",
 			},
 		})
 
@@ -165,8 +167,9 @@ func TestDoesntCreateObjectsInMultiHost(t *testing.T) {
 			Finalizers: []string{FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:     "over.the.rainbow",
-			GatewayDisabled: true,
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
+			GatewayDisabled:     true,
 		},
 	})
 
@@ -230,8 +233,9 @@ func TestDeletesObjectsInMultiHost(t *testing.T) {
 				Finalizers: []string{FinalizerName},
 			},
 			Spec: v1alpha1.CheManagerSpec{
-				GatewayHost:     "over.the.rainbow",
-				GatewayDisabled: true,
+				GatewayHost:         "over.the.rainbow",
+				WorkspaceBaseDomain: "down.on.earth",
+				GatewayDisabled:     true,
 			},
 		})
 
@@ -281,8 +285,9 @@ func TestNoManagerSharedWhenReconcilingNonExistent(t *testing.T) {
 			Finalizers: []string{FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:     "over.the.rainbow",
-			GatewayDisabled: true,
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
+			GatewayDisabled:     true,
 		},
 	})
 
@@ -313,8 +318,9 @@ func TestAddsManagerToSharedMapOnCreate(t *testing.T) {
 			Finalizers: []string{FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:     "over.the.rainbow",
-			GatewayDisabled: true,
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
+			GatewayDisabled:     true,
 		},
 	})
 
@@ -357,8 +363,9 @@ func TestUpdatesManagerInSharedMapOnUpdate(t *testing.T) {
 			Finalizers: []string{FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:     "over.the.rainbow",
-			GatewayDisabled: true,
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
+			GatewayDisabled:     true,
 		},
 	})
 
@@ -449,8 +456,9 @@ func TestRemovesManagerFromSharedMapOnDelete(t *testing.T) {
 			Finalizers: []string{FinalizerName},
 		},
 		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:     "over.the.rainbow",
-			GatewayDisabled: true,
+			GatewayHost:         "over.the.rainbow",
+			WorkspaceBaseDomain: "down.on.earth",
+			GatewayDisabled:     true,
 		},
 	})
 
@@ -504,7 +512,8 @@ func TestManagerFinalization(t *testing.T) {
 				Finalizers: []string{FinalizerName},
 			},
 			Spec: v1alpha1.CheManagerSpec{
-				GatewayHost: "over.the.rainbow",
+				GatewayHost:         "over.the.rainbow",
+				WorkspaceBaseDomain: "down.on.earth",
 			},
 		},
 		&corev1.ConfigMap{

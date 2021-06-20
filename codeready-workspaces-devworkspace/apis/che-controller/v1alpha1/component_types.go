@@ -26,6 +26,11 @@ type CheManagerSpec struct {
 	// This attribute is mandatory on Kubernetes, optional on OpenShift.
 	GatewayHost string `json:"gatewayHost,omitempty"`
 
+	// The workspace endpoints that need to be deployed on a subdomain will be deployed on subdomains of this base domain.
+	// This is mandatory on Kubernetes. On OpenShift, an attempt is made to automatically figure out the base domain of
+	// the routes. The resolved value of this property is written to the status.
+	WorkspaceBaseDomain string `json:"workspaceBaseDomain,omitempty"`
+
 	// GatewayDisabled enables or disables routing of the url rewrite supporting devworkspace endpoints
 	// through a common gateway (the hostname of which is defined by the GatewayHost).
 	//
@@ -112,6 +117,11 @@ type CheManagerStatus struct {
 
 	// Message contains further human-readable info for why the manager is in the phase it currently is.
 	Message string `json:"message,omitempty"`
+
+	// The resolved workspace base domain. This is either the copy of the explicitly defined property of the
+	// same name in the spec or, if it is undefined in the spec and we're running on OpenShift, the automatically
+	// resolved basedomain for routes.
+	WorkspaceBaseDomain string `json:"workspaceBaseDomain,omitempty"`
 }
 
 // CheManager is the configuration of the CheManager layer of Devworkspace.

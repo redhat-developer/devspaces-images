@@ -62,7 +62,7 @@ func getEndpointExposingObjectName(componentName string, workspaceID string, por
 }
 
 func (e *RouteExposer) initFrom(ctx context.Context, cl client.Client, manager *v1alpha1.CheManager, routing *dwo.DevWorkspaceRouting) error {
-	e.baseDomain = routing.Spec.RoutingSuffix
+	e.baseDomain = manager.Status.WorkspaceBaseDomain
 	e.devWorkspaceID = routing.Spec.DevWorkspaceId
 
 	if manager.Spec.TlsSecretName != "" {
@@ -80,7 +80,7 @@ func (e *RouteExposer) initFrom(ctx context.Context, cl client.Client, manager *
 }
 
 func (e *IngressExposer) initFrom(ctx context.Context, cl client.Client, manager *v1alpha1.CheManager, routing *dwo.DevWorkspaceRouting, ingressAnnotations map[string]string) error {
-	e.baseDomain = routing.Spec.RoutingSuffix
+	e.baseDomain = manager.Status.WorkspaceBaseDomain
 	e.devWorkspaceID = routing.Spec.DevWorkspaceId
 	e.ingressAnnotations = ingressAnnotations
 
