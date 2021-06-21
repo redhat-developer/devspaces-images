@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to master, when 2.10 branches/jobs created - see https://github.com/eclipse/che/issues/19968 for main/master
-def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":false]
+def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key

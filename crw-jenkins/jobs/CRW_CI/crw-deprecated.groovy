@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.8":"", "2.9":"", "2.x":""] // special case, no upstream branches
-def JOB_DISABLED = ["2.8":true, "2.9":false, "2.x":false]
+def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used
     JOB_BRANCH=""+JB.key

@@ -35,11 +35,9 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 * CRW ''' + JOB_BRANCH + '''.0.ER-''' + MMdd + ''' ready for QE<br/>
 * CRW ''' + JOB_BRANCH + '''.0.RC-''' + MMdd + ''' ready for QE
 ''')
-            stringParam("errataURL","https://errata.devel.redhat.com/advisory/70364",'')
-            stringParam("epicURL", "https://issues.redhat.com/browse/CRW-1566")
-            textParam("additionalNotes",'''Additional Info:
-
-stuff goes here if applicable''',"Stuff to mention after the lists of images")
+            stringParam("errataURL","https://errata.devel.redhat.com/advisory/76993",'')
+            stringParam("epicURL", "https://issues.redhat.com/browse/CRW-1658")
+            textParam("additionalNotes",'''(purpose of this build or respin goes here, if applicable)''',"Stuff to mention before the lists of images")
             booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
             booleanParam("doOSBS",false,'''if checked, include OSBS images in email''')
             // # RECIPIENTS - comma and space separated list of recipient email addresses
