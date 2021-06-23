@@ -38,6 +38,7 @@ jest.mock('../../store/Workspaces/selectors.ts', () => {
   return {
     selectIsLoading: jest.fn(() => isLoadingResult),
     selectAllWorkspaces: () => workspaces,
+    selectWorkspacesError: () => undefined,
   };
 });
 jest.mock('../../pages/WorkspacesList', () => () => (

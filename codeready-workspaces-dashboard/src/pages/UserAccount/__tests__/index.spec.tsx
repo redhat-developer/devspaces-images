@@ -19,6 +19,8 @@ import { Store } from 'redux';
 import { UserAccount } from '../';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
+import { selectBranding } from '../../../store/Branding/selectors';
+import { selectUserProfile } from '../../../store/UserProfile/selectors';
 
 describe('UserAccount page', () => {
 
@@ -26,8 +28,8 @@ describe('UserAccount page', () => {
 
   const getComponent = (store: Store): React.ReactElement => {
     const state = store.getState();
-    const branding = state.branding;
-    const userProfile = state.userProfile;
+    const branding = selectBranding(state);
+    const userProfile = selectUserProfile(state);
 
     return (
       <Provider store={store}>

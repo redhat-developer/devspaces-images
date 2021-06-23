@@ -18,6 +18,7 @@ import { matchPath } from 'react-router';
 
 import Header from './Header';
 import Sidebar from './Sidebar';
+import PreloadIssuesAlert from './PreloadIssuesAlert';
 import { ThemeVariant } from './themeVariant';
 import { AppState } from '../store';
 import { lazyInject } from '../inversify.config';
@@ -29,6 +30,8 @@ import { BannerAlert } from '../components/BannerAlert';
 import { ErrorBoundary } from './ErrorBoundary';
 import { DisposableCollection } from '../services/helpers/disposable';
 import { ROUTE } from '../route.enum';
+import { selectUser } from '../store/User/selectors';
+import { selectBranding } from '../store/Branding/selectors';
 
 const THEME_KEY = 'theme';
 const IS_MANAGED_SIDEBAR = false;
@@ -97,6 +100,14 @@ export class Layout extends React.PureComponent<Props, State> {
   }
 
   public componentDidMount(): void {
+    this.listenToIframeMessages();
+  }
+
+  public componentWillUnmount(): void {
+    this.toDispose.dispose();
+  }
+
+  private listenToIframeMessages() {
     const handleMessage = (event: MessageEvent): void => {
       if (typeof event.data !== 'string') {
         return;
@@ -107,7 +118,8 @@ export class Layout extends React.PureComponent<Props, State> {
           isSidebarVisible: true,
           isHeaderVisible: true,
         });
-      } else if (event.data === 'hide-navbar') {
+      }
+      else if (event.data === 'hide-navbar') {
         const isHeaderVisible = !this.testIdePath() || document.getElementById('ide-iframe') === null;
         this.setState({
           isSidebarVisible: false,
@@ -123,15 +135,11 @@ export class Layout extends React.PureComponent<Props, State> {
     });
   }
 
-  public componentWillUnmount(): void {
-    this.toDispose.dispose();
-  }
-
   public render(): React.ReactElement {
     /* check for startup issues */
     if (this.issuesReporterService.hasIssue) {
       const issue = this.issuesReporterService.reportIssue();
-      const brandingData = this.props.brandingStore.data;
+      const brandingData = this.props.branding;
       if (issue) {
         return (
           <ErrorReporter>
@@ -145,10 +153,9 @@ export class Layout extends React.PureComponent<Props, State> {
     }
 
     const { isHeaderVisible, isSidebarVisible, theme } = this.state;
-    const { history } = this.props;
+    const { history, user } = this.props;
 
-    const user = this.props.userStore.user;
-    const logoUrl = this.props.brandingStore.data.logoFile;
+    const logoUrl = this.props.branding.logoFile;
 
     return (
       <Page
@@ -174,6 +181,7 @@ export class Layout extends React.PureComponent<Props, State> {
         isManagedSidebar={IS_MANAGED_SIDEBAR}
       >
         <ErrorBoundary>
+          <PreloadIssuesAlert />
           <BannerAlert />
           {this.props.children}
         </ErrorBoundary>
@@ -184,8 +192,8 @@ export class Layout extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  brandingStore: state.branding,
-  userStore: state.user,
+  branding: selectBranding(state),
+  user: selectUser(state),
 });
 
 const connector = connect(

@@ -17,6 +17,7 @@ import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-c
 import { convertWorkspace, isWorkspaceV2, isDevfileV2, Workspace } from '../../services/workspaceAdapter';
 import * as CheWorkspacesStore from './cheWorkspaces';
 import * as DevWorkspacesStore from './devWorkspaces';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
@@ -123,7 +124,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
       let requestDevWorkspaces: Promise<any>;
       if (cheDevworkspaceEnabled) {
         requestDevWorkspaces = dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces());
@@ -139,7 +140,7 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'RECEIVE_WORKSPACES' });
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-      throw e.message;
+      throw e;
     }
   },
 
@@ -147,7 +148,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
 
       if (cheDevworkspaceEnabled && isWorkspaceV2(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.requestWorkspace(workspace.ref));
@@ -157,7 +158,7 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'UPDATE_WORKSPACE' });
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-      throw e.message;
+      throw e;
     }
   },
 
@@ -165,7 +166,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
 
       if (cheDevworkspaceEnabled && isWorkspaceV2(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.startWorkspace(workspace.ref));
@@ -175,14 +176,14 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'UPDATE_WORKSPACE' });
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-      throw e.message;
+      throw getErrorMessage(e);
     }
   },
 
   stopWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
       if (cheDevworkspaceEnabled && isWorkspaceV2(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.stopWorkspace(workspace.ref));
       } else {
@@ -191,14 +192,14 @@ export const actionCreators: ActionCreators = {
       }
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-      throw new Error(`Failed to stop the workspace, ID: ${workspace.id}, ` + e.message);
+      throw e;
     }
   },
 
   deleteWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
       if (cheDevworkspaceEnabled && isWorkspaceV2(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.deleteWorkspace(workspace.ref));
       } else {
@@ -206,24 +207,7 @@ export const actionCreators: ActionCreators = {
       }
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-
-      const errorMessage = e?.message || '';
-      const code = e?.response?.status || '';
-      const statusText = e?.response?.statusText || '';
-      const responseMessage = e?.response?.data?.message || '';
-
-      let message: string;
-      if (responseMessage) {
-        message = responseMessage;
-      } else if (errorMessage) {
-        message = errorMessage;
-      } else if (code && statusText) {
-        message = `Response code ${code}, ${statusText}.`;
-      } else {
-        message = 'Unknown error.';
-      }
-
-      throw new Error(`Failed to delete the workspace, ID: ${workspace.id}. ` + message);
+      throw e;
     }
   },
 
@@ -231,7 +215,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
       if (cheDevworkspaceEnabled) {
         await dispatch(DevWorkspacesStore.actionCreators.updateWorkspace(workspace.ref as IDevWorkspace));
       } else {
@@ -240,8 +224,7 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'UPDATE_WORKSPACE' });
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-      const message = e.response && e.response.data && e.response.data.message ? e.response.data.message : e.message;
-      throw new Error(`Failed to update. ${message}`);
+      throw e;
     }
   },
 
@@ -255,7 +238,7 @@ export const actionCreators: ActionCreators = {
     try {
       const state = getState();
 
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
       if (cheDevworkspaceEnabled && isDevfileV2(devfile)) {
         const devWorkspace = await dispatch(DevWorkspacesStore.actionCreators.createWorkspaceFromDevfile(devfile));
         dispatch({ type: 'ADD_WORKSPACE' });
@@ -269,7 +252,7 @@ export const actionCreators: ActionCreators = {
       }
     } catch (e) {
       dispatch({ type: 'RECEIVE_ERROR' });
-      throw new Error('Failed to create a new workspace from the devfile: \n' + e.message);
+      throw e;
     }
   },
 
@@ -298,7 +281,7 @@ export const actionCreators: ActionCreators = {
 
   deleteWorkspaceLogs: (workspaceId: string): AppThunk<KnownAction> => (_dispatch, getState): void => {
     const state = getState();
-    const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+    const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
     if (cheDevworkspaceEnabled) {
       DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspaceId);
     }

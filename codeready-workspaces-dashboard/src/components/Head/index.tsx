@@ -14,6 +14,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../store';
+import { selectBranding } from '../../store/Branding/selectors';
 
 type Props = MappedProps
   & {
@@ -23,7 +24,7 @@ type Props = MappedProps
 class Head extends React.PureComponent<Props> {
 
   public render(): React.ReactElement {
-    const { pageName, brandingStore: { data: { title } } } = this.props;
+    const { pageName, branding: { title } } = this.props;
 
     return (
       <Helmet>
@@ -35,7 +36,7 @@ class Head extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  brandingStore: state.branding,
+  branding: selectBranding(state),
 });
 
 const connector = connect(

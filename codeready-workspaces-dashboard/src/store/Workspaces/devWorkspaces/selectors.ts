@@ -22,3 +22,8 @@ export const selectAllDevWorkspaces = createSelector(
     return state.workspaces;
   }
 );
+
+export const selectDevWorkspacesError = createSelector(
+  selectState,
+  state => state.error,
+);

@@ -13,12 +13,14 @@
 import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
 import { safeLoad } from 'js-yaml';
 import { Action, Reducer } from 'redux';
-import { AppThunk } from '.';
-import { fetchDevfile } from '../services/registry/devfiles';
+import { AppThunk } from '../..';
+import { fetchDevfile } from '../../../services/registry/devfiles';
+import { createState } from '../../helpers';
 
 export interface State {
   isLoading: boolean;
   plugins: IDevWorkspaceDevfile[];
+  error?: string;
 }
 
 interface RequestDwPluginAction {
@@ -30,13 +32,22 @@ interface ReceiveDwPluginAction {
   plugin: IDevWorkspaceDevfile;
 }
 
+interface ReceiveDwPluginErrorAction {
+  type: 'RECEIVE_DW_PLUGIN_ERROR';
+  error: string;
+}
+
+type KnownAction = RequestDwPluginAction
+  | ReceiveDwPluginAction
+  | ReceiveDwPluginErrorAction;
+
 export type ActionCreators = {
-  requestDwDevfiles: (url: string) => AppThunk<RequestDwPluginAction | ReceiveDwPluginAction, Promise<void>>;
+  requestDwDevfiles: (url: string) => AppThunk<KnownAction, Promise<void>>;
 }
 
 export const actionCreators: ActionCreators = {
 
-  requestDwDevfiles: (url: string): AppThunk<RequestDwPluginAction | ReceiveDwPluginAction, Promise<void>> => async (dispatch): Promise<void> => {
+  requestDwDevfiles: (url: string): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     dispatch({ type: 'REQUEST_DW_PLUGIN' });
 
     try {
@@ -46,8 +57,12 @@ export const actionCreators: ActionCreators = {
         type: 'RECEIVE_DW_PLUGIN',
         plugin,
       });
-    } catch (e) {
-      throw new Error('Failed to request devworkspace plugin, \n' + e);
+    } catch (error) {
+      dispatch({
+        type: 'RECEIVE_DW_PLUGIN_ERROR',
+        error,
+      });
+      throw error;
     }
   },
 
@@ -63,19 +78,24 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
     return unloadedState;
   }
 
-  const action = incomingAction as RequestDwPluginAction | ReceiveDwPluginAction;
+  const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_DW_PLUGIN':
-      return Object.assign({}, state, {
+      return createState(state, {
         isLoading: true,
+        error: undefined,
       });
     case 'RECEIVE_DW_PLUGIN':
-      return Object.assign({}, state, {
+      return createState(state, {
         plugins:
           state.plugins.includes(action.plugin)
             ? state.plugins
             : state.plugins.concat([action.plugin])
-      } as State);
+      });
+    case 'RECEIVE_DW_PLUGIN_ERROR':
+      return createState(state, {
+        error: action.error,
+      });
     default:
       return state;
   }

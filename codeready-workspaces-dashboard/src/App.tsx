@@ -25,8 +25,8 @@ function AppComponent(props: { history: History }): React.ReactElement {
   return (
     <ConnectedRouter history={props.history}>
       <Head />
+      <AppAlertGroup />
       <Layout history={props.history}>
-        <AppAlertGroup />
         <Suspense fallback={Fallback}>
           <Routes />
         </Suspense>

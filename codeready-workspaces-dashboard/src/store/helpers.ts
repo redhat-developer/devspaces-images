@@ -10,9 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-type Partial<T> = {
-  [key in keyof T]?: Partial<T[key]>;
-}
+import _ from 'lodash';
 
 /**
  * Creates a new state object.
@@ -20,5 +18,5 @@ type Partial<T> = {
  * @param partial a slice of a store state
  */
 export function createState<T>(state: T, partial: Partial<T>): T {
-  return Object.assign({}, state, partial);
+  return _.merge({}, state, partial);
 }

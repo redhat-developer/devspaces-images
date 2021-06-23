@@ -16,6 +16,7 @@ import { FormGroup, Tooltip, TextInput } from '@patternfly/react-core';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
 import { AppState } from '../../../../store';
 import { InfrastructureNamespaceSelect } from './InfrastructureNamespaceSelect';
+import { selectInfrastructureNamespaces } from '../../../../store/InfrastructureNamespaces/selectors';
 
 import styles from './index.module.css';
 
@@ -33,7 +34,7 @@ export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props>
   constructor(props: Props) {
     super(props);
 
-    this.namespaces = this.props.infrastructureNamespace.namespaces;
+    this.namespaces = this.props.infrastructureNamespaces;
   }
 
   private buildInfrastructureNamespaces(): React.ReactNode {
@@ -94,7 +95,7 @@ export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props>
 }
 
 const mapStateToProps = (state: AppState) => ({
-  infrastructureNamespace: state.infrastructureNamespace,
+  infrastructureNamespaces: selectInfrastructureNamespaces(state),
 });
 
 const connector = connect(

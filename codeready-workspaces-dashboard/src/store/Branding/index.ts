@@ -11,34 +11,41 @@
  */
 
 import { Action, Reducer } from 'redux';
-import { fetchBranding } from '../services/assets/branding';
-import { AppThunk } from '.';
+import { fetchBranding } from '../../services/assets/branding';
+import { AppThunk } from '..';
 import { merge } from 'lodash';
-import { BRANDING_DEFAULT, BrandingData } from '../services/bootstrap/branding.constant';
-import { container } from '../inversify.config';
-import { CheWorkspaceClient } from '../services/workspace-client/cheWorkspaceClient';
+import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/branding.constant';
+import { container } from '../../inversify.config';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
+import { createState } from '../helpers';
 
 const ASSET_PREFIX = './assets/branding/';
 
 export interface State {
   isLoading: boolean;
   data: BrandingData;
+  error?: string;
 }
 
 export interface RequestBrandingAction {
-  isLoading: boolean;
   type: 'REQUEST_BRANDING';
 }
 
 export interface ReceivedBrandingAction {
-  isLoading: boolean;
   type: 'RECEIVED_BRANDING';
   data: BrandingData;
 }
 
+export interface ReceivedBrandingErrorAction {
+  type: 'RECEIVED_BRANDING_ERROR';
+  error: string;
+}
+
 type KnownAction =
   RequestBrandingAction
-  | ReceivedBrandingAction;
+  | ReceivedBrandingAction
+  | ReceivedBrandingErrorAction;
 
 export type ActionCreators = {
   requestBranding: () => AppThunk<KnownAction, Promise<void>>;
@@ -54,7 +61,6 @@ export const actionCreators: ActionCreators = {
 
       dispatch({
         type: 'REQUEST_BRANDING',
-        isLoading: true
       });
 
       try {
@@ -67,11 +73,15 @@ export const actionCreators: ActionCreators = {
 
         dispatch({
           type: 'RECEIVED_BRANDING',
-          isLoading: false,
           data: branding,
         });
       } catch (e) {
-        throw new Error(`Failed to request branding data by URL: ${url}`);
+        const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + getErrorMessage(e);
+        dispatch({
+          type: 'RECEIVED_BRANDING_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
       }
     },
 
@@ -90,13 +100,19 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_BRANDING':
-      return Object.assign({}, state, {
+      return createState(state, {
         isLoading: true,
+        error: undefined,
       });
     case 'RECEIVED_BRANDING':
-      return Object.assign({}, state, {
+      return createState(state, {
         isLoading: false,
         data: action.data,
+      });
+    case 'RECEIVED_BRANDING_ERROR':
+      return createState(state, {
+        isLoading: false,
+        error: action.error,
       });
     default:
       return state;

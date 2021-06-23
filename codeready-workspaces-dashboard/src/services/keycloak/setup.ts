@@ -163,10 +163,6 @@ export class KeycloakSetupService {
     });
   }
 
-  getUser(): che.User | undefined {
-    return this.user;
-  }
-
   private buildKeycloakConfig(settings: KeycloakSettingsMap): KeycloakConfig {
     const theOidcProvider = settings.get('che.keycloak.oidc_provider');
     if (!theOidcProvider) {

@@ -19,7 +19,7 @@ import StorageTypeFormGroup from './StorageType';
 import { WorkspaceNameFormGroup } from './WorkspaceName';
 import DevfileSelectorFormGroup from './DevfileSelector';
 import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
-import { selectPreferredStorageType, selectSettings } from '../../../store/Workspaces/selectors';
+import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import { attributesToType, updateDevfile } from '../../../services/storageTypes';
 
 type Props = MappedProps
@@ -209,7 +209,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  settings: selectSettings(state),
+  workspacesSettings: selectWorkspacesSettings(state),
   preferredStorageType: selectPreferredStorageType(state),
 });
 

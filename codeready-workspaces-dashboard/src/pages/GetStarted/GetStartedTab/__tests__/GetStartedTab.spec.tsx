@@ -15,7 +15,8 @@ import { Provider } from 'react-redux';
 import { RenderResult, render, screen } from '@testing-library/react';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { SamplesListTab } from '../';
-import { selectIsLoading, selectPreferredStorageType, selectSettings } from '../../../../store/Workspaces/selectors';
+import { selectIsLoading } from '../../../../store/Workspaces/selectors';
+import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
 const onDevfileMock: (devfileContent: string, stackName: string) => Promise<void> = jest.fn().mockResolvedValue(undefined);
@@ -54,10 +55,15 @@ describe('Samples list tab', () => {
         storageTypes: 'https://dummy.location'
       }
     } as BrandingData;
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      settings: { 'che.workspace.storage.preferred_type': preferredStorageType } as che.WorkspaceSettings,
-      workspaces: [],
-    }).withBranding(brandingData).build();
+    const store = new FakeStoreBuilder()
+      .withWorkspacesSettings({
+        'che.workspace.storage.preferred_type': preferredStorageType
+      } as che.WorkspaceSettings)
+      .withCheWorkspaces({
+        workspaces: [],
+      })
+      .withBranding(brandingData)
+      .build();
 
     const state = store.getState();
 
@@ -66,7 +72,7 @@ describe('Samples list tab', () => {
         <SamplesListTab
           onDevfile={onDevfileMock}
           isLoading={selectIsLoading(state)}
-          settings={selectSettings(state)}
+          workspacesSettings={selectWorkspacesSettings(state)}
           preferredStorageType={selectPreferredStorageType(state)}
           dispatch={jest.fn()}
         />

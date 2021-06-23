@@ -352,12 +352,12 @@ function renderComponent(
   const settings = preferredStorageType ? { 'che.workspace.storage.preferred_type': preferredStorageType } : {};
   const store = new FakeStoreBuilder()
     .withCheWorkspaces({
-      settings: settings as che.WorkspaceSettings,
       workspaces: [workspace],
     })
     .withWorkspaces({
       workspaceId: workspace.id
     })
+    .withWorkspacesSettings(settings as che.WorkspaceSettings)
     .withFactoryResolver({
       v: '4.0',
       source: 'devfile.yaml',

@@ -10,18 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-// This state defines the type of data maintained in the Redux store.
-
 import { Action, Reducer } from 'redux';
-import { createState } from './helpers';
-import { AppThunk } from './index';
-import { container } from '../inversify.config';
-import { CheWorkspaceClient } from '../services/workspace-client/cheWorkspaceClient';
+import { createState } from '../helpers';
+import { AppThunk } from '../index';
+import { container } from '../../inversify.config';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
 export interface State {
   user: che.User | undefined;
+  error?: string;
   isLoading: boolean;
 }
 
@@ -34,13 +34,20 @@ interface ReceiveUserAction {
   user: che.User;
 }
 
+interface ReceiveErrorAction {
+  type: 'RECEIVE_USER_ERROR';
+  error: string;
+}
+
 interface SetUserAction {
   type: 'SET_USER';
   user: che.User;
 }
 
 type KnownAction = RequestUserAction
-  | ReceiveUserAction | SetUserAction;
+  | ReceiveUserAction
+  | ReceiveErrorAction
+  | SetUserAction;
 
 export type ActionCreators = {
   requestUser: () => AppThunk<KnownAction, Promise<void>>;
@@ -52,11 +59,19 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_USER' });
 
     try {
-      const data = await WorkspaceClient.restApiClient.getCurrentUser();
-      dispatch({ type: 'RECEIVE_USER', user: <che.User>data });
+      const user = await WorkspaceClient.restApiClient.getCurrentUser() as che.User;
+      dispatch({
+        type: 'RECEIVE_USER',
+        user,
+      });
       return;
     } catch (e) {
-      throw new Error(e.message ? e.message : 'Failed to request user');
+      const errorMessage = 'Failed to fetch currently logged user info, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'RECEIVE_USER_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -83,11 +98,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
     case 'REQUEST_USER':
       return createState(state, {
         isLoading: true,
+        error: undefined,
       });
     case 'RECEIVE_USER':
       return createState(state, {
         isLoading: false,
         user: action.user,
+      });
+    case 'RECEIVE_USER_ERROR':
+      return createState(state, {
+        isLoading: false,
+        error: action.error,
       });
     case 'SET_USER':
       return createState(state, {

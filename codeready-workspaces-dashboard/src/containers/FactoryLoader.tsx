@@ -19,7 +19,8 @@ import { AppState } from '../store';
 import * as FactoryResolverStore from '../store/FactoryResolver';
 import * as WorkspaceStore from '../store/Workspaces';
 import FactoryLoader from '../pages/FactoryLoader';
-import { selectAllWorkspaces, selectPreferredStorageType, selectWorkspaceById } from '../store/Workspaces/selectors';
+import { selectAllWorkspaces, selectWorkspaceById } from '../store/Workspaces/selectors';
+import { selectPreferredStorageType } from '../store/Workspaces/Settings/selectors';
 import { WorkspaceStatus } from '../services/helpers/types';
 import { buildIdeLoaderLocation, sanitizeLocation } from '../services/helpers/location';
 import { lazyInject } from '../inversify.config';
@@ -29,6 +30,7 @@ import { isOAuthResponse } from '../store/FactoryResolver';
 import { updateDevfile } from '../services/storageTypes';
 import { isWorkspaceV1, Workspace } from '../services/workspaceAdapter';
 import { AlertOptions } from '../pages/FactoryLoader';
+import { selectInfrastructureNamespaces } from '../store/InfrastructureNamespaces/selectors';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create'];
 
@@ -275,7 +277,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private resolvePrivateDevfile(oauthUrl: string, location: string): void {
     try {
       // looking for a pre-created infrastructure namespace
-      const namespaces = this.props.infrastructureNamespaces.namespaces;
+      const namespaces = this.props.infrastructureNamespaces;
       if (namespaces.length === 1) {
         if (!namespaces[0].attributes.phase) {
           this.showAlert('Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.');
@@ -480,7 +482,7 @@ const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
   workspace: selectWorkspaceById(state),
   allWorkspaces: selectAllWorkspaces(state),
-  infrastructureNamespaces: state.infrastructureNamespace,
+  infrastructureNamespaces: selectInfrastructureNamespaces(state),
   preferredStorageType: selectPreferredStorageType(state),
 });
 

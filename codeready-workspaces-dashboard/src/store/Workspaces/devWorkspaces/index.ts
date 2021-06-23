@@ -20,6 +20,7 @@ import { DevWorkspaceClient, DEVWORKSPACE_NEXT_START_ANNOTATION, IStatusUpdate }
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
 import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
 import { deleteLogs, mergeLogs } from '../logs';
+import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const devWorkspaceClient = container.get(DevWorkspaceClient);
@@ -27,6 +28,7 @@ const devWorkspaceClient = container.get(DevWorkspaceClient);
 export interface State {
   isLoading: boolean;
   workspaces: IDevWorkspace[];
+  error?: string;
   // runtime logs
   workspacesLogs: Map<string, string[]>;
 }
@@ -37,6 +39,7 @@ interface RequestDevWorkspacesAction extends Action {
 
 interface ReceiveErrorAction extends Action {
   type: 'DEV_RECEIVE_ERROR';
+  error: string;
 }
 
 interface ReceiveWorkspacesAction extends Action {
@@ -121,8 +124,12 @@ export const actionCreators: ActionCreators = {
         workspaces,
       });
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-      throw new Error('Failed to request workspaces: \n' + e);
+      const errorMessage = 'Failed to fetch available workspaces, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'DEV_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
 
   },
@@ -139,9 +146,12 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-      const message = e.response?.data?.message ? e.response.data.message : e.message;
-      throw new Error(`Failed to update. ${message}`);
+      const errorMessage = `Failed to fetch the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      dispatch({
+        type: 'DEV_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -150,7 +160,7 @@ export const actionCreators: ActionCreators = {
     try {
       let updatedWorkspace: IDevWorkspace;
       if (workspace.metadata.annotations && workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
-        // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annoation value and then start the devworkspace
+        // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
         const state = getState();
         const plugins = state.dwPlugins.plugins;
         const storedDevWorkspace = JSON.parse(workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) as IDevWorkspace;
@@ -166,8 +176,8 @@ export const actionCreators: ActionCreators = {
         workspace: updatedWorkspace,
       });
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-      throw new Error(e.message);
+      const errorMessage = getErrorMessage(e);
+      throw errorMessage;
     }
   },
 
@@ -176,8 +186,8 @@ export const actionCreators: ActionCreators = {
       devWorkspaceClient.changeWorkspaceStatus(workspace.metadata.namespace, workspace.metadata.name, false);
       dispatch({ type: 'DEV_DELETE_WORKSPACE_LOGS', workspaceId: workspace.status.devworkspaceId });
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-      throw new Error(`Failed to stop the workspace, ID: ${workspace.status.devworkspaceId}, ` + e.message);
+      const errorMessage = `Failed to stop the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      throw errorMessage;
     }
   },
 
@@ -193,25 +203,8 @@ export const actionCreators: ActionCreators = {
       });
       dispatch({ type: 'DEV_DELETE_WORKSPACE_LOGS', workspaceId });
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-
-      const errorMessage = e?.message || '';
-      const code = e?.response?.status || '';
-      const statusText = e?.response?.statusText || '';
-      const responseMessage = e?.response?.data?.message || '';
-
-      let message: string;
-      if (responseMessage) {
-        message = responseMessage;
-      } else if (errorMessage) {
-        message = errorMessage;
-      } else if (code && statusText) {
-        message = `Response code ${code}, ${statusText}.`;
-      } else {
-        message = 'Unknown error.';
-      }
-
-      throw new Error(`Failed to delete the workspace, ID: ${workspace.status.devworkspaceId}. ` + message);
+      const resMessage = `Failed to delete the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      throw resMessage;
     }
   },
 
@@ -227,9 +220,8 @@ export const actionCreators: ActionCreators = {
         workspace: updated,
       });
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-      const message = e.response && e.response.data && e.response.data.message ? e.response.data.message : e.message;
-      throw new Error(`Failed to update. ${message}`);
+      const errorMessage = `Failed to update the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      throw errorMessage;
     }
   },
 
@@ -254,8 +246,8 @@ export const actionCreators: ActionCreators = {
       });
       return workspace;
     } catch (e) {
-      dispatch({ type: 'DEV_RECEIVE_ERROR' });
-      throw new Error('Failed to create a new workspace from the devfile: \n' + e.message);
+      const errorMessage = 'Failed to create a new workspace from the devfile, reason: ' + getErrorMessage(e);
+      throw errorMessage;
     }
   },
 
@@ -281,6 +273,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'DEV_REQUEST_WORKSPACES':
       return createState(state, {
         isLoading: true,
+        error: undefined,
       });
     case 'DEV_RECEIVE_WORKSPACES':
       return createState(state, {
@@ -290,6 +283,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'DEV_RECEIVE_ERROR':
       return createState(state, {
         isLoading: false,
+        error: action.error,
       });
     case 'DEV_UPDATE_WORKSPACE':
       return createState(state, {

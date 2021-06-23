@@ -13,15 +13,17 @@
 // This state defines the type of data maintained in the Redux store.
 
 import { Action, Reducer } from 'redux';
-import { createState } from './helpers';
-import { AppThunk } from './index';
-import { container } from '../inversify.config';
-import { CheWorkspaceClient } from '../services/workspace-client/cheWorkspaceClient';
+import { createState } from '../helpers';
+import { AppThunk } from '../index';
+import { container } from '../../inversify.config';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
 export interface State {
   profile: api.che.user.Profile | undefined;
+  error?: string;
   isLoading: boolean;
 }
 
@@ -31,11 +33,17 @@ interface RequestUserProfileAction {
 
 interface ReceiveUserProfileAction {
   type: 'RECEIVE_USER_PROFILE';
-  profile: api.che.user.Profile | undefined;
+  profile: api.che.user.Profile;
+}
+
+interface ReceiveUserProfileErrorAction {
+  type: 'RECEIVE_USER_PROFILE_ERROR';
+  error: string;
 }
 
 type KnownAction = RequestUserProfileAction
-  | ReceiveUserProfileAction;
+  | ReceiveUserProfileAction
+  | ReceiveUserProfileErrorAction;
 
 export type ActionCreators = {
   requestUserProfile: () => AppThunk<KnownAction, Promise<void>>;
@@ -46,10 +54,18 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_USER_PROFILE' });
 
     try {
-      const data = await WorkspaceClient.restApiClient.getCurrentUserProfile();
-      dispatch({ type: 'RECEIVE_USER_PROFILE', profile: <api.che.user.Profile>data });
+      const profile = await WorkspaceClient.restApiClient.getCurrentUserProfile();
+      dispatch({
+        type: 'RECEIVE_USER_PROFILE',
+        profile,
+      });
     } catch (e) {
-      throw new Error(e.message ? e.message : 'Failed to request userProfile');
+      const errorMessage = 'Failed to fetch the user profile, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'RECEIVE_USER_PROFILE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 };
@@ -69,11 +85,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
     case 'REQUEST_USER_PROFILE':
       return createState(state, {
         isLoading: true,
+        error: undefined,
       });
     case 'RECEIVE_USER_PROFILE':
       return createState(state, {
         isLoading: false,
         profile: action.profile,
+      });
+    case 'RECEIVE_USER_PROFILE_ERROR':
+      return createState(state, {
+        isLoading: false,
+        error: action.error,
       });
     default:
       return state;

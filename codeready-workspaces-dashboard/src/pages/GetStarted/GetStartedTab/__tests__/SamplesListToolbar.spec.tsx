@@ -63,13 +63,19 @@ describe('Samples List Toolbar', () => {
 });
 
 function createFakeStore(metadata?: che.DevfileMetaData[]): Store {
+  const registries = {};
+  if (metadata) {
+    registries['registry-location'] = {
+      metadata,
+    };
+  }
   return new FakeStoreBuilder()
     .withBranding({
       docs: {
         storageTypes: 'https://docs.location'
       }
     } as BrandingData)
-    .withDevfileRegistries({ metadata: metadata || [] })
+    .withDevfileRegistries({ registries, })
     .build();
 }
 

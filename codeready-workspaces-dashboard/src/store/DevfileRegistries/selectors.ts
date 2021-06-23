@@ -16,9 +16,29 @@ import match from '../../services/helpers/filter';
 
 const selectState = (state: AppState) => state.devfileRegistries;
 
-export const selectMetadata = createSelector(
+export const selectRegistriesMetadata = createSelector(
   selectState,
-  state => state.metadata
+  state => {
+    const registriesMetadata = Object.values(state.registries)
+      .map(registryMetadata => registryMetadata.metadata || []);
+    return mergeRegistriesMetadata(registriesMetadata);
+  }
+);
+
+export const selectRegistriesErrors = createSelector(
+  selectState,
+  state => {
+    const errors: Array<{ url: string, errorMessage: string }> = [];
+    for (const [url, value] of Object.entries(state.registries)) {
+      if (value.error) {
+        errors.push({
+          url,
+          errorMessage: value.error,
+        });
+      }
+    }
+    return errors;
+  }
 );
 
 export const selectFilterValue = createSelector(
@@ -29,7 +49,7 @@ export const selectFilterValue = createSelector(
 export const selectMetadataFiltered = createSelector(
   selectState,
   selectFilterValue,
-  selectMetadata,
+  selectRegistriesMetadata,
   (state, filterValue, metadata) => {
     if (!filterValue) {
       return metadata;
@@ -42,3 +62,19 @@ function matches(meta: che.DevfileMetaData, filterValue: string): boolean {
   return match(meta.displayName, filterValue)
     || match(meta.description || '', filterValue);
 }
+
+function mergeRegistriesMetadata(registriesMetadata: Array<Array<che.DevfileMetaData>>): Array<che.DevfileMetaData> {
+  return registriesMetadata.reduce((mergedMetadata, registryMetadata) => {
+    return mergedMetadata.concat(registryMetadata);
+  }, []);
+}
+
+export const selectDevfileSchema = createSelector(
+  selectState,
+  state => state.schema.schema,
+);
+
+export const selectDevfileSchemaError = createSelector(
+  selectState,
+  state => state.schema.error,
+);

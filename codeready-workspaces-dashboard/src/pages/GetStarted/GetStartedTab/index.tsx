@@ -21,7 +21,8 @@ import CheProgress from '../../../components/Progress';
 import { SamplesListHeader } from './SamplesListHeader';
 import SamplesListToolbar from './SamplesListToolbar';
 import SamplesListGallery from './SamplesListGallery';
-import { selectIsLoading, selectPreferredStorageType, selectSettings } from '../../../store/Workspaces/selectors';
+import { selectIsLoading } from '../../../store/Workspaces/selectors';
+import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
 import { updateDevfile } from '../../../services/storageTypes';
 import stringify from '../../../services/helpers/editor';
@@ -42,7 +43,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     super(props);
 
     const persistVolumesDefault = this.props.preferredStorageType === 'ephemeral' ? 'false'
-      : this.props.settings['che.workspace.persist_volumes.default'];
+      : this.props.workspacesSettings['che.workspace.persist_volumes.default'];
 
     this.state = {
       persistVolumesDefault
@@ -90,7 +91,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   isLoading: selectIsLoading(state),
-  settings: selectSettings(state),
+  workspacesSettings: selectWorkspacesSettings(state),
   preferredStorageType: selectPreferredStorageType(state),
 });
 

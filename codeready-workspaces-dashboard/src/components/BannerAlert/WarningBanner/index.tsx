@@ -13,8 +13,9 @@
 import { Banner } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { AppState } from '../../../store';
 import sanitizeHtml from 'sanitize-html';
+import { AppState } from '../../../store';
+import { selectBranding } from '../../../store/Branding/selectors';
 
 type Props = MappedProps & {};
 
@@ -23,7 +24,7 @@ type State = {};
 class WarningBannerAlert extends React.PureComponent<Props, State> {
 
   render() {
-    const warningMessage = this.props.brandingStore.data.header?.warning;
+    const warningMessage = this.props.branding.header?.warning;
     if (!warningMessage) {
       return null;
     }
@@ -45,7 +46,7 @@ class WarningBannerAlert extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  brandingStore: state.branding,
+  branding: selectBranding(state),
 });
 
 const connector = connect(mapStateToProps);

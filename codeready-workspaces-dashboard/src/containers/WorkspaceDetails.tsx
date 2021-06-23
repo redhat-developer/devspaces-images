@@ -113,9 +113,9 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
       this.props.history.replace(location);
     } catch (e) {
       if (this.workspaceDetailsPageRef.current?.state.activeTabKey === WorkspaceDetailsTab.Devfile) {
-        throw new Error(e.toString().replace(/^Error: /gi, ''));
+        throw e;
       }
-      this.showAlert('Failed to update workspace data');
+      this.showAlert(e);
     }
   }
 

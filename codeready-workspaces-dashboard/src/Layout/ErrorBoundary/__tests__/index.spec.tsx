@@ -12,7 +12,7 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ErrorBoundary, STORAGE_KEY_RELOAD_NUMBER } from '..';
 import userEvent from '@testing-library/user-event';
 

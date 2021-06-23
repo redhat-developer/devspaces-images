@@ -21,6 +21,9 @@ import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 import * as FactoryResolverStore from '../../../../../store/FactoryResolver';
 import { AppThunk } from '../../../../../store';
 
+// mute the outputs
+console.error = jest.fn();
+
 jest.mock('../../../../../store/FactoryResolver.ts', () => {
   return {
     actionCreators: {
@@ -55,7 +58,13 @@ describe('Devfile Selector', () => {
   let selectToggleButton: HTMLButtonElement;
   beforeEach(() => {
     const store = new FakeStoreBuilder()
-      .withDevfileRegistries({ metadata: mockMetadata })
+      .withDevfileRegistries({
+        registries: {
+          'registry-location': {
+            metadata: mockMetadata,
+          },
+        },
+      })
       .build();
     renderComponent(store);
 

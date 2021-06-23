@@ -20,7 +20,7 @@ import HeaderTools from '..';
 import { AppThunk } from '../../../../store';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
-import * as InfrastructureNamespaceStore from '../../../../store/InfrastructureNamespace';
+import * as InfrastructureNamespacesStore from '../../../../store/InfrastructureNamespaces';
 
 jest.mock('gravatar-url', () => {
   return function () {
@@ -28,13 +28,13 @@ jest.mock('gravatar-url', () => {
   };
 });
 
-jest.mock('../../../../store/InfrastructureNamespace', () => {
+jest.mock('../../../../store/InfrastructureNamespaces', () => {
   return {
     actionCreators: {
       requestNamespaces: (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> => async (): Promise<che.KubernetesNamespace[]> => {
         return Promise.resolve([]);
       }
-    } as InfrastructureNamespaceStore.ActionCreators,
+    } as InfrastructureNamespacesStore.ActionCreators,
   };
 });
 

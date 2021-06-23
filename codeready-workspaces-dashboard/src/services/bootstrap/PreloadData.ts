@@ -16,14 +16,14 @@ import { KeycloakSetupService } from '../keycloak/setup';
 import { AppState } from '../../store';
 import * as BrandingStore from '../../store/Branding';
 import * as DevfileRegistriesStore from '../../store/DevfileRegistries';
-import * as InfrastructureNamespaceStore from '../../store/InfrastructureNamespace';
-import * as Plugins from '../../store/Plugins';
-import * as DwPlugins from '../../store/DevWorkspacePlugins';
+import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamespaces';
+import * as Plugins from '../../store/Plugins/chePlugins';
+import * as DwPlugins from '../../store/Plugins/devWorkspacePlugins';
 import * as UserProfileStore from '../../store/UserProfile';
 import * as UserStore from '../../store/User';
 import * as WorkspacesStore from '../../store/Workspaces';
-import * as CheWorkspacesStore from '../../store/Workspaces/cheWorkspaces';
 import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
+import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
 import { ResourceFetcherService } from '../resource-fetcher';
 import { IssuesReporterService } from './issuesReporter';
 import { CheWorkspaceClient } from '../workspace-client/cheWorkspaceClient';
@@ -54,12 +54,12 @@ export class PreloadData {
   }
 
   async init(): Promise<void> {
-    await this.updateUser();
+    await this.getCurrentUser();
     await this.updateJsonRpcMasterApi();
 
     new ResourceFetcherService().prefetchResources(this.store.getState());
 
-    const settings = await this.updateWorkspaceSettings();
+    const settings = await this.getWorkspaceSettings();
 
     if (settings['che.devworkspaces.enabled'] === 'true') {
       const defaultNamespace = await this.cheWorkspaceClient.getDefaultNamespace();
@@ -67,20 +67,20 @@ export class PreloadData {
       if (namespaceInitialized) {
         this.watchNamespaces(defaultNamespace);
       }
-      this.updateDwPlugins(settings);
+      this.getDwPlugins(settings);
     }
-    this.updateWorkspaces();
+    this.getWorkspaces();
     await Promise.all([
-      this.updateBranding(),
-      this.updateInfrastructureNamespaces(),
-      this.updateUserProfile(),
-      this.updatePlugins(settings),
-      this.updateRegistriesMetadata(settings),
-      this.updateDevfileSchema(),
+      this.getBranding(),
+      this.getInfrastructureNamespaces(),
+      this.getUserProfile(),
+      this.getPlugins(settings),
+      this.getRegistriesMetadata(settings),
+      this.getDevfileSchema(),
     ]);
   }
 
-  private async updateBranding(): Promise<void> {
+  private async getBranding(): Promise<void> {
     const { requestBranding } = BrandingStore.actionCreators;
     try {
       await requestBranding()(this.store.dispatch, this.store.getState, undefined);
@@ -102,27 +102,22 @@ export class PreloadData {
     return this.devWorkspaceClient.subscribeToNamespace(namespace, updateDevWorkspaceStatus, this.store.dispatch, this.store.getState);
   }
 
-  private async updateUser(): Promise<void> {
-    const { requestUser, setUser } = UserStore.actionCreators;
-    const user = this.keycloakSetup.getUser();
-    if (user) {
-      setUser(user)(this.store.dispatch, this.store.getState, undefined);
-      return;
-    }
+  private async getCurrentUser(): Promise<void> {
+    const { requestUser } = UserStore.actionCreators;
     await requestUser()(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async updateWorkspaces(): Promise<void> {
+  private async getWorkspaces(): Promise<void> {
     const { requestWorkspaces } = WorkspacesStore.actionCreators;
     await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async updatePlugins(settings: che.WorkspaceSettings): Promise<void> {
+  private async getPlugins(settings: che.WorkspaceSettings): Promise<void> {
     const { requestPlugins } = Plugins.actionCreators;
-    await requestPlugins(settings.cheWorkspacePluginRegistryUrl || '')(this.store.dispatch, this.store.getState);
+    await requestPlugins(settings.cheWorkspacePluginRegistryUrl || '')(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async updateDwPlugins(settings: che.WorkspaceSettings): Promise<void> {
+  private async getDwPlugins(settings: che.WorkspaceSettings): Promise<void> {
     const { requestDwDevfiles } = DwPlugins.actionCreators;
 
     const promises: Array<Promise<void>> = [];
@@ -133,29 +128,33 @@ export class PreloadData {
     await Promise.all(promises);
   }
 
-  private async updateInfrastructureNamespaces(): Promise<void> {
-    const { requestNamespaces } = InfrastructureNamespaceStore.actionCreators;
+  private async getInfrastructureNamespaces(): Promise<void> {
+    const { requestNamespaces } = InfrastructureNamespacesStore.actionCreators;
     await requestNamespaces()(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async updateWorkspaceSettings(): Promise<che.WorkspaceSettings> {
-    const { requestSettings } = CheWorkspacesStore.actionCreators;
-    await requestSettings()(this.store.dispatch, this.store.getState, undefined);
+  private async getWorkspaceSettings(): Promise<che.WorkspaceSettings> {
+    const { requestSettings } = WorkspacesSettingsStore.actionCreators;
+    try {
+      await requestSettings()(this.store.dispatch, this.store.getState, undefined);
+    } catch (e) {
+      // noop
+    }
 
-    return this.store.getState().cheWorkspaces.settings;
+    return this.store.getState().workspacesSettings.settings;
   }
 
-  private async updateRegistriesMetadata(settings: che.WorkspaceSettings): Promise<void> {
+  private async getRegistriesMetadata(settings: che.WorkspaceSettings): Promise<void> {
     const { requestRegistriesMetadata } = DevfileRegistriesStore.actionCreators;
     await requestRegistriesMetadata(settings.cheWorkspaceDevfileRegistryUrl || '')(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async updateDevfileSchema(): Promise<void> {
+  private async getDevfileSchema(): Promise<void> {
     const { requestJsonSchema } = DevfileRegistriesStore.actionCreators;
     return requestJsonSchema()(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async updateUserProfile(): Promise<void> {
+  private async getUserProfile(): Promise<void> {
     const { requestUserProfile } = UserProfileStore.actionCreators;
     return requestUserProfile()(this.store.dispatch, this.store.getState, undefined);
   }

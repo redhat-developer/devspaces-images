@@ -64,7 +64,7 @@ jest.mock('../../../../store/DevfileRegistries', () => {
         return Promise.resolve(JSON.stringify(dummyDevfile));
       },
       requestJsonSchema: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => Promise.resolve(),
-      requestRegistriesMetadata: (): AppThunk<Action, Promise<che.DevfileMetaData[]>> => async (): Promise<che.DevfileMetaData[]> => Promise.resolve(mockMetadata),
+      requestRegistriesMetadata: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => Promise.resolve(),
       clearFilter: (): AppThunk<Action, void> => (): void => { return; },
       setFilter: (): AppThunk<Action, void> => (): void => { return; },
     } as DevfileRegistriesStore.ActionCreators,
@@ -345,7 +345,11 @@ function createStore(opts: {
 } = {}): Store {
   return new FakeStoreBuilder()
     .withDevfileRegistries({
-      metadata: mockMetadata
+      registries: {
+        'registry-location': {
+          metadata: mockMetadata,
+        }
+      }
     })
     .withFactoryResolver({
       devfile: {
@@ -358,11 +362,9 @@ function createStore(opts: {
         storageTypes: 'https://che-docs/storage-types'
       }
     } as any)
-    .withCheWorkspaces({
-      settings: {
-        'che.workspace.storage.available_types': 'async,ephemeral,persistent',
-        'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral'
-      } as che.WorkspaceSettings
-    })
+    .withWorkspacesSettings({
+      'che.workspace.storage.available_types': 'async,ephemeral,persistent',
+      'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral'
+    } as che.WorkspaceSettings)
     .build();
 }

@@ -25,10 +25,11 @@ import {
 } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../../../store';
-import { selectAvailableStorageTypes, selectPreferredStorageType } from '../../../../store/Workspaces/selectors';
+import { selectAvailableStorageTypes, selectPreferredStorageType } from '../../../../store/Workspaces/Settings/selectors';
 import * as storageTypeService from '../../../../services/storageTypes';
 
 import styles from './index.module.css';
+import { selectBranding } from '../../../../store/Branding/selectors';
 
 type Props =
   MappedProps
@@ -118,7 +119,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     const ephemeralTypeDescr = hasEphemeral ?
       (<Text><b>Ephemeral Storage</b> allows for faster I/O but may have limited
         storage and is not persistent.</Text>) : '';
-    const href = this.props.brandingStore.data.docs.storageTypes;
+    const href = this.props.branding.docs.storageTypes;
 
     return (<TextContent>
       {persistentTypeDescr}
@@ -174,7 +175,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  brandingStore: state.branding,
+  branding: selectBranding(state),
   availableStorageTypes: selectAvailableStorageTypes(state),
   preferredStorageType: selectPreferredStorageType(state),
 });

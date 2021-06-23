@@ -11,15 +11,18 @@
  */
 
 import { Action, Reducer } from 'redux';
-import { container } from '../inversify.config';
-import { CheWorkspaceClient } from '../services/workspace-client/cheWorkspaceClient';
-import { AppThunk } from './';
+import { container } from '../../inversify.config';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { AppThunk } from '..';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
+import { createState } from '../helpers';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
 export interface State {
   isLoading: boolean;
   namespaces: che.KubernetesNamespace[];
+  error?: string;
 }
 
 interface RequestNamespacesAction {
@@ -31,8 +34,14 @@ interface ReceiveNamespacesAction {
   namespaces: che.KubernetesNamespace[];
 }
 
+interface ReceiveNamespacesErrorAction {
+  type: 'RECEIVE_NAMESPACES_ERROR';
+  error: string;
+}
+
 type KnownAction = RequestNamespacesAction
-  | ReceiveNamespacesAction;
+  | ReceiveNamespacesAction
+  | ReceiveNamespacesErrorAction;
 
 export type ActionCreators = {
   requestNamespaces: () => AppThunk<KnownAction, Promise<Array<che.KubernetesNamespace>>>;
@@ -45,10 +54,18 @@ export const actionCreators: ActionCreators = {
 
     try {
       const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<Array<che.KubernetesNamespace>>();
-      dispatch({ type: 'RECEIVE_NAMESPACES', namespaces });
+      dispatch({
+        type: 'RECEIVE_NAMESPACES',
+        namespaces,
+      });
       return namespaces;
     } catch (e) {
-      throw new Error('Failed to request list of available kubernetes namespaces, \n' + e);
+      const errorMessage = 'Failed to fetch list of available kubernetes namespaces, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'RECEIVE_NAMESPACES_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -67,12 +84,19 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_NAMESPACES':
-      return Object.assign({}, state, {
+      return createState(state, {
         isLoading: true,
+        error: undefined,
       });
     case 'RECEIVE_NAMESPACES':
-      return Object.assign({}, state, {
+      return createState(state, {
+        isLoading: false,
         namespaces: action.namespaces,
+      });
+    case 'RECEIVE_NAMESPACES_ERROR':
+      return createState(state, {
+        isLoading: false,
+        error: action.error,
       });
     default:
       return state;
