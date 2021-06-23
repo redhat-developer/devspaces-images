@@ -15,7 +15,7 @@
 FROM ubi8-minimal:8.4-200.1622548483
 
 ENV \
-    KAMEL_VERSION="1.3.2" \
+    KAMEL_VERSION="1.4.0" \
     HOME=/home/theia
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
