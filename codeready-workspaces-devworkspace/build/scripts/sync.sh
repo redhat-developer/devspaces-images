@@ -86,6 +86,9 @@ rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
 
 # transform Dockerfile
 sed ${TARGETDIR}/build/dockerfiles/Dockerfile -r \
+    `# Replace ubi8 with rhel8 version` \
+    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+    `# more replacements` \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
     -e "s/(RUN go mod download$)/#\1/g" \
