@@ -9,13 +9,11 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-200.1622548483 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
+FROM registry.access.redhat.com/ubi8/go-toolset:1.15.7-11 as builder
+ENV GOPATH=/go/
 # ENV PATH=/usr/lib/golang/bin:$PATH
 USER root
-RUN microdnf install -y golang shadow-utils && \
-    go version
-ENV GOPATH=/go/
 RUN adduser appuser
 WORKDIR /app
 
