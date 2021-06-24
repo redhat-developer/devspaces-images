@@ -56,7 +56,7 @@ ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
 rm -f ${DOCKERFILELOCAL}
 
 # step two - extract vendor folder to tarball
-${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /go/src/github.com/eclipse/che-jwtproxy/vendor' > "asset-vendor-$(uname -m).tgz"
+${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /app/vendor' > "asset-vendor-$(uname -m).tgz"
 ${BUILDER} rmi ${tag}:bootstrap
 
 # step three - include that tarball's contents in this repo
