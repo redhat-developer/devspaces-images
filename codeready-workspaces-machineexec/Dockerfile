@@ -9,12 +9,9 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-200.1622548483 as builder
-# shadow-utils is needed to install `adduser` tool
-RUN microdnf install -y golang shadow-utils && \
-    go version
-
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
+FROM rhel8/go-toolset:1.15.7-11 as builder
+ENV GOPATH=/go/
 USER root
 WORKDIR /che-machine-exec/
 COPY . .
@@ -57,12 +54,3 @@ LABEL summary="$SUMMARY" \
       maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
-
-
-# insert generated LABELs below this line
-LABEL \
-			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/246/" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/246/artifact/**/codeready-workspaces-sleep-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/246/artifact/**/codeready-workspaces-sleep-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/246/artifact/**/codeready-workspaces-sleep-ppc64le.tar.gz" \
-			jenkins.build.number="246"

@@ -9,12 +9,9 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.4 as builder
-# shadow-utils is needed to install `adduser` tool
-RUN microdnf install -y golang shadow-utils && \
-    go version
-
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
+FROM registry.access.redhat.com/ubi8/go-toolset:1.15.7-11 as builder
+ENV GOPATH=/go/
 USER root
 WORKDIR /che-machine-exec/
 COPY . .
