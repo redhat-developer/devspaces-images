@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -18,6 +18,7 @@ import { formatDate, formatRelativeDate } from '../../services/helpers/date';
 import { buildDetailsLocation, toHref, buildIdeLoaderLocation } from '../../services/helpers/location';
 import { isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
 import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import { DevWorkspaceStatus } from '../../services/helpers/types';
 
 export interface RowData extends IRow {
   props: {
@@ -28,7 +29,7 @@ export interface RowData extends IRow {
 export function buildRows(
   history: History,
   workspaces: Workspace[],
-  deleted: string[],
+  toDelete: string[],
   filtered: string[],
   selected: string[],
   sortBy: { index: number, direction: SortByDirection }
@@ -52,7 +53,7 @@ export function buildRows(
     })
     .forEach(workspace => {
       const isSelected = selected.includes(workspace.id);
-      const deleting = deleted.includes(workspace.id);
+      const isDeleted = toDelete.includes(workspace.id);
 
       const locationToDetails = buildDetailsLocation(workspace);
       const linkToDetails = toHref(history, locationToDetails);
@@ -61,7 +62,7 @@ export function buildRows(
       const linkToIde = toHref(history, locationToIde);
 
       try {
-        rows.push(buildRow(workspace, isSelected, deleting, linkToDetails, linkToIde));
+        rows.push(buildRow(workspace, isSelected, isDeleted, linkToDetails, linkToIde));
       } catch (e) {
         console.warn('Skip workspace: ', e);
       }
@@ -134,7 +135,7 @@ export function buildRow(
 
   /* Open IDE link */
   let open: React.ReactElement | string;
-  if (isDeleted) {
+  if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
     open = 'deleting...';
   } else {
     open = <a href={linkToIde}>Open</a>;
@@ -169,6 +170,6 @@ export function buildRow(
       workspaceId: workspace.id,
     },
     selected: isSelected || isDeleted,
-    disableCheckbox: isDeleted,
+    disableSelection: isDeleted,
   };
 }

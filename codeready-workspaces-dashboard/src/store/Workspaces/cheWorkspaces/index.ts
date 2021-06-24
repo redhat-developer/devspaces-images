@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -20,14 +20,15 @@ import { WorkspaceStatus } from '../../../services/helpers/types';
 import { createState } from '../../helpers';
 import { KeycloakAuthService } from '../../../services/keycloak/auth';
 import { deleteLogs, mergeLogs } from '../logs';
+import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const keycloakAuthService = container.get(KeycloakAuthService);
 
 export interface State {
   isLoading: boolean;
-  settings: che.WorkspaceSettings;
   workspaces: che.Workspace[];
+  error?: string;
   // runtime logs
   workspacesLogs: Map<string, string[]>;
 }
@@ -38,10 +39,11 @@ interface RequestWorkspacesAction {
 
 interface ReceiveErrorAction {
   type: 'CHE_RECEIVE_ERROR';
+  error: string;
 }
 
 interface ReceiveWorkspacesAction {
-  type: 'CHE_RECEIVE_DEV_WORKSPACES';
+  type: 'CHE_RECEIVE_WORKSPACES';
   workspaces: che.Workspace[];
 }
 
@@ -76,11 +78,6 @@ interface AddWorkspaceAction {
   workspace: che.Workspace;
 }
 
-interface ReceiveSettingsAction {
-  type: 'CHE_RECEIVE_SETTINGS';
-  settings: che.WorkspaceSettings;
-}
-
 type KnownAction =
   RequestWorkspacesAction
   | ReceiveErrorAction
@@ -88,7 +85,6 @@ type KnownAction =
   | UpdateWorkspaceAction
   | DeleteWorkspaceAction
   | AddWorkspaceAction
-  | ReceiveSettingsAction
   | UpdateWorkspaceStatusAction
   | UpdateWorkspacesLogsAction
   | DeleteWorkspaceLogsAction;
@@ -98,7 +94,6 @@ export type ResourceQueryParams = {
   [propName: string]: string | boolean | undefined;
 }
 export type ActionCreators = {
-  // updateDevWorkspaceStatus: (workspace: che.Workspace, message: IStatusUpdate) => AppThunk<KnownAction, Promise<void>>;
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
   requestWorkspace: (workspace: che.Workspace) => AppThunk<KnownAction, Promise<void>>;
   startWorkspace: (workspace: che.Workspace, params?: ResourceQueryParams) => AppThunk<KnownAction, Promise<void>>;
@@ -111,7 +106,6 @@ export type ActionCreators = {
     infrastructureNamespace: string | undefined,
     attributes: { [key: string]: string } | {},
   ) => AppThunk<KnownAction, Promise<che.Workspace>>;
-  requestSettings: () => AppThunk<KnownAction, Promise<void>>;
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
 };
 
@@ -134,7 +128,7 @@ function onStatusUpdateReceived(
     });
     // ignore an error if start interrupted by owner
     const re = /^Runtime start for identity 'workspace: (?:[\d\w]+), environment: (?:[\w\d]+), ownerId: (?:[-\d\w]+)' is interrupted$/;
-    status = re.test(message.error) ? message.status : WorkspaceStatus[WorkspaceStatus.ERROR];
+    status = re.test(message.error) ? message.status : WorkspaceStatus.ERROR;
   } else {
     status = message.status;
   }
@@ -190,7 +184,7 @@ export const actionCreators: ActionCreators = {
       const workspaces = await cheWorkspaceClient.restApiClient.getAll<che.Workspace>();
 
       dispatch({
-        type: 'CHE_RECEIVE_DEV_WORKSPACES',
+        type: 'CHE_RECEIVE_WORKSPACES',
         workspaces,
       });
 
@@ -198,13 +192,17 @@ export const actionCreators: ActionCreators = {
       workspaces.forEach(workspace => {
         subscribeToStatusChange(workspace, dispatch);
 
-        if (WorkspaceStatus[WorkspaceStatus.STARTING] === workspace.status) {
+        if (WorkspaceStatus.STARTING === workspace.status) {
           subscribeToEnvironmentOutput(workspace.id, dispatch);
         }
       });
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      throw new Error('Failed to request workspaces: \n' + e);
+      const errorMessage = 'Failed to fetch available workspaces, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -217,7 +215,7 @@ export const actionCreators: ActionCreators = {
       if (!subscribedWorkspaceStatusCallbacks.has(update.id)) {
         subscribeToStatusChange(update, dispatch);
       }
-      if (update.status === WorkspaceStatus[WorkspaceStatus.STARTING]) {
+      if (update.status === WorkspaceStatus.STARTING) {
         subscribeToEnvironmentOutput(workspace.id, dispatch);
       }
       dispatch({
@@ -225,21 +223,12 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      const message = e.response?.data?.message ? e.response.data.message : e.message;
-      throw message;
-    }
-  },
-
-  requestSettings: (): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'CHE_REQUEST_WORKSPACES' });
-
-    try {
-      const settings = await cheWorkspaceClient.restApiClient.getSettings<che.WorkspaceSettings>();
-      dispatch({ type: 'CHE_RECEIVE_SETTINGS', settings });
-    } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      throw new Error('Failed to fetch settings, \n' + e);
+      const errorMessage = `Failed to fetch the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -255,9 +244,12 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      const message = e.response?.data?.message ? e.response.data.message : e.message;
-      throw message;
+      const errorMessage = `Failed to start the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -265,9 +257,12 @@ export const actionCreators: ActionCreators = {
     try {
       await cheWorkspaceClient.restApiClient.stop(workspace.id);
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      const message = e.response?.data?.message ? e.response.data.message : e.message;
-      throw message;
+      const errorMessage = `Failed to stop the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -283,9 +278,12 @@ export const actionCreators: ActionCreators = {
         workspaceId: workspace.id,
       });
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      const message = e.response?.data?.message ? e.response.data.message : e.message;
-      throw message;
+      const errorMessage = `Failed to delete the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -299,9 +297,12 @@ export const actionCreators: ActionCreators = {
         workspace: updatedWorkspace
       });
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      const message = e.response && e.response.data && e.response.data.message ? e.response.data.message : e.message;
-      throw new Error(`Failed to update. ${message}`);
+      const errorMessage = `Failed to update the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -319,11 +320,18 @@ export const actionCreators: ActionCreators = {
       // Subscribe
       subscribeToStatusChange(workspace, dispatch);
 
-      dispatch({ type: 'CHE_ADD_WORKSPACE', workspace });
+      dispatch({
+        type: 'CHE_ADD_WORKSPACE',
+        workspace,
+      });
       return workspace;
     } catch (e) {
-      dispatch({ type: 'CHE_RECEIVE_ERROR' });
-      throw new Error('Failed to create a new workspace from the devfile: \n' + e.message);
+      const errorMessage = 'Failed to create a new workspace from the devfile, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'CHE_RECEIVE_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -335,7 +343,6 @@ export const actionCreators: ActionCreators = {
 
 const unloadedState: State = {
   workspaces: [],
-  settings: {} as che.WorkspaceSettings,
   isLoading: false,
 
   workspacesLogs: new Map<string, string[]>(),
@@ -350,8 +357,9 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'CHE_REQUEST_WORKSPACES':
       return createState(state, {
         isLoading: true,
+        error: undefined,
       });
-    case 'CHE_RECEIVE_DEV_WORKSPACES':
+    case 'CHE_RECEIVE_WORKSPACES':
       return createState(state, {
         isLoading: false,
         workspaces: action.workspaces,
@@ -359,6 +367,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'CHE_RECEIVE_ERROR':
       return createState(state, {
         isLoading: false,
+        error: action.error,
       });
     case 'CHE_UPDATE_WORKSPACE':
       return createState(state, {
@@ -382,11 +391,6 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
       return createState(state, {
         isLoading: false,
         workspaces: state.workspaces.filter(workspace => workspace.id !== action.workspaceId),
-      });
-    case 'CHE_RECEIVE_SETTINGS':
-      return createState(state, {
-        isLoading: false,
-        settings: action.settings,
       });
     case 'CHE_UPDATE_WORKSPACES_LOGS':
       return createState(state, {

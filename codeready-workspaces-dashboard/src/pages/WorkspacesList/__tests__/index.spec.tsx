@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -294,7 +294,7 @@ describe('Workspaces List Page', () => {
       expect(actionButtons[0]).toBeDisabled();
     });
 
-    it('should handle "Open in Verbose Mode" action', () => {
+    it('should handle "Open in Verbose mode" action', () => {
       renderComponent();
 
       const actionButtons = screen.getAllByRole('button', { name: /actions/i });
@@ -323,11 +323,11 @@ describe('Workspaces List Page', () => {
     it('should handle "Stop Workspace" action', () => {
       const runtime: che.WorkspaceRuntime = {
         machines: {},
-        status: WorkspaceStatus[WorkspaceStatus.RUNNING],
+        status: WorkspaceStatus.RUNNING,
         activeEnv: 'default',
       };
       workspaces[0] = convertWorkspace(
-        createFakeCheWorkspace('workspace-' + 0, 'workspace-' + 0, undefined, WorkspaceStatus[WorkspaceStatus.RUNNING], runtime)
+        createFakeCheWorkspace('workspace-' + 0, 'workspace-' + 0, undefined, WorkspaceStatus.RUNNING, runtime)
       );
 
       renderComponent();
@@ -399,7 +399,7 @@ function getComponent(): React.ReactElement {
       workspaces={workspaces}
       onAction={mockOnAction}
       showConfirmation={mockShowConfirmation}
-      isDeleted={isDeleted}
+      toDelete={isDeleted}
     >
     </WorkspacesList>
   );

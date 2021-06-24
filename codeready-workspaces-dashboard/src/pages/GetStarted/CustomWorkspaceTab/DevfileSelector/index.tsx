@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -24,20 +24,23 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
+import { safeLoad } from 'js-yaml';
 import { AppState } from '../../../../store';
 import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
 import * as FactoryResolverStore from '../../../../store/FactoryResolver';
 import { DevfileSelect } from './DevfileSelect';
 import { DevfileLocationInput } from './DevfileLocationInput';
 import { AlertItem } from '../../../../services/helpers/types';
-import { safeLoad } from 'js-yaml';
+import { selectRegistriesMetadata } from '../../../../store/DevfileRegistries/selectors';
 
 import styles from './index.module.css';
+import { getErrorMessage } from '../../../../services/helpers/getErrorMessage';
+import { updateDevfileMetadata } from '../../updateDevfileMetadata';
+import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 
 type Props =
   MappedProps
   & {
-    devfileRegistries: DevfileRegistriesStore.State;
     onDevfile: (devfile: che.WorkspaceDevfile) => void;
     onClear?: () => void;
   };
@@ -58,7 +61,7 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
     this.state = {
       isLoading: false,
       alerts: [],
-      metadata: this.props.devfileRegistries.metadata,
+      metadata: this.props.registriesMetadata,
     };
 
     this.devfileSelectRef = React.createRef();
@@ -78,9 +81,15 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
   private async handleDevfileSelect(meta: che.DevfileMetaData): Promise<void> {
     // clear location input
     this.devfileLocationRef.current?.clearInput();
+    const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+    let devfile: api.che.workspace.devfile.Devfile;
     try {
-      const devfileContent = await this.props.requestDevfile(meta.links.self) as string;
-      const devfile = safeLoad(devfileContent);
+      if (cheDevworkspaceEnabled) {
+        await this.props.requestFactoryResolver(meta.links.v2);
+        devfile = updateDevfileMetadata(this.props.factoryResolver.resolver.devfile, meta);
+      } else {
+        devfile = safeLoad(await this.props.requestDevfile(meta.links.self) as string);
+      }
       this.props.onDevfile(devfile);
     } catch (e) {
       this.showAlert({
@@ -108,7 +117,7 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
       this.devfileLocationRef.current?.invalidateInput();
       this.showAlert({
         key: 'load-factory-resolver-failed',
-        title: `Failed to resolve or load the devfile. ${e}`,
+        title: `Failed to resolve or load the devfile. ${getErrorMessage(e)}`,
         variant: AlertVariant.danger,
       });
     }
@@ -178,7 +187,8 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
 }
 
 const mapStateToProps = (state: AppState) => ({
-  devfileRegistries: state.devfileRegistries,
+  registriesMetadata: selectRegistriesMetadata(state),
+  workspacesSettings: selectWorkspacesSettings(state),
   factoryResolver: state.factoryResolver,
 });
 

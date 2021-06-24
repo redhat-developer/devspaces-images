@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -67,13 +67,13 @@ jest.mock('../CustomWorkspaceTab', () => {
   };
 });
 
-describe('Get Started page', () => {
+describe('Quick Add page', () => {
 
   it('should create and start a new workspace', async () => {
     renderGetStartedPage();
 
-    const getStartedTabButton = screen.getByRole('button', { name: 'Get Started' });
-    getStartedTabButton.click();
+    const quickAddTabButton = screen.getByRole('button', { name: 'Quick Add' });
+    quickAddTabButton.click();
 
     await waitFor(() => expect(screen.getByRole('button', { name: 'Dummy Devfile' })).toBeTruthy());
 
@@ -83,12 +83,12 @@ describe('Get Started page', () => {
     expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(dummyDevfile, undefined, undefined, { stackName: 'dummyStackName' });
   });
 
-  it('should have correct masthead when Get Started tab is active', () => {
+  it('should have correct masthead when Quick Add tab is active', () => {
     renderGetStartedPage();
     const masthead = screen.getByRole('heading');
 
-    const getStartedTabButton = screen.getByRole('button', { name: 'Get Started' });
-    getStartedTabButton.click();
+    const quickAddTabButton = screen.getByRole('button', { name: 'Quick Add' });
+    quickAddTabButton.click();
 
     expect(masthead.textContent?.startsWith('Getting Started with'));
   });
@@ -100,7 +100,7 @@ describe('Get Started page', () => {
     const customWorkspaceTabButton = screen.getByRole('button', { name: 'Custom Workspace' });
     customWorkspaceTabButton.click();
 
-    expect(masthead.textContent?.startsWith('Create Custom Workspace'));
+    expect(masthead.textContent?.startsWith('Custom Workspace'));
   });
 
 });

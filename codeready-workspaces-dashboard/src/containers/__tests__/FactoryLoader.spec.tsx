@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -352,17 +352,22 @@ function renderComponent(
   const settings = preferredStorageType ? { 'che.workspace.storage.preferred_type': preferredStorageType } : {};
   const store = new FakeStoreBuilder()
     .withCheWorkspaces({
-      settings: settings as che.WorkspaceSettings,
       workspaces: [workspace],
     })
     .withWorkspaces({
       workspaceId: workspace.id
     })
+    .withWorkspacesSettings(settings as che.WorkspaceSettings)
     .withFactoryResolver({
       v: '4.0',
       source: 'devfile.yaml',
       devfile: workspace.devfile as api.che.workspace.devfile.Devfile,
       location: url.split('&')[0],
+      scm_info: {
+        clone_url: 'http://github.com/clone-url',
+        scm_provider: 'github'
+      },
+      links: []
     })
     .build();
   const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url });
@@ -386,7 +391,7 @@ function createFakeWorkspaceWithRuntime(
     workspaceId,
     workspaceName,
     'namespace',
-    WorkspaceStatus[WorkspaceStatus.RUNNING],
+    WorkspaceStatus.RUNNING,
     {
       machines: {
         'theia-factory-test': {
@@ -395,17 +400,17 @@ function createFakeWorkspaceWithRuntime(
           },
           servers: {
             theia: {
-              status: WorkspaceStatus[WorkspaceStatus.RUNNING],
+              status: WorkspaceStatus.RUNNING,
               attributes: {
                 type: 'ide',
               },
               url: 'https://dummy-editora-server',
             },
           },
-          status: WorkspaceStatus[WorkspaceStatus.RUNNING],
+          status: WorkspaceStatus.RUNNING,
         },
       },
-      status: WorkspaceStatus[WorkspaceStatus.RUNNING],
+      status: WorkspaceStatus.RUNNING,
       activeEnv: 'default',
     }
   );

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -21,6 +21,8 @@ import Head from '../../components/Head';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakAuthService } from '../../services/keycloak/auth';
 import { AppState } from '../../store';
+import { selectBranding } from '../../store/Branding/selectors';
+import { selectUserProfile } from '../../store/UserProfile/selectors';
 
 type Props = {
   history: History;
@@ -42,12 +44,12 @@ export class UserAccount extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const profile = this.props.userProfile.profile;
+    const { userProfile } = this.props;
 
-    const email = profile ? profile.email : '';
-    const login = profile && profile.attributes ? profile.attributes.preferred_username : '';
-    const firstName = profile && profile.attributes ? profile.attributes.firstName : '';
-    const lastName = profile && profile.attributes ? profile.attributes.lastName : '';
+    const email = userProfile ? userProfile.email : '';
+    const login = userProfile && userProfile.attributes ? userProfile.attributes.preferred_username : '';
+    const firstName = userProfile && userProfile.attributes ? userProfile.attributes.firstName : '';
+    const lastName = userProfile && userProfile.attributes ? userProfile.attributes.lastName : '';
     const profileUrl = KeycloakAuthService.sso ? this.keycloakAuth.getProfileUrl() : '';
 
     this.state = { login, email, lastName, firstName, profileUrl };
@@ -61,7 +63,7 @@ export class UserAccount extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactNode {
-    const productName = this.props.branding.data.name;
+    const productName = this.props.branding.name;
     const { firstName, lastName, email, login, profileUrl } = this.state;
 
     return (
@@ -136,8 +138,8 @@ export class UserAccount extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  userProfile: state.userProfile,
-  branding: state.branding,
+  userProfile: selectUserProfile(state),
+  branding: selectBranding(state),
 });
 
 const connector = connect(

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -112,10 +112,10 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
       this.props.setWorkspaceId(changedWorkspace.id);
       this.props.history.replace(location);
     } catch (e) {
-      if (this.workspaceDetailsPageRef.current?.state.activeTabKey === WorkspaceDetailsTab.Devfile) {
-        throw new Error(e.toString().replace(/^Error: /gi, ''));
+      if (this.workspaceDetailsPageRef.current?.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
+        throw e;
       }
-      this.showAlert('Failed to update workspace data');
+      this.showAlert(e);
     }
   }
 

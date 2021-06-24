@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,22 +12,31 @@
 
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
-import { fetchRegistriesMetadata, fetchDevfile } from '../../services/registry/devfiles';
+import { fetchRegistryMetadata, fetchDevfile } from '../../services/registry/devfiles';
 import { createState } from '../helpers';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
   isLoading: boolean;
-  schema: any;
-  metadata: che.DevfileMetaData[];
+  schema: {
+    schema?: any;
+    error?: string;
+  };
+  registries: {
+    [location: string]: {
+      metadata?: che.DevfileMetaData[];
+      error?: string;
+    };
+  };
   devfiles: {
     [location: string]: {
-      content: string;
-      error: string;
+      content?: string;
+      error?: string;
     };
   };
 
@@ -35,13 +44,20 @@ export interface State {
   filter: string;
 }
 
-interface RequestMetadataAction {
-  type: 'REQUEST_METADATA';
+interface RequestRegistryMetadataAction {
+  type: 'REQUEST_REGISTRY_METADATA';
 }
 
-interface ReceiveMetadataAction {
-  type: 'RECEIVE_METADATA';
+interface ReceiveRegistryMetadataAction {
+  type: 'RECEIVE_REGISTRY_METADATA';
+  url: string;
   metadata: che.DevfileMetaData[];
+}
+
+interface ReceiveRegistryErrorAction {
+  type: 'RECEIVE_REGISTRY_ERROR';
+  url: string;
+  error: string;
 }
 
 interface RequestDevfileAction {
@@ -63,6 +79,11 @@ interface ReceiveSchemaAction {
   schema: any;
 }
 
+interface ReceiveSchemaErrorAction {
+  type: 'RECEIVE_SCHEMA_ERROR';
+  error: string;
+}
+
 interface SetFilterValue extends Action {
   type: 'SET_FILTER',
   value: string;
@@ -72,17 +93,19 @@ interface ClearFilterValue extends Action {
   type: 'CLEAR_FILTER',
 }
 
-type KnownAction = RequestMetadataAction
-  | ReceiveMetadataAction
+type KnownAction = RequestRegistryMetadataAction
+  | ReceiveRegistryMetadataAction
+  | ReceiveRegistryErrorAction
   | RequestDevfileAction
   | ReceiveDevfileAction
   | RequestSchemaAction
   | ReceiveSchemaAction
+  | ReceiveSchemaErrorAction
   | SetFilterValue
   | ClearFilterValue;
 
 export type ActionCreators = {
-  requestRegistriesMetadata: (location: string) => AppThunk<KnownAction, Promise<che.DevfileMetaData[]>>;
+  requestRegistriesMetadata: (location: string) => AppThunk<KnownAction, Promise<void>>;
   requestDevfile: (Location: string) => AppThunk<KnownAction, Promise<string>>;
   requestJsonSchema: () => AppThunk<KnownAction, any>;
 
@@ -95,15 +118,33 @@ export const actionCreators: ActionCreators = {
   /**
    * Request devfile metadata from available registries. `registryUrls` is space-separated list of urls.
    */
-  requestRegistriesMetadata: (registryUrls: string): AppThunk<KnownAction, Promise<che.DevfileMetaData[]>> => async (dispatch): Promise<che.DevfileMetaData[]> => {
-    dispatch({ type: 'REQUEST_METADATA' });
-    try {
-      const metadata = await fetchRegistriesMetadata(registryUrls);
-      dispatch({ type: 'RECEIVE_METADATA', metadata });
-      return metadata;
-    } catch (e) {
-      throw new Error(`Failed to request registries metadata from URLs: ${registryUrls}, \n` + e);
-    }
+  requestRegistriesMetadata: (registryUrls: string): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+    dispatch({ type: 'REQUEST_REGISTRY_METADATA' });
+    const promises = registryUrls
+      .split(' ')
+      .map(async url => {
+        try {
+          const metadata = await fetchRegistryMetadata(url);
+          dispatch({
+            type: 'RECEIVE_REGISTRY_METADATA',
+            url,
+            metadata,
+          });
+        } catch (error) {
+          dispatch({
+            type: 'RECEIVE_REGISTRY_ERROR',
+            url,
+            error,
+          });
+          throw error;
+        }
+      });
+    const results = await Promise.allSettled(promises);
+    results.forEach(result => {
+      if (result.status === 'rejected') {
+        throw result.reason;
+      }
+    });
   },
 
   requestDevfile: (url: string): AppThunk<KnownAction, Promise<string>> => async (dispatch): Promise<string> => {
@@ -124,25 +165,37 @@ export const actionCreators: ActionCreators = {
       const schemav1 = await WorkspaceClient.restApiClient.getDevfileSchema('1.0.0');
       let schema = schemav1;
 
-      const cheDevworkspaceEnabled = state.cheWorkspaces.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
       if (cheDevworkspaceEnabled) {
         // This makes $ref resolve against the first schema, otherwise the yaml language server will report errors
         const patchedJSONString = JSON.stringify(schemav1).replaceAll('#/definitions', '#/oneOf/0/definitions');
         const parsedSchemaV1 = JSON.parse(patchedJSONString);
 
-        const schemav2 = await WorkspaceClient.restApiClient.getDevfileSchema('2.0.0');
+        const schemav200 = await WorkspaceClient.restApiClient.getDevfileSchema('2.0.0');
+        const schemav210 = await WorkspaceClient.restApiClient.getDevfileSchema('2.1.0');
+        const schemav220alpha = await WorkspaceClient.restApiClient.getDevfileSchema('2.2.0');
         schema = {
           oneOf: [
             parsedSchemaV1,
-            schemav2
+            schemav200,
+            schemav210,
+            schemav220alpha
           ]
         };
       }
 
-      dispatch({ type: 'RECEIVE_SCHEMA', schema });
+      dispatch({
+        type: 'RECEIVE_SCHEMA',
+        schema,
+      });
       return schema;
     } catch (e) {
-      throw new Error('Failed to request devfile JSON schema, \n' + e);
+      const errorMessage = 'Failed to request devfile JSON schema, reason: ' + getErrorMessage(e);
+      dispatch({
+        type: 'RECEIVE_SCHEMA_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
     }
   },
 
@@ -158,9 +211,9 @@ export const actionCreators: ActionCreators = {
 
 const unloadedState: State = {
   isLoading: false,
-  metadata: [],
+  registries: {},
   devfiles: {},
-  schema: undefined,
+  schema: {},
 
   filter: '',
 };
@@ -172,16 +225,37 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case 'REQUEST_METADATA':
+    case 'REQUEST_REGISTRY_METADATA':
+      return createState(state, {
+        isLoading: true,
+        registries: {},
+      });
     case 'REQUEST_SCHEMA':
+      return createState(state, {
+        isLoading: true,
+        schema: {},
+      });
     case 'REQUEST_DEVFILE':
       return createState(state, {
         isLoading: true,
       });
-    case 'RECEIVE_METADATA':
+    case 'RECEIVE_REGISTRY_METADATA':
       return createState(state, {
         isLoading: false,
-        metadata: action.metadata,
+        registries: {
+          [action.url]: {
+            metadata: action.metadata,
+          },
+        },
+      });
+    case 'RECEIVE_REGISTRY_ERROR':
+      return createState(state, {
+        isLoading: false,
+        registries: {
+          [action.url]: {
+            error: action.error,
+          },
+        },
       });
     case 'RECEIVE_DEVFILE':
       return createState(state, {
@@ -195,7 +269,16 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
     case 'RECEIVE_SCHEMA':
       return createState(state, {
         isLoading: false,
-        schema: action.schema,
+        schema: {
+          schema: action.schema,
+        },
+      });
+    case 'RECEIVE_SCHEMA_ERROR':
+      return createState(state, {
+        isLoading: false,
+        schema: {
+          error: action.error,
+        },
       });
     case 'SET_FILTER': {
       return createState(state, {

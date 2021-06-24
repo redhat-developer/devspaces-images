@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -28,9 +28,11 @@ import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
 import * as WorkspaceStore from '../../store/Workspaces';
 import { AppState } from '../../store';
-import { AlertItem, GettingStartedTab } from '../../services/helpers/types';
+import { AlertItem, CreateWorkspaceTab } from '../../services/helpers/types';
 import { ROUTE } from '../../route.enum';
 import { Workspace } from '../../services/workspaceAdapter';
+import { selectBranding } from '../../store/Branding/selectors';
+import { selectRegistriesErrors } from '../../store/DevfileRegistries/selectors';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 const CustomWorkspaceTab = React.lazy(() => import('./CustomWorkspaceTab'));
@@ -40,7 +42,7 @@ type Props = MappedProps & {
 }
 
 type State = {
-  activeTabKey: GettingStartedTab;
+  activeTabKey: CreateWorkspaceTab;
 }
 
 export class GetStarted extends React.PureComponent<Props, State> {
@@ -58,51 +60,76 @@ export class GetStarted extends React.PureComponent<Props, State> {
     };
   }
 
+  public componentDidMount(): void {
+    if (this.props.registriesErrors.length) {
+      this.showErrors();
+    }
+  }
+
   public componentDidUpdate(): void {
     const activeTabKey = this.getActiveTabKey();
     if (this.state.activeTabKey !== activeTabKey) {
       this.setState({ activeTabKey });
     }
+
+    if (this.props.registriesErrors.length) {
+      this.showErrors();
+    }
+  }
+
+  private showErrors(): void {
+    const { registriesErrors } = this.props;
+    registriesErrors.forEach(error => {
+      const key = 'registry-error-' + error.url;
+      this.appAlerts.removeAlert(key);
+      this.appAlerts.showAlert({
+        key,
+        title: error.errorMessage,
+        variant: AlertVariant.danger,
+      });
+    });
   }
 
   private getTitle(): string {
-    const productName = this.props.branding.data.name;
-    const titles: { [key in GettingStartedTab]: string } = {
-      'get-started': `Getting Started with ${productName}`,
-      'custom-workspace': 'Create Custom Workspace',
+    const titles: { [key in CreateWorkspaceTab]: string } = {
+      'quick-add': 'Quick Add',
+      'custom-workspace': 'Custom Workspace',
     };
     return titles[this.state.activeTabKey];
   }
 
-  private getActiveTabKey(): GettingStartedTab {
+  private getActiveTabKey(): CreateWorkspaceTab {
     const { pathname, search } = this.props.history.location;
 
     if (search) {
       const searchParam = new URLSearchParams(search.substring(1));
-      if (pathname === ROUTE.GET_STARTED && searchParam.get('tab') as GettingStartedTab === 'custom-workspace') {
+      if (pathname === ROUTE.GET_STARTED && searchParam.get('tab') as CreateWorkspaceTab === 'custom-workspace') {
         return 'custom-workspace';
       }
     }
 
-    return 'get-started';
+    return 'quick-add';
   }
 
   private async createWorkspace(
     devfile: api.che.workspace.devfile.Devfile,
     stackName: string | undefined,
     infrastructureNamespace: string | undefined,
+    optionalFilesContent?: {
+      [fileName: string]: string
+    }
   ): Promise<void> {
     const attr = stackName ? { stackName } : {};
     let workspace: Workspace;
     try {
-      workspace = await this.props.createWorkspaceFromDevfile(devfile, undefined, infrastructureNamespace, attr);
+      workspace = await this.props.createWorkspaceFromDevfile(devfile, undefined, infrastructureNamespace, attr, optionalFilesContent);
     } catch (e) {
       this.showAlert({
         key: 'new-workspace-failed',
         variant: AlertVariant.danger,
-        title: e.message
+        title: e,
       });
-      throw new Error(e.message);
+      throw e;
     }
 
     const workspaceName = workspace.name;
@@ -125,14 +152,20 @@ export class GetStarted extends React.PureComponent<Props, State> {
     }
   }
 
-  private handleDevfile(devfile: che.WorkspaceDevfile, attrs: { stackName?: string, infrastructureNamespace?: string }): Promise<void> {
-    return this.createWorkspace(devfile, attrs.stackName, attrs.infrastructureNamespace);
+  private handleDevfile(
+    devfile: api.che.workspace.devfile.Devfile,
+    attrs: { stackName?: string, infrastructureNamespace?: string },
+    optionalFilesContent: { [fileName: string]: string } | undefined,
+  ): Promise<void> {
+    return this.createWorkspace(devfile, attrs.stackName, attrs.infrastructureNamespace, optionalFilesContent || {});
   }
 
-  private handleDevfileContent(devfileContent: string, attrs: { stackName?: string, infrastructureNamespace?: string }): Promise<void> {
+  private handleDevfileContent(devfileContent: string, attrs: { stackName?: string, infrastructureNamespace?: string }, optionalFilesContent?: {
+    [fileName: string]: string
+  }): Promise<void> {
     try {
       const devfile = load(devfileContent);
-      return this.createWorkspace(devfile, attrs.stackName, attrs.infrastructureNamespace);
+      return this.createWorkspace(devfile, attrs.stackName, attrs.infrastructureNamespace, optionalFilesContent);
     } catch (e) {
       const errorMessage = 'Failed to parse the devfile';
       this.showAlert({
@@ -152,15 +185,15 @@ export class GetStarted extends React.PureComponent<Props, State> {
     this.props.history.push(`${ROUTE.GET_STARTED}?tab=${activeTabKey}`);
 
     this.setState({
-      activeTabKey: activeTabKey as GettingStartedTab,
+      activeTabKey: activeTabKey as CreateWorkspaceTab,
     });
   }
 
   render(): React.ReactNode {
     const { activeTabKey } = this.state;
     const title = this.getTitle();
-    const getStartedTab: GettingStartedTab = 'get-started';
-    const customWorkspaceTab: GettingStartedTab = 'custom-workspace';
+    const quickAddTab: CreateWorkspaceTab = 'quick-add';
+    const customWorkspaceTab: CreateWorkspaceTab = 'custom-workspace';
 
     return (
       <React.Fragment>
@@ -174,16 +207,17 @@ export class GetStarted extends React.PureComponent<Props, State> {
           isFilled={false}
         >
           <Tabs
+            style={{ paddingTop: 'var(--pf-c-page__main-section--PaddingTop)' }}
             activeKey={activeTabKey}
             onSelect={(event, tabKey) => this.handleTabClick(event, tabKey)}>
             <Tab
-              eventKey={getStartedTab}
-              title="Get Started"
+              eventKey={quickAddTab}
+              title="Quick Add"
             >
               <Suspense fallback={Fallback}>
                 <SamplesListTab
-                  onDevfile={(devfileContent: string, stackName: string) => {
-                    return this.handleDevfileContent(devfileContent, { stackName });
+                  onDevfile={(devfileContent: string, stackName: string, optionalFilesContent) => {
+                    return this.handleDevfileContent(devfileContent, { stackName }, optionalFilesContent);
                   }}
                 />
               </Suspense>
@@ -191,8 +225,8 @@ export class GetStarted extends React.PureComponent<Props, State> {
             <Tab eventKey={customWorkspaceTab} title="Custom Workspace">
               <Suspense fallback={Fallback}>
                 <CustomWorkspaceTab
-                  onDevfile={(devfile: che.WorkspaceDevfile, infrastructureNamespace?: string) => {
-                    return this.handleDevfile(devfile, { infrastructureNamespace });
+                  onDevfile={(devfile, infrastructureNamespace, optionalFilesContent) => {
+                    return this.handleDevfile(devfile, { infrastructureNamespace }, optionalFilesContent);
                   }}
                 />
               </Suspense>
@@ -205,7 +239,8 @@ export class GetStarted extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  branding: state.branding,
+  branding: selectBranding(state),
+  registriesErrors: selectRegistriesErrors(state),
 });
 
 const connector = connect(

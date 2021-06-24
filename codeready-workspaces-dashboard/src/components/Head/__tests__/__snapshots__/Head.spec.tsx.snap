@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`The head component for setting document title should render Get Started page title correctly 1`] = `
+exports[`The head component for setting document title should render Quick Add page title correctly 1`] = `
 <title>
-  Dummy product title | Get Started
+  Dummy product title | Quick Add
 </title>
 `;
 

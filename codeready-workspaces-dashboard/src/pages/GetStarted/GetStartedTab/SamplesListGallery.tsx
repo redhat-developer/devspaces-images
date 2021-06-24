@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -32,11 +32,17 @@ import * as DevfileRegistriesStore from '../../../store/DevfileRegistries';
 import { SampleCard } from './SampleCard';
 import { AlertItem } from '../../../services/helpers/types';
 import { selectMetadataFiltered } from '../../../store/DevfileRegistries/selectors';
+import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
+import * as FactoryResolverStore from '../../../store/FactoryResolver';
+import stringify from '../../../services/helpers/editor';
+import { updateDevfileMetadata } from '../updateDevfileMetadata';
 
 type Props =
   MappedProps
   & {
-    onCardClick: (devfileContent: string, stackName: string) => void;
+    onCardClick: (devfileContent: string, stackName: string, optionalFilesContent?: {
+      [fileName: string]: string
+    }) => void;
   };
 type State = {
   alerts: AlertItem[];
@@ -85,8 +91,19 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
 
   private async fetchDevfile(meta: che.DevfileMetaData): Promise<void> {
     try {
-      const devfile = await this.props.requestDevfile(meta.links.self) as string;
-      this.props.onCardClick(devfile, meta.displayName);
+      const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+      let devfileContent;
+      let optionalFilesContent;
+      if (cheDevworkspaceEnabled) {
+        const link = meta.links.v2;
+        await this.props.requestFactoryResolver(link);
+        const resolver = this.props.factoryResolver.resolver;
+        devfileContent = stringify(updateDevfileMetadata(resolver.devfile, meta));
+        optionalFilesContent = resolver.optionalFilesContent;
+      } else {
+        devfileContent = await this.props.requestDevfile(meta.links.self) as string;
+      }
+      this.props.onCardClick(devfileContent, meta.displayName, optionalFilesContent);
     } catch (e) {
       console.warn('Failed to load devfile.', e);
 
@@ -134,12 +151,15 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   metadataFiltered: selectMetadataFiltered(state),
+  workspacesSettings: selectWorkspacesSettings(state),
+  factoryResolver: state.factoryResolver,
 });
 
 const connector = connect(
   mapStateToProps,
   {
     ...DevfileRegistriesStore.actionCreators,
+    ...FactoryResolverStore.actionCreators,
   }
 );
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -16,15 +16,10 @@ import {
   Alert,
   AlertActionCloseButton,
   AlertVariant,
-  Button,
-  Modal,
-  ModalVariant,
   PageSection,
   PageSectionVariants,
   Tab,
   Tabs,
-  Text,
-  TextContent,
 } from '@patternfly/react-core';
 import Head from '../../components/Head';
 import { WorkspaceDetailsTab, WorkspaceStatus } from '../../services/helpers/types';
@@ -37,10 +32,11 @@ import { AppAlerts } from '../../services/alerts/appAlerts';
 import OverviewTab, { OverviewTab as Overview } from './OverviewTab';
 import EditorTab, { EditorTab as Editor } from './EditorTab';
 import { selectIsLoading, selectWorkspaceById } from '../../store/Workspaces/selectors';
-import { History } from 'history';
+import { History, UnregisterCallback } from 'history';
 
 import './WorkspaceDetails.styl';
 import { isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
+import UnsavedChangesModal from '../../components/UnsavedChangesModal';
 
 export const SECTION_THEME = PageSectionVariants.light;
 
@@ -52,13 +48,13 @@ type Props =
   } & MappedProps;
 
 type State = {
-  activeTabKey?: WorkspaceDetailsTab;
+  activeTabKey: WorkspaceDetailsTab;
   clickedTabIndex?: WorkspaceDetailsTab;
   hasWarningMessage?: boolean;
-  hasDiscardChangesMessage?: boolean;
 };
 
 export class WorkspaceDetails extends React.PureComponent<Props, State> {
+  private unregisterLocationCallback: UnregisterCallback;
 
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
@@ -77,92 +73,88 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
     this.overviewTabPageRef = React.createRef<Overview>();
 
     this.state = {
-      activeTabKey: this.getActiveTabKey(),
-      hasWarningMessage: false,
-      hasDiscardChangesMessage: false,
+      activeTabKey: this.getActiveTabKey(this.props.history.location.search),
+      hasWarningMessage: false
     };
 
     // Toggle currently active tab
     this.handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText): void => {
       const searchParams = new window.URLSearchParams(this.props.history.location.search);
-      searchParams.set('tab', WorkspaceDetailsTab[tabIndex]);
+      const { clickedTabIndex } = this.state;
+      this.setState({ clickedTabIndex: tabIndex as WorkspaceDetailsTab });
+      const tab = clickedTabIndex && this.hasUnsavedChanges() ? clickedTabIndex : tabIndex as WorkspaceDetailsTab;
+      searchParams.set('tab', tab);
       this.props.history.location.search = searchParams.toString();
       this.props.history.push(this.props.history.location);
-      if ((this.state.activeTabKey === WorkspaceDetailsTab.Devfile && this.editorTabPageRef.current?.state.hasChanges) ||
-        (this.state.activeTabKey === WorkspaceDetailsTab.Overview && this.overviewTabPageRef.current?.hasChanges) ||
-        this.props.isLoading) {
-        const focusedElement = (
-          document.hasFocus() &&
-          document.activeElement !== document.body &&
-          document.activeElement !== document.documentElement &&
-          document.activeElement
-        ) || null;
-        if (focusedElement) {
-          (focusedElement as HTMLBaseElement).blur();
-        }
-        if (!this.props.isLoading) {
-          this.setState({ hasDiscardChangesMessage: true, clickedTabIndex: tabIndex as WorkspaceDetailsTab });
-        }
-        return;
-      }
-      this.setState({
-        hasDiscardChangesMessage: false,
-        clickedTabIndex: tabIndex as WorkspaceDetailsTab,
-        activeTabKey: tabIndex as WorkspaceDetailsTab
-      });
     };
 
     this.showAlert = (variant: AlertVariant, title: string): void => {
       this.alert = { variant, title };
       const key = `wrks-details-${(('0000' + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4))}`;
-      this.appAlerts.showAlert({
-        key,
-        title,
-        variant,
-      });
+      this.appAlerts.showAlert({ key, title, variant });
     };
   }
 
-  private getActiveTabKey(): WorkspaceDetailsTab {
-    const { search } = this.props.history.location;
-
+  private getActiveTabKey(search: History.Search): WorkspaceDetailsTab {
     if (search) {
       const searchParam = new URLSearchParams(search.substring(1));
-      if (searchParam.has('tab') && searchParam.get('tab') === WorkspaceDetailsTab[WorkspaceDetailsTab.Devfile]) {
-        return WorkspaceDetailsTab.Devfile;
+      if (searchParam.has('tab') && searchParam.get('tab') === WorkspaceDetailsTab.DEVFILE) {
+        return WorkspaceDetailsTab.DEVFILE;
       }
     }
+    return WorkspaceDetailsTab.OVERVIEW;
+  }
 
-    return WorkspaceDetailsTab.Overview;
+  public componentDidMount(): void {
+    this.unregisterLocationCallback = this.props.history.listen(location => {
+      const activeTabKey = this.getActiveTabKey(location.search);
+      if (activeTabKey !== this.state.activeTabKey) {
+        this.setState({ activeTabKey });
+      }
+    });
+  }
+
+  public componentWillUnmount() {
+    if (this.unregisterLocationCallback) {
+      this.unregisterLocationCallback();
+    }
   }
 
   public componentDidUpdate(): void {
-    const activeTabKey = this.getActiveTabKey();
-    if (this.state.activeTabKey !== activeTabKey) {
-      this.setState({ activeTabKey });
-    }
-    if (this.props.workspace && (WorkspaceStatus[this.props.workspace?.status] === WorkspaceStatus.STOPPED)) {
+    if (this.props.workspace && this.props.workspace?.isStopped) {
       this.setState({ hasWarningMessage: false });
     }
   }
 
-  private handleDiscardChanges(): void {
-    if (this.state.activeTabKey === WorkspaceDetailsTab.Devfile) {
+  private handleDiscardChanges(pathname: string): void {
+    if (this.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
       this.editorTabPageRef.current?.cancelChanges();
-    } else if (this.state.activeTabKey === WorkspaceDetailsTab.Overview) {
+    } else if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
       this.overviewTabPageRef.current?.cancelChanges();
     }
 
-    const tabIndex = this.state.clickedTabIndex;
-    this.setState({ hasDiscardChangesMessage: false, activeTabKey: tabIndex });
+    if (pathname.startsWith('/workspace/')) {
+      const tabIndex = this.state.clickedTabIndex;
+      const searchParams = new window.URLSearchParams(this.props.history.location.search);
+      searchParams.set('tab', tabIndex as WorkspaceDetailsTab);
+      this.props.history.location.search = searchParams.toString();
+      this.props.history.push(this.props.history.location);
+    } else {
+      this.props.history.push(pathname);
+    }
   }
 
-  private handleCancelChanges(): void {
-    this.setState({ hasDiscardChangesMessage: false });
+  private hasUnsavedChanges(): boolean {
+    if (this.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
+      return this.editorTabPageRef.current?.state.hasChanges || !this.editorTabPageRef.current?.state.isDevfileValid;
+    } else if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
+      return this.overviewTabPageRef.current?.hasChanges === true;
+    }
+    return false;
   }
 
   public render(): React.ReactElement {
-    const { workspace, workspacesLink } = this.props;
+    const { workspace, workspacesLink, history } = this.props;
 
     if (!workspace) {
       return <div>Workspace not found.</div>;
@@ -195,7 +187,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
               } />
           )}
           <Tabs activeKey={this.state.activeTabKey} onSelect={this.handleTabClick}>
-            <Tab eventKey={WorkspaceDetailsTab.Overview} title={WorkspaceDetailsTab[WorkspaceDetailsTab.Overview]}>
+            <Tab eventKey={WorkspaceDetailsTab.OVERVIEW} title={WorkspaceDetailsTab.OVERVIEW}>
               <CheProgress isLoading={this.props.isLoading} />
               <OverviewTab
                 ref={this.overviewTabPageRef}
@@ -203,45 +195,31 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
                 onSave={workspace => this.onSave(workspace)}
               />
             </Tab>
-            <Tab eventKey={WorkspaceDetailsTab.Devfile} title={WorkspaceDetailsTab[WorkspaceDetailsTab.Devfile]}>
+            <Tab eventKey={WorkspaceDetailsTab.DEVFILE} title={WorkspaceDetailsTab.DEVFILE}>
               <CheProgress isLoading={this.props.isLoading} />
               <EditorTab
                 ref={this.editorTabPageRef}
                 workspace={workspace}
                 onSave={workspace => this.onSave(workspace)}
-                onDevWorkspaceWarning={() => this.setState({
-                  hasWarningMessage: true
-                })} />
+                onDevWorkspaceWarning={() => this.setState({ hasWarningMessage: true })} />
             </Tab>
             {/* <Tab eventKey={WorkspaceDetailsTabs.Logs} title={WorkspaceDetailsTabs[WorkspaceDetailsTabs.Logs]}>*/}
             {/*  <LogsTab workspaceId={workspace.id} />*/}
             {/* </Tab>*/}
           </Tabs>
-          <Modal variant={ModalVariant.small} isOpen={this.state.hasDiscardChangesMessage}
-            title="Unsaved Changes"
-            onClose={() => this.handleCancelChanges()}
-            actions={[
-              <Button key="confirm" variant="primary" onClick={() => this.handleDiscardChanges()}>
-                Discard Changes
-              </Button>,
-              <Button key="cancel" variant="secondary" onClick={() => this.handleCancelChanges()}>
-                Cancel
-              </Button>,
-            ]}
-          >
-            <TextContent>
-              <Text>
-                You have unsaved changes. You may go ahead and discard all changes, or close this window and save them.
-              </Text>
-            </TextContent>
-          </Modal>
+          <UnsavedChangesModal
+            hasUnsavedChanges={() => this.hasUnsavedChanges()}
+            onDiscardChanges={pathname => this.handleDiscardChanges(pathname)}
+            history={history}
+          />
         </PageSection>
       </React.Fragment>
     );
   }
 
   private async onSave(workspace: Workspace): Promise<void> {
-    if (this.props.workspace && (WorkspaceStatus[this.props.workspace.status] !== WorkspaceStatus.STOPPED) && isWorkspaceV1((this.props.workspace as Workspace).ref)) {
+    if (this.props.workspace && isWorkspaceV1((this.props.workspace as Workspace).ref)
+      && (this.props.workspace.status !== WorkspaceStatus.STOPPED)) {
       this.setState({ hasWarningMessage: true });
     }
     await this.props.onSave(workspace, this.state.activeTabKey);

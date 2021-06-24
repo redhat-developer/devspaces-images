@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -15,7 +15,7 @@ import { AlertVariant, Dropdown, DropdownItem, KebabToggle } from '@patternfly/r
 import { NavigationRecentItemObject } from '.';
 import WorkspaceActionsProvider from '../../containers/WorkspaceActions';
 import { ActionContextType, WorkspaceActionsConsumer } from '../../containers/WorkspaceActions/context';
-import { WorkspaceAction, WorkspaceStatus } from '../../services/helpers/types';
+import { DevWorkspaceStatus, WorkspaceAction, WorkspaceStatus } from '../../services/helpers/types';
 import getRandomString from '../../services/helpers/random';
 import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
@@ -84,18 +84,26 @@ class NavigationItemWorkspaceActions extends React.PureComponent<Props, State> {
       </DropdownItem>
     );
 
-    if (status === WorkspaceStatus[WorkspaceStatus.STOPPED]) {
+    if (
+      status === WorkspaceStatus.STOPPED ||
+      status === DevWorkspaceStatus.STOPPED ||
+      status === DevWorkspaceStatus.FAILED
+    ) {
       dropdownItems.push(
         createAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS),
         createAction(WorkspaceAction.START_IN_BACKGROUND),
       );
-    } else if (status !== WorkspaceStatus[WorkspaceStatus.STOPPING]) {
+    } else if (
+      status !== WorkspaceStatus.STOPPING &&
+      status !== DevWorkspaceStatus.TERMINATING &&
+      status !== DevWorkspaceStatus.FAILED
+    ) {
       dropdownItems.push(
         createAction(WorkspaceAction.STOP_WORKSPACE),
       );
     }
     // todo should be add with https://github.com/eclipse/che/issues/19514
-    // if (status !== WorkspaceStatus[WorkspaceStatus.STOPPING]) {
+    // if (status !== WorkspaceStatus.STOPPING && status !== DevWorkspaceStatus.TERMINATING) {
     //   dropdownItems.push(
     //     createAction(WorkspaceAction.RESTART_WORKSPACE),
     //   );

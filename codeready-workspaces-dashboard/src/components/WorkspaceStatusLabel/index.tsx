@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -13,12 +13,11 @@
 import {
   ExclamationCircleIcon,
   InProgressIcon,
-  PauseCircleIcon,
   ResourcesFullIcon,
 } from '@patternfly/react-icons/dist/js/icons';
 import React from 'react';
 import { Label } from '@patternfly/react-core';
-import { WorkspaceStatus } from '../../services/helpers/types';
+import { DevWorkspaceStatus, WorkspaceStatus } from '../../services/helpers/types';
 import ReactTooltip from 'react-tooltip';
 
 import styles from './index.module.css';
@@ -69,7 +68,8 @@ class WorkspaceStatusLabel extends React.PureComponent<Props> {
     );
 
     switch (status) {
-      case WorkspaceStatus[WorkspaceStatus.STOPPED]:
+      case WorkspaceStatus.STOPPED:
+      case DevWorkspaceStatus.STOPPED:
         color = 'grey';
         return (
           <>
@@ -82,7 +82,8 @@ class WorkspaceStatusLabel extends React.PureComponent<Props> {
             {tooltip}
           </>
         );
-      case WorkspaceStatus[WorkspaceStatus.RUNNING]:
+      case WorkspaceStatus.RUNNING:
+      case DevWorkspaceStatus.RUNNING:
         color = 'green';
         return (
           <>
@@ -95,7 +96,8 @@ class WorkspaceStatusLabel extends React.PureComponent<Props> {
             {tooltip}
           </>
         );
-      case WorkspaceStatus[WorkspaceStatus.ERROR]:
+      case WorkspaceStatus.ERROR:
+      case DevWorkspaceStatus.FAILED:
         color = 'red';
         return (
           <>
@@ -108,20 +110,8 @@ class WorkspaceStatusLabel extends React.PureComponent<Props> {
             {tooltip}
           </>
         );
-      case WorkspaceStatus[WorkspaceStatus.PAUSED]:
-        color = 'orange';
-        return (
-          <>
-            <Label
-              data-tip=""
-              className={styles.statusLabel}
-              color={color}
-              icon={<PauseCircleIcon />}
-            >Paused</Label>
-            {tooltip}
-          </>
-        );
-      case WorkspaceStatus[WorkspaceStatus.STARTING]:
+      case WorkspaceStatus.STARTING:
+      case DevWorkspaceStatus.STARTING:
         color = 'blue';
         return (
           <>

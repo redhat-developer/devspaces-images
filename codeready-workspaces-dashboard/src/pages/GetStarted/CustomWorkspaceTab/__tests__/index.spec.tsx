@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -36,7 +36,7 @@ jest.mock('../../../../components/DevfileEditor', () => {
       if (!value) {
         onChange(value, false);
       } else {
-        onChange(JSON.parse(value), true);
+        onChange(value, true);
       }
     }
     const input = (<input
@@ -64,14 +64,14 @@ jest.mock('../../../../store/DevfileRegistries', () => {
         return Promise.resolve(JSON.stringify(dummyDevfile));
       },
       requestJsonSchema: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => Promise.resolve(),
-      requestRegistriesMetadata: (): AppThunk<Action, Promise<che.DevfileMetaData[]>> => async (): Promise<che.DevfileMetaData[]> => Promise.resolve(mockMetadata),
+      requestRegistriesMetadata: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => Promise.resolve(),
       clearFilter: (): AppThunk<Action, void> => (): void => { return; },
       setFilter: (): AppThunk<Action, void> => (): void => { return; },
     } as DevfileRegistriesStore.ActionCreators,
   };
 });
 
-jest.mock('../../../../store/FactoryResolver.ts', () => {
+jest.mock('../../../../store/FactoryResolver/index.ts', () => {
   return {
     actionCreators: {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -129,7 +129,7 @@ describe('Custom Workspace Tab', () => {
 
     clickOnCreateAndOpenButton();
 
-    expect(mockOnDevfile).toHaveBeenCalledWith(initialDevfile, defaultInfrastructureNamespace);
+    expect(mockOnDevfile).toHaveBeenCalledWith(initialDevfile, defaultInfrastructureNamespace, undefined);
   });
 
   describe('workspace name field', () => {
@@ -222,9 +222,11 @@ describe('Custom Workspace Tab', () => {
 
       clickOnCreateAndOpenButton();
 
+      expect(mockOnDevfile.mock.calls[0][0]).toEqual(expect.objectContaining(dummyDevfile));
       expect(mockOnDevfile).toHaveBeenCalledWith(
-        expect.objectContaining(dummyDevfile),
-        defaultInfrastructureNamespace
+        expect.anything(),
+        defaultInfrastructureNamespace,
+        undefined,
       );
     });
 
@@ -257,9 +259,11 @@ describe('Custom Workspace Tab', () => {
 
       clickOnCreateAndOpenButton();
 
+      expect(mockOnDevfile.mock.calls[0][0]).toEqual(expect.objectContaining(dummyCustomDevfile));
       expect(mockOnDevfile).toHaveBeenCalledWith(
-        expect.objectContaining(dummyCustomDevfile),
-        defaultInfrastructureNamespace
+        expect.anything(),
+        defaultInfrastructureNamespace,
+        undefined,
       );
     });
 
@@ -325,9 +329,11 @@ describe('Custom Workspace Tab', () => {
 
       clickOnCreateAndOpenButton();
 
+      expect(mockOnDevfile.mock.calls[0][0]).toEqual(expect.objectContaining(newDevfile));
       expect(mockOnDevfile).toHaveBeenCalledWith(
-        expect.objectContaining(newDevfile),
-        defaultInfrastructureNamespace
+        expect.anything(),
+        defaultInfrastructureNamespace,
+        undefined
       );
     });
 
@@ -345,7 +351,11 @@ function createStore(opts: {
 } = {}): Store {
   return new FakeStoreBuilder()
     .withDevfileRegistries({
-      metadata: mockMetadata
+      registries: {
+        'registry-location': {
+          metadata: mockMetadata,
+        }
+      }
     })
     .withFactoryResolver({
       devfile: {
@@ -358,11 +368,9 @@ function createStore(opts: {
         storageTypes: 'https://che-docs/storage-types'
       }
     } as any)
-    .withCheWorkspaces({
-      settings: {
-        'che.workspace.storage.available_types': 'async,ephemeral,persistent',
-        'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral'
-      } as che.WorkspaceSettings
-    })
+    .withWorkspacesSettings({
+      'che.workspace.storage.available_types': 'async,ephemeral,persistent',
+      'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral'
+    } as che.WorkspaceSettings)
     .build();
 }

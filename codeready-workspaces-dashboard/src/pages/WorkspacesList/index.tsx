@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -26,17 +26,10 @@ import {
   Visibility,
 } from '@patternfly/react-table';
 import { History, Location } from 'history';
-import {
-  AlertVariant,
-  Divider,
-  PageSection,
-  PageSectionVariants,
-  Text,
-  TextContent,
-} from '@patternfly/react-core';
+import { AlertVariant, Divider, PageSection, PageSectionVariants, Text, TextContent } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
-import { WorkspaceAction, WorkspaceStatus } from '../../services/helpers/types';
+import { DevWorkspaceStatus, WorkspaceAction } from '../../services/helpers/types';
 import Head from '../../components/Head';
 import { buildGettingStartedLocation } from '../../services/helpers/location';
 import { AppAlerts } from '../../services/alerts/appAlerts';
@@ -46,7 +39,7 @@ import { lazyInject } from '../../inversify.config';
 import NoWorkspacesEmptyState from './EmptyState/NoWorkspaces';
 import NothingFoundEmptyState from './EmptyState/NothingFound';
 import { buildRows, RowData } from './Rows';
-import { Workspace } from '../../services/workspaceAdapter';
+import { isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
 
 import * as styles from './index.module.css';
 
@@ -54,7 +47,7 @@ type Props = {
   branding: BrandingData;
   history: History;
   workspaces: Workspace[];
-  isDeleted: string[];
+  toDelete: string[];
   onAction: (action: WorkspaceAction, id: string) => Promise<Location | void>;
   showConfirmation: (wantDelete: string[]) => Promise<void>;
 };
@@ -74,7 +67,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   @lazyInject(AppAlerts)
   private appAlerts: AppAlerts;
 
-  private columns: (ICell | string)[];
+  private readonly columns: (ICell | string)[];
 
   constructor(props: Props) {
     super(props);
@@ -133,10 +126,10 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private buildRows(): RowData[] {
-    const { history, isDeleted, workspaces } = this.props;
+    const { history, toDelete, workspaces } = this.props;
     const { filtered, selected, sortBy } = this.state;
 
-    return buildRows(history, workspaces, isDeleted, filtered, selected, sortBy);
+    return buildRows(history, workspaces, toDelete, filtered, selected, sortBy);
   }
 
   private actionResolver(rowData: IRowData): IAction[] {
@@ -150,50 +143,40 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
     return [
       {
-        title: 'Open in Verbose Mode',
-        isDisabled: false === this.isEnabledAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, WorkspaceStatus[workspace.status]),
+        title: 'Open in Verbose mode',
+        isDisabled: false === this.isEnabledAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, workspace),
         onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, rowData),
 
       },
       {
         title: 'Start in Background',
-        isDisabled: false === this.isEnabledAction(WorkspaceAction.START_IN_BACKGROUND, WorkspaceStatus[workspace.status]),
+        isDisabled: false === this.isEnabledAction(WorkspaceAction.START_IN_BACKGROUND, workspace),
         onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.START_IN_BACKGROUND, rowData)
       },
       {
         title: 'Stop Workspace',
-        isDisabled: false === this.isEnabledAction(WorkspaceAction.STOP_WORKSPACE, WorkspaceStatus[workspace.status]),
+        isDisabled: false === this.isEnabledAction(WorkspaceAction.STOP_WORKSPACE, workspace),
         onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.STOP_WORKSPACE, rowData)
       },
       {
         title: 'Delete Workspace',
-        onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.DELETE_WORKSPACE, rowData)
+        onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.DELETE_WORKSPACE, rowData),
+        isDisabled: false === this.isEnabledAction(WorkspaceAction.DELETE_WORKSPACE, workspace),
       },
     ];
   }
 
-  private isEnabledAction(action: WorkspaceAction, status: WorkspaceStatus): boolean {
+  private isEnabledAction(action: WorkspaceAction, workspace: Workspace): boolean {
+    if (workspace.status === DevWorkspaceStatus.TERMINATING) {
+      return false;
+    }
     if (action === WorkspaceAction.START_DEBUG_AND_OPEN_LOGS
       || action === WorkspaceAction.START_IN_BACKGROUND) {
-      switch (status) {
-        case WorkspaceStatus.STARTING:
-        case WorkspaceStatus.RUNNING:
-        case WorkspaceStatus.STOPPING:
-          return false;
-        default:
-          return true;
-      }
+      return !workspace.isStarting && !workspace.isRunning && !workspace.isStopping;
     }
     if (action === WorkspaceAction.STOP_WORKSPACE) {
-      switch (status) {
-        case WorkspaceStatus.STARTING:
-        case WorkspaceStatus.RUNNING:
-          return true;
-        default:
-          return false;
-      }
+      return workspace.isStarting || workspace.isRunning;
     }
-
     return true;
   }
 
@@ -229,11 +212,15 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   private async handleBulkDelete(): Promise<void> {
     const { selected } = this.state;
     const { workspaces } = this.props;
+    let hasCheWorkspaces = false;
 
     // show confirmation window
     try {
       const wantDelete = selected.map(id => {
         const workspace = workspaces.find(workspace => id === workspace.id);
+        if (!hasCheWorkspaces && workspace) {
+          hasCheWorkspaces = isWorkspaceV1(workspace.ref);
+        }
         return workspace?.name || id;
       });
       await this.props.showConfirmation(wantDelete);
@@ -248,7 +235,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       } catch (e) {
         const workspace = this.props.workspaces.find(workspace => id === workspace.id);
         const workspaceName = workspace?.name ? ` "${workspace?.name}"` : '';
-        const message = `Unable to delete workspace${workspaceName}. ` + e.toString().replace('Error: ', '');
+        const message = `Unable to ${workspace && isWorkspaceV1(workspace.ref) ? 'delete' : 'terminate'} workspace${workspaceName}. ` + e.toString().replace('Error: ', '');
         this.showAlert(message);
         console.warn(message);
         throw new Error(message);
@@ -278,16 +265,16 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
       if (!rejected) {
         const message = promises.length === 1
-          ? 'The workspace was deleted successfully'
-          : `${promises.length} workspaces were deleted successfully.`;
+          ? `The workspace was ${hasCheWorkspaces ? 'deleted' : 'terminated'} successfully`
+          : `${promises.length} workspaces were ${hasCheWorkspaces ? 'deleted' : 'terminated'} successfully.`;
         this.showAlert(message, AlertVariant.success);
       } else if (rejected === promises.length) {
         const message = 'No workspaces were deleted.';
         this.showAlert(message, AlertVariant.warning);
       } else {
         const message = fulfilled === 1
-          ? `${fulfilled} of ${promises.length} workspaces was deleted.`
-          : `${fulfilled} of ${promises.length} workspaces were deleted. `;
+          ? `${fulfilled} of ${promises.length} workspaces was ${hasCheWorkspaces ? 'deleted' : 'terminated'}.`
+          : `${fulfilled} of ${promises.length} workspaces were ${hasCheWorkspaces ? 'deleted' : 'terminated'}. `;
         this.showAlert(message, AlertVariant.warning);
       }
     } catch (e) {
@@ -358,7 +345,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
   private areActionsDisabled(rowData: IRowData): boolean {
     const id = (rowData as RowData).props.workspaceId;
-    return this.props.isDeleted.includes(id);
+    return this.props.toDelete.includes(id);
   }
 
   private handleAddWorkspace(): void {
@@ -396,8 +383,8 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       });
     }
     /* Update checkboxes states if workspaces are deleting */
-    if (prevProps.isDeleted.length !== this.props.isDeleted.length) {
-      const selected = this.state.selected.filter(id => false === this.props.isDeleted.includes(id));
+    if (prevProps.toDelete.length !== this.props.toDelete.length) {
+      const selected = this.state.selected.filter(id => false === this.props.toDelete.includes(id));
       this.setState({
         selected,
       });
@@ -458,8 +445,11 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
             areActionsDisabled={rowData => this.areActionsDisabled(rowData)}
             aria-label="Workspaces List Table"
             canSelectAll={false}
-            cells={this.columns}
-            onSelect={(event, isSelected, rowIndex, rowData) => this.handleSelect(isSelected, rowIndex, rowData)}
+            cells={this.columns || []}
+            onSelect={(event, isSelected, rowIndex, rowData) => {
+              event.stopPropagation();
+              this.handleSelect(isSelected, rowIndex, rowData);
+            }}
             rows={rows}
             variant={TableVariant.compact}
             header={toolbar}

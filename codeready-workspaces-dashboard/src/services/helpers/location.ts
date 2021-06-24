@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,7 +12,7 @@
 
 import { History, Location } from 'history';
 import { ROUTE } from '../../route.enum';
-import { GettingStartedTab, IdeLoaderTab, WorkspaceDetailsTab } from './types';
+import { CreateWorkspaceTab, IdeLoaderTab, WorkspaceDetailsTab } from './types';
 import { Workspace } from '../workspaceAdapter';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -48,7 +48,7 @@ export function buildWorkspacesLocation(): Location {
   return _buildLocationObject(ROUTE.WORKSPACES);
 }
 
-export function buildGettingStartedLocation(tab?: GettingStartedTab): Location {
+export function buildGettingStartedLocation(tab?: CreateWorkspaceTab): Location {
   let pathAndQuery: string;
   if (!tab) {
     pathAndQuery = ROUTE.GET_STARTED;
@@ -66,11 +66,10 @@ export function buildDetailsLocation(workspace: Workspace, tab?: WorkspaceDetail
       .replace(':namespace', workspace.namespace)
       .replace(':workspaceName', workspace.name);
   } else {
-    const tabId = WorkspaceDetailsTab[tab];
     pathAndQuery = ROUTE.WORKSPACE_DETAILS_TAB
       .replace(':namespace', workspace.namespace)
       .replace(':workspaceName', workspace.name)
-      .replace(':tabId', tabId);
+      .replace(':tabId', tab);
   }
   return _buildLocationObject(pathAndQuery);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -29,10 +29,10 @@ describe('The LogsTab component', () => {
   const namespace = 'admin';
   const workspaceId = 'workspace-test-id';
   const workspaceName = 'workspace-test-name';
-  const status = WorkspaceStatus[WorkspaceStatus.RUNNING];
+  const status = WorkspaceStatus.RUNNING;
   const runtime: che.WorkspaceRuntime = {
     machines: {},
-    status: WorkspaceStatus[WorkspaceStatus.RUNNING],
+    status: WorkspaceStatus.RUNNING,
     activeEnv: 'default',
   };
 

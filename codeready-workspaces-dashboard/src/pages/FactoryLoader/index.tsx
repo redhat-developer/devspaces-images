@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -230,7 +230,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
           </AlertGroup>
         )}
         <Header title={`Starting workspace ${workspaceName}`}
-          status={hasError ? WorkspaceStatus[WorkspaceStatus.ERROR] : WorkspaceStatus[WorkspaceStatus.STARTING]} />
+          status={hasError ? WorkspaceStatus.ERROR : WorkspaceStatus.STARTING} />
         <PageSection variant={SECTION_THEME} className="load-factory-page" isFilled={true}>
           <Tabs activeKey={this.state.activeTabKey} onSelect={this.handleTabClick} inset={{ default: 'insetLg' }}
             id="factory-loader-page-tabs">

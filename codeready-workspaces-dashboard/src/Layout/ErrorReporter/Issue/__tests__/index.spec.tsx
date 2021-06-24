@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -30,7 +30,7 @@ describe('Issue component', () => {
       type: 'cert',
       error: new Error('Certificate Error Message'),
     } as Issue;
-    const component = (<IssueComponent branding={brandingData} issue={issue}/>);
+    const component = (<IssueComponent branding={brandingData} issue={issue} />);
 
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
@@ -40,7 +40,7 @@ describe('Issue component', () => {
       type: 'sso',
       error: new Error('SSO Error Message'),
     } as Issue;
-    const component = (<IssueComponent branding={brandingData} issue={issue}/>);
+    const component = (<IssueComponent branding={brandingData} issue={issue} />);
 
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
@@ -50,7 +50,7 @@ describe('Issue component', () => {
       type: 'unknown',
       error: new Error('Unknown Error Message'),
     } as Issue;
-    const component = (<IssueComponent branding={brandingData} issue={issue}/>);
+    const component = (<IssueComponent branding={brandingData} issue={issue} />);
 
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });

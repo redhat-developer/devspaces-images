@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,7 +12,7 @@
 
 import React from 'react';
 import renderer from 'react-test-renderer';
-import { fireEvent, render, RenderResult, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { ErrorBoundary, STORAGE_KEY_RELOAD_NUMBER } from '..';
 import userEvent from '@testing-library/user-event';
 

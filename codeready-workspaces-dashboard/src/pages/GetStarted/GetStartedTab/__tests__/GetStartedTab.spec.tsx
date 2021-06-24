@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -15,7 +15,8 @@ import { Provider } from 'react-redux';
 import { RenderResult, render, screen } from '@testing-library/react';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { SamplesListTab } from '../';
-import { selectIsLoading, selectPreferredStorageType, selectSettings } from '../../../../store/Workspaces/selectors';
+import { selectIsLoading } from '../../../../store/Workspaces/selectors';
+import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
 const onDevfileMock: (devfileContent: string, stackName: string) => Promise<void> = jest.fn().mockResolvedValue(undefined);
@@ -54,10 +55,15 @@ describe('Samples list tab', () => {
         storageTypes: 'https://dummy.location'
       }
     } as BrandingData;
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      settings: { 'che.workspace.storage.preferred_type': preferredStorageType } as che.WorkspaceSettings,
-      workspaces: [],
-    }).withBranding(brandingData).build();
+    const store = new FakeStoreBuilder()
+      .withWorkspacesSettings({
+        'che.workspace.storage.preferred_type': preferredStorageType
+      } as che.WorkspaceSettings)
+      .withCheWorkspaces({
+        workspaces: [],
+      })
+      .withBranding(brandingData)
+      .build();
 
     const state = store.getState();
 
@@ -66,7 +72,7 @@ describe('Samples list tab', () => {
         <SamplesListTab
           onDevfile={onDevfileMock}
           isLoading={selectIsLoading(state)}
-          settings={selectSettings(state)}
+          workspacesSettings={selectWorkspacesSettings(state)}
           preferredStorageType={selectPreferredStorageType(state)}
           dispatch={jest.fn()}
         />
@@ -95,23 +101,23 @@ describe('Samples list tab', () => {
     expect(onDevfileMock).not.toBeCalled();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('persistVolumes:'), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('persistVolumes:'), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName, undefined);
     (onDevfileMock as jest.Mock).mockClear();
 
     switchInput.click();
     expect(switchInput.checked).toBeTruthy();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName, undefined);
     (onDevfileMock as jest.Mock).mockClear();
 
     switchInput.click();
     expect(switchInput.checked).toBeFalsy();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('persistVolumes:'), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('persistVolumes:'), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName, undefined);
   });
 
   it('should correctly apply the preferred storage type \'ephemeral\'', () => {
@@ -125,24 +131,24 @@ describe('Samples list tab', () => {
     expect(onDevfileMock).not.toBeCalled();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName, undefined);
     (onDevfileMock as jest.Mock).mockClear();
 
     switchInput.click();
     expect(switchInput.checked).toBeFalsy();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('persistVolumes:'), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('persistVolumes:'), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName, undefined);
     (onDevfileMock as jest.Mock).mockClear();
 
     switchInput.click();
     expect(switchInput.checked).toBeTruthy();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName, undefined);
   });
 
   it('should correctly apply the preferred storage type \'async\'', () => {
@@ -156,24 +162,24 @@ describe('Samples list tab', () => {
     expect(onDevfileMock).not.toBeCalled();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('asyncPersist: \'true\''), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('asyncPersist: \'true\''), testStackName, undefined);
     (onDevfileMock as jest.Mock).mockClear();
 
     switchInput.click();
     expect(switchInput.checked).toBeTruthy();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.not.stringContaining('asyncPersist:'), testStackName, undefined);
     (onDevfileMock as jest.Mock).mockClear();
 
     switchInput.click();
     expect(switchInput.checked).toBeFalsy();
 
     sampleItem.click();
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName);
-    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('asyncPersist: \'true\''), testStackName);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('persistVolumes: \'false\''), testStackName, undefined);
+    expect(onDevfileMock).toHaveBeenCalledWith(expect.stringContaining('asyncPersist: \'true\''), testStackName, undefined);
   });
 });
 

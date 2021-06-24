@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -15,25 +15,21 @@ import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../store';
 import { DisposableCollection } from '../../services/helpers/disposable';
 import { ProtocolToMonacoConverter, MonacoToProtocolConverter } from 'monaco-languageclient/lib/monaco-converter';
-import { languages, editor, Position, IRange } from 'monaco-editor-core/esm/vs/editor/editor.main';
-import { TextDocument, getLanguageService } from 'yaml-language-server';
+import { languages, editor, Range, Position, IRange } from 'monaco-editor-core';
+import { TextDocument, getLanguageService, LanguageService, CompletionItem } from 'yaml-language-server';
 import { initDefaultEditorTheme } from '../../services/monacoThemeRegister';
-import { safeLoad } from 'js-yaml';
 import stringify, { language, conf } from '../../services/helpers/editor';
 import $ from 'jquery';
 import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import { selectDevfileSchema } from '../../store/DevfileRegistries/selectors';
+import { selectPlugins } from '../../store/Plugins/chePlugins/selectors';
+import { selectBranding } from '../../store/Branding/selectors';
 
 import './DevfileEditor.styl';
 
-interface Editor {
-  getValue(): string;
-
-  getModel(): any;
-}
-
 const LANGUAGE_ID = 'yaml';
 const YAML_SERVICE = 'yamlService';
-const MONACO_CONFIG = {
+const MONACO_CONFIG: editor.IStandaloneEditorConstructionOptions = {
   language: 'yaml',
   wordWrap: 'on',
   lineNumbers: 'on',
@@ -46,7 +42,7 @@ type Props =
   & {
     devfile: che.WorkspaceDevfile | IDevWorkspaceDevfile;
     decorationPattern?: string;
-    onChange: (devfile: che.WorkspaceDevfile, isValid: boolean) => void;
+    onChange: (newValue: string, isValid: boolean) => void;
     isReadonly?: boolean;
   };
 type State = {
@@ -57,8 +53,8 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
   public static EDITOR_THEME: string | undefined;
   private readonly toDispose = new DisposableCollection();
   private handleResize: () => void;
-  private editor: any;
-  private readonly yamlService: any;
+  private editor: editor.IStandaloneCodeEditor;
+  private readonly yamlService: LanguageService;
   private m2p = new MonacoToProtocolConverter();
   private p2m = new ProtocolToMonacoConverter();
   private createDocument = (model): TextDocument => TextDocument.create(
@@ -99,10 +95,10 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
       languages.setMonarchTokensProvider(LANGUAGE_ID, language);
       languages.setLanguageConfiguration(LANGUAGE_ID, conf);
       // register language server providers
-      this.registerLanguageServerProviders(languages);
+      this.registerLanguageServerProviders();
     }
-    const jsonSchema = this.props.devfileRegistries.schema || {};
-    const items = this.props.plugins.plugins;
+    const jsonSchema = this.props.devfileSchema || {};
+    const items = this.props.plugins;
     const properties = jsonSchema?.oneOf && jsonSchema.oneOf[0] ? jsonSchema.oneOf[0].properties : jsonSchema.properties;
     const components = properties ? properties.components : undefined;
     if (components) {
@@ -151,7 +147,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     }
     this.skipNextOnChange = true;
     const doc = this.editor.getModel();
-    doc.setValue(stringify(devfile));
+    doc?.setValue(stringify(devfile));
   }
 
   public componentDidUpdate(): void {
@@ -167,10 +163,13 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
       const value = stringify(this.props.devfile);
       this.editor = editor.create(element, Object.assign(
         { value },
-        MONACO_CONFIG,
+        {
+          ...MONACO_CONFIG,
+          readOnly: !!this.props.isReadonly,
+        }
       ));
       const doc = this.editor.getModel();
-      doc.updateOptions({ tabSize: 2 });
+      doc?.updateOptions({ tabSize: 2 });
 
       const handleResize = (): void => {
         const layout = { height: element.offsetHeight, width: element.offsetWidth };
@@ -195,7 +194,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
         }
       };
       updateDecorations();
-      doc.onDidChangeContent(() => {
+      doc?.onDidChangeContent(() => {
         updateDecorations();
         this.onChange(this.editor.getValue(), true);
       });
@@ -226,7 +225,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const href = this.props.branding.data.docs.devfile;
+    const href = this.props.branding.docs.devfile;
     const { errorMessage } = this.state;
 
     return (
@@ -242,23 +241,26 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     const decorations: editor.IModelDecoration[] = [];
     if (this.props.decorationPattern) {
       const decorationRegExp = new RegExp(this.props.decorationPattern, 'img');
-      const model = this.editor.getModel();
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const model = this.editor.getModel()!;
       const value = this.editor.getValue();
       let match = decorationRegExp.exec(value);
       while (match) {
         const startPosition = model.getPositionAt(match.index);
         const endPosition = model.getPositionAt(match.index + match[0].length);
+        const range = new Range(
+          startPosition.lineNumber,
+          startPosition.column,
+          endPosition.lineNumber,
+          endPosition.column,
+        );
+        const options: editor.IModelDecorationOptions = {
+          inlineClassName: 'devfile-editor-decoration',
+        };
         decorations.push({
-          range: {
-            startLineNumber: startPosition.lineNumber,
-            startColumn: startPosition.column,
-            endLineNumber: endPosition.lineNumber,
-            endColumn: endPosition.column,
-          },
-          options: {
-            inlineClassName: 'devfile-editor-decoration',
-          },
-        });
+          range,
+          options,
+        } as editor.IModelDecoration);
         match = decorationRegExp.exec(value);
       }
     }
@@ -270,18 +272,10 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
       this.skipNextOnChange = false;
       return;
     }
-
-    let devfile: che.WorkspaceDevfile;
-    try {
-      devfile = safeLoad(newValue);
-    } catch (e) {
-      console.error('DevfileEditor parse error', e);
-      return;
-    }
-    this.props.onChange(devfile, isValid);
+    this.props.onChange(newValue, isValid);
   }
 
-  private registerLanguageServerProviders(languages: any): void {
+  private registerLanguageServerProviders(): void {
     const createDocument = this.createDocument;
     const yamlService = this.yamlService;
     const m2p = this.m2p;
@@ -349,26 +343,30 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
           });
       },
       async resolveCompletionItem(model, range, item) {
-        return yamlService.doResolve(m2p.asCompletionItem(item))
-          .then(result => p2m.asCompletionItem(result, range));
+        return (yamlService as any).doResolve(m2p.asCompletionItem(item))
+          .then((result: CompletionItem) => p2m.asCompletionItem(result, range));
       },
     } as any);
     languages.registerDocumentSymbolProvider(LANGUAGE_ID, {
-      provideDocumentSymbols(model: any) {
+      provideDocumentSymbols(model: editor.ITextModel) {
         return p2m.asSymbolInformations(yamlService.findDocumentSymbols(createDocument(model)));
       },
     });
     languages.registerHoverProvider(LANGUAGE_ID, {
-      provideHover(model: any, position: any) {
-        return yamlService.doHover(createDocument(model), m2p.asPosition(position.lineNumber, position.column))
-          .then(hover => p2m.asHover(hover));
+      async provideHover(model: editor.ITextModel, position: Position) {
+        const hover = await yamlService.doHover(
+          createDocument(model),
+          m2p.asPosition(position.lineNumber, position.column)
+        );
+        return p2m.asHover(hover);
       },
     });
   }
 
-  private initLanguageServerValidation(_editor: Editor): void {
-    const model = _editor.getModel();
-    let validationTimer;
+  private initLanguageServerValidation(_editor: editor.IStandaloneCodeEditor): void {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const model = _editor.getModel()!;
+    let validationTimer: number;
 
     model.onDidChangeContent(() => {
       const document = this.createDocument(model);
@@ -399,9 +397,9 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  branding: state.branding,
-  devfileRegistries: state.devfileRegistries,
-  plugins: state.plugins,
+  branding: selectBranding(state),
+  devfileSchema: selectDevfileSchema(state),
+  plugins: selectPlugins(state),
 });
 
 const connector = connect(

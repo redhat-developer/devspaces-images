@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -26,7 +26,7 @@ describe('The header component for IDE-loader and Factory-loader pages', () => {
   it('should render start workspace correctly', () => {
     const element = (<Header
       title="Start workspace"
-      status={WorkspaceStatus[WorkspaceStatus.STARTING]}
+      status={WorkspaceStatus.STARTING}
     />);
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
@@ -35,7 +35,7 @@ describe('The header component for IDE-loader and Factory-loader pages', () => {
   it('should render workspace error correctly', () => {
     const element = (<Header
       title="Workspace error"
-      status={WorkspaceStatus[WorkspaceStatus.ERROR]}
+      status={WorkspaceStatus.ERROR}
     />);
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();

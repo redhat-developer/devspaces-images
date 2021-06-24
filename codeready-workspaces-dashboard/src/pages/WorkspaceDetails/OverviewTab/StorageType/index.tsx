@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -26,8 +26,9 @@ import {
 import { AppState } from '../../../../store';
 import { connect, ConnectedProps } from 'react-redux';
 import { OutlinedQuestionCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
-import { selectAvailableStorageTypes, selectPreferredStorageType } from '../../../../store/Workspaces/selectors';
+import { selectAvailableStorageTypes, selectPreferredStorageType } from '../../../../store/Workspaces/Settings/selectors';
 import * as storageTypeService from '../../../../services/storageTypes';
+import { selectBranding } from '../../../../store/Branding/selectors';
 
 import overviewStyles from '../index.module.css';
 import styles from './index.module.css';
@@ -114,7 +115,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     const ephemeralTypeDescr = hasEphemeral ?
       (<Text><b>Ephemeral Storage</b> allows for faster I/O but may have limited
         storage and is not persistent.</Text>) : '';
-    const href = this.props.brandingStore.data.docs.storageTypes;
+    const href = this.props.branding.docs.storageTypes;
 
     return (<TextContent>
       {persistentTypeDescr}
@@ -239,7 +240,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  brandingStore: state.branding,
+  branding: selectBranding(state),
   availableStorageTypes: selectAvailableStorageTypes(state),
   preferredStorageType: selectPreferredStorageType(state),
 });

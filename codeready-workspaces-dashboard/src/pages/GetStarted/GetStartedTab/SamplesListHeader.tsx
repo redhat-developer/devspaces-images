@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -14,7 +14,7 @@ import React from 'react';
 import { Text, TextContent, TextVariants } from '@patternfly/react-core';
 
 const TITLE = 'Select a Sample';
-const DESCRIPTION = 'Select a sample to create your first workspace';
+const DESCRIPTION = 'Select a sample to create your first workspace.';
 
 export class SamplesListHeader extends React.PureComponent {
   constructor(props) {

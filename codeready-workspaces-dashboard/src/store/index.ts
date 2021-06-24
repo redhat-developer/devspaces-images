@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -15,21 +15,22 @@ import { ThunkAction } from 'redux-thunk';
 import * as BrandingStore from './Branding';
 import * as DevfileRegistriesStore from './DevfileRegistries';
 import * as FactoryResolver from './FactoryResolver';
-import * as InfrastructureNamespaceStore from './InfrastructureNamespace';
-import * as Plugins from './Plugins';
+import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
+import * as Plugins from './Plugins/chePlugins';
 import * as UserPreferences from './UserPreferences';
 import * as WorkspacesStore from './Workspaces';
 import * as CheWorkspacesStore from './Workspaces/cheWorkspaces';
 import * as DevWorkspacesStore from './Workspaces/devWorkspaces';
 import * as UserStore from './User';
 import * as UserProfileStore from './UserProfile';
-import * as DwPlugins from './DevWorkspacePlugins';
+import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
+import * as WorkspacesSettingsStore from './Workspaces/Settings';
 
 // the top-level state object
 export interface AppState {
   branding: BrandingStore.State;
   devfileRegistries: DevfileRegistriesStore.State;
-  infrastructureNamespace: InfrastructureNamespaceStore.State;
+  infrastructureNamespaces: InfrastructureNamespacesStore.State;
   user: UserStore.State;
   userProfile: UserProfileStore.State;
   workspaces: WorkspacesStore.State;
@@ -38,7 +39,8 @@ export interface AppState {
   plugins: Plugins.State;
   factoryResolver: FactoryResolver.State;
   userPreferences: UserPreferences.State;
-  dwPlugins: DwPlugins.State;
+  dwPlugins: DwPluginsStore.State;
+  workspacesSettings: WorkspacesSettingsStore.State,
 }
 
 export const reducers = {
@@ -49,11 +51,12 @@ export const reducers = {
   branding: BrandingStore.reducer,
   user: UserStore.reducer,
   userProfile: UserProfileStore.reducer,
-  infrastructureNamespace: InfrastructureNamespaceStore.reducer,
+  infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
   plugins: Plugins.reducer,
   factoryResolver: FactoryResolver.reducer,
   userPreferences: UserPreferences.reducer,
-  dwPlugins: DwPlugins.reducer,
+  dwPlugins: DwPluginsStore.reducer,
+  workspacesSettings: WorkspacesSettingsStore.reducer,
 };
 
 // this type can be used as a hint on action creators so that its 'dispatch' and 'getState' params are

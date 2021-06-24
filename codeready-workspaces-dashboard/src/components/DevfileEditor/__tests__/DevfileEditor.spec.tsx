@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -18,7 +18,7 @@ import { BrandingData } from '../../../services/bootstrap/branding.constant';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 
-jest.mock('monaco-editor-core/esm/vs/editor/editor.main', () => {
+jest.mock('monaco-editor-core', () => {
   return {
     LanguageConfiguration: typeof {},
     IMonarchLanguage: typeof {},
@@ -66,7 +66,7 @@ function renderComponent(
   workspaceName: string,
   workspaceId: string,
   decorationPattern: string,
-  onChange: (devfile: che.WorkspaceDevfile, isValid: boolean) => void
+  onChange: (newValue: string, isValid: boolean) => void
 ): ReactTestRenderer {
   const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
   const store = new FakeStoreBuilder().withCheWorkspaces({

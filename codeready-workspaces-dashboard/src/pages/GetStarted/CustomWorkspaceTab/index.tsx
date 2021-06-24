@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -19,12 +19,18 @@ import StorageTypeFormGroup from './StorageType';
 import { WorkspaceNameFormGroup } from './WorkspaceName';
 import DevfileSelectorFormGroup from './DevfileSelector';
 import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
-import { selectPreferredStorageType, selectSettings } from '../../../store/Workspaces/selectors';
+import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import { attributesToType, updateDevfile } from '../../../services/storageTypes';
+import { safeLoad } from 'js-yaml';
+import { updateDevfileMetadata } from '../updateDevfileMetadata';
 
 type Props = MappedProps
   & {
-    onDevfile: (devfile: che.WorkspaceDevfile, InfrastructureNamespace: string | undefined) => Promise<void>;
+    onDevfile: (
+      devfile: api.che.workspace.devfile.Devfile,
+      InfrastructureNamespace: string | undefined,
+      optionalFilesContent: { [fileName: string]: string } | undefined,
+    ) => Promise<void>;
   };
 type State = {
   storageType: che.WorkspaceStorageType;
@@ -32,6 +38,7 @@ type State = {
   namespace?: che.KubernetesNamespace;
   generateName?: string;
   workspaceName: string;
+  isCreated: boolean;
 };
 
 export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
@@ -45,7 +52,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     const storageType = attributesToType(devfile.attributes);
     const workspaceName = devfile.metadata.name ? devfile.metadata.name : '';
     const generateName = !workspaceName ? devfile.metadata.generateName : '';
-    this.state = { devfile, storageType, generateName, workspaceName };
+    this.state = { devfile, storageType, generateName, workspaceName, isCreated: false };
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
@@ -122,11 +129,19 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     }
   }
 
-  private handleDevfileChange(devfile: che.WorkspaceDevfile, isValid: boolean): void {
+  private handleDevfileChange(newValue: string, isValid: boolean): void {
     if (!isValid) {
       return;
     }
-    this.setState({ devfile });
+    let devfile: che.WorkspaceDevfile;
+    try {
+      devfile = safeLoad(newValue);
+    } catch (e) {
+      console.error('Devfile parse error', e);
+      return;
+    }
+    devfile = updateDevfileMetadata(devfile);
+    this.setState({ devfile, isCreated: false });
     if (devfile?.attributes) {
       const storageType = attributesToType(devfile.attributes);
       if (storageType !== this.state.storageType) {
@@ -145,16 +160,31 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
 
   private updateEditor(devfile: che.WorkspaceDevfile): void {
     this.devfileEditorRef.current?.updateContent(devfile);
+    this.setState({ isCreated: false });
   }
 
-  private handleCreate(): Promise<void> {
-    return this.props.onDevfile(this.state.devfile, this.state.namespace?.name);
+  private async handleCreate(): Promise<void> {
+    this.setState({
+      isCreated: true
+    });
+    try {
+      const { devfile } = this.state;
+      /* For the time being `optionalFilesContent` is `undefined`.
+      Later, if we want to load related files (editor.yaml, che-theia-plugins.yaml) we need to expose
+      such an information to a user, so they are able to review and apply their custom setting if needed.
+      Note: `optionalFilesContent` is supported by factory flow, or create from sample where user input is not allowed. */
+      await this.props.onDevfile(devfile, this.state.namespace?.name, undefined);
+    } catch (e) {
+      this.setState({
+        isCreated: false,
+      });
+    }
   }
 
   public render(): React.ReactElement {
-    const { devfile, storageType, generateName, workspaceName } = this.state;
+    const { devfile, storageType, generateName, workspaceName, isCreated } = this.state;
     return (
-      <React.Fragment>
+      <>
         <PageSection
           variant={PageSectionVariants.light}
         >
@@ -177,12 +207,10 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
           isFilled
           variant={PageSectionVariants.light}
         >
-          <Form>
-            <DevfileSelectorFormGroup
-              onDevfile={devfile => this.handleNewDevfile(devfile)}
-              onClear={() => this.handleNewDevfile()}
-            />
-          </Form>
+          <DevfileSelectorFormGroup
+            onDevfile={devfile => this.handleNewDevfile(devfile)}
+            onClear={() => this.handleNewDevfile()}
+          />
         </PageSection>
         <PageSection
           className="workspace-details-editor"
@@ -191,25 +219,26 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
           <DevfileEditor
             ref={this.devfileEditorRef}
             devfile={devfile}
-            decorationPattern='location[ \t]*(.*)[ \t]*$'
-            onChange={(devfile, isValid) => this.handleDevfileChange(devfile, isValid)}
+            decorationPattern="location[ \t]*(.*)[ \t]*$"
+            onChange={(newValue, isValid) => this.handleDevfileChange(newValue, isValid)}
           />
         </PageSection>
         <PageSection variant={PageSectionVariants.light}>
           <Button
             variant="primary"
             onClick={() => this.handleCreate()}
+            isDisabled={isCreated}
           >
             Create & Open
           </Button>
         </PageSection>
-      </React.Fragment>
+      </>
     );
   }
 }
 
 const mapStateToProps = (state: AppState) => ({
-  settings: selectSettings(state),
+  workspacesSettings: selectWorkspacesSettings(state),
   preferredStorageType: selectPreferredStorageType(state),
 });
 

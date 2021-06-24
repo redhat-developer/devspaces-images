@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -19,8 +19,8 @@ import { AppState } from '../store';
 import * as FactoryResolverStore from '../store/FactoryResolver';
 import * as WorkspaceStore from '../store/Workspaces';
 import FactoryLoader from '../pages/FactoryLoader';
-import { selectAllWorkspaces, selectPreferredStorageType, selectWorkspaceById } from '../store/Workspaces/selectors';
-import { WorkspaceStatus } from '../services/helpers/types';
+import { selectAllWorkspaces, selectWorkspaceById } from '../store/Workspaces/selectors';
+import { selectPreferredStorageType } from '../store/Workspaces/Settings/selectors';
 import { buildIdeLoaderLocation, sanitizeLocation } from '../services/helpers/location';
 import { lazyInject } from '../inversify.config';
 import { KeycloakAuthService } from '../services/keycloak/auth';
@@ -29,6 +29,7 @@ import { isOAuthResponse } from '../store/FactoryResolver';
 import { updateDevfile } from '../services/storageTypes';
 import { isWorkspaceV1, Workspace } from '../services/workspaceAdapter';
 import { AlertOptions } from '../pages/FactoryLoader';
+import { selectInfrastructureNamespaces } from '../store/InfrastructureNamespaces/selectors';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create'];
 
@@ -147,12 +148,12 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
 
     if (this.state.currentStep === LoadFactorySteps.START_WORKSPACE &&
-      workspace && WorkspaceStatus[workspace.status] === WorkspaceStatus.RUNNING) {
+      workspace && workspace.isRunning) {
       await this.openIde();
     }
 
     if (workspace &&
-      WorkspaceStatus[workspace.status] === WorkspaceStatus.ERROR &&
+      workspace.hasError &&
       this.state.currentStep === LoadFactorySteps.START_WORKSPACE) {
       this.showAlert('Unknown workspace error.');
     }
@@ -160,7 +161,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   private async openIde(): Promise<void> {
     const { history, workspace } = this.props;
-    if (!workspace || WorkspaceStatus[workspace.status] !== WorkspaceStatus.RUNNING) {
+    if (!workspace || !workspace.isRunning) {
       return;
     }
     this.setState({ currentStep: LoadFactorySteps.OPEN_IDE });
@@ -275,7 +276,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private resolvePrivateDevfile(oauthUrl: string, location: string): void {
     try {
       // looking for a pre-created infrastructure namespace
-      const namespaces = this.props.infrastructureNamespaces.namespaces;
+      const namespaces = this.props.infrastructureNamespaces;
       if (namespaces.length === 1) {
         if (!namespaces[0].attributes.phase) {
           this.showAlert('Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.');
@@ -325,7 +326,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
     if (!workspace) {
       try {
-        workspace = await this.props.createWorkspaceFromDevfile(devfile, undefined, undefined, attrs);
+        workspace = await this.props.createWorkspaceFromDevfile(devfile, undefined, undefined, attrs, this.factoryResolver.resolver.optionalFilesContent || {});
       } catch (e) {
         this.showAlert(`Failed to create a workspace. ${e}`);
         return;
@@ -374,10 +375,10 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       && this.state.currentStep !== LoadFactorySteps.OPEN_IDE) {
       try {
         await this.props.requestWorkspace(workspace);
-        if (WorkspaceStatus[workspace.status] === WorkspaceStatus.STOPPED) {
+        if (workspace.isStopped) {
           await this.props.startWorkspace(workspace);
           this.setState({ currentStep: LoadFactorySteps.START_WORKSPACE });
-        } else if (WorkspaceStatus[workspace.status] === WorkspaceStatus.RUNNING || WorkspaceStatus[workspace.status] === WorkspaceStatus.STARTING) {
+        } else if (workspace.isRunning || workspace.isStarting) {
           this.setState({ currentStep: LoadFactorySteps.START_WORKSPACE });
         }
       } catch (e) {
@@ -480,7 +481,7 @@ const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
   workspace: selectWorkspaceById(state),
   allWorkspaces: selectAllWorkspaces(state),
-  infrastructureNamespaces: state.infrastructureNamespace,
+  infrastructureNamespaces: selectInfrastructureNamespaces(state),
   preferredStorageType: selectPreferredStorageType(state),
 });
 

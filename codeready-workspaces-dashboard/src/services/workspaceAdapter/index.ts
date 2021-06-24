@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -31,11 +31,16 @@ export interface Workspace {
   readonly infrastructureNamespace: string;
   readonly created: number;
   readonly updated: number;
-  status: keyof typeof WorkspaceStatus | keyof typeof DevWorkspaceStatus;
+  status: WorkspaceStatus | DevWorkspaceStatus;
   readonly ideUrl?: string;
   devfile: che.WorkspaceDevfile | IDevWorkspaceDevfile;
   storageType: che.WorkspaceStorageType;
   readonly projects: string[];
+  readonly isStarting: boolean;
+  readonly isStopped: boolean;
+  readonly isStopping: boolean;
+  readonly isRunning: boolean;
+  readonly hasError: boolean;
 }
 
 export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implements Workspace {
@@ -115,25 +120,51 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     }
   }
 
-  get status(): keyof typeof WorkspaceStatus {
+  get status(): WorkspaceStatus | DevWorkspaceStatus {
     if (isWorkspaceV1(this.workspace)) {
-      return this.workspace.status as keyof typeof WorkspaceStatus;
+      return this.workspace.status as WorkspaceStatus;
     } else {
-      let status = (this.workspace as IDevWorkspace).status?.phase;
-      if (status) {
-        if (status === DevWorkspaceStatus.FAILED) {
-          status = WorkspaceStatus[WorkspaceStatus.ERROR];
-        }
-      }
-      return (status || '') as keyof typeof WorkspaceStatus;
+      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus;
     }
   }
 
-  set status(status: keyof typeof WorkspaceStatus) {
+  get isStarting(): boolean {
     if (isWorkspaceV1(this.workspace)) {
-      this.workspace.status = status;
+      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STARTING;
     } else {
-      (this.workspace as IDevWorkspace).status.phase = status;
+      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.STARTING;
+    }
+  }
+
+  get isStopped(): boolean {
+    if (isWorkspaceV1(this.workspace)) {
+      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STOPPED;
+    } else {
+      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.STOPPED;
+    }
+  }
+
+  get isStopping(): boolean {
+    if (isWorkspaceV1(this.workspace)) {
+      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STOPPING;
+    } else {
+      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.STOPPING;
+    }
+  }
+
+  get isRunning(): boolean {
+    if (isWorkspaceV1(this.workspace)) {
+      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.RUNNING;
+    } else {
+      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.RUNNING;
+    }
+  }
+
+  get hasError(): boolean {
+    if (isWorkspaceV1(this.workspace)) {
+      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.ERROR;
+    } else {
+      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.FAILED;
     }
   }
 
@@ -153,7 +184,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
         }
       }
     } else {
-      return (this.workspace as IDevWorkspace).status.ideUrl;
+      return (this.workspace as IDevWorkspace).status.mainUrl;
     }
   }
 
@@ -195,7 +226,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
       (this.workspace as IDevWorkspace) = devfileToDevWorkspace(
         devfile as IDevWorkspaceDevfile,
         ROUTING_CLASS,
-        this.status === WorkspaceStatus[WorkspaceStatus.RUNNING]
+        this.status === DevWorkspaceStatus.RUNNING
       );
     }
   }

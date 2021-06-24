@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -22,28 +22,45 @@ export interface AlertItem {
 
 export interface FactoryResolver {
   v: string;
-  source: string;
+  source?: string;
   devfile: api.che.workspace.devfile.Devfile;
   location?: string;
+  scm_info?: FactoryResolverScmInfo;
+  links: api.che.core.rest.Link[];
 }
 
+export type FactoryResolverScmInfo = {
+  'clone_url': string;
+  'scm_provider': string;
+  'branch'?: string;
+};
+
+export type DevfileV2ProjectSource = {
+  name: string;
+  git: {
+    remotes: { origin: string };
+    checkoutFrom?: { revision: string };
+  }
+};
+
 export enum WorkspaceStatus {
-  RUNNING = 1,
-  STOPPING,
-  STOPPED,
-  STARTING,
-  PAUSED,
-  ERROR,
+  RUNNING = 'RUNNING',
+  STOPPING = 'STOPPING',
+  STOPPED = 'STOPPED',
+  STARTING = 'STARTING',
+  ERROR = 'ERROR',
 }
 
 export enum DevWorkspaceStatus {
   FAILED = 'Failed',
+  STARTING = 'Starting',
+  TERMINATING = 'Terminating',
   RUNNING = 'Running',
   STOPPED = 'Stopped',
   STOPPING = 'Stopping'
 }
 
-export type GettingStartedTab = 'get-started'
+export type CreateWorkspaceTab = 'quick-add'
   | 'custom-workspace';
 
 export enum IdeLoaderTab {
@@ -52,9 +69,9 @@ export enum IdeLoaderTab {
 }
 
 export enum WorkspaceDetailsTab {
-  Overview = 0,
-  Devfile = 4,
-  Logs = 5
+  OVERVIEW = 'Overview',
+  DEVFILE = 'Devfile',
+  LOGS = 'Logs',
 }
 
 export enum WorkspaceAction {

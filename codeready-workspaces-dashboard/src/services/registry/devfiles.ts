@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,6 +11,7 @@
  */
 
 import axios from 'axios';
+import { getErrorMessage } from '../helpers/getErrorMessage';
 
 // create new instance of `axios` to avoid adding an authorization header
 const axiosInstance = axios.create();
@@ -33,15 +34,21 @@ function resolveIconUrl(metadata: che.DevfileMetaData, baseUrl: string): string 
   return createURL(metadata.icon, baseUrl).href;
 }
 
-function resolveLinkSelf(metadata: che.DevfileMetaData, baseUrl: string): string {
-  if (metadata.links.self.startsWith('http')) {
-    return metadata.links.self;
-  }
-
-  return createURL(metadata.links.self, baseUrl).href;
+function resolveLinks(metadata: che.DevfileMetaData, baseUrl: string): any {
+  const resolvedLinks = {};
+  const linkNames = Object.keys(metadata.links);
+  linkNames.map(linkName => {
+    let updatedLink = metadata.links[linkName];
+    if (!updatedLink.startsWith('http')) {
+      updatedLink = createURL(updatedLink, baseUrl).href;
+    }
+    resolvedLinks[linkName] = updatedLink;
+  });
+  return resolvedLinks;
 }
 
-export async function fetchMetadata(registryUrl: string): Promise<che.DevfileMetaData[]> {
+export async function fetchRegistryMetadata(registryUrl: string): Promise<che.DevfileMetaData[]> {
+  registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
 
   try {
     const registryIndexUrl = new URL('devfiles/index.json', registryUrl);
@@ -49,39 +56,13 @@ export async function fetchMetadata(registryUrl: string): Promise<che.DevfileMet
 
     return response.data.map(meta => {
       meta.icon = resolveIconUrl(meta, registryUrl);
-      meta.links.self = resolveLinkSelf(meta, registryUrl);
+      meta.links = resolveLinks(meta, registryUrl);
       return meta;
     });
   } catch (e) {
-    throw new Error(`Failed to fetch devfiles metadata from registry URL: ${registryUrl},` + e);
-  }
-}
-
-/**
- * Fetches devfiles metadata for given registry urls.
- * @param registryUrls space-separated list of urls
- */
-export async function fetchRegistriesMetadata(registryUrls: string): Promise<che.DevfileMetaData[]> {
-  const urls = registryUrls.split(/\s+/);
-
-  try {
-    const metadataPromises = urls.map(registryUrl => {
-      return registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
-    }).map(async url => {
-      try {
-        return await fetchMetadata(url);
-      } catch (error) {
-        console.error(error);
-        return [];
-      }
-    });
-
-    const allMetadata = await Promise.all(metadataPromises);
-    return allMetadata.reduce((_allMetadata, registryMetadata) => {
-      return _allMetadata.concat(registryMetadata);
-    }, []);
-  } catch (e) {
-    throw new Error(e);
+    const errorMessage = `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + getErrorMessage(e);
+    console.error(errorMessage);
+    throw errorMessage;
   }
 }
 
@@ -90,6 +71,8 @@ export async function fetchDevfile(url: string): Promise<string> {
     const response = await axiosInstance.get<string>(url);
     return response.data;
   } catch (e) {
-    throw new Error(`Failed to fetch a devfile from URL: ${url},` + e);
+    const errorMessage = `Failed to fetch a devfile from URL: ${url}, reason: ` + getErrorMessage(e);
+    console.error(errorMessage);
+    throw errorMessage;
   }
 }

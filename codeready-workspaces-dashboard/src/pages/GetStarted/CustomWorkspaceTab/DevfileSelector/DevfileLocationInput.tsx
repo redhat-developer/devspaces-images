@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -18,7 +18,8 @@ import {
   ValidatedOptions,
   Flex,
   FlexItem,
-  FormGroup,
+  Form,
+  FormGroup
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
@@ -99,7 +100,12 @@ export class DevfileLocationInput extends React.PureComponent<Props, State> {
     const fieldId = 'devfile-url';
     const buttonDisabled = location === '' || validated === ValidatedOptions.error || this.props.isLoading;
     return (
-      <React.Fragment>
+      <Form onSubmit={e => {
+        e.preventDefault();
+        if (!buttonDisabled) {
+          this.handleClick();
+        }
+      }}>
         <FormGroup
           fieldId={fieldId}
           validated={validated}
@@ -116,7 +122,7 @@ export class DevfileLocationInput extends React.PureComponent<Props, State> {
                 type='url'
                 aria-label="URL of devfile"
                 validated={validated}
-
+                placeholder="Enter devfile URL"
                 onChange={(value, event) => this.handleChange(value, event)}
                 value={location}
               />
@@ -133,7 +139,7 @@ export class DevfileLocationInput extends React.PureComponent<Props, State> {
             </FlexItem>
           </Flex>
         </FormGroup>
-      </React.Fragment>
+      </Form>
     );
   }
 

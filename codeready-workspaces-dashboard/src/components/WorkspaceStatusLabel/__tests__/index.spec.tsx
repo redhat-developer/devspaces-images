@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -33,7 +33,7 @@ describe('The workspace status label component', () => {
 
   it('should render STOPPED status correctly', () => {
     const element = (<WorkspaceStatusLabel
-      status={WorkspaceStatus[WorkspaceStatus.STOPPED]}
+      status={WorkspaceStatus.STOPPED}
     />);
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
@@ -41,7 +41,7 @@ describe('The workspace status label component', () => {
 
   it('should render RUNNING status correctly', () => {
     const element = (<WorkspaceStatusLabel
-      status={WorkspaceStatus[WorkspaceStatus.RUNNING]}
+      status={WorkspaceStatus.RUNNING}
     />);
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
@@ -49,15 +49,7 @@ describe('The workspace status label component', () => {
 
   it('should render ERROR status correctly', () => {
     const element = (<WorkspaceStatusLabel
-      status={WorkspaceStatus[WorkspaceStatus.ERROR]}
-    />);
-
-    expect(renderer.create(element).toJSON()).toMatchSnapshot();
-  });
-
-  it('should render PAUSE status correctly', () => {
-    const element = (<WorkspaceStatusLabel
-      status={WorkspaceStatus[WorkspaceStatus.PAUSED]}
+      status={WorkspaceStatus.ERROR}
     />);
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();

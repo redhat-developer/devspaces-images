@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -35,10 +35,12 @@ import { AppAlerts } from '../../../services/alerts/appAlerts';
 import { AlertItem } from '../../../services/helpers/types';
 import { KeycloakAuthService } from '../../../services/keycloak/auth';
 import { AppState } from '../../../store';
-import * as InfrastructureNamespaceStore from '../../../store/InfrastructureNamespace';
+import * as InfrastructureNamespacesStore from '../../../store/InfrastructureNamespaces';
 import { ThemeVariant } from '../../themeVariant';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
 import { AboutModal } from './about-modal';
+import { selectBranding } from '../../../store/Branding/selectors';
+import { selectUserProfile } from '../../../store/UserProfile/selectors';
 
 import './HeaderTools.styl';
 
@@ -105,20 +107,20 @@ export class HeaderTools extends React.PureComponent<Props, State> {
   }
 
   private getCliTool(): string {
-    return this.props.branding.data.configuration.cheCliTool;
+    return this.props.branding.configuration.cheCliTool;
   }
 
   private getUsername(): string {
-    const { userProfile: { profile }, user } = this.props;
+    const { userProfile, user } = this.props;
 
     let username = '';
 
-    if (profile && profile.attributes) {
-      if (profile.attributes.firstName) {
-        username += profile.attributes.firstName;
+    if (userProfile && userProfile.attributes) {
+      if (userProfile.attributes.firstName) {
+        username += userProfile.attributes.firstName;
       }
-      if (profile.attributes.lastName) {
-        username += ' ' + profile.attributes.lastName;
+      if (userProfile.attributes.lastName) {
+        username += ' ' + userProfile.attributes.lastName;
       }
     }
     if (!username && user && user.name) {
@@ -129,8 +131,8 @@ export class HeaderTools extends React.PureComponent<Props, State> {
   }
 
   private getEmail(): string {
-    const { userProfile: { profile } } = this.props;
-    return profile ? profile.email : '';
+    const { userProfile } = this.props;
+    return userProfile ? userProfile.email : '';
   }
 
   private getLoginCommand(): string {
@@ -280,7 +282,7 @@ export class HeaderTools extends React.PureComponent<Props, State> {
   }
 
   private buildInfoDropdownItems(): React.ReactNode[] {
-    const branding = this.props.branding.data;
+    const branding = this.props.branding;
     const makeAWish = 'mailto:' + branding.supportEmail + '?subject=Wishes%20for%20';
     const faq = branding.docs.faq;
     const generalDocs = branding.docs.general;
@@ -360,7 +362,7 @@ export class HeaderTools extends React.PureComponent<Props, State> {
     const imageUrl = userEmail ? gravatarUrl(userEmail, { default: 'retro' }) : '';
     const isUserAuthenticated = !!userEmail;
 
-    const branding = this.props.branding.data;
+    const branding = this.props.branding;
     return (
       <>
         <PageHeaderTools>
@@ -402,13 +404,13 @@ export class HeaderTools extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  userProfile: state.userProfile,
-  branding: state.branding,
+  userProfile: selectUserProfile(state),
+  branding: selectBranding(state),
 });
 
 const connector = connect(
   mapStateToProps,
-  InfrastructureNamespaceStore.actionCreators,
+  InfrastructureNamespacesStore.actionCreators,
 );
 
 type MappedProps = ConnectedProps<typeof connector>;

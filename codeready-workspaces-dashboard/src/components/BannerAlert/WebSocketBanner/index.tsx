@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -16,6 +16,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
 import { AppState } from '../../../store';
+import { selectBranding } from '../../../store/Branding/selectors';
 
 type Props = MappedProps & {};
 
@@ -51,7 +52,7 @@ class WebSocketBanner extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const webSocketTroubleshootingDocs = this.props.brandingStore.data.docs
+    const webSocketTroubleshootingDocs = this.props.branding.docs
       .webSocketTroubleshooting;
     return (
       <Banner className="pf-u-text-align-center" variant="warning">
@@ -66,7 +67,7 @@ class WebSocketBanner extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  brandingStore: state.branding,
+  branding: selectBranding(state),
 });
 
 const connector = connect(mapStateToProps);

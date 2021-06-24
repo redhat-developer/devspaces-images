@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -34,8 +34,8 @@ describe('The head component for setting document title', () => {
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });
 
-  it('should render Get Started page title correctly', () => {
-    const element = (<Provider store={store}><Head pageName="Get Started" /></Provider>);
+  it('should render Quick Add page title correctly', () => {
+    const element = (<Provider store={store}><Head pageName="Quick Add" /></Provider>);
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });

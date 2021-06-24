@@ -185,7 +185,8 @@
     "icon": "/images/springboot.svg",
     "globalMemoryLimit": "3372Mi",
     "links": {
-      "self": "/devfiles/java-mysql/devfile.yaml"
+      "self": "/devfiles/java-mysql/devfile.yaml",
+      "v2": "http://my-fake-repository.com/"
     }
   },
   {

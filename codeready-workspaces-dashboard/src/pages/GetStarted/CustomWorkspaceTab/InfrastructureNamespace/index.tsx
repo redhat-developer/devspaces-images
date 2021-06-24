@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 Red Hat, Inc.
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -16,6 +16,7 @@ import { FormGroup, Tooltip, TextInput } from '@patternfly/react-core';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
 import { AppState } from '../../../../store';
 import { InfrastructureNamespaceSelect } from './InfrastructureNamespaceSelect';
+import { selectInfrastructureNamespaces } from '../../../../store/InfrastructureNamespaces/selectors';
 
 import styles from './index.module.css';
 
@@ -33,7 +34,7 @@ export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props>
   constructor(props: Props) {
     super(props);
 
-    this.namespaces = this.props.infrastructureNamespace.namespaces;
+    this.namespaces = this.props.infrastructureNamespaces;
   }
 
   private buildInfrastructureNamespaces(): React.ReactNode {
@@ -94,7 +95,7 @@ export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props>
 }
 
 const mapStateToProps = (state: AppState) => ({
-  infrastructureNamespace: state.infrastructureNamespace,
+  infrastructureNamespaces: selectInfrastructureNamespaces(state),
 });
 
 const connector = connect(

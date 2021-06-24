@@ -185,7 +185,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-5"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-6"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -204,7 +204,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-6"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-7"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -295,7 +295,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-3"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-4"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -314,7 +314,7 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-4"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-5"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -411,7 +411,7 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             tabIndex={-1}
           >
             <div>
-              Stop Workspace
+              Open in verbose mode
             </div>
           </a>
         </li>
@@ -425,6 +425,25 @@ exports[`Navigation Item should render navigation item for STOPPED workspace cor
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
             data-ouia-component-id="OUIA-Generated-DropdownItem-2"
+            data-ouia-component-type="PF4/DropdownItem"
+            data-ouia-safe={true}
+            tabIndex={-1}
+          >
+            <div>
+              Start in background
+            </div>
+          </a>
+        </li>
+        <li
+          className={null}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+          role="menuitem"
+        >
+          <a
+            aria-disabled={false}
+            className="pf-c-dropdown__menu-item"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-3"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -506,25 +525,6 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
         hidden={false}
         role="menu"
       >
-        <li
-          className={null}
-          onClick={[Function]}
-          onKeyDown={[Function]}
-          role="menuitem"
-        >
-          <a
-            aria-disabled={false}
-            className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-7"
-            data-ouia-component-type="PF4/DropdownItem"
-            data-ouia-safe={true}
-            tabIndex={-1}
-          >
-            <div>
-              Stop Workspace
-            </div>
-          </a>
-        </li>
         <li
           className={null}
           onClick={[Function]}
