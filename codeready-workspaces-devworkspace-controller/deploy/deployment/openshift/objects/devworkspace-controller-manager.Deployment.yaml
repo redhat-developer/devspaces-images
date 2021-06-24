@@ -40,7 +40,7 @@ spec:
             - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
               value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.10
             - name: RELATED_IMAGE_project_clone
-              value: quay.io/devfile/project-clone:v0.6.0
+              value: quay.io/devfile/project-clone:v0.6.1
             - name: RELATED_IMAGE_pvc_cleanup_job
               value: registry.redhat.io/ubi8/ubi-minimal:8.3
             - name: WATCH_NAMESPACE
