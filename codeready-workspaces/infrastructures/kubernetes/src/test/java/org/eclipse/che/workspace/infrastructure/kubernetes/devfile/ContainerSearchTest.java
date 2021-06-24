@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -32,10 +32,10 @@ import io.fabric8.kubernetes.api.model.apps.ReplicaSet;
 import io.fabric8.kubernetes.api.model.apps.ReplicaSetBuilder;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.api.model.apps.StatefulSetBuilder;
-import io.fabric8.kubernetes.api.model.batch.CronJob;
-import io.fabric8.kubernetes.api.model.batch.CronJobBuilder;
-import io.fabric8.kubernetes.api.model.batch.Job;
-import io.fabric8.kubernetes.api.model.batch.JobBuilder;
+import io.fabric8.kubernetes.api.model.batch.v1.CronJob;
+import io.fabric8.kubernetes.api.model.batch.v1.CronJobBuilder;
+import io.fabric8.kubernetes.api.model.batch.v1.Job;
+import io.fabric8.kubernetes.api.model.batch.v1.JobBuilder;
 import io.fabric8.openshift.api.model.DeploymentConfig;
 import io.fabric8.openshift.api.model.DeploymentConfigBuilder;
 import io.fabric8.openshift.api.model.Template;
@@ -228,24 +228,24 @@ public class ContainerSearchTest {
             .endTemplate()
             .endSpec()
             .build();
-
     Template template =
         new TemplateBuilder()
-            .addNewDeploymentObject()
-            .withNewMetadata()
-            .withName("deploymentWithName")
-            .endMetadata()
-            .withNewSpec()
-            .withNewTemplate()
-            .withNewMetadata()
-            .withName("podWithName")
-            .endMetadata()
-            .withNewSpec()
-            .withContainers(container12)
-            .endSpec()
-            .endTemplate()
-            .endSpec()
-            .endDeploymentObject()
+            .addToObjects(
+                new DeploymentBuilder()
+                    .withNewMetadata()
+                    .withName("deploymentWithName")
+                    .endMetadata()
+                    .withNewSpec()
+                    .withNewTemplate()
+                    .withNewMetadata()
+                    .withName("podWithName")
+                    .endMetadata()
+                    .withNewSpec()
+                    .withContainers(container12)
+                    .endSpec()
+                    .endTemplate()
+                    .endSpec()
+                    .build())
             .build();
 
     // Pod, PodTemplate, DaemonSet, Deployment, Job, ReplicaSet, ReplicationController, StatefulSet,

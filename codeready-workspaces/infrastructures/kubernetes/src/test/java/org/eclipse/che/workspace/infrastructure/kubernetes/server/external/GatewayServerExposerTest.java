@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -47,7 +47,7 @@ public class GatewayServerExposerTest {
   private final String serviceName = "service";
   private final String serverId = "server";
   private final ServicePort servicePort =
-      new ServicePort("portName", 1, 1, "http", new IntOrString(1234));
+      new ServicePort(null, "portName", 1, 1, "http", new IntOrString(1234));
 
   private final Map<String, String> s1attrs = Collections.singletonMap("s1attr", "s1val");
 

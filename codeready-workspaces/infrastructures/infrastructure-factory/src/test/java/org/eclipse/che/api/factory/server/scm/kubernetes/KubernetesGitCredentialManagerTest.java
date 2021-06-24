@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -27,15 +27,12 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-import io.fabric8.kubernetes.api.model.DoneableSecret;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.SecretBuilder;
 import io.fabric8.kubernetes.api.model.SecretList;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
@@ -64,17 +61,11 @@ public class KubernetesGitCredentialManagerTest {
   @Mock private KubernetesClientFactory clientFactory;
   @Mock private KubernetesClient kubeClient;
 
-  @Mock
-  private MixedOperation<Secret, SecretList, DoneableSecret, Resource<Secret, DoneableSecret>>
-      secretsMixedOperation;
+  @Mock private MixedOperation<Secret, SecretList, Resource<Secret>> secretsMixedOperation;
 
-  @Mock
-  NonNamespaceOperation<Secret, SecretList, DoneableSecret, Resource<Secret, DoneableSecret>>
-      nonNamespaceOperation;
+  @Mock NonNamespaceOperation<Secret, SecretList, Resource<Secret>> nonNamespaceOperation;
 
-  @Mock
-  private FilterWatchListDeletable<Secret, SecretList, Boolean, Watch, Watcher<Secret>>
-      filterWatchDeletable;
+  @Mock private FilterWatchListDeletable<Secret, SecretList> filterWatchDeletable;
 
   @Mock private SecretList secretList;
 
@@ -138,7 +129,7 @@ public class KubernetesGitCredentialManagerTest {
 
     Map<String, String> annotations = new HashMap<>(DEFAULT_SECRET_ANNOTATIONS);
 
-    annotations.put(ANNOTATION_SCM_URL, token.getScmProviderUrl());
+    annotations.put(ANNOTATION_SCM_URL, token.getScmProviderUrl() + "/");
     annotations.put(ANNOTATION_SCM_USERNAME, token.getScmUserName());
     annotations.put(ANNOTATION_CHE_USERID, token.getCheUserId());
     ObjectMeta objectMeta =

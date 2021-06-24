@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -25,7 +25,6 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-import io.fabric8.kubernetes.api.model.DoneableSecret;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
@@ -68,13 +67,9 @@ public class KubernetesPersonalAccessTokenManagerTest {
 
   @Mock private KubernetesClient kubeClient;
 
-  @Mock
-  private MixedOperation<Secret, SecretList, DoneableSecret, Resource<Secret, DoneableSecret>>
-      secretsMixedOperation;
+  @Mock private MixedOperation<Secret, SecretList, Resource<Secret>> secretsMixedOperation;
 
-  @Mock
-  NonNamespaceOperation<Secret, SecretList, DoneableSecret, Resource<Secret, DoneableSecret>>
-      nonNamespaceOperation;
+  @Mock NonNamespaceOperation<Secret, SecretList, Resource<Secret>> nonNamespaceOperation;
 
   KubernetesPersonalAccessTokenManager personalAccessTokenManager;
 
@@ -155,7 +150,7 @@ public class KubernetesPersonalAccessTokenManagerTest {
     ObjectMeta meta3 =
         new ObjectMetaBuilder()
             .withAnnotations(
-                Map.of(ANNOTATION_CHE_USERID, "user2", ANNOTATION_SCM_URL, "http://host2"))
+                Map.of(ANNOTATION_CHE_USERID, "user2", ANNOTATION_SCM_URL, "http://host3"))
             .build();
 
     Secret secret1 = new SecretBuilder().withMetadata(meta1).withData(data1).build();
@@ -175,6 +170,53 @@ public class KubernetesPersonalAccessTokenManagerTest {
     assertEquals(token.getCheUserId(), "user1");
     assertEquals(token.getScmProviderUrl(), "http://host1");
     assertEquals(token.getToken(), "token1");
+  }
+
+  @Test
+  public void testGetTokenFromNamespaceWithTrailingSlashMismatch() throws Exception {
+
+    KubernetesNamespaceMeta meta = new KubernetesNamespaceMetaImpl("test");
+    when(namespaceFactory.list()).thenReturn(Collections.singletonList(meta));
+    KubernetesNamespace kubernetesnamespace = Mockito.mock(KubernetesNamespace.class);
+    KubernetesSecrets secrets = Mockito.mock(KubernetesSecrets.class);
+    when(namespaceFactory.access(eq(null), eq(meta.getName()))).thenReturn(kubernetesnamespace);
+    when(kubernetesnamespace.secrets()).thenReturn(secrets);
+    when(scmPersonalAccessTokenFetcher.isValid(any(PersonalAccessToken.class))).thenReturn(true);
+
+    Map<String, String> data1 =
+        Map.of("token", Base64.getEncoder().encodeToString("token1".getBytes(UTF_8)));
+    Map<String, String> data2 =
+        Map.of("token", Base64.getEncoder().encodeToString("token2".getBytes(UTF_8)));
+
+    ObjectMeta meta1 =
+        new ObjectMetaBuilder()
+            .withAnnotations(
+                Map.of(ANNOTATION_CHE_USERID, "user1", ANNOTATION_SCM_URL, "http://host1.com/"))
+            .build();
+    ObjectMeta meta2 =
+        new ObjectMetaBuilder()
+            .withAnnotations(
+                Map.of(ANNOTATION_CHE_USERID, "user1", ANNOTATION_SCM_URL, "http://host2.com"))
+            .build();
+
+    Secret secret1 = new SecretBuilder().withMetadata(meta1).withData(data1).build();
+    Secret secret2 = new SecretBuilder().withMetadata(meta2).withData(data2).build();
+
+    when(secrets.get(any(LabelSelector.class))).thenReturn(Arrays.asList(secret1, secret2));
+
+    // when
+    PersonalAccessToken token1 =
+        personalAccessTokenManager
+            .get(new SubjectImpl("user", "user1", "t1", false), "http://host1.com")
+            .get();
+    PersonalAccessToken token2 =
+        personalAccessTokenManager
+            .get(new SubjectImpl("user", "user1", "t1", false), "http://host2.com/")
+            .get();
+
+    // then
+    assertNotNull(token1);
+    assertNotNull(token2);
   }
 
   @Test

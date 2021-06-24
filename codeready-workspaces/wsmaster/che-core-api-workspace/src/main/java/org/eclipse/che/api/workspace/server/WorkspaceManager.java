@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -492,8 +492,7 @@ public class WorkspaceManager {
         workspace.getAttributes().get(WORKSPACE_INFRASTRUCTURE_NAMESPACE_ATTRIBUTE);
     if (isNullOrEmpty(targetNamespace)) {
       try {
-        targetNamespace =
-            runtimes.evalLegacyInfrastructureNamespace(buildResolutionContext(workspace));
+        targetNamespace = runtimes.evalInfrastructureNamespace(buildResolutionContext(workspace));
         workspace
             .getAttributes()
             .put(WORKSPACE_INFRASTRUCTURE_NAMESPACE_ATTRIBUTE, targetNamespace);

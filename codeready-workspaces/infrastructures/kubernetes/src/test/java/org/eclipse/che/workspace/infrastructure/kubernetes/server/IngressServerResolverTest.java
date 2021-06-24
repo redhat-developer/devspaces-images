@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -18,6 +18,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 import io.fabric8.kubernetes.api.model.IntOrString;
+import io.fabric8.kubernetes.api.model.LoadBalancerStatusBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePortBuilder;
@@ -299,15 +300,17 @@ public class IngressServerResolverTest {
                 new HTTPIngressRuleValue(
                     singletonList(
                         new HTTPIngressPath(
-                            new IngressBackend(name, new IntOrString("8080")),
-                            INGRESS_PATH_PREFIX)))))
+                            new IngressBackend(null, name, new IntOrString("8080")),
+                            INGRESS_PATH_PREFIX,
+                            null)))))
         .endSpec()
         .withNewStatus()
-        .withNewLoadBalancer()
-        .addNewIngress()
-        .withIp("127.0.0.1")
-        .endIngress()
-        .endLoadBalancer()
+        .withLoadBalancer(
+            new LoadBalancerStatusBuilder()
+                .addNewIngress()
+                .withIp("127.0.0.1")
+                .endIngress()
+                .build())
         .endStatus()
         .build();
   }

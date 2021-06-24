@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-
 package org.eclipse.che.workspace.infrastructure.openshift.provision;
 
 import static org.testng.Assert.assertEquals;
@@ -131,7 +130,8 @@ public class OpenShiftPreviewUrlCommandProvisionerTest {
     Service service = new Service();
     ServiceSpec spec = new ServiceSpec();
     spec.setPorts(
-        Collections.singletonList(new ServicePort("a", null, port, "TCP", new IntOrString(port))));
+        Collections.singletonList(
+            new ServicePort(null, "a", null, port, "TCP", new IntOrString(port))));
     service.setSpec(spec);
     Mockito.when(mockServices.get()).thenReturn(Collections.singletonList(service));
 
@@ -163,7 +163,7 @@ public class OpenShiftPreviewUrlCommandProvisionerTest {
     ServiceSpec spec = new ServiceSpec();
     spec.setPorts(
         Collections.singletonList(
-            new ServicePort("8080", null, port, "TCP", new IntOrString(port))));
+            new ServicePort(null, "8080", null, port, "TCP", new IntOrString(port))));
     service.setSpec(spec);
     Mockito.when(mockServices.get()).thenReturn(Collections.singletonList(service));
 

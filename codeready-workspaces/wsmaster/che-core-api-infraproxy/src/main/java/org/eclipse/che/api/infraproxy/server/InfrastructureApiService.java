@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -56,24 +56,35 @@ public class InfrastructureApiService extends Service {
 
   @Context private MediaType mediaType;
 
-  private static boolean determineAllowed(String infra, String identityProvider) {
-    return "openshift".equals(infra)
-        && identityProvider != null
-        && identityProvider.startsWith("openshift");
+  private static boolean determineAllowed(
+      String infra, String identityProvider, boolean allowedForKubernetes) {
+    if ("openshift".equals(infra)) {
+      return identityProvider != null && identityProvider.startsWith("openshift");
+    }
+    return allowedForKubernetes;
   }
 
   @Inject
   public InfrastructureApiService(
       @Nullable @Named("che.infra.openshift.oauth_identity_provider") String identityProvider,
+      @Named("che.infra.kubernetes.enable_unsupported_k8s") boolean allowedForKubernetes,
       RuntimeInfrastructure runtimeInfrastructure) {
-    this(System.getenv("CHE_INFRASTRUCTURE_ACTIVE"), identityProvider, runtimeInfrastructure);
+    this(
+        System.getenv("CHE_INFRASTRUCTURE_ACTIVE"),
+        allowedForKubernetes,
+        identityProvider,
+        runtimeInfrastructure);
   }
 
   @VisibleForTesting
-  InfrastructureApiService(String infraName, String identityProvider, RuntimeInfrastructure infra) {
+  InfrastructureApiService(
+      String infraName,
+      boolean allowedForKubernetes,
+      String identityProvider,
+      RuntimeInfrastructure infra) {
     this.runtimeInfrastructure = infra;
     this.mapper = new ObjectMapper();
-    this.allowed = determineAllowed(infraName, identityProvider);
+    this.allowed = determineAllowed(infraName, identityProvider, allowedForKubernetes);
   }
 
   @GET

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,11 +12,11 @@
 package org.eclipse.che.workspace.infrastructure.openshift.provision;
 
 import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
-import io.fabric8.openshift.api.model.OpenshiftRole;
-import io.fabric8.openshift.api.model.OpenshiftRoleBinding;
-import io.fabric8.openshift.api.model.OpenshiftRoleBindingBuilder;
-import io.fabric8.openshift.api.model.OpenshiftRoleBuilder;
 import io.fabric8.openshift.api.model.PolicyRuleBuilder;
+import io.fabric8.openshift.api.model.Role;
+import io.fabric8.openshift.api.model.RoleBinding;
+import io.fabric8.openshift.api.model.RoleBindingBuilder;
+import io.fabric8.openshift.api.model.RoleBuilder;
 import io.fabric8.openshift.client.OpenShiftClient;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -75,8 +75,8 @@ public class OpenShiftStopWorkspaceRoleProvisioner {
     }
   }
 
-  protected OpenshiftRole createStopWorkspacesRole(String name) {
-    return new OpenshiftRoleBuilder()
+  protected Role createStopWorkspacesRole(String name) {
+    return new RoleBuilder()
         .withNewMetadata()
         .withName(name)
         .endMetadata()
@@ -104,8 +104,8 @@ public class OpenShiftStopWorkspaceRoleProvisioner {
         .build();
   }
 
-  protected OpenshiftRoleBinding createStopWorkspacesRoleBinding(String projectName) {
-    return new OpenshiftRoleBindingBuilder()
+  protected RoleBinding createStopWorkspacesRoleBinding(String projectName) {
+    return new RoleBindingBuilder()
         .withNewMetadata()
         .withName("che-workspace-stop")
         .withNamespace(projectName)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -50,6 +50,22 @@ public class BitbucketServerApiClientProviderTest {
     // then
     assertNotNull(actual);
     assertTrue(HttpBitbucketServerApiClient.class.isAssignableFrom(actual.getClass()));
+  }
+
+  @Test
+  public void shouldNormalizeURLsBeforeCreateBitbucketServerApi() {
+    // given
+    BitbucketServerApiProvider bitbucketServerApiProvider =
+        new BitbucketServerApiProvider(
+            "https://bitbucket.server.com/, https://bitbucket2.server.com/",
+            "https://bitbucket.server.com/",
+            ImmutableSet.of(oAuthAuthenticator));
+    // when
+    BitbucketServerApiClient actual = bitbucketServerApiProvider.get();
+    // then
+    assertNotNull(actual);
+    // internal representation always w/out slashes
+    assertTrue(actual.isConnected("https://bitbucket.server.com"));
   }
 
   @Test(dataProvider = "noopConfig")

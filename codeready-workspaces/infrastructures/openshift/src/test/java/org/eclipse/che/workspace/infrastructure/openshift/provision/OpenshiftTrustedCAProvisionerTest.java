@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapList;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
-import io.fabric8.kubernetes.api.model.DoneableConfigMap;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -72,16 +71,13 @@ public class OpenshiftTrustedCAProvisionerTest {
   @Mock private CheInstallationLocation cheInstallationLocation;
 
   @Mock
-  private MixedOperation<
-          ConfigMap, ConfigMapList, DoneableConfigMap, Resource<ConfigMap, DoneableConfigMap>>
-      cheServerConfigMapGetter1;
+  private MixedOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>> cheServerConfigMapGetter1;
 
   @Mock
-  private NonNamespaceOperation<
-          ConfigMap, ConfigMapList, DoneableConfigMap, Resource<ConfigMap, DoneableConfigMap>>
+  private NonNamespaceOperation<ConfigMap, ConfigMapList, Resource<ConfigMap>>
       cheServerConfigMapGetter2;
 
-  @Mock private Resource<ConfigMap, DoneableConfigMap> cheServerConfigMapResource;
+  @Mock private Resource<ConfigMap> cheServerConfigMapResource;
   @Mock private ConfigMap cheServerConfigMap;
   @Mock private ObjectMeta cheServerConfigMapMetadata;
 

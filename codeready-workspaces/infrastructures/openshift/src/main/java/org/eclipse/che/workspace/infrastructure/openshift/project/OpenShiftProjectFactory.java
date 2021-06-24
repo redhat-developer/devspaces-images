@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -41,8 +41,8 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.impls.Kube
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.shared.KubernetesNamespaceMeta;
 import org.eclipse.che.workspace.infrastructure.kubernetes.namespace.KubernetesNamespaceFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.util.KubernetesSharedPool;
+import org.eclipse.che.workspace.infrastructure.openshift.CheServerOpenshiftClientFactory;
 import org.eclipse.che.workspace.infrastructure.openshift.Constants;
-import org.eclipse.che.workspace.infrastructure.openshift.OpenShiftClientConfigFactory;
 import org.eclipse.che.workspace.infrastructure.openshift.OpenShiftClientFactory;
 import org.eclipse.che.workspace.infrastructure.openshift.provision.OpenShiftStopWorkspaceRoleProvisioner;
 import org.slf4j.Logger;
@@ -57,27 +57,26 @@ import org.slf4j.LoggerFactory;
 public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
   private static final Logger LOG = LoggerFactory.getLogger(OpenShiftProjectFactory.class);
 
+  private final boolean initWithCheServerSa;
   private final OpenShiftClientFactory clientFactory;
-  private final CheServerKubernetesClientFactory cheClientFactory;
+  private final CheServerOpenshiftClientFactory cheOpenShiftClientFactory;
   private final OpenShiftStopWorkspaceRoleProvisioner stopWorkspaceRoleProvisioner;
 
   private final String oAuthIdentityProvider;
 
   @Inject
   public OpenShiftProjectFactory(
-      @Nullable @Named("che.infra.openshift.project") String projectName,
       @Nullable @Named("che.infra.kubernetes.service_account_name") String serviceAccountName,
       @Nullable @Named("che.infra.kubernetes.workspace_sa_cluster_roles") String clusterRoleNames,
       @Nullable @Named("che.infra.kubernetes.namespace.default") String defaultNamespaceName,
-      @Named("che.infra.kubernetes.namespace.allow_user_defined")
-          boolean allowUserDefinedNamespaces,
       @Named("che.infra.kubernetes.namespace.creation_allowed") boolean namespaceCreationAllowed,
       @Named("che.infra.kubernetes.namespace.label") boolean labelProjects,
       @Named("che.infra.kubernetes.namespace.labels") String projectLabels,
       @Named("che.infra.kubernetes.namespace.annotations") String projectAnnotations,
+      @Named("che.infra.openshift.project.init_with_server_sa") boolean initWithCheServerSa,
       OpenShiftClientFactory clientFactory,
       CheServerKubernetesClientFactory cheClientFactory,
-      OpenShiftClientConfigFactory clientConfigFactory,
+      CheServerOpenshiftClientFactory cheOpenShiftClientFactory,
       OpenShiftStopWorkspaceRoleProvisioner stopWorkspaceRoleProvisioner,
       UserManager userManager,
       PreferenceManager preferenceManager,
@@ -85,11 +84,9 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
       @Nullable @Named("che.infra.openshift.oauth_identity_provider")
           String oAuthIdentityProvider) {
     super(
-        projectName,
         serviceAccountName,
         clusterRoleNames,
         defaultNamespaceName,
-        allowUserDefinedNamespaces,
         namespaceCreationAllowed,
         labelProjects,
         projectLabels,
@@ -99,14 +96,9 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
         userManager,
         preferenceManager,
         sharedPool);
-    if (allowUserDefinedNamespaces && !clientConfigFactory.isPersonalized()) {
-      LOG.warn(
-          "Users are allowed to list projects but Che server is configured with a service account. "
-              + "All users will receive the same list of projects. Consider configuring OpenShift "
-              + "OAuth to personalize credentials that will be used for cluster access.");
-    }
+    this.initWithCheServerSa = initWithCheServerSa;
     this.clientFactory = clientFactory;
-    this.cheClientFactory = cheClientFactory;
+    this.cheOpenShiftClientFactory = cheOpenShiftClientFactory;
     this.stopWorkspaceRoleProvisioner = stopWorkspaceRoleProvisioner;
     this.oAuthIdentityProvider = oAuthIdentityProvider;
   }
@@ -114,7 +106,10 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
   public OpenShiftProject getOrCreate(RuntimeIdentity identity) throws InfrastructureException {
     OpenShiftProject osProject = get(identity);
 
-    osProject.prepare(canCreateNamespace(identity), labelNamespaces ? namespaceLabels : emptyMap());
+    osProject.prepare(
+        canCreateNamespace(identity),
+        initWithCheServerSa && !isNullOrEmpty(oAuthIdentityProvider),
+        labelNamespaces ? namespaceLabels : emptyMap());
 
     if (!isNullOrEmpty(getServiceAccountName())) {
       OpenShiftWorkspaceServiceAccount osWorkspaceServiceAccount =
@@ -165,7 +160,12 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
   @VisibleForTesting
   OpenShiftProject doCreateProjectAccess(String workspaceId, String name) {
     return new OpenShiftProject(
-        clientFactory, cheClientFactory, sharedPool.getExecutor(), name, workspaceId);
+        clientFactory,
+        cheOpenShiftClientFactory,
+        cheOpenShiftClientFactory,
+        sharedPool.getExecutor(),
+        name,
+        workspaceId);
   }
 
   @VisibleForTesting
@@ -223,31 +223,6 @@ public class OpenShiftProjectFactory extends KubernetesNamespaceFactory {
         throw new InfrastructureException(
             "Error occurred when tried to list all available projects. Cause: " + kce.getMessage(),
             kce);
-      }
-    }
-  }
-
-  @Override
-  protected List<KubernetesNamespaceMeta> fetchNamespaces() throws InfrastructureException {
-    try {
-      return clientFactory
-          .createOC()
-          .projects()
-          .list()
-          .getItems()
-          .stream()
-          .map(this::asNamespaceMeta)
-          .collect(Collectors.toList());
-    } catch (KubernetesClientException e) {
-      if (e.getCode() == 403) {
-        LOG.warn(
-            "Trying to fetch all namespaces, but failed for lack of permissions. Cause: {}",
-            e.getMessage());
-        return emptyList();
-      } else {
-        throw new InfrastructureException(
-            "Error occurred when tried to list all available projects. Cause: " + e.getMessage(),
-            e);
       }
     }
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -29,16 +29,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.DoneableConfigMap;
-import io.fabric8.kubernetes.api.model.DoneablePersistentVolumeClaim;
-import io.fabric8.kubernetes.api.model.DoneablePod;
-import io.fabric8.kubernetes.api.model.DoneableService;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.apps.DoneableDeployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.AppsAPIGroupDSL;
@@ -81,11 +76,11 @@ public class AsyncStorageProvisionerTest {
   @Mock private KubernetesClientFactory clientFactory;
   @Mock private KubernetesClient kubernetesClient;
   @Mock private SshManager sshManager;
-  @Mock private Resource<PersistentVolumeClaim, DoneablePersistentVolumeClaim> pvcResource;
-  @Mock private Resource<ConfigMap, DoneableConfigMap> mapResource;
-  @Mock private PodResource<Pod, DoneablePod> podResource;
-  @Mock private RollableScalableResource<Deployment, DoneableDeployment> deploymentResource;
-  @Mock private ServiceResource<Service, DoneableService> serviceResource;
+  @Mock private Resource<PersistentVolumeClaim> pvcResource;
+  @Mock private Resource<ConfigMap> mapResource;
+  @Mock private PodResource<Pod> podResource;
+  @Mock private RollableScalableResource<Deployment> deploymentResource;
+  @Mock private ServiceResource<Service> serviceResource;
   @Mock private MixedOperation mixedOperationPvc;
   @Mock private MixedOperation mixedOperationConfigMap;
   @Mock private MixedOperation mixedOperationPod;

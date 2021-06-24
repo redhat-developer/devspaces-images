@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -37,16 +37,13 @@ import static org.testng.Assert.assertNull;
 import com.google.common.collect.ImmutableMap;
 import io.fabric8.kubernetes.api.model.Status;
 import io.fabric8.kubernetes.client.KubernetesClientException;
-import io.fabric8.kubernetes.client.Watch;
-import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
-import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.fabric8.openshift.api.model.DoneableProject;
 import io.fabric8.openshift.api.model.Project;
 import io.fabric8.openshift.api.model.ProjectBuilder;
 import io.fabric8.openshift.api.model.ProjectList;
 import io.fabric8.openshift.client.OpenShiftClient;
+import io.fabric8.openshift.client.dsl.ProjectOperation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -67,11 +64,12 @@ import org.eclipse.che.inject.ConfigurationException;
 import org.eclipse.che.workspace.infrastructure.kubernetes.CheServerKubernetesClientFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.shared.KubernetesNamespaceMeta;
 import org.eclipse.che.workspace.infrastructure.kubernetes.util.KubernetesSharedPool;
-import org.eclipse.che.workspace.infrastructure.openshift.OpenShiftClientConfigFactory;
+import org.eclipse.che.workspace.infrastructure.openshift.CheServerOpenshiftClientFactory;
 import org.eclipse.che.workspace.infrastructure.openshift.OpenShiftClientFactory;
 import org.eclipse.che.workspace.infrastructure.openshift.provision.OpenShiftStopWorkspaceRoleProvisioner;
 import org.mockito.Mock;
 import org.mockito.testng.MockitoTestNGListener;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -84,8 +82,8 @@ import org.testng.annotations.Test;
 @Listeners(MockitoTestNGListener.class)
 public class OpenShiftProjectFactoryTest {
 
-  private static final String USER_ID = "userid";
-  private static final String USER_NAME = "username";
+  private static final String USER_ID = "2342-2559-234";
+  private static final String USER_NAME = "johndoe";
   private static final String NO_OAUTH_IDENTITY_PROVIDER = null;
   private static final String OAUTH_IDENTITY_PROVIDER = "openshift-v4";
   private static final String NAMESPACE_LABEL_NAME = "component";
@@ -93,29 +91,25 @@ public class OpenShiftProjectFactoryTest {
   private static final String NAMESPACE_ANNOTATION_NAME = "owner";
   private static final String NAMESPACE_ANNOTATIONS = NAMESPACE_ANNOTATION_NAME + "=<username>";
 
-  @Mock private OpenShiftClientConfigFactory configFactory;
+  //  @Mock private OpenShiftClientConfigFactory configFactory;
   @Mock private OpenShiftClientFactory clientFactory;
   @Mock private CheServerKubernetesClientFactory cheClientFactory;
+  @Mock private CheServerOpenshiftClientFactory cheServerOpenshiftClientFactory;
   @Mock private OpenShiftStopWorkspaceRoleProvisioner stopWorkspaceRoleProvisioner;
   @Mock private WorkspaceManager workspaceManager;
   @Mock private UserManager userManager;
   @Mock private PreferenceManager preferenceManager;
   @Mock private KubernetesSharedPool pool;
 
-  @Mock
-  private NonNamespaceOperation<
-          Project, ProjectList, DoneableProject, Resource<Project, DoneableProject>>
-      projectOperation;
+  @Mock private ProjectOperation projectOperation;
 
-  @Mock private Resource<Project, DoneableProject> projectResource;
+  @Mock private Resource<Project> projectResource;
 
   @Mock private OpenShiftClient osClient;
 
   private OpenShiftProjectFactory projectFactory;
 
-  @Mock
-  private FilterWatchListDeletable<Project, ProjectList, Boolean, Watch, Watcher<Project>>
-      projectListResource;
+  @Mock private FilterWatchListDeletable<Project, ProjectList> projectListResource;
 
   @Mock private ProjectList projectList;
 
@@ -138,91 +132,75 @@ public class OpenShiftProjectFactoryTest {
     lenient()
         .when(userManager.getById(USER_ID))
         .thenReturn(new UserImpl(USER_ID, "test@mail.com", USER_NAME));
+    EnvironmentContext.getCurrent()
+        .setSubject(new SubjectImpl(USER_NAME, USER_ID, "t-354t53xff34234", false));
+  }
 
-    EnvironmentContext.setCurrent(new EnvironmentContext());
+  @AfterMethod
+  public void cleanup() {
+    EnvironmentContext.reset();
   }
 
   @Test
   public void shouldNotThrowExceptionIfDefaultNamespaceIsSpecifiedOnCheckingIfNamespaceIsAllowed()
       throws Exception {
+
     projectFactory =
         new OpenShiftProjectFactory(
-            "legacy",
             "",
             null,
-            "defaultNs",
-            false,
+            "<username>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
             pool,
             NO_OAUTH_IDENTITY_PROVIDER);
 
-    projectFactory.checkIfNamespaceIsAllowed("defaultNs");
-  }
-
-  @Test
-  public void
-      shouldNotThrowExceptionIfNonDefaultNamespaceIsSpecifiedAndUserDefinedAreAllowedOnCheckingIfNamespaceIsAllowed()
-          throws Exception {
-    projectFactory =
-        new OpenShiftProjectFactory(
-            "legacy",
-            "",
-            null,
-            "defaultNs",
-            true,
-            true,
-            true,
-            NAMESPACE_LABELS,
-            NAMESPACE_ANNOTATIONS,
-            clientFactory,
-            cheClientFactory,
-            configFactory,
-            stopWorkspaceRoleProvisioner,
-            userManager,
-            preferenceManager,
-            pool,
-            NO_OAUTH_IDENTITY_PROVIDER);
-
-    projectFactory.checkIfNamespaceIsAllowed("any-namespace");
+    projectFactory.checkIfNamespaceIsAllowed(USER_NAME + "-che");
   }
 
   @Test(
       expectedExceptions = ValidationException.class,
       expectedExceptionsMessageRegExp =
-          "User defined namespaces are not allowed. Only the default namespace 'defaultNs' is available.")
+          "User defined namespaces are not allowed. Only the default namespace 'johndoe-che' is available.")
   public void
       shouldThrowExceptionIfNonDefaultNamespaceIsSpecifiedAndUserDefinedAreNotAllowedOnCheckingIfNamespaceIsAllowed()
           throws Exception {
+    System.out.println("0--------");
+    System.out.println(EnvironmentContext.getCurrent().getSubject());
+    System.out.println("2--------");
     projectFactory =
         new OpenShiftProjectFactory(
-            "legacy",
             "",
             null,
-            "defaultNs",
-            false,
+            "<username>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
             pool,
             NO_OAUTH_IDENTITY_PROVIDER);
-
-    projectFactory.checkIfNamespaceIsAllowed("any-namespace");
+    try {
+      projectFactory.checkIfNamespaceIsAllowed("any-namespace");
+    } catch (ValidationException e) {
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   @Test(
@@ -233,18 +211,17 @@ public class OpenShiftProjectFactoryTest {
           throws Exception {
     projectFactory =
         new OpenShiftProjectFactory(
-            "projectName",
             "",
             null,
             null,
-            false,
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -271,18 +248,17 @@ public class OpenShiftProjectFactoryTest {
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             "",
-            "che-default",
-            false,
+            "<userid>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -306,28 +282,27 @@ public class OpenShiftProjectFactoryTest {
     doThrow(new KubernetesClientException("Not allowed.", 403, new Status()))
         .when(projectList)
         .getItems();
-    prepareNamespaceToBeFoundByName("che-default", p);
+    prepareNamespaceToBeFoundByName("u123-che", p);
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             "",
-            "che-default",
-            false,
+            "<userid>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
             pool,
             NO_OAUTH_IDENTITY_PROVIDER);
-    EnvironmentContext.getCurrent().setSubject(new SubjectImpl("jondoe", "123", null, false));
+    EnvironmentContext.getCurrent().setSubject(new SubjectImpl("jondoe", "u123", null, false));
 
     // when
     List<KubernetesNamespaceMeta> availableNamespaces = projectFactory.list();
@@ -345,18 +320,17 @@ public class OpenShiftProjectFactoryTest {
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             "",
-            "che-default",
-            false,
+            "<userid>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -372,10 +346,10 @@ public class OpenShiftProjectFactoryTest {
   @Test
   public void shouldReturnDefaultProjectWhenItExistsAndUserDefinedIsNotAllowed() throws Exception {
     prepareNamespaceToBeFoundByName(
-        "che-default",
+        USER_NAME + "-che",
         new ProjectBuilder()
             .withNewMetadata()
-            .withName("che-default")
+            .withName(USER_NAME + "-che")
             .withAnnotations(
                 ImmutableMap.of(
                     PROJECT_DISPLAY_NAME_ANNOTATION,
@@ -390,18 +364,17 @@ public class OpenShiftProjectFactoryTest {
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             null,
-            "che-default",
-            false,
+            "<username>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -411,7 +384,7 @@ public class OpenShiftProjectFactoryTest {
     List<KubernetesNamespaceMeta> availableNamespaces = projectFactory.list();
     assertEquals(availableNamespaces.size(), 1);
     KubernetesNamespaceMeta defaultNamespace = availableNamespaces.get(0);
-    assertEquals(defaultNamespace.getName(), "che-default");
+    assertEquals(defaultNamespace.getName(), USER_NAME + "-che");
     assertEquals(defaultNamespace.getAttributes().get(DEFAULT_ATTRIBUTE), "true");
     assertEquals(
         defaultNamespace.getAttributes().get(PROJECT_DISPLAY_NAME_ATTRIBUTE),
@@ -425,22 +398,21 @@ public class OpenShiftProjectFactoryTest {
   public void shouldReturnDefaultProjectWhenItDoesNotExistAndUserDefinedIsNotAllowed()
       throws Exception {
     throwOnTryToGetProjectByName(
-        "che-default", new KubernetesClientException("forbidden", 403, null));
+        USER_NAME + "-che", new KubernetesClientException("forbidden", 403, null));
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             null,
-            "che-default",
-            false,
+            "<username>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -450,7 +422,7 @@ public class OpenShiftProjectFactoryTest {
     List<KubernetesNamespaceMeta> availableNamespaces = projectFactory.list();
     assertEquals(availableNamespaces.size(), 1);
     KubernetesNamespaceMeta defaultNamespace = availableNamespaces.get(0);
-    assertEquals(defaultNamespace.getName(), "che-default");
+    assertEquals(defaultNamespace.getName(), USER_NAME + "-che");
     assertEquals(defaultNamespace.getAttributes().get(DEFAULT_ATTRIBUTE), "true");
     assertNull(
         defaultNamespace
@@ -461,25 +433,24 @@ public class OpenShiftProjectFactoryTest {
   @Test(
       expectedExceptions = InfrastructureException.class,
       expectedExceptionsMessageRegExp =
-          "Error while trying to fetch the project 'che-default'. Cause: connection refused")
+          "Error while trying to fetch the project 'johndoe-che'. Cause: connection refused")
   public void shouldThrowExceptionWhenFailedToGetInfoAboutDefaultNamespace() throws Exception {
     throwOnTryToGetProjectByName(
-        "che-default", new KubernetesClientException("connection refused"));
+        USER_NAME + "-che", new KubernetesClientException("connection refused"));
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             null,
-            "che-default",
-            false,
+            "<username>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -487,97 +458,6 @@ public class OpenShiftProjectFactoryTest {
             NO_OAUTH_IDENTITY_PROVIDER);
 
     projectFactory.list();
-  }
-
-  @Test
-  public void shouldReturnListOfExistingProjectsAlongWithDefaultIfUserDefinedIsAllowed()
-      throws Exception {
-    prepareListedProjects(
-        Arrays.asList(
-            createProject("my-for-ws", "Project for Workspaces", "some description", "Active"),
-            createProject("default", "Default Che Project", "some description", "Active")));
-
-    projectFactory =
-        new OpenShiftProjectFactory(
-            "predefined",
-            "",
-            null,
-            "default",
-            true,
-            true,
-            true,
-            NAMESPACE_LABELS,
-            NAMESPACE_ANNOTATIONS,
-            clientFactory,
-            cheClientFactory,
-            configFactory,
-            stopWorkspaceRoleProvisioner,
-            userManager,
-            preferenceManager,
-            pool,
-            NO_OAUTH_IDENTITY_PROVIDER);
-
-    List<KubernetesNamespaceMeta> availableNamespaces = projectFactory.list();
-
-    assertEquals(availableNamespaces.size(), 2);
-    KubernetesNamespaceMeta forWS = availableNamespaces.get(0);
-    assertEquals(forWS.getName(), "my-for-ws");
-    assertEquals(
-        forWS.getAttributes().get(PROJECT_DISPLAY_NAME_ATTRIBUTE), "Project for Workspaces");
-    assertEquals(forWS.getAttributes().get(PROJECT_DESCRIPTION_ATTRIBUTE), "some description");
-    assertEquals(forWS.getAttributes().get(PHASE_ATTRIBUTE), "Active");
-    assertNull(forWS.getAttributes().get(DEFAULT_ATTRIBUTE));
-
-    KubernetesNamespaceMeta defaultNamespace = availableNamespaces.get(1);
-    assertEquals(defaultNamespace.getName(), "default");
-    assertEquals(
-        defaultNamespace.getAttributes().get(PROJECT_DISPLAY_NAME_ATTRIBUTE),
-        "Default Che Project");
-    assertEquals(
-        defaultNamespace.getAttributes().get(PROJECT_DESCRIPTION_ATTRIBUTE), "some description");
-    assertEquals(defaultNamespace.getAttributes().get(PHASE_ATTRIBUTE), "Active");
-    assertEquals(defaultNamespace.getAttributes().get(DEFAULT_ATTRIBUTE), "true");
-  }
-
-  @Test
-  public void shouldReturnListOfExistingProjectsAlongWithNonExistingDefaultIfUserDefinedIsAllowed()
-      throws Exception {
-    prepareListedProjects(singletonList(createProject("my-for-ws", "", "", "Active")));
-
-    projectFactory =
-        new OpenShiftProjectFactory(
-            "predefined",
-            "",
-            null,
-            "default",
-            true,
-            true,
-            true,
-            NAMESPACE_LABELS,
-            NAMESPACE_ANNOTATIONS,
-            clientFactory,
-            cheClientFactory,
-            configFactory,
-            stopWorkspaceRoleProvisioner,
-            userManager,
-            preferenceManager,
-            pool,
-            NO_OAUTH_IDENTITY_PROVIDER);
-
-    List<KubernetesNamespaceMeta> availableNamespaces = projectFactory.list();
-    assertEquals(availableNamespaces.size(), 2);
-    KubernetesNamespaceMeta forWS = availableNamespaces.get(0);
-    assertEquals(forWS.getName(), "my-for-ws");
-    assertEquals(forWS.getAttributes().get(PHASE_ATTRIBUTE), "Active");
-    assertNull(forWS.getAttributes().get(DEFAULT_ATTRIBUTE));
-
-    KubernetesNamespaceMeta defaultNamespace = availableNamespaces.get(1);
-    assertEquals(defaultNamespace.getName(), "default");
-    assertEquals(defaultNamespace.getAttributes().get(DEFAULT_ATTRIBUTE), "true");
-    assertNull(
-        defaultNamespace
-            .getAttributes()
-            .get(PHASE_ATTRIBUTE)); // no phase - means such namespace does not exist
   }
 
   @Test(
@@ -588,18 +468,17 @@ public class OpenShiftProjectFactoryTest {
     throwOnTryToGetProjectsList(new KubernetesClientException("connection refused"));
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             null,
-            "default-ns",
-            true,
+            "<username>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -622,18 +501,17 @@ public class OpenShiftProjectFactoryTest {
     projectFactory =
         spy(
             new OpenShiftProjectFactory(
-                "predefined",
                 "",
                 null,
-                "new-default",
-                false,
+                "<userid>-che",
                 true,
                 true,
                 NAMESPACE_LABELS,
                 NAMESPACE_ANNOTATIONS,
+                true,
                 clientFactory,
                 cheClientFactory,
-                configFactory,
+                cheServerOpenshiftClientFactory,
                 stopWorkspaceRoleProvisioner,
                 userManager,
                 preferenceManager,
@@ -650,7 +528,7 @@ public class OpenShiftProjectFactoryTest {
     // then
     assertEquals(toReturnProject, project);
     verify(projectFactory, never()).doCreateServiceAccount(any(), any());
-    verify(toReturnProject).prepare(eq(false), any());
+    verify(toReturnProject).prepare(eq(false), eq(false), any());
   }
 
   @Test
@@ -660,18 +538,17 @@ public class OpenShiftProjectFactoryTest {
     projectFactory =
         spy(
             new OpenShiftProjectFactory(
-                "",
                 "serviceAccount",
                 null,
-                "<workspaceid>",
-                false,
+                "<userid>-che",
                 true,
                 true,
                 NAMESPACE_LABELS,
                 NAMESPACE_ANNOTATIONS,
+                true,
                 clientFactory,
                 cheClientFactory,
-                configFactory,
+                cheServerOpenshiftClientFactory,
                 stopWorkspaceRoleProvisioner,
                 userManager,
                 preferenceManager,
@@ -700,18 +577,17 @@ public class OpenShiftProjectFactoryTest {
     projectFactory =
         spy(
             new OpenShiftProjectFactory(
-                "",
                 "serviceAccount",
                 null,
-                "<workspaceid>",
-                false,
+                "<userid>-che",
                 true,
                 true,
                 NAMESPACE_LABELS,
                 NAMESPACE_ANNOTATIONS,
+                true,
                 clientFactory,
                 cheClientFactory,
-                configFactory,
+                cheServerOpenshiftClientFactory,
                 stopWorkspaceRoleProvisioner,
                 userManager,
                 preferenceManager,
@@ -742,18 +618,17 @@ public class OpenShiftProjectFactoryTest {
     projectFactory =
         spy(
             new OpenShiftProjectFactory(
-                "",
                 "serviceAccount",
                 null,
-                "<workspaceid>",
-                false,
+                "<userid>-che",
                 true,
                 true,
                 NAMESPACE_LABELS,
                 NAMESPACE_ANNOTATIONS,
+                true,
                 clientFactory,
                 cheClientFactory,
-                configFactory,
+                cheServerOpenshiftClientFactory,
                 stopWorkspaceRoleProvisioner,
                 userManager,
                 preferenceManager,
@@ -796,18 +671,17 @@ public class OpenShiftProjectFactoryTest {
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "legacy",
             "",
             "",
-            "defaultNs",
-            false,
+            "<userid>-che",
             true,
             true,
             NAMESPACE_LABELS,
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -831,18 +705,17 @@ public class OpenShiftProjectFactoryTest {
 
     projectFactory =
         new OpenShiftProjectFactory(
-            "predefined",
             "",
             null,
-            "che-default",
-            false,
+            "<userid>-che",
             true,
             true,
             "try_placeholder_here=<username>",
             NAMESPACE_ANNOTATIONS,
+            true,
             clientFactory,
             cheClientFactory,
-            configFactory,
+            cheServerOpenshiftClientFactory,
             stopWorkspaceRoleProvisioner,
             userManager,
             preferenceManager,
@@ -856,7 +729,7 @@ public class OpenShiftProjectFactoryTest {
 
   private void prepareNamespaceToBeFoundByName(String name, Project project) throws Exception {
     @SuppressWarnings("unchecked")
-    Resource<Project, DoneableProject> getProjectByNameOperation = mock(Resource.class);
+    Resource<Project> getProjectByNameOperation = mock(Resource.class);
     when(projectOperation.withName(name)).thenReturn(getProjectByNameOperation);
 
     when(getProjectByNameOperation.get()).thenReturn(project);
@@ -865,7 +738,7 @@ public class OpenShiftProjectFactoryTest {
   private void throwOnTryToGetProjectByName(String name, KubernetesClientException e)
       throws Exception {
     @SuppressWarnings("unchecked")
-    Resource<Project, DoneableProject> getProjectByNameOperation = mock(Resource.class);
+    Resource<Project> getProjectByNameOperation = mock(Resource.class);
     when(projectOperation.withName(name)).thenReturn(getProjectByNameOperation);
 
     when(getProjectByNameOperation.get()).thenThrow(e);
@@ -880,7 +753,7 @@ public class OpenShiftProjectFactoryTest {
   }
 
   private void throwOnTryToGetProjectsList(Throwable e) throws Exception {
-    when(projectOperation.list()).thenThrow(e);
+    when(projectListResource.list()).thenThrow(e);
   }
 
   private Project createProject(String name, String displayName, String description, String phase) {

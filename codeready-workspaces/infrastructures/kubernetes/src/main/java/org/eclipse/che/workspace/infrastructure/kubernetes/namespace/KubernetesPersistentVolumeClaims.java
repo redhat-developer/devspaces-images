@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,14 +11,15 @@
  */
 package org.eclipse.che.workspace.infrastructure.kubernetes.namespace;
 
+import static io.fabric8.kubernetes.api.model.DeletionPropagation.BACKGROUND;
 import static java.util.stream.Collectors.toSet;
 
-import io.fabric8.kubernetes.api.model.DoneablePersistentVolumeClaim;
 import io.fabric8.kubernetes.api.model.Event;
 import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import java.util.Collection;
 import java.util.List;
@@ -151,7 +152,27 @@ public class KubernetesPersistentVolumeClaims {
           .persistentVolumeClaims()
           .inNamespace(namespace)
           .withLabels(labels)
-          .withPropagationPolicy("Background")
+          .withPropagationPolicy(BACKGROUND)
+          .delete();
+    } catch (KubernetesClientException e) {
+      throw new KubernetesInfrastructureException(e);
+    }
+  }
+
+  /**
+   * Removes PVC by name.
+   *
+   * @param name the name of the PVC
+   * @throws InfrastructureException when any error occurs while removing
+   */
+  public void delete(final String name) throws InfrastructureException {
+    try {
+      clientFactory
+          .create(workspaceId)
+          .persistentVolumeClaims()
+          .inNamespace(namespace)
+          .withName(name)
+          .withPropagationPolicy(BACKGROUND)
           .delete();
     } catch (KubernetesClientException e) {
       throw new KubernetesInfrastructureException(e);
@@ -172,7 +193,7 @@ public class KubernetesPersistentVolumeClaims {
   public PersistentVolumeClaim waitBound(String name, long timeoutMillis)
       throws InfrastructureException {
     try {
-      Resource<PersistentVolumeClaim, DoneablePersistentVolumeClaim> pvcResource =
+      Resource<PersistentVolumeClaim> pvcResource =
           clientFactory
               .create(workspaceId)
               .persistentVolumeClaims()
@@ -212,7 +233,7 @@ public class KubernetesPersistentVolumeClaims {
 
   private Watch pvcIsBoundWatcher(
       CompletableFuture<PersistentVolumeClaim> future,
-      Resource<PersistentVolumeClaim, DoneablePersistentVolumeClaim> pvcResource) {
+      Resource<PersistentVolumeClaim> pvcResource) {
     return pvcResource.watch(
         new Watcher<PersistentVolumeClaim>() {
           @Override
@@ -224,7 +245,7 @@ public class KubernetesPersistentVolumeClaims {
           }
 
           @Override
-          public void onClose(KubernetesClientException cause) {
+          public void onClose(WatcherException cause) {
             safelyFinishFutureOnClose(cause, future, pvcResource.get().getMetadata().getName());
           }
         });
@@ -238,6 +259,7 @@ public class KubernetesPersistentVolumeClaims {
       throws InfrastructureException {
     return clientFactory
         .create(workspaceId)
+        .v1()
         .events()
         .inNamespace(namespace)
         .withField(PVC_EVENT_REASON_FIELD_KEY, PVC_EVENT_WAIT_CONSUMER_REASON)
@@ -254,16 +276,14 @@ public class KubernetesPersistentVolumeClaims {
               }
 
               @Override
-              public void onClose(KubernetesClientException cause) {
+              public void onClose(WatcherException cause) {
                 safelyFinishFutureOnClose(cause, future, actualPvc.getMetadata().getName());
               }
             });
   }
 
   private void safelyFinishFutureOnClose(
-      KubernetesClientException cause,
-      CompletableFuture<PersistentVolumeClaim> future,
-      String pvcName) {
+      WatcherException cause, CompletableFuture<PersistentVolumeClaim> future, String pvcName) {
     if (cause != null) {
       future.completeExceptionally(
           new InfrastructureException(

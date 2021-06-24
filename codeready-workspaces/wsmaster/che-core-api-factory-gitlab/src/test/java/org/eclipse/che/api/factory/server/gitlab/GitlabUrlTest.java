@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -67,11 +67,11 @@ public class GitlabUrlTest {
     return new Object[][] {
       {
         "https://gitlab.net/eclipse/che.git",
-        "https://gitlab.net/api/v4/projects/eclipse%%2Fche/repository/files/%s/raw?ref=master"
+        "https://gitlab.net/api/v4/projects/eclipse%%2Fche/repository/files/%s/raw"
       },
       {
         "https://gitlab.net/eclipse/fooproj/che.git",
-        "https://gitlab.net/api/v4/projects/eclipse%%2Ffooproj/repository/files/%s/raw?ref=master"
+        "https://gitlab.net/api/v4/projects/eclipse%%2Ffooproj/repository/files/%s/raw"
       },
       {
         "https://gitlab.net/eclipse/fooproj/-/tree/master/",

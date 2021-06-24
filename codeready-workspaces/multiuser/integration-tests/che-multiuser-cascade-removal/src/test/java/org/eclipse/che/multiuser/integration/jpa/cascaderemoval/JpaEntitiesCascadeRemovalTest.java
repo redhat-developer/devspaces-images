@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -274,6 +274,9 @@ public class JpaEntitiesCascadeRemovalTest {
                 bind(String.class)
                     .annotatedWith(Names.named("che.workspace.plugin_registry_url"))
                     .toInstance("");
+                bind(String.class)
+                    .annotatedWith(Names.named("che.factory.scm_file_fetcher_limit_bytes"))
+                    .toInstance("1024");
                 MapBinder.newMapBinder(binder(), String.class, ChePluginsApplier.class);
                 Multibinder.newSetBinder(binder(), ResourceType.class)
                     .addBinding()

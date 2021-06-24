@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -17,6 +17,7 @@ import static org.eclipse.che.api.core.model.workspace.config.ServerConfig.SERVI
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.google.common.base.Strings;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.che.api.workspace.server.model.impl.ServerConfigImpl;
 import org.eclipse.che.api.workspace.server.spi.InfrastructureException;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.workspace.infrastructure.kubernetes.Annotations;
 
 /**
@@ -55,7 +57,14 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.Annotations;
  */
 public class TraefikGatewayRouteConfigGenerator implements GatewayRouteConfigGenerator {
 
-  private static final String SERVICE_URL_FORMAT = "http://%s.%s.svc.cluster.local:%s";
+  private static final String SERVICE_URL_FORMAT_WITH_CLUSTER_DOMAIN = "http://%s.%s.svc.%s:%s";
+  private static final String SERVICE_URL_FORMAT_WITHOUT_CLUSTER_DOMAIN = "http://%s.%s.svc:%s";
+
+  private final String clusterDomain;
+
+  public TraefikGatewayRouteConfigGenerator(@Nullable String clusterDomain) {
+    this.clusterDomain = clusterDomain;
+  }
 
   private final Map<String, ConfigMap> routeConfigs = new HashMap<>();
 
@@ -227,6 +236,16 @@ public class TraefikGatewayRouteConfigGenerator implements GatewayRouteConfigGen
   }
 
   private String createServiceUrl(String serviceName, String servicePort, String serviceNamespace) {
-    return String.format(SERVICE_URL_FORMAT, serviceName, serviceNamespace, servicePort);
+    if (Strings.isNullOrEmpty(clusterDomain)) {
+      return String.format(
+          SERVICE_URL_FORMAT_WITHOUT_CLUSTER_DOMAIN, serviceName, serviceNamespace, servicePort);
+    } else {
+      return String.format(
+          SERVICE_URL_FORMAT_WITH_CLUSTER_DOMAIN,
+          serviceName,
+          serviceNamespace,
+          clusterDomain,
+          servicePort);
+    }
   }
 }

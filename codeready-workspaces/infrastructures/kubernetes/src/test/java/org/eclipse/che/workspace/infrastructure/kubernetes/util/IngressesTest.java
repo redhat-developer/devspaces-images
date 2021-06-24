@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-
 package org.eclipse.che.workspace.infrastructure.kubernetes.util;
 
 import static java.util.Collections.singletonList;
@@ -39,7 +38,7 @@ public class IngressesTest {
     final int PORT = 8080;
 
     Service service = createService(SERVER_PORT_NAME, PORT);
-    Ingress ingress = createIngress(new IngressBackend("servicename", new IntOrString(PORT)));
+    Ingress ingress = createIngress(new IngressBackend(null, "servicename", new IntOrString(PORT)));
 
     Optional<IngressRule> foundRule =
         Ingresses.findIngressRuleForServicePort(singletonList(ingress), service, PORT);
@@ -54,7 +53,7 @@ public class IngressesTest {
 
     Service service = createService(SERVER_PORT_NAME, PORT);
     Ingress ingress =
-        createIngress(new IngressBackend("servicename", new IntOrString(SERVER_PORT_NAME)));
+        createIngress(new IngressBackend(null, "servicename", new IntOrString(SERVER_PORT_NAME)));
 
     Optional<IngressRule> foundRule =
         Ingresses.findIngressRuleForServicePort(singletonList(ingress), service, PORT);
@@ -69,7 +68,7 @@ public class IngressesTest {
 
     Service service = createService(SERVER_PORT_NAME, PORT);
     Ingress ingress =
-        createIngress(new IngressBackend("servicename", new IntOrString("does not exist")));
+        createIngress(new IngressBackend(null, "servicename", new IntOrString("does not exist")));
 
     Optional<IngressRule> foundRule =
         Ingresses.findIngressRuleForServicePort(singletonList(ingress), service, PORT);
@@ -82,7 +81,7 @@ public class IngressesTest {
     final int PORT = 8080;
 
     Service service = createService(SERVER_PORT_NAME, PORT);
-    Ingress ingress = createIngress(new IngressBackend("servicename", new IntOrString(666)));
+    Ingress ingress = createIngress(new IngressBackend(null, "servicename", new IntOrString(666)));
 
     Optional<IngressRule> foundRule =
         Ingresses.findIngressRuleForServicePort(singletonList(ingress), service, PORT);
@@ -96,7 +95,8 @@ public class IngressesTest {
     service.setMetadata(serviceMeta);
     ServiceSpec serviceSpec = new ServiceSpec();
     serviceSpec.setPorts(
-        singletonList(new ServicePort(serverPortName, null, port, "TCP", new IntOrString(port))));
+        singletonList(
+            new ServicePort(null, serverPortName, null, port, "TCP", new IntOrString(port))));
     service.setSpec(serviceSpec);
     return service;
   }
@@ -110,7 +110,7 @@ public class IngressesTest {
     IngressRule ingressRule = new IngressRule();
     ingressRule.setHost("ingresshost");
     ingressRule.setHttp(
-        new HTTPIngressRuleValue(singletonList(new HTTPIngressPath(backend, null))));
+        new HTTPIngressRuleValue(singletonList(new HTTPIngressPath(backend, null, null))));
     ingressSpec.setRules(singletonList(ingressRule));
     ingress.setSpec(ingressSpec);
     return ingress;

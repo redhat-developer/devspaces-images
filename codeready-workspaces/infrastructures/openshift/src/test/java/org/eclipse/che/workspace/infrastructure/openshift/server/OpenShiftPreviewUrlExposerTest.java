@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-
 package org.eclipse.che.workspace.infrastructure.openshift.server;
 
 import static java.util.Collections.singletonList;
@@ -86,7 +85,8 @@ public class OpenShiftPreviewUrlExposerTest {
     service.setMetadata(serviceMeta);
     ServiceSpec serviceSpec = new ServiceSpec();
     serviceSpec.setPorts(
-        singletonList(new ServicePort(SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
+        singletonList(
+            new ServicePort(null, SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
     service.setSpec(serviceSpec);
 
     Route route = new Route();
@@ -127,7 +127,8 @@ public class OpenShiftPreviewUrlExposerTest {
     service.setMetadata(serviceMeta);
     ServiceSpec serviceSpec = new ServiceSpec();
     serviceSpec.setPorts(
-        singletonList(new ServicePort(SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
+        singletonList(
+            new ServicePort(null, SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
     service.setSpec(serviceSpec);
 
     Map<String, Service> services = new HashMap<>();

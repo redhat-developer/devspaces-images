@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -120,20 +120,6 @@ public abstract class RuntimeInfrastructure {
    *     error
    */
   public abstract String evaluateInfraNamespace(NamespaceResolutionContext resolutionCtx)
-      throws InfrastructureException;
-
-  /**
-   * Returns the namespace a workspace should be deployed into when using the legacy (pre 7.5.0)
-   * logic. This is required to handle a case where we're starting a workspace created using an old
-   * version of the Che server that didn't store the infrastructure namespace in the workspace
-   * attributes.
-   *
-   * @param resolutionContext the runtime holder specifying which user and workspace runtime
-   *     targets.
-   * @throws InfrastructureException when there is no configured default namespace or any other
-   *     error
-   */
-  public abstract String evaluateLegacyInfraNamespace(NamespaceResolutionContext resolutionContext)
       throws InfrastructureException;
 
   /**

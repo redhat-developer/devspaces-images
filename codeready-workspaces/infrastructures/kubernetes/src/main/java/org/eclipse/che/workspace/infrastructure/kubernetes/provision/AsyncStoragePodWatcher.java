@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-
 package org.eclipse.che.workspace.infrastructure.kubernetes.provision;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -23,10 +22,8 @@ import static org.eclipse.che.api.workspace.shared.Constants.LAST_ACTIVITY_TIME;
 import static org.eclipse.che.workspace.infrastructure.kubernetes.namespace.pvc.CommonPVCStrategy.COMMON_STRATEGY;
 import static org.eclipse.che.workspace.infrastructure.kubernetes.provision.AsyncStorageProvisioner.ASYNC_STORAGE;
 
-import io.fabric8.kubernetes.api.model.DoneablePod;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.apps.DoneableDeployment;
 import io.fabric8.kubernetes.client.dsl.PodResource;
 import io.fabric8.kubernetes.client.dsl.RollableScalableResource;
 import java.time.Instant;
@@ -76,8 +73,6 @@ public class AsyncStoragePodWatcher {
       WorkspaceRuntimes runtimes,
       @Named("che.infra.kubernetes.async.storage.shutdown_timeout_min") long shutdownTimeoutMin,
       @Named("che.infra.kubernetes.pvc.strategy") String pvcStrategy,
-      @Named("che.infra.kubernetes.namespace.allow_user_defined")
-          boolean allowUserDefinedNamespaces,
       @Nullable @Named("che.infra.kubernetes.namespace.default") String defaultNamespaceName,
       @Named("che.limits.user.workspaces.run.count") int runtimesPerUser) {
     this.kubernetesClientFactory = kubernetesClientFactory;
@@ -87,8 +82,7 @@ public class AsyncStoragePodWatcher {
     this.shutdownTimeoutSec = MINUTES.toSeconds(shutdownTimeoutMin);
 
     isAsyncStoragePodCanBeRun =
-        isAsyncStoragePodCanBeRun(
-            pvcStrategy, allowUserDefinedNamespaces, defaultNamespaceName, runtimesPerUser);
+        isAsyncStoragePodCanBeRun(pvcStrategy, defaultNamespaceName, runtimesPerUser);
   }
 
   /**
@@ -97,18 +91,13 @@ public class AsyncStoragePodWatcher {
    *
    * <ul>
    *   <li>che.infra.kubernetes.namespace.default=<username>-che
-   *   <li>che.infra.kubernetes.namespace.allow_user_defined=false
    *   <li>che.infra.kubernetes.pvc.strategy=common
    *   <li>che.limits.user.workspaces.run.count=1
    * </ul>
    */
   private boolean isAsyncStoragePodCanBeRun(
-      String pvcStrategy,
-      boolean allowUserDefinedNamespaces,
-      String defaultNamespaceName,
-      int runtimesPerUser) {
-    return !allowUserDefinedNamespaces
-        && COMMON_STRATEGY.equals(pvcStrategy)
+      String pvcStrategy, String defaultNamespaceName, int runtimesPerUser) {
+    return COMMON_STRATEGY.equals(pvcStrategy)
         && runtimesPerUser == 1
         && !isNullOrEmpty(defaultNamespaceName)
         && defaultNamespaceName.contains("<username>");
@@ -141,7 +130,7 @@ public class AsyncStoragePodWatcher {
               ofEpochSecond(lastTimeAccessSec).plusSeconds(shutdownTimeoutSec);
           if (now().isAfter(expectedShutdownAfter)) {
             removeAsyncStoragePodWithoutDeployment(namespace);
-            RollableScalableResource<Deployment, DoneableDeployment> doneableResource =
+            RollableScalableResource<Deployment> doneableResource =
                 kubernetesClientFactory
                     .create()
                     .apps()
@@ -168,7 +157,7 @@ public class AsyncStoragePodWatcher {
    */
   private void removeAsyncStoragePodWithoutDeployment(String namespace)
       throws InfrastructureException {
-    PodResource<Pod, DoneablePod> doneablePodResource =
+    PodResource<Pod> doneablePodResource =
         kubernetesClientFactory.create().pods().inNamespace(namespace).withName(ASYNC_STORAGE);
     if (doneablePodResource.get() != null) {
       doneablePodResource.delete();

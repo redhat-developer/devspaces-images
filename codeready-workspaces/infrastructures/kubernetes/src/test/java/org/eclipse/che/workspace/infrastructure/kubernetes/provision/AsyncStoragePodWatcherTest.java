@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -25,11 +25,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import io.fabric8.kubernetes.api.model.DoneablePod;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
-import io.fabric8.kubernetes.api.model.apps.DoneableDeployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.AppsAPIGroupDSL;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -67,10 +65,10 @@ public class AsyncStoragePodWatcherTest {
   @Mock private PreferenceManager preferenceManager;
   @Mock private WorkspaceRuntimes runtimes;
   @Mock private KubernetesClient kubernetesClient;
-  @Mock private RollableScalableResource<Deployment, DoneableDeployment> deploymentResource;
+  @Mock private RollableScalableResource<Deployment> deploymentResource;
   @Mock private MixedOperation mixedOperation;
   @Mock private NonNamespaceOperation namespaceOperation;
-  @Mock private PodResource<Pod, DoneablePod> podResource;
+  @Mock private PodResource<Pod> podResource;
   @Mock private MixedOperation mixedOperationPod;
   @Mock private NonNamespaceOperation namespacePodOperation;
   @Mock private UserImpl user;
@@ -111,7 +109,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             COMMON_STRATEGY,
-            false,
             "<username>",
             1);
 
@@ -139,7 +136,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             10,
             COMMON_STRATEGY,
-            false,
             "<username>",
             1);
     long epochSecond = now().getEpochSecond();
@@ -162,7 +158,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             COMMON_STRATEGY,
-            false,
             "<username>",
             1);
 
@@ -192,7 +187,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             COMMON_STRATEGY,
-            false,
             "<username>",
             1);
     when(preferenceManager.find(USER_ID)).thenReturn(emptyMap()); // no records in user preferences
@@ -214,7 +208,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             "my-own-strategy",
-            false,
             "<username>",
             1);
     when(preferenceManager.find(USER_ID)).thenReturn(emptyMap()); // no records in user preferences
@@ -236,7 +229,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             "my-own-strategy",
-            true,
             "<username>",
             1);
     when(preferenceManager.find(USER_ID)).thenReturn(emptyMap()); // no records in user preferences
@@ -258,7 +250,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             "my-own-strategy",
-            true,
             "<foo-bar>",
             1);
     when(preferenceManager.find(USER_ID)).thenReturn(emptyMap()); // no records in user preferences
@@ -280,7 +271,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             1,
             "my-own-strategy",
-            true,
             "<foo-bar>",
             2);
     when(preferenceManager.find(USER_ID)).thenReturn(emptyMap()); // no records in user preferences
@@ -302,7 +292,6 @@ public class AsyncStoragePodWatcherTest {
             runtimes,
             0,
             COMMON_STRATEGY,
-            false,
             "<username>",
             1);
     when(preferenceManager.find(USER_ID)).thenReturn(emptyMap()); // no records in user preferences

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-
 package org.eclipse.che.workspace.infrastructure.kubernetes.server;
 
 import static org.eclipse.che.commons.lang.NameGenerator.generate;
@@ -107,7 +106,7 @@ public class PreviewUrlExposer<T extends KubernetesEnvironment> {
   }
 
   private ServicePort createServicePort(int port) {
-    return new ServicePort("server-" + port, null, port, "TCP", new IntOrString(port));
+    return new ServicePort(null, "server-" + port, null, port, "TCP", new IntOrString(port));
   }
 
   protected boolean hasMatchingEndpoint(T env, Service service, int port) {

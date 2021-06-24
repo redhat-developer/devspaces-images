@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,7 +9,6 @@
  * Contributors:
  *   Red Hat, Inc. - initial API and implementation
  */
-
 package org.eclipse.che.workspace.infrastructure.kubernetes.server;
 
 import static java.util.Collections.singletonList;
@@ -100,7 +99,8 @@ public class PreviewUrlExposerTest {
     service.setMetadata(serviceMeta);
     ServiceSpec serviceSpec = new ServiceSpec();
     serviceSpec.setPorts(
-        singletonList(new ServicePort(SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
+        singletonList(
+            new ServicePort(null, SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
     service.setSpec(serviceSpec);
 
     Ingress ingress = new Ingress();
@@ -111,9 +111,9 @@ public class PreviewUrlExposerTest {
     IngressRule ingressRule = new IngressRule();
     ingressRule.setHost("ingresshost");
     IngressBackend ingressBackend =
-        new IngressBackend("servicename", new IntOrString(SERVER_PORT_NAME));
+        new IngressBackend(null, "servicename", new IntOrString(SERVER_PORT_NAME));
     ingressRule.setHttp(
-        new HTTPIngressRuleValue(singletonList(new HTTPIngressPath(ingressBackend, null))));
+        new HTTPIngressRuleValue(singletonList(new HTTPIngressPath(ingressBackend, null, null))));
     ingressSpec.setRules(singletonList(ingressRule));
     ingress.setSpec(ingressSpec);
 
@@ -153,7 +153,8 @@ public class PreviewUrlExposerTest {
     service.setMetadata(serviceMeta);
     ServiceSpec serviceSpec = new ServiceSpec();
     serviceSpec.setPorts(
-        singletonList(new ServicePort(SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
+        singletonList(
+            new ServicePort(null, SERVER_PORT_NAME, null, PORT, "TCP", new IntOrString(PORT))));
     service.setSpec(serviceSpec);
 
     Map<String, Service> services = new HashMap<>();

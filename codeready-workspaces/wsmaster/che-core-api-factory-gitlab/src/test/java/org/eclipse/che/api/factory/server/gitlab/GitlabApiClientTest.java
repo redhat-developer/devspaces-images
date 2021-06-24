@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -33,7 +33,6 @@ import org.testng.annotations.Test;
 @Listeners(MockitoTestNGListener.class)
 public class GitlabApiClientTest {
 
-  final int httpPort = 3301;
   private GitlabApiClient client;
   WireMockServer wireMockServer;
   WireMock wireMock;
@@ -41,10 +40,10 @@ public class GitlabApiClientTest {
   @BeforeMethod
   void start() {
     wireMockServer =
-        new WireMockServer(wireMockConfig().notifier(new Slf4jNotifier(false)).port(httpPort));
+        new WireMockServer(wireMockConfig().notifier(new Slf4jNotifier(false)).dynamicPort());
     wireMockServer.start();
-    WireMock.configureFor("localhost", httpPort);
-    wireMock = new WireMock("localhost", httpPort);
+    WireMock.configureFor("localhost", wireMockServer.port());
+    wireMock = new WireMock("localhost", wireMockServer.port());
     client = new GitlabApiClient(wireMockServer.url("/"));
   }
 

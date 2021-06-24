@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -142,13 +142,16 @@ public class KubernetesClientFactory {
    * <p>Unlike {@link #getHttpClient()}, this method creates a new HTTP client instance each time it
    * is called.
    *
+   * <p>This is a workaround to allow direct k8s API access on Kubernetes infrastructure, since
+   * impersonating the current user is not supported in the Kubernetes Client. This is insecure and
+   * will only be called if permitted by enabling it in Che properties.
+   *
    * @return HTTP client with authorization set up
    * @throws InfrastructureException if it is not possible to build the client with authentication
    *     infromation
    */
   public OkHttpClient getAuthenticatedHttpClient() throws InfrastructureException {
-    throw new InfrastructureException(
-        "Impersonating the current user is not supported in the Kubernetes Client.");
+    return create(getDefaultConfig()).getHttpClient();
   }
 
   /**
@@ -216,7 +219,7 @@ public class KubernetesClientFactory {
    * authenticate with the credentials (user/password or Oauth token) contained in the {@code
    * config} parameter.
    */
-  private KubernetesClient create(Config config) {
+  private DefaultKubernetesClient create(Config config) {
     OkHttpClient clientHttpClient =
         httpClient.newBuilder().authenticator(Authenticator.NONE).build();
     OkHttpClient.Builder builder = clientHttpClient.newBuilder();

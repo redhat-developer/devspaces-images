@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -37,6 +37,7 @@ import org.eclipse.che.api.factory.server.scm.exception.UnknownScmProviderExcept
 import org.eclipse.che.api.factory.server.scm.exception.UnsatisfiedScmPreconditionException;
 import org.eclipse.che.api.workspace.server.spi.InfrastructureException;
 import org.eclipse.che.commons.lang.NameGenerator;
+import org.eclipse.che.commons.lang.StringUtils;
 import org.eclipse.che.commons.subject.Subject;
 import org.eclipse.che.workspace.infrastructure.kubernetes.KubernetesClientFactory;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.shared.KubernetesNamespaceMeta;
@@ -143,11 +144,12 @@ public class KubernetesPersonalAccessTokenManager implements PersonalAccessToken
                 .get(KUBERNETES_PERSONAL_ACCESS_TOKEN_LABEL_SELECTOR);
         for (Secret secret : secrets) {
           Map<String, String> annotations = secret.getMetadata().getAnnotations();
+          String trimmedUrl = StringUtils.trimEnd(annotations.get(ANNOTATION_SCM_URL), '/');
           if (annotations.get(ANNOTATION_CHE_USERID).equals(cheUser.getUserId())
-              && annotations.get(ANNOTATION_SCM_URL).equals(scmServerUrl)) {
+              && trimmedUrl.equals(StringUtils.trimEnd(scmServerUrl, '/'))) {
             PersonalAccessToken token =
                 new PersonalAccessToken(
-                    annotations.get(ANNOTATION_SCM_URL),
+                    trimmedUrl,
                     annotations.get(ANNOTATION_CHE_USERID),
                     annotations.get(ANNOTATION_SCM_USERNAME),
                     annotations.get(ANNOTATION_SCM_USERID),
