@@ -2,7 +2,7 @@
 def FLOATING_QUAY_TAGS = [
     "2.8":"2.8",
     "2.9":"latest",
-    "2.x"  :"nightly"
+    "2.x" :"nightly"
     ]
 def JOB_BRANCHES = ["2.8":"", "2.9":"", "2.x":""]
 def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
@@ -71,10 +71,14 @@ Images to copy to quay:
   </table>
 </ul>
             <p>NOTE:  If no nodes are available, run: <br/>
-    <b><a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2.y-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
-    -c "codeready-workspaces-plugin-openshift-rhel8" --osbs --pushtoquay="2.y latest"</b>
+    <b><a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
+    -c "codeready-workspaces-plugin-openshift-rhel8" --osbs --pushtoquay="''' + 
+    (JOB_BRANCH.equals("2.x") ? '''2.y nightly''' : JOB_BRANCH+''' latest''') + 
+    '''"</b>
   
   to get latest from osbs and push to quay.
+
+  <p>After this job runs, <a href=../update-digests-in-registries-and-metadata_''' + JOB_BRANCH + '''>update-digests-in-registries-and-metadata</a> will be triggered to check if those containers need a respin.
 ''')
 
         properties {

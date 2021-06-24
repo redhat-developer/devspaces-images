@@ -79,10 +79,9 @@ If <b style="color:orange">job is yellow</b>, no changes found to push, so no co
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", DEV_WORKSPACE_CONTROLLER_VERSIONS[JB.key], "Branch (0.y.x or main) used to get deployment templates")
             stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", DEV_WORKSPACE_CHE_OPERATOR_VERSIONS[JB.key], "Branch (7.yy.x or main) used to get deployment templates")
-            // CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
-            // NOTE: maxdepth 1 here is to prevent attempting to transform empty dockerfile in che-operator/build/Dockerfile
-            // TODO for 2.10, remove this flag (move to golang 1.15)
-            stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
+            if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
+                stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
+            }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

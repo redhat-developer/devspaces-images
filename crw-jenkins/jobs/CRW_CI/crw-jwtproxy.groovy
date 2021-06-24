@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to master, when 2.10 branches/jobs created - see https://github.com/eclipse/che/issues/19968 for main/master
+def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
 def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
@@ -57,7 +57,9 @@ Artifact builder + sync job; triggers brew after syncing
             stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("MIDSTM_NAME", MIDSTM_NAME)
-            stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.14|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.14'") // TODO remove this once we move to 1.15 in CRW 2.10 (or if backported in 7.30.x?)
+            if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
+                stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.14|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.14'")
+            }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
@@ -67,7 +69,11 @@ Artifact builder + sync job; triggers brew after syncing
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
+                if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
+                    script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
+                } else {
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }

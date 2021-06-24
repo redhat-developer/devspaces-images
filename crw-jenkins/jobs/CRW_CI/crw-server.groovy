@@ -7,9 +7,14 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
-        UPSTM_NAME="che"
+        if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) {
+            UPSTM_NAME="che"
+            SOURCE_REPO="eclipse/" + UPSTM_NAME
+        } else {
+            UPSTM_NAME="che-server"
+            SOURCE_REPO="eclipse-che/" + UPSTM_NAME
+        }
         MIDSTM_NAME="server"
-        SOURCE_REPO="eclipse/" + UPSTM_NAME
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''

@@ -2,7 +2,7 @@
 ///// THIS FILE IS DEPRECATED and not used; for 2.9+, just use crw-theia-sources
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to master, when 2.10 branches/jobs created
+def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"]
 def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value // note: not used

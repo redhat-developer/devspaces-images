@@ -57,7 +57,7 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
-            stringParam("SOURCE_TAG", SOURCE_TAG, "Fetch master branch, then build from tag (if set)")
+            stringParam("SOURCE_TAG", SOURCE_TAG, "Fetch branch, then build from tag (if set)")
             stringParam("GOLANG_VERSION", GOLANG_VERSIONS.containsKey(JB.key) ? GOLANG_VERSIONS[JB.key] : "1.15.3", "for 2.y, use 1.15.3 (traefik from v2.3.2)")
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")

@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.8":"master", "2.9":"master", "2.x":"master"] // special case, no Che branches; could also use a tag like "v0.1.4" - see https://github.com/eclipse/che/issues/19968 for main/master
+def JOB_BRANCHES = ["2.8":"main", "2.9":"main", "2.x":"main"] // special case, no Che branches; could also use a tag like "v0.1.4"
 def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
@@ -54,7 +54,9 @@ Artifact builder + sync job; triggers brew after syncing
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'") // TODO remove this once we move to 1.15 in CRW 2.10 (or if backported in 7.30.x?)
+            if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
+                stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
+            }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
