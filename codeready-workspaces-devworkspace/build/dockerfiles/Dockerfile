@@ -8,11 +8,10 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/devtools/go-toolset-rhel7
-FROM registry.access.redhat.com/devtools/go-toolset-rhel7:1.14.12-4.1615820747 as builder
-ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:${PATH} \
-    GOPATH=/go/
 
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
+FROM registry.access.redhat.com/ubi8/go-toolset:1.15.7-11 as builder
+ENV GOPATH=/go/
 USER root
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -34,7 +33,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
   main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.3-298.1618432845
+FROM registry.access.redhat.com/ubi8-minimal:8.4-200.1622548483
 RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 COPY --from=builder /workspace/_output/bin/devworkspace-che-operator /usr/local/bin/devworkspace-che-operator
 
