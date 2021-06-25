@@ -38,7 +38,7 @@ if [[ ${doMavenBuild} -eq 1 ]]; then
 	mvn -v || exit 1
 
 	# build che server with maven
-	mvn clean install -Dmaven.repo.local=.repository/ -V -B -e -DskipTests # -Pintegration
+	mvn clean install -Dmaven.repo.local=.repository/ -V -B -e -DskipTests -Dskip-validate-sources -Pfast # -Pintegration
 	# tarball created in ${TARGETDIR}/assembly/assembly-main/target/eclipse-che-*.tar.gz
 	mv assembly/assembly-main/target/eclipse-che-*.tar.gz ${outputFile}
 fi
