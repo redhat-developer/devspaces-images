@@ -8,15 +8,13 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# must use rhel8/go-toolset in Brew, but can use rhel8/go-toolset upstream
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.15.7-11 as builder
-ENV PATH=/opt/rh/go-toolset-1.14/root/usr/bin:$PATH \
+ENV GOPATH=/go/ \
     GO111MODULE=on
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
-
 
 USER root
 
