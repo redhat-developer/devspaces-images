@@ -67,7 +67,7 @@ assets/branding/
 build/scripts/
 container.yaml
 content_sets.yml
-get-sources-jenkins.sh
+get-source*.sh
 sources
 yarn.lock
 /README.adoc
@@ -156,7 +156,7 @@ sed -r \
     -e "s#@@crw.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
 ${TARGETDIR}/assets/branding/product.json.template > ${TARGETDIR}/assets/branding/product.json
 
-# do vendoring downstream as part of get-sources-jenkins.sh (if nothing is arch-specific, we can do it later)
+# do vendoring downstream as part of get-source*.sh (if nothing is arch-specific, we can do it later)
 # if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
 #     BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
 #     # with yarn 2, no need to change the dockerfile (unlike with go vendoring or yarn 1)

@@ -49,7 +49,7 @@ echo ".github/
 build/scripts/
 container.yaml
 content_sets.yml
-get-sources-jenkins.sh
+get-source*.sh
 sources
 yarn.lock
 /README.adoc

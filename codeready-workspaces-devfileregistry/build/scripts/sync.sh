@@ -69,7 +69,7 @@ echo ".github/
 /container.yaml
 /content_sets.yml
 /sources
-/get-sources-jenkins.sh
+/get-source*.sh
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"

@@ -64,9 +64,9 @@ sync_branding_to_crwimages() {
 
 sync_build_scripts_to_crwimages() {
   for targDir in theia-dev theia theia-endpoint; do
-    echo "Rsync ${SOURCEDIR}/build, get-sources.sh and BUILD_* to ${TARGETDIR}/codeready-workspaces-${targDir}"
+    echo "Rsync ${SOURCEDIR}/build, get-source*.sh and BUILD_* to ${TARGETDIR}/codeready-workspaces-${targDir}"
     rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes \
-      "${SOURCEDIR}/build" "${SOURCEDIR}/BUILD_COMMAND" "${SOURCEDIR}/BUILD_PARAMS" "${SOURCEDIR}/get-sources.sh" \
+      "${SOURCEDIR}/build" "${SOURCEDIR}/BUILD_COMMAND" "${SOURCEDIR}/BUILD_PARAMS" "${SOURCEDIR}/get-source*.sh" \
       "${TARGETDIR}/codeready-workspaces-${targDir}"
   done
 }

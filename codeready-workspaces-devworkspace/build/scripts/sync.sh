@@ -69,7 +69,7 @@ echo ".github/
 .git/
 .gitattributes
 build/scripts/sync.sh
-get-sources-jenkins.sh
+get-source*.sh
 container.yaml
 content_sets.yml
 " > /tmp/rsync-excludes
