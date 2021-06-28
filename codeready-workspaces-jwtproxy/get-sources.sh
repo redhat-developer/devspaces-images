@@ -64,7 +64,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	${BUILDER} rmi ${tag}:bootstrap
 
 	# step three - include that tarball's contents in this repo
-	tar --strip-components=5 -xzf "asset-vendor-$(uname -m).tgz" 
+	tar --strip-components=1 -xzf "asset-vendor-$(uname -m).tgz" 
 	rm -f "asset-vendor-$(uname -m).tgz"
 fi
 
