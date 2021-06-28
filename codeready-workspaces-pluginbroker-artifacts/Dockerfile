@@ -9,8 +9,8 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
-FROM ubi8/go-toolset:1.15.7-11 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
+FROM rhel8/go-toolset:1.15.7-11 as builder
 ENV GOPATH=/go/
 USER root
 WORKDIR /build/che-plugin-broker/brokers/artifacts/cmd/
