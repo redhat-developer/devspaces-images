@@ -23,7 +23,7 @@ MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="nightly" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/deploy/olm-catalog
 
 SSO_TAG=7.4
-UBI_TAG=8.3
+UBI_TAG=8.4
 POSTGRES_TAG=1
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
@@ -314,7 +314,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	${SCRIPTS_DIR}/insert-related-images-to-csv.sh -v ${CSV_VERSION} -t ${TARGETDIR} --crw-branch ${MIDSTM_BRANCH}
 
-	# sort env vars
+	# echo "[INFO] ${0##*/} :: Sort env var in ${CSVFILE}:"
 	cat "${CSVFILE}" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[].env |= sort_by(.name)' > "${CSVFILE}.2"
 	mv "${CSVFILE}.2" "${CSVFILE}"
 

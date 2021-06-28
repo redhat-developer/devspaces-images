@@ -18,7 +18,7 @@ set -e
 # defaults
 CSV_VERSION=2.y.0
 CRW_VERSION=${CSV_VERSION%.*}
-MIDSTM_BRANCH=crw-2.8-rhel8
+MIDSTM_BRANCH=crw-2.10-rhel8
 
 # TODO handle cmdline input
 usage () {
