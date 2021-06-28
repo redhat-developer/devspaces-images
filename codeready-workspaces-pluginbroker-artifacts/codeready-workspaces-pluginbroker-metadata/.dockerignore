@@ -1,6 +1,0 @@
-# Ignore binaries with these names but not folders with the same names
-*/init/cmd/init-plugin-broker
-*/cmd/cmd
-main
-*.json
-*/unified/cmd/unified-broker
