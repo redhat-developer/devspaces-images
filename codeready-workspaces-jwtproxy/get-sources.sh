@@ -106,3 +106,4 @@ $ERRORS
 		log "[INFO] No new sources, so nothing to build."
 	fi
 fi
+
