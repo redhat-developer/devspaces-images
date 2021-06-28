@@ -19,7 +19,7 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 SSO_TAG=7.4
-UBI_TAG=8.3
+UBI_TAG=8.4
 POSTGRES_TAG=1
 
 usage () {
