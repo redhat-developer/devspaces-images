@@ -12,11 +12,11 @@ pullAssets=0
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-  '-p'|'--pull-assets') pullAssets=1; shift 0;;
-  '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
-  '-f'|'--force-build') forceBuild=1; shift 0;;
-  '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-  *) JOB_BRANCH="$1"; shift 0;;
+    '-p'|'--pull-assets') pullAssets=1; shift 0;;
+    '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
+    '-f'|'--force-build') forceBuild=1; shift 0;;
+    '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+    *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
 done
