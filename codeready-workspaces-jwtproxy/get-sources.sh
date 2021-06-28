@@ -5,13 +5,16 @@ verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-forcePull=0
+# NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
+# here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
+# so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
+pullAssets=0
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
+		'-p'|'--pull-assets') pullAssets=1; shift 0;;
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
-		'-p'|'--force-pull') forcePull=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	esac
 	shift 1
@@ -30,40 +33,42 @@ function logn()
 	fi
 }
 
-# step one - build the builder image
-BUILDER=$(command -v podman || true)
-if [[ ! -x $BUILDER ]]; then
-	echo "[WARNING] podman is not installed, trying with docker"
-	BUILDER=$(command -v docker || true)
+if [[ ${pullAssets} -eq 1 ]]; then 
+	# step one - build the builder image
+	BUILDER=$(command -v podman || true)
 	if [[ ! -x $BUILDER ]]; then
-			echo "[ERROR] must install docker or podman. Abort!"; exit 1
+		echo "[WARNING] podman is not installed, trying with docker"
+		BUILDER=$(command -v docker || true)
+		if [[ ! -x $BUILDER ]]; then
+				echo "[ERROR] must install docker or podman. Abort!"; exit 1
+		fi
 	fi
+	DOCKERFILELOCAL=bootstrap.Dockerfile
+	cat Dockerfile | sed -r \
+		-e "s#FROM scratch#FROM ubi8-minimal#" \
+		-e "s#^FROM #FROM registry.redhat.io/#" \
+		-e "s#^FROM registry.redhat.io/registry.redhat.io/#FROM registry.redhat.io/#" \
+		-e "s#^FROM registry.redhat.io/registry.access.redhat.com/#FROM registry.redhat.io/#" \
+		-e "s#^FROM registry.redhat.io/registry-proxy.engineering.redhat.com/#FROM registry-proxy.engineering.redhat.com/#" \
+		-e "s%# (COPY .+.repo /etc/yum.repos.d/)%\1%" \
+		-e "s%# COPY content_sets%COPY content_sets%" \
+		`# CRW-1680 ignore vendor folder and fetch new content` \
+		-e "s@(\ +)(.+go build)@\1go mod vendor \&\& \2 -mod=mod@" \
+		> ${DOCKERFILELOCAL}
+	tag=$(pwd);tag=${tag##*/}
+	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
+	rm -f ${DOCKERFILELOCAL}
+
+	# step two - extract vendor folder to tarball
+	${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /app/vendor' > "asset-vendor-$(uname -m).tgz"
+	${BUILDER} rmi ${tag}:bootstrap
+
+	# step three - include that tarball's contents in this repo
+	tar --strip-components=5 -xzf "asset-vendor-$(uname -m).tgz" 
+	rm -f "asset-vendor-$(uname -m).tgz"
 fi
-DOCKERFILELOCAL=bootstrap.Dockerfile
-cat Dockerfile | sed -r \
-	-e "s#FROM scratch#FROM ubi8-minimal#" \
-	-e "s#^FROM #FROM registry.redhat.io/#" \
-	-e "s#^FROM registry.redhat.io/registry.redhat.io/#FROM registry.redhat.io/#" \
-	-e "s#^FROM registry.redhat.io/registry.access.redhat.com/#FROM registry.redhat.io/#" \
-	-e "s#^FROM registry.redhat.io/registry-proxy.engineering.redhat.com/#FROM registry-proxy.engineering.redhat.com/#" \
-	-e "s%# (COPY .+.repo /etc/yum.repos.d/)%\1%" \
-	-e "s%# COPY content_sets%COPY content_sets%" \
-	`# CRW-1680 ignore vendor folder and fetch new content` \
-	-e "s@(\ +)(.+go build)@\1go mod vendor \&\& \2 -mod=mod@" \
-	> ${DOCKERFILELOCAL}
-tag=$(pwd);tag=${tag##*/}
-${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
-rm -f ${DOCKERFILELOCAL}
 
-# step two - extract vendor folder to tarball
-${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /app/vendor' > "asset-vendor-$(uname -m).tgz"
-${BUILDER} rmi ${tag}:bootstrap
-
-# step three - include that tarball's contents in this repo
-tar --strip-components=5 -xzf "asset-vendor-$(uname -m).tgz" 
-rm -f "asset-vendor-$(uname -m).tgz"
-
-if [[ $(git diff-index HEAD --) ]] || [[ ${forcePull} -eq 1 ]]; then
+if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	git add vendor || true
 	log "[INFO] Commit new vendor folder"
 	COMMIT_MSG="vendor folder"
