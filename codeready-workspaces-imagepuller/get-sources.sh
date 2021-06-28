@@ -62,7 +62,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	RESOURCES_TAR=$(mktemp --suffix=.tar.gz)
 	RESOURCES_DIR=$(mktemp -d)
 	${BUILDER} run --rm --entrypoint sh ${tmpContainer} -c 'tar -pzcf - \
-			/opt/app-root/src/go/pkg/mod' > $RESOURCES_TAR
+			/go/pkg/mod' > $RESOURCES_TAR
 	mkdir -p $RESOURCES_DIR
 	tar xzf $RESOURCES_TAR -C $RESOURCES_DIR
 
