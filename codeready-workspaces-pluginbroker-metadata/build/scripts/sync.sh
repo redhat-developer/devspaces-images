@@ -16,12 +16,13 @@
 # codeready-workspaces-pluginbroker-artifacts/build/scripts/sync.sh
 
 # shellcheck disable=SC2164
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
-echo $SCRIPTS_DIR
-if [[ -d ${SCRIPTS_DIR/-metadata/-artifacts} ]] && [[ "${SCRIPTS_DIR}" != "${SCRIPTS_DIR/-metadata/-artifacts}" ]]; then 
-    echo "[WARN] Running ${SCRIPTS_DIR/-metadata/-artifacts}/sync.sh, not $0 ..."
-    "${SCRIPTS_DIR/-metadata/-artifacts}/sync.sh" $*
+SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd) # echo $SCRIPTS_DIR
+ALT_SCRIPTS_DIR="${SCRIPTS_DIR/codeready-workspaces-pluginbroker-metadata/codeready-workspaces-pluginbroker-artifacts}"
+if [[ -d ${ALT_SCRIPTS_DIR} ]] && [[ "${SCRIPTS_DIR}" != "${ALT_SCRIPTS_DIR}" ]]; then 
+    echo "[WARN] Running ${ALT_SCRIPTS_DIR}/sync.sh, not $0 ..."
+    "${ALT_SCRIPTS_DIR}/sync.sh" $*
 else 
+    echo "Could not compute path to codeready-workspaces-pluginbroker-artifacts/build/scripts/sync.sh from $SCRIPTS_DIR"
     echo "Please run this script from codeready-workspaces-pluginbroker-artifacts/build/scripts/sync.sh"
     exit 1
 fi
