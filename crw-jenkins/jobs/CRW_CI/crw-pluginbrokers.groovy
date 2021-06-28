@@ -1,7 +1,11 @@
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.10+, see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 def JOB_BRANCHES = ["2.8":"v3.4.x", "2.9":"v3.4.x", "2.x":"v3.4.x"] 
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
+def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":true]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value // note: not used yet
+    SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
@@ -12,17 +16,23 @@ for (JB in JOB_BRANCHES) {
         SOURCE_REPO="eclipse/" + UPSTM_NAME
 
         description('''
-Artifact builder + sync job; triggers brew after syncing
 
+Deprecated! Use <a href=../crw-pluginbroker-artifacts_''' + JOB_BRANCH + '''>crw-pluginbroker-artifacts</a> 
+and <a href=../crw-pluginbroker-metadata_''' + JOB_BRANCH + '''>crw-pluginbroker-metadata</a> builds instead.
+<p>
+Artifact builder + sync job; triggers brew after syncing
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
-<li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
+<li>Midstream 1: <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-pluginbroker-artifacts/>''' + MIDSTM_NAME + '''-artifacts</a></li>
+<li>Midstream 2: <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-pluginbroker-metadata/>''' + MIDSTM_NAME + '''-metadata</a></li>
+<li>Downstream 1: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''-artifacts?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''-artifacts</a></li>
+<li>Downstream 2: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''-metadata?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''-metadata</a></li>
 </ul>
 
-<p>If <b style="color:green">downstream job fires</b>, see <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
+<p>If <b style="color:green">downstream job fires</b>, see 
+<a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
+<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
-
 <p>
 Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/pluginbroker-metadata-rhel8</a> and
   <a href=http://quay.io/crw/pluginbroker-artifacts-rhel8>quay.io/crw/pluginbroker-artifacts-rhel8</a>

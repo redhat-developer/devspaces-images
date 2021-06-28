@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
+def JOB_BRANCHES = ["2.x":"v3.4.x"] 
+def JOB_DISABLED = ["2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -7,13 +7,17 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
-        UPSTM_NAME="che-jwtproxy"
-        MIDSTM_NAME="jwtproxy"
+        UPSTM_NAME="che-plugin-broker"
+        MIDSTM_NAME="pluginbroker-metadata"
         SOURCE_REPO="eclipse/" + UPSTM_NAME
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
+
+<p>There are two pluginbroker-related sync jobs:<br/>
+1. <a href=../crw-pluginbroker-artifacts_''' + JOB_BRANCH + '''>crw-pluginbroker-artifacts_''' + JOB_BRANCH + '''</a><br/>
+2. <a href=../crw-pluginbroker-metadata_''' + JOB_BRANCH + '''>crw-pluginbroker-metadata_''' + JOB_BRANCH + '''</a></p>
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
@@ -26,7 +30,8 @@ Artifact builder + sync job; triggers brew after syncing
 <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 <p>
-Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtproxy-rhel8</a>
+Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/pluginbroker-metadata-rhel8</a> and
+  <a href=http://quay.io/crw/pluginbroker-artifacts-rhel8>quay.io/crw/pluginbroker-artifacts-rhel8</a>
         ''')
 
         properties {
@@ -61,9 +66,6 @@ Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtp
             stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("MIDSTM_NAME", MIDSTM_NAME)
-            if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
-                stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.14|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.14'")
-            }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 
@@ -73,11 +75,7 @@ Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtp
         definition {
             cps{
                 sandbox(true)
-                if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
-                    script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
-                } else {
-                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
-                }
+                script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
             }
         }
     }

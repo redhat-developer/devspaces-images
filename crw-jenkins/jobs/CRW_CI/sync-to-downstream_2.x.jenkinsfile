@@ -112,7 +112,7 @@ rm -f /tmp/rsync-excludes
                   COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
                   if [ ! -z "$COMMIT_SHA" ] ; then
                     for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
-                      cp $f ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
+                      cp ${f} ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/${f}
                     done
                     git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true

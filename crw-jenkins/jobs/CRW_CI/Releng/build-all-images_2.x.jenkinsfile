@@ -75,21 +75,19 @@ node(nodeLabel) {
 
                 if (PHASE_LIST.contains("5")) {
                     def jobsList = [
-                        "server":"server-rhel8",
                         "configbump":"configbump-rhel8",
                         "operator":"crw-2-rhel8-operator",
+                        "devworkspace-controller":"devworkspace-controller-rhel8",
+                        "devworkspace":"devworkspace-rhel8",
                         "jwtproxy":"jwtproxy-rhel8",
                         "machineexec":"machineexec-rhel8",
-                        "pluginbrokers":"pluginbroker-artifacts-rhel8",
+                        "pluginbroker-artifacts":"pluginbroker-artifacts-rhel8",
+                        "pluginbroker-metadata":"pluginbroker-metadata-rhel8",
+                        "server":"server-rhel8",
                         "traefik":"traefik-rhel8"
                         ]
 
                     def Map tasks = [failFast: false]
-
-                    // rebuild other containers and wait for results in quay.io
-                    currentQuayImagePluginbrokerMetadata = util.getLatestImageAndTag("crw/pluginbroker-metadata-rhel8", "quay")
-                    println ("Got currentQuayImagePluginbrokerMetadata = " + currentQuayImagePluginbrokerMetadata)
-
                     // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
                     for (kv in mapToList(jobsList)) {
                         def key=kv[0] // .key = kv[0]
@@ -107,7 +105,6 @@ node(nodeLabel) {
                     }
                     // wait in parallel
                     parallel(tasks)
-                    util.waitForNewQuayImage("crw/pluginbroker-metadata-rhel8", currentQuayImagePluginbrokerMetadata)
                 }
 
                 if (PHASE_LIST.contains("4")) {
@@ -127,7 +124,7 @@ node(nodeLabel) {
                     util.waitForNewQuayImage("crw/crw-2-rhel8-operator-metadata", currentQuayImageMetadata)
                 }
 
-                // TODO CRW-1348 trigger rpm signature check job as PHASE 6 once metadata image is updated
+                // TODO CRW-1348 trigger rpm signature check job as PHASE 7 once metadata image is updated (if we need this for plugin-intellij)
 
             } // withCredentials
         } // wrap
