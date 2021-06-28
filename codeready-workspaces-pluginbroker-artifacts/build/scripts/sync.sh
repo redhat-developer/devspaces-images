@@ -10,18 +10,24 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert che-plugin-broker upstream to crw-pluginbroker-* downstream using yq, sed, and deleting files
+# convert upstream che project to crw downstream project using sed
 
 set -e
+
+SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
+UPSTM_NAME="che-plugin-broker"
+UPSTM_BROKER="artifacts"
+MIDSTM_NAME="pluginbroker-${UPSTM_BROKER}"
+
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/che-plugin-broker -t /tmp/crw-images/"
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME}"
     exit
 }
 
@@ -35,21 +41,24 @@ while [[ "$#" -gt 0 ]]; do
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--help'|'-h') usage;;
-    # optional tag overrides
   esac
   shift 1
 done
 
-if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
+if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # global / generic changes
 echo ".github/
 .git/
 .gitattributes
-build/scripts/
-container.yaml
-content_sets.yml
+build/scripts/sync.sh
+/container.yaml
+/content_sets.*
+/cvp.yml
 get-source*.sh
+tests/basic-test.yaml
 sources
 yarn.lock
 /README.adoc
@@ -60,25 +69,24 @@ yarn.lock
 *.orig
 " > /tmp/rsync-excludes
 
-for whichbroker in metadata artifacts; do 
-  echo "Rsync ${SOURCEDIR} to ${TARGETDIR}/codeready-workspaces-pluginbroker-${whichbroker}/"
-  rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/codeready-workspaces-pluginbroker-${whichbroker}/
-done
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-# transform build/metadata/rhel.Dockerfile and build/artifacts/rhel.Dockerfile -> Dockerfile
-for whichbroker in metadata artifacts; do 
-	sed ${TARGETDIR}/codeready-workspaces-pluginbroker-${whichbroker}/build/${whichbroker}/rhel.Dockerfile -r \
-	  `# Replace ubi8 with rhel8 version` \
-	  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-	  -e "s#FROM registry.redhat.io/#FROM #g" \
-	  -e "s#FROM registry.access.redhat.com/#FROM #g" \
-	> ${TARGETDIR}/codeready-workspaces-pluginbroker-${whichbroker}/Dockerfile
-	cat << EOT >> ${TARGETDIR}/codeready-workspaces-pluginbroker-${whichbroker}/Dockerfile
-ENV SUMMARY="Red Hat CodeReady Workspaces pluginbroker-${whichbroker} container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces pluginbroker-${whichbroker} container" \\
+# ensure shell scripts are executable
+find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+
+# transform build/*/rhel.Dockerfile -> Dockerfile
+sed ${SOURCEDIR}/build/${UPSTM_BROKER}/rhel.Dockerfile -r \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  -e "s#FROM registry.redhat.io/#FROM #g" \
+  -e "s#FROM registry.access.redhat.com/#FROM #g" \
+> ${TARGETDIR}/Dockerfile
+cat << EOT >> ${TARGETDIR}/Dockerfile
+ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
-    COMPNAME="pluginbroker-${whichbroker}-rhel8"
+    COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\
@@ -92,8 +100,5 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-	echo "Converted pluginbroker-${whichbroker} Dockerfile"
-done
+echo "Converted Dockerfile"
 
-# ensure shell scripts are executable
-find ${TARGETDIR}/codeready-workspaces-pluginbroker-${whichbroker}/ -name "*.sh" -exec chmod +x {} \;
