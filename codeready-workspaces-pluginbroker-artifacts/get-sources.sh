@@ -2,10 +2,15 @@
 # script to trigger rhpkg - no sources needed here
 
 scratchFlag=""
+# NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
+# here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
+# so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
+pullAssets=0
+
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 		'-n'|'--nobuild') exit 0; shift 0;;
-		'-p'|'--force-pull') shift 0;;
+		'-p'|'--pull-assets') pullAssets=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	esac
 	shift 1
