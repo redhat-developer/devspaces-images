@@ -18,9 +18,8 @@ COPY . /build/che-plugin-broker/
 RUN adduser appuser && \
     CGO_ENABLED=0 GOOS=linux go build -mod vendor -a -ldflags '-w -s' -installsuffix cgo -o metadata-broker main.go
 
-
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-micro
-FROM ubi8-micro:8.4-81
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM ubi8-minimal:8.4-205
 USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /build/che-plugin-broker/brokers/metadata/cmd/metadata-broker /
