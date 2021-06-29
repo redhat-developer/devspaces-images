@@ -21,7 +21,7 @@ RUN microdnf install java-11-openjdk-headless tar gzip shadow-utils findutils &&
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-# NOTE: To build in Brew, use get-sources-jenkins.sh to build new server.tgz
+# NOTE: To build in Brew, use get-source*.sh to build new server.tgz
 COPY asset-server.tgz /tmp/asset-server.tgz
 RUN tar xzf /tmp/asset-server.tgz --strip-components=1 -C /home/user/codeready; rm -f /tmp/asset-server.tgz
 
