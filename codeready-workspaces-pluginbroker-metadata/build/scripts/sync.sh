@@ -75,8 +75,8 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-# transform build/*/rhel.Dockerfile -> Dockerfile
-sed ${SOURCEDIR}/build/${UPSTM_BROKER}/rhel.Dockerfile -r \
+# transform build/*/Dockerfile -> Dockerfile
+sed ${SOURCEDIR}/build/${UPSTM_BROKER}/Dockerfile -r \
   `# Replace ubi8 with rhel8 version` \
   -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
   -e "s#FROM registry.redhat.io/#FROM #g" \
