@@ -157,15 +157,17 @@ user=$(whoami)
 extractContainerTgz() {
   container="$1"
   filesToCollect="$2"
+  # shellcheck disable=SC2086 disable=SC2116
+  filesToCollect="$(echo $filesToCollect)" # squash duplicate spaces
   targetTarball="$3"
   # TODO remove this and use tar extraction rules in dockerfile instead
   subfolder="$4" # optionally, cd into a subfolder in the unpacked container before creating tarball
 
-  tmpcontainer="$(echo $container | tr "/:" "--")"
+  tmpcontainer="$(echo "$container" | tr "/:" "--")"
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
     # get container and unpack into a /tmp/ folder
-    time /tmp/containerExtract.sh "${container}" --tar-flags "${filesToCollect}"
+    time /tmp/containerExtract.sh "${container}" --override-arch "${UNAME}" --tar-flags "${filesToCollect}"
     unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1)"
   fi
   echo "[INFO] Collect $filesToCollect from $unpackdir into ${targetTarball} ..."
@@ -182,11 +184,11 @@ extractContainerFile() {
   fileToCollect="$2"
   targetFile="$3"
 
-  tmpcontainer="$(echo $container | tr "/:" "--")"
+  tmpcontainer="$(echo "$container" | tr "/:" "--")"
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
     # get container and unpack into a /tmp/ folder
-    time /tmp/containerExtract.sh "${container}" --tar-flags "${fileToCollect}"
+    time /tmp/containerExtract.sh "${container}" --override-arch "${UNAME}" --tar-flags "${fileToCollect}"
     unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1)"
   fi
   echo "[INFO] Collect $fileToCollect from $unpackdir into ${targetFile} ..."
