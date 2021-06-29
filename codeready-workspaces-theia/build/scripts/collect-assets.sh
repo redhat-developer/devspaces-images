@@ -167,7 +167,7 @@ extractContainerTgz() {
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
     # get container and unpack into a /tmp/ folder
-    time /tmp/containerExtract.sh "${container}" --override-arch "${UNAME}" --tar-flags "${filesToCollect}"
+    time /tmp/containerExtract.sh "${container}" --tar-flags "${filesToCollect}"
     unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1)"
   fi
   echo "[INFO] Collect $filesToCollect from $unpackdir into ${targetTarball} ..."
@@ -188,7 +188,7 @@ extractContainerFile() {
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
     # get container and unpack into a /tmp/ folder
-    time /tmp/containerExtract.sh "${container}" --override-arch "${UNAME}" --tar-flags "${fileToCollect}"
+    time /tmp/containerExtract.sh "${container}" --tar-flags "${fileToCollect}"
     unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1)"
   fi
   echo "[INFO] Collect $fileToCollect from $unpackdir into ${targetFile} ..."
