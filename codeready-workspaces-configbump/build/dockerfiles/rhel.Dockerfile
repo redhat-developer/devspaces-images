@@ -33,7 +33,7 @@ RUN adduser appuser && \
     
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/ubi-micro
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.4-72
-USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
+USER appuser
 COPY --from=builder /app/configbump /usr/local/bin/configbump
 ENTRYPOINT [ "/usr/local/bin/configbump" ]
