@@ -46,12 +46,12 @@ RUN dnf install -y php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-
 # For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202106032231.p0.git.e29b355.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202106032231.p0.git.e29b355.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202106032231.p0.git.e29b355.el8.ppc64le.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202106120124.p0.git.9b9f77a.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202106120124.p0.git.9b9f77a.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202106120124.p0.git.9b9f77a.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     yum remove -y nodejs kernel-headers && \
-    yum install -y sudo openshift-clients-4.7.0-202106032231.p0.git.e29b355.el8 && \
+    yum install -y sudo openshift-clients-4.7.0-202106120124.p0.git.9b9f77a.el8 && \
     yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     mkdir -p ${HOME}/che /projects && \
