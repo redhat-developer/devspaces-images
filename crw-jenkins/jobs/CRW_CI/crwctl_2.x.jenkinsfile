@@ -11,10 +11,7 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
 
-def nodeVersion = "12.21.0" // was 12.18.2
-def yarnVersion = "1.21.1" // was 1.17.3
 def installP7zip = true // p7zip install and use that to build crwctl
-
 def nodeLabel = "rhel8"
 def platforms = "linux-x64,darwin-x64,win32-x64"
 def CTL_path = "codeready-workspaces-chectl"
@@ -34,8 +31,8 @@ timeout(90) {
 
           cleanWs()
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-          util.installNPM(nodeVersion, yarnVersion, installP7zip)
           util.installYq() // sync script needs this for transforms
+          util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
           // perl-Digest provides shasum for oclif-dev
           // need fuse-sshfs for mounting drive to copy to rcm-guest
           util.installRPMs("fuse-sshfs perl-Digest-SHA", true)

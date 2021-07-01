@@ -8,11 +8,8 @@ import groovy.transform.Field
 
 def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
-def nodeVersion = "12.21.0"
-def yarnVersion = "1.20.0"
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
-
-def buildNode = "rhel8"
+def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8"
 timeout(120) {
   node("${buildNode}"){
     stage("Collect 3rd party sources") {
@@ -25,7 +22,7 @@ timeout(120) {
           util.installSkopeoFromContainer("")
           util.installYq()
           util.installRhpkg()
-          util.installNPM(nodeVersion, yarnVersion)
+          util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"))
           util.installRPMs("tree golang php-devel php-json python3-six python3-pip python3-virtualenv")
           JAVA_VERSION="11"; util.installRPMs("java-"+JAVA_VERSION+"-openjdk java-"+JAVA_VERSION+"-openjdk-devel java-"+JAVA_VERSION+"-openjdk-headless")
           util.installMaven("3.6.3", JAVA_VERSION)
