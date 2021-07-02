@@ -63,7 +63,7 @@ fi
 echo ".github/
 .git/
 .gitattributes
-assets/branding/
+packages/dashboard-frontend/assets/branding/
 build/scripts/
 container.yaml
 content_sets.yml
@@ -82,32 +82,28 @@ rm -f /tmp/rsync-excludes
 # switch to yarn 1
 yarn policies set-version 1.21.1
 
-# switch project to yarn 1 and regenerate yarn.lock in corresponding format
 pushd "${TARGETDIR}" >/dev/null
-cp webpack.config.common.js .yarn2-backup
-git apply $SCRIPTS_DIR/patch-remove-pnp-plugin.diff
+
 popd >/dev/null
-yarn install
+yarn install --ignore-engines
 
 # Remove all the dependencies since they aren't actually needed
 rm -fr ${TARGETDIR}/node_modules/
+rm -fr ${TARGETDIR}/**/node_modules/
 rm -fr ${TARGETDIR}/.yarn/cache
-rm -fr ${TARGETDIR}/.yarn2-backup/.yarn/cache
-
-# Temporarily remove .yarn2-backup/.yarnrc.yml because it's automatically used in the build if found and is messing up the build process
-rm -rf ${TARGETDIR}/.yarn2-backup/.yarnrc.yml
-
-# Create a fresh .yarnrc that will tell yarn to use node_modules
-echo "nodeLinker: node-modules" >> .yarnrc.yml
 
 # transform rhel.Dockerfile -> Dockerfile
-sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
+sed -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
-    -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/c COPY asset-node-modules-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz" \
-> ${TARGETDIR}/Dockerfile
+    -e '/\*\.cjs install/c \
+COPY asset-node-modules-cache.tgz /tmp/\
+RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz' \
+    `# make dashboard build configs compatible with yarn v1` \
+    -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs build)|\1 -- -- --env.yarnV1=true|' \
+${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces dashboard container" \\
@@ -133,7 +129,7 @@ echo "/asset-node-modules-cache.tgz" >> ${TARGETDIR}/.gitignore
 echo "Adjusted .gitignore"
 
 # apply CRW branding styles
-cp -f ${TARGETDIR}/assets/branding/branding{-crw,}.css
+cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-crw,}.css
 
 # process product.json template to apply CRW branding
 SHA_CHE=$(cd ${SOURCEDIR}; git rev-parse --short=4 HEAD)
@@ -154,7 +150,7 @@ CRW_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_coderead
 sed -r \
     -e "s|@@crw.version@@|${CRW_SHAs}|g" \
     -e "s#@@crw.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
-${TARGETDIR}/assets/branding/product.json.template > ${TARGETDIR}/assets/branding/product.json
+${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json.template > ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json
 
 # do vendoring downstream as part of get-source*.sh (if nothing is arch-specific, we can do it later)
 # if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
