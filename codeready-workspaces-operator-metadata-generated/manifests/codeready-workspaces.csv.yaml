@@ -1040,7 +1040,7 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_che_operator
                   value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:a96277e5bbd8b5972a518d7d290f3658df62192cbb34e4ea96ca91217774bcc6
                 - name: RELATED_IMAGE_devworkspace_controller
-                  value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8@sha256:3dc0015bb01461a779deb0250c84ab4d4c40a8f2836560ae3555163c135e5619
+                  value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8@sha256:900393838ab2f548999c16d82c54143366670f7a31b65ec7caa0816221235708
                 - name: RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7
                   value: registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7@sha256:d16cfe30eaf20a157cd5d5980a6c34f3fcbcfd2fd225e670a0138d81007dd919
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_openj9_11_openshift
@@ -1312,7 +1312,7 @@ spec:
   - name: devworkspace_che_operator
     image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:a96277e5bbd8b5972a518d7d290f3658df62192cbb34e4ea96ca91217774bcc6
   - name: devworkspace_controller
-    image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8@sha256:3dc0015bb01461a779deb0250c84ab4d4c40a8f2836560ae3555163c135e5619
+    image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8@sha256:900393838ab2f548999c16d82c54143366670f7a31b65ec7caa0816221235708
   - name: jboss_eap_7_eap73_openjdk8_openshift_rhel7
     image: registry.redhat.io/jboss-eap-7/eap73-openjdk8-openshift-rhel7@sha256:d16cfe30eaf20a157cd5d5980a6c34f3fcbcfd2fd225e670a0138d81007dd919
   - name: jboss_eap_7_eap_xp2_openj9_11_openshift
