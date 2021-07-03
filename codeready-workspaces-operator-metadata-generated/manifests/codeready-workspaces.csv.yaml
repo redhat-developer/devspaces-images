@@ -1036,7 +1036,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:9377ed46c0b3b3a85619576e97d0d2f627999a8cd23f05dbdee08f13c1cf320f
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:112a1fbb108145f78b612839cb8f9864fbe6952a48da68b9b702d35cd1f336af
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:d71dc729422c8281b0290e0ed97fe0749438eb8c22da3bf5aa4f0f097887dab1
                 - name: RELATED_IMAGE_devworkspace_che_operator
                   value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:a96277e5bbd8b5972a518d7d290f3658df62192cbb34e4ea96ca91217774bcc6
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1068,7 +1068,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:e19207a5696ee533fe0f3fb77d8a92e4cbbcdcefc6a6ff18fd27d2931d4a7a6d
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:aa91c4e3dc2c505d787f6058ba32d755d6aca0bedffd4e2506391a3b7486be9e
+                  value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:175f30f9ba829ff0c4cf096bae19bf15b33d01c045f95489a0bb27b1c5cbf7ab
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1308,7 +1308,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:9377ed46c0b3b3a85619576e97d0d2f627999a8cd23f05dbdee08f13c1cf320f
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:112a1fbb108145f78b612839cb8f9864fbe6952a48da68b9b702d35cd1f336af
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:d71dc729422c8281b0290e0ed97fe0749438eb8c22da3bf5aa4f0f097887dab1
   - name: devworkspace_che_operator
     image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:a96277e5bbd8b5972a518d7d290f3658df62192cbb34e4ea96ca91217774bcc6
   - name: devworkspace_controller
@@ -1340,4 +1340,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:e19207a5696ee533fe0f3fb77d8a92e4cbbcdcefc6a6ff18fd27d2931d4a7a6d
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:aa91c4e3dc2c505d787f6058ba32d755d6aca0bedffd4e2506391a3b7486be9e
+    image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:175f30f9ba829ff0c4cf096bae19bf15b33d01c045f95489a0bb27b1c5cbf7ab
