@@ -2,8 +2,8 @@
 ///// THIS FILE IS DEPRECATED and not used; for 2.10+, see template_2.x.jenkinsfile
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
-def JOB_BRANCHES = ["2.8":"v3.4.x", "2.9":"v3.4.x", "2.x":"v3.4.x"] 
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":true]
+def JOB_BRANCHES = ["2.9":"v3.4.x", "2.x":"v3.4.x"] 
+def JOB_DISABLED = ["2.9":true, "2.x":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -67,7 +67,7 @@ Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/plug
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
+            if (JOB_BRANCH.equals("2.9")) { 
                 stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.14|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.14'")
             }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")

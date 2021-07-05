@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.8":"crw-2.8-rhel-8", "2.9":"crw-2.9-rhel-8", "2.x":"crw-2-rhel-8"]
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
+def JOB_BRANCHES = ["2.9":"crw-2.9-rhel-8", "2.10":"crw-2.10-rhel-8", "2.x":"crw-2-rhel-8"]
+def JOB_DISABLED = ["2.9":true, "2.10":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -73,11 +73,7 @@ Artifact builder + sync job; triggers brew after syncing
         definition {
             cps{
                 sandbox(true)
-                if (JOB_BRANCH.equals("2.8")) { 
-                    script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
-                } else {
-                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
-                }
+                script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
             }
         }
     }

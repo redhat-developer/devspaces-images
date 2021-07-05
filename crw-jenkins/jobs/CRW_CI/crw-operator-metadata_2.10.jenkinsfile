@@ -21,7 +21,7 @@ def OLD_SHA_DWN=""
 def NEW_SHA_MID=""
 def NEW_SHA_DWN=""
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
@@ -39,11 +39,10 @@ timeout(120) {
           println "CRW_VERSION = '" + CRW_VERSION + "'"
 
           QUAY_REPO_PATH=util.getCRWShortName(SYNC_REPO) + "-rhel8"
-          util.bootstrap(CRW_KEYTAB)
 
-          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
-          util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
-          util.cloneRepo("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
 
           // UP2MID are right now ONLY files in olm/ folder upstream copied to build/scripts/ folder midstream
           // TODO add in addDigests.sh buildDigestMap.sh from upstream (which are very different from downsteam versions)
@@ -93,13 +92,13 @@ echo "[INFO] CSV_FILE = ${CSV_FILE}"
           sh '''
   cd ${WORKSPACE}/targetmid/
   # if anything has changed other than the createdAt date, then we commit this
-  if [[ $(git diff | grep -v createdAt | egrep "^(-|\\+) ") ]]; then
-    git add . -A -f
-    git commit -s -m "[csv] Add CSV ''' + CSV_VERSION + '''" .
+  if [[ $(git diff | grep -v createdAt | egrep "^(-|\\+) " || true) ]]; then
+    git add . -A -f || true
+    git commit -s -m "[csv] Add CSV ''' + CSV_VERSION + '''" . || true
     git push origin ''' + MIDSTM_BRANCH + '''
   else # no need to push this so revert
     echo "[INFO] No significant changes (other than createdAt date) so revert and do not commit"
-    git checkout manifests/ build/scripts/
+    git checkout manifests/ build/scripts/ || true
   fi
 # fi
 '''
@@ -142,13 +141,16 @@ sed -r \
 
 # 2. generation of digests already done as part of sync-che-olm-to-crw-olm.sh above
 
-# NOTE about openshift.versions field below: "v4.5,v4.6" is special. Do not change it.
-# use backport=true for v4.5 support
+# NOTE about openshift.versions field below: "v4.6" is special, meaning 4.6+. 
+# Do not change it (unless we want to restrict CRW from being available on specific OCP versions (eg., v4.6,v4.8 would exclude support for v4.7)
 # See details in https://docs.engineering.redhat.com/display/CFC/Delivery
 
 # 3. revert to OSBS image refs, since digest pinning will automatically switch them to RHCC values
+CRW_OPERATOR="crw-2-rhel8-operator" # but in OSBS, want just operator
 sed -r \
     -e "s#(quay.io/crw/|registry.redhat.io/codeready-workspaces/)#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g" \
+		`# use internal image for codeready-workspaces-operator, as codeready-workspaces-crw-2-rhel8-operator only exists in RHEC and Quay repos` \
+		-e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-${CRW_OPERATOR}#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator#" \
     -i "${CSV_FILE}"
 METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
@@ -161,8 +163,8 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\\r
       operators.operatorframework.io.bundle.channels.v1=latest \\\r
       operators.operatorframework.io.bundle.channel.default.v1=latest \\\r
       com.redhat.delivery.operator.bundle="true" \\\r
-      com.redhat.openshift.versions="v4.5,v4.6" \\\r
-      com.redhat.delivery.backport=true \\\r
+      com.redhat.openshift.versions="v4.6" \\\r
+      com.redhat.delivery.backport=false \\\r
       summary="$SUMMARY" \\\r
       description="$DESCRIPTION" \\\r
       io.k8s.description="$DESCRIPTION" \\\r
@@ -189,7 +191,7 @@ git add ''' + util.getCRWLongName(SYNC_REPO) + '''
 git update-index --refresh || true # ignore timestamp updates
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
-  git add Dockerfile ''' + SYNC_FILES_MID2DWN + '''
+  git add Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
   git commit -s -m "[sync] Update operator-metadata from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''" Dockerfile ''' + SYNC_FILES_MID2DWN + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
   NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 

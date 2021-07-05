@@ -6,14 +6,16 @@ import groovy.transform.Field
 // def FORCE_BUILD = "false"
 // MIDSTM_BRANCH
 
-// TODO source from eclipse/che-plugin-registry too
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.9+, see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces" //source repo from which to find and sync commits to pkgs.devel repo
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // dist-git repo to use as target
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
-def SYNC_REPO = "pluginregistry" // also used for the Brew dockerfile params
+def SYNC_REPO = "devfileregistry" // also used for the Brew dockerfile params
 def USE_DIGESTS = "true" // if true, use @sha256:digest in registry; if false, use :tag
-def SYNC_FILES="build deploy openshift v3 .gitignore .htaccess LICENSE README.md VERSION"
+def SYNC_FILES="arbitrary-users-patch build devfiles images .gitignore .htaccess LICENSE README.md VERSION"
 
 def OLD_SHA_MID=""
 def OLD_SHA_DWN=""
@@ -33,22 +35,14 @@ timeout(120) {
       util.installRhpkg()
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
           file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-        util.bootstrap(CRW_KEYTAB)
 
         println "########################################################################################################"
         println "##  Clone and update github.com/${MIDSTM_REPO}.git"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, true)
         OLD_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
         println "Got OLD_SHA_MID in targetmid folder: " + OLD_SHA_MID
-        SOURCE_DIR="${WORKSPACE}/targetmid/dependencies/che-plugin-registry/"
-
-        // Check if che-machine-exec and che-theia plugins are current in upstream repo and if not, add them
-        sh('''#!/bin/bash -xe
-          cd ''' + SOURCE_DIR + '''
-          ./build/scripts/add_che_plugins.sh -b ''' + MIDSTM_BRANCH + ''' $(cat ${WORKSPACE}/targetmid/pom.xml | grep -E "<che.version>" | sed -r -e "s#.+<che.version>(.+)</che.version>#\\1#")
-        ''')
-
+        SOURCE_DIR="${WORKSPACE}/targetmid/dependencies/che-devfile-registry/"
         util.updateBaseImages(SOURCE_DIR + "build/dockerfiles", DWNSTM_BRANCH)
         NEW_SHA_MID = util.getLastCommitSHA("${WORKSPACE}/targetmid")
         println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
@@ -56,7 +50,7 @@ timeout(120) {
         println "########################################################################################################"
         println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", DWNSTM_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn", DWNSTM_BRANCH, false)
         OLD_SHA_DWN = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
         TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO) + "/"
@@ -86,9 +80,6 @@ timeout(120) {
           CRW_VERSION="''' + CRW_VERSION_F + '''"
           # apply patches to transform CRW upstream to pkgs.devel version
           sed -i ''' + TARGET_DIR + '''Dockerfile --regexp-extended \
-            `# Replace image used for registry with rhel8/httpd-24` \
-            -e 's|^ *FROM registry.access.redhat.com/.* AS registry|# &|' \
-            -e 's|# *(FROM.*rhel8/httpd.*)|\\1|' \
             `# Strip registry from image references` \
             -e 's|FROM registry.access.redhat.com/|FROM |' \
             -e 's|FROM registry.redhat.io/|FROM |' \
@@ -106,11 +97,14 @@ timeout(120) {
             -e 's|^ *FROM registry AS offline-registry|# &|' \
             -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
             -e 's|^[^#]*--from=offline-builder.*|# &|' \
-            `# Enable cache_artifacts.sh` \
+            -e '/COPY --from=builder/a COPY --from=builder /build/resources /var/www/html/resources' \
+            `# Enable cache_projects.sh` \
             -e '\\|swap_images.sh|i # Cache projects in CRW \\
-COPY ./build/dockerfiles/rhel.cache_artifacts.sh resources.tgz /tmp/ \\
-RUN /tmp/rhel.cache_artifacts.sh /build/v3/ && rm -rf /tmp/rhel.cache_artifacts.sh /tmp/resources.tgz \\
-'
+COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \\
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz \\
+' \
+            `# Enable swap in arch specific devfiles` \
+            -e '\\|swap_images.sh|i RUN ./swap_yamlfiles.sh devfiles' \
 
           METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
@@ -160,7 +154,7 @@ LABEL summary="$SUMMARY" \\\r
         }
 
         println "########################################################################################################"
-        println "##  Kickoff Sync to downstream job"
+        println "##  Trigger sync to downstream job"
         println "########################################################################################################"
         if (!OLD_SHA_MID.equals(NEW_SHA_MID) || !OLD_SHA_DWN.equals(NEW_SHA_DWN) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)

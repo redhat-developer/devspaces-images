@@ -1,11 +1,11 @@
 // map branch to floating quay tag to create
 def FLOATING_QUAY_TAGS = [
-    "2.8":"2.8",
-    "2.9":"latest",
-    "2.x":"nightly"
+    "2.9": "2.9",
+    "2.10":"latest",
+    "2.x": "nightly"
     ]
-def JOB_BRANCHES = ["2.8":"", "2.9":"", "2.x":""]
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
+def JOB_BRANCHES = ["2.9":"", "2.10":"", "2.x":""]
+def JOB_DISABLED = ["2.9":true, "2.10":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"

@@ -1,3 +1,7 @@
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.9+, just use crw-theia-sources
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 #!/usr/bin/env groovy
 
 import groovy.transform.Field
@@ -19,7 +23,7 @@ def SOURCE_SHA=""
 def assetPath="/lastSuccessfulBuild/artifact/crw-theia/dockerfiles/*zip*/dockerfiles.zip"
 def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
@@ -45,32 +49,20 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
 
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-            util.bootstrap(CRW_KEYTAB)
-            util.cloneRepo(MIDSTM_REPO, "crw-theia", MIDSTM_BRANCH)
+            util.cloneRepoWithBootstrap(MIDSTM_REPO, "crw-theia", MIDSTM_BRANCH, true)
 
-            println("Retrieve dockerfiles from build and extract in crw-theia")
-            sh('''#!/bin/bash +x
-              cd ${WORKSPACE}/crw-theia
-              curl -sSLO "''' + jenkinsURL + assetPath + '''"
-              if [[ -f dockerfiles.zip ]]; then
-                unzip -o dockerfiles.zip
-                rm dockerfiles.zip
-              else 
-                echo "Error downloading ''' + jenkinsURL + assetPath + ''' !"
-                exit 1
-              fi
-              ''')
             SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/crw-theia")
             println "Got SOURCE_SHA in crw-theia folder: " + SOURCE_SHA
 
-            util.cloneRepo(DWNSTM_REPO1, "target1", MIDSTM_BRANCH)
-            util.cloneRepo(DWNSTM_REPO2, "target2", MIDSTM_BRANCH)
-            util.cloneRepo(DWNSTM_REPO3, "target3", MIDSTM_BRANCH)
+            util.cloneRepoWithBootstrap(DWNSTM_REPO1, "target1", MIDSTM_BRANCH, false)
+            util.cloneRepoWithBootstrap(DWNSTM_REPO2, "target2", MIDSTM_BRANCH, false) 
+            util.cloneRepoWithBootstrap(DWNSTM_REPO3, "target3", MIDSTM_BRANCH, false)
             OLD_SHA1 = util.getLastCommitSHA("${WORKSPACE}/target1")
             OLD_SHA2 = util.getLastCommitSHA("${WORKSPACE}/target2")
             OLD_SHA3 = util.getLastCommitSHA("${WORKSPACE}/target3")
 
-            println("Sync Changes and do Dockerfile transformations")
+            // TODO CRW-1609 we should only have to copy from lower midstream (crw-images) to downstream (pkgs.devel)
+            println("Sync upper midstream (crw-theia) to downstream (pkgs.devel)")
             sh('''#!/bin/bash -xe
               for targetN in target1 target2 target3; do
                 if [[ \$targetN == "target1" ]]; then SRC_PATH="${WORKSPACE}/crw-theia/dockerfiles/theia-dev"; fi
@@ -89,54 +81,18 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
                   fi
                 done
 
-                # apply changes from upstream Dockerfile to downstream Dockerfile
-                find ${SRC_PATH} -name "*ockerfile*" || true
+                # sync upstream Dockerfiles to downstream Dockerfiles
                 SOURCEDOCKERFILE="${SRC_PATH}/Dockerfile"
                 TARGETDOCKERFILE=""
                 if [[ \$targetN == "target1" ]]; then TARGETDOCKERFILE="${WORKSPACE}/target1/Dockerfile"; fi
                 if [[ \$targetN == "target2" ]]; then TARGETDOCKERFILE="${WORKSPACE}/target2/Dockerfile"; fi
                 if [[ \$targetN == "target3" ]]; then TARGETDOCKERFILE="${WORKSPACE}/target3/Dockerfile"; fi
-
-                # apply generic patches to convert source -> target dockerfile (for use in Brew)
-                if [[ ${SOURCEDOCKERFILE} != "" ]] && [[ -f ${SOURCEDOCKERFILE} ]] && [[ ${TARGETDOCKERFILE} != "" ]]; then
-                  sed ${SOURCEDOCKERFILE} -r \
-                  `# cannot resolve RHCC from inside Brew so use no registry to resolve from Brew using same container name` \
-                  -e "s#FROM registry.redhat.io/#FROM #g" \
-                  -e "s#FROM registry.access.redhat.com/#FROM #g" \
-                  `# cannot resolve quay from inside Brew so use internal mirror w/ revised container name` \
-                  -e "s#quay.io/crw/#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g" \
-                  `# cannot resolve theia-rhel8:next, theia-dev-rhel8:next from inside Brew so use revised container tag` \
-                  -e "s#(theia-.+):next#\\1:''' + CRW_VERSION + '''#g" \
-                  > ${TARGETDOCKERFILE}
+                if [[ ${SOURCEDOCKERFILE} != "" ]] && [[ -f ${SOURCEDOCKERFILE} ]]; then
+                  cp ${SOURCEDOCKERFILE} ${TARGETDOCKERFILE}
                 else
-                  echo "[WARNING] ${SOURCEDOCKERFILE} does not exist, so cannot sync to ${TARGETDOCKERFILE}"
+                  echo "[ERROR] ${SOURCEDOCKERFILE} does not exist, so cannot sync to ${TARGETDOCKERFILE}"
+                  exit 1
                 fi
-
-                # add special patches to convert theia bootstrap build into brew-compatible one
-                # TODO should this be in build.sh instead?
-                if [[ \$targetN == "target2" ]] && [[ ${TARGETDOCKERFILE} != "" ]]; then
-                  sed -r \
-                  `# fix up theia loader patch inclusion (3 steps)` \
-                  -e "s#ADD branding/loader/loader.patch .+#COPY asset-branding.tar.gz /tmp/asset-branding.tar.gz#g" \
-                  -e "s#ADD (branding/loader/CodeReady_icon_loader.svg .+)#RUN tar xvzf /tmp/asset-branding.tar.gz -C /tmp; cp /tmp/\\1#g" \
-                  -e "s#(RUN cd .+/theia-source-code && git apply).+#\\1 /tmp/branding/loader/loader.patch#g" \
-                  `# don't create tarballs` \
-                  -e "s#.+tar zcf.+##g" \
-                  `# don't do node-gyp installs, etc.` \
-                  -e "s#.+node-gyp.+##g" \
-                  `# copy from builder` \
-                  -e "s#^COPY branding #COPY --from=builder /tmp/branding #g" \
-                  -i ${TARGETDOCKERFILE}
-                fi
-
-                # update platforms in container.yaml
-                platforms="''' + req_platforms.join(' ') + '''"
-                cd ${WORKSPACE}/${targetN}
-                yq -iy '.platforms.only |= ([])' container.yaml
-                for platform in $platforms ; do
-                  echo "Add platform = $platform to ${WORKSPACE}/${targetN}/container.yaml"
-                  yq -iy '.platforms.only |= (.+ ["'$platform'"] | unique)' container.yaml
-                done
               done
             ''')
 
@@ -156,12 +112,11 @@ curl -sSLI ''' + jenkinsURL + '''/lastSuccessfulBuild/artifact/crw-theia/dockerf
                     fi
                   done
                   git add Dockerfile
-                  git add container.yaml
                   git commit -s -m "[sync] Update from ''' + MIDSTM_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
                   git push origin ''' + MIDSTM_BRANCH + ''' || true
                 fi
               done
-              ''')
+            ''')
             util.updateBaseImages("${WORKSPACE}/target1", MIDSTM_BRANCH, "-q")
             util.updateBaseImages("${WORKSPACE}/target2", MIDSTM_BRANCH, "-q")
             util.updateBaseImages("${WORKSPACE}/target3", MIDSTM_BRANCH, "-q")

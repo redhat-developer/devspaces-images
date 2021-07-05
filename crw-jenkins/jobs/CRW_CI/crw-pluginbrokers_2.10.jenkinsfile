@@ -7,6 +7,10 @@ import groovy.transform.Field
 // MIDSTM_BRANCH
 // FORCE_BUILD
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.10+, see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 def SOURCE_REPO = "eclipse/che-plugin-broker" // upstream source repo from which to find and sync commits to midstream repo
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 def SYNC_REPO1 = "pluginbroker-metadata" // also used for the Brew dockerfile params
@@ -32,20 +36,19 @@ timeout(120) {
         util.installYq()
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
           file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-          util.bootstrap(CRW_KEYTAB)
 
           println "########################################################################################################"
           println "##  Clone and update github.com/${SOURCE_REPO}.git"
           println "########################################################################################################"
           SOURCE_DIR="${WORKSPACE}/sources"
-          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, true)
           SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
           println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
           println "########################################################################################################"
           println "##  Sync ${SYNC_REPO1} and ${SYNC_REPO2} to codeready-workspaces-images"
           println "########################################################################################################"
-          util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH, false)
           OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/target")
           TARGET_DIR1="${WORKSPACE}/target/" + util.getCRWLongName(SYNC_REPO1)
           TARGET_DIR2="${WORKSPACE}/target/" + util.getCRWLongName(SYNC_REPO2)
@@ -95,6 +98,8 @@ timeout(120) {
               #apply patches
               if [[ ${SOURCEDOCKERFILE} != "" ]] && [[ ${TARGETDOCKERFILE} != "" ]]; then
                 sed ${SOURCEDOCKERFILE} \
+                  `# Replace ubi8 with rhel8 version` \
+                  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
                   -e "s#FROM registry.redhat.io/#FROM #g" \
                   -e "s#FROM registry.access.redhat.com/#FROM #g" \
                   > ${TARGETDOCKERFILE}
@@ -137,6 +142,7 @@ usage="" \r'
               git add Dockerfile ${SYNC_FILES} . -A -f
               # note this might fail if we're syncing from a tag vs. a branch
               git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
+              git pull origin ''' + MIDSTM_BRANCH + ''' || true
               git push origin ''' + MIDSTM_BRANCH + ''' || true
               echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
             fi
@@ -150,7 +156,7 @@ usage="" \r'
           }
 
           println "########################################################################################################"
-          println "##  Kickoff Sync to downstream job"
+          println "##  Trigger sync to downstream job"
           println "########################################################################################################"
           if (!OLD_SHA.equals(NEW_SHA) || FORCE_BUILD == "true") {
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)

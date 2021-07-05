@@ -18,7 +18,7 @@ def SOURCE_SHA=""
 def NEW_SHA=""
 
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
@@ -33,13 +33,12 @@ timeout(120) {
         util.installRhpkg()
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-        util.bootstrap(CRW_KEYTAB)
 
         println "########################################################################################################"
         println "##  Clone and update github.com/${SOURCE_REPO}.git"
         println "########################################################################################################"
         SOURCE_DIR="${WORKSPACE}/sources"
-        util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
         SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
 
         // can't yet generate a PR against eclipse/che-* repos, and can't push directly
@@ -50,7 +49,7 @@ timeout(120) {
         println "########################################################################################################"
         println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
         println "########################################################################################################"
-        util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn/", MIDSTM_BRANCH)
+        util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn/", MIDSTM_BRANCH, false)
         TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
         OLD_SHA = util.getLastCommitSHA(TARGET_DIR)
         println "Got OLD_SHA in targetdwn folder: " + OLD_SHA

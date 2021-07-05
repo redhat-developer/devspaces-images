@@ -22,10 +22,8 @@ timeout(120) {
         currentBuild.description="Sync gitlab:" + GITLAB_BRANCH + " to github:" + MIDSTM_BRANCH + "..."
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-            util.bootstrap(CRW_KEYTAB)
-
-            util.cloneRepo("https://gitlab.cee.redhat.com/${SOURCE_REPO}", "${WORKSPACE}/sources", GITLAB_BRANCH)
-            util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+            util.cloneRepoWithBootstrap("https://gitlab.cee.redhat.com/${SOURCE_REPO}", "${WORKSPACE}/sources", GITLAB_BRANCH, false)
+            util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
 
             SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
             sh('''#!/bin/bash -xe

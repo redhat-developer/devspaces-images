@@ -18,13 +18,12 @@ timeout(120) {
                         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                         def util = load "${WORKSPACE}/util.groovy"
                         cleanWs()
-                        util.bootstrap(CRW_KEYTAB)
                         util.installSkopeoFromContainer("")
                         util.installYq()
                         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                         println "CRW_VERSION = '" + CRW_VERSION + "'"
                         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH)
+                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
                         def NEW_IMAGES = sh (
                             script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new",

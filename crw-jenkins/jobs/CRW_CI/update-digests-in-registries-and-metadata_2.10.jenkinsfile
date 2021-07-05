@@ -6,7 +6,7 @@ import groovy.transform.Field
     // MIDSTM_BRANCH
 
 def errorOccurred = false
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
     node(nodeLabel){ 
         try { 
@@ -18,13 +18,12 @@ timeout(120) {
                         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                         def util = load "${WORKSPACE}/util.groovy"
                         cleanWs()
-                        util.bootstrap(CRW_KEYTAB)
                         util.installSkopeoFromContainer("")
                         util.installYq()
                         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                         println "CRW_VERSION = '" + CRW_VERSION + "'"
                         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH)
+                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
                         def NEW_IMAGES = sh (
                             script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new",
@@ -199,7 +198,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                                 //parallel jobs
                                 while (true) {
                                     def REBUILT_IMAGES = sh (
-                                    script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -c 'crw/devfileregistry-rhel8 crw/pluginregistry-rhel8' --quay --tag ${CRW_VERSION}- --hide",
+                                    script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/devfileregistry-rhel8 crw/pluginregistry-rhel8' --quay --tag ${CRW_VERSION}- --hide",
                                     returnStdout: true
                                     ).trim().split()
                                     def rebuiltImagesSet = REBUILT_IMAGES as Set
@@ -247,7 +246,7 @@ echo "<============ LATEST_IMAGES.new 2 ============"
                             while (true) 
                             {
                                 def rebuiltOperatorMetadataImage = sh (
-                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
+                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
                                 returnStdout: true
                                 ).trim()
                                 echo "${rebuiltOperatorMetadataImage}"

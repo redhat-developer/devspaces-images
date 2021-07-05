@@ -40,11 +40,10 @@ timeout(300) {
 
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-            util.bootstrap(CRW_KEYTAB)
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
-            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
+            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
@@ -68,7 +67,7 @@ timeout(300) {
                 println "########################################################################################################"
                 println "##  Sync [${SYNC_REPOS[i]}] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH)
+                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
                 sh('''
 SOURCEDIR="${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/"

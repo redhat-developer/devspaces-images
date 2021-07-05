@@ -8,13 +8,13 @@ import groovy.transform.Field
 // MIDSTM_BRANCH 
 
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
-///// THIS FILE IS DEPRECATED and not used; for 2.10+, see template_2.x.jenkinsfile
+///// THIS FILE IS DEPRECATED and not used; for 2.9+, see template_2.x.jenkinsfile
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
-def SOURCE_REPO = "eclipse/che-jwtproxy" // upstream source repo from which to find and sync commits
+def SOURCE_REPO = "eclipse/che-machine-exec" // upstream source repo from which to find and sync commits
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
-def SYNC_REPO = "jwtproxy"
-def SYNC_FILES="cmd config examples jwt proxy stop go.mod go.sum jwtproxy.go LICENSE README.md vendor"
+def SYNC_REPO = "machineexec"
+def SYNC_FILES="activity api auth build cfg client cloud-shell common exec exec-info filter kubeconfig mocks output shell vendor ws-conn compile.sh CONTRIBUTING.md devfile.yaml go.mod go.sum LICENSE main.go VERSION README.md"
 
 def OLD_SHA=""
 def NEW_SHA=""
@@ -41,10 +41,7 @@ timeout(120) {
         SOURCE_DIR="${WORKSPACE}/sources"
         util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
         SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
-
-        // can't yet generate a PR against eclipse/che-* repos, and can't push directly
-        // so check for a new base image but DO NOT commit/push/pull-request
-        util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f rhel.Dockerfile --nocommit")
+        util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit")
 
         println "########################################################################################################"
         println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
@@ -80,13 +77,8 @@ timeout(120) {
             `# Replace ubi8 with rhel8 version` \
             -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
             `# more replacements` \
-            -e "s@^FROM \\(registry.access.redhat.com/devtools/.\\+\\)@# FROM \\1@g" \
-            -e "s@# *FROM registry.redhat.io/\\(rhel8.\\+\\)@FROM \\1@g" \
-            -e "s@FROM registry.access.redhat.com/\\(ubi8-minimal\\)@FROM \\1@g" \
-            `# Replace go-toolset rhel7 with rhel8 version` \
-            -e "s#devtools/go-toolset-rhel7#rhel8/go-toolset#g" \
-            -e "s#ENV PATH=/opt/rh/go-toolset.+PATH ##g" \
-            -e "s@ENV PATH=@# ENV PATH=@g"
+            -e "s#FROM registry.redhat.io/#FROM #g" \
+            -e "s#FROM registry.access.redhat.com/#FROM #g"
 
           METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
 DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r

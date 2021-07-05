@@ -28,7 +28,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
                         sh('''#!/bin/bash -xe
                          df -h; du -sch . ${WORKSPACE} /tmp 2>/dev/null || true
                         ''')
-                        util.cloneRepo("https://github.com/redhat-developer/${CRW_path}.git", "${WORKSPACE}/${CRW_path}", MIDSTM_BRANCH)
+                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/${CRW_path}.git", "${WORKSPACE}/${CRW_path}", MIDSTM_BRANCH, true)
                         def statusCode = sh(script: '''#!/bin/bash -xe
                         PODMAN=$(command -v podman || true)
                         if [[ ! -x $PODMAN ]]; then echo "[WARNING] podman is not installed."; PODMAN=$(command -v docker || true); fi

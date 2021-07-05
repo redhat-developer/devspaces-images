@@ -14,17 +14,13 @@ def MIDSTM_REPO = "redhat-developer/codeready-workspaces-operator" // GH repo to
 def DWNSTM_REPO = "redhat-developer/codeready-workspaces-images" // downstream repo (before pkgs.devel)
 def SYNC_REPO = "operator"
 
-// CRW-1535 updateBaseImages: restrict found tag to 1.13-zzz (not latest 1.14-zzz for golang), and 8.x- for ubi-minimal
-// NOTE: maxdepth 1 here is to prevent attempting to transform empty dockerfile in che-operator/build/Dockerfile
-def UPDATE_BASE_IMAGES_FLAGS=" -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" " 
-
 def SOURCE_SHA=""
 def OLD_SHA_MID=""
 def OLD_SHA_DWN=""
 def NEW_SHA_MID=""
 def NEW_SHA_DWN=""
 
-def String nodeLabel = 'rhel8'
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
@@ -44,11 +40,10 @@ timeout(120) {
           println "CRW_VERSION = '" + CRW_VERSION + "'"
 
           QUAY_REPO_PATH=util.getCRWShortName(SYNC_REPO) + "-rhel8"
-          util.bootstrap(CRW_KEYTAB)
 
-          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
-          util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
-          util.cloneRepo("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
   
           def SYNC_FILES_UP2DWN = ".dockerignore .gitignore cmd deploy deploy.sh e2e go.mod go.sum LICENSE olm pkg README.md templates vendor version"
           def SYNC_FILES_MID2DWN = "build"
@@ -64,7 +59,7 @@ timeout(120) {
           OLD_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
           println "Got OLD_SHA_DWN in targetdwn folder: " + OLD_SHA_DWN
 
-          util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${WORKSPACE}/sources", SOURCE_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
 	  def SOURCEDOCKERFILE="${WORKSPACE}/sources/Dockerfile"
           sh '''#!/bin/bash -xe
@@ -156,6 +151,9 @@ cp -f ''' + SOURCEDOCKERFILE + ''' ${TARGET_DIR}/Dockerfile
 
 # apply standard patches to convert from midstream public to downstream Brew build
 sed -i ${TARGET_DIR}/Dockerfile \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  `# more replacements` \
   -e "s#FROM registry.redhat.io/#FROM #g" \
   -e "s#FROM registry.access.redhat.com/#FROM #g" \
   -e "s/# *RUN yum /RUN yum /g"
@@ -203,7 +201,7 @@ git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTR
 '''
 
           // don't commit yet, we'll do it later
-          util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${WORKSPACE}/targetmid", MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
           sh '''#!/bin/bash -xe
 # push changes to github from codeready-workspaces-images
 cd ${WORKSPACE}/targetmid
@@ -219,7 +217,7 @@ fi
           println "Got NEW_SHA_MID in targetmid folder: " + NEW_SHA_MID
 
           // don't commit yet, we'll do it later
-          util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit " + UPDATE_BASE_IMAGES_FLAGS)
+          util.updateBaseImages("${TARGET_DIR}", MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
           // if anything changed, push changes in gh to dist-git
           sh '''#!/bin/bash -xe
@@ -235,22 +233,6 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
   NEW_SHA_DWN=\$(git rev-parse --short=4 HEAD) 
   echo "[sync] Updated codeready-workspaces-images @ ${NEW_SHA_DWN} from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + ''' + ''' + MIDSTM_REPO + ''' @ ''' + NEW_SHA_MID + '''"
 fi
-
-# TODO why do we do this sync from down -> mid?
-# if it's never committed what's the point? ~Nick
-# now rsync files to MIDSTM GH repo from changes in dist-git
-## for d in ''' + SYNC_FILES_DWN2MID + '''; do
-##   if [[ -f ${TARGET_DIR}/${d} ]]; then
-##     rsync -zrlt ${TARGET_DIR}/${d} ${WORKSPACE}/targetmid/${d}
-##   elif [[ -d ${TARGET_DIR}/${d} ]]; then
-##     # copy over the files
-##     rsync -zrlt ${TARGET_DIR}/${d}/* ${WORKSPACE}/targetmid/${d}/
-##     # sync the directory and delete from targetmid if deleted from source
-##     rsync -zrlt --delete ${TARGET_DIR}/${d}/ ${WORKSPACE}/targetmid/${d}/
-##   fi
-## done
-# TODO should this be done higher up, before we commit to midstream repo crw-operator?
-# or is this obsoleted by some other sync script? ~Nick
 '''
 
           NEW_SHA_DWN = util.getLastCommitSHA("${TARGET_DIR}")
@@ -307,7 +289,7 @@ node(nodeLabel) {
                 [
                   $class: 'StringParameterValue',
                   name: 'UPDATE_BASE_IMAGES_FLAGS',
-                  value: UPDATE_BASE_IMAGES_FLAGS
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
                 ],
                 [
                   $class: 'StringParameterValue',

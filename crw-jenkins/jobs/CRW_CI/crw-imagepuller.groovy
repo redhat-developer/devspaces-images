@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
+def JOB_BRANCHES = ["2.9":"7.30.x", "2.10":"7.32.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
+def JOB_DISABLED = ["2.9":true, "2.10":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -55,7 +55,7 @@ Artifact builder + sync job; triggers brew after syncing
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) { 
+            if (JOB_BRANCH.equals("2.9")) { 
                 stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.14|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.14'")
             }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")

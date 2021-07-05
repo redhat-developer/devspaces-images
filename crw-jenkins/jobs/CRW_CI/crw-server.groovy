@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.8":"7.28.x", "2.9":"7.30.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
-def JOB_DISABLED = ["2.8":true, "2.9":true, "2.x":false]
+def JOB_BRANCHES = ["2.9":"7.30.x", "2.10":"7.32.x", "2.x":"7.32.x"] // TODO switch 2.x to main, when 2.10 branches/jobs created
+def JOB_DISABLED = ["2.9":true, "2.10":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -7,7 +7,7 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
-        if (JOB_BRANCH.equals("2.8") || JOB_BRANCH.equals("2.9")) {
+        if (JOB_BRANCH.equals("2.9")) {
             UPSTM_NAME="che"
             SOURCE_REPO="eclipse/" + UPSTM_NAME
         } else {
@@ -71,11 +71,7 @@ Artifact builder + sync job; triggers brew after syncing
         definition {
             cps{
                 sandbox(true)
-                if (JOB_BRANCH.equals("2.8")) {
-                    script(readFileFromWorkspace('jobs/CRW_CI/crw-'+MIDSTM_NAME+'_'+JOB_BRANCH+'.jenkinsfile'))
-                } else {
-                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
-                }
+                script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
             }
         }
     }

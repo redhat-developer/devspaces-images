@@ -11,10 +11,7 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
 
-def nodeVersion = "12.18.2" // Note: theia using newer 12.19.1
-def yarnVersion = "1.17.3"
 def installP7zip = true // p7zip install and use that to build crwctl
-
 def nodeLabel = "rhel8"
 def platforms = "linux-x64,darwin-x64,win32-x64"
 def CTL_path = "codeready-workspaces-chectl"
@@ -34,17 +31,16 @@ timeout(90) {
 
           cleanWs()
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-          util.bootstrap(CRW_KEYTAB)
-          util.installNPM(nodeVersion, yarnVersion, installP7zip)
           util.installYq() // sync script needs this for transforms
+          util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
           // perl-Digest provides shasum for oclif-dev
           // need fuse-sshfs for mounting drive to copy to rcm-guest
           util.installRPMs("fuse-sshfs perl-Digest-SHA", true)
 
           currentBuild.description="Check out code ..."
-          util.cloneRepo("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH)
-          util.cloneRepo("https://github.com/redhat-developer/${CTL_path}.git", "${WORKSPACE}/${CTL_path}", MIDSTM_BRANCH)
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-operator.git", "${WORKSPACE}/codeready-workspaces-operator", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/${CTL_path}.git", "${WORKSPACE}/${CTL_path}", MIDSTM_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-operator.git", "${WORKSPACE}/codeready-workspaces-operator", MIDSTM_BRANCH, false)
 
           def CURRENT_DAY=sh(returnStdout:true,script:"date +'%Y%m%d-%H%M'").trim()
           def SHORT_SHA1 = util.getLastCommitSHA("${WORKSPACE}/${CTL_path}")

@@ -30,20 +30,19 @@ timeout(120) {
                     cleanWs()
                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                     println "CRW_VERSION = '" + CRW_VERSION + "'"
-                    util.bootstrap(CRW_KEYTAB)
 
                     println "########################################################################################################"
                     println "##  Clone and update github.com/${SOURCE_REPO}.git"
                     println "########################################################################################################"
                     SOURCE_DIR="${WORKSPACE}/sources"
-                    util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
+                    util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
                     SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
                     println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
                     println "########################################################################################################"
                     println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
                     println "########################################################################################################"
-                    util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn/", MIDSTM_BRANCH)
+                    util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/targetdwn/", MIDSTM_BRANCH, false)
                     TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
                     OLD_SHA = util.getLastCommitSHA(TARGET_DIR)
                     println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_SHA
@@ -126,10 +125,9 @@ for (int i=0; i < nodeLabels.size(); i++) {
                     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                         usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
                         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-                        util.bootstrap(CRW_KEYTAB)
                         // build project in Jenkins so we can collect asset-* files later via get-sources-jenkins.sh, then trigger a build brew with those files
                         if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
-                            util.cloneRepo("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH)
+                            util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH, false)
                             util.loginToRegistries()
                             sh('''#!/bin/bash -xe
                               cd ${WORKSPACE}/codeready-workspaces-images/''' + util.getCRWLongName(SYNC_REPO) + '''

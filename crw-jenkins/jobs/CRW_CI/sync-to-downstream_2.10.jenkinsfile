@@ -13,25 +13,37 @@ def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // sourc
 def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
-def String nodeLabel = 'rhel8'
-timeout(180) {
+
+// NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
+
+timeout(300) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
+        currentBuild.description="Install skopeo and rhpkg;<br/> "
         util.installSkopeoFromContainer("")
         util.installRhpkg()
-        currentBuild.description=""
+        // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
+        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
+          if (REPOS.contains("-theia-dev") || REPOS.contains("-dashboard")) { // need make, c++ for node-gyp
+            currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
+            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
+          } else {
+            currentBuild.description+="install node, yarn;<br/> "
+            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
+          }
+        }
 
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-            util.bootstrap(CRW_KEYTAB)
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
-            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
+            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
@@ -48,16 +60,27 @@ timeout(180) {
 
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
                 // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
-                util.updateBaseImages("${WORKSPACE}/sources/" + SYNC_REPOS[i], MIDSTM_BRANCH, UPDATE_BASE_IMAGES_FLAGS)
+                util.updateBaseImages("${WORKSPACE}/sources/" + SYNC_REPOS[i], MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
                 SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
                 println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
                 println "########################################################################################################"
                 println "##  Sync [${SYNC_REPOS[i]}] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH)
+                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
-                sh('''rsync -avhz --checksum --delete --exclude .git/ ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/ ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i])
+                sh('''
+SOURCEDIR="${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/"
+TARGETDIR="${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''"
+echo ".github/
+.git/
+.gitattributes
+sources
+" > /tmp/rsync-excludes
+echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rm -f /tmp/rsync-excludes
+                ''')
 
                 OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
                 println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
@@ -73,23 +96,31 @@ timeout(180) {
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi''')
 
-                // run get-sources-jenkins to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
+                // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
                 sh('''#!/bin/bash -xe
                   export KRB5CCNAME=/var/tmp/crw-build_ccache
                   cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-                  ./get-sources-jenkins.sh -n -p ''' + JOB_BRANCH + '''
+                  if [[ -f get-sources.sh ]]; then 
+                    ./get-sources.sh -n -p ''' + JOB_BRANCH + '''
+                  elif [[ -f get-sources-jenkins.sh ]]; then # old name
+                    ./get-sources-jenkins.sh -n -p ''' + JOB_BRANCH + '''
+                  else 
+                    echo "[ERROR] Could not run get-sources.sh or get-sources-jenkins.sh!"; exit 1
+                  fi
                   COMMIT_SHA="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%H)"
                   COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
                   if [ ! -z "$COMMIT_SHA" ] ; then
                     for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
-                      cp $f ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
+                      cp ${f} ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/${f}
                     done
+                    git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
 
-                    # update source repo with updates from running get-sources-jenkins
+                    # update source repo with updates from running get-sources
                     cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
                     git add . -A -f
                     git commit -m "$COMMIT_MSG" || true
+                    git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi
                 ''')
@@ -123,7 +154,17 @@ timeout(180) {
                       [
                         $class: 'StringParameterValue',
                         name: 'UPDATE_BASE_IMAGES_FLAGS',
-                        value: UPDATE_BASE_IMAGES_FLAGS
+                        value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'nodeVersion',
+                        value: util.globalVar({nodeVersion})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'yarnVersion',
+                        value: util.globalVar({yarnVersion})
                       ],
                       [
                         $class: 'StringParameterValue',
