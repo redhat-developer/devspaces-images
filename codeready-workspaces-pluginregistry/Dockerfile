@@ -12,7 +12,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM ubi8/python-38:1-61 as builder
+FROM ubi8/python-38:1-63 as builder
 USER 0
 
 ARG BOOTSTRAP=false
@@ -53,15 +53,16 @@ COPY ./v3/images/default.png /build/v3/images/
 WORKDIR /build/
 
 RUN tar -xvf resources.tgz -C ./
-RUN ./swap_images.sh ./
+RUN rm -rf ./output/v3/che-theia-plugins.yaml ./output/v3/che-editors.yaml ./output/v3/che-plugins.yaml
+RUN ./swap_images.sh ./output/v3 --use-generated-content
 RUN ./swap_plugins_memory.sh ./output/v3
 RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh ./output/v3; fi
-RUN ./list_referenced_images.sh ./output/v3 > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt
+RUN ./list_referenced_images.sh ./output/v3 --use-generated-content > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt
 RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM ubi8/httpd-24:1-141 AS registry
+FROM ubi8/httpd-24:1-143 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one

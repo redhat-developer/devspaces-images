@@ -375,7 +375,7 @@ plugins:
     extension: https://download.jboss.org/jbosstools/vscode/3rdparty/vscode-php-debug/php-debug-1.13.0.vsix
   - repository:
       url: 'https://github.com/camel-tooling/camel-lsp-client-vscode'
-      revision: 0.0.32
+      revision: 0.0.31
     sidecar:
       image: "registry.redhat.io/codeready-workspaces/plugin-java11-rhel8:2.10"
       name: vscode-apache-camel
@@ -386,7 +386,10 @@ plugins:
         - sh
         - -c
         - ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
-    extension: https://download.jboss.org/jbosstools/vscode/stable/vscode-apache-camel/vscode-apache-camel-0.0.32-205.vsix
+    extension: https://download.jboss.org/jbosstools/vscode/stable/vscode-apache-camel/vscode-apache-camel-0.0.31-143.vsix
+    metaYaml:
+      skipDependencies:
+        - redhat/vscode-commons
   - repository:
       url: 'https://github.com/redhat-developer/vscode-xml'
       revision: 0.14.0
@@ -404,7 +407,7 @@ plugins:
     extension: https://github.com/redhat-developer/codeready-workspaces-vscode-extensions/releases/download/v356aec7/vscode-xml-0.14.0.vsix
   - repository:
       url: 'https://github.com/Azure/vscode-kubernetes-tools'
-      revision: 1.2.0
+      revision: 1.2.1
     sidecar:
       image: "registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8:2.10"
       name: vscode-kubernetes-tools
@@ -446,14 +449,10 @@ plugins:
           path: /home/jboss/.nuget
     extension: https://github.com/redhat-developer/omnisharp-theia-plugin/releases/download/v0.0.6/omnisharp_theia_plugin.theia
   - repository:
-      url: 'https://github.com/asciidoctor/asciidoctor-vscode'
-      revision: v2.7.7
-    extension: https://download.jboss.org/jbosstools/vscode/3rdparty/asciidoctor-vscode/asciidoctor-vscode-2.7.7.vsix
-  - repository:
       url: 'https://github.com/SonarSource/sonarlint-vscode'
       revision: 1.20.1
     sidecar:
-      image: "registry.redhat.io/codeready-workspaces/plugin-java11-rhel8:2.10"
+      image: "registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.10"
       name: vscode-sonarlint
       memoryLimit: 512Mi
       cpuLimit: 500m
