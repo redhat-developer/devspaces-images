@@ -1,16 +1,14 @@
 // map branch to tag to use in operator.yaml and csv.yaml
 def CSV_QUAY_TAGS = [
-    "2.9": "2.9",
     "2.10": "latest",
     "2.x": "nightly"
     ]
 def CSV_VERSIONS = [
-    "2.9": "2.9.0",
     "2.10":"2.10.0",
     "2.x": "2.10.0"
     ]
-def JOB_BRANCHES = ["2.9":"7.30.x", "2.10":"7.32.x", "2.x":"7.32.x"] // TODO switch 2.x to 7.30.x when it exists; switch 2.9 branches/jobs created
-def JOB_DISABLED = ["2.9":true, "2.10":true, "2.x":false]
+def JOB_BRANCHES = ["2.10":"7.32.x", "2.x":"main"]
+def JOB_DISABLED = ["2.10":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key

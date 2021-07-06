@@ -2,8 +2,8 @@
 ///// THIS FILE IS DEPRECATED and not used; for 2.10+, see template_2.x.jenkinsfile
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
 
-def JOB_BRANCHES = ["2.9":"v3.4.x", "2.x":"v3.4.x"] 
-def JOB_DISABLED = ["2.9":true, "2.x":true]
+def JOB_BRANCHES = ["2.9":"v3.4.x"] 
+def JOB_DISABLED = ["2.9":true]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key

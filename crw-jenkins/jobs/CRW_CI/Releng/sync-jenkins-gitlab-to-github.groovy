@@ -49,7 +49,7 @@ Sync CRW_CI jobs in gitlab repo to github.
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github_' + JOB_BRANCH + '.jenkinsfile'))
+                script(readFileFromWorkspace('jobs/CRW_CI/Releng/sync-jenkins-gitlab-to-github.jenkinsfile'))
             }
         }
     }

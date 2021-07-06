@@ -1,5 +1,9 @@
 #!/usr/bin/env groovy
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used; for 2.10+, see template_2.x.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
