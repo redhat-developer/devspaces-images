@@ -115,5 +115,3 @@ deploy/olm-catalog/stable/eclipse-che-preview-kubernetes/generated
 deploy/olm-catalog/stable/eclipse-che-preview-openshift/generated
 
 # End of https://www.gitignore.io/api/go,vim,emacs,visualstudiocode
-/devworkspace-che-operator.zip
-/devworkspace-operator.zip
