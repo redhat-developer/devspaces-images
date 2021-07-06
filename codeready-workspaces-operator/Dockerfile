@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.15.7-11 as builder
+FROM rhel8/go-toolset:1.15.13-4 as builder
 ENV GOPATH=/go/
 ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.6.x"
 ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.32.x"
@@ -39,7 +39,7 @@ RUN unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \
     mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-200.1622548483
+FROM ubi8-minimal:8.4-205
 
 COPY --from=builder /tmp/che-operator/che-operator /usr/local/bin/che-operator
 COPY --from=builder /che-operator/templates/keycloak-provision.sh /tmp/keycloak-provision.sh
