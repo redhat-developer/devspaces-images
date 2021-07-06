@@ -55,8 +55,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05 h1:GuE+5exImKkOfTgFdw8GEOA9jTIpQEuu/27pdUG2BM0=
 github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05/go.mod h1:Cot4snybn3qhIh48oIFi9McocnIx7zY5fFbjfrIpPvg=
-github.com/devfile/devworkspace-operator v0.6.1 h1:s5/feQNx34wcE1L8KIprH11oUStAoBGNywxosulMADY=
-github.com/devfile/devworkspace-operator v0.6.1/go.mod h1:oRXIWzMr/QBMsBY03VDlIyGrnuAeNdiBgEarlBHBXJ0=
+github.com/devfile/devworkspace-operator v0.6.2 h1:xJOAz60dYySjjSEEwOxU4ocXTGky7FZZhUyA1pA8f+E=
+github.com/devfile/devworkspace-operator v0.6.2/go.mod h1:jnislgO8E8yuhfWm4qpNSK/nd1TCh8ehz5Sm6iK3kls=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0/go.mod h1:eEKB0N0r5NX/I1kEveEz05bcu8tLC/8azJZsviup8Sk=
 github.com/docker/go-units v0.3.3/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
