@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
-FROM ubi8:8.4-203.1622660121
+FROM ubi8:8.4-206
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - C/CPP Stack container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - C/CPP Stack container" \
