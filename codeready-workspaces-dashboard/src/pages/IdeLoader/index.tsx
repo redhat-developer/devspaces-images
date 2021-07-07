@@ -241,7 +241,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
     if (ideUrl) {
       return (
         <div className="ide-iframe-page">
-          <iframe id="ide-iframe" src="./static/loader.html" allow="fullscreen *" />
+          <iframe id="ide-iframe" src="./static/loader.html" allow="fullscreen *;clipboard-write *;clipboard-read *" />
         </div>
       );
     }

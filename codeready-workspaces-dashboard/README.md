@@ -70,20 +70,17 @@ To provide a custom remote server:
 yarn start:prod --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
 ```
 
-## License tool
+### Dependencies IP
 
-It uses [dash-licenses](https://github.com/eclipse/dash-licenses) to check all dependencies (including transitive) to be known to Eclipse IPZilla or ClearlyDefined. It generates `.deps/dev.md` and `.deps/prod.md` that contains such information.
+To make sure all the dependencies satisfy Eclipse [Intellectual Property](https://www.eclipse.org/projects/handbook/#ip),
+this repo uses https://github.com/che-incubator/dash-licenses which is a wrapper for https://github.com/eclipse/dash-licenses.
 
-Firstly, build the license-tool dockerfile:
+So, check [.deps/prod.md](https://github.com/eclipse-che/che-dashboard/blob/main/.deps/prod.md) for dependencies we package and [.deps/dev.md](https://github.com/eclipse-che/che-dashboard/blob/main/.deps/dev.md) for ones we use at build time only.
 
-```sh
-yarn licenseCheck:prepare
-```
-
-and then run the license-tool:
+To generate dependencies info:
 
 ```sh
-yarn licenseCheck:run
+yarn license:generate
 ```
 
 ## Branding

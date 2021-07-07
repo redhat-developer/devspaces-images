@@ -102,12 +102,17 @@ class NavigationItemWorkspaceActions extends React.PureComponent<Props, State> {
         createAction(WorkspaceAction.STOP_WORKSPACE),
       );
     }
-    // todo should be add with https://github.com/eclipse/che/issues/19514
-    // if (status !== WorkspaceStatus.STOPPING && status !== DevWorkspaceStatus.TERMINATING) {
-    //   dropdownItems.push(
-    //     createAction(WorkspaceAction.RESTART_WORKSPACE),
-    //   );
-    // }
+    if (
+      status !== WorkspaceStatus.STOPPING &&
+      status !== WorkspaceStatus.STOPPED &&
+      status !== DevWorkspaceStatus.STOPPING &&
+      status !== DevWorkspaceStatus.STOPPED &&
+      status !== DevWorkspaceStatus.TERMINATING
+    ) {
+      dropdownItems.push(
+        createAction(WorkspaceAction.RESTART_WORKSPACE),
+      );
+    }
     dropdownItems.push(
       createAction(WorkspaceAction.EDIT_WORKSPACE),
     );

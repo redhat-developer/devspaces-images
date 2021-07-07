@@ -14,7 +14,13 @@ import { Reducer } from 'redux';
 import { AppThunk } from '../';
 import { createState } from '../helpers';
 import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
-import { convertWorkspace, isWorkspaceV2, isDevfileV2, Workspace } from '../../services/workspaceAdapter';
+import {
+  convertWorkspace,
+  isWorkspaceV2,
+  isDevfileV2,
+  Workspace,
+  isWorkspaceV1,
+} from '../../services/workspaceAdapter';
 import * as CheWorkspacesStore from './cheWorkspaces';
 import * as DevWorkspacesStore from './devWorkspaces';
 
@@ -100,6 +106,7 @@ export type ActionCreators = {
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
   requestWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   startWorkspace: (workspace: Workspace, params?: ResourceQueryParams) => AppThunk<KnownAction, Promise<void>>;
+  restartWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   stopWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   deleteWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
   updateWorkspace: (workspace: Workspace) => AppThunk<KnownAction, Promise<void>>;
@@ -182,6 +189,21 @@ export const actionCreators: ActionCreators = {
     }
   },
 
+  restartWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
+    try {
+      const state = getState();
+      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      if (cheDevworkspaceEnabled && isWorkspaceV2(workspace.ref)) {
+        await dispatch(DevWorkspacesStore.actionCreators.restartWorkspace(workspace.ref));
+      } else {
+        await dispatch(CheWorkspacesStore.actionCreators.restartWorkspace(workspace.ref as che.Workspace));
+      }
+    } catch (e) {
+      dispatch({ type: 'RECEIVE_ERROR' });
+      throw e;
+    }
+  },
+
   stopWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     try {
       const state = getState();
@@ -213,15 +235,13 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  updateWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
+  updateWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
-      const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
-      if (cheDevworkspaceEnabled) {
-        await dispatch(DevWorkspacesStore.actionCreators.updateWorkspace(workspace.ref as IDevWorkspace));
-      } else {
+      if (isWorkspaceV1(workspace.ref)) {
         await dispatch(CheWorkspacesStore.actionCreators.updateWorkspace(workspace.ref as che.Workspace));
+      } else {
+        await dispatch(DevWorkspacesStore.actionCreators.updateWorkspace(workspace.ref as IDevWorkspace));
       }
       dispatch({ type: 'UPDATE_WORKSPACE' });
     } catch (e) {

@@ -270,7 +270,7 @@ describe('Workspaces List Page', () => {
 
       // check number of menu items shown
       menuItems = screen.getAllByRole('menuitem');
-      expect(menuItems.length).toEqual(4);
+      expect(menuItems.length).toEqual(5);
 
       // check state of action buttons
       const startDebugAction = screen.getByRole('button', { name: /verbose mode/i });

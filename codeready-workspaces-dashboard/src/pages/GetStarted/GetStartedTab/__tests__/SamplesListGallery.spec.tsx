@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import { Action, Store } from 'redux';
+import { Store } from 'redux';
 import { render, screen, RenderResult, fireEvent, waitFor } from '@testing-library/react';
 import mockAxios from 'axios';
 import SamplesListGallery from '../SamplesListGallery';

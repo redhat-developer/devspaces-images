@@ -75,7 +75,7 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-9"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-11"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -94,7 +94,26 @@ exports[`Navigation Item should render navigation item for ERROR workspace corre
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-10"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-12"
+            data-ouia-component-type="PF4/DropdownItem"
+            data-ouia-safe={true}
+            tabIndex={-1}
+          >
+            <div>
+              Restart Workspace
+            </div>
+          </a>
+        </li>
+        <li
+          className={null}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+          role="menuitem"
+        >
+          <a
+            aria-disabled={false}
+            className="pf-c-dropdown__menu-item"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-13"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -185,7 +204,7 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-6"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-7"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -204,7 +223,26 @@ exports[`Navigation Item should render navigation item for RUNNING workspace cor
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-7"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-8"
+            data-ouia-component-type="PF4/DropdownItem"
+            data-ouia-safe={true}
+            tabIndex={-1}
+          >
+            <div>
+              Restart Workspace
+            </div>
+          </a>
+        </li>
+        <li
+          className={null}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+          role="menuitem"
+        >
+          <a
+            aria-disabled={false}
+            className="pf-c-dropdown__menu-item"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-9"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -315,6 +353,25 @@ exports[`Navigation Item should render navigation item for STARTING workspace co
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
             data-ouia-component-id="OUIA-Generated-DropdownItem-5"
+            data-ouia-component-type="PF4/DropdownItem"
+            data-ouia-safe={true}
+            tabIndex={-1}
+          >
+            <div>
+              Restart Workspace
+            </div>
+          </a>
+        </li>
+        <li
+          className={null}
+          onClick={[Function]}
+          onKeyDown={[Function]}
+          role="menuitem"
+        >
+          <a
+            aria-disabled={false}
+            className="pf-c-dropdown__menu-item"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-6"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}
@@ -534,7 +591,7 @@ exports[`Navigation Item should render navigation item for STOPPING workspace co
           <a
             aria-disabled={false}
             className="pf-c-dropdown__menu-item"
-            data-ouia-component-id="OUIA-Generated-DropdownItem-8"
+            data-ouia-component-id="OUIA-Generated-DropdownItem-10"
             data-ouia-component-type="PF4/DropdownItem"
             data-ouia-safe={true}
             tabIndex={-1}

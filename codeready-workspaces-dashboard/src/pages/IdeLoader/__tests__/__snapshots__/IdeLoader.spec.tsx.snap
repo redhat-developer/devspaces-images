@@ -1832,7 +1832,7 @@ exports[`The Ide Loader page  component should render Open IDE in the iframe cor
   className="ide-iframe-page"
 >
   <iframe
-    allow="fullscreen *"
+    allow="fullscreen *;clipboard-write *;clipboard-read *"
     id="ide-iframe"
     src="./static/loader.html"
   />

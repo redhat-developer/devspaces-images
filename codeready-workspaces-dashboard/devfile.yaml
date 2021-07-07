@@ -33,17 +33,17 @@ commands:
     actions:
       - workdir: /projects/che-dashboard
         type: exec
-        command: yarn install --non-interactive && yarn compile
+        command: yarn install && yarn compile
         component: dashboard-dev
   - name: '[UD] test'
     actions:
       - workdir: /projects/che-dashboard
         type: exec
-        command: yarn install --non-interactive && yarn test
+        command: yarn install && yarn test
         component: dashboard-dev
   - name: '[UD] start'
     actions:
       - workdir: /projects/che-dashboard
         type: exec
-        command: 'yarn install --non-interactive && yarn start --port=3000 --host=0.0.0.0 --env.server=${CHE_API_INTERNAL%????} --env.token=${CHE_MACHINE_TOKEN}'
+        command: 'yarn install && yarn start --port=3000 --host=0.0.0.0 --env.server=${CHE_API_INTERNAL%????} --env.token=${CHE_MACHINE_TOKEN}'
         component: dashboard-dev

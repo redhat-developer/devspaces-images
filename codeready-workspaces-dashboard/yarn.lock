@@ -504,10 +504,10 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/devworkspace-client@^0.0.1-1623419569":
-  version "0.0.1-1623419569"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/devworkspace-client/-/devworkspace-client-0.0.1-1623419569.tgz#ad7745b2f2c7ed2c8eea2665c2142a206b7d5878"
-  integrity sha512-GnmfBNvExebTAfSfADZBTHQ+iF/qcSq6CTwntpVE0Bx2VCKw6yFd2HPh8tXImHDK7R/klq5igOloW+NoVY5Vag==
+"@eclipse-che/devworkspace-client@^0.0.1-1624633214":
+  version "0.0.1-1625495079"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/devworkspace-client/-/devworkspace-client-0.0.1-1625495079.tgz#3be103146f6bcd81ca86cd6f7486cf4080827443"
+  integrity sha512-l4T/eIsd84JZBLw4cb5+lrT3clrEeHYsCIOG8u+uDua85h5kS5+DxMHlumYDCVVwEygN2vrAE9lja8sxi0+ruQ==
   dependencies:
     "@kubernetes/client-node" "^0.14.0"
     axios "^0.21.1"

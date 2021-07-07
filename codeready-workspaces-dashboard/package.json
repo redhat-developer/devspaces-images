@@ -1,6 +1,6 @@
 {
   "name": "che-dashboard",
-  "version": "7.32.2-SNAPSHOT",
+  "version": "7.34.0-SNAPSHOT",
   "description": "Dashboard for Eclipse CHE",
   "private": true,
   "repository": {
@@ -28,12 +28,14 @@
     "stylelint:fix": "stylelint */**/*.css --fix",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "license:check": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next --check",
+    "license:generate": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next"
   },
   "dependencies": {
     "@devfile/api": "^0.0.1-1622573075",
     "@eclipse-che/che-theia-devworkspace-handler": "^0.0.1-1623136422",
-    "@eclipse-che/devworkspace-client": "^0.0.1-1623419569",
+    "@eclipse-che/devworkspace-client": "^0.0.1-1624633214",
     "@eclipse-che/workspace-client": "^0.0.1-1622804813",
     "@patternfly/react-core": "~4.84.4",
     "@patternfly/react-icons": "^4.3.5",

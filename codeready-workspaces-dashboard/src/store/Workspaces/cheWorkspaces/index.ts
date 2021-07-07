@@ -21,6 +21,8 @@ import { createState } from '../../helpers';
 import { KeycloakAuthService } from '../../../services/keycloak/auth';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
+import { getDefer, IDeferred } from '../../../services/helpers/deferred';
+import { DisposableCollection } from '../../../services/helpers/disposable';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const keycloakAuthService = container.get(KeycloakAuthService);
@@ -98,6 +100,7 @@ export type ActionCreators = {
   requestWorkspace: (workspace: che.Workspace) => AppThunk<KnownAction, Promise<void>>;
   startWorkspace: (workspace: che.Workspace, params?: ResourceQueryParams) => AppThunk<KnownAction, Promise<void>>;
   stopWorkspace: (workspace: che.Workspace) => AppThunk<KnownAction, Promise<void>>;
+  restartWorkspace: (workspace: che.Workspace) => AppThunk<KnownAction, Promise<void>>;
   deleteWorkspace: (workspace: che.Workspace) => AppThunk<KnownAction, Promise<void>>;
   updateWorkspace: (workspace: che.Workspace) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
@@ -113,8 +116,9 @@ type WorkspaceStatusMessageHandler = (message: api.che.workspace.event.Workspace
 type EnvironmentOutputMessageHandler = (message: api.che.workspace.event.RuntimeLogEvent) => void;
 const subscribedWorkspaceStatusCallbacks = new Map<string, WorkspaceStatusMessageHandler>();
 const subscribedEnvironmentOutputCallbacks = new Map<string, EnvironmentOutputMessageHandler>();
+const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
-function onStatusUpdateReceived(
+async function onStatusUpdateReceived(
   workspace: che.Workspace,
   dispatch: ThunkDispatch<State, undefined, UpdateWorkspaceStatusAction | UpdateWorkspacesLogsAction | DeleteWorkspaceLogsAction>,
   message: any) {
@@ -138,6 +142,10 @@ function onStatusUpdateReceived(
       workspaceId: workspace.id,
       status,
     });
+    const onStatusChangeCallback = onStatusChangeCallbacks.get(workspace.id);
+    if (onStatusChangeCallback) {
+      onStatusChangeCallback(status);
+    }
   }
 }
 
@@ -223,7 +231,7 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      const errorMessage = `Failed to fetch the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to fetch the workspace ${workspace.devfile.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'CHE_RECEIVE_ERROR',
         error: errorMessage,
@@ -244,7 +252,7 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      const errorMessage = `Failed to start the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to start the workspace ${workspace.devfile.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'CHE_RECEIVE_ERROR',
         error: errorMessage,
@@ -257,13 +265,45 @@ export const actionCreators: ActionCreators = {
     try {
       await cheWorkspaceClient.restApiClient.stop(workspace.id);
     } catch (e) {
-      const errorMessage = `Failed to stop the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to stop the workspace ${workspace.devfile.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'CHE_RECEIVE_ERROR',
         error: errorMessage,
       });
       throw errorMessage;
     }
+  },
+
+  restartWorkspace: (workspace: che.Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+    const defer: IDeferred<void> = getDefer();
+    const toDispose = new DisposableCollection();
+    const onStatusChangeCallback = (status: string) => {
+      if (status === WorkspaceStatus.STOPPED || status === WorkspaceStatus.ERROR) {
+        toDispose.dispose();
+        dispatch(actionCreators.startWorkspace(workspace)).then(() => {
+          defer.resolve();
+        }).catch(e => {
+          defer.reject(`Failed to restart the workspace ${workspace.devfile.metadata.name}. ${e}`);
+        });
+      }
+    };
+    if (workspace.status === WorkspaceStatus.STOPPED || workspace.status === WorkspaceStatus.ERROR) {
+      onStatusChangeCallback(workspace.status);
+    } else {
+      const workspaceId = workspace.id;
+      onStatusChangeCallbacks.set(workspaceId, onStatusChangeCallback);
+      toDispose.push({
+        dispose: () => onStatusChangeCallbacks.delete(workspaceId)
+      });
+      if (workspace.status === WorkspaceStatus.RUNNING || workspace.status === WorkspaceStatus.STARTING) {
+        try {
+          await dispatch(actionCreators.stopWorkspace(workspace));
+        } catch (e) {
+          defer.reject(`Failed to restart the workspace ${workspace.devfile.metadata.name}. ${e}`);
+        }
+      }
+    }
+    return defer.promise;
   },
 
   deleteWorkspace: (workspace: che.Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
@@ -278,7 +318,7 @@ export const actionCreators: ActionCreators = {
         workspaceId: workspace.id,
       });
     } catch (e) {
-      const errorMessage = `Failed to delete the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to delete the workspace ${workspace.devfile.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'CHE_RECEIVE_ERROR',
         error: errorMessage,
@@ -297,7 +337,7 @@ export const actionCreators: ActionCreators = {
         workspace: updatedWorkspace
       });
     } catch (e) {
-      const errorMessage = `Failed to update the workspace with ID: ${workspace.id}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to update the workspace ${workspace.devfile.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'CHE_RECEIVE_ERROR',
         error: errorMessage,
