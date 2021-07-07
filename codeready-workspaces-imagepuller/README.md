@@ -1,5 +1,4 @@
-[![master](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-incubator-kubernetes-image-puller-build-master/)](https://ci.centos.org/job/devtools-che-incubator-kubernetes-image-puller-build-master/)
-[![nightly](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-kubernetes-image-puller-nightly/)](https://ci.centos.org/job/devtools-kubernetes-image-puller-nightly/)
+[![next](https://github.com/che-incubator/kubernetes-image-puller/actions/workflows/next-build.yml/badge.svg)](https://github.com/che-incubator/kubernetes-image-puller/actions/workflows/next-build.yml)
 
 [![Contribute](https://www.eclipse.org/che/contribute.svg)](https://che.openshift.io/f?url=https://github.com/che-incubator/kubernetes-image-puller)
 
@@ -64,13 +63,14 @@ The following values can be set:
 | `CACHING_MEMORY_LIMIT` | The value of `CACHING_MEMORY_LIMIT` to be set in the ConfigMap | `"20Mi"` |
 | `CACHING_CPU_REQUEST` | The value of `CACHING_CPU_REQUEST` to be set in the ConfigMap | `.05` |
 | `CACHING_CPU_LIMIT` | The value of `CACHING_CPU_LIMIT` to be set in the ConfigMap | `.2` |
+| `NAMESPACE` | The value of `NAMESPACE` to be set in the ConfigMap | `k8s-image-puller` |
 | `NODE_SELECTOR` | The value of `NODE_SELECTOR` to be set in the ConfigMap | `"{}"` |
 | `IMAGE_PULL_SECRETS` | The value of `IMAGE_PULL_SECRETS`       | `""` |
 | `AFFINITY` | The value of `AFFINITY` to be set in the ConfigMap | `"{}"` |
 
 ### Installation - Helm
 
-`kubectl create namespace kubernetes-image-puller`
+`kubectl create namespace k8s-image-puller`
 
 `helm install kubernetes-image-puller -n k8s-image-puller deploy/helm`
 
