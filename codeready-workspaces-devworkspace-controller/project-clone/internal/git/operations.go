@@ -10,33 +10,34 @@
 //   Red Hat, Inc. - initial API and implementation
 //
 
-package internal
+package git
 
 import (
 	"fmt"
 	"log"
-	"os"
 	"path"
 
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/go-git/go-git/v5"
 	gitConfig "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
+
+	"github.com/devfile/devworkspace-operator/project-clone/internal"
+	"github.com/devfile/devworkspace-operator/project-clone/internal/shell"
 )
 
-// CloneProject clones the project specified to $PROJECTS_ROOT. Note: projects.Github is ignored as it will likely
-// be removed soon.
-func CloneProject(project *dw.Project) (*git.Repository, error) {
-	clonePath := GetClonePath(project)
+// CloneProject clones the project specified to $PROJECTS_ROOT.
+func CloneProject(project *dw.Project) error {
+	clonePath := internal.GetClonePath(project)
 	log.Printf("Cloning project %s to %s", project.Name, clonePath)
 
 	if len(project.Git.Remotes) == 0 {
-		return nil, fmt.Errorf("project does not define remotes")
+		return fmt.Errorf("project does not define remotes")
 	}
 
 	var defaultRemoteName, defaultRemoteURL string
 	if project.Git.CheckoutFrom != nil {
-		defaultRemoteName := project.Git.CheckoutFrom.Remote
+		defaultRemoteName = project.Git.CheckoutFrom.Remote
 		if defaultRemoteName == "" {
 			// omitting remote attribute is possible if there is a single remote
 			if len(project.Git.Remotes) == 1 {
@@ -45,34 +46,31 @@ func CloneProject(project *dw.Project) (*git.Repository, error) {
 				}
 			} else {
 				// need to specify
-				return nil, fmt.Errorf("project checkoutFrom remote can't be omitted with multiple remotes")
+				return fmt.Errorf("project checkoutFrom remote can't be omitted with multiple remotes")
 			}
 		}
 		remoteURL, ok := project.Git.Remotes[defaultRemoteName]
 		if !ok {
-			return nil, fmt.Errorf("project checkoutFrom refers to non-existing remote %s", defaultRemoteName)
+			return fmt.Errorf("project checkoutFrom refers to non-existing remote %s", defaultRemoteName)
 		}
 		defaultRemoteURL = remoteURL
 	} else {
 		if len(project.Git.Remotes) > 1 {
-			return nil, fmt.Errorf("project checkoutFrom field is required when a project defines multiple remotes")
+			return fmt.Errorf("project checkoutFrom field is required when a project defines multiple remotes")
 		}
 		for remoteName, remoteUrl := range project.Git.Remotes {
 			defaultRemoteName, defaultRemoteURL = remoteName, remoteUrl
 		}
 	}
 
-	repo, err := git.PlainClone(path.Join(projectsRoot, clonePath), false, &git.CloneOptions{
-		URL:        defaultRemoteURL,
-		RemoteName: defaultRemoteName,
-		Progress:   os.Stdout,
-	})
+	// Delegate to standard git binary because git.PlainClone takes a lot of memory for large repos
+	err := shell.GitCloneProject(defaultRemoteURL, defaultRemoteName, path.Join(internal.ProjectsRoot, clonePath))
 	if err != nil {
-		return nil, fmt.Errorf("failed to git clone from %s: %s", defaultRemoteURL, err)
+		return fmt.Errorf("failed to git clone from %s: %s", defaultRemoteURL, err)
 	}
 
 	log.Printf("Cloned project %s to %s", project.Name, clonePath)
-	return repo, nil
+	return nil
 }
 
 // SetupRemotes sets up a git remote in repo for each remote in project.Git.Remotes
@@ -114,12 +112,12 @@ func CheckoutReference(repo *git.Repository, project *dw.Project) error {
 	}
 	remote, err := repo.Remote(defaultRemoteName)
 	if err != nil {
-		return fmt.Errorf("could not find remote %s: %s", checkoutFrom.Remote, err)
+		return fmt.Errorf("could not find remote %s: %s", defaultRemoteName, err)
 	}
 
 	refs, err := remote.List(&git.ListOptions{})
 	if err != nil {
-		return fmt.Errorf("failed to read remote %s: %s", checkoutFrom.Remote, err)
+		return fmt.Errorf("failed to read remote %s: %s", defaultRemoteName, err)
 	}
 
 	for _, ref := range refs {
@@ -127,13 +125,13 @@ func CheckoutReference(repo *git.Repository, project *dw.Project) error {
 			continue
 		}
 		if ref.Name().IsBranch() {
-			return checkoutRemoteBranch(repo, checkoutFrom.Remote, ref)
+			return checkoutRemoteBranch(repo, defaultRemoteName, ref)
 		} else if ref.Name().IsTag() {
-			return checkoutTag(repo, checkoutFrom.Remote, ref)
+			return checkoutTag(repo, defaultRemoteName, ref)
 		}
 	}
 
-	log.Printf("No tag or branch named %s found on remote %s; attempting to resolve commit", checkoutFrom.Revision, checkoutFrom.Remote)
+	log.Printf("No tag or branch named %s found on remote %s; attempting to resolve commit", checkoutFrom.Revision, defaultRemoteName)
 	hash, err := repo.ResolveRevision(plumbing.Revision(checkoutFrom.Revision))
 	if err != nil {
 		return fmt.Errorf("failed to resolve commit %s: %s", checkoutFrom.Revision, err)

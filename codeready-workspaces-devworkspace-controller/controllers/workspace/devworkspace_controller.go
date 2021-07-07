@@ -125,6 +125,12 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 
 	// Stop failed workspaces
 	if workspace.Status.Phase == devworkspacePhaseFailing && workspace.Spec.Started {
+		// If debug annotation is present, leave the deployment in place to let users
+		// view logs.
+		if workspace.Annotations[constants.DevWorkspaceDebugStartAnnotation] == "true" {
+			return reconcile.Result{}, nil
+		}
+
 		patch := []byte(`{"spec":{"started": false}}`)
 		err := r.Client.Patch(context.Background(), workspace, client.RawPatch(types.MergePatchType, patch))
 		if err != nil {
@@ -168,11 +174,11 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	timing.SetTime(timingInfo, timing.ComponentsCreated)
 	// TODO#185 : Temporarily do devfile flattening in main reconcile loop; this should be moved to a subcontroller.
 	flattenHelpers := flatten.ResolverTools{
-		DefaultNamespace: workspace.Namespace,
-		Context:          ctx,
-		K8sClient:        r.Client,
-		InternalRegistry: &registry.InternalRegistryImpl{},
-		HttpClient:       http.DefaultClient,
+		WorkspaceNamespace: workspace.Namespace,
+		Context:            ctx,
+		K8sClient:          r.Client,
+		InternalRegistry:   &registry.InternalRegistryImpl{},
+		HttpClient:         http.DefaultClient,
 	}
 	flattenedWorkspace, err := flatten.ResolveDevWorkspace(&workspace.Spec.Template, flattenHelpers)
 	if err != nil {

@@ -14,12 +14,20 @@ package internal
 
 import (
 	"fmt"
+	"os"
 	"path"
 
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/go-git/go-git/v5"
 )
 
+// CheckProjectState Checks that a project's configuration is reflected in an on-disk git repository.
+// - Returns needClone == true if the project has not yet been cloned
+// - Returns needRemotes == true if the remotes configured in the project are not available in the on-disk repo
+//
+// Remotes in provided project are checked against what is configured in the git repo, but only in one direction.
+// The git repo can have additional remotes -- they will be ignored here. If both the project and git repo have remote
+// A configured, but the corresponding remote URL is different, needRemotes will be true.
 func CheckProjectState(project *dw.Project) (needClone, needRemotes bool, err error) {
 	repo, err := OpenRepo(project)
 	if err != nil {
@@ -54,7 +62,7 @@ func CheckProjectState(project *dw.Project) (needClone, needRemotes bool, err er
 // currently exist, returns nil. Returns an error if an unexpected error occurs opening the git repo.
 func OpenRepo(project *dw.Project) (*git.Repository, error) {
 	clonePath := GetClonePath(project)
-	repo, err := git.PlainOpen(path.Join(projectsRoot, clonePath))
+	repo, err := git.PlainOpen(path.Join(ProjectsRoot, clonePath))
 	if err != nil {
 		if err != git.ErrRepositoryNotExists {
 			return nil, fmt.Errorf("encountered error reading git repo at %s: %s", clonePath, err)
@@ -62,4 +70,21 @@ func OpenRepo(project *dw.Project) (*git.Repository, error) {
 		return nil, nil
 	}
 	return repo, nil
+}
+
+// DirExists returns true if the path at dir exists and is a directory. Returns an error if the path
+// exists in the filesystem but does not refer to a directory.
+func DirExists(dir string) (bool, error) {
+	fileInfo, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+	if fileInfo.IsDir() {
+		return true, nil
+	}
+	return false, fmt.Errorf("path %s already exists and is not a directory", dir)
 }

@@ -20,12 +20,13 @@ import (
 )
 
 var (
-	projectsRoot string
+	ProjectsRoot string
 )
 
+// Read and store ProjectsRoot env var for reuse throughout project-clone.
 func init() {
-	projectsRoot = os.Getenv(constants.ProjectsRootEnvVar)
-	if projectsRoot == "" {
+	ProjectsRoot = os.Getenv(constants.ProjectsRootEnvVar)
+	if ProjectsRoot == "" {
 		log.Printf("Required environment variable %s is unset", constants.ProjectsRootEnvVar)
 		os.Exit(1)
 	}
