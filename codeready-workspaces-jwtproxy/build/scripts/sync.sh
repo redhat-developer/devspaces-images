@@ -63,6 +63,7 @@ sources
 RELEASE.md
 make-release.sh
 .dockerignore
+vendor
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
