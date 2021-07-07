@@ -111,6 +111,12 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
         <div>{WorkspaceAction.START_IN_BACKGROUND}</div>
       </DropdownItem>),
       (<DropdownItem
+        key={`action-${WorkspaceAction.RESTART_WORKSPACE}`}
+        isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
+        onClick={async () => this.handleSelect(WorkspaceAction.RESTART_WORKSPACE, context)}>
+        <div>{WorkspaceAction.RESTART_WORKSPACE}</div>
+      </DropdownItem>),
+      (<DropdownItem
         key={`action-${WorkspaceAction.STOP_WORKSPACE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
         onClick={async () => this.handleSelect(WorkspaceAction.STOP_WORKSPACE, context)}>

@@ -24,7 +24,6 @@ import { AppState } from '../store';
 import { getEnvironment, isDevEnvironment } from '../services/helpers/environment';
 import * as WorkspaceStore from '../store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading, selectLogs, selectWorkspaceById } from '../store/Workspaces/selectors';
-import { validateMachineToken } from '../services/validate-token';
 import { buildWorkspacesLocation } from '../services/helpers/location';
 import { DisposableCollection } from '../services/helpers/disposable';
 import { Workspace } from '../services/workspaceAdapter';
@@ -48,6 +47,7 @@ type State = {
   preselectedTabKey?: IdeLoaderTab;
   ideUrl?: string;
   hasError: boolean;
+  isWaitingForRestart: boolean;
 };
 
 class IdeLoaderContainer extends React.PureComponent<Props, State> {
@@ -85,6 +85,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       workspaceName,
       hasError: workspace?.hasError === true,
       preselectedTabKey: this.preselectedTabKey,
+      isWaitingForRestart: false
     };
 
     const callback = async () => {
@@ -149,18 +150,18 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       if (!workspace) {
         return;
       }
-      const [, workspaceId, machineToken] = event.data.split(':');
+      const workspaceId = event.data.split(':')[1];
       if (workspace.id !== workspaceId) {
         return;
       }
       try {
-        await validateMachineToken(workspace.id, machineToken);
-        await this.props.stopWorkspace(workspace);
-        await this.props.requestWorkspace(workspace);
-        this.setState({ currentStep: LoadIdeSteps.INITIALIZING });
+        this.setState({ isWaitingForRestart: true });
         window.postMessage('show-navbar', '*');
+        await this.props.restartWorkspace(workspace);
+        this.setState({ isWaitingForRestart: false });
       } catch (error) {
-        console.error('Machine token validation failed. ', error);
+        this.setState({ isWaitingForRestart: false });
+        this.showAlert(error);
       }
     }
   }
@@ -170,6 +171,14 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   public async componentDidMount(): Promise<void> {
+    const listener = (event: MessageEvent) => this.handleIframeMessage(event);
+    window.addEventListener('message', listener);
+    this.toDispose.push({
+      dispose: () => {
+        window.removeEventListener('message', listener);
+      },
+    });
+
     const { isLoading, requestWorkspaces, allWorkspaces } = this.props;
     let workspace = allWorkspaces.find(workspace =>
       workspace.namespace === this.state.namespace && workspace.name === this.state.workspaceName);
@@ -184,14 +193,6 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       this.showErrorAlert(workspace);
     }
     this.debounce.setDelay(1000);
-
-    const listener = this.handleIframeMessage;
-    window.addEventListener('message', listener, false);
-    this.toDispose.push({
-      dispose: () => {
-        window.removeEventListener('message', listener);
-      },
-    });
   }
 
   private showErrorAlert(workspace: Workspace) {
@@ -206,6 +207,9 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   public async componentDidUpdate(prevProps: Props, prevState: State): Promise<void> {
+    if (this.state.isWaitingForRestart) {
+      return;
+    }
     const { allWorkspaces, match: { params } } = this.props;
     const { hasError } = this.state;
     const workspace = allWorkspaces.find(workspace =>
@@ -241,6 +245,10 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     } else if (prevState.workspaceName !== this.workspaceName) {
       await this.initWorkspace();
       return;
+    } else if (prevState.isWaitingForRestart) {
+      this.setState({
+        currentStep: LoadIdeSteps.START_WORKSPACE
+      });
     }
     this.checkOnStoppingStatus(workspace);
     this.debounce.setDelay(1000);

@@ -60,7 +60,6 @@ type State = {
 };
 
 export class WorkspaceActionsProvider extends React.Component<Props, State> {
-  private awaitToRestart: string[];
 
   @lazyInject(AppAlerts)
   private appAlerts: AppAlerts;
@@ -69,8 +68,6 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-
-    this.awaitToRestart = [];
 
     this.state = {
       toDelete: [],
@@ -86,24 +83,6 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
       title: message,
       variant: AlertVariant.warning,
     });
-  }
-
-  public async componentDidUpdate(): Promise<void> {
-    const allWorkspaces = this.props.allWorkspaces;
-    if (this.awaitToRestart.length > 0 && allWorkspaces?.length > 0) {
-      for (const workspace of allWorkspaces) {
-        const workspaceIndex = this.awaitToRestart.indexOf(workspace.id);
-        if (workspaceIndex !== -1 &&
-          (workspace.isStopped || workspace.hasError)) {
-          this.awaitToRestart.splice(workspaceIndex, 1);
-          try {
-            await this.props.startWorkspace(workspace);
-          } catch (e) {
-            this.showAlert(`Unable to start the workspace ${workspace.devfile.metadata.name}. ${e}`);
-          }
-        }
-      }
-    }
   }
 
   /**
@@ -179,8 +158,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
         break;
       case WorkspaceAction.RESTART_WORKSPACE:
         {
-          await this.props.stopWorkspace(workspace);
-          this.awaitToRestart.push(workspace.id);
+          await this.props.restartWorkspace(workspace);
         }
         break;
       default:

@@ -154,6 +154,11 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
         onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.START_IN_BACKGROUND, rowData)
       },
       {
+        title: WorkspaceAction.RESTART_WORKSPACE,
+        isDisabled: false === this.isEnabledAction(WorkspaceAction.RESTART_WORKSPACE, workspace),
+        onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.RESTART_WORKSPACE, rowData)
+      },
+      {
         title: 'Stop Workspace',
         isDisabled: false === this.isEnabledAction(WorkspaceAction.STOP_WORKSPACE, workspace),
         onClick: (event, rowId, rowData) => this.handleAction(WorkspaceAction.STOP_WORKSPACE, rowData)
@@ -174,7 +179,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       || action === WorkspaceAction.START_IN_BACKGROUND) {
       return !workspace.isStarting && !workspace.isRunning && !workspace.isStopping;
     }
-    if (action === WorkspaceAction.STOP_WORKSPACE) {
+    if (action === WorkspaceAction.STOP_WORKSPACE || action === WorkspaceAction.RESTART_WORKSPACE) {
       return workspace.isStarting || workspace.isRunning;
     }
     return true;

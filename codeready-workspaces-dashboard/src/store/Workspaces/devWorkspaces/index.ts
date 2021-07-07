@@ -21,11 +21,14 @@ import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorksp
 import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
+import { getDefer, IDeferred } from '../../../services/helpers/deferred';
+import { DisposableCollection } from '../../../services/helpers/disposable';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
 const devWorkspaceStatusMap = new Map<string, string | undefined>();
+const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
 export interface State {
   isLoading: boolean;
@@ -108,6 +111,7 @@ export type ActionCreators = {
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
   requestWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   startWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  restartWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   stopWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   terminateWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   updateWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
@@ -178,7 +182,7 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      const errorMessage = `Failed to fetch the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to fetch the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -208,7 +212,7 @@ export const actionCreators: ActionCreators = {
         workspace: updatedWorkspace,
       });
     } catch (e) {
-      const errorMessage = `Failed to start the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to start the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -217,12 +221,45 @@ export const actionCreators: ActionCreators = {
     }
   },
 
+  restartWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+    const defer: IDeferred<void> = getDefer();
+    const toDispose = new DisposableCollection();
+    const onStatusChangeCallback = status => {
+      if (status === DevWorkspaceStatus.STOPPED || status === DevWorkspaceStatus.FAILED) {
+        toDispose.dispose();
+        dispatch(actionCreators.startWorkspace(workspace)).then(() => {
+          defer.resolve();
+        }).catch(e => {
+          defer.reject(`Failed to restart the workspace ${workspace.metadata.name}. ${e}`);
+        });
+      }
+    };
+    if (workspace.status.phase === DevWorkspaceStatus.STOPPED || workspace.status.phase === DevWorkspaceStatus.FAILED) {
+      onStatusChangeCallback(workspace.status.phase);
+    } else {
+      const workspaceId = workspace.status.devworkspaceId;
+      onStatusChangeCallbacks.set(workspaceId, onStatusChangeCallback);
+      toDispose.push({
+        dispose: () => onStatusChangeCallbacks.delete(workspaceId)
+      });
+      if (workspace.status.phase === DevWorkspaceStatus.RUNNING || workspace.status.phase === DevWorkspaceStatus.STARTING) {
+        try {
+          await dispatch(actionCreators.stopWorkspace(workspace));
+        } catch (e) {
+          defer.reject(`Failed to restart the workspace ${workspace.metadata.name}. ${e}`);
+        }
+      }
+    }
+
+    return defer.promise;
+  },
+
   stopWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     try {
       devWorkspaceClient.changeWorkspaceStatus(workspace.metadata.namespace, workspace.metadata.name, false);
       dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId: workspace.status.devworkspaceId });
     } catch (e) {
-      const errorMessage = `Failed to stop the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to stop the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -259,7 +296,7 @@ export const actionCreators: ActionCreators = {
         message = 'Unknown error.';
       }
 
-      const resMessage = `Failed to delete the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + message;
+      const resMessage = `Failed to delete the workspace ${workspace.metadata.name}, reason: ` + message;
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: resMessage,
@@ -281,7 +318,7 @@ export const actionCreators: ActionCreators = {
         workspace: updated,
       });
     } catch (e) {
-      const errorMessage = `Failed to update the workspace with ID: ${workspace.status.devworkspaceId}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to update the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -408,7 +445,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
 };
 
-function onStatusUpdateReceived(
+async function onStatusUpdateReceived(
   workspace: IDevWorkspace,
   dispatch: ThunkDispatch<State, undefined, KnownAction>,
   statusUpdate: IStatusUpdate) {
@@ -438,6 +475,10 @@ function onStatusUpdateReceived(
       }
     }
     status = statusUpdate.status;
+    const callback = onStatusChangeCallbacks.get(workspace.status.devworkspaceId);
+    if (callback && status) {
+      callback(status);
+    }
   }
   if (status && status !== devWorkspaceStatusMap.get(workspace.status.devworkspaceId)) {
     devWorkspaceStatusMap.set(workspace.status.devworkspaceId, status);
