@@ -70,7 +70,6 @@ node(nodeLabel) {
                     currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("crw/theia-endpoint-rhel8", "quay")
                     println ("Got currentQuayImageTheiaEndpoint = " + currentQuayImageTheiaEndpoint)
                     lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
                 if (PHASE_LIST.contains("5")) {
@@ -111,6 +110,8 @@ node(nodeLabel) {
                     // wait until theia is rebuilt too
                     util.waitForNewQuayImage("crw/theia-rhel8", currentQuayImageTheia)
                     util.waitForNewQuayImage("crw/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint)
+                    lastBuildId=getLastBuildResult(jenkinsURL+"crw-theia-endpoint-rhel8_"+JOB_BRANCH)
+                    currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId}>crw-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId}</a>"
                 }
 
                 if (PHASE_LIST.contains("6")) {
