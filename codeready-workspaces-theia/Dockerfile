@@ -114,7 +114,7 @@ RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 RUN echo ${HOME} && cd ${HOME} && tar zxf eclipse-che-theia-generator.tgz && mv package eclipse-che-theia-generator && \
     ls -la /home/theia-dev/*
 
-# do we also need to add file:${HOME}/eclipse-che-theia-generator
+RUN yum install -y libsecret libsecret-devel make cmake gcc gcc-c++
 
 
 
@@ -174,7 +174,7 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-90 as build-result
+FROM ubi8/nodejs-12:1-87 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
