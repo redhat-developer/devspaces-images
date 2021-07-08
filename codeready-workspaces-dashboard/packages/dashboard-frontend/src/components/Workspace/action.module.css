@@ -1,0 +1,40 @@
+.workspaceStatus,
+.disabledWorkspaceStatus {
+  margin-right: 10px;
+  padding-bottom: 0;
+}
+
+.workspaceStatus > *,
+.disabledWorkspaceStatus > * {
+  position: relative;
+  top: 3px;
+  font-size: 18px;
+}
+
+.disabledWorkspaceStatus > * {
+  color: #d2d2d2;
+  cursor: not-allowed;
+}
+
+.workspaceStatus {
+  cursor: pointer;
+}
+
+.workspaceStatus > * {
+  color: #979797;
+}
+
+.workspaceStatus > *:hover {
+  color: #4a90e2;
+}
+
+.infoModalHeader {
+  font-weight: bold;
+  font-size: larger;
+}
+
+.infoModalHeader svg {
+  margin: 0 0.4rem;
+  color: var(--pf-global--warning-color--100);
+  font-size: 1.5rem;
+}

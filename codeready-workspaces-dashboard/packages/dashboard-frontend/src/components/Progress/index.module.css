@@ -1,0 +1,15 @@
+.progressLine {
+  position: relative;
+  top: 1px;
+  display: block;
+  height: 0;
+  overflow: visible;
+}
+
+.progressLine * {
+  height: 5px;
+}
+
+.progressLine > * {
+  margin-right: -16px;
+}

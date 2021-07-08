@@ -1,0 +1,32 @@
+{
+  "name": "@eclipse-che/dashboard",
+  "version": "7.34.0-SNAPSHOT",
+  "description": "Dashboard for Eclipse CHE",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "yarn": ">=2.4.1",
+    "node": ">=12"
+  },
+  "scripts": {
+    "build": "lerna run build",
+    "frontend:start": "yarn workspace @eclipse-che/dashboard-frontend start $@",
+    "license:check": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next --check",
+    "license:generate": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next",
+    "test": "lerna run test -- $@",
+    "test:coverage": "lerna run test -- --runInBand --coverage"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "lerna": "^4.0.0",
+    "stylelint": "^13.6.1",
+    "typescript": "^3.9.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "resolutions": {
+    "vscode-languageserver-protocol": "3.15.3"
+  }
+}

@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The DevfileEditor component should initialize the component correctly 1`] = `
+<div
+  className="devfile-editor"
+>
+  <div
+    className="monaco"
+  >
+     
+  </div>
+  <div
+    className="error"
+  >
+    
+  </div>
+  <a
+    href="devfile/documentation/link"
+    rel="noopener noreferrer"
+    target="_blank"
+  >
+    Devfile Documentation
+  </a>
+</div>
+`;

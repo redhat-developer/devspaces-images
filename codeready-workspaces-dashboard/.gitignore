@@ -1,0 +1,15 @@
+node_modules/
+
+.theia/
+.idea/
+
+yarn-error.log
+
+/.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+/asset-node-modules-cache.tgz
