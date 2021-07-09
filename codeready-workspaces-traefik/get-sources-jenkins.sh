@@ -49,11 +49,11 @@ if [[ ! $jenkinsURL ]]; then
 	checkJenkinsURL "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
 fi
 theTarGzs="
-lastSuccessfulBuild/artifact/asset-traefik-x86_64.tar.gz
-lastSuccessfulBuild/artifact/asset-traefik-s390x.tar.gz
-lastSuccessfulBuild/artifact/asset-traefik-ppc64le.tar.gz
+lastCompletedBuild/artifact/asset-traefik-x86_64.tar.gz
+lastCompletedBuild/artifact/asset-traefik-s390x.tar.gz
+lastCompletedBuild/artifact/asset-traefik-ppc64le.tar.gz
 "
-lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=//" # id or description
+lastSuccessfulURL="${jenkinsURL}/lastCompletedBuild/api/xml?xpath=//" # id or description
 
 function log()
 {
@@ -86,7 +86,7 @@ function addLabeln () {
 function getFingerprints ()
 {
 	outputFile=$1
-	latestFingerprint="$(curl -L ${jenkinsURL}/lastSuccessfulBuild/fingerprints/ | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
+	latestFingerprint="$(curl -L ${jenkinsURL}/lastCompletedBuild/fingerprints/ | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
 	currentFingerprint="$(cat sources | grep ${outputFile} | sed -e "s#\([0-9a-f]\+\) .\+#\1#")"
 }
 
