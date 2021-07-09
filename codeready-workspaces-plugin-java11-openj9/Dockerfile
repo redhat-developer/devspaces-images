@@ -92,8 +92,8 @@ WORKDIR /projects
 CMD tail -f /dev/null
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces - Java 11 plugin container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces - Java 11 plugin container" \
+ENV SUMMARY="Red Hat CodeReady Workspaces - Eclipse OpenJ9 11 plugin container" \
+    DESCRIPTION="Red Hat CodeReady Workspaces - Eclipse OpenJ9 11 plugin container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="plugin-java11-openj9-rhel8"
 
