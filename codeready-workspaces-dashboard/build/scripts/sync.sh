@@ -80,12 +80,12 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 
 # switch to yarn 1
-# yarn policies set-version 1.21.1
+yarn policies set-version 1.21.1
 
 pushd "${TARGETDIR}" >/dev/null
 
 popd >/dev/null
-# yarn install --ignore-engines
+yarn install --ignore-engines
 
 # Remove all the dependencies since they aren't actually needed
 rm -fr ${TARGETDIR}/node_modules/
