@@ -106,7 +106,7 @@ sed ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile -r \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# CRW-2012 don't install unbound-libs` \
-    -e 'S|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs \2|' \
+    -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
     `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
     -e "/RUN \/dashboard\/.yarn\/releases\/yarn-\*.cjs install/c COPY asset-node-modules-cache.tgz /tmp/\nRUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz" \
 > ${TARGETDIR}/Dockerfile
