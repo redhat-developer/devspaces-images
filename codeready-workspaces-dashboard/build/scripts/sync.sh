@@ -97,6 +97,8 @@ sed -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
+    `# CRW-2012 don't install unbound-libs` \
+    -e 'S|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs \2|' \
     `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
     -e '/\*\.cjs install/c \
 COPY asset-node-modules-cache.tgz /tmp/\
