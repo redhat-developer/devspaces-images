@@ -9,7 +9,7 @@
 | [`@eclipse-che/dashboard-backend@7.34.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-frontend@7.34.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-static-server@7.34.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
-| [`@eclipse-che/devworkspace-client@0.0.1-1624633214`](https://github.com/che-incubator/devworkspace-client) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/devworkspace-client@0.0.1-1625495079`](https://github.com/che-incubator/devworkspace-client) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/workspace-client@0.0.1-1622804813`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | N/A |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@kubernetes/client-node@0.14.3`](https://github.com/kubernetes-client/javascript.git) | Apache-2.0 | clearlydefined |
