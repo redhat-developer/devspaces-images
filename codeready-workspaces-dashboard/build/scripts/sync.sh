@@ -80,12 +80,12 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 
 # switch to yarn 1
-yarn policies set-version 1.21.1
+# yarn policies set-version 1.21.1
 
 pushd "${TARGETDIR}" >/dev/null
 
 popd >/dev/null
-yarn install --ignore-engines
+# yarn install --ignore-engines
 
 # Remove all the dependencies since they aren't actually needed
 rm -fr ${TARGETDIR}/node_modules/
@@ -98,7 +98,7 @@ sed -r \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# CRW-2012 don't install unbound-libs` \
-    -e 'S|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs \2|' \
+    -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
     `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
     -e '/\*\.cjs install/c \
 COPY asset-node-modules-cache.tgz /tmp/\
