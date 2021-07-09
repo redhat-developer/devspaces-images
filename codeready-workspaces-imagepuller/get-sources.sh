@@ -30,7 +30,7 @@ function log()
 if [[ ${pullAssets} -eq 1 ]]; then 
 	BUILDER=$(command -v podman || true)
 	if [[ ! -x $BUILDER ]]; then
-		echo "[WARNING] podman is not installed, trying with docker"
+		# echo "[WARNING] podman is not installed, trying with docker"
 		BUILDER=$(command -v docker || true)
 		if [[ ! -x $BUILDER ]]; then
 				echo "[ERROR] must install docker or podman. Abort!"; exit 1
