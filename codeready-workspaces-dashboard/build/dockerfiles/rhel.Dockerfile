@@ -31,7 +31,7 @@ ENV STATIC_SERVER=packages/static-server
 COPY ${STATIC_SERVER}/package.json /dashboard/${STATIC_SERVER}/
 
 WORKDIR /dashboard
-RUN /dashboard/.yarn/releases/yarn-*.cjs install
+RUN /dashboard/.yarn/releases/yarn-*.cjs install --ignore-engine
 COPY packages/ /dashboard/packages
 RUN /dashboard/.yarn/releases/yarn-*.cjs build
 

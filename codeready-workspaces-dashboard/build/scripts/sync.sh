@@ -124,6 +124,12 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+# Patch rhel.Dockerfile to switch to yarn1
+sed -r -i \
+  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs install)|\1 --ignore-engine|' \
+  ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
+
 echo "Converted Dockerfile"
 
 # add ignore for the tarball in mid and downstream
