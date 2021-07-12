@@ -112,7 +112,6 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		mv -f ${tmpDir}/resources.tgz .
 	fi
 	sudo rm -fr ${tmpDir}
-	rm bootstrap.Dockerfile
 	${BUILDER} rmi ${tmpContainer}
 fi
 
