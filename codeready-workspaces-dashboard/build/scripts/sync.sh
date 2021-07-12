@@ -126,8 +126,8 @@ LABEL summary="\$SUMMARY" \\
 EOT
 
 # Patch rhel.Dockerfile to switch to yarn1
-sed -r -i \
-  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs install)|\1 --ignore-engine|' \
+sed -r -i '' \
+  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs install)|\1 --ignore-engines|' \
   ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
 
 echo "Converted Dockerfile"
