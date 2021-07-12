@@ -55,6 +55,8 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		`# replace ubi8-minimal:tag with reg-proxy/rh-osbs/ubi-minimal:tag` \
 		-e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#" \
 		-e 's|# (COPY .*content_sets.*)|\1|' \
+		`# disable swap images so we don't break x64 builds` \
+		-e 's|(RUN ./swap_images.sh.+)|# \1|' \
 		> bootstrap.Dockerfile
 	echo "======= BOOTSTRAP DOCKERFILE =======>"
 	cat bootstrap.Dockerfile
