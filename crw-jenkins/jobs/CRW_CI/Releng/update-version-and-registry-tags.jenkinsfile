@@ -6,7 +6,7 @@
 
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
 
-def buildNode = "rhel8" // node label
+def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8" // node label
 timeout(120) {
     node("${buildNode}"){ 
         stage ("update version and registry tags") {
