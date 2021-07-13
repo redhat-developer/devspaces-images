@@ -104,7 +104,7 @@ sed -r \
 COPY asset-node-modules-cache.tgz /tmp/\
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz' \
     `# make dashboard build configs compatible with yarn v1` \
-    -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs build)|\1 -- -- --env.yarnV1=true|' \
+    -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs) build|\1 exec lerna run build -- -- --env.yarnV1=true|' \
 ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
