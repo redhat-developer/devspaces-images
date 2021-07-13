@@ -200,7 +200,18 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
   set storageType(type: che.WorkspaceStorageType) {
     if (isWorkspaceV1(this.workspace)) {
       const attributes = typeToAttributes(type);
-      Object.assign(this.workspace.devfile.attributes, attributes);
+      if (!this.workspace.devfile.attributes) {
+        this.workspace.devfile.attributes = {};
+      } else {
+        delete this.workspace.devfile.attributes.asyncPersist;
+        delete this.workspace.devfile.attributes.persistVolumes;
+      }
+      if (attributes) {
+        Object.assign(this.workspace.devfile.attributes, attributes);
+      }
+      if (Object.keys(this.workspace.devfile.attributes).length === 0) {
+        delete this.workspace.devfile.attributes;
+      }
     } else {
       console.error('Not implemented: set storage type of the devworkspace.');
     }

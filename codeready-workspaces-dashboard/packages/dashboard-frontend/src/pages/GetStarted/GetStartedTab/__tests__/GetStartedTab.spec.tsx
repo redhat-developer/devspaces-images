@@ -30,14 +30,17 @@ const testDevfile = {
 
 jest.mock(
   '../SamplesListGallery',
-  () =>
-    (props: {
+  () => {
+    const FakeSamplesListGallery = (props: {
       onCardClick: (devfileContent: string, stackName: string) => void
     }) => <div>
         <button data-testid="sample-item-id" onClick={() => {
           props.onCardClick(JSON.stringify(testDevfile), testStackName);
         }}>logout</button>
-      </div>
+      </div>;
+    FakeSamplesListGallery.displayName = 'SamplesListGallery';
+    return FakeSamplesListGallery;
+  },
 );
 
 describe('Samples list tab', () => {

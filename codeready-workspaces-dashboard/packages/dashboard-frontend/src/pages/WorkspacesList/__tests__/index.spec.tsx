@@ -279,11 +279,16 @@ describe('Workspaces List Page', () => {
       // check state of action buttons
       const startDebugAction = screen.getByRole('button', { name: /verbose mode/i });
       expect(startDebugAction).toBeEnabled();
+
       const openInBackgroundAction = screen.getByRole('button', { name: /background/i });
       expect(openInBackgroundAction).toBeEnabled();
-      // TODO it seems that bumping up the @patternfly/react-core version makes this expectation fail
-      // const stopAction = screen.getByRole('button', { name: /stop workspace/i });
-      // expect(stopAction).toBeDisabled();
+      
+      const restartAction = screen.getByRole('button', { name: /restart/i });
+      expect(restartAction).toHaveAttribute('aria-disabled', 'true');
+
+      const stopAction = screen.getByRole('button', { name: /stop workspace/i });
+      expect(stopAction).toHaveAttribute('aria-disabled', 'true');
+
       const deleteAction = screen.getByRole('button', { name: /delete workspace/i });
       expect(deleteAction).toBeEnabled();
     });

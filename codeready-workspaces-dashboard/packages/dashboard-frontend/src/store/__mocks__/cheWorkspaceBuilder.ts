@@ -12,6 +12,7 @@
 
 import getRandomString from '../../services/helpers/random';
 import { WorkspaceStatus } from '../../services/helpers/types';
+import { cloneDeep } from 'lodash';
 
 export const CHE_DEVFILE_STUB: che.WorkspaceDevfile = {
   apiVersion: '1.0.0',
@@ -61,17 +62,17 @@ export class CheWorkspaceBuilder {
   }
 
   withAttributes(attributes: che.WorkspaceAttributes): CheWorkspaceBuilder {
-    this.workspace.attributes = attributes;
+    this.workspace.attributes = cloneDeep(attributes);
     return this;
   }
 
   withDevfile(devfile: che.WorkspaceDevfile): CheWorkspaceBuilder {
-    this.workspace.devfile = devfile;
+    this.workspace.devfile = cloneDeep(devfile);
     return this;
   }
 
   withProjects(projects: any[]): CheWorkspaceBuilder {
-    this.workspace.devfile.projects = projects;
+    this.workspace.devfile.projects = cloneDeep(projects);
     return this;
   }
 
@@ -86,7 +87,7 @@ export class CheWorkspaceBuilder {
   }
 
   withRuntime(runtime: che.WorkspaceRuntime): CheWorkspaceBuilder {
-    this.workspace.runtime = runtime;
+    this.workspace.runtime = cloneDeep(runtime);
     this.workspace.status = WorkspaceStatus.RUNNING;
     return this;
   }

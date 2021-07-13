@@ -30,8 +30,11 @@ import { container } from '../../../../inversify.config';
 jest.mock('../../../../components/DevfileEditor');
 jest.mock(
   '../EditorTools',
-  () =>
-    () => <div>Editor Tools</div>
+  () => {
+    const FakeEditorTools = () => <div>Editor Tools</div>;
+    FakeEditorTools.displayName = 'EditorTools';
+    return FakeEditorTools;
+  },
 );
 
 describe('Editor Tab', () => {

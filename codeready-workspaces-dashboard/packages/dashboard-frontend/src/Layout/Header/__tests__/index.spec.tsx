@@ -18,14 +18,17 @@ import Header from '..';
 
 jest.mock(
   '../Tools',
-  () =>
-    (props: {
+  () => {
+    const FakeTools = (props: {
       logout: () => void,
       changeTheme: () => void
     }) => <React.Fragment>
         <button onClick={() => props.logout()}>logout</button>
         <button onClick={() => props.changeTheme()}>change theme</button>
-      </React.Fragment>
+      </React.Fragment>;
+    FakeTools.displayName = 'Tools';
+    return FakeTools;
+  },
 );
 
 describe('Page header', () => {

@@ -41,9 +41,12 @@ jest.mock('../../store/Workspaces/selectors.ts', () => {
     selectWorkspacesError: () => undefined,
   };
 });
-jest.mock('../../pages/WorkspacesList', () => () => (
-  <div>Workspaces List Page</div>
-));
+jest.mock('../../pages/WorkspacesList', () => {
+  const FakeWorkspacesList = () => <div>Workspaces List Page</div>;
+  FakeWorkspacesList.displayName = 'WorkspacesList';
+  return FakeWorkspacesList;
+},
+);
 jest.mock('../../components/Fallback', () => (
   <div>Fallback Spinner</div>
 ));

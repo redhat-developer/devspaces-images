@@ -11,12 +11,22 @@
  */
 
 import { IDevWorkspace } from '@eclipse-che/devworkspace-client';
+import { cloneDeep } from 'lodash';
 import { convertWorkspace } from '..';
 import { CheWorkspaceBuilder, CHE_DEVFILE_STUB, CHE_RUNTIME_STUB } from '../../../store/__mocks__/cheWorkspaceBuilder';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import { StorageTypeTitle } from '../../storageTypes';
 
+/**
+ * @jest-environment node
+ */
 describe('Workspace adapter', () => {
+
+  let cheDevfile: che.WorkspaceDevfile;
+
+  beforeEach(() => {
+    cheDevfile = cloneDeep(CHE_DEVFILE_STUB);
+  });
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -140,29 +150,27 @@ describe('Workspace adapter', () => {
     });
 
     it('should return storage type', () => {
-      const devfile = CHE_DEVFILE_STUB;
-      devfile.attributes = {
+      cheDevfile.attributes = {
         persistVolumes: 'false',
         asyncPersist: 'false',
       };
       const cheWorkspace = new CheWorkspaceBuilder()
-        .withDevfile(devfile)
+        .withDevfile(cheDevfile)
         .build();
       const workspace = convertWorkspace(cheWorkspace);
       expect(workspace.storageType).toEqual(StorageTypeTitle.ephemeral.toLowerCase());
     });
 
     it('should return devfile', () => {
-      const devfile = CHE_DEVFILE_STUB;
-      devfile.attributes = {
+      cheDevfile.attributes = {
         persistVolumes: 'true',
         asyncPersist: 'false',
       };
       const cheWorkspace = new CheWorkspaceBuilder()
-        .withDevfile(devfile)
+        .withDevfile(cheDevfile)
         .build();
       const workspace = convertWorkspace(cheWorkspace);
-      expect(workspace.devfile).toMatchObject(devfile);
+      expect(workspace.devfile).toMatchObject(cheDevfile);
     });
 
     it('should return list of project names', () => {
@@ -184,6 +192,79 @@ describe('Workspace adapter', () => {
         .build();
       const workspace = convertWorkspace(cheWorkspace);
       expect(workspace.projects).toEqual([projects[0].name, projects[1].name]);
+    });
+
+    it('should set "ephemeral" storage type', () => {
+      const cheWorkspace = new CheWorkspaceBuilder()
+        .withDevfile(cheDevfile)
+        .build();
+      const workspace = convertWorkspace(cheWorkspace);
+
+      expect(workspace.storageType).toEqual('persistent');
+      expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual(undefined);
+
+      workspace.storageType = 'ephemeral';
+
+      expect(workspace.storageType).toEqual('ephemeral');
+      expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual({
+        persistVolumes: 'false',
+      });
+    });
+
+    it('should set "async" storage type', () => {
+      const cheWorkspace = new CheWorkspaceBuilder()
+        .withDevfile(cheDevfile)
+        .build();
+      const workspace = convertWorkspace(cheWorkspace);
+
+      expect(workspace.storageType).toEqual('persistent');
+      expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual(undefined);
+
+      workspace.storageType = 'async';
+
+      expect(workspace.storageType).toEqual('async');
+      expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual({
+        persistVolumes: 'false',
+        asyncPersist: 'true',
+      });
+    });
+
+    it('should set "persistent" storage type', () => {
+      cheDevfile.attributes = {
+        persistVolumes: 'false',
+      };
+      const cheWorkspace = new CheWorkspaceBuilder()
+        .withDevfile(cheDevfile)
+        .build();
+      const workspace = convertWorkspace(cheWorkspace);
+
+      expect(workspace.storageType).toEqual('ephemeral');
+
+      workspace.storageType = 'persistent';
+
+      expect(workspace.storageType).toEqual('persistent');
+      expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual(undefined);
+    });
+
+    it('should preserve other attributes when changing storage type', () => {
+      cheDevfile.attributes = {
+        customAttribute: 'value',
+        persistVolumes: 'false',
+        asyncPersist: 'true',
+      };
+      const cheWorkspace = new CheWorkspaceBuilder()
+        .withDevfile(cheDevfile)
+        .build();
+      const workspace = convertWorkspace(cheWorkspace);
+
+      expect(workspace.storageType).toEqual('async');
+
+      workspace.storageType = 'persistent';
+
+      expect(workspace.storageType).toEqual('persistent');
+      expect((workspace.devfile as che.WorkspaceDevfile).attributes).toMatchObject({
+        customAttribute: 'value',
+      });
     });
 
   });
