@@ -34,7 +34,7 @@ WORKDIR /dashboard
 COPY asset-node-modules-cache.tgz /tmp/
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz
 COPY packages/ /dashboard/packages
-RUN /dashboard/.yarn/releases/yarn-*.cjs build -- -- --env.yarnV1=true
+RUN /dashboard/.yarn/releases/yarn-*.cjs exec lerna run build -- -- --env.yarnV1=true
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
 FROM ubi8/httpd-24:1-143 AS registry
