@@ -33,7 +33,7 @@ COPY ${STATIC_SERVER}/package.json /dashboard/${STATIC_SERVER}/
 WORKDIR /dashboard
 RUN /dashboard/.yarn/releases/yarn-*.cjs install --ignore-engines
 COPY packages/ /dashboard/packages
-RUN /dashboard/.yarn/releases/yarn-*.cjs build --ignore-engines
+RUN /dashboard/.yarn/releases/yarn-*.cjs exec lerna run build
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
 FROM registry.access.redhat.com/ubi8/httpd-24:1-143 AS registry

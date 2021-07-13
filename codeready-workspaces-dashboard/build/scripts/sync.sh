@@ -128,7 +128,7 @@ EOT
 # Patch rhel.Dockerfile to switch to yarn1
 sed -r -i \
   -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs install)|\1 --ignore-engines|' \
-  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs build)|\1 --ignore-engines|' \
+  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs) build|\1 exec lerna run build|' \
   ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
 
 echo "Converted Dockerfile"
