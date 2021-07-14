@@ -114,7 +114,7 @@ RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 RUN echo ${HOME} && cd ${HOME} && tar zxf eclipse-che-theia-generator.tgz && mv package eclipse-che-theia-generator && \
     ls -la /home/theia-dev/*
 
-# do we also need to add file:${HOME}/eclipse-che-theia-generator
+RUN yum install -y libsecret libsecret-devel make cmake gcc gcc-c++
 
 
 
@@ -226,7 +226,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="2.11" \
+      version="2.10" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \

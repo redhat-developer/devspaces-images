@@ -19,7 +19,7 @@ RUN yum -y -q update --nobest && \
 
 # Install packages
 USER root
-RUN yum install -y curl make cmake gcc gcc-c++ python2 git openssh less bash tar gzip \
+RUN yum install -y curl make cmake gcc gcc-c++ python2 git openssh less bash tar gzip libsecret libsecret-devel \
     && yum -y clean all && rm -rf /var/cache/yum && \
     ln -s /usr/bin/python2.7 /usr/bin/python; python --version && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
@@ -55,7 +55,7 @@ LABEL summary="$SUMMARY" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="2.11" \
+      version="2.10" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
