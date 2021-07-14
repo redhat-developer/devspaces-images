@@ -177,7 +177,7 @@ extractContainerTgz() {
     sudo tar -pzcf "${targetTarball}" ${filesToCollect#${subfolder}} && \
     sudo chown -R "${user}:${user}" "${targetTarball}"
   popd >/dev/null || exit 1
-  sudo rm -frv $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
+  sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
   echo -e "[DEBUG] Disk space after $container extraction:\n$(df -h / /tmp)"
 }
 
@@ -199,7 +199,7 @@ extractContainerFile() {
     cp "${fileToCollect}" "${targetFile}" && \
     sudo chown -R "${user}:${user}" "${targetFile}"
   popd >/dev/null || exit 1
-  sudo rm -frv $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
+  sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
   echo -e "[DEBUG] Disk space after $container extraction:\n$(df -h / /tmp)"
 }
 
