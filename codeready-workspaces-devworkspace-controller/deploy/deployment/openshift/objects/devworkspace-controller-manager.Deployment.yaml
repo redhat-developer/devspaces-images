@@ -36,9 +36,9 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_devworkspace_webhook_server
-              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.10
+              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.11
             - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
-              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.10
+              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.11
             - name: RELATED_IMAGE_project_clone
               value: quay.io/devfile/project-clone:next
             - name: RELATED_IMAGE_pvc_cleanup_job
@@ -53,7 +53,9 @@ spec:
               value: 300Mi
             - name: WEBHOOKS_SERVER_MEMORY_REQUEST
               value: 20Mi
-          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.10
+            - name: WEBHOOK_SECRET_NAME
+              value: devworkspace-webhookserver-tls
+          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.11
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 5
@@ -67,6 +69,9 @@ spec:
             timeoutSeconds: 5
           name: devworkspace-controller
           ports:
+            - containerPort: 9443
+              name: conversion
+              protocol: TCP
             - containerPort: 6789
               name: liveness-port
           readinessProbe:
@@ -86,5 +91,14 @@ spec:
             requests:
               cpu: 100m
               memory: 20Mi
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: webhook-tls-certs
+              readOnly: true
       serviceAccountName: devworkspace-controller-serviceaccount
       terminationGracePeriodSeconds: 10
+      volumes:
+        - name: webhook-tls-certs
+          secret:
+            defaultMode: 420
+            secretName: devworkspace-webhooks-tls

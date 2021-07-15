@@ -4,7 +4,7 @@ cloud.google.com/go/compute/metadata
 github.com/beorn7/perks/quantile
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05
+# github.com/devfile/api/v2 v2.0.0-20210713124824-03e023e7078b
 ## explicit
 github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha1
 github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2

@@ -13,13 +13,27 @@
 generate_olm_bundle_yaml: _check_operator_sdk_version _generate_olm_deployment_files
 # Note: operator-sdk provides no way to specify output dir for bundle.Dockerfile so
 # we have to move it manually
+#
+# `<&-` closes stdin to workaround cases when a tty is not allocated,
+# so stdin behaves like a pipe, like in Github actions case.
+# Operator SDK checks if stdin is an open pipe and assumes it's reading 
+# from stdin in that case. To make Operator SDK work correctly here,
+# we need to explicitly close stdin. 
+# See issue: https://github.com/actions/runner/issues/241
 	operator-sdk generate bundle \
 		--deploy-dir deploy/deployment/olm \
 		--output-dir deploy/bundle \
 		--manifests \
 		--channels fast \
-		--metadata && \
+		--metadata <&- && \
 	mv bundle.Dockerfile build/
+# Operator SDK v1.8.0 does not output webhooks in a stable order, so we have to sort the yaml files to avoid
+# spurious changes. See issue https://github.com/operator-framework/operator-sdk/issues/5022
+	yq -iY '.spec.webhookdefinitions |= sort' deploy/bundle/manifests/devworkspace-operator.clusterserviceversion.yaml
+# OLM creates a configmap that contains the files in bundle when an operator is installed. Since the maximum size
+# of a resource in etcd is 1MiB, we need to do a bit of squishing on our yaml files to get the total bundle under the
+# 1MiB limit. This command puts all YAML strings on a single line, avoiding ~200KiB of newlines and indentation.
+	find deploy/bundle/manifests -name '*.yaml' -exec yq --indentless -w 1000000000 -iY . {} \;
 
 ### build_bundle_image: build and push DevWorkspace Operator bundle image
 build_bundle_image: _print_vars _check_operator_sdk_version
