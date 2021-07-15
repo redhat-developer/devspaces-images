@@ -1,3 +1,13 @@
+#
+#  Copyright (c) 2018-2021 Red Hat, Inc.
+#    This program and the accompanying materials are made
+#    available under the terms of the Eclipse Public License 2.0
+#    which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+#  SPDX-License-Identifier: EPL-2.0
+#
+#  Contributors:
+#    Red Hat, Inc. - initial API and implementation
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
@@ -70,7 +80,7 @@ metadata:
     categories: Developer Tools, OpenShift Optional
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.11
-    createdAt: "2021-07-15T17:01:19+00:00"
+    createdAt: "2021-07-15T17:23:28+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1128,24 +1138,24 @@ spec:
                     command:
                       - /usr/local/bin/devworkspace-che-operator
                     env:
-                      - name: WATCH_NAMESPACE
-                        valueFrom:
-                          fieldRef:
-                            fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: CONTROLLER_SERVICE_ACCOUNT_NAME
+                        value: codeready-operator
+                      - name: MAX_CONCURRENT_RECONCILES
+                        value: "1"
+                      - name: OPERATOR_NAME
+                        value: devworkspace-che-operator
                       - name: POD_NAME
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.name
-                      - name: OPERATOR_NAME
-                        value: devworkspace-che-operator
-                      - name: MAX_CONCURRENT_RECONCILES
-                        value: "1"
-                      - name: CONTROLLER_SERVICE_ACCOUNT_NAME
-                        value: codeready-operator
                       - name: RELATED_IMAGE_gateway
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-traefik-rhel8:2.11
                       - name: RELATED_IMAGE_gateway_configurer
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-configbump-rhel8:2.11
+                      - name: WATCH_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.annotations['olm.targetNamespaces']
                     image: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devworkspace-rhel8:2.11
                     imagePullPolicy: Always
                     name: devworkspace-che-operator
