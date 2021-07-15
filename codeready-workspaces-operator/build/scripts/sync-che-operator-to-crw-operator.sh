@@ -273,7 +273,7 @@ while IFS= read -r -d '' d; do
 done <   <(find "${TARGETDIR}/deploy" -type f -name "operator*.yaml" -print0)
 
 # update second container image from quay.io/che-incubator/devworkspace-che-operator:ci to CRW_DWCO_IMAGE
-replaceField "${CSVFILE}" '.spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
+replaceField "${TARGETDIR}/deploy/operator.yaml" '.spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # yq changes - transform env vars from Che to CRW values
@@ -299,6 +299,12 @@ done <   <(find "${TARGETDIR}/deploy/crds" -type f -name "org_v1_che_cr.yaml" -p
 # rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
 # # remove files with embedded RELATED_IMAGE_* values for Che stable releases
 # rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
+
+# if sort the file, we'll lose all the comments
+cat "${TARGETDIR}/deploy/operator.yaml" | yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' > "${TARGETDIR}/deploy/operator.yaml2"
+cat "${TARGETDIR}/deploy/operator.yaml2" | yq -yY '.spec.template.spec.containers[1].env |= sort_by(.name)' > "${TARGETDIR}/deploy/operator.yaml"
+echo "${COPYRIGHT}$(cat "${TARGETDIR}/deploy/operator.yaml")" > "${TARGETDIR}/deploy/operator.yaml2"
+mv "${TARGETDIR}/deploy/operator.yaml2" "${TARGETDIR}/deploy/operator.yaml" 
 
 popd >/dev/null || exit
 

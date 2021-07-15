@@ -330,7 +330,9 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# echo "[INFO] ${0##*/} :: Sort env var in ${CSVFILE}:"
 	cat "${CSVFILE}" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' > "${CSVFILE}.2"
-	mv "${CSVFILE}.2" "${CSVFILE}"
+	cat "${CSVFILE}.2" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[1].env |= sort_by(.name)' > "${CSVFILE}"
+	echo "${COPYRIGHT}$(cat "${CSVFILE}")" > "${CSVFILE}.2"
+	mv "${CSVFILE}.2" "${CSVFILE}" 
 
 	if [[ $(diff -q -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "[INFO] ${0##*/} :: Converted + inserted (yq #2) ${CSVFILE}:"
