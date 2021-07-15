@@ -19,7 +19,7 @@ import { Action, Store } from 'redux';
 import HeaderTools from '..';
 import { AppThunk } from '../../../../store';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+import { BrandingData, BRANDING_DEFAULT } from '../../../../services/bootstrap/branding.constant';
 import * as InfrastructureNamespacesStore from '../../../../store/InfrastructureNamespaces';
 
 jest.mock('gravatar-url', () => {
@@ -47,8 +47,7 @@ describe('Page header tools', () => {
   const productCli = 'crwctl';
   const email = 'johndoe@example.com';
   const name = 'John Doe';
-  const helpTitle = 'Help';
-  const store = createStore(productCli, helpTitle, name, email);
+  const store = createStore(productCli, name, email);
   const history = createHashHistory();
   const user = {
     id: 'test-id',
@@ -151,7 +150,7 @@ describe('Page header tools', () => {
     const infoButton = screen.getByRole('button', { name: 'info button' });
     fireEvent.click(infoButton);
 
-    const helpItem = screen.getByRole('menuitem', { name: new RegExp(helpTitle, 'i') });
+    const helpItem = screen.getByRole('menuitem', { name: new RegExp('Community', 'i') });
     fireEvent.click(helpItem);
 
     expect(global.open).toBeCalled();
@@ -172,7 +171,7 @@ describe('Page header tools', () => {
 
 });
 
-function createStore(cheCliTool: string, helpTitle: string, name: string, email: string): Store {
+function createStore(cheCliTool: string, name: string, email: string): Store {
   return new FakeStoreBuilder()
     .withUserProfile({
       attributes: {
@@ -181,12 +180,12 @@ function createStore(cheCliTool: string, helpTitle: string, name: string, email:
       email
     } as api.che.user.Profile)
     .withBranding({
-      helpTitle: helpTitle,
       configuration: {
         cheCliTool
       },
+      links: BRANDING_DEFAULT.links,
       docs: {
-      }
+      },
     } as BrandingData)
     .build();
 }

@@ -237,7 +237,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
             <Tab eventKey={LoadFactoryTabs.Progress} title={LoadFactoryTabs[LoadFactoryTabs.Progress]}
               id="factory-loader-page-wizard-tab">
               <PageSection>
-                {(this.state.currentRequestError) && (
+                {(hasError && this.state.currentRequestError) && (
                   <Alert
                     isInline
                     variant={currentAlertVariant}

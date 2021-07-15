@@ -15,5 +15,6 @@
  * @param workspaceOrDevfile The workspace or devfile you want to check
  */
 export function isWebTerminal(workspaceOrDevfile: che.Workspace | api.che.workspace.devfile.Devfile): boolean {
-  return !!workspaceOrDevfile?.metadata?.labels['console.openshift.io/terminal'];
+  const labels = workspaceOrDevfile?.metadata?.labels;
+  return !!labels && !!labels['console.openshift.io/terminal'];
 }

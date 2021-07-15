@@ -283,45 +283,23 @@ export class HeaderTools extends React.PureComponent<Props, State> {
 
   private buildInfoDropdownItems(): React.ReactNode[] {
     const branding = this.props.branding;
-    const makeAWish = 'mailto:' + branding.supportEmail + '?subject=Wishes%20for%20';
-    const faq = branding.docs.faq;
-    const generalDocs = branding.docs.general;
-    return [
+    const items: React.ReactElement[] = [];
+    branding.links?.forEach((link) => {
+      items.push(
+        <ApplicationLauncherItem
+          key={link.text}
+          isExternal={true}
+          component='button'
+          onClick={() => window.open(link.href, '_blank')}
+        >
+          {link.text}
+        </ApplicationLauncherItem>
+      );
+    });
+
+    const group = (
       <ApplicationLauncherGroup key='info_button'>
-        <ApplicationLauncherItem
-          key='make_a_wish'
-          isExternal={true}
-          component='button'
-          onClick={() => window.open(makeAWish, '_blank')}
-        >
-          Make a wish
-        </ApplicationLauncherItem>
-        <ApplicationLauncherItem
-          key='documentation'
-          isExternal={true}
-          component='button'
-          onClick={() => window.open(generalDocs, '_blank')}
-        >
-          Documentation
-        </ApplicationLauncherItem>
-        {faq && (
-          <ApplicationLauncherItem
-            key='faq'
-            isExternal={true}
-            onClick={() => window.open(faq, '_blank')}
-            component='button'
-          >
-            FAQ
-          </ApplicationLauncherItem>
-        )}
-        <ApplicationLauncherItem
-          key='help'
-          isExternal={true}
-          component='button'
-          onClick={() => window.open(branding.helpPath, '_target')}
-        >
-          {branding.helpTitle}
-        </ApplicationLauncherItem>
+        {items}
         <ApplicationLauncherItem
           key='about'
           component='button'
@@ -329,8 +307,9 @@ export class HeaderTools extends React.PureComponent<Props, State> {
         >
           About
         </ApplicationLauncherItem>
-      </ApplicationLauncherGroup>,
-    ];
+      </ApplicationLauncherGroup>
+    );
+    return [group];
   }
 
   private onAboutModal(e) {

@@ -10,18 +10,18 @@ Eclipse Che is a next generation Eclipse IDE. This repository is licensed under 
 ## Requirements
 
 - Node.js `v12` and later.
-- yarn `v1.20.0` or higher.
+- yarn `v2.4.1` or higher.
 
 **Note**:
 Below you can find installation instructions
 
 - [Node.js](https://docs.npmjs.com/getting-started/installing-node)
-- [yarn](https://yarnpkg.com/lang/en/docs/install/)
+- [yarn](https://yarnpkg.com/getting-started/install)
 
 ## Quick start
 
 ```sh
-docker build . -f build/dockerfiles/Dockerfile -t quay.io/che-incubator/che-dashboard-next:next
+docker build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:next
 ```
 
 ## Running
@@ -111,6 +111,20 @@ Example:
     "warning": "Server upgrades are happening at 1:00 PM. To learn more visit <a href='foo' target='_blank'>foo</a>"
   }
 }
+```
+
+Field `"links"` allows you to configure links in the masthead, like
+```
+  links: [
+    {
+      text: 'Make a wish',
+      href: 'mailto:che-dev@eclipse.org'
+    },
+    {
+      text: 'Documentation',
+      href: 'https://www.eclipse.org/che/docs/che-7'
+    }
+  ]
 ```
 
 ## License

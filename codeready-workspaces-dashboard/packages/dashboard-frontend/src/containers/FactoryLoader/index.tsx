@@ -14,27 +14,31 @@ import { AlertActionLink, AlertVariant } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { History } from 'history';
-import { delay } from '../services/helpers/delay';
-import { AppState } from '../store';
-import * as FactoryResolverStore from '../store/FactoryResolver';
-import * as WorkspaceStore from '../store/Workspaces';
-import FactoryLoader from '../pages/FactoryLoader';
-import { selectAllWorkspaces, selectWorkspaceById } from '../store/Workspaces/selectors';
-import { selectPreferredStorageType } from '../store/Workspaces/Settings/selectors';
-import { buildIdeLoaderLocation, sanitizeLocation } from '../services/helpers/location';
-import { lazyInject } from '../inversify.config';
-import { KeycloakAuthService } from '../services/keycloak/auth';
-import { getEnvironment, isDevEnvironment } from '../services/helpers/environment';
-import { isOAuthResponse } from '../store/FactoryResolver';
-import { updateDevfile } from '../services/storageTypes';
-import { isWorkspaceV1, Workspace } from '../services/workspaceAdapter';
-import { AlertOptions } from '../pages/FactoryLoader';
-import { selectInfrastructureNamespaces } from '../store/InfrastructureNamespaces/selectors';
+import { delay } from '../../services/helpers/delay';
+import { AppState } from '../../store';
+import * as FactoryResolverStore from '../../store/FactoryResolver';
+import * as WorkspaceStore from '../../store/Workspaces';
+import FactoryLoader from '../../pages/FactoryLoader';
+import { selectAllWorkspaces, selectWorkspaceById } from '../../store/Workspaces/selectors';
+import { selectPreferredStorageType } from '../../store/Workspaces/Settings/selectors';
+import { buildIdeLoaderLocation, sanitizeLocation } from '../../services/helpers/location';
+import { lazyInject } from '../../inversify.config';
+import { KeycloakAuthService } from '../../services/keycloak/auth';
+import { getEnvironment, isDevEnvironment } from '../../services/helpers/environment';
+import { isOAuthResponse } from '../../store/FactoryResolver';
+import { updateDevfile } from '../../services/storageTypes';
+import { isDevfileV1, isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
+import { AlertOptions } from '../../pages/FactoryLoader';
+import { selectInfrastructureNamespaces } from '../../store/InfrastructureNamespaces/selectors';
+import { safeLoad } from 'js-yaml';
+import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
+import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devWorkspaceClient';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create'];
 
 const DEFAULT_CREATE_POLICY = 'perclick';
-type CreatePolicy = 'perclick' | 'peruser';
+
+export type CreatePolicy = 'perclick' | 'peruser';
 
 enum ErrorCodes {
   INVALID_REQUEST = 'invalid_request',
@@ -183,7 +187,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     if (this.isCreatePolicy(policy)) {
       return policy;
     }
-    this.showAlert(`Unsupported create policy 'policies.create=${policy}'`);
+    this.showAlert(`Unsupported create policy '${policy}' is specified while the only following are supported: peruser, perclick. Please fix 'policies.create' parameter and try again.`);
     return undefined;
   }
 
@@ -228,21 +232,27 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   private getAttributes(location: string, search: string): { [key: string]: string } {
+    const url = 'url';
     const searchParam = new window.URLSearchParams(search);
-    searchParam.delete('url');
+    searchParam.sort();
     // set devfile attributes
     const attrs: { [key: string]: string } = {};
-    const factoryUrl = new window.URL(location);
+    const factoryParams = new window.URLSearchParams(`${url}=${location}`);
     searchParam.forEach((val: string, key: string) => {
+      if (key === url) {
+        return;
+      }
       if (WS_ATTRIBUTES_TO_SAVE.indexOf(key) !== -1) {
         attrs[key] = val;
+        factoryParams.append(key, val);
       }
       if (key.startsWith('override.')) {
         this.updateOverrideParams(key, val);
+        factoryParams.append(key, val);
       }
-      factoryUrl.searchParams.append(key, val);
     });
-    attrs.stackName = factoryUrl.toString();
+
+    attrs.factoryParams = window.decodeURIComponent(factoryParams.toString());
 
     return attrs;
   }
@@ -310,21 +320,48 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  private getWorkspaceV1StackName(factoryParams: string): string {
+    const params = new window.URLSearchParams(factoryParams);
+    const location = params.get('url');
+    if (location) {
+      const factoryUrl = new window.URL(location);
+
+      params.forEach((val: string, key: string) => {
+        if (key !== 'url') {
+          factoryUrl.searchParams.append(key, val);
+        }
+      });
+      return factoryUrl.toString();
+    }
+    return factoryParams;
+  }
+
   private async resolveWorkspace(devfile: api.che.workspace.devfile.Devfile, attrs: { [key: string]: string }): Promise<Workspace | undefined> {
     let workspace: Workspace | undefined;
+    const stackName = this.getWorkspaceV1StackName(attrs.factoryParams);
     if (this.state.createPolicy === 'peruser') {
       workspace = this.props.allWorkspaces.find(workspace => {
         if (isWorkspaceV1(workspace.ref)) {
-          // looking for the stack name attribute in Che workspace
-          return workspace.ref.attributes && workspace.ref.attributes.stackName === attrs.stackName;
+          return workspace.ref?.attributes?.stackName === stackName;
         }
         else {
+          const annotations = workspace.ref.metadata.annotations;
+          const source = annotations ? annotations[DEVWORKSPACE_DEVFILE_SOURCE] : undefined;
+          if (source) {
+            const sourseObj = safeLoad(source) as FactorySource;
+            return sourseObj?.factory?.params === attrs.factoryParams;
+          }
           // ignore createPolicy for dev workspaces
           return false;
         }
       });
     }
     if (!workspace) {
+      // for backward compatibility with workspaces V1
+      if (isDevfileV1(devfile)) {
+        attrs.stackName = stackName;
+        delete attrs.factoryParams;
+      }
       try {
         workspace = await this.props.createWorkspaceFromDevfile(devfile, undefined, undefined, attrs, this.factoryResolver.resolver.optionalFilesContent || {});
       } catch (e) {
@@ -435,11 +472,13 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
     await delay();
 
-    const devfile = await this.resolveDevfile(location);
+    let devfile = await this.resolveDevfile(location);
 
     if (!devfile) {
       return;
     }
+
+    devfile = updateDevfileMetadata(devfile, attrs.factoryParams, createPolicy);
     this.setState({ currentStep: LoadFactorySteps.APPLYING_DEVFILE });
 
     await delay();

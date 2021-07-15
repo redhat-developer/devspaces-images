@@ -14,11 +14,9 @@ export type BrandingData = {
   title: string;
   name: string;
   productVersion?: string;
+  links?: Link[];
   logoTextFile: string;
-  logoFile: string;
-  helpPath: string;
-  helpTitle: string;
-  supportEmail: string;
+  logoFile: string;  
   docs: BrandingDocs;
   configuration: BrandingConfiguration;
   header?: BrandingHeader;
@@ -48,6 +46,11 @@ export type PrefetchConfiguration = {
   resources: string[];
 }
 
+export type Link = {
+  text: string;
+  href: string;
+}
+
 export enum TogglableFeature {
   WORKSPACE_SHARING = 'workspaceSharing',
   KUBERNETES_NAMESPACE_SELECTOR = 'kubernetesNamespaceSelector',
@@ -62,9 +65,20 @@ export const BRANDING_DEFAULT: BrandingData = {
   // in case customization is needed these files should be defined in
   // favicon: '/assets/branding/favicon.ico',
   // loader: '/assets/branding/loader.svg',
-  helpPath: 'https://www.eclipse.org/che/',
-  helpTitle: 'Community',
-  supportEmail: 'che-dev@eclipse.org',
+  links: [
+    {
+      text: 'Make a wish',
+      href: 'mailto:che-dev@eclipse.org'
+    },
+    {
+      text: 'Documentation',
+      href: 'https://www.eclipse.org/che/docs/che-7'
+    },
+    {
+      text: 'Community',
+      href: 'https://www.eclipse.org/che/'
+    },
+  ],
   docs: {
     devfile: 'https://www.eclipse.org/che/docs/che-7/making-a-workspace-portable-using-a-devfile/',
     workspace: 'https://www.eclipse.org/che/docs/che-7/workspaces-overview/',

@@ -36,6 +36,10 @@ export interface IStatusUpdate {
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
+export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
+
+export const DEVWORKSPACE_METADATA_ANNOTATION =  'dw.metadata.annotations';
+
 /**
  * This class manages the connection between the frontend and the devworkspace typescript library
  */

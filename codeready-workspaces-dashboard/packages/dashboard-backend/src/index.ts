@@ -66,7 +66,7 @@ server.addContentTypeParser(
 );
 
 server.get(
-  "/workspace/namespace/:namespace",
+  "/namespace/:namespace/devworkspaces",
   {
     schema: {
       headers: authenticationHeaderSchema,
@@ -85,7 +85,7 @@ server.get(
 );
 
 server.post(
-  "/workspace",
+  "/namespace/:namespace/devworkspaces",
   {
     schema: {
       headers: authenticationHeaderSchema,
@@ -99,12 +99,20 @@ server.post(
       client.getNodeApi(devworkspaceClientConfig),
       token
     );
+
+    // override the namespace from params
+    const { namespace } = request.params as NamespacedParam;
+    if (devfile.metadata === undefined) {
+      devfile.metadata = {};
+    }
+    devfile.metadata.namespace = namespace
+
     return devworkspaceApi.create(devfile, routingClass, started);
   }
 );
 
 server.get(
-  "/workspace/namespace/:namespace/:workspaceName",
+  "/namespace/:namespace/devworkspaces/:workspaceName",
   {
     schema: {
       headers: authenticationHeaderSchema,
@@ -126,7 +134,7 @@ server.get(
 );
 
 server.delete(
-  "/workspace/namespace/:namespace/:workspaceName",
+  "/namespace/:namespace/devworkspaces/:workspaceName",
   {
     schema: {
       headers: authenticationHeaderSchema,
@@ -148,7 +156,7 @@ server.delete(
 );
 
 server.patch(
-  "/workspace/namespace/:namespace/:workspaceName",
+  "/namespace/:namespace/devworkspaces/:workspaceName",
   {
     schema: {
       headers: authenticationHeaderSchema,

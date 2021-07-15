@@ -14,6 +14,10 @@ import { FactoryResolver, DevfileV2ProjectSource } from '../../services/helpers/
 import { isDevfileV2 } from '../../services/workspaceAdapter';
 import { getProjectName } from '../../services/helpers/getProjectName';
 import { safeDump } from 'js-yaml';
+import {
+  DEVWORKSPACE_DEVFILE_SOURCE,
+  DEVWORKSPACE_METADATA_ANNOTATION
+} from '../../services/workspace-client/devWorkspaceClient';
 
 /**
  * Returns a devfile from the FactoryResolver object.
@@ -72,7 +76,10 @@ export function getDevfile(data: FactoryResolver, location: string): api.che.wor
     if (!metadata.attributes) {
       metadata.attributes = {};
     }
-    metadata.attributes['dw.metadata.annotations'] = { 'che.eclipse.org/devfile-source': devfileSource };
+    if (!metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
+      metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
+    }
+    metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] = devfileSource;
     devfile = Object.assign({}, devfile, { metadata });
   }
 
