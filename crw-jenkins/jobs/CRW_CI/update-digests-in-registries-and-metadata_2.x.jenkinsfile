@@ -153,7 +153,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep "operator-metadata" || true
                             // changes that don't include a registry rebuild itself, but rather images ref'd by registries
                             if (!DIFF_LATEST_IMAGES_IN_DEVFILE_REGISTRY.equals("") || !DIFF_LATEST_IMAGES_IN_PLUGIN_REGISTRY.equals("")) {
                                 currentBuild.description="Detected new images (not registries): rebuild registries + operator-metadata"
-                                listChangedImages=(DIFF_LATEST_IMAGES_IN_DEVFILE_REGISTRY+"\n"+DIFF_LATEST_IMAGES_IN_PLUGIN_REGISTRY).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("-|\\+",",").tokenize(',').unique()
+                                listChangedImages=(DIFF_LATEST_IMAGES_IN_DEVFILE_REGISTRY+"\n"+DIFF_LATEST_IMAGES_IN_PLUGIN_REGISTRY).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
                                 for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
                                 echo currentBuild.description
                                 echo "================================================>"
@@ -230,12 +230,13 @@ echo "<============ LATEST_IMAGES.new 2 ============"
 '''
                             } else {
                                 currentBuild.description="Detected new images: rebuild operator-metadata"
-                                listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_METADATA).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("-|\\+",",").tokenize(',').unique()
+                                listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_METADATA).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
                                 for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
                                 echo currentBuild.description
                                 echo DIFF_LATEST_IMAGES_ANY_BUT_METADATA
                             }
 
+                            // TODO if the only change is for theia-dev, skip this build
                             build(
                                 job: 'crw-operator-metadata_' + JOB_BRANCH,
                                 wait: true,
