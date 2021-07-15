@@ -18,12 +18,12 @@ import (
 
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
+	"github.com/che-incubator/devworkspace-che-operator/pkg/controller"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
-	"github.com/che-incubator/devworkspace-che-operator/pkg/manager"
 	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	dwo "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/controllers/controller/devworkspacerouting/solvers"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -166,23 +166,23 @@ func isSupported(routingClass controllerv1alpha1.DevWorkspaceRoutingClass) bool 
 	return routingClass == "che"
 }
 
-func cheManagerOfRouting(routing *controllerv1alpha1.DevWorkspaceRouting) (*v1alpha1.CheManager, error) {
+func cheManagerOfRouting(routing *controllerv1alpha1.DevWorkspaceRouting) (*v2alpha1.CheCluster, error) {
 	cheName := routing.Annotations[defaults.ConfigAnnotationCheManagerName]
 	cheNamespace := routing.Annotations[defaults.ConfigAnnotationCheManagerNamespace]
 
 	return findCheManager(client.ObjectKey{Name: cheName, Namespace: cheNamespace})
 }
 
-func findCheManager(cheManagerKey client.ObjectKey) (*v1alpha1.CheManager, error) {
-	managers := manager.GetCurrentManagers()
+func findCheManager(cheManagerKey client.ObjectKey) (*v2alpha1.CheCluster, error) {
+	managers := controller.GetCurrentCheClusterInstances()
 	if len(managers) == 0 {
 		// the CheManager has not been reconciled yet, so let's wait a bit
-		return &v1alpha1.CheManager{}, &solvers.RoutingNotReady{Retry: 1 * time.Second}
+		return &v2alpha1.CheCluster{}, &solvers.RoutingNotReady{Retry: 1 * time.Second}
 	}
 
 	if len(cheManagerKey.Name) == 0 {
 		if len(managers) > 1 {
-			return &v1alpha1.CheManager{}, &solvers.RoutingInvalid{Reason: fmt.Sprintf("the routing does not specify any Che manager in its configuration but there are %d Che managers in the cluster", len(managers))}
+			return &v2alpha1.CheCluster{}, &solvers.RoutingInvalid{Reason: fmt.Sprintf("the routing does not specify any Che manager in its configuration but there are %d Che managers in the cluster", len(managers))}
 		}
 		for _, m := range managers {
 			return &m, nil
@@ -196,5 +196,5 @@ func findCheManager(cheManagerKey client.ObjectKey) (*v1alpha1.CheManager, error
 
 	logger.Info("Routing requires a non-existing che manager. Retrying in 10 seconds.", "key", cheManagerKey)
 
-	return &v1alpha1.CheManager{}, &solvers.RoutingNotReady{Retry: 10 * time.Second}
+	return &v2alpha1.CheCluster{}, &solvers.RoutingNotReady{Retry: 10 * time.Second}
 }

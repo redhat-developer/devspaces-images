@@ -15,10 +15,11 @@ package gateway
 import (
 	"context"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/sync"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
+	"github.com/eclipse-che/che-operator/pkg/apis/org"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	appsv1 "k8s.io/api/apps/v1"
@@ -70,45 +71,47 @@ func New(client client.Client, scheme *runtime.Scheme) CheGateway {
 	}
 }
 
-func (g *CheGateway) Sync(ctx context.Context, manager *v1alpha1.CheManager) (bool, string, error) {
+func (g *CheGateway) Sync(ctx context.Context, cluster *v2alpha1.CheCluster) (bool, string, error) {
 
 	syncer := sync.New(g.client, g.scheme)
 
 	var ret, partial bool
 	var err error
 
-	sa := getGatewayServiceAccountSpec(manager)
-	if partial, _, err = syncer.Sync(ctx, manager, &sa, serviceAccountDiffOpts); err != nil {
+	cls := org.AsV1(cluster)
+
+	sa := getGatewayServiceAccountSpec(cluster)
+	if partial, _, err = syncer.Sync(ctx, cls, &sa, serviceAccountDiffOpts); err != nil {
 		return false, "", err
 	}
 	ret = ret || partial
 
-	role := getGatewayRoleSpec(manager)
-	if partial, _, err = syncer.Sync(ctx, manager, &role, roleDiffOpts); err != nil {
+	role := getGatewayRoleSpec(cluster)
+	if partial, _, err = syncer.Sync(ctx, cls, &role, roleDiffOpts); err != nil {
 		return false, "", err
 	}
 	ret = ret || partial
 
-	roleBinding := getGatewayRoleBindingSpec(manager)
-	if partial, _, err = syncer.Sync(ctx, manager, &roleBinding, roleBindingDiffOpts); err != nil {
+	roleBinding := getGatewayRoleBindingSpec(cluster)
+	if partial, _, err = syncer.Sync(ctx, cls, &roleBinding, roleBindingDiffOpts); err != nil {
 		return false, "", err
 	}
 	ret = ret || partial
 
-	traefikConfig := getGatewayTraefikConfigSpec(manager)
-	if partial, _, err = syncer.Sync(ctx, manager, &traefikConfig, configMapDiffOpts); err != nil {
+	traefikConfig := getGatewayTraefikConfigSpec(cluster)
+	if partial, _, err = syncer.Sync(ctx, cls, &traefikConfig, configMapDiffOpts); err != nil {
 		return false, "", err
 	}
 	ret = ret || partial
 
-	depl := getGatewayDeploymentSpec(manager)
-	if partial, _, err = syncer.Sync(ctx, manager, &depl, deploymentDiffOpts); err != nil {
+	depl := getGatewayDeploymentSpec(cluster)
+	if partial, _, err = syncer.Sync(ctx, cls, &depl, deploymentDiffOpts); err != nil {
 		return false, "", err
 	}
 	ret = ret || partial
 
-	service := getGatewayServiceSpec(manager)
-	if partial, _, err = syncer.Sync(ctx, manager, &service, serviceDiffOpts); err != nil {
+	service := getGatewayServiceSpec(cluster)
+	if partial, _, err = syncer.Sync(ctx, cls, &service, serviceDiffOpts); err != nil {
 		return false, "", err
 	}
 	ret = ret || partial
@@ -116,12 +119,12 @@ func (g *CheGateway) Sync(ctx context.Context, manager *v1alpha1.CheManager) (bo
 	var host string
 
 	if infrastructure.IsOpenShift() {
-		if partial, host, err = g.reconcileRoute(syncer, ctx, manager); err != nil {
+		if partial, host, err = g.reconcileRoute(syncer, ctx, cluster); err != nil {
 			return false, "", err
 		}
 		ret = ret || partial
 	} else {
-		if partial, host, err = g.reconcileIngress(syncer, ctx, manager); err != nil {
+		if partial, host, err = g.reconcileIngress(syncer, ctx, cluster); err != nil {
 			return false, "", err
 		}
 		ret = ret || partial
@@ -130,17 +133,17 @@ func (g *CheGateway) Sync(ctx context.Context, manager *v1alpha1.CheManager) (bo
 	return ret, host, nil
 }
 
-func GetGatewayServiceName(manager *v1alpha1.CheManager) string {
-	return manager.Name
+func GetGatewayServiceName(cluster *v2alpha1.CheCluster) string {
+	return cluster.Name
 }
 
-func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) error {
+func (g *CheGateway) Delete(ctx context.Context, cluster *v2alpha1.CheCluster) error {
 	syncer := sync.New(g.client, g.scheme)
 
 	deployment := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
 		},
 	}
 	if err := syncer.Delete(ctx, &deployment); err != nil {
@@ -149,8 +152,8 @@ func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) e
 
 	serverConfig := corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
 		},
 	}
 	if err := syncer.Delete(ctx, &serverConfig); err != nil {
@@ -159,8 +162,8 @@ func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) e
 
 	roleBinding := rbac.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
 		},
 	}
 	if err := syncer.Delete(ctx, &roleBinding); err != nil {
@@ -169,8 +172,8 @@ func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) e
 
 	role := rbac.Role{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
 		},
 	}
 	if err := syncer.Delete(ctx, &role); err != nil {
@@ -179,8 +182,8 @@ func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) e
 
 	sa := corev1.ServiceAccount{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
 		},
 	}
 	if err := syncer.Delete(ctx, &sa); err != nil {
@@ -189,8 +192,8 @@ func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) e
 
 	service := corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
 		},
 	}
 	if err := syncer.Delete(ctx, &service); err != nil {
@@ -202,30 +205,30 @@ func (g *CheGateway) Delete(ctx context.Context, manager *v1alpha1.CheManager) e
 
 // below functions declare the desired states of the various objects required for the gateway
 
-func getGatewayServiceAccountSpec(manager *v1alpha1.CheManager) corev1.ServiceAccount {
+func getGatewayServiceAccountSpec(cluster *v2alpha1.CheCluster) corev1.ServiceAccount {
 	return corev1.ServiceAccount{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
 			Kind:       "ServiceAccount",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "security"),
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "security"),
 		},
 	}
 }
 
-func getGatewayRoleSpec(manager *v1alpha1.CheManager) rbac.Role {
+func getGatewayRoleSpec(cluster *v2alpha1.CheCluster) rbac.Role {
 	return rbac.Role{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: rbac.SchemeGroupVersion.String(),
 			Kind:       "Role",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "security"),
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "security"),
 		},
 		Rules: []rbac.PolicyRule{
 			{
@@ -237,41 +240,41 @@ func getGatewayRoleSpec(manager *v1alpha1.CheManager) rbac.Role {
 	}
 }
 
-func getGatewayRoleBindingSpec(manager *v1alpha1.CheManager) rbac.RoleBinding {
+func getGatewayRoleBindingSpec(cluster *v2alpha1.CheCluster) rbac.RoleBinding {
 	return rbac.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: rbac.SchemeGroupVersion.String(),
 			Kind:       "RoleBinding",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "security"),
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "security"),
 		},
 		RoleRef: rbac.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "Role",
-			Name:     manager.Name,
+			Name:     cluster.Name,
 		},
 		Subjects: []rbac.Subject{
 			{
 				Kind: "ServiceAccount",
-				Name: manager.Name,
+				Name: cluster.Name,
 			},
 		},
 	}
 }
 
-func getGatewayTraefikConfigSpec(manager *v1alpha1.CheManager) corev1.ConfigMap {
+func getGatewayTraefikConfigSpec(cluster *v2alpha1.CheCluster) corev1.ConfigMap {
 	return corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
 			Kind:       "ConfigMap",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "gateway-config"),
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "gateway-config"),
 		},
 		Data: map[string]string{
 			"traefik.yml": `
@@ -297,7 +300,7 @@ log:
 	}
 }
 
-func getGatewayDeploymentSpec(manager *v1alpha1.CheManager) appsv1.Deployment {
+func getGatewayDeploymentSpec(cluster *v2alpha1.CheCluster) appsv1.Deployment {
 	gatewayImage := defaults.GetGatewayImage()
 	sidecarImage := defaults.GetGatewayConfigurerImage()
 
@@ -309,24 +312,24 @@ func getGatewayDeploymentSpec(manager *v1alpha1.CheManager) appsv1.Deployment {
 			Kind:       "Deployment",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "deployment"),
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "deployment"),
 		},
 		Spec: appsv1.DeploymentSpec{
 			Selector: &metav1.LabelSelector{
-				MatchLabels: defaults.GetLabelsForComponent(manager, "deployment"),
+				MatchLabels: defaults.GetLabelsForComponent(cluster, "deployment"),
 			},
 			Strategy: appsv1.DeploymentStrategy{
 				Type: appsv1.RollingUpdateDeploymentStrategyType,
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: defaults.GetLabelsForComponent(manager, "deployment"),
+					Labels: defaults.GetLabelsForComponent(cluster, "deployment"),
 				},
 				Spec: corev1.PodSpec{
 					TerminationGracePeriodSeconds: &terminationGracePeriodSeconds,
-					ServiceAccountName:            manager.Name,
+					ServiceAccountName:            cluster.Name,
 					RestartPolicy:                 corev1.RestartPolicyAlways,
 					Containers: []corev1.Container{
 						{
@@ -361,7 +364,7 @@ func getGatewayDeploymentSpec(manager *v1alpha1.CheManager) appsv1.Deployment {
 								},
 								{
 									Name:  "CONFIG_BUMP_LABELS",
-									Value: labels.FormatLabels(defaults.GetLabelsForComponent(manager, "gateway-config")),
+									Value: labels.FormatLabels(defaults.GetGatewayWorkspaceConfigMapLabels(cluster)),
 								},
 								{
 									Name: "CONFIG_BUMP_NAMESPACE",
@@ -381,7 +384,7 @@ func getGatewayDeploymentSpec(manager *v1alpha1.CheManager) appsv1.Deployment {
 							VolumeSource: corev1.VolumeSource{
 								ConfigMap: &corev1.ConfigMapVolumeSource{
 									LocalObjectReference: corev1.LocalObjectReference{
-										Name: manager.Name,
+										Name: cluster.Name,
 									},
 								},
 							},
@@ -399,19 +402,19 @@ func getGatewayDeploymentSpec(manager *v1alpha1.CheManager) appsv1.Deployment {
 	}
 }
 
-func getGatewayServiceSpec(manager *v1alpha1.CheManager) corev1.Service {
+func getGatewayServiceSpec(cluster *v2alpha1.CheCluster) corev1.Service {
 	return corev1.Service{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
 			Kind:       "Service",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      GetGatewayServiceName(manager),
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "deployment"),
+			Name:      GetGatewayServiceName(cluster),
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "deployment"),
 		},
 		Spec: corev1.ServiceSpec{
-			Selector:        defaults.GetLabelsForComponent(manager, "deployment"),
+			Selector:        defaults.GetLabelsForComponent(cluster, "deployment"),
 			SessionAffinity: corev1.ServiceAffinityNone,
 			Type:            corev1.ServiceTypeClusterIP,
 			Ports: []corev1.ServicePort{

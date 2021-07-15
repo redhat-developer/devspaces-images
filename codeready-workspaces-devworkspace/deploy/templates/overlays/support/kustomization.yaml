@@ -11,5 +11,4 @@ generatorOptions:
   disableNameSuffixHash: true
 
 resources:
-- ../../components/crd
 - ../../components/rbac

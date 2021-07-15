@@ -4,9 +4,10 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/sync"
+	"github.com/eclipse-che/che-operator/pkg/apis/org"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"k8s.io/api/extensions/v1beta1"
@@ -24,15 +25,15 @@ var (
 	}
 )
 
-func (g *CheGateway) reconcileIngress(syncer sync.Syncer, ctx context.Context, manager *v1alpha1.CheManager) (bool, string, error) {
+func (g *CheGateway) reconcileIngress(syncer sync.Syncer, ctx context.Context, manager *v2alpha1.CheCluster) (bool, string, error) {
 	ingress := getIngressSpec(manager)
 	var changed bool
 	var err error
 	var ingressHost string
 
-	if !manager.Spec.GatewayDisabled {
+	if manager.Spec.Gateway.IsEnabled() {
 		var inCluster runtime.Object
-		changed, inCluster, err = syncer.Sync(ctx, manager, ingress, ingressDiffOpts)
+		changed, inCluster, err = syncer.Sync(ctx, org.AsV1(manager), ingress, ingressDiffOpts)
 		if err != nil {
 			return changed, "", err
 		}
@@ -44,7 +45,12 @@ func (g *CheGateway) reconcileIngress(syncer sync.Syncer, ctx context.Context, m
 	return changed, ingressHost, err
 }
 
-func getIngressSpec(manager *v1alpha1.CheManager) *v1beta1.Ingress {
+func getIngressSpec(manager *v2alpha1.CheCluster) *v1beta1.Ingress {
+	host := manager.Spec.Gateway.Host
+	if host == "" {
+		host = manager.Spec.WorkspaceDomainEndpoints.BaseDomain
+	}
+
 	pathType := v1beta1.PathTypeImplementationSpecific
 	ingress := &v1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
@@ -56,7 +62,7 @@ func getIngressSpec(manager *v1alpha1.CheManager) *v1beta1.Ingress {
 		Spec: v1beta1.IngressSpec{
 			Rules: []v1beta1.IngressRule{
 				{
-					Host: manager.Spec.GatewayHost,
+					Host: host,
 					IngressRuleValue: v1beta1.IngressRuleValue{
 						HTTP: &v1beta1.HTTPIngressRuleValue{
 							Paths: []v1beta1.HTTPIngressPath{
@@ -76,11 +82,11 @@ func getIngressSpec(manager *v1alpha1.CheManager) *v1beta1.Ingress {
 		},
 	}
 
-	if manager.Spec.TlsSecretName != "" {
+	if manager.Spec.Gateway.TlsSecretName != "" {
 		ingress.Spec.TLS = []v1beta1.IngressTLS{
 			{
-				Hosts:      []string{manager.Spec.GatewayHost},
-				SecretName: manager.Spec.TlsSecretName,
+				Hosts:      []string{manager.Spec.Gateway.Host},
+				SecretName: manager.Spec.Gateway.TlsSecretName,
 			},
 		}
 	}

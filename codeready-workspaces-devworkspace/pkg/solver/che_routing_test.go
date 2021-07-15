@@ -6,15 +6,18 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
+	"github.com/che-incubator/devworkspace-che-operator/pkg/controller"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
-	"github.com/che-incubator/devworkspace-che-operator/pkg/manager"
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/devfile/api/v2/pkg/attributes"
 	dwo "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/controllers/controller/devworkspacerouting/solvers"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
+	"github.com/eclipse-che/che-operator/pkg/apis"
+	"github.com/eclipse-che/che-operator/pkg/apis/org"
+	v1 "github.com/eclipse-che/che-operator/pkg/apis/org/v1"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -33,7 +36,6 @@ import (
 
 func createTestScheme() *runtime.Scheme {
 	scheme := runtime.NewScheme()
-	utilruntime.Must(v1alpha1.AddToScheme(scheme))
 	utilruntime.Must(extensions.AddToScheme(scheme))
 	utilruntime.Must(corev1.AddToScheme(scheme))
 	utilruntime.Must(appsv1.AddToScheme(scheme))
@@ -41,14 +43,15 @@ func createTestScheme() *runtime.Scheme {
 	utilruntime.Must(dw.AddToScheme(scheme))
 	utilruntime.Must(dwo.AddToScheme(scheme))
 	utilruntime.Must(routev1.AddToScheme(scheme))
+	utilruntime.Must(apis.AddToScheme(scheme))
 
 	return scheme
 }
 
-func getSpecObjectsForManager(t *testing.T, mgr *v1alpha1.CheManager, routing *dwo.DevWorkspaceRouting, additionalInitialObjects ...runtime.Object) (client.Client, solvers.RoutingSolver, solvers.RoutingObjects) {
+func getSpecObjectsForManager(t *testing.T, mgr *v2alpha1.CheCluster, routing *dwo.DevWorkspaceRouting, additionalInitialObjects ...runtime.Object) (client.Client, solvers.RoutingSolver, solvers.RoutingObjects) {
 	scheme := createTestScheme()
 
-	allObjs := []runtime.Object{mgr}
+	allObjs := []runtime.Object{asV1(mgr)}
 	for i := range additionalInitialObjects {
 		allObjs = append(allObjs, additionalInitialObjects[i])
 	}
@@ -66,7 +69,7 @@ func getSpecObjectsForManager(t *testing.T, mgr *v1alpha1.CheManager, routing *d
 	}
 
 	// we need to do 1 round of che manager reconciliation so that the solver gets initialized
-	cheRecon := manager.New(cl, scheme)
+	cheRecon := controller.New(cl, scheme)
 	_, err = cheRecon.Reconcile(reconcile.Request{NamespacedName: types.NamespacedName{Name: mgr.Name, Namespace: mgr.Namespace}})
 	if err != nil {
 		t.Fatal(err)
@@ -84,15 +87,19 @@ func getSpecObjectsForManager(t *testing.T, mgr *v1alpha1.CheManager, routing *d
 }
 
 func getSpecObjects(t *testing.T, routing *dwo.DevWorkspaceRouting) (client.Client, solvers.RoutingSolver, solvers.RoutingObjects) {
-	return getSpecObjectsForManager(t, &v1alpha1.CheManager{
+	return getSpecObjectsForManager(t, &v2alpha1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "che",
 			Namespace:  "ns",
-			Finalizers: []string{manager.FinalizerName},
+			Finalizers: []string{controller.FinalizerName},
 		},
-		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:         "over.the.rainbow",
-			WorkspaceBaseDomain: "down.on.earth",
+		Spec: v2alpha1.CheClusterSpec{
+			Gateway: v2alpha1.CheGatewaySpec{
+				Host: "over.the.rainbow",
+			},
+			WorkspaceDomainEndpoints: v2alpha1.WorkspaceDomainEndpoints{
+				BaseDomain: "down.on.earth",
+			},
 		},
 	}, routing)
 }
@@ -223,25 +230,16 @@ func TestCreateRelocatedObjects(t *testing.T) {
 		cms := &corev1.ConfigMapList{}
 		cl.List(context.TODO(), cms)
 
-		if len(cms.Items) != 2 {
-			t.Errorf("there should be 2 configmaps created for the gateway config of the workspace and che but there were: %d", len(cms.Items))
+		if len(cms.Items) != 1 {
+			t.Errorf("there should be 1 configmap created for the gateway config of the workspace but there were: %d", len(cms.Items))
 		}
 
-		var cheMgrCfg *corev1.ConfigMap
 		var workspaceCfg *corev1.ConfigMap
 
 		for _, cfg := range cms.Items {
-			if cfg.Name == "che" {
-				cheMgrCfg = &cfg
-			}
-
 			if cfg.Name == "wsid" {
 				workspaceCfg = &cfg
 			}
-		}
-
-		if cheMgrCfg == nil {
-			t.Error("traefik configuration for che manager not found")
 		}
 
 		if workspaceCfg == nil {
@@ -302,13 +300,8 @@ func TestCreateSubDomainObjects(t *testing.T) {
 			cms := &corev1.ConfigMapList{}
 			cl.List(context.TODO(), cms)
 
-			if len(cms.Items) != 1 {
-				t.Errorf("there should be 1 configmaps created for the gateway config of the workspace and che but there were: %d", len(cms.Items))
-			}
-
-			cm := cms.Items[0]
-			if _, ok := cm.Data["traefik.yml"]; !ok {
-				t.Errorf("There should be basic gateway configuration with a config file called `traefik.yml`, but none such found.")
+			if len(cms.Items) != 0 {
+				t.Errorf("there should be 0 configmaps created but there were: %d", len(cms.Items))
 			}
 		})
 
@@ -456,13 +449,8 @@ func TestFinalize(t *testing.T) {
 	cms := &corev1.ConfigMapList{}
 	cl.List(context.TODO(), cms)
 
-	if len(cms.Items) != 1 {
-		t.Fatalf("There should be just 1 configmap after routing finalization, but there were %d found", len(cms.Items))
-	}
-
-	cm := cms.Items[0]
-	if cm.Name != "che" {
-		t.Fatal("The only configmap left should be the main traefik config, but the configmap has unexpected name")
+	if len(cms.Items) != 0 {
+		t.Fatalf("There should be just 0 configmaps after routing finalization, but there were %d found", len(cms.Items))
 	}
 }
 
@@ -492,16 +480,20 @@ func TestEndpointsAlwaysOnSecureProtocolsWhenExposedThroughGateway(t *testing.T)
 func TestUsesIngressAnnotationsForWorkspaceEndpointIngresses(t *testing.T) {
 	infrastructure.InitializeForTesting(infrastructure.Kubernetes)
 
-	mgr := &v1alpha1.CheManager{
+	mgr := &v2alpha1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "che",
 			Namespace:  "ns",
-			Finalizers: []string{manager.FinalizerName},
+			Finalizers: []string{controller.FinalizerName},
 		},
-		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:         "over.the.rainbow",
-			WorkspaceBaseDomain: "down.on.earth",
-			K8s: v1alpha1.CheManagerSpecK8s{
+		Spec: v2alpha1.CheClusterSpec{
+			Gateway: v2alpha1.CheGatewaySpec{
+				Host: "over.the.rainbow",
+			},
+			WorkspaceDomainEndpoints: v2alpha1.WorkspaceDomainEndpoints{
+				BaseDomain: "down.on.earth",
+			},
+			K8s: v2alpha1.CheClusterSpecK8s{
 				IngressAnnotations: map[string]string{
 					"a": "b",
 				},
@@ -529,16 +521,20 @@ func TestUsesIngressAnnotationsForWorkspaceEndpointIngresses(t *testing.T) {
 func TestUsesCustomCertificateForWorkspaceEndpointIngresses(t *testing.T) {
 	infrastructure.InitializeForTesting(infrastructure.Kubernetes)
 
-	mgr := &v1alpha1.CheManager{
+	mgr := &v2alpha1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "che",
 			Namespace:  "ns",
-			Finalizers: []string{manager.FinalizerName},
+			Finalizers: []string{controller.FinalizerName},
 		},
-		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:         "beyond.comprehension",
-			WorkspaceBaseDomain: "almost.trivial",
-			TlsSecretName:       "tlsSecret",
+		Spec: v2alpha1.CheClusterSpec{
+			Gateway: v2alpha1.CheGatewaySpec{
+				Host: "beyond.comprehension",
+			},
+			WorkspaceDomainEndpoints: v2alpha1.WorkspaceDomainEndpoints{
+				BaseDomain:    "almost.trivial",
+				TlsSecretName: "tlsSecret",
+			},
 		},
 	}
 
@@ -579,16 +575,20 @@ func TestUsesCustomCertificateForWorkspaceEndpointIngresses(t *testing.T) {
 func TestUsesCustomCertificateForWorkspaceEndpointRoutes(t *testing.T) {
 	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
 
-	mgr := &v1alpha1.CheManager{
+	mgr := &v2alpha1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:       "che",
 			Namespace:  "ns",
-			Finalizers: []string{manager.FinalizerName},
+			Finalizers: []string{controller.FinalizerName},
 		},
-		Spec: v1alpha1.CheManagerSpec{
-			GatewayHost:         "beyond.comprehension",
-			WorkspaceBaseDomain: "almost.trivial",
-			TlsSecretName:       "tlsSecret",
+		Spec: v2alpha1.CheClusterSpec{
+			Gateway: v2alpha1.CheGatewaySpec{
+				Host: "beyond.comprehension",
+			},
+			WorkspaceDomainEndpoints: v2alpha1.WorkspaceDomainEndpoints{
+				BaseDomain:    "almost.trivial",
+				TlsSecretName: "tlsSecret",
+			},
 		},
 	}
 
@@ -616,4 +616,8 @@ func TestUsesCustomCertificateForWorkspaceEndpointRoutes(t *testing.T) {
 	if route.Spec.TLS.Key != "asdf" {
 		t.Errorf("Unexpected key of TLS spec: %s", route.Spec.TLS.Key)
 	}
+}
+
+func asV1(v2Obj *v2alpha1.CheCluster) *v1.CheCluster {
+	return org.AsV1(v2Obj)
 }

@@ -25,15 +25,12 @@ var ControllerAppLabels = func() map[string]string {
 const (
 	DefaultProjectsSourcesRoot = "/projects"
 
+	AuthEnabled = "false"
+
 	ServiceAccount = "devworkspace"
 
-	SidecarDefaultMemoryLimit   = "128M"
-	SidecarDefaultMemoryRequest = "64M"
-
-	SidecarDefaultCpuLimit   = "" // do not provide any value
-	SidecarDefaultCpuRequest = "" // do not provide any value
-
-	PVCStorageSize = "1Gi"
+	SidecarDefaultMemoryLimit = "128M"
+	PVCStorageSize            = "1Gi"
 
 	// DevWorkspaceIDLoggerKey is the key used to log workspace ID in the reconcile
 	DevWorkspaceIDLoggerKey = "devworkspace_id"
@@ -54,10 +51,10 @@ const (
 	PVCCleanupPodCPURequest = "5m"
 
 	// Resource limits/requests for project cloner init container
-	ProjectCloneMemoryLimit   = "1Gi"
-	ProjectCloneMemoryRequest = "128Mi"
-	ProjectCloneCPULimit      = "1000m"
-	ProjectCloneCPURequest    = "100m"
+	ProjectCloneMemoryLimit   = "300Mi"
+	ProjectCloneMemoryRequest = "64Mi"
+	ProjectCloneCPULimit      = "50m"
+	ProjectCloneCPURequest    = "5m"
 
 	// Constants describing storage classes supported by the controller
 	// CommonStorageClassType defines the 'common' storage policy -- one PVC is provisioned per namespace and all devworkspace storage

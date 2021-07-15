@@ -20,9 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -39,16 +37,15 @@ var getGvk = apiutil.GVKForObject
 
 // Builder builds a Controller.
 type Builder struct {
-	forInput         ForInput
-	ownsInput        []OwnsInput
-	watchesInput     []WatchesInput
-	mgr              manager.Manager
-	globalPredicates []predicate.Predicate
-	config           *rest.Config
-	ctrl             controller.Controller
-	ctrlOptions      controller.Options
-	log              logr.Logger
-	name             string
+	apiType        runtime.Object
+	mgr            manager.Manager
+	predicates     []predicate.Predicate
+	managedObjects []runtime.Object
+	watchRequest   []watchRequest
+	config         *rest.Config
+	ctrl           controller.Controller
+	ctrlOptions    controller.Options
+	name           string
 }
 
 // ControllerManagedBy returns a new controller builder that will be started by the provided Manager
@@ -66,62 +63,32 @@ func (blder *Builder) ForType(apiType runtime.Object) *Builder {
 	return blder.For(apiType)
 }
 
-// ForInput represents the information set by For method.
-type ForInput struct {
-	object     runtime.Object
-	predicates []predicate.Predicate
-}
-
 // For defines the type of Object being *reconciled*, and configures the ControllerManagedBy to respond to create / delete /
 // update events by *reconciling the object*.
 // This is the equivalent of calling
 // Watches(&source.Kind{Type: apiType}, &handler.EnqueueRequestForObject{})
-func (blder *Builder) For(object runtime.Object, opts ...ForOption) *Builder {
-	input := ForInput{object: object}
-	for _, opt := range opts {
-		opt.ApplyToFor(&input)
-	}
-
-	blder.forInput = input
+func (blder *Builder) For(apiType runtime.Object) *Builder {
+	blder.apiType = apiType
 	return blder
-}
-
-// OwnsInput represents the information set by Owns method.
-type OwnsInput struct {
-	object     runtime.Object
-	predicates []predicate.Predicate
 }
 
 // Owns defines types of Objects being *generated* by the ControllerManagedBy, and configures the ControllerManagedBy to respond to
 // create / delete / update events by *reconciling the owner object*.  This is the equivalent of calling
-// Watches(&source.Kind{Type: <ForType-forInput>}, &handler.EnqueueRequestForOwner{OwnerType: apiType, IsController: true})
-func (blder *Builder) Owns(object runtime.Object, opts ...OwnsOption) *Builder {
-	input := OwnsInput{object: object}
-	for _, opt := range opts {
-		opt.ApplyToOwns(&input)
-	}
-
-	blder.ownsInput = append(blder.ownsInput, input)
+// Watches(&handler.EnqueueRequestForOwner{&source.Kind{Type: <ForType-apiType>}, &handler.EnqueueRequestForOwner{OwnerType: apiType, IsController: true})
+func (blder *Builder) Owns(apiType runtime.Object) *Builder {
+	blder.managedObjects = append(blder.managedObjects, apiType)
 	return blder
 }
 
-// WatchesInput represents the information set by Watches method.
-type WatchesInput struct {
+type watchRequest struct {
 	src          source.Source
 	eventhandler handler.EventHandler
-	predicates   []predicate.Predicate
 }
 
 // Watches exposes the lower-level ControllerManagedBy Watches functions through the builder.  Consider using
 // Owns or For instead of Watches directly.
-// Specified predicates are registered only for given source.
-func (blder *Builder) Watches(src source.Source, eventhandler handler.EventHandler, opts ...WatchesOption) *Builder {
-	input := WatchesInput{src: src, eventhandler: eventhandler}
-	for _, opt := range opts {
-		opt.ApplyToWatches(&input)
-	}
-
-	blder.watchesInput = append(blder.watchesInput, input)
+func (blder *Builder) Watches(src source.Source, eventhandler handler.EventHandler) *Builder {
+	blder.watchRequest = append(blder.watchRequest, watchRequest{src: src, eventhandler: eventhandler})
 	return blder
 }
 
@@ -135,10 +102,9 @@ func (blder *Builder) WithConfig(config *rest.Config) *Builder {
 
 // WithEventFilter sets the event filters, to filter which create/update/delete/generic events eventually
 // trigger reconciliations.  For example, filtering on whether the resource version has changed.
-// Given predicate is added for all watched objects.
 // Defaults to the empty list.
 func (blder *Builder) WithEventFilter(p predicate.Predicate) *Builder {
-	blder.globalPredicates = append(blder.globalPredicates, p)
+	blder.predicates = append(blder.predicates, p)
 	return blder
 }
 
@@ -155,12 +121,6 @@ func (blder *Builder) WithOptions(options controller.Options) *Builder {
 // By default, controllers are named using the lowercase version of their kind.
 func (blder *Builder) Named(name string) *Builder {
 	blder.name = name
-	return blder
-}
-
-// WithLogger overrides the controller options's logger used.
-func (blder *Builder) WithLogger(log logr.Logger) *Builder {
-	blder.log = log
 	return blder
 }
 
@@ -197,33 +157,28 @@ func (blder *Builder) Build(r reconcile.Reconciler) (controller.Controller, erro
 
 func (blder *Builder) doWatch() error {
 	// Reconcile type
-	src := &source.Kind{Type: blder.forInput.object}
+	src := &source.Kind{Type: blder.apiType}
 	hdler := &handler.EnqueueRequestForObject{}
-	allPredicates := append(blder.globalPredicates, blder.forInput.predicates...)
-	err := blder.ctrl.Watch(src, hdler, allPredicates...)
+	err := blder.ctrl.Watch(src, hdler, blder.predicates...)
 	if err != nil {
 		return err
 	}
 
 	// Watches the managed types
-	for _, own := range blder.ownsInput {
-		src := &source.Kind{Type: own.object}
+	for _, obj := range blder.managedObjects {
+		src := &source.Kind{Type: obj}
 		hdler := &handler.EnqueueRequestForOwner{
-			OwnerType:    blder.forInput.object,
+			OwnerType:    blder.apiType,
 			IsController: true,
 		}
-		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
-		allPredicates = append(allPredicates, own.predicates...)
-		if err := blder.ctrl.Watch(src, hdler, allPredicates...); err != nil {
+		if err := blder.ctrl.Watch(src, hdler, blder.predicates...); err != nil {
 			return err
 		}
 	}
 
 	// Do the watch requests
-	for _, w := range blder.watchesInput {
-		allPredicates := append([]predicate.Predicate(nil), blder.globalPredicates...)
-		allPredicates = append(allPredicates, w.predicates...)
-		if err := blder.ctrl.Watch(w.src, w.eventhandler, allPredicates...); err != nil {
+	for _, w := range blder.watchRequest {
+		if err := blder.ctrl.Watch(w.src, w.eventhandler, blder.predicates...); err != nil {
 			return err
 		}
 
@@ -237,33 +192,24 @@ func (blder *Builder) loadRestConfig() {
 	}
 }
 
-func (blder *Builder) getControllerName(gvk schema.GroupVersionKind) string {
+func (blder *Builder) getControllerName() (string, error) {
 	if blder.name != "" {
-		return blder.name
+		return blder.name, nil
 	}
-	return strings.ToLower(gvk.Kind)
+	gvk, err := getGvk(blder.apiType, blder.mgr.GetScheme())
+	if err != nil {
+		return "", err
+	}
+	return strings.ToLower(gvk.Kind), nil
 }
 
 func (blder *Builder) doController(r reconcile.Reconciler) error {
-	ctrlOptions := blder.ctrlOptions
-	if ctrlOptions.Reconciler == nil {
-		ctrlOptions.Reconciler = r
-	}
-
-	// Retrieve the GVK from the object we're reconciling
-	// to prepopulate logger information, and to optionally generate a default name.
-	gvk, err := getGvk(blder.forInput.object, blder.mgr.GetScheme())
+	name, err := blder.getControllerName()
 	if err != nil {
 		return err
 	}
-
-	// Setup the logger.
-	if ctrlOptions.Log == nil {
-		ctrlOptions.Log = blder.mgr.GetLogger()
-	}
-	ctrlOptions.Log = ctrlOptions.Log.WithValues("reconcilerGroup", gvk.Group, "reconcilerKind", gvk.Kind)
-
-	// Build the controller and return.
-	blder.ctrl, err = newController(blder.getControllerName(gvk), blder.mgr, ctrlOptions)
+	ctrlOptions := blder.ctrlOptions
+	ctrlOptions.Reconciler = r
+	blder.ctrl, err = newController(name, blder.mgr, ctrlOptions)
 	return err
 }

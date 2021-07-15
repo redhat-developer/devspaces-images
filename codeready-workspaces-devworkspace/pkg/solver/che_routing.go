@@ -18,7 +18,6 @@ import (
 	"path"
 	"strings"
 
-	dwoche "github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/sync"
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
@@ -27,6 +26,7 @@ import (
 	"github.com/devfile/devworkspace-operator/pkg/common"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	routeV1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -57,7 +57,7 @@ type portMappingValue struct {
 	order          int
 }
 
-func (c *CheRoutingSolver) cheSpecObjects(cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting, workspaceMeta solvers.DevWorkspaceMetadata) (solvers.RoutingObjects, error) {
+func (c *CheRoutingSolver) cheSpecObjects(cheManager *v2alpha1.CheCluster, routing *dwo.DevWorkspaceRouting, workspaceMeta solvers.DevWorkspaceMetadata) (solvers.RoutingObjects, error) {
 	objs := solvers.RoutingObjects{}
 
 	objs.Services = solvers.GetDiscoverableServicesForEndpoints(routing.Spec.Endpoints, workspaceMeta)
@@ -119,8 +119,8 @@ func (c *CheRoutingSolver) cheSpecObjects(cheManager *dwoche.CheManager, routing
 	return objs, nil
 }
 
-func (c *CheRoutingSolver) cheExposedEndpoints(manager *dwoche.CheManager, workspaceID string, endpoints map[string]dwo.EndpointList, routingObj solvers.RoutingObjects) (exposedEndpoints map[string]dwo.ExposedEndpointList, ready bool, err error) {
-	if manager.Status.GatewayPhase != dwoche.GatewayPhaseEstablished {
+func (c *CheRoutingSolver) cheExposedEndpoints(manager *v2alpha1.CheCluster, workspaceID string, endpoints map[string]dwo.EndpointList, routingObj solvers.RoutingObjects) (exposedEndpoints map[string]dwo.ExposedEndpointList, ready bool, err error) {
+	if manager.Status.GatewayPhase == v2alpha1.GatewayPhaseInitializing {
 		return nil, false, nil
 	}
 
@@ -135,7 +135,7 @@ func (c *CheRoutingSolver) cheExposedEndpoints(manager *dwoche.CheManager, works
 				continue
 			}
 
-			scheme := determineEndpointScheme(!manager.Spec.GatewayDisabled, endpoint)
+			scheme := determineEndpointScheme(manager.Spec.Gateway.IsEnabled(), endpoint)
 
 			if !isExposableScheme(scheme) {
 				// we cannot expose non-http endpoints publicly, because ingresses/routes only support http(s)
@@ -158,7 +158,7 @@ func (c *CheRoutingSolver) cheExposedEndpoints(manager *dwoche.CheManager, works
 			}
 
 			if endpointURL == "" {
-				if manager.Spec.GatewayDisabled {
+				if !manager.Spec.Gateway.IsEnabled() {
 					return map[string]dwo.ExposedEndpointList{}, false, fmt.Errorf("couldn't find an ingress/route for an endpoint `%s` in workspace `%s`, this is a bug", endpoint.Name, workspaceID)
 				}
 
@@ -208,10 +208,10 @@ func isSecureScheme(scheme string) bool {
 	return scheme == "https" || scheme == "wss"
 }
 
-func (c *CheRoutingSolver) getGatewayConfigsAndFillRoutingObjects(cheManager *dwoche.CheManager, workspaceID string, routing *dwo.DevWorkspaceRouting, objs *solvers.RoutingObjects) ([]corev1.ConfigMap, error) {
+func (c *CheRoutingSolver) getGatewayConfigsAndFillRoutingObjects(cheManager *v2alpha1.CheCluster, workspaceID string, routing *dwo.DevWorkspaceRouting, objs *solvers.RoutingObjects) ([]corev1.ConfigMap, error) {
 	restrictedAnno, setRestrictedAnno := routing.Annotations[constants.DevWorkspaceRestrictedAccessAnnotation]
 
-	labels := defaults.GetLabelsForComponent(cheManager, "gateway-config")
+	labels := defaults.AddStandardLabelsForComponent(cheManager, "gateway-config", defaults.GetGatewayWorkspaceConfigMapLabels(cheManager))
 	labels[constants.DevWorkspaceIDLabel] = workspaceID
 	if setRestrictedAnno {
 		labels[constants.DevWorkspaceRestrictedAccessAnnotation] = restrictedAnno
@@ -282,11 +282,11 @@ func (c *CheRoutingSolver) getGatewayConfigsAndFillRoutingObjects(cheManager *dw
 	return []corev1.ConfigMap{}, nil
 }
 
-func exposeAllEndpoints(order *int, cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting, config *traefikConfig, objs *solvers.RoutingObjects, ingressExpose func(*EndpointInfo)) {
+func exposeAllEndpoints(order *int, cheManager *v2alpha1.CheCluster, routing *dwo.DevWorkspaceRouting, config *traefikConfig, objs *solvers.RoutingObjects, ingressExpose func(*EndpointInfo)) {
 	info := &EndpointInfo{}
 	for componentName, endpoints := range routing.Spec.Endpoints {
 		info.componentName = componentName
-		singlehostPorts, multihostPorts := classifyEndpoints(!cheManager.Spec.GatewayDisabled, order, &endpoints)
+		singlehostPorts, multihostPorts := classifyEndpoints(cheManager.Spec.Gateway.IsEnabled(), order, &endpoints)
 
 		addToTraefikConfig(routing.Namespace, routing.Spec.DevWorkspaceId, componentName, singlehostPorts, config)
 
@@ -446,7 +446,7 @@ func findRouteForEndpoint(machineName string, endpoint dw.Endpoint, objs *solver
 	return nil
 }
 
-func (c *CheRoutingSolver) cheRoutingFinalize(cheManager *dwoche.CheManager, routing *dwo.DevWorkspaceRouting) error {
+func (c *CheRoutingSolver) cheRoutingFinalize(cheManager *v2alpha1.CheCluster, routing *dwo.DevWorkspaceRouting) error {
 	configs := &corev1.ConfigMapList{}
 
 	selector, err := labels.Parse(fmt.Sprintf("%s=%s", constants.DevWorkspaceIDLabel, routing.Spec.DevWorkspaceId))

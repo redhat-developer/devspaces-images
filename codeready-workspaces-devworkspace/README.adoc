@@ -18,16 +18,21 @@ the same executable or separately).
 There are 2 controllers in this operator. One is in charge of maintaining the state of the Che-specific infrastructure, the other is 
 in charge of exposing the devworkspace endpoints.
 
-== Che Manager Controller
+== Che Cluster Controller
 
-This controller is in charge of the Che-specific infrastructure that is described using the `CheManager` custom resource. The resource
-describes the desired state of the Che infra - the routing type (singlehost or multihost), the root hostname for the entrypoints, etc.
+This controller is in charge of the Che-specific infrastructure that is described using the `CheCluster` custom resource defined by
+https://github.com/eclipse-che/che-operator[che-operator].
 
 == DevWorkspace Routing Controller
 
 This controller is in charge of exposing the devworkspace endpoints by reconciling the `DevWorkspaceRouting` objects that are themselves managed
 by the main devworkspace operator. For this controller to handle the endpoints of a devworkspace, the `DevWorkspace` object describing the
 workspace needs to have the `routingClass` property set to `che`.
+
+== Prerequisites
+
+There has to be a running installation of the https://github.com/devfile/devworkspace-operator[devworkspace-operator] running in the cluster.
+There also have to be the `CheCluster` custom resource installed in the cluster. Please see https://github.com/eclipse-che/che-operator[che-operator] for the latest version of that.
 
 == Build
 

@@ -59,15 +59,15 @@ prepare: _mk_temp _platform manifests
 ### run: Run against the configured Kubernetes cluster in ~/.kube/config using the deployed service account
 run: generate fmt vet prepare
 	$(eval KUBECONFIG:=$(shell deploy/generate-restricted-kubeconfig.sh $(TEMP_DIR) devworkspace-che-serviceaccount $(DWCO_NAMESPACE)))
-	KUBECONFIG=$(KUBECONFIG) go run ./main.go || true
+	KUBECONFIG=$(KUBECONFIG) MAX_CONCURRENT_RECONCILES=1 go run ./main.go || true
 	rm $(KUBECONFIG)
 
 ### run_as_current_user: Run against the configured Kubernetes cluster in ~/.kube/config using the current context
 run_as_current_user: generate fmt vet prepare
-	go run ./main.go
+	MAX_CONCURRENT_RECONCILES=1 go run ./main.go
 
 debug: generate fmt vet prepare
-	dlv debug --listen=:2345 --headless=true --api-version=2 ./main.go --
+	MAX_CONCURRENT_RECONCILES=1 dlv debug --listen=:2345 --headless=true --api-version=2 ./main.go --
 
 ### install: Deploy controller in the configured Kubernetes cluster in ~/.kube/config
 install: _platform generate_deployment

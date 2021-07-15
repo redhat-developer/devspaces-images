@@ -15,10 +15,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
 	dwo "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/pkg/constants"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	routev1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -61,13 +61,13 @@ func getEndpointExposingObjectName(componentName string, workspaceID string, por
 	return fmt.Sprintf("%s-%s-%d-%s", workspaceID, componentName, port, endpointName)
 }
 
-func (e *RouteExposer) initFrom(ctx context.Context, cl client.Client, manager *v1alpha1.CheManager, routing *dwo.DevWorkspaceRouting) error {
-	e.baseDomain = manager.Status.WorkspaceBaseDomain
+func (e *RouteExposer) initFrom(ctx context.Context, cl client.Client, cluster *v2alpha1.CheCluster, routing *dwo.DevWorkspaceRouting) error {
+	e.baseDomain = cluster.Status.WorkspaceBaseDomain
 	e.devWorkspaceID = routing.Spec.DevWorkspaceId
 
-	if manager.Spec.TlsSecretName != "" {
+	if cluster.Spec.WorkspaceDomainEndpoints.TlsSecretName != "" {
 		secret := &corev1.Secret{}
-		err := cl.Get(ctx, client.ObjectKey{Name: manager.Spec.TlsSecretName, Namespace: manager.Namespace}, secret)
+		err := cl.Get(ctx, client.ObjectKey{Name: cluster.Spec.TlsSecretName, Namespace: cluster.Namespace}, secret)
 		if err != nil {
 			return err
 		}
@@ -79,12 +79,12 @@ func (e *RouteExposer) initFrom(ctx context.Context, cl client.Client, manager *
 	return nil
 }
 
-func (e *IngressExposer) initFrom(ctx context.Context, cl client.Client, manager *v1alpha1.CheManager, routing *dwo.DevWorkspaceRouting, ingressAnnotations map[string]string) error {
-	e.baseDomain = manager.Status.WorkspaceBaseDomain
+func (e *IngressExposer) initFrom(ctx context.Context, cl client.Client, cluster *v2alpha1.CheCluster, routing *dwo.DevWorkspaceRouting, ingressAnnotations map[string]string) error {
+	e.baseDomain = cluster.Status.WorkspaceBaseDomain
 	e.devWorkspaceID = routing.Spec.DevWorkspaceId
 	e.ingressAnnotations = ingressAnnotations
 
-	if manager.Spec.TlsSecretName != "" {
+	if cluster.Spec.WorkspaceDomainEndpoints.TlsSecretName != "" {
 		tlsSecretName := routing.Spec.DevWorkspaceId + "-endpoints"
 		e.tlsSecretName = tlsSecretName
 
@@ -94,7 +94,7 @@ func (e *IngressExposer) initFrom(ctx context.Context, cl client.Client, manager
 		err := cl.Get(ctx, client.ObjectKey{Name: tlsSecretName, Namespace: routing.Namespace}, secret)
 		if errors.IsNotFound(err) {
 			secret = &corev1.Secret{}
-			err = cl.Get(ctx, client.ObjectKey{Name: manager.Spec.TlsSecretName, Namespace: manager.Namespace}, secret)
+			err = cl.Get(ctx, client.ObjectKey{Name: cluster.Spec.TlsSecretName, Namespace: cluster.Namespace}, secret)
 			if err != nil {
 				return err
 			}

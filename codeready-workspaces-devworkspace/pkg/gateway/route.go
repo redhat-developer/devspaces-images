@@ -3,9 +3,10 @@ package gateway
 import (
 	"context"
 
-	"github.com/che-incubator/devworkspace-che-operator/apis/che-controller/v1alpha1"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/defaults"
 	"github.com/che-incubator/devworkspace-che-operator/pkg/sync"
+	"github.com/eclipse-che/che-operator/pkg/apis/org"
+	"github.com/eclipse-che/che-operator/pkg/apis/org/v2alpha1"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	routev1 "github.com/openshift/api/route/v1"
@@ -36,13 +37,13 @@ var (
 	}
 )
 
-func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, mgr *v1alpha1.CheManager) (bool, string, error) {
-	route := getRouteSpec(mgr)
+func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, cluster *v2alpha1.CheCluster) (bool, string, error) {
+	route := getRouteSpec(cluster)
 	var changed bool
 	var err error
 	var routeHost string
 
-	if mgr.Spec.GatewayDisabled {
+	if !cluster.Spec.Gateway.IsEnabled() {
 		changed, routeHost, err = true, "", syncer.Delete(ctx, route)
 	} else {
 		// The trouble with routes is that they don't support updating the host. Therefore they need to be
@@ -60,7 +61,7 @@ func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, mgr
 		// existing = explicit, now = generated -> re-create the route
 		// existing = explicit, now = explicit -> sync with host
 
-		expectGeneratedHost := mgr.Spec.GatewayHost == ""
+		expectGeneratedHost := cluster.Spec.Gateway.Host == ""
 
 		key := client.ObjectKey{Name: route.Name, Namespace: route.Namespace}
 		existing := &routev1.Route{}
@@ -97,12 +98,12 @@ func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, mgr
 		// the ingresses, which means that we need to read the secret and inline its contents into the route.
 		// We only finalize the route config here, because might not have gotten here the first couple of
 		// reconciliation rounds and don't want to read the secret repeatedly unnecessarily.
-		err = g.updateTlsConfig(ctx, mgr, route)
+		err = g.updateTlsConfig(ctx, cluster, route)
 		if err != nil {
 			return changed, "", err
 		}
 
-		changed, inCluster, err = syncer.Sync(ctx, mgr, route, diffOpts)
+		changed, inCluster, err = syncer.Sync(ctx, org.AsV1(cluster), route, diffOpts)
 		if err != nil {
 			return changed, "", err
 		}
@@ -114,18 +115,18 @@ func (g *CheGateway) reconcileRoute(syncer sync.Syncer, ctx context.Context, mgr
 
 // getRouteSpec gets the basic spec of the route. It DOESN'T include the TLS configuration. You should use
 // updateTlsConfig function for that.
-func getRouteSpec(manager *v1alpha1.CheManager) *routev1.Route {
+func getRouteSpec(cluster *v2alpha1.CheCluster) *routev1.Route {
 	return &routev1.Route{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      manager.Name,
-			Namespace: manager.Namespace,
-			Labels:    defaults.GetLabelsForComponent(manager, "external-access"),
+			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    defaults.GetLabelsForComponent(cluster, "external-access"),
 		},
 		Spec: routev1.RouteSpec{
-			Host: manager.Spec.GatewayHost,
+			Host: cluster.Spec.Gateway.Host,
 			To: routev1.RouteTargetReference{
 				Kind: "Service",
-				Name: GetGatewayServiceName(manager),
+				Name: GetGatewayServiceName(cluster),
 			},
 			Port: &routev1.RoutePort{
 				TargetPort: intstr.FromInt(GatewayPort),
@@ -138,13 +139,13 @@ func getRouteSpec(manager *v1alpha1.CheManager) *routev1.Route {
 	}
 }
 
-func (g *CheGateway) updateTlsConfig(ctx context.Context, manager *v1alpha1.CheManager, route *routev1.Route) error {
-	if manager.Spec.TlsSecretName == "" {
+func (g *CheGateway) updateTlsConfig(ctx context.Context, cluster *v2alpha1.CheCluster, route *routev1.Route) error {
+	if cluster.Spec.Gateway.TlsSecretName == "" {
 		return nil
 	}
 
 	secret := &corev1.Secret{}
-	err := g.client.Get(ctx, client.ObjectKey{Name: manager.Spec.TlsSecretName, Namespace: manager.Namespace}, secret)
+	err := g.client.Get(ctx, client.ObjectKey{Name: cluster.Spec.Gateway.TlsSecretName, Namespace: cluster.Namespace}, secret)
 	if err != nil {
 		return err
 	}

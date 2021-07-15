@@ -118,7 +118,7 @@ go mod download
 go mod tidy
 
 make generate_deployment
-make docker-build
+MOCK_API=true make docker-build
 make docker-push
 
 # tag the release if the VERSION file has changed

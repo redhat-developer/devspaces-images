@@ -32,14 +32,6 @@ type Result struct {
 	RequeueAfter time.Duration
 }
 
-// IsZero returns true if this result is empty.
-func (r *Result) IsZero() bool {
-	if r == nil {
-		return true
-	}
-	return *r == Result{}
-}
-
 // Request contains the information necessary to reconcile a Kubernetes object.  This includes the
 // information to uniquely identify the object - its Name and Namespace.  It does NOT contain information about
 // any specific Event or the object contents itself.
@@ -60,7 +52,7 @@ Deleting Kubernetes objects) or external Events (GitHub Webhooks, polling extern
 
 Example reconcile Logic:
 
-	* Read an object and all the Pods it owns.
+	* Reader an object and all the Pods it owns.
 	* Observe that the object spec specifies 5 replicas but actual cluster contains only 1 Pod replica.
 	* Create 4 Pods and set their OwnerReferences to the object.
 
