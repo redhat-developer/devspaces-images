@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020 Red Hat, Inc.
+# Copyright (c) 2020-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -18,12 +18,12 @@ set -e
 # defaults
 CSV_VERSION=2.y.0
 CRW_VERSION=${CSV_VERSION%.*}
-MIDSTM_BRANCH=crw-2.10-rhel8
+MIDSTM_BRANCH=crw-2.y-rhel8
 
 # TODO handle cmdline input
 usage () {
 	echo "Usage:   $0 -v [CRW CSV_VERSION] -t [/path/to/generated] --crw-branch ${MIDSTM_BRANCH}"
-	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch crw-2.8-rhel8"
+	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch crw-2.y-rhel8"
   exit
 }
 
@@ -73,7 +73,7 @@ insertEnvVar()
 {
   echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
   cat $CSVFILE | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-    '.spec.install.spec.deployments[].spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]' \
+    '.spec.install.spec.deployments[].spec.template.spec.containers[0].env += [{"name": $updateName, "value": $updateVal}]' \
     > ${CSVFILE}.2; mv ${CSVFILE}.2 ${CSVFILE}
 }
 

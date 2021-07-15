@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020 Red Hat, Inc.
+# Copyright (c) 2020-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -172,107 +172,133 @@ replaceEnvVarOperatorYaml()
 {
 	fileToChange="$1"
 	header="$2"
+	field="$3"
 	# don't do anything if the existing value is the same as the replacement one
 	# shellcheck disable=SC2016 disable=SC2002
-	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" '.spec.template.spec.containers[].env[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
+	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
 		echo "[INFO] ${0##*/} rEVOY :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
-			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[].env[]|select(.name == $updateName))')
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del('${field}'[]|select(.name == $updateName))')
 			echo "${header}${changed}" > "${fileToChange}.2"
 		else
+			# attempt to replace updateName field with updateVal value
 			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-'.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
+${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
 			echo "${header}${changed}" > "${fileToChange}.2"
-			# echo "replaced?"
-			# diff -u "${fileToChange}" "${fileToChange}.2" || true
+			#  echo "replaced?"
+			#  diff -u "${fileToChange}" "${fileToChange}.2" || true
 			if [[ ! $(diff -u "${fileToChange}" "${fileToChange}.2") ]]; then
-			#echo "insert $updateName = $updateVal"
-			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-				'.spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]')
+			echo "insert $updateName = $updateVal"
+			 changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
+				${field}' += [{"name": $updateName, "value": $updateVal}]')
 			echo "${header}${changed}" > "${fileToChange}.2"
 			fi
 		fi
 		mv "${fileToChange}.2" "${fileToChange}"
 	fi
 }
+
 # yq changes - transform env vars from Che to CRW values
-	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-	# yq changes - transform env vars from Che to CRW values
-	declare -A operator_replacements=(
-		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
-		["CHE_FLAVOR"]="codeready"
-		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
-		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
-		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
-		["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
-		["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
-		["RELATED_IMAGE_devworkspace_controller"]="${CRW_DWO_IMAGE}"
-		["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
+##### update the first container yaml
 
-		["RELATED_IMAGE_che_workspace_plugin_broker_metadata"]="${CRW_BROKER_METADATA_IMAGE}"
-		["RELATED_IMAGE_che_workspace_plugin_broker_artifacts"]="${CRW_BROKER_ARTIFACTS_IMAGE}"
-		["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
+# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+# yq changes - transform env vars from Che to CRW values
+declare -A operator_replacements=(
+	["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
+	["CHE_FLAVOR"]="codeready"
+	["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
-		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
+	["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
+	["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
+	["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
+	["RELATED_IMAGE_devworkspace_controller"]="${CRW_DWO_IMAGE}"
+	["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
 
-		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
-		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
-		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
+	["RELATED_IMAGE_che_workspace_plugin_broker_metadata"]="${CRW_BROKER_METADATA_IMAGE}"
+	["RELATED_IMAGE_che_workspace_plugin_broker_artifacts"]="${CRW_BROKER_ARTIFACTS_IMAGE}"
+	["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
 
-		# remove this env var using DELETEME keyword
-		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
-	)
-	while IFS= read -r -d '' d; do
-		for updateName in "${!operator_replacements[@]}"; do
-			updateVal="${operator_replacements[$updateName]}"
-			replaceEnvVarOperatorYaml "${d}" "${COPYRIGHT}"
-		done
-	done <   <(find "${TARGETDIR}/deploy" -type f -name "operator*.yaml" -print0)
+	["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
+	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 
-	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-	# insert keycloak image references for s390x and ppc64le
-	declare -A operator_insertions=(
-		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-	)
-	for updateName in "${!operator_insertions[@]}"; do
-		updateVal="${operator_insertions[$updateName]}"
-		# apply same transforms in operator.yaml
-		replaceEnvVarOperatorYaml "${TARGETDIR}/deploy/operator.yaml" "${COPYRIGHT}"
+	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
+	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
+	["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
+
+	# remove env vars using DELETEME keyword
+	["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
+	["RELATED_IMAGE_internal_rest_backup_server"]="DELETEME"
+	["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
+	["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
+	["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
+)
+while IFS= read -r -d '' d; do
+	for updateName in "${!operator_replacements[@]}"; do
+		updateVal="${operator_replacements[$updateName]}"
+		replaceEnvVarOperatorYaml "${d}" "${COPYRIGHT}" '.spec.template.spec.containers[0].env'
 	done
+done <   <(find "${TARGETDIR}/deploy" -type f -name "operator*.yaml" -print0)
 
-	# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator.yaml
-	oldImage=$(yq -r '.spec.template.spec.containers[].image' "${TARGETDIR}/deploy/operator.yaml")
-	if [[ $oldImage ]]; then 
-		replaceField "${TARGETDIR}/deploy/operator.yaml" ".spec.template.spec.containers[].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
-	fi
+# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+# insert keycloak image references for s390x and ppc64le
+declare -A operator_insertions=(
+	["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
+	["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
+)
+for updateName in "${!operator_insertions[@]}"; do
+	updateVal="${operator_insertions[$updateName]}"
+	# apply same transforms in operator.yaml
+	replaceEnvVarOperatorYaml "${TARGETDIR}/deploy/operator.yaml" "${COPYRIGHT}" '.spec.template.spec.containers[0].env'
+done
 
-	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-	# yq changes - transform env vars from Che to CRW values
-	while IFS= read -r -d '' d; do
-		changed="$(cat "${d}" | \
+# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator.yaml
+oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/deploy/operator.yaml")
+if [[ $oldImage ]]; then 
+	replaceField "${TARGETDIR}/deploy/operator.yaml" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
+fi
+
+##### update the second container yaml
+
+declare -A operator_replacements2=(
+	["RELATED_IMAGE_gateway"]="${CRW_TRAEFIK_IMAGE}"
+	["RELATED_IMAGE_gateway_configurer"]="${CRW_CONFIGBUMP_IMAGE}"
+)
+while IFS= read -r -d '' d; do
+	for updateName in "${!operator_replacements2[@]}"; do
+		updateVal="${operator_replacements2[$updateName]}"
+		replaceEnvVarOperatorYaml "${d}" "${COPYRIGHT}" '.spec.template.spec.containers[1].env'
+	done
+done <   <(find "${TARGETDIR}/deploy" -type f -name "operator*.yaml" -print0)
+
+# update second container image from quay.io/che-incubator/devworkspace-che-operator:ci to CRW_DWCO_IMAGE
+replaceField "${CSVFILE}" '.spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
+
+# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+# yq changes - transform env vars from Che to CRW values
+while IFS= read -r -d '' d; do
+	changed="$(cat "${d}" | \
 yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
 yq  -y '.spec.server.cheFlavor="codeready"' | \
 yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
 yq  -y '.spec.storage.pvcStrategy="per-workspace"' | \
 yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
 yq  -y 'del(.spec.k8s)')" && \
-		echo "${COPYRIGHT}${changed}" > "${d}"
-		if [[ $(diff -u "$d" "${d}") ]]; then
-			echo "Converted (yq #3) ${d}"
-		fi
-	done <   <(find "${TARGETDIR}/deploy/crds" -type f -name "org_v1_che_cr.yaml" -print0)
+	echo "${COPYRIGHT}${changed}" > "${d}"
+	if [[ $(diff -u "$d" "${d}") ]]; then
+		echo "Converted (yq #3) ${d}"
+	fi
+done <   <(find "${TARGETDIR}/deploy/crds" -type f -name "org_v1_che_cr.yaml" -print0)
 
-	# # delete unneeded files
-	# echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
-	# rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes ${TARGETDIR}/olm/eclipse-che-preview-openshift"
-	# echo "Delete deploy/*/eclipse-che-preview-kubernetes and deploy/olm-catalog/stable"
-	# rm -fr "${TARGETDIR}/deploy/olm-catalog/eclipse-che-preview-kubernetes"
-	# rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
-	# # remove files with embedded RELATED_IMAGE_* values for Che stable releases
-	# rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
+# # delete unneeded files
+# echo "Delete olm/eclipse-che-preview-kubernetes and olm/eclipse-che-preview-openshift"
+# rm -fr "${TARGETDIR}/olm/eclipse-che-preview-kubernetes ${TARGETDIR}/olm/eclipse-che-preview-openshift"
+# echo "Delete deploy/*/eclipse-che-preview-kubernetes and deploy/olm-catalog/stable"
+# rm -fr "${TARGETDIR}/deploy/olm-catalog/eclipse-che-preview-kubernetes"
+# rm -fr "${TARGETDIR}/deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes"
+# # remove files with embedded RELATED_IMAGE_* values for Che stable releases
+# rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
 
 popd >/dev/null || exit
 

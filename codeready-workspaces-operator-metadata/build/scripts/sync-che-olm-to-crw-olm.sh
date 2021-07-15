@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2020 Red Hat, Inc.
+# Copyright (c) 2020-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -55,9 +55,8 @@ if [[ $# -lt 8 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '--che') CHE_VERSION="$2"; shift 1;;
 	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/master/deploy/olm-catalog
-    '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/codeready-workspaces/pom.xml to check as default CHE_VERSION
+    '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/codeready-workspaces from which to load plugin and devfile reg container refs
 	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
 	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
 	# previous version to set in CSV
@@ -82,11 +81,6 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 # if current CSV and previous CVS version not set, die
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
-
-# get che version from crw server root pom, eg., 7.14.3
-if [[ ! ${CHE_VERSION} ]]; then
-	CHE_VERSION="$(curl -sSLo - https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/pom.xml | grep -E "<che.version>" | sed -r -e "s#.+<che.version>(.+)</che.version>#\1#" || exit 1)"
-fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
@@ -141,23 +135,24 @@ replaceEnvVar()
 {
 	fileToChange="$1"
 	header="$2"
+	field="$3"
 	# don't do anything if the existing value is the same as the replacement one
 	# shellcheck disable=SC2016 disable=SC2002
-	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
+	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
 		echo "[INFO] ${0##*/} rEV :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
-			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del(.spec.install.spec.deployments[].spec.template.spec.containers[].env[]|select(.name == $updateName))')
+			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del('${field}'[]|select(.name == $updateName))')
 			echo "${header}${changed}" > "${fileToChange}.2"
 		else
 			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-'.spec.install.spec.deployments[].spec.template.spec.containers[].env = [.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
+${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal) else . end]')
 			echo "${header}${changed}" > "${fileToChange}.2"
 			# echo "replaced?"
 			# diff -u ${fileToChange} ${fileToChange}.2 || true
 			if [[ ! $(diff -u "${fileToChange}" "${fileToChange}.2") ]]; then
 				# echo "insert $updateName = $updateVal"
 				changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-					'.spec.install.spec.deployments[].spec.template.spec.containers[].env += [{"name": $updateName, "value": $updateVal}]')
+					${field}' += [{"name": $updateName, "value": $updateVal}]')
 				echo "${header}${changed}" > "${fileToChange}.2"
 			fi
 		fi
@@ -209,7 +204,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e 's|"identityProviderImage":.".+"|"identityProviderImage": ""|' \
 		-e 's|"workspaceNamespaceDefault":.".*"|"workspaceNamespaceDefault": "<username>-codeready"|' \
 		\
-		-e "s|quay.io/eclipse/codeready-operator:${CHE_VERSION}|registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/codeready-operator:.+|registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
 		-e "s|(registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
 		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/codeready-workspaces/server-rhel8:${CRW_VERSION}|" \
 		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:${CRW_VERSION}|" \
@@ -228,7 +223,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|quay.io/eclipse/che-keycloak:.+|${SSO_IMAGE}|" \
 		\
 		`# use internal image for operator, as codeready-workspaces-crw-2-rhel8-operator only exists in RHEC and Quay repos` \
-		-e "s#quay.io/eclipse/codeready-operator:(nightly|${CHE_VERSION})#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:${CRW_VERSION}#" \
+		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:${CRW_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
 		` # CRW-927 set suggested namespace, append cluster-monitoring = true (removed from upstream as not supported in community operators)` \
@@ -245,6 +240,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	if [[ $(diff -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "[INFO] ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
+
+	##### update the first container yaml
 
 	# yq changes - transform env vars from Che to CRW values
 	changed="$(cat "${CSVFILE}" | yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"')" && \
@@ -282,12 +279,16 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
-		# TODO: remove this image using DELETEME keyword (script not working)
+		# remove env vars using DELETEME keyword
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
+		["RELATED_IMAGE_internal_rest_backup_server"]="DELETEME"
+		["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
+		["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
+		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
 		updateVal="${operator_replacements[$updateName]}"
-		replaceEnvVar "${CSVFILE}" ""
+		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
 	done
 
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
@@ -298,7 +299,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	)
 	for updateName in "${!operator_insertions[@]}"; do
 		updateVal="${operator_insertions[$updateName]}"
-		replaceEnvVar "${CSVFILE}" ""
+		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
 	done
 
 	# insert replaces: field
@@ -311,18 +312,31 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
 
+	##### update the second container yaml
+
+	declare -A operator_replacements2=(
+		["RELATED_IMAGE_gateway"]="${CRW_TRAEFIK_IMAGE}"
+		["RELATED_IMAGE_gateway_configurer"]="${CRW_CONFIGBUMP_IMAGE}"
+	)
+	for updateName in "${!operator_replacements2[@]}"; do
+		updateVal="${operator_replacements2[$updateName]}"
+		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[1].env'
+	done
+
+	# update second container image from quay.io/che-incubator/devworkspace-che-operator:ci to CRW_DWCO_IMAGE
+	replaceField "${CSVFILE}" '.spec.install.spec.deployments[].spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	${SCRIPTS_DIR}/insert-related-images-to-csv.sh -v ${CSV_VERSION} -t ${TARGETDIR} --crw-branch ${MIDSTM_BRANCH}
 
 	# echo "[INFO] ${0##*/} :: Sort env var in ${CSVFILE}:"
-	cat "${CSVFILE}" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[].env |= sort_by(.name)' > "${CSVFILE}.2"
+	cat "${CSVFILE}" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' > "${CSVFILE}.2"
 	mv "${CSVFILE}.2" "${CSVFILE}"
 
 	if [[ $(diff -q -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "[INFO] ${0##*/} :: Converted + inserted (yq #2) ${CSVFILE}:"
 		for updateName in "${!operator_replacements[@]}"; do
 			echo -n " * $updateName: "
-			cat "${CSVFILE}" | yq --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[].env? | .[] | select(.name == $updateName) | .value' 2>/dev/null
+			cat "${CSVFILE}" | yq --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env? | .[] | select(.name == $updateName) | .value' 2>/dev/null
 		done
 	fi
 done

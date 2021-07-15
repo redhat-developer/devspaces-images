@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: EPL-2.0
 
 # transform references to openjdk images into their openj9 equivalents
+# see also crw/che-devfile-registry/build/scripts/swap_images.sh
 
 sed -E \
       `# TODO: do we still need these two transforms?` \
