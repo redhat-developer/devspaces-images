@@ -1,3 +1,13 @@
+#
+#  Copyright (c) 2019-2021 Red Hat, Inc.
+#    This program and the accompanying materials are made
+#    available under the terms of the Eclipse Public License 2.0
+#    which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+#  SPDX-License-Identifier: EPL-2.0
+#
+#  Contributors:
+#    Red Hat, Inc. - initial API and implementation
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
@@ -50,7 +60,6 @@ metadata:
               "serverExposureStrategy": "",
               "serverTrustStoreConfigMapName": "",
               "tlsSupport": true,
-              "useInternalClusterSVCNames": true,
               "workspaceNamespaceDefault": "<username>-che"
             },
             "storage": {
@@ -66,14 +75,14 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools, OpenShift Optional
     certified: "false"
-    containerImage: quay.io/eclipse/che-operator:nightly
-    createdAt: "2021-06-07T15:13:25Z"
+    containerImage: quay.io/eclipse/che-operator:next
+    createdAt: "2021-07-15T07:38:20Z"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: eclipse-che
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: eclipse-che-preview-openshift.v7.32.0-196.nightly
+  name: eclipse-che-preview-openshift.v7.33.0-258.nightly
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -355,6 +364,7 @@ spec:
                 - org.eclipse.che
               resources:
                 - checlusters
+                - checlusters/status
                 - checlusters/finalizers
               verbs:
                 - '*'
@@ -506,6 +516,33 @@ spec:
               verbs:
                 - get
             - apiGroups:
+                - metrics.k8s.io
+              resources:
+                - pods
+                - nodes
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - workspace.devfile.io
+              resources:
+                - devworkspaces
+                - devworkspacetemplates
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
+                - controller.devfile.io
+              resources:
+                - devworkspaceroutings
+                - components
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
                 - workspace.devfile.io
               resources:
                 - devworkspaces
@@ -527,6 +564,33 @@ spec:
                 - deletecollection
                 - patch
                 - update
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps/status
+              verbs:
+                - get
+                - update
+                - patch
+            - apiGroups:
+                - ""
+              resources:
+                - events
+              verbs:
+                - create
+                - patch
             - apiGroups:
                 - authentication.k8s.io
               resources:
@@ -558,16 +622,6 @@ spec:
                 - list
                 - watch
             - apiGroups:
-                - metrics.k8s.io
-              resources:
-                - pods
-                - nodes
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - batch
                 - ""
               resources:
                 - pods/exec
@@ -733,37 +787,6 @@ spec:
                 - get
                 - list
                 - watch
-            - nonResourceURLs:
-                - /metrics
-              verbs:
-                - get
-            - apiGroups:
-                - ""
-              resources:
-                - configmaps
-              verbs:
-                - get
-                - list
-                - watch
-                - create
-                - update
-                - patch
-                - delete
-            - apiGroups:
-                - ""
-              resources:
-                - configmaps/status
-              verbs:
-                - get
-                - update
-                - patch
-            - apiGroups:
-                - ""
-              resources:
-                - events
-              verbs:
-                - create
-                - patch
             - apiGroups:
                 - ""
               resources:
@@ -837,31 +860,13 @@ spec:
                 - update
                 - watch
             - apiGroups:
-                - che.eclipse.org
+                - org.eclipse.che
               resources:
-                - '*'
+                - checlusters
+                - checlusters/status
+                - checlusters/finalizers
               verbs:
                 - '*'
-            - apiGroups:
-                - che.eclipse.org
-              resources:
-                - chemanagers
-              verbs:
-                - '*'
-            - apiGroups:
-                - che.eclipse.org
-              resources:
-                - chemanagers/status
-              verbs:
-                - get
-                - patch
-                - update
-            - apiGroups:
-                - che.eclipse.org
-              resources:
-                - chemanagers/finalizers
-              verbs:
-                - update
             - apiGroups:
                 - controller.devfile.io
               resources:
@@ -945,6 +950,10 @@ spec:
                 - routes/custom-host
               verbs:
                 - create
+            - nonResourceURLs:
+                - /metrics
+              verbs:
+                - get
           serviceAccountName: che-operator
       deployments:
         - name: che-operator
@@ -979,21 +988,21 @@ spec:
                       - name: OPERATOR_NAME
                         value: che-operator
                       - name: CHE_VERSION
-                        value: nightly
+                        value: next
                       - name: RELATED_IMAGE_che_server
-                        value: quay.io/eclipse/che-server:nightly
+                        value: quay.io/eclipse/che-server:next
                       - name: RELATED_IMAGE_dashboard
                         value: quay.io/eclipse/che-dashboard:next
                       - name: RELATED_IMAGE_plugin_registry
-                        value: quay.io/eclipse/che-plugin-registry:nightly
+                        value: quay.io/eclipse/che-plugin-registry:next
                       - name: RELATED_IMAGE_devfile_registry
-                        value: quay.io/eclipse/che-devfile-registry:nightly
+                        value: quay.io/eclipse/che-devfile-registry:next
                       - name: RELATED_IMAGE_pvc_jobs
-                        value: registry.access.redhat.com/ubi8-minimal:8.4-200.1622548483
+                        value: registry.access.redhat.com/ubi8-minimal:8.4-205
                       - name: RELATED_IMAGE_postgres
                         value: quay.io/eclipse/che--centos--postgresql-96-centos7:9.6-b681d78125361519180a6ac05242c296f8906c11eab7e207b5ca9a89b6344392
                       - name: RELATED_IMAGE_keycloak
-                        value: quay.io/eclipse/che-keycloak:nightly
+                        value: quay.io/eclipse/che-keycloak:next
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
                         value: quay.io/eclipse/che-plugin-metadata-broker:v3.4.0
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
@@ -1008,6 +1017,14 @@ spec:
                         value: quay.io/che-incubator/devworkspace-che-operator:ci
                       - name: RELATED_IMAGE_devworkspace_controller
                         value: quay.io/devfile/devworkspace-controller:next
+                      - name: RELATED_IMAGE_internal_rest_backup_server
+                        value: quay.io/eclipse/che-backup-server-rest:eeacd92
+                      - name: RELATED_IMAGE_gateway_authentication_sidecar
+                        value: quay.io/openshift/origin-oauth-proxy:4.7
+                      - name: RELATED_IMAGE_gateway_authorization_sidecar
+                        value: quay.io/openshift/origin-kube-rbac-proxy:4.7
+                      - name: RELATED_IMAGE_gateway_header_sidecar
+                        value: quay.io/che-incubator/header-rewrite-proxy:latest
                       - name: CHE_FLAVOR
                         value: che
                       - name: CONSOLE_LINK_NAME
@@ -1026,7 +1043,7 @@ spec:
                         value: che-postgres-secret
                       - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                         value: ca-certs
-                    image: quay.io/eclipse/che-operator:nightly
+                    image: quay.io/eclipse/che-operator:next
                     imagePullPolicy: Always
                     livenessProbe:
                       failureThreshold: 10
@@ -1058,6 +1075,49 @@ spec:
                       requests:
                         cpu: 100m
                         memory: 64Mi
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop:
+                          - ALL
+                      privileged: false
+                      readOnlyRootFilesystem: false
+                      runAsNonRoot: true
+                  - args:
+                      - --enable-leader-election
+                      - --metrics-addr
+                      - "0"
+                    command:
+                      - /usr/local/bin/devworkspace-che-operator
+                    env:
+                      - name: WATCH_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: POD_NAME
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.name
+                      - name: OPERATOR_NAME
+                        value: devworkspace-che-operator
+                      - name: MAX_CONCURRENT_RECONCILES
+                        value: "1"
+                      - name: CONTROLLER_SERVICE_ACCOUNT_NAME
+                        value: che-operator
+                      - name: RELATED_IMAGE_gateway
+                        value: quay.io/eclipse/che--traefik:v2.3.2-6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23
+                      - name: RELATED_IMAGE_gateway_configurer
+                        value: quay.io/che-incubator/configbump:0.1.4
+                    image: quay.io/che-incubator/devworkspace-che-operator:ci
+                    imagePullPolicy: Always
+                    name: devworkspace-che-operator
+                    resources:
+                      limits:
+                        cpu: 100m
+                        memory: 256Mi
+                      requests:
+                        cpu: 100m
+                        memory: 32Mi
                     securityContext:
                       allowPrivilegeEscalation: false
                       capabilities:
@@ -1147,6 +1207,14 @@ spec:
                 - checlusters
                 - checlusters/status
                 - checlusters/finalizers
+                - checlusterbackups
+                - checlusterbackups/status
+                - checlusterbackups/finalizers
+                - checlusterrestores
+                - checlusterrestores/status
+                - backupserverconfigurations
+                - backupserverconfigurations/status
+                - chebackupserverconfigurations
               verbs:
                 - '*'
             - apiGroups:
@@ -1179,6 +1247,32 @@ spec:
               verbs:
                 - get
                 - list
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps/status
+              verbs:
+                - get
+                - update
+                - patch
+            - apiGroups:
+                - ""
+              resources:
+                - events
+              verbs:
+                - create
           serviceAccountName: che-operator
     strategy: deployment
   installModes:
@@ -1209,4 +1303,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.32.0-196.nightly
+  version: 7.33.0-258.nightly

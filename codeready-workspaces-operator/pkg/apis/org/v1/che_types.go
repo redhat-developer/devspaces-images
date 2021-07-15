@@ -137,10 +137,12 @@ type CheClusterSpecServer struct {
 	// Deprecated. Instructs the Operator to deploy Che in TLS mode. This is enabled by default. Disabling TLS sometimes cause malfunction of some Che components.
 	// +optional
 	TlsSupport bool `json:"tlsSupport"`
-	// Use internal cluster SVC names to communicate between components to speed up the traffic and avoid proxy issues.
-	// The default value is `true`.
+	// Deprecated in favor of `disableInternalClusterSVCNames`.
 	// +optional
 	UseInternalClusterSVCNames bool `json:"useInternalClusterSVCNames"`
+	// Disable internal cluster SVC names usage to communicate between components to speed up the traffic and avoid proxy issues.
+	// +optional
+	DisableInternalClusterSVCNames *bool `json:"disableInternalClusterSVCNames,omitempty"`
 	// Overrides the container image used in the dashboard deployment.
 	// This includes the image tag. Omit it or leave it empty to use the default container image provided by the Operator.
 	// +optional
@@ -457,6 +459,21 @@ type CheClusterSpecAuth struct {
 	// Identity provider container custom settings.
 	// +optional
 	IdentityProviderContainerResources ResourcesCustomSettings `json:"identityProviderContainerResources,omitempty"`
+	// Enables native user mode. Currently works only on OpenShift and DevWorkspace engine.
+	// Native User mode uses OpenShift OAuth directly as identity provider, without Keycloak.
+	// +optional
+	NativeUserMode *bool `json:"nativeUserMode,omitempty"`
+	// Gateway sidecar responsible for authentication when NativeUserMode is enabled.
+	// See link:https://github.com/oauth2-proxy/oauth2-proxy[oauth2-proxy] or link:https://github.com/openshift/oauth-proxy[openshift/oauth-proxy].
+	// +optional
+	GatewayAuthenticationSidecarImage string `json:"gatewayAuthenticationSidecarImage,omitempty"`
+	// Gateway sidecar responsible for authorization when NativeUserMode is enabled.
+	// See link:https://github.com/brancz/kube-rbac-proxy[kube-rbac-proxy] or link:https://github.com/openshift/kube-rbac-proxy[openshift/kube-rbac-proxy]
+	// +optional
+	GatewayAuthorizationSidecarImage string `json:"gatewayAuthorizationSidecarImage,omitempty"`
+	// Header Rewrite Proxy sidecar image is used to properly set authorization header.
+	// See link:https://github.com/che-incubator/header-rewrite-proxy[header-rewrite-proxy]
+	GatewayHeaderRewriteSidecarImage string `json:"gatewayHeaderRewriteSidecarImage,omitempty"`
 }
 
 // Ingress custom settings, can be extended in the future
@@ -511,7 +528,7 @@ type CheClusterSpecStorage struct {
 	// `per-workspace` (one PVC per workspace for all declared volumes) and `unique` (one PVC per declared volume). Defaults to `common`.
 	// +optional
 	PvcStrategy string `json:"pvcStrategy,omitempty"`
-	// Size of the persistent volume claim for workspaces. Defaults to `1Gi`.
+	// Size of the persistent volume claim for workspaces. Defaults to `10Gi`.
 	// +optional
 	PvcClaimSize string `json:"pvcClaimSize,omitempty"`
 	// Instructs the Che server to start a special Pod to pre-create a sub-path in the Persistent Volumes.
@@ -577,8 +594,9 @@ type CheClusterSpecImagePuller struct {
 	// it will create a default KubernetesImagePuller object to be managed by the Operator.
 	// When set to `false`, the KubernetesImagePuller object will be deleted, and the Operator will be uninstalled,
 	// regardless of whether a spec is provided.
-	//
-	// Note that while this the Operator and its behavior is community-supported, its payload may be commercially-supported
+	// If the `spec.images` field is empty, a set of recommended workspace-related images will be automatically detected and
+	// pre-pulled after installation.
+	// Note that while this Operator and its behavior is community-supported, its payload may be commercially-supported
 	// for pulling commercially-supported images.
 	Enable bool `json:"enable"`
 	// A KubernetesImagePullerSpec to configure the image puller in the CheCluster
@@ -687,7 +705,7 @@ type CheClusterStatus struct {
 
 	// The status of the Devworkspace subsystem
 	// +optional
-	DevworkspaceStatus v2alpha1.CheClusterStatus `json:"devworkspaceStatus,omitempty"`
+	DevworkspaceStatus v2alpha1.CheClusterStatusV2Alpha1 `json:"devworkspaceStatus,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -732,4 +750,12 @@ func (c *CheCluster) IsAirGapMode() bool {
 
 func (c *CheCluster) IsImagePullerSpecEmpty() bool {
 	return c.Spec.ImagePuller.Spec == (chev1alpha1.KubernetesImagePullerSpec{})
+}
+
+func (c *CheCluster) IsImagePullerImagesEmpty() bool {
+	return len(c.Spec.ImagePuller.Spec.Images) == 0
+}
+
+func (c *CheCluster) IsInternalClusterSVCNamesEnabled() bool {
+	return c.Spec.Server.DisableInternalClusterSVCNames == nil || !*c.Spec.Server.DisableInternalClusterSVCNames
 }

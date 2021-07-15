@@ -8,9 +8,9 @@ doRhpkgContainerBuild=1
 forceBuild=0
 forcePull=0
 
-DEV_WORKSPACE_CONTROLLER_VERSION="0.6.x" # main or 0.y.x
+DEV_WORKSPACE_CONTROLLER_VERSION="main" # main or 0.y.x
 # TODO remove DWCO when it's no longer needed (merged into che-operator)
-DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.32.x" # main or 7.yy.x
+DEV_WORKSPACE_CHE_OPERATOR_VERSION="main" # main or 7.yy.x
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
