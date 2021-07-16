@@ -53,16 +53,16 @@ sed Dockerfile -r \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! $(find -name "restic.zip") ]] || [[ ! $(find -name "devworkspace*operator.zip") ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
+if [[ ! $(find -name "asset-restic.zip") ]] || [[ ! $(find -name "asset-devworkspace*operator.zip") ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 
-	curl -sSLo restic.zip 						https://api.github.com/repos/restic/restic/zipball/${RESTIC_TAG}
-	curl -sSLo devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
-	curl -sSLo devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
+	curl -sSLo asset-restic.zip 						https://api.github.com/repos/restic/restic/zipball/${RESTIC_TAG}
+	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
+	curl -sSLo asset-devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
 
 	# unzip zips and remove all but what we need
 	thisdir=$(pwd)
-	for d in devworkspace-operator.zip devworkspace-che-operator.zip; do
+	for d in asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip; do
 		# we only need the /deploy/deployment/ folders
 		unzip -q ${thisdir}/${d} */deploy/deployment/* -d /tmp/get-sources/
 		# mv ${d} ${d/.zip/.big.zip}
@@ -74,7 +74,7 @@ if [[ ! $(find -name "restic.zip") ]] || [[ ! $(find -name "devworkspace*operato
 	done
 
 	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} and restic ${RESTIC_VERSION}"
-	rhpkg new-sources devworkspace*operator.zip restic.zip
+	rhpkg new-sources asset-devworkspace*operator.zip asset-restic.zip
 	log "[INFO] Commit new source zips"
 	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, restic ${RESTIC_VERSION}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
