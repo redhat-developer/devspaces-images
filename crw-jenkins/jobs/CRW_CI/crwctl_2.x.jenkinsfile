@@ -5,8 +5,6 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
-// CSV_VERSION
-// CSV_QUAY_TAG
 // versionSuffix
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
@@ -31,6 +29,8 @@ timeout(90) {
 
           cleanWs()
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+
           util.installYq() // sync script needs this for transforms
           util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
           // perl-Digest provides shasum for oclif-dev
@@ -89,7 +89,7 @@ pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
 popd >/dev/null
 
 ./build/scripts/sync-chectl-to-crwctl.sh -b ''' + MIDSTM_BRANCH + ''' -s ${WORKSPACE}/chectl -t ${WORKSPACE}/''' + CTL_path + ''' \
-  --server-tag ''' + CRW_SERVER_TAG + ''' --operator-tag ''' + CRW_OPERATOR_TAG + '''
+  --crw-version ''' + CRW_VERSION + ''' --server-tag ''' + CRW_SERVER_TAG + ''' --operator-tag ''' + CRW_OPERATOR_TAG + '''
 # commit changes
 set -x
 git add .
@@ -132,11 +132,13 @@ pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
   git checkout ''' + MIDSTM_BRANCH + '''-quay
   ls -la . deploy manifests
 
-  # CRW-1579 change yamls to use quay image, and :latest or :nightly (depending on CSV_QUAY_TAG set in .groovy)
+  # CRW-1579 change yamls to use quay image, and :latest or :nightly
   # do not use :2.y to allow stable builds to be auto-updated via crwctl on ocp3.11 - :latest tag triggers always-update (?)
   FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
-    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + CSV_QUAY_TAG + '''#g"
+    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + 
+      (util.getJobBranch(MIDSTM_BRANCH).equals("2.x") ? "nightly" : "latest") + 
+    '''#g"
   done
 
   # push to ''' + MIDSTM_BRANCH + '''-quay branch
