@@ -137,7 +137,7 @@ replaceEnvVar()
 	header="$2"
 	field="$3"
 	# don't do anything if the existing value is the same as the replacement one
-	# shellcheck disable=SC2016 disable=SC2002
+	# shellcheck disable=SC2016 disable=SC2002 disable=SC2086
 	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
 		echo "[INFO] ${0##*/} rEV :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
@@ -234,6 +234,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e 's|devworkspace-codeready-operator|devworkspace-che-operator|' \
 		-i "${CSVFILE}"
 	# insert missing cheFlavor annotation
+	# shellcheck disable=SC2143
 	if [[ ! $(grep -E '"cheFlavor": "codeready",' "${CSVFILE}") ]]; then
 		sed 's|"cheFlavor":.*|"cheFlavor": "codeready",|' -i "${CSVFILE}"
 	fi
@@ -244,14 +245,12 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	##### update the first container yaml
 
 	# yq changes - transform env vars from Che to CRW values
-	changed="$(cat "${CSVFILE}" | yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"')" && \
+	changed="$(yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"' "${CSVFILE}")" && \
 		echo "${changed}" > "${CSVFILE}"
 	if [[ $(diff -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "[INFO] ${0##*/} :: Converted (yq #1) ${CSVFILE}:"
-		for updateName in ".spec.displayName"; do
-			echo -n "[INFO] ${0##*/} ::  * $updateName: "
-			cat  "${CSVFILE}" | yq "${updateName}" 2>/dev/null
-		done
+		echo -n "[INFO] ${0##*/} ::  * .spec.displayName: "
+		yq '.spec.displayName' "${CSVFILE}" 2>/dev/null
 	fi
 
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
@@ -326,11 +325,11 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# update second container image from quay.io/che-incubator/devworkspace-che-operator:ci to CRW_DWCO_IMAGE
 	replaceField "${CSVFILE}" '.spec.install.spec.deployments[].spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
-	${SCRIPTS_DIR}/insert-related-images-to-csv.sh -v ${CSV_VERSION} -t ${TARGETDIR} --crw-branch ${MIDSTM_BRANCH}
+	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --crw-branch "${MIDSTM_BRANCH}"
 
 	# echo "[INFO] ${0##*/} :: Sort env var in ${CSVFILE}:"
-	cat "${CSVFILE}" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' > "${CSVFILE}.2"
-	cat "${CSVFILE}.2" | yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[1].env |= sort_by(.name)' > "${CSVFILE}"
+	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}.2"
+	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[1].env |= sort_by(.name)' "${CSVFILE}.2" > "${CSVFILE}"
 	echo "${COPYRIGHT}$(cat "${CSVFILE}")" > "${CSVFILE}.2"
 	mv "${CSVFILE}.2" "${CSVFILE}" 
 
@@ -338,7 +337,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		echo "[INFO] ${0##*/} :: Converted + inserted (yq #2) ${CSVFILE}:"
 		for updateName in "${!operator_replacements[@]}"; do
 			echo -n " * $updateName: "
-			cat "${CSVFILE}" | yq --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env? | .[] | select(.name == $updateName) | .value' 2>/dev/null
+			# shellcheck disable=SC2016
+			yq --arg updateName "${updateName}" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env? | .[] | select(.name == $updateName) | .value' "${CSVFILE}" 2>/dev/null
 		done
 	fi
 done
@@ -354,8 +354,8 @@ done
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# yq changes - transform env vars from Che to CRW values
 	while IFS= read -r -d '' d; do
-		changed="$(cat "${TARGETDIR}/${d}" | \
-yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
+		changed="$(
+yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' "${TARGETDIR}/${d}" | \
 yq  -y '.spec.server.cheFlavor="codeready"' | \
 yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
 yq  -y '.spec.storage.pvcStrategy="per-workspace"' | \

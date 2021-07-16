@@ -13,7 +13,6 @@
 # convert che-operator upstream to downstream using sed & yq transforms, and deleting files
 
 set -e
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
@@ -77,6 +76,7 @@ SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and r
 pushd "${SOURCEDIR}" >/dev/null
 COPY_FOLDERS="cmd deploy mocks olm pkg templates vendor version"
 echo "Rsync ${COPY_FOLDERS} to ${TARGETDIR}"
+# shellcheck disable=SC2086
 rsync -azrlt ${COPY_FOLDERS} ${TARGETDIR}/
 
 # delete unneeded files
@@ -112,6 +112,7 @@ while IFS= read -r -d '' d; do
 	fi
 done <   <(find deploy pkg/deploy -type f -not -name "defaults_test.go" -print0)
 
+# shellcheck disable=SC2086
 while IFS= read -r -d '' d; do
 	sed -r \
 		-e 's|(cheVersionTest.*=) ".+"|\1 "'${CRW_VERSION}'"|' \
@@ -160,9 +161,9 @@ replaceField()
   echo "[INFO] ${0##*/} rF :: * ${updateName}: ${updateVal}"
   # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
   if [[ $updateVal == "DELETEME" ]]; then
-	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})')
+	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})' "${theFile}")
   else
-	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal')
+	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
   fi
   echo "${header}${changed}" > "${theFile}"
 }
@@ -174,7 +175,7 @@ replaceEnvVarOperatorYaml()
 	header="$2"
 	field="$3"
 	# don't do anything if the existing value is the same as the replacement one
-	# shellcheck disable=SC2016 disable=SC2002
+	# shellcheck disable=SC2016 disable=SC2002 disable=SC2086
 	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
 		echo "[INFO] ${0##*/} rEVOY :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
@@ -301,8 +302,8 @@ done <   <(find "${TARGETDIR}/deploy/crds" -type f -name "org_v1_che_cr.yaml" -p
 # rm -fr "${TARGETDIR}/deploy/olm-catalog/stable" 
 
 # if sort the file, we'll lose all the comments
-cat "${TARGETDIR}/deploy/operator.yaml" | yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' > "${TARGETDIR}/deploy/operator.yaml2"
-cat "${TARGETDIR}/deploy/operator.yaml2" | yq -yY '.spec.template.spec.containers[1].env |= sort_by(.name)' > "${TARGETDIR}/deploy/operator.yaml"
+yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/deploy/operator.yaml" > "${TARGETDIR}/deploy/operator.yaml2"
+yq -yY '.spec.template.spec.containers[1].env |= sort_by(.name)' "${TARGETDIR}/deploy/operator.yaml2" > "${TARGETDIR}/deploy/operator.yaml"
 echo "${COPYRIGHT}$(cat "${TARGETDIR}/deploy/operator.yaml")" > "${TARGETDIR}/deploy/operator.yaml2"
 mv "${TARGETDIR}/deploy/operator.yaml2" "${TARGETDIR}/deploy/operator.yaml" 
 
