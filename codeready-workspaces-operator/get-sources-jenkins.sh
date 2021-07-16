@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 # script to get additional dependencies (sources)
-# 
+#
 verbose=1
 scratchFlag=""
 JOB_BRANCH=""
@@ -11,6 +11,7 @@ forcePull=0
 DEV_WORKSPACE_CONTROLLER_VERSION="main" # main or 0.y.x
 # TODO remove DWCO when it's no longer needed (merged into che-operator)
 DEV_WORKSPACE_CHE_OPERATOR_VERSION="main" # main or 7.yy.x
+RESTIC_VERSION=$(sed -n 's|.*RESTIC_TAG=\(.*\)|\1|p' Dockerfile)
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -39,7 +40,7 @@ function logn()
 }
 
 # if not set, compute from current branch
-if [[ ! ${JOB_BRANCH} ]]; then 
+if [[ ! ${JOB_BRANCH} ]]; then
 	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
@@ -52,16 +53,18 @@ sed Dockerfile -r \
 	-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
 	> Dockerfile.2
 
+
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! $(find -name "devworkspace*operator.zip") ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
+if [[ ! $(find -name "restic.zip") ]] || [[ ! $(find -name "devworkspace*operator.zip") ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 
-	curl -sSLo devworkspace-operator.zip		 https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
-	curl -sSLo devworkspace-che-operator.zip https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
+	curl -sSLo restic.zip 						https://api.github.com/repos/restic/restic/zipball/${RESTIC_TAG}
+	curl -sSLo devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
+	curl -sSLo devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
 
 	# unzip zips and remove all but what we need
 	thisdir=$(pwd)
-	for d in devworkspace-operator.zip devworkspace-che-operator.zip; do 
+	for d in devworkspace-operator.zip devworkspace-che-operator.zip; do
 		# we only need the /deploy/deployment/ folders
 		unzip -q ${thisdir}/${d} */deploy/deployment/* -d /tmp/get-sources/
 		# mv ${d} ${d/.zip/.big.zip}
@@ -72,11 +75,11 @@ if [[ ! $(find -name "devworkspace*operator.zip") ]] || [[ $(diff -U 0 --suppres
 		rm -fr /tmp/get-sources/
 	done
 
-	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION} and devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}"
-	rhpkg new-sources devworkspace*operator.zip
+	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} and restic ${RESTIC_VERSION}"
+	rhpkg new-sources devworkspace*operator.zip restic.zip
 	log "[INFO] Commit new source zips"
-	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, restic ${RESTIC_VERSION}"
+	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
