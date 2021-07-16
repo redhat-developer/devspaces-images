@@ -12,7 +12,7 @@
 # https://github.com/eclipse/che-theia/tree/v7.3.2/dockerfiles/remote-plugin-kubernetes-tooling-1.0.4
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-200.1622548483
+FROM ubi8-minimal:8.4-205
 
 ENV \
     KAMEL_VERSION="1.4.0" \
