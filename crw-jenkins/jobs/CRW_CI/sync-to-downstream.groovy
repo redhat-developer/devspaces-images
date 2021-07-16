@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.10":"", "2.x":""] // no upstream branches
-def JOB_DISABLED = ["2.10":false, "2.x":false]
+def JOB_DISABLED = ["2.10":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"

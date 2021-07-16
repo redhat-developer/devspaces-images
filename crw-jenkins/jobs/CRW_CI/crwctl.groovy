@@ -8,7 +8,7 @@ def CSV_VERSIONS = [
     "2.x": "2.10.0"
     ]
 def JOB_BRANCHES = ["2.10":"7.32.x", "2.x":"main"]
-def JOB_DISABLED = ["2.10":false, "2.x":false]
+def JOB_DISABLED = ["2.10":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
