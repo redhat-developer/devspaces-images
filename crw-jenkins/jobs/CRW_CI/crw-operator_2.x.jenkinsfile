@@ -167,9 +167,9 @@ sed -i ${TARGET_DIR}/Dockerfile -r \
   `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources-jenkins.sh` \
   -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
   -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  `# CRW-1655 use local zips instead of fetching from the internet` \
-  -e "s#RUN curl .+/tmp/((devworkspace|devworkspace-che)-operator.zip)(.+)#COPY \\1 /tmp#g" \
-  -e "s# +(unzip /tmp/.+ -d /tmp)#RUN \\1#g"
+  `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
+  -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-*.zip /tmp#g" \
+  -e "s#^ +curl .+/tmp/asset.+.zip.+##g"
 
 METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r

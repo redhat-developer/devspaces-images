@@ -29,9 +29,8 @@ timeout(90) {
 
           cleanWs()
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
-
           util.installYq() // sync script needs this for transforms
+          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
           // perl-Digest provides shasum for oclif-dev
           // need fuse-sshfs for mounting drive to copy to rcm-guest
