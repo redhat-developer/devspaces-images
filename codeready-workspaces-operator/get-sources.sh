@@ -69,37 +69,13 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
 	# rm -f ${DOCKERFILELOCAL}
 
-	# step two - extract vendor folder to tarball
-	${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /go/restic/vendor' > "asset-restic-vendor-$(uname -m).tgz"
+	# step two - extract restic sources AND nested vendor folder to tarball
+	${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /go/restic' > "asset-restic.tgz"
 	${BUILDER} rmi ${tag}:bootstrap
 
-	# step three - include that tarball's contents in this repo
-	tar --strip-components=2 -xzf "asset-restic-vendor-$(uname -m).tgz" 
-	rm -f "asset-restic-vendor-$(uname -m).tgz"
-
-	# get other zips
-	curl -sSLo asset-restic.zip 					https://api.github.com/repos/restic/restic/zipball/${RESTIC_TAG}
+	# get other zips & repack them
 	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
 	curl -sSLo asset-devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
-fi
-
-# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION and DEV_WORKSPACE_CONTROLLER_VERSION
-# CRW-1674 this step also done in crw-operator_2.*.jenkinsfile
-sed Dockerfile -r \
-	-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-	-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-	> Dockerfile.2
-
-if [[ ! $(find -name "asset-restic.zip") ]] || [[ ! $(find -name "asset-devworkspace*operator.zip") ]] || \
-	[[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || \
-	[[ $(git diff-index HEAD --) ]] || \
-	[[ ${pullAssets} -eq 1 ]]; then
-	mv -f Dockerfile.2 Dockerfile
-
-	curl -sSLo asset-restic.zip 					https://api.github.com/repos/restic/restic/zipball/${RESTIC_TAG}
-	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
-	curl -sSLo asset-devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
-
 	# unzip zips and remove all but what we need
 	thisdir=$(pwd)
 	for d in asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip; do
@@ -113,13 +89,26 @@ if [[ ! $(find -name "asset-restic.zip") ]] || [[ ! $(find -name "asset-devworks
 		rm -fr /tmp/get-sources/
 	done
 
-	git add vendor bootstrap.Dockerfile || true
+fi
+
+# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION and DEV_WORKSPACE_CONTROLLER_VERSION
+# CRW-1674 this step also done in crw-operator_2.*.jenkinsfile
+sed Dockerfile -r \
+	-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+	-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+	> Dockerfile.2
+
+if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || \
+	[[ ${pullAssets} -eq 1 ]]; then
+	mv -f Dockerfile.2 Dockerfile
+
+	git add bootstrap.Dockerfile || true
 	
-	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} and restic ${RESTIC_VERSION} + vendor folder"
-	rhpkg new-sources asset-devworkspace*operator.zip asset-restic.zip
-	log "[INFO] Commit new source zips + restic vendor folder"
-	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, restic ${RESTIC_VERSION} + vendor"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore vendor) == *"nothing to commit, working tree clean"* ]]; then
+	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} and restic ${RESTIC_VERSION} w/ vendor folder"
+	rhpkg new-sources asset-devworkspace*operator.zip asset-restic.tgz
+	log "[INFO] Commit new source zips"
+	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, restic ${RESTIC_VERSION}"
+	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
