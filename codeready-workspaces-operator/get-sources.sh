@@ -64,9 +64,11 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
 		`# CRW-1956 get vendor sources for restic; then stop builder stage steps as we have all we need` \
 		-e 's@(go mod vendor)@\1 \&\& exit@' \
+		`# remove all lines starting with WORKDIR` \
+		-e '/WORKDIR.+/,$d' \
 		> ${DOCKERFILELOCAL}; # cat ${DOCKERFILELOCAL} | grep "vendor"; exit
 	tag=$(pwd);tag=${tag##*/}
-	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
+	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap --no-cache
 	# rm -f ${DOCKERFILELOCAL}
 
 	# step two - extract restic sources AND nested vendor folder to tarball
