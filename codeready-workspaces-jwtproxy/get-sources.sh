@@ -57,7 +57,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		> ${DOCKERFILELOCAL}
 	tag=$(pwd);tag=${tag##*/}
 	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
-	rm -f ${DOCKERFILELOCAL}
+	# rm -f ${DOCKERFILELOCAL}
 
 	# step two - extract vendor folder to tarball
 	${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /app/vendor' > "asset-vendor-$(uname -m).tgz"
@@ -69,10 +69,10 @@ if [[ ${pullAssets} -eq 1 ]]; then
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
-	git add vendor || true
+	git add vendor bootstrap.Dockerfile || true
 	log "[INFO] Commit new vendor folder"
 	COMMIT_MSG="vendor folder"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" vendor) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" bootstrap.Dockerfile .gitignore vendor) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
