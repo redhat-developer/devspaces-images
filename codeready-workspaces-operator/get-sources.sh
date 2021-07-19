@@ -63,8 +63,8 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
 		-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
 		`# CRW-1956 get vendor sources for restic; then stop builder stage steps as we have all we need` \
-		-e "s@(go mod vendor)@\1 && exit@" \
-		> ${DOCKERFILELOCAL}
+		-e 's@(go mod vendor)@\1 \&\& exit@' \
+		> ${DOCKERFILELOCAL}; # cat ${DOCKERFILELOCAL} | grep "vendor"; exit
 	tag=$(pwd);tag=${tag##*/}
 	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap
 	# rm -f ${DOCKERFILELOCAL}
