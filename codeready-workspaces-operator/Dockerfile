@@ -16,20 +16,31 @@ ENV RESTIC_TAG=v0.12.0
 ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
 ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
 USER root
-ADD . /che-operator
-WORKDIR /che-operator
 
 # upstream, download zips for every build
-# downstream, copy prefetched asset-*.zip into /tmp
-COPY asset-*.zip /tmp
+# downstream, copy prefetched asset-*.zip into /tmp, and collect vendored sources for restic too
+RUN mkdir -p $GOPATH/restic && \
+    curl -sSLo- https://api.github.com/repos/restic/restic/tarball/${RESTIC_TAG} | tar --strip-components=1 -xz -C $GOPATH/restic && \
+    cd $GOPATH/restic && go mod vendor && \
 
 
+
+WORKDIR /che-operator
+# Copy the Go Modules manifests
+COPY go.mod go.mod
+COPY go.sum go.sum
+
+# Copy the go source
+COPY main.go main.go
+COPY api/ api/
+COPY controllers/ controllers/
+COPY templates/ templates/
+COPY pkg/ pkg/
+COPY vendor/ vendor/
 
 # build operator
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
-    export MOCK_API=true && \
-    go test -mod=vendor -v ./... && \
-    GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/che-operator/che-operator cmd/manager/main.go
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o che-operator main.go
 
 RUN unzip /tmp/asset-devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
     mkdir -p /tmp/devworkspace-operator/templates/ && \
@@ -40,17 +51,14 @@ RUN unzip /tmp/asset-devworkspace-che-operator.zip */deploy/deployment/* -d /tmp
     mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
 
 # Build restic. Needed for backup / restore capabilities
-RUN mkdir -p $GOPATH/restic && cd $GOPATH/restic && \
-    unzip /tmp/asset-restic.zip -d /tmp && \
-    mv /tmp/restic-*/* $GOPATH/restic && \
+RUN cd $GOPATH/restic && \
     export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
-    go mod vendor && \
     GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/restic/restic ./cmd/restic
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.4-205
 
-COPY --from=builder /tmp/che-operator/che-operator /usr/local/bin/che-operator
+COPY --from=builder /che-operator/che-operator /manager
 COPY --from=builder /che-operator/templates/*.sh /tmp/
 COPY --from=builder /tmp/devworkspace-operator/templates/deploy /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/devworkspace-che-operator/templates/deploy /tmp/devworkspace-che-operator/templates
@@ -60,7 +68,11 @@ COPY --from=builder /go/restic/LICENSE /usr/local/bin/restic-LICENSE.txt
 # install httpd-tools for /usr/bin/htpasswd
 RUN microdnf install -y httpd-tools && microdnf -y update && microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     mkdir ~/.ssh && chmod 0766  ~/.ssh
-CMD ["che-operator"]
+
+WORKDIR /
+USER 65532:65532
+
+ENTRYPOINT ["/manager"]
 
 # append Brew metadata here - see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-operator_2.x.jenkinsfile
 ENV SUMMARY="Red Hat CodeReady Workspaces operator container" \
