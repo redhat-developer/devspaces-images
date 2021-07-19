@@ -138,6 +138,8 @@ $ERRORS
 "; exit 1; fi
 	fi
 else
+	# cleanup
+	rm -fr Dockerfile.2
 	if [[ ${forceBuild} -eq 1 ]]; then
 		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
@@ -153,6 +155,3 @@ $ERRORS
 		log "[INFO] No new sources, so nothing to build."
 	fi
 fi
-
-# cleanup
-rm -fr Dockerfile.2
