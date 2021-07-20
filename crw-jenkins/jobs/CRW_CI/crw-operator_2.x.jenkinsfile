@@ -164,7 +164,7 @@ sed -i ${TARGET_DIR}/Dockerfile \
 # +COPY devworkspace-operator.zip /tmp
 # +RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d tmp
 sed -i ${TARGET_DIR}/Dockerfile -r \
-  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources-jenkins.sh` \
+  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources.sh` \
   -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
   -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
   `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
@@ -191,13 +191,13 @@ LABEL com.redhat.delivery.appregistry="false" \\\r
 
 echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
 
-# CRW-1674 update get-sources-jenkins.sh to refer to the correct template source branches
+# CRW-1674 update get-sources.sh to refer to the correct template source branches
 sed -r \
   -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
   -e 's#^DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  -i ${TARGET_DIR}/get-sources-jenkins.sh
-git add ${TARGET_DIR}/get-sources-jenkins.sh || true
-git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTROLLER_VERSION} / ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ${TARGET_DIR}/get-sources-jenkins.sh || true
+  -i ${TARGET_DIR}/get-sources.sh
+git add ${TARGET_DIR}/get-sources.sh || true
+git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTROLLER_VERSION} / ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ${TARGET_DIR}/get-sources.sh || true
 '''
 
           // don't commit yet, we'll do it later
