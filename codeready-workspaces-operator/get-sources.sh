@@ -13,6 +13,7 @@ pullAssets=0
 DEV_WORKSPACE_CONTROLLER_VERSION="main" # main or 0.y.x
 # TODO remove DWCO when it's no longer needed (merged into che-operator)
 DEV_WORKSPACE_CHE_OPERATOR_VERSION="main" # main or 7.yy.x
+DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main" # main or x.y.z
 RESTIC_VERSION=$(sed -n 's|.*RESTIC_TAG=\(.*\)|\1|p' Dockerfile)
 
 while [[ "$#" -gt 0 ]]; do
@@ -23,6 +24,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 		'--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
 		'--dwcob'|'--dwcov') DEV_WORKSPACE_CHE_OPERATOR_VERSION="$2"; shift 1;;
+		'--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
 	esac
 	shift 1
 done
@@ -59,9 +61,10 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		-e "s#^FROM registry.redhat.io/registry-proxy.engineering.redhat.com/#FROM registry-proxy.engineering.redhat.com/#" \
 		-e "s%# (COPY .+.repo /etc/yum.repos.d/)%\1%" \
 		-e "s%# COPY content_sets%COPY content_sets%" \
-		`# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION and DEV_WORKSPACE_CONTROLLER_VERSION` \
+		`# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION, DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN` \
 		-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
 		-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+		-e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
 		`# CRW-1956 get vendor sources for restic; then stop builder stage steps as we have all we need` \
 		-e 's@(go mod vendor)@\1 \&\& exit@' \
 		`# remove all lines starting with WORKDIR` \
@@ -78,9 +81,10 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	# get other zips & repack them
 	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
 	curl -sSLo asset-devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
+	curl -sSLo asset-header-rewrite-traefik-plugin.zip 	https://api.github.com/repos/che-incubator/header-rewrite-traefik-plugin/zipball/${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}
 	# unzip zips and remove all but what we need
 	thisdir=$(pwd)
-	for d in asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip; do
+	for d in asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip asset-header-rewrite-traefik-plugin.zip; do
 		# we only need the /deploy/deployment/ folders
 		unzip -q ${thisdir}/${d} */deploy/deployment/* -d /tmp/get-sources/
 		# mv ${d} ${d/.zip/.big.zip}
@@ -93,11 +97,12 @@ if [[ ${pullAssets} -eq 1 ]]; then
 
 fi
 
-# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION and DEV_WORKSPACE_CONTROLLER_VERSION
+# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION, DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
 # CRW-1674 this step also done in crw-operator_2.*.jenkinsfile
 sed Dockerfile -r \
 	-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
 	-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+	-e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
 	> Dockerfile.2
 
 if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || \
@@ -106,10 +111,10 @@ if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b 
 
 	git add bootstrap.Dockerfile || true
 	
-	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} and restic ${RESTIC_VERSION} w/ vendor folder"
-	rhpkg new-sources asset-devworkspace*operator.zip asset-restic.tgz
+	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} and restic ${RESTIC_VERSION} w/ vendor folder"
+	rhpkg new-sources asset-devworkspace*operator.zip asset-header-rewrite-traefik-plugin.zip asset-restic.tgz
 	log "[INFO] Commit new source zips"
-	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, restic ${RESTIC_VERSION}"
+	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}, restic ${RESTIC_VERSION}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
