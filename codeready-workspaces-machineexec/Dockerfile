@@ -58,8 +58,8 @@ LABEL summary="$SUMMARY" \
 
 # insert generated LABELs below this line
 LABEL \
-			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/561/" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/561/artifact/**/codeready-workspaces-sleep-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/561/artifact/**/codeready-workspaces-sleep-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/561/artifact/**/codeready-workspaces-sleep-ppc64le.tar.gz" \
-			jenkins.build.number="561"
+			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/567/" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/567/artifact/**/codeready-workspaces-sleep-x86_64.tar.gz" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/567/artifact/**/codeready-workspaces-sleep-s390x.tar.gz" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/567/artifact/**/codeready-workspaces-sleep-ppc64le.tar.gz" \
+			jenkins.build.number="567"
