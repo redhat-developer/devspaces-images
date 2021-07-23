@@ -1,0 +1,55 @@
+#
+# Copyright (c) 2021 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+
+name: Image Build
+on:
+  push:
+    branches:
+      - crw-2-rhel-8
+
+  workflow_dispatch:
+    inputs:
+      arguments:
+        description: 'CLI Argument. Empty means only modified folders in last commit. Example or args: --all-images or --folders=codeready-workspaces-machineexec,codeready-workspaces-imagepuller,...'     
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Clone source code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+# TODO: enable this when ready to push images to quay
+#    - name: Login to quay.io
+#      uses: docker/login-action@v1
+#      with:
+#        registry: quay.io
+#        username: ${{ secrets.QUAY_USERNAME }}
+#        password: ${{ secrets.QUAY_PASSWORD }}
+
+    - name: Login to registry.redhat.io
+      uses: docker/login-action@v1
+      with:
+        registry: registry.redhat.io
+        username: ${{ secrets.REGISTRY_REDHAT_IO_USERNAME }}
+        password: ${{ secrets.REGISTRY_REDHAT_IO_TOKEN }}
+
+    - name: Build
+      run: |
+        # build by providing arguments of the inputs
+        ARGS=${{ github.event.inputs.arguments }}
+
+        # For now only traefik is supported
+        [[ -z "$ARGS" ]] && ARGS="--folders=codeready-workspaces-configbump,codeready-workspaces-plugin-kubernetes"
+        ./.github/build.sh "${ARGS}"
