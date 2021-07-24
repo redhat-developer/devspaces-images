@@ -74,7 +74,7 @@ SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and r
 
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
-COPY_FOLDERS="cmd deploy mocks olm pkg templates vendor version"
+COPY_FOLDERS="api bundle config controllers hack mocks olm pkg templates vendor version"
 echo "Rsync ${COPY_FOLDERS} to ${TARGETDIR}"
 # shellcheck disable=SC2086
 rsync -azrlt ${COPY_FOLDERS} ${TARGETDIR}/
