@@ -71,26 +71,23 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-apply_sed() {
-  SHORT_UNAME=$(uname -s)
+sed_in_place() {
+    SHORT_UNAME=$(uname -s)
   if [ "$(uname)" == "Darwin" ]; then
-    sed -i '' "$1" "$2"
+    sed -i '' "$@"
   elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-    sed -i "$1" "$2"
+    sed -i "$@"
   fi
 }
 
-# Replace ubi8 with rhel8 version
-apply_sed "s/FROM registry.redhat.io\//FROM /" "${TARGETDIR}"/Dockerfile
-apply_sed "s/FROM registry.access.redhat.com\//FROM /" "${TARGETDIR}"/Dockerfile
-
-# Remove redundant Python packages
-apply_sed "/# Python support/d" "${TARGETDIR}"/Dockerfile
-apply_sed "/python2 python39 \\\\/d" "${TARGETDIR}"/Dockerfile
-
-# Modify IDE packaging and Projector assembly location
-apply_sed "s/ADD build\/ide-packaging/ADD ide-packaging/" "${TARGETDIR}"/Dockerfile
-apply_sed "s/ADD build\/projector-server-assembly/ADD projector-server-assembly/" "${TARGETDIR}"/Dockerfile
+sed_in_place "${TARGETDIR}"/Dockerfile -r \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  `# Remove unused Python packages (support for PyCharm not included in CRW)` \
+  -e "/# Python support/d" -e "/python2 python39 \\\\/d" \
+  `# Modify IDE packaging and Projector assembly location` \
+  -e "s#ADD build/ide-packaging#ADD ide-packaging#" \
+  -e "s#ADD build/projector-server-assembly#ADD projector-server-assembly#"
 
 # Overwrite default configuration
 cat << EOT > "${TARGETDIR}"/compatible-ide.json
