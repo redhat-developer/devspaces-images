@@ -21,15 +21,16 @@ set -x
 SCRIPT_DIR=$(dirname $(readlink -f "$0"))
 source "${SCRIPT_DIR}"/common.sh
 
+USER_NAMESPACE="user-che"
+
 # Catch the finish of the job and write logs in artifacts.
 function Catch_Finish() {
     # grab devworkspace-controller namespace events after running e2e
     bumpPodsInfo "devworkspace-controller"
-    bumpPodsInfo "devworkspace-che"
-    bumpPodsInfo "admin-che"
-    oc get devworkspaces -n "admin-che" -o=yaml > $ARTIFACT_DIR/devworkspaces.yaml
-    oc get devworkspacerouting -n "admin-che" -o=yaml > $ARTIFACT_DIR/devworkspaceRouting.yaml
-    oc get devworkspacetemplate -n "admin-che" -o=yaml > $ARTIFACT_DIR/devworkspaceTemplate.yaml
+    bumpPodsInfo $USER_NAMESPACE
+    oc get devworkspaces -n $USER_NAMESPACE -o=yaml > $ARTIFACT_DIR/devworkspaces.yaml
+    oc get devworkspacerouting -n $USER_NAMESPACE -o=yaml > $ARTIFACT_DIR/devworkspace-routings.yaml
+    oc get devworkspacetemplate -n $USER_NAMESPACE -o=yaml > $ARTIFACT_DIR/devworkspace-templates.yaml
     chectl server:logs --chenamespace=${NAMESPACE} --directory=${ARTIFACT_DIR} --telemetry=off
 }
 trap 'Catch_Finish $?' EXIT SIGINT

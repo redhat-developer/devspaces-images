@@ -23,6 +23,7 @@ import { deleteLogs, mergeLogs } from '../logs';
 import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { DisposableCollection } from '../../../services/helpers/disposable';
+import { selectDwPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const devWorkspaceClient = container.get(DevWorkspaceClient);
@@ -198,7 +199,7 @@ export const actionCreators: ActionCreators = {
       if (workspace.metadata.annotations && workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
         // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
         const state = getState();
-        const plugins = state.dwPlugins.plugins;
+        const plugins = selectDwPluginsList(state);
         const storedDevWorkspace = JSON.parse(workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) as IDevWorkspace;
         delete workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION];
         workspace.spec.template = storedDevWorkspace.spec.template;
@@ -311,7 +312,7 @@ export const actionCreators: ActionCreators = {
 
     try {
       const state = getState();
-      const plugins = state.dwPlugins.plugins;
+      const plugins = selectDwPluginsList(state);
       const updated = await devWorkspaceClient.update(workspace, plugins);
       dispatch({
         type: 'UPDATE_DEVWORKSPACE',
@@ -332,10 +333,16 @@ export const actionCreators: ActionCreators = {
   },
     pluginRegistryUrl: string | undefined,
   ): AppThunk<KnownAction, Promise<IDevWorkspace>> => async (dispatch, getState): Promise<IDevWorkspace> => {
+
+    const state = getState();
+
+    if (state.dwPlugins.defaultEditorError) {
+      const message = `Required sources failed when trying to create the workspace: ${state.dwPlugins.defaultEditorError}`;
+      throw message;
+    }
+
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
     try {
-      const state = getState();
-
       // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
       const devWorkspaceDevfile = devfile as IDevWorkspaceDevfile;
       if (!devWorkspaceDevfile.metadata.namespace) {
@@ -343,7 +350,7 @@ export const actionCreators: ActionCreators = {
         devWorkspaceDevfile.metadata.namespace = defaultNamespace;
       }
 
-      const dwPlugins = state.dwPlugins.plugins;
+      const dwPlugins = selectDwPluginsList(state);
       const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, dwPlugins, pluginRegistryUrl, optionalFilesContent);
 
       dispatch({

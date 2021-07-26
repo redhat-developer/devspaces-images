@@ -12,11 +12,12 @@
 
 import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
+import * as BannerAlertStore from './BannerAlert';
 import * as BrandingStore from './Branding';
 import * as DevfileRegistriesStore from './DevfileRegistries';
-import * as FactoryResolver from './FactoryResolver';
+import * as FactoryResolverStore from './FactoryResolver';
 import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
-import * as Plugins from './Plugins/chePlugins';
+import * as PluginsStore from './Plugins/chePlugins';
 import * as UserPreferences from './UserPreferences';
 import * as WorkspacesStore from './Workspaces';
 import * as CheWorkspacesStore from './Workspaces/cheWorkspaces';
@@ -28,6 +29,7 @@ import * as WorkspacesSettingsStore from './Workspaces/Settings';
 
 // the top-level state object
 export interface AppState {
+  bannerAlert: BannerAlertStore.State;
   branding: BrandingStore.State;
   devfileRegistries: DevfileRegistriesStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
@@ -36,14 +38,15 @@ export interface AppState {
   workspaces: WorkspacesStore.State;
   cheWorkspaces: CheWorkspacesStore.State;
   devWorkspaces: DevWorkspacesStore.State;
-  plugins: Plugins.State;
-  factoryResolver: FactoryResolver.State;
+  plugins: PluginsStore.State;
+  factoryResolver: FactoryResolverStore.State;
   userPreferences: UserPreferences.State;
   dwPlugins: DwPluginsStore.State;
   workspacesSettings: WorkspacesSettingsStore.State,
 }
 
 export const reducers = {
+  bannerAlert: BannerAlertStore.reducer,
   workspaces: WorkspacesStore.reducer,
   cheWorkspaces: CheWorkspacesStore.reducer,
   devWorkspaces: DevWorkspacesStore.reducer,
@@ -52,8 +55,8 @@ export const reducers = {
   user: UserStore.reducer,
   userProfile: UserProfileStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
-  plugins: Plugins.reducer,
-  factoryResolver: FactoryResolver.reducer,
+  plugins: PluginsStore.reducer,
+  factoryResolver: FactoryResolverStore.reducer,
   userPreferences: UserPreferences.reducer,
   dwPlugins: DwPluginsStore.reducer,
   workspacesSettings: WorkspacesSettingsStore.reducer,

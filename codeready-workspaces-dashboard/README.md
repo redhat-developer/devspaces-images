@@ -42,7 +42,31 @@ yarn start --env.server=https://che-che.192.168.99.100.nip.io
 
 The development server serves the project on [http://localhost:3000](http://localhost:3000).
 
-note: To use CodeReady Workspaces(based on Che) Hosted by Red Hat instance at https://workspaces.openshift.com, use the fully qualified host name of the cluster.
+Note: For Che/CRW to allow connection from localhost it should be configured in accordance.
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-custom-config
+  labels:
+    app.kubernetes.io/part-of: che.eclipse.org
+    app.kubernetes.io/component: keycloak-configmap
+  annotations:
+    che.eclipse.org/mount-as: env
+    che.eclipse.org/ADDITIONAL_REDIRECT_URIS_env-name: ADDITIONAL_REDIRECT_URIS
+    che.eclipse.org/ADDITIONAL_WEBORIGINS_env-name: ADDITIONAL_WEBORIGINS
+data:
+  ADDITIONAL_WEBORIGINS: '"http://localhost:3000"'
+  ADDITIONAL_REDIRECT_URIS: '"http://localhost:3000/*"'
+EOF
+# Due temporary limitation we need to rollout che operator to apply changes
+# Note: eclipse-che is the default target namespace but if you have custom - change it below
+kubectl rollout restart deployment/che-operator -n eclipse-che
+```
+
+Note: To use CodeReady Workspaces(based on Che) Hosted by Red Hat instance at https://workspaces.openshift.com, use the fully qualified host name of the cluster.
 URL is looking like https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
 
 ```sh

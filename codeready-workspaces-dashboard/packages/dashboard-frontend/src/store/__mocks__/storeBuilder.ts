@@ -18,6 +18,7 @@ import { AppState } from '..';
 import { State as DevfileRegistriesState } from '../DevfileRegistries/index';
 import { ContainerCredentials, RegistryRow } from '../UserPreferences/types';
 import { State as WorkspacesState } from '../Workspaces/index';
+import { State as BannerAlertState } from '../BannerAlert';
 import { State as BrandingState } from '../Branding';
 import { State as FactoryResolverState } from '../FactoryResolver';
 import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';
@@ -25,11 +26,14 @@ import { State as PluginsState } from '../Plugins/chePlugins';
 import { State as UserState } from '../User';
 import { State as UserProfileState } from '../UserProfile';
 import mockThunk from './thunk';
-import { IDevWorkspace } from '@eclipse-che/devworkspace-client';
+import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
 
 export class FakeStoreBuilder {
 
   private state: AppState = {
+    bannerAlert: {
+      messages: [],
+    },
     factoryResolver: {
       isLoading: false,
       resolver: {},
@@ -88,9 +92,14 @@ export class FakeStoreBuilder {
     },
     dwPlugins: {
       isLoading: false,
-      plugins: [],
+      plugins: {},
     },
   };
+
+  public withBannerAlert(messages: string[]): FakeStoreBuilder {
+    this.state.bannerAlert.messages = [...messages];
+    return this;
+  }
 
   public withUserPreferences(registries: RegistryRow[], isLoading = false): FakeStoreBuilder {
     const newContainerCredentials: ContainerCredentials = {};
@@ -233,6 +242,18 @@ export class FakeStoreBuilder {
       this.state.workspaces.recentNumber = options.recentNumber;
     }
     this.state.workspaces.isLoading = isLoading;
+    return this;
+  }
+
+  public withDwPlugins(
+    plugins: { [location: string]: { plugin?: IDevWorkspaceDevfile, error?: string } },
+    isLoading = false,
+    defaultEditorError?: string,
+  ) {
+    this.state.dwPlugins.defaultEditorError = defaultEditorError;
+    this.state.dwPlugins.plugins = Object.assign({}, plugins);
+    this.state.dwPlugins.isLoading = isLoading;
+
     return this;
   }
 
