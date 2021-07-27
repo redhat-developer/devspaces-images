@@ -69,28 +69,21 @@ container.yaml
 content_sets.yml
 get-source*.sh
 sources
-yarn.lock
 /README.adoc
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rm -fr ${TARGETDIR}/node_modules/
+rm -fr ${TARGETDIR}/**/node_modules/
 rm -fr ${TARGETDIR}/.yarn/
-rm -fr ${TARGETDIR}/.yarn2-backup/
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-# switch to yarn 1
+# fetch yarn
 yarn policies set-version 1.21.1
 
 pushd "${TARGETDIR}" >/dev/null
 
 popd >/dev/null
-yarn install --ignore-engines
-
-# Remove all the dependencies since they aren't actually needed
-rm -fr ${TARGETDIR}/node_modules/
-rm -fr ${TARGETDIR}/**/node_modules/
-rm -fr ${TARGETDIR}/.yarn/cache
 
 # transform rhel.Dockerfile -> Dockerfile
 sed -r \
@@ -99,12 +92,16 @@ sed -r \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# CRW-2012 don't install unbound-libs` \
     -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
+    `# copy yarn binary` \
+    -e '/COPY yarn.lock/a \
+COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/' \
     `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
     -e '/\*\.cjs install/c \
 COPY asset-node-modules-cache.tgz /tmp/\
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz' \
-    `# make dashboard build configs compatible with yarn v1` \
-    -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs) build|\1 exec lerna run build -- -- --env.yarnV1=true|' \
+    `# use yarn binary directly` \
+    -e 's|(RUN) yarn (install)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
+    -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
 ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
@@ -125,10 +122,12 @@ LABEL summary="\$SUMMARY" \\
       usage=""
 EOT
 
-# Patch rhel.Dockerfile to switch to yarn1
+# Patch rhel.Dockerfile
 sed -r -i \
-  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs install)|\1 --ignore-engines|' \
-  -e 's|(RUN /dashboard/.yarn/releases/yarn-\*\.cjs) build|\1 exec lerna run build|' \
+  -e '/COPY yarn.lock/a \
+COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/' \
+  -e 's|(RUN) yarn (install)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
+  -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
   ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
 
 echo "Converted Dockerfile"

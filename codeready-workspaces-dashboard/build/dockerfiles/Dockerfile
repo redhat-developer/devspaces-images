@@ -16,9 +16,6 @@ RUN if ! [ type "yarn" &> /dev/null ]; then \
 
 COPY package.json /dashboard/
 COPY yarn.lock /dashboard/
-COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/
-COPY .yarn/plugins/@yarnpkg/plugin-*.cjs /dashboard/.yarn/plugins/@yarnpkg/
-COPY .yarnrc.yml /dashboard/
 COPY lerna.json /dashboard/
 
 ENV FRONTEND=packages/dashboard-frontend

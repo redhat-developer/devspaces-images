@@ -14,11 +14,12 @@ import { Store } from 'redux';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakSetupService } from '../keycloak/setup';
 import { AppState } from '../../store';
+import * as BannerAlertStore from '../../store/BannerAlert';
 import * as BrandingStore from '../../store/Branding';
 import * as DevfileRegistriesStore from '../../store/DevfileRegistries';
 import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamespaces';
-import * as Plugins from '../../store/Plugins/chePlugins';
-import * as DwPlugins from '../../store/Plugins/devWorkspacePlugins';
+import * as PluginsStore from '../../store/Plugins/chePlugins';
+import * as DwPluginsStore from '../../store/Plugins/devWorkspacePlugins';
 import * as UserProfileStore from '../../store/UserProfile';
 import * as UserStore from '../../store/User';
 import * as WorkspacesStore from '../../store/Workspaces';
@@ -113,7 +114,7 @@ export class PreloadData {
   }
 
   private async fetchPlugins(settings: che.WorkspaceSettings): Promise<void> {
-    const { requestPlugins } = Plugins.actionCreators;
+    const { requestPlugins } = PluginsStore.actionCreators;
     await requestPlugins(settings.cheWorkspacePluginRegistryUrl || '')(this.store.dispatch, this.store.getState, undefined);
   }
 
@@ -128,8 +129,16 @@ export class PreloadData {
       this.watchNamespaces(defaultNamespace);
     }
 
-    const { requestDwDevfiles } = DwPlugins.actionCreators;
-    await requestDwDevfiles(`${settings.cheWorkspacePluginRegistryUrl}/plugins/${settings['che.factory.default_editor']}/devfile.yaml`)(this.store.dispatch, this.store.getState, undefined);
+    const { requestDwDefaultEditor } = DwPluginsStore.actionCreators;
+    try {
+      await requestDwDefaultEditor(settings)(this.store.dispatch, this.store.getState, undefined);
+    } catch (e) {
+      const message = `Required sources failed when trying to create the workspace: ${e}`;
+      const { addBanner } = BannerAlertStore.actionCreators;
+      addBanner(message)(this.store.dispatch, this.store.getState, undefined);
+
+      throw e;
+    }
   }
 
   private async fetchInfrastructureNamespaces(): Promise<void> {

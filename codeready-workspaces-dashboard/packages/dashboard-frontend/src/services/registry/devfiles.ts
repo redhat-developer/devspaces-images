@@ -47,20 +47,29 @@ function resolveLinks(metadata: che.DevfileMetaData, baseUrl: string): any {
   return resolvedLinks;
 }
 
+export async function fetchData<T>(url: string): Promise<T> {
+  try {
+    const response = await axiosInstance.get<T>(url);
+    return response.data;
+  } catch (e) {
+    throw getErrorMessage(e);
+  }
+}
+
 export async function fetchRegistryMetadata(registryUrl: string): Promise<che.DevfileMetaData[]> {
   registryUrl = registryUrl[registryUrl.length - 1] === '/' ? registryUrl : registryUrl + '/';
 
   try {
     const registryIndexUrl = new URL('devfiles/index.json', registryUrl);
-    const response = await axiosInstance.get<che.DevfileMetaData[]>(registryIndexUrl.href);
+    const devfileMetaData = await fetchData<che.DevfileMetaData[]>(registryIndexUrl.href);
 
-    return response.data.map(meta => {
+    return devfileMetaData.map(meta => {
       meta.icon = resolveIconUrl(meta, registryUrl);
       meta.links = resolveLinks(meta, registryUrl);
       return meta;
     });
-  } catch (e) {
-    const errorMessage = `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + getErrorMessage(e);
+  } catch (error) {
+    const errorMessage = `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + error;
     console.error(errorMessage);
     throw errorMessage;
   }
@@ -68,10 +77,10 @@ export async function fetchRegistryMetadata(registryUrl: string): Promise<che.De
 
 export async function fetchDevfile(url: string): Promise<string> {
   try {
-    const response = await axiosInstance.get<string>(url);
-    return response.data;
-  } catch (e) {
-    const errorMessage = `Failed to fetch a devfile from URL: ${url}, reason: ` + getErrorMessage(e);
+    const devfile = await fetchData<string>(url);
+    return devfile;
+  } catch (error) {
+    const errorMessage = `Failed to fetch a devfile from URL: ${url}, reason: ` + error;
     console.error(errorMessage);
     throw errorMessage;
   }

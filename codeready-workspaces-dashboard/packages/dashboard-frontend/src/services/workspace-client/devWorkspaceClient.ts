@@ -126,23 +126,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
       // TODO handle error in a proper way
       const pluginName = this.normalizePluginName(pluginDevfile.metadata.name, workspaceId);
 
-      // propagate the plugin registry and dashboard urls to the containers in the initial devworkspace templates
-      for (const component of pluginDevfile.components) {
-        const container = component.container;
-        if (container) {
-          if (!container.env) {
-            container.env = [];
-          }
-          container.env.push(...[{
-            name: this.dashboardUrlEnvName,
-            value: window.location.origin,
-          }, {
-            name: this.pluginRegistryUrlEnvName,
-            value: pluginRegistryUrl
-          }]);
-        }
-      }
-
       const theiaDWT = {
         kind: 'DevWorkspaceTemplate',
         apiVersion: devfileGroupVersion,
@@ -204,6 +187,25 @@ export class DevWorkspaceClient extends WorkspaceClient {
           uid: createdWorkspace.metadata.uid
         }
       ];
+
+      // propagate the plugin registry and dashboard urls to the containers in the initial devworkspace templates
+      if (template.spec?.components) {
+        for (const component of template.spec?.components) {
+          const container = component.container;
+          if (container) {
+            if (!container.env) {
+              container.env = [];
+            }
+            container.env.push(...[{
+              name: this.dashboardUrlEnvName,
+              value: window.location.origin,
+            }, {
+              name: this.pluginRegistryUrlEnvName,
+              value: pluginRegistryUrl || ''
+            }]);
+          }
+        }
+      }
 
       const pluginDWT = await this.dwtApi.create(<IDevWorkspaceTemplate>template);
       this.addPlugin(createdWorkspace, pluginDWT.metadata.name, pluginDWT.metadata.namespace);

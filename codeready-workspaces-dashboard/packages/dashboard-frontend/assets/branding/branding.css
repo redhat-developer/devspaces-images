@@ -23,12 +23,6 @@ See also https://github.com/redhat-developer/codeready-workspaces/blob/master/Je
 
 */
 
-/* dashboard background color */
-#page-sidebar {
-	background-color: #191c28;
-	border-right: 1px solid #242a3a;
-}
-
 .main-page-loader {
 	position: absolute;
 	top: 0;
