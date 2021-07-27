@@ -2,7 +2,7 @@
 
 // PARAMETERS for this pipeline:
 // def MIDSTM_BRANCH = "crw-2-rhel-8" // redhat-developer/codeready-workspaces branch to use as source of the new branches
-// def FUTURE_BRANCH = "crw-2.7-rhel-8" // branch to create
+// def FUTURE_BRANCH = "crw-2.y-rhel-8" // branch to create
 
 def List GH_REPOS = [
     'codeready-workspaces',
@@ -12,7 +12,7 @@ def List GH_REPOS = [
     'codeready-workspaces-operator',
     'codeready-workspaces-theia']
 
-def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8" // node label
+def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8"
 timeout(120) {
     node("${buildNode}"){
         stage("Create branches") {

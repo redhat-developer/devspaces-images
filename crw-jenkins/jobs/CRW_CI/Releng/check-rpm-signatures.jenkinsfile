@@ -3,7 +3,7 @@
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
 
-def buildNode = "rhel8" // node label
+def buildNode = "rhel8"
 timeout(120) {
     node("${buildNode}"){
         stage("Create branches") {
