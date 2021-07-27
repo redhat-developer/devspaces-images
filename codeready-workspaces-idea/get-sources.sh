@@ -59,7 +59,8 @@ fi
 if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	git add sources Dockerfile .gitignore || true
 	log "[INFO] Upload new sources: ${outputFiles}"
-	rhpkg new-sources "${outputFiles}"
+	# shellcheck disable=SC2086
+	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
 	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
@@ -71,6 +72,7 @@ if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
 		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
 		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "$tmpfile"
+		# shellcheck disable=SC2002
 		taskID=$(cat "$tmpfile" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs "$taskID" | tee 2>&1 "$tmpfile"
 		ERRORS="$(grep "image build failed" "$tmpfile")" && rm -f "$tmpfile"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
@@ -84,6 +86,7 @@ else
 		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
 		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "$tmpfile"
+		# shellcheck disable=SC2002
 		taskID=$(cat "$tmpfile" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs "$taskID" | tee 2>&1 "$tmpfile"
 		ERRORS="$(grep "image build failed" "$tmpfile")" && rm -f "$tmpfile"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
