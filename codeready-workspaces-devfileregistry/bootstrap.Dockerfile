@@ -12,7 +12,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-63 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-63.1626843762 as builder
 USER 0
 
 ################# 
@@ -80,7 +80,7 @@ RUN chmod -R g+rwX /build/devfiles
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-httpd-24:1-140 AS registry
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-httpd-24:1-143.1626836617 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
