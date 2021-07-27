@@ -1,0 +1,14 @@
+[
+  {
+    "displayName": "IntelliJ IDEA Community",
+    "dockerImage": "idea-rhel8",
+    "productCode": "IC",
+    "productVersion": [
+      {
+        "version": "2020.3.3",
+        "downloadUrl": "https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.3.tar.gz",
+        "latest": true
+      }
+    ]
+  }
+]
