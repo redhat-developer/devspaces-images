@@ -38,23 +38,22 @@ function logn()
 if [[ ${pullAssets} -eq 1 ]]; then
   ./projector.sh build --prepare --url $idePackagingUrl
 
-  if [[ ! -f "build/ide-packaging" ]]; then
-    log "[ERROR] 'build/ide-packaging' not found, so nothing to build."
+  if [[ ! -f "ide-packaging" ]]; then
+    log "[ERROR] 'ide-packaging' not found, so nothing to build."
     exit 1;
-  else
-    mv build/ide-packaging ide-packaging
   fi
 
-  if [[ ! -f "build/projector-server-assembly" ]]; then
-    log "[ERROR] 'build/projector-server-assembly' not found, so nothing to build."
+  if [[ ! -f "projector-server-assembly" ]]; then
+    log "[ERROR] 'projector-server-assembly' not found, so nothing to build."
     exit 1;
-  else
-    mv build/projector-server-assembly projector-server-assembly
   fi
 
-  rm -rf build
+  if [[ ! -f "static-assembly" ]]; then
+    log "[ERROR] 'static-assembly' not found, so nothing to build."
+    exit 1;
+  fi
 
-  outputFiles="ide-packaging projector-server-assembly static"
+  outputFiles="ide-packaging projector-server-assembly static-assembly"
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
