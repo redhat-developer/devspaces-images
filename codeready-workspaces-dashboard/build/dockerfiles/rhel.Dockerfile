@@ -16,7 +16,7 @@ RUN yum -y -q --nobest update && \
 
 COPY package.json /dashboard/
 COPY yarn.lock /dashboard/
-COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/
+COPY .yarn/releases /dashboard/.yarn/releases/
 COPY lerna.json /dashboard/
 
 ENV FRONTEND=packages/dashboard-frontend
@@ -29,9 +29,9 @@ ENV STATIC_SERVER=packages/static-server
 COPY ${STATIC_SERVER}/package.json /dashboard/${STATIC_SERVER}/
 
 WORKDIR /dashboard
-RUN /dashboard/.yarn/releases/yarn-*.cjs install
+RUN /dashboard/.yarn/releases/yarn-*.*js install
 COPY packages/ /dashboard/packages
-RUN /dashboard/.yarn/releases/yarn-*.cjs build
+RUN /dashboard/.yarn/releases/yarn-*.*js build
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12:1-90
 FROM registry.access.redhat.com/ubi8/nodejs-12:1-90
