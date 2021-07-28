@@ -28,7 +28,7 @@ ENV STATIC_SERVER=packages/static-server
 COPY ${STATIC_SERVER}/package.json /dashboard/${STATIC_SERVER}/
 
 WORKDIR /dashboard
-RUN yarn install
+RUN yarn install --network-timeout 1000000
 COPY packages/ /dashboard/packages
 RUN yarn build
 
