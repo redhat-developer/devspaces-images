@@ -22,10 +22,7 @@ USER root
 # downstream, copy prefetched asset-*.zip into /tmp, and collect vendored sources for restic too
 RUN mkdir -p $GOPATH/restic && \
     curl -sSLo- https://api.github.com/repos/restic/restic/tarball/${RESTIC_TAG} | tar --strip-components=1 -xz -C $GOPATH/restic && \
-    cd $GOPATH/restic && go mod vendor && \
-
-
-
+    cd $GOPATH/restic && go mod vendor
 
 WORKDIR /che-operator
 # Copy the Go Modules manifests
@@ -85,7 +82,7 @@ ENTRYPOINT ["/manager"]
 ENV SUMMARY="Red Hat CodeReady Workspaces operator container" \
     DESCRIPTION="Red Hat CodeReady Workspaces operator container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="operator" 
+    COMPNAME="operator"
 LABEL com.redhat.delivery.appregistry="false" \
       summary="$SUMMARY" \
       description="$DESCRIPTION" \
@@ -98,4 +95,4 @@ LABEL com.redhat.delivery.appregistry="false" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
-      usage="" 
+      usage=""
