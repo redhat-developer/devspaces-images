@@ -94,14 +94,13 @@ sed -r \
     -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
     `# copy yarn binary` \
     -e '/COPY yarn.lock/a \
-COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/' \
+COPY .yarn/releases /dashboard/.yarn/releases/' \
+    -e '/RUN npm i -g yarn/d' \
     `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
-    -e '/\*\.cjs install/c \
+    -e '/RUN yarn install/c \
 COPY asset-node-modules-cache.tgz /tmp/\
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz' \
-    `# use yarn binary directly` \
-    -e 's|(RUN) yarn (install)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
-    -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
+    -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
 ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
@@ -125,9 +124,10 @@ EOT
 # Patch rhel.Dockerfile
 sed -r -i \
   -e '/COPY yarn.lock/a \
-COPY .yarn/releases/yarn-*.cjs /dashboard/.yarn/releases/' \
-  -e 's|(RUN) yarn (install)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
-  -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.cjs \2|' \
+COPY .yarn/releases /dashboard/.yarn/releases/' \
+  -e '/RUN npm i -g yarn/d' \
+  -e 's|(RUN) yarn (install)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
+  -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
   ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
 
 echo "Converted Dockerfile"
