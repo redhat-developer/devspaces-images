@@ -1,13 +1,13 @@
 def DEV_WORKSPACE_CONTROLLER_VERSIONS = [
-    "2.10":"0.6.x", 
+    "2.11":"0.7.x", 
     "2.x" :"main"
     ]
 def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [
-    "2.10":"7.32.x",
+    "2.11":"7.34.x",
     "2.x" :"main"
     ]
-def JOB_BRANCHES = ["2.10":"7.32.x", "2.x":"main"] 
-def JOB_DISABLED = ["2.10":true, "2.x":false]
+def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"] 
+def JOB_DISABLED = ["2.11":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -77,9 +77,6 @@ If <b style="color:orange">job is yellow</b>, no changes found to push, so no co
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", DEV_WORKSPACE_CONTROLLER_VERSIONS[JB.key], "Branch (0.y.x or main) used to get deployment templates")
             stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", DEV_WORKSPACE_CHE_OPERATOR_VERSIONS[JB.key], "Branch (7.yy.x or main) used to get deployment templates")
-            if (JOB_BRANCH.equals("2.9")) { 
-                stringParam("UPDATE_BASE_IMAGES_FLAGS"," -maxdepth 1 --tag \"1\\\\.13|8\\\\.[0-9]-\" ", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
-            }
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

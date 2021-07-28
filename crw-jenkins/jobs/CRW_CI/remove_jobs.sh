@@ -46,7 +46,6 @@ done
 
 if [[ ! ${CRW_VERSION} ]]; then usage; fi
 
-# TODO update this after removing 2.9 jobs - no more crw-pluginbrokers or crw-theia-containers jobs
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
     for d in \
@@ -63,7 +62,6 @@ if [[ -f /tmp/token ]]; then
         crw-operator\
         crw-pluginbroker-artifacts\
         crw-pluginbroker-metadata\
-        crw-pluginbrokers\
         crw-pluginregistry\
         crw-server\
         crw-theia-akamai\

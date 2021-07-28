@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.x":"20210727"]
-def JOB_DISABLED = ["2.x":false]
+def JOB_BRANCHES = ["2.11":"20210728", "2.x":"main"]
+def JOB_DISABLED = ["2.11":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -10,13 +10,14 @@ for (JB in JOB_BRANCHES) {
         UPSTM_NAME="jetbrains-editor-images"
         MIDSTM_NAME="idea"
         SOURCE_REPO="che-incubator/" + UPSTM_NAME
+        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
@@ -33,6 +34,13 @@ Artifact builder + sync job; triggers brew after syncing
 
             githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
+            pipelineTriggers {
+                triggers{
+                    pollSCM{
+                        scmpoll_spec("H H/4 * * *") // every 4hrs
+                    }
+                }
+            }
             disableResumeJobProperty()
         }
 
@@ -44,8 +52,11 @@ Artifact builder + sync job; triggers brew after syncing
         }
 
         parameters{
+            stringParam("SOURCE_REPO", SOURCE_REPO)
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+            stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("MIDSTM_NAME", MIDSTM_NAME)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

@@ -1,6 +1,6 @@
 // map branch to tag to use in operator.yaml and csv.yaml
-def JOB_BRANCHES = ["2.10":"7.32.x", "2.x":"main"]
-def JOB_DISABLED = ["2.10":true, "2.x":false]
+def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"]
+def JOB_DISABLED = ["2.11":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -55,10 +55,7 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            if (JOB_BRANCH.equals("2.9")) {
-                stringParam("CSV_VERSION", "2.9.0", "Full version (x.y.z), used in CSV and crwctl version")
-                stringParam("CSV_QUAY_TAG", "2.9", "Floating tag to use in operator.yaml and csv.yaml")
-            }
+            // TODO remove this after 2.10 is dead
             if (JOB_BRANCH.equals("2.10")) {
                 stringParam("CSV_VERSION", "2.10.0", "Full version (x.y.z), used in CSV and crwctl version")
                 stringParam("CSV_QUAY_TAG", "latest", "Floating tag to use in operator.yaml and csv.yaml")

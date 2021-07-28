@@ -34,13 +34,12 @@ timeout(120) {
                     cleanWs()
                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                     println "CRW_VERSION = '" + CRW_VERSION + "'"
-                    util.bootstrap(CRW_KEYTAB)
 
                     println "########################################################################################################"
                     println "##  Clone and update github.com/${SOURCE_REPO}.git"
                     println "########################################################################################################"
                     SOURCE_DIR="${WORKSPACE}/source"
-                    util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH)
+                    util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
                     sh('''#!/bin/bash
                     cd ''' + SOURCE_DIR + '''
                     git checkout ''' + SOURCE_TAG + '''
@@ -51,7 +50,7 @@ timeout(120) {
                     println "########################################################################################################"
                     println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
                     println "########################################################################################################"
-                    util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH)
+                    util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/target", MIDSTM_BRANCH, false)
                     OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/target")
                     TARGET_DIR="${WORKSPACE}/target/" + util.getCRWLongName(SYNC_REPO)
                     println "Got OLD_SHA in target folder: " + OLD_SHA
@@ -169,10 +168,9 @@ for (int i=0; i < nodeLabels.size(); i++) {
                     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                         usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
                         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-                        util.bootstrap(CRW_KEYTAB)
                         // build project in Jenkins so we can collect asset-* files later via get-sources-jenkins.sh, then trigger a build brew with those files
                         if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
-                            util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/${SYNC_REPO}", MIDSTM_BRANCH)
+                            util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/${SYNC_REPO}", MIDSTM_BRANCH, false)
                             util.loginToRegistries()
                             sh('''#!/bin/bash -xe
 		                export TMP_IMG="traefik.tmp"
@@ -212,7 +210,7 @@ nodeLabel = "${nodeLabels[0]}"
 node(nodeLabel) {
   stage ("Build containers on ${nodeLabel}") {
     println "########################################################################################################"
-    println "##  Kickoff Sync to downstream job"
+    println "##  Trigger sync to downstream job"
     println "########################################################################################################"
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
     def util = load "${WORKSPACE}/util.groovy"

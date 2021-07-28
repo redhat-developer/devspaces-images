@@ -32,7 +32,7 @@ timeout(120) {
 
         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
         println "CRW_VERSION = '" + CRW_VERSION + "'"
-        util.installSkopeoFromContainer("")
+        util.installSkopeo()
         util.installYq()
         // updateBaseImages.sh -b 7.30.x -w dockerfiles -f \*from.dockerfile -maxdepth 5
         util.updateBaseImages("tmp/che-theia", SOURCE_BRANCH, "-w dockerfiles -f \\*from.dockerfile -maxdepth 5", MIDSTM_BRANCH)
@@ -116,79 +116,83 @@ for (int i=0; i < nodeLabels.size(); i++) {
     timeout(600) {
       node(nodeLabel) {
         stage ("Build artifacts containers on " + nodeLabel + " and push to quay.io") {
-          wrap([$class: 'TimestamperBuildWrapper']) {
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-            def util = load "${WORKSPACE}/util.groovy"
-            cleanWs()
-            sh "docker system prune -af || true"
-            platforms.add(sh(script: '''uname -m''', returnStdout:true).trim())
-            util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, false)
-            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
-                string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
-              util.installNPM(nodeVersion, yarnVersion)
-              CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-              println "CRW_VERSION = '" + CRW_VERSION + "'"
-              util.installSkopeoFromContainer("")
-              util.installYq()
-              def buildLog = ""
+          def this_platform=sh(script: '''uname -m''', returnStdout:true).trim()
+          if (!req_platforms.contains(this_platform)) {
+            echo "[INFO] Skip platform = " + this_platform
+          } else {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+              platforms.add(this_platform)
+              echo "[INFO] Build on platform = " + this_platform
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+              def util = load "${WORKSPACE}/util.groovy"
+              cleanWs()
+              sh "docker system prune -af || true"
+              util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, false)
+              withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+                  file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
+                  string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
+                util.installNPM(nodeVersion, yarnVersion, false, true)
+                CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                println "CRW_VERSION = '" + CRW_VERSION + "'"
+                util.installSkopeo()
+                util.installYq()
+                def buildLog = ""
 
-              // updateBaseImages.sh -b crw-2-rhel-8 -w conf -f \*from.dockerfile -maxdepth 3
-              util.updateBaseImages("${WORKSPACE}/crw-theia", MIDSTM_BRANCH, "-w conf -f \\*from.dockerfile -maxdepth 3")
+                // updateBaseImages.sh -b crw-2-rhel-8 -w conf -f \*from.dockerfile -maxdepth 3
+                util.updateBaseImages("${WORKSPACE}/crw-theia", MIDSTM_BRANCH, "-w conf -f \\*from.dockerfile -maxdepth 3")
 
-              // parse THEIA_COMMIT_SHA from BUILD_PARAMS file
-              THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash
-cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARAMS
-''', returnStdout: true).trim()
-              echo "[INFO] Using Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA} from ${SOURCE_BRANCH} branch"
+                // parse THEIA_COMMIT_SHA from BUILD_PARAMS file
+                THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash
+  cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARAMS
+  ''', returnStdout: true).trim()
+                echo "[INFO] Using Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA} from ${SOURCE_BRANCH} branch"
 
-              def buildStatusCode = 0
-              ansiColor('xterm') {
-                def statusCode = util.loginToRegistries()
-                if (statusCode > 0) {
-                  currentBuild.result = 'FAILURE'
-                } else {
-                  echo "[INFO] Build images: " + CONTAINERS
-                  // retry(2) {
-                  buildStatusCode = sh script:'''#!/bin/bash -xe
-export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
-mkdir -p ${WORKSPACE}/logs/
-pushd ${WORKSPACE}/crw-theia >/dev/null
+                def buildStatusCode = 0
+                ansiColor('xterm') {
+                  def statusCode = util.loginToRegistries()
+                  if (statusCode > 0) {
+                    currentBuild.result = 'FAILURE'
+                  } else {
+                    echo "[INFO] Build images: " + CONTAINERS
+                    buildStatusCode = sh script:'''#!/bin/bash -xe
+  export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
+  mkdir -p ${WORKSPACE}/logs/
+  pushd ${WORKSPACE}/crw-theia >/dev/null
     node --version
     $(cat BUILD_COMMAND) 2>&1 | tee ${WORKSPACE}/logs/crw-theia_buildlog.txt
-popd >/dev/null
-''', returnStatus: true
-                // }
+  popd >/dev/null
+  ''', returnStatus: true
 
-                  buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
-                  if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
-                  {
-                    ansiColor('xterm') {
-                      echo ""
-                      echo "=============================================================================================="
-                      echo ""
-                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
-                    }
-                    currentBuild.result = 'FAILED'
-                  }
-
-                  def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
-                  echo "${descriptString}"
-                  currentBuild.description="${descriptString}"
-                  echo "currentBuild.result = " + currentBuild.result
-
-                  buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
-                  if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
-                  {
-                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                    buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
+                    if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
+                    {
+                      ansiColor('xterm') {
+                        echo ""
+                        echo "=============================================================================================="
+                        echo ""
+                        error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                      }
                       currentBuild.result = 'FAILED'
-                      util.notifyBuildFailed()
+                    }
+
+                    def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: crw-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
+                    echo "${descriptString}"
+                    currentBuild.description="${descriptString}"
+                    echo "currentBuild.result = " + currentBuild.result
+
+                    buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
+                    if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
+                    {
+                        error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
+                        currentBuild.result = 'FAILED'
+                        util.notifyBuildFailed()
+                    }
+                    echo "currentBuild.result = " + currentBuild.result
                   }
-                  echo "currentBuild.result = " + currentBuild.result
-                }
-              } // ansiColor
-            } // with credentials
-          } // wrap
+                } // ansiColor
+              } // with credentials
+            } // wrap
+          } // if platform
         } // stage
       } // node
     } // timeout

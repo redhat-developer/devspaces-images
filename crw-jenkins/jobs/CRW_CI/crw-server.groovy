@@ -1,5 +1,5 @@
-def JOB_BRANCHES = ["2.10":"7.32.x", "2.x":"main"] 
-def JOB_DISABLED = ["2.10":true, "2.x":false]
+def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"] 
+def JOB_DISABLED = ["2.11":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key
@@ -7,13 +7,8 @@ for (JB in JOB_BRANCHES) {
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
-        if (JOB_BRANCH.equals("2.9")) {
-            UPSTM_NAME="che"
-            SOURCE_REPO="eclipse/" + UPSTM_NAME
-        } else {
-            UPSTM_NAME="che-server"
-            SOURCE_REPO="eclipse-che/" + UPSTM_NAME
-        }
+        UPSTM_NAME="che-server"
+        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
         MIDSTM_NAME="server"
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 

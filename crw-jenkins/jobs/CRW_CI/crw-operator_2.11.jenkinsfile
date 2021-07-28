@@ -40,11 +40,10 @@ timeout(120) {
           println "CRW_VERSION = '" + CRW_VERSION + "'"
 
           QUAY_REPO_PATH=util.getCRWShortName(SYNC_REPO) + "-rhel8"
-          util.bootstrap(CRW_KEYTAB)
 
-          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
-          util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH)
-          util.cloneRepo("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
   
           def SYNC_FILES_UP2DWN = ".dockerignore .gitignore cmd deploy deploy.sh e2e go.mod go.sum LICENSE olm pkg README.md templates vendor version"
           def SYNC_FILES_MID2DWN = "build"
@@ -152,6 +151,9 @@ cp -f ''' + SOURCEDOCKERFILE + ''' ${TARGET_DIR}/Dockerfile
 
 # apply standard patches to convert from midstream public to downstream Brew build
 sed -i ${TARGET_DIR}/Dockerfile \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  `# more replacements` \
   -e "s#FROM registry.redhat.io/#FROM #g" \
   -e "s#FROM registry.access.redhat.com/#FROM #g" \
   -e "s/# *RUN yum /RUN yum /g"
@@ -162,12 +164,12 @@ sed -i ${TARGET_DIR}/Dockerfile \
 # +COPY devworkspace-operator.zip /tmp
 # +RUN unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d tmp
 sed -i ${TARGET_DIR}/Dockerfile -r \
-  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources-jenkins.sh` \
+  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources.sh` \
   -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
   -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  `# CRW-1655 use local zips instead of fetching from the internet` \
-  -e "s#RUN curl .+/tmp/((devworkspace|devworkspace-che)-operator.zip)(.+)#COPY \\1 /tmp#g" \
-  -e "s# +(unzip /tmp/.+ -d /tmp)#RUN \\1#g"
+  `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
+  -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-*.zip /tmp#g" \
+  -e "s#^ +curl .+/tmp/asset.+.zip.+##g"
 
 METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
     DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
@@ -189,13 +191,13 @@ LABEL com.redhat.delivery.appregistry="false" \\\r
 
 echo -e "$METADATA" >> ${TARGET_DIR}/Dockerfile
 
-# CRW-1674 update get-sources-jenkins.sh to refer to the correct template source branches
+# CRW-1674 update get-sources.sh to refer to the correct template source branches
 sed -r \
   -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
   -e 's#^DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  -i ${TARGET_DIR}/get-sources-jenkins.sh
-git add ${TARGET_DIR}/get-sources-jenkins.sh || true
-git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTROLLER_VERSION} / ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ${TARGET_DIR}/get-sources-jenkins.sh || true
+  -i ${TARGET_DIR}/get-sources.sh
+git add ${TARGET_DIR}/get-sources.sh || true
+git commit -s -m "[sync] DEV_WORKSPACE branches updated to ${DEV_WORKSPACE_CONTROLLER_VERSION} / ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ${TARGET_DIR}/get-sources.sh || true
 '''
 
           // don't commit yet, we'll do it later

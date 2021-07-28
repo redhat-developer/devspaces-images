@@ -17,8 +17,8 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
-timeout(120) {
+def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8' // TODO when CRW-2081 is resolved, we can add ||x86_64-rhel8' 
+timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
@@ -59,6 +59,16 @@ timeout(120) {
             println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_MID_SHA
 
             CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+            CSV_VERSION_BASE=CSV_VERSION.replaceAll("([0-9]+\\.[0-9]+)\\.[0-9]+","\$1"); // extract 2.yy from 2.yy.z
+            // print "CSV_VERSION_BASE=" + CSV_VERSION_BASE
+
+            // CRW-2039 this can happen if the 2.x jobs have not all run and the operator sources still have the previous release's version
+            if (!CSV_VERSION_BASE.equals(CRW_VERSION)) { 
+              println "[WARNING] CSV version (from getCSVVersion() -> csv.yaml = " + CSV_VERSION + 
+                ") does not match CRW version (from getCrwVersion() -> VERSION = " + CRW_VERSION + ") !"
+              CSV_VERSION=CRW_VERSION+".0" // for .x builds, use CRW_VERSION.0
+            }
+            println("[INFO] Using CSV version = " + CSV_VERSION)
 
             // rsync files to codeready-workspaces-images, and transform them
             sh('''#!/bin/bash -xe
@@ -91,7 +101,7 @@ fi
         currentBuild.description="Upstream sync done"
 
         println "########################################################################################################"
-        println "##  Kickoff Sync to downstream job"
+        println "##  Trigger sync to downstream job"
         println "########################################################################################################"
         if (!OLD_MID_SHA.equals(NEW_MID_SHA) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)

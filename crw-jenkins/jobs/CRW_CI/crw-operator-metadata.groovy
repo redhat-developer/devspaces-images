@@ -1,10 +1,10 @@
 // map branch to current/previous CSV versions + OLM channel (nightly or stable)
 def CSV_VERSIONS = [
-    "2.10" :["2.10.0","2.9.0"],
+    "2.11" :["2.11.0","2.10.0"],
     "2.x"  :["2.11.0","2.10.0"]
     ]
-def JOB_BRANCHES = ["2.10":"7.32.x", "2.x":"main"] 
-def JOB_DISABLED = ["2.10":true, "2.x":false]
+def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"] 
+def JOB_DISABLED = ["2.11":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key

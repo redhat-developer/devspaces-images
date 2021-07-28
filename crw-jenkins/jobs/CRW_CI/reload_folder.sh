@@ -46,7 +46,7 @@ pushd .. >/dev/null || exit
         # re-enable disabled jobs
         if [[ -f /tmp/token ]]; then
             USERTOKEN=$(cat /tmp/token)
-            for VER in "2.x"; do # "2.9"
+            for VER in "2.x"; do # "2.y"
                 for JOB in \
                     sync-to-downstream \
                     get-sources-rhpkg-container-build \

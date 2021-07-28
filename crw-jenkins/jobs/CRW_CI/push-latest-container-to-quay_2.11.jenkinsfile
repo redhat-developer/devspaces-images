@@ -204,8 +204,7 @@ node(nodeLabel){
             println "####################################################################################################################"
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-                util.bootstrap(CRW_KEYTAB)
-                util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH)
+                util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
                 sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
@@ -223,7 +222,7 @@ chmod +x getLatestImageTags.sh
 NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION + '''-)
 
 # registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator-metadata:2.9-2	registry-proxy.engineering.redhat.com/rh-osbs/iib:69346	v4.7
-curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -u | tail -20 > datagrepper.tsv.txt
+curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -20 > datagrepper.tsv.txt
 
 FOUND=$(grep "${NEW_OSBS_IMAGE}" datagrepper.tsv.txt)
 if [[ $FOUND ]]; then
@@ -231,7 +230,7 @@ if [[ $FOUND ]]; then
   rm -f datagrepper.tsv.txt
 else
   echo "[ERROR] Could not find ${NEW_OSBS_IMAGE} in registry-proxy.engineering.redhat.com/rh-osbs/iib !"
-  echo '  curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -u | tail -20'
+  echo '  curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -20'
   exit 1
 fi
 ''', returnStatus: true)
