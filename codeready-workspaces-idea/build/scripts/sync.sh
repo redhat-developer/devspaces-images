@@ -90,10 +90,6 @@ sed_in_place -r \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
   `# Remove unused Python packages (support for PyCharm not included in CRW)` \
   -e "/# Python support/d" -e "/python2 python39 \\\\/d" \
-  `# use CRW filename conventions - tarballs should start with asset- and end with a filetype` \
-  -e "s#ide-packaging#asset-ide-packaging.tgz#" \
-  -e "s#projector-server-assembly#asset-projector-server-assembly.tgz#" \
-  -e "s#static-assembly#asset-static-assembly.tgz#" \
   "${TARGETDIR}"/Dockerfile
 
 # Overwrite default configuration
