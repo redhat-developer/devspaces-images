@@ -26,30 +26,30 @@
 #   $ ./projector.sh build [OPTIONS]
 
 # Stage 1. Prepare JetBrains IDE with Projector.
-#   Requires ide-packaging which should point to the ide packaging downloaded
-#   previously, usually tar.gz archive. Also requires projector-server-assembly
+#   Requires asset-ide-packaging.tgz which should point to the ide packaging downloaded
+#   previously, usually tar.gz archive. Also requires asset-projector-server-assembly.tgz
 #   which points to the built Projector Server assembly, zip archive. Requires
-#   static-assembly a gzipped static directory.
+#   asset-static-assembly.tgz a gzipped static directory.
 FROM ubi8-minimal:8.4-205 as projectorAssembly
 ENV PROJECTOR_DIR /projector
-COPY ide-packaging /tmp/ide-unpacked/
-COPY projector-server-assembly $PROJECTOR_DIR/
-COPY static-assembly $PROJECTOR_DIR/
+COPY asset-ide-packaging.tgz /tmp/ide-unpacked/
+COPY asset-projector-server-assembly.tgz $PROJECTOR_DIR/
+COPY asset-static-assembly.tgz $PROJECTOR_DIR/
 RUN set -ex \
     && microdnf install -y --nodocs findutils tar gzip unzip \
     && cd /tmp/ide-unpacked \
-    && tar xf ide-packaging \
-    && rm ide-packaging \
+    && tar xf asset-ide-packaging.tgz \
+    && rm asset-ide-packaging.tgz \
     && find . -maxdepth 1 -type d -name * -exec mv {} $PROJECTOR_DIR/ide \; \
     && cd $PROJECTOR_DIR \
     && rm -rf /tmp/ide-unpacked \
-    && unzip projector-server-assembly \
-    && rm projector-server-assembly \
+    && unzip asset-projector-server-assembly.tgz \
+    && rm asset-projector-server-assembly.tgz \
     && find . -maxdepth 1 -type d -name projector-server-* -exec mv {} projector-server \; \
     && mv projector-server ide/projector-server \
     && chmod 644 ide/projector-server/lib/* \
-    && tar -xf static-assembly \
-    && rm static-assembly \
+    && tar -xf asset-static-assembly.tgz \
+    && rm asset-static-assembly.tgz \
     && mv static/* . \
     && rm -rf static \
     && mv ide-projector-launcher.sh ide/bin \

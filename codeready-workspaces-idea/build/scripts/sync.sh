@@ -45,9 +45,10 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
-# global / generic changes
+# ignore changes in these files
 echo ".github/
 .git/
+.gitignore
 .dockerignore
 .idea/
 build/
