@@ -38,32 +38,26 @@ function logn()
 if [[ ${pullAssets} -eq 1 ]]; then
   ./projector.sh build --prepare --url $idePackagingUrl
 
-  if [[ ! -f "ide-packaging" ]]; then
-    log "[ERROR] 'ide-packaging' not found, so nothing to build."
+  if [[ ! -f "asset-ide-packaging.tar.gz" ]]; then
+    log "[ERROR] 'asset-ide-packaging.tar.gz' not found, so nothing to build."
     exit 1;
   fi
 
-  if [[ ! -f "projector-server-assembly" ]]; then
-    log "[ERROR] 'projector-server-assembly' not found, so nothing to build."
+  if [[ ! -f "asset-projector-server-assembly.zip" ]]; then
+    log "[ERROR] 'asset-projector-server-assembly.zip' not found, so nothing to build."
     exit 1;
   fi
 
-  if [[ ! -f "static-assembly" ]]; then
-    log "[ERROR] 'static-assembly' not found, so nothing to build."
+  if [[ ! -f "asset-static-assembly.tar.gz" ]]; then
+    log "[ERROR] 'asset-static-assembly.tar.gz' not found, so nothing to build."
     exit 1;
   fi
 
-  outputFiles="ide-packaging projector-server-assembly static-assembly"
+  outputFiles="asset-ide-packaging.tar.gz asset-projector-server-assembly.zip asset-static-assembly.tar.gz"
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	git add sources Dockerfile .gitignore || true
-	outputFilesRenamed=""
-	for f in ${outputFiles}; do # rename files to be consistent with CRW conventions
-		rm -f asset-${f}.tgz; mv $f asset-${f}.tgz
-		outputFilesRenamed="${outputFilesRenamed}asset-${f}.tgz "
-	done
-	outputFiles="${outputFilesRenamed}"
 	log "[INFO] Upload new sources: ${outputFiles}"
 	# shellcheck disable=SC2086
 	rhpkg new-sources ${outputFiles}
