@@ -48,6 +48,7 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 # global / generic changes
 echo ".github/
 .git/
+.dockerignore
 .idea/
 build/
 devfiles/
