@@ -58,6 +58,12 @@ fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	git add sources Dockerfile .gitignore || true
+	outputFilesRenamed=""
+	for f in ${outputFiles}; do # rename files to be consistent with CRW conventions
+	  mv $f asset-${f}.tgz
+	  outputFilesRenamed="${outputFilesRenamed}asset-${f}.tgz "
+	done
+	outputFiles="${outputFilesRenamed}"
 	log "[INFO] Upload new sources: ${outputFiles}"
 	# shellcheck disable=SC2086
 	rhpkg new-sources ${outputFiles}
