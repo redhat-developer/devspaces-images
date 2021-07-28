@@ -20,7 +20,7 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-OLM_CHANNEL="nightly" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/deploy/olm-catalog
+OLM_CHANNEL="nightly" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
 SSO_TAG=7.4
 UBI_TAG=8.4
@@ -55,7 +55,7 @@ if [[ $# -lt 8 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/master/deploy/olm-catalog
+	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/master/bundle
     '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/codeready-workspaces from which to load plugin and devfile reg container refs
 	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
 	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
@@ -162,7 +162,7 @@ ${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal)
 
 pushd "${SOURCEDIR}" >/dev/null || exit
 
-SOURCE_CSVFILE="${SOURCEDIR}/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
+SOURCE_CSVFILE="${SOURCEDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
 
 ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-crw-olm.icon.txt")"
 for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
@@ -343,29 +343,21 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	fi
 done
 
-	# simple copy - old way CRW 2.8
-	# mkdir -p ${TARGETDIR}/deploy/crds ${TARGETDIR}/manifests/
-	# for CRDFILE in \
-	# 	"${TARGETDIR}/manifests/codeready-workspaces.crd.yaml" \
-	# 	"${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml"; do
-	# 	cp "${SOURCEDIR}"/deploy/olm-catalog/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/*crd.yaml "${CRDFILE}"
-	# done
-
-	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-	# yq changes - transform env vars from Che to CRW values
-	while IFS= read -r -d '' d; do
-		changed="$(
-yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' "${TARGETDIR}/${d}" | \
+# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
+# yq changes - transform env vars from Che to CRW values
+CR_YAML="config/samples/org.eclipse.che_v1_checluster.yaml"
+changed="$(
+yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' "${TARGETDIR}/${CR_YAML}" | \
 yq  -y '.spec.server.cheFlavor="codeready"' | \
 yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
 yq  -y '.spec.storage.pvcStrategy="per-workspace"' | \
 yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
 yq  -y 'del(.spec.k8s)')" && \
-		echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
-		if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-			echo "Converted (yq #3) ${d}"
-		fi
-	done <   <(find deploy/crds -type f -name "org_v1_che_cr.yaml" -print0)
-	cp "${TARGETDIR}/deploy/crds/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
+echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
+if [[ $(diff -u "$CR_YAML" "${TARGETDIR}/${CR_YAML}") ]]; then
+	echo "Converted (yq #3) ${TARGETDIR}/${CR_YAML}"
+fi
+
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
 
 popd >/dev/null || exit

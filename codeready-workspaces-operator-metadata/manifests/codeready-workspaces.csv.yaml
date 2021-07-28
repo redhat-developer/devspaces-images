@@ -77,14 +77,16 @@ metadata:
         }
       ]
     capabilities: Seamless Upgrades
-    categories: Developer Tools, OpenShift Optional
+    categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.11
-    createdAt: "2021-07-15T17:23:28+00:00"
+    createdAt: "2021-07-28T16:44:45+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
-      developer workspaces in OpenShift.
+      developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
+    operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
   name: crwoperator.v2.11.0
@@ -93,11 +95,28 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-      - description: The `CheCluster` custom resource allows defining and managing
-          a Che server installation
-        displayName: CodeReady Workspaces Cluster
+      - displayName: CodeReady Workspaces Cluster Backup Server Configuration
+        kind: CheBackupServerConfiguration
+        name: chebackupserverconfigurations.org.eclipse.che
+        version: v1
+      - displayName: CodeReady Workspaces Cluster Backup
+        kind: CheClusterBackup
+        name: checlusterbackups.org.eclipse.che
+        version: v1
+      - kind: CheClusterRestore
+        name: checlusterrestores.org.eclipse.che
+        version: v1
+      - displayName: CodeReady Workspaces Cluster
         kind: CheCluster
         name: checlusters.org.eclipse.che
+        specDescriptors:
+          - description: Deploys the DevWorkspace Operator in the cluster. Does nothing
+              when a matching version of the Operator is already installed. Fails
+              when a non-matching version of the Operator is already installed.
+            displayName: Enable Dev Workspace operator
+            path: devWorkspace.enable
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
         statusDescriptors:
           - description: Status of a Che installation. Can be `Available`, `Unavailable`,
               or `Available, Rolling Update in Progress`.
@@ -155,98 +174,112 @@ spec:
             displayName: Reason
             path: reason
             x-descriptors:
-              - urn:alm:descriptor:io.kubernetes.phase:reason
               - urn:alm:descriptor:text
         version: v1
   description: |
-    A collaborative Kubernetes-native development solution that delivers OpenShift workspaces and in-browser IDE for rapid cloud application development.
-    This operator installs PostgreSQL, Red Hat SSO, and the CodeReady Workspaces server, as well as configures all three services.
+    A collaborative Kubernetes-native development solution that delivers Kubernetes workspaces and in-browser IDE for rapid cloud application development.
+    This operator installs PostgreSQL, Red Hat SSO, Registries and the CodeReady Workspaces server, as well as configures all these services.
+    ## Prerequisites
+    - Operator Lifecycle Manager (OLM) needs to be installed.
+    - Kubernetes Platform. For OpenShift, the installation is directly made from OperatorHub UI in the admin console.
+
+    OLM installation can be checked by running the command:
+    ```
+    $ kubectl get pods --all-namespaces | grep olm
+    olm             catalog-operator-7b8cd7f8bf-2v7zj                       1/1     Running   0          10m
+    olm             olm-operator-5c5c798cd5-s6ll5                           1/1     Running   0          10m
+    olm             olm-operators-fm5wc                                     1/1     Running   0          10m
+    olm             operatorhubio-catalog-d78km                             1/1     Running   0          10m
+    olm             packageserver-5c5f64947b-trghp                          1/1     Running   0          9m56s
+    olm             packageserver-5c5f64947b-zqvxg                          1/1     Running   0          9m56s
+    ```
 
     ## How to Install
+    Install `CodeReady Workspaces Operator` by following instructions in top right button `Install`.
 
-    Press the **Install** button, choose the upgrade strategy, and wait for the **Installed** Operator status.
-
-    When the operator is installed, create a new CR of Kind CheCluster (click the **Create New** button).
-    The CR spec contains all defaults (see below).
-
-    You can start using CodeReady Workspaces when the CR status is set to **Available**, and you see a URL to CodeReady Workspaces.
-
-    ## Defaults
-
-    By default, the operator deploys CodeReady Workspaces with:
-
-    * Bundled PostgreSQL and Red Hat SSO
-
-    * Per-Workspace PVC strategy
-
-    * Auto-generated passwords
-
-    * TLS mode (secure routes)
-
-    * Regular login extended with OpenShift OAuth authentication
-
-    ## Installation Options
-
-    CodeReady Workspaces operator installation options include:
-
-    * Connection to external database and Red Hat SSO
-
-    * Configuration of default passwords and object names
-
-    * PVC strategy (once shared PVC for all workspaces, PVC per workspace, or PVC per volume)
-
-    * Authentication options
-
-    ### External Database and Red Hat SSO
-
-    To instruct the operator to skip deploying PostgreSQL and Red Hat SSO and connect to an existing DB and Red Hat SSO instead:
-
-    * set respective fields to `true` in a custom resource spec
-
-    * provide the operator with connection and authentication details:
-
-
-
-      `externalDb: true`
-
-
-      `chePostgresHostname: 'yourPostgresHost'`
-
-
-      `chePostgresPort: '5432'`
-
-
-      `chePostgresUser: 'myuser'`
-
-
-      `chePostgresPassword: 'mypass'`
-
-
-      `chePostgresDb: 'mydb'`
-
-
-      `externalIdentityProvider: true`
-
-
-      `identityProviderURL: 'https://my-rhsso.com'`
-
-
-      `identityProviderRealm: 'myrealm'`
-
-
-      `identityProviderClientId: 'myClient'`
-
-
-    #### Self-signed Certificates
-
-    CodeReady Workspaces uses self-signed certificates by default.
-
-    You can also manually create a secret:
-
-
+    A new pod codeready-operator is created in `my-eclipse-che` namespace
 
     ```
-    oc create secret generic self-signed-certificate  --from-file=/path/to/certificate/ca.crt -n=$codeReadyNamespace
+    $ kubectl get pods --all-namespaces | grep my-eclipse-che
+    my-eclipse-che   codeready-operator-554c564476-fl98z                           1/1     Running   0          13s
+    ```
+
+    The operator is now providing new Custom Resources Definitions: `checluster.org.eclipse.che`
+
+    Create a new CodeReady Workspaces instance by creating a new CheCluster resource:
+
+    On the bottom of this page, there is a section `Custom Resource Definitions` with `CodeReady Workspaces Cluster` name.
+
+    Click on `View YAML Example` *Link* and copy the content to a new file named `my-eclipse-che.yaml`
+    **Important!** Make sure you provide **K8s.ingressDomain** which is a global ingress domain of your k8s cluster, for example, `gcp.my-ide.cloud`
+    Create the new CheCluster by creating the resource in the `my-eclipse-che` namespace :
+    ```
+    $ kubectl create -f my-eclipse-che.yaml -n my-eclipse-che
+    ```
+    ***important:*** The operator is only tracking resources in its own namespace. If CheCluster is not created in this namespace it's ignored.
+    The operator will now create pods for CodeReady Workspaces. The deployment status can be tracked by looking at the Operator logs by using the command:
+    ```
+    $ kubectl logs -n my-eclipse-che codeready-operator-554c564476-fl98z
+    ```
+    ***important:*** pod name is different on each installation
+
+    When all CodeReady Workspaces containers are running, the CodeReady Workspaces URL is printed
+
+
+    CodeReady Workspaces URL can be tracked by searching for available trace:
+    ```
+    $ kubectl logs -f -n my-eclipse-che codeready-operator-7b6b4bcb9c-m4m2m | grep "CodeReady Workspaces is now available"
+    time="2019-08-01T13:31:05Z" level=info msg="CodeReady Workspaces is now available at: http://che-my-eclipse-che.gcp.my-ide.cloud"
+    ```
+    When CodeReady Workspaces is ready, the CodeReady Workspaces URL is displayed in CheCluster resource in `status` section
+    ```
+    $ kubectl describe checluster/eclipse-che -n my-eclipse-che
+    ```
+
+    ```
+    Status:
+      Che Cluster Running:           Available
+      Che URL:                       http://che-my-eclipse-che.gcp.my-ide.cloud
+      Che Version:                   7.26.0
+      ...
+    ```
+
+    By opening this URL in a web browser, CodeReady Workspaces is ready to use.
+    ## Defaults
+    By default, the operator deploys CodeReady Workspaces with:
+    * Bundled PostgreSQL and Red Hat SSO
+    * Common PVC strategy
+    * Auto-generated passwords
+    * TLS mode (secure ingresses)
+    ## Installation Options
+    CodeReady Workspaces operator installation options include:
+    * Connection to external database and Red Hat SSO
+    * Configuration of default passwords and object names
+    * PVC strategy (once shared PVC for all workspaces, PVC per workspace, or PVC per volume)
+    * Authentication options
+    ### External Database and Red Hat SSO
+    To instruct the operator to skip deploying PostgreSQL and Red Hat SSO and connect to an existing DB and Red Hat SSO instead:
+    * set respective fields to `true` in a custom resource spec
+    * provide the operator with connection and authentication details:
+      ```
+      externalDb: true
+      chePostgresHostname: 'yourPostgresHost'
+      chePostgresPort: '5432'
+      chePostgresUser: 'myuser'
+      chePostgresPassword: 'mypass'
+      chePostgresDb: 'mydb'
+      externalIdentityProvider: true
+      identityProviderURL: 'https://my-rhsso.com'
+      identityProviderRealm: 'myrealm'
+      identityProviderClientId: 'myClient'
+      ```
+    #### Self-signed Certificates and TLS Secrets
+
+    CodeReady Workspaces uses self-signed certificates by default, as TLS mode is on by default.
+
+    To provide the name of the tls secret that will be used for CodeReady Workspaces and workspaces ingresses:
+    ```
+    tlsSecretName: 'my-ingress-tls-secret'
     ```
   displayName: Red Hat CodeReady Workspaces
   icon:
@@ -256,6 +289,12 @@ spec:
     spec:
       clusterPermissions:
         - rules:
+            - apiGroups:
+                - ""
+              resources:
+                - nodes
+              verbs:
+                - get
             - apiGroups:
                 - oauth.openshift.io
               resources:
@@ -339,6 +378,7 @@ spec:
               verbs:
                 - get
                 - create
+                - update
                 - delete
             - apiGroups:
                 - authorization.openshift.io
@@ -356,6 +396,7 @@ spec:
               verbs:
                 - get
                 - create
+                - update
                 - delete
             - apiGroups:
                 - rbac.authorization.k8s.io
@@ -372,6 +413,7 @@ spec:
                 - checlusters
                 - checlusters/status
                 - checlusters/finalizers
+                - checlusters/status
               verbs:
                 - '*'
             - apiGroups:
@@ -980,8 +1022,10 @@ spec:
                   app.kubernetes.io/name: che
               spec:
                 containers:
-                  - command:
-                      - /usr/local/bin/che-operator
+                  - args:
+                      - --leader-elect
+                    command:
+                      - /manager
                     env:
                       - name: CHE_FLAVOR
                         value: codeready
@@ -1087,6 +1131,8 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-traefik-rhel8:2.11
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-configbump-rhel8:2.11
+                      - name: RELATED_IMAGE_single_host_gateway_native_user_mode
+                        value: quay.io/eclipse/che--traefik:v2.5.0-rc2-df90799aaca1ad6fb9e06d311140035d2a0c2295a4f8f508f6b55ee056bb677e
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
@@ -1107,22 +1153,15 @@ spec:
                       - containerPort: 60000
                         name: metrics
                     readinessProbe:
-                      exec:
-                        command:
-                          - stat
-                          - /tmp/operator-sdk-ready
                       failureThreshold: 10
+                      httpGet:
+                        path: /readyz
+                        port: 6789
                       initialDelaySeconds: 5
                       periodSeconds: 10
                       successThreshold: 1
                       timeoutSeconds: 5
-                    resources:
-                      limits:
-                        cpu: 500m
-                        memory: 256Mi
-                      requests:
-                        cpu: 100m
-                        memory: 64Mi
+                    resources: {}
                     securityContext:
                       allowPrivilegeEscalation: false
                       capabilities:
@@ -1321,6 +1360,37 @@ spec:
                 - events
               verbs:
                 - create
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - coordination.k8s.io
+              resources:
+                - leases
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - ""
+              resources:
+                - events
+              verbs:
+                - create
+                - patch
           serviceAccountName: codeready-operator
     strategy: deployment
   installModes:
@@ -1333,6 +1403,7 @@ spec:
     - supported: false
       type: AllNamespaces
   keywords:
+    - eclipse che
     - workspaces
     - devtools
     - developer
