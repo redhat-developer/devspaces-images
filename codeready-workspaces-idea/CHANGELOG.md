@@ -19,6 +19,12 @@ This document reflects the project's changes made after each release cycle
 
 - TBD
 
+## [20210728]
+
+### Changed
+
+- Change asset's names according to brew conventions ([#46](https://github.com/che-incubator/jetbrains-editor-images/pull/46))
+
 ## [20210727]
 
 ### Changed
