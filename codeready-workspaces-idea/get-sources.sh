@@ -36,6 +36,14 @@ function logn()
 }
 
 if [[ ${pullAssets} -eq 1 ]]; then
+  JDK_VER="11"
+  sudo yum -y install java-${JDK_VER}-openjdk java-${JDK_VER}-openjdk-devel
+  export PATH="/usr/lib/jvm/java-${JDK_VER}-openjdk:/usr/bin:${PATH}"
+  export JAVA_HOME="/usr/lib/jvm/java-${JDK_VER}-openjdk"
+
+  log "[INFO] java version:"
+  java --version
+
   ./projector.sh build --prepare --url $idePackagingUrl
 
   if [[ ! -f "asset-ide-packaging.tar.gz" ]]; then
