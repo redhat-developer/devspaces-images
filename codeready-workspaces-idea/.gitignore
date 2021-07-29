@@ -5,3 +5,6 @@ build
 asset-ide-packaging.tgz
 asset-projector-server-assembly.tgz
 asset-static-assembly.tgz
+/asset-ide-packaging.tar.gz
+/asset-projector-server-assembly.zip
+/asset-static-assembly.tar.gz
