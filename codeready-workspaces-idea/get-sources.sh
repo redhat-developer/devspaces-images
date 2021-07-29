@@ -42,7 +42,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
   export JAVA_HOME="/usr/lib/jvm/java-${JDK_VER}-openjdk"
 
   log "[INFO] java version:"
-  java --version
+  java -version
 
   ./projector.sh build --prepare --url $idePackagingUrl
 
