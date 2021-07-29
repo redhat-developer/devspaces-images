@@ -19,16 +19,15 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPSTM_NAME="operator"
-MIDSTM_NAME="operator"
+MIDSTM_NAME="operator-metadata"
 
 # TODO compute from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
-DEV_WORKSPACE_CONTROLLER_VERSION="main" # or 0.y.x
-DEV_WORKSPACE_CHE_OPERATOR_VERSION="main" # or 7.yy.x 
+CSV_VERSION_PREV=2.x.0
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [--dwob branch] [--dwcob branch]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} --dwob 0.y.x --dwcob 7.yy.x"
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] -p [CRW CSV_VERSION_PREV]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} -p 2.y-1.0"
     exit
 }
 
@@ -41,8 +40,7 @@ while [[ "$#" -gt 0 ]]; do
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     # TODO compute https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
-    '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
-    '--dwcob'|'--dwcov') DEV_WORKSPACE_CHE_OPERATOR_VERSION="$2"; shift 1;;
+    '-p') CSV_VERSION_PREV="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -87,28 +85,31 @@ sed_in_place() {
   fi
 }
 
-# shellcheck disable=SC2086
-sed_in_place -r \
-  `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  -e "s/# *RUN yum /RUN yum /g" \
-  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources.sh` \
-  -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-  -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
-  -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-*.zip /tmp#g" \
-  -e "s#^ +curl .+/tmp/asset.+.zip.+##g" \
-  "${TARGETDIR}"/Dockerfile
-
 cat << EOT >> "${TARGETDIR}"/Dockerfile
+# Copyright (c) 2020 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+# metadata images built in brew must be from scratch
+# https://docs.engineering.redhat.com/display/CFC/Migration
+FROM scratch
+
+COPY manifests /manifests/
+COPY metadata /metadata/
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
     COMPNAME="${MIDSTM_NAME}"
 
+TODO: verify metadata is correct here
 LABEL com.redhat.delivery.appregistry="false" \\
       summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
@@ -123,14 +124,6 @@ LABEL com.redhat.delivery.appregistry="false" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-echo "Converted Dockerfile"
+echo "Generated Dockerfile"
 
-# TODO compute from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
-# shellcheck disable=SC2086
-sed_in_place -r \
-  -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-  -e 's#^DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  "${TARGETDIR}"/get-sources.sh
-echo "Updated get-sources.sh"
-
-"${TARGETDIR}"/build/scripts/sync-che-operator-to-crw-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+"${TARGETDIR}"/build/scripts/sync-che-olm-to-crw-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
