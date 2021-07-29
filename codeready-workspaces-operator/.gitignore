@@ -112,7 +112,6 @@ tags
 !.vscode/extensions.json
 .history
 
-build/
 olm/generated
 bundle/nightly/eclipse-che-preview-kubernetes/generated
 bundle/nightly/eclipse-che-preview-openshift/generated
