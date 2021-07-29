@@ -71,14 +71,14 @@ metadata:
     categories: Developer Tools, OpenShift Optional
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.10
-    createdAt: "2021-06-28T12:14:13+00:00"
+    createdAt: "2021-07-29T01:56:36+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperator.v2.10.0
+  name: crwoperator.v2.10.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -985,7 +985,7 @@ spec:
                       - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                         value: ca-certs
                       - name: CHE_VERSION
-                        value: 2.10.0
+                        value: 2.10.1
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: CodeReady Workspaces
                       - name: CONSOLE_LINK_IMAGE
@@ -1265,5 +1265,5 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.10.0
-  replaces: crwoperator.v2.9.0
+  version: 2.10.1
+  replaces: crwoperator.v2.10.0
