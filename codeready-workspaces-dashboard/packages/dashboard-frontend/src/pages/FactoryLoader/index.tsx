@@ -52,7 +52,7 @@ type Props = {
   currentStep: LoadFactorySteps,
   workspaceName: string;
   workspaceId: string;
-  devfileLocationInfo?: string;
+  resolvedDevfileMessage?: string;
   callbacks?: {
     showAlert?: (options: AlertOptions) => void
   }
@@ -142,7 +142,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
   }
 
   private getSteps(): WizardStep[] {
-    const { currentStep, devfileLocationInfo, hasError } = this.props;
+    const { currentStep, resolvedDevfileMessage, hasError } = this.props;
 
     const getTitle = (step: LoadFactorySteps, title: string, iconClass?: string) => {
       let className = '';
@@ -178,9 +178,9 @@ class FactoryLoader extends React.PureComponent<Props, State> {
               LoadFactorySteps.LOOKING_FOR_DEVFILE,
               currentStep <= LoadFactorySteps.LOOKING_FOR_DEVFILE ?
                 'Looking for devfile' :
-                devfileLocationInfo ?
-                  `Devfile is found as ${devfileLocationInfo}` :
-                  `Devfile is not found ${!hasError ? 'in repository root. Default environment will be applied' : ''}`,
+                resolvedDevfileMessage ?
+                  `${resolvedDevfileMessage}` :
+                  'Devfile could not be found',
             ),
             canJumpTo: currentStep >= LoadFactorySteps.LOOKING_FOR_DEVFILE,
           },

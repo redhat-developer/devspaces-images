@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { createState } from '../helpers';
+import { createObject } from '../helpers';
 
 describe('Store helpers', () => {
 
@@ -20,7 +20,7 @@ describe('Store helpers', () => {
       const source = { a: [1], b: [2, 3] };
       const newSource = { b: [3], c: [4] };
 
-      const target = createState(source, newSource);
+      const target = createObject(source, newSource);
 
       expect(source).toEqual({ a: [1], b: [2, 3] });
       expect(newSource).toEqual({ b: [3], c: [4] });

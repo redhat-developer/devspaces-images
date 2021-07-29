@@ -13,7 +13,7 @@
 // This state defines the type of data maintained in the Redux store.
 
 import { Action, Reducer } from 'redux';
-import { createState } from '../helpers';
+import { createObject } from '../helpers';
 import { AppThunk } from '../index';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
@@ -83,17 +83,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_USER_PROFILE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_USER_PROFILE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         profile: action.profile,
       });
     case 'RECEIVE_USER_PROFILE_ERROR':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         error: action.error,
       });

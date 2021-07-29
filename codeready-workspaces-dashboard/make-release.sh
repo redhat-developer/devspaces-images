@@ -25,6 +25,16 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
+sed_in_place() {
+    SHORT_UNAME=$(uname -s)
+  if [ "$(uname)" == "Darwin" ]; then
+    sed -i '' "$@"
+  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
+    sed -i "$@"
+  fi
+}
+
+
 bump_version () {
   CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
@@ -41,7 +51,9 @@ bump_version () {
     git commit -asm "${COMMIT_MSG}"
     git pull origin "${BUMP_BRANCH}"
 
+    set +e
     PUSH_TRY="$(git push origin "${BUMP_BRANCH}")"
+    set -e
     # shellcheck disable=SC2181
     if [[ $? -gt 0 ]] || [[ $PUSH_TRY == *"protected branch hook declined"* ]]; then
       PR_BRANCH=pr-${BUMP_BRANCH}-to-${NEXT_VERSION}
@@ -64,11 +76,9 @@ function update_pkgs_versions() {
   # update each package version
   lerna version --no-git-tag-version -y "${VER}"
   # update excluded dependencies vesion
-  sed -i '' -r \
-    -e "s/@eclipse-che\/dashboard-backend@.*\`/@eclipse-che\/dashboard-backend@$VER\`/" \
-    -e "s/@eclipse-che\/dashboard-frontend@.*\`/@eclipse-che\/dashboard-frontend@$VER\`/" \
-    -e "s/@eclipse-che\/dashboard-static-server@.*\`/@eclipse-che\/dashboard-static-server@$VER\`/" \
-    .deps/EXCLUDED/prod.md
+  sed_in_place -e "s/@eclipse-che\/dashboard-backend@.*\`/@eclipse-che\/dashboard-backend@${VER}\`/" .deps/EXCLUDED/prod.md
+  sed_in_place -e "s/@eclipse-che\/dashboard-frontend@.*\`/@eclipse-che\/dashboard-frontend@${VER}\`/" .deps/EXCLUDED/prod.md
+  sed_in_place -e "s/@eclipse-che\/dashboard-static-server@.*\`/@eclipse-che\/dashboard-static-server@${VER}\`/" .deps/EXCLUDED/prod.md
   # we don't have all deps resolved. So, do no fail in case of failure
   # yarn license:generate || true
 }

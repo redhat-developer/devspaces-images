@@ -88,7 +88,7 @@ jest.mock('../../pages/FactoryLoader', () => {
     currentStep: LoadFactorySteps,
     workspaceName: string;
     workspaceId: string;
-    devfileLocationInfo?: string;
+    resolvedDevfileMessage?: string;
     callbacks?: {
       showAlert?: (alertOptions: AlertOptions) => void
     }
@@ -101,7 +101,7 @@ jest.mock('../../pages/FactoryLoader', () => {
       <div data-testid="factory-loader-current-step">{props.currentStep}</div>
       <div data-testid="factory-loader-workspace-name">{props.workspaceName}</div>
       <div data-testid="factory-loader-workspace-id">{props.workspaceId}</div>
-      <div data-testid="factory-loader-devfile-location-info">{props.devfileLocationInfo}</div>
+      <div data-testid="factory-loader-devfile-location-info">{props.resolvedDevfileMessage}</div>
     </div>);
   };
 });

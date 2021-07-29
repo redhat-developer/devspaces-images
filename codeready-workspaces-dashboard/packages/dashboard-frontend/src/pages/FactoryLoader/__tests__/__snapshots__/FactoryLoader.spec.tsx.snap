@@ -415,7 +415,7 @@ Array [
                           <span
                             className=""
                           >
-                            Devfile is not found in repository root. Default environment will be applied
+                            Devfile could not be found
                           </span>
                         </button>
                       </li>
@@ -983,7 +983,7 @@ Array [
                           <span
                             className=""
                           >
-                            Devfile is not found 
+                            Devfile could not be found
                           </span>
                         </button>
                       </li>
@@ -4084,7 +4084,7 @@ Array [
                           <span
                             className=""
                           >
-                            Devfile is not found in repository root. Default environment will be applied
+                            Devfile could not be found
                           </span>
                         </button>
                       </li>
@@ -4640,7 +4640,7 @@ Array [
                           <span
                             className=""
                           >
-                            Devfile is not found in repository root. Default environment will be applied
+                            Devfile could not be found
                           </span>
                         </button>
                       </li>
@@ -5179,7 +5179,7 @@ Array [
                           <span
                             className=""
                           >
-                            Devfile is not found 
+                            Devfile could not be found
                           </span>
                         </button>
                       </li>

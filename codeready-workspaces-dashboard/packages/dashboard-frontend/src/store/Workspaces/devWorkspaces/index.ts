@@ -15,7 +15,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
-import { createState } from '../../helpers';
+import { createObject } from '../../helpers';
 import { DevWorkspaceClient, DEVWORKSPACE_NEXT_START_ANNOTATION, IStatusUpdate } from '../../../services/workspace-client/devWorkspaceClient';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
 import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
@@ -388,27 +388,27 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
   switch (action.type) {
     case 'REQUEST_DEVWORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_DEVWORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         workspaces: action.workspaces,
       });
     case 'RECEIVE_DEVWORKSPACE_ERROR':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         error: action.error,
       });
     case 'UPDATE_DEVWORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => workspace.status.devworkspaceId === action.workspace.status.devworkspaceId ? action.workspace : workspace),
       });
     case 'UPDATE_DEVWORKSPACE_STATUS':
-      return createState(state, {
+      return createObject(state, {
         workspaces: state.workspaces.map(workspace => {
           if (workspace.status.devworkspaceId === action.workspaceId) {
             workspace.status.phase = action.status;
@@ -417,13 +417,13 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
         }),
       });
     case 'ADD_DEVWORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         workspaces: state.workspaces
           .filter(workspace => workspace.status.devworkspaceId !== action.workspace.status.devworkspaceId)
           .concat([action.workspace]),
       });
     case 'TERMINATE_DEVWORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => {
           if (workspace.status.devworkspaceId === action.workspaceId) {
@@ -435,15 +435,15 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
         }),
       });
     case 'DELETE_DEVWORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         workspaces: state.workspaces.filter(workspace => workspace.status.devworkspaceId !== action.workspaceId),
       });
     case 'UPDATE_DEVWORKSPACE_LOGS':
-      return createState(state, {
+      return createObject(state, {
         workspacesLogs: mergeLogs(state.workspacesLogs, action.workspacesLogs),
       });
     case 'DELETE_DEVWORKSPACE_LOGS':
-      return createState(state, {
+      return createObject(state, {
         workspacesLogs: deleteLogs(state.workspacesLogs, action.workspaceId),
       });
     default:

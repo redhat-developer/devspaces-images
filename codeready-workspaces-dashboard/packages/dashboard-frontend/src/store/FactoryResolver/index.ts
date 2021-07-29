@@ -17,7 +17,7 @@ import { FactoryResolver } from '../../services/helpers/types';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
 import { AppThunk } from '../index';
-import { createState } from '../helpers';
+import { createObject } from '../helpers';
 import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 import { getDevfile } from './getDevfile';
 
@@ -165,17 +165,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_FACTORY_RESOLVER':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_FACTORY_RESOLVER':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         resolver: action.resolver,
       });
     case 'RECEIVE_FACTORY_RESOLVER_ERROR':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         error: action.error,
       });

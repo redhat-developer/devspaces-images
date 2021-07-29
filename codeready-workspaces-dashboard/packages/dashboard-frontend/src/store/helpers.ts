@@ -11,10 +11,18 @@
  */
 
 /**
- * Creates a new state object.
- * @param state a store state, e.g workspaces, plugins.
- * @param partial a slice of a store state
+ * Creates a new object where it takes the first (target) object
+ * and fills it with fields from the second object(source).
+ * Note: it does not merge nested objects, maps or arrays but
+ * just overrides them. You will need to use it on nested level
+ * where merging is needed. Like:
+ *    target = {"map": {"target": "value", ...}}
+ *    source = {"map": {"source": "value", ...}}
+ *    newObject.map = createObject(target.map, source.map);
+ * 
+ * @param target an object that is usually a store state, e.g workspaces, plugins.
+ * @param source a slice of a target object
  */
-export function createState<T>(state: T, partial: Partial<T>): T {
-  return Object.assign({}, state, partial);
+export function createObject<T>(target: T, source: Partial<T>): T {
+  return Object.assign({}, target, source);
 }

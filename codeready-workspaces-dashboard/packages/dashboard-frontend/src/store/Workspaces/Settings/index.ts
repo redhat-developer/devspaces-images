@@ -15,7 +15,7 @@ import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
 import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
-import { createState } from '../../helpers';
+import { createObject } from '../../helpers';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -80,17 +80,17 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
   switch (action.type) {
     case 'REQUEST_WORKSPACE_SETTINGS':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_WORKSPACE_SETTINGS':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         settings: action.settings,
       });
     case 'RECEIVE_WORKSPACE_SETTINGS_ERROR':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         error: action.error,
       });

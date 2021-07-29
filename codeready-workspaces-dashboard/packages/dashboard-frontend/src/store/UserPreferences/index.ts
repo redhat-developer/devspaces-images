@@ -12,7 +12,7 @@
 
 // This state defines the type of data maintained in the Redux store.
 
-import { createState } from '../helpers';
+import { createObject } from '../helpers';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
 import { container } from '../../inversify.config';
@@ -98,11 +98,11 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_USER_PREFERENCES':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
       });
     case 'RECEIVE_USER_PREFERENCES':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         preferences: action.preferences
       });

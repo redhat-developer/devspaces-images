@@ -17,7 +17,7 @@ import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
 import { WorkspaceStatus } from '../../../services/helpers/types';
-import { createState } from '../../helpers';
+import { createObject } from '../../helpers';
 import { KeycloakAuthService } from '../../../services/keycloak/auth';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
@@ -395,27 +395,27 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
   switch (action.type) {
     case 'CHE_REQUEST_WORKSPACES':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
         error: undefined,
       });
     case 'CHE_RECEIVE_WORKSPACES':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         workspaces: action.workspaces,
       });
     case 'CHE_RECEIVE_ERROR':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         error: action.error,
       });
     case 'CHE_UPDATE_WORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => workspace.id === action.workspace.id ? action.workspace : workspace),
       });
     case 'CHE_UPDATE_WORKSPACE_STATUS':
-      return createState(state, {
+      return createObject(state, {
         workspaces: state.workspaces.map(workspace => {
           if (workspace.id === action.workspaceId) {
             workspace.status = action.status;
@@ -424,20 +424,20 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
         }),
       });
     case 'CHE_ADD_WORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         workspaces: state.workspaces.concat([action.workspace]),
       });
     case 'CHE_DELETE_WORKSPACE':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.filter(workspace => workspace.id !== action.workspaceId),
       });
     case 'CHE_UPDATE_WORKSPACES_LOGS':
-      return createState(state, {
+      return createObject(state, {
         workspacesLogs: mergeLogs(state.workspacesLogs, action.workspacesLogs),
       });
     case 'CHE_DELETE_WORKSPACE_LOGS':
-      return createState(state, {
+      return createObject(state, {
         workspacesLogs: deleteLogs(state.workspacesLogs, action.workspaceId),
       });
     default:

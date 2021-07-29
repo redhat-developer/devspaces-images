@@ -14,7 +14,7 @@ import axios from 'axios';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '../..';
 import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
-import { createState } from '../../helpers';
+import { createObject } from '../../helpers';
 
 // create new instance of `axios` to avoid adding an authorization header
 const axiosInstance = axios.create();
@@ -89,17 +89,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_PLUGINS':
-      return createState(state, {
+      return createObject(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_PLUGINS':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         plugins: action.plugins,
       });
     case 'RECEIVE_PLUGINS_ERROR':
-      return createState(state, {
+      return createObject(state, {
         isLoading: false,
         error: action.error,
       });

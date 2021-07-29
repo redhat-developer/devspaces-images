@@ -53,8 +53,8 @@ describe('The Factory Loader page  component', () => {
   it('should render LOOKING_FOR_DEVFILE step with devfile location correctly', () => {
     const currentStep = LoadFactorySteps.LOOKING_FOR_DEVFILE;
     const hasError = false;
-    const devfileLocationInfo = '`devfile.yaml`  in github repo https://github.com/test/test.git';
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError, devfileLocationInfo);
+    const resolvedDevfileMessage = '`devfile.yaml` in git repo https://github.com/test/test.git';
+    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError, resolvedDevfileMessage);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -122,7 +122,7 @@ function renderComponent(
   workspaceName: string,
   workspaceId: string,
   hasError: boolean,
-  devfileLocationInfo?: string,
+  resolvedDevfileMessage?: string,
 ): ReactTestRenderer {
   return renderer.create(
     <Provider store={store}>
@@ -131,7 +131,7 @@ function renderComponent(
         workspaceName={workspaceName}
         workspaceId={workspaceId}
         hasError={hasError}
-        devfileLocationInfo={devfileLocationInfo}
+        resolvedDevfileMessage={resolvedDevfileMessage}
       />
     </Provider>,
   );
