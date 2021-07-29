@@ -57,7 +57,7 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             // TODO remove this after 2.10 is dead
             if (JOB_BRANCH.equals("2.10")) {
-                stringParam("CSV_VERSION", "2.10.0", "Full version (x.y.z), used in CSV and crwctl version")
+                stringParam("CSV_VERSION", "2.10.1", "Full version (x.y.z), used in CSV and crwctl version")
                 stringParam("CSV_QUAY_TAG", "latest", "Floating tag to use in operator.yaml and csv.yaml")
             }
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
