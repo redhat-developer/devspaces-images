@@ -18,7 +18,7 @@ ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.34.x"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 USER root
 
-COPY asset-* /tmp
+COPY asset-*.zip /tmp
 RUN mkdir -p $GOPATH/restic && tar /tmp/asset-restic.tgz --strip-components=1 -xz -C $GOPATH/restic
 
 WORKDIR /che-operator

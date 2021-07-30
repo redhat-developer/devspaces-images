@@ -92,48 +92,31 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	# exit
 
 	DOCKERFILELOCAL=bootstrap.Dockerfile
-	cat Dockerfile | sed -r \
-		-e "s#FROM scratch#FROM ubi8-minimal#" \
-		-e "s#^FROM #FROM registry.redhat.io/#" \
-		-e "s#^FROM registry.redhat.io/registry.redhat.io/#FROM registry.redhat.io/#" \
-		-e "s#^FROM registry.redhat.io/registry.access.redhat.com/#FROM registry.redhat.io/#" \
-		-e "s#^FROM registry.redhat.io/registry-proxy.engineering.redhat.com/#FROM registry-proxy.engineering.redhat.com/#" \
-		-e "s%# (COPY .+.repo /etc/yum.repos.d/)%\1%" \
-		-e "s%# COPY content_sets%COPY content_sets%" \
-		`# update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION, DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN` \
-		-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-		-e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-		-e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
-		`# CRW-1956 get vendor sources for restic; then stop builder stage steps as we have all we need` \
-		-e 's@(go mod vendor)@\1 \&\& exit@' \
-		`# remove all lines starting with WORKDIR` \
-		-e '/WORKDIR.+/,$d' \
-		> ${DOCKERFILELOCAL}; # cat ${DOCKERFILELOCAL} | grep "vendor"; exit
 	tag=$(pwd);tag=${tag##*/}
-	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t ${tag}:bootstrap --no-cache
+	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t "${tag}:bootstrap" --no-cache
 	# rm -f ${DOCKERFILELOCAL}
 
 	# step two - extract restic sources AND nested vendor folder to tarball
-	${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /go/restic' > "asset-restic.tgz"
-	${BUILDER} rmi ${tag}:bootstrap
+	${BUILDER} run --rm --entrypoint sh "${tag}:bootstrap" -c 'tar -pzcf - /go/restic' > "asset-restic.tgz"
+	${BUILDER} rmi "${tag}:bootstrap"
 
-	# get other zips & repack them
+	# step three - get other zips & repack them
 	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
 	curl -sSLo asset-devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
-	curl -sSLo asset-header-rewrite-traefik-plugin.zip 	https://api.github.com/repos/che-incubator/header-rewrite-traefik-plugin/zipball/${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}
-	# unzip zips and remove all but what we need
+	# repack asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip - only need /deploy/deployment/ folders
 	thisdir=$(pwd)
-	for d in asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip asset-header-rewrite-traefik-plugin.zip; do
-		# we only need the /deploy/deployment/ folders
-		unzip -q ${thisdir}/${d} */deploy/deployment/* -d /tmp/get-sources/
+	for d in asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip; do
+		unzip -q "${thisdir}/${d}" */deploy/deployment/* -d /tmp/get-sources/
 		# mv ${d} ${d/.zip/.big.zip}
 		rm -f ${d}
 		pushd /tmp/get-sources/ >/dev/null
-		zip -q -r9 ${thisdir}/${d} ./*
+		zip -q -r9 "${thisdir}/${d}" ./*
 		popd >/dev/null
 		rm -fr /tmp/get-sources/
 	done
 
+	# step four - get traefik zip, but do not repack -- need everything
+	curl -sSLo asset-header-rewrite-traefik-plugin.zip 	https://api.github.com/repos/che-incubator/header-rewrite-traefik-plugin/zipball/${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}
 fi
 
 # update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION, DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
@@ -163,9 +146,9 @@ if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b 
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "$tmpfile"
+		taskID=$(cat "$tmpfile" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "$tmpfile"
+		ERRORS="$(grep "image build failed" "$tmpfile")" && rm -f "$tmpfile"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
@@ -178,9 +161,9 @@ else
 	if [[ ${forceBuild} -eq 1 ]]; then
 		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
-		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
-		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
+		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 "$tmpfile"
+		taskID=$(cat "$tmpfile" | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 "$tmpfile"
+		ERRORS="$(grep "image build failed" "$tmpfile")" && rm -f "$tmpfile"
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
 
 $ERRORS
