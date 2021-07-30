@@ -1,0 +1,9 @@
+bases:
+  - ../../manifests
+patchesJson6902:
+- path: codeready-operator.clusterserviceversion-patch.yaml
+  target:
+    group: operators.coreos.com
+    version: v1alpha1
+    kind: ClusterServiceVersion
+    name: codeready-workspaces-preview-.v0.0.0

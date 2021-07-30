@@ -13,19 +13,13 @@
 FROM rhel8/go-toolset:1.15.13-4 as builder
 ENV GOPATH=/go/
 ENV RESTIC_TAG=v0.12.0
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.7.x"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.34.x"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 USER root
 
-# upstream, download zips for every build
-# downstream, copy prefetched asset-*.zip into /tmp, and collect vendored sources for restic too
-RUN mkdir -p $GOPATH/restic && \
-    curl -sSLo- https://api.github.com/repos/restic/restic/tarball/${RESTIC_TAG} | tar --strip-components=1 -xz -C $GOPATH/restic && \
-    cd $GOPATH/restic && go mod vendor && \
-
-
-
+COPY asset-* /tmp
+RUN mkdir -p $GOPATH/restic && tar /tmp/asset-restic.tgz --strip-components=1 -xz -C $GOPATH/restic
 
 WORKDIR /che-operator
 # Copy the Go Modules manifests
@@ -39,9 +33,13 @@ COPY controllers/ controllers/
 COPY templates/ templates/
 COPY pkg/ pkg/
 COPY vendor/ vendor/
+COPY mocks/ mocks/
+COPY config/ config/
 
 # build operator
 RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
+    export MOCK_API=true && \
+    go test -mod=vendor -v ./... && \
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
 
 RUN unzip /tmp/asset-devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
@@ -85,7 +83,7 @@ ENTRYPOINT ["/manager"]
 ENV SUMMARY="Red Hat CodeReady Workspaces operator container" \
     DESCRIPTION="Red Hat CodeReady Workspaces operator container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="operator" 
+    COMPNAME="operator"
 LABEL com.redhat.delivery.appregistry="false" \
       summary="$SUMMARY" \
       description="$DESCRIPTION" \
@@ -98,4 +96,4 @@ LABEL com.redhat.delivery.appregistry="false" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
-      usage="" 
+      usage=""

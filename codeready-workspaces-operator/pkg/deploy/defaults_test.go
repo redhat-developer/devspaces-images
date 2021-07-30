@@ -89,9 +89,9 @@ func TestDefaultFromEnv(t *testing.T) {
 
 func TestCorrectImageName(t *testing.T) {
 	testCases := map[string]string{
-		"docker.io/eclipse/che-operator:latest": "che-operator:latest",
-		"eclipse/che-operator:7.1.0":            "che-operator:7.1.0",
-		"che-operator:7.2.0":                    "che-operator:7.2.0",
+		"registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:latest":  "crw-2-rhel8-operator:latest",
+		"registry.redhat.io/codeready-workspaces/server-operator-rhel8:2.0": "server-operator-rhel8:2.0",
+		"registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.11":  "crw-2-rhel8-operator:2.11",
 	}
 	for k, v := range testCases {
 		t.Run(k, func(*testing.T) {
