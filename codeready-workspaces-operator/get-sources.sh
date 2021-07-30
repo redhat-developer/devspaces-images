@@ -43,16 +43,6 @@ function logn()
 }
 
 if [[ ${pullAssets} -eq 1 ]]; then 
-	# step one - build the builder image
-	BUILDER=$(command -v podman || true)
-	if [[ ! -x $BUILDER ]]; then
-		# echo "[WARNING] podman is not installed, trying with docker"
-		BUILDER=$(command -v docker || true)
-		if [[ ! -x $BUILDER ]]; then
-				echo "[ERROR] must install docker or podman. Abort!"; exit 1
-		fi
-	fi
-	
 	# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION, DEV_WORKSPACE_CHE_OPERATOR_VERSION  and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
 	# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
 	# shellcheck disable=SC2086
@@ -91,16 +81,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	# echo "[INFO]   DEV_HEADER_REWRITE_TRAEFIK_PLUGIN  = ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 	# exit
 
-	DOCKERFILELOCAL=bootstrap.Dockerfile
-	tag=$(pwd);tag=${tag##*/}
-	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t "${tag}:bootstrap" --no-cache
-	# rm -f ${DOCKERFILELOCAL}
-
-	# step two - extract restic sources AND nested vendor folder to tarball
-	${BUILDER} run --rm --entrypoint sh "${tag}:bootstrap" -c 'tar -pzcf - /go/restic' > "asset-restic.tgz"
-	${BUILDER} rmi "${tag}:bootstrap"
-
-	# step three - get other zips & repack them
+	# step 1 - get zips & repack them
 	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
 	curl -sSLo asset-devworkspace-che-operator.zip 	https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION}
 	# repack asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip - only need /deploy/deployment/ folders
@@ -115,8 +96,23 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		rm -fr /tmp/get-sources/
 	done
 
-	# step four - get traefik zip, but do not repack -- need everything
+	# step 2 - get traefik zip, but do not repack -- need everything
 	curl -sSLo asset-header-rewrite-traefik-plugin.zip 	https://api.github.com/repos/che-incubator/header-rewrite-traefik-plugin/zipball/${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}
+
+	# step 3 - build the builder image to get restic sources
+	BUILDER=$(command -v podman || true)
+	if [[ ! -x $BUILDER ]]; then
+		# echo "[WARNING] podman is not installed, trying with docker"
+		BUILDER=$(command -v docker || true)
+		if [[ ! -x $BUILDER ]]; then
+				echo "[ERROR] must install docker or podman. Abort!"; exit 1
+		fi
+	fi
+	DOCKERFILELOCAL=bootstrap.Dockerfile
+	tag=$(pwd);tag=${tag##*/}
+	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t "${tag}:bootstrap" --no-cache
+	${BUILDER} run --rm --entrypoint sh "${tag}:bootstrap" -c 'tar -pzcf - /go/restic' > "asset-restic.tgz"
+	${BUILDER} rmi "${tag}:bootstrap"
 fi
 
 # update Dockerfile to record version we expect for DEV_WORKSPACE_CHE_OPERATOR_VERSION, DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
