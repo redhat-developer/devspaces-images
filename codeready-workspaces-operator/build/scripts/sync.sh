@@ -21,9 +21,8 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator"
 
-# TODO compute from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
-DEV_WORKSPACE_CONTROLLER_VERSION="main" # or 0.y.x
-DEV_WORKSPACE_CHE_OPERATOR_VERSION="main" # or 7.yy.x 
+DEV_WORKSPACE_CONTROLLER_VERSION="" # main or 0.y.x
+DEV_WORKSPACE_CHE_OPERATOR_VERSION="" # main or 7.yy.x 
 
 usage () {
     echo "
@@ -40,7 +39,6 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    # TODO compute https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
     '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
     '--dwcob'|'--dwcov') DEV_WORKSPACE_CHE_OPERATOR_VERSION="$2"; shift 1;;
     '--help'|'-h') usage;;
@@ -51,6 +49,32 @@ done
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+
+# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION and DEV_WORKSPACE_CHE_OPERATOR_VERSION
+# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
+# shellcheck disable=SC2086
+if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]]; then
+    MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
+    if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
+    versionjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json")"
+    if [[ $versionjson == *"404"* ]] || [[ $versionjson == *"Not Found"* ]]; then 
+        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json"
+        echo "[ERROR] Please use --dwob and --dwcob flags to set DEV_WORKSPACE_CONTROLLER_VERSION and DEV_WORKSPACE_CHE_OPERATOR_VERSION parameters"
+        exit 1
+    fi
+    if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
+        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace-controller"]."'${CRW_VERSION}'"')"
+        if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
+    fi
+    if [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]]; then
+        DEV_WORKSPACE_CHE_OPERATOR_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace"]."'${CRW_VERSION}'"')"
+        if [[ ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} == "null" ]]; then DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"; fi
+    fi
+fi
+# echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
+# echo "[INFO]   DEV_WORKSPACE_CONTROLLER_VERSION   = ${DEV_WORKSPACE_CONTROLLER_VERSION}"
+# echo "[INFO]   DEV_WORKSPACE_CHE_OPERATOR_VERSION = ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}"
+# exit 
 
 # ignore changes in these files
 echo ".github/
@@ -125,7 +149,6 @@ LABEL com.redhat.delivery.appregistry="false" \\
 EOT
 echo "Converted Dockerfile"
 
-# TODO compute from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
 # shellcheck disable=SC2086
 sed_in_place -r \
   -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
