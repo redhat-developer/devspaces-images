@@ -22,12 +22,14 @@ UPSTM_NAME="operator"
 MIDSTM_NAME="operator"
 
 DEV_WORKSPACE_CONTROLLER_VERSION="" # main or 0.y.x
+# TODO remove DWCO when it's no longer needed (merged into che-operator)
 DEV_WORKSPACE_CHE_OPERATOR_VERSION="" # main or 7.yy.x 
+DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [--dwob branch] [--dwcob branch]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} --dwob 0.y.x --dwcob 7.yy.x"
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [--dwob branch] [--dwcob branch] [--hrtpb branch]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} --dwob 0.y.x --dwcob 7.yy.x --hrtpb main"
     exit
 }
 
@@ -41,6 +43,7 @@ while [[ "$#" -gt 0 ]]; do
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
     '--dwcob'|'--dwcov') DEV_WORKSPACE_CHE_OPERATOR_VERSION="$2"; shift 1;;
+    '--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -50,17 +53,24 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
-# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION and DEV_WORKSPACE_CHE_OPERATOR_VERSION
+# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION, DEV_WORKSPACE_CHE_OPERATOR_VERSION  and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
 # from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
 # shellcheck disable=SC2086
-if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]]; then
+if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]] || [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
     MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
     if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
     versionjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json")"
     if [[ $versionjson == *"404"* ]] || [[ $versionjson == *"Not Found"* ]]; then 
         echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json"
-        echo "[ERROR] Please use --dwob and --dwcob flags to set DEV_WORKSPACE_CONTROLLER_VERSION and DEV_WORKSPACE_CHE_OPERATOR_VERSION parameters"
+        echo "[ERROR] Please use --dwob flag to set DEV_WORKSPACE_CONTROLLER_VERSION"
+        echo "[ERROR] Please use --dwcob flag to set DEV_WORKSPACE_CHE_OPERATOR_VERSION"
+        echo "[ERROR] Please use --hrtpb flag to set DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"
         exit 1
+    fi
+    if [[ $MIDSTM_BRANCH == "crw-2-rhel-8" ]]; then
+        CRW_VERSION="$(echo "$versionjson" | jq -r '.Version')"
+    else 
+        CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
     fi
     if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
         DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace-controller"]."'${CRW_VERSION}'"')"
@@ -70,17 +80,24 @@ if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_
         DEV_WORKSPACE_CHE_OPERATOR_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace"]."'${CRW_VERSION}'"')"
         if [[ ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} == "null" ]]; then DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"; fi
     fi
+    if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
+        DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$versionjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]."'${CRW_VERSION}'"')"
+        if [[ ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} == "null" ]]; then DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"; fi
+    fi
 fi
 # echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
 # echo "[INFO]   DEV_WORKSPACE_CONTROLLER_VERSION   = ${DEV_WORKSPACE_CONTROLLER_VERSION}"
 # echo "[INFO]   DEV_WORKSPACE_CHE_OPERATOR_VERSION = ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}"
-# exit 
+# echo "[INFO]   DEV_HEADER_REWRITE_TRAEFIK_PLUGIN  = ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
+# exit
 
 # ignore changes in these files
 echo ".github/
 .git/
 .gitignore
 .dockerignore
+.ci/
+.vscode/
 build/
 devfiles.yaml
 /container.yaml
@@ -111,28 +128,46 @@ sed_in_place() {
   fi
 }
 
-# shellcheck disable=SC2086
+# fix versions in Dockerfile
 sed_in_place -r \
-  `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  -e "s/# *RUN yum /RUN yum /g" \
-  `# CRW-1674 DEV_WORKSPACE_*_VERSION transformation step also done in get-sources.sh` \
-  -e 's#^ARG DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-  -e 's#^ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
-  `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
-  -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-*.zip /tmp#g" \
-  -e "s#^ +curl .+/tmp/asset.+.zip.+##g" \
-  "${TARGETDIR}"/Dockerfile
+    -e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+    -e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
+    -e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
+    "${TARGETDIR}"/Dockerfile
+
+# CRW-1956 when bootstrapping, get vendor sources for restic; then stop builder stage steps as we have all we need (and will fetch zips separately)
+cp "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
+#shellcheck disable=SC2016
+sed_in_place -r \
+    `# remote curl lines that we'll do later with get-sources.sh` \
+    -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-* /tmp#g" \
+    -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
+    -e 's@(go mod vendor) \&\& \\@\1@' \
+    `# remove all lines starting with WORKDIR` \
+    -e '/WORKDIR.+/,$d' \
+    "${TARGETDIR}"/bootstrap.Dockerfile
+
+# shellcheck disable=SC2086 disable=SC2016
+sed_in_place -r \
+    `# Replace ubi8 with rhel8 version` \
+    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+    `# Remove registry so build works in Brew` \
+    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+    `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
+    -e "/.+upstream.+/d" \
+    -e "s@# downstream.+@COPY asset-*.zip /tmp@g" \
+    -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-*.zip /tmp#g" \
+    -e "/.+curl.+restic\/restic\/tarball.+/d" \
+    -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
+    -e "/.+go mod vendor.+/d" \
+    -e 's@(RUN mkdir -p \$GOPATH/restic \&\&) \\@\1 tar /tmp/asset-restic.tgz --strip-components=1 -xz -C $GOPATH/restic@' \
+    "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
-
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
     COMPNAME="${MIDSTM_NAME}"
-
 LABEL com.redhat.delivery.appregistry="false" \\
       summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
