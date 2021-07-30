@@ -285,7 +285,7 @@ func (s *Server) UpdateAvailabilityStatus() (bool, error) {
 		} else {
 			if s.deployContext.CheCluster.Status.CheClusterRunning != AvailableStatus {
 				cheFlavor := deploy.DefaultCheFlavor(s.deployContext.CheCluster)
-				name := "Eclipse Che"
+				name := "CodeReady Workspaces"
 				if cheFlavor == "codeready" {
 					name = "CodeReady Workspaces"
 				}

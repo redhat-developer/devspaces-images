@@ -60,7 +60,7 @@ const (
 	DefaultChePostgresHostName = "postgres"
 	DefaultChePostgresPort     = "5432"
 	DefaultChePostgresDb       = "dbche"
-	DefaultPvcStrategy         = "common"
+	DefaultPvcStrategy         = "per-workspace"
 	DefaultPvcClaimSize        = "10Gi"
 	DefaultIngressClass        = "nginx"
 
@@ -186,16 +186,16 @@ func InitDefaultsFromFile(defaultsPath string) {
 	defaultSingleHostGatewayImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway"))
 	defaultSingleHostGatewayImageNativeUserMode = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_native_user_mode"))
 	defaultSingleHostGatewayConfigSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_config_sidecar"))
-	defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
-	defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
+	// defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
+	// defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
 	defaultCheWorkspacePluginBrokerMetadataImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_metadata"))
 	defaultCheWorkspacePluginBrokerArtifactsImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_artifacts"))
 	defaultCheServerSecureExposerJwtProxyImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"))
-	defaultInternalRestBackupServerImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
+	// defaultInternalRestBackupServerImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
 
 	// Don't get some k8s specific env
 	if !util.IsOpenShift {
-		defaultCheTLSSecretsCreationJobImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_tls_secrets_creation_job"))
+		// defaultCheTLSSecretsCreationJobImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_tls_secrets_creation_job"))
 	}
 }
 
@@ -467,10 +467,10 @@ func InitDefaultsFromEnv() {
 	defaultSingleHostGatewayImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway"))
 	defaultSingleHostGatewayImageNativeUserMode = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_native_user_mode"))
 	defaultSingleHostGatewayConfigSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_config_sidecar"))
-	defaultInternalRestBackupServerImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
-	defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
-	defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
-	defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_header_sidecar"))
+	// defaultInternalRestBackupServerImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
+	// defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
+	// defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
+	// defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_header_sidecar"))
 
 	// CRW images for that are mentioned in the Che server che.properties
 	// For CRW these should be synced by hand with images stored in RH registries
@@ -481,7 +481,7 @@ func InitDefaultsFromEnv() {
 
 	// Don't get some k8s specific env
 	if !util.IsOpenShift {
-		defaultCheTLSSecretsCreationJobImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_tls_secrets_creation_job"))
+		// defaultCheTLSSecretsCreationJobImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_tls_secrets_creation_job"))
 	}
 }
 

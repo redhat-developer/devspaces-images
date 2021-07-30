@@ -1,0 +1,183 @@
+#
+#  Copyright (c) 2018-2021 Red Hat, Inc.
+#    This program and the accompanying materials are made
+#    available under the terms of the Eclipse Public License 2.0
+#    which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+#  SPDX-License-Identifier: EPL-2.0
+#
+#  Contributors:
+#    Red Hat, Inc. - initial API and implementation
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: codeready-operator
+  namespace: system
+  labels:
+    app: codeready-operator
+    app.kubernetes.io/name: che
+    app.kubernetes.io/instance: che
+    app.kubernetes.io/component: codeready-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: codeready-operator
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: codeready-operator
+        app.kubernetes.io/name: che
+        app.kubernetes.io/instance: che
+        app.kubernetes.io/component: codeready-operator
+    spec:
+      containers:
+        - name: codeready-operator
+          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.11
+          command:
+            - /manager
+          args:
+            - --leader-elect
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 60000
+              name: metrics
+          env:
+            - name: CHE_FLAVOR
+              value: codeready
+            - name: CHE_IDENTITY_POSTGRES_SECRET
+              value: che-identity-postgres-secret
+            - name: CHE_IDENTITY_SECRET
+              value: che-identity-secret
+            - name: CHE_POSTGRES_SECRET
+              value: che-postgres-secret
+            - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
+              value: ca-certs
+            - name: CHE_VERSION
+              value: 2.11.0
+            - name: CONSOLE_LINK_DISPLAY_NAME
+              value: CodeReady Workspaces
+            - name: CONSOLE_LINK_IMAGE
+              value: /dashboard/assets/branding/loader.svg
+            - name: CONSOLE_LINK_NAME
+              value: che
+            - name: CONSOLE_LINK_SECTION
+              value: Red Hat Applications
+            - name: OPERATOR_NAME
+              value: codeready-operator
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RELATED_IMAGE_che_server
+              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.11
+            - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
+              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.11
+            - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
+              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.11
+            - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
+              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.11
+            - name: RELATED_IMAGE_dashboard
+              value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.11
+            - name: RELATED_IMAGE_devfile_registry
+              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.11
+            - name: RELATED_IMAGE_devworkspace_che_operator
+              value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.11
+            - name: RELATED_IMAGE_devworkspace_controller
+              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.11
+            - name: RELATED_IMAGE_keycloak
+              value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
+            - name: RELATED_IMAGE_keycloak_ppc64le
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
+            - name: RELATED_IMAGE_keycloak_s390x
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
+            - name: RELATED_IMAGE_plugin_registry
+              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.11
+            - name: RELATED_IMAGE_postgres
+              value: registry.redhat.io/rhel8/postgresql-96:1
+            - name: RELATED_IMAGE_pvc_jobs
+              value: registry.redhat.io/ubi8/ubi-minimal:8.4
+            - name: RELATED_IMAGE_single_host_gateway
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.11
+            - name: RELATED_IMAGE_single_host_gateway_config_sidecar
+              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.11
+            - name: RELATED_IMAGE_single_host_gateway_native_user_mode
+              value: quay.io/eclipse/che--traefik:v2.5.0-rc2-df90799aaca1ad6fb9e06d311140035d2a0c2295a4f8f508f6b55ee056bb677e
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 6789
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 6789
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          resources: null
+        - args:
+            - --enable-leader-election
+            - --metrics-addr
+            - '0'
+          command:
+            - /usr/local/bin/devworkspace-che-operator
+          env:
+            - name: CONTROLLER_SERVICE_ACCOUNT_NAME
+              value: codeready-operator
+            - name: MAX_CONCURRENT_RECONCILES
+              value: '1'
+            - name: OPERATOR_NAME
+              value: devworkspace-che-operator
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RELATED_IMAGE_gateway
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.11
+            - name: RELATED_IMAGE_gateway_configurer
+              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.11
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.11
+          imagePullPolicy: Always
+          name: devworkspace-che-operator
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 32Mi
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      hostIPC: false
+      hostNetwork: false
+      hostPID: false
+      restartPolicy: Always
+      serviceAccountName: codeready-operator
+      terminationGracePeriodSeconds: 20
