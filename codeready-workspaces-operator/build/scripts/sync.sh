@@ -155,7 +155,7 @@ sed_in_place -r \
     `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
     -e "/.+upstream.+/d" \
     -e "s@# downstream.+@COPY asset-*.zip /tmp@g" \
-    -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-*.zip /tmp#g" \
+    -e "s#^RUN curl .+/tmp/asset.+.zip.+#COPY asset-* /tmp#g" \
     -e "/.+curl.+restic\/restic\/tarball.+/d" \
     -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
     -e "/.+go mod vendor.+/d" \
