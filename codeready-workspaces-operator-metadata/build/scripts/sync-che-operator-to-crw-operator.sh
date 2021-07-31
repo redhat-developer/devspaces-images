@@ -211,6 +211,7 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
+	["RELATED_IMAGE_single_host_gateway_native_user_mode"]="DELETEME"
 )
 
 OPERATOR_DEPLOYMENT_YAML="config/manager/manager.yaml"

@@ -284,6 +284,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
+		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
 		updateVal="${operator_replacements[$updateName]}"
