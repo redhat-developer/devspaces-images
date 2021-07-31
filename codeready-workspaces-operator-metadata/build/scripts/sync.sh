@@ -17,10 +17,11 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-CSV_VERSION_PREV=""
 
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator-metadata"
+
+CSV_VERSION_PREV=""
 
 usage () {
     echo "
