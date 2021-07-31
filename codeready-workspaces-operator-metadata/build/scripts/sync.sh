@@ -51,26 +51,53 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # ignore changes in these files
-echo ".github/
-.git/
-.gitignore
+echo ".ci/
 .dockerignore
-build/
-devfiles.yaml
+.git/
+.github/
+.gitignore
+.vscode/
 /container.yaml
 /content_sets.*
 /cvp.yml
+api/
+build/
+config/
+controllers/
+cvp-owners.yml
+Dependencies.md
+devfile.yaml
+devfiles.yaml
+Dockerfile
+get-source*.sh
+go.mod
+go.sum
+hack/
+main.go
+make-release.sh
+Makefile
+manifests
+metadata
+mocks/
+olm/
+pkg/
 PROJECT
 README.md
 RELEASE.md
 REQUIREMENTS
-get-source*.sh
-tests/basic-test.yaml
 sources
-make-release.sh
+templates/
+tests/basic-test.yaml
+tools.go
+vendor/
+version/
 " > /tmp/rsync-excludes
+# echo "manifests
+# metadata
+# bundle
+# " > /tmp/rsync-includes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes  --delete "${SOURCEDIR}"/ "${TARGETDIR}"/ # --include-from /tmp/rsync-includes
 rm -f /tmp/rsync-excludes
 
 # ensure shell scripts are executable
@@ -85,8 +112,9 @@ sed_in_place() {
   fi
 }
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
-# Copyright (c) 2020 Red Hat, Inc.
+# create dockerfile
+cat << EOT > "${TARGETDIR}"/Dockerfile
+# Copyright (c) 2020-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -104,13 +132,20 @@ FROM scratch
 COPY manifests /manifests/
 COPY metadata /metadata/
 
+# append Brew metadata here 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
     COMPNAME="${MIDSTM_NAME}"
-
-TODO: verify metadata is correct here
-LABEL com.redhat.delivery.appregistry="false" \\
+LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
+      operators.operatorframework.io.bundle.manifests.v1=manifests/ \\
+      operators.operatorframework.io.bundle.metadata.v1=metadata/ \\
+      operators.operatorframework.io.bundle.package.v1=codeready-workspaces \\
+      operators.operatorframework.io.bundle.channels.v1=latest \\
+      operators.operatorframework.io.bundle.channel.default.v1=latest \\
+      com.redhat.delivery.operator.bundle="true" \\
+      com.redhat.openshift.versions="v4.6" \\
+      com.redhat.delivery.backport=false \\
       summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\
@@ -126,4 +161,12 @@ LABEL com.redhat.delivery.appregistry="false" \\
 EOT
 echo "Generated Dockerfile"
 
+"${TARGETDIR}"/build/scripts/sync-che-operator-to-crw-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 "${TARGETDIR}"/build/scripts/sync-che-olm-to-crw-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+
+pushd "${TARGETDIR}"/ >dev/null || exit
+rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vendor/ version/ go.* *.go
+
+# transform into Brew-friendly version of CSV
+sed -r -i "${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml \
+  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces/@g"
