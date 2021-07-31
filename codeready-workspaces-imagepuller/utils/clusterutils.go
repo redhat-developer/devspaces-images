@@ -27,8 +27,29 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-var propagationPolicy = metav1.DeletePropagationForeground
-var terminationGracePeriodSeconds = int64(1)
+const (
+	kipVolumeName         = "kip"
+	kipVolumeMountPath    = "/kip"
+	copySleepCommand      = "cp /bin/sleep /kip/sleep"
+	containerSleepCommand = "/kip/sleep"
+	sleepDuration         = "720h"
+)
+
+var (
+	propagationPolicy             = metav1.DeletePropagationForeground
+	terminationGracePeriodSeconds = int64(1)
+
+	// Volume mount to copy the sleep binary into.
+	// To allow the image puller to cache scratch images, an initContainer copies
+	// the sleep binary to this volume mount. As a result, every container has
+	// access to the sleep binary via this volume mount.
+	containerVolumeMounts = []corev1.VolumeMount{
+		{
+			Name:      kipVolumeName,
+			MountPath: kipVolumeMountPath,
+		},
+	}
+)
 
 // Set up watch on daemonset
 func watchDaemonset(clientset *kubernetes.Clientset) watch.Interface {
@@ -99,9 +120,19 @@ func getDaemonset(deployment *appsv1.Deployment) *appsv1.DaemonSet {
 				Spec: corev1.PodSpec{
 					NodeSelector:                  cfg.NodeSelector,
 					TerminationGracePeriodSeconds: &terminationGracePeriodSeconds,
-					Containers:                    getContainers(),
-					ImagePullSecrets:              imgPullSecrets,
-					Affinity:                      cfg.Affinity,
+					InitContainers: []corev1.Container{{
+						Name:            "copy-sleep",
+						Image:           cfg.ImagePullerImage,
+						ImagePullPolicy: corev1.PullAlways,
+						Command:         []string{"/bin/sh"},
+						Args:            []string{"-c", copySleepCommand},
+						VolumeMounts:    containerVolumeMounts,
+						Resources:       getContainerResources(cfg),
+					}},
+					Containers:       getContainers(),
+					ImagePullSecrets: imgPullSecrets,
+					Affinity:         cfg.Affinity,
+					Volumes:          []corev1.Volume{{Name: kipVolumeName}},
 				},
 			},
 		},
@@ -228,7 +259,23 @@ func getContainers() []corev1.Container {
 	containers := make([]corev1.Container, len(images))
 	idx := 0
 
-	cachedImageResources := corev1.ResourceRequirements{
+	for name, image := range images {
+		containers[idx] = corev1.Container{
+			Name:            name,
+			Image:           image,
+			Command:         []string{containerSleepCommand},
+			Args:            []string{sleepDuration},
+			Resources:       getContainerResources(cfg),
+			ImagePullPolicy: corev1.PullAlways,
+			VolumeMounts:    containerVolumeMounts,
+		}
+		idx++
+	}
+	return containers
+}
+
+func getContainerResources(cfg cfg.Config) corev1.ResourceRequirements {
+	return corev1.ResourceRequirements{
 		Limits: corev1.ResourceList{
 			"memory": resource.MustParse(cfg.CachingMemLimit),
 			"cpu":    resource.MustParse(cfg.CachingCpuLimit),
@@ -238,17 +285,4 @@ func getContainers() []corev1.Container {
 			"cpu":    resource.MustParse(cfg.CachingCpuRequest),
 		},
 	}
-
-	for name, image := range images {
-		containers[idx] = corev1.Container{
-			Name:            name,
-			Image:           image,
-			Command:         []string{"sleep"},
-			Args:            []string{"720h"},
-			Resources:       cachedImageResources,
-			ImagePullPolicy: corev1.PullAlways,
-		}
-		idx++
-	}
-	return containers
 }
