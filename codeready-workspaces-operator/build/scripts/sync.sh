@@ -159,7 +159,7 @@ sed_in_place -r \
     -e "/.+curl.+restic\/restic\/tarball.+/d" \
     -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
     -e "/.+go mod vendor.+/d" \
-    -e 's@(RUN mkdir -p \$GOPATH/restic \&\&) \\@\1 tar /tmp/asset-restic.tgz --strip-components=1 -xz -C $GOPATH/restic@' \
+    -e 's@(RUN mkdir -p \$GOPATH/restic \&\&) \\@\1 tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic@' \
     "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
