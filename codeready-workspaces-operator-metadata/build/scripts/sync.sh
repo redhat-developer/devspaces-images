@@ -164,9 +164,10 @@ echo "Generated Dockerfile"
 "${TARGETDIR}"/build/scripts/sync-che-operator-to-crw-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 "${TARGETDIR}"/build/scripts/sync-che-olm-to-crw-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 
-pushd "${TARGETDIR}"/ >dev/null || exit
+pushd "${TARGETDIR}"/ >/dev/null || exit
 rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vendor/ version/ go.* *.go
 
 # transform into Brew-friendly version of CSV
 sed -r -i "${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml \
-  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces/@g"
+  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
+  -e "s@crw-2-rhel8-operator@operator@g"

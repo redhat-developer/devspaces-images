@@ -1,4 +1,4 @@
-# Copyright (c) 2020 Red Hat, Inc.
+# Copyright (c) 2020-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -16,11 +16,11 @@ FROM scratch
 COPY manifests /manifests/
 COPY metadata /metadata/
 
-# append Brew metadata here (it will be appended via https://github.com/redhat-developer/codeready-workspaces-operator/blob/master/operator-metadata.Jenkinsfile)
+# append Brew metadata here 
 ENV SUMMARY="Red Hat CodeReady Workspaces operator-metadata container" \
     DESCRIPTION="Red Hat CodeReady Workspaces operator-metadata container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="operator-metadata" 
+    COMPNAME="operator-metadata"
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \
       operators.operatorframework.io.bundle.metadata.v1=metadata/ \
@@ -41,4 +41,4 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
-      usage="" 
+      usage=""
