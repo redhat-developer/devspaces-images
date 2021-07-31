@@ -19,7 +19,7 @@ ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 USER root
 
 COPY asset-*.zip /tmp
-RUN mkdir -p $GOPATH/restic && tar /tmp/asset-restic.tgz --strip-components=1 -xz -C $GOPATH/restic
+RUN mkdir -p $GOPATH/restic && tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic
 
 WORKDIR /che-operator
 # Copy the Go Modules manifests
