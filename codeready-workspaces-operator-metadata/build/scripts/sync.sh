@@ -17,12 +17,10 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+CSV_VERSION_PREV=""
 
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator-metadata"
-
-# TODO compute from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
-CSV_VERSION_PREV=2.x.0
 
 usage () {
     echo "
@@ -39,7 +37,6 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    # TODO compute https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
     '-p') CSV_VERSION_PREV="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
@@ -49,6 +46,31 @@ done
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+
+# if not set via commandline, compute CSV_VERSION_PREV
+# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
+# shellcheck disable=SC2086
+if [[ -z "${CSV_VERSION_PREV}" ]]; then
+    MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
+    if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
+    versionjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json")"
+    if [[ $versionjson == *"404"* ]] || [[ $versionjson == *"Not Found"* ]]; then 
+        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json"
+        echo "[ERROR] Please use -p flag to set CSV_VERSION_PREV"
+        exit 1
+    fi
+    if [[ $MIDSTM_BRANCH == "crw-2-rhel-8" ]]; then
+        CRW_VERSION="$(echo "$versionjson" | jq -r '.Version')"
+    else 
+        CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
+    fi
+    if [[ -z "${CSV_VERSION_PREV}" ]]; then
+        CSV_VERSION_PREV="$(echo "$versionjson" | jq -r '.CSVs["operator-metadata"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
+        if [[ ${CSV_VERSION_PREV} == "null" ]]; then CSV_VERSION_PREV="main"; fi
+    fi
+fi
+echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
+echo "[INFO]   CSV_VERSION_PREV   = ${CSV_VERSION_PREV}"
 
 # ignore changes in these files
 echo ".ci/
