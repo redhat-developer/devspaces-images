@@ -14,6 +14,7 @@ import React from 'react';
 import BannerAlertBranding from './Branding';
 import BannerAlertWebSocket from './WebSocket';
 import BannerAlertCustomWarning from './Custom';
+import BannerAlertNotSupportedBrowser from './NotSupportedBrowser';
 
 type Props = {};
 
@@ -27,6 +28,7 @@ export class BannerAlert extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       bannerAlerts: [
+        <BannerAlertNotSupportedBrowser key="BannerAlertNotSupportedBrowser"></BannerAlertNotSupportedBrowser>,
         <BannerAlertWebSocket key="BannerAlertWebSocket"></BannerAlertWebSocket>,
         <BannerAlertBranding key="BannerAlertBranding"></BannerAlertBranding>,
         <BannerAlertCustomWarning key="BannerAlertCustomWarning"></BannerAlertCustomWarning>,

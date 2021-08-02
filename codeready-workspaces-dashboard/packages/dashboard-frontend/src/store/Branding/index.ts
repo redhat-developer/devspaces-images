@@ -14,11 +14,13 @@ import { Action, Reducer } from 'redux';
 import { fetchBranding } from '../../services/assets/branding';
 import { AppThunk } from '..';
 import { merge } from 'lodash';
+import axios from 'axios';
 import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/branding.constant';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
 import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 import { createObject } from '../helpers';
+import { isSafari } from '../../services/helpers/detectBrowser';
 
 const ASSET_PREFIX = './assets/branding/';
 
@@ -63,20 +65,37 @@ export const actionCreators: ActionCreators = {
         type: 'REQUEST_BRANDING',
       });
 
+      let branding: BrandingData;
       try {
         const receivedBranding = await fetchBranding(url);
-        const branding = getBrandingData(receivedBranding);
-        const productVersion = await cheWorkspaceClient.restApiClient.getApiInfo();
+        branding = getBrandingData(receivedBranding);
+      } catch (e) {
+        const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + getErrorMessage(e);
+        dispatch({
+          type: 'RECEIVED_BRANDING_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
 
+      try {
         // Use the products version if specified in product.json, otherwise use the default version given by che server
-        branding.productVersion = branding.productVersion ? branding.productVersion : productVersion['implementationVersion'];
+        if (branding.productVersion) {
+          dispatch({
+            type: 'RECEIVED_BRANDING',
+            data: branding,
+          });
+          return;
+        }
 
+        const apiInfo = await getApiInfo();
+        branding.productVersion = apiInfo.implementationVersion;
         dispatch({
           type: 'RECEIVED_BRANDING',
           data: branding,
         });
       } catch (e) {
-        const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + getErrorMessage(e);
+        const errorMessage = 'OPTIONS request to "/api/" failed, reason: ' + getErrorMessage(e);
         dispatch({
           type: 'RECEIVED_BRANDING_ERROR',
           error: errorMessage,
@@ -118,6 +137,15 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
       return state;
   }
 };
+
+async function getApiInfo(): Promise<{implementationVersion: string}> {
+  if (isSafari) {
+    return (await axios.options('/api/')).data;
+  }
+  else {
+    return cheWorkspaceClient.restApiClient.getApiInfo();
+  }
+}
 
 function getBrandingData(receivedBranding?: { [key: string]: any }): BrandingData {
   let branding: BrandingData = Object.assign({}, BRANDING_DEFAULT);
