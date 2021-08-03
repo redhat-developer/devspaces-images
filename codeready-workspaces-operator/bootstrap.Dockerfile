@@ -18,8 +18,6 @@ ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.34.x"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 USER root
 
-# upstream, download zips for every build
-# downstream, copy prefetched asset-*.zip into /tmp, and collect vendored sources for restic too
 RUN mkdir -p $GOPATH/restic && \
     curl -sSLo- https://api.github.com/repos/restic/restic/tarball/${RESTIC_TAG} | tar --strip-components=1 -xz -C $GOPATH/restic && \
     cd $GOPATH/restic && go mod vendor
