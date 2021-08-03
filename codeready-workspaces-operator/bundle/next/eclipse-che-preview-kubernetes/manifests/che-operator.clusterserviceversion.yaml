@@ -33,6 +33,15 @@ metadata:
             "devWorkspace": {
               "enable": false
             },
+            "k8s": {
+              "ingressClass": "",
+              "ingressDomain": "",
+              "ingressStrategy": "",
+              "securityContextFsGroup": "",
+              "securityContextRunAsUser": "",
+              "singleHostExposureType": "",
+              "tlsSecretName": "che-tls"
+            },
             "metrics": {
               "enable": true
             },
@@ -70,12 +79,11 @@ metadata:
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: eclipse-che
-    operators.openshift.io/infrastructure-features: '["disconnected", "proxy-aware"]'
     operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: codeready-workspaces-preview-openshift.v7.34.0-272.nightly
+  name: codeready-workspaces-preview-kubernetes.v7.35.0-273.next
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -293,48 +301,6 @@ spec:
                 - update
                 - watch
             - apiGroups:
-                - config.openshift.io
-              resources:
-                - oauths
-              verbs:
-                - get
-                - list
-                - watch
-                - patch
-            - apiGroups:
-                - config.openshift.io
-              resources:
-                - infrastructures
-                - proxies
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - user.openshift.io
-              resources:
-                - users
-              verbs:
-                - list
-                - delete
-            - apiGroups:
-                - user.openshift.io
-              resources:
-                - identities
-              verbs:
-                - delete
-            - apiGroups:
-                - console.openshift.io
-              resources:
-                - consolelinks
-              verbs:
-                - get
-                - list
-                - create
-                - update
-                - patch
-                - delete
-            - apiGroups:
                 - rbac.authorization.k8s.io
               resources:
                 - clusterrolebindings
@@ -355,24 +321,6 @@ spec:
                 - watch
                 - update
                 - get
-                - delete
-            - apiGroups:
-                - authorization.openshift.io
-              resources:
-                - roles
-              verbs:
-                - get
-                - create
-                - update
-                - delete
-            - apiGroups:
-                - authorization.openshift.io
-              resources:
-                - rolebindings
-              verbs:
-                - get
-                - create
-                - update
                 - delete
             - apiGroups:
                 - rbac.authorization.k8s.io
@@ -401,20 +349,6 @@ spec:
                 - checlusters/status
               verbs:
                 - '*'
-            - apiGroups:
-                - project.openshift.io
-              resources:
-                - projectrequests
-              verbs:
-                - create
-                - update
-            - apiGroups:
-                - project.openshift.io
-              resources:
-                - projects
-              verbs:
-                - get
-                - list
             - apiGroups:
                 - ""
               resources:
@@ -559,6 +493,16 @@ spec:
                 - get
                 - list
                 - watch
+            - apiGroups:
+                - cert-manager.io
+              resources:
+                - issuers
+                - certificates
+              verbs:
+                - create
+                - get
+                - list
+                - update
             - apiGroups:
                 - workspace.devfile.io
               resources:
@@ -1034,6 +978,8 @@ spec:
                         value: quay.io/eclipse/che-plugin-registry:next
                       - name: RELATED_IMAGE_devfile_registry
                         value: quay.io/eclipse/che-devfile-registry:next
+                      - name: RELATED_IMAGE_che_tls_secrets_creation_job
+                        value: quay.io/eclipse/che-tls-secret-creator:alpine-d1ed4ad
                       - name: RELATED_IMAGE_pvc_jobs
                         value: registry.access.redhat.com/ubi8-minimal:8.4-205.1626828526
                       - name: RELATED_IMAGE_postgres
@@ -1114,13 +1060,11 @@ spec:
                         cpu: 100m
                         memory: 64Mi
                     securityContext:
-                      allowPrivilegeEscalation: false
                       capabilities:
                         drop:
                           - ALL
                       privileged: false
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
                   - args:
                       - --enable-leader-election
                       - --metrics-addr
@@ -1157,13 +1101,11 @@ spec:
                         cpu: 100m
                         memory: 32Mi
                     securityContext:
-                      allowPrivilegeEscalation: false
                       capabilities:
                         drop:
                           - ALL
                       privileged: false
                       readOnlyRootFilesystem: false
-                      runAsNonRoot: true
                 hostIPC: false
                 hostNetwork: false
                 hostPID: false
@@ -1182,13 +1124,6 @@ spec:
                 - batch
               resources:
                 - jobs
-              verbs:
-                - '*'
-            - apiGroups:
-                - route.openshift.io
-              resources:
-                - routes
-                - routes/custom-host
               verbs:
                 - '*'
             - apiGroups:
@@ -1373,4 +1308,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.34.0-272.nightly
+  version: 7.35.0-273.next
