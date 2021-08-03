@@ -1,0 +1,42 @@
+---
+platforms:
+  # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
+
+  only:
+  - x86_64
+  - s390x
+  - ppc64le
+
+# scratch image requires no compose
+# compose:
+#   inherit: false
+#   pulp_repos: true
+#   signing_intent: release
+
+# instead of docker_api, use imagebuilder for multistage builds
+image_build_method: imagebuilder
+
+# new for 4.5
+# https://osbs.readthedocs.io/en/latest/users.html#replacing-pullspecs
+operator_manifests:
+  manifests_dir: manifests
+  enable_digest_pinning: true
+  enable_repo_replacements: true
+  enable_registry_replacements: true
+  repo_replacements:
+    - registry: registry-proxy.engineering.redhat.com
+      package_mappings:
+        crw-2-rhel8-operator-package: rh-osbs/codeready-workspaces-operator
+    - registry: registry.redhat.io
+      package_mappings:
+        codeready-workspaces-operator-package: codeready-workspaces/crw-2-rhel8-operator
+        jboss-eap-7-xp2-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8
+        jboss-eap-7-xp2-openj9-11-openshift-rhel8-container: jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8
+        jboss-eap-7-xp1-openj9-11-openshift-rhel8-container: jboss-eap-7/eap-xp1-openj9-11-openshift-rhel8
+        jboss-eap-7-xp1-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp1-openjdk11-openshift-rhel8
+        jboss-eap-7-eap73-openjdk8-openshift-container: jboss-eap-7/eap73-openjdk8-openshift-rhel7
+        redhat-sso-7-sso74-openj9-openshift-rhel8-container: rh-sso-7/sso74-openj9-openshift-rhel8
+        redhat-sso-7-sso74-openshift-rhel8-container: rh-sso-7/sso74-openshift-rhel8
+        postgresql-96-container: registry.redhat.io/rhel8/postgresql-96
+        rh-mongodb36-container: registry.redhat.io/rhscl/mongodb-36-rhel7
+        ubi8-minimal-container: registry.redhat.io/ubi8/ubi-minimal
