@@ -131,7 +131,13 @@ spec:
             capabilities:
               drop:
                 - ALL
-          resources: null
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
         - args:
             - --enable-leader-election
             - --metrics-addr
