@@ -272,6 +272,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
 
 		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
+		# CRW-1956 - not supported; use the same traefik image
+		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}" 
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
@@ -284,7 +286,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
-		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
 		updateVal="${operator_replacements[$updateName]}"
