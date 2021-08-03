@@ -104,7 +104,7 @@ spec:
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
               value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.11
             - name: RELATED_IMAGE_single_host_gateway_native_user_mode
-              value: quay.io/eclipse/che--traefik:v2.5.0-rc2-df90799aaca1ad6fb9e06d311140035d2a0c2295a4f8f508f6b55ee056bb677e
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.11
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
