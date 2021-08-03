@@ -1,3 +1,4 @@
+// TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
 def DEV_WORKSPACE_CONTROLLER_VERSIONS = [
     "2.11":"0.7.x", 
     "2.x" :"main"
@@ -6,6 +7,7 @@ def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [
     "2.11":"7.34.x",
     "2.x" :"main"
     ]
+
 def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"] 
 def JOB_DISABLED = ["2.11":true, "2.x":false]
 for (JB in JOB_BRANCHES) {
@@ -17,10 +19,11 @@ for (JB in JOB_BRANCHES) {
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-operator"
         MIDSTM_NAME="operator"
-        SOURCE_REPO="eclipse/" + UPSTM_NAME
+        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
+        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
-Syncs/generates code from upstream into midstream, then triggers sync, Brew build, and copy to quay jobs
+Artifact builder + sync job; triggers brew after syncing
 
 <p>There are two operator-related sync jobs:<br/>
 1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
@@ -28,20 +31,16 @@ Syncs/generates code from upstream into midstream, then triggers sync, Brew buil
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream 1 (transformation code): 
-<a href=https://github.com/redhat-developer/codeready-workspaces-operator/tree/''' + MIDSTM_BRANCH + '''/>crw-operator</a></li>
-<li>Midstream 2 (transformed code): <a href=https://github.com/redhat-developer/codeready-workspaces-images/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
-<li>Downstream (copied from midstream 2): <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Pre-Mistream (transformation code, deprecated): 
+<a href=https://github.com/redhat-developer/codeready-workspaces-operator/tree/''' + MIDSTM_BRANCH + '''/>crw-operator</a></li> 
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
 <p>If <b style="color:green">downstream job fires</b>, see 
-<ol>
-<li><a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then</li>
-<li><a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, then</li>
-<li><a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''/>push to quay</a></li>
-</ol>
-<br/>
-If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
+<a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
+<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
+   If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
@@ -73,8 +72,12 @@ If <b style="color:orange">job is yellow</b>, no changes found to push, so no co
         }
 
         parameters{
+            stringParam("SOURCE_REPO", SOURCE_REPO)
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+            stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+            stringParam("MIDSTM_NAME", MIDSTM_NAME)
+            // TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
             stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", DEV_WORKSPACE_CONTROLLER_VERSIONS[JB.key], "Branch (0.y.x or main) used to get deployment templates")
             stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", DEV_WORKSPACE_CHE_OPERATOR_VERSIONS[JB.key], "Branch (7.yy.x or main) used to get deployment templates")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
@@ -86,7 +89,11 @@ If <b style="color:orange">job is yellow</b>, no changes found to push, so no co
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/crw-operator_'+JOB_BRANCH+'.jenkinsfile'))
+                if (JOB_BRANCH.equals("2.10")) {
+                    script(readFileFromWorkspace('jobs/CRW_CI/crw-operator_'+JOB_BRANCH+'.jenkinsfile'))
+                } else {
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }

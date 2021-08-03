@@ -8,8 +8,8 @@ for (JB in JOB_BRANCHES) {
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-server"
-        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
         MIDSTM_NAME="server"
+        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
         description('''
