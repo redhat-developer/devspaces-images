@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.11"] // only one release at a time
+def JOB_BRANCHES = ["2.12"] // only one release at a time
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         // keep job disabled until we explicitly need it

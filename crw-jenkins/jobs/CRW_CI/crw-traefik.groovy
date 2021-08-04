@@ -4,7 +4,7 @@ def GOLANG_VERSIONS = [
     // "2.x": "1.16.2" // if in future we use traefik from master, we need golang 1.16
     ]
 def JOB_BRANCHES = ["2.11":"v2.3.2", "2.x":"v2.3.2"] // in future, could switch to use "2.x":"master"] 
-def JOB_DISABLED = ["2.11":true, "2.x":false]
+def JOB_DISABLED = ["2.11":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_TAG=JB.value
     JOB_BRANCH=""+JB.key
