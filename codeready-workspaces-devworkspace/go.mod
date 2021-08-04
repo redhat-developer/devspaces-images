@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05
-	github.com/devfile/devworkspace-operator v0.2.1-0.20210518134212-698baff5f249
+	github.com/devfile/devworkspace-operator v0.7.2
 	github.com/eclipse-che/che-operator v0.0.0-20210714094822-9bb621bf88a6
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/go-logr/zapr v0.2.0 // indirect
