@@ -39,7 +39,6 @@ func TestEnvVars(t *testing.T) {
 				NodeSelector:      map[string]string{},
 				ImagePullSecrets:  []string{},
 				Affinity:          &v1.Affinity{},
-				ImagePullerImage:  "quay.io/eclipse/kubernetes-image-puller:next",
 			},
 		},
 		{
@@ -51,7 +50,6 @@ func TestEnvVars(t *testing.T) {
 				"CACHING_CPU_REQUEST": ".055",
 				"IMAGE_PULL_SECRETS":  "secret1; secret2",
 				"AFFINITY":            `{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/e2e-az-name","operator":"In","values":["e2e-az1","e2e-az2"]}]}]}}}`,
-				"KIP_IMAGE":           "quay.io/my-repo/kubernetes-image-puller:next",
 			},
 			want: Config{
 				DaemonsetName: "custom-daemonset-name",
@@ -85,7 +83,6 @@ func TestEnvVars(t *testing.T) {
 						},
 					},
 				},
-				ImagePullerImage: "quay.io/my-repo/kubernetes-image-puller:next",
 			},
 		},
 	}

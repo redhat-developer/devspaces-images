@@ -1,6 +1,6 @@
 BINARY_NAME=kubernetes-image-puller
 DOCKERIMAGE_NAME=kubernetes-image-puller
-DOCKERIMAGE_TAG=next
+DOCKERIMAGE_TAG=latest
 
 all: build docker
 
