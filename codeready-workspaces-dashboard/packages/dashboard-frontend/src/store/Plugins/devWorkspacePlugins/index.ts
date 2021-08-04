@@ -15,7 +15,7 @@ import { safeLoad } from 'js-yaml';
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '../..';
 import { fetchDevfile, fetchData } from '../../../services/registry/devfiles';
-import { createObject } from '../../helpers';
+import { createState } from '../../helpers';
 
 export interface State {
   isLoading: boolean;
@@ -152,7 +152,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_DW_PLUGIN':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         plugins: {
           [action.url]: {
@@ -162,12 +162,12 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         },
       });
     case 'REQUEST_DW_DEFAULT_EDITOR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         defaultEditorError: undefined,
       });
     case 'RECEIVE_DW_PLUGIN':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         plugins: {
           [action.url]: {
@@ -176,7 +176,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         }
       });
     case 'RECEIVE_DW_PLUGIN_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         plugins: {
           [action.url]: {
@@ -187,7 +187,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         }
       });
     case 'RECEIVE_DW_DEFAULT_EDITOR_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         defaultEditorError: action.error,
       });

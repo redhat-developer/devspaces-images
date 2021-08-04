@@ -61,7 +61,7 @@ type Props =
 type State = {
   search?: string;
   location?: string;
-  resolvedDevfileMessage?: string;
+  devfileLocationInfo?: string;
   currentStep: LoadFactorySteps;
   hasError: boolean;
   createPolicy: CreatePolicy;
@@ -276,21 +276,10 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
     const { source } = this.factoryResolver.resolver;
     const searchParam = new window.URLSearchParams(this.state.search);
-    let resolvedDevfileMessage: string;
-    // source tells where devfile comes from
-    //  - no source: the url to raw content is used
-    //  - repo: means no devfile is found and default is generated
-    //  - any other - devfile is found in repository as filename from the value
-    if (!source) {
-      resolvedDevfileMessage = `Devfile loaded from ${searchParam.get('url')}`;
-    } else {
-      if (source === 'repo') {
-        resolvedDevfileMessage = `Devfile could not be found in ${searchParam.get('url')}. Applying the default configuration`;
-      } else {
-        resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'. Applying it`;
-      }
-    }
-    this.setState({ resolvedDevfileMessage });
+    const devfileLocationInfo = !source || source === 'repo' ?
+      `${searchParam.get('url')}` :
+      `\`${source}\` in github repo ${location}`;
+    this.setState({ devfileLocationInfo });
     return this.getTargetDevfile();
   }
 
@@ -509,7 +498,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { workspace } = this.props;
-    const { currentStep, resolvedDevfileMessage, hasError } = this.state;
+    const { currentStep, devfileLocationInfo, hasError } = this.state;
     const workspaceName = workspace ? workspace.name : '';
     const workspaceId = workspace ? workspace.id : '';
 
@@ -517,7 +506,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       <FactoryLoader
         currentStep={currentStep}
         hasError={hasError}
-        resolvedDevfileMessage={resolvedDevfileMessage}
+        devfileLocationInfo={devfileLocationInfo}
         workspaceId={workspaceId}
         workspaceName={workspaceName}
         callbacks={this.factoryLoaderCallbacks}

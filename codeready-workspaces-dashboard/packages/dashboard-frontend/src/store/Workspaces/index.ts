@@ -12,7 +12,7 @@
 
 import { Reducer } from 'redux';
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
+import { createState } from '../helpers';
 import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
 import {
   convertWorkspace,
@@ -334,45 +334,45 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
   switch (action.type) {
     case 'REQUEST_WORKSPACES':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
       });
     case 'RECEIVE_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
       });
     case 'UPDATE_WORKSPACE':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
       });
     case 'ADD_WORKSPACE':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
       });
     case 'DELETE_WORKSPACE':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
       });
     case 'RECEIVE_WORKSPACES':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
       });
     case 'SET_WORKSPACE_NAME':
-      return createObject(state, {
+      return createState(state, {
         namespace: action.namespace,
         workspaceName: action.workspaceName,
       });
     case 'CLEAR_WORKSPACE_NAME':
-      return createObject(state, {
+      return createState(state, {
         namespace: '',
         workspaceName: '',
       });
     case 'SET_WORKSPACE_ID':
-      return createObject(state, {
+      return createState(state, {
         workspaceId: action.workspaceId,
       });
     case 'CLEAR_WORKSPACE_ID':
-      return createObject(state, {
+      return createState(state, {
         workspaceId: '',
       });
     default:

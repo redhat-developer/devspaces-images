@@ -15,7 +15,7 @@ import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
 import { AppThunk } from '..';
 import { getErrorMessage } from '../../services/helpers/getErrorMessage';
-import { createObject } from '../helpers';
+import { createState } from '../helpers';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -84,17 +84,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_NAMESPACES':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_NAMESPACES':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         namespaces: action.namespaces,
       });
     case 'RECEIVE_NAMESPACES_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         error: action.error,
       });

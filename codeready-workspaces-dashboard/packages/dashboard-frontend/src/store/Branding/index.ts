@@ -19,7 +19,7 @@ import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/brandin
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
 import { getErrorMessage } from '../../services/helpers/getErrorMessage';
-import { createObject } from '../helpers';
+import { createState } from '../helpers';
 import { isSafari } from '../../services/helpers/detectBrowser';
 
 const ASSET_PREFIX = './assets/branding/';
@@ -119,17 +119,17 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_BRANDING':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVED_BRANDING':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         data: action.data,
       });
     case 'RECEIVED_BRANDING_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         error: action.error,
       });

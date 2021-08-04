@@ -11,7 +11,7 @@
  */
 
 import { Action, Reducer } from 'redux';
-import { createObject } from '../helpers';
+import { createState } from '../helpers';
 import { AppThunk } from '../index';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
@@ -96,22 +96,22 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_USER':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         error: undefined,
       });
     case 'RECEIVE_USER':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         user: action.user,
       });
     case 'RECEIVE_USER_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         error: action.error,
       });
     case 'SET_USER':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         user: action.user,
       });

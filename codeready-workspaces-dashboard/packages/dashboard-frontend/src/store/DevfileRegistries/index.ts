@@ -13,7 +13,7 @@
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
 import { fetchRegistryMetadata, fetchDevfile } from '../../services/registry/devfiles';
-import { createObject } from '../helpers';
+import { createState } from '../helpers';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
 import { getErrorMessage } from '../../services/helpers/getErrorMessage';
@@ -226,30 +226,30 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   const action = incomingAction as KnownAction;
   switch (action.type) {
     case 'REQUEST_REGISTRY_METADATA':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         registries: {},
       });
     case 'REQUEST_SCHEMA':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
         schema: {},
       });
     case 'REQUEST_DEVFILE':
-      return createObject(state, {
+      return createState(state, {
         isLoading: true,
       });
     case 'RECEIVE_REGISTRY_METADATA':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
-        registries: createObject(state.registries, { 
+        registries: {
           [action.url]: {
             metadata: action.metadata,
           },
-        }),
+        },
       });
     case 'RECEIVE_REGISTRY_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         registries: {
           [action.url]: {
@@ -258,7 +258,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         },
       });
     case 'RECEIVE_DEVFILE':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         devfiles: {
           [action.url]: {
@@ -267,26 +267,26 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         }
       });
     case 'RECEIVE_SCHEMA':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         schema: {
           schema: action.schema,
         },
       });
     case 'RECEIVE_SCHEMA_ERROR':
-      return createObject(state, {
+      return createState(state, {
         isLoading: false,
         schema: {
           error: action.error,
         },
       });
     case 'SET_FILTER': {
-      return createObject(state, {
+      return createState(state, {
         filter: action.value,
       });
     }
     case 'CLEAR_FILTER': {
-      return createObject(state, {
+      return createState(state, {
         filter: '',
       });
     }

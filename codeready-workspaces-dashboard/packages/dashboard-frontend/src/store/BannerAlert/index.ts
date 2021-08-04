@@ -12,7 +12,7 @@
 
 import { Action, Reducer } from 'redux';
 import { AppThunk } from '..';
-import { createObject } from '../helpers';
+import { createState } from '../helpers';
 
 export interface State {
   messages: string[];
@@ -67,14 +67,14 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
 
   switch (action.type) {
     case 'ADD_BANNER':
-      return createObject(state, {
+      return createState(state, {
         messages:
           state.messages.includes(action.message)
             ? state.messages
             : state.messages.concat([action.message]),
       });
     case 'REMOVE_BANNER':
-      return createObject(state, {
+      return createState(state, {
         messages:
           state.messages.includes(action.message)
             ? state.messages.filter(message => message !== action.message)
