@@ -148,23 +148,6 @@ func TestConfigMap(t *testing.T) {
 			},
 		},
 		{
-			name: "Test k8s data, check public url when internal network enabled.",
-			cheCluster: &orgv1.CheCluster{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      "eclipse-che",
-					Namespace: "eclipse-che",
-				},
-				Spec: orgv1.CheClusterSpec{
-					Server: orgv1.CheClusterSpecServer{
-						CheHost: "che-host",
-					},
-				},
-			},
-			expectedData: map[string]string{
-				"CHE_WEBSOCKET_ENDPOINT": "ws://che-host/api/websocket",
-			},
-		},
-		{
 			name: "Test k8s data, with internal cluster svc names",
 			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
@@ -178,7 +161,8 @@ func TestConfigMap(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WEBSOCKET_INTERNAL_ENDPOINT": "ws://che-host.eclipse-che.svc:8080/api/websocket",
+				"CHE_WEBSOCKET_ENDPOINT":        "ws://che-host.eclipse-che.svc:8080/api/websocket",
+				"CHE_WEBSOCKET_ENDPOINT__MINOR": "ws://che-host.eclipse-che.svc:8080/api/websocket-minor",
 			},
 		},
 		{
@@ -196,7 +180,8 @@ func TestConfigMap(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WEBSOCKET_ENDPOINT": "ws://che-host/api/websocket",
+				"CHE_WEBSOCKET_ENDPOINT":        "ws://che-host/api/websocket",
+				"CHE_WEBSOCKET_ENDPOINT__MINOR": "ws://che-host/api/websocket-minor",
 			},
 		},
 		{
@@ -459,7 +444,7 @@ func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL": "",
+				"CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL": "http://devfile-registry.internal",
 				"CHE_WORKSPACE_DEVFILE__REGISTRY__URL":           "http://devfile-registry.internal",
 			},
 		},
@@ -488,7 +473,7 @@ func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
 			},
 		},
 		{
-			name: "Test devfile registry urls #6",
+			name: "Test devfile registry urls #5",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -512,12 +497,12 @@ func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL": "",
+				"CHE_WORKSPACE_DEVFILE__REGISTRY__INTERNAL__URL": "http://devfile-registry.internal",
 				"CHE_WORKSPACE_DEVFILE__REGISTRY__URL":           "http://devfile-registry.internal http://devfile-registry.external.1 http://devfile-registry.external.2",
 			},
 		},
 		{
-			name: "Test devfile registry urls #7",
+			name: "Test devfile registry urls #6",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -597,7 +582,7 @@ func TestShouldSetUpCorrectlyInternalPluginRegistryServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL": "",
+				"CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL": "http://external-plugin-registry",
 			},
 		},
 		{
@@ -624,7 +609,7 @@ func TestShouldSetUpCorrectlyInternalPluginRegistryServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL": "",
+				"CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL": "http://external-plugin-registry",
 			},
 		},
 		{
@@ -651,7 +636,7 @@ func TestShouldSetUpCorrectlyInternalPluginRegistryServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL": "",
+				"CHE_WORKSPACE_PLUGIN__REGISTRY__INTERNAL__URL": "http://plugin-registry/v3",
 			},
 		},
 		{
@@ -711,7 +696,7 @@ func TestShouldSetUpCorrectlyInternalCheServerURL(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name: "Should be an empty when internal network is disabled",
+			name: "Should use public che-server url, when internal network is disabled",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -731,7 +716,7 @@ func TestShouldSetUpCorrectlyInternalCheServerURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_API_INTERNAL": "",
+				"CHE_API_INTERNAL": "http://che-host/api",
 			},
 		},
 		{
@@ -788,7 +773,7 @@ func TestShouldSetUpCorrectlyInternalIdentityProviderServiceURL(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name: "Should be an empty when enabled 'external' public identity provider url and internal network is enabled #1",
+			name: "Should use 'external' public identity provider url, when internal network is enabled #1",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -806,12 +791,12 @@ func TestShouldSetUpCorrectlyInternalIdentityProviderServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "",
+				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "http://external-keycloak/auth",
 				"CHE_KEYCLOAK_AUTH__SERVER__URL":           "http://external-keycloak/auth",
 			},
 		},
 		{
-			name: "Should be an empty when enabled 'external' public identity provider url and internal network is enabled #2",
+			name: "Should use 'external' public identity provider url, when internal network is enabled #2",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -829,12 +814,12 @@ func TestShouldSetUpCorrectlyInternalIdentityProviderServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "",
+				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "http://external-keycloak/auth",
 				"CHE_KEYCLOAK_AUTH__SERVER__URL":           "http://external-keycloak/auth",
 			},
 		},
 		{
-			name: "Should be and empty when enabled 'external' public identity provider url and internal network is disabled",
+			name: "Should use 'external' public identity provider url, when internal network is disabled",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -855,12 +840,12 @@ func TestShouldSetUpCorrectlyInternalIdentityProviderServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "",
+				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "http://external-keycloak/auth",
 				"CHE_KEYCLOAK_AUTH__SERVER__URL":           "http://external-keycloak/auth",
 			},
 		},
 		{
-			name: "Should be an empty when internal network is disabled",
+			name: "Should use public identity provider url, when internal network is disabled",
 			cheCluster: &orgv1.CheCluster{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "CheCluster",
@@ -881,7 +866,7 @@ func TestShouldSetUpCorrectlyInternalIdentityProviderServiceURL(t *testing.T) {
 				},
 			},
 			expectedData: map[string]string{
-				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "",
+				"CHE_KEYCLOAK_AUTH__INTERNAL__SERVER__URL": "http://keycloak/auth",
 				"CHE_KEYCLOAK_AUTH__SERVER__URL":           "http://keycloak/auth",
 			},
 		},

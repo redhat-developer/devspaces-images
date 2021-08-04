@@ -5,7 +5,7 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 1.0.2
 
-CHANNELS = "next"
+CHANNELS = "nightly"
 
 ifndef VERBOSE
 MAKEFLAGS += --silent
@@ -23,7 +23,7 @@ ifneq ($(origin CHANNELS), undefined)
 BUNDLE_CHANNELS := --channels=$(CHANNELS)
 endif
 
-DEFAULT_CHANNEL = "next"
+DEFAULT_CHANNEL = "nightly"
 
 # DEFAULT_CHANNEL defines the default channel used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
@@ -272,7 +272,7 @@ ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 test: manifests generate fmt vet ## Run tests.
 	mkdir -p ${ENVTEST_ASSETS_DIR}
 	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.6.3/hack/setup-envtest.sh
-	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); export MOCK_API=true; go test -mod=vendor ./... -coverprofile cover.out
+	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); go test -mod=vendor ./... -coverprofile cover.out
 
 ##@ Build
 
@@ -487,15 +487,15 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 	fi
 
 	if [ -z "$(NO_INCREMENT)" ]; then
-		$(MAKE) increment-next-version platform="$${platform}"
+		$(MAKE) increment-nightly-version platform="$${platform}"
 	fi
 
 	echo "[INFO] Updating OperatorHub bundle for platform '$${platform}'"
 
-	NEXT_BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$${platform}" channel="next" -s)
-	NEW_CSV=$${NEXT_BUNDLE_PATH}/manifests/che-operator.clusterserviceversion.yaml
-	newNextBundleVersion=$$(yq -r ".spec.version" "$${NEW_CSV}")
-	echo "[INFO] Creation new next bundle version: $${newNextBundleVersion}"
+	NIGHTLY_BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$${platform}" channel="nightly" -s)
+	NEW_CSV=$${NIGHTLY_BUNDLE_PATH}/manifests/che-operator.clusterserviceversion.yaml
+	newNightlyBundleVersion=$$(yq -r ".spec.version" "$${NEW_CSV}")
+	echo "[INFO] Creation new nightly bundle version: $${newNightlyBundleVersion}"
 
 	createdAtOld=$$(yq -r ".metadata.annotations.createdAt" "$${NEW_CSV}")
 
@@ -511,7 +511,7 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 	$(KUSTOMIZE) build config/platforms/$(platform) | \
 	$(OPERATOR_SDK_BINARY) generate bundle \
 	-q --overwrite \
-	--version $${newNextBundleVersion} \
+	--version $${newNightlyBundleVersion} \
 	--package $${BUNDLE_PACKAGE} \
 	--output-dir $${BUNDLE_DIR} \
 	$(BUNDLE_METADATA_OPTS)
@@ -537,14 +537,14 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 		mv "$${NEW_CSV}.new" "$${NEW_CSV}"
 	fi
 
-	platformCRD="$${NEXT_BUNDLE_PATH}/manifests/org_v1_che_crd.yaml"
+	platformCRD="$${NIGHTLY_BUNDLE_PATH}/manifests/org_v1_che_crd.yaml"
 	if [ "$${platform}" = "openshift" ]; then
 		yq -riY  '.spec.preserveUnknownFields = false' $${platformCRD}
 	fi
 	$(MAKE) ensure-license-header FILE="$${platformCRD}"
 
 	if [ -n "$(TAG)" ]; then
-		echo "[INFO] Set tags in next OLM files"
+		echo "[INFO] Set tags in nightly OLM files"
 		sed -ri "s/(.*:\s?)$(RELEASE)([^-])?$$/\1$(TAG)\2/" "$${NEW_CSV}"
 	fi
 
@@ -698,20 +698,20 @@ getBundlePath:
 	PACKAGE_NAME=$$($(MAKE) getPackageName platform="$(platform)" -s)
 	echo "$(PROJECT_DIR)/bundle/$(channel)/$${PACKAGE_NAME}"
 
-increment-next-version:
+increment-nightly-version:
 	if [ -z "$(platform)" ]; then
 		echo "[ERROR] please specify first argument 'platform'"
 		exit 1
 	fi
 
-	NEXT_BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$(platform)" channel="next" -s)
-	OPM_BUNDLE_MANIFESTS_DIR="$${NEXT_BUNDLE_PATH}/manifests"
+	NIGHTLY_BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$(platform)" channel="nightly" -s)
+	OPM_BUNDLE_MANIFESTS_DIR="$${NIGHTLY_BUNDLE_PATH}/manifests"
 	CSV="$${OPM_BUNDLE_MANIFESTS_DIR}/che-operator.clusterserviceversion.yaml"
 
-	currentNextVersion=$$(yq -r ".spec.version" "$${CSV}")
-	echo  "[INFO] current next $(platform) version: $${currentNextVersion}"
+	currentNightlyVersion=$$(yq -r ".spec.version" "$${CSV}")
+	echo  "[INFO] current nightly $(platform) version: $${currentNightlyVersion}"
 
-	incrementPart=$$($(MAKE) get-next-version-increment nextVersion="$${currentNextVersion}" -s)
+	incrementPart=$$($(MAKE) get-nightly-version-increment nightlyVersion="$${currentNightlyVersion}" -s)
 
 	PACKAGE_NAME="eclipse-che-preview-$(platform)"
 
@@ -728,9 +728,9 @@ increment-next-version:
 	echo "$${STABLE_MINOR_VERSION}"
 
 	incrementPart=$$((incrementPart+1))
-	newVersion="$${STABLE_MAJOR_VERSION}.$${STABLE_MINOR_VERSION}.0-$${incrementPart}.next"
+	newVersion="$${STABLE_MAJOR_VERSION}.$${STABLE_MINOR_VERSION}.0-$${incrementPart}.nightly"
 
-	echo "[INFO] Set up next $(platform) version: $${newVersion}"
+	echo "[INFO] Set up nightly $(platform) version: $${newVersion}"
 	yq -rY "(.spec.version) = \"$${newVersion}\" | (.metadata.name) = \"eclipse-che-preview-$(platform).v$${newVersion}\"" "$${CSV}" > "$${CSV}.old"
 	mv "$${CSV}.old" "$${CSV}"
 
@@ -746,17 +746,17 @@ get-current-stable-version:
 	lastStableVersion=$$(yq -r ".spec.version" "$${LAST_STABLE_CSV}")
 	echo "$${lastStableVersion}"
 
-get-next-version-increment:
-	if [ -z $(nextVersion) ]; then
-		echo "[ERROR] Provide next version to parse"
+get-nightly-version-increment:
+	if [ -z $(nightlyVersion) ]; then
+		echo "[ERROR] Provide nightly version to parse"
 		exit 1
 	fi
 
-	versionWithoutNext="$${nextVersion%.next}"
+	versionWithoutNightly="$${nightlyVersion%.nightly}"
 
-	version="$${versionWithoutNext%-*}"
+	version="$${versionWithoutNightly%-*}"
 
-	incrementPart="$${versionWithoutNext#*-}"
+	incrementPart="$${versionWithoutNightly#*-}"
 
 	echo "$${incrementPart}"
 

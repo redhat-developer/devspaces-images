@@ -372,7 +372,7 @@ func DefaultPullPolicyFromDockerImage(dockerImage string) string {
 	if len(parts) > 1 {
 		tag = parts[1]
 	}
-	if tag == "latest" || tag == "nightly" || tag == "next" {
+	if tag == "latest" || tag == "nightly" {
 		return "Always"
 	}
 	return "IfNotPresent"

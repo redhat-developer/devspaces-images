@@ -14,10 +14,10 @@ set -e
 
 CURRENT_DIR=$(pwd)
 SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
-BASE_DIR=$(dirname "$(dirname "$SCRIPT")")
+BASE_DIR=$(cd "$(dirname "$0")"; pwd)
 PLATFORMS="kubernetes,openshift"
 STABLE_CHANNELS=("stable-all-namespaces" "stable")
-source "${BASE_DIR}/olm/check-yq.sh"
+source "${BASE_DIR}/check-yq.sh"
 
 base_branch="main"
 GITHUB_USER="che-bot"
