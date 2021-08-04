@@ -78,6 +78,11 @@ if [[ ! "${MIDSTM_BRANCH}" ]]; then usage; fi
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 
+# TODO after 7.35.x / 2.12, remove this as nightly has been renamed to next
+if [[ ! -d ${SOURCEDIR}/bundle/${OLM_CHANNEL} ]]; then 
+	OLM_CHANNEL="nightly"
+fi
+
 # if current CSV and previous CVS version not set, die
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
