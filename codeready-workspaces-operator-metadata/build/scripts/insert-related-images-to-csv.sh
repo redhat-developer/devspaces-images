@@ -42,7 +42,8 @@ done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
-CONTAINERS=""
+PLUGIN_REGISTRY_CONTAINERS=""
+DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # check out crw sources
     echo "[INFO] ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/codeready-workspaces/dependencies/"
@@ -52,21 +53,24 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     cd ..
 
     # collect containers referred to by devfiles
-    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
+    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
     pushd crw/dependencies/che-devfile-registry >/dev/null; ./build/scripts/swap_images.sh devfiles/ -f; popd >/dev/null # include openj9 images too
-    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
+    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
     # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
-    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
+    PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
     pushd crw/dependencies/che-plugin-registry >/dev/null;  ./build/scripts/swap_images.sh ./ -f; popd >/dev/null # include openj9 images too
-    CONTAINERS="${CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
+    PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
 popd >/dev/null
 rm -fr $tmpdir
 
 # add unique containers to array, then sort
 CONTAINERS_UNIQ=()
-for c in $CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
-IFS=$'\n' CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
+for c in $DEVFILE_REGISTRY_CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
+IFS=$'\n' DEVFILE_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
+CONTAINERS_UNIQ=()
+for c in $PLUGIN_REGISTRY_CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
+IFS=$'\n' PLUGIN_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
 
 # same method used in both insert-related-images-to-csv.sh and sync-che-olm-to-crw-olm.sh
 insertEnvVar()
@@ -78,25 +82,44 @@ insertEnvVar()
 }
 
 CSVFILE=${TARGETDIR}/manifests/codeready-workspaces.csv.yaml
-# echo "[INFO] Found these images to insert:"
-for updateVal in "${CONTAINERS[@]}"; do
-  updateName=$(echo ${updateVal} | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2#g" -e "s@-rhel8@@g" | tr "-" "_")
-  insertEnvVar
-  # now handle special cases for j9 images - see build/scripts/swap_images.sh in plugin and devfile registry for specially-named images
-  if [[ ${updateName} == *"_openj9" ]]; then # ends with _openj9, so rename to _s390x and _ppc64le
-    for arch in s390x ppc64le; do
-      updateName=$(echo ${updateVal} | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2#g" -e "s@-rhel8@@g" | tr "-" "_")
-      updateName=${updateName/_openj9/_${arch}}
-      insertEnvVar
-    done
-  elif [[ ${updateName} == *"openj9_11_openshift" ]]; then # ends with openj9_11_openshift, so rename to openjdk11_openshift_s390x and openjdk11_openshift_ppc64le
-    for arch in s390x ppc64le; do
-      updateName=$(echo ${updateVal} | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2#g" -e "s@-rhel8@@g" | tr "-" "_")
-      updateName=${updateName/openj9_11_openshift/openjdk11_openshift_${arch}}
-      insertEnvVar
-    done
-  fi
-done
+
+# The updated name should be like:
+# RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCMQK
+# RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_devfile_registry_image_GIXDCMQK
+# RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7_devfile_registry_image_G4XDGLRWBI______
+updateRelatedImageName() {
+  imageType="$1"
+  shift
+  CONTAINERS=("$@")
+  for updateVal in "${CONTAINERS[@]}"; do
+    tagOrDigest=""
+    if [[ ${updateVal} == *"@"* ]]; then
+      tagOrDigest="@${updateVal#*@}"
+    elif [[ ${updateVal} == *":"* ]]; then
+      tagOrDigest="${updateVal#*:}"
+    fi
+    encodedTag=$(echo "${tagOrDigest}" | base32 -w 0 | tr "=" "_")
+    updateName=$(echo "${updateVal}" | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2_${imageType}_${encodedTag}#g" -e "s@-rhel8@@g" | tr "-" "_")
+    insertEnvVar
+    # now handle special cases for j9 images - see build/scripts/swap_images.sh in plugin and devfile registry for specially-named images
+    if [[ ${updateName} == *"_openj9"* ]]; then # ends with _openj9, so rename to _s390x and _ppc64le
+      for arch in s390x ppc64le; do
+        updateName=$(echo "${updateVal}" | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2_${imageType}_${encodedTag}#g" -e "s@-rhel8@@g" | tr "-" "_")
+        updateName=${updateName/_openj9/_${arch}}
+        insertEnvVar
+      done
+    elif [[ ${updateName} == *"openj9_11_openshift"* ]]; then # ends with openj9_11_openshift, so rename to openjdk11_openshift_s390x and openjdk11_openshift_ppc64le
+      for arch in s390x ppc64le; do
+        updateName=$(echo "${updateVal}" | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2_${imageType}_${encodedTag}#g" -e "s@-rhel8@@g" | tr "-" "_")
+        updateName=${updateName/openj9_11_openshift/openjdk11_openshift_${arch}}
+        insertEnvVar
+      done
+    fi
+  done
+}
+
+updateRelatedImageName "plugin_registry_image" "${PLUGIN_REGISTRY_CONTAINERS[@]}"
+updateRelatedImageName "devfile_registry_image" "${DEVFILE_REGISTRY_CONTAINERS[@]}"
 
 # replace external crw refs with internal ones
 sed -r -i $CSVFILE \
