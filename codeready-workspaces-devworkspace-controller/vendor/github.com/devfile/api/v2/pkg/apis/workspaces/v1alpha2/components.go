@@ -34,9 +34,6 @@ type Component struct {
 	Name string `json:"name"`
 	// Map of implementation-dependant free-form YAML attributes.
 	// +optional
-	// +kubebuilder:validation:Type=object
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
 	Attributes     attributes.Attributes `json:"attributes,omitempty"`
 	ComponentUnion `json:",inline"`
 }

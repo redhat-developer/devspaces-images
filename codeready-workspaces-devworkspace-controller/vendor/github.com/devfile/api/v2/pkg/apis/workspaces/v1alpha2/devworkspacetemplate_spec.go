@@ -18,11 +18,8 @@ type DevWorkspaceTemplateSpecContent struct {
 	// to replace the corresponding value in string fields in the devfile. Replacement cannot be used for
 	//
 	//  - schemaVersion, metadata, parent source
-	//
 	//  - element identifiers, e.g. command id, component name, endpoint name, project name
-	//
 	//  - references to identifiers, e.g. in events, a command's component, container's volume mount name
-	//
 	//  - string enums, e.g. command group kind, endpoint exposure
 	// +optional
 	// +patchStrategy=merge
@@ -33,9 +30,6 @@ type DevWorkspaceTemplateSpecContent struct {
 	// +optional
 	// +patchStrategy=merge
 	// +devfile:overrides:include:omitInPlugin=true,description=Overrides of attributes encapsulated in a parent devfile.
-	// +kubebuilder:validation:Type=object
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
 	Attributes attributes.Attributes `json:"attributes,omitempty" patchStrategy:"merge"`
 
 	// List of the devworkspace components, such as editor and plugins,

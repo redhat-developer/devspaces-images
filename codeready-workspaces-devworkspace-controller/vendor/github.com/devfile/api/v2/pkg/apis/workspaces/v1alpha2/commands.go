@@ -61,9 +61,6 @@ type Command struct {
 	Id string `json:"id"`
 	// Map of implementation-dependant free-form YAML attributes.
 	// +optional
-	// +kubebuilder:validation:Type=object
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
 	Attributes   attributes.Attributes `json:"attributes,omitempty"`
 	CommandUnion `json:",inline"`
 }

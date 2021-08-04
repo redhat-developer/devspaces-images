@@ -37,9 +37,6 @@ type ComponentPluginOverride struct {
 
 	// Map of implementation-dependant free-form YAML attributes.
 	// +optional
-	// +kubebuilder:validation:Type=object
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
 	Attributes                   attributes.Attributes `json:"attributes,omitempty"`
 	ComponentUnionPluginOverride `json:",inline"`
 }
@@ -55,9 +52,6 @@ type CommandPluginOverride struct {
 
 	// Map of implementation-dependant free-form YAML attributes.
 	// +optional
-	// +kubebuilder:validation:Type=object
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
 	Attributes                 attributes.Attributes `json:"attributes,omitempty"`
 	CommandUnionPluginOverride `json:",inline"`
 }
@@ -355,9 +349,6 @@ type EndpointPluginOverride struct {
 	//
 	// - type: "terminal" / "ide" / "ide-dev",
 	// +optional
-	// +kubebuilder:validation:Type=object
-	// +kubebuilder:pruning:PreserveUnknownFields
-	// +kubebuilder:validation:Schemaless
 	Attributes attributes.Attributes `json:"attributes,omitempty"`
 }
 
