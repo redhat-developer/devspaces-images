@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:2928ea1200c7f092a3af17718134a86d189a478c754fbb159308824c7bd37bd3
-    createdAt: "2021-08-04T18:12:03+00:00"
+    createdAt: "2021-08-04T20:34:18+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1114,7 +1114,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:55d945227a574535721d6236f86db3ae4f923544a2fefe5c3b7bfbdd92518521
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:a7076803cbaa0f0db7e5424a0a41bcbb2c568937011db886fc54c4255b717aa2
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:b0ee69404b638b5fff6104ed7074ffbd4479aaf883175da42f0d28eeb5a3d865
                 - name: RELATED_IMAGE_devworkspace_che_operator
                   value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:54d03765aa478cd8862d09fa05fd425ff6a2b26485492bce00c5bcdad24aeb0e
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1522,7 +1522,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:55d945227a574535721d6236f86db3ae4f923544a2fefe5c3b7bfbdd92518521
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:a7076803cbaa0f0db7e5424a0a41bcbb2c568937011db886fc54c4255b717aa2
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:b0ee69404b638b5fff6104ed7074ffbd4479aaf883175da42f0d28eeb5a3d865
   - name: devworkspace_che_operator
     image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:54d03765aa478cd8862d09fa05fd425ff6a2b26485492bce00c5bcdad24aeb0e
   - name: devworkspace_controller
