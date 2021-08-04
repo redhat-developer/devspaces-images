@@ -1,7 +1,7 @@
 ## Che/CodeReady Workspaces Operator Metadata
 
-This repo contains ONLY the metadata (Quay application) for the CRW Operator.
+This repo contains ONLY the metadata for the CRW Operator.
 
-For the golang application that is the CRW Operator / container, see 
+For the golang application that is the CRW Operator, see 
 
-http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-operator/tree/?h=crw-2.0-rhel-8
+https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/codeready-workspaces-operator
