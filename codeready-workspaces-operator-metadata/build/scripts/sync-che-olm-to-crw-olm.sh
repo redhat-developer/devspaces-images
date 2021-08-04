@@ -20,7 +20,7 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
+OLM_CHANNEL="nightly" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
 SSO_TAG=7.4
 UBI_TAG=8.4
@@ -77,11 +77,6 @@ done
 if [[ ! "${MIDSTM_BRANCH}" ]]; then usage; fi
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-
-# TODO after 7.35.x / 2.12, remove this as nightly has been renamed to next
-if [[ ! -d ${SOURCEDIR}/bundle/${OLM_CHANNEL} ]]; then 
-	OLM_CHANNEL="nightly"
-fi
 
 # if current CSV and previous CVS version not set, die
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
@@ -200,8 +195,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		\
 		-e 's|/usr/local/bin/codeready-operator|/usr/local/bin/che-operator|' \
 		-e 's|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|' \
-		`# -e "s|replaces: eclipse-che-preview-openshift.v.+|replaces: crwoperator.v${CSV_VERSION_PREV}|"` \
-		`# -e "s|version: .+nightly|version: ${CSV_VERSION}|g"` \
 		\
 		-e 's|"cheImageTag": "nightly"|"cheImageTag": ""|' \
 		-e 's|"devfileRegistryImage":.".+"|"devfileRegistryImage": ""|' \
