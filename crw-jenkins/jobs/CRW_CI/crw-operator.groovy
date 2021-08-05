@@ -1,6 +1,6 @@
 // TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
 def DEV_WORKSPACE_CONTROLLER_VERSIONS = [
-    "2.11":"0.7.x", 
+    "2.11":"0.8.x", 
     "2.x" :"main"
     ]
 def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [

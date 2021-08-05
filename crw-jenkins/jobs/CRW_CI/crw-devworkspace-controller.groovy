@@ -1,4 +1,4 @@
-def JOB_BRANCHES = ["2.11":"0.7.x", "2.x":"main"]
+def JOB_BRANCHES = ["2.11":"0.8.x", "2.x":"main"]
 def JOB_DISABLED = ["2.11":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
