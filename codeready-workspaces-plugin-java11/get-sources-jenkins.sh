@@ -64,7 +64,7 @@ if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppr
 	rhpkg new-sources gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar
 	log "[INFO] Commit new sources"
 	COMMIT_MSG="${COMMIT_MSG}Gradle ${GRADLE_VERSION}, Maven ${MAVEN_VERSION}, Lombok ${LOMBOK_VERSION}"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"

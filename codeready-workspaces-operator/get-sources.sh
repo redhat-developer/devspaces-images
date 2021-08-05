@@ -136,7 +136,7 @@ if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b 
 	rhpkg new-sources asset-devworkspace-operator.zip asset-devworkspace-che-operator.zip asset-header-rewrite-traefik-plugin.zip asset-restic.tgz
 	log "[INFO] Commit new source zips"
 	COMMIT_MSG="devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, devworkspace-che-operator ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}, restic ${RESTIC_VERSION}"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"

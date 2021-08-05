@@ -76,7 +76,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 	rhpkg new-sources *.rpm *.tar.gz
 	log "[INFO] Commit new sources"
 	COMMIT_MSG="FLUXBOX_VERSION ${FLUXBOX_VERSION}, IMLIB2_VERSION ${IMLIB2_VERSION}, PYXDG_VERSION ${PYXDG_VERSION}, ALECZAPKA_FONTS_VERSION ${ALECZAPKA_FONTS_VERSION}"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
