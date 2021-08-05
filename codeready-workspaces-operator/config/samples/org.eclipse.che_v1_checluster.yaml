@@ -38,7 +38,7 @@ spec:
     chePostgresPassword: ''
     chePostgresDb: ''
   storage:
-    pvcStrategy: per-workspace
+    pvcStrategy: common
     pvcClaimSize: 10Gi
     preCreateSubPaths: true
     postgresPVCStorageClassName: ''

@@ -81,36 +81,36 @@ spec:
               value: quay.io/eclipse/che-buildah-base@sha256:417203d8629edd92f187afd3ebb3d8dc28338d34809eb75ffc2e08a400f8d56b
             - name: RELATED_IMAGE_che_buildkit_base_plugin_registry_image_IBZWQYJSGU3DUZLGMZQTSODEMQZGGZLEGMYGENJSGBRDENLBMZTGMMLBHA4DAZBRGIYWGZRWMIZWMODBMI2DEYJVGE2DSZLBMRQTINTCME3TSM3DMU4Q____
               value: quay.io/eclipse/che-buildkit-base@sha256:effa98dd2ced30b520b25afff1a880d121cf6b3f8ab42a5149eada46ba793ce9
-            - name: RELATED_IMAGE_che_cpp_rhel7_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-cpp-rhel7@sha256:409f1a2f771cd594a2873815a0aabf03369975a68256395286975168e2d61202
-            - name: RELATED_IMAGE_che_dotnet_2_2_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-dotnet-2.2@sha256:8d461ddec5f20280c32756519c810bedf80e95c6248723d0ecfecf004ef2f7fe
-            - name: RELATED_IMAGE_che_dotnet_3_1_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-dotnet-3.1@sha256:36854fd07c525398f6ac6c50d80563ac21ea33c928c79e18deb28ee665e80558
+            - name: RELATED_IMAGE_che_cpp_rhel7_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-cpp-rhel7@sha256:2c61947bc27acb6178416fbca80c51fbde2d8a4b4e738d20044a70678ab22127
+            - name: RELATED_IMAGE_che_dotnet_2_2_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-dotnet-2.2@sha256:a42a1d5fbe17381e861ec9a25b1e70a20408ceed924b50f8d9a1af8d314f5aa7
+            - name: RELATED_IMAGE_che_dotnet_3_1_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-dotnet-3.1@sha256:7082d825fba5b38d76d78ef85f558e4c5106457326afa752afa301d987c385a5
             - name: RELATED_IMAGE_che_editor_intellij_community_plugin_registry_image_IBZWQYJSGU3DUMRZGAZDKZDCHA2TSMRWHBTDKZDDMYZDCYTBGZSWENDFGI4DINZUGRRDKM3DHEZGINTEGIZTKMJUMU2TMNLBGAZDCMJWGA3GMNRYGYZQ____
               value: quay.io/che-incubator/che-editor-intellij-community@sha256:29025db859268f5dcf21ba6eb4e284744b53c92d6d23514e565a0211606f6863
             - name: RELATED_IMAGE_che_editor_jupyter_plugin_registry_image_IBZWQYJSGU3DUOBTGQZTSYLFHFSWIY3BMEZWCOJXGUZTMNZUGIZTCNLBG44TCMTGHEZWKNBZHFTDIOJYGQ3WIYJQHE2GGNBYGAYDGMLFMFSTIYTBGQ3Q____
               value: index.docker.io/ksmster/che-editor-jupyter@sha256:83439ae9edcaa3a97536742315a7912f93e499f49847da094c480031eae4ba47
-            - name: RELATED_IMAGE_che_golang_1_14_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-golang-1.14@sha256:4c968514a098f551afde2a1ccd59baf8f5a08716b5359f3296f28fe56bdea028
-            - name: RELATED_IMAGE_che_java11_gradle_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-java11-gradle@sha256:3c08abb55d09f443a2f71f0594395bff95124adb7771ba4db504ca06bd7300fb
-            - name: RELATED_IMAGE_che_java11_maven_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-java11-maven@sha256:cde80d5d65a585adff5542fbfe356a6d81021d84bf7d5ced60aa0bbd8e306bf5
-            - name: RELATED_IMAGE_che_java8_maven_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-java8-maven@sha256:731bb242e467f7a1c002d17a1cead8d776a535542d0c2b254b60e81356dd4d82
-            - name: RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJSGU3DUZDGMYYDSMJSGE4TEN3FMQ2WKNDCGY3GKN3DGY2TCM3EGVRWCOBXHFQTIMZUMIZTGODDGQ3DOZRXHA2DMMJXHBTDQYTDMYZDQYZXGA2A____
-              value: quay.io/eclipse/che-machine-exec@sha256:dff09121927ed5e4b66e7c6513d5ca879a434b338c467f7846178f8bcf28c704
-            - name: RELATED_IMAGE_che_nodejs10_community_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-nodejs10-community@sha256:d2c34b5153bd493748cb4768ad837d284ac712990dae811e93ffa9d2955d4995
-            - name: RELATED_IMAGE_che_nodejs10_ubi_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-nodejs10-ubi@sha256:70b56b07333b007d231923952c1efa3e6e62ed97b88be926f5fd8ffccdd4ff96
-            - name: RELATED_IMAGE_che_nodejs12_community_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-nodejs12-community@sha256:ee15243af3c8eddb4a8f0155eceeb2a71c6a9c0bbf66ae2caea8491293eb3b41
-            - name: RELATED_IMAGE_che_nodejs8_centos_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-nodejs8-centos@sha256:fb579ef5a9a63452fd5c611b5cacfa7d8fef2ad11aaabbde278ee30dcdaf48c2
-            - name: RELATED_IMAGE_che_php_7_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-php-7@sha256:ecd45e7c5ad7df81ba8446dbbd5ab7ed48bfece987971fa65ec8f512520356d2
+            - name: RELATED_IMAGE_che_golang_1_14_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-golang-1.14@sha256:b1f9b7d45794e0c2c910697567ca9bdf4ff586cc63e29b07e477a0945cabe75d
+            - name: RELATED_IMAGE_che_java11_gradle_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-java11-gradle@sha256:cd16e0be07af69449acc32f038966b650fe148a046e0ab2843f0b5a74c4d678f
+            - name: RELATED_IMAGE_che_java11_maven_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-java11-maven@sha256:4f3a5a444e0ee52b60890c439c7457b67a3c2e2f0964278beee499b177d2d700
+            - name: RELATED_IMAGE_che_java8_maven_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-java8-maven@sha256:75e4e59aef8cf575448a46b9ac91b9e1ad56438d1ce885748b51940408e6c591
+            - name: RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJSGU3DUOLBGE4GINBQHE4DIYJXMQZGGNJTMZSDCMRYGYZTKMDEMI3DANZTGI3WIYRSMZTGKZJWGAYTMNBZGU2TMOJTMNRTOMBZGMZTGZRUMJRA____
+              value: quay.io/eclipse/che-machine-exec@sha256:9a18d40984a7d2c53fd1286350db607327db2ffee60164955693cc709333f4bb
+            - name: RELATED_IMAGE_che_nodejs10_community_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-nodejs10-community@sha256:1f5be85b9c309b969ef6ac42d3340d053b1ded40bdebc76242872cace45f702a
+            - name: RELATED_IMAGE_che_nodejs10_ubi_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-nodejs10-ubi@sha256:9374d221c8812d8728d572fd014922acae98ca40c00a4d7cb6bbecbf15297ccb
+            - name: RELATED_IMAGE_che_nodejs12_community_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-nodejs12-community@sha256:f9e03af4a27119a903f289d8051b58e56ffb64ee86524c7c924003a37c7aacba
+            - name: RELATED_IMAGE_che_nodejs8_centos_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-nodejs8-centos@sha256:2d8d85aa17b7808a82b864d7bdad28d0a3858cc0ff5e8d4ed7b3b9b622f2269b
+            - name: RELATED_IMAGE_che_php_7_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-php-7@sha256:04b492febe44dc8d2430e84b7288d0325669b02acae598857875fde818f140df
             - name: RELATED_IMAGE_che_plugin_sidecar_plugin_registry_image_IBZWQYJSGU3DUMBZGVRTENBQGU2TAMZTMUZDCOLEGVQTSZRWMZSTSOBTGVRDOOLDGVSDGNBRGZTDAZDGMJRDEMRYMQZDSNJXGEZWKOBRMQZDOYZWGYYQ____
               value: quay.io/eclipse/che-plugin-sidecar@sha256:095c24055033e219d5a9f6fe9835b79c5d3416f0dfbb228d295713e81d27c661
             - name: RELATED_IMAGE_che_plugin_sidecar_plugin_registry_image_IBZWQYJSGU3DUMTDMI2GMNZQMVSGEY3EMFRDGYRSG44WIYLFGUZWENTBG42TGZBWGNTGKZJQGNRGGYLFGNSDEYJTHA2WKMRUMYZDKZJWHE2WGMBTMRTA____
@@ -161,22 +161,22 @@ spec:
               value: quay.io/eclipse/che-plugin-sidecar@sha256:e374ec367447afea9b12f5a8f6690a6f993526408a3731f522a53e5d0bfc287f
             - name: RELATED_IMAGE_che_plugin_sidecar_plugin_registry_image_IBZWQYJSGU3DUZRTHE4GKM3GMZSDKMRQGBRTKNTCMY2TMYJWMY3WMOLFHBSGENDBMEZWMNRTHFQTMMJSGU4DKMDGGE3DSNBRGQ2TEOBSGYYGIY3FHBQQ____
               value: quay.io/eclipse/che-plugin-sidecar@sha256:f398e3ffd5200c56bf56a6f7f9e8db4aa3f639a6125850f169414528260dce8a
-            - name: RELATED_IMAGE_che_python_3_8_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-python-3.8@sha256:669ad45cf20916281fa52dfee78b760124517e1e8b4cee31695d7a12b1ae17cd
-            - name: RELATED_IMAGE_che_quarkus_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-quarkus@sha256:2d5a5a5587a60636d9c3a7fc20958cea67429096b5fced79a54d0224ced05200
-            - name: RELATED_IMAGE_che_rust_1_39_devfile_registry_image_G4XDGNBOGA______
-              value: quay.io/eclipse/che-rust-1.39@sha256:b2d9fe8a8ec21a2bc6f98955f7ec562a4eb5ead3dd9a07d966e7a6b789021cc4
+            - name: RELATED_IMAGE_che_python_3_8_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-python-3.8@sha256:2b0a6aff9bbe4108b03918bb2e1c2db5b2f3ab29bc0496c4cda1b33418a03acc
+            - name: RELATED_IMAGE_che_quarkus_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-quarkus@sha256:d4c1e5ad5f2d73ad08053c92fcc7639c623bd73739003ca3aeeef6e59c0b41b7
+            - name: RELATED_IMAGE_che_rust_1_39_devfile_registry_image_G4XDGNBOGE______
+              value: quay.io/eclipse/che-rust-1.39@sha256:0857192f465765162cbba345ae1c4ce119a2614b38829f125c2fe09c641f85b8
             - name: RELATED_IMAGE_che_server
               value: registry.redhat.io/codeready-workspaces/server-rhel8:2.11
             - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
               value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.11
             - name: RELATED_IMAGE_che_sidecar_workspace_data_sync_plugin_registry_image_IBZWQYJSGU3DUOBYMQYDCMRVHAZTOZBVME2TOY3CGI2GEYRTMVSDQMLFGZQTQZRUGEYTSYJVGA2DGYRXHEZDMYTEGJRGIMBRG4YTAOBVGRRTINDGGEYA____
               value: quay.io/eclipse/che-sidecar-workspace-data-sync@sha256:88d0125837d5a57cb24bb3ed81e6a8f4119a5043b7926bd2bd01710854c44f10
-            - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUM3EMQ4TGNBUMY4WEYLCHBRGCZRWGFSGEMJRHBSDIMLFMY2DMMTFGM2TOYJSMFSTAYRTGEYDMMJVMNRWMYRTGNRDSMLGME3DEOLFGVRA____
-              value: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:3dd9344f9bab8baf61db118d41ef462e357a2ae0b310615ccfb33b91fa629e5b
-            - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUNBYGY2TCZRUGU4DINZQGY4GEYTFG5RGKZLFGA4DOZLFMVSDKMJTGMZTAY3DMRTDMNLBMI2WCMLBG5QTKZJSGMYDSNTFG4YGEZRWMYZA____
-              value: quay.io/eclipse/che-theia@sha256:48651f45847068bbe7beee087eeed513330ccdf65ab5a1a7a5e23096e70bf6f2
+            - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUNLDGVRWIOJXHBRDANDFGEZTAZTGGQZGEZJWG5TDIMRZGYYDIOJWMNQTGNBSHA4WGOJZGMYTONDBMYYGGZTDGJTDAOLCMUYTOYZUMUYQ____
+              value: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:5c5cd978b04e130ff42be67f42960496ca34289c993174af0cfc2f09be17c4e1
+            - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUZDFMJTDCOBXGI3TOMJWGZSGIYJXGAZTAZRZGBRTGZDGGFSTIZJWGNRTOZRQMNQTKZBQGM2DGYJXHEYTSNBTGM4WEZTDGA3TEZBZGBSQ____
+              value: quay.io/eclipse/che-theia@sha256:debf187277166dda7030f90c3df1e4e63c7f0ca5d0343a79194339bfc072d90e
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
               value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.11
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
