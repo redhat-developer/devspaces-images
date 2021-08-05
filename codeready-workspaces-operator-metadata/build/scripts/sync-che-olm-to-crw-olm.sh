@@ -253,7 +253,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 			i=$((i+1))
 		fi
 	done
-    echo -e "$(echo "${license}")\n$(cat ${CSVFILE})" > ${CSVFILE}
+	echo -e "$(echo "${license}")\n$(cat ${CSVFILE})" > ${CSVFILE}
 
 	##### update the first container yaml
 
