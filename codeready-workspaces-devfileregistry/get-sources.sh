@@ -126,7 +126,7 @@ if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${pullAssets} -eq 1 ]]; then
 	# but DON'T include lookaside files in git
 	git rm -fr ${TARGZs} 2>/dev/null || true 
 	# CRW-1621 a gz resource is larger than 10485760b, so use MaxFileSize to force dist-git to shut up and take my sources!
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}
 		- MaxFileSize: $maxfilesize
 " sources Dockerfile .gitignore . || true) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."

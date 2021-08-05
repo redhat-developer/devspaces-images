@@ -49,7 +49,7 @@ if [[ -f ${outputFile} ]]; then
 	rhpkg new-sources ${outputFile}
 	echo "[INFO] Commit new sources from: ${outputFile}"
 	COMMIT_MSG="Update from Maven :: ${outputFile}"
-	if [[ $(git commit -s -m "[get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		echo "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		echo "[INFO] Push change:"

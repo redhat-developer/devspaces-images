@@ -393,7 +393,7 @@ if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
     rm -fr asset-* ./*.orig 2>/dev/null || true 
     # include any new files, ignoring files we've removed
     git add . -f --ignore-removal
-    if [[ $(git commit -s -m "[get sources] ${newFiles}" . || true) == *"nothing to commit, working tree clean"* ]]; then
+    if [[ $(git commit -s -m "ci: [get sources] ${newFiles}" . || true) == *"nothing to commit, working tree clean"* ]]; then
       echo "[INFO] No new sources committed."
     else
       git status -s -b --ignored
