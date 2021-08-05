@@ -71,7 +71,7 @@ rsync -azrlt --delete ${WORKSPACE}/${CSV_VERSION}/ ${WORKSPACE}/crw/product/mani
 tree ${WORKSPACE}/crw/product/manifest/${CSV_VERSION}
 
 git add ${CSV_VERSION}
-git commit -s -m "[prodsec] Update product security manifests for ${CSV_VERSION}" ${CSV_VERSION}
+git commit -s -m "chore: [prodsec] Update product security manifests for ${CSV_VERSION}" ${CSV_VERSION}
 git push origin ''' + MIDSTM_BRANCH + '''
 
 # push manifests to MIDSTM_BRANCHNEXT branch too

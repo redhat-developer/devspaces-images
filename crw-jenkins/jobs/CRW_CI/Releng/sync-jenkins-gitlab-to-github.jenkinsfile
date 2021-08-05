@@ -31,7 +31,7 @@ mkdir -p ${WORKSPACE}/targetdwn/crw-jenkins/jobs/CRW_CI/ && cd ${WORKSPACE}/sour
 rsync -avhz --checksum --delete . ${WORKSPACE}/targetdwn/crw-jenkins/jobs/CRW_CI/
 cd ${WORKSPACE}/targetdwn/crw-jenkins/jobs/
 git add --all -f . || true
-git commit -s -m "[jobs] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
+git commit -s -m "chore: [jobs] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 ''')
 

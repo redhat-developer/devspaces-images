@@ -92,7 +92,7 @@ rm -f /tmp/rsync-excludes
                   if [[ \$(git diff-index HEAD --) ]]; then # file changed
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
                     git add . -A -f
-                    git commit -s -m "[mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+                    git commit -s -m "ci: [mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi''')
 

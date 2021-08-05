@@ -114,7 +114,7 @@ LABEL summary="$SUMMARY" \\\r
             cd ''' + TARGET_DIR + '''
             git add Dockerfile ${SYNC_FILES} . -A -f
             # note this might fail if we're syncing from a tag vs. a branch
-            git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" Dockerfile ${SYNC_FILES} . || true
+            git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" Dockerfile ${SYNC_FILES} . || true
             git push origin ''' + MIDSTM_BRANCH + ''' || true
             echo "[sync] Updated codeready-workspaces-images @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
           fi

@@ -98,7 +98,7 @@ echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
                       if [[ \$(git diff-index HEAD --) ]]; then # file changed
                         cd ''' + TARGET_DIR + '''
                         git add . -A -f
-                        git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+                        git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
                         git push origin ''' + MIDSTM_BRANCH + ''' || true
                       fi
                     ''')

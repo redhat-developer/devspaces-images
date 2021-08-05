@@ -97,7 +97,7 @@ echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
 
 echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
 git add BUILD_COMMAND BUILD_PARAMS || true
-git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
+git commit -s -m "ci: [update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
 git pull origin ${MIDSTM_BRANCH} || true
 git push origin ${MIDSTM_BRANCH} || true
 popd >/dev/null

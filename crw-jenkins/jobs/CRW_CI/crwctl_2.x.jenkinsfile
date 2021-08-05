@@ -92,7 +92,7 @@ popd >/dev/null
 # commit changes
 set -x
 git add .
-git commit -s -m "[sync] Push chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
+git commit -s -m "ci: [sync] Push chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 '''
 
@@ -117,7 +117,7 @@ while IFS= read -r -d '' d; do
 done <   <(find dist/channels/redhat -type f -name "*gz" -print0)
 pwd; du ./dist/channels/*/*gz
 
-git commit -s -m "[update] package.json + README.md" package.json README.md || true
+git commit -s -m "ci: [update] package.json + README.md" package.json README.md || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 '''
 
@@ -141,7 +141,7 @@ pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
   done
 
   # push to ''' + MIDSTM_BRANCH + '''-quay branch
-  git commit -s -m "[update] Push ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
+  git commit -s -m "ci: [update] Push ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
   git push origin ''' + MIDSTM_BRANCH + '''-quay -f
 popd >/dev/null
 # cleanup
