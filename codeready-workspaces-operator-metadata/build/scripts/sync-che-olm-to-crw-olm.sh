@@ -88,10 +88,10 @@ CRW_OPERATOR="crw-2-rhel8-operator"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
+CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
-CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}" 
-CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}" 
+CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
+CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
@@ -240,6 +240,21 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		echo "[INFO] ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
 
+	# Remove backup/restore CRDs until feature is enabled in CRW
+	i=0
+	crdsNumber=$(cat "${CSVFILE}" | yq -r ".spec.customresourcedefinitions.owned | length")
+	license=$(head -n 10 ${CSVFILE})
+	while [[ "${i}" -lt "${crdsNumber}" ]]; do
+		crdKind=$(cat "${CSVFILE}" | yq -r ".spec.customresourcedefinitions.owned[${i}].kind")
+		if [[ ${crdKind} != "CheCluster" && ${crdKind} != "null" ]]; then
+			echo "[INFO] Removing CRD kind ${crdKind}"
+			yq -riY "del(.spec.customresourcedefinitions.owned[${i}])" ${CSVFILE}
+		else
+			i=$((i+1))
+		fi
+	done
+    echo -e "$(echo "${license}")\n$(cat ${CSVFILE})" > ${CSVFILE}
+
 	##### update the first container yaml
 
 	# yq changes - transform env vars from Che to CRW values
@@ -271,7 +286,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
 		# CRW-1956 - not supported; use the same traefik image
-		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}" 
+		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
@@ -331,7 +346,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}.2"
 	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[1].env |= sort_by(.name)' "${CSVFILE}.2" > "${CSVFILE}"
 	echo "${COPYRIGHT}$(cat "${CSVFILE}")" > "${CSVFILE}.2"
-	mv "${CSVFILE}.2" "${CSVFILE}" 
+	mv "${CSVFILE}.2" "${CSVFILE}"
 
 	if [[ $(diff -q -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "[INFO] ${0##*/} :: Converted + inserted (yq #2) ${CSVFILE}:"
