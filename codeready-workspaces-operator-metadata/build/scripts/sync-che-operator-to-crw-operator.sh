@@ -59,10 +59,10 @@ CRW_OPERATOR="crw-2-rhel8-operator"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}" 
+CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
-CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}" 
-CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}" 
+CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
+CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
@@ -82,13 +82,12 @@ rsync -azrlt ${COPY_FOLDERS} ${TARGETDIR}/
 # sed changes
 while IFS= read -r -d '' d; do
 	if [[ -d "${SOURCEDIR}/${d%/*}" ]]; then mkdir -p "${TARGETDIR}"/"${d%/*}"; fi
-	if [[ -f "${TARGETDIR}/${d}" ]]; then 
+	if [[ -f "${TARGETDIR}/${d}" ]]; then
 		sed -i "${TARGETDIR}/${d}" -r \
 			-e "s|identityProviderPassword: ''|identityProviderPassword: 'admin'|g" \
 			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
 			-e "s|Eclipse Che|CodeReady Workspaces|g" \
 			-e 's|(DefaultCheFlavor.*=) "che"|\1 "codeready"|' \
-			-e 's|(DefaultPvcStrategy.*=) "common"|\1 "per-workspace"|' \
 			-e 's|che/operator|codeready/operator|' \
 			-e 's|che-operator|codeready-operator|' \
 			-e 's|name: eclipse-che|name: codeready-workspaces|' \
@@ -200,7 +199,7 @@ declare -A operator_replacements=(
 
 	["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
 	# CRW-1956 - not supported; use the same traefik image
-	["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}" 
+	["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
@@ -235,7 +234,7 @@ done
 
 # CRW-1579 set correct crw-2-rhel8-operator image and tag in operator deployment yaml
 oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")
-if [[ $oldImage ]]; then 
+if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
 fi
 
@@ -261,7 +260,6 @@ changed="$(cat "${TARGETDIR}/${CR_YAML}" | \
 yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
 yq  -y '.spec.server.cheFlavor="codeready"' | \
 yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
-yq  -y '.spec.storage.pvcStrategy="per-workspace"' | \
 yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
 yq  -y 'del(.spec.k8s)')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
@@ -273,7 +271,7 @@ fi
 yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
 yq -yY '.spec.template.spec.containers[1].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}"
 echo "${COPYRIGHT}$(cat "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
-mv "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2" "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" 
+mv "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2" "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}"
 
 # delete unneeded files
 rm -rf "${TARGETDIR}/deploy"
