@@ -240,7 +240,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		echo "[INFO] ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
 
-	# Remove backup/restore CRDs until feature is enabled in CRW
+	# TODO: CRW-1965 - Remove backup/restore CRDs until feature is enabled in CRW
 	i=0
 	crdsNumber=$(cat "${CSVFILE}" | yq -r ".spec.customresourcedefinitions.owned | length")
 	license=$(head -n 10 ${CSVFILE})
