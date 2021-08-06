@@ -41,19 +41,12 @@ node(nodeLabel) {
 
                 if (PHASE_LIST.contains("1")) {
                     // rebuild lang server artifacts
-                    currentJob="crw-imagepuller_" + JOB_BRANCH
-                    lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
-                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
-                }
-
-                if (PHASE_LIST.contains("2")) {
-                    // rebuild lang server artifacts
                     currentJob="crw-deprecated_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
                 }
 
-                if (PHASE_LIST.contains("3")) {
+                if (PHASE_LIST.contains("2")) {
                     // all the sidecars - start this early since it's 10 builds
                     currentJob="sync-to-downstream_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this set of 10 builds to finish
@@ -62,7 +55,7 @@ node(nodeLabel) {
 
                 currentQuayImageTheia=""
                 currentQuayImageTheiaEndpoint=""
-                if (PHASE_LIST.contains("4")) {
+                if (PHASE_LIST.contains("3")) {
                     // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
                     currentJob="crw-theia-sources_" + JOB_BRANCH
                     currentQuayImageTheia = util.getLatestImageAndTag("crw/theia-rhel8", "quay")
@@ -72,12 +65,15 @@ node(nodeLabel) {
                     lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                 }
 
-                if (PHASE_LIST.contains("5")) {
+                if (PHASE_LIST.contains("4")) {
                     def jobsList = [
                         "configbump":"configbump-rhel8",
                         "operator":"crw-2-rhel8-operator",
+                        "dashboard": "dashboard-rhel8",
                         "devworkspace-controller":"devworkspace-controller-rhel8",
                         "devworkspace":"devworkspace-rhel8",
+                        "idea":"idea-rhel8",
+                        "imagepuller":"imagepuller-rhel8",
                         "jwtproxy":"jwtproxy-rhel8",
                         "machineexec":"machineexec-rhel8",
                         "pluginbroker-artifacts":"pluginbroker-artifacts-rhel8",
@@ -106,7 +102,7 @@ node(nodeLabel) {
                     parallel(tasks)
                 }
 
-                if (PHASE_LIST.contains("4")) {
+                if (PHASE_LIST.contains("3")) {
                     // wait until theia is rebuilt too
                     util.waitForNewQuayImage("crw/theia-rhel8", currentQuayImageTheia)
                     util.waitForNewQuayImage("crw/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint)
@@ -114,7 +110,7 @@ node(nodeLabel) {
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId}>crw-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId}</a>"
                 }
 
-                if (PHASE_LIST.contains("6")) {
+                if (PHASE_LIST.contains("5")) {
                     currentQuayImageMetadata = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-metadata", "quay")
                     println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
 
@@ -124,9 +120,6 @@ node(nodeLabel) {
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>update-digests#${lastBuildId}</a>"
                     util.waitForNewQuayImage("crw/crw-2-rhel8-operator-metadata", currentQuayImageMetadata)
                 }
-
-                // TODO CRW-1348 trigger rpm signature check job as PHASE 7 once metadata image is updated (if we need this for plugin-intellij)
-
             } // withCredentials
         } // wrap
     } // stage

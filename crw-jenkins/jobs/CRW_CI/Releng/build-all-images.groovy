@@ -36,15 +36,14 @@ This job is meant to be used to orchestrate rebuilding everything in CRW after a
 
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
-            stringParam("PHASES", "1 2 3 4 5 6", '''Phases:<br/>
-1 - build image puller (and sleep exec)<br/>
-2 - build lang server dependencies (7 builds -> tarballs)<br/>
-3 - build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)<br/>
-4 - build theia images (3 images)<br/>
-5 - build internals (10 images)<br/>
- * configbump, operator, devworkspace-controller, devworkspace, jwtproxy
- * machineexec, pluginbroker-artifacts, pluginbroker-metadata, server, traefik
-6 - build registries and metadata (3 images + iib)
+            stringParam("PHASES", "1 2 3 4 5", '''Phases:<br/>
+1 - build lang server dependencies (5 tarballs)<br/>
+2 - build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)<br/>
+3 - build theia images (3 images)<br/>
+4 - build internals (13 images)<br/>
+ * configbump, operator, dashboard, devworkspace-controller, devworkspace, idea, imagepuller, <br/>
+ * jwtproxy, machineexec, pluginbroker-artifacts, pluginbroker-metadata, server, traefik<br/>
+5 - build registries and metadata (3 images + iib)
             ''')
         }
 
