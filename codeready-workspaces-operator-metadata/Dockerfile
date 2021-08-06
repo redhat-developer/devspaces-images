@@ -39,6 +39,6 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       name="$PRODNAME/$COMPNAME" \
       version="2.11" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
+      maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
