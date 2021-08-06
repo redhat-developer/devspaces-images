@@ -12,9 +12,6 @@
 # Dockerfile defines che-machine-exec production image eclipse/che-machine-exec-dev
 #
 
-# https://quay.io/repository/eclipse/kubernetes-image-puller?tab=tags
-FROM quay.io/eclipse/kubernetes-image-puller:e28a7fb as k8s-image-puller
-
 FROM golang:1.15.0-alpine as go_builder
 
 ENV USER=machine-exec
@@ -57,6 +54,4 @@ USER machine-exec
 
 COPY --from=go_builder /go/bin/che-machine-exec /go/bin/che-machine-exec
 COPY --from=cloud_shell_builder /app /cloud-shell
-COPY --from=k8s-image-puller /bin/sleep /bin/sleep
-
 ENTRYPOINT ["/go/bin/che-machine-exec", "--static", "/cloud-shell"]
