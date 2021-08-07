@@ -97,7 +97,3 @@ LABEL summary="\$SUMMARY" \\
       usage=""
 EOT
 echo "Converted Dockerfile"
-
-# add ignore for the tarballs in mid and downstream
-echo "/codeready-workspaces-sleep*.gz" >> ${TARGETDIR}/.gitignore
-echo "Adjusted .gitignore"
