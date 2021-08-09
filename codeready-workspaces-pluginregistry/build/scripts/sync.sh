@@ -10,11 +10,10 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (crw-images repo) using yq, sed
+# SPECIAL CASE: convert registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (crw-images repo) using yq, sed
+# https://github.com/redhat-developer/codeready-workspaces/tree/crw-2-rhel-8/dependencies to https://github.com/redhat-developer/codeready-workspaces-images
 
 set -e
-
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
@@ -73,11 +72,11 @@ echo ".github/
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
 rm -f /tmp/rsync-excludes
 
 # ensure shell scripts are executable
-find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
 # CRW-1792 transform che-editors.yaml#L5 and che-plugins.yaml#L3 to refer to /latest
 pushd "${TARGETDIR}" >/dev/null || exit 1
@@ -87,6 +86,7 @@ done
 popd >/dev/null || exit
 
 # transform Dockerfile
+# shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
@@ -139,14 +139,14 @@ replaceField()
   updateName="$2"
   updateVal="$3"
   echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
-  changed=$(cat ${theFile} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-    ${updateName}' = $updateVal')
+  # shellcheck disable=SC2016 disable=SC2086
+  changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
   echo "${COPYRIGHT}${changed}" > "${theFile}"
 }
 
-pushd ${TARGETDIR} >/dev/null || exit 1
+pushd "${TARGETDIR}" >/dev/null || exit 1
 
 # TODO transform che-theia references to CRW theia references, including:
-# descritpion, icon, attributes.version, attributes.title, attributes.repository
+# description, icon, attributes.version, attributes.title, attributes.repository
 
 popd >/dev/null || exit
