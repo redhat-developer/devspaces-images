@@ -11,7 +11,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-54.1618436884 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-63.1626843762 as builder
 USER 0
 
 # Keep old BOOTSTRAP variable as the rhel.install script still checks them

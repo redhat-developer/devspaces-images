@@ -24,8 +24,8 @@ MIDSTM_NAME="devfileregistry"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces -t /tmp/codeready-workspaces-images/codeready-workspaces-${MIDSTM_NAME}
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b CRW_BRANCH]
+Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces -t /tmp/codeready-workspaces-images/codeready-workspaces-${MIDSTM_NAME} -b crw-2.y-rhel-8
 "
     exit
 }
@@ -34,6 +34,7 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+    '-b') CRW_BRANCH="$2"; shift 1;;
     # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
     '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
@@ -47,6 +48,15 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+
+# try to compute branches from currently checked out branch; else fall back to hard coded value for where to find 
+# https://github.com/redhat-developer/codeready-workspaces-images/blob/${CRW_BRANCH}/codeready-workspaces-operator-metadata-generated/manifests/codeready-workspaces.csv.yaml
+if [[ -z ${CRW_BRANCH} ]]; then 
+  CRW_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  if [[ $CRW_BRANCH != "crw-2."*"-rhel-8" ]]; then
+    CRW_BRANCH="crw-2-rhel-8"
+  fi
+fi
 
 # step one - build the builder image
 BUILDER=$(command -v podman || true)
@@ -84,9 +94,10 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    `# Set arg options: enable USE_DIGESTS and disable BOOTSTRAP` \
+    `# Set arg options: enable USE_DIGESTS and disable BOOTSTRAP; update CRW_BRANCH to correct value` \
     -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=true|' \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
+    -e "s|ARG CRW_BRANCH=.*|ARG CRW_BRANCH=${CRW_BRANCH}|" \
     `# Enable offline build - copy in built binaries` \
     -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \

@@ -73,7 +73,6 @@ RUN \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
-# BEGIN these steps might not be required
 RUN sed -i /etc/httpd/conf/httpd.conf \
     -e "s,Listen 80,Listen 8080," \
     -e "s,logs/error_log,/dev/stderr," \
@@ -81,7 +80,9 @@ RUN sed -i /etc/httpd/conf/httpd.conf \
     -e "s,AllowOverride None,AllowOverride All," && \
     chmod a+rwX /etc/httpd/conf /run/httpd /etc/httpd/logs/
 STOPSIGNAL SIGWINCH
-# END these steps might not be required
+
+ARG CRW_BRANCH=crw-2-rhel-8
+ENV CRW_BRANCH=${CRW_BRANCH}
 
 WORKDIR /var/www/html
 
