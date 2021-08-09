@@ -8,11 +8,12 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
 #
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry.access.redhat.com/ubi8/python-38:1-60 as builder
+FROM registry.access.redhat.com/ubi8/python-38:1-63.1626843762 as builder
 USER 0
 
 ARG BOOTSTRAP=false
@@ -62,7 +63,7 @@ RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM registry.access.redhat.com/ubi8/httpd-24:1-140 AS registry
+FROM registry.access.redhat.com/ubi8/httpd-24:1-143.1626836617 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
@@ -72,6 +73,14 @@ RUN \
     yum -y -q --nobest update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+
+RUN echo "<FilesMatch "\""^\\.ht"\"">" >> /etc/httpd/conf/httpd.conf && \
+    echo "Require all denied" >> /etc/httpd/conf/httpd.conf && \
+    echo "</FilesMatch>" >> /etc/httpd/conf/httpd.conf
+
+RUN sed -i /etc/httpd/conf.d/ssl.conf \
+    -e "s,SSLProtocol all -SSLv2,SSLProtocol all -SSLv3," \
+    -e "s,SSLCipherSuite HIGH:MEDIUM:!aNULL:!MD5,SSLCipherSuite HIGH:!aNULL:!MD5,"
 
 RUN sed -i /etc/httpd/conf/httpd.conf \
     -e "s,Listen 80,Listen 8080," \
