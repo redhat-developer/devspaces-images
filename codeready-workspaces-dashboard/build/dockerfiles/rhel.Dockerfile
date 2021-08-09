@@ -33,7 +33,7 @@ RUN /dashboard/.yarn/releases/yarn-*.*js install
 COPY packages/ /dashboard/packages
 RUN /dashboard/.yarn/releases/yarn-*.*js build
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12:1-90.1626843814
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
 FROM registry.access.redhat.com/ubi8/nodejs-12:1-90.1626843814
 USER 0
 

@@ -45,11 +45,14 @@ The development server serves the project on [http://localhost:3000](http://loca
 Note: For Che/CRW to allow connection from localhost it should be configured in accordance.
 
 ```bash
+# Note: eclipse-che is the default target namespace but if you have custom - change it below
+CHE_NAMESPACE="eclipse-che"
 cat <<EOF | kubectl apply -f -
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: keycloak-custom-config
+  namespace: $CHE_NAMESPACE
   labels:
     app.kubernetes.io/part-of: che.eclipse.org
     app.kubernetes.io/component: keycloak-configmap
@@ -62,8 +65,7 @@ data:
   ADDITIONAL_REDIRECT_URIS: '"http://localhost:3000/*"'
 EOF
 # Due temporary limitation we need to rollout che operator to apply changes
-# Note: eclipse-che is the default target namespace but if you have custom - change it below
-kubectl rollout restart deployment/che-operator -n eclipse-che
+kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
 ```
 
 Note: To use CodeReady Workspaces(based on Che) Hosted by Red Hat instance at https://workspaces.openshift.com, use the fully qualified host name of the cluster.

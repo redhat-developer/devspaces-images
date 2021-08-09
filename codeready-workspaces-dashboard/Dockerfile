@@ -34,7 +34,7 @@ RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-c
 COPY packages/ /dashboard/packages
 RUN /dashboard/.yarn/releases/yarn-*.*js build
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12:1-90.1626843814
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
 FROM ubi8/nodejs-12:1-90.1626843814
 USER 0
 

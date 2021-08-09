@@ -134,11 +134,16 @@ export class KeycloakSetupService {
 
       return settings;
     } catch (e) {
-      if (e.response.status === 404) {
+      if (e.response?.status === 404) {
         return;
       }
 
-      throw new Error(`Can't get Keycloak settings: ${e.response.status} ${e.response.statusText}`);
+      const errorMessage = 'Cannot get Keycloak settings' + (
+        e.response?.status === undefined
+          ? '. Response is not available, please check console for details.'
+          : `: ${e.response?.status} ${e.response?.statusText}`
+      );
+      throw new Error(errorMessage);
     }
   }
 

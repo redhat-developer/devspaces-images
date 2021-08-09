@@ -71,7 +71,12 @@ export class Layout extends React.PureComponent<Props, State> {
   }
 
   private logout(): void {
-    this.keycloakAuthService.logout();
+    if (KeycloakAuthService.sso) {
+      this.keycloakAuthService.logout();
+    } else {
+      // assume that Che deployed with `nativeUserMode` enabled
+      window.location.href = '/oauth/sign_out';
+    }
   }
 
   private toggleNav(): void {
