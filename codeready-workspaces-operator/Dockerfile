@@ -13,8 +13,8 @@
 FROM rhel8/go-toolset:1.15.13-4 as builder
 ENV GOPATH=/go/
 ENV RESTIC_TAG=v0.12.0
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.7.x"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.34.x"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
+ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 USER root
 
@@ -94,6 +94,6 @@ LABEL com.redhat.delivery.appregistry="false" \
       name="$PRODNAME/$COMPNAME" \
       version="2.12" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
+      maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""

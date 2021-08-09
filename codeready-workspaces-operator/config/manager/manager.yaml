@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: codeready-operator
-          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.11
+          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.12
           command:
             - /manager
           args:
@@ -56,7 +56,7 @@ spec:
             - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
               value: ca-certs
             - name: CHE_VERSION
-              value: 2.11.0
+              value: 2.12.0
             - name: CONSOLE_LINK_DISPLAY_NAME
               value: CodeReady Workspaces
             - name: CONSOLE_LINK_IMAGE
@@ -72,21 +72,21 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.12
             - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.12
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.12
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.12
             - name: RELATED_IMAGE_dashboard
-              value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.12
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.12
             - name: RELATED_IMAGE_devworkspace_che_operator
-              value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.12
             - name: RELATED_IMAGE_devworkspace_controller
-              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.12
             - name: RELATED_IMAGE_keycloak
               value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
             - name: RELATED_IMAGE_keycloak_ppc64le
@@ -94,17 +94,17 @@ spec:
             - name: RELATED_IMAGE_keycloak_s390x
               value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.12
             - name: RELATED_IMAGE_postgres
               value: registry.redhat.io/rhel8/postgresql-96:1
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.4
             - name: RELATED_IMAGE_single_host_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.12
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.12
             - name: RELATED_IMAGE_single_host_gateway_native_user_mode
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.12
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -158,14 +158,14 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.12
             - name: RELATED_IMAGE_gateway_configurer
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.11
+              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.12
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.11
+          image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8:2.12
           imagePullPolicy: Always
           name: devworkspace-che-operator
           resources:

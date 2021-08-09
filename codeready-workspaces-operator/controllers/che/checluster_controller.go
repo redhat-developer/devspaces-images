@@ -50,7 +50,7 @@ import (
 
 	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	userv1 "github.com/openshift/api/user/v1"
-	"k8s.io/api/extensions/v1beta1"
+	networking "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 )
 
@@ -208,7 +208,7 @@ func (r *CheClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			OwnerType:    &orgv1.CheCluster{},
 		})
 	} else {
-		contollerBuilder = contollerBuilder.Watches(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestForOwner{
+		contollerBuilder = contollerBuilder.Watches(&source.Kind{Type: &networking.Ingress{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
 			OwnerType:    &orgv1.CheCluster{},
 		})
@@ -312,6 +312,14 @@ func (r *CheClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 			if err := deploy.UpdateCheCRStatus(deployContext, "openShiftOAuthUserCredentialsSecret", ""); err != nil {
 				return reconcile.Result{}, err
 			}
+		}
+	}
+
+	if util.IsOpenShift && instance.Spec.DevWorkspace.Enable && instance.Spec.Auth.NativeUserMode == nil {
+		newNativeUserModeValue := util.NewBoolPointer(true)
+		instance.Spec.Auth.NativeUserMode = newNativeUserModeValue
+		if err := deploy.UpdateCheCRSpec(deployContext, "nativeUserMode", strconv.FormatBool(*newNativeUserModeValue)); err != nil {
+			return reconcile.Result{Requeue: true, RequeueAfter: time.Second * 1}, err
 		}
 	}
 
