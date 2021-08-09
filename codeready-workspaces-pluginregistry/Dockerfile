@@ -90,6 +90,9 @@ RUN sed -i /etc/httpd/conf/httpd.conf \
     chmod a+rwX /etc/httpd/conf /run/httpd /etc/httpd/logs/
 STOPSIGNAL SIGWINCH
 
+ARG CRW_BRANCH=crw-2.11-rhel-8
+ENV CRW_BRANCH=${CRW_BRANCH}
+
 WORKDIR /var/www/html
 
 RUN mkdir -m 777 /var/www/html/v3
