@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:71f4144d544fcfb1ca80a83890510a999bab04d1b6798e19950754f7c0c09027
-    createdAt: "2021-08-09T10:54:37+00:00"
+    createdAt: "2021-08-09T18:08:26+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1103,7 +1103,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:5684fb9190877d38a5f3c7bd25f1315719e065e899f25054370d739f53e82265
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:275fe695e7b32f400fe0f5bc12aa0ac7a249872e847ad8443da5ca20722ba309
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:73d832abe28008a44ca36615e5e28babd2c7ef444ae1f53d11a5428c853e307a
                 - name: RELATED_IMAGE_devworkspace_che_operator
                   value: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:fc1a7e9a6bc7606845d5272a620a97d4474fcf8c5b7233bf4f072c1c89a6cf05
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1125,7 +1125,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:3abde1d5e11d919e02f738d646f5bd328faf9880b1887ad76da8826eeab6ffe4
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:941b5c3b5e4131bfe2f380c99b1880e58e6d051c5d4dbb24f004ded359debccd
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:747ad829d5bbbe32f9e776894504cc454d08706132da9309af9c8704debd12d8
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:33643fb4cafffacb277982c6098b561aa80c06210e77d2badebef405ee953e43
                 - name: RELATED_IMAGE_pvc_jobs
@@ -1511,7 +1511,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:5684fb9190877d38a5f3c7bd25f1315719e065e899f25054370d739f53e82265
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:275fe695e7b32f400fe0f5bc12aa0ac7a249872e847ad8443da5ca20722ba309
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:73d832abe28008a44ca36615e5e28babd2c7ef444ae1f53d11a5428c853e307a
   - name: devworkspace_che_operator
     image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:fc1a7e9a6bc7606845d5272a620a97d4474fcf8c5b7233bf4f072c1c89a6cf05
   - name: devworkspace_controller
@@ -1533,7 +1533,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:3abde1d5e11d919e02f738d646f5bd328faf9880b1887ad76da8826eeab6ffe4
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:941b5c3b5e4131bfe2f380c99b1880e58e6d051c5d4dbb24f004ded359debccd
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:747ad829d5bbbe32f9e776894504cc454d08706132da9309af9c8704debd12d8
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:33643fb4cafffacb277982c6098b561aa80c06210e77d2badebef405ee953e43
   - name: pvc_jobs
