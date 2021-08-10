@@ -12,14 +12,17 @@
 # Theia dev Image
 #
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-90.1626843814
+FROM ubi8/nodejs-12:1-95
 USER 0
 RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum
 
 # Install packages
 USER root
-RUN yum install -y curl make cmake gcc gcc-c++ python2 git openssh less bash tar gzip libsecret libsecret-devel \
+# Install libsecret as Theia requires it
+# Install libsecret-devel on s390x and ppc64le for keytar build (binary included in npm package for x86)
+RUN yum install -y curl make cmake gcc gcc-c++ python2 git git-core-doc openssh less bash tar gzip rsync patch \
+    libsecret libsecret-devel \
     && yum -y clean all && rm -rf /var/cache/yum && \
     ln -s /usr/bin/python2.7 /usr/bin/python; python --version && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
