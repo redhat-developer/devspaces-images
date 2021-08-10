@@ -73,15 +73,15 @@ if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_
         CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
     fi
     if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
-        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace-controller"]."'${CRW_VERSION}'"')"
+        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace-controller"]["'${CRW_VERSION}'"][0]')"
         if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
     fi
     if [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]]; then
-        DEV_WORKSPACE_CHE_OPERATOR_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace"]."'${CRW_VERSION}'"')"
+        DEV_WORKSPACE_CHE_OPERATOR_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace"]["'${CRW_VERSION}'"][0]')"
         if [[ ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} == "null" ]]; then DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"; fi
     fi
     if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
-        DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$versionjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]."'${CRW_VERSION}'"')"
+        DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$versionjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]["'${CRW_VERSION}'"]')"
         if [[ ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} == "null" ]]; then DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"; fi
     fi
 fi
