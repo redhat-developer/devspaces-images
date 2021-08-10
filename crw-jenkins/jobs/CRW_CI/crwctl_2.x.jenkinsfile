@@ -39,7 +39,7 @@ timeout(90) {
           currentBuild.description="Check out code ..."
           util.cloneRepoWithBootstrap("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
           util.cloneRepoWithBootstrap("https://github.com/redhat-developer/${CTL_path}.git", "${WORKSPACE}/${CTL_path}", MIDSTM_BRANCH, true)
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-operator.git", "${WORKSPACE}/codeready-workspaces-operator", MIDSTM_BRANCH, false)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH, false)
 
           def CURRENT_DAY=sh(returnStdout:true,script:"date +'%Y%m%d-%H%M'").trim()
           def SHORT_SHA1 = util.getLastCommitSHA("${WORKSPACE}/${CTL_path}")
@@ -80,8 +80,8 @@ cd ${WORKSPACE}/''' + CTL_path + '''
 git checkout ''' + MIDSTM_BRANCH + '''
 
 # CRW-1579 change yamls to use :2.y tag, not :latest or :nightly - use that only for quay version of crwctl
-pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
-  FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
+pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
+  FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
     sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#registry.redhat.io/codeready-workspaces/\\1:''' + CRW_VERSION + '''#g"
   done
@@ -126,14 +126,12 @@ git push origin ''' + MIDSTM_BRANCH + ''' || true
 echo "2. Prepare ''' + MIDSTM_BRANCH + '''-quay branch of crw operator repo"
 
 # check out from MIDSTM_BRANCH
-pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
+pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
   git branch ''' + MIDSTM_BRANCH + '''-quay -f
   git checkout ''' + MIDSTM_BRANCH + '''-quay
-  ls -la . deploy manifests
-
   # CRW-1579 change yamls to use quay image, and :latest or :nightly
   # do not use :2.y to allow stable builds to be auto-updated via crwctl on ocp3.11 - :latest tag triggers always-update (?)
-  FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
+  FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
     sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + 
       (util.getJobBranch(MIDSTM_BRANCH).equals("2.x") ? "nightly" : "latest") + 
@@ -145,7 +143,7 @@ pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
   git push origin ''' + MIDSTM_BRANCH + '''-quay -f
 popd >/dev/null
 # cleanup
-rm -fr ${WORKSPACE}/codeready-workspaces-operator/
+rm -fr ${WORKSPACE}/codeready-workspaces-images/
 '''
           def RELEASE_DESCRIPTION=""
           if ("${versionSuffix}") {

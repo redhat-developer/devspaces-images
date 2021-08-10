@@ -9,7 +9,6 @@ def List GH_REPOS = [
     'codeready-workspaces-chectl',
     'codeready-workspaces-deprecated',
     'codeready-workspaces-images',
-    'codeready-workspaces-operator',
     'codeready-workspaces-theia']
 
 def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8"
