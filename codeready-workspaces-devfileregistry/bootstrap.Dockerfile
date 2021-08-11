@@ -22,8 +22,6 @@ USER 0
 
 ARG BOOTSTRAP=true
 ENV BOOTSTRAP=${BOOTSTRAP}
-ARG USE_DIGESTS=false
-ENV USE_DIGESTS=${USE_DIGESTS}
 
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
@@ -32,7 +30,7 @@ ENV USE_DIGESTS=${USE_DIGESTS}
 # NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
 # CONTAINERNAME=devfileregistryoffline && \
 # docker build -t ${CONTAINERNAME} . --no-cache  --target builder \
-#   --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false -f build/dockerfiles/Dockerfile 
+#   --build-arg BOOTSTRAP=true -f build/dockerfiles/Dockerfile 
 # mkdir -p /tmp/root-local/ && docker run --rm -v \
 #   /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash \
 #   -c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
@@ -70,7 +68,6 @@ RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /t
 
 RUN ./swap_yamlfiles.sh devfiles
 # RUN ./swap_images.sh devfiles
-RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh devfiles; fi
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
