@@ -174,7 +174,7 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-90.1626843814 as build-result
+FROM ubi8/nodejs-12:1-90 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
@@ -190,7 +190,7 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-90.1626843814.1626843814 as runtime
+FROM ubi8/nodejs-12:1-95 as runtime
 USER 0
 RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
@@ -243,15 +243,19 @@ USER root
 COPY asset-sshpass-sources.tar.gz /tmp/
 
 # Install sudo
-# Install bzip2 to unpack files
 # Install git
+# Install bzip2 to unpack files
 # Install which tool in order to search git
 # Install curl and bash
 # Install ssh for cloning ssh-repositories
 # Install less for handling git diff properly
 # Install sshpass for handling passwords for SSH keys
-RUN yum install -y sudo git bzip2 which bash curl openssh less && tar -xvf /tmp/asset-sshpass-sources.tar.gz -C /tmp/ && \
-    cd /tmp/sshpass-*/ && ./configure && make install && cd /tmp && rm -rf *sshpass-* && \
+# Install libsecret as Theia requires it
+# Install libsecret-devel on s390x and ppc64le for keytar build (binary included in npm package for x86)
+RUN yum install -y sudo git bzip2 which bash curl openssh less \
+    libsecret libsecret-devel \
+    && tar -xvf /tmp/asset-sshpass-sources.tar.gz -C /tmp/ && \
+    cd /tmp/sshpass-*/ && ./configure && make install && cd .. && rm -rf *sshpass-* && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
 # setup yarn (if missing)
