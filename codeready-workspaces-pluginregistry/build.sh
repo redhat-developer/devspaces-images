@@ -36,8 +36,6 @@ Options:
         cached in the registry; disabled by default.
     --skip-oci-image
         Build artifacts but do not create the image
-    --skip-digest-generation
-        Write image entries as is instead of re-writing with digests
 "
 
 function print_usage() {
@@ -68,10 +66,6 @@ function parse_arguments() {
             SKIP_OCI_IMAGE="true"
             shift;
             ;;
-            --skip-digest-generation)
-            BUILD_FLAGS_ARRAY+=("--skip-digest-generation:true")
-            shift;
-            ;;
             *)
             print_usage
             exit 0
@@ -86,7 +80,8 @@ yarn
 echo "Build tooling..."
 yarn --cwd "$(pwd)/tools/build" build
 echo "Generate artifacts..."
-eval node "${NODE_BUILD_OPTIONS}" tools/build/lib/entrypoint.js --output-folder:"$(pwd)/output" "${BUILD_FLAGS_ARRAY[@]}"
+# do not generate digests as they'll be added at runtime from the operator (see CRW-1157)
+eval node "${NODE_BUILD_OPTIONS}" tools/build/lib/entrypoint.js --output-folder:"$(pwd)/output" --skip-digest-generation:true "${BUILD_FLAGS_ARRAY[@]}"
 
 echo -e "\nTest entrypoint.sh"
 EMOJI_HEADER="-" EMOJI_PASS="[PASS]" EMOJI_FAIL="[FAIL]" "${base_dir}"/build/dockerfiles/test_entrypoint.sh
@@ -126,8 +121,6 @@ if [ "${SKIP_OCI_IMAGE}" != "true" ]; then
     fi
     echo "Building with $BUILDER $BUILD_COMMAND"
     IMAGE="${REGISTRY}/${ORGANIZATION}/pluginregistry-rhel8:${TAG}"
-    VERSION=$(head -n 1 VERSION)
-    echo "Building che plugin registry ${VERSION}."
     # Copy to root directory to behave as if in Brew or codeready-workspaces-images
     cp "${DOCKERFILE}" ./builder.Dockerfile
     ${BUILDER} ${BUILD_COMMAND} -t "${IMAGE}" -f ./builder.Dockerfile .
