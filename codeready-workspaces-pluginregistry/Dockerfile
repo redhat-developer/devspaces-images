@@ -13,13 +13,11 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM ubi8/python-38:1-63.1626843762 as builder
+FROM ubi8/python-38:1-68 as builder
 USER 0
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
-ARG USE_DIGESTS=true
-ENV USE_DIGESTS=${USE_DIGESTS}
 
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
@@ -28,7 +26,7 @@ ENV USE_DIGESTS=${USE_DIGESTS}
 # NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
 # CONTAINERNAME=pluginregistryoffline && \
 # docker build -t ${CONTAINERNAME} . --no-cache  --target builder \
-#   --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false -f build/dockerfiles/Dockerfile 
+#   --build-arg BOOTSTRAP=true -f build/dockerfiles/Dockerfile 
 # mkdir -p /tmp/root-local/ && docker run --rm -v \
 #   /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash \
 #   -c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
@@ -57,13 +55,12 @@ RUN tar -xvf resources.tgz -C ./
 RUN rm -rf ./output/v3/che-theia-plugins.yaml ./output/v3/che-editors.yaml ./output/v3/che-plugins.yaml
 RUN ./swap_images.sh ./output/v3 --use-generated-content
 RUN ./swap_plugins_memory.sh ./output/v3
-RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh ./output/v3; fi
 RUN ./list_referenced_images.sh ./output/v3 --use-generated-content > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt
 RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM ubi8/httpd-24:1-143.1626836617 AS registry
+FROM ubi8/httpd-24:1-152 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
