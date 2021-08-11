@@ -39,8 +39,8 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		fi
 	fi
 
-  # Use the same dockerfile for bootstrap as the build is happening in builder container
-	BOOTSTRAP_DOCKERFILE=./Dockerfile
+  # Use the upstream dockerfile for bootstrap as the build is happening in builder container
+	BOOTSTRAP_DOCKERFILE='bootstap.Dockerfile'
 	imageName=$(pwd);imageName=${imageName##*/}
 	${BUILDER} build . -f ${BOOTSTRAP_DOCKERFILE} --target builder -t ${imageName}:bootstrap --no-cache
 	# Extract vendor folder to tarball (let's hope there's nothing arch-specific we need here!)

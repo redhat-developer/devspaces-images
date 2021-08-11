@@ -59,8 +59,12 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
+
+TARGET_DOCKERFILE='Dockerfile'
+BOOTSTRAP_DOCKERFILE='bootstrap.Dockerfile'
+# use upstream dockerfile as bootstrap one (to retrieve dependencies for offline build)
+cp ${TARGETDIR}/${TARGET_DOCKERFILE} ${TARGETDIR}/${BOOTSTRAP_DOCKERFILE}
 # transform Dockerfile
-TARGET_DOCKERFILE='rhel.Dockerfile'
 sed "${SOURCEDIR}/Dockerfile" \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
