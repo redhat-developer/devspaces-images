@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-63.1626843762 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-68 as builder
 USER 0
 
 ################# 
@@ -22,8 +22,6 @@ USER 0
 
 ARG BOOTSTRAP=true
 ENV BOOTSTRAP=${BOOTSTRAP}
-ARG USE_DIGESTS=false
-ENV USE_DIGESTS=${USE_DIGESTS}
 
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
@@ -32,7 +30,7 @@ ENV USE_DIGESTS=${USE_DIGESTS}
 # NOTE: used to be in /root/.local but now can be found in /opt/app-root/src/.local
 # CONTAINERNAME=devfileregistryoffline && \
 # docker build -t ${CONTAINERNAME} . --no-cache  --target builder \
-#   --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false -f build/dockerfiles/Dockerfile 
+#   --build-arg BOOTSTRAP=true -f build/dockerfiles/Dockerfile 
 # mkdir -p /tmp/root-local/ && docker run --rm -v \
 #   /tmp/root-local/:/tmp/root-local/ ${CONTAINERNAME} /bin/bash \
 #   -c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
@@ -70,7 +68,6 @@ RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /t
 
 RUN ./swap_yamlfiles.sh devfiles
 # RUN ./swap_images.sh devfiles
-RUN if [[ ${USE_DIGESTS} == "true" ]]; then ./write_image_digests.sh devfiles; fi
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
@@ -81,7 +78,7 @@ RUN chmod -R g+rwX /build/devfiles
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-httpd-24:1-143.1626836617 AS registry
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-httpd-24:1-152 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
