@@ -60,13 +60,16 @@ rm -f /tmp/rsync-excludes
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
 # transform Dockerfile
+TARGET_DOCKERFILE='rhel.Dockerfile'
 sed "${SOURCEDIR}/Dockerfile" \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-  > "${TARGETDIR}/Dockerfile"
+    `# Do not use micro ubi image as Brew doesn't support it` \
+    -e 's|ubi-micro|ubi-minimal|' \
+  > "${TARGETDIR}/${TARGET_DOCKERFILE}"
 
-cat << EOT >> "${TARGETDIR}/Dockerfile"
+cat << EOT >> "${TARGETDIR}/${TARGET_DOCKERFILE}"
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
