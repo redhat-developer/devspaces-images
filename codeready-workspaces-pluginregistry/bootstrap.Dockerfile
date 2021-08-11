@@ -31,7 +31,7 @@ COPY ./build /build/build/
 
 # Run plugin registry build to generate artifacts
 WORKDIR /build/
-RUN SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --offline --skip-oci-image --skip-digest-generation
+RUN SKIP_FORMAT=true SKIP_LINT=true SKIP_TEST=true ./build.sh --offline --skip-oci-image
 
 # Archive artifacts to be copied out by Jenkins
 RUN tar -czvf resources.tgz ./output/v3/ && mkdir /tmp/resources/ && cp ./resources.tgz /tmp/resources/
