@@ -26,7 +26,6 @@ RUN npm install --global yarn
 
 # Copy files needed for the plugin registry build/artifact creation
 COPY ./build.sh ./*.yml ./*.yaml ./*.js ./*.json ./yarn.lock /build/
-COPY ./tools/ /build/tools/
 COPY ./build /build/build/
 
 # Run plugin registry build to generate artifacts
