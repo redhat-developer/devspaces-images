@@ -10,7 +10,7 @@ forceBuild=0
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 pullAssets=0
 
-goVendorAssets=asset-vendor-cache.tgz
+resticRestServerAssets=assets-rest-server.tgz
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -29,7 +29,6 @@ function log() {
 }
 
 if [[ ${pullAssets} -eq 1 ]]; then
-	# step one - build the builder image
 	BUILDER=$(command -v podman || true)
 	if [[ ! -x $BUILDER ]]; then
 		# echo "[WARNING] podman is not installed, trying with docker"
@@ -40,19 +39,19 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	fi
 
   # Use the upstream dockerfile for bootstrap as the build is happening in builder container
-	BOOTSTRAP_DOCKERFILE='bootstap.Dockerfile'
+	BOOTSTRAP_DOCKERFILE='bootstrap.Dockerfile'
 	imageName=$(pwd);imageName=${imageName##*/}
 	${BUILDER} build . -f ${BOOTSTRAP_DOCKERFILE} --target builder -t ${imageName}:bootstrap --no-cache
 	# Extract vendor folder to tarball (let's hope there's nothing arch-specific we need here!)
-	${BUILDER} run --rm --entrypoint sh ${imageName}:bootstrap -c 'tar -pzcf - /tmp/go/rest-server/vendor' > ${goVendorAssets}
+	${BUILDER} run --rm --entrypoint sh ${imageName}:bootstrap -c 'tar -pzcf - /tmp/go/rest-server/' > ${resticRestServerAssets}
 	${BUILDER} rmi ${imageName}:bootstrap
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	git add sources Dockerfile .gitignore || true
-	log "[INFO] Upload new sources: ${goVendorAssets}"
-	rhpkg new-sources ${goVendorAssets}
-	log "[INFO] Commit new sources from: ${goVendorAssets}"
+	log "[INFO] Upload new sources: ${resticRestServerAssets}"
+	rhpkg new-sources ${resticRestServerAssets}
+	log "[INFO] Commit new sources from: ${resticRestServerAssets}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

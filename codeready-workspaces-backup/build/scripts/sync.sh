@@ -71,6 +71,14 @@ sed "${SOURCEDIR}/Dockerfile" \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# Do not use micro ubi image as Brew doesn't support it` \
     -e 's|ubi-micro|ubi-minimal|' \
+    `# Delete git repository cloning` \
+    -e "/git clone/d" \
+    `# Delete downloading of the dependencies` \
+    -e '/go mod vendor/d' \
+    `# Add sources and dependencies into the image` \
+    -e '/RUN export ARCH=/i COPY asset* /tmp/' \
+    `# Put the the sources and dependencies in place like they had been downloaded before` \
+    -e '/cd rest-server/i \ \ \ \ tar -xzf /tmp/asset*.tgz --strip-components=2 -C $GOPATH && \\' \
   > "${TARGETDIR}/${TARGET_DOCKERFILE}"
 
 cat << EOT >> "${TARGETDIR}/${TARGET_DOCKERFILE}"
