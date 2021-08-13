@@ -93,7 +93,9 @@ export async function grabLink(links: api.che.core.rest.Link, filename: string):
   // remove first part of the link until /api (to avoid the full links and use only relative links)
   const href = foundLink.href.substring(foundLink.href.indexOf('/api/scm'));
   try {
-    const response = await axios.get<string>(href, { responseType: 'text' });
+    // load it in raw format
+    // see https://github.com/axios/axios/issues/907
+    const response = await axios.get<string>(href, { responseType: 'text', transformResponse: [(data) => { return data; }] });
     return response.data;
   } catch (error) {
     // content may not be there

@@ -159,15 +159,20 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
     console.debug('Loading devfile', devfile, 'with optional .che/che-theia-plugins.yaml', cheTheiaPluginsContent, 'and .vscode/extensions.json', vscodeExtensionsJsonContent, 'with sidecar policy', sidecarPolicy);
     // call library to update devWorkspace and add optional templates
-    await cheTheiaPluginsDevfileResolver.handle({
-      devfile,
-      cheTheiaPluginsContent,
-      vscodeExtensionsJsonContent,
-      devWorkspace,
-      devWorkspaceTemplates,
-      sidecarPolicy,
-      suffix: workspaceId,
-    });
+    try {
+      await cheTheiaPluginsDevfileResolver.handle({
+        devfile,
+        cheTheiaPluginsContent,
+        vscodeExtensionsJsonContent,
+        devWorkspace,
+        devWorkspaceTemplates,
+        sidecarPolicy,
+        suffix: workspaceId,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error(`Unable to update the devWorkspace with the devfile resolver: ${error.message}`);
+    }
     console.debug('Devfile updated to', devfile, ' and templates updated to', devWorkspaceTemplates);
 
     await Promise.all(devWorkspaceTemplates.map(async template => {
