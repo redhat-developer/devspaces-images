@@ -86,7 +86,7 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR
 rm -f /tmp/rsync-excludes
 
 # special case, copy VERSION.json into midstream root dir so it's accessible from /build/../VERSION.json
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/../VERSION.json "${TARGETDIR}"/
+rsync -azrlt --checksum "${SOURCEDIR%/*}/VERSION.json" "${TARGETDIR}"/
 
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
