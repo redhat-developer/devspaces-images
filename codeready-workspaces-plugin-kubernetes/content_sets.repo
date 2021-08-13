@@ -10,9 +10,9 @@ baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/rhel8/8/$basearch/baseos/o
 enabled=1
 gpgcheck=0
 
-[ocp-tools-4.7-for-rhel-8-rpms]
-name=ocp-tools-4.7-for-rhel-8-rpms
-baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/ocp-tools/4.7/os/
+[ocp-tools-4.8-for-rhel-8-rpms]
+name=ocp-tools-4.8-for-rhel-8-rpms
+baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/ocp-tools/4.8/os/
 enabled=1
 gpgcheck=0
 
