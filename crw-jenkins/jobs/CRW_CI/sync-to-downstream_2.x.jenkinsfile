@@ -24,7 +24,7 @@ timeout(600) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
-        currentBuild.description="${SYNC_REPOS[i]}: Install skopeo, rhpkg, "
+        currentBuild.description="${REPOS}<br/>Install skopeo, rhpkg, "
         util.installSkopeoFromContainer("")
         util.installRhpkg()
         // install node and yarn if versions defined (eg., for theia-dev's generator tgz)

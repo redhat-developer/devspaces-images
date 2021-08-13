@@ -57,8 +57,8 @@ Artifact builder + sync job; triggers brew after syncing
             stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("MIDSTM_NAME", MIDSTM_NAME)
-            stringParam("nodeVersion", "12.21.0", "Leave blank if not needed")
-            stringParam("yarnVersion", "1.21.1", "Leave blank if not needed")
+            stringParam("nodeVersion", "12.22.3", "Leave blank if not needed")
+            stringParam("yarnVersion", "1.22.5", "Leave blank if not needed")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

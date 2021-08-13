@@ -76,8 +76,8 @@ Results:
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("nodeVersion", "12.21.0", "Leave blank if not needed")
-            stringParam("yarnVersion", "1.21.1", "Leave blank if not needed")
+            stringParam("nodeVersion", "12.22.3", "Leave blank if not needed")
+            stringParam("yarnVersion", "1.22.5", "Leave blank if not needed")
             // TODO CRW-1609 implement tag deletion option
             // booleanParam("cleanTmpImages", false, "If true, delete tmp images from quay before starting build(s)")
             // @since 2.9 - sync-to-downstream expects comma separated values
