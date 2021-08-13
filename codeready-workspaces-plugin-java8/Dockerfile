@@ -34,14 +34,14 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_set*.repo /etc/yum.repos.d/
 
-# For OpenShift Client 4 (oc): rhocp-4.7-for-rhel-8-x86_64-rpms
+# For OpenShift Client 4 (oc): rhocp-4.8-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202107292242.p0.git.8b4b094.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202107292242.p0.git.8b4b094.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.7/os/Packages/o/openshift-clients-4.7.0-202107292242.p0.git.8b4b094.assembly.stream.el8.ppc64le.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202107292313.p0.git.1077b05.assembly.stream.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202107292313.p0.git.1077b05.assembly.stream.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202107292313.p0.git.1077b05.assembly.stream.el8.ppc64le.rpm
 RUN microdnf -y install yum && \
-    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.7.0-202107292242.p0.git.8b4b094.assembly.stream.el8 \
+    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.8.0-202107292313.p0.git.1077b05.assembly.stream.el8 \
     java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     sudo git procps-ng bzip2 && \
