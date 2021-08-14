@@ -187,10 +187,10 @@ github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/daviddengcn/go-colortext v0.0.0-20160507010035-511bcaf42ccd/go.mod h1:dv4zxwHi5C/8AeI+4gX4dCWOIvNi7I6JCSX0HvlKPgE=
 github.com/deislabs/oras v0.7.0/go.mod h1:sqMKPG3tMyIX9xwXUBRLhZ24o+uT4y6jgBD2RzUTKDM=
 github.com/denisenkom/go-mssqldb v0.0.0-20190515213511-eb9f6a1743f3/go.mod h1:zAg7JM8CkOJ43xKXIj7eRO9kmWm/TW578qo+oDO6tuM=
-github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05 h1:GuE+5exImKkOfTgFdw8GEOA9jTIpQEuu/27pdUG2BM0=
-github.com/devfile/api/v2 v2.0.0-20210427194344-cd9c30e6aa05/go.mod h1:Cot4snybn3qhIh48oIFi9McocnIx7zY5fFbjfrIpPvg=
-github.com/devfile/devworkspace-operator v0.7.2 h1:j2HulHaciwjtQpRm9bUM8urYciROZ2xj0NZE+iEMXVo=
-github.com/devfile/devworkspace-operator v0.7.2/go.mod h1:jnislgO8E8yuhfWm4qpNSK/nd1TCh8ehz5Sm6iK3kls=
+github.com/devfile/api/v2 v2.0.0-20210713124824-03e023e7078b h1:N00ORHA5iamvPKpDFfSAkAczAaCBvK8l0EzAphsgFSI=
+github.com/devfile/api/v2 v2.0.0-20210713124824-03e023e7078b/go.mod h1:QNzaIVQnCsYfXed+QZOn1uvEQFzyhvpi/uc3g/b2ws0=
+github.com/devfile/devworkspace-operator v0.8.0 h1:C9c1tzMyfH9w5tmf9q+Pc5dMJ44/g7XyGhH32AkiUoc=
+github.com/devfile/devworkspace-operator v0.8.0/go.mod h1:iXO+L00/lQtif6VXMR4mhUdApWG/Sg1E9vuZZRk2XRw=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/dhui/dktest v0.3.0/go.mod h1:cyzIUfGsBEbZ6BT7tnXqAShHSXCZhSNmFl70sZ7c1yc=
@@ -521,6 +521,7 @@ github.com/lucas-clemente/aes12 v0.0.0-20171027163421-cd47fb39b79f/go.mod h1:JpH
 github.com/lucas-clemente/quic-clients v0.1.0/go.mod h1:y5xVIEoObKqULIKivu+gD/LU90pL73bTdtQjPBvtCBk=
 github.com/lucas-clemente/quic-go v0.10.2/go.mod h1:hvaRS9IHjFLMq76puFJeWNfmn+H70QZ/CXoxqw9bzao=
 github.com/lucas-clemente/quic-go-certificates v0.0.0-20160823095156-d2f86524cced/go.mod h1:NCcRLrOTZbzhZvixZLlERbJtDtYsmMw8Jc4vS8Z0g58=
+github.com/lucasjones/reggen v0.0.0-20200904144131-37ba4fa293bb/go.mod h1:5ELEyG+X8f+meRWHuqUOewBOhvHkl7M76pdGEansxW4=
 github.com/lyft/protoc-gen-validate v0.0.13/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0QoUACkjt2znoq26NVQ=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
