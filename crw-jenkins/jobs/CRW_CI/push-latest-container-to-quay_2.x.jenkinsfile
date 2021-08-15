@@ -65,7 +65,7 @@ for c in ''' + CONTAINERS.trim() + '''; do
     if [[ $c == "operator" ]] || [[ $c == "operator-metadata" ]]; then 
         d=codeready-workspaces-${c}
     fi 
-    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --hide --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
                             ''', returnStatus: true)
@@ -77,7 +77,7 @@ wait
                         }, 
                         nvr_check: {
                             NEW_NVR = sh (
-                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
                                 returnStdout: true).trim().split( '\n' )
                         }, 
                         get_latest_images: {
@@ -115,7 +115,7 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             currentBuild.description+="; Quay/Brew version mismatch"
                             currentBuild.result = 'UNSTABLE'
                             sh(script: '''#!/bin/bash -xe
-    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
                             ''', returnStatus: true)
                             currentBuild.description+="; all Quay images updated"
                         }
@@ -219,7 +219,7 @@ chmod +x updateGeneratedOperatorMetadata.sh
             def statusCode = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh
 chmod +x getLatestImageTags.sh
-NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION + '''-)
+NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION + '''-)
 
 # registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator-metadata:2.9-2	registry-proxy.engineering.redhat.com/rh-osbs/iib:69346	v4.7
 curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -20 > datagrepper.tsv.txt

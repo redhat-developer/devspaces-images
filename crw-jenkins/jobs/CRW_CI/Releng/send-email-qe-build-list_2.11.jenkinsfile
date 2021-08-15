@@ -86,7 +86,7 @@ timeout(90) {
                     }, 
                     nvr_check: {
                         NEW_NVR = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
                             returnStdout: true).trim().split( '\n' )
                     }
 
