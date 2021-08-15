@@ -30,10 +30,13 @@ operator_manifests:
     - registry: registry.redhat.io
       package_mappings:
         codeready-workspaces-operator-package: codeready-workspaces/crw-2-rhel8-operator
+        jboss-eap-7-xp3-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
+        jboss-eap-7-xp3-openj9-11-openshift-rhel8-container: jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8
         jboss-eap-7-xp2-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8
         jboss-eap-7-xp2-openj9-11-openshift-rhel8-container: jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8
         jboss-eap-7-xp1-openj9-11-openshift-rhel8-container: jboss-eap-7/eap-xp1-openj9-11-openshift-rhel8
         jboss-eap-7-xp1-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp1-openjdk11-openshift-rhel8
+        jboss-eap-7-eap74-openjdk8-openshift-container: jboss-eap-7/eap74-openjdk8-openshift-rhel7
         jboss-eap-7-eap73-openjdk8-openshift-container: jboss-eap-7/eap73-openjdk8-openshift-rhel7
         redhat-sso-7-sso74-openj9-openshift-rhel8-container: rh-sso-7/sso74-openj9-openshift-rhel8
         redhat-sso-7-sso74-openshift-rhel8-container: rh-sso-7/sso74-openshift-rhel8
