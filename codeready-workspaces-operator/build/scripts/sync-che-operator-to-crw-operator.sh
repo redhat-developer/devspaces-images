@@ -314,4 +314,12 @@ sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
 
+# Remove backup & restore controllers https://issues.redhat.com/browse/CRW-2166
+rm -rf "${TARGETDIR}/controllers/checlusterbackup" "${TARGETDIR}/controllers/checlusterrestore"
+sed -i ${TARGETDIR}/main.go \
+	-e '/backupcontroller/d' \
+	-e '/restorecontroller/d' \
+	-e '/backupReconciler/,+3d' \
+	-e '/restoreReconciler/,+3d'
+
 popd >/dev/null || exit
