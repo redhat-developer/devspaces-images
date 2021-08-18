@@ -69,8 +69,10 @@ sed "${SOURCEDIR}/Dockerfile" \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    `# Do not use micro ubi image as Brew doesn't support it` \
-    -e 's|ubi-micro|ubi-minimal|' \
+    `# Do not use micro ubi image as Brew doesn't support it. Also transform ubi8 link to downstream` \
+    -e 's|ubi8/ubi-micro|ubi8-minimal|' \
+    `# Replace go-toolset ubi8 with rhel8 version` \
+    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
     `# Delete git repository cloning` \
     -e "/git clone/d" \
     `# Delete downloading of the dependencies` \
