@@ -96,6 +96,7 @@ CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
 CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
+CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -240,21 +241,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		echo "[INFO] ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
 
-	# TODO: CRW-1965 - Remove backup/restore CRDs until feature is enabled in CRW
-	i=0
-	crdsNumber=$(cat "${CSVFILE}" | yq -r ".spec.customresourcedefinitions.owned | length")
-	license=$(head -n 10 ${CSVFILE})
-	while [[ "${i}" -lt "${crdsNumber}" ]]; do
-		crdKind=$(cat "${CSVFILE}" | yq -r ".spec.customresourcedefinitions.owned[${i}].kind")
-		if [[ ${crdKind} != "CheCluster" && ${crdKind} != "null" ]]; then
-			echo "[INFO] Removing CRD kind ${crdKind}"
-			yq -riY "del(.spec.customresourcedefinitions.owned[${i}])" ${CSVFILE}
-		else
-			i=$((i+1))
-		fi
-	done
-	echo -e "$(echo "${license}")\n$(cat ${CSVFILE})" > ${CSVFILE}
-
 	##### update the first container yaml
 
 	# yq changes - transform env vars from Che to CRW values
@@ -289,13 +275,14 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 
+		["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
+
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
 		# remove env vars using DELETEME keyword
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
-		["RELATED_IMAGE_internal_rest_backup_server"]="DELETEME"
 		["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
@@ -373,5 +360,8 @@ if [[ $(diff -u "$CR_YAML" "${TARGETDIR}/${CR_YAML}") ]]; then
 fi
 
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_chebackupserverconfigurations.yaml" "${TARGETDIR}/manifests/codeready-workspaces-backup-server-config.crd.yaml"
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusterbackups.yaml" "${TARGETDIR}/manifests/codeready-workspaces-backup.crd.yaml"
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusterrestores.yaml" "${TARGETDIR}/manifests/codeready-workspaces-restore.crd.yaml"
 
 popd >/dev/null || exit
