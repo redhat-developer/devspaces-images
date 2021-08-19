@@ -16,7 +16,7 @@
     {
       "text": "Support",
       "href": "https://access.redhat.com/products/red-hat-codeready-workspaces/"
-    },
+    }
   ],
   "docs": {
     "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.12/html-single/end-user_guide/index#configuring-a-workspace-using-a-devfile_crw",
