@@ -14,7 +14,7 @@ FROM rhel8/go-toolset:1.15.14-3 as builder
 ENV GOPATH=/go/
 ENV PATH=/usr/lib/golang/bin:$PATH
 USER root
-RUN adduser appuser
+RUN rm -f /etc/*.lock; adduser appuser
 WORKDIR /app
 
 ENV GO111MODULE on
