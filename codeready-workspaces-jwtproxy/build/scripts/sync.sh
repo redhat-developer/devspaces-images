@@ -78,6 +78,7 @@ sed ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile -r \
     `# more replacements` \
     -e "s#FROM registry.redhat.io/#FROM #g" \
     -e "s#FROM registry.access.redhat.com/#FROM #g" \
+    -e "s#RUN adduser appuser#RUN rm -f /etc/*.lock; adduser appuser#" \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
