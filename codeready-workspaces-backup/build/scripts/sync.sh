@@ -50,7 +50,19 @@ echo ".github/
 .git/
 .gitattributes
 .dockerignore
+.ci/
+.vscode/
 build/scripts/sync.sh
+devfiles.yaml
+/container.yaml
+/content_sets.*
+/cvp.yml
+PLATFORMS
+README.md
+get-source*.sh
+tests/basic-test.yaml
+sources
+make-release.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
