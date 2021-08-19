@@ -15,7 +15,7 @@ ENV GOPATH=/go/
 ENV RESTIC_TAG=v0.12.0
 ARG DEV_WORKSPACE_CONTROLLER_VERSION="0.8.x"
 ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="7.34.x"
-ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
+ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 USER root
 
 COPY asset-* /tmp
@@ -56,7 +56,7 @@ RUN cd $GOPATH/restic && \
     GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/restic/restic ./cmd/restic
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-208
+FROM ubi8-minimal:8.4-205.1626828526
 
 COPY --from=builder /che-operator/che-operator /manager
 COPY --from=builder /che-operator/templates/*.sh /tmp/
