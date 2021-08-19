@@ -40,10 +40,12 @@ This job is meant to be used to orchestrate rebuilding everything in CRW after a
 1 - build lang server dependencies (5 tarballs)<br/>
 2 - build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)<br/>
 3 - build theia images (3 images)<br/>
-4 - build internals (13 images)<br/>
- * configbump, operator, dashboard, devworkspace-controller, devworkspace, idea, imagepuller, <br/>
- * jwtproxy, machineexec, pluginbroker-artifacts, pluginbroker-metadata, server, traefik<br/>
-5 - build registries and metadata (3 images + iib)
+4 - build internals (14-15 images)<br/>
+ * backup, configbump, operator, dashboard, devfileregistry, <br/>
+ * idea, imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, <br/>
+ * pluginbroker-metadata, pluginregistry, server, traefik,<br/>
+ * devworkspace-controller, devworkspace (TODO: remove in 2.12+), 
+5 - build metadata (3 images + iib)
             ''')
         }
 

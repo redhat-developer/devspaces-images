@@ -132,7 +132,7 @@ timeout(90) {
                             wait: true
 
                         // trigger an update of metadata and registries
-                        build job: "update-digests-in-registries-and-metadata_${MIDSTM_BRANCH}",
+                        build job: "update-digests-in-metadata_${MIDSTM_BRANCH}",
                             parameters: [[$class: 'StringParameterValue', name: 'MIDSTM_BRANCH', value: "${MIDSTM_BRANCH}"]],
                             propagate: false,
                             wait: true

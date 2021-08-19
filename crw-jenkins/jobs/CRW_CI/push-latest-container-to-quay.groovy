@@ -22,16 +22,16 @@ Images to copy to quay:
 <table>
 <tr><td>
 
+  <li> <a href=https://quay.io/repository/crw/backup-rhel8?tab=tags>backup</a> @since 2.12</li>
   <li> <a href=https://quay.io/repository/crw/configbump-rhel8?tab=tags>configbump</a> </li>
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator?tab=tags>operator</a> 
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a></li>
   <li> <a href=https://quay.io/repository/crw/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
-  <li> <a href=https://quay.io/repository/crw/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
 
   </td><td>
 
-  <li> <a href=https://quay.io/repository/crw/devworkspace-controller-rhel8?tab=tags>devworkspace-controller</a> @since 2.8</li>
-  <li> <a href=https://quay.io/repository/crw/devworkspace-rhel8?tab=tags>devworkspace</a> @since 2.8</li>
+  <li> <a href=https://quay.io/repository/crw/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
+  <li> <a href=https://quay.io/repository/crw/idea-rhel8?tab=tags>idea</a> @since 2.11</li>
   <li> <a href=https://quay.io/repository/crw/imagepuller-rhel8?tab=tags>imagepuller</a></li>
   <li> <a href=https://quay.io/repository/crw/jwtproxy-rhel8?tab=tags>jwtproxy</a> </li>
   <li> <a href=https://quay.io/repository/crw/machineexec-rhel8?tab=tags>machineexec</a> </li>
@@ -40,7 +40,6 @@ Images to copy to quay:
 
   <li> <a href=https://quay.io/repository/crw/pluginbroker-artifacts-rhel8?tab=tags>pluginbroker-artifacts</a> </li>
   <li> <a href=https://quay.io/repository/crw/pluginbroker-metadata-rhel8?tab=tags>pluginbroker-metadata</a></li>
-<!--   <li> <a href=https://quay.io/repository/crw/plugin-intellij-rhel8?tab=tags>plugin-intellij</a></li> -->
   <li> <a href=https://quay.io/repository/crw/plugin-java11-openj9-rhel8?tab=tags>plugin-java11-openj9</a></li>
   <li> <a href=https://quay.io/repository/crw/plugin-java11-rhel8?tab=tags>plugin-java11</a></li>
   <li> <a href=https://quay.io/repository/crw/plugin-java8-openj9-rhel8?tab=tags>plugin-java8-openj9</a> 
@@ -67,6 +66,8 @@ Images to copy to quay:
   <li> <a href=https://quay.io/repository/crw/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
   <li> <a href=https://quay.io/repository/crw/traefik-rhel8?tab=tags>traefik</a> </li>
 
+  <li> <a href=https://quay.io/repository/crw/devworkspace-controller-rhel8?tab=tags>devworkspace-controller</a> @since 2.8 to 2.11</li>
+  <li> <a href=https://quay.io/repository/crw/devworkspace-rhel8?tab=tags>devworkspace</a> @since 2.8 to 2.11</li>
   </td></tr>
   </table>
 </ul>
@@ -78,7 +79,7 @@ Images to copy to quay:
   
   to get latest from osbs and push to quay.
 
-  <p>After this job runs, <a href=../update-digests-in-registries-and-metadata_''' + JOB_BRANCH + '''>update-digests-in-registries-and-metadata</a> will be triggered to check if those containers need a respin.
+  <p>After this job runs, <a href=../update-digests-in-metadata_''' + JOB_BRANCH + '''>update-digests-in-metadata</a> will be triggered to check if those containers need a respin.
 ''')
 
         properties {

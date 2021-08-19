@@ -40,6 +40,18 @@ timeout(120) {
                         println "Got no yarnVersion = " + globalVar({yarnVersion})
                     }
 
+                    SOURCE_REPO="redhat-developer/codeready-workspaces"
+                    SOURCE_BRANCH=MIDSTM_BRANCH
+                    util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, false)
+                    sh('''
+                    cd ${WORKSPACE}/sources
+                    echo "" >> README.adoc
+                    git commit -sm "no-op change" README.adoc
+                    git pull
+                    git remote -v
+                    git push
+                    ''')
+
 //                     util.installSkopeoFromContainer("")
 //                     util.installYq()
 //                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)

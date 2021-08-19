@@ -51,7 +51,7 @@ pushd .. >/dev/null || exit
                     sync-to-downstream \
                     get-sources-rhpkg-container-build \
                     push-latest-container-to-quay \
-                    update-digests-in-registries-and-metadata crw-pluginregistry crw-devfileregistry crw-operator-metadata \
+                    update-digests-in-metadata crw-pluginregistry crw-devfileregistry crw-operator-metadata \
                     ; do
                     result=$(curl -sSL -X POST "http://localhost:8080/job/CRW_CI/job/${JOB}_${VER}/enable" --user "${USERTOKEN}" | grep -E "Unauthorized|Authentization|401|URI")
                     if [[ $result ]]; then

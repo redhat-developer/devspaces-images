@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.11":"", "2.x":""] // no upstream branches
-def JOB_DISABLED = ["2.11":true, "2.x":true]
+def JOB_DISABLED = ["2.11":false, "2.x":false]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
@@ -7,20 +7,18 @@ for (JB in JOB_BRANCHES) {
     pipelineJob(jobPath){
         disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
         description('''
-This job will cause the registry containers, then operator-metadata container to rebuild in both Brew and Quay
+This job will cause the operator-metadata container to rebuild in both Brew and Quay
 if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> using 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>
-./getLatestTags.sh --quay</a>.
+./getLatestTags.sh --quay --hide</a>.
 <p>
   Results:
   <ul>
-    <li><a href=https://quay.io/repository/crw/devfileregistry-rhel8?tag=latest&tab=tags>quay.io/crw/devfileregistry-rhel8</a></li>
-    <li><a href=https://quay.io/repository/crw/pluginregistry-rhel8?tag=latest&tab=tags>quay.io/crw/pluginregistry-rhel8</a></li>
     <li><a href=https://quay.io/repository/crw/operator-metadata?tag=latest&tab=tags>quay.io/crw/operator-metadata</a></li>
 </ul>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
-  <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-''' + JOB_BRANCH + '''-rhel-8/dependencies/LATEST_IMAGES.sh>LATEST_IMAGES.sh</a>
+  <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-''' + JOB_BRANCH + '''-rhel-8/dependencies/LATEST_IMAGES.sh>LATEST_IMAGES.sh --commit</a>
         ''')
 
         properties {
@@ -64,7 +62,11 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
         definition {
             cps{
                 sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/update-digests-in-registries-and-metadata_'+JOB_BRANCH+'.jenkinsfile'))
+                if (JOB_BRANCH.equals("2.10")) {
+                    script(readFileFromWorkspace('jobs/CRW_CI/update-digests-in-registries-and-metadata_'+JOB_BRANCH+'.jenkinsfile'))
+                } else {
+                    script(readFileFromWorkspace('jobs/CRW_CI/update-digests-in-metadata_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }

@@ -67,17 +67,20 @@ node(nodeLabel) {
 
                 if (PHASE_LIST.contains("4")) {
                     def jobsList = [
+                        "backup":"backup-rhel8",
                         "configbump":"configbump-rhel8",
                         "operator":"crw-2-rhel8-operator",
                         "dashboard": "dashboard-rhel8",
-                        "devworkspace-controller":"devworkspace-controller-rhel8",
-                        "devworkspace":"devworkspace-rhel8",
+                        "devfileregistry":"devfileregistry-rhel8",
+                        // "devworkspace-controller":"devworkspace-controller-rhel8",
+                        // "devworkspace":"devworkspace-rhel8",
                         "idea":"idea-rhel8",
                         "imagepuller":"imagepuller-rhel8",
                         "jwtproxy":"jwtproxy-rhel8",
                         "machineexec":"machineexec-rhel8",
                         "pluginbroker-artifacts":"pluginbroker-artifacts-rhel8",
                         "pluginbroker-metadata":"pluginbroker-metadata-rhel8",
+                        "pluginregistry":"pluginregistry-rhel8",
                         "server":"server-rhel8",
                         "traefik":"traefik-rhel8"
                         ]
@@ -115,7 +118,7 @@ node(nodeLabel) {
                     println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
 
                     // trigger update-digests job (to rebuild registries and metadata images)
-                    currentJob="update-digests-in-registries-and-metadata_" + JOB_BRANCH
+                    currentJob="update-digests-in-metadata_" + JOB_BRANCH
                     lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish
                     currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>update-digests#${lastBuildId}</a>"
                     util.waitForNewQuayImage("crw/crw-2-rhel8-operator-metadata", currentQuayImageMetadata)

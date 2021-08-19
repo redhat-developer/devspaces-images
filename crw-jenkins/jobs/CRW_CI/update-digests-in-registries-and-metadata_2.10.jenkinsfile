@@ -1,5 +1,9 @@
 #!/usr/bin/env groovy
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED; for 2.11+, use update-digests-in-metadata*.jenkinsfile
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline: (none)

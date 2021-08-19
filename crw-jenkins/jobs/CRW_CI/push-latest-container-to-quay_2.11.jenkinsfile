@@ -164,13 +164,13 @@ node(nodeLabel){
         // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
         // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
         if (CONTAINERS.trim().equals("operator-metadata")) {
-            println "NOTE: Skip scheduling update-digests-in-registries-and-metadata for this update, as we have just updated operator-metadata."
-            currentBuild.description+="; update-digests-in-registries-and-metadata NOT triggered"
+            println "NOTE: Skip scheduling update-digests-in-metadata for this update, as we have just updated operator-metadata."
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
         } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
-            println "Scheduling update-digests-in-registries-and-metadata for this update:"
+            println "Scheduling update-digests-in-metadata for this update:"
             println DIFF_LATEST_IMAGES_QUAY_V_STORED
             build(
-                job: 'update-digests-in-registries-and-metadata_' + JOB_BRANCH,
+                job: 'update-digests-in-metadata_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
                 parameters: [
@@ -186,11 +186,11 @@ node(nodeLabel){
                     ]
                 ]
             )
-            currentBuild.description+="; update-digests-in-registries-and-metadata triggered"
+            currentBuild.description+="; update-digests-in-metadata triggered"
         } else {
-            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-registries-and-metadata_" + CRW_VERSION
+            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-metadata_" + CRW_VERSION
             currentBuild.result = 'UNSTABLE'
-            currentBuild.description+="; update-digests-in-registries-and-metadata NOT triggered"
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
         }
 
         if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
