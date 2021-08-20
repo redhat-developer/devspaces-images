@@ -22,6 +22,7 @@ CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="nightly" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
+DWO_TAG=0.8
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
@@ -44,6 +45,8 @@ usage () {
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) -b ${MIDSTM_BRANCH}"
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from codeready-workspaces/crw-branch/pom.xml]"
 	echo "Options:
+	--crw-tag ${CRW_VERSION}
+	--dwo-tag ${DWO_TAG}
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
@@ -67,6 +70,7 @@ while [[ "$#" -gt 0 ]]; do
 	'--help'|'-h') usage;;
 	# optional tag overrides
 	'--crw-tag') CRW_VERSION="$2"; shift 1;;
+	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;;
@@ -90,7 +94,10 @@ CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSI
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
 CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
-CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
+# old image from 2.10: DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
+# new image from 2.11+:
+DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
+# TODO: remove CRW_DWCO_IMAGE in 2.12
 CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
@@ -123,9 +130,9 @@ replaceField()
   echo "[INFO] ${0##*/} rF :: * ${updateName}: ${updateVal}"
   # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
   if [[ $updateVal == "DELETEME" ]]; then
-	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})')
+	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})' "${theFile}")
   else
-	changed=$(cat "${theFile}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal')
+	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
   fi
   echo "${header}${changed}" > "${theFile}"
 }
@@ -276,8 +283,9 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
 		["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
+        # TODO: remove CRW_DWCO_IMAGE in 2.12
 		["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
-		["RELATED_IMAGE_devworkspace_controller"]="${CRW_DWO_IMAGE}"
+		["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 		["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
 
 		["RELATED_IMAGE_che_workspace_plugin_broker_metadata"]="${CRW_BROKER_METADATA_IMAGE}"

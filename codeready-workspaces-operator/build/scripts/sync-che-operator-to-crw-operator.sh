@@ -17,6 +17,7 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+DWO_TAG=0.8
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
@@ -25,6 +26,8 @@ usage () {
 	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
 	echo "Example: ${0##*/} -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
 	echo "Options:
+	--crw-tag ${CRW_VERSION}
+	--dwo-tag ${DWO_TAG}
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
@@ -44,6 +47,7 @@ while [[ "$#" -gt 0 ]]; do
 	'--help'|'-h') usage;;
 	# optional tag overrides
 	'--crw-tag') CRW_VERSION="$2"; shift 1;;
+	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;;
@@ -61,12 +65,16 @@ CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSI
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
 CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
-CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
+# old image from 2.10: DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
+# new image from 2.11+:
+DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
+# TODO: remove CRW_DWCO_IMAGE in 2.12
 CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
 CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
+CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -189,8 +197,9 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 	["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
 	["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
+    # TODO: remove CRW_DWCO_IMAGE in 2.12
 	["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
-	["RELATED_IMAGE_devworkspace_controller"]="${CRW_DWO_IMAGE}"
+	["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 	["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
 
 	["RELATED_IMAGE_che_workspace_plugin_broker_metadata"]="${CRW_BROKER_METADATA_IMAGE}"
@@ -201,6 +210,7 @@ declare -A operator_replacements=(
 	# CRW-1956 - not supported; use the same traefik image
 	["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+	["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
 
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
@@ -208,7 +218,6 @@ declare -A operator_replacements=(
 
 	# remove env vars using DELETEME keyword
 	["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
-	["RELATED_IMAGE_internal_rest_backup_server"]="DELETEME"
 	["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
