@@ -14,8 +14,6 @@
 
 set -e
 
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
-
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
@@ -78,18 +76,24 @@ container.yaml
 content_sets.yml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rm -fr ${TARGETDIR}/vendor/
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rm -fr "${TARGETDIR}"/vendor/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
 rm -f /tmp/rsync-excludes
 
+if [[ ${UPDATE_VENDOR} -eq 0 ]]; then
+    pushd "${TARGETDIR}/" >/dev/null || exit 1
+    git checkout vendor || true
+    popd >/dev/null || exit 1
+fi
+
 # ensure shell scripts are executable
-find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
 # remove k8s deployment files
-rm -fr ${TARGETDIR}/deploy/deployment/kubernetes
+rm -fr "${TARGETDIR}"/deploy/deployment/kubernetes
 
 # transform Dockerfile -> Dockerfile
-sed ${TARGETDIR}/build/Dockerfile -r \
+sed "${TARGETDIR}"/build/Dockerfile -r \
     `# Replace ubi8 with rhel8 version` \
     -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
     `# more replacements` \
@@ -102,8 +106,8 @@ sed ${TARGETDIR}/build/Dockerfile -r \
     `# CRW-1680 use vendor folder (no internet); print commands (-x)` \
     -e "s@(go build \\\\)@\1 -mod=vendor -x \\\\@" \
     -e "s/# *RUN yum /RUN yum /g" \
-> ${TARGETDIR}/Dockerfile
-cat << EOT >> ${TARGETDIR}/Dockerfile
+> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces devworkspace-controller container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces devworkspace-controller container" \\
     PRODNAME="codeready-workspaces" \\
@@ -124,20 +128,23 @@ EOT
 echo "Converted Dockerfile"
 
 if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
-    BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
+    BOOTSTRAPFILE="${TARGETDIR}"/bootstrap.Dockerfile
     # Angel says we don't neet go get and go mod download
     # gomodvendoring="go mod tidy || true; go get -d -t || true; go mod download || true; go mod vendor || true;"
     gomodvendoring="go mod tidy || true; go mod vendor || true;"
-    cat ${TARGETDIR}/build/Dockerfile | sed -r \
+    # shellcheck disable=2002
+    cat "${TARGETDIR}"/build/Dockerfile | sed -r \
         `# https://github.com/devfile/devworkspace-operator/issues/166 DO use proxy for bootstrap` \
         -e "s@(RUN go env GOPROXY$)@\1=https://proxy.golang.org,direct@g" \
         `# CRW-1680 fetch new vendor content before running make (to run go build)` \
         -e "s@(.+)(\ *make )@\1${gomodvendoring} \2@" \
-    > ${BOOTSTRAPFILE}
+    > "${BOOTSTRAPFILE}"
     tag=$(pwd);tag=${tag##*/}
-    ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
+    # shellcheck disable=2086
+    ${BUILDER} build . -f "${BOOTSTRAPFILE}" --target builder -t ${tag}:bootstrap # --no-cache
 
     # step two - extract vendor folder to tarball
+    # shellcheck disable=2086
     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - /devworkspace-operator/vendor' > "asset-vendor-$(uname -m).tgz"
 
     pushd "${TARGETDIR}" >/dev/null || exit 1
@@ -148,8 +155,9 @@ if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
     echo "Collected vendor/ folder - don't forget to commit it and sync it downstream"
 
     # cleanup
+    # shellcheck disable=2086
     ${BUILDER} rmi ${tag}:bootstrap
-    rm -f ${BOOTSTRAPFILE} "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
+    rm -f "${BOOTSTRAPFILE}" "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
 fi
 
 # header to reattach to yaml files after yq transform removes it
@@ -171,12 +179,12 @@ replaceField()
   updateName="$2"
   updateVal="$3"
   echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
-  changed=$(cat ${theFile} | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
-    ${updateName}' = $updateVal')
+  # shellcheck disable=2016 disable=2086
+  changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
   echo "${COPYRIGHT}${changed}" > "${theFile}"
 }
 
-pushd ${TARGETDIR} >/dev/null || exit 1
+pushd "${TARGETDIR}" >/dev/null || exit 1
     # transform env vars in deployment yaml
     # - name: RELATED_IMAGE_devworkspace_webhook_server                         CRW_DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
@@ -191,8 +199,9 @@ pushd ${TARGETDIR} >/dev/null || exit 1
     )
     while IFS= read -r -d '' d; do
         for updateName in "${!operator_replacements[@]}"; do
-            changed="$(cat "${TARGETDIR}/${d}" | yq  -y --arg updateName "${updateName}" --arg updateVal "${operator_replacements[$updateName]}" \
-            '.spec.template.spec.containers[].env = [.spec.template.spec.containers[].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]')" && \
+            # shellcheck disable=2016
+            changed="$(yq  -y --arg updateName "${updateName}" --arg updateVal "${operator_replacements[$updateName]}" \
+            '.spec.template.spec.containers[0].env = [.spec.template.spec.containers[0].env[] | if (.name == $updateName) then (.value = $updateVal) else . end]' "${TARGETDIR}/${d}")" && \
             echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
         done
         if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
@@ -220,7 +229,8 @@ pushd ${TARGETDIR} >/dev/null || exit 1
     )
     while IFS= read -r -d '' d; do
         for updateName in "${!operator_deletions[@]}"; do
-            changed="$(cat "${TARGETDIR}/${d}" | yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].env[] | select(.name == $updateName))')" && \
+            # shellcheck disable=2016
+            changed="$(yq  -y --arg updateName "${updateName}" 'del(.spec.template.spec.containers[0].env[] | select(.name == $updateName))' "${TARGETDIR}/${d}")" && \
             echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${d}"
         done
         if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
@@ -235,7 +245,8 @@ pushd ${TARGETDIR} >/dev/null || exit 1
 
     # sort env vars
     while IFS= read -r -d '' d; do
-        cat "${TARGETDIR}/${d}" | yq -Y '.spec.template.spec.containers[].env |= sort_by(.name)' > "${TARGETDIR}/${d}.2"
+        echo "$COPYRIGHT" > "${TARGETDIR}/${d}.2"
+        yq -Y '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${d}" >> "${TARGETDIR}/${d}.2"
         mv "${TARGETDIR}/${d}.2" "${TARGETDIR}/${d}"
     done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 

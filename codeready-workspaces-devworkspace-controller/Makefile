@@ -19,15 +19,15 @@ MAKEFLAGS += --silent
 endif
 
 export NAMESPACE ?= devworkspace-controller
-export DWO_IMG ?= quay.io/devfile/devworkspace-controller:v0.7.2
+export DWO_IMG ?= quay.io/devfile/devworkspace-controller:v0.8.0
 export DWO_BUNDLE_IMG ?= quay.io/devfile/devworkspace-operator-bundle:next
 export DWO_INDEX_IMG ?= quay.io/devfile/devworkspace-operator-index:next
-export PROJECT_CLONE_IMG ?= quay.io/devfile/project-clone:v0.7.2
+export PROJECT_CLONE_IMG ?= quay.io/devfile/project-clone:v0.8.0
 export ROUTING_SUFFIX ?= 192.168.99.100.nip.io
 export PULL_POLICY ?= Always
 export DEFAULT_ROUTING ?= basic
 export KUBECONFIG ?= ${HOME}/.kube/config
-export DEVWORKSPACE_API_VERSION ?= cd9c30e6aa05b15445bb05386692f470323c826f
+export DEVWORKSPACE_API_VERSION ?= 03e023e7078b64884216d8e6dce8f0cf8b7e74d2
 
 # Enable using Podman instead of Docker
 export DOCKER ?= docker
@@ -45,8 +45,11 @@ ifneq (,$(shell which kubectl 2>/dev/null)$(shell which oc 2>/dev/null))
 include build/make/deploy.mk
 endif
 
-OPERATOR_SDK_VERSION = v1.7.2
+OPERATOR_SDK_VERSION = v1.8.0
 OPM_VERSION = v1.17.1
+
+CONTROLLER_GEN_VERSION = v0.6.1
+CONTROLLER_GEN=$(GOBIN)/controller-gen-$(CONTROLLER_GEN_VERSION)
 
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:crdVersions=v1,trivialVersions=true"
@@ -170,6 +173,7 @@ vet:
 ### generate: Generates code
 generate: controller-gen
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
+	@$(MAKE) fmt
 
 ### docker: Builds and pushes controller image
 docker: _print_vars docker-build docker-push
@@ -181,7 +185,7 @@ docker-build:
 ### docker-push: Pushes the controller image
 docker-push:
 ifneq ($(INITIATOR),CI)
-ifeq ($(DWO_IMG),quay.io/devfile/devworkspace-controller:v0.7.2)
+ifeq ($(DWO_IMG),quay.io/devfile/devworkspace-controller:v0.8.0)
 	@echo -n "Are you sure you want to push $(DWO_IMG)? [y/N] " && read ans && [ $${ans:-N} = y ]
 endif
 endif
@@ -190,18 +194,19 @@ endif
 ### controller-gen: Finds or downloads controller-gen
 # download controller-gen if necessary
 controller-gen:
-ifeq (, $(shell which controller-gen 2>/dev/null))
+ifeq (, $(shell which controller-gen-$(CONTROLLER_GEN_VERSION) 2>/dev/null))
+	@echo "Installing controller gen as $(GOBIN)/controller-gen-$(CONTROLLER_GEN_VERSION)"
 	@{ \
 	set -e ;\
 	CONTROLLER_GEN_TMP_DIR=$$(mktemp -d) ;\
 	cd $$CONTROLLER_GEN_TMP_DIR ;\
 	go mod init tmp ;\
-	GOFLAGS="" go get sigs.k8s.io/controller-tools/cmd/controller-gen@v0.3.0 ;\
+	go get -d -v sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_GEN_VERSION)
+	go build -o $(GOBIN)/controller-gen-$(CONTROLLER_GEN_VERSION) sigs.k8s.io/controller-tools/cmd/controller-gen
 	rm -rf $$CONTROLLER_GEN_TMP_DIR ;\
 	}
-CONTROLLER_GEN=$(GOBIN)/controller-gen
 else
-CONTROLLER_GEN=$(shell which controller-gen)
+	@echo "Using installed $(GOBIN)/controller-gen-$(CONTROLLER_GEN_VERSION)"
 endif
 
 ### compile-devworkspace-controller: Compiles the devworkspace-controller binary
