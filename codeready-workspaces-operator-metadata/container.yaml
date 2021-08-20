@@ -30,7 +30,9 @@ operator_manifests:
     - registry: registry.redhat.io
       package_mappings:
         codeready-workspaces-operator-package: codeready-workspaces/crw-2-rhel8-operator
-        devworkspace-operator-package: devworkspace/devworkspace-rhel8-operator
+        devworkspace-operator-container: devworkspace/devworkspace-rhel8-operator
+        jboss-eap-xp3-openj9-11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8
+        jboss-eap-xp3-openjdk11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
         jboss-eap-7-xp3-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
         jboss-eap-7-xp3-openj9-11-openshift-rhel8-container: jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8
         jboss-eap-7-xp2-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8
