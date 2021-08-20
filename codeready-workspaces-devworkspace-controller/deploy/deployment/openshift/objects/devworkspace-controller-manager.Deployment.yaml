@@ -48,15 +48,15 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_devworkspace_webhook_server
-              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.12
+              value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
             - name: RELATED_IMAGE_kube_rbac_proxy
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
             - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
               value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.12
             - name: RELATED_IMAGE_project_clone
-              value: quay.io/devfile/project-clone:next
+              value: registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:0.8
             - name: RELATED_IMAGE_pvc_cleanup_job
-              value: registry.redhat.io/ubi8/ubi-minimal:8.4
+              value: registry.access.redhat.com/ubi8-micro:8.4-81
             - name: WATCH_NAMESPACE
               value: ''
             - name: WEBHOOKS_SERVER_CPU_LIMIT
@@ -69,7 +69,7 @@ spec:
               value: 20Mi
             - name: WEBHOOK_SECRET_NAME
               value: devworkspace-webhookserver-tls
-          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.12
+          image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 5
@@ -114,7 +114,7 @@ spec:
             - --upstream=http://127.0.0.1:8080/
             - --logtostderr=true
             - --v=10
-          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.12
+          image: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
           name: kube-rbac-proxy
           ports:
             - containerPort: 8443

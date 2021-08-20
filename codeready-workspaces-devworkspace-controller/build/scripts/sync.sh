@@ -17,7 +17,7 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-UBI_TAG=8.4
+DWO_TAG="0.8"
 
 UPDATE_VENDOR=1 # update the vendor folder via bootstrap.Dockerfile
 
@@ -26,7 +26,7 @@ usage () {
 Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/devworkspace-operator -t /tmp/devworkspace-controller
 Options:
-	--ubi-tag ${UBI_TAG}
+	--dwo-tag ${DWO_TAG}
 	--no-vendor # don't rebuild the vendor folder
 "
     exit
@@ -44,17 +44,16 @@ while [[ "$#" -gt 0 ]]; do
     '--no-vendor') UPDATE_VENDOR=0;;
     '--help'|'-h') usage;;
     # optional tag overrides
-    '--ubi-tag') UBI_TAG="$2"; shift 1;;
+    '--dwo-tag') DWO_TAG="$2"; shift 1;;
   esac
   shift 1
 done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
-CRW_RRIO="registry.redhat.io/codeready-workspaces"
-CRW_DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
-CRW_MACHINEEXEC_IMAGE="${CRW_RRIO}/machineexec-rhel8:${CRW_VERSION}"
-UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
+DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
+DWPC_IMAGE="registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:${DWO_TAG}"
+CRW_MACHINEEXEC_IMAGE="registry.redhat.io/codeready-workspaces/machineexec-rhel8:${CRW_VERSION}"
 
 # step one - build the builder image
 BUILDER=$(command -v podman || true)
@@ -186,16 +185,16 @@ replaceField()
 
 pushd "${TARGETDIR}" >/dev/null || exit 1
     # transform env vars in deployment yaml
-    # - name: RELATED_IMAGE_devworkspace_webhook_server                         CRW_DWO_IMAGE
+    # - name: RELATED_IMAGE_devworkspace_webhook_server                         DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
+    # - name: RELATED_IMAGE_project_clone                                       DWPC_IMAGE
+    #   value: quay.io/devfile/project-clone:v0.8.0
     # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0          CRW_MACHINEEXEC_IMAGE
     #   value: quay.io/eclipse/che-machine-exec:nightly
-    # - name: RELATED_IMAGE_pvc_cleanup_job                                     UBI_IMAGE
-    #   value: quay.io/libpod/busybox:1.30.1
     declare -A operator_replacements=(
-        ["RELATED_IMAGE_devworkspace_webhook_server"]="${CRW_DWO_IMAGE}"
+        ["RELATED_IMAGE_devworkspace_webhook_server"]="${DWO_IMAGE}"
+        ["RELATED_IMAGE_project_clone"]="${DWPC_IMAGE}"
         ["RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0"]="${CRW_MACHINEEXEC_IMAGE}"
-        ["RELATED_IMAGE_pvc_cleanup_job"]="${UBI_IMAGE}"
     )
     while IFS= read -r -d '' d; do
         for updateName in "${!operator_replacements[@]}"; do
@@ -238,9 +237,9 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
         fi
     done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
-    # replace image: quay.io/devfile/devworkspace-controller:v0.2.3 with CRW_DWO_IMAGE
+    # replace image: quay.io/devfile/devworkspace-controller:v0.2.3 with DWO_IMAGE
     while IFS= read -r -d '' d; do
-        replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[].image" "${CRW_DWO_IMAGE}"
+        replaceField "${TARGETDIR}/${d}" ".spec.template.spec.containers[0].image" "${DWO_IMAGE}"
     done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
 
     # sort env vars
