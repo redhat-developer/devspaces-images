@@ -33,13 +33,14 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build \
   project-clone/main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.access.redhat.com/ubi8-minimal:8.4-205
+FROM registry.access.redhat.com/ubi8-minimal:8.4-205.1626828526
 RUN microdnf -y update && microdnf install -y time git && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 WORKDIR /
 COPY --from=builder /project-clone/_output/bin/project-clone /usr/local/bin/project-clone
 
 ENV USER_UID=1001 \
-    USER_NAME=project-clone
+    USER_NAME=project-clone \
+    HOME=/home/user
 
 COPY build/bin /usr/local/bin
 RUN  /usr/local/bin/user_setup
