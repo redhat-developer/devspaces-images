@@ -245,7 +245,7 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
 
     # sort env vars
     while IFS= read -r -d '' d; do
-        cat "$COPYRIGHT" > "${TARGETDIR}/${d}.2"
+        echo "$COPYRIGHT" > "${TARGETDIR}/${d}.2"
         yq -Y '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${d}" >> "${TARGETDIR}/${d}.2"
         mv "${TARGETDIR}/${d}.2" "${TARGETDIR}/${d}"
     done <   <(find deploy -type f -name "*Deployment.yaml" -print0)
