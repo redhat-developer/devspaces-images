@@ -81,7 +81,9 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR
 rm -f /tmp/rsync-excludes
 
 if [[ ${UPDATE_VENDOR} -eq 0 ]]; then
-  git checkout vendor
+    pushd "${TARGETDIR}/" >/dev/null || exit 1
+    git checkout vendor || true
+    popd >/dev/null || exit 1
 fi
 
 # ensure shell scripts are executable
