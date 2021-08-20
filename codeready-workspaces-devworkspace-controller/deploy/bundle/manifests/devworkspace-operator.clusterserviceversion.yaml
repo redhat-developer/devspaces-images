@@ -7,10 +7,10 @@ metadata:
     operators.operatorframework.io/builder: operator-sdk-v1.7.1+git
     operators.operatorframework.io/internal-objects: '["devworkspaceroutings.controller.devfile.io"]'
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
-  labels:
-    app.kubernetes.io/name: devworkspace-controller
-    app.kubernetes.io/part-of: devworkspace-operator
-  name: devworkspace-operator.v0.6.0
+    containerImage: quay.io/devfile/devworkspace-controller:next
+    repository: https://github.com/devfile/devworkspace-operator
+    createdAt: "2021-08-04T07:24:32Z"
+  name: devworkspace-operator.v0.8.0
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -49,7 +49,7 @@ spec:
     will be available in all namespaces on the cluster. DevWorkspace creation is
     driven by the DevWorkspace custom resource, which can be created in any
     namespace to provision a full development environment. To get started, browse
-    the DevWorkspace [spec](TODO) or view preconfigured [samples](TODO).
+    the DevWorkspace [spec](https://docs.devfile.io/devfile/2.1.0/user-guide/api-reference.html).
 
     Once a DevWorkspace is started, it can be accessed via the URL in its
     `.status.mainUrl` field.
@@ -60,12 +60,10 @@ spec:
     ## Uninstalling the operator
     The DevWorkspace Operator utilizes finalizers on resources it creates and
     webhooks to restrict access to development resources. As a result, manual steps
-    are required in uninstalling the operator. See the [documentation](TODO) for
-    details.
+    are required in uninstalling the operator. See the
+    [documentation](https://github.com/devfile/devworkspace-operator/blob/main/doc/uninstall.md)
+    for details.
   displayName: DevWorkspace Operator
-  icon:
-  - base64data: ""
-    mediatype: ""
   install:
     spec:
       clusterPermissions:
@@ -268,9 +266,14 @@ spec:
               - args:
                 - /usr/local/bin/devworkspace-controller
                 - --enable-leader-election
+                - --metrics-addr=127.0.0.1:8080
                 env:
+                - name: WEBHOOK_SECRET_NAME
+                  value: devworkspace-webhookserver-tls
                 - name: RELATED_IMAGE_devworkspace_webhook_server
                   value: quay.io/devfile/devworkspace-controller:next
+                - name: RELATED_IMAGE_kube_rbac_proxy
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
                 - name: RELATED_IMAGE_project_clone
                   value: quay.io/devfile/project-clone:next
                 - name: WATCH_NAMESPACE
@@ -288,7 +291,7 @@ spec:
                     fieldRef:
                       fieldPath: spec.serviceAccountName
                 - name: MAX_CONCURRENT_RECONCILES
-                  value: "1"
+                  value: "5"
                 - name: WEBHOOKS_SERVER_MEMORY_LIMIT
                   value: 300Mi
                 - name: WEBHOOKS_SERVER_MEMORY_REQUEST
@@ -302,7 +305,7 @@ spec:
                 - name: RELATED_IMAGE_web_terminal_tooling
                   value: quay.io/wto/web-terminal-tooling:latest
                 - name: RELATED_IMAGE_pvc_cleanup_job
-                  value: quay.io/libpod/busybox:1.30.1
+                  value: registry.access.redhat.com/ubi8-micro:8.4-81
                 - name: RELATED_IMAGE_async_storage_server
                   value: quay.io/eclipse/che-workspace-data-sync-storage:0.0.1
                 - name: RELATED_IMAGE_async_storage_sidecar
@@ -321,6 +324,9 @@ spec:
                   timeoutSeconds: 5
                 name: devworkspace-controller
                 ports:
+                - containerPort: 9443
+                  name: conversion
+                  protocol: TCP
                 - containerPort: 6789
                   name: liveness-port
                 readinessProbe:
@@ -335,11 +341,22 @@ spec:
                   timeoutSeconds: 5
                 resources:
                   limits:
-                    cpu: 200m
-                    memory: 300Mi
+                    cpu: "1"
+                    memory: 1Gi
                   requests:
-                    cpu: 100m
-                    memory: 20Mi
+                    cpu: 250m
+                    memory: 100Mi
+              - args:
+                - --secure-listen-address=0.0.0.0:8443
+                - --upstream=http://127.0.0.1:8080/
+                - --logtostderr=true
+                - --v=10
+                image: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
+                name: kube-rbac-proxy
+                ports:
+                - containerPort: 8443
+                  name: metrics
+                resources: {}
               serviceAccountName: devworkspace-controller-serviceaccount
               terminationGracePeriodSeconds: 10
       permissions:
@@ -400,4 +417,27 @@ spec:
   provider:
     name: Devfile
     url: https://devfile.io
-  version: 0.6.0
+  version: 0.8.0
+  webhookdefinitions:
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    conversionCRDs:
+    - devworkspaces.workspace.devfile.io
+    deploymentName: devworkspace-controller-manager
+    generateName: cdevworkspaces.kb.io
+    sideEffects: None
+    targetPort: conversion
+    type: ConversionWebhook
+    webhookPath: /convert
+  - admissionReviewVersions:
+    - v1
+    containerPort: 443
+    conversionCRDs:
+    - devworkspacetemplates.workspace.devfile.io
+    deploymentName: devworkspace-controller-manager
+    generateName: cdevworkspacetemplates.kb.io
+    sideEffects: None
+    targetPort: conversion
+    type: ConversionWebhook
+    webhookPath: /convert

@@ -13,6 +13,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -60,6 +61,10 @@ func init() {
 func main() {
 	logf.SetLogger(zap.New(zap.UseDevMode(config.GetDevModeEnabled())))
 
+	var metricsAddr string
+	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.Parse()
+
 	// Print versions
 	log.Info(fmt.Sprintf("Operator Version: %s", version.Version))
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
@@ -84,6 +89,7 @@ func main() {
 	mgr, err := ctrl.NewManager(cfg, ctrl.Options{
 		Namespace:              namespace,
 		Scheme:                 scheme,
+		MetricsBindAddress:     metricsAddr,
 		HealthProbeBindAddress: ":6789",
 		CertDir:                server.WebhookServerCertDir,
 	})
@@ -96,13 +102,6 @@ func main() {
 	if err != nil {
 		log.Error(err, "Failed to create webhooks")
 		os.Exit(1)
-	}
-
-	if err := ctrl.NewWebhookManagedBy(mgr).For(&dwv1.DevWorkspace{}).Complete(); err != nil {
-		log.Error(err, "failed creating conversion webhook")
-	}
-	if err := ctrl.NewWebhookManagedBy(mgr).For(&dwv2.DevWorkspace{}).Complete(); err != nil {
-		log.Error(err, "failed creating conversion webhook")
 	}
 
 	var shutdownChan = make(chan os.Signal, 1)
