@@ -21,7 +21,7 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(90) {
     node(nodeLabel) {
