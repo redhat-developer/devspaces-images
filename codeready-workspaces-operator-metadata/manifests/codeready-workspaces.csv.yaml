@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.11
-    createdAt: "2021-08-20T17:30:10+00:00"
+    createdAt: "2021-08-20T21:12:31+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1116,17 +1116,17 @@ spec:
                       - name: RELATED_IMAGE_devworkspace_che_operator
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devworkspace-rhel8:2.11
                       - name: RELATED_IMAGE_devworkspace_controller
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devworkspace-controller-rhel8:2.11
+                        value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
                       - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                         value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7:7.4.0
-                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_openj9_11_openshift_devfile_registry_image_GIXDACQ_
-                        value: registry.redhat.io/jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8:2.0
-                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_openjdk11_openshift_devfile_registry_image_GIXDALJYBI______
-                        value: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8:2.0-8
-                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_ppc64le_11_openshift_devfile_registry_image_GIXDACQ_
-                        value: registry.redhat.io/jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8:2.0
-                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp2_s390x_11_openshift_devfile_registry_image_GIXDACQ_
-                        value: registry.redhat.io/jboss-eap-7/eap-xp2-openj9-11-openshift-rhel8:2.0
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDALJZBI______
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0-9
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_ppc64le_11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8:3.0
                       - name: RELATED_IMAGE_keycloak
                         value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
                       - name: RELATED_IMAGE_keycloak_ppc64le
