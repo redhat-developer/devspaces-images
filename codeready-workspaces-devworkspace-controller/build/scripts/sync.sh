@@ -19,7 +19,7 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-UBI_TAG=8.3
+UBI_TAG=8.4
 
 UPDATE_VENDOR=1 # update the vendor folder via bootstrap.Dockerfile
 
@@ -177,7 +177,6 @@ replaceField()
 }
 
 pushd ${TARGETDIR} >/dev/null || exit 1
-
     # transform env vars in deployment yaml
     # - name: RELATED_IMAGE_devworkspace_webhook_server                         CRW_DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
