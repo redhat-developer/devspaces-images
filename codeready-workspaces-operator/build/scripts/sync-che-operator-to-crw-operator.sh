@@ -74,7 +74,6 @@ CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
 CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
-CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -210,7 +209,6 @@ declare -A operator_replacements=(
 	# CRW-1956 - not supported; use the same traefik image
 	["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
-	["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
 
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
@@ -218,6 +216,7 @@ declare -A operator_replacements=(
 
 	# remove env vars using DELETEME keyword
 	["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
+	["RELATED_IMAGE_internal_rest_backup_server"]="DELETEME"
 	["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
