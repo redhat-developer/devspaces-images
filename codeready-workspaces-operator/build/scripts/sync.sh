@@ -29,7 +29,7 @@ DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [--dwob branch] [--dwcob branch] [--hrtpb branch]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} --dwob 0.y.x --dwcob 7.yy.x --hrtpb main"
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} --dwob 0.y.x --dwcob 7.yy.x --hrtpb v0.1.2"
     exit
 }
 
