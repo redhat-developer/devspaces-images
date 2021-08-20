@@ -22,7 +22,9 @@ import (
 
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
+	"github.com/devfile/devworkspace-operator/controllers/workspace/metrics"
 	"github.com/devfile/devworkspace-operator/controllers/workspace/provision"
+	"github.com/devfile/devworkspace-operator/pkg/conditions"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -39,6 +41,9 @@ const (
 	// devworkspacePhaseFailing represents a DevWorkspace that has encountered an unrecoverable error and is in
 	// the process of stopping.
 	devworkspacePhaseFailing dw.DevWorkspacePhase = "Failing"
+
+	// warningPresentInfoMessage is the info message printed
+	warningPresentInfoMessage string = "[warnings present]"
 )
 
 type currentStatus struct {
@@ -62,11 +67,14 @@ var healthHttpClient = &http.Client{
 // Parameters for result and error are returned unmodified, unless error is nil and another error is encountered while
 // updating the status.
 func (r *DevWorkspaceReconciler) updateWorkspaceStatus(workspace *dw.DevWorkspace, logger logr.Logger, status *currentStatus, reconcileResult reconcile.Result, reconcileError error) (reconcile.Result, error) {
+	syncConditions(&workspace.Status, status)
+	oldPhase := workspace.Status.Phase
 	workspace.Status.Phase = status.phase
 
-	syncConditions(&workspace.Status, status)
-
 	infoMessage := getInfoMessage(workspace, status)
+	if warn := conditions.GetConditionByType(workspace.Status.Conditions, conditions.DevWorkspaceWarning); warn != nil && warn.Status == corev1.ConditionTrue {
+		infoMessage = fmt.Sprintf("%s %s", warningPresentInfoMessage, infoMessage)
+	}
 	if workspace.Status.Message != infoMessage {
 		workspace.Status.Message = infoMessage
 	}
@@ -77,7 +85,10 @@ func (r *DevWorkspaceReconciler) updateWorkspaceStatus(workspace *dw.DevWorkspac
 		if reconcileError == nil {
 			reconcileError = err
 		}
+	} else {
+		updateMetricsForPhase(workspace, oldPhase, status.phase, logger)
 	}
+
 	return reconcileResult, reconcileError
 }
 
@@ -92,9 +103,11 @@ func syncConditions(workspaceStatus *dw.DevWorkspaceStatus, currentStatus *curre
 		currCondition, ok := currentStatus.conditions[workspaceCondition.Type]
 		if !ok {
 			// Didn't observe this condition this time; set status to unknown
-			workspaceStatus.Conditions[idx].LastTransitionTime = currTransitionTime
-			workspaceStatus.Conditions[idx].Status = corev1.ConditionUnknown
-			workspaceStatus.Conditions[idx].Message = ""
+			if workspaceCondition.Status != corev1.ConditionUnknown {
+				workspaceStatus.Conditions[idx].LastTransitionTime = currTransitionTime
+				workspaceStatus.Conditions[idx].Status = corev1.ConditionUnknown
+				workspaceStatus.Conditions[idx].Message = ""
+			}
 			continue
 		}
 
@@ -206,4 +219,21 @@ func getInfoMessage(workspace *dw.DevWorkspace, status *currentStatus) string {
 
 	// No conditions are set but workspace is not running; unclear what value should be set.
 	return ""
+}
+
+// updateMetricsForPhase increments DevWorkspace startup metrics based on phase transitions in a DevWorkspace. It avoids
+// incrementing the underlying metrics where possible (e.g. reconciling an already running workspace) by only incrementing
+// counters when the new phase is different from the current on in the DevWorkspace.
+func updateMetricsForPhase(workspace *dw.DevWorkspace, oldPhase, newPhase dw.DevWorkspacePhase, logger logr.Logger) {
+	if oldPhase == newPhase {
+		return
+	}
+	switch newPhase {
+	case dw.DevWorkspaceStatusRunning:
+		metrics.WorkspaceRunning(workspace, logger)
+	case dw.DevWorkspaceStatusFailed:
+		metrics.WorkspaceFailed(workspace, logger)
+	case dw.DevWorkspaceStatusStarting:
+		metrics.WorkspaceStarted(workspace, logger)
+	}
 }
