@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
-    createdAt: "2021-08-23T15:42:30+00:00"
+    createdAt: "2021-08-23T17:31:31+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1111,13 +1111,13 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:c6d0266b70f453d8f966e88968915cb059c8f0b3f88f21037c4f510a168d42f4
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:b9c7f53a64a60a219872ba6f5c7521412e607323b0313f4f52ae81f0930b4bb6
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:53684e34b0dbe8560d2c330b0761b3eb17982edc1c947a74c36d29805bda6736
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDALJZBI______
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:3875b2ee2826a6d8134aa3b80ac0c8b5ebc4a7f718335d76dfc3461b79f93d19
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_ppc64le_11_openshift_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:b9c7f53a64a60a219872ba6f5c7521412e607323b0313f4f52ae81f0930b4bb6
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:53684e34b0dbe8560d2c330b0761b3eb17982edc1c947a74c36d29805bda6736
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:b9c7f53a64a60a219872ba6f5c7521412e607323b0313f4f52ae81f0930b4bb6
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:53684e34b0dbe8560d2c330b0761b3eb17982edc1c947a74c36d29805bda6736
                 - name: RELATED_IMAGE_keycloak
                   value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:ac4b64c5bec40e32125fac931fc7b5492752f9a9896adf2400a84930960d9a41
                 - name: RELATED_IMAGE_keycloak_ppc64le
@@ -1519,13 +1519,13 @@ spec:
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:c6d0266b70f453d8f966e88968915cb059c8f0b3f88f21037c4f510a168d42f4
   - name: jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:b9c7f53a64a60a219872ba6f5c7521412e607323b0313f4f52ae81f0930b4bb6
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:53684e34b0dbe8560d2c330b0761b3eb17982edc1c947a74c36d29805bda6736
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdaljzbi______
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:3875b2ee2826a6d8134aa3b80ac0c8b5ebc4a7f718335d76dfc3461b79f93d19
   - name: jboss_eap_7_eap_xp3_ppc64le_11_openshift_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:b9c7f53a64a60a219872ba6f5c7521412e607323b0313f4f52ae81f0930b4bb6
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:53684e34b0dbe8560d2c330b0761b3eb17982edc1c947a74c36d29805bda6736
   - name: jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:b9c7f53a64a60a219872ba6f5c7521412e607323b0313f4f52ae81f0930b4bb6
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:53684e34b0dbe8560d2c330b0761b3eb17982edc1c947a74c36d29805bda6736
   - name: keycloak
     image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:ac4b64c5bec40e32125fac931fc7b5492752f9a9896adf2400a84930960d9a41
   - name: keycloak_ppc64le
