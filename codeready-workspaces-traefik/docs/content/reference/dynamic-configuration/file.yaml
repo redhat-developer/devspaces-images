@@ -70,10 +70,12 @@ http:
         passHostHeader: true
         responseForwarding:
           flushInterval: foobar
+        serversTransport: foobar
     Service02:
       mirroring:
         service: foobar
         maxBodySize: 42
+        healthCheck: {}
         mirrors:
         - name: foobar
           percent: 42
@@ -81,6 +83,7 @@ http:
           percent: 42
     Service03:
       weighted:
+        healthCheck: {}
         services:
         - name: foobar
           weight: 42
@@ -157,6 +160,10 @@ http:
         authResponseHeaders:
         - foobar
         - foobar
+        authResponseHeadersRegex: foobar
+        authRequestHeaders:
+        - foobar
+        - foobar
     Middleware10:
       headers:
         customRequestHeaders:
@@ -172,8 +179,10 @@ http:
         accessControlAllowMethods:
         - foobar
         - foobar
-        accessControlAllowOrigin: foobar
         accessControlAllowOriginList:
+        - foobar
+        - foobar
+        accessControlAllowOriginListRegex:
         - foobar
         - foobar
         accessControlExposeHeaders:
@@ -290,6 +299,7 @@ http:
     Middleware20:
       retry:
         attempts: 42
+        initialInterval: 42
     Middleware21:
       stripPrefix:
         prefixes:
@@ -301,10 +311,50 @@ http:
         regex:
         - foobar
         - foobar
+  serversTransports:
+    ServersTransport0:
+      serverName: foobar
+      insecureSkipVerify: true
+      rootCAs:
+      - foobar
+      - foobar
+      certificates:
+      - certFile: foobar
+        keyFile: foobar
+      - certFile: foobar
+        keyFile: foobar
+      maxIdleConnsPerHost: 42
+      forwardingTimeouts:
+        dialTimeout: 42s
+        responseHeaderTimeout: 42s
+        idleConnTimeout: 42s
+      disableHTTP2: true
+      peerCertURI: foobar
+    ServersTransport1:
+      serverName: foobar
+      insecureSkipVerify: true
+      rootCAs:
+      - foobar
+      - foobar
+      certificates:
+      - certFile: foobar
+        keyFile: foobar
+      - certFile: foobar
+        keyFile: foobar
+      maxIdleConnsPerHost: 42
+      forwardingTimeouts:
+        dialTimeout: 42s
+        responseHeaderTimeout: 42s
+        idleConnTimeout: 42s
+      disableHTTP2: true
+      peerCertURI: foobar
 tcp:
   routers:
     TCPRouter0:
       entryPoints:
+      - foobar
+      - foobar
+      middlewares:
       - foobar
       - foobar
       service: foobar
@@ -326,6 +376,9 @@ tcp:
       entryPoints:
       - foobar
       - foobar
+      middlewares:
+      - foobar
+      - foobar
       service: foobar
       rule: foobar
       tls:
@@ -341,10 +394,18 @@ tcp:
           sans:
           - foobar
           - foobar
+  middlewares:
+    Middleware00:
+      ipWhiteList:
+        sourceRange:
+        - foobar
+        - foobar
   services:
     TCPService01:
       loadBalancer:
         terminationDelay: 42
+        proxyProtocol:
+          version: 42
         servers:
         - address: foobar
         - address: foobar

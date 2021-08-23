@@ -9,10 +9,11 @@ repo_url: 'https://github.com/traefik/traefik'
 
 docs_dir: 'content'
 
+product: proxy
+
 # https://squidfunk.github.io/mkdocs-material/
 theme:
-  name: 'material'
-  custom_dir: 'theme'
+  name: 'traefik-labs'
   language: en
   include_sidebar: true
   favicon: assets/img/traefikproxy-icon-color.png
@@ -26,16 +27,7 @@ theme:
     prev: 'Previous'
     next: 'Next'
 
-copyright: "Copyright &copy; 2016-2020 Containous; 2020 Traefik Labs"
-
-extra_css:
-  - assets/styles/root.css
-  - assets/styles/header.css
-  - assets/styles/footer.css
-  - assets/styles/menu.css
-  - assets/styles/content.css
-  - assets/styles/product-switcher.css
-  - assets/styles/atom-one-light.css # HightlightJS's CSS theme
+copyright: "Copyright &copy; 2016-2020 Containous; 2020-2021 Traefik Labs"
 
 extra_javascript:
   - assets/js/hljs/highlight.pack.js # Download from https://highlightjs.org/download/ and enable YAML, TOML and Dockerfile
@@ -76,11 +68,13 @@ nav:
       - 'Quick Start': 'getting-started/quick-start.md'
       - 'Configuration Introduction': 'getting-started/configuration-overview.md'
       - 'Install Traefik': 'getting-started/install-traefik.md'
+      - 'Frequently Asked Questions': 'getting-started/faq.md'
   - 'Configuration Discovery':
       - 'Overview': 'providers/overview.md'
       - 'Docker': 'providers/docker.md'
       - 'Kubernetes IngressRoute': 'providers/kubernetes-crd.md'
       - 'Kubernetes Ingress': 'providers/kubernetes-ingress.md'
+      - 'Kubernetes Gateway API': 'providers/kubernetes-gateway.md'
       - 'Consul Catalog': 'providers/consul-catalog.md'
       - 'ECS': 'providers/ecs.md'
       - 'Marathon': 'providers/marathon.md'
@@ -100,6 +94,7 @@ nav:
           - 'Docker': 'routing/providers/docker.md'
           - 'Kubernetes IngressRoute': 'routing/providers/kubernetes-crd.md'
           - 'Kubernetes Ingress': 'routing/providers/kubernetes-ingress.md'
+          - 'Kubernetes Gateway API': 'routing/providers/kubernetes-gateway.md'
           - 'Consul Catalog': 'routing/providers/consul-catalog.md'
           - 'ECS': 'routing/providers/ecs.md'
           - 'Marathon': 'routing/providers/marathon.md'
@@ -110,29 +105,34 @@ nav:
       - 'TLS': 'https/tls.md'
       - 'Let''s Encrypt': 'https/acme.md'
   - 'Middlewares':
-      - 'Overview': 'middlewares/overview.md'
-      - 'AddPrefix': 'middlewares/addprefix.md'
-      - 'BasicAuth': 'middlewares/basicauth.md'
-      - 'Buffering': 'middlewares/buffering.md'
-      - 'Chain': 'middlewares/chain.md'
-      - 'CircuitBreaker': 'middlewares/circuitbreaker.md'
-      - 'Compress': 'middlewares/compress.md'
-      - 'ContentType': 'middlewares/contenttype.md'
-      - 'DigestAuth': 'middlewares/digestauth.md'
-      - 'Errors': 'middlewares/errorpages.md'
-      - 'ForwardAuth': 'middlewares/forwardauth.md'
-      - 'Headers': 'middlewares/headers.md'
-      - 'IpWhitelist': 'middlewares/ipwhitelist.md'
-      - 'InFlightReq': 'middlewares/inflightreq.md'
-      - 'PassTLSClientCert': 'middlewares/passtlsclientcert.md'
-      - 'RateLimit': 'middlewares/ratelimit.md'
-      - 'RedirectRegex': 'middlewares/redirectregex.md'
-      - 'RedirectScheme': 'middlewares/redirectscheme.md'
-      - 'ReplacePath': 'middlewares/replacepath.md'
-      - 'ReplacePathRegex': 'middlewares/replacepathregex.md'
-      - 'Retry': 'middlewares/retry.md'
-      - 'StripPrefix': 'middlewares/stripprefix.md'
-      - 'StripPrefixRegex': 'middlewares/stripprefixregex.md'
+    - 'Overview': 'middlewares/overview.md'
+    - 'HTTP':
+        - 'Overview': 'middlewares/http/overview.md'
+        - 'AddPrefix': 'middlewares/http/addprefix.md'
+        - 'BasicAuth': 'middlewares/http/basicauth.md'
+        - 'Buffering': 'middlewares/http/buffering.md'
+        - 'Chain': 'middlewares/http/chain.md'
+        - 'CircuitBreaker': 'middlewares/http/circuitbreaker.md'
+        - 'Compress': 'middlewares/http/compress.md'
+        - 'ContentType': 'middlewares/http/contenttype.md'
+        - 'DigestAuth': 'middlewares/http/digestauth.md'
+        - 'Errors': 'middlewares/http/errorpages.md'
+        - 'ForwardAuth': 'middlewares/http/forwardauth.md'
+        - 'Headers': 'middlewares/http/headers.md'
+        - 'IpWhitelist': 'middlewares/http/ipwhitelist.md'
+        - 'InFlightReq': 'middlewares/http/inflightreq.md'
+        - 'PassTLSClientCert': 'middlewares/http/passtlsclientcert.md'
+        - 'RateLimit': 'middlewares/http/ratelimit.md'
+        - 'RedirectRegex': 'middlewares/http/redirectregex.md'
+        - 'RedirectScheme': 'middlewares/http/redirectscheme.md'
+        - 'ReplacePath': 'middlewares/http/replacepath.md'
+        - 'ReplacePathRegex': 'middlewares/http/replacepathregex.md'
+        - 'Retry': 'middlewares/http/retry.md'
+        - 'StripPrefix': 'middlewares/http/stripprefix.md'
+        - 'StripPrefixRegex': 'middlewares/http/stripprefixregex.md'
+    - 'TCP':
+        - 'Overview': 'middlewares/tcp/overview.md'
+        - 'IpWhitelist': 'middlewares/tcp/ipwhitelist.md'
   - 'Plugins & Traefik Pilot': 'plugins/index.md'
   - 'Operations':
       - 'CLI': 'operations/cli.md'
@@ -179,7 +179,6 @@ nav:
       - 'Data Collection': 'contributing/data-collection.md'
       - 'Advocating': 'contributing/advocating.md'
       - 'Maintainers': 'contributing/maintainers.md'
-#  - 'Glossary': 'glossary.md'
   - 'References':
       - 'Static Configuration':
           - 'Overview': 'reference/static-configuration/overview.md'
@@ -190,7 +189,9 @@ nav:
         - 'File': 'reference/dynamic-configuration/file.md'
         - 'Docker': 'reference/dynamic-configuration/docker.md'
         - 'Kubernetes CRD': 'reference/dynamic-configuration/kubernetes-crd.md'
+        - 'Kubernetes Gateway API': 'reference/dynamic-configuration/kubernetes-gateway.md'
         - 'Consul Catalog': 'reference/dynamic-configuration/consul-catalog.md'
+        - 'ECS': 'reference/dynamic-configuration/ecs.md'
+        - 'KV': 'reference/dynamic-configuration/kv.md'
         - 'Marathon': 'reference/dynamic-configuration/marathon.md'
         - 'Rancher': 'reference/dynamic-configuration/rancher.md'
-        - 'KV': 'reference/dynamic-configuration/kv.md'

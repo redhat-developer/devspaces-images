@@ -14,30 +14,32 @@ import (
 type ManagerFactory struct {
 	metricsRegistry metrics.Registry
 
-	defaultRoundTripper http.RoundTripper
+	roundTripperManager *RoundTripperManager
 
 	api              func(configuration *runtime.Configuration) http.Handler
 	restHandler      http.Handler
 	dashboardHandler http.Handler
 	metricsHandler   http.Handler
 	pingHandler      http.Handler
+	acmeHTTPHandler  http.Handler
 
 	routinesPool *safe.Pool
 }
 
 // NewManagerFactory creates a new ManagerFactory.
-func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *safe.Pool, metricsRegistry metrics.Registry) *ManagerFactory {
+func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *safe.Pool, metricsRegistry metrics.Registry, roundTripperManager *RoundTripperManager, acmeHTTPHandler http.Handler) *ManagerFactory {
 	factory := &ManagerFactory{
 		metricsRegistry:     metricsRegistry,
-		defaultRoundTripper: setupDefaultRoundTripper(staticConfiguration.ServersTransport),
 		routinesPool:        routinesPool,
+		roundTripperManager: roundTripperManager,
+		acmeHTTPHandler:     acmeHTTPHandler,
 	}
 
 	if staticConfiguration.API != nil {
 		factory.api = api.NewBuilder(staticConfiguration)
 
 		if staticConfiguration.API.Dashboard {
-			factory.dashboardHandler = http.FileServer(staticConfiguration.API.DashboardAssets)
+			factory.dashboardHandler = api.DashboardHandler{Assets: staticConfiguration.API.DashboardAssets}
 		}
 	}
 
@@ -61,6 +63,12 @@ func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *s
 
 // Build creates a service manager.
 func (f *ManagerFactory) Build(configuration *runtime.Configuration) *InternalHandlers {
-	svcManager := NewManager(configuration.Services, f.defaultRoundTripper, f.metricsRegistry, f.routinesPool)
-	return NewInternalHandlers(f.api, configuration, f.restHandler, f.metricsHandler, f.pingHandler, f.dashboardHandler, svcManager)
+	svcManager := NewManager(configuration.Services, f.metricsRegistry, f.routinesPool, f.roundTripperManager)
+
+	var apiHandler http.Handler
+	if f.api != nil {
+		apiHandler = f.api(configuration)
+	}
+
+	return NewInternalHandlers(svcManager, apiHandler, f.restHandler, f.metricsHandler, f.pingHandler, f.dashboardHandler, f.acmeHTTPHandler)
 }

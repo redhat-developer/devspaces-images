@@ -1,17 +1,18 @@
 package redirect
 
 import (
-	"bytes"
-	"html/template"
-	"io"
 	"net/http"
 	"net/url"
 	"regexp"
-	"strings"
 
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/traefik/traefik/v2/pkg/tracing"
 	"github.com/vulcand/oxy/utils"
+)
+
+const (
+	schemeHTTP  = "http"
+	schemeHTTPS = "https"
 )
 
 type redirect struct {
@@ -21,10 +22,11 @@ type redirect struct {
 	permanent   bool
 	errHandler  utils.ErrorHandler
 	name        string
+	rawURL      func(*http.Request) string
 }
 
 // New creates a Redirect middleware.
-func newRedirect(next http.Handler, regex, replacement string, permanent bool, name string) (http.Handler, error) {
+func newRedirect(next http.Handler, regex, replacement string, permanent bool, rawURL func(*http.Request) string, name string) (http.Handler, error) {
 	re, err := regexp.Compile(regex)
 	if err != nil {
 		return nil, err
@@ -37,6 +39,7 @@ func newRedirect(next http.Handler, regex, replacement string, permanent bool, n
 		errHandler:  utils.DefaultHandler,
 		next:        next,
 		name:        name,
+		rawURL:      rawURL,
 	}, nil
 }
 
@@ -45,26 +48,19 @@ func (r *redirect) GetTracingInformation() (string, ext.SpanKindEnum) {
 }
 
 func (r *redirect) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	oldURL := rawURL(req)
+	oldURL := r.rawURL(req)
 
-	// If the Regexp doesn't match, skip to the next handler
+	// If the Regexp doesn't match, skip to the next handler.
 	if !r.regex.MatchString(oldURL) {
 		r.next.ServeHTTP(rw, req)
 		return
 	}
 
-	// apply a rewrite regexp to the URL
+	// Apply a rewrite regexp to the URL.
 	newURL := r.regex.ReplaceAllString(oldURL, r.replacement)
 
-	// replace any variables that may be in there
-	rewrittenURL := &bytes.Buffer{}
-	if err := applyString(newURL, rewrittenURL, req); err != nil {
-		r.errHandler.ServeHTTP(rw, req, err)
-		return
-	}
-
-	// parse the rewritten URL and replace request URL with it
-	parsedURL, err := url.Parse(rewrittenURL.String())
+	// Parse the rewritten URL and replace request URL with it.
+	parsedURL, err := url.Parse(newURL)
 	if err != nil {
 		r.errHandler.ServeHTTP(rw, req, err)
 		return
@@ -78,7 +74,7 @@ func (r *redirect) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	req.URL = parsedURL
 
-	// make sure the request URI corresponds the rewritten URL
+	// Make sure the request URI corresponds the rewritten URL.
 	req.RequestURI = req.URL.RequestURI()
 	r.next.ServeHTTP(rw, req)
 }
@@ -107,45 +103,4 @@ func (m *moveHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		http.Error(rw, err.Error(), http.StatusInternalServerError)
 	}
-}
-
-func rawURL(req *http.Request) string {
-	scheme := "http"
-	host := req.Host
-	port := ""
-	uri := req.RequestURI
-
-	schemeRegex := `^(https?):\/\/(\[[\w:.]+\]|[\w\._-]+)?(:\d+)?(.*)$`
-	re, _ := regexp.Compile(schemeRegex)
-	if re.Match([]byte(req.RequestURI)) {
-		match := re.FindStringSubmatch(req.RequestURI)
-		scheme = match[1]
-
-		if len(match[2]) > 0 {
-			host = match[2]
-		}
-
-		if len(match[3]) > 0 {
-			port = match[3]
-		}
-
-		uri = match[4]
-	}
-
-	if req.TLS != nil {
-		scheme = "https"
-	}
-
-	return strings.Join([]string{scheme, "://", host, port, uri}, "")
-}
-
-func applyString(in string, out io.Writer, req *http.Request) error {
-	t, err := template.New("t").Parse(in)
-	if err != nil {
-		return err
-	}
-
-	data := struct{ Request *http.Request }{Request: req}
-
-	return t.Execute(out, data)
 }

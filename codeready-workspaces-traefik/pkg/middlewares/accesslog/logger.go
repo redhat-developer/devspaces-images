@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -18,6 +19,7 @@ import (
 	"github.com/sirupsen/logrus"
 	ptypes "github.com/traefik/paerser/types"
 	"github.com/traefik/traefik/v2/pkg/log"
+	traefiktls "github.com/traefik/traefik/v2/pkg/tls"
 	"github.com/traefik/traefik/v2/pkg/types"
 )
 
@@ -209,6 +211,8 @@ func (h *Handler) ServeHTTP(rw http.ResponseWriter, req *http.Request, next http
 	core[RequestScheme] = "http"
 	if req.TLS != nil {
 		core[RequestScheme] = "https"
+		core[TLSVersion] = traefiktls.GetVersion(req.TLS)
+		core[TLSCipher] = traefiktls.GetCipherName(req.TLS)
 	}
 
 	core[ClientAddr] = req.RemoteAddr
@@ -344,7 +348,7 @@ func (h *Handler) redactHeaders(headers http.Header, fields logrus.Fields, prefi
 	for k := range headers {
 		v := h.config.Fields.KeepHeader(k)
 		if v == types.AccessLogKeep {
-			fields[prefix+k] = headers.Get(k)
+			fields[prefix+k] = strings.Join(headers.Values(k), ",")
 		} else if v == types.AccessLogRedact {
 			fields[prefix+k] = "REDACTED"
 		}

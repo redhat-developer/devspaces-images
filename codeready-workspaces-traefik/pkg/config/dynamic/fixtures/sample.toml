@@ -41,6 +41,7 @@
     swarmMode = true
     network = "foobar"
     swarmModeRefreshSeconds = 42
+    httpClientTimeout = 42
     [providers.docker.tls]
       ca = "foobar"
       caOptional = true
@@ -79,7 +80,6 @@
     endpoint = "foobar"
     token = "foobar"
     certAuthFilePath = "foobar"
-    disablePassHostHeaders = true
     namespaces = ["foobar", "foobar"]
     labelSelector = "foobar"
     ingressClass = "foobar"
@@ -91,7 +91,6 @@
     endpoint = "foobar"
     token = "foobar"
     certAuthFilePath = "foobar"
-    disablePassHostHeaders = true
     namespaces = ["foobar", "foobar"]
     labelSelector = "foobar"
     ingressClass = "foobar"
@@ -287,6 +286,8 @@
         address = "foobar"
         trustForwardHeader = true
         authResponseHeaders = ["foobar", "foobar"]
+        authResponseHeadersRegex = "foobar"
+        authRequestHeaders = ["foobar", "foobar"]
         [http.middlewares.Middleware15.forwardAuth.tls]
           ca = "foobar"
           caOptional = true
@@ -366,7 +367,6 @@
         accessControlAllowCredentials = true
         accessControlAllowHeaders = ["foobar", "foobar"]
         accessControlAllowMethods = ["foobar", "foobar"]
-        accessControlAllowOrigin = "foobar"
         accessControlAllowOriginList = ["foobar", "foobar"]
         accessControlExposeHeaders = ["foobar", "foobar"]
         accessControlMaxAge = 42

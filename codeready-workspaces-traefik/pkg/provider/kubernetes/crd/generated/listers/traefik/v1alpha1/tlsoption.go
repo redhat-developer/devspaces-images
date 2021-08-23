@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2020 Containous SAS; 2020-2020 Traefik Labs
+Copyright (c) 2016-2020 Containous SAS; 2020-2021 Traefik Labs
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,10 @@ import (
 )
 
 // TLSOptionLister helps list TLSOptions.
+// All objects returned here must be treated as read-only.
 type TLSOptionLister interface {
 	// List lists all TLSOptions in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.TLSOption, err error)
 	// TLSOptions returns an object that can list and get TLSOptions.
 	TLSOptions(namespace string) TLSOptionNamespaceLister
@@ -66,10 +68,13 @@ func (s *tLSOptionLister) TLSOptions(namespace string) TLSOptionNamespaceLister 
 }
 
 // TLSOptionNamespaceLister helps list and get TLSOptions.
+// All objects returned here must be treated as read-only.
 type TLSOptionNamespaceLister interface {
 	// List lists all TLSOptions in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.TLSOption, err error)
 	// Get retrieves the TLSOption from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.TLSOption, error)
 	TLSOptionNamespaceListerExpansion
 }

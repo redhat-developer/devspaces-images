@@ -14,13 +14,21 @@ Traefik tries to detect the configured mode and route traffic to the right IP ad
 
 ## Port detection
 
-Traefik also attempts to determine the right port (which is a [non-trivial matter in Marathon](https://mesosphere.github.io/marathon/docs/ports.html)).
-Following is the order by which Traefik tries to identify the port (the first one that yields a positive result will be used):
+Traefik also attempts to determine the right port (which is a [non-trivial matter in Marathon](https://mesosphere.github.io/marathon/docs/ports.html)) from the following sources:
 
-1. A arbitrary port specified through the `traefik.http.services.serviceName.loadbalancer.server.port=8080`
-1. The task port (possibly indexed through the `traefik.http.services.serviceName.loadbalancer.server.port=index:0` label, otherwise the first one).
-1. The port from the application's `portDefinitions` field (possibly indexed through the `traefik.http.services.serviceName.loadbalancer.server.port=index:0` label, otherwise the first one).
-1. The port from the application's `ipAddressPerTask` field (possibly indexed through the `traefik.http.services.serviceName.loadbalancer.server.port=index:0` label, otherwise the first one).
+1. An arbitrary port specified through label `traefik.http.services.serviceName.loadbalancer.server.port=8080`
+1. The task port.
+1. The port from the application's `portDefinitions` field.
+1. The port from the application's `ipAddressPerTask` field.
+
+### Port label syntax
+
+To select a port, you can either
+
+- specify the port directly: `traefik.http.services.serviceName.loadbalancer.server.port=8080`
+- specify a port index: `traefik.http.services.serviceName.loadbalancer.server.port=index:0`
+- specify a port name: `traefik.http.services.serviceName.loadbalancer.server.port=name:http`
+- otherwise the first one is selected.
 
 ## Achieving high availability
 
@@ -49,7 +57,7 @@ Beginning with version 1.4, Traefik respects readiness check results if the Trae
     Due to the way readiness check results are currently exposed by the Marathon API, ready tasks may be taken into rotation with a small delay.
     It is on the order of one readiness check timeout interval (as configured on the application specification) and guarantees that non-ready tasks do not receive traffic prematurely.
 
-If readiness checks are not possible, a current mitigation strategy is to enable [retries](../middlewares/retry.md) and make sure that a sufficient number of healthy application tasks exist so that one retry will likely hit one of those.
+If readiness checks are not possible, a current mitigation strategy is to enable [retries](../middlewares/http/retry.md) and make sure that a sufficient number of healthy application tasks exist so that one retry will likely hit one of those.
 Apart from its probabilistic nature, the workaround comes at the price of increased latency.
 
 #### Shutdown

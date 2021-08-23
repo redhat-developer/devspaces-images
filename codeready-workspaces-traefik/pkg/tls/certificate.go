@@ -3,8 +3,9 @@ package tls
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"net/url"
 	"os"
 	"sort"
 	"strings"
@@ -56,6 +57,23 @@ type Certificate struct {
 // Certs and Keys could be either a file path, or the file content itself.
 type Certificates []Certificate
 
+// GetCertificates retrieves the certificates as slice of tls.Certificate.
+func (c Certificates) GetCertificates() []tls.Certificate {
+	var certs []tls.Certificate
+
+	for _, certificate := range c {
+		cert, err := certificate.GetCertificate()
+		if err != nil {
+			log.WithoutContext().Debugf("Error while getting certificate: %v", err)
+			continue
+		}
+
+		certs = append(certs, cert)
+	}
+
+	return certs
+}
+
 // FileOrContent hold a file path or content.
 type FileOrContent string
 
@@ -73,7 +91,7 @@ func (f FileOrContent) Read() ([]byte, error) {
 	var content []byte
 	if f.IsPath() {
 		var err error
-		content, err = ioutil.ReadFile(f.String())
+		content, err = os.ReadFile(f.String())
 		if err != nil {
 			return nil, err
 		}
@@ -190,6 +208,26 @@ func (c *Certificate) AppendCertificate(certs map[string]map[string]*tls.Certifi
 	return err
 }
 
+// GetCertificate retrieves Certificate as tls.Certificate.
+func (c *Certificate) GetCertificate() (tls.Certificate, error) {
+	certContent, err := c.CertFile.Read()
+	if err != nil {
+		return tls.Certificate{}, fmt.Errorf("unable to read CertFile : %w", err)
+	}
+
+	keyContent, err := c.KeyFile.Read()
+	if err != nil {
+		return tls.Certificate{}, fmt.Errorf("unable to read KeyFile : %w", err)
+	}
+
+	cert, err := tls.X509KeyPair(certContent, keyContent)
+	if err != nil {
+		return tls.Certificate{}, fmt.Errorf("unable to generate TLS certificate : %w", err)
+	}
+
+	return cert, nil
+}
+
 // GetTruncatedCertificateName truncates the certificate name.
 func (c *Certificate) GetTruncatedCertificateName() string {
 	certName := c.CertFile.String()
@@ -236,4 +274,87 @@ func (c *Certificates) Set(value string) error {
 // Type is type of the struct.
 func (c *Certificates) Type() string {
 	return "certificates"
+}
+
+// VerifyPeerCertificate verifies the chain certificates and their URI.
+func VerifyPeerCertificate(uri string, cfg *tls.Config, rawCerts [][]byte) error {
+	// TODO: Refactor to avoid useless verifyChain (ex: when insecureskipverify is false)
+	cert, err := verifyChain(cfg.RootCAs, rawCerts)
+	if err != nil {
+		return err
+	}
+
+	if len(uri) > 0 {
+		return verifyServerCertMatchesURI(uri, cert)
+	}
+
+	return nil
+}
+
+// verifyServerCertMatchesURI is used on tls connections dialed to a server
+// to ensure that the certificate it presented has the correct URI.
+func verifyServerCertMatchesURI(uri string, cert *x509.Certificate) error {
+	if cert == nil {
+		return errors.New("peer certificate mismatch: no peer certificate presented")
+	}
+
+	// Our certs will only ever have a single URI for now so only check that
+	if len(cert.URIs) < 1 {
+		return errors.New("peer certificate mismatch: peer certificate invalid")
+	}
+
+	gotURI := cert.URIs[0]
+
+	// Override the hostname since we rely on x509 constraints to limit ability to spoof the trust domain if needed
+	// (i.e. because a root is shared with other PKI or Consul clusters).
+	// This allows for seamless migrations between trust domains.
+
+	expectURI := &url.URL{}
+	id, err := url.Parse(uri)
+	if err != nil {
+		return fmt.Errorf("%q is not a valid URI", uri)
+	}
+	*expectURI = *id
+	expectURI.Host = gotURI.Host
+
+	if strings.EqualFold(gotURI.String(), expectURI.String()) {
+		return nil
+	}
+
+	return fmt.Errorf("peer certificate mismatch got %s, want %s", gotURI, uri)
+}
+
+// verifyChain performs standard TLS verification without enforcing remote hostname matching.
+func verifyChain(rootCAs *x509.CertPool, rawCerts [][]byte) (*x509.Certificate, error) {
+	// Fetch leaf and intermediates. This is based on code form tls handshake.
+	if len(rawCerts) < 1 {
+		return nil, errors.New("tls: no certificates from peer")
+	}
+
+	certs := make([]*x509.Certificate, len(rawCerts))
+	for i, asn1Data := range rawCerts {
+		cert, err := x509.ParseCertificate(asn1Data)
+		if err != nil {
+			return nil, fmt.Errorf("tls: failed to parse certificate from peer: %w", err)
+		}
+
+		certs[i] = cert
+	}
+
+	opts := x509.VerifyOptions{
+		Roots:         rootCAs,
+		Intermediates: x509.NewCertPool(),
+	}
+
+	// All but the first cert are intermediates
+	for _, cert := range certs[1:] {
+		opts.Intermediates.AddCert(cert)
+	}
+
+	_, err := certs[0].Verify(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return certs[0], nil
 }

@@ -3,6 +3,7 @@ package service
 import (
 	"bufio"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -49,12 +50,13 @@ func TestWebSocketTCPClose(t *testing.T) {
 		withPath("/ws"),
 	).open()
 	require.NoError(t, err)
+
 	conn.Close()
 
 	serverErr := <-errChan
 
-	wsErr, ok := serverErr.(*gorillawebsocket.CloseError)
-	assert.Equal(t, true, ok)
+	var wsErr *gorillawebsocket.CloseError
+	require.True(t, errors.As(serverErr, &wsErr))
 	assert.Equal(t, 1006, wsErr.Code)
 }
 
@@ -119,7 +121,7 @@ func TestWebSocketPingPong(t *testing.T) {
 
 	_, _, err = conn.ReadMessage()
 
-	if err != goodErr {
+	if !errors.Is(err, goodErr) {
 		require.NoError(t, err)
 	}
 }
@@ -694,12 +696,16 @@ func (w *websocketRequest) open() (*websocket.Conn, net.Conn, error) {
 }
 
 func parseURI(t *testing.T, uri string) *url.URL {
+	t.Helper()
+
 	out, err := url.ParseRequestURI(uri)
 	require.NoError(t, err)
 	return out
 }
 
 func createProxyWithForwarder(t *testing.T, proxy http.Handler, url string) *httptest.Server {
+	t.Helper()
+
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		path := req.URL.Path // keep the original path
 		// Set new backend URL

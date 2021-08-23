@@ -2,7 +2,7 @@ package router
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -13,6 +13,7 @@ import (
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/config/runtime"
 	"github.com/traefik/traefik/v2/pkg/config/static"
+	"github.com/traefik/traefik/v2/pkg/metrics"
 	"github.com/traefik/traefik/v2/pkg/middlewares/accesslog"
 	"github.com/traefik/traefik/v2/pkg/middlewares/requestdecorator"
 	"github.com/traefik/traefik/v2/pkg/server/middleware"
@@ -61,6 +62,29 @@ func TestRouterManager_Get(t *testing.T) {
 			},
 			entryPoints: []string{"web"},
 			expected:    expectedResult{StatusCode: http.StatusOK},
+		},
+		{
+			desc: "empty host",
+			routersConfig: map[string]*dynamic.Router{
+				"foo": {
+					EntryPoints: []string{"web"},
+					Service:     "foo-service",
+					Rule:        "Host(``)",
+				},
+			},
+			serviceConfig: map[string]*dynamic.Service{
+				"foo-service": {
+					LoadBalancer: &dynamic.ServersLoadBalancer{
+						Servers: []dynamic.Server{
+							{
+								URL: server.URL,
+							},
+						},
+					},
+				},
+			},
+			entryPoints: []string{"web"},
+			expected:    expectedResult{StatusCode: http.StatusNotFound},
 		},
 		{
 			desc: "no load balancer",
@@ -287,11 +311,13 @@ func TestRouterManager_Get(t *testing.T) {
 				},
 			})
 
-			serviceManager := service.NewManager(rtConf.Services, http.DefaultTransport, nil, nil)
+			roundTripperManager := service.NewRoundTripperManager()
+			roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
+			serviceManager := service.NewManager(rtConf.Services, nil, nil, roundTripperManager)
 			middlewaresBuilder := middleware.NewBuilder(rtConf.Middlewares, serviceManager, nil)
 			chainBuilder := middleware.NewChainBuilder(static.Configuration{}, nil, nil)
 
-			routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder)
+			routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder, metrics.NewVoidRegistry())
 
 			handlers := routerManager.BuildHandlers(context.Background(), test.entryPoints, false)
 
@@ -391,11 +417,13 @@ func TestAccessLog(t *testing.T) {
 				},
 			})
 
-			serviceManager := service.NewManager(rtConf.Services, http.DefaultTransport, nil, nil)
+			roundTripperManager := service.NewRoundTripperManager()
+			roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
+			serviceManager := service.NewManager(rtConf.Services, nil, nil, roundTripperManager)
 			middlewaresBuilder := middleware.NewBuilder(rtConf.Middlewares, serviceManager, nil)
 			chainBuilder := middleware.NewChainBuilder(static.Configuration{}, nil, nil)
 
-			routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder)
+			routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder, metrics.NewVoidRegistry())
 
 			handlers := routerManager.BuildHandlers(context.Background(), test.entryPoints, false)
 
@@ -442,7 +470,7 @@ func TestRuntimeConfiguration(t *testing.T) {
 								URL: "http://127.0.0.1:8086",
 							},
 						},
-						HealthCheck: &dynamic.HealthCheck{
+						HealthCheck: &dynamic.ServerHealthCheck{
 							Interval: "500ms",
 							Path:     "/health",
 						},
@@ -678,11 +706,13 @@ func TestRuntimeConfiguration(t *testing.T) {
 				},
 			})
 
-			serviceManager := service.NewManager(rtConf.Services, http.DefaultTransport, nil, nil)
+			roundTripperManager := service.NewRoundTripperManager()
+			roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
+			serviceManager := service.NewManager(rtConf.Services, nil, nil, roundTripperManager)
 			middlewaresBuilder := middleware.NewBuilder(rtConf.Middlewares, serviceManager, nil)
 			chainBuilder := middleware.NewChainBuilder(static.Configuration{}, nil, nil)
 
-			routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder)
+			routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder, metrics.NewVoidRegistry())
 
 			_ = routerManager.BuildHandlers(context.Background(), entryPoints, false)
 
@@ -759,11 +789,13 @@ func TestProviderOnMiddlewares(t *testing.T) {
 		},
 	})
 
-	serviceManager := service.NewManager(rtConf.Services, http.DefaultTransport, nil, nil)
+	roundTripperManager := service.NewRoundTripperManager()
+	roundTripperManager.Update(map[string]*dynamic.ServersTransport{"default@internal": {}})
+	serviceManager := service.NewManager(rtConf.Services, nil, nil, roundTripperManager)
 	middlewaresBuilder := middleware.NewBuilder(rtConf.Middlewares, serviceManager, nil)
 	chainBuilder := middleware.NewChainBuilder(staticCfg, nil, nil)
 
-	routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder)
+	routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder, metrics.NewVoidRegistry())
 
 	_ = routerManager.BuildHandlers(context.Background(), entryPoints, false)
 
@@ -771,6 +803,14 @@ func TestProviderOnMiddlewares(t *testing.T) {
 	assert.Equal(t, []string{"m1@file", "m2@file", "m1@file"}, rtConf.Middlewares["chain@file"].Chain.Middlewares)
 	assert.Equal(t, []string{"chain@docker", "m1@file"}, rtConf.Routers["router@docker"].Middlewares)
 	assert.Equal(t, []string{"m1@docker", "m2@docker", "m1@file"}, rtConf.Middlewares["chain@docker"].Chain.Middlewares)
+}
+
+type staticRoundTripperGetter struct {
+	res *http.Response
+}
+
+func (s staticRoundTripperGetter) Get(name string) (http.RoundTripper, error) {
+	return &staticTransport{res: s.res}, nil
 }
 
 type staticTransport struct {
@@ -788,7 +828,7 @@ func BenchmarkRouterServe(b *testing.B) {
 
 	res := &http.Response{
 		StatusCode: 200,
-		Body:       ioutil.NopCloser(strings.NewReader("")),
+		Body:       io.NopCloser(strings.NewReader("")),
 	}
 
 	routersConfig := map[string]*dynamic.Router{
@@ -819,11 +859,11 @@ func BenchmarkRouterServe(b *testing.B) {
 		},
 	})
 
-	serviceManager := service.NewManager(rtConf.Services, &staticTransport{res}, nil, nil)
+	serviceManager := service.NewManager(rtConf.Services, nil, nil, staticRoundTripperGetter{res})
 	middlewaresBuilder := middleware.NewBuilder(rtConf.Middlewares, serviceManager, nil)
 	chainBuilder := middleware.NewChainBuilder(static.Configuration{}, nil, nil)
 
-	routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder)
+	routerManager := NewManager(rtConf, serviceManager, middlewaresBuilder, chainBuilder, metrics.NewVoidRegistry())
 
 	handlers := routerManager.BuildHandlers(context.Background(), entryPoints, false)
 
@@ -840,7 +880,7 @@ func BenchmarkRouterServe(b *testing.B) {
 func BenchmarkService(b *testing.B) {
 	res := &http.Response{
 		StatusCode: 200,
-		Body:       ioutil.NopCloser(strings.NewReader("")),
+		Body:       io.NopCloser(strings.NewReader("")),
 	}
 
 	serviceConfig := map[string]*dynamic.Service{
@@ -861,7 +901,7 @@ func BenchmarkService(b *testing.B) {
 		},
 	})
 
-	serviceManager := service.NewManager(rtConf.Services, &staticTransport{res}, nil, nil)
+	serviceManager := service.NewManager(rtConf.Services, nil, nil, staticRoundTripperGetter{res})
 	w := httptest.NewRecorder()
 	req := testhelpers.MustNewRequest(http.MethodGet, "http://foo.bar/", nil)
 

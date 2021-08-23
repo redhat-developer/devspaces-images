@@ -38,6 +38,7 @@
     [http.services.Service01]
       [http.services.Service01.loadBalancer]
         passHostHeader = true
+        serversTransport = "foobar"
         [http.services.Service01.loadBalancer.sticky]
           [http.services.Service01.loadBalancer.sticky.cookie]
             name = "foobar"
@@ -68,6 +69,8 @@
         service = "foobar"
         maxBodySize = 42
 
+        [http.services.Service02.mirroring.healthCheck]
+
         [[http.services.Service02.mirroring.mirrors]]
           name = "foobar"
           percent = 42
@@ -77,6 +80,7 @@
           percent = 42
     [http.services.Service03]
       [http.services.Service03.weighted]
+        [http.services.Service03.weighted.healthCheck]
 
         [[http.services.Service03.weighted.services]]
           name = "foobar"
@@ -138,6 +142,8 @@
         address = "foobar"
         trustForwardHeader = true
         authResponseHeaders = ["foobar", "foobar"]
+        authResponseHeadersRegex = "foobar"
+        authRequestHeaders = ["foobar", "foobar"]
         [http.middlewares.Middleware09.forwardAuth.tls]
           ca = "foobar"
           caOptional = true
@@ -149,8 +155,8 @@
         accessControlAllowCredentials = true
         accessControlAllowHeaders = ["foobar", "foobar"]
         accessControlAllowMethods = ["foobar", "foobar"]
-        accessControlAllowOrigin = "foobar"
         accessControlAllowOriginList = ["foobar", "foobar"]
+        accessControlAllowOriginListRegex = ["foobar", "foobar"]
         accessControlExposeHeaders = ["foobar", "foobar"]
         accessControlMaxAge = 42
         addVaryHeader = true
@@ -257,6 +263,7 @@
     [http.middlewares.Middleware20]
       [http.middlewares.Middleware20.retry]
         attempts = 42
+        initialInterval = 42
     [http.middlewares.Middleware21]
       [http.middlewares.Middleware21.stripPrefix]
         prefixes = ["foobar", "foobar"]
@@ -264,11 +271,51 @@
     [http.middlewares.Middleware22]
       [http.middlewares.Middleware22.stripPrefixRegex]
         regex = ["foobar", "foobar"]
+  [http.serversTransports]
+    [http.serversTransports.ServersTransport0]
+      serverName = "foobar"
+      insecureSkipVerify = true
+      rootCAs = ["foobar", "foobar"]
+      maxIdleConnsPerHost = 42
+      disableHTTP2 = true
+      peerCertURI = "foobar"
+
+      [[http.serversTransports.ServersTransport0.certificates]]
+        certFile = "foobar"
+        keyFile = "foobar"
+
+      [[http.serversTransports.ServersTransport0.certificates]]
+        certFile = "foobar"
+        keyFile = "foobar"
+      [http.serversTransports.ServersTransport0.forwardingTimeouts]
+        dialTimeout = "42s"
+        responseHeaderTimeout = "42s"
+        idleConnTimeout = "42s"
+    [http.serversTransports.ServersTransport1]
+      serverName = "foobar"
+      insecureSkipVerify = true
+      rootCAs = ["foobar", "foobar"]
+      maxIdleConnsPerHost = 42
+      disableHTTP2 = true
+      peerCertURI = "foobar"
+
+      [[http.serversTransports.ServersTransport1.certificates]]
+        certFile = "foobar"
+        keyFile = "foobar"
+
+      [[http.serversTransports.ServersTransport1.certificates]]
+        certFile = "foobar"
+        keyFile = "foobar"
+      [http.serversTransports.ServersTransport1.forwardingTimeouts]
+        dialTimeout = "42s"
+        responseHeaderTimeout = "42s"
+        idleConnTimeout = "42s"
 
 [tcp]
   [tcp.routers]
     [tcp.routers.TCPRouter0]
       entryPoints = ["foobar", "foobar"]
+      middlewares = ["foobar", "foobar"]
       service = "foobar"
       rule = "foobar"
       [tcp.routers.TCPRouter0.tls]
@@ -285,6 +332,7 @@
           sans = ["foobar", "foobar"]
     [tcp.routers.TCPRouter1]
       entryPoints = ["foobar", "foobar"]
+      middlewares = ["foobar", "foobar"]
       service = "foobar"
       rule = "foobar"
       [tcp.routers.TCPRouter1.tls]
@@ -303,6 +351,8 @@
     [tcp.services.TCPService01]
       [tcp.services.TCPService01.loadBalancer]
         terminationDelay = 42
+        [tcp.services.TCPService01.loadBalancer.proxyProtocol]
+          version = 42
 
         [[tcp.services.TCPService01.loadBalancer.servers]]
           address = "foobar"
@@ -319,6 +369,10 @@
         [[tcp.services.TCPService02.weighted.services]]
           name = "foobar"
           weight = 42
+  [tcp.middlewares]
+    [tcp.middlewares.Middleware00]
+      [tcp.middlewares.Middleware00.ipWhiteList]
+      sourceRange = ["foobar", "foobar"]
 
 [udp]
   [udp.routers]

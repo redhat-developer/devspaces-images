@@ -13,6 +13,8 @@ const (
 	annotationsPrefix = "traefik.ingress.kubernetes.io/"
 )
 
+var annotationsRegex = regexp.MustCompile(`(.+)\.(\w+)\.(\d+)\.(.+)`)
+
 // RouterConfig is the router's root configuration from annotations.
 type RouterConfig struct {
 	Router *RouterIng `json:"router,omitempty"`
@@ -39,9 +41,10 @@ type ServiceConfig struct {
 
 // ServiceIng is the service's configuration from annotations.
 type ServiceIng struct {
-	ServersScheme  string          `json:"serversScheme,omitempty"`
-	PassHostHeader *bool           `json:"passHostHeader"`
-	Sticky         *dynamic.Sticky `json:"sticky,omitempty" label:"allowEmpty"`
+	ServersScheme    string          `json:"serversScheme,omitempty"`
+	ServersTransport string          `json:"serversTransport,omitempty"`
+	PassHostHeader   *bool           `json:"passHostHeader"`
+	Sticky           *dynamic.Sticky `json:"sticky,omitempty" label:"allowEmpty"`
 }
 
 // SetDefaults sets the default values.
@@ -86,8 +89,6 @@ func convertAnnotations(annotations map[string]string) map[string]string {
 		return nil
 	}
 
-	exp := regexp.MustCompile(`(.+)\.(\w+)\.(\d+)\.(.+)`)
-
 	result := make(map[string]string)
 
 	for key, value := range annotations {
@@ -97,8 +98,8 @@ func convertAnnotations(annotations map[string]string) map[string]string {
 
 		newKey := strings.ReplaceAll(key, "ingress.kubernetes.io/", "")
 
-		if exp.MatchString(newKey) {
-			newKey = exp.ReplaceAllString(newKey, "$1.$2[$3].$4")
+		if annotationsRegex.MatchString(newKey) {
+			newKey = annotationsRegex.ReplaceAllString(newKey, "$1.$2[$3].$4")
 		}
 
 		result[newKey] = value

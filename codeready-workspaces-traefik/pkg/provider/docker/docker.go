@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -57,6 +58,7 @@ type Provider struct {
 	SwarmMode               bool             `description:"Use Docker on Swarm Mode." json:"swarmMode,omitempty" toml:"swarmMode,omitempty" yaml:"swarmMode,omitempty" export:"true"`
 	Network                 string           `description:"Default Docker network used." json:"network,omitempty" toml:"network,omitempty" yaml:"network,omitempty" export:"true"`
 	SwarmModeRefreshSeconds ptypes.Duration  `description:"Polling interval for swarm mode." json:"swarmModeRefreshSeconds,omitempty" toml:"swarmModeRefreshSeconds,omitempty" yaml:"swarmModeRefreshSeconds,omitempty" export:"true"`
+	HTTPClientTimeout       ptypes.Duration  `description:"Client timeout for HTTP connections." json:"httpClientTimeout,omitempty" toml:"httpClientTimeout,omitempty" yaml:"httpClientTimeout,omitempty" export:"true"`
 	defaultRuleTpl          *template.Template
 }
 
@@ -147,6 +149,7 @@ func (p *Provider) getClientOpts() ([]client.Opt, error) {
 
 		return []client.Opt{
 			client.WithHTTPClient(httpClient),
+			client.WithTimeout(time.Duration(p.HTTPClientTimeout)),
 			client.WithHost(helper.Host), // To avoid 400 Bad Request: malformed Host header daemon error
 			client.WithDialContext(helper.Dialer),
 		}, nil
@@ -154,6 +157,7 @@ func (p *Provider) getClientOpts() ([]client.Opt, error) {
 
 	opts := []client.Opt{
 		client.WithHost(p.Endpoint),
+		client.WithTimeout(time.Duration(p.HTTPClientTimeout)),
 	}
 
 	if p.TLS != nil {
@@ -177,7 +181,7 @@ func (p *Provider) getClientOpts() ([]client.Opt, error) {
 			return nil, err
 		}
 
-		opts = append(opts, client.WithHTTPClient(&http.Client{Transport: tr}))
+		opts = append(opts, client.WithHTTPClient(&http.Client{Transport: tr, Timeout: time.Duration(p.HTTPClientTimeout)}))
 	}
 
 	return opts, nil
@@ -307,7 +311,7 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 								startStopHandle(event)
 							}
 						case err := <-errc:
-							if err == io.EOF {
+							if errors.Is(err, io.EOF) {
 								logger.Debug("Provider event stream closed")
 							}
 							return err

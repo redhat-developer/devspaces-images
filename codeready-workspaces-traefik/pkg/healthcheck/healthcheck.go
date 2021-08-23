@@ -2,6 +2,7 @@ package healthcheck
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -10,9 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-kit/kit/metrics"
+	gokitmetrics "github.com/go-kit/kit/metrics"
+	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/config/runtime"
 	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/metrics"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/vulcand/oxy/roundrobin"
 )
@@ -40,11 +43,15 @@ type BalancerHandler interface {
 	Balancer
 }
 
-// metricsRegistry is a local interface in the health check package,
-// exposing only the required metrics necessary for the health check package.
-// This makes it easier for the tests.
-type metricsRegistry interface {
-	BackendServerUpGauge() metrics.Gauge
+// BalancerStatusHandler is an http Handler that does load-balancing,
+// andupdates its parents of its status.
+type BalancerStatusHandler interface {
+	BalancerHandler
+	StatusUpdater
+}
+
+type metricsHealthcheck struct {
+	serverUpGauge gokitmetrics.Gauge
 }
 
 // Options are the public health check options.
@@ -109,7 +116,7 @@ func (b *BackendConfig) addHeadersAndHost(req *http.Request) *http.Request {
 // HealthCheck struct.
 type HealthCheck struct {
 	Backends map[string]*BackendConfig
-	metrics  metricsRegistry
+	metrics  metricsHealthcheck
 	cancel   context.CancelFunc
 }
 
@@ -132,9 +139,10 @@ func (hc *HealthCheck) SetBackendsConfiguration(parentCtx context.Context, backe
 
 func (hc *HealthCheck) execute(ctx context.Context, backend *BackendConfig) {
 	logger := log.FromContext(ctx)
-	logger.Debugf("Initial health check for backend: %q", backend.name)
 
-	hc.checkBackend(ctx, backend)
+	logger.Debugf("Initial health check for backend: %q", backend.name)
+	hc.checkServersLB(ctx, backend)
+
 	ticker := time.NewTicker(backend.Interval)
 	defer ticker.Stop()
 	for {
@@ -143,62 +151,82 @@ func (hc *HealthCheck) execute(ctx context.Context, backend *BackendConfig) {
 			logger.Debugf("Stopping current health check goroutines of backend: %s", backend.name)
 			return
 		case <-ticker.C:
-			logger.Debugf("Refreshing health check for backend: %s", backend.name)
-			hc.checkBackend(ctx, backend)
+			logger.Debugf("Routine health check refresh for backend: %s", backend.name)
+			hc.checkServersLB(ctx, backend)
 		}
 	}
 }
 
-func (hc *HealthCheck) checkBackend(ctx context.Context, backend *BackendConfig) {
+func (hc *HealthCheck) checkServersLB(ctx context.Context, backend *BackendConfig) {
 	logger := log.FromContext(ctx)
 
 	enabledURLs := backend.LB.Servers()
+
 	var newDisabledURLs []backendURL
 	for _, disabledURL := range backend.disabledURLs {
+		serverUpMetricValue := float64(0)
+
 		if err := checkHealth(disabledURL.url, backend); err == nil {
-			logger.Warnf("Health check up: Returning to server list. Backend: %q URL: %q Weight: %d",
+			logger.Warnf("Health check up: returning to server list. Backend: %q URL: %q Weight: %d",
 				backend.name, disabledURL.url.String(), disabledURL.weight)
 			if err = backend.LB.UpsertServer(disabledURL.url, roundrobin.Weight(disabledURL.weight)); err != nil {
 				logger.Error(err)
 			}
+			serverUpMetricValue = 1
 		} else {
 			logger.Warnf("Health check still failing. Backend: %q URL: %q Reason: %s", backend.name, disabledURL.url.String(), err)
 			newDisabledURLs = append(newDisabledURLs, disabledURL)
 		}
+
+		labelValues := []string{"service", backend.name, "url", disabledURL.url.String()}
+		hc.metrics.serverUpGauge.With(labelValues...).Set(serverUpMetricValue)
 	}
+
 	backend.disabledURLs = newDisabledURLs
 
-	for _, enableURL := range enabledURLs {
-		if err := checkHealth(enableURL, backend); err != nil {
+	for _, enabledURL := range enabledURLs {
+		serverUpMetricValue := float64(1)
+
+		if err := checkHealth(enabledURL, backend); err != nil {
 			weight := 1
 			rr, ok := backend.LB.(*roundrobin.RoundRobin)
 			if ok {
 				var gotWeight bool
-				weight, gotWeight = rr.ServerWeight(enableURL)
+				weight, gotWeight = rr.ServerWeight(enabledURL)
 				if !gotWeight {
 					weight = 1
 				}
 			}
-			logger.Warnf("Health check failed, removing from server list. Backend: %q URL: %q Weight: %d Reason: %s", backend.name, enableURL.String(), weight, err)
-			if err := backend.LB.RemoveServer(enableURL); err != nil {
+
+			logger.Warnf("Health check failed, removing from server list. Backend: %q URL: %q Weight: %d Reason: %s",
+				backend.name, enabledURL.String(), weight, err)
+			if err := backend.LB.RemoveServer(enabledURL); err != nil {
 				logger.Error(err)
 			}
-			backend.disabledURLs = append(backend.disabledURLs, backendURL{enableURL, weight})
+
+			backend.disabledURLs = append(backend.disabledURLs, backendURL{enabledURL, weight})
+			serverUpMetricValue = 0
 		}
+
+		labelValues := []string{"service", backend.name, "url", enabledURL.String()}
+		hc.metrics.serverUpGauge.With(labelValues...).Set(serverUpMetricValue)
 	}
 }
 
 // GetHealthCheck returns the health check which is guaranteed to be a singleton.
-func GetHealthCheck() *HealthCheck {
+func GetHealthCheck(registry metrics.Registry) *HealthCheck {
 	once.Do(func() {
-		singleton = newHealthCheck()
+		singleton = newHealthCheck(registry)
 	})
 	return singleton
 }
 
-func newHealthCheck() *HealthCheck {
+func newHealthCheck(registry metrics.Registry) *HealthCheck {
 	return &HealthCheck{
 		Backends: make(map[string]*BackendConfig),
+		metrics: metricsHealthcheck{
+			serverUpGauge: registry.ServiceServerUpGauge(),
+		},
 	}
 }
 
@@ -245,11 +273,19 @@ func checkHealth(serverURL *url.URL, backend *BackendConfig) error {
 	return nil
 }
 
+// StatusUpdater should be implemented by a service that, when its status
+// changes (e.g. all if its children are down), needs to propagate upwards (to
+// their parent(s)) that change.
+type StatusUpdater interface {
+	RegisterStatusUpdater(fn func(up bool)) error
+}
+
 // NewLBStatusUpdater returns a new LbStatusUpdater.
-func NewLBStatusUpdater(bh BalancerHandler, info *runtime.ServiceInfo) *LbStatusUpdater {
+func NewLBStatusUpdater(bh BalancerHandler, info *runtime.ServiceInfo, hc *dynamic.ServerHealthCheck) *LbStatusUpdater {
 	return &LbStatusUpdater{
-		BalancerHandler: bh,
-		serviceInfo:     info,
+		BalancerHandler:  bh,
+		serviceInfo:      info,
+		wantsHealthCheck: hc != nil,
 	}
 }
 
@@ -257,27 +293,83 @@ func NewLBStatusUpdater(bh BalancerHandler, info *runtime.ServiceInfo) *LbStatus
 // so it can keep track of the status of a server in the ServiceInfo.
 type LbStatusUpdater struct {
 	BalancerHandler
-	serviceInfo *runtime.ServiceInfo // can be nil
+	serviceInfo      *runtime.ServiceInfo // can be nil
+	updaters         []func(up bool)
+	wantsHealthCheck bool
+}
+
+// RegisterStatusUpdater adds fn to the list of hooks that are run when the
+// status of the Balancer changes.
+// Not thread safe.
+func (lb *LbStatusUpdater) RegisterStatusUpdater(fn func(up bool)) error {
+	if !lb.wantsHealthCheck {
+		return errors.New("healthCheck not enabled in config for this loadbalancer service")
+	}
+
+	lb.updaters = append(lb.updaters, fn)
+	return nil
 }
 
 // RemoveServer removes the given server from the BalancerHandler,
 // and updates the status of the server to "DOWN".
 func (lb *LbStatusUpdater) RemoveServer(u *url.URL) error {
+	// TODO(mpl): when we have the freedom to change the signature of RemoveServer
+	// (kinda stuck because of oxy for now), let's pass around a context to improve
+	// logging.
+	ctx := context.TODO()
+	upBefore := len(lb.BalancerHandler.Servers()) > 0
 	err := lb.BalancerHandler.RemoveServer(u)
-	if err == nil && lb.serviceInfo != nil {
+	if err != nil {
+		return err
+	}
+	if lb.serviceInfo != nil {
 		lb.serviceInfo.UpdateServerStatus(u.String(), serverDown)
 	}
-	return err
+	log.FromContext(ctx).Debugf("child %s now %s", u.String(), serverDown)
+
+	if !upBefore {
+		// we were already down, and we still are, no need to propagate.
+		log.FromContext(ctx).Debugf("Still %s, no need to propagate", serverDown)
+		return nil
+	}
+	if len(lb.BalancerHandler.Servers()) > 0 {
+		// we were up, and we still are, no need to propagate
+		log.FromContext(ctx).Debugf("Still %s, no need to propagate", serverUp)
+		return nil
+	}
+
+	log.FromContext(ctx).Debugf("Propagating new %s status", serverDown)
+	for _, fn := range lb.updaters {
+		fn(false)
+	}
+	return nil
 }
 
 // UpsertServer adds the given server to the BalancerHandler,
 // and updates the status of the server to "UP".
 func (lb *LbStatusUpdater) UpsertServer(u *url.URL, options ...roundrobin.ServerOption) error {
+	ctx := context.TODO()
+	upBefore := len(lb.BalancerHandler.Servers()) > 0
 	err := lb.BalancerHandler.UpsertServer(u, options...)
-	if err == nil && lb.serviceInfo != nil {
+	if err != nil {
+		return err
+	}
+	if lb.serviceInfo != nil {
 		lb.serviceInfo.UpdateServerStatus(u.String(), serverUp)
 	}
-	return err
+	log.FromContext(ctx).Debugf("child %s now %s", u.String(), serverUp)
+
+	if upBefore {
+		// we were up, and we still are, no need to propagate
+		log.FromContext(ctx).Debugf("Still %s, no need to propagate", serverUp)
+		return nil
+	}
+
+	log.FromContext(ctx).Debugf("Propagating new %s status", serverUp)
+	for _, fn := range lb.updaters {
+		fn(true)
+	}
+	return nil
 }
 
 // Balancers is a list of Balancers(s) that implements the Balancer interface.

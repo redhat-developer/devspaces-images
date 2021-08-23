@@ -42,7 +42,7 @@ func (c *Config) SetDefaults() {
 
 // Collector provides configuration settings for jaeger collector.
 type Collector struct {
-	Endpoint string `description:"Instructs reporter to send spans to jaeger-collector at this URL." json:"endpoint,omitempty" toml:"endpoint,omitempty" yaml:"endpoint,omitempty" export:"true"`
+	Endpoint string `description:"Instructs reporter to send spans to jaeger-collector at this URL." json:"endpoint,omitempty" toml:"endpoint,omitempty" yaml:"endpoint,omitempty"`
 	User     string `description:"User for basic http authentication when sending spans to jaeger-collector." json:"user,omitempty" toml:"user,omitempty" yaml:"user,omitempty"`
 	Password string `description:"Password for basic http authentication when sending spans to jaeger-collector." json:"password,omitempty" toml:"password,omitempty" yaml:"password,omitempty"`
 }
@@ -68,7 +68,7 @@ func (c *Config) Setup(componentName string) (opentracing.Tracer, io.Closer, err
 		reporter.Password = c.Collector.Password
 	}
 
-	jcfg := jaegercfg.Configuration{
+	jcfg := &jaegercfg.Configuration{
 		Sampler: &jaegercfg.SamplerConfig{
 			SamplingServerURL: c.SamplingServerURL,
 			Type:              c.SamplingType,
@@ -78,6 +78,12 @@ func (c *Config) Setup(componentName string) (opentracing.Tracer, io.Closer, err
 		Headers: &jaegercli.HeadersConfig{
 			TraceContextHeaderName: c.TraceContextHeaderName,
 		},
+	}
+
+	// Overrides existing tracer's Configuration with environment variables.
+	_, err := jcfg.FromEnv()
+	if err != nil {
+		return nil, nil, err
 	}
 
 	jMetricsFactory := jaegermet.NullFactory
@@ -106,7 +112,7 @@ func (c *Config) Setup(componentName string) (opentracing.Tracer, io.Closer, err
 		opts...,
 	)
 	if err != nil {
-		log.WithoutContext().Warnf("Could not initialize jaeger tracer: %s", err.Error())
+		log.WithoutContext().Warnf("Could not initialize jaeger tracer: %v", err)
 		return nil, nil, err
 	}
 	log.WithoutContext().Debug("Jaeger tracer configured")

@@ -41,12 +41,16 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&IngressRouteUDPList{},
 		&Middleware{},
 		&MiddlewareList{},
+		&MiddlewareTCP{},
+		&MiddlewareTCPList{},
 		&TLSOption{},
 		&TLSOptionList{},
 		&TLSStore{},
 		&TLSStoreList{},
 		&TraefikService{},
 		&TraefikServiceList{},
+		&ServersTransport{},
+		&ServersTransportList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

@@ -80,7 +80,11 @@ func TestGetLoadBalancer(t *testing.T) {
 }
 
 func TestGetLoadBalancerServiceHandler(t *testing.T) {
-	sm := NewManager(nil, http.DefaultTransport, nil, nil)
+	sm := NewManager(nil, nil, nil, &RoundTripperManager{
+		roundTrippers: map[string]http.RoundTripper{
+			"default@internal": http.DefaultTransport,
+		},
+	})
 
 	server1 := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-From", "first")
@@ -116,6 +120,7 @@ func TestGetLoadBalancerServiceHandler(t *testing.T) {
 		serviceName      string
 		service          *dynamic.ServersLoadBalancer
 		responseModifier func(*http.Response) error
+		cookieRawValue   string
 
 		expected []ExpectedResult
 	}{
@@ -236,7 +241,7 @@ func TestGetLoadBalancerServiceHandler(t *testing.T) {
 			},
 		},
 		{
-			desc:        "PassHost doesn't passe the host instead of the IP",
+			desc:        "PassHost doesn't pass the host instead of the IP",
 			serviceName: "test",
 			service: &dynamic.ServersLoadBalancer{
 				PassHostHeader: Bool(false),
@@ -254,6 +259,34 @@ func TestGetLoadBalancerServiceHandler(t *testing.T) {
 				},
 			},
 		},
+		{
+			desc:        "Cookie value is backward compatible",
+			serviceName: "test",
+			service: &dynamic.ServersLoadBalancer{
+				Sticky: &dynamic.Sticky{
+					Cookie: &dynamic.Cookie{},
+				},
+				Servers: []dynamic.Server{
+					{
+						URL: server1.URL,
+					},
+					{
+						URL: server2.URL,
+					},
+				},
+			},
+			cookieRawValue: "_6f743=" + server1.URL,
+			expected: []ExpectedResult{
+				{
+					StatusCode: http.StatusOK,
+					XFrom:      "first",
+				},
+				{
+					StatusCode: http.StatusOK,
+					XFrom:      "first",
+				},
+			},
+		},
 	}
 
 	for _, test := range testCases {
@@ -265,6 +298,10 @@ func TestGetLoadBalancerServiceHandler(t *testing.T) {
 			assert.NotNil(t, handler)
 
 			req := testhelpers.MustNewRequest(http.MethodGet, "http://callme", nil)
+			if test.cookieRawValue != "" {
+				req.Header.Set("Cookie", test.cookieRawValue)
+			}
+
 			for _, expected := range test.expected {
 				recorder := httptest.NewRecorder()
 
@@ -278,6 +315,7 @@ func TestGetLoadBalancerServiceHandler(t *testing.T) {
 					req.Header.Set("Cookie", cookieHeader)
 					assert.Equal(t, expected.SecureCookie, strings.Contains(cookieHeader, "Secure"))
 					assert.Equal(t, expected.HTTPOnlyCookie, strings.Contains(cookieHeader, "HttpOnly"))
+					assert.NotContains(t, cookieHeader, "://")
 				}
 			}
 		})
@@ -332,7 +370,11 @@ func TestManager_Build(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
-			manager := NewManager(test.configs, http.DefaultTransport, nil, nil)
+			manager := NewManager(test.configs, nil, nil, &RoundTripperManager{
+				roundTrippers: map[string]http.RoundTripper{
+					"default@internal": http.DefaultTransport,
+				},
+			})
 
 			ctx := context.Background()
 			if len(test.providerName) > 0 {
@@ -355,10 +397,12 @@ func TestMultipleTypeOnBuildHTTP(t *testing.T) {
 		},
 	}
 
-	manager := NewManager(services, http.DefaultTransport, nil, nil)
+	manager := NewManager(services, nil, nil, &RoundTripperManager{
+		roundTrippers: map[string]http.RoundTripper{
+			"default@internal": http.DefaultTransport,
+		},
+	})
 
 	_, err := manager.BuildHTTP(context.Background(), "test@file")
 	assert.Error(t, err, "cannot create service: multi-types service not supported, consider declaring two different pieces of service instead")
 }
-
-// FIXME Add healthcheck tests

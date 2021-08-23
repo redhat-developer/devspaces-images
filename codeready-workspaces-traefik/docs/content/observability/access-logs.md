@@ -5,16 +5,16 @@ Who Calls Whom?
 
 By default, logs are written to stdout, in text format.
 
-## Configuration 
+## Configuration
 
 To enable the access logs:
 
-```toml tab="File (TOML)"
-[accessLog]
-```
-
 ```yaml tab="File (YAML)"
 accessLog: {}
+```
+
+```toml tab="File (TOML)"
+[accessLog]
 ```
 
 ```bash tab="CLI"
@@ -26,14 +26,28 @@ accessLog: {}
 By default access logs are written to the standard output.
 To write the logs into a log file, use the `filePath` option.
 
+```yaml tab="File (YAML)"
+accessLog:
+  filePath: "/path/to/access.log"
+```
+
+```toml tab="File (TOML)"
+[accessLog]
+  filePath = "/path/to/access.log"
+```
+
+```bash tab="CLI"
+--accesslog.filepath=/path/to/access.log
+```
+
 ### `format`
- 
+
 By default, logs are written using the Common Log Format (CLF).
 To write logs in JSON, use `json` in the `format` option.
 If the given format is unsupported, the default (CLF) is used instead.
 
 !!! info "Common Log Format"
-    
+
     ```html
     <remote_IP_address> - <client_user_name_if_available> [<timestamp>] "<request_method> <request_path> <request_protocol>" <origin_server_HTTP_status> <origin_server_content_size> "<request_referrer>" "<request_user_agent>" <number_of_requests_received_since_Traefik_started> "<Traefik_router_name>" "<Traefik_server_URL>" <request_duration_in_ms>ms
     ```
@@ -44,13 +58,6 @@ To write the logs in an asynchronous fashion, specify a  `bufferingSize` option.
 This option represents the number of log lines Traefik will keep in memory before writing them to the selected output.
 In some cases, this option can greatly help performances.
 
-```toml tab="File (TOML)"
-# Configuring a buffer of 100 lines
-[accessLog]
-  filePath = "/path/to/access.log"
-  bufferingSize = 100
-```
-
 ```yaml tab="File (YAML)"
 # Configuring a buffer of 100 lines
 accessLog:
@@ -58,42 +65,36 @@ accessLog:
   bufferingSize: 100
 ```
 
+```toml tab="File (TOML)"
+# Configuring a buffer of 100 lines
+[accessLog]
+  filePath = "/path/to/access.log"
+  bufferingSize = 100
+```
+
 ```bash tab="CLI"
 # Configuring a buffer of 100 lines
---accesslog=true
 --accesslog.filepath=/path/to/access.log
 --accesslog.bufferingsize=100
 ```
 
 ### Filtering
 
-To filter logs, you can specify a set of filters which are logically "OR-connected". 
+To filter logs, you can specify a set of filters which are logically "OR-connected".
 Thus, specifying multiple filters will keep more access logs than specifying only one.
 
-The available filters are: 
+The available filters are:
 
 - `statusCodes`, to limit the access logs to requests with a status codes in the specified range
 - `retryAttempts`, to keep the access logs when at least one retry has happened
-- `minDuration`, to keep access logs when requests take longer than the specified duration
-
-```toml tab="File (TOML)"
-# Configuring Multiple Filters
-[accessLog]
-  filePath = "/path/to/access.log"
-  format = "json"
-
-  [accessLog.filters]    
-    statusCodes = ["200", "300-302"]
-    retryAttempts = true
-    minDuration = "10ms"
-```
+- `minDuration`, to keep access logs when requests take longer than the specified duration (provided in seconds or as a valid duration format, see [time.ParseDuration](https://golang.org/pkg/time/#ParseDuration))
 
 ```yaml tab="File (YAML)"
 # Configuring Multiple Filters
 accessLog:
   filePath: "/path/to/access.log"
   format: json
-  filters:    
+  filters:
     statusCodes:
       - "200"
       - "300-302"
@@ -101,9 +102,20 @@ accessLog:
     minDuration: "10ms"
 ```
 
+```toml tab="File (TOML)"
+# Configuring Multiple Filters
+[accessLog]
+  filePath = "/path/to/access.log"
+  format = "json"
+
+  [accessLog.filters]
+    statusCodes = ["200", "300-302"]
+    retryAttempts = true
+    minDuration = "10ms"
+```
+
 ```bash tab="CLI"
 # Configuring Multiple Filters
---accesslog=true
 --accesslog.filepath=/path/to/access.log
 --accesslog.format=json
 --accesslog.filters.statuscodes=200,300-302
@@ -123,26 +135,8 @@ Each field can be set to:
 
 The `defaultMode` for `fields.headers` is `drop`.
 
-```toml tab="File (TOML)"
-# Limiting the Logs to Specific Fields
-[accessLog]
-  filePath = "/path/to/access.log"
-  format = "json"
-
   [accessLog.fields]
     defaultMode = "keep"
-
-    [accessLog.fields.names]
-      "ClientUsername" = "drop"
-
-    [accessLog.fields.headers]
-      defaultMode = "keep"
-  
-      [accessLog.fields.headers.names]
-        "User-Agent" = "redact"
-        "Authorization" = "drop"
-        "Content-Type" = "keep"
-```
 
 ```yaml tab="File (YAML)"
 # Limiting the Logs to Specific Fields
@@ -161,9 +155,26 @@ accessLog:
           Content-Type: keep
 ```
 
+```toml tab="File (TOML)"
+# Limiting the Logs to Specific Fields
+[accessLog]
+  filePath = "/path/to/access.log"
+  format = "json"
+
+    [accessLog.fields.names]
+      "ClientUsername" = "drop"
+
+    [accessLog.fields.headers]
+      defaultMode = "keep"
+
+      [accessLog.fields.headers.names]
+        "User-Agent" = "redact"
+        "Authorization" = "drop"
+        "Content-Type" = "keep"
+```
+
 ```bash tab="CLI"
 # Limiting the Logs to Specific Fields
---accesslog=true
 --accesslog.filepath=/path/to/access.log
 --accesslog.format=json
 --accesslog.fields.defaultmode=keep
@@ -198,7 +209,7 @@ accessLog:
     | `RequestScheme`         | The HTTP scheme requested `http` or `https`.                                                                                                                        |
     | `RequestLine`           | `RequestMethod` + `RequestPath` + `RequestProtocol`                                                                                                                 |
     | `RequestContentSize`    | The number of bytes in the request entity (a.k.a. body) sent by the client.                                                                                         |
-    | `OriginDuration`        | The time taken by the origin server ('upstream') to return its response.                                                                                            |
+    | `OriginDuration`        | The time taken (in nanoseconds) by the origin server ('upstream') to return its response.                                                                           |
     | `OriginContentSize`     | The content length specified by the origin server, or 0 if unspecified.                                                                                             |
     | `OriginStatus`          | The HTTP status code returned by the origin server. If the request was handled by this Traefik instance (e.g. with a redirect), then this value will be absent.     |
     | `OriginStatusLine`      | `OriginStatus` + Status code explanation                                                                                                                            |
@@ -207,8 +218,10 @@ accessLog:
     | `DownstreamContentSize` | The number of bytes in the response entity returned to the client. This is in addition to the "Content-Length" header, which may be present in the origin response. |
     | `RequestCount`          | The number of requests received since the Traefik instance started.                                                                                                 |
     | `GzipRatio`             | The response body compression ratio achieved.                                                                                                                       |
-    | `Overhead`              | The processing time overhead caused by Traefik.                                                                                                                     |
+    | `Overhead`              | The processing time overhead (in nanoseconds) caused by Traefik.                                                                                                    |
     | `RetryAttempts`         | The amount of attempts the request was retried.                                                                                                                     |
+    | `TLSVersion`            | The TLS version used by the connection (e.g. `1.2`) (if connection is TLS).                                                                                         |
+    | `TLSCipher`             | The TLS cipher used by the connection (e.g. `TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA`) (if connection is TLS)                                                           |
 
 ## Log Rotation
 
@@ -238,7 +251,6 @@ services:
     environment:
       - TZ=US/Alaska
     command:
-      - --accesslog
       - --accesslog.fields.names.StartUTC=drop
       - --providers.docker
     ports:

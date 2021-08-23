@@ -120,10 +120,10 @@ func TestSetBackendsConfiguration(t *testing.T) {
 				backend.disabledURLs = append(backend.disabledURLs, backendURL{url: serverURL, weight: 1})
 			}
 
-			collectingMetrics := testhelpers.NewCollectingHealthCheckMetrics()
+			collectingMetrics := &testhelpers.CollectingGauge{}
 			check := HealthCheck{
 				Backends: make(map[string]*BackendConfig),
-				metrics:  collectingMetrics,
+				metrics:  metricsHealthcheck{serverUpGauge: collectingMetrics},
 			}
 
 			wg := sync.WaitGroup{}
@@ -149,8 +149,7 @@ func TestSetBackendsConfiguration(t *testing.T) {
 
 			assert.Equal(t, test.expectedNumRemovedServers, lb.numRemovedServers, "removed servers")
 			assert.Equal(t, test.expectedNumUpsertedServers, lb.numUpsertedServers, "upserted servers")
-			// FIXME re add metrics
-			// assert.Equal(t, test.expectedGaugeValue, collectingMetrics.Gauge.GaugeValue, "ServerUp Gauge")
+			assert.Equal(t, test.expectedGaugeValue, collectingMetrics.GaugeValue, "ServerUp Gauge")
 		})
 	}
 }
@@ -446,7 +445,7 @@ func (th *testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func TestLBStatusUpdater(t *testing.T) {
 	lb := &testLoadBalancer{RWMutex: &sync.RWMutex{}}
 	svInfo := &runtime.ServiceInfo{}
-	lbsu := NewLBStatusUpdater(lb, svInfo)
+	lbsu := NewLBStatusUpdater(lb, svInfo, nil)
 	newServer, err := url.Parse("http://foo.com")
 	assert.NoError(t, err)
 	err = lbsu.UpsertServer(newServer, roundrobin.Weight(1))
@@ -502,9 +501,10 @@ func TestNotFollowingRedirects(t *testing.T) {
 		FollowRedirects: false,
 	}, "backendName")
 
+	collectingMetrics := &testhelpers.CollectingGauge{}
 	check := HealthCheck{
 		Backends: make(map[string]*BackendConfig),
-		metrics:  testhelpers.NewCollectingHealthCheckMetrics(),
+		metrics:  metricsHealthcheck{serverUpGauge: collectingMetrics},
 	}
 
 	wg := sync.WaitGroup{}

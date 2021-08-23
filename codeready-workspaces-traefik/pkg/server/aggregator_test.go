@@ -3,6 +3,7 @@ package server
 import (
 	"testing"
 
+	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/stretchr/testify/assert"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/tls"
@@ -18,10 +19,11 @@ func Test_mergeConfiguration(t *testing.T) {
 			desc:  "Nil returns an empty configuration",
 			given: nil,
 			expected: &dynamic.HTTPConfiguration{
-				Routers:     make(map[string]*dynamic.Router),
-				Middlewares: make(map[string]*dynamic.Middleware),
-				Services:    make(map[string]*dynamic.Service),
-				Models:      make(map[string]*dynamic.Model),
+				Routers:           make(map[string]*dynamic.Router),
+				Middlewares:       make(map[string]*dynamic.Middleware),
+				Services:          make(map[string]*dynamic.Service),
+				Models:            make(map[string]*dynamic.Model),
+				ServersTransports: make(map[string]*dynamic.ServersTransport),
 			},
 		},
 		{
@@ -53,7 +55,8 @@ func Test_mergeConfiguration(t *testing.T) {
 				Services: map[string]*dynamic.Service{
 					"service-1@provider-1": {},
 				},
-				Models: make(map[string]*dynamic.Model),
+				Models:            make(map[string]*dynamic.Model),
+				ServersTransports: make(map[string]*dynamic.ServersTransport),
 			},
 		},
 		{
@@ -103,7 +106,8 @@ func Test_mergeConfiguration(t *testing.T) {
 					"service-1@provider-1": {},
 					"service-1@provider-2": {},
 				},
-				Models: make(map[string]*dynamic.Model),
+				Models:            make(map[string]*dynamic.Model),
+				ServersTransports: make(map[string]*dynamic.ServersTransport),
 			},
 		},
 	}
@@ -115,6 +119,55 @@ func Test_mergeConfiguration(t *testing.T) {
 
 			actual := mergeConfiguration(test.given, []string{"defaultEP"})
 			assert.Equal(t, test.expected, actual.HTTP)
+		})
+	}
+}
+
+func Test_mergeConfiguration_tlsCertificates(t *testing.T) {
+	testCases := []struct {
+		desc     string
+		given    dynamic.Configurations
+		expected []*tls.CertAndStores
+	}{
+		{
+			desc: "Skip temp certificates from another provider than tlsalpn",
+			given: dynamic.Configurations{
+				"provider-1": &dynamic.Configuration{
+					TLS: &dynamic.TLSConfiguration{
+						Certificates: []*tls.CertAndStores{
+							{Certificate: tls.Certificate{}, Stores: []string{tlsalpn01.ACMETLS1Protocol}},
+						},
+					},
+				},
+			},
+			expected: nil,
+		},
+		{
+			desc: "Allows tlsalpn provider to give certificates",
+			given: dynamic.Configurations{
+				"tlsalpn.acme": &dynamic.Configuration{
+					TLS: &dynamic.TLSConfiguration{
+						Certificates: []*tls.CertAndStores{{
+							Certificate: tls.Certificate{CertFile: "foo", KeyFile: "bar"},
+							Stores:      []string{tlsalpn01.ACMETLS1Protocol},
+						}},
+					},
+				},
+			},
+			expected: []*tls.CertAndStores{{
+				Certificate: tls.Certificate{CertFile: "foo", KeyFile: "bar"},
+				Stores:      []string{tlsalpn01.ACMETLS1Protocol},
+			}},
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			actual := mergeConfiguration(test.given, []string{"defaultEP"})
+			assert.Equal(t, test.expected, actual.TLS.Certificates)
 		})
 	}
 }
@@ -394,6 +447,36 @@ func Test_mergeConfiguration_tlsStore(t *testing.T) {
 			assert.Equal(t, test.expected, actual.TLS.Stores)
 		})
 	}
+}
+
+func Test_mergeConfiguration_defaultTCPEntryPoint(t *testing.T) {
+	given := dynamic.Configurations{
+		"provider-1": &dynamic.Configuration{
+			TCP: &dynamic.TCPConfiguration{
+				Routers: map[string]*dynamic.TCPRouter{
+					"router-1": {},
+				},
+				Services: map[string]*dynamic.TCPService{
+					"service-1": {},
+				},
+			},
+		},
+	}
+
+	expected := &dynamic.TCPConfiguration{
+		Routers: map[string]*dynamic.TCPRouter{
+			"router-1@provider-1": {
+				EntryPoints: []string{"defaultEP"},
+			},
+		},
+		Middlewares: map[string]*dynamic.TCPMiddleware{},
+		Services: map[string]*dynamic.TCPService{
+			"service-1@provider-1": {},
+		},
+	}
+
+	actual := mergeConfiguration(given, []string{"defaultEP"})
+	assert.Equal(t, expected, actual.TCP)
 }
 
 func Test_applyModel(t *testing.T) {

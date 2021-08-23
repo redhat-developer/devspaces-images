@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/go-acme/lego/v4/challenge/tlsalpn01"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/server/provider"
@@ -10,14 +11,16 @@ import (
 func mergeConfiguration(configurations dynamic.Configurations, defaultEntryPoints []string) dynamic.Configuration {
 	conf := dynamic.Configuration{
 		HTTP: &dynamic.HTTPConfiguration{
-			Routers:     make(map[string]*dynamic.Router),
-			Middlewares: make(map[string]*dynamic.Middleware),
-			Services:    make(map[string]*dynamic.Service),
-			Models:      make(map[string]*dynamic.Model),
+			Routers:           make(map[string]*dynamic.Router),
+			Middlewares:       make(map[string]*dynamic.Middleware),
+			Services:          make(map[string]*dynamic.Service),
+			Models:            make(map[string]*dynamic.Model),
+			ServersTransports: make(map[string]*dynamic.ServersTransport),
 		},
 		TCP: &dynamic.TCPConfiguration{
-			Routers:  make(map[string]*dynamic.TCPRouter),
-			Services: make(map[string]*dynamic.TCPService),
+			Routers:     make(map[string]*dynamic.TCPRouter),
+			Services:    make(map[string]*dynamic.TCPService),
+			Middlewares: make(map[string]*dynamic.TCPMiddleware),
 		},
 		UDP: &dynamic.UDPConfiguration{
 			Routers:  make(map[string]*dynamic.UDPRouter),
@@ -52,11 +55,23 @@ func mergeConfiguration(configurations dynamic.Configurations, defaultEntryPoint
 			for modelName, model := range configuration.HTTP.Models {
 				conf.HTTP.Models[provider.MakeQualifiedName(pvd, modelName)] = model
 			}
+			for serversTransportName, serversTransport := range configuration.HTTP.ServersTransports {
+				conf.HTTP.ServersTransports[provider.MakeQualifiedName(pvd, serversTransportName)] = serversTransport
+			}
 		}
 
 		if configuration.TCP != nil {
 			for routerName, router := range configuration.TCP.Routers {
+				if len(router.EntryPoints) == 0 {
+					log.WithoutContext().
+						WithField(log.RouterName, routerName).
+						Debugf("No entryPoint defined for this TCP router, using the default one(s) instead: %+v", defaultEntryPoints)
+					router.EntryPoints = defaultEntryPoints
+				}
 				conf.TCP.Routers[provider.MakeQualifiedName(pvd, routerName)] = router
+			}
+			for middlewareName, middleware := range configuration.TCP.Middlewares {
+				conf.TCP.Middlewares[provider.MakeQualifiedName(pvd, middlewareName)] = middleware
 			}
 			for serviceName, service := range configuration.TCP.Services {
 				conf.TCP.Services[provider.MakeQualifiedName(pvd, serviceName)] = service
@@ -73,10 +88,16 @@ func mergeConfiguration(configurations dynamic.Configurations, defaultEntryPoint
 		}
 
 		if configuration.TLS != nil {
-			conf.TLS.Certificates = append(conf.TLS.Certificates, configuration.TLS.Certificates...)
+			for _, cert := range configuration.TLS.Certificates {
+				if containsACMETLS1(cert.Stores) && pvd != "tlsalpn.acme" {
+					continue
+				}
+
+				conf.TLS.Certificates = append(conf.TLS.Certificates, cert)
+			}
 
 			for key, store := range configuration.TLS.Stores {
-				if key != "default" {
+				if key != tls.DefaultTLSStoreName {
 					key = provider.MakeQualifiedName(pvd, key)
 				} else {
 					defaultTLSStoreProviders = append(defaultTLSStoreProviders, pvd)
@@ -98,16 +119,16 @@ func mergeConfiguration(configurations dynamic.Configurations, defaultEntryPoint
 
 	if len(defaultTLSStoreProviders) > 1 {
 		log.WithoutContext().Errorf("Default TLS Stores defined multiple times in %v", defaultTLSOptionProviders)
-		delete(conf.TLS.Stores, "default")
+		delete(conf.TLS.Stores, tls.DefaultTLSStoreName)
 	}
 
 	if len(defaultTLSOptionProviders) == 0 {
-		conf.TLS.Options["default"] = tls.DefaultTLSOptions
+		conf.TLS.Options[tls.DefaultTLSConfigName] = tls.DefaultTLSOptions
 	} else if len(defaultTLSOptionProviders) > 1 {
 		log.WithoutContext().Errorf("Default TLS Options defined multiple times in %v", defaultTLSOptionProviders)
 		// We do not set an empty tls.TLS{} as above so that we actually get a "cascading failure" later on,
 		// i.e. routers depending on this missing TLS option will fail to initialize as well.
-		delete(conf.TLS.Options, "default")
+		delete(conf.TLS.Options, tls.DefaultTLSConfigName)
 	}
 
 	return conf
@@ -155,4 +176,14 @@ func applyModel(cfg dynamic.Configuration) dynamic.Configuration {
 	cfg.HTTP.Routers = rts
 
 	return cfg
+}
+
+func containsACMETLS1(stores []string) bool {
+	for _, store := range stores {
+		if store == tlsalpn01.ACMETLS1Protocol {
+			return true
+		}
+	}
+
+	return false
 }

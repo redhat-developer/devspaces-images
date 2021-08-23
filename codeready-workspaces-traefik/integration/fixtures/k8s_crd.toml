@@ -16,3 +16,5 @@
     address = ":8000"
 
 [providers.kubernetesCRD]
+  allowCrossNamespace = false
+  allowExternalNameServices = true

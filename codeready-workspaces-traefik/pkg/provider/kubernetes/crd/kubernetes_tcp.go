@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+	"strconv"
 	"strings"
 
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
@@ -15,8 +17,9 @@ import (
 
 func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client Client, tlsConfigs map[string]*tls.CertAndStores) *dynamic.TCPConfiguration {
 	conf := &dynamic.TCPConfiguration{
-		Routers:  map[string]*dynamic.TCPRouter{},
-		Services: map[string]*dynamic.TCPService{},
+		Routers:     map[string]*dynamic.TCPRouter{},
+		Middlewares: map[string]*dynamic.TCPMiddleware{},
+		Services:    map[string]*dynamic.TCPService{},
 	}
 
 	for _, ingressRouteTCP := range client.GetIngressRouteTCPs() {
@@ -50,10 +53,16 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 				continue
 			}
 
+			mds, err := p.makeMiddlewareTCPKeys(ctx, ingressRouteTCP.Namespace, route.Middlewares)
+			if err != nil {
+				logger.Errorf("Failed to create middleware keys: %v", err)
+				continue
+			}
+
 			serviceName := makeID(ingressRouteTCP.Namespace, key)
 
 			for _, service := range route.Services {
-				balancerServerTCP, err := createLoadBalancerServerTCP(client, ingressRouteTCP.Namespace, service)
+				balancerServerTCP, err := p.createLoadBalancerServerTCP(client, ingressRouteTCP.Namespace, service)
 				if err != nil {
 					logger.
 						WithField("serviceName", service.Name).
@@ -69,7 +78,7 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 					break
 				}
 
-				serviceKey := fmt.Sprintf("%s-%s-%d", serviceName, service.Name, service.Port)
+				serviceKey := fmt.Sprintf("%s-%s-%s", serviceName, service.Name, &service.Port)
 				conf.Services[serviceKey] = balancerServerTCP
 
 				srv := dynamic.TCPWRRService{Name: serviceKey}
@@ -86,6 +95,7 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 
 			conf.Routers[serviceName] = &dynamic.TCPRouter{
 				EntryPoints: ingressRouteTCP.Spec.EntryPoints,
+				Middlewares: mds,
 				Rule:        route.Match,
 				Service:     serviceName,
 			}
@@ -123,13 +133,46 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 	return conf
 }
 
-func createLoadBalancerServerTCP(client Client, namespace string, service v1alpha1.ServiceTCP) (*dynamic.TCPService, error) {
-	ns := namespace
+func (p *Provider) makeMiddlewareTCPKeys(ctx context.Context, ingRouteTCPNamespace string, middlewares []v1alpha1.ObjectReference) ([]string, error) {
+	var mds []string
+
+	for _, mi := range middlewares {
+		if strings.Contains(mi.Name, providerNamespaceSeparator) {
+			if len(mi.Namespace) > 0 {
+				log.FromContext(ctx).
+					WithField(log.MiddlewareName, mi.Name).
+					Warnf("namespace %q is ignored in cross-provider context", mi.Namespace)
+			}
+			mds = append(mds, mi.Name)
+			continue
+		}
+
+		ns := ingRouteTCPNamespace
+		if len(mi.Namespace) > 0 {
+			if !isNamespaceAllowed(p.AllowCrossNamespace, ingRouteTCPNamespace, mi.Namespace) {
+				return nil, fmt.Errorf("middleware %s/%s is not in the IngressRouteTCP namespace %s", mi.Namespace, mi.Name, ingRouteTCPNamespace)
+			}
+
+			ns = mi.Namespace
+		}
+
+		mds = append(mds, makeID(ns, mi.Name))
+	}
+
+	return mds, nil
+}
+
+func (p *Provider) createLoadBalancerServerTCP(client Client, parentNamespace string, service v1alpha1.ServiceTCP) (*dynamic.TCPService, error) {
+	ns := parentNamespace
 	if len(service.Namespace) > 0 {
+		if !isNamespaceAllowed(p.AllowCrossNamespace, parentNamespace, service.Namespace) {
+			return nil, fmt.Errorf("tcp service %s/%s is not in the parent resource namespace %s", service.Namespace, service.Name, parentNamespace)
+		}
+
 		ns = service.Namespace
 	}
 
-	servers, err := loadTCPServers(client, ns, service)
+	servers, err := p.loadTCPServers(client, ns, service)
 	if err != nil {
 		return nil, err
 	}
@@ -140,6 +183,15 @@ func createLoadBalancerServerTCP(client Client, namespace string, service v1alph
 		},
 	}
 
+	if service.ProxyProtocol != nil {
+		tcpService.LoadBalancer.ProxyProtocol = &dynamic.ProxyProtocol{}
+		tcpService.LoadBalancer.ProxyProtocol.SetDefaults()
+
+		if service.ProxyProtocol.Version != 0 {
+			tcpService.LoadBalancer.ProxyProtocol.Version = service.ProxyProtocol.Version
+		}
+	}
+
 	if service.TerminationDelay != nil {
 		tcpService.LoadBalancer.TerminationDelay = service.TerminationDelay
 	}
@@ -147,7 +199,7 @@ func createLoadBalancerServerTCP(client Client, namespace string, service v1alph
 	return tcpService, nil
 }
 
-func loadTCPServers(client Client, namespace string, svc v1alpha1.ServiceTCP) ([]dynamic.TCPServer, error) {
+func (p *Provider) loadTCPServers(client Client, namespace string, svc v1alpha1.ServiceTCP) ([]dynamic.TCPServer, error) {
 	service, exists, err := client.GetService(namespace, svc.Name)
 	if err != nil {
 		return nil, err
@@ -155,6 +207,10 @@ func loadTCPServers(client Client, namespace string, svc v1alpha1.ServiceTCP) ([
 
 	if !exists {
 		return nil, errors.New("service not found")
+	}
+
+	if service.Spec.Type == corev1.ServiceTypeExternalName && !p.AllowExternalNameServices {
+		return nil, fmt.Errorf("externalName services not allowed: %s/%s", namespace, svc.Name)
 	}
 
 	svcPort, err := getServicePort(service, svc.Port)
@@ -165,7 +221,7 @@ func loadTCPServers(client Client, namespace string, svc v1alpha1.ServiceTCP) ([
 	var servers []dynamic.TCPServer
 	if service.Spec.Type == corev1.ServiceTypeExternalName {
 		servers = append(servers, dynamic.TCPServer{
-			Address: fmt.Sprintf("%s:%d", service.Spec.ExternalName, svcPort.Port),
+			Address: net.JoinHostPort(service.Spec.ExternalName, strconv.Itoa(int(svcPort.Port))),
 		})
 	} else {
 		endpoints, endpointsExists, endpointsErr := client.GetEndpoints(namespace, svc.Name)
@@ -196,7 +252,7 @@ func loadTCPServers(client Client, namespace string, svc v1alpha1.ServiceTCP) ([
 
 			for _, addr := range subset.Addresses {
 				servers = append(servers, dynamic.TCPServer{
-					Address: fmt.Sprintf("%s:%d", addr.IP, port),
+					Address: net.JoinHostPort(addr.IP, strconv.Itoa(int(port))),
 				})
 			}
 		}

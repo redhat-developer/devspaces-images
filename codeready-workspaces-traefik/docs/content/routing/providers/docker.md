@@ -13,13 +13,13 @@ Attach labels to your containers and let Traefik do the rest!
 
     Enabling the docker provider
 
-    ```toml tab="File (TOML)"
-    [providers.docker]
-    ```
-
     ```yaml tab="File (YAML)"
     providers:
       docker: {}
+    ```
+
+    ```toml tab="File (TOML)"
+    [providers.docker]
     ```
 
     ```bash tab="CLI"
@@ -58,18 +58,29 @@ Attach labels to your containers and let Traefik do the rest!
         Setting the label `traefik.http.services.xxx.loadbalancer.server.port`
         overrides that behavior.
 
+??? example "Specifying more than one router and service per container"
+
+    Forwarding requests to more than one port on a container requires referencing the service loadbalancer port definition using the service parameter on the router.
+
+    In this example, requests are forwarded for `http://example-a.com` to `http://<private IP of container>:8000` in addition to `http://example-b.com` forwarding to `http://<private IP of container>:9000`:
+
+    ```yaml
+    version: "3"
+    services:
+      my-container:
+        # ...
+        labels:
+          - traefik.http.routers.www-router.rule=Host(`example-a.com`)
+          - traefik.http.routers.www-router.service=www-service
+          - traefik.http.services.www-service.loadbalancer.server.port=8000
+          - traefik.http.routers.admin-router.rule=Host(`example-b.com`)
+          - traefik.http.routers.admin-router.service=admin-service
+          - traefik.http.services.admin-service.loadbalancer.server.port=9000
+    ```
+
 ??? example "Configuring Docker Swarm & Deploying / Exposing Services"
 
     Enabling the docker provider (Swarm Mode)
-
-    ```toml tab="File (TOML)"
-    [providers.docker]
-      # swarm classic (1.12-)
-      # endpoint = "tcp://127.0.0.1:2375"
-      # docker swarm mode (1.12+)
-      endpoint = "tcp://127.0.0.1:2377"
-      swarmMode = true
-    ```
 
     ```yaml tab="File (YAML)"
     providers:
@@ -79,6 +90,15 @@ Attach labels to your containers and let Traefik do the rest!
         # docker swarm mode (1.12+)
         endpoint: "tcp://127.0.0.1:2377"
         swarmMode: true
+    ```
+
+    ```toml tab="File (TOML)"
+    [providers.docker]
+      # swarm classic (1.12-)
+      # endpoint = "tcp://127.0.0.1:2375"
+      # docker swarm mode (1.12+)
+      endpoint = "tcp://127.0.0.1:2377"
+      swarmMode = true
     ```
 
     ```bash tab="CLI"
@@ -104,7 +124,7 @@ Attach labels to your containers and let Traefik do the rest!
     !!! important "Labels in Docker Swarm Mode"
         While in Swarm Mode, Traefik uses labels found on services, not on individual containers.
         Therefore, if you use a compose file with Swarm Mode, labels should be defined in the `deploy` part of your service.
-        This behavior is only enabled for docker-compose version 3+ ([Compose file reference](https://docs.docker.com/compose/compose-file/#labels-1)).
+        This behavior is only enabled for docker-compose version 3+ ([Compose file reference](https://docs.docker.com/compose/compose-file/compose-file-v3/#labels-1)).
 
 ## Routing Configuration
 
@@ -246,7 +266,7 @@ you'd add the label `traefik.http.services.<name-of-your-choice>.loadbalancer.pa
 !!! warning "The character `@` is not authorized in the service name `<service_name>`."
 
 ??? info "`traefik.http.services.<service_name>.loadbalancer.server.port`"
-    
+
     Registers a port.
     Useful when the container exposes multiples ports.
 
@@ -263,6 +283,15 @@ you'd add the label `traefik.http.services.<name-of-your-choice>.loadbalancer.pa
 
     ```yaml
     - "traefik.http.services.myservice.loadbalancer.server.scheme=http"
+    ```
+
+??? info "`traefik.http.services.<service_name>.loadbalancer.serverstransport`"
+
+    Allows to reference a ServersTransport resource that is defined either with the File provider or the Kubernetes CRD one.
+    See [serverstransport](../services/index.md#serverstransport) for more information.
+
+    ```yaml
+    - "traefik.http.services.<service_name>.loadbalancer.serverstransport=foobar@file"
     ```
 
 ??? info "`traefik.http.services.<service_name>.loadbalancer.passhostheader`"
@@ -370,9 +399,9 @@ you'd add the label `traefik.http.services.<name-of-your-choice>.loadbalancer.pa
     ```
 
 ??? info "`traefik.http.services.<service_name>.loadbalancer.sticky.cookie.samesite`"
-    
+
     See [sticky sessions](../services/index.md#sticky-sessions) for more information.
-    
+
     ```yaml
     - "traefik.http.services.myservice.loadbalancer.sticky.cookie.samesite=none"
     ```
@@ -390,7 +419,7 @@ you'd add the label `traefik.http.services.<name-of-your-choice>.loadbalancer.pa
 You can declare pieces of middleware using labels starting with `traefik.http.middlewares.<name-of-your-choice>.`,
 followed by the middleware type/options.
 
-For example, to declare a middleware [`redirectscheme`](../../middlewares/redirectscheme.md) named `my-redirect`,
+For example, to declare a middleware [`redirectscheme`](../../middlewares/http/redirectscheme.md) named `my-redirect`,
 you'd write `traefik.http.middlewares.my-redirect.redirectscheme.scheme=https`.
 
 More information about available middlewares in the dedicated [middlewares section](../../middlewares/overview.md).
@@ -525,6 +554,14 @@ You can declare TCP Routers and/or Services using labels.
 
     ```yaml
     - "traefik.tcp.services.mytcpservice.loadbalancer.terminationdelay=100"
+    ```
+
+??? info "`traefik.tcp.services.<service_name>.loadbalancer.proxyprotocol.version`"
+
+    See [PROXY protocol](../services/index.md#proxy-protocol) for more information.
+
+    ```yaml
+    - "traefik.tcp.services.mytcpservice.loadbalancer.proxyprotocol.version=1"
     ```
 
 ### UDP

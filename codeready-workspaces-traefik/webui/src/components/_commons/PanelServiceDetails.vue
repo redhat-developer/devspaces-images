@@ -15,7 +15,7 @@
             <div class="text-subtitle2">PROVIDER</div>
             <div class="block-right-text">
               <q-avatar class="provider-logo">
-                <q-icon :name="`img:statics/providers/${data.provider}.svg`" />
+                <q-icon :name="`img:${getProviderLogoPath}`" />
               </q-avatar>
               <div class="block-right-text-label">{{data.provider}}</div>
             </div>
@@ -67,6 +67,19 @@
         </div>
       </q-card-section>
 
+      <q-card-section v-if="data.loadBalancer && data.loadBalancer.proxyProtocol">
+        <div class="row items-start no-wrap">
+          <div class="col">
+            <div class="text-subtitle2">Proxy Protocol</div>
+            <q-chip
+              dense
+              class="app-chip app-chip-name">
+              Version {{ data.loadBalancer.proxyProtocol.version }}
+            </q-chip>
+          </div>
+        </div>
+      </q-card-section>
+
       <q-separator v-if="sticky" />
       <StickyServiceDetails v-if="sticky" :sticky="sticky" :dense="dense"/>
     </q-scroll-area>
@@ -100,6 +113,15 @@ export default {
       }
 
       return null
+    },
+    getProviderLogoPath () {
+      const name = this.data.provider.toLowerCase()
+
+      if (name.includes('plugin-')) {
+        return 'statics/providers/plugin.svg'
+      }
+
+      return `statics/providers/${name}.svg`
     }
   },
   filters: {

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -21,7 +22,7 @@ const StatusClientClosedRequest = 499
 // StatusClientClosedRequestText non-standard HTTP status for client disconnection.
 const StatusClientClosedRequestText = "Client Closed Request"
 
-func buildProxy(passHostHeader *bool, responseForwarding *dynamic.ResponseForwarding, defaultRoundTripper http.RoundTripper, bufferPool httputil.BufferPool) (http.Handler, error) {
+func buildProxy(passHostHeader *bool, responseForwarding *dynamic.ResponseForwarding, roundTripper http.RoundTripper, bufferPool httputil.BufferPool) (http.Handler, error) {
 	var flushInterval ptypes.Duration
 	if responseForwarding != nil {
 		err := flushInterval.Set(responseForwarding.FlushInterval)
@@ -76,20 +77,21 @@ func buildProxy(passHostHeader *bool, responseForwarding *dynamic.ResponseForwar
 			delete(outReq.Header, "Sec-Websocket-Protocol")
 			delete(outReq.Header, "Sec-Websocket-Version")
 		},
-		Transport:     defaultRoundTripper,
+		Transport:     roundTripper,
 		FlushInterval: time.Duration(flushInterval),
 		BufferPool:    bufferPool,
 		ErrorHandler: func(w http.ResponseWriter, request *http.Request, err error) {
 			statusCode := http.StatusInternalServerError
 
 			switch {
-			case err == io.EOF:
+			case errors.Is(err, io.EOF):
 				statusCode = http.StatusBadGateway
-			case err == context.Canceled:
+			case errors.Is(err, context.Canceled):
 				statusCode = StatusClientClosedRequest
 			default:
-				if e, ok := err.(net.Error); ok {
-					if e.Timeout() {
+				var netErr net.Error
+				if errors.As(err, &netErr) {
+					if netErr.Timeout() {
 						statusCode = http.StatusGatewayTimeout
 					} else {
 						statusCode = http.StatusBadGateway

@@ -69,6 +69,12 @@ Use a DNS-01 based challenge provider rather than HTTPS.
 `TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_DNSCHALLENGE_RESOLVERS`:  
 Use following DNS servers to resolve the FQDN authority.
 
+`TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_EAB_HMACENCODED`:  
+Base64 encoded HMAC key from External CA.
+
+`TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_EAB_KID`:  
+Key identifier from External CA.
+
 `TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_EMAIL`:  
 Email address used for registration.
 
@@ -96,6 +102,9 @@ Entry points definition. (Default: ```false```)
 `TRAEFIK_ENTRYPOINTS_<NAME>_ADDRESS`:  
 Entry point address.
 
+`TRAEFIK_ENTRYPOINTS_<NAME>_ENABLEHTTP3`:  
+Enable HTTP3. (Default: ```false```)
+
 `TRAEFIK_ENTRYPOINTS_<NAME>_FORWARDEDHEADERS_INSECURE`:  
 Trust all forwarded headers. (Default: ```false```)
 
@@ -112,7 +121,7 @@ Default middlewares for the routers linked to the entry point.
 Applies a permanent redirection. (Default: ```true```)
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_REDIRECTIONS_ENTRYPOINT_PRIORITY`:  
-Priority of the generated router. (Default: ```2147483647```)
+Priority of the generated router. (Default: ```2147483646```)
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME`:  
 Scheme used for the redirection. (Default: ```https```)
@@ -129,10 +138,10 @@ Default certificate resolver for the routers linked to the entry point.
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_TLS_DOMAINS`:  
 Default TLS domains for the routers linked to the entry point.
 
-`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_TLS_DOMAINS[n]_MAIN`:  
+`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_TLS_DOMAINS_n_MAIN`:  
 Default subject name.
 
-`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_TLS_DOMAINS[n]_SANS`:  
+`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_TLS_DOMAINS_n_SANS`:  
 Subject alternative names.
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_TLS_OPTIONS`:  
@@ -162,10 +171,19 @@ ReadTimeout is the maximum duration for reading the entire request, including th
 `TRAEFIK_ENTRYPOINTS_<NAME>_TRANSPORT_RESPONDINGTIMEOUTS_WRITETIMEOUT`:  
 WriteTimeout is the maximum duration before timing out writes of the response. If zero, no timeout is set. (Default: ```0```)
 
-`TRAEFIK_EXPERIMENTAL_DEVPLUGIN_GOPATH`:  
-plugin's GOPATH.
+`TRAEFIK_ENTRYPOINTS_<NAME>_UDP_TIMEOUT`:  
+Timeout defines how long to wait on an idle session before releasing the related resources. (Default: ```3```)
 
-`TRAEFIK_EXPERIMENTAL_DEVPLUGIN_MODULENAME`:  
+`TRAEFIK_EXPERIMENTAL_HTTP3`:  
+Enable HTTP3. (Default: ```false```)
+
+`TRAEFIK_EXPERIMENTAL_KUBERNETESGATEWAY`:  
+Allow the Kubernetes gateway api provider usage. (Default: ```false```)
+
+`TRAEFIK_EXPERIMENTAL_LOCALPLUGINS_<NAME>`:  
+Local plugins configuration. (Default: ```false```)
+
+`TRAEFIK_EXPERIMENTAL_LOCALPLUGINS_<NAME>_MODULENAME`:  
 plugin's module name.
 
 `TRAEFIK_EXPERIMENTAL_PLUGINS_<NAME>_MODULENAME`:  
@@ -175,7 +193,7 @@ plugin's module name.
 plugin's version.
 
 `TRAEFIK_GLOBAL_CHECKNEWVERSION`:  
-Periodically check if a new version has been released. (Default: ```false```)
+Periodically check if a new version has been released. (Default: ```true```)
 
 `TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE`:  
 Periodically send anonymous usage statistics. If the option is not specified, it will be enabled by default. (Default: ```false```)
@@ -213,6 +231,9 @@ Enable metrics on entry points. (Default: ```true```)
 `TRAEFIK_METRICS_DATADOG_ADDRESS`:  
 Datadog's address. (Default: ```localhost:8125```)
 
+`TRAEFIK_METRICS_DATADOG_ADDROUTERSLABELS`:  
+Enable metrics on routers. (Default: ```false```)
+
 `TRAEFIK_METRICS_DATADOG_ADDSERVICESLABELS`:  
 Enable metrics on services. (Default: ```true```)
 
@@ -227,6 +248,9 @@ Enable metrics on entry points. (Default: ```true```)
 
 `TRAEFIK_METRICS_INFLUXDB_ADDRESS`:  
 InfluxDB address. (Default: ```localhost:8089```)
+
+`TRAEFIK_METRICS_INFLUXDB_ADDROUTERSLABELS`:  
+Enable metrics on routers. (Default: ```false```)
 
 `TRAEFIK_METRICS_INFLUXDB_ADDSERVICESLABELS`:  
 Enable metrics on services. (Default: ```true```)
@@ -255,6 +279,9 @@ Prometheus metrics exporter type. (Default: ```false```)
 `TRAEFIK_METRICS_PROMETHEUS_ADDENTRYPOINTSLABELS`:  
 Enable metrics on entry points. (Default: ```true```)
 
+`TRAEFIK_METRICS_PROMETHEUS_ADDROUTERSLABELS`:  
+Enable metrics on routers. (Default: ```false```)
+
 `TRAEFIK_METRICS_PROMETHEUS_ADDSERVICESLABELS`:  
 Enable metrics on services. (Default: ```true```)
 
@@ -276,6 +303,9 @@ Enable metrics on entry points. (Default: ```true```)
 `TRAEFIK_METRICS_STATSD_ADDRESS`:  
 StatsD address. (Default: ```localhost:8125```)
 
+`TRAEFIK_METRICS_STATSD_ADDROUTERSLABELS`:  
+Enable metrics on routers. (Default: ```false```)
+
 `TRAEFIK_METRICS_STATSD_ADDSERVICESLABELS`:  
 Enable metrics on services. (Default: ```true```)
 
@@ -284,6 +314,9 @@ Prefix to use for metrics collection. (Default: ```traefik```)
 
 `TRAEFIK_METRICS_STATSD_PUSHINTERVAL`:  
 StatsD push interval. (Default: ```10```)
+
+`TRAEFIK_PILOT_DASHBOARD`:  
+Enable Traefik Pilot in the dashboard. (Default: ```true```)
 
 `TRAEFIK_PILOT_TOKEN`:  
 Traefik Pilot token.
@@ -303,8 +336,17 @@ Terminating status code (Default: ```503```)
 `TRAEFIK_PROVIDERS_CONSUL`:  
 Enable Consul backend with default settings. (Default: ```false```)
 
+`TRAEFIK_PROVIDERS_CONSULCATALOG`:  
+Enable ConsulCatalog backend with default settings. (Default: ```false```)
+
 `TRAEFIK_PROVIDERS_CONSULCATALOG_CACHE`:  
 Use local agent caching for catalog reads. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_CONSULCATALOG_CONNECTAWARE`:  
+Enable Consul Connect support. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_CONSULCATALOG_CONNECTBYDEFAULT`:  
+Consider every service as Connect capable by default. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_CONSTRAINTS`:  
 Constraints is an expression that Traefik matches against the container's labels to determine whether to create any route for that container.
@@ -313,7 +355,7 @@ Constraints is an expression that Traefik matches against the container's labels
 Default rule. (Default: ```Host(`{{ normalize .Name }}`)```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_ENDPOINT_ADDRESS`:  
-The address of the Consul server (Default: ```127.0.0.1:8500```)
+The address of the Consul server
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_ENDPOINT_DATACENTER`:  
 Data center to use. If not provided, the default agent data center is used
@@ -355,10 +397,13 @@ Expose containers by default. (Default: ```true```)
 Prefix for consul service tags. Default 'traefik' (Default: ```traefik```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_REFRESHINTERVAL`:  
-Interval for check Consul API. Default 100ms (Default: ```15```)
+Interval for check Consul API. Default 15s (Default: ```15```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_REQUIRECONSISTENT`:  
 Forces the read to be fully consistent. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_CONSULCATALOG_SERVICENAME`:  
+Name of the Traefik service in Consul Catalog (needs to be registered via the orchestrator or manually). (Default: ```traefik```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_STALE`:  
 Use stale consistency for catalog reads. (Default: ```false```)
@@ -405,6 +450,9 @@ Docker server endpoint. Can be a tcp or a unix socket endpoint. (Default: ```uni
 `TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT`:  
 Expose containers by default. (Default: ```true```)
 
+`TRAEFIK_PROVIDERS_DOCKER_HTTPCLIENTTIMEOUT`:  
+Client timeout for HTTP connections. (Default: ```0```)
+
 `TRAEFIK_PROVIDERS_DOCKER_NETWORK`:  
 Default Docker network used.
 
@@ -434,6 +482,9 @@ Use the ip address from the bound port, rather than from the inner network. (Def
 
 `TRAEFIK_PROVIDERS_DOCKER_WATCH`:  
 Watch Docker Swarm events. (Default: ```true```)
+
+`TRAEFIK_PROVIDERS_ECS`:  
+Enable AWS ECS backend with default settings. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_ECS_ACCESSKEYID`:  
 The AWS credentials access key to use for making requests
@@ -496,7 +547,7 @@ KV Username
 Enable debug logging of generated configuration template. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_FILE_DIRECTORY`:  
-Load dynamic configuration from one or more .toml or .yml files in a directory.
+Load dynamic configuration from one or more .yml or .toml files in a directory.
 
 `TRAEFIK_PROVIDERS_FILE_FILENAME`:  
 Load dynamic configuration from a file.
@@ -534,11 +585,14 @@ TLS key
 `TRAEFIK_PROVIDERS_KUBERNETESCRD`:  
 Enable Kubernetes backend with default settings. (Default: ```false```)
 
+`TRAEFIK_PROVIDERS_KUBERNETESCRD_ALLOWCROSSNAMESPACE`:  
+Allow cross namespace resource reference. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_KUBERNETESCRD_ALLOWEXTERNALNAMESERVICES`:  
+Allow ExternalName services. (Default: ```false```)
+
 `TRAEFIK_PROVIDERS_KUBERNETESCRD_CERTAUTHFILEPATH`:  
 Kubernetes certificate authority file path (not needed for in-cluster client).
-
-`TRAEFIK_PROVIDERS_KUBERNETESCRD_DISABLEPASSHOSTHEADERS`:  
-Kubernetes disable PassHost Headers. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_KUBERNETESCRD_ENDPOINT`:  
 Kubernetes server endpoint (required for external cluster client).
@@ -558,20 +612,44 @@ Ingress refresh throttle duration (Default: ```0```)
 `TRAEFIK_PROVIDERS_KUBERNETESCRD_TOKEN`:  
 Kubernetes bearer token (not needed for in-cluster client).
 
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY`:  
+Enable Kubernetes gateway api provider with default settings. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY_CERTAUTHFILEPATH`:  
+Kubernetes certificate authority file path (not needed for in-cluster client).
+
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY_ENDPOINT`:  
+Kubernetes server endpoint (required for external cluster client).
+
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY_LABELSELECTOR`:  
+Kubernetes label selector to select specific GatewayClasses.
+
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY_NAMESPACES`:  
+Kubernetes namespaces.
+
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY_THROTTLEDURATION`:  
+Kubernetes refresh throttle duration (Default: ```0```)
+
+`TRAEFIK_PROVIDERS_KUBERNETESGATEWAY_TOKEN`:  
+Kubernetes bearer token (not needed for in-cluster client).
+
 `TRAEFIK_PROVIDERS_KUBERNETESINGRESS`:  
 Enable Kubernetes backend with default settings. (Default: ```false```)
 
+`TRAEFIK_PROVIDERS_KUBERNETESINGRESS_ALLOWEMPTYSERVICES`:  
+Allow creation of services without endpoints. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_KUBERNETESINGRESS_ALLOWEXTERNALNAMESERVICES`:  
+Allow ExternalName services. (Default: ```false```)
+
 `TRAEFIK_PROVIDERS_KUBERNETESINGRESS_CERTAUTHFILEPATH`:  
 Kubernetes certificate authority file path (not needed for in-cluster client).
-
-`TRAEFIK_PROVIDERS_KUBERNETESINGRESS_DISABLEPASSHOSTHEADERS`:  
-Kubernetes disable PassHost Headers. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_KUBERNETESINGRESS_ENDPOINT`:  
 Kubernetes server endpoint (required for external cluster client).
 
 `TRAEFIK_PROVIDERS_KUBERNETESINGRESS_INGRESSCLASS`:  
-Value of kubernetes.io/ingress.class annotation to watch for.
+Value of kubernetes.io/ingress.class annotation or IngressClass name to watch for.
 
 `TRAEFIK_PROVIDERS_KUBERNETESINGRESS_INGRESSENDPOINT_HOSTNAME`:  
 Hostname used for Kubernetes Ingress endpoints.
@@ -657,8 +735,11 @@ Display additional provider logs. (Default: ```false```)
 `TRAEFIK_PROVIDERS_MARATHON_WATCH`:  
 Watch provider. (Default: ```true```)
 
+`TRAEFIK_PROVIDERS_PLUGIN_<NAME>`:  
+Plugins configuration.
+
 `TRAEFIK_PROVIDERS_PROVIDERSTHROTTLEDURATION`:  
-Backends throttle duration: minimum duration between 2 events from providers before applying a new configuration. It avoids unnecessary reloads if multiples events are sent in a short amount of time. (Default: ```0```)
+Backends throttle duration: minimum duration between 2 events from providers before applying a new configuration. It avoids unnecessary reloads if multiples events are sent in a short amount of time. (Default: ```2```)
 
 `TRAEFIK_PROVIDERS_RANCHER`:  
 Enable Rancher backend with default settings. (Default: ```false```)
@@ -766,7 +847,7 @@ The amount of time to wait for a server's response headers after fully writing t
 Disable SSL certificate verification. (Default: ```false```)
 
 `TRAEFIK_SERVERSTRANSPORT_MAXIDLECONNSPERHOST`:  
-If non-zero, controls the maximum idle (keep-alive) to keep per-host. If zero, DefaultMaxIdleConnsPerHost is used (Default: ```0```)
+If non-zero, controls the maximum idle (keep-alive) to keep per-host. If zero, DefaultMaxIdleConnsPerHost is used (Default: ```200```)
 
 `TRAEFIK_SERVERSTRANSPORT_ROOTCAS`:  
 Add cert file for self-signed certificate.

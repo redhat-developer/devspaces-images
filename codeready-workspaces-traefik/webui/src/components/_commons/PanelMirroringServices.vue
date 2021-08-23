@@ -21,8 +21,9 @@
             <div class="col-6">
               <q-chip
                 dense
-                class="app-chip app-chip-rule">
+                class="app-chip app-chip-rule app-chip-overflow">
                 {{ service.name }}
+                <q-tooltip>{{service.name}}</q-tooltip>
               </q-chip>
             </div>
             <div class="col-3 text-right">
@@ -30,7 +31,7 @@
             </div>
             <div class="col-3 text-right">
               <q-avatar class="provider-logo">
-                <q-icon :name="`img:statics/providers/${getProvider(service)}.svg`" />
+                <q-icon :name="`img:${getProviderLogoPath(service)}`" />
               </q-avatar>
             </div>
           </div>
@@ -60,6 +61,16 @@ export default {
       }
 
       return this.data.provider
+    },
+    getProviderLogoPath (service) {
+      const provider = this.getProvider(service)
+      const name = provider.toLowerCase()
+
+      if (name.includes('plugin-')) {
+        return 'statics/providers/plugin.svg'
+      }
+
+      return `statics/providers/${name}.svg`
     }
   }
 }

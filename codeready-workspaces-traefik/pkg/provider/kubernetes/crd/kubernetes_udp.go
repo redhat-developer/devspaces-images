@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+	"strconv"
 
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
@@ -34,7 +36,7 @@ func (p *Provider) loadIngressRouteUDPConfiguration(ctx context.Context, client 
 			serviceName := makeID(ingressRouteUDP.Namespace, key)
 
 			for _, service := range route.Services {
-				balancerServerUDP, err := createLoadBalancerServerUDP(client, ingressRouteUDP.Namespace, service)
+				balancerServerUDP, err := p.createLoadBalancerServerUDP(client, ingressRouteUDP.Namespace, service)
 				if err != nil {
 					logger.
 						WithField("serviceName", service.Name).
@@ -50,7 +52,7 @@ func (p *Provider) loadIngressRouteUDPConfiguration(ctx context.Context, client 
 					break
 				}
 
-				serviceKey := fmt.Sprintf("%s-%s-%d", serviceName, service.Name, service.Port)
+				serviceKey := fmt.Sprintf("%s-%s-%s", serviceName, service.Name, &service.Port)
 				conf.Services[serviceKey] = balancerServerUDP
 
 				srv := dynamic.UDPWRRService{Name: serviceKey}
@@ -75,13 +77,17 @@ func (p *Provider) loadIngressRouteUDPConfiguration(ctx context.Context, client 
 	return conf
 }
 
-func createLoadBalancerServerUDP(client Client, namespace string, service v1alpha1.ServiceUDP) (*dynamic.UDPService, error) {
-	ns := namespace
+func (p *Provider) createLoadBalancerServerUDP(client Client, parentNamespace string, service v1alpha1.ServiceUDP) (*dynamic.UDPService, error) {
+	ns := parentNamespace
 	if len(service.Namespace) > 0 {
+		if !isNamespaceAllowed(p.AllowCrossNamespace, parentNamespace, service.Namespace) {
+			return nil, fmt.Errorf("udp service %s/%s is not in the parent resource namespace %s", service.Namespace, service.Name, ns)
+		}
+
 		ns = service.Namespace
 	}
 
-	servers, err := loadUDPServers(client, ns, service)
+	servers, err := p.loadUDPServers(client, ns, service)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +101,7 @@ func createLoadBalancerServerUDP(client Client, namespace string, service v1alph
 	return udpService, nil
 }
 
-func loadUDPServers(client Client, namespace string, svc v1alpha1.ServiceUDP) ([]dynamic.UDPServer, error) {
+func (p *Provider) loadUDPServers(client Client, namespace string, svc v1alpha1.ServiceUDP) ([]dynamic.UDPServer, error) {
 	service, exists, err := client.GetService(namespace, svc.Name)
 	if err != nil {
 		return nil, err
@@ -105,23 +111,19 @@ func loadUDPServers(client Client, namespace string, svc v1alpha1.ServiceUDP) ([
 		return nil, errors.New("service not found")
 	}
 
-	var portSpec *corev1.ServicePort
-	for _, p := range service.Spec.Ports {
-		p := p
-		if svc.Port == p.Port {
-			portSpec = &p
-			break
-		}
+	if service.Spec.Type == corev1.ServiceTypeExternalName && !p.AllowExternalNameServices {
+		return nil, fmt.Errorf("externalName services not allowed: %s/%s", namespace, svc.Name)
 	}
 
-	if portSpec == nil {
-		return nil, errors.New("service port not found")
+	svcPort, err := getServicePort(service, svc.Port)
+	if err != nil {
+		return nil, err
 	}
 
 	var servers []dynamic.UDPServer
 	if service.Spec.Type == corev1.ServiceTypeExternalName {
 		servers = append(servers, dynamic.UDPServer{
-			Address: fmt.Sprintf("%s:%d", service.Spec.ExternalName, portSpec.Port),
+			Address: net.JoinHostPort(service.Spec.ExternalName, strconv.Itoa(int(svcPort.Port))),
 		})
 	} else {
 		endpoints, endpointsExists, endpointsErr := client.GetEndpoints(namespace, svc.Name)
@@ -140,7 +142,7 @@ func loadUDPServers(client Client, namespace string, svc v1alpha1.ServiceUDP) ([
 		var port int32
 		for _, subset := range endpoints.Subsets {
 			for _, p := range subset.Ports {
-				if portSpec.Name == p.Name {
+				if svcPort.Name == p.Name {
 					port = p.Port
 					break
 				}
@@ -152,7 +154,7 @@ func loadUDPServers(client Client, namespace string, svc v1alpha1.ServiceUDP) ([
 
 			for _, addr := range subset.Addresses {
 				servers = append(servers, dynamic.UDPServer{
-					Address: fmt.Sprintf("%s:%d", addr.IP, port),
+					Address: net.JoinHostPort(addr.IP, strconv.Itoa(int(port))),
 				})
 			}
 		}

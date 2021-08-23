@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"sort"
 	"strings"
@@ -28,6 +29,10 @@ const (
 	configLastReloadSuccessName    = metricConfigPrefix + "last_reload_success"
 	configLastReloadFailureName    = metricConfigPrefix + "last_reload_failure"
 
+	// TLS.
+	metricsTLSPrefix          = MetricNamePrefix + "tls_"
+	tlsCertsNotAfterTimestamp = metricsTLSPrefix + "certs_not_after"
+
 	// entry point.
 	metricEntryPointPrefix     = MetricNamePrefix + "entrypoint_"
 	entryPointReqsTotalName    = metricEntryPointPrefix + "requests_total"
@@ -35,16 +40,21 @@ const (
 	entryPointReqDurationName  = metricEntryPointPrefix + "request_duration_seconds"
 	entryPointOpenConnsName    = metricEntryPointPrefix + "open_connections"
 
-	// service level.
+	// router level.
+	metricRouterPrefix     = MetricNamePrefix + "router_"
+	routerReqsTotalName    = metricRouterPrefix + "requests_total"
+	routerReqsTLSTotalName = metricRouterPrefix + "requests_tls_total"
+	routerReqDurationName  = metricRouterPrefix + "request_duration_seconds"
+	routerOpenConnsName    = metricRouterPrefix + "open_connections"
 
-	// MetricServicePrefix prefix of all service metric names.
-	MetricServicePrefix     = MetricNamePrefix + "service_"
-	serviceReqsTotalName    = MetricServicePrefix + "requests_total"
-	serviceReqsTLSTotalName = MetricServicePrefix + "requests_tls_total"
-	serviceReqDurationName  = MetricServicePrefix + "request_duration_seconds"
-	serviceOpenConnsName    = MetricServicePrefix + "open_connections"
-	serviceRetriesTotalName = MetricServicePrefix + "retries_total"
-	serviceServerUpName     = MetricServicePrefix + "server_up"
+	// service level.
+	metricServicePrefix     = MetricNamePrefix + "service_"
+	serviceReqsTotalName    = metricServicePrefix + "requests_total"
+	serviceReqsTLSTotalName = metricServicePrefix + "requests_tls_total"
+	serviceReqDurationName  = metricServicePrefix + "request_duration_seconds"
+	serviceOpenConnsName    = metricServicePrefix + "open_connections"
+	serviceRetriesTotalName = metricServicePrefix + "retries_total"
+	serviceServerUpName     = metricServicePrefix + "server_up"
 )
 
 // promState holds all metric state internally and acts as the only Collector we register for Prometheus.
@@ -74,12 +84,15 @@ func RegisterPrometheus(ctx context.Context, config *types.Prometheus) Registry 
 	standardRegistry := initStandardRegistry(config)
 
 	if err := promRegistry.Register(stdprometheus.NewProcessCollector(stdprometheus.ProcessCollectorOpts{})); err != nil {
-		if _, ok := err.(stdprometheus.AlreadyRegisteredError); !ok {
+		var arErr stdprometheus.AlreadyRegisteredError
+		if !errors.As(err, &arErr) {
 			log.FromContext(ctx).Warn("ProcessCollector is already registered")
 		}
 	}
+
 	if err := promRegistry.Register(stdprometheus.NewGoCollector()); err != nil {
-		if _, ok := err.(stdprometheus.AlreadyRegisteredError); !ok {
+		var arErr stdprometheus.AlreadyRegisteredError
+		if !errors.As(err, &arErr) {
 			log.FromContext(ctx).Warn("GoCollector is already registered")
 		}
 	}
@@ -117,21 +130,28 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 		Name: configLastReloadFailureName,
 		Help: "Last config reload failure",
 	}, []string{})
+	tlsCertsNotAfterTimesptamp := newGaugeFrom(promState.collectors, stdprometheus.GaugeOpts{
+		Name: tlsCertsNotAfterTimestamp,
+		Help: "Certificate expiration timestamp",
+	}, []string{"cn", "serial", "sans"})
 
 	promState.describers = []func(chan<- *stdprometheus.Desc){
 		configReloads.cv.Describe,
 		configReloadsFailures.cv.Describe,
 		lastConfigReloadSuccess.gv.Describe,
 		lastConfigReloadFailure.gv.Describe,
+		tlsCertsNotAfterTimesptamp.gv.Describe,
 	}
 
 	reg := &standardRegistry{
-		epEnabled:                    config.AddEntryPointsLabels,
-		svcEnabled:                   config.AddServicesLabels,
-		configReloadsCounter:         configReloads,
-		configReloadsFailureCounter:  configReloadsFailures,
-		lastConfigReloadSuccessGauge: lastConfigReloadSuccess,
-		lastConfigReloadFailureGauge: lastConfigReloadFailure,
+		epEnabled:                      config.AddEntryPointsLabels,
+		routerEnabled:                  config.AddRoutersLabels,
+		svcEnabled:                     config.AddServicesLabels,
+		configReloadsCounter:           configReloads,
+		configReloadsFailureCounter:    configReloadsFailures,
+		lastConfigReloadSuccessGauge:   lastConfigReloadSuccess,
+		lastConfigReloadFailureGauge:   lastConfigReloadFailure,
+		tlsCertsNotAfterTimestampGauge: tlsCertsNotAfterTimesptamp,
 	}
 
 	if config.AddEntryPointsLabels {
@@ -159,11 +179,44 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 			entryPointReqDurations.hv.Describe,
 			entryPointOpenConns.gv.Describe,
 		}...)
+
 		reg.entryPointReqsCounter = entryPointReqs
 		reg.entryPointReqsTLSCounter = entryPointReqsTLS
 		reg.entryPointReqDurationHistogram, _ = NewHistogramWithScale(entryPointReqDurations, time.Second)
 		reg.entryPointOpenConnsGauge = entryPointOpenConns
 	}
+
+	if config.AddRoutersLabels {
+		routerReqs := newCounterFrom(promState.collectors, stdprometheus.CounterOpts{
+			Name: routerReqsTotalName,
+			Help: "How many HTTP requests are processed on a router, partitioned by service, status code, protocol, and method.",
+		}, []string{"code", "method", "protocol", "router", "service"})
+		routerReqsTLS := newCounterFrom(promState.collectors, stdprometheus.CounterOpts{
+			Name: routerReqsTLSTotalName,
+			Help: "How many HTTP requests with TLS are processed on a router, partitioned by service, TLS Version, and TLS cipher Used.",
+		}, []string{"tls_version", "tls_cipher", "router", "service"})
+		routerReqDurations := newHistogramFrom(promState.collectors, stdprometheus.HistogramOpts{
+			Name:    routerReqDurationName,
+			Help:    "How long it took to process the request on a router, partitioned by service, status code, protocol, and method.",
+			Buckets: buckets,
+		}, []string{"code", "method", "protocol", "router", "service"})
+		routerOpenConns := newGaugeFrom(promState.collectors, stdprometheus.GaugeOpts{
+			Name: routerOpenConnsName,
+			Help: "How many open connections exist on a router, partitioned by service, method, and protocol.",
+		}, []string{"method", "protocol", "router", "service"})
+
+		promState.describers = append(promState.describers, []func(chan<- *stdprometheus.Desc){
+			routerReqs.cv.Describe,
+			routerReqsTLS.cv.Describe,
+			routerReqDurations.hv.Describe,
+			routerOpenConns.gv.Describe,
+		}...)
+		reg.routerReqsCounter = routerReqs
+		reg.routerReqsTLSCounter = routerReqsTLS
+		reg.routerReqDurationHistogram, _ = NewHistogramWithScale(routerReqDurations, time.Second)
+		reg.routerOpenConnsGauge = routerOpenConns
+	}
+
 	if config.AddServicesLabels {
 		serviceReqs := newCounterFrom(promState.collectors, stdprometheus.CounterOpts{
 			Name: serviceReqsTotalName,
@@ -212,15 +265,21 @@ func initStandardRegistry(config *types.Prometheus) Registry {
 }
 
 func registerPromState(ctx context.Context) bool {
-	if err := promRegistry.Register(promState); err != nil {
-		logger := log.FromContext(ctx)
-		if _, ok := err.(stdprometheus.AlreadyRegisteredError); !ok {
-			logger.Errorf("Unable to register Traefik to Prometheus: %v", err)
-			return false
-		}
-		logger.Debug("Prometheus collector already registered.")
+	err := promRegistry.Register(promState)
+	if err == nil {
+		return true
 	}
-	return true
+
+	logger := log.FromContext(ctx)
+
+	var arErr stdprometheus.AlreadyRegisteredError
+	if errors.As(err, &arErr) {
+		logger.Debug("Prometheus collector already registered.")
+		return true
+	}
+
+	logger.Errorf("Unable to register Traefik to Prometheus: %v", err)
+	return false
 }
 
 // OnConfigurationUpdate receives the current configuration from Traefik.
@@ -369,18 +428,18 @@ func (d *dynamicConfig) hasServerURL(serviceName, serverURL string) bool {
 	return false
 }
 
-func newCollector(metricName string, labels stdprometheus.Labels, c stdprometheus.Collector, delete func()) *collector {
+func newCollector(metricName string, labels stdprometheus.Labels, c stdprometheus.Collector, deleteFn func()) *collector {
 	return &collector{
 		id:        buildMetricID(metricName, labels),
 		labels:    labels,
 		collector: c,
-		delete:    delete,
+		delete:    deleteFn,
 	}
 }
 
 // collector wraps a Collector object from the Prometheus client library.
 // It adds information on how many generations this metric should be present
-// in the /metrics output, relatived to the time it was last tracked.
+// in the /metrics output, relative to the time it was last tracked.
 type collector struct {
 	id        string
 	labels    stdprometheus.Labels

@@ -9,7 +9,7 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/Masterminds/sprig"
+	"github.com/Masterminds/sprig/v3"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
 )
@@ -20,13 +20,15 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 
 	configuration := &dynamic.Configuration{
 		HTTP: &dynamic.HTTPConfiguration{
-			Routers:     make(map[string]*dynamic.Router),
-			Middlewares: make(map[string]*dynamic.Middleware),
-			Services:    make(map[string]*dynamic.Service),
+			Routers:           make(map[string]*dynamic.Router),
+			Middlewares:       make(map[string]*dynamic.Middleware),
+			Services:          make(map[string]*dynamic.Service),
+			ServersTransports: make(map[string]*dynamic.ServersTransport),
 		},
 		TCP: &dynamic.TCPConfiguration{
-			Routers:  make(map[string]*dynamic.TCPRouter),
-			Services: make(map[string]*dynamic.TCPService),
+			Routers:     make(map[string]*dynamic.TCPRouter),
+			Services:    make(map[string]*dynamic.TCPService),
+			Middlewares: make(map[string]*dynamic.TCPMiddleware),
 		},
 		UDP: &dynamic.UDPConfiguration{
 			Routers:  make(map[string]*dynamic.UDPRouter),
@@ -55,6 +57,12 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 	middlewaresToDelete := map[string]struct{}{}
 	middlewares := map[string][]string{}
 
+	middlewaresTCPToDelete := map[string]struct{}{}
+	middlewaresTCP := map[string][]string{}
+
+	transportsToDelete := map[string]struct{}{}
+	transports := map[string][]string{}
+
 	var sortedKeys []string
 	for key := range configurations {
 		sortedKeys = append(sortedKeys, key)
@@ -74,6 +82,13 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 			routers[routerName] = append(routers[routerName], root)
 			if !AddRouter(configuration.HTTP, routerName, router) {
 				routersToDelete[routerName] = struct{}{}
+			}
+		}
+
+		for transportName, transport := range conf.HTTP.ServersTransports {
+			transports[transportName] = append(transports[transportName], root)
+			if !AddTransport(configuration.HTTP, transportName, transport) {
+				transportsToDelete[transportName] = struct{}{}
 			}
 		}
 
@@ -111,6 +126,13 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 				middlewaresToDelete[middlewareName] = struct{}{}
 			}
 		}
+
+		for middlewareName, middleware := range conf.TCP.Middlewares {
+			middlewaresTCP[middlewareName] = append(middlewaresTCP[middlewareName], root)
+			if !AddMiddlewareTCP(configuration.TCP, middlewareName, middleware) {
+				middlewaresTCPToDelete[middlewareName] = struct{}{}
+			}
+		}
 	}
 
 	for serviceName := range servicesToDelete {
@@ -123,6 +145,12 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 		logger.WithField(log.RouterName, routerName).
 			Errorf("Router defined multiple times with different configurations in %v", routers[routerName])
 		delete(configuration.HTTP.Routers, routerName)
+	}
+
+	for transportName := range transportsToDelete {
+		logger.WithField(log.ServersTransportName, transportName).
+			Errorf("ServersTransport defined multiple times with different configurations in %v", transports[transportName])
+		delete(configuration.HTTP.ServersTransports, transportName)
 	}
 
 	for serviceName := range servicesTCPToDelete {
@@ -155,6 +183,12 @@ func Merge(ctx context.Context, configurations map[string]*dynamic.Configuration
 		delete(configuration.HTTP.Middlewares, middlewareName)
 	}
 
+	for middlewareName := range middlewaresTCPToDelete {
+		logger.WithField(log.MiddlewareName, middlewareName).
+			Errorf("TCP Middleware defined multiple times with different configurations in %v", middlewaresTCP[middlewareName])
+		delete(configuration.TCP.Middlewares, middlewareName)
+	}
+
 	return configuration
 }
 
@@ -169,8 +203,38 @@ func AddServiceTCP(configuration *dynamic.TCPConfiguration, serviceName string, 
 		return false
 	}
 
-	configuration.Services[serviceName].LoadBalancer.Servers = append(configuration.Services[serviceName].LoadBalancer.Servers, service.LoadBalancer.Servers...)
+	uniq := map[string]struct{}{}
+	for _, server := range configuration.Services[serviceName].LoadBalancer.Servers {
+		uniq[server.Address] = struct{}{}
+	}
+
+	for _, server := range service.LoadBalancer.Servers {
+		if _, ok := uniq[server.Address]; !ok {
+			configuration.Services[serviceName].LoadBalancer.Servers = append(configuration.Services[serviceName].LoadBalancer.Servers, server)
+		}
+	}
+
 	return true
+}
+
+// AddRouterTCP Adds a router to a configurations.
+func AddRouterTCP(configuration *dynamic.TCPConfiguration, routerName string, router *dynamic.TCPRouter) bool {
+	if _, ok := configuration.Routers[routerName]; !ok {
+		configuration.Routers[routerName] = router
+		return true
+	}
+
+	return reflect.DeepEqual(configuration.Routers[routerName], router)
+}
+
+// AddMiddlewareTCP Adds a middleware to a configurations.
+func AddMiddlewareTCP(configuration *dynamic.TCPConfiguration, middlewareName string, middleware *dynamic.TCPMiddleware) bool {
+	if _, ok := configuration.Middlewares[middlewareName]; !ok {
+		configuration.Middlewares[middlewareName] = middleware
+		return true
+	}
+
+	return reflect.DeepEqual(configuration.Middlewares[middlewareName], middleware)
 }
 
 // AddServiceUDP adds a service to a configuration.
@@ -184,18 +248,18 @@ func AddServiceUDP(configuration *dynamic.UDPConfiguration, serviceName string, 
 		return false
 	}
 
-	configuration.Services[serviceName].LoadBalancer.Servers = append(configuration.Services[serviceName].LoadBalancer.Servers, service.LoadBalancer.Servers...)
-	return true
-}
-
-// AddRouterTCP Adds a router to a configurations.
-func AddRouterTCP(configuration *dynamic.TCPConfiguration, routerName string, router *dynamic.TCPRouter) bool {
-	if _, ok := configuration.Routers[routerName]; !ok {
-		configuration.Routers[routerName] = router
-		return true
+	uniq := map[string]struct{}{}
+	for _, server := range configuration.Services[serviceName].LoadBalancer.Servers {
+		uniq[server.Address] = struct{}{}
 	}
 
-	return reflect.DeepEqual(configuration.Routers[routerName], router)
+	for _, server := range service.LoadBalancer.Servers {
+		if _, ok := uniq[server.Address]; !ok {
+			configuration.Services[serviceName].LoadBalancer.Servers = append(configuration.Services[serviceName].LoadBalancer.Servers, server)
+		}
+	}
+
+	return true
 }
 
 // AddRouterUDP adds a router to a configuration.
@@ -219,7 +283,17 @@ func AddService(configuration *dynamic.HTTPConfiguration, serviceName string, se
 		return false
 	}
 
-	configuration.Services[serviceName].LoadBalancer.Servers = append(configuration.Services[serviceName].LoadBalancer.Servers, service.LoadBalancer.Servers...)
+	uniq := map[string]struct{}{}
+	for _, server := range configuration.Services[serviceName].LoadBalancer.Servers {
+		uniq[server.URL] = struct{}{}
+	}
+
+	for _, server := range service.LoadBalancer.Servers {
+		if _, ok := uniq[server.URL]; !ok {
+			configuration.Services[serviceName].LoadBalancer.Servers = append(configuration.Services[serviceName].LoadBalancer.Servers, server)
+		}
+	}
+
 	return true
 }
 
@@ -231,6 +305,16 @@ func AddRouter(configuration *dynamic.HTTPConfiguration, routerName string, rout
 	}
 
 	return reflect.DeepEqual(configuration.Routers[routerName], router)
+}
+
+// AddTransport Adds a transport to a configurations.
+func AddTransport(configuration *dynamic.HTTPConfiguration, transportName string, transport *dynamic.ServersTransport) bool {
+	if _, ok := configuration.ServersTransports[transportName]; !ok {
+		configuration.ServersTransports[transportName] = transport
+		return true
+	}
+
+	return reflect.DeepEqual(configuration.ServersTransports[transportName], transport)
 }
 
 // AddMiddleware Adds a middleware to a configurations.

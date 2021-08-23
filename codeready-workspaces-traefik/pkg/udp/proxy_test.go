@@ -41,10 +41,12 @@ func TestUDPProxy(t *testing.T) {
 }
 
 func newServer(t *testing.T, addr string, handler Handler) {
+	t.Helper()
+
 	addrL, err := net.ResolveUDPAddr("udp", addr)
 	require.NoError(t, err)
 
-	listener, err := Listen("udp", addrL)
+	listener, err := Listen("udp", addrL, 3*time.Second)
 	require.NoError(t, err)
 
 	for {
