@@ -17,10 +17,13 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 
+MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
+if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
+
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION]
-Example: $0 -v 2.y.0 --prefix crw-theia
+Example: $0 -v 2.y.0 
 "
     exit
 }
@@ -30,6 +33,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+    '-b') MIDSTM_BRANCH="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -48,6 +52,9 @@ tarball="asset-traefik-$(uname -m).tar.gz"
 tar czf "${tarball}" -C ./brew-assets .
 
 # upload the binary to GH
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
 ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" "${tarball}"
 
 # cleanup
