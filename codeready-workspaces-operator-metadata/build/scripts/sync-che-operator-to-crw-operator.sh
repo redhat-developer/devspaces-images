@@ -68,8 +68,6 @@ CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
 # old image from 2.10: DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
 # new image from 2.11+:
 DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
-# TODO: remove CRW_DWCO_IMAGE in 2.12
-CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
@@ -160,6 +158,9 @@ replaceEnvVarOperatorYaml()
 	field="$3"
 	# don't do anything if the existing value is the same as the replacement one
 	# shellcheck disable=SC2016 disable=SC2002 disable=SC2086
+	if [[ $(yq -r $field "${fileToChange}") == "null" ]]; then
+		echo "Error: could not find $field in $fileToChange"; exit 1
+	fi
 	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
 		echo "[INFO] ${0##*/} rEVOY :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
@@ -173,7 +174,7 @@ ${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal)
 			#  echo "replaced?"
 			#  diff -u "${fileToChange}" "${fileToChange}.2" || true
 			if [[ ! $(diff -u "${fileToChange}" "${fileToChange}.2") ]]; then
-			echo "insert $updateName = $updateVal"
+			echo "[INFO] >> insert $updateName = $updateVal"
 			 changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
 				${field}' += [{"name": $updateName, "value": $updateVal}]')
 			echo "${header}${changed}" > "${fileToChange}.2"
@@ -197,8 +198,6 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 	["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
 	["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
-    # TODO: remove CRW_DWCO_IMAGE in 2.12
-	["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
 	["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 	["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
 
@@ -228,6 +227,7 @@ for updateName in "${!operator_replacements[@]}"; do
 	updateVal="${operator_replacements[$updateName]}"
 	replaceEnvVarOperatorYaml "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" "${COPYRIGHT}" '.spec.template.spec.containers[0].env'
 done
+echo "Converted (yq #1) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # insert keycloak image references for s390x and ppc64le
@@ -240,27 +240,14 @@ for updateName in "${!operator_insertions[@]}"; do
 	# apply same transforms in operator deployment yaml
 	replaceEnvVarOperatorYaml "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" "${COPYRIGHT}" '.spec.template.spec.containers[0].env'
 done
+echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # CRW-1579 set correct crw-2-rhel8-operator image and tag in operator deployment yaml
 oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")
 if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
 fi
-
-##### update the second container yaml
-
-declare -A operator_replacements2=(
-	["RELATED_IMAGE_gateway"]="${CRW_TRAEFIK_IMAGE}"
-	["RELATED_IMAGE_gateway_configurer"]="${CRW_CONFIGBUMP_IMAGE}"
-)
-
-for updateName in "${!operator_replacements2[@]}"; do
-	updateVal="${operator_replacements2[$updateName]}"
-	replaceEnvVarOperatorYaml "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" "${COPYRIGHT}" '.spec.template.spec.containers[1].env'
-done
-
-# update second container image from quay.io/che-incubator/devworkspace-che-operator:ci to CRW_DWCO_IMAGE
-replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" '.spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
+echo "Converted (yq #3) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # yq changes - transform env vars from Che to CRW values
@@ -273,14 +260,14 @@ yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProv
 yq  -y 'del(.spec.k8s)')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
 if [[ $(diff -u "${CR_YAML}" "${TARGETDIR}/${CR_YAML}") ]]; then
-	echo "Converted (yq #3) ${TARGETDIR}/${CR_YAML}"
+	echo "Converted (yq #4) ${TARGETDIR}/${CR_YAML}"
 fi
 
 # if sort the file, we'll lose all the comments
 yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
-yq -yY '.spec.template.spec.containers[1].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}"
-echo "${COPYRIGHT}$(cat "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
-mv "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2" "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}"
+echo "${COPYRIGHT}$(cat "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2")" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}"
+rm -f "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
+echo "Converted (yq #5) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # delete unneeded files
 rm -rf "${TARGETDIR}/deploy"
