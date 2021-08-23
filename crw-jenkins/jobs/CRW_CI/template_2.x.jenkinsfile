@@ -40,7 +40,7 @@ timeout(180) {
             println "########################################################################################################"
             SOURCE_DIR="${WORKSPACE}/sources"
             util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
-            OLD_SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+            OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
             println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
 
             // TODO switch to dependabot for dockerfiles?

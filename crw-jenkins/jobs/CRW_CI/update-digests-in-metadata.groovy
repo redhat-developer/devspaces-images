@@ -14,7 +14,7 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
 <p>
   Results:
   <ul>
-    <li><a href=https://quay.io/repository/crw/operator-metadata?tag=latest&tab=tags>quay.io/crw/operator-metadata</a></li>
+    <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-metadata</a></li>
 </ul>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
