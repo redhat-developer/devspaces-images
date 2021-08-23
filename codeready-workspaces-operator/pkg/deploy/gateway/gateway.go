@@ -101,6 +101,11 @@ func syncAll(deployContext *deploy.DeployContext) error {
 		} else {
 			return err
 		}
+
+		kubeRbacProxyConfig := getGatewayKubeRbacProxyConfigSpec(instance)
+		if _, err := deploy.Sync(deployContext, &kubeRbacProxyConfig, configMapDiffOpts); err != nil {
+			return err
+		}
 	}
 
 	traefikConfig := getGatewayTraefikConfigSpec(instance)
@@ -415,10 +420,36 @@ client_secret = "%s"
 scope = "user:full"
 openshift_service_account = "%s"
 cookie_secret = "%s"
+cookie_expire = "24h0m0s"
 email_domains = "*"
 cookie_httponly = false
 pass_access_token = true
 skip_provider_button = true`, instance.Spec.Server.CheHost, instance.Spec.Auth.OAuthClientName, instance.Spec.Auth.OAuthSecret, GatewayServiceName, cookieSecret),
+		},
+	}
+}
+
+func getGatewayKubeRbacProxyConfigSpec(instance *orgv1.CheCluster) corev1.ConfigMap {
+	return corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: corev1.SchemeGroupVersion.String(),
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "che-gateway-config-kube-rbac-proxy",
+			Namespace: instance.Namespace,
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
+		},
+		Data: map[string]string{
+			"authorization-config.yaml": `
+authorization:
+  rewrites:
+    byQueryParameter:
+      name: "namespace"
+  resourceAttributes:
+    apiVersion: v1
+    resource: services
+    namespace: "{{ .Value }}"`,
 		},
 	}
 }
@@ -619,6 +650,13 @@ func getContainersSpec(instance *orgv1.CheCluster) []corev1.Container {
 					"--insecure-listen-address=127.0.0.1:8089",
 					"--upstream=http://127.0.0.1:8090/ping",
 					"--logtostderr=true",
+					"--config-file=/etc/kube-rbac-proxy/authorization-config.yaml",
+				},
+				VolumeMounts: []corev1.VolumeMount{
+					{
+						Name:      "kube-rbac-proxy-config",
+						MountPath: "/etc/kube-rbac-proxy",
+					},
 				},
 			})
 	}
@@ -685,6 +723,17 @@ func getVolumesSpec(instance *orgv1.CheCluster) []corev1.Volume {
 				ConfigMap: &corev1.ConfigMapVolumeSource{
 					LocalObjectReference: corev1.LocalObjectReference{
 						Name: "che-gateway-config-header-rewrite-traefik-plugin",
+					},
+				},
+			},
+		})
+
+		volumes = append(volumes, corev1.Volume{
+			Name: "kube-rbac-proxy-config",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: "che-gateway-config-kube-rbac-proxy",
 					},
 				},
 			},

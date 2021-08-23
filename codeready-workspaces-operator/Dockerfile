@@ -13,8 +13,7 @@
 FROM rhel8/go-toolset:1.15.14-3 as builder
 ENV GOPATH=/go/
 ENV RESTIC_TAG=v0.12.0
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
-ARG DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="7.36.x"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 USER root
 
@@ -46,10 +45,6 @@ RUN unzip /tmp/asset-devworkspace-operator.zip */deploy/deployment/* -d /tmp && 
     mkdir -p /tmp/devworkspace-operator/templates/ && \
     mv /tmp/devfile-devworkspace-operator-*/deploy /tmp/devworkspace-operator/templates/
 
-RUN unzip /tmp/asset-devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \
-    mkdir -p /tmp/devworkspace-che-operator/templates/ && \
-    mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
-
 RUN unzip /tmp/asset-header-rewrite-traefik-plugin.zip -d /tmp && \
     mkdir -p /tmp/header-rewrite-traefik-plugin && \
     mv /tmp/*-header-rewrite-traefik-plugin-*/headerRewrite.go /tmp/*-header-rewrite-traefik-plugin-*/.traefik.yml /tmp/header-rewrite-traefik-plugin
@@ -65,7 +60,6 @@ FROM ubi8-minimal:8.4-208
 COPY --from=builder /che-operator/che-operator /manager
 COPY --from=builder /che-operator/templates/*.sh /tmp/
 COPY --from=builder /tmp/devworkspace-operator/templates/deploy /tmp/devworkspace-operator/templates
-COPY --from=builder /tmp/devworkspace-che-operator/templates/deploy /tmp/devworkspace-che-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
 COPY --from=builder /tmp/restic/restic /usr/local/bin/restic
 COPY --from=builder /go/restic/LICENSE /usr/local/bin/restic-LICENSE.txt
