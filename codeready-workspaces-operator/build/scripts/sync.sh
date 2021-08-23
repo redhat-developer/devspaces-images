@@ -140,6 +140,8 @@ cp "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
 sed_in_place -r \
     -e "/.+upstream.+/d" \
     -e "/.+downstream.+/d" \
+    `# make go builds multiarch` \
+    -e 's@GOARCH=amd64@GOARCH=\${ARCH}@g' \
     `# remote curl lines that we'll do later with get-sources.sh` \
     -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
     -e 's@(go mod vendor) \&\& \\@\1@' \
@@ -160,6 +162,8 @@ sed_in_place -r \
     -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
     -e "/.+go mod vendor.+/d" \
     -e 's@(RUN mkdir -p \$GOPATH/restic \&\&) \\@\1 tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic@' \
+    `# make go builds multiarch` \
+    -e 's@GOARCH=amd64@GOARCH=\${ARCH}@g' \
     "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
