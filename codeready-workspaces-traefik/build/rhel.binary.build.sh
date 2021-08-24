@@ -34,6 +34,7 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
     '-b') MIDSTM_BRANCH="$2"; shift 1;;
+    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -55,7 +56,7 @@ tar czf "${tarball}" -C ./brew-assets .
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" "${tarball}"
+./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${tarball}"
 
 # cleanup
 podman rmi -f $TMP_IMG
