@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
-    createdAt: "2021-08-24T10:10:34+00:00"
+    createdAt: "2021-08-24T14:33:43+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1099,7 +1099,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMIK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b546baf431c5d54119b05603664ceb2b609a2c438ec62817bdec516946e4a06a
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMIK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:80c79558d9035148b61f77337433941cd5a0547beb5bcc1bc8b03f2bbc144cb9
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:de7a8d6c3e9fcf15a7b053c09d4f9857b3f8d746965cae3925404fc1d05be058
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:3c65233e75c35611b123bc54069c3f6d3dac7d08c19f05c572e12281ce6a70e2
                 - name: RELATED_IMAGE_devfile_registry
@@ -1507,7 +1507,7 @@ spec:
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmik
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b546baf431c5d54119b05603664ceb2b609a2c438ec62817bdec516946e4a06a
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmik
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:80c79558d9035148b61f77337433941cd5a0547beb5bcc1bc8b03f2bbc144cb9
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:de7a8d6c3e9fcf15a7b053c09d4f9857b3f8d746965cae3925404fc1d05be058
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:3c65233e75c35611b123bc54069c3f6d3dac7d08c19f05c572e12281ce6a70e2
   - name: devfile_registry
