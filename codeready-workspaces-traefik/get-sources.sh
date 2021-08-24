@@ -62,7 +62,7 @@ theTarGzs="$(curlWithToken https://api.github.com/repos/redhat-developer/coderea
 for theTarGz in ${theTarGzs}; do
 	log "[INFO] Download ${theTarGz} -> ${theTarGz##*/}"
 	# TODO can we check if we already have the identical file before re-downloading it? eg., store sha512sums as assets files?
-	if [[ ! -f ./${theTarGz##*/} ]] || [[ ${forcePull} -eq 1 ]]; then 
+	if [[ ! -f ./${theTarGz##*/} ]] || [[ ${pullAssets} -eq 1 ]]; then 
 		if [[ -f ./${theTarGz##*/} ]]; then rm -f ./${theTarGz##*/}; fi
 		curl -sSLo ./${theTarGz##*/} ${theTarGz}
 		outputFiles="${outputFiles} ${theTarGz##*/}"
@@ -70,11 +70,11 @@ for theTarGz in ${theTarGzs}; do
 done
 
 if [[ ${outputFiles} ]]; then
-	log "[INFO] Upload new sources:${outputFiles}"
+	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="Update from GH releases :: ${outputFiles}"
-	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
+	COMMIT_MSG="GH releases :: ${outputFiles}"
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
