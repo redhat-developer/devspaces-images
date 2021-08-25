@@ -32,7 +32,7 @@ command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1
 command -v skopeo >/dev/null 2>&1 || { echo "skopeo is not installed. Aborting."; exit 1; }
 checkVersion() {
   if [[  "$1" = "$(echo -e "$1\n$2" | sort -V | head -n1)" ]]; then
-    # echo "[INFO] $3 version $2 >= $1, can proceed."
+    # echo "    $3 version $2 >= $1, can proceed."
 	true
   else
     echo "[ERROR] Must install $3 version >= $1"
@@ -127,7 +127,7 @@ replaceField()
   updateName="$2"
   updateVal="$3"
   header="$4"
-  echo "[INFO] ${0##*/} rF :: * ${updateName}: ${updateVal}"
+  echo "    ${0##*/} rF :: * ${updateName}: ${updateVal}"
   # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
   if [[ $updateVal == "DELETEME" ]]; then
 	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})' "${theFile}")
@@ -145,8 +145,12 @@ replaceEnvVar()
 	field="$3"
 	# don't do anything if the existing value is the same as the replacement one
 	# shellcheck disable=SC2016 disable=SC2002 disable=SC2086
+	if [[ $(yq -r $field "${fileToChange}") == "null" ]]; then
+		echo "Error: could not find $field in $fileToChange"; exit 1
+	fi
+	# shellcheck disable=SC2016 disable=SC2002 disable=SC2086
 	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
-		echo "[INFO] ${0##*/} rEV :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
+		echo "    ${0##*/} rEV :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
 			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del('${field}'[]|select(.name == $updateName))')
 			echo "${header}${changed}" > "${fileToChange}.2"
@@ -244,17 +248,15 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		sed 's|"cheFlavor":.*|"cheFlavor": "codeready",|' -i "${CSVFILE}"
 	fi
 	if [[ $(diff -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
-		echo "[INFO] ${0##*/} :: Converted (sed) ${CSVFILE}"
+		echo "    ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
-
-	##### update the first container yaml
 
 	# yq changes - transform env vars from Che to CRW values
 	changed="$(yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"' "${CSVFILE}")" && \
 		echo "${changed}" > "${CSVFILE}"
 	if [[ $(diff -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
-		echo "[INFO] ${0##*/} :: Converted (yq #1) ${CSVFILE}:"
-		echo -n "[INFO] ${0##*/} ::  * .spec.displayName: "
+		echo "    ${0##*/} :: Converted (yq #1) ${CSVFILE}:"
+		echo -n "    ${0##*/} ::  * .spec.displayName: "
 		yq '.spec.displayName' "${CSVFILE}" 2>/dev/null
 	fi
 
@@ -295,6 +297,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		updateVal="${operator_replacements[$updateName]}"
 		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
 	done
+	echo "Converted (yq #2) ${CSVFILE}"
 
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# insert keycloak image references for s390x and ppc64le
@@ -306,6 +309,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		updateVal="${operator_insertions[$updateName]}"
 		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
 	done
+	echo "Converted (yq #3) ${CSVFILE}"
 
 	# insert replaces: field
 	declare -A spec_insertions=(
@@ -316,29 +320,17 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		updateVal="${spec_insertions[$updateName]}"
 		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
-
-	##### update the second container yaml
-
-	declare -A operator_replacements2=(
-		["RELATED_IMAGE_gateway"]="${CRW_TRAEFIK_IMAGE}"
-		["RELATED_IMAGE_gateway_configurer"]="${CRW_CONFIGBUMP_IMAGE}"
-	)
-	for updateName in "${!operator_replacements2[@]}"; do
-		updateVal="${operator_replacements2[$updateName]}"
-		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[1].env'
-	done
+	echo "Converted (yq #4) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --crw-branch "${MIDSTM_BRANCH}"
 
-	# echo "[INFO] ${0##*/} :: Sort env var in ${CSVFILE}:"
-	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}.2"
-	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[1].env |= sort_by(.name)' "${CSVFILE}.2" > "${CSVFILE}"
-	echo "${COPYRIGHT}$(cat "${CSVFILE}")" > "${CSVFILE}.2"
-	mv "${CSVFILE}.2" "${CSVFILE}"
-
+	# echo "    ${0##*/} :: Sort env var in ${CSVFILE}:"
+	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}2"
+	echo "${COPYRIGHT}$(cat "${CSVFILE}2")" > "${CSVFILE}"
+	rm -f "${CSVFILE}2"
 	if [[ $(diff -q -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
-		echo "[INFO] ${0##*/} :: Converted + inserted (yq #2) ${CSVFILE}:"
+		echo "    ${0##*/} :: Inserted (yq #5) ${CSVFILE}:"
 		for updateName in "${!operator_replacements[@]}"; do
 			echo -n " * $updateName: "
 			# shellcheck disable=SC2016
