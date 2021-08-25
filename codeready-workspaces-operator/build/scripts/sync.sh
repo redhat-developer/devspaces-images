@@ -101,6 +101,7 @@ get-source*.sh
 tests/basic-test.yaml
 sources
 make-release.sh
+build/scripts/insert-related-images-to-csv.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
