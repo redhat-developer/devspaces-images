@@ -103,7 +103,7 @@ while IFS= read -r -d '' d; do
 			-e 's#(githubusercontent|github).com/eclipse-che/codeready-operator#\1.com/eclipse-che/che-operator#g' \
 			-e 's|devworkspace-codeready-operator|devworkspace-che-operator|'
 		if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
-			echo "Converted (sed) ${d}"
+			echo "    ${0##*/} :: Converted (sed) ${d}"
 		fi
 	fi
 done <   <(find bundle config pkg/deploy api controllers -type f -not -name "defaults_test.go" -print0)
@@ -117,7 +117,7 @@ while IFS= read -r -d '' d; do
 		-e 's|"che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}/${CRW_OPERATOR}:${CRW_VERSION}'":  "'${CRW_OPERATOR}:${CRW_VERSION}'"|' \
 	"$d" > "${TARGETDIR}/${d}"
 	if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
-		echo "Converted (sed) ${d}"
+		echo "    ${0##*/} :: Converted (sed) ${d}"
 	fi
 done <   <(find pkg/deploy -type f -name "defaults_test.go" -print0)
 
@@ -140,7 +140,7 @@ replaceField()
   updateName="$2"
   updateVal="$3"
   header="$4"
-  echo "[INFO] ${0##*/} rF :: * ${updateName}: ${updateVal}"
+  echo "    ${0##*/} rF :: * ${updateName}: ${updateVal}"
   # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
   if [[ $updateVal == "DELETEME" ]]; then
 	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})' "${theFile}")
@@ -161,8 +161,9 @@ replaceEnvVarOperatorYaml()
 	if [[ $(yq -r $field "${fileToChange}") == "null" ]]; then
 		echo "Error: could not find $field in $fileToChange"; exit 1
 	fi
+	# shellcheck disable=SC2016 disable=SC2002 disable=SC2086
 	if [[ "$(cat "${fileToChange}" | yq -r --arg updateName "${updateName}" ${field}'[] | select(.name == $updateName).value')" != "${updateVal}" ]]; then
-		echo "[INFO] ${0##*/} rEVOY :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
+		echo "    ${0##*/} rEVOY :: ${fileToChange##*/} :: ${updateName}: ${updateVal}"
 		if [[ $updateVal == "DELETEME" ]]; then
 			changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" 'del('${field}'[]|select(.name == $updateName))')
 			echo "${header}${changed}" > "${fileToChange}.2"
@@ -174,7 +175,7 @@ ${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal)
 			#  echo "replaced?"
 			#  diff -u "${fileToChange}" "${fileToChange}.2" || true
 			if [[ ! $(diff -u "${fileToChange}" "${fileToChange}.2") ]]; then
-			echo "[INFO] >> insert $updateName = $updateVal"
+			echo "    >> insert $updateName = $updateVal"
 			 changed=$(cat "${fileToChange}" | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
 				${field}' += [{"name": $updateName, "value": $updateVal}]')
 			echo "${header}${changed}" > "${fileToChange}.2"
@@ -252,6 +253,7 @@ echo "Converted (yq #3) ${OPERATOR_DEPLOYMENT_YAML}"
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # yq changes - transform env vars from Che to CRW values
 CR_YAML="config/samples/org.eclipse.che_v1_checluster.yaml"
+#shellcheck disable=2002
 changed="$(cat "${TARGETDIR}/${CR_YAML}" | \
 yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
 yq  -y '.spec.server.cheFlavor="codeready"' | \
