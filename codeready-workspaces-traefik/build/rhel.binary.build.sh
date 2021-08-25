@@ -40,17 +40,32 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
+PODMAN=$(command -v podman || true)
+if [[ ! -x $PODMAN ]]; then
+  echo "[WARNING] podman is not installed."
+ PODMAN=$(command -v docker || true)
+  if [[ ! -x $PODMAN ]]; then
+    echo "[ERROR] docker is not installed. Aborting."; exit 1
+  fi
+fi
+
+# shellcheck disable=SC2155
+export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
+cd "$SCRIPT_DIR"
+[[ -e target ]] && rm -Rf target
+
 # build the image
 export TMP_IMG="traefik.tmp"
-podman build -t $TMP_IMG -f build/rhel.binary.Dockerfile .
+${PODMAN} build -t $TMP_IMG -f build/rhel.binary.Dockerfile .
 
 # extract the binary
-mkdir -p brew-assets
-podman run --rm -v ./brew-assets:/brew-assets $TMP_IMG sh -c "cp /go/src/github.com/traefik/traefik/dist/traefik /brew-assets"
+mkdir -p target/brew-assets
+${PODMAN} run --rm -v target/brew-assets:/tmp/brew-assets -u root $TMP_IMG sh \
+  -c "cp /go/src/github.com/traefik/traefik/dist/traefik /tmp/brew-assets"
 
 # tar the binary
 tarball="asset-traefik-$(uname -m).tar.gz"
-tar czf "${tarball}" -C ./brew-assets .
+tar -czf "${tarball}" -C target/brew-assets .
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
@@ -60,3 +75,4 @@ fi
 
 # cleanup
 podman rmi -f $TMP_IMG
+rm -fr target/brew-assets
