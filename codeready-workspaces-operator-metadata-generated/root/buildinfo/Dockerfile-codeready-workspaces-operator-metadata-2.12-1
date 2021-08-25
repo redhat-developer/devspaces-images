@@ -39,9 +39,9 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       name="$PRODNAME/$COMPNAME" \
       version="2.12" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
+      maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
 
-ADD codeready-workspaces-rhel8-operator-metadata-container-2.11-2.json /root/buildinfo/content_manifests/codeready-workspaces-rhel8-operator-metadata-container-2.11-2.json
-LABEL "release"="2" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-08-04T12:52:59.803208" "architecture"="ppc64le" "vcs-type"="git" "vcs-ref"="2af609273b5d7368db8283ef1a99ca814fb83fb7" "com.redhat.build-host"="ppc64le-c1-vm-02.prod.osbs.eng.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-metadata/images/2.11-2"
+ADD codeready-workspaces-rhel8-operator-metadata-container-2.12-1.json /root/buildinfo/content_manifests/codeready-workspaces-rhel8-operator-metadata-container-2.12-1.json
+LABEL "release"="1" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-08-25T18:06:43.683333" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="85e7d6d023bfd5c9c777bde12b6d6b6411d16d02" "com.redhat.build-host"="cpt-1001.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-metadata/images/2.12-1"
