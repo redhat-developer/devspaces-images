@@ -121,7 +121,6 @@ bundle/stable/eclipse-che-preview-openshift/generated
 testbin/setup-envtest.sh
 
 .DS_Store
-/asset-devworkspace-che-operator.zip
 /asset-devworkspace-operator.zip
 /asset-header-rewrite-traefik-plugin.zip
 /asset-restic.tgz
