@@ -56,7 +56,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	# update tarballs - step 2 - check old sources' tarballs
 	TARGZs="resources.tgz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
-	rhpkg sources
+	rhpkg sources || true
 
 	# update tarballs - step 3 - create new tarballs 
 	RESOURCES_TAR=$(mktemp --suffix=.tar.gz)
