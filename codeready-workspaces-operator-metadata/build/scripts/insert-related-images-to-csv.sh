@@ -46,7 +46,7 @@ PLUGIN_REGISTRY_CONTAINERS=""
 DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # check out crw sources
-    echo "[INFO] ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/codeready-workspaces/dependencies/"
+    echo "    ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/codeready-workspaces/dependencies/"
     rm -fr crw && git clone -q https://github.com/redhat-developer/codeready-workspaces crw
     cd crw/
     git checkout ${MIDSTM_BRANCH} || true
@@ -75,7 +75,7 @@ IFS=$'\n' PLUGIN_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset
 # same method used in both insert-related-images-to-csv.sh and sync-che-olm-to-crw-olm.sh
 insertEnvVar()
 {
-  echo "[INFO] ${0##*/} :: * ${updateName}: ${updateVal}"
+  echo "    ${0##*/} :: * ${updateName}: ${updateVal}"
   cat $CSVFILE | yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" \
     '.spec.install.spec.deployments[].spec.template.spec.containers[0].env += [{"name": $updateName, "value": $updateVal}]' \
     > ${CSVFILE}.2; mv ${CSVFILE}.2 ${CSVFILE}
