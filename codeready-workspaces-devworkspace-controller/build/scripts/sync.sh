@@ -51,8 +51,9 @@ done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
-DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
-DWPC_IMAGE="registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:${DWO_TAG}"
+DWO_IMAGE="registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:${CRW_VERSION}"
+# TODO CRW-2167 project-clone image remain at :0.8? We don't have one in CRW 2.11 so can only use upstream (if it's compatible w/ 0.9.x branch)
+DWPC_IMAGE="registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:${DWO_TAG}" 
 CRW_MACHINEEXEC_IMAGE="registry.redhat.io/codeready-workspaces/machineexec-rhel8:${CRW_VERSION}"
 
 # step one - build the builder image
