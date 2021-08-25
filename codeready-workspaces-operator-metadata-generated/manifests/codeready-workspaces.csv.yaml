@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
-    createdAt: "2021-08-25T07:27:39+00:00"
+    createdAt: "2021-08-25T10:43:54+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1097,9 +1097,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMIK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:bb7f7ef0ce58695aaf29b3355dd9ee187a94d1d382f68f329f9664ca01772ba2
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMIK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:6974608b71628a112d97f03881724a8ab2fb2881d06026cc73bcbb9468954255
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:7d84a115f919d6334655779e5c074e2b830fb75553ec9809cba52aca84d84842
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMIK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:e71249c4e0b4933644491335a41a3ae3c087bb290ed7c276e43cc304702cdaa6
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:34d95a9c9bd82be4d37d7034aa36e95bb6a386376e8b98cb4f3fabf911488bc9
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:3c65233e75c35611b123bc54069c3f6d3dac7d08c19f05c572e12281ce6a70e2
                 - name: RELATED_IMAGE_devfile_registry
@@ -1505,9 +1505,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmik
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:bb7f7ef0ce58695aaf29b3355dd9ee187a94d1d382f68f329f9664ca01772ba2
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmik
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:6974608b71628a112d97f03881724a8ab2fb2881d06026cc73bcbb9468954255
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:7d84a115f919d6334655779e5c074e2b830fb75553ec9809cba52aca84d84842
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmik
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:e71249c4e0b4933644491335a41a3ae3c087bb290ed7c276e43cc304702cdaa6
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:34d95a9c9bd82be4d37d7034aa36e95bb6a386376e8b98cb4f3fabf911488bc9
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:3c65233e75c35611b123bc54069c3f6d3dac7d08c19f05c572e12281ce6a70e2
   - name: devfile_registry
