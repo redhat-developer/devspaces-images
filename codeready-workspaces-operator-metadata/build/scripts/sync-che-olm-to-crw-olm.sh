@@ -22,6 +22,7 @@ CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
+# TODO https://issues.redhat.com/browse/CRW-2167 switch to DWO 0.9
 DWO_TAG=0.8
 SSO_TAG=7.4
 UBI_TAG=8.4
@@ -97,8 +98,6 @@ CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
 # old image from 2.10: DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
 # new image from 2.11+:
 DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
-# TODO: remove CRW_DWCO_IMAGE in 2.12
-CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
@@ -269,8 +268,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
 		["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
-        # TODO: remove CRW_DWCO_IMAGE in 2.12
-		["RELATED_IMAGE_devworkspace_che_operator"]="${CRW_DWCO_IMAGE}"
 		["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 		["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
 
@@ -331,8 +328,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[1].env'
 	done
 
-	# update second container image from quay.io/che-incubator/devworkspace-che-operator:ci to CRW_DWCO_IMAGE
-	replaceField "${CSVFILE}" '.spec.install.spec.deployments[].spec.template.spec.containers[1].image' "${CRW_DWCO_IMAGE}" "${COPYRIGHT}"
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --crw-branch "${MIDSTM_BRANCH}"
 

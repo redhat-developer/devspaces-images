@@ -22,8 +22,6 @@ UPSTM_NAME="operator"
 MIDSTM_NAME="operator"
 
 DEV_WORKSPACE_CONTROLLER_VERSION="" # main or 0.y.x
-# TODO remove DWCO when it's no longer needed (merged into che-operator)
-DEV_WORKSPACE_CHE_OPERATOR_VERSION="" # main or 7.yy.x 
 DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 
 usage () {
@@ -42,7 +40,6 @@ while [[ "$#" -gt 0 ]]; do
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
-    '--dwcob'|'--dwcov') DEV_WORKSPACE_CHE_OPERATOR_VERSION="$2"; shift 1;;
     '--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
@@ -53,17 +50,16 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
-# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION, DEV_WORKSPACE_CHE_OPERATOR_VERSION  and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
+# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
 # from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
 # shellcheck disable=SC2086
-if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]] || [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
+if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
     MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
     if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
     versionjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json")"
     if [[ $versionjson == *"404"* ]] || [[ $versionjson == *"Not Found"* ]]; then 
         echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION.json"
         echo "[ERROR] Please use --dwob flag to set DEV_WORKSPACE_CONTROLLER_VERSION"
-        echo "[ERROR] Please use --dwcob flag to set DEV_WORKSPACE_CHE_OPERATOR_VERSION"
         echo "[ERROR] Please use --hrtpb flag to set DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"
         exit 1
     fi
@@ -76,10 +72,6 @@ if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_
         DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace-controller"]["'${CRW_VERSION}'"][0]')"
         if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
     fi
-    if [[ -z "${DEV_WORKSPACE_CHE_OPERATOR_VERSION}" ]]; then
-        DEV_WORKSPACE_CHE_OPERATOR_VERSION="$(echo "$versionjson" | jq -r '.Jobs["devworkspace"]["'${CRW_VERSION}'"][0]')"
-        if [[ ${DEV_WORKSPACE_CHE_OPERATOR_VERSION} == "null" ]]; then DEV_WORKSPACE_CHE_OPERATOR_VERSION="main"; fi
-    fi
     if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
         DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$versionjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]["'${CRW_VERSION}'"]')"
         if [[ ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} == "null" ]]; then DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"; fi
@@ -87,7 +79,6 @@ if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_WORKSPACE_CHE_
 fi
 echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
 echo "[INFO]   DEV_WORKSPACE_CONTROLLER_VERSION   = ${DEV_WORKSPACE_CONTROLLER_VERSION}"
-echo "[INFO]   DEV_WORKSPACE_CHE_OPERATOR_VERSION = ${DEV_WORKSPACE_CHE_OPERATOR_VERSION}"
 echo "[INFO]   DEV_HEADER_REWRITE_TRAEFIK_PLUGIN  = ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 
 # ignore changes in these files
@@ -130,7 +121,6 @@ sed_in_place() {
 # fix versions in Dockerfile
 sed_in_place -r \
     -e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-    -e 's#DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
     -e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
     "${TARGETDIR}"/Dockerfile
 
@@ -190,7 +180,6 @@ echo "Converted Dockerfile"
 # shellcheck disable=SC2086
 sed_in_place -r \
   -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-  -e 's#^DEV_WORKSPACE_CHE_OPERATOR_VERSION="([^"]+)"#DEV_WORKSPACE_CHE_OPERATOR_VERSION="'${DEV_WORKSPACE_CHE_OPERATOR_VERSION}'"#' \
   "${TARGETDIR}"/get-sources.sh
 echo "Updated get-sources.sh"
 
