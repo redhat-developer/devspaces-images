@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.12
-    createdAt: "2021-08-26T09:53:44+00:00"
+    createdAt: "2021-08-26T22:45:53+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -815,18 +815,18 @@ spec:
                 - patch
                 - update
             - apiGroups:
-                - extensions
-              resources:
-                - ingresses
-              verbs:
-                - '*'
-            - apiGroups:
                 - monitoring.coreos.com
               resources:
                 - servicemonitors
               verbs:
                 - create
                 - get
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+              verbs:
+                - '*'
             - apiGroups:
                 - oauth.openshift.io
               resources:
