@@ -56,7 +56,7 @@ cd "$SCRIPT_DIR"
 
 # build the image
 export TMP_IMG="traefik.tmp"
-${PODMAN} build -t $TMP_IMG -f build/rhel.binary.Dockerfile .
+${PODMAN} build -t $TMP_IMG -f rhel.binary.Dockerfile .
 
 # extract the binary
 mkdir -p target/brew-assets
