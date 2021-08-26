@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.11":"0.9.x"]
-def JOB_DISABLED = ["2.11":false] // deprecated as of 2.11 - https://issues.redhat.com/browse/CRW-2158
+def JOB_DISABLED = ["2.11":true] // deprecated as of 2.11 - https://issues.redhat.com/browse/CRW-2158
 for (JB in JOB_BRANCHES) {
     SOURCE_BRANCH=JB.value
     JOB_BRANCH=""+JB.key

@@ -1,5 +1,5 @@
 def JOB_BRANCHES = ["2.11":"","2.x":""] // no upstream branches
-def JOB_DISABLED = ["2.11":false,"2.x":false] // special case - only run the 2.x job every week
+def JOB_DISABLED = ["2.11":true,"2.x":false] // special case - only run the 2.x job every week
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB.key
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
