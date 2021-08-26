@@ -16,14 +16,15 @@ set -e
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
+UPLOAD_TO_GH=1
 
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
 if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION]
-Example: $0 -v 2.y.0 
+Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
+Example: $0 -v 2.y.0 --noupload
 "
     exit
 }
@@ -35,6 +36,7 @@ while [[ "$#" -gt 0 ]]; do
     '-v') CSV_VERSION="$2"; shift 1;;
     '-b') MIDSTM_BRANCH="$2"; shift 1;;
     '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;;
+    '-n'|'--noupload') UPLOAD_TO_GH=0;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -50,13 +52,13 @@ if [[ ! -x $PODMAN ]]; then
 fi
 
 # shellcheck disable=SC2155
-export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
-cd "$SCRIPT_DIR"
+export RUN_DIR=$(cd "$(dirname "$0")"/.. || exit; pwd); # echo $RUN_DIR; exit
+cd "$RUN_DIR"
 [[ -e target ]] && rm -Rf target
 
 # build the image
 export TMP_IMG="traefik.tmp"
-${PODMAN} build -t $TMP_IMG -f rhel.binary.Dockerfile .
+${PODMAN} build -t $TMP_IMG -f build/rhel.binary.Dockerfile .
 
 # extract the binary
 mkdir -p target/brew-assets
@@ -67,12 +69,14 @@ ${PODMAN} run --rm -v target/brew-assets:/tmp/brew-assets -u root $TMP_IMG sh \
 tarball="asset-traefik-$(uname -m).tar.gz"
 tar -czf "${tarball}" -C target/brew-assets .
 
-# upload the binary to GH
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${tarball}"
+if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
+  # upload the binary to GH
+  if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+      curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+  fi
+  ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${tarball}"
 
-# cleanup
-podman rmi -f $TMP_IMG
-rm -fr target/brew-assets
+  # cleanup
+  podman rmi -f $TMP_IMG
+  rm -fr target/brew-assets
+fi
