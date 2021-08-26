@@ -62,8 +62,8 @@ ${PODMAN} build -t $TMP_IMG -f build/rhel.binary.Dockerfile .
 
 # extract the binary
 mkdir -p target/brew-assets
-${PODMAN} run --rm -v target/brew-assets:/tmp/brew-assets -u root $TMP_IMG sh \
-  -c "cp /go/src/github.com/traefik/traefik/dist/traefik /tmp/brew-assets"
+${PODMAN} run --rm -v "${RUN_DIR}"/target/brew-assets:/tmp/brew-assets -u root ${TMP_IMG} sh -c \
+  "cp /go/src/github.com/traefik/traefik/dist/traefik /tmp/brew-assets"
 
 # tar the binary
 tarball="asset-traefik-$(uname -m).tar.gz"
