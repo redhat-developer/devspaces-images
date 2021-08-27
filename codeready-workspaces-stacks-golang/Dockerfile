@@ -85,8 +85,8 @@ CMD ${HOME}/gopath.sh & tail -f /dev/null
 
 # insert generated LABELs below this line
 LABEL \
-			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1051/" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1051/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1051/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1051/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-ppc64le.tar.gz" \
-			jenkins.build.number="1051"
+			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1164/" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1164/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-x86_64.tar.gz" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1164/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-s390x.tar.gz" \
+			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1164/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-ppc64le.tar.gz" \
+			jenkins.build.number="1164"
