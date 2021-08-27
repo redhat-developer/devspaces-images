@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-static-server",
-  "version": "7.34.0-SNAPSHOT",
+  "version": "7.36.0-SNAPSHOT",
   "description": "Static server for Eclipse Che Dashboard",
   "private": true,
   "repository": {
