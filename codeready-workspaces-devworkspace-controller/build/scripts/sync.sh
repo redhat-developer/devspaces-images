@@ -51,8 +51,7 @@ done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
-DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
-DWPC_IMAGE="registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:${DWO_TAG}"
+DWO_IMAGE="registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:${CRW_VERSION}"
 CRW_MACHINEEXEC_IMAGE="registry.redhat.io/codeready-workspaces/machineexec-rhel8:${CRW_VERSION}"
 
 # step one - build the builder image
@@ -187,13 +186,10 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
     # transform env vars in deployment yaml
     # - name: RELATED_IMAGE_devworkspace_webhook_server                         DWO_IMAGE
     #   value: quay.io/devfile/devworkspace-controller:next
-    # - name: RELATED_IMAGE_project_clone                                       DWPC_IMAGE
-    #   value: quay.io/devfile/project-clone:v0.8.0
     # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0          CRW_MACHINEEXEC_IMAGE
     #   value: quay.io/eclipse/che-machine-exec:nightly
     declare -A operator_replacements=(
         ["RELATED_IMAGE_devworkspace_webhook_server"]="${DWO_IMAGE}"
-        ["RELATED_IMAGE_project_clone"]="${DWPC_IMAGE}"
         ["RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0"]="${CRW_MACHINEEXEC_IMAGE}"
     )
     while IFS= read -r -d '' d; do
@@ -219,12 +215,15 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
     #   value: quay.io/eclipse/che-workspace-data-sync-storage:0.0.1
     # - name: RELATED_IMAGE_async_storage_sidecar                           REMOVE
     #   value: quay.io/eclipse/che-sidecar-workspace-data-sync:0.0.1
+    # - name: RELATED_IMAGE_project_clone                                   REMOVE
+    #   value: quay.io/devfile/project-clone:v0.8.0
     declare -A operator_deletions=(
         ["RELATED_IMAGE_web_terminal_tooling"]=""
         ["RELATED_IMAGE_openshift_oauth_proxy"]=""
         ["RELATED_IMAGE_default_tls_secrets_creation_job"]=""
         ["RELATED_IMAGE_async_storage_server"]=""
         ["RELATED_IMAGE_async_storage_sidecar"]=""
+        ["RELATED_IMAGE_project_clone"]=""
     )
     while IFS= read -r -d '' d; do
         for updateName in "${!operator_deletions[@]}"; do

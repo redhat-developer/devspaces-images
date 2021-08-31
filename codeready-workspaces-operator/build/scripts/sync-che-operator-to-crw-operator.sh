@@ -17,7 +17,6 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-DWO_TAG=0.8
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
@@ -27,7 +26,6 @@ usage () {
 	echo "Example: ${0##*/} -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
 	echo "Options:
 	--crw-tag ${CRW_VERSION}
-	--dwo-tag ${DWO_TAG}
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
@@ -47,7 +45,6 @@ while [[ "$#" -gt 0 ]]; do
 	'--help'|'-h') usage;;
 	# optional tag overrides
 	'--crw-tag') CRW_VERSION="$2"; shift 1;;
-	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;;
@@ -65,9 +62,8 @@ CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSI
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
 CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
-# old image from 2.10: DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
-# new image from 2.11+:
-DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
+# old image to 2.11 (CRW-2167)
+DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
 # TODO: remove CRW_DWCO_IMAGE in 2.12
 CRW_DWCO_IMAGE="${CRW_RRIO}/devworkspace-rhel8:${CRW_VERSION}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
