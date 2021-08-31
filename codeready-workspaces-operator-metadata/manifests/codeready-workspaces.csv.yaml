@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.11
-    createdAt: "2021-08-26T14:41:56+00:00"
+    createdAt: "2021-08-31T16:55:58+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1116,7 +1116,7 @@ spec:
                       - name: RELATED_IMAGE_devworkspace_che_operator
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devworkspace-rhel8:2.11
                       - name: RELATED_IMAGE_devworkspace_controller
-                        value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devworkspace-controller-rhel8:2.11
                       - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                         value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7:7.4.0
                       - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
