@@ -48,13 +48,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_devworkspace_webhook_server
-              value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
+              value: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.11
             - name: RELATED_IMAGE_kube_rbac_proxy
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
             - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
               value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.11
-            - name: RELATED_IMAGE_project_clone
-              value: registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:0.8
             - name: RELATED_IMAGE_pvc_cleanup_job
               value: registry.access.redhat.com/ubi8-micro:8.4-81
             - name: WATCH_NAMESPACE
@@ -69,7 +67,7 @@ spec:
               value: 20Mi
             - name: WEBHOOK_SECRET_NAME
               value: devworkspace-webhookserver-tls
-          image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
+          image: registry.redhat.io/codeready-workspaces/devworkspace-controller-rhel8:2.11
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 5

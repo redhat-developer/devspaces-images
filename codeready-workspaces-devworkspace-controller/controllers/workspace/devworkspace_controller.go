@@ -21,7 +21,6 @@ import (
 
 	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/controllers/workspace/metrics"
-	"github.com/devfile/devworkspace-operator/controllers/workspace/provision"
 	"github.com/devfile/devworkspace-operator/pkg/common"
 	"github.com/devfile/devworkspace-operator/pkg/conditions"
 	"github.com/devfile/devworkspace-operator/pkg/config"
@@ -33,6 +32,7 @@ import (
 	"github.com/devfile/devworkspace-operator/pkg/library/projects"
 	"github.com/devfile/devworkspace-operator/pkg/provision/metadata"
 	"github.com/devfile/devworkspace-operator/pkg/provision/storage"
+	wsprovision "github.com/devfile/devworkspace-operator/pkg/provision/workspace"
 	"github.com/devfile/devworkspace-operator/pkg/timing"
 
 	"github.com/go-logr/logr"
@@ -46,6 +46,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -68,7 +69,7 @@ type DevWorkspaceReconciler struct {
 /////// Required permissions for controller
 // +kubebuilder:rbac:groups=apps;extensions,resources=deployments;replicasets,verbs=*
 // +kubebuilder:rbac:groups="",resources=pods;serviceaccounts;secrets;configmaps;persistentvolumeclaims,verbs=*
-// +kubebuilder:rbac:groups="",resources=namespaces,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=namespaces;events,verbs=get;list;watch
 // +kubebuilder:rbac:groups="batch",resources=jobs,verbs=get;create;list;watch;update;patch;delete
 // +kubebuilder:rbac:groups=admissionregistration.k8s.io,resources=mutatingwebhookconfigurations;validatingwebhookconfigurations,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=rbac.authorization.k8s.io,resources=roles;rolebindings;clusterroles;clusterrolebindings,verbs=get;list;watch;create;update
@@ -79,11 +80,12 @@ type DevWorkspaceReconciler struct {
 // +kubebuilder:rbac:groups="",resources=pods/exec,verbs=create
 // +kubebuilder:rbac:groups=apps;extensions,resources=replicasets,verbs=get;list;watch
 // +kubebuilder:rbac:groups=apps;extensions,resources=deployments,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=secrets,resourceNames=workspace-credentials-secret,verbs=get;create;delete
 
 func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ctrl.Result, err error) {
 	ctx := context.Background()
 	reqLogger := r.Log.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
-	clusterAPI := provision.ClusterAPI{
+	clusterAPI := wsprovision.ClusterAPI{
 		Client: r.Client,
 		Scheme: r.Scheme,
 		Logger: reqLogger,
@@ -254,14 +256,14 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 
 	timing.SetTime(timingInfo, timing.ComponentsReady)
 
-	rbacStatus := provision.SyncRBAC(workspace, r.Client, reqLogger)
+	rbacStatus := wsprovision.SyncRBAC(workspace, r.Client, reqLogger)
 	if rbacStatus.Err != nil || !rbacStatus.Continue {
 		return reconcile.Result{Requeue: true}, rbacStatus.Err
 	}
 
 	// Step two: Create routing, and wait for routing to be ready
 	timing.SetTime(timingInfo, timing.RoutingCreated)
-	routingStatus := provision.SyncRoutingToCluster(workspace, clusterAPI)
+	routingStatus := wsprovision.SyncRoutingToCluster(workspace, clusterAPI)
 	if !routingStatus.Continue {
 		if routingStatus.FailStartup {
 			return r.failWorkspace(workspace, routingStatus.Message, reqLogger, &reconcileStatus)
@@ -314,7 +316,7 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	if routingPodAdditions != nil {
 		saAnnotations = routingPodAdditions.ServiceAccountAnnotations
 	}
-	serviceAcctStatus := provision.SyncServiceAccount(workspace, saAnnotations, clusterAPI)
+	serviceAcctStatus := wsprovision.SyncServiceAccount(workspace, saAnnotations, clusterAPI)
 	if !serviceAcctStatus.Continue {
 		// FailStartup is not possible for generating the serviceaccount
 		reqLogger.Info("Waiting for workspace ServiceAccount")
@@ -324,7 +326,7 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	serviceAcctName := serviceAcctStatus.ServiceAccountName
 	reconcileStatus.setConditionTrue(dw.DevWorkspaceServiceAccountReady, "DevWorkspace serviceaccount ready")
 
-	pullSecretStatus := provision.PullSecrets(clusterAPI)
+	pullSecretStatus := wsprovision.PullSecrets(clusterAPI)
 	if !pullSecretStatus.Continue {
 		reconcileStatus.setConditionFalse(conditions.PullSecretsReady, "Waiting for DevWorkspace pull secrets")
 		return reconcile.Result{Requeue: pullSecretStatus.Requeue}, pullSecretStatus.Err
@@ -334,7 +336,7 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 
 	// Step six: Create deployment and wait for it to be ready
 	timing.SetTime(timingInfo, timing.DeploymentCreated)
-	deploymentStatus := provision.SyncDeploymentToCluster(workspace, allPodAdditions, serviceAcctName, clusterAPI)
+	deploymentStatus := wsprovision.SyncDeploymentToCluster(workspace, allPodAdditions, serviceAcctName, clusterAPI)
 	if !deploymentStatus.Continue {
 		if deploymentStatus.FailStartup {
 			return r.failWorkspace(workspace, deploymentStatus.Info(), reqLogger, &reconcileStatus)
@@ -406,7 +408,7 @@ func (r *DevWorkspaceReconciler) doStop(workspace *dw.DevWorkspace, logger logr.
 	replicas := workspaceDeployment.Spec.Replicas
 	if replicas == nil || *replicas > 0 {
 		logger.Info("Stopping workspace")
-		err = provision.ScaleDeploymentToZero(workspace, r.Client)
+		err = wsprovision.ScaleDeploymentToZero(workspace, r.Client)
 		if err != nil && !k8sErrors.IsConflict(err) {
 			return false, err
 		}
@@ -493,6 +495,12 @@ func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
+	var emptyMapper handler.ToRequestsFunc = func(obj handler.MapObject) []reconcile.Request {
+		return []reconcile.Request{}
+	}
+
+	var configMapWatcher builder.WatchesOption = builder.WithPredicates(config.ConfigMapPredicates(mgr))
+
 	// TODO: Set up indexing https://book.kubebuilder.io/cronjob-tutorial/controller-implementation.html#setup
 	return ctrl.NewControllerManagedBy(mgr).
 		WithOptions(controller.Options{MaxConcurrentReconciles: maxConcurrentReconciles}).
@@ -505,6 +513,9 @@ func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&batchv1.Job{}).
 		Owns(&controllerv1alpha1.DevWorkspaceRouting{}).
 		Watches(&source.Kind{Type: &corev1.Pod{}}, dwRelatedPodsHandler()).
+		Watches(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestsFromMapFunc{
+			ToRequests: emptyMapper,
+		}, configMapWatcher).
 		WithEventFilter(predicates).
 		WithEventFilter(podPredicates).
 		Complete(r)

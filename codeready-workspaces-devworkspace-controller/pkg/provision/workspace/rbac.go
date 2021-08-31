@@ -10,7 +10,7 @@
 //   Red Hat, Inc. - initial API and implementation
 //
 
-package provision
+package workspace
 
 import (
 	dw "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
@@ -55,6 +55,12 @@ func generateRBAC(namespace string) []runtime.Object {
 					Resources: []string{"deployments", "replicasets"},
 					APIGroups: []string{"apps", "extensions"},
 					Verbs:     []string{"get", "list", "watch"},
+				},
+				{
+					Resources:     []string{"secrets"},
+					APIGroups:     []string{""},
+					Verbs:         []string{"get", "create", "delete"},
+					ResourceNames: []string{"workspace-credentials-secret"},
 				},
 				{
 					Resources: []string{"devworkspaces"},
