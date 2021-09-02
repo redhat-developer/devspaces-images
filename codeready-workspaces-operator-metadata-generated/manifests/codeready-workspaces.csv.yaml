@@ -79,8 +79,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
-    createdAt: "2021-08-31T16:55:58+00:00"
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a41f7b950c5131a6bc08b1e094db2da9b784e6083ddaa4aa68512f3947798702
+    createdAt: "2021-09-02T14:36:51+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -101,7 +101,7 @@ spec:
       specDescriptors:
       - description: Deploys the DevWorkspace Operator in the cluster. Does nothing when a matching version of the Operator is already installed. Fails when a non-matching version of the Operator is already
           installed.
-        displayName: Enable Dev Workspace operator
+        displayName: Enable DevWorkspace operator (Technology Preview)
         path: devWorkspace.enable
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
@@ -645,6 +645,7 @@ spec:
         - apiGroups:
           - ""
           resources:
+          - events
           - namespaces
           verbs:
           - get
@@ -656,6 +657,16 @@ spec:
           - pods/exec
           verbs:
           - create
+        - apiGroups:
+          - ""
+          resourceNames:
+          - workspace-credentials-secret
+          resources:
+          - secrets
+          verbs:
+          - create
+          - delete
+          - get
         - apiGroups:
           - ""
           resources:
@@ -754,6 +765,12 @@ spec:
           verbs:
           - create
           - get
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - ingresses
+          verbs:
+          - '*'
         - apiGroups:
           - oauth.openshift.io
           resources:
@@ -1142,7 +1159,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a41f7b950c5131a6bc08b1e094db2da9b784e6083ddaa4aa68512f3947798702
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1436,10 +1453,10 @@ spec:
   version: 2.11.0
   replaces: crwoperator.v2.10.1
   relatedImages:
-  - name: crw-2-rhel8-operator-958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
+  - name: crw-2-rhel8-operator-a41f7b950c5131a6bc08b1e094db2da9b784e6083ddaa4aa68512f3947798702-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a41f7b950c5131a6bc08b1e094db2da9b784e6083ddaa4aa68512f3947798702
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:958f31c658eecddb09594d9b0aa61ffc750ba12d2d70646662927bbdd83f434e
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a41f7b950c5131a6bc08b1e094db2da9b784e6083ddaa4aa68512f3947798702
   - name: devworkspace-che-operator
     image: registry.redhat.io/codeready-workspaces/devworkspace-rhel8@sha256:c18f166f570ca572c94472b7a3bd5127b48521e777ea09dcad6f78ad66cd7a13
   - name: che_server
