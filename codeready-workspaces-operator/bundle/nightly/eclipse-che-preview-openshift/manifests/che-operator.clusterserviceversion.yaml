@@ -99,7 +99,7 @@ spec:
           - description: Deploys the DevWorkspace Operator in the cluster. Does nothing
               when a matching version of the Operator is already installed. Fails
               when a non-matching version of the Operator is already installed.
-            displayName: Enable Dev Workspace operator
+            displayName: Enable DevWorkspace operator (Technology Preview)
             path: devWorkspace.enable
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
@@ -649,6 +649,7 @@ spec:
             - apiGroups:
                 - ""
               resources:
+                - events
                 - namespaces
               verbs:
                 - get
@@ -660,6 +661,16 @@ spec:
                 - pods/exec
               verbs:
                 - create
+            - apiGroups:
+                - ""
+              resourceNames:
+                - workspace-credentials-secret
+              resources:
+                - secrets
+              verbs:
+                - create
+                - delete
+                - get
             - apiGroups:
                 - ""
               resources:
@@ -758,6 +769,12 @@ spec:
               verbs:
                 - create
                 - get
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+              verbs:
+                - '*'
             - apiGroups:
                 - oauth.openshift.io
               resources:
