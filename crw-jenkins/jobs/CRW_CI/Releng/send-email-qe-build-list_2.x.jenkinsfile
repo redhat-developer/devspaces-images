@@ -175,7 +175,7 @@ Brew NVRs (for use in ''' + errataURL + '''):
 ''' + NEW_NVR_L
 
                     IIB_INFO = sh (
-                        script: 'curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -3 | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#  #"',
+                        script: 'curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -4 | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#  #"',
                         returnStdout: true
                     ).trim()
 
@@ -183,7 +183,7 @@ Brew NVRs (for use in ''' + errataURL + '''):
 Bundle Image, Index Image, OCP Version:
   ''' + IIB_INFO + '''
 
-(queried with: curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -3 )
+(queried with: curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -4 )
 '''
 
                     mailBody = mailBody + '''
