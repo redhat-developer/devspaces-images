@@ -30,6 +30,9 @@ operator_manifests:
     - registry: registry.redhat.io
       package_mappings:
         codeready-workspaces-operator-package: codeready-workspaces/crw-2-rhel8-operator
+        # TODO: CRW-2167 remove this when we fully depend on DWO 0.9 in CRW 2.12 (not CRW's devworkspace-controller-rhel8 image)
+        codeready-workspaces-devworkspace-controller-rhel8-container: codeready-workspaces/devworkspace-controller-rhel8
+        # TODO: CRW-2167 use devworkspace-operator 0.9 in CRW 2.12
         devworkspace-operator-container: devworkspace/devworkspace-rhel8-operator
         jboss-eap-xp3-openj9-11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8
         jboss-eap-xp3-openjdk11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
