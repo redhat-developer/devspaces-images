@@ -56,6 +56,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private lastDevWorkspaceLog: Map<string, string>;
   private devWorkspacesIds: string[];
   private pluginRegistryUrlEnvName: string;
+  private pluginRegistryInternalUrlEnvName: string;
   private dashboardUrlEnvName: string;
 
   constructor(@inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService) {
@@ -70,6 +71,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     this.lastDevWorkspaceLog = new Map();
     this.devWorkspacesIds = [];
     this.pluginRegistryUrlEnvName = 'CHE_PLUGIN_REGISTRY_URL';
+    this.pluginRegistryInternalUrlEnvName = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
   }
 
@@ -110,7 +112,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
   async create(devfile: IDevWorkspaceDevfile, pluginsDevfile: IDevWorkspaceDevfile[], pluginRegistryUrl: string | undefined, optionalFilesContent: {
     [fileName: string]: string
-  },): Promise<IDevWorkspace> {
+  },
+  pluginRegistryInternalUrl: string | undefined,
+  ): Promise<IDevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
     }
@@ -202,7 +206,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
             }, {
               name: this.pluginRegistryUrlEnvName,
               value: pluginRegistryUrl || ''
-            }]);
+            }
+            , {
+              name: this.pluginRegistryInternalUrlEnvName,
+              value: pluginRegistryInternalUrl || ''
+            }
+          ]);
           }
         }
       }

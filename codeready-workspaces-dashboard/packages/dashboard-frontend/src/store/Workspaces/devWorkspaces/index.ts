@@ -120,6 +120,7 @@ export type ActionCreators = {
     [fileName: string]: string
   },
     pluginRegistryUrl: string | undefined,
+    pluginRegistryInternalUrl: string | undefined,
   ) => AppThunk<KnownAction, Promise<IDevWorkspace>>;
 
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
@@ -332,6 +333,7 @@ export const actionCreators: ActionCreators = {
     [fileName: string]: string
   },
     pluginRegistryUrl: string | undefined,
+    pluginRegistryInternalUrl: string | undefined,
   ): AppThunk<KnownAction, Promise<IDevWorkspace>> => async (dispatch, getState): Promise<IDevWorkspace> => {
 
     const state = getState();
@@ -351,7 +353,7 @@ export const actionCreators: ActionCreators = {
       }
 
       const dwPlugins = selectDwPluginsList(state);
-      const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, dwPlugins, pluginRegistryUrl, optionalFilesContent);
+      const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, dwPlugins, pluginRegistryUrl, optionalFilesContent, pluginRegistryInternalUrl);
 
       dispatch({
         type: 'ADD_DEVWORKSPACE',
