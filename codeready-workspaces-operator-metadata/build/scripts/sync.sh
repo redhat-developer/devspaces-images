@@ -21,7 +21,7 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator-metadata"
 
-CSV_VERSION_PREV=""
+CSV_VERSION_PREV="2.10.1"
 
 usage () {
     echo "
