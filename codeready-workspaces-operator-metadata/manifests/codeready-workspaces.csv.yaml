@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.12
-    createdAt: "2021-09-02T16:24:12+00:00"
+    createdAt: "2021-09-10T13:31:46+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -97,18 +97,9 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-      - displayName: CodeReady Workspaces Cluster Backup Server Configuration
-        kind: CheBackupServerConfiguration
-        name: chebackupserverconfigurations.org.eclipse.che
-        version: v1
-      - displayName: CodeReady Workspaces Cluster Backup
-        kind: CheClusterBackup
-        name: checlusterbackups.org.eclipse.che
-        version: v1
-      - kind: CheClusterRestore
-        name: checlusterrestores.org.eclipse.che
-        version: v1
-      - displayName: CodeReady Workspaces Cluster
+      - description: The `CheCluster` custom resource allows defining and managing
+          a Che server installation
+        displayName: CodeReady Workspaces instance Specification
         kind: CheCluster
         name: checlusters.org.eclipse.che
         specDescriptors:
@@ -177,6 +168,24 @@ spec:
             path: reason
             x-descriptors:
               - urn:alm:descriptor:text
+        version: v1
+      - description: The `CheBackupServerConfiguration` custom resource allows defining
+          and managing CodeReady Workspaces Backup Server Configurations
+        displayName: CodeReady Workspaces Backup Server
+        kind: CheBackupServerConfiguration
+        name: chebackupserverconfigurations.org.eclipse.che
+        version: v1
+      - description: The `CheClusterBackup` custom resource allows defining and managing
+          CodeReady Workspaces backup
+        displayName: CodeReady Workspaces instance Backup Specification
+        kind: CheClusterBackup
+        name: checlusterbackups.org.eclipse.che
+        version: v1
+      - description: The `CheClusterRestore` custom resource allows defining and managing
+          CodeReady Workspaces restore
+        displayName: CodeReady Workspaces instance Restore Specification
+        kind: CheClusterRestore
+        name: checlusterrestores.org.eclipse.che
         version: v1
   description: |
     A collaborative Kubernetes-native development solution that delivers Kubernetes workspaces and in-browser IDE for rapid cloud application development.
@@ -1338,4 +1347,4 @@ spec:
   provider:
     name: Red Hat
   version: 2.12.0
-  replaces: crwoperator.v2.11.0
+  replaces: crwoperator.v2.10.1
