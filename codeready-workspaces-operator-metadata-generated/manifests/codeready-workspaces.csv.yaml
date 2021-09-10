@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:6b43503cc5afb02dabfc8432c2af006ba50e09d01835d904391004527f1bd22a
-    createdAt: "2021-08-31T22:16:25+00:00"
+    createdAt: "2021-09-10T13:31:46+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -95,24 +95,14 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - displayName: CodeReady Workspaces Cluster Backup Server Configuration
-      kind: CheBackupServerConfiguration
-      name: chebackupserverconfigurations.org.eclipse.che
-      version: v1
-    - displayName: CodeReady Workspaces Cluster Backup
-      kind: CheClusterBackup
-      name: checlusterbackups.org.eclipse.che
-      version: v1
-    - kind: CheClusterRestore
-      name: checlusterrestores.org.eclipse.che
-      version: v1
-    - displayName: CodeReady Workspaces Cluster
+    - description: The `CheCluster` custom resource allows defining and managing a Che server installation
+      displayName: CodeReady Workspaces instance Specification
       kind: CheCluster
       name: checlusters.org.eclipse.che
       specDescriptors:
       - description: Deploys the DevWorkspace Operator in the cluster. Does nothing when a matching version of the Operator is already installed. Fails when a non-matching version of the Operator is already
           installed.
-        displayName: Enable Dev Workspace operator
+        displayName: Enable DevWorkspace operator (Technology Preview)
         path: devWorkspace.enable
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
@@ -167,6 +157,21 @@ spec:
         path: reason
         x-descriptors:
         - urn:alm:descriptor:text
+      version: v1
+    - description: The `CheBackupServerConfiguration` custom resource allows defining and managing CodeReady Workspaces Backup Server Configurations
+      displayName: CodeReady Workspaces Backup Server
+      kind: CheBackupServerConfiguration
+      name: chebackupserverconfigurations.org.eclipse.che
+      version: v1
+    - description: The `CheClusterBackup` custom resource allows defining and managing CodeReady Workspaces backup
+      displayName: CodeReady Workspaces instance Backup Specification
+      kind: CheClusterBackup
+      name: checlusterbackups.org.eclipse.che
+      version: v1
+    - description: The `CheClusterRestore` custom resource allows defining and managing CodeReady Workspaces restore
+      displayName: CodeReady Workspaces instance Restore Specification
+      kind: CheClusterRestore
+      name: checlusterrestores.org.eclipse.che
       version: v1
   description: |
     A collaborative Kubernetes-native development solution that delivers Kubernetes workspaces and in-browser IDE for rapid cloud application development.
@@ -805,6 +810,14 @@ spec:
           - patch
           - update
         - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - create
+          - get
+          - update
+        - apiGroups:
           - monitoring.coreos.com
           resources:
           - servicemonitors
@@ -995,9 +1008,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMQK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:0132c746a1a8aff74c4b2cb770ea0b01ac7ededd26b66ca4ad62652f03610a46
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:0136d4cc4b2cbf5fc386c4c5ef972f8613957496139bbe808408841d3ef54dff
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:5f661c8903a44209e5d8d20966d9bfac88bfedcb84075ca5c72636b852670858
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:b4a341e810c163ba820e83fe1b6d98b86eda825fafe44d2e5af78057d0abcaae
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:1174cbdc0719e155b5a218e571a015ce3e02a5e6425e00c0d70dc39a283af996
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:3b420c3f39218c24c78cf4fca696ae3c3db729b4101945edc3973fdffbe050c6
                 - name: RELATED_IMAGE_devfile_registry
@@ -1320,7 +1333,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.12.0
-  replaces: crwoperator.v2.11.0
+  replaces: crwoperator.v2.10.1
   relatedImages:
   - name: crw-2-rhel8-operator-6b43503cc5afb02dabfc8432c2af006ba50e09d01835d904391004527f1bd22a-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:6b43503cc5afb02dabfc8432c2af006ba50e09d01835d904391004527f1bd22a
@@ -1389,9 +1402,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmqk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:0132c746a1a8aff74c4b2cb770ea0b01ac7ededd26b66ca4ad62652f03610a46
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:0136d4cc4b2cbf5fc386c4c5ef972f8613957496139bbe808408841d3ef54dff
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:5f661c8903a44209e5d8d20966d9bfac88bfedcb84075ca5c72636b852670858
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:b4a341e810c163ba820e83fe1b6d98b86eda825fafe44d2e5af78057d0abcaae
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:1174cbdc0719e155b5a218e571a015ce3e02a5e6425e00c0d70dc39a283af996
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:3b420c3f39218c24c78cf4fca696ae3c3db729b4101945edc3973fdffbe050c6
   - name: devfile_registry
