@@ -192,7 +192,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperator.v${CSV_VERSION}|g" \
+		-e "s|name: .+preview-openshift.v.+|name: crwoperator.v${CSV_VERSION}-all-namespaces|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -257,6 +257,12 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
     yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "${CSVFILE}"
     yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "${CSVFILE}"
 
+	# Enable by default devWorkspace engine in `tech-preview-latest-all-namespaces`
+	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations[\"alm-examples\"] | \
+			fromjson | \
+			( .[] | select(.kind == \"CheCluster\") | .spec.devWorkspace.enable) |= true" ${CSVFILE} |  sed -r 's/"/\\"/g')
+    yq -riY ".metadata.annotations[\"alm-examples\"] = \"${CSV_CR_SAMPLES}\"" ${CSVFILE}
+
 	# yq changes - transform env vars from Che to CRW values
 	changed="$(yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"' "${CSVFILE}")" && \
 		echo "${changed}" > "${CSVFILE}"
@@ -319,8 +325,9 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
-		[".spec.version"]="${CSV_VERSION}"
+		# We don't have replaces in the first version of CSV. When we release for the second time the tech-preview we need to uncomment this line!!
+		#[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}-all-namespaces"
+		[".spec.version"]="${CSV_VERSION}-all-namespaces"
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"

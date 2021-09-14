@@ -251,6 +251,11 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		echo "    ${0##*/} :: Converted (sed) ${CSVFILE}"
 	fi
 
+	# Disable by default devWorkspace engine in `latest` channel
+	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations.\"alm-examples\"" "${CSVFILE}" | yq -r ".[0] | del(.spec.devWorkspace) | [.]"  | sed -r 's/"/\\"/g')
+	yq -riY ".metadata.annotations[\"alm-examples\"] = \"${CSV_CR_SAMPLES}\"" ${CSVFILE}
+    yq -Yi '.spec.customresourcedefinitions.owned[] |= (select(.name == "checlusters.org.eclipse.che").specDescriptors += [{"path":"devWorkspace", "x-descriptors": ["urn:alm:descriptor:com.tectonic.ui:hidden"]}])' "${CSVFILE}"
+
 	# yq changes - transform env vars from Che to CRW values
 	changed="$(yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"' "${CSVFILE}")" && \
 		echo "${changed}" > "${CSVFILE}"

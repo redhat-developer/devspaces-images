@@ -45,7 +45,7 @@ metadata:
               "externalDb": false
             },
             "devWorkspace": {
-              "enable": false
+              "enable": true
             },
             "metrics": {
               "enable": true
@@ -91,7 +91,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperator.v2.11.0
+  name: crwoperator.v2.11.0-all-namespaces
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1276,5 +1276,4 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.11.0
-  replaces: crwoperator.v2.10.1
+  version: 2.11.0-all-namespaces
