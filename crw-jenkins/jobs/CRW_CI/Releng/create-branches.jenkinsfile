@@ -24,10 +24,9 @@ timeout(120) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')])
                 {
-                    util.bootstrap(CRW_KEYTAB)
                     for (int i=0; i < GH_REPOS.size(); i++) {
                         println "##  Clone github.com/redhat-developer/${GH_REPOS[i]}.git"
-                        util.cloneRepo("https://github.com/redhat-developer/${GH_REPOS[i]}.git", "/tmp/tmp-checkouts/projects_${GH_REPOS[i]}", MIDSTM_BRANCH)
+                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/${GH_REPOS[i]}.git", "/tmp/tmp-checkouts/projects_${GH_REPOS[i]}", MIDSTM_BRANCH, false)
                     }
                     currentBuild.description="Create ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} ..."
                     sh ('''

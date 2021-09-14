@@ -62,7 +62,7 @@ timeout(120) {
 //                     try {
 //                         SOURCE_REPO = "eclipse-che/che-operator"
 //                         SOURCE_BRANCH = "7.28.x" 
-//                         util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH)
+//                         util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, false)
 //                         SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
 //                         println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 

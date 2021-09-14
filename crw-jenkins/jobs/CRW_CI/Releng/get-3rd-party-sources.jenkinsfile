@@ -28,9 +28,8 @@ timeout(120) {
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           println "CSV_VERSION = '" + CSV_VERSION + "'"
 
-          util.bootstrap(CRW_KEYTAB)
           currentBuild.description="Collecting sources for " + CSV_VERSION + " ..."
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
           sh '''#!/bin/bash -xe
 # generate source files

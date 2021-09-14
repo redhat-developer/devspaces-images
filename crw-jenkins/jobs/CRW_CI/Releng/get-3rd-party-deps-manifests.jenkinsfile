@@ -41,8 +41,7 @@ python3 --version; echo "-----"
           println "CRW_VERSION = '" + CRW_VERSION + "'"
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           println "CSV_VERSION = '" + CSV_VERSION + "'"
-          util.bootstrap(CRW_KEYTAB)
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
           if (TAG_RELEASE.equals("true")) {
             currentBuild.description="Tagging " + CSV_VERSION + "..."
