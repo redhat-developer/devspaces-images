@@ -87,6 +87,13 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
 
+if [[ $CSV_VERSION =~ ^([0-9]+\.[0-9]+)\.([0-9]+) ]]; then # add 100 to the z digit
+  XY=${BASH_REMATCH[1]}
+  ZZ=${BASH_REMATCH[2]}; (( ZZ=ZZ+100 ));
+
+  CSV_VERSION="${XY}.${ZZ}"
+fi
+
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_OPERATOR="crw-2-rhel8-operator"
@@ -192,7 +199,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperator.v${CSV_VERSION}|g" \
+		-e "s|name: .+preview-openshift.v.+|name: crwoperatorallnamespaces.v${CSV_VERSION}|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -252,10 +259,16 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	fi
 
 	# Change the install Mode to AllNamespaces by default
-    yq -Yi '.spec.installModes[] |= if .type=="OwnNamespace" then .supported |= false else . end' "${CSVFILE}"
-    yq -Yi '.spec.installModes[] |= if .type=="SingleNamespace" then .supported |= false else . end' "${CSVFILE}"
-    yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "${CSVFILE}"
-    yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "${CSVFILE}"
+	yq -Yi '.spec.installModes[] |= if .type=="OwnNamespace" then .supported |= false else . end' "${CSVFILE}"
+	yq -Yi '.spec.installModes[] |= if .type=="SingleNamespace" then .supported |= false else . end' "${CSVFILE}"
+	yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "${CSVFILE}"
+	yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "${CSVFILE}"
+
+	# Enable by default devWorkspace engine in `tech-preview-latest-all-namespaces`
+	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations[\"alm-examples\"] | \
+			fromjson | \
+			( .[] | select(.kind == \"CheCluster\") | .spec.devWorkspace.enable) |= true" ${CSVFILE} |  sed -r 's/"/\\"/g')
+	yq -riY ".metadata.annotations[\"alm-examples\"] = \"${CSV_CR_SAMPLES}\"" ${CSVFILE}
 
 	# yq changes - transform env vars from Che to CRW values
 	changed="$(yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"' "${CSVFILE}")" && \
@@ -319,7 +332,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
+		# We don't have replaces in the first version of CSV. When we release for the second time the tech-preview we need to uncomment this line!!
+		#[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 	)
 	for updateName in "${!spec_insertions[@]}"; do

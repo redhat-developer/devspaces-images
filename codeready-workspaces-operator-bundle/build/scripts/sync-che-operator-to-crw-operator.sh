@@ -57,6 +57,13 @@ done
 
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
+if [[ $CSV_VERSION =~ ^([0-9]+\.[0-9]+)\.([0-9]+) ]]; then # add 100 to the z digit
+  XY=${BASH_REMATCH[1]}
+  ZZ=${BASH_REMATCH[2]}; (( ZZ=ZZ+100 ));
+
+  CSV_VERSION="${XY}.${ZZ}"
+fi
+
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_OPERATOR="crw-2-rhel8-operator"
