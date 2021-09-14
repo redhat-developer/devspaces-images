@@ -87,6 +87,13 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
 
+if [[ $CSV_VERSION =~ ^([0-9]+\.[0-9]+)\.([0-9]+) ]]; then # add 100 to the z digit
+  XY=${BASH_REMATCH[1]}
+  ZZ=${BASH_REMATCH[2]}; (( ZZ=ZZ+100 ));
+
+  CSV_VERSION="${XY}.${ZZ}"
+fi
+
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_OPERATOR="crw-2-rhel8-operator"
@@ -275,7 +282,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# yq changes - transform env vars from Che to CRW values
 	declare -A operator_replacements=(
-		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
+		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.10z version
 		["CHE_FLAVOR"]="codeready"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
@@ -326,7 +333,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# insert replaces: field
 	declare -A spec_insertions=(
 		# We don't have replaces in the first version of CSV. When we release for the second time the tech-preview we need to uncomment this line!!
-		#[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION}"
+		#[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 	)
 	for updateName in "${!spec_insertions[@]}"; do
