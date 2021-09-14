@@ -282,7 +282,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# yq changes - transform env vars from Che to CRW values
 	declare -A operator_replacements=(
-		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.10z version
+		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 		["CHE_FLAVOR"]="codeready"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
