@@ -44,9 +44,6 @@ metadata:
               "chePostgresUser": "",
               "externalDb": false
             },
-            "devWorkspace": {
-              "enable": false
-            },
             "metrics": {
               "enable": true
             },
@@ -80,7 +77,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.12
-    createdAt: "2021-09-14T15:55:56+00:00"
+    createdAt: "2021-09-14T20:32:35+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -110,6 +107,9 @@ spec:
             path: devWorkspace.enable
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+          - path: devWorkspace
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:hidden
         statusDescriptors:
           - description: Status of a Che installation. Can be `Available`, `Unavailable`,
               or `Available, Rolling Update in Progress`.
