@@ -192,7 +192,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperator.v${CSV_VERSION}-all-namespaces|g" \
+		-e "s|name: .+preview-openshift.v.+|name: crwoperatorallnamespaces.v${CSV_VERSION}|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -326,8 +326,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# insert replaces: field
 	declare -A spec_insertions=(
 		# We don't have replaces in the first version of CSV. When we release for the second time the tech-preview we need to uncomment this line!!
-		#[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}-all-namespaces"
-		[".spec.version"]="${CSV_VERSION}-all-namespaces"
+		#[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION}"
+		[".spec.version"]="${CSV_VERSION}"
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"

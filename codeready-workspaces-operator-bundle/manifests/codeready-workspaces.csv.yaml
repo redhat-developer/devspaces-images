@@ -91,7 +91,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperator.v2.11.0-all-namespaces
+  name: crwoperatorallnamespaces.v2.11.100
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1276,4 +1276,4 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.11.0-all-namespaces
+  version: 2.11.100
