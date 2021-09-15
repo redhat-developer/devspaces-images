@@ -19,7 +19,7 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPSTM_NAME="operator"
-MIDSTM_NAME="operator-metadata"
+MIDSTM_NAME="operator-bundle"
 
 CSV_VERSION_PREV=""
 
