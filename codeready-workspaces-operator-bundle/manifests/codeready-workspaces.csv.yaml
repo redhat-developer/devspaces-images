@@ -1347,3 +1347,4 @@ spec:
   provider:
     name: Red Hat
   version: 2.13.100
+  replaces: crwoperatorallnamespaces.v2.12.100
