@@ -42,6 +42,9 @@ if [[ ${doMavenBuild} -eq 1 ]]; then
 	sed -r -i assembly/assembly-wsmaster-war/src/main/webapp/WEB-INF/classes/che/che.properties \
 		-e "s|(.+.default_editor=eclipse/che-theia)/.+|\1/latest|g" 
 
+	# add more files here if we have more changes to commit
+	PATCHED_FILES="assembly/assembly-wsmaster-war/src/main/webapp/WEB-INF/classes/che/che.properties"
+
 	# build che server with maven
 	mvn clean install -Dmaven.repo.local=.repository/ -V -B -e -DskipTests -Dskip-validate-sources -Pfast # -Pintegration
 	# tarball created in ${TARGETDIR}/assembly/assembly-main/target/eclipse-che-*.tar.gz
@@ -54,11 +57,12 @@ if [[ -f ${outputFile} ]]; then
 	rhpkg new-sources ${outputFile}
 	echo "[INFO] Commit new sources from: ${outputFile}"
 	COMMIT_MSG="Update from Maven :: ${outputFile}"
-	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore $PATCHED_FILES) == *"nothing to commit, working tree clean"* ]]; then 
 		echo "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		echo "[INFO] Push change:"
-		git pull; git push; git status -s || true
+		git pull || git status -s
+		git push; git status -s || true
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
