@@ -20,7 +20,7 @@ COPY metadata /metadata/
 ENV SUMMARY="Red Hat CodeReady Workspaces operator-bundle container" \
     DESCRIPTION="Red Hat CodeReady Workspaces operator-bundle container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="operator-metadata"
+    COMPNAME="operator-bundle"
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \
       operators.operatorframework.io.bundle.metadata.v1=metadata/ \

@@ -79,8 +79,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.12
-    createdAt: "2021-09-13T14:17:19+00:00"
+    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.12
+    createdAt: "2021-09-15T21:37:06+00:00"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -91,7 +91,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperator.v2.12.0
+  name: crwoperatorallnamespaces.v2.12.100
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -967,63 +967,63 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-pluginbroker-artifacts-rhel8:2.12
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-pluginbroker-metadata-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-machineexec-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java11-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_ppc64le_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_ppc64le_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_ppc64le_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_ppc64le_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-java8-openj9-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_kubernetes_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_kubernetes_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-kubernetes-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-plugin-openshift-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-cpp-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-cpp-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-dotnet-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-dotnet-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-golang-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-golang-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-endpoint-rhel8:2.12
-                      - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
+                      - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.12
                       - name: RELATED_IMAGE_dashboard
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-dashboard-rhel8:2.12
@@ -1347,3 +1347,4 @@ spec:
   provider:
     name: Red Hat
   version: 2.12.100
+  replaces: crwoperator.v2.11.0
