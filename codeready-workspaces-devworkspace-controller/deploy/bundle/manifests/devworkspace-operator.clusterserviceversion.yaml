@@ -7,7 +7,7 @@ metadata:
     operators.operatorframework.io/builder: operator-sdk-v1.7.1+git
     operators.operatorframework.io/internal-objects: '["devworkspaceroutings.controller.devfile.io"]'
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
-  name: devworkspace-operator.v0.9.0
+  name: devworkspace-operator.v0.10.0
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -198,11 +198,13 @@ spec:
           - patch
           - update
         - apiGroups:
-          - extensions
+          - coordination.k8s.io
           resources:
-          - ingresses
+          - leases
           verbs:
-          - '*'
+          - create
+          - get
+          - update
         - apiGroups:
           - monitoring.coreos.com
           resources:
@@ -210,6 +212,12 @@ spec:
           verbs:
           - create
           - get
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - ingresses
+          verbs:
+          - '*'
         - apiGroups:
           - oauth.openshift.io
           resources:
@@ -425,7 +433,8 @@ spec:
   provider:
     name: Devfile
     url: https://devfile.io
-  version: 0.9.0
+  replaces: devworkspace-operator.v0.9.0
+  version: 0.10.0
   webhookdefinitions:
   - admissionReviewVersions:
     - v1

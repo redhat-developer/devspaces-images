@@ -55,6 +55,7 @@ export GIT_COMMITTER_EMAIL="ci_bot@notused.com"
 
 # For some reason go on PROW force usage vendor folder
 # This workaround is here until we don't figure out cause
+go env GOPROXY
 go mod tidy
 go mod vendor
 

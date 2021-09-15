@@ -1,15 +1,29 @@
 
-ifeq (,$(shell which kubectl))
-ifeq (,$(shell which oc))
+ifeq (,$(shell which kubectl)$(shell which oc))
 $(error oc or kubectl is required to proceed)
-else
-K8S_CLI := oc
-endif
-else
-K8S_CLI := kubectl
 endif
 
-ifeq ($(shell $(K8S_CLI) api-resources --api-group='route.openshift.io'  2>&1 | grep -o routes),routes)
+# Note: we close stdin ('<&-') here because kubectl will prompt for a password if the current context has a user
+# without auth credentials. This can occur if e.g. oc logout is executed and is particularly a problem for the
+# PLATFORM check below, which will silently hang indefinitely.
+ifneq (,$(shell which kubectl))
+K8S_CLI := kubectl <&-
+# Check if logged in and warn if not
+ifeq ($(findstring Please enter Username,$(shell kubectl auth can-i '*' '*' <&- 2>&1)),Please enter Username)
+$(info Warning: current context is not authenticated with a cluster)
+LOGGED_IN="false"
+endif
+else
+K8S_CLI := oc <&-
+# Check if logged in and warn if not
+ifeq ($(findstring Forbidden,$(shell oc whoami 2>&1)),Forbidden)
+$(info Warning: current context is not authenticated with a cluster)
+LOGGED_IN="false"
+endif
+endif
+
+
+ifeq ($(shell $(K8S_CLI) api-resources --api-group='route.openshift.io' 2>&1 | grep -o routes),routes)
 PLATFORM := openshift
 else
 PLATFORM := kubernetes
@@ -47,18 +61,17 @@ ifeq ($(PLATFORM),kubernetes)
 	$(K8S_CLI) get secret devworkspace-operator-webhook-cert -n $(NAMESPACE) -o json | jq -r '.data["tls.crt"]' | base64 -d > /tmp/k8s-webhook-server/serving-certs/tls.crt
 	$(K8S_CLI) get secret devworkspace-operator-webhook-cert -n $(NAMESPACE) -o json | jq -r '.data["tls.key"]' | base64 -d > /tmp/k8s-webhook-server/serving-certs/tls.key
 else
-	$(K8S_CLI) get secret devworkspace-webhooks-tls -n $(NAMESPACE) -o json | jq -r '.data["tls.crt"]' | base64 -d > /tmp/k8s-webhook-server/serving-certs/tls.crt
-	$(K8S_CLI) get secret devworkspace-webhooks-tls -n $(NAMESPACE) -o json | jq -r '.data["tls.key"]' | base64 -d > /tmp/k8s-webhook-server/serving-certs/tls.key
+	$(K8S_CLI) get secret devworkspace-webhookserver-tls -n $(NAMESPACE) -o json | jq -r '.data["tls.crt"]' | base64 -d > /tmp/k8s-webhook-server/serving-certs/tls.crt
+	$(K8S_CLI) get secret devworkspace-webhookserver-tls -n $(NAMESPACE) -o json | jq -r '.data["tls.key"]' | base64 -d > /tmp/k8s-webhook-server/serving-certs/tls.key
 endif
 
 ### install: Install controller in the configured Kubernetes cluster in ~/.kube/config
-install: _check_cert_manager _print_vars _init_devworkspace_crds _create_namespace generate_deployment
+install: _print_vars _check_cert_manager _init_devworkspace_crds _create_namespace generate_deployment
 ifeq ($(PLATFORM),kubernetes)
 	$(K8S_CLI) apply -f deploy/current/kubernetes/combined.yaml
 else
 	$(K8S_CLI) apply -f deploy/current/openshift/combined.yaml
 endif
-
 
 ### install_plugin_templates: Deploys the sample plugin templates to namespace devworkspace-plugins:
 install_plugin_templates: _print_vars
@@ -74,7 +87,7 @@ restart_webhook:
 	$(K8S_CLI) rollout restart -n $(NAMESPACE) deployment/devworkspace-webhook-server
 
 ### uninstall: Removes the controller resources from the cluster
-uninstall: generate_deployment
+uninstall: _print_vars generate_deployment
 # It's safer to delete all workspaces before deleting the controller; otherwise we could
 # leave workspaces in a hanging state if we add finalizers.
 	$(K8S_CLI) delete devworkspaces.workspace.devfile.io --all-namespaces --all --wait || true
@@ -96,9 +109,11 @@ endif
 
 _check_cert_manager:
 ifeq ($(PLATFORM),kubernetes)
-	if ! ${K8S_CLI} api-versions | grep -q '^cert-manager.io/v1$$' ; then \
-		echo "Cert-manager is required for deploying on Kubernetes. See 'make install_cert_manager'" ;\
-		exit 1 ;\
+	if [ ! -z "$$LOGGED_IN" ]; then \
+		if ! ${K8S_CLI} api-versions | grep -q '^cert-manager.io/v1$$' ; then \
+			echo "Cert-manager is required for deploying on Kubernetes. See 'make install_cert_manager'" ;\
+			exit 1 ;\
+		fi \
 	fi
 endif
 
@@ -136,3 +151,18 @@ debug: _print_vars _gen_configuration_env _bump_kubeconfig _login_with_devworksp
 	CONTROLLER_SERVICE_ACCOUNT_NAME=$(DEVWORKSPACE_CTRL_SA) \
 		WATCH_NAMESPACE=$(NAMESPACE) \
 		dlv debug --listen=:2345 --headless=true --api-version=2 ./main.go --
+
+### debug-webhook-server: Debug the webhook server
+debug-webhook-server: _store_tls_cert
+# Connect to telepresence which will redirect traffic from the webhook to the local server
+	telepresence connect
+	telepresence intercept devworkspace-webhook-server --port 8443:443 --env-file /tmp/test-env.env
+	export WATCH_NAMESPACE=$(NAMESPACE)
+	export CONTROLLER_SERVICE_ACCOUNT_NAME=$(DEVWORKSPACE_CTRL_SA)
+	sudo mkdir -p /var/run/secrets/kubernetes.io/serviceaccount/
+	echo $(NAMESPACE) | sudo tee /var/run/secrets/kubernetes.io/serviceaccount/namespace
+	dlv debug --listen=:5678 --headless=true --api-version=2 ./webhook/main.go --
+
+### disconnect-debug-webhook-server: Disconnect the teleprescense agent from the webhook-server pod
+disconnect-debug-webhook-server:
+	telepresence uninstall --everything

@@ -15,13 +15,33 @@ package automount
 import (
 	"fmt"
 
-	corev1 "k8s.io/api/core/v1"
 	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 )
 
-func GetAutoMountResources(namespace string, client k8sclient.Client) ([]v1alpha1.PodAdditions, []corev1.EnvFromSource, error) {
+type FatalError struct {
+	Err error
+}
+
+func (e *FatalError) Error() string {
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+	return ""
+}
+
+func (e *FatalError) Unwrap() error {
+	return e.Err
+}
+
+func GetAutoMountResources(client k8sclient.Client, namespace string) ([]v1alpha1.PodAdditions, []corev1.EnvFromSource, error) {
+	gitCMPodAdditions, err := getDevWorkspaceGitConfig(client, namespace)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	cmPodAdditions, cmEnvAdditions, err := getDevWorkspaceConfigmaps(namespace, client)
 	if err != nil {
 		return nil, nil, err
@@ -36,6 +56,9 @@ func GetAutoMountResources(namespace string, client k8sclient.Client) ([]v1alpha
 	}
 
 	var allPodAdditions []v1alpha1.PodAdditions
+	if gitCMPodAdditions != nil {
+		allPodAdditions = append(allPodAdditions, *gitCMPodAdditions)
+	}
 	if cmPodAdditions != nil {
 		allPodAdditions = append(allPodAdditions, *cmPodAdditions)
 	}

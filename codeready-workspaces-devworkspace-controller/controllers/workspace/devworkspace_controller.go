@@ -19,6 +19,8 @@ import (
 	"strings"
 	"time"
 
+	devfilevalidation "github.com/devfile/api/v2/pkg/validation"
+
 	controllerv1alpha1 "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/controllers/workspace/metrics"
 	"github.com/devfile/devworkspace-operator/pkg/common"
@@ -46,6 +48,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
@@ -66,6 +69,7 @@ type DevWorkspaceReconciler struct {
 // +kubebuilder:rbac:groups=workspace.devfile.io,resources=*,verbs=*
 // +kubebuilder:rbac:groups=controller.devfile.io,resources=*,verbs=*
 /////// Required permissions for controller
+// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;create;update
 // +kubebuilder:rbac:groups=apps;extensions,resources=deployments;replicasets,verbs=*
 // +kubebuilder:rbac:groups="",resources=pods;serviceaccounts;secrets;configmaps;persistentvolumeclaims,verbs=*
 // +kubebuilder:rbac:groups="",resources=namespaces;events,verbs=get;list;watch
@@ -81,8 +85,7 @@ type DevWorkspaceReconciler struct {
 // +kubebuilder:rbac:groups=apps;extensions,resources=deployments,verbs=get;list;watch
 // +kubebuilder:rbac:groups="",resources=secrets,resourceNames=workspace-credentials-secret,verbs=get;create;delete
 
-func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ctrl.Result, err error) {
-	ctx := context.Background()
+func (r *DevWorkspaceReconciler) Reconcile(ctx context.Context, req ctrl.Request) (reconcileResult ctrl.Result, err error) {
 	reqLogger := r.Log.WithValues("Request.Namespace", req.Namespace, "Request.Name", req.Name)
 	clusterAPI := wsprovision.ClusterAPI{
 		Client: r.Client,
@@ -216,6 +219,15 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	workspace.Spec.Template = *flattenedWorkspace
 	reconcileStatus.setConditionTrue(conditions.DevWorkspaceResolved, "Resolved plugins and parents from DevWorkspace")
 
+	// Verify that the devworkspace components are valid after flattening
+	components := workspace.Spec.Template.Components
+	if components != nil {
+		eventErrors := devfilevalidation.ValidateComponents(components)
+		if eventErrors != nil {
+			return r.failWorkspace(workspace, eventErrors.Error(), reqLogger, &reconcileStatus)
+		}
+	}
+
 	storageProvisioner, err := storage.GetProvisioner(workspace)
 	if err != nil {
 		return r.failWorkspace(workspace, fmt.Sprintf("Error provisioning storage: %s", err), reqLogger, &reconcileStatus)
@@ -325,7 +337,7 @@ func (r *DevWorkspaceReconciler) Reconcile(req ctrl.Request) (reconcileResult ct
 	serviceAcctName := serviceAcctStatus.ServiceAccountName
 	reconcileStatus.setConditionTrue(dw.DevWorkspaceServiceAccountReady, "DevWorkspace serviceaccount ready")
 
-	pullSecretStatus := wsprovision.PullSecrets(clusterAPI)
+	pullSecretStatus := wsprovision.PullSecrets(clusterAPI, serviceAcctName, workspace.GetNamespace())
 	if !pullSecretStatus.Continue {
 		reconcileStatus.setConditionFalse(conditions.PullSecretsReady, "Waiting for DevWorkspace pull secrets")
 		return reconcile.Result{Requeue: pullSecretStatus.Requeue}, pullSecretStatus.Err
@@ -464,9 +476,8 @@ func getWorkspaceId(instance *dw.DevWorkspace) (string, error) {
 
 // Mapping the pod to the devworkspace
 func dwRelatedPodsHandler() handler.EventHandler {
-	podToDW := func(mapObj handler.MapObject) []reconcile.Request {
-		meta := mapObj.Meta
-		labels := meta.GetLabels()
+	podToDW := func(obj client.Object) []reconcile.Request {
+		labels := obj.GetLabels()
 		if _, ok := labels[constants.DevWorkspaceNameLabel]; !ok {
 			return nil
 		}
@@ -480,12 +491,12 @@ func dwRelatedPodsHandler() handler.EventHandler {
 			{
 				NamespacedName: types.NamespacedName{
 					Name:      labels[constants.DevWorkspaceNameLabel],
-					Namespace: meta.GetNamespace(),
+					Namespace: obj.GetNamespace(),
 				},
 			},
 		}
 	}
-	return &handler.EnqueueRequestsFromMapFunc{ToRequests: handler.ToRequestsFunc(podToDW)}
+	return handler.EnqueueRequestsFromMapFunc(podToDW)
 }
 
 func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
@@ -493,6 +504,12 @@ func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	if err != nil {
 		return err
 	}
+
+	var emptyMapper = func(obj client.Object) []reconcile.Request {
+		return []reconcile.Request{}
+	}
+
+	var configMapWatcher builder.WatchesOption = builder.WithPredicates(config.ConfigMapPredicates(mgr))
 
 	// TODO: Set up indexing https://book.kubebuilder.io/cronjob-tutorial/controller-implementation.html#setup
 	return ctrl.NewControllerManagedBy(mgr).
@@ -505,7 +522,11 @@ func (r *DevWorkspaceReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&appsv1.Deployment{}).
 		Owns(&batchv1.Job{}).
 		Owns(&controllerv1alpha1.DevWorkspaceRouting{}).
+		Owns(&corev1.ConfigMap{}).
+		Owns(&corev1.Secret{}).
+		Owns(&corev1.ServiceAccount{}).
 		Watches(&source.Kind{Type: &corev1.Pod{}}, dwRelatedPodsHandler()).
+		Watches(&source.Kind{Type: &corev1.ConfigMap{}}, handler.EnqueueRequestsFromMapFunc(emptyMapper), configMapWatcher).
 		WithEventFilter(predicates).
 		WithEventFilter(podPredicates).
 		Complete(r)

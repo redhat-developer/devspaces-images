@@ -15,7 +15,7 @@ import (
 	"fmt"
 
 	"github.com/devfile/devworkspace-operator/webhook/workspace/handler"
-	"k8s.io/api/admission/v1beta1"
+	admissionv1 "k8s.io/api/admission/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
@@ -34,7 +34,7 @@ func NewResourcesMutator(controllerUID, controllerSAName string) *ResourcesMutat
 // ResourcesMutator verify if operation is a valid from Workspace controller perspective
 func (m *ResourcesMutator) Handle(ctx context.Context, req admission.Request) admission.Response {
 	switch req.Operation {
-	case v1beta1.Create:
+	case admissionv1.Create:
 		{
 			switch req.Kind {
 			case handler.V1alpha1DevWorkspaceKind:
@@ -45,13 +45,13 @@ func (m *ResourcesMutator) Handle(ctx context.Context, req admission.Request) ad
 				return m.MutatePodOnCreate(ctx, req)
 			case handler.AppsV1DeploymentKind:
 				return m.MutateDeploymentOnCreate(ctx, req)
-			case handler.V1ServiceKind, handler.V1beta1IngressKind, handler.V1RouteKind, handler.V1JobKind,
+			case handler.V1ServiceKind, handler.V1IngressKind, handler.V1RouteKind, handler.V1JobKind,
 				handler.V1alpha1ComponentKind, handler.V1alpha1DevWorkspaceRoutingKind:
 
 				return m.HandleRestrictedAccessCreate(ctx, req)
 			}
 		}
-	case v1beta1.Update:
+	case admissionv1.Update:
 		{
 			switch req.Kind {
 			case handler.V1alpha1DevWorkspaceKind:
@@ -62,7 +62,7 @@ func (m *ResourcesMutator) Handle(ctx context.Context, req admission.Request) ad
 				return m.MutatePodOnUpdate(ctx, req)
 			case handler.AppsV1DeploymentKind:
 				return m.MutateDeploymentOnUpdate(ctx, req)
-			case handler.V1ServiceKind, handler.V1beta1IngressKind, handler.V1RouteKind, handler.V1JobKind,
+			case handler.V1ServiceKind, handler.V1IngressKind, handler.V1RouteKind, handler.V1JobKind,
 				handler.V1alpha1ComponentKind, handler.V1alpha1DevWorkspaceRoutingKind:
 
 				return m.HandleRestrictedAccessUpdate(ctx, req)

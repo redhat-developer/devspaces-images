@@ -21,13 +21,14 @@ import (
 	"github.com/devfile/devworkspace-operator/pkg/constants"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	routeV1 "github.com/openshift/api/route/v1"
 	corev1 "k8s.io/api/core/v1"
 	k8sErrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
@@ -113,9 +114,9 @@ func (wc *ControllerConfig) GetWorkspaceControllerSA() (string, error) {
 	return saName, nil
 }
 
-func updateConfigMap(client client.Client, meta metav1.Object, obj runtime.Object) {
-	if meta.GetNamespace() != ConfigMapReference.Namespace ||
-		meta.GetName() != ConfigMapReference.Name {
+func syncConfigmapFromCluster(client client.Client, obj client.Object) {
+	if obj.GetNamespace() != ConfigMapReference.Namespace ||
+		obj.GetName() != ConfigMapReference.Name {
 		return
 	}
 	if cm, isConfigMap := obj.(*corev1.ConfigMap); isConfigMap {
@@ -184,33 +185,9 @@ func WatchControllerConfig(mgr manager.Manager) error {
 		return err
 	}
 
-	updateConfigMap(nonCachedClient, configMap.GetObjectMeta(), configMap)
+	syncConfigmapFromCluster(nonCachedClient, configMap)
 
-	// TODO: Workaround since we don't have a controller here; we should remove configmap and use
-	//       env vars instead.
-	//var emptyMapper handler.ToRequestsFunc = func(obj handler.MapObject) []reconcile.Request {
-	//	return []reconcile.Request{}
-	//}
-	//err = ctr.Watch(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestsFromMapFunc{
-	//	ToRequests: emptyMapper,
-	//}, predicate.Funcs{
-	//	UpdateFunc: func(evt event.UpdateEvent) bool {
-	//		updateConfigMap(mgr.GetClient(), evt.MetaNew, evt.ObjectNew)
-	//		return false
-	//	},
-	//	CreateFunc: func(evt event.CreateEvent) bool {
-	//		updateConfigMap(mgr.GetClient(), evt.Meta, evt.Object)
-	//		return false
-	//	},
-	//	DeleteFunc: func(evt event.DeleteEvent) bool {
-	//		return false
-	//	},
-	//	GenericFunc: func(evt event.GenericEvent) bool {
-	//		return false
-	//	},
-	//})
-
-	return err
+	return nil
 }
 
 func SetupConfigForTesting(cm *corev1.ConfigMap) {
@@ -260,4 +237,27 @@ func fillOpenShiftRouteSuffixIfNecessary(nonCachedClient client.Client, configMa
 	}
 
 	return nil
+}
+
+func ConfigMapPredicates(mgr manager.Manager) predicate.Predicate {
+	return predicate.Funcs{
+		UpdateFunc: func(evt event.UpdateEvent) bool {
+			if evt.ObjectNew.GetName() == ConfigMapReference.Name && evt.ObjectNew.GetNamespace() == ConfigMapReference.Namespace {
+				syncConfigmapFromCluster(mgr.GetClient(), evt.ObjectNew)
+			}
+			return false
+		},
+		CreateFunc: func(evt event.CreateEvent) bool {
+			if evt.Object.GetName() == ConfigMapReference.Name && evt.Object.GetNamespace() == ConfigMapReference.Namespace {
+				syncConfigmapFromCluster(mgr.GetClient(), evt.Object)
+			}
+			return false
+		},
+		DeleteFunc: func(evt event.DeleteEvent) bool {
+			return false
+		},
+		GenericFunc: func(evt event.GenericEvent) bool {
+			return false
+		},
+	}
 }

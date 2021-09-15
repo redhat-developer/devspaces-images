@@ -15,7 +15,7 @@ import (
 	"fmt"
 
 	"github.com/devfile/devworkspace-operator/webhook/workspace/handler"
-	"k8s.io/api/admission/v1beta1"
+	admissionv1 "k8s.io/api/admission/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
@@ -32,9 +32,13 @@ func NewResourcesValidator(controllerUID, controllerSAName string) *ResourcesVal
 }
 
 func (v *ResourcesValidator) Handle(ctx context.Context, req admission.Request) admission.Response {
-	if req.Kind == handler.V1PodExecOptionKind && req.Operation == v1beta1.Connect {
+	if req.Kind == handler.V1PodExecOptionKind && req.Operation == admissionv1.Connect {
 		return v.ValidateExecOnConnect(ctx, req)
 	}
+	if req.Kind == handler.V1alpha2DevWorkspaceKind && (req.Operation == admissionv1.Create || req.Operation == admissionv1.Update) {
+		return v.ValidateDevfile(ctx, req)
+	}
+
 	// Do not allow operation if the corresponding handler is not found
 	// It indicates that the webhooks configuration is not a valid or incompatible with this version of controller
 	return admission.Denied(fmt.Sprintf("This admission controller is not designed to handle %s operation for %s. Notify an administrator about this issue", req.Operation, req.Kind))

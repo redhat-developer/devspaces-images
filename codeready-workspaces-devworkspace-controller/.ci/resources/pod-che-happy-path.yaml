@@ -12,7 +12,7 @@ spec:
   containers:
     # container containing the tests
     - name: happy-path-test
-      image: quay.io/eclipse/che-e2e:nightly
+      image: quay.io/eclipse/che-e2e:next
       imagePullPolicy: Always
       env:
         - name: TEST_SUITE
@@ -28,7 +28,7 @@ spec:
         - name: TS_SELENIUM_LOG_LEVEL
           value: TRACE
         - name: TS_SELENIUM_OCP_USERNAME
-          value: 'user'
+          value: 'che-user'
         - name: TS_SELENIUM_OCP_PASSWORD
           value: "user"
         - name: TS_SELENIUM_VALUE_OPENSHIFT_OAUTH

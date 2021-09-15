@@ -32,6 +32,7 @@ metadata:
 - sed
 - jq
 - yq (python-yq from https://github.com/kislyuk/yq#installation, other distributions may not work)
+- skopeo (if building the OLM catalogsource)
 - docker
 
 Note: kustomize `v4.0.5` is required for most tasks. It is downloaded automatically to the `.kustomize` folder in this repo when required. This downloaded version is used regardless of whether or not kustomize is already installed on the system.
@@ -106,8 +107,9 @@ To see all rules supported by the makefile, run `make help`
 
 ### Run controller locally
 ```bash
+export NAMESPACE="devworkspace-controller"
 make install
-oc patch deployment/devworkspace-controller-manager --patch "{\"spec\":{\"replicas\":0}}"
+oc patch deployment/devworkspace-controller-manager --patch "{\"spec\":{\"replicas\":0}}" -n $NAMESPACE
 make run
 ```
 
@@ -120,6 +122,19 @@ Debugging the controller depends on `delve` being installed (`go get -u github.c
 make install
 oc patch deployment/devworkspace-controller-manager --patch "{\"spec\":{\"replicas\":0}}"
 make debug
+```
+
+### Run webhook server locally and debug
+Debugging the webhook server depends on `telepresence` being installed (`https://www.telepresence.io/docs/latest/install/`). Teleprescence works by redirecting traffic going from the webhook-server in the cluster to the local webhook-server you will be running on your computer.
+
+```bash
+make debug-webhook-server
+```
+
+when you are done debugging you have to manually uninstall the telepresence agent
+
+```bash
+make disconnect-debug-webhook-server
 ```
 
 ### Controller configuration

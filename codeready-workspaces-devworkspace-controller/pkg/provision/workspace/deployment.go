@@ -84,10 +84,17 @@ func SyncDeploymentToCluster(
 	saName string,
 	clusterAPI ClusterAPI) DeploymentProvisioningStatus {
 
-	automountPodAdditions, automountEnv, err := automount.GetAutoMountResources(workspace.Namespace, clusterAPI.Client)
+	automountPodAdditions, automountEnv, err := automount.GetAutoMountResources(clusterAPI.Client, workspace.GetNamespace())
 	if err != nil {
-		return DeploymentProvisioningStatus{
-			ProvisioningStatus{Err: err},
+		var fatalErr *automount.FatalError
+		if errors.As(err, &fatalErr) {
+			return DeploymentProvisioningStatus{
+				ProvisioningStatus{Err: err, FailStartup: true},
+			}
+		} else {
+			return DeploymentProvisioningStatus{
+				ProvisioningStatus{Err: err},
+			}
 		}
 	}
 	if err := automount.CheckAutoMountVolumesForCollision(podAdditions, automountPodAdditions); err != nil {
@@ -121,7 +128,7 @@ func SyncDeploymentToCluster(
 	}
 
 	if clusterDeployment == nil {
-		clusterAPI.Logger.Info("Creating deployment...")
+		clusterAPI.Logger.Info("Creating deployment")
 		if err := clusterAPI.Client.Create(context.TODO(), specDeployment); err != nil {
 			return DeploymentProvisioningStatus{
 				ProvisioningStatus{
@@ -136,7 +143,7 @@ func SyncDeploymentToCluster(
 	}
 
 	if !cmp.Equal(specDeployment.Spec.Selector, clusterDeployment.Spec.Selector) {
-		clusterAPI.Logger.Info("Deployment selector is different. Recreating deployment...")
+		clusterAPI.Logger.Info("Deployment selector is different. Recreating deployment")
 		clusterDeployment.Spec = specDeployment.Spec
 		err := clusterAPI.Client.Delete(context.TODO(), clusterDeployment)
 		if err != nil {
@@ -148,7 +155,10 @@ func SyncDeploymentToCluster(
 	}
 
 	if !cmp.Equal(specDeployment, clusterDeployment, deploymentDiffOpts) {
-		clusterAPI.Logger.Info("Updating deployment...")
+		clusterAPI.Logger.Info("Updating deployment")
+		if config.ControllerCfg.GetExperimentalFeaturesEnabled() {
+			clusterAPI.Logger.Info(fmt.Sprintf("Diff: %s", cmp.Diff(specDeployment, clusterDeployment, deploymentDiffOpts)))
+		}
 		clusterDeployment.Spec = specDeployment.Spec
 		err := clusterAPI.Client.Update(context.TODO(), clusterDeployment)
 		if err != nil {

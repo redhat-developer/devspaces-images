@@ -52,7 +52,7 @@ spec:
             - name: RELATED_IMAGE_kube_rbac_proxy
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
             - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0
-              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.12
+              value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.13
             - name: RELATED_IMAGE_project_clone
               value: registry.redhat.io/devworkspace/devworkspace-project-clone-rhel8:0.8
             - name: RELATED_IMAGE_pvc_cleanup_job
