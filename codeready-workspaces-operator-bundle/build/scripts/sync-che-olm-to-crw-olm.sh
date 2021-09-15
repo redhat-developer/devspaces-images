@@ -330,6 +330,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
+		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 	)
 	for updateName in "${!spec_insertions[@]}"; do
