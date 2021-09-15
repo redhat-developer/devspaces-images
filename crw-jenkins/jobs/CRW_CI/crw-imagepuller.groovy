@@ -1,15 +1,28 @@
-def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"] 
-def JOB_DISABLED = ["2.11":true, "2.x":false]
+import groovy.json.JsonSlurper
+
+def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+
+def jsonSlurper = new JsonSlurper();
+def config = jsonSlurper.parseText(curlCMD);
+
+def JOB_BRANCHES = ["2.11", "2.x"]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value
-    JOB_BRANCH=""+JB.key
+    JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
+        disabled(config.Jobs.imagepuller[JB].disabled) // on reload of job, disable to avoid churn
         UPSTM_NAME="kubernetes-image-puller"
         MIDSTM_NAME="imagepuller"
         SOURCE_REPO="che-incubator/" + UPSTM_NAME
+
+        def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.imagepuller[JB].upstream_branch[0]
+        def BRANCH_CHECK=cmd.execute().text
+
+        SOURCE_BRANCH=""+config.Jobs.imagepuller[JB].upstream_branch[0];
+        if (!BRANCH_CHECK) {
+            SOURCE_BRANCH=""+config.Jobs.imagepuller[JB].upstream_branch[1]
+        }
 
         description('''
 Artifact builder + sync job; triggers brew after syncing

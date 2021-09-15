@@ -58,6 +58,7 @@ if [[ -f /tmp/token ]]; then
         crw-imagepuller\
         crw-jwtproxy\
         crw-machineexec\
+        crw-operator-bundle\
         crw-operator-metadata\
         crw-operator\
         crw-pluginbroker-artifacts\

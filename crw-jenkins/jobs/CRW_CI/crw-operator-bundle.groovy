@@ -5,28 +5,36 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = ["2.11", "2.x"]
+def JOB_BRANCHES = ["2.12", "2.x"]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(config.Jobs.jwtproxy[JB].disabled) // on reload of job, disable to avoid churn
-        UPSTM_NAME="che-jwtproxy"
-        MIDSTM_NAME="jwtproxy"
+        disabled(config.Jobs."operator-bundle"[JB].disabled) // on reload of job, disable to avoid churn
+        UPSTM_NAME="che-operator"
+        MIDSTM_NAME="operator-bundle"
         SOURCE_REPO="eclipse/" + UPSTM_NAME
+        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+        CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
+        CSV_VERSION_PREV=config.CSVs."operator-bundle"[JB].CSV_VERSION_PREV
 
-        def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.jwtproxy[JB].upstream_branch[0]
+        def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."operator-bundle"[JB].upstream_branch[0]
         def BRANCH_CHECK=cmd.execute().text
 
-        SOURCE_BRANCH=""+config.Jobs.jwtproxy[JB].upstream_branch[0];
+        SOURCE_BRANCH=""+config.Jobs."operator-bundle"[JB].upstream_branch[0];
         if (!BRANCH_CHECK) {
-            SOURCE_BRANCH=""+config.Jobs.jwtproxy[JB].upstream_branch[1]
+            SOURCE_BRANCH=""+config.Jobs."operator-bundle"[JB].upstream_branch[1]
         }
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
+
+<p>There are three operator-related sync jobs:<br/>
+1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
+2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV [deprecated, OCP 4.6]</p>
+3. <a href=../crw-operator-bundle_''' + JOB_BRANCH + '''>crw-operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV [@since 2.12, OCP 4.8+]</p>
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
@@ -38,8 +46,9 @@ Artifact builder + sync job; triggers brew after syncing
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
 <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
-<p>
-Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtproxy-rhel8</a>
+
+<p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
+<a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
         ''')
 
         properties {
@@ -49,17 +58,19 @@ Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtp
 
             githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-            // disabled because no changes in the branch / run this manually 
-            // pipelineTriggers {
-            //     triggers{
-            //         pollSCM{
-            //             scmpoll_spec("H H/24 * * *") // every 24hrs
-            //         }
-            //     }
-            // }
+            pipelineTriggers {
+                triggers{
+                    pollSCM{
+                        scmpoll_spec("H H/2 * * *") // every 2hrs
+                    }
+                }
+            }
 
             disableResumeJobProperty()
         }
+
+        // limit builds to 1 every 20 min
+        quietPeriod(1200) // in sec
 
         logRotator {
             daysToKeep(5)
@@ -74,6 +85,9 @@ Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtp
             stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("MIDSTM_NAME", MIDSTM_NAME)
+            // TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
+            stringParam("CSV_VERSION", CSV_VERSION)
+            stringParam("CSV_VERSION_PREV", CSV_VERSION_PREV)
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

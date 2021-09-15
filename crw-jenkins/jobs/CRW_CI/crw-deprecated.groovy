@@ -1,15 +1,20 @@
-def JOB_BRANCHES = ["2.11":"", "2.x":""] // no upstream branches
-def JOB_DISABLED = ["2.11":true, "2.x":false]
+import groovy.json.JsonSlurper
+
+def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+
+def jsonSlurper = new JsonSlurper();
+def config = jsonSlurper.parseText(curlCMD);
+
+def JOB_BRANCHES = ["2.11", "2.x"]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value // note: not used
-    JOB_BRANCH=""+JB.key
+    JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     UPSTM_NAME="codeready-workspaces-deprecated"
     SOURCE_REPO="redhat-developer/" + UPSTM_NAME
 
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
+        disabled(config.Jobs.deprecated[JB].disabled) // on reload of job, disable to avoid churn
         description('''
 Lang server dependency builder
 <ul>

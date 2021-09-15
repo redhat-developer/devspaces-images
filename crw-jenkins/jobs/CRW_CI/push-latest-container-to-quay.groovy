@@ -1,17 +1,19 @@
+import groovy.json.JsonSlurper
+
+def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+
+def jsonSlurper = new JsonSlurper();
+def config = jsonSlurper.parseText(curlCMD);
+
 // map branch to floating quay tag to create
-def FLOATING_QUAY_TAGS = [
-    "2.10":"2.10",
-    "2.11":"latest",
-    "2.x" :"nightly"
-    ]
-def JOB_BRANCHES = ["2.11":"", "2.x":""] // no upstream branches
-def JOB_DISABLED = ["2.11":true, "2.x":false]
+def JOB_BRANCHES = ["2.11", "2.x"]
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB.key
+    JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+    FLOATING_QUAY_TAGS="" + config.Jobs."push-latest-container-to-quay"[JB].FLOATING_QUAY_TAG
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
+        disabled(config.Jobs."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
         description('''
 Push 1 or more containers from OSBS to quay.io/crw/. 
 Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, but can be used manually too.
@@ -126,7 +128,7 @@ theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
-            stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS[JB.key], "Update :" + FLOATING_QUAY_TAGS[JB.key] + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
+            stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

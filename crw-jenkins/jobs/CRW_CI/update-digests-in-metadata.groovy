@@ -1,20 +1,27 @@
-def JOB_BRANCHES = ["2.11":"", "2.x":""] // no upstream branches
-def JOB_DISABLED = ["2.11":true, "2.x":false]
+import groovy.json.JsonSlurper
+
+def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+
+def jsonSlurper = new JsonSlurper();
+def config = jsonSlurper.parseText(curlCMD);
+
+def JOB_BRANCHES = ["2.11", "2.x"]
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB.key
+    JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
+        disabled(config.Jobs."update-digests-in-metadata"[JB].disabled) // on reload of job, disable to avoid churn
         description('''
-This job will cause the operator-metadata container to rebuild in both Brew and Quay
+This job will cause the operator-bundle and operator-metadata containers to rebuild in both Brew and Quay
 if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> using 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>
 ./getLatestTags.sh --quay --hide</a>.
 <p>
   Results:
   <ul>
-    <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-metadata</a></li>
+    <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-metadata</a> [deprecated, OCP 4.6]</li>
+    <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-bundle?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-bundle</a> [@since 2.12, OCP 4.8+]</li>
 </ul>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 

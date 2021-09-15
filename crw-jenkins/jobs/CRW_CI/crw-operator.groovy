@@ -1,33 +1,38 @@
-// TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
-def DEV_WORKSPACE_CONTROLLER_VERSIONS = [
-    "2.11":"0.8.x", 
-    "2.x" :"main"
-    ]
-def DEV_WORKSPACE_CHE_OPERATOR_VERSIONS = [
-    "2.11":"7.34.x",
-    "2.x" :"main"
-    ]
+import groovy.json.JsonSlurper
 
-def JOB_BRANCHES = ["2.11":"7.34.x", "2.x":"main"] 
-def JOB_DISABLED = ["2.11":true, "2.x":false]
+def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+
+def jsonSlurper = new JsonSlurper();
+def config = jsonSlurper.parseText(curlCMD);
+
+def JOB_BRANCHES = ["2.11", "2.x"]
 for (JB in JOB_BRANCHES) {
-    SOURCE_BRANCH=JB.value
-    JOB_BRANCH=""+JB.key
+    JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
+        disabled(config.Jobs.operator[JB].disabled) // on reload of job, disable to avoid churn
         UPSTM_NAME="che-operator"
         MIDSTM_NAME="operator"
         SOURCE_REPO="eclipse-che/" + UPSTM_NAME
         MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+        CONTROLLER_VERSION="" + config.Jobs."devworkspace-controller"[JB].upstream_branch
+
+        def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.operator[JB].upstream_branch[0]
+        def BRANCH_CHECK=cmd.execute().text
+
+        SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[0];
+        if (!BRANCH_CHECK) {
+            SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[1]
+        }
 
         description('''
 Artifact builder + sync job; triggers brew after syncing
 
-<p>There are two operator-related sync jobs:<br/>
+<p>There are three operator-related sync jobs:<br/>
 1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
-2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV</p>
+2. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV [deprecated, OCP 4.6]</p>
+3. <a href=../crw-operator-bundle_''' + JOB_BRANCH + '''>crw-operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV [@since 2.12, OCP 4.8+]</p>
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
@@ -75,9 +80,8 @@ Artifact builder + sync job; triggers brew after syncing
             stringParam("MIDSTM_REPO", MIDSTM_REPO)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             stringParam("MIDSTM_NAME", MIDSTM_NAME)
-            // TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
-            stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", DEV_WORKSPACE_CONTROLLER_VERSIONS[JB.key], "Branch (0.y.x or main) used to get deployment templates")
-            stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", DEV_WORKSPACE_CHE_OPERATOR_VERSIONS[JB.key], "Branch (7.yy.x or main) used to get deployment templates")
+            stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", CONTROLLER_VERSION , "Branch (0.y.x or main) used to get deployment templates")
+            stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", SOURCE_BRANCH, "Branch (7.yy.x or main) used to get deployment templates")
             booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
         }
 

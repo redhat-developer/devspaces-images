@@ -17,7 +17,7 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8' // TODO when CRW-2081 is resolved, we can add ||x86_64-rhel8' 
+def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8' // TODO when CRW-2081 is resolved, we can add ||x86_64-rhel8' 
 timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
@@ -40,7 +40,7 @@ timeout(180) {
             println "########################################################################################################"
             SOURCE_DIR="${WORKSPACE}/sources"
             util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
-            OLD_SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+            OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
             println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
 
             // TODO switch to dependabot for dockerfiles?
