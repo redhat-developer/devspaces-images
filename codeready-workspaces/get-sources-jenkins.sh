@@ -37,6 +37,11 @@ if [[ ${doMavenBuild} -eq 1 ]]; then
 	export M2_HOME="/tmp/apache-maven" 
 	mvn -v || exit 1
 
+	# apply patches to upstream
+	# CRW-2267 - replace eclipse/che-theia/next with /latest, which may point to :latest or :nightly depending on how the container is built
+	sed -r -i assembly/assembly-wsmaster-war/src/main/webapp/WEB-INF/classes/che/che.properties \
+		-e "s|(.+.default_editor=eclipse/che-theia)/.+|\1/latest|g" 
+
 	# build che server with maven
 	mvn clean install -Dmaven.repo.local=.repository/ -V -B -e -DskipTests -Dskip-validate-sources -Pfast # -Pintegration
 	# tarball created in ${TARGETDIR}/assembly/assembly-main/target/eclipse-che-*.tar.gz
