@@ -19,6 +19,7 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 CSV_VERSION_PREV=2.x.0
+CSV_PREFIX_NAME="crwoperator"
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
@@ -192,7 +193,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperator.v${CSV_VERSION}|g" \
+		-e "s|name: .+preview-openshift.v.+|name: ${CSV_PREFIX_NAME}.v${CSV_VERSION}|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -271,6 +272,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 		["CHE_FLAVOR"]="codeready"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
+		["OPERATOR_CSV_PREFIX"]="${CSV_PREFIX_NAME}"
 
 		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"

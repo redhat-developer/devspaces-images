@@ -200,6 +200,7 @@ declare -A operator_replacements=(
 	["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 	["CHE_FLAVOR"]="codeready"
 	["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
+	["OPERATOR_CSV_PREFIX"]="crwoperatorallnamespaces"
 
 	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 	["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"

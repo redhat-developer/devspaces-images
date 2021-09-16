@@ -21,6 +21,7 @@ DWO_TAG=0.8
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
+CSV_PREFIX_NAME="crwoperator"
 
 usage () {
 	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
@@ -195,6 +196,7 @@ declare -A operator_replacements=(
 	["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 	["CHE_FLAVOR"]="codeready"
 	["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
+	["OPERATOR_CSV_PREFIX"]="${CSV_PREFIX_NAME}"
 
 	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 	["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
