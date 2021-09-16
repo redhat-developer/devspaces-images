@@ -67,17 +67,15 @@ ENV PROJECTOR_USER_NAME projector-user
 ENV PROJECTOR_DIR /projector
 ENV HOME /home/$PROJECTOR_USER_NAME
 ENV PROJECTOR_CONFIG_DIR $HOME/.config
-COPY install-platform-dependencies.sh /tmp
 RUN set -ex \
     && microdnf install -y --nodocs \
-    jq shadow-utils wget git nss procps findutils which socat \
+    shadow-utils wget git nss procps findutils which socat \
+    # Packages required by JetBrains products.
+    libsecret jq \
     # Java 11 support
     java-11-openjdk-devel \
     # Packages needed for AWT.
     libXext libXrender libXtst libXi libX11-xcb mesa-libgbm libdrm freetype \
-    # Arch specific installs of libsecret and libsecret-devel (required by JetBrains products)
-    && chmod +x /tmp/install-platform-dependencies.sh && /tmp/install-platform-dependencies.sh && rm -f /tmp/install-platform-dependencies.sh \
-    # create user configuration
     && adduser -r -u 1002 -G root -d $HOME -m -s /bin/sh $PROJECTOR_USER_NAME \
     && echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers \
     && mkdir /projects \
