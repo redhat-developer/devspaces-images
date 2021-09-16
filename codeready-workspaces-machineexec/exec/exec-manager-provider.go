@@ -46,6 +46,9 @@ type ExecManager interface {
 
 	// Create a kubeconfig
 	CreateKubeConfig(kubeConfigParams *model.KubeConfigParams, containerInfo *model.ContainerInfo) error
+
+	// List available containers
+	ListAvailableContainers(machineExec *model.MachineExec) ([]*model.ContainerInfo, error)
 }
 
 // CreateExecManager creates and returns new instance ExecManager.
