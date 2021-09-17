@@ -5,13 +5,13 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = ["2.11", "2.x"]
+def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(config.Jobs."theia-akamai"[JB].disabled) // on reload of job, disable to avoid churn
+        disabled(config."Management-Jobs"."theia-akamai"[JB].disabled) // on reload of job, disable to avoid churn
         description('''
 1. <a href=../crw-theia-sources_''' + JOB_BRANCH + '''>crw-theia-sources_''' + JOB_BRANCH + '''</a>: Bootstrap CRW Theia components by building temporary containers and pushing them to quay, then trigger <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream_''' + JOB_BRANCH + '''</a> and <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.<br/>
 2. <a href=../crw-theia-akamai_''' + JOB_BRANCH + '''>crw-theia-akamai_''' + JOB_BRANCH + '''</a>: Push Theia artifacts to akamai CDN <br/>

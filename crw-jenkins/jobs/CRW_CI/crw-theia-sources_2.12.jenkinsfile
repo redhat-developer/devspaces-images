@@ -15,8 +15,8 @@ def THEIA_BRANCH = "master" // theia branch/tag to build: master (will then comp
 def THEIA_GITHUB_REPO = "eclipse-theia/theia" // default: eclipse-theia/theia; optional: redhat-developer/eclipse-theia
 def THEIA_COMMIT_SHA = "" // leave blank to compute within build.sh; or look at https://github.com/eclipse-che/che-theia/blob/7.y.x/build.include#L16 = 4641a298
 
-// Nodes to run artifact build on ex. ['rhel8||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
-def List nodeLabels = ['rhel8||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+// Nodes to run artifact build on ex. ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+def List nodeLabels = ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
 def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
 def List platforms = []
 def Map tasks = [failFast: false]
@@ -46,7 +46,7 @@ timeout(120) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
-        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia-prepare", MIDSTM_BRANCH, true)
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
             string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
@@ -86,7 +86,7 @@ echo -n $THEIA_COMMIT_SHA
 
           // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
           sh """
-pushd crw-theia >/dev/null
+pushd ${WORKSPACE}/crw-theia-prepare >/dev/null
 echo nodeVersion=${nodeVersion} > BUILD_PARAMS
 echo yarnVersion=${yarnVersion} >> BUILD_PARAMS
 echo CRW_VERSION=${CRW_VERSION} >> BUILD_PARAMS
@@ -97,7 +97,7 @@ echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
 
 echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
 git add BUILD_COMMAND BUILD_PARAMS || true
-git commit -s -m "[update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
+git commit -s -m "ci: [update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
 git pull origin ${MIDSTM_BRANCH} || true
 git push origin ${MIDSTM_BRANCH} || true
 popd >/dev/null
@@ -223,7 +223,7 @@ node(nodeLabel) {
 
       wrap([$class: 'TimestamperBuildWrapper']) {
         // sync crw-theia to crw-images
-        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia", MIDSTM_BRANCH, true)
+        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-theia.git", "${WORKSPACE}/crw-theia-sync", MIDSTM_BRANCH, false)
         util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
         def statusCode = util.loginToRegistries()
         if (statusCode > 0) {
@@ -232,8 +232,8 @@ node(nodeLabel) {
           withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
             sh """
-  pushd crw-theia >/dev/null
-    ./build/scripts/sync.sh -s ${WORKSPACE}/crw-theia -t ${WORKSPACE}/crw-images --commit
+  pushd crw-theia-sync >/dev/null
+    ./build/scripts/sync.sh -s ${WORKSPACE}/crw-theia-sync -t ${WORKSPACE}/crw-images --commit
   popd >/dev/null
   """
           }

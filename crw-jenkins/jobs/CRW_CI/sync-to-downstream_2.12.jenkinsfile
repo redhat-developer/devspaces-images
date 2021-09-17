@@ -15,16 +15,16 @@ def NEW_SHA=""
 def SOURCE_SHA=""
 
 // NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
 
-timeout(300) {
+timeout(600) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
-        currentBuild.description="Install skopeo and rhpkg;<br/> "
+        currentBuild.description="${REPOS}<br/>Install skopeo, rhpkg, "
         util.installSkopeoFromContainer("")
         util.installRhpkg()
         // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
@@ -33,7 +33,7 @@ timeout(300) {
             currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
             util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
           } else {
-            currentBuild.description+="install node, yarn;<br/> "
+            currentBuild.description+="node, yarn;<br/> "
             util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
           }
         }
@@ -50,9 +50,10 @@ timeout(300) {
             // ensure static Dockerfiles have the correct version encoded in them
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.7"); }
-            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.7"); }
+            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.8"); }
+            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.8"); }
 
+            currentBuild.description=""
             def QUAY_REPO_PATH=""
             for (int i=0; i < SYNC_REPOS.size(); i++) {
               if (SYNC_REPOS[i]?.trim()) { 
@@ -92,7 +93,7 @@ rm -f /tmp/rsync-excludes
                   if [[ \$(git diff-index HEAD --) ]]; then # file changed
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
                     git add . -A -f
-                    git commit -s -m "[mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+                    git commit -s -m "ci: [mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
                   fi''')
 
@@ -111,6 +112,11 @@ rm -f /tmp/rsync-excludes
                   COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
                   if [ ! -z "$COMMIT_SHA" ] ; then
                     for f in $(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA") ; do
+                      # check if the file/folder to copy has a valid parent
+                      if [[ "${f}" != "${f%/*}" ]] && [[ -n "${f%/*}" ]]; then 
+                        # create destination dir in midstream before copying files from downstream into there
+                        mkdir -p ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/${f%/*}
+                      fi
                       cp ${f} ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/${f}
                     done
                     git pull origin ''' + MIDSTM_BRANCH + ''' || true
@@ -131,7 +137,7 @@ rm -f /tmp/rsync-excludes
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
                   if ("${SYNC_REPOS[i]}".contains("-operator-")) {
-                    // SPECIAL CASE FOR operator (and operator-metadata)
+                    // SPECIAL CASE FOR operator (and operator-bundle, and operator-metadata)
                     QUAY_REPO_PATH="crw-2-rhel8-" + util.getCRWShortName("${SYNC_REPOS[i]}")
                   }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
@@ -238,9 +244,11 @@ node(nodeLabel){
                     $class: 'StringParameterValue',
                     name: 'cause',
                     value: (
-                        REPOS.contains("-operator-metadata") ? 
-                          "build+crwctl+for+operator-metadata+sync+from+${BUILD_TAG}" : 
-                          "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
+                        REPOS.contains("-operator-bundle") ? 
+                          "build+crwctl+for+operator-bundle+sync+from+${BUILD_TAG}" : 
+                            (REPOS.contains("-operator-metadata") ? 
+                            "build+crwctl+for+operator-metadata+sync+from+${BUILD_TAG}" : 
+                            "build+crwctl+for+operator+sync+from+${BUILD_TAG}")
                     )
                   ],
                   [

@@ -6,7 +6,7 @@ def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
 // map branch to tag to use in operator.yaml and csv.yaml
-def JOB_BRANCHES = ["2.11", "2.x"]
+def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
@@ -72,11 +72,6 @@ Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chect
         parameters{
             stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            // TODO remove this after 2.10 is dead
-            if (JOB_BRANCH.equals("2.10")) {
-                stringParam("CSV_VERSION", "2.10.1", "Full version (x.y.z), used in CSV and crwctl version")
-                stringParam("CSV_QUAY_TAG", "latest", "Floating tag to use in operator.yaml and csv.yaml")
-            }
             MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
             stringParam("versionSuffix", "", '''
 if set, use as version suffix before commitSHA: RC-''' + MMdd + ''' --> ''' + JOB_BRANCH + '''.0-RC-''' + MMdd + '''-commitSHA;<br/>

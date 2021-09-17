@@ -1,0 +1,49 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// DRY_RUN
+
+def MIDSTM_BRANCH = 'crw-2-rhel-8'
+def errorOccurred = false
+def String nodeLabel = 'rhel83||s390x-rhel8'  // ppc64le-rhel8 disabled with cffi error
+timeout(120) {
+    node(nodeLabel){
+        try {
+            stage ("Check for updated images") {
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_KEY'),
+			            usernamePassword(credentialsId: 'jira-user-password', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASSWORD'),
+                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+                        def util = load "${WORKSPACE}/util.groovy"
+                        cleanWs()
+                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+                        GHIRA_OPTIONS = ''
+                        if (DRY_RUN.equals("true")) {
+                            GHIRA_OPTIONS += "--dryrun"
+                        }
+
+                        sh '''#!/bin/bash -xe
+                            sudo dnf install -y python3-virtualenv redhat-rpm-config gcc libffi-devel python3-devel openssl-devel cargo rust
+                            cd ${WORKSPACE}/crw/product/ghira
+                            pip install --upgrade pip
+                            virtualenv-3 .
+                            . bin/activate
+                            pip install -r requirements.txt
+                            python3 ghira ''' + GHIRA_OPTIONS + '''
+                            '''
+                    } // with
+                } // wrap
+            } // stage
+        } catch (e) {
+            if (errorOccurred) {
+                util.notifyBuildFailed()
+                return
+            }
+            throw e
+        } // try-catch
+    } // node
+} // timeout
+

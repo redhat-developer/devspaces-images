@@ -5,7 +5,7 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = ["2.11", "2.x"]
+def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"

@@ -14,8 +14,8 @@ def OLD_SHA=""
 def SOURCE_SHA=""
 def NEW_SHA=""
 
-// Nodes to run artifact build on ex. ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
-def List nodeLabels = ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+// Nodes to run artifact build on ex. ['rhel83', 's390x-rhel8', 'ppc64le-rhel8']
+def List nodeLabels = ['rhel83', 's390x-rhel8', 'ppc64le-rhel8']
 def Map tasks = [failFast: false]
 
 timeout(120) {
@@ -98,7 +98,7 @@ echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
                       if [[ \$(git diff-index HEAD --) ]]; then # file changed
                         cd ''' + TARGET_DIR + '''
                         git add . -A -f
-                        git commit -s -m "[sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+                        git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
                         git push origin ''' + MIDSTM_BRANCH + ''' || true
                       fi
                     ''')

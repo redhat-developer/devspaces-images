@@ -21,7 +21,7 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(90) {
     node(nodeLabel) {
@@ -62,10 +62,10 @@ echo " ########################################### "
 for c in ''' + CONTAINERS.trim() + '''; do
     d=codeready-workspaces-${c}-rhel8
     # special case for operator; all other images follow the pattern
-    if [[ $c == "operator" ]] || [[ $c == "operator-metadata" ]]; then 
+    if [[ $c == "operator" ]] || [[ $c == "operator-bundle" ]] || [[ $c == "operator-metadata" ]]; then 
         d=codeready-workspaces-${c}
     fi 
-    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --hide --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
                             ''', returnStatus: true)
@@ -77,7 +77,7 @@ wait
                         }, 
                         nvr_check: {
                             NEW_NVR = sh (
-                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
                                 returnStdout: true).trim().split( '\n' )
                         }, 
                         get_latest_images: {
@@ -115,7 +115,7 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             currentBuild.description+="; Quay/Brew version mismatch"
                             currentBuild.result = 'UNSTABLE'
                             sh(script: '''#!/bin/bash -xe
-    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
                             ''', returnStatus: true)
                             currentBuild.description+="; all Quay images updated"
                         }
@@ -163,14 +163,17 @@ node(nodeLabel){
 
         // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
         // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
-        if (CONTAINERS.trim().equals("operator-metadata")) {
-            println "NOTE: Skip scheduling update-digests-in-registries-and-metadata for this update, as we have just updated operator-metadata."
-            currentBuild.description+="; update-digests-in-registries-and-metadata NOT triggered"
+        if (CONTAINERS.trim().equals("operator-bundle")) {
+            println "NOTE: Skip scheduling update-digests-in-metadata for this update, as we have just updated operator-bundle."
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
+        } else if (CONTAINERS.trim().equals("operator-metadata")) {
+            println "NOTE: Skip scheduling update-digests-in-metadata for this update, as we have just updated operator-metadata."
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
         } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
-            println "Scheduling update-digests-in-registries-and-metadata for this update:"
+            println "Scheduling update-digests-in-metadata for this update:"
             println DIFF_LATEST_IMAGES_QUAY_V_STORED
             build(
-                job: 'update-digests-in-registries-and-metadata_' + JOB_BRANCH,
+                job: 'update-digests-in-metadata_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
                 parameters: [
@@ -186,14 +189,17 @@ node(nodeLabel){
                     ]
                 ]
             )
-            currentBuild.description+="; update-digests-in-registries-and-metadata triggered"
+            currentBuild.description+="; update-digests-in-metadata triggered"
         } else {
-            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-registries-and-metadata_" + CRW_VERSION
+            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-metadata_" + CRW_VERSION
             currentBuild.result = 'UNSTABLE'
-            currentBuild.description+="; update-digests-in-registries-and-metadata NOT triggered"
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
         }
 
-        if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
+        // CRW-2095 publish operator-bundle-generated too
+        // TODO remove operator-metadata check after 2.14 when operator-metadata is gone
+        if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*") || 
+            CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
             // https://issues.redhat.com/browse/CRW-1564 if an update to operator-metadata, push new csv content into crw-images repo, 
             // in codeready-workspaces-operator-metadata-generated folder (outside where we sync from up->mid->down, as this should NOT
             // be synced to downstream or overwritten by upstream)
@@ -205,21 +211,28 @@ node(nodeLabel){
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
               file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
                 util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+
+                whichBundle="operator-bundle"
+                // TODO remove this after 2.14 when operator-metadata is gone
+                if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
+                    whichBundle="operator-metadata"
+                }
+
                 sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
-./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + CRW_VERSION + ''' -s ${WORKSPACE}/sources
+./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + CRW_VERSION + ''' -s ${WORKSPACE}/sources -d codeready-workspaces-''' + whichBundle + '''-generated
 ''')
             }
-            currentBuild.description+="; operator-metadata-generated updated"
+            currentBuild.description+="; " + whichBundle + "-generated updated"
 
             println "####################################################################################################################"
-            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest operator-metadata ${CRW_VERSION}"
+            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest " + whichBundle + " ${CRW_VERSION}"
             println "####################################################################################################################"
             def statusCode = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh
 chmod +x getLatestImageTags.sh
-NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs -c codeready-workspaces-operator-metadata --tag ''' + CRW_VERSION + '''-)
+NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c codeready-workspaces-''' + whichBundle + ''' --tag ''' + CRW_VERSION + '''-)
 
 # registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator-metadata:2.9-2	registry-proxy.engineering.redhat.com/rh-osbs/iib:69346	v4.7
 curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=codeready-workspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | tail -20 > datagrepper.tsv.txt
@@ -238,7 +251,7 @@ fi
                 currentBuild.result = 'FAILURE'
                 currentBuild.description+="; ERROR: rh-osbs/iib NOT updated!"
             }
-        } // if metadata 
+        } // if metadata or bundle
     } // if
   } // stage
 } //node

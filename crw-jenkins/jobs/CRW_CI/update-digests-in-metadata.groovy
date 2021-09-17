@@ -5,13 +5,13 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = ["2.11", "2.x"]
+def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(config.Jobs."update-digests-in-metadata"[JB].disabled) // on reload of job, disable to avoid churn
+        disabled(config."Management-Jobs"."update-digests-in-metadata"[JB].disabled) // on reload of job, disable to avoid churn
         description('''
 This job will cause the operator-bundle and operator-metadata containers to rebuild in both Brew and Quay
 if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> using 
@@ -69,11 +69,7 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
         definition {
             cps{
                 sandbox(true)
-                if (JOB_BRANCH.equals("2.10")) {
-                    script(readFileFromWorkspace('jobs/CRW_CI/update-digests-in-registries-and-metadata_'+JOB_BRANCH+'.jenkinsfile'))
-                } else {
-                    script(readFileFromWorkspace('jobs/CRW_CI/update-digests-in-metadata_'+JOB_BRANCH+'.jenkinsfile'))
-                }
+                script(readFileFromWorkspace('jobs/CRW_CI/update-digests-in-metadata_'+JOB_BRANCH+'.jenkinsfile'))
             }
         }
     }

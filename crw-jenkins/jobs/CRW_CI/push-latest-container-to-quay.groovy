@@ -6,14 +6,14 @@ def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
 // map branch to floating quay tag to create
-def JOB_BRANCHES = ["2.11", "2.x"]
+def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-    FLOATING_QUAY_TAGS="" + config.Jobs."push-latest-container-to-quay"[JB].FLOATING_QUAY_TAG
+    FLOATING_QUAY_TAGS="" + config."Management-Jobs"."push-latest-container-to-quay"[JB].FLOATING_QUAY_TAG
     jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
     pipelineJob(jobPath){
-        disabled(config.Jobs."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
+        disabled(config."Management-Jobs"."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
         description('''
 Push 1 or more containers from OSBS to quay.io/crw/. 
 Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, but can be used manually too.

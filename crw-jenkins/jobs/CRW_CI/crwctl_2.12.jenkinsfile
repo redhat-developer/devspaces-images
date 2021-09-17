@@ -5,8 +5,6 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
-// CSV_VERSION
-// CSV_QUAY_TAG
 // versionSuffix
 // PUBLISH_ARTIFACTS_TO_GITHUB
 // PUBLISH_ARTIFACTS_TO_RCM
@@ -32,6 +30,7 @@ timeout(90) {
           cleanWs()
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           util.installYq() // sync script needs this for transforms
+          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
           // perl-Digest provides shasum for oclif-dev
           // need fuse-sshfs for mounting drive to copy to rcm-guest
@@ -40,7 +39,7 @@ timeout(90) {
           currentBuild.description="Check out code ..."
           util.cloneRepoWithBootstrap("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
           util.cloneRepoWithBootstrap("https://github.com/redhat-developer/${CTL_path}.git", "${WORKSPACE}/${CTL_path}", MIDSTM_BRANCH, true)
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-operator.git", "${WORKSPACE}/codeready-workspaces-operator", MIDSTM_BRANCH, false)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH, false)
 
           def CURRENT_DAY=sh(returnStdout:true,script:"date +'%Y%m%d-%H%M'").trim()
           def SHORT_SHA1 = util.getLastCommitSHA("${WORKSPACE}/${CTL_path}")
@@ -81,19 +80,19 @@ cd ${WORKSPACE}/''' + CTL_path + '''
 git checkout ''' + MIDSTM_BRANCH + '''
 
 # CRW-1579 change yamls to use :2.y tag, not :latest or :nightly - use that only for quay version of crwctl
-pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
-  FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
+pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
+  FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
     sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#registry.redhat.io/codeready-workspaces/\\1:''' + CRW_VERSION + '''#g"
   done
 popd >/dev/null
 
 ./build/scripts/sync-chectl-to-crwctl.sh -b ''' + MIDSTM_BRANCH + ''' -s ${WORKSPACE}/chectl -t ${WORKSPACE}/''' + CTL_path + ''' \
-  --server-tag ''' + CRW_SERVER_TAG + ''' --operator-tag ''' + CRW_OPERATOR_TAG + '''
+  --crw-version ''' + CRW_VERSION + ''' --server-tag ''' + CRW_SERVER_TAG + ''' --operator-tag ''' + CRW_OPERATOR_TAG + '''
 # commit changes
 set -x
 git add .
-git commit -s -m "[sync] Push chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
+git commit -s -m "ci: [sync] Push chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 '''
 
@@ -118,7 +117,7 @@ while IFS= read -r -d '' d; do
 done <   <(find dist/channels/redhat -type f -name "*gz" -print0)
 pwd; du ./dist/channels/*/*gz
 
-git commit -s -m "[update] package.json + README.md" package.json README.md || true
+git commit -s -m "ci: [update] package.json + README.md" package.json README.md || true
 git push origin ''' + MIDSTM_BRANCH + ''' || true
 '''
 
@@ -127,24 +126,24 @@ git push origin ''' + MIDSTM_BRANCH + ''' || true
 echo "2. Prepare ''' + MIDSTM_BRANCH + '''-quay branch of crw operator repo"
 
 # check out from MIDSTM_BRANCH
-pushd ${WORKSPACE}/codeready-workspaces-operator/ >/dev/null
+pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
   git branch ''' + MIDSTM_BRANCH + '''-quay -f
   git checkout ''' + MIDSTM_BRANCH + '''-quay
-  ls -la . deploy manifests
-
-  # CRW-1579 change yamls to use quay image, and :latest or :nightly (depending on CSV_QUAY_TAG set in .groovy)
+  # CRW-1579 change yamls to use quay image, and :latest or :nightly
   # do not use :2.y to allow stable builds to be auto-updated via crwctl on ocp3.11 - :latest tag triggers always-update (?)
-  FILES="deploy/operator.yaml manifests/codeready-workspaces.csv.yaml"
+  FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
-    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + CSV_QUAY_TAG + '''#g"
+    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + 
+      (util.getJobBranch(MIDSTM_BRANCH).equals("2.x") ? "nightly" : "latest") + 
+    '''#g"
   done
 
   # push to ''' + MIDSTM_BRANCH + '''-quay branch
-  git commit -s -m "[update] Push ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
+  git commit -s -m "ci: [update] Push ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
   git push origin ''' + MIDSTM_BRANCH + '''-quay -f
 popd >/dev/null
 # cleanup
-rm -fr ${WORKSPACE}/codeready-workspaces-operator/
+rm -fr ${WORKSPACE}/codeready-workspaces-images/
 '''
           def RELEASE_DESCRIPTION=""
           if ("${versionSuffix}") {
