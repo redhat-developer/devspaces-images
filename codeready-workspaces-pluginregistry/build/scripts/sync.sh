@@ -85,8 +85,8 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
 rm -f /tmp/rsync-excludes
 
-# special case, copy VERSION.json into midstream root dir so it's accessible from /build/../VERSION.json
-rsync -azrlt --checksum "${SOURCEDIR%/*}/VERSION.json" "${TARGETDIR}"/
+# special case, copy job-config.json into midstream root dir so it's accessible from /build/../job-config.json
+rsync -azrlt --checksum "${SOURCEDIR%/*}/job-config.json" "${TARGETDIR}"/
 
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;

@@ -49,7 +49,7 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # if not set via commandline, compute CSV_VERSION_PREV
-# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/VERSION.json
+# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json
 # shellcheck disable=SC2086
 if [[ -z "${CSV_VERSION_PREV}" ]]; then
     
