@@ -115,7 +115,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep -E "operator-bundle|operator-m
                             echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA
 
                             // TODO if the only change is for theia-dev, skip this build
-                            parallel operator-metadata: {
+                            parallel metadata: {
                                 build(
                                     job: 'crw-operator-metadata_' + JOB_BRANCH,
                                     wait: true,
@@ -123,7 +123,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep -E "operator-bundle|operator-m
                                     parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                                 )
                             },
-                            operator-bundle: {
+                            bundle: {
                                 build(
                                     job: 'crw-operator-bundle_' + JOB_BRANCH,
                                     wait: true,
