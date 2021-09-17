@@ -348,3 +348,20 @@ func getByID(id int) *model.MachineExec {
 	execs.mutex.Lock()
 	return execs.execMap[id]
 }
+
+// List available containers
+func (manager *KubernetesExecManager) ListAvailableContainers(machineExec *model.MachineExec) (containersInfo []*model.ContainerInfo, err error) {
+
+	// use only token from this struct
+	k8sAPI, err := manager.k8sAPIProvider.GetK8sAPI(machineExec)
+	if err != nil {
+		logrus.Debugf("Unable to get k8sAPI %s", err.Error())
+		return nil, err
+	}
+	containerFilter := filter.NewKubernetesContainerFilter(manager.namespace, k8sAPI.GetClient().CoreV1())
+	containersInfo, err = containerFilter.GetContainerList()
+	if err != nil {
+		return nil, err
+	}
+	return containersInfo, nil
+}

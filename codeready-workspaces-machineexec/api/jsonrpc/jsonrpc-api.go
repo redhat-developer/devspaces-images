@@ -19,9 +19,10 @@ import (
 // Constants that represent RPC methods identifiers.
 const (
 	// methods to manage exec life cycle
-	CreateMethod = "create"
-	CheckMethod  = "check"
-	ResizeMethod = "resize"
+	CreateMethod         = "create"
+	CheckMethod          = "check"
+	ResizeMethod         = "resize"
+	ListContainersMethod = "listContainers"
 )
 
 // RPCRoutes defines json-rpc exec api. This api uses to manage exec's life cycle.
@@ -42,6 +43,11 @@ var RPCRoutes = jsonrpc.RoutesGroup{
 			Method: ResizeMethod,
 			Decode: jsonrpc.FactoryDec(func() interface{} { return &ResizeParam{} }),
 			Handle: jsonrpc.HandleRet(jsonRpcResizeExec),
+		},
+		{
+			Method: ListContainersMethod,
+			Decode: jsonrpc.FactoryDec(func() interface{} { return nil }),
+			Handle: jsonRpcListContainersExec,
 		},
 	},
 }
