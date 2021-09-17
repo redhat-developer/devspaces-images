@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:6b43503cc5afb02dabfc8432c2af006ba50e09d01835d904391004527f1bd22a
-    createdAt: "2021-09-16T22:11:22+00:00"
+    createdAt: "2021-09-17T05:19:59+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -946,7 +946,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:76fef9948dce0b63561bebfc02ca3f4cba7186c0280e3ad62c90c4b3cc728fa6
+                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:d4a3d90533ee2ef4aed522d3429f1a82067f9ac7c7575c92d3be07d6072e17d4
                 - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
                   value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:21df4e2397552b2c8d4e99b9a705ac29f4f253c9bc8a624c6e02a7c588055dc5
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
@@ -1340,7 +1340,7 @@ spec:
   - name: codeready-operator
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:6b43503cc5afb02dabfc8432c2af006ba50e09d01835d904391004527f1bd22a
   - name: che_server
-    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:76fef9948dce0b63561bebfc02ca3f4cba7186c0280e3ad62c90c4b3cc728fa6
+    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:d4a3d90533ee2ef4aed522d3429f1a82067f9ac7c7575c92d3be07d6072e17d4
   - name: che_server_secure_exposer_jwt_proxy_image
     image: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:21df4e2397552b2c8d4e99b9a705ac29f4f253c9bc8a624c6e02a7c588055dc5
   - name: che_workspace_plugin_broker_artifacts
