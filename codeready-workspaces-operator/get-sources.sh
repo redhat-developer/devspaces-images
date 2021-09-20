@@ -59,7 +59,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 			CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
 		fi
 		if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
-			DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Jobs["devworkspace-controller"]["'${CRW_VERSION}'"][0]')"
+			DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Jobs["devworkspace-controller"]["'${CRW_VERSION}'"].upstream_branch[0]')"
 			if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
 		fi
 		if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
