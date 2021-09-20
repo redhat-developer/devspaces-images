@@ -1,3 +1,5 @@
+#### :warning::warning::warning: Functionality of DevWorkspace Che Operator was merged into https://github.com/eclipse-che/che-operator[che-operator] (https://github.com/eclipse-che/che-operator/pull/925[PR#925]). Devworkspace Che Operator is not deployed in Eclipse Che 7.35+ and this repository will not be mainained anymore.
+
 = Che Manager Controller for DevWorkspaces
 
 image:https://github.com/che-incubator/devworkspace-che-operator/workflows/Go%20tests/badge.svg["Go tests"] image:https://codecov.io/gh/che-incubator/devworkspace-che-operator/branch/master/graph/badge.svg?token=37N55V7E6S["Codecov", link="https://codecov.io/gh/che-incubator/devworkspace-che-operator"]
