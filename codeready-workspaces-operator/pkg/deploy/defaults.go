@@ -65,11 +65,8 @@ const (
 	DefaultKeycloakAdminUserName   = "admin"
 	DefaultCheLogLevel             = "INFO"
 	DefaultCheDebug                = "false"
-	DefaultCheMultiUser            = "true"
 	DefaultCheMetricsPort          = int32(8087)
 	DefaultCheDebugPort            = int32(8000)
-	DefaultCheVolumeMountPath      = "/data"
-	DefaultCheVolumeClaimName      = "che-data-volume"
 	DefaultPostgresVolumeClaimName = "postgres-data"
 
 	DefaultJavaOpts          = "-XX:MaxRAMPercentage=85.0"
@@ -82,9 +79,9 @@ const (
 
 	KubernetesImagePullerOperatorCSV = "kubernetes-imagepuller-operator.v0.0.4"
 
-	DefaultServerExposureStrategy           = "multi-host"
-	DefaultKubernetesSingleHostExposureType = "native"
-	DefaultOpenShiftSingleHostExposureType  = "gateway"
+	DefaultServerExposureStrategy = "multi-host"
+	NativeSingleHostExposureType  = "native"
+	GatewaySingleHostExposureType = "gateway"
 
 	// This is only to correctly  manage defaults during the transition
 	// from Upstream 7.0.0 GA to the next version
@@ -246,6 +243,10 @@ func DefaultConsoleLinkName() string {
 	return getDefaultFromEnv("CONSOLE_LINK_NAME")
 }
 
+func IsDevWorkspaceEngineAllowed() bool {
+	return getDefaultFromEnv("ALLOW_DEVWORKSPACE_ENGINE") == "true"
+}
+
 func DefaultConsoleLinkDisplayName() string {
 	return getDefaultFromEnv("CONSOLE_LINK_DISPLAY_NAME")
 }
@@ -362,22 +363,12 @@ func DefaultPullPolicyFromDockerImage(dockerImage string) string {
 	return "IfNotPresent"
 }
 
-func GetCheMultiUser(cr *orgv1.CheCluster) string {
-	if cr.Spec.Server.CustomCheProperties != nil {
-		cheMultiUser := cr.Spec.Server.CustomCheProperties["CHE_MULTIUSER"]
-		if cheMultiUser == "false" {
-			return "false"
-		}
-	}
-	return DefaultCheMultiUser
-}
-
 func GetSingleHostExposureType(cr *orgv1.CheCluster) string {
-	if util.IsOpenShift {
-		return DefaultOpenShiftSingleHostExposureType
+	if util.IsOpenShift || cr.Spec.DevWorkspace.Enable {
+		return GatewaySingleHostExposureType
 	}
 
-	return util.GetValue(cr.Spec.K8s.SingleHostExposureType, DefaultKubernetesSingleHostExposureType)
+	return util.GetValue(cr.Spec.K8s.SingleHostExposureType, NativeSingleHostExposureType)
 }
 
 func patchDefaultImageName(cr *orgv1.CheCluster, imageName string) string {

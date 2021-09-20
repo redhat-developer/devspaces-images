@@ -59,7 +59,7 @@ type CheClusterSpec struct {
 	// +optional
 	ImagePuller CheClusterSpecImagePuller `json:"imagePuller"`
 
-	// Dev Workspace operator configuration
+	// DevWorkspace operator configuration
 	// +optional
 	DevWorkspace CheClusterSpecDevWorkspace `json:"devWorkspace"`
 }
@@ -477,6 +477,9 @@ type CheClusterSpecAuth struct {
 	GatewayAuthorizationSidecarImage string `json:"gatewayAuthorizationSidecarImage,omitempty"`
 	// Deprecated. The value of this flag is ignored. Sidecar functionality is now implemented in Traefik plugin.
 	GatewayHeaderRewriteSidecarImage string `json:"gatewayHeaderRewriteSidecarImage,omitempty"`
+
+	// Debug internal identity provider.
+	Debug bool `json:"debug,omitempty"`
 }
 
 // Ingress custom settings, can be extended in the future
@@ -608,13 +611,13 @@ type CheClusterSpecImagePuller struct {
 }
 
 // +k8s:openapi-gen=true
-// Settings for installation and configuration of the Dev Workspace operator
+// Settings for installation and configuration of the DevWorkspace operator
 // See https://github.com/devfile/devworkspace-operator
 type CheClusterSpecDevWorkspace struct {
 	// Deploys the DevWorkspace Operator in the cluster.
 	// Does nothing when a matching version of the Operator is already installed.
 	// Fails when a non-matching version of the Operator is already installed.
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Enable Dev Workspace operator"
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Enable DevWorkspace operator (Technology Preview)"
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,xDescriptors="urn:alm:descriptor:com.tectonic.ui:booleanSwitch"
 	Enable bool `json:"enable"`
 	// Overrides the container image used in the DevWorkspace controller deployment.
@@ -711,12 +714,12 @@ type CheClusterStatus struct {
 }
 
 // The `CheCluster` custom resource allows defining and managing a Che server installation
-
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
-// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces Cluster"
+// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces instance Specification"
+// +operator-sdk:csv:customresourcedefinitions:order=0
 // +kubebuilder:storageversion
 type CheCluster struct {
 	metav1.TypeMeta   `json:",inline"`

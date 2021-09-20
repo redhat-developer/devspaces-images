@@ -605,10 +605,25 @@ func UpdateBackupServerConfigurationStatus(client client.Client, backupServerCon
 	return nil
 }
 
+func IsCheMultiUser(cheCluster *orgv1.CheCluster) bool {
+	return cheCluster.Spec.Server.CustomCheProperties == nil || cheCluster.Spec.Server.CustomCheProperties["CHE_MULTIUSER"] != "false"
+}
+
 // ClearMetadata removes extra fields from given metadata.
 // It is required to remove ResourceVersion in order to be able to apply the yaml again.
 func ClearMetadata(objectMeta *metav1.ObjectMeta) {
 	objectMeta.ResourceVersion = ""
 	objectMeta.Finalizers = []string{}
 	objectMeta.ManagedFields = []metav1.ManagedFieldsEntry{}
+}
+
+// GetCheURL returns Che url.
+func GetCheURL(cheCluster *orgv1.CheCluster) string {
+	var cheUrl string
+	if cheCluster.Spec.Server.TlsSupport {
+		cheUrl = "https://" + cheCluster.Spec.Server.CheHost
+	} else {
+		cheUrl = "http://" + cheCluster.Spec.Server.CheHost
+	}
+	return cheUrl
 }

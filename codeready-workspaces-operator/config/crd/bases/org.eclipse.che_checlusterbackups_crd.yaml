@@ -27,6 +27,8 @@ spec:
     - name: v1
       schema:
         openAPIV3Schema:
+          description: The `CheClusterBackup` custom resource allows defining and
+            managing CodeReady Workspaces backup
           properties:
             apiVersion:
               description: 'APIVersion defines the versioned schema of this representation
@@ -58,6 +60,9 @@ spec:
             status:
               description: CheClusterBackupStatus defines the observed state of CheClusterBackup
               properties:
+                cheVersion:
+                  description: Version that was backed up
+                  type: string
                 message:
                   description: Message explaining the state of the backup or an error
                     message

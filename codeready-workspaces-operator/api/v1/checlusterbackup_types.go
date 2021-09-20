@@ -42,15 +42,18 @@ type CheClusterBackupStatus struct {
 	// Last backup snapshot ID
 	// +optional
 	SnapshotId string `json:"snapshotId,omitempty"`
+	// Version that was backed up
+	// +optional
+	CheVersion string `json:"cheVersion,omitempty"`
 }
 
 // The `CheClusterBackup` custom resource allows defining and managing CodeReady Workspaces backup
-
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
-// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces Cluster Backup"
+// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces instance Backup Specification"
+// +operator-sdk:csv:customresourcedefinitions:order=2
 type CheClusterBackup struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
