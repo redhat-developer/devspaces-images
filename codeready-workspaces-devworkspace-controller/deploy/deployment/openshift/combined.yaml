@@ -18615,18 +18615,18 @@ rules:
   - patch
   - update
 - apiGroups:
-  - extensions
-  resources:
-  - ingresses
-  verbs:
-  - '*'
-- apiGroups:
   - monitoring.coreos.com
   resources:
   - servicemonitors
   verbs:
   - create
   - get
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - '*'
 - apiGroups:
   - oauth.openshift.io
   resources:
@@ -18834,7 +18834,7 @@ spec:
         - name: RELATED_IMAGE_kube_rbac_proxy
           value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
         - name: RELATED_IMAGE_project_clone
-          value: quay.io/devfile/project-clone:next
+          value: quay.io/devfile/project-clone:v0.9.0
         - name: WATCH_NAMESPACE
           value: ""
         - name: POD_NAME
