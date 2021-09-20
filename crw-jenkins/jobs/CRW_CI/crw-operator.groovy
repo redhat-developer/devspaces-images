@@ -5,28 +5,36 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
+def JOB_BRANCHES = config.Jobs.operator.keySet()
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB
-    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    pipelineJob(jobPath){
-        disabled(config.Jobs.operator[JB].disabled) // on reload of job, disable to avoid churn
-        UPSTM_NAME="che-operator"
-        MIDSTM_NAME="operator"
-        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
-        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
-        CONTROLLER_VERSION="" + config.Jobs."devworkspace-controller"[JB].upstream_branch
+    //check for jenkinsfile
+    FILE_CHECK = false
+    try {
+        fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
+        FILE_CHECK = true
+    }
+    catch(err) {
+        println "No jenkins file found for " + JB
+    }
+    if (FILE_CHECK) {
+        JOB_BRANCH=""+JB
+        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+        pipelineJob(jobPath){
+            disabled(config.Jobs.operator[JB].disabled) // on reload of job, disable to avoid churn
+            UPSTM_NAME="che-operator"
+            MIDSTM_NAME="operator"
+            SOURCE_REPO="eclipse-che/" + UPSTM_NAME
+            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.operator[JB].upstream_branch[0]
+            def BRANCH_CHECK=cmd.execute().text
 
-        def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.operator[JB].upstream_branch[0]
-        def BRANCH_CHECK=cmd.execute().text
+            SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[0];
+            if (!BRANCH_CHECK) {
+                SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[1]
+            }
 
-        SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[0];
-        if (!BRANCH_CHECK) {
-            SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[1]
-        }
-
-        description('''
+            description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <p>There are three operator-related sync jobs:<br/>
@@ -47,51 +55,55 @@ Artifact builder + sync job; triggers brew after syncing
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
-        ''')
+            ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("nboldt")
-            }
+            properties {
+                ownership {
+                    primaryOwnerId("nboldt")
+                }
 
-            githubProjectUrl("https://github.com/" + SOURCE_REPO)
+                githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-            pipelineTriggers {
-                triggers{
-                    pollSCM{
-                        scmpoll_spec("H H/4 * * *") // every 4hrs
+                pipelineTriggers {
+                    triggers{
+                        pollSCM{
+                            scmpoll_spec("H H/4 * * *") // every 4hrs
+                        }
                     }
                 }
+
+                disableResumeJobProperty()
             }
 
-            disableResumeJobProperty()
-        }
+            logRotator {
+                daysToKeep(5)
+                numToKeep(5)
+                artifactDaysToKeep(2)
+                artifactNumToKeep(1)
+            }
 
-        logRotator {
-            daysToKeep(5)
-            numToKeep(5)
-            artifactDaysToKeep(2)
-            artifactNumToKeep(1)
-        }
+            parameters{
+                stringParam("SOURCE_REPO", SOURCE_REPO)
+                stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+                stringParam("MIDSTM_REPO", MIDSTM_REPO)
+                stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("MIDSTM_NAME", MIDSTM_NAME)
+                booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
 
-        parameters{
-            stringParam("SOURCE_REPO", SOURCE_REPO)
-            stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
-            stringParam("MIDSTM_REPO", MIDSTM_REPO)
-            stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("MIDSTM_NAME", MIDSTM_NAME)
-            stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", CONTROLLER_VERSION , "Branch (0.y.x or main) used to get deployment templates")
-            stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", SOURCE_BRANCH, "Branch (7.yy.x or main) used to get deployment templates")
-            booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
-        }
+                // TODO remove DEV_WORKSPACE_CONTROLLER_VERSION and DEV_WORKSPACE_CHE_OPERATOR_VERSION once 2.12 is live (must keep it until 2.11 jobs are deleted)
+                // these are set in job-config.json and read by sync.sh so we don't need them here 
+                stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", "" + config.Jobs."devworkspace-controller"[JB].upstream_branch[0], "Branch (0.y.x or main) used to get deployment templates")
+                stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", SOURCE_BRANCH, "Branch (7.yy.x or main) used to get deployment templates")
+            }
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
+            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
+            authenticationToken('CI_BUILD')
 
-        definition {
-            cps{
-                sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+            definition {
+                cps{
+                    sandbox(true)
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }

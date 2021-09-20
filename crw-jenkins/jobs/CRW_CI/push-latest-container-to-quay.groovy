@@ -6,15 +6,25 @@ def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
 // map branch to floating quay tag to create
-def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
+def JOB_BRANCHES = config."Management-Jobs"."push-latest-container-to-quay".keySet()
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB
-    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-    FLOATING_QUAY_TAGS="" + config.Other.FLOATING_QUAY_TAGS[JB]
-    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    pipelineJob(jobPath){
-        disabled(config."Management-Jobs"."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
-        description('''
+    //check for jenkinsfile
+    FILE_CHECK = false
+    try {
+        fileCheck = readFileFromWorkspace('jobs/CRW_CI/push-latest-container-to-quay_'+JB+'.jenkinsfile')
+        FILE_CHECK = true
+    }
+    catch(err) {
+        println "No jenkins file found for " + JB
+    }
+    if (FILE_CHECK) {
+        JOB_BRANCH=""+JB
+        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        FLOATING_QUAY_TAGS="" + config.Other."FLOATING_QUAY_TAGS"[JB]
+        jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+        pipelineJob(jobPath){
+            disabled(config."Management-Jobs"."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
+            description('''
 Push 1 or more containers from OSBS to quay.io/crw/. 
 Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, but can be used manually too.
    
@@ -82,42 +92,42 @@ Images to copy to quay:
   to get latest from osbs and push to quay.
 
   <p>After this job runs, <a href=../update-digests-in-metadata_''' + JOB_BRANCH + '''>update-digests-in-metadata</a> will be triggered to check if those containers need a respin.
-''')
+            ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("nboldt")
+            properties {
+                ownership {
+                    primaryOwnerId("nboldt")
+                }
+
+                disableResumeJobProperty()
             }
 
-            disableResumeJobProperty()
-        }
-
-        throttleConcurrentBuilds {
-            maxPerNode(2)
-            maxTotal(10)
-        }
-
-        // limit builds to 1 every 2 mins
-        quietPeriod(120) // in sec
-
-        logRotator {
-            daysToKeep(10)
-            numToKeep(10)
-            artifactDaysToKeep(2)
-            artifactNumToKeep(1)
-        }
-
-        /* requires naginator plugin */
-        /* publishers {
-            retryBuild {
-                rerunIfUnstable()
-                retryLimit(1)
-                progressiveDelay(30,90)
+            throttleConcurrentBuilds {
+                maxPerNode(2)
+                maxTotal(10)
             }
-        } */
 
-        parameters{ // plugin-intellij
-            textParam("CONTAINERS", '''\
+            // limit builds to 1 every 2 mins
+            quietPeriod(120) // in sec
+
+            logRotator {
+                daysToKeep(10)
+                numToKeep(10)
+                artifactDaysToKeep(2)
+                artifactNumToKeep(1)
+            }
+
+            /* requires naginator plugin */
+            /* publishers {
+                retryBuild {
+                    rerunIfUnstable()
+                    retryLimit(1)
+                    progressiveDelay(30,90)
+                }
+            } */
+
+            parameters{ // plugin-intellij
+                textParam("CONTAINERS", '''\
 configbump operator operator-metadata dashboard devfileregistry \
 devworkspace-controller devworkspace imagepuller jwtproxy machineexec \
 pluginbroker-metadata pluginbroker-artifacts plugin-java11-openj9 plugin-java11 plugin-java8-openj9 \
@@ -127,23 +137,24 @@ theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
-            stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
-            stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
-        }
+                stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
+                stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
+            }
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
+            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
+            authenticationToken('CI_BUILD')
 
-        // TODO: enable naginator plugin to re-trigger if job fails
+            // TODO: enable naginator plugin to re-trigger if job fails
 
-        // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.
+            // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.
 
-        // TODO: enable console log parser ?
+            // TODO: enable console log parser ?
 
-        definition {
-            cps{
-                sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/push-latest-container-to-quay_'+JOB_BRANCH+'.jenkinsfile'))
+            definition {
+                cps{
+                    sandbox(true)
+                    script(readFileFromWorkspace('jobs/CRW_CI/push-latest-container-to-quay_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }

@@ -5,30 +5,40 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = ["2.11", "2.12", "2.x"]
+def JOB_BRANCHES = config.Jobs."operator-metadata".keySet()
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB
-    MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-    pipelineJob(jobPath){
-        disabled(config.Jobs."operator-metadata"[JB].disabled) // on reload of job, disable to avoid churn
-        UPSTM_NAME="che-operator"
-        MIDSTM_NAME="operator-metadata"
-        SOURCE_REPO="eclipse/" + UPSTM_NAME
-        SOURCE_REPO="eclipse-che/" + UPSTM_NAME
-        MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
-        CSV_VERSION=config.CSVs."operator-metadata"[JB].CSV_VERSION
-        CSV_VERSION_PREV=config.CSVs."operator-metadata"[JB].CSV_VERSION_PREV
+    //check for jenkinsfile
+    FILE_CHECK = false
+    try {
+        fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
+        FILE_CHECK = true
+    }
+    catch(err) {
+        println "No jenkins file found for " + JB
+    }
+    if (FILE_CHECK) {
+        JOB_BRANCH=""+JB
+        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+        pipelineJob(jobPath){
+            disabled(config.Jobs."operator-metadata"[JB].disabled) // on reload of job, disable to avoid churn
+            UPSTM_NAME="che-operator"
+            MIDSTM_NAME="operator-metadata"
+            SOURCE_REPO="eclipse/" + UPSTM_NAME
+            SOURCE_REPO="eclipse-che/" + UPSTM_NAME
+            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            CSV_VERSION=config.CSVs."operator-metadata"[JB].CSV_VERSION
+            CSV_VERSION_PREV=config.CSVs."operator-metadata"[JB].CSV_VERSION_PREV
 
-        def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."operator-metadata"[JB].upstream_branch[0]
-        def BRANCH_CHECK=cmd.execute().text
+            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."operator-metadata"[JB].upstream_branch[0]
+            def BRANCH_CHECK=cmd.execute().text
 
-        SOURCE_BRANCH=""+config.Jobs."operator-metadata"[JB].upstream_branch[0];
-        if (!BRANCH_CHECK) {
-            SOURCE_BRANCH=""+config.Jobs."operator-metadata"[JB].upstream_branch[1]
-        }
+            SOURCE_BRANCH=""+config.Jobs."operator-metadata"[JB].upstream_branch[0];
+            if (!BRANCH_CHECK) {
+                SOURCE_BRANCH=""+config.Jobs."operator-metadata"[JB].upstream_branch[1]
+            }
 
-        description('''
+            description('''
 Artifact builder + sync job; triggers brew after syncing
 
 <p>There are three operator-related sync jobs:<br/>
@@ -49,55 +59,56 @@ Artifact builder + sync job; triggers brew after syncing
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
-        ''')
+            ''')
 
-        properties {
-            ownership {
-                primaryOwnerId("nboldt")
-            }
+            properties {
+                ownership {
+                    primaryOwnerId("nboldt")
+                }
 
-            githubProjectUrl("https://github.com/" + SOURCE_REPO)
+                githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-            pipelineTriggers {
-                triggers{
-                    pollSCM{
-                        scmpoll_spec("H H/2 * * *") // every 2hrs
+                pipelineTriggers {
+                    triggers{
+                        pollSCM{
+                            scmpoll_spec("H H/2 * * *") // every 2hrs
+                        }
                     }
                 }
+
+                disableResumeJobProperty()
+                disableConcurrentBuildsJobProperty()
             }
 
-            disableResumeJobProperty()
-        }
+            // limit builds to 1 every 20 min
+            quietPeriod(1200) // in sec
 
-        // limit builds to 1 every 20 min
-        quietPeriod(1200) // in sec
+            logRotator {
+                daysToKeep(5)
+                numToKeep(5)
+                artifactDaysToKeep(2)
+                artifactNumToKeep(1)
+            }
 
-        logRotator {
-            daysToKeep(5)
-            numToKeep(5)
-            artifactDaysToKeep(2)
-            artifactNumToKeep(1)
-        }
+            parameters{
+                stringParam("SOURCE_REPO", SOURCE_REPO)
+                stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+                stringParam("MIDSTM_REPO", MIDSTM_REPO)
+                stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("MIDSTM_NAME", MIDSTM_NAME)
+                stringParam("CSV_VERSION", CSV_VERSION)
+                stringParam("CSV_VERSION_PREV", CSV_VERSION_PREV)
+                booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
+            }
 
-        parameters{
-            stringParam("SOURCE_REPO", SOURCE_REPO)
-            stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
-            stringParam("MIDSTM_REPO", MIDSTM_REPO)
-            stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
-            stringParam("MIDSTM_NAME", MIDSTM_NAME)
-            // TODO compute these from https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/VERSION.json
-            stringParam("CSV_VERSION", CSV_VERSION)
-            stringParam("CSV_VERSION_PREV", CSV_VERSION_PREV)
-            booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
-        }
+            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
+            authenticationToken('CI_BUILD')
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
-
-        definition {
-            cps{
-                sandbox(true)
-                script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+            definition {
+                cps{
+                    sandbox(true)
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                }
             }
         }
     }
