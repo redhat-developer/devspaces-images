@@ -111,12 +111,12 @@ type CheBackupServerConfigurationStatus struct {
 }
 
 // The `CheBackupServerConfiguration` custom resource allows defining and managing CodeReady Workspaces Backup Server Configurations
-
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
-// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces Cluster Backup Server Configuration"
+// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces Backup Server"
+// +operator-sdk:csv:customresourcedefinitions:order=1
 type CheBackupServerConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

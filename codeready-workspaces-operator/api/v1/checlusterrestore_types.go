@@ -41,12 +41,12 @@ type CheClusterRestoreStatus struct {
 }
 
 // The `CheClusterRestore` custom resource allows defining and managing CodeReady Workspaces restore
-
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
-// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces Cluster Restore"
+// +operator-sdk:csv:customresourcedefinitions:displayName="CodeReady Workspaces instance Restore Specification"
+// +operator-sdk:csv:customresourcedefinitions:order=3
 type CheClusterRestore struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
