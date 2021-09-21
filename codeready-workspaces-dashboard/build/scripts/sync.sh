@@ -78,25 +78,17 @@ rm -fr ${TARGETDIR}/.yarn/
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-# get yarn version
-
 # get job-config.json
 SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-if [[ $SCRIPTS_BRANCH != "crw-2."*"-rhel-8" ]]; then
-    SCRIPTS_BRANCH="crw-2-rhel-8"
-fi
-# echo "Load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json [3]"
+if [[ $SCRIPTS_BRANCH != "crw-2."*"-rhel-8" ]]; then SCRIPTS_BRANCH="crw-2-rhel-8"; fi
 configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
+# get yarn version
 YARN_VERSION=$(echo "${configjson}" | jq -r --arg CRW_VERSION "${CRW_VERSION}" '.Other["YARN_VERSION"][$CRW_VERSION]');
 YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
 echo "Install Yarn $YARN_VERSION into $YARN_TARGET_DIR ... "
 mkdir -p "${YARN_TARGET_DIR}"
 curl -sSL "https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-${YARN_VERSION}.js" -o "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
 chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
-
-pushd "${TARGETDIR}" >/dev/null
-
-popd >/dev/null
 
 # transform rhel.Dockerfile -> Dockerfile
 sed -r \
@@ -172,30 +164,6 @@ sed -r \
     -e "s|@@crw.version@@|${CRW_SHAs}|g" \
     -e "s#@@crw.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
 ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json.template > ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json
-
-# do vendoring downstream as part of get-source*.sh (if nothing is arch-specific, we can do it later)
-# if [[ ${UPDATE_VENDOR} -eq 1 ]]; then
-#     BOOTSTRAPFILE=${TARGETDIR}/bootstrap.Dockerfile
-#     # with yarn 2, no need to change the dockerfile (unlike with go vendoring or yarn 1)
-#     cp ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile ${BOOTSTRAPFILE}
-#     tag=$(pwd);tag=${tag##*/}
-#     ${BUILDER} build . -f ${BOOTSTRAPFILE} --target builder -t ${tag}:bootstrap # --no-cache
-#     rm -f ${BOOTSTRAPFILE}
-
-#     # step two - extract cache folder to tarball
-#     ${BUILDER} run --rm --entrypoint sh ${tag}:bootstrap -c 'tar -pzcf - .yarn/cache' > "asset-yarn-cache-$(uname -m).tgz"
-
-#     pushd "${TARGETDIR}" >/dev/null || exit 1
-#         # step three - include that tarball's contents in this repo, under the cache folder
-#         tar -xzf "asset-yarn-cache-$(uname -m).tgz"
-#         git add .yarn/cache || true
-#     popd || exit
-#     echo "Collected .yarn/cache/ folder - don't forget to commit it and sync it downstream"
-
-#     # cleanup
-#     rm -f "${TARGETDIR}/asset-vendor-$(uname -m).tgz"
-#     ${BUILDER} rmi ${tag}:bootstrap
-# fi
 
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
