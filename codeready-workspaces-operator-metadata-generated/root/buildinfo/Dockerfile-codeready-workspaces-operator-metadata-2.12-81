@@ -43,5 +43,5 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       io.openshift.expose-services="" \
       usage=""
 
-ADD codeready-workspaces-rhel8-operator-metadata-container-2.12-80.json /root/buildinfo/content_manifests/codeready-workspaces-rhel8-operator-metadata-container-2.12-80.json
-LABEL "release"="80" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-09-21T09:33:48.927158" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="9065204421bba7444a8e5031b816a3c6a288921f" "com.redhat.build-host"="cpt-1008.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-metadata/images/2.12-80"
+ADD codeready-workspaces-rhel8-operator-metadata-container-2.12-81.json /root/buildinfo/content_manifests/codeready-workspaces-rhel8-operator-metadata-container-2.12-81.json
+LABEL "release"="81" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-09-21T16:47:57.999153" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="5a1155488edc2ffdd41deead7423428f8030324c" "com.redhat.build-host"="cpt-1008.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-metadata/images/2.12-81"
