@@ -12,9 +12,12 @@
 
 import { AxiosResponse } from 'axios';
 
-export function getErrorMessage(error: Error | AxiosResponse): string {
+export function getErrorMessage(error: Error | AxiosResponse | string): string {
   if (!error) {
     return '';
+  }
+  if (typeof(error) === 'string') {
+    return error;
   }
   if (isError(error) && error.message) {
     return error.message;

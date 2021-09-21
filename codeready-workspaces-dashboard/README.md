@@ -111,7 +111,7 @@ yarn license:generate
 
 ## Branding
 
-Default branding data for the User Dashboard is located in [branding.constant.ts](src/services/bootstrap/branding.constant.ts)#BRANDING_DEFAULT. It can be overridden without re-building the project in [product.json](/assets/branding/product.json) file which should contain only values that should overwrite default ones.
+Default branding data for the User Dashboard is located in [branding.constant.ts](/packages/dashboard-frontend/src/services/bootstrap/branding.constant.ts)#BRANDING_DEFAULT. It can be overridden without re-building the project in [product.json](/packages/dashboard-frontend/assets/branding/product.json) file which should contain only values that should overwrite default ones.
 
 ### Configurability
 

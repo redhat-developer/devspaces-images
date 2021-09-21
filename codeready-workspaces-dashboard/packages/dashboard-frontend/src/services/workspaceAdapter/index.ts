@@ -19,6 +19,7 @@ import {
 import { attributesToType, typeToAttributes } from '../storageTypes';
 import { DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
 import { DEVWORKSPACE_NEXT_START_ANNOTATION } from '../workspace-client/devWorkspaceClient';
+import { getId, getStatus } from './helper';
 
 const ROUTING_CLASS = 'che';
 
@@ -63,7 +64,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.id;
     } else {
-      return (this.workspace as IDevWorkspace).status.devworkspaceId;
+      return getId(this.workspace as IDevWorkspace);
     }
   }
 
@@ -124,7 +125,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.status as WorkspaceStatus;
     } else {
-      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus;
+      return getStatus(this.workspace as IDevWorkspace);
     }
   }
 
@@ -132,7 +133,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STARTING;
     } else {
-      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.STARTING;
+      return getStatus(this.workspace as IDevWorkspace) === DevWorkspaceStatus.STARTING;
     }
   }
 
@@ -140,7 +141,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STOPPED;
     } else {
-      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.STOPPED;
+      return getStatus(this.workspace as IDevWorkspace) === DevWorkspaceStatus.STOPPED;
     }
   }
 
@@ -148,7 +149,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STOPPING;
     } else {
-      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.STOPPING;
+      return getStatus(this.workspace as IDevWorkspace) === DevWorkspaceStatus.STOPPING;
     }
   }
 
@@ -156,7 +157,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.status as WorkspaceStatus === WorkspaceStatus.RUNNING;
     } else {
-      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.RUNNING;
+      return getStatus(this.workspace as IDevWorkspace) === DevWorkspaceStatus.RUNNING;
     }
   }
 
@@ -164,7 +165,7 @@ export class WorkspaceAdapter<T extends che.Workspace | IDevWorkspace> implement
     if (isWorkspaceV1(this.workspace)) {
       return this.workspace.status as WorkspaceStatus === WorkspaceStatus.ERROR;
     } else {
-      return (this.workspace as IDevWorkspace).status?.phase as DevWorkspaceStatus === DevWorkspaceStatus.FAILED;
+      return getStatus(this.workspace as IDevWorkspace) === DevWorkspaceStatus.FAILED;
     }
   }
 

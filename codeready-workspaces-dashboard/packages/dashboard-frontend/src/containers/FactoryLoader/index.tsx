@@ -33,6 +33,7 @@ import { selectInfrastructureNamespaces } from '../../store/InfrastructureNamesp
 import { safeLoad } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devWorkspaceClient';
+import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create'];
 
@@ -266,8 +267,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         this.resolvePrivateDevfile(e.attributes.oauth_authentication_url, location);
         return;
       }
-
-      this.showAlert('Failed to resolve a devfile. ' + (e.message || ''));
+      this.showAlert('Failed to resolve a devfile. ' + getErrorMessage(e));
       return;
     }
     if (this.factoryResolver.resolver?.location !== location) {

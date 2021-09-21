@@ -26,6 +26,7 @@ import { V1alpha2DevWorkspace, V1alpha2DevWorkspaceTemplate, V1alpha2DevWorkspac
 import { InversifyBinding } from '@eclipse-che/che-theia-devworkspace-handler/lib/inversify/inversify-binding';
 import { CheTheiaPluginsDevfileResolver } from '@eclipse-che/che-theia-devworkspace-handler/lib/devfile/che-theia-plugins-devfile-resolver';
 import { SidecarPolicy } from '@eclipse-che/che-theia-devworkspace-handler/lib/api/devfile-context';
+import { getStatus } from '../workspaceAdapter/helper';
 export interface IStatusUpdate {
   error?: string;
   message?: string;
@@ -56,6 +57,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private lastDevWorkspaceLog: Map<string, string>;
   private devWorkspacesIds: string[];
   private pluginRegistryUrlEnvName: string;
+  private pluginRegistryInternalUrlEnvName: string;
   private dashboardUrlEnvName: string;
 
   constructor(@inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService) {
@@ -70,6 +72,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     this.lastDevWorkspaceLog = new Map();
     this.devWorkspacesIds = [];
     this.pluginRegistryUrlEnvName = 'CHE_PLUGIN_REGISTRY_URL';
+    this.pluginRegistryInternalUrlEnvName = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
   }
 
@@ -110,7 +113,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
   async create(devfile: IDevWorkspaceDevfile, pluginsDevfile: IDevWorkspaceDevfile[], pluginRegistryUrl: string | undefined, optionalFilesContent: {
     [fileName: string]: string
-  },): Promise<IDevWorkspace> {
+  },
+  pluginRegistryInternalUrl: string | undefined,
+  ): Promise<IDevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
     }
@@ -207,7 +212,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
             }, {
               name: this.pluginRegistryUrlEnvName,
               value: pluginRegistryUrl || ''
-            }]);
+            }
+            , {
+              name: this.pluginRegistryInternalUrlEnvName,
+              value: pluginRegistryInternalUrl || ''
+            }
+          ]);
           }
         }
       }
@@ -445,7 +455,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   }
 
   checkForDevWorkspaceError(devworkspace: IDevWorkspace) {
-    const currentPhase = devworkspace.status?.phase;
+    const currentPhase = getStatus(devworkspace);
     if (currentPhase && currentPhase === DevWorkspaceStatus.FAILED) {
       const message = devworkspace.status.message;
       if (message) {
