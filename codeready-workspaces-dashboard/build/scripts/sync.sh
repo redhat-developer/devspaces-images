@@ -78,8 +78,18 @@ rm -fr ${TARGETDIR}/.yarn/
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
 
-# fetch yarn
-yarn policies set-version 1.21.1
+# get yarn version
+
+# get job-config.json
+SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+if [[ $SCRIPTS_BRANCH != "crw-2."*"-rhel-8" ]]; then
+    SCRIPTS_BRANCH="crw-2-rhel-8"
+fi
+# echo "Load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json [3]"
+configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
+YARN_VERSION=$(echo "${configjson}" | jq -r --arg CRW_VERSION "${CRW_VERSION}" '.Other["YARN_VERSION"][$CRW_VERSION]');
+echo "Install Yarn $YARN_VERSION into .yarn/ ... "
+yarn policies set-version ${YARN_VERSION}
 
 pushd "${TARGETDIR}" >/dev/null
 
