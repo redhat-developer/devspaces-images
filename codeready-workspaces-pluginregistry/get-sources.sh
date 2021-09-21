@@ -52,10 +52,8 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	cat bootstrap.Dockerfile
 	echo "<======= BOOTSTRAP DOCKERFILE ======="
 	echo "======= START BOOTSTRAP BUILD =======>"
-
 	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
 		--target builder --build-arg BOOTSTRAP=true
-
 	echo "<======= END BOOTSTRAP BUILD ======="
 	# update tarballs - step 2 - check old sources' tarballs
 	TARGZs="root-local.tgz resources.tgz"
@@ -70,16 +68,21 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		-c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
 	MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
 	# check diff
-	BEFORE_DIR="$(mktemp -d)"
-	tar xzf root-local.tgz -C ${BEFORE_DIR}
-	TAR_DIFF=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "*.pyc" -x "installed-files.txt") || true
+	if [[ -f root-local.tgz ]]; then 
+		BEFORE_DIR="$(mktemp -d)"
+		tar xzf root-local.tgz -C ${BEFORE_DIR}
+		TAR_DIFF=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "*.pyc" -x "installed-files.txt") || true
+		sudo rm -fr ${BEFORE_DIR}
+	else
+		TAR_DIFF="No such file root-local.tgz -- could not fetch from 'rhpkg sources'"
+	fi
 	if [[ ${TAR_DIFF} ]]; then
 		echo "DIFF START *****"
 		echo "${TAR_DIFF}"
 		echo "***** END DIFF"
 		pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz .
 	fi
-	sudo rm -fr ${tmpDir} ${BEFORE_DIR}
+	sudo rm -fr ${tmpDir}
 
 	# we always need a fresh resources.tgz to guarantee proper timestamps and latest vsix files
 	rm -f ./resources.tgz

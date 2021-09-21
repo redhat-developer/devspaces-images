@@ -44,7 +44,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	# create/update sources tarballs (needed for offline Brew builds)
 	#
 
-	# transform Brew friendly Dockerfile so we can use it in Jenkins where base images need full registry path
+	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
 	sed Dockerfile --regexp-extended \
 		-e 's|COPY (.*) resources.tgz (.*)|COPY \1 \2|' \
 		-e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=true|' \
@@ -71,7 +71,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 	rhpkg sources || true
 
-	# update tarballs - step 3 - create new tarballs 
+	# update tarballs - step 3 - create new tarballs
 	# NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
 	tmpDir="$(mktemp -d)"
 	${BUILDER} run --rm -v \
@@ -79,18 +79,23 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		-c 'cd /opt/app-root/src/.local/ && cp -r bin/ lib/ /tmp/root-local/'
 	MYUID=$(id -u); MYGID=$(id -g); sudo chown -R $MYUID:$MYGID $tmpDir
 	# check diff
-	BEFORE_DIR="$(mktemp -d)"
-	tar xzf root-local.tgz -C ${BEFORE_DIR}
-	TAR_DIFF=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "*.pyc" -x "installed-files.txt") || true
+	if [[ -f root-local.tgz ]]; then 
+		BEFORE_DIR="$(mktemp -d)"
+		tar xzf root-local.tgz -C ${BEFORE_DIR}
+		TAR_DIFF=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "*.pyc" -x "installed-files.txt") || true
+		sudo rm -fr ${BEFORE_DIR}
+	else
+		TAR_DIFF="No such file root-local.tgz -- could not fetch from 'rhpkg sources'"
+	fi
 	if [[ ${TAR_DIFF} ]]; then
 		echo "DIFF START *****"
 		echo "${TAR_DIFF}"
 		echo "***** END DIFF"
 		pushd ${tmpDir} >/dev/null && tar czf root-local.tgz lib/ bin/ && popd >/dev/null && mv -f ${tmpDir}/root-local.tgz .
 	fi
-	sudo rm -fr ${tmpDir} ${BEFORE_DIR}
+	sudo rm -fr ${tmpDir}
 
-	# resources.tgz
+	# check if existing resources.tgz is different 
 	tmpDir=$(mktemp -d)
 	${BUILDER} run --rm -v ${tmpDir}/:/tmp/resources/ --entrypoint /bin/bash ${tmpContainer} -c \
 		"cd /build && cp -r ${filesToInclude} /tmp/resources/"
@@ -102,7 +107,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 		TAR_DIFF2=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} "${filesToExclude[@]}") || true
 		sudo rm -fr ${BEFORE_DIR}
 	else
-		TAR_DIFF2="No such file resources.tgz -- creating a new one for the first time"
+		TAR_DIFF2="No such file resources.tgz -- could not fetch from 'rhpkg sources'"
 	fi
 	if [[ ${TAR_DIFF2} ]]; then
 		echo "DIFF START *****"
