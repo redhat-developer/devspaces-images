@@ -36,6 +36,7 @@ type Props =
   & {
     storageType?: che.WorkspaceStorageType;
     onChange?: (storageType: che.WorkspaceStorageType) => void;
+    isDisable?: boolean;
   };
 type State = {
   isOpen: boolean;
@@ -131,6 +132,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
 
   public render(): React.ReactNode {
     const { isOpen, selected, isModalOpen } = this.state;
+    const { isDisable } = this.props;
 
     return (
       <FormGroup
@@ -148,6 +150,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
           onSelect={(event, selection) => this.handleSelect(selection as string)}
           selections={selected}
           isOpen={isOpen}
+          isDisabled={isDisable}
         >
           {this.options.map((option: string) => (
             <SelectOption

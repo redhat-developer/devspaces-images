@@ -16,7 +16,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { HeaderActionSelect } from '..';
 import { WorkspaceAction, WorkspaceStatus } from '../../../../../services/helpers/types';
-import { Workspace } from '../../../../../services/workspaceAdapter';
+import { Workspace } from '../../../../../services/workspace-adapter';
 import { AppThunk } from '../../../../../store';
 import { ActionCreators, ResourceQueryParams } from '../../../../../store/Workspaces';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
@@ -36,6 +36,7 @@ jest.mock('../../../../../store/Workspaces/index', () => {
   };
 });
 
+const namespace = 'che';
 const workspaceName = 'test-workspace-name';
 const workspaceId = 'test-workspace-id';
 const workspaceStoppedStatus = WorkspaceStatus.STOPPED;
@@ -44,10 +45,11 @@ const store = new FakeStoreBuilder()
     workspaceId,
     workspaceName,
   })
+  .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
   .withCheWorkspaces({
     workspaces: [{
       id: workspaceId,
-      namespace: 'test',
+      namespace,
       status: WorkspaceStatus[workspaceStoppedStatus],
       devfile: {
         apiVersion: 'v1',
@@ -75,7 +77,7 @@ describe('Workspace WorkspaceAction widget', () => {
     const targetAction = screen.getByText(action);
     targetAction.click();
 
-    await waitFor(() => expect(history.location.pathname).toBe('/ide/test/test-workspace-name'));
+    await waitFor(() => expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`));
   });
 
   it('should call the callback with OPEN_IN_VERBOSE_MODE action', async () => {
@@ -93,7 +95,7 @@ describe('Workspace WorkspaceAction widget', () => {
     const targetAction = screen.getByText(action);
     targetAction.click();
 
-    await waitFor(() => expect(history.location.pathname).toBe('/ide/test/test-workspace-name'));
+    await waitFor(() => expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`));
   });
 
   it('should call the callback with START_IN_BACKGROUND action', () => {

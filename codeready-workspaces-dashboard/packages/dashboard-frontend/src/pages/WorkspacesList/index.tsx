@@ -28,6 +28,7 @@ import {
 import { History, Location } from 'history';
 import { AlertVariant, Divider, PageSection, PageSectionVariants, Text, TextContent } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import common from '@eclipse-che/common';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
 import { DevWorkspaceStatus, WorkspaceAction } from '../../services/helpers/types';
 import Head from '../../components/Head';
@@ -39,7 +40,7 @@ import { lazyInject } from '../../inversify.config';
 import NoWorkspacesEmptyState from './EmptyState/NoWorkspaces';
 import NothingFoundEmptyState from './EmptyState/NothingFound';
 import { buildRows, RowData } from './Rows';
-import { isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
+import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 
 import * as styles from './index.module.css';
 
@@ -208,7 +209,8 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
     } catch (e) {
       const workspace = this.props.workspaces.find(workspace => id === workspace.id);
       const workspaceName = workspace?.name ? ` "${workspace?.name}"` : '';
-      const message = `Unable to ${action.toLocaleLowerCase()}${workspaceName}. ` + e.toString().replace('Error: ', '');
+      const errorMessage = common.helpers.errors.getMessage(e);
+      const message = `Unable to ${action.toLocaleLowerCase()}${workspaceName}. ` + errorMessage.replace('Error: ', '');
       this.showAlert(message);
       console.warn(message);
     }
@@ -224,7 +226,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       const wantDelete = selected.map(id => {
         const workspace = workspaces.find(workspace => id === workspace.id);
         if (!hasCheWorkspaces && workspace) {
-          hasCheWorkspaces = isWorkspaceV1(workspace.ref);
+          hasCheWorkspaces = isCheWorkspace(workspace.ref);
         }
         return workspace?.name || id;
       });
@@ -239,8 +241,9 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
         return id;
       } catch (e) {
         const workspace = this.props.workspaces.find(workspace => id === workspace.id);
-        const workspaceName = workspace?.name ? ` "${workspace?.name}"` : '';
-        const message = `Unable to ${workspace && isWorkspaceV1(workspace.ref) ? 'delete' : 'terminate'} workspace${workspaceName}. ` + e.toString().replace('Error: ', '');
+        const action = workspace && isCheWorkspace(workspace.ref) ? 'delete' : 'terminate';
+        const workspaceName = workspace?.name ? `workspace "${workspace.name}"` : 'workspace';
+        const message = `Unable to ${action} ${workspaceName}. ` + common.helpers.errors.getMessage(e).replace('Error: ', '');
         this.showAlert(message);
         console.warn(message);
         throw new Error(message);

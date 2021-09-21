@@ -1,0 +1,44 @@
+schemaVersion: 2.1.0
+metadata:
+  name: nodejs-stack
+  namespace: dwclient-test
+  attributes:
+    author: Somebody
+    dw.metadata.annotations:
+      any.custom.settings: "true"
+projects:
+  - name: project
+    git:
+      remotes:
+        origin: "https://github.com/che-samples/web-nodejs-sample.git"
+components:
+  - name: nodejs
+    container:
+      image: quay.io/eclipse/che-nodejs10-ubi:nightly
+      memoryLimit: 512Mi
+      endpoints:
+        - name: nodejs
+          protocol: http
+          targetPort: 3000
+      mountSources: true
+  - name: editor
+    plugin:
+      id: eclipse/che-theia/7.1.0
+  - name: terminal
+    plugin:
+      id: eclipse/che-machine-exec-plugin/7.1.0
+  - name: typescript-plugin
+    plugin:
+      id: che-incubator/typescript/1.30.2
+      components:
+        - name: "somename"
+          container:
+            memoryLimit: 512Mi
+commands:
+  - id: download-dependencies
+    exec:
+      component: nodejs
+      commandLine: npm install
+      workingDir: ${PROJECTS_ROOT}/project/app
+      group:
+        kind: build

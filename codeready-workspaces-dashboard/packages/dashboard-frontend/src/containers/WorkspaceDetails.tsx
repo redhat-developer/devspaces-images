@@ -16,10 +16,10 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import WorkspaceDetails, { WorkspaceDetails as Details } from '../pages/WorkspaceDetails';
+import common from '@eclipse-che/common';
 import { buildDetailsLocation, toHref, buildWorkspacesLocation } from '../services/helpers/location';
 import { WorkspaceDetailsTab } from '../services/helpers/types';
-import { Workspace } from '../services/workspaceAdapter';
-
+import { Workspace } from '../services/workspace-adapter';
 import { AppState } from '../store';
 import * as WorkspacesStore from '../store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading, selectWorkspaceById } from '../store/Workspaces/selectors';
@@ -112,10 +112,11 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
       this.props.setWorkspaceId(changedWorkspace.id);
       this.props.history.replace(location);
     } catch (e) {
+      const errorMessage = common.helpers.errors.getMessage(e);
       if (this.workspaceDetailsPageRef.current?.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
-        throw e;
+        throw errorMessage;
       }
-      this.showAlert(e);
+      this.showAlert(errorMessage);
     }
   }
 

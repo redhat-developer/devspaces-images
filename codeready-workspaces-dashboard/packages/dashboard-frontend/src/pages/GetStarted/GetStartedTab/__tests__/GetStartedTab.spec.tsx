@@ -18,6 +18,7 @@ import { SamplesListTab } from '..';
 import { selectIsLoading } from '../../../../store/Workspaces/selectors';
 import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
+import { Devfile } from '../../../../services/workspace-adapter';
 
 const onDevfileMock: (devfileContent: string, stackName: string, optionalFilesContent?: { [fileName: string]: string }) => Promise<void> = jest.fn().mockResolvedValue(true);
 
@@ -26,7 +27,7 @@ const testDevfileName = 'Custom Devfile';
 const testDevfile = {
   apiVersion: '1.0.0',
   metadata: { name: testDevfileName },
-} as che.WorkspaceDevfile;
+} as Devfile;
 
 jest.mock(
   '../SamplesListGallery',

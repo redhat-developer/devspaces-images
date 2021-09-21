@@ -22,7 +22,7 @@ import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 import { ActionCreators } from '../../../store/Workspaces';
 import { AppThunk } from '../../../store';
-import { Workspace } from '../../../services/workspaceAdapter';
+import { Workspace } from '../../../services/workspace-adapter';
 
 jest.mock('../../../store/Workspaces/index', () => {
   return {

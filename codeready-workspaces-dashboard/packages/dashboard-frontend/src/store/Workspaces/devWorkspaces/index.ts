@@ -12,18 +12,20 @@
 
 import { Action, Reducer } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import common from '@eclipse-che/common';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
-import { DevWorkspaceClient, DEVWORKSPACE_NEXT_START_ANNOTATION, IStatusUpdate } from '../../../services/workspace-client/devWorkspaceClient';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
-import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import { DevWorkspaceClient, DEVWORKSPACE_NEXT_START_ANNOTATION, IStatusUpdate } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
+import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { deleteLogs, mergeLogs } from '../logs';
-import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { DisposableCollection } from '../../../services/helpers/disposable';
 import { selectDwPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
+import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
+import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const devWorkspaceClient = container.get(DevWorkspaceClient);
@@ -33,7 +35,8 @@ const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
 export interface State {
   isLoading: boolean;
-  workspaces: IDevWorkspace[];
+  workspaces: devfileApi.DevWorkspace[];
+  resourceVersion?: string;
   error?: string;
   // runtime logs
   workspacesLogs: Map<string, string[]>;
@@ -50,12 +53,13 @@ interface ReceiveErrorAction extends Action {
 
 interface ReceiveWorkspacesAction extends Action {
   type: 'RECEIVE_DEVWORKSPACE';
-  workspaces: IDevWorkspace[];
+  workspaces: devfileApi.DevWorkspace[];
+  resourceVersion: string;
 }
 
 interface UpdateWorkspaceAction extends Action {
   type: 'UPDATE_DEVWORKSPACE';
-  workspace: IDevWorkspace;
+  workspace: devfileApi.DevWorkspace;
 }
 
 interface UpdateWorkspaceStatusAction extends Action {
@@ -86,7 +90,7 @@ interface TerminateWorkspaceAction extends Action {
 
 interface AddWorkspaceAction extends Action {
   type: 'ADD_DEVWORKSPACE';
-  workspace: IDevWorkspace;
+  workspace: devfileApi.DevWorkspace;
 }
 
 type KnownAction =
@@ -106,28 +110,29 @@ export type ResourceQueryParams = {
   [propName: string]: string | boolean | undefined;
 }
 export type ActionCreators = {
-  updateAddedDevWorkspaces: (workspace: IDevWorkspace[]) => AppThunk<KnownAction, void>;
+  updateAddedDevWorkspaces: (workspace: devfileApi.DevWorkspace[]) => AppThunk<KnownAction, void>;
   updateDeletedDevWorkspaces: (deletedWorkspacesIds: string[]) => AppThunk<KnownAction, void>;
-  updateDevWorkspaceStatus: (workspace: IDevWorkspace, message: IStatusUpdate) => AppThunk<KnownAction, void>;
+  updateDevWorkspaceStatus: (message: IStatusUpdate) => AppThunk<KnownAction, void>;
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
-  requestWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  startWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  restartWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  stopWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  terminateWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  updateWorkspace: (workspace: IDevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  createWorkspaceFromDevfile: (devfile: IDevWorkspaceDevfile, optionalFilesContent: {
+  requestWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  startWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  restartWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  stopWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  terminateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  updateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  createWorkspaceFromDevfile: (devfile: devfileApi.Devfile, optionalFilesContent: {
     [fileName: string]: string
   },
     pluginRegistryUrl: string | undefined,
-  ) => AppThunk<KnownAction, Promise<IDevWorkspace>>;
+    pluginRegistryInternalUrl: string | undefined,
+  ) => AppThunk<KnownAction, Promise<void>>;
 
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
 };
 
 export const actionCreators: ActionCreators = {
 
-  updateAddedDevWorkspaces: (workspaces: IDevWorkspace[]): AppThunk<KnownAction, void> => (dispatch): void => {
+  updateAddedDevWorkspaces: (workspaces: devfileApi.DevWorkspace[]): AppThunk<KnownAction, void> => (dispatch): void => {
     workspaces.forEach(workspace => {
       dispatch({
         type: 'ADD_DEVWORKSPACE',
@@ -145,8 +150,8 @@ export const actionCreators: ActionCreators = {
     });
   },
 
-  updateDevWorkspaceStatus: (workspace: IDevWorkspace, message: IStatusUpdate): AppThunk<KnownAction, void> => (dispatch): void => {
-    onStatusUpdateReceived(workspace, dispatch, message);
+  updateDevWorkspaceStatus: (message: IStatusUpdate): AppThunk<KnownAction, void> => (dispatch): void => {
+    onStatusUpdateReceived(dispatch, message);
   },
 
   requestWorkspaces: (): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
@@ -154,14 +159,15 @@ export const actionCreators: ActionCreators = {
 
     try {
       const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
-      const workspaces = await devWorkspaceClient.getAllWorkspaces(defaultNamespace);
+      const { workspaces, resourceVersion } = await devWorkspaceClient.getAllWorkspaces(defaultNamespace);
 
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE',
         workspaces,
+        resourceVersion,
       });
     } catch (e) {
-      const errorMessage = 'Failed to fetch available workspaces, reason: ' + getErrorMessage(e);
+      const errorMessage = 'Failed to fetch available workspaces, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -171,7 +177,7 @@ export const actionCreators: ActionCreators = {
 
   },
 
-  requestWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+  requestWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
 
     try {
@@ -183,7 +189,7 @@ export const actionCreators: ActionCreators = {
         workspace: update,
       });
     } catch (e) {
-      const errorMessage = `Failed to fetch the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to fetch the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -192,15 +198,21 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  startWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
+  startWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
     try {
-      let updatedWorkspace: IDevWorkspace;
+      let updatedWorkspace: devfileApi.DevWorkspace;
       if (workspace.metadata.annotations && workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
         // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
         const state = getState();
         const plugins = selectDwPluginsList(state);
-        const storedDevWorkspace = JSON.parse(workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) as IDevWorkspace;
+
+        const storedDevWorkspace = JSON.parse(workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) as unknown;
+        if (!isDevWorkspace(storedDevWorkspace)) {
+          console.error(`The stored devworkspace either has wrong "kind" (not ${devWorkspaceKind}) or lacks some of mandatory fields: `, storedDevWorkspace);
+          throw new Error('Unexpected error happened. Please check the Console tab of Developer tools.');
+        }
+
         delete workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION];
         workspace.spec.template = storedDevWorkspace.spec.template;
         workspace.spec.started = true;
@@ -213,7 +225,7 @@ export const actionCreators: ActionCreators = {
         workspace: updatedWorkspace,
       });
     } catch (e) {
-      const errorMessage = `Failed to start the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to start the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -222,7 +234,7 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  restartWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+  restartWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     const defer: IDeferred<void> = getDefer();
     const toDispose = new DisposableCollection();
     const onStatusChangeCallback = status => {
@@ -235,15 +247,15 @@ export const actionCreators: ActionCreators = {
         });
       }
     };
-    if (workspace.status.phase === DevWorkspaceStatus.STOPPED || workspace.status.phase === DevWorkspaceStatus.FAILED) {
+    if (workspace.status?.phase === DevWorkspaceStatus.STOPPED || workspace.status?.phase === DevWorkspaceStatus.FAILED) {
       onStatusChangeCallback(workspace.status.phase);
     } else {
-      const workspaceId = workspace.status.devworkspaceId;
+      const workspaceId = WorkspaceAdapter.getId(workspace);
       onStatusChangeCallbacks.set(workspaceId, onStatusChangeCallback);
       toDispose.push({
         dispose: () => onStatusChangeCallbacks.delete(workspaceId)
       });
-      if (workspace.status.phase === DevWorkspaceStatus.RUNNING || workspace.status.phase === DevWorkspaceStatus.STARTING) {
+      if (workspace.status?.phase === DevWorkspaceStatus.RUNNING || workspace.status?.phase === DevWorkspaceStatus.STARTING) {
         try {
           await dispatch(actionCreators.stopWorkspace(workspace));
         } catch (e) {
@@ -255,12 +267,12 @@ export const actionCreators: ActionCreators = {
     return defer.promise;
   },
 
-  stopWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+  stopWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     try {
       devWorkspaceClient.changeWorkspaceStatus(workspace.metadata.namespace, workspace.metadata.name, false);
-      dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId: workspace.status.devworkspaceId });
+      dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId: WorkspaceAdapter.getId(workspace) });
     } catch (e) {
-      const errorMessage = `Failed to stop the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to stop the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -269,35 +281,19 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  terminateWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+  terminateWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     try {
       const namespace = workspace.metadata.namespace;
       const name = workspace.metadata.name;
       await devWorkspaceClient.delete(namespace, name);
-      const workspaceId = workspace.status.devworkspaceId;
+      const workspaceId = WorkspaceAdapter.getId(workspace);
       dispatch({
         type: 'TERMINATE_DEVWORKSPACE',
         workspaceId,
       });
       dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId });
     } catch (e) {
-      const errorMessage = e?.message || '';
-      const code = e?.response?.status || '';
-      const statusText = e?.response?.statusText || '';
-      const responseMessage = e?.response?.data?.message || '';
-
-      let message: string;
-      if (responseMessage) {
-        message = responseMessage;
-      } else if (errorMessage) {
-        message = errorMessage;
-      } else if (code && statusText) {
-        message = `Response code ${code}, ${statusText}.`;
-      } else {
-        message = 'Unknown error.';
-      }
-
-      const resMessage = `Failed to delete the workspace ${workspace.metadata.name}, reason: ` + message;
+      const resMessage = `Failed to delete the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: resMessage,
@@ -307,19 +303,17 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  updateWorkspace: (workspace: IDevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
+  updateWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
 
     try {
-      const state = getState();
-      const plugins = selectDwPluginsList(state);
-      const updated = await devWorkspaceClient.update(workspace, plugins);
+      const updated = await devWorkspaceClient.update(workspace);
       dispatch({
         type: 'UPDATE_DEVWORKSPACE',
         workspace: updated,
       });
     } catch (e) {
-      const errorMessage = `Failed to update the workspace ${workspace.metadata.name}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to update the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -328,38 +322,34 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  createWorkspaceFromDevfile: (devfile: IDevWorkspaceDevfile, optionalFilesContent: {
-    [fileName: string]: string
-  },
+  createWorkspaceFromDevfile: (
+    devfile: devfileApi.Devfile, optionalFilesContent: {
+      [fileName: string]: string
+    },
     pluginRegistryUrl: string | undefined,
-  ): AppThunk<KnownAction, Promise<IDevWorkspace>> => async (dispatch, getState): Promise<IDevWorkspace> => {
+    pluginRegistryInternalUrl: string | undefined,
+  ): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
 
     const state = getState();
 
     if (state.dwPlugins.defaultEditorError) {
-      const message = `Required sources failed when trying to create the workspace: ${state.dwPlugins.defaultEditorError}`;
-      throw message;
+      throw `Required sources failed when trying to create the workspace: ${state.dwPlugins.defaultEditorError}`;
     }
 
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
     try {
       // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
-      const devWorkspaceDevfile = devfile as IDevWorkspaceDevfile;
-      if (!devWorkspaceDevfile.metadata.namespace) {
-        const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
-        devWorkspaceDevfile.metadata.namespace = defaultNamespace;
-      }
-
+      const devWorkspaceDevfile = devfile as devfileApi.Devfile;
+      const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
       const dwPlugins = selectDwPluginsList(state);
-      const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, dwPlugins, pluginRegistryUrl, optionalFilesContent);
+      const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, defaultNamespace, dwPlugins, pluginRegistryUrl, pluginRegistryInternalUrl, optionalFilesContent);
 
       dispatch({
         type: 'ADD_DEVWORKSPACE',
         workspace,
       });
-      return workspace;
     } catch (e) {
-      const errorMessage = 'Failed to create a new workspace from the devfile, reason: ' + getErrorMessage(e);
+      const errorMessage = 'Failed to create a new workspace from the devfile, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_DEVWORKSPACE_ERROR',
         error: errorMessage,
@@ -396,6 +386,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
       return createObject(state, {
         isLoading: false,
         workspaces: action.workspaces,
+        resourceVersion: action.resourceVersion,
       });
     case 'RECEIVE_DEVWORKSPACE_ERROR':
       return createObject(state, {
@@ -405,12 +396,15 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'UPDATE_DEVWORKSPACE':
       return createObject(state, {
         isLoading: false,
-        workspaces: state.workspaces.map(workspace => workspace.status.devworkspaceId === action.workspace.status.devworkspaceId ? action.workspace : workspace),
+        workspaces: state.workspaces.map(workspace => WorkspaceAdapter.getId(workspace) === WorkspaceAdapter.getId(action.workspace) ? action.workspace : workspace),
       });
     case 'UPDATE_DEVWORKSPACE_STATUS':
       return createObject(state, {
         workspaces: state.workspaces.map(workspace => {
-          if (workspace.status.devworkspaceId === action.workspaceId) {
+          if (WorkspaceAdapter.getId(workspace) === action.workspaceId) {
+            if (!workspace.status) {
+              workspace.status = {} as devfileApi.DevWorkspaceStatus;
+            }
             workspace.status.phase = action.status;
           }
           return workspace;
@@ -419,15 +413,18 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'ADD_DEVWORKSPACE':
       return createObject(state, {
         workspaces: state.workspaces
-          .filter(workspace => workspace.status.devworkspaceId !== action.workspace.status.devworkspaceId)
+          .filter(workspace => WorkspaceAdapter.getId(workspace) !== WorkspaceAdapter.getId(action.workspace))
           .concat([action.workspace]),
       });
     case 'TERMINATE_DEVWORKSPACE':
       return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => {
-          if (workspace.status.devworkspaceId === action.workspaceId) {
+          if (WorkspaceAdapter.getId(workspace) === action.workspaceId) {
             const targetWorkspace = Object.assign({}, workspace);
+            if (!targetWorkspace.status) {
+              targetWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
+            }
             targetWorkspace.status.phase = DevWorkspaceStatus.TERMINATING;
             return targetWorkspace;
           }
@@ -436,7 +433,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
       });
     case 'DELETE_DEVWORKSPACE':
       return createObject(state, {
-        workspaces: state.workspaces.filter(workspace => workspace.status.devworkspaceId !== action.workspaceId),
+        workspaces: state.workspaces.filter(workspace => WorkspaceAdapter.getId(workspace) !== action.workspaceId),
       });
     case 'UPDATE_DEVWORKSPACE_LOGS':
       return createObject(state, {
@@ -453,13 +450,12 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 };
 
 async function onStatusUpdateReceived(
-  workspace: IDevWorkspace,
   dispatch: ThunkDispatch<State, undefined, KnownAction>,
   statusUpdate: IStatusUpdate) {
   let status: string | undefined;
   if (statusUpdate.error) {
     const workspacesLogs = new Map<string, string[]>();
-    workspacesLogs.set(workspace.status.devworkspaceId, [`Error: Failed to run the workspace: "${statusUpdate.error}"`]);
+    workspacesLogs.set(statusUpdate.workspaceId, [`Error: Failed to run the workspace: "${statusUpdate.error}"`]);
     dispatch({
       type: 'UPDATE_DEVWORKSPACE_LOGS',
       workspacesLogs,
@@ -473,8 +469,8 @@ async function onStatusUpdateReceived(
        * Don't add in messages with no workspaces id or with stopped or stopping messages. The stopped and stopping messages
        * only appear because we initially create a stopped devworkspace, add in devworkspace templates, and then start the devworkspace
        */
-      if (workspace.status.devworkspaceId !== '' && workspace.status.message !== DevWorkspaceStatus.STOPPED && workspace.status.message !== DevWorkspaceStatus.STOPPING) {
-        workspacesLogs.set(workspace.status.devworkspaceId, [statusUpdate.message]);
+      if (statusUpdate.workspaceId !== '' && statusUpdate.status !== DevWorkspaceStatus.STOPPED && statusUpdate.status !== DevWorkspaceStatus.STOPPING) {
+        workspacesLogs.set(statusUpdate.workspaceId, [statusUpdate.message]);
         dispatch({
           type: 'UPDATE_DEVWORKSPACE_LOGS',
           workspacesLogs,
@@ -482,16 +478,16 @@ async function onStatusUpdateReceived(
       }
     }
     status = statusUpdate.status;
-    const callback = onStatusChangeCallbacks.get(workspace.status.devworkspaceId);
+    const callback = onStatusChangeCallbacks.get(statusUpdate.workspaceId);
     if (callback && status) {
       callback(status);
     }
   }
-  if (status && status !== devWorkspaceStatusMap.get(workspace.status.devworkspaceId)) {
-    devWorkspaceStatusMap.set(workspace.status.devworkspaceId, status);
+  if (status && status !== devWorkspaceStatusMap.get(statusUpdate.workspaceId)) {
+    devWorkspaceStatusMap.set(statusUpdate.workspaceId, status);
     dispatch({
       type: 'UPDATE_DEVWORKSPACE_STATUS',
-      workspaceId: workspace.status.devworkspaceId,
+      workspaceId: statusUpdate.workspaceId,
       status,
     });
   }

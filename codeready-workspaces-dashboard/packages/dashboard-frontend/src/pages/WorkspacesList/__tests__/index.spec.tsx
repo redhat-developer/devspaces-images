@@ -20,7 +20,7 @@ import WorkspacesList from '..';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
 import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 import { WorkspaceAction, WorkspaceStatus } from '../../../services/helpers/types';
-import { convertWorkspace, Workspace } from '../../../services/workspaceAdapter';
+import { convertWorkspace, Workspace } from '../../../services/workspace-adapter';
 
 jest.mock('../../../components/Head', () => {
   const FakeHead = () => {
@@ -282,7 +282,7 @@ describe('Workspaces List Page', () => {
 
       const openInBackgroundAction = screen.getByRole('button', { name: /background/i });
       expect(openInBackgroundAction).toBeEnabled();
-      
+
       const restartAction = screen.getByRole('button', { name: /restart/i });
       expect(restartAction).toHaveAttribute('aria-disabled', 'true');
 

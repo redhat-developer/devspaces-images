@@ -1,185 +1,77 @@
-/**********************************************************************
- * Copyright (c) 2021 Red Hat, Inc.
- *
+/*
+ * Copyright (c) 2018-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- ***********************************************************************/
-import "reflect-metadata";
-import fastify from "fastify";
-import {
-  container,
-  IDevWorkspaceClient,
-  INVERSIFY_TYPES,
-} from "@eclipse-che/devworkspace-client";
-import {
-  authenticationHeaderSchema,
-  devfileStartedBody,
-  namespacedSchema,
-  namespacedWorkspaceSchema,
-} from "./schemas";
-import {
-  DevfileStartedBody,
-  NamespacedParam,
-  NamespacedWorkspaceParam,
-} from "./models";
-import { authenticateOpenShift } from "./openshift/kubeconfig";
-import { initialize, initializeNodeConfig } from "./init";
-import { routingClass } from "./config";
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
 
-// TODO add detection for openshift or kubernetes, we can probably just expose the devworkspace-client api to get that done for us
-// TODO add service account for kubernetes with all the needed permissions
-// TODO make it work on kubernetes
+import 'reflect-metadata';
+import fastify from 'fastify';
+import args from 'args';
+import { registerStaticServer } from './static';
+import { registerDevworkspaceWebsocketWatcher } from './api/devworkspaceWebsocketWatcher';
+import { registerDevworkspaceApi } from './api/devworkspaceApi';
+import { registerCheApi } from './api/cheApi';
+import { registerTemplateApi } from './api/templateApi';
+import { registerLocalServers } from './local-run';
+import { registerCors } from './cors';
+import { registerSwagger } from './swagger';
+import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
+import { isLocalRun } from './local-run';
 
-// Initialize the server and exit if any needed environment variables aren't found
-initialize();
+const CHE_HOST = process.env.CHE_HOST as string;
 
-// Get the default node configuration based off the provided environment arguments
-const devworkspaceClientConfig = initializeNodeConfig();
-const client: IDevWorkspaceClient = container.get(
-  INVERSIFY_TYPES.IDevWorkspaceClient
-);
+if (!CHE_HOST) {
+  console.error('CHE_HOST environment variable is required');
+  process.exit(1);
+}
 
-const server = fastify();
+args
+  .option('publicFolder', 'The public folder to serve', './public');
 
-server.register(require("fastify-cors"), {
-  origin: [process.env.CHE_HOST],
-  methods: ["GET", "POST", "PATCH", "DELETE"],
+const { publicFolder } = args.parse(process.argv) as { publicFolder: string };
+
+const server = fastify({
+  logger: false,
 });
 
-server.register(require("fastify-websocket"));
-
 server.addContentTypeParser(
-  "application/merge-patch+json",
-  { parseAs: "string" },
+  'application/merge-patch+json',
+  { parseAs: 'string' },
   function(req, body, done) {
     try {
-      var json = JSON.parse(body as string);
+      const json = JSON.parse(body as string);
       done(null, json);
-    } catch (err) {
-      err.statusCode = 400;
-      done(err, undefined);
+    } catch (e) {
+      const error = new Error(getMessage(e));
+      done(error, undefined);
     }
   }
 );
 
-server.get(
-  "/namespace/:namespace/devworkspaces",
-  {
-    schema: {
-      headers: authenticationHeaderSchema,
-      params: namespacedSchema,
-    },
-  },
-  async (request) => {
-    const token = request.headers.authentication as string;
-    const { namespace } = request.params as NamespacedParam;
-    const { devworkspaceApi } = await authenticateOpenShift(
-      client.getNodeApi(devworkspaceClientConfig),
-      token
-    );
-    return devworkspaceApi.listInNamespace(namespace);
-  }
-);
+registerStaticServer(publicFolder, server);
 
-server.post(
-  "/namespace/:namespace/devworkspaces",
-  {
-    schema: {
-      headers: authenticationHeaderSchema,
-      body: devfileStartedBody,
-    },
-  },
-  async (request) => {
-    const token = request.headers.authentication as string;
-    const { devfile, started } = request.body as DevfileStartedBody;
-    const { devworkspaceApi } = await authenticateOpenShift(
-      client.getNodeApi(devworkspaceClientConfig),
-      token
-    );
+registerSwagger(server);
 
-    // override the namespace from params
-    const { namespace } = request.params as NamespacedParam;
-    if (devfile.metadata === undefined) {
-      devfile.metadata = {};
-    }
-    devfile.metadata.namespace = namespace
+registerDevworkspaceApi(server);
 
-    return devworkspaceApi.create(devfile, routingClass, started);
-  }
-);
+registerDevworkspaceWebsocketWatcher(server);
 
-server.get(
-  "/namespace/:namespace/devworkspaces/:workspaceName",
-  {
-    schema: {
-      headers: authenticationHeaderSchema,
-      params: namespacedWorkspaceSchema,
-    },
-  },
-  async (request) => {
-    const token = request.headers.authentication as string;
-    const {
-      namespace,
-      workspaceName,
-    } = request.params as NamespacedWorkspaceParam;
-    const { devworkspaceApi } = await authenticateOpenShift(
-      client.getNodeApi(devworkspaceClientConfig),
-      token
-    );
-    return devworkspaceApi.getByName(namespace, workspaceName);
-  }
-);
+registerTemplateApi(server);
 
-server.delete(
-  "/namespace/:namespace/devworkspaces/:workspaceName",
-  {
-    schema: {
-      headers: authenticationHeaderSchema,
-      params: namespacedWorkspaceSchema,
-    },
-  },
-  async (request) => {
-    const token = request.headers.authentication as string;
-    const {
-      namespace,
-      workspaceName,
-    } = request.params as NamespacedWorkspaceParam;
-    const { devworkspaceApi } = await authenticateOpenShift(
-      client.getNodeApi(devworkspaceClientConfig),
-      token
-    );
-    return devworkspaceApi.delete(namespace, workspaceName);
-  }
-);
+registerCheApi(server);
 
-server.patch(
-  "/namespace/:namespace/devworkspaces/:workspaceName",
-  {
-    schema: {
-      headers: authenticationHeaderSchema,
-      params: namespacedWorkspaceSchema,
-    },
-  },
-  async (request) => {
-    const token = request.headers.authentication as string;
-    const {
-      namespace,
-      workspaceName,
-    } = request.params as NamespacedWorkspaceParam;
-    const { body } = request;
-    const started = (body as any).started as boolean;
-    const { devworkspaceApi } = await authenticateOpenShift(
-      client.getNodeApi(devworkspaceClientConfig),
-      token
-    );
-    return devworkspaceApi.changeStatus(namespace, workspaceName, started);
-  }
-);
+registerCors(isLocalRun(), server);
+if (isLocalRun()) {
+  registerLocalServers(server, CHE_HOST);
+}
 
-server.listen(8080, "0.0.0.0", (err, address) => {
+server.listen(8080, '0.0.0.0', (err: Error, address: string) => {
   if (err) {
     console.error(err);
     process.exit(1);

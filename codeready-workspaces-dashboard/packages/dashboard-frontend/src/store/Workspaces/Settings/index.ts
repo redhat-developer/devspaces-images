@@ -11,10 +11,10 @@
  */
 
 import { Reducer } from 'redux';
+import common from '@eclipse-che/common';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheWorkspaceClient';
-import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
+import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { createObject } from '../../helpers';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
@@ -58,7 +58,7 @@ export const actionCreators: ActionCreators = {
         settings,
       });
     } catch (e) {
-      const errorMessage = 'Failed to fetch workspaces settings, reason: ' + getErrorMessage(e);
+      const errorMessage = 'Failed to fetch workspaces settings, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_WORKSPACE_SETTINGS_ERROR',
         error: errorMessage,

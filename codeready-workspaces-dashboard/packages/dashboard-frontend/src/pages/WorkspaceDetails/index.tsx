@@ -35,7 +35,7 @@ import { selectIsLoading, selectWorkspaceById } from '../../store/Workspaces/sel
 import { History, UnregisterCallback } from 'history';
 
 import './WorkspaceDetails.styl';
-import { isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
+import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import UnsavedChangesModal from '../../components/UnsavedChangesModal';
 
 export const SECTION_THEME = PageSectionVariants.light;
@@ -218,7 +218,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   }
 
   private async onSave(workspace: Workspace): Promise<void> {
-    if (this.props.workspace && isWorkspaceV1((this.props.workspace as Workspace).ref)
+    if (this.props.workspace && isCheWorkspace((this.props.workspace as Workspace).ref)
       && (this.props.workspace.status !== WorkspaceStatus.STOPPED)) {
       this.setState({ hasWarningMessage: true });
     }

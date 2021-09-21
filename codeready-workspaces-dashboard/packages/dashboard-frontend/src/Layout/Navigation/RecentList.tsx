@@ -19,7 +19,7 @@ import {
 import NavigationRecentItem from './RecentItem';
 import { NavigationRecentItemObject } from '.';
 import { ROUTE } from '../../route.enum';
-import { Workspace } from '../../services/workspaceAdapter';
+import { Workspace } from '../../services/workspace-adapter';
 import { History } from 'history';
 
 function buildRecentWorkspacesItems(workspaces: Array<Workspace>, activePath: string, history: History): Array<React.ReactElement> {

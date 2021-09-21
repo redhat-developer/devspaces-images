@@ -104,6 +104,7 @@ Array [
 metadata:
   name: test-workspace
   namespace: test-ns
+components: []
 "
         />
       </div>

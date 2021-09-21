@@ -11,13 +11,13 @@
  */
 
 import { FactoryResolver, DevfileV2ProjectSource } from '../../services/helpers/types';
-import { isDevfileV2 } from '../../services/workspaceAdapter';
+import { isDevfileV2 } from '../../services/devfileApi';
 import { getProjectName } from '../../services/helpers/getProjectName';
 import { safeDump } from 'js-yaml';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION
-} from '../../services/workspace-client/devWorkspaceClient';
+} from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 
 /**
  * Returns a devfile from the FactoryResolver object.
@@ -28,7 +28,10 @@ export function getDevfile(data: FactoryResolver, location: string): api.che.wor
   let devfile = data.devfile;
 
   if (isDevfileV2(devfile)) {
-    // temporary solution for fix che-server serialisation bug with empty volume
+    if (!devfile.components) {
+      devfile.components = [];
+    }
+    // temporary solution for fix che-server serialization bug with empty volume
     const components = devfile.components.map(component => {
       if (Object.keys(component).length === 1 && component.name) {
         component.volume = {};

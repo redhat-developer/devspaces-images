@@ -80,7 +80,7 @@ export const BRANDING_DEFAULT: BrandingData = {
     },
   ],
   docs: {
-    devfile: 'https://www.eclipse.org/che/docs/che-7/making-a-workspace-portable-using-a-devfile/',
+    devfile: 'https://www.eclipse.org/che/docs/che-7/end-user-guide/authoring-devfiles/',
     workspace: 'https://www.eclipse.org/che/docs/che-7/workspaces-overview/',
     certificate: 'https://www.eclipse.org/che/docs/che-7/importing-certificates-to-browsers/',
     general: 'https://www.eclipse.org/che/docs/che-7',

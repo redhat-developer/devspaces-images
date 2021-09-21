@@ -10,11 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import mockAxios, { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
-import { AnyAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import devfileApi from '../../../../services/devfileApi';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import * as store from '..';
 import { AppState } from '../../..';
@@ -29,7 +27,7 @@ describe('dwPlugins selectors', () => {
         metadata: {
           name: 'void-sample-1',
         },
-      } as IDevWorkspaceDevfile,
+      } as devfileApi.Devfile,
     },
     'plugin-location-2': {
       plugin: {
@@ -37,7 +35,7 @@ describe('dwPlugins selectors', () => {
         metadata: {
           name: 'void-sample-2',
         },
-      } as IDevWorkspaceDevfile,
+      } as devfileApi.Devfile,
     },
     'plugin-location-3': {
       error: 'unexpected error',
@@ -75,13 +73,13 @@ describe('dwPlugins selectors', () => {
         metadata: {
           name: 'void-sample-1',
         },
-      } as IDevWorkspaceDevfile,
+      } as devfileApi.Devfile,
       {
         schemaVersion: '2.1.0',
         metadata: {
           name: 'void-sample-2',
         },
-      } as IDevWorkspaceDevfile,
+      } as devfileApi.Devfile,
     ];
     const selectedPlugins = selectDwPluginsList(state);
     expect(selectedPlugins).toEqual(expectedPlugins);

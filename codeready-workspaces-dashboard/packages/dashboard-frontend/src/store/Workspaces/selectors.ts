@@ -12,7 +12,7 @@
 
 import { createSelector } from 'reselect';
 import { AppState } from '..';
-import { convertWorkspace, Workspace } from '../../services/workspaceAdapter';
+import { convertWorkspace, Workspace } from '../../services/workspace-adapter';
 import { selectCheWorkspacesError } from './cheWorkspaces/selectors';
 import { selectDevWorkspacesError } from './devWorkspaces/selectors';
 
@@ -48,11 +48,8 @@ export const selectWorkspaceByQualifiedName = createSelector(
   selectState,
   selectAllWorkspaces,
   (state, allWorkspaces) => {
-    if (!allWorkspaces) {
-      return null;
-    }
     return allWorkspaces.find(workspace =>
-      workspace.namespace === state.namespace && workspace.name === state.workspaceName);
+      workspace.infrastructureNamespace === state.namespace && workspace.name === state.workspaceName);
   }
 );
 
@@ -60,9 +57,6 @@ export const selectWorkspaceById = createSelector(
   selectState,
   selectAllWorkspaces,
   (state, allWorkspaces) => {
-    if (!allWorkspaces) {
-      return null;
-    }
     return allWorkspaces.find(workspace => workspace.id === state.workspaceId);
   }
 );

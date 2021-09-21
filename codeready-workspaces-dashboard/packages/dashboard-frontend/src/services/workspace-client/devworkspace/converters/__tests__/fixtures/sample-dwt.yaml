@@ -1,0 +1,10 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspaceTemplate
+metadata:
+  name: sample-dwt
+  namespace: dwclient-test
+spec:
+  projects: []
+  components: []
+  commands: []
+  events: {}

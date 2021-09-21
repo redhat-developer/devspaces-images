@@ -10,12 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isDevfileV2 } from '../../services/workspaceAdapter';
+import { isDevfileV2 } from '../../services/devfileApi';
 import { safeDump, safeLoad } from 'js-yaml';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION
-} from '../../services/workspace-client/devWorkspaceClient';
+} from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { CreatePolicy } from './index';
 import getRandomString from '../../services/helpers/random';
 
@@ -27,8 +27,8 @@ export default function updateDevfileMetadata(devfile: api.che.workspace.devfile
     if (!metadata.attributes) {
       metadata.attributes = {};
     }
-    const dwMetadataAnnotations =  metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION];
-    let devfileSource =  dwMetadataAnnotations ? dwMetadataAnnotations[DEVWORKSPACE_DEVFILE_SOURCE] : undefined;
+    const dwMetadataAnnotations = metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION];
+    let devfileSource = dwMetadataAnnotations ? dwMetadataAnnotations[DEVWORKSPACE_DEVFILE_SOURCE] : undefined;
     let devfileSourceObj = devfileSource ? safeLoad(devfileSource) : {};
     if (typeof devfileSourceObj !== 'object') {
       devfileSourceObj = {};
@@ -40,7 +40,7 @@ export default function updateDevfileMetadata(devfile: api.che.workspace.devfile
     }
     metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] = devfileSource;
     if (createPolicy !== 'peruser' && metadata.name) {
-       metadata.name = `${metadata.name}-${getRandomString(4).toLowerCase()}`;
+      metadata.name = `${metadata.name}-${getRandomString(4).toLowerCase()}`;
     }
     return Object.assign({}, devfile, { metadata });
   }

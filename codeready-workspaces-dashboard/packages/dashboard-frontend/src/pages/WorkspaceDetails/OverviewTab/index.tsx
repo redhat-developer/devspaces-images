@@ -16,8 +16,8 @@ import StorageTypeFormGroup from './StorageType';
 import { WorkspaceNameFormGroup } from './WorkspaceName';
 import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
 import ProjectsFormGroup from './Projects';
-import { convertWorkspace, isWorkspaceV2, Workspace } from '../../../services/workspaceAdapter';
-import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import { convertWorkspace, Workspace } from '../../../services/workspace-adapter';
+import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 
 type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
@@ -40,7 +40,7 @@ export class OverviewTab extends React.Component<Props, State> {
     const { workspace } = this.props;
     const storageType = workspace.storageType;
     const workspaceName = workspace.name;
-    const infrastructureNamespace = workspace.infrastructureNamespace;
+    const infrastructureNamespace = workspace.namespace;
 
     this.state = {
       storageType,
@@ -76,7 +76,7 @@ export class OverviewTab extends React.Component<Props, State> {
     const workspaceName = this.props.workspace.name;
     const namespace = this.state.infrastructureNamespace;
     const projects = this.props.workspace.projects;
-    const readonly = isWorkspaceV2(this.props.workspace.ref);
+    const readonly = isDevWorkspace(this.props.workspace.ref);
 
     return (
       <React.Fragment>
@@ -106,7 +106,7 @@ export class OverviewTab extends React.Component<Props, State> {
     );
   }
 
-  private async onSave(devfile: che.WorkspaceDevfile | IDevWorkspaceDevfile): Promise<void> {
+  private async onSave(devfile: che.WorkspaceDevfile | devfileApi.Devfile): Promise<void> {
     const workspaceCopy = convertWorkspace(this.props.workspace.ref);
     workspaceCopy.devfile = devfile;
     await this.props.onSave(workspaceCopy);

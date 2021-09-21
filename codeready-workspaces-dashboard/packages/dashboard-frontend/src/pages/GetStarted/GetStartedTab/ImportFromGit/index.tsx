@@ -24,12 +24,12 @@ import {
   TextContent,
   TextVariants,
 } from '@patternfly/react-core';
+import common from '@eclipse-che/common';
 import { AppState } from '../../../../store';
 import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
 import * as FactoryResolverStore from '../../../../store/FactoryResolver';
 import { GitRepoLocationInput } from './GitRepoLocationInput';
 import { AlertItem } from '../../../../services/helpers/types';
-import { getErrorMessage } from '../../../../services/helpers/getErrorMessage';
 
 type Props =
   MappedProps
@@ -71,7 +71,7 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
       this.devfileLocationRef.current?.invalidateInput();
       this.showAlert({
         key: 'load-devfile-resolver-failed',
-        title: getErrorMessage(e),
+        title: common.helpers.errors.getMessage(e),
         variant: AlertVariant.danger,
       });
     }

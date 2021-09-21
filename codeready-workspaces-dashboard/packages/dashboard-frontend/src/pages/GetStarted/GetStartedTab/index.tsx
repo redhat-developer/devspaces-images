@@ -25,6 +25,7 @@ import { updateDevfile } from '../../../services/storageTypes';
 import stringify from '../../../services/helpers/editor';
 import ImportFromGit from './ImportFromGit';
 import { ResolverState } from '../../../store/FactoryResolver';
+import { Devfile } from '../../../services/workspace-adapter';
 
 // At runtime, Redux will merge together...
 type Props = {
@@ -80,7 +81,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
   }
 
   private handleDevfileResolver(resolverState: ResolverState, stackName: string): Promise<void> {
-    const devfile: che.WorkspaceDevfile = resolverState.devfile;
+    const devfile: Devfile = resolverState.devfile;
     const updatedDevfile = updateDevfile(devfile, this.props.preferredStorageType);
     const devfileContent = stringify(updatedDevfile);
 

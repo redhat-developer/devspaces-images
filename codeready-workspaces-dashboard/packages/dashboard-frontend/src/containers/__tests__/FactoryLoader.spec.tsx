@@ -21,12 +21,13 @@ import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../services/helpers/types';
 import FactoryLoaderContainer, { LoadFactorySteps } from '../FactoryLoader';
 import { AlertOptions } from '../../pages/IdeLoader';
-import { convertWorkspace, Workspace } from '../../services/workspaceAdapter';
+import { convertWorkspace, Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
 import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
-import { IDevWorkspace } from '@eclipse-che/devworkspace-client';
+import devfileApi from '../../services/devfileApi';
 import { safeDump } from 'js-yaml';
 
 const showAlertMock = jest.fn();
+const setWorkspaceQualifiedName = jest.fn();
 const createWorkspaceFromDevfileMock = jest.fn().mockResolvedValue(undefined);
 const requestWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
@@ -61,6 +62,9 @@ jest.mock('../../store/Workspaces/index', () => {
       },
       clearWorkspaceId: () => async (): Promise<void> => {
         clearWorkspaceIdMock();
+      },
+      setWorkspaceQualifiedName: ( namespace: string, workspaceName: string) => async (): Promise<void> => {
+        setWorkspaceQualifiedName(namespace, workspaceName);
       },
     },
   };
@@ -106,6 +110,8 @@ jest.mock('../../pages/FactoryLoader', () => {
   };
 });
 
+const namespace = 'che';
+
 describe('Factory Loader container', () => {
 
   beforeEach(() => {
@@ -138,7 +144,8 @@ describe('Factory Loader container', () => {
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(workspace.devfile, undefined, undefined, { stackName: location + '/' }));
+        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(workspace.devfile, undefined, namespace, { stackName: location + '/' }));
+      expect(setWorkspaceQualifiedName).toHaveBeenCalledWith(namespace, workspace.devfile.metadata.name);
 
       jest.runOnlyPendingTimers();
       expect(showAlertMock).not.toHaveBeenCalled();
@@ -165,7 +172,8 @@ describe('Factory Loader container', () => {
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(workspace.devfile, undefined, undefined, { stackName: location + '/' }));
+        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(workspace.devfile, undefined, namespace, { stackName: location + '/' }));
+      expect(setWorkspaceQualifiedName).toHaveBeenCalledWith(namespace, workspace.devfile.metadata.name);
 
       jest.runOnlyPendingTimers();
       expect(showAlertMock).toBeCalledWith({
@@ -193,8 +201,8 @@ describe('Factory Loader container', () => {
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(
         location.split('&')[0], {
-          'override.metadata.generateName': 'testPrefix'
-        }));
+        'override.metadata.generateName': 'testPrefix'
+      }));
       expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
 
       jest.runOnlyPendingTimers();
@@ -206,7 +214,7 @@ describe('Factory Loader container', () => {
               name: 'name-wksp-2',
             },
             attributes: { persistVolumes: 'false' }
-          }, undefined, undefined,
+          }, undefined, namespace,
           { stackName: 'http://test-location/?override.metadata.generateName=testPrefix' }));
     });
 
@@ -285,7 +293,7 @@ describe('Factory Loader container', () => {
             metadata: {
               name: 'test-wksp-name',
             },
-          }, undefined, undefined, { stackName: location + '/' }));
+          }, undefined, namespace, { stackName: location + '/' }));
     });
 
     it('should resolve the factory with  the preferred storage type "ephemeral"', async () => {
@@ -309,7 +317,7 @@ describe('Factory Loader container', () => {
             attributes: {
               persistVolumes: 'false',
             },
-          }), undefined, undefined, { stackName: location + '/' }));
+          }), undefined, namespace, { stackName: location + '/' }));
     });
 
     it('should resolve the factory with  the preferred storage type "async"', async () => {
@@ -334,7 +342,7 @@ describe('Factory Loader container', () => {
               persistVolumes: 'false',
               asyncPersist: 'true',
             },
-          }), undefined, undefined, { stackName: location + '/' }));
+          }), undefined, namespace, { stackName: location + '/' }));
     });
 
     it('should show an error if something wrong with Repository/Devfile URL', async () => {
@@ -377,7 +385,7 @@ describe('Factory Loader container', () => {
       await waitFor(() => expect(createWorkspaceFromDevfileMock).not.toBeCalled());
     });
 
-    it('should resolve the factory with create policie "peruser" and create a new workspace', async () => {
+    it('should resolve the factory with create policy "peruser" and create a new workspace', async () => {
       const location = 'http://test2-location&policies.create=peruser';
       const name = 'test-name';
       const devWorkspace = new DevWorkspaceBuilder()
@@ -408,15 +416,16 @@ describe('Factory Loader container', () => {
                   'che.eclipse.org/devfile-source': safeDump({ factory: { params: 'url=http://test2-location&policies.create=peruser' } })
                 }
               }
-            }
+            },
+            components: [],
           }, undefined, undefined, {
-            factoryParams: 'url=http://test2-location&policies.create=peruser',
-            'policies.create': 'peruser'
-          }));
+          factoryParams: 'url=http://test2-location&policies.create=peruser',
+          'policies.create': 'peruser'
+        }));
     });
   });
 
-  it('should resolve the factory with create policie "perclick" and create a new workspace', async () => {
+  it('should resolve the factory with create policy "perclick" and create a new workspace', async () => {
     const location = 'http://test-location&policies.create=perclick';
     const devWorkspace = new DevWorkspaceBuilder()
       .withId('id-wksp-test')
@@ -441,10 +450,10 @@ describe('Factory Loader container', () => {
 
 function renderComponentV2(
   url: string,
-  workspace: IDevWorkspace,
+  workspace: devfileApi.DevWorkspace,
 ): RenderResult {
   const wrks = convertWorkspace(workspace);
-  (wrks.ref as IDevWorkspace).metadata.annotations = {
+  (wrks.ref as devfileApi.DevWorkspace).metadata.annotations = {
     'che.eclipse.org/devfile-source': safeDump({ factory: { params: 'url=http://test-location&policies.create=peruser' } })
   };
   const store = new FakeStoreBuilder()
@@ -452,7 +461,9 @@ function renderComponentV2(
       workspaces: [workspace],
     })
     .withWorkspaces({
-      workspaceId: workspace.status.devworkspaceId
+      workspaceId: WorkspaceAdapter.getId(workspace),
+      namespace: namespace,
+      workspaceName: workspace.metadata.name,
     })
     .withFactoryResolver({
       v: '4.0',
@@ -488,7 +499,9 @@ function renderComponentV1(
       workspaces: [workspace],
     })
     .withWorkspaces({
-      workspaceId: workspace.id
+      workspaceId: workspace.id,
+      namespace: namespace,
+      workspaceName: workspace.devfile.metadata.name
     })
     .withWorkspacesSettings(settings as che.WorkspaceSettings)
     .withFactoryResolver({
@@ -498,6 +511,7 @@ function renderComponentV1(
       location: url.split('&')[0],
       links: []
     })
+    .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
     .build();
   const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url });
 

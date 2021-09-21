@@ -110,7 +110,11 @@ const config = {
     ]
   },
   resolve: {
-    extensions: ['.js', '.ts', '.tsx']
+    extensions: ['.js', '.ts', '.tsx'],
+    alias: {
+      'vscode-languageserver-protocol/lib/utils/is': 'vscode-languageserver-protocol/lib/common/utils/is',
+      'vscode-languageserver-protocol/lib/main': 'vscode-languageserver-protocol/lib/node/main',
+    },
   },
   resolveLoader: {},
   node: {

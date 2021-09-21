@@ -12,7 +12,7 @@
 
 import { createSelector } from 'reselect';
 import { AppState } from '../..';
-import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import devfileApi from '../../../services/devfileApi';
 
 const selectState = (state: AppState) => state.dwPlugins;
 export const selectPluginsState = selectState;
@@ -26,7 +26,7 @@ export const selectDwPluginsList = createSelector(
   selectState,
   state => Object.values(state.plugins)
     .map(entry => entry.plugin)
-    .filter(plugin => plugin) as IDevWorkspaceDevfile[],
+    .filter(plugin => plugin) as devfileApi.Devfile[],
 );
 
 export const selectDwDefaultEditorError = createSelector(

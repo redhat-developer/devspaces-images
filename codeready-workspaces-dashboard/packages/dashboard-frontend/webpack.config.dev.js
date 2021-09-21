@@ -31,6 +31,8 @@ module.exports = (env = {}) => {
     headers['Authorization'] = `Bearer ${env.token}`;
   }
 
+  const dashboardServer = env.dashboardServer ? env.dashboardServer : 'http://localhost:8080';
+
   return merge(common(env), {
     mode: 'development',
     module: {
@@ -103,12 +105,29 @@ module.exports = (env = {}) => {
           changeOrigin: true,
           headers: headers
         },
+        '/dashboard/api/websocket': {
+          target: dashboardServer,
+          ws: true,
+          secure: false,
+          changeOrigin: true,
+          headers: {
+            origin: dashboardServer,
+          },
+        },
+        '/dashboard/api': {
+          target: dashboardServer,
+          secure: false,
+          changeOrigin: true,
+          headers: {
+            origin: dashboardServer,
+          },
+        },
         '/api': {
           target: proxyTarget,
           secure: false,
           changeOrigin: true,
           headers: headers,
-        },
+        }
       },
     },
     watchOptions: {

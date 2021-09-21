@@ -26,7 +26,7 @@ import { State as PluginsState } from '../Plugins/chePlugins';
 import { State as UserState } from '../User';
 import { State as UserProfileState } from '../UserProfile';
 import mockThunk from './thunk';
-import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import devfileApi from '../../services/devfileApi';
 
 export class FakeStoreBuilder {
 
@@ -203,7 +203,7 @@ export class FakeStoreBuilder {
 
   public withDevWorkspaces(
     options: {
-      workspaces?: IDevWorkspace[],
+      workspaces?: devfileApi.DevWorkspace[],
       workspacesLogs?: Map<string, string[]>,
     },
     isLoading = false,
@@ -246,7 +246,7 @@ export class FakeStoreBuilder {
   }
 
   public withDwPlugins(
-    plugins: { [location: string]: { plugin?: IDevWorkspaceDevfile, error?: string } },
+    plugins: { [location: string]: { plugin?: devfileApi.Devfile, error?: string } },
     isLoading = false,
     defaultEditorError?: string,
   ) {

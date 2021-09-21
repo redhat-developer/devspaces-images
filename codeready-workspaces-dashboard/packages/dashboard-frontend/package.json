@@ -1,17 +1,19 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.36.0-SNAPSHOT",
+  "version": "7.37.0-SNAPSHOT",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/eclipse/che-dashboard.git"
   },
+  "contributors": [
+    {
+      "name": "Oleksii Orel",
+      "email": "oorel@redhat.com"
+    }
+  ],
   "license": "EPL-2.0",
-  "bugs": {
-    "url": "https://github.com/eclipse/che-dashboard/issues"
-  },
-  "homepage": "https://github.com/eclipse/che-dashboard",
   "engines": {
     "yarn": ">=1.20.0",
     "node": ">=12"
@@ -27,13 +29,11 @@
     "stylelint": "stylelint */**/*.css",
     "stylelint:fix": "stylelint */**/*.css --fix",
     "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:coverage": "yarn test --coverage",
+    "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@devfile/api": "0.0.1-1622573075",
     "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1623136422",
-    "@eclipse-che/devworkspace-client": "0.0.1-1625495079",
     "@eclipse-che/workspace-client": "0.0.1-1622804813",
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",
@@ -63,6 +63,7 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-tooltip": "^4.2.15",
+    "reconnecting-websocket": "^4.4.0",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "reflect-metadata": "^0.1.13",
@@ -74,6 +75,7 @@
     "yaml-language-server": "^0.13.0"
   },
   "devDependencies": {
+    "@devfile/api": "^2.2.0-alpha-1628104895",
     "@eclipse-che/api": "^7.18.1",
     "@testing-library/dom": "^7.30.3",
     "@testing-library/jest-dom": "^5.10.1",
@@ -141,11 +143,14 @@
     "stylus-loader": "^3.0.2",
     "ts-jest": "^26.1.0",
     "ts-loader": "^7.0.5",
-    "typescript": "^3.9.3",
+    "typescript": "~4.4.2",
     "typescript-formatter": "^7.2.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0",
     "webpack-merge": "^4.2.2"
+  },
+  "resolutions": {
+    "vscode-languageserver-protocol": "3.15.1"
   }
 }

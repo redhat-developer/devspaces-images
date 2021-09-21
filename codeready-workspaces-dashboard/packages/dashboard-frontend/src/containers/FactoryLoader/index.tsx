@@ -14,12 +14,17 @@ import { AlertActionLink, AlertVariant } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { History } from 'history';
+import common from '@eclipse-che/common';
 import { delay } from '../../services/helpers/delay';
 import { AppState } from '../../store';
 import * as FactoryResolverStore from '../../store/FactoryResolver';
 import * as WorkspaceStore from '../../store/Workspaces';
 import FactoryLoader from '../../pages/FactoryLoader';
-import { selectAllWorkspaces, selectWorkspaceById } from '../../store/Workspaces/selectors';
+import {
+  selectAllWorkspaces,
+  selectWorkspaceById,
+  selectWorkspaceByQualifiedName
+} from '../../store/Workspaces/selectors';
 import { selectPreferredStorageType } from '../../store/Workspaces/Settings/selectors';
 import { buildIdeLoaderLocation, sanitizeLocation } from '../../services/helpers/location';
 import { lazyInject } from '../../inversify.config';
@@ -27,12 +32,14 @@ import { KeycloakAuthService } from '../../services/keycloak/auth';
 import { getEnvironment, isDevEnvironment } from '../../services/helpers/environment';
 import { isOAuthResponse } from '../../store/FactoryResolver';
 import { updateDevfile } from '../../services/storageTypes';
-import { isDevfileV1, isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
+import { isCheDevfile, isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import { AlertOptions } from '../../pages/FactoryLoader';
-import { selectInfrastructureNamespaces } from '../../store/InfrastructureNamespaces/selectors';
+import { selectDefaultNamespace, selectInfrastructureNamespaces } from '../../store/InfrastructureNamespaces/selectors';
 import { safeLoad } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
-import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devWorkspaceClient';
+import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
+import devfileApi from '../../services/devfileApi';
+import getRandomString from '../../services/helpers/random';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create'];
 
@@ -266,8 +273,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         this.resolvePrivateDevfile(e.attributes.oauth_authentication_url, location);
         return;
       }
-
-      this.showAlert('Failed to resolve a devfile. ' + (e.message || ''));
+      this.showAlert(`Failed to resolve a devfile. ${common.helpers.errors.getMessage(e)}`);
       return;
     }
     if (this.factoryResolver.resolver?.location !== location) {
@@ -347,12 +353,15 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     return factoryParams;
   }
 
-  private async resolveWorkspace(devfile: api.che.workspace.devfile.Devfile, attrs: { [key: string]: string }): Promise<Workspace | undefined> {
+  private async resolveWorkspace(
+    devfile: api.che.workspace.devfile.Devfile | devfileApi.Devfile,
+    attrs: { [key: string]: string }
+  ): Promise<Workspace | undefined> {
     let workspace: Workspace | undefined;
     const stackName = this.getWorkspaceV1StackName(attrs.factoryParams);
     if (this.state.createPolicy === 'peruser') {
       workspace = this.props.allWorkspaces.find(workspace => {
-        if (isWorkspaceV1(workspace.ref)) {
+        if (isCheWorkspace(workspace.ref)) {
           return workspace.ref?.attributes?.stackName === stackName;
         }
         else {
@@ -369,12 +378,20 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
     if (!workspace) {
       // for backward compatibility with workspaces V1
-      if (isDevfileV1(devfile)) {
+      if (isCheDevfile(devfile)) {
         attrs.stackName = stackName;
         delete attrs.factoryParams;
+        if (!devfile.metadata.name && devfile.metadata.generateName) {
+          const name = devfile.metadata.generateName + getRandomString(4).toLowerCase();
+          delete devfile.metadata.generateName;
+          devfile.metadata.name = name;
+        }
       }
+      const namespace = this.props.defaultNamespace?.name;
       try {
-        workspace = await this.props.createWorkspaceFromDevfile(devfile, undefined, undefined, attrs, this.factoryResolver.resolver.optionalFilesContent || {});
+        await this.props.createWorkspaceFromDevfile(devfile, undefined, namespace, attrs, this.factoryResolver.resolver.optionalFilesContent || {});
+        this.props.setWorkspaceQualifiedName(namespace, devfile.metadata.name as string);
+        workspace = this.props.activeWorkspace;
       } catch (e) {
         this.showAlert(`Failed to create a workspace. ${e}`);
         return;
@@ -386,7 +403,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
     // check if it ephemeral
     // not implemented for dev workspaces yet
-    if (isWorkspaceV1(workspace.ref) && workspace.storageType === 'ephemeral') {
+    if (isCheWorkspace(workspace.ref) && workspace.storageType === 'ephemeral') {
       this.showAlert({
         title: 'You\'re starting an ephemeral workspace. All changes to the source code will be lost ' +
           'when the workspace is stopped unless they are pushed to a remote code repository.',
@@ -533,6 +550,8 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
   preferredStorageType: selectPreferredStorageType(state),
+  activeWorkspace: selectWorkspaceByQualifiedName(state),
+  defaultNamespace: selectDefaultNamespace(state),
 });
 
 const connector = connect(

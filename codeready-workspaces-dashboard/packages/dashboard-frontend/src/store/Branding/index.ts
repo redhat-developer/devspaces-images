@@ -15,10 +15,10 @@ import { fetchBranding } from '../../services/assets/branding';
 import { AppThunk } from '..';
 import { merge } from 'lodash';
 import axios from 'axios';
+import common from '@eclipse-che/common';
 import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/branding.constant';
 import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
-import { getErrorMessage } from '../../services/helpers/getErrorMessage';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { createObject } from '../helpers';
 import { isSafari } from '../../services/helpers/detectBrowser';
 
@@ -70,7 +70,7 @@ export const actionCreators: ActionCreators = {
         const receivedBranding = await fetchBranding(url);
         branding = getBrandingData(receivedBranding);
       } catch (e) {
-        const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + getErrorMessage(e);
+        const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVED_BRANDING_ERROR',
           error: errorMessage,
@@ -90,12 +90,13 @@ export const actionCreators: ActionCreators = {
 
         const apiInfo = await getApiInfo();
         branding.productVersion = apiInfo.implementationVersion;
+
         dispatch({
           type: 'RECEIVED_BRANDING',
           data: branding,
         });
       } catch (e) {
-        const errorMessage = 'OPTIONS request to "/api/" failed, reason: ' + getErrorMessage(e);
+        const errorMessage = 'OPTIONS request to "/api/" failed, reason: ' + common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVED_BRANDING_ERROR',
           error: errorMessage,

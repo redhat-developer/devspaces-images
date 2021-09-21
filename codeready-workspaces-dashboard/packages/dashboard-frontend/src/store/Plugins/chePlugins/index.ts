@@ -12,8 +12,8 @@
 
 import axios from 'axios';
 import { Action, Reducer } from 'redux';
+import common from '@eclipse-che/common';
 import { AppThunk } from '../..';
-import { getErrorMessage } from '../../../services/helpers/getErrorMessage';
 import { createObject } from '../../helpers';
 
 // create new instance of `axios` to avoid adding an authorization header
@@ -65,7 +65,7 @@ export const actionCreators: ActionCreators = {
       });
       return plugins;
     } catch (e) {
-      const errorMessage = `Failed to fetch plugins from registry URL: ${registryUrl}, reason: ` + getErrorMessage(e);
+      const errorMessage = `Failed to fetch plugins from registry URL: ${registryUrl}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_PLUGINS_ERROR',
         error: errorMessage,

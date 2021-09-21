@@ -17,7 +17,7 @@ import { render, screen, RenderResult, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import WorkspacesListToolbar from '..';
 import { createFakeCheWorkspace } from '../../../../store/__mocks__/workspace';
-import { convertWorkspace, Workspace } from '../../../../services/workspaceAdapter';
+import { convertWorkspace, Workspace } from '../../../../services/workspace-adapter';
 
 let workspaces: Workspace[];
 let isSelectedAll: boolean;

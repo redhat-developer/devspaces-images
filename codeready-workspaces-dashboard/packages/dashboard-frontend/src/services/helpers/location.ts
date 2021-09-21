@@ -13,7 +13,7 @@
 import { History, Location } from 'history';
 import { ROUTE } from '../../route.enum';
 import { CreateWorkspaceTab, IdeLoaderTab, WorkspaceDetailsTab } from './types';
-import { Workspace } from '../workspaceAdapter';
+import { Workspace } from '../workspace-adapter';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 

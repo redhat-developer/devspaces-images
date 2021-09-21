@@ -41,7 +41,7 @@ import { WorkspaceActionsContext } from './context';
 import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
 import getRandomString from '../../services/helpers/random';
-import { isWorkspaceV1 } from '../../services/workspaceAdapter';
+import { isCheWorkspace } from '../../services/workspace-adapter';
 
 type Deferred = {
   resolve: () => void;
@@ -131,7 +131,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
         return buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
       case WorkspaceAction.DELETE_WORKSPACE:
         {
-          if (isWorkspaceV1(workspace.ref) && !(workspace.isStopped || workspace.hasError)) {
+          if (isCheWorkspace(workspace.ref) && !(workspace.isStopped || workspace.hasError)) {
             throw new Error('Only STOPPED workspaces can be deleted.');
           }
 

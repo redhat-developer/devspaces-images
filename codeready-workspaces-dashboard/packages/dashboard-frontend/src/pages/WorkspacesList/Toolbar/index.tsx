@@ -16,7 +16,7 @@ import { EllipsisVIcon, PlusCircleIcon, SearchIcon } from '@patternfly/react-ico
 import match from '../../../services/helpers/filter';
 
 import * as styles from './index.module.css';
-import { Workspace } from '../../../services/workspaceAdapter';
+import { Workspace } from '../../../services/workspace-adapter';
 
 type Props = {
   selectedAll: boolean;

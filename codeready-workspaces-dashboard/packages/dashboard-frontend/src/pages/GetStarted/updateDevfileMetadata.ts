@@ -10,12 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isDevfileV2 } from '../../services/workspaceAdapter';
+import { isDevfileV2 } from '../../services/devfileApi';
 import { safeDump } from 'js-yaml';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION
-} from '../../services/workspace-client/devWorkspaceClient';
+} from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import getRandomString from '../../services/helpers/random';
 
 export function updateDevfileMetadata(devfile: api.che.workspace.devfile.Devfile, meta?: che.DevfileMetaData): api.che.workspace.devfile.Devfile {

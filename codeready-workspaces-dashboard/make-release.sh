@@ -47,20 +47,17 @@ bump_version () {
   update_pkgs_versions $NEXT_VERSION
 
   if [[ ${NOCOMMIT} -eq 0 ]]; then
-    COMMIT_MSG="[release] Bump to ${NEXT_VERSION} in ${BUMP_BRANCH}"
+    COMMIT_MSG="chore: Bump to ${NEXT_VERSION} in ${BUMP_BRANCH}"
     git commit -asm "${COMMIT_MSG}"
     git pull origin "${BUMP_BRANCH}"
 
-    set +e
-    PUSH_TRY="$(git push origin "${BUMP_BRANCH}")"
-    set -e
-    # shellcheck disable=SC2181
-    if [[ $? -gt 0 ]] || [[ $PUSH_TRY == *"protected branch hook declined"* ]]; then
+    PUSH_TRY="$(git push origin "${BUMP_BRANCH}" || true)"
+    if [[ $PUSH_TRY == *"protected branch hook declined"* ]]; then
+      set -e
       PR_BRANCH=pr-${BUMP_BRANCH}-to-${NEXT_VERSION}
       # create pull request for main branch, as branch is restricted
       git branch "${PR_BRANCH}"
       git checkout "${PR_BRANCH}"
-      git pull origin "${PR_BRANCH}"
       git push origin "${PR_BRANCH}"
       lastCommitComment="$(git log -1 --pretty=%B)"
       hub pull-request -f -m "${lastCommitComment}" -b "${BUMP_BRANCH}" -h "${PR_BRANCH}"
@@ -122,7 +119,7 @@ update_pkgs_versions $VERSION
 
 # commit change into branch
 if [[ ${NOCOMMIT} -eq 0 ]]; then
-  COMMIT_MSG="[release] Bump to ${VERSION} in ${BRANCH}"
+  COMMIT_MSG="chore: Bump to ${VERSION} in ${BRANCH}"
   git commit -asm "${COMMIT_MSG}"
   git pull origin "${BRANCH}"
   git push origin "${BRANCH}"

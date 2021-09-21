@@ -84,7 +84,7 @@ describe('Error boundary', () => {
     const { reload } = window.location;
 
     beforeEach(() => {
-      delete window.location;
+      delete (window as any).location;
       (window.location as any) = { reload: jest.fn() };
 
       jest.useFakeTimers();

@@ -27,7 +27,7 @@ import {
   buildWorkspacesLocation,
 } from '../../services/helpers/location';
 import { IdeLoaderTab, WorkspaceDetailsTab } from '../../services/helpers/types';
-import { convertWorkspace, Workspace } from '../../services/workspaceAdapter';
+import { convertWorkspace, Workspace } from '../../services/workspace-adapter';
 import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
 
 jest.mock('../../pages/GetStarted', () => {

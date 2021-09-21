@@ -16,10 +16,10 @@ import getDecorators from 'inversify-inject-decorators';
 import { KeycloakSetupService } from './services/keycloak/setup';
 import { KeycloakAuthService } from './services/keycloak/auth';
 import { Debounce } from './services/helpers/debounce';
-import { CheWorkspaceClient } from './services/workspace-client/cheWorkspaceClient';
+import { CheWorkspaceClient } from './services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppAlerts } from './services/alerts/appAlerts';
 import { IssuesReporterService } from './services/bootstrap/issuesReporter';
-import { DevWorkspaceClient } from './services/workspace-client/devWorkspaceClient';
+import { DevWorkspaceClient } from './services/workspace-client/devworkspace/devWorkspaceClient';
 
 const container = new Container();
 const { lazyInject } = getDecorators(container);

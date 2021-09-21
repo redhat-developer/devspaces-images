@@ -16,8 +16,8 @@ import { IRow, SortByDirection } from '@patternfly/react-table';
 import WorkspaceIndicator from '../../components/Workspace/Indicator';
 import { formatDate, formatRelativeDate } from '../../services/helpers/date';
 import { buildDetailsLocation, toHref, buildIdeLoaderLocation } from '../../services/helpers/location';
-import { isWorkspaceV1, Workspace } from '../../services/workspaceAdapter';
-import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
+import devfileApi from '../../services/devfileApi';
 import { DevWorkspaceStatus } from '../../services/helpers/types';
 
 export interface RowData extends IRow {
@@ -118,17 +118,19 @@ export function buildRow(
 
   /* projects list */
   const projects: string[] = [];
-  if (isWorkspaceV1(workspace.ref)) {
-    const devfile = workspace.devfile as che.WorkspaceDevfile;
-    (devfile.projects || [])
+  if (isCheWorkspace(workspace.ref)) {
+    const workspaceProjects = (workspace.devfile as che.WorkspaceDevfile).projects;
+    (workspaceProjects || [])
       .map(project => project.name || project.source?.location)
       .filter((projectName?: string) => projectName)
       .forEach((projectName: string) => projects.push(projectName));
   } else {
-    const devfile = workspace.devfile as IDevWorkspaceDevfile;
-    (devfile.projects || [])
+    const workspaceProjects = (workspace.ref as devfileApi.DevWorkspace).spec.template.projects;
+    (workspaceProjects || [])
       .map(project => project.name || project.git?.remotes?.origin)
-      .filter((projectName?: string) => projectName)
+      .filter((projectName?: string): projectName is string => {
+        return typeof projectName === 'string' && projectName !== '';
+      })
       .forEach((projectName: string) => projects.push(projectName));
   }
   const projectsList = projects.join(', \n') || '-';

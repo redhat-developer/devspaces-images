@@ -11,10 +11,10 @@
  */
 
 import { Action, Reducer } from 'redux';
+import common from '@eclipse-che/common';
 import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '..';
-import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 import { createObject } from '../helpers';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
@@ -60,7 +60,7 @@ export const actionCreators: ActionCreators = {
       });
       return namespaces;
     } catch (e) {
-      const errorMessage = 'Failed to fetch list of available kubernetes namespaces, reason: ' + getErrorMessage(e);
+      const errorMessage = 'Failed to fetch list of available kubernetes namespaces, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_NAMESPACES_ERROR',
         error: errorMessage,

@@ -18,17 +18,25 @@ import React from 'react';
 import GetStarted from '..';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { convertWorkspace, Workspace } from '../../../services/workspaceAdapter';
+import { convertWorkspace, Devfile, Workspace } from '../../../services/workspace-adapter';
+import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
 
+const setWorkspaceQualifiedName = jest.fn();
 const createWorkspaceFromDevfileMock = jest.fn().mockResolvedValue(undefined);
 const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 
+const namespace = 'che';
+const workspaceName = 'wksp-test';
 const dummyDevfile = {
   apiVersion: '1.0.0',
   metadata: {
-    generateName: 'wksp-'
+    name: workspaceName
   },
-} as che.WorkspaceDevfile;
+} as Devfile;
+const workspace = new CheWorkspaceBuilder()
+  .withDevfile(dummyDevfile as che.WorkspaceDevfile)
+  .withNamespace(namespace)
+  .build();
 
 jest.mock('../../../store/Workspaces/index', () => {
   return {
@@ -36,10 +44,13 @@ jest.mock('../../../store/Workspaces/index', () => {
       createWorkspaceFromDevfile: (devfile, namespace, infrastructureNamespace, attributes) =>
         async (): Promise<Workspace> => {
           createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
-          return convertWorkspace({ id: 'id-wksp-test', attributes, namespace, devfile: dummyDevfile, temporary: false, status: 'STOPPED' });
+          return convertWorkspace({ id: 'id-wksp-test', attributes, namespace, devfile: dummyDevfile as che.WorkspaceDevfile, temporary: false, status: 'STOPPED' });
         },
       startWorkspace: workspace => async (): Promise<void> => {
         startWorkspaceMock(workspace);
+      },
+      setWorkspaceQualifiedName: ( namespace: string, workspaceName: string) => async (): Promise<void> => {
+        setWorkspaceQualifiedName(namespace, workspaceName);
       },
     },
   };
@@ -80,7 +91,7 @@ describe('Quick Add page', () => {
     const devfileButton = screen.getByRole('button', { name: 'Dummy Devfile' });
     devfileButton.click();
 
-    expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(dummyDevfile, undefined, undefined, { stackName: 'dummyStackName' });
+    expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(dummyDevfile, undefined, namespace, { stackName: 'dummyStackName' });
   });
 
   it('should have correct masthead when Quick Add tab is active', () => {
@@ -120,5 +131,14 @@ function createFakeStore(): Store {
     .withBranding({
       name: 'test'
     } as BrandingData)
+    .withCheWorkspaces({
+      workspaces: [workspace],
+    })
+    .withWorkspaces({
+      workspaceId: workspace.id,
+      namespace: namespace,
+      workspaceName: workspace.devfile.metadata.name
+    })
+    .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
     .build();
 }

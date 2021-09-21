@@ -11,7 +11,7 @@
  */
 
 import axios from 'axios';
-import { getErrorMessage } from '../helpers/getErrorMessage';
+import common from '@eclipse-che/common';
 
 // create new instance of `axios` to avoid adding an authorization header
 const axiosInstance = axios.create();
@@ -52,7 +52,7 @@ export async function fetchData<T>(url: string): Promise<T> {
     const response = await axiosInstance.get<T>(url);
     return response.data;
   } catch (e) {
-    throw getErrorMessage(e);
+    throw common.helpers.errors.getMessage(e);
   }
 }
 

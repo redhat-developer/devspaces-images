@@ -13,11 +13,11 @@
 // This state defines the type of data maintained in the Redux store.
 
 import { Action, Reducer } from 'redux';
+import common from '@eclipse-che/common';
 import { createObject } from '../helpers';
 import { AppThunk } from '../index';
 import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
-import { getErrorMessage } from '../../services/helpers/getErrorMessage';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -60,7 +60,7 @@ export const actionCreators: ActionCreators = {
         profile,
       });
     } catch (e) {
-      const errorMessage = 'Failed to fetch the user profile, reason: ' + getErrorMessage(e);
+      const errorMessage = 'Failed to fetch the user profile, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_USER_PROFILE_ERROR',
         error: errorMessage,

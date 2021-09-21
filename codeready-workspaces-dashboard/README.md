@@ -32,15 +32,25 @@ Install all dependencies:
 yarn
 ```
 
-and start dev-server:
-
-The start command requires to specify a remote Eclipse Che server like:
+and start dashboard locally:
 
 ```sh
-yarn start --env.server=https://che-che.192.168.99.100.nip.io
+yarn start
 ```
 
-The development server serves the project on [http://localhost:3000](http://localhost:3000).
+The development server serves the dashboard-frontend and dashboard-backend on [http://localhost:8080](http://localhost:8080).
+
+Note: dashboard backend uses the K8s/OpenShift cluster from the kubeconfig, so you may need to logging with oc first.
+
+
+We can start dev-server for dashboard-frontend only. The start command requires to specify
+a remote Eclipse Che server like:
+
+```sh
+./local-start.sh
+```
+
+The development server serves the dashboard-frontend on [http://localhost:3000](http://localhost:3000).
 
 Note: For Che/CRW to allow connection from localhost it should be configured in accordance.
 
@@ -61,8 +71,8 @@ metadata:
     che.eclipse.org/ADDITIONAL_REDIRECT_URIS_env-name: ADDITIONAL_REDIRECT_URIS
     che.eclipse.org/ADDITIONAL_WEBORIGINS_env-name: ADDITIONAL_WEBORIGINS
 data:
-  ADDITIONAL_WEBORIGINS: '"http://localhost:3000"'
-  ADDITIONAL_REDIRECT_URIS: '"http://localhost:3000/*"'
+  ADDITIONAL_WEBORIGINS: '"http://localhost:8080"'
+  ADDITIONAL_REDIRECT_URIS: '"http://localhost:8080/*"'
 EOF
 # Due temporary limitation we need to rollout che operator to apply changes
 kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
@@ -72,7 +82,7 @@ Note: To use CodeReady Workspaces(based on Che) Hosted by Red Hat instance at ht
 URL is looking like https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
 
 ```sh
-yarn start --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
+yarn frontend:start --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
 ```
 
 To specify a different port, add `--port=3333`
@@ -87,13 +97,13 @@ For better debugging experience you need to have React and Redux Developer Tools
 To launch the production mode, the command is
 
 ```sh
-yarn start:prod
+yarn --cwd packages/dashboard-frontend start:prod
 ```
 
 To provide a custom remote server:
 
 ```sh
-yarn start:prod --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
+yarn --cwd packages/dashboard-frontend start:prod --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
 ```
 
 ### Dependencies IP
@@ -111,7 +121,7 @@ yarn license:generate
 
 ## Branding
 
-Default branding data for the User Dashboard is located in [branding.constant.ts](src/services/bootstrap/branding.constant.ts)#BRANDING_DEFAULT. It can be overridden without re-building the project in [product.json](/assets/branding/product.json) file which should contain only values that should overwrite default ones.
+Default branding data for the User Dashboard is located in [branding.constant.ts](/packages/dashboard-frontend/src/services/bootstrap/branding.constant.ts)#BRANDING_DEFAULT. It can be overridden without re-building the project in [product.json](/packages/dashboard-frontend/assets/branding/product.json) file which should contain only values that should overwrite default ones.
 
 ### Configurability
 

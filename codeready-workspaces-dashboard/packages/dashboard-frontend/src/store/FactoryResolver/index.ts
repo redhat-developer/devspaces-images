@@ -13,12 +13,12 @@
 import { Action, Reducer } from 'redux';
 import { RequestError } from '@eclipse-che/workspace-client';
 import axios, { AxiosResponse } from 'axios';
+import common from '@eclipse-che/common';
 import { FactoryResolver } from '../../services/helpers/types';
 import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheWorkspaceClient';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
-import { getErrorMessage } from '../../services/helpers/getErrorMessage';
 import { getDevfile } from './getDevfile';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
@@ -99,7 +99,7 @@ export async function grabLink(links: api.che.core.rest.Link, filename: string):
     return response.data;
   } catch (error) {
     // content may not be there
-    if (error.response.status == 404) {
+    if (common.helpers.errors.isAxiosError(error) && error.response?.status == 404) {
       return undefined;
     }
     throw error;
@@ -125,7 +125,7 @@ export const actionCreators: ActionCreators = {
       if (cheTheiaPlugins) {
         optionalFilesContent['.che/che-theia-plugins.yaml'] = cheTheiaPlugins;
       }
-      const cheEditor = await grabLink(data.links, 'che editor file');
+      const cheEditor = await grabLink(data.links, '.che/che-editor.yaml');
       if (cheEditor) {
         optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
       }
@@ -143,7 +143,7 @@ export const actionCreators: ActionCreators = {
       if (response.status === 401 && isOAuthResponse(responseData)) {
         throw responseData;
       }
-      const errorMessage = 'Failed to request factory resolver: ' + getErrorMessage(e);
+      const errorMessage = 'Failed to request factory resolver: ' + common.helpers.errors.getMessage(e);
       dispatch({
         type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
         error: errorMessage,

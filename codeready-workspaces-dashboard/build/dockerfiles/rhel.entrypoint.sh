@@ -16,8 +16,8 @@ fi
 
 set -x
 
-# start static server
-echo 'Starting static server...'
-start_server="node /server.js --publicFolder /public"
+echo 'Starting Dashboard backend server...'
+start_server="node /backend/server/backend.js --publicFolder /public"
 $start_server &
 wait
+echo 'Dashboard backend server is stopped.'

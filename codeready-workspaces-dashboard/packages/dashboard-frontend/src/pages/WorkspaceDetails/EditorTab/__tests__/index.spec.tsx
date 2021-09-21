@@ -17,13 +17,13 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import renderer from 'react-test-renderer';
 import userEvent from '@testing-library/user-event';
 import { dump } from 'js-yaml';
-import { IDevWorkspace, IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import devfileApi from '../../../../services/devfileApi';
 import EditorTab from '..';
-import { Workspace, convertWorkspace } from '../../../../services/workspaceAdapter';
+import { Workspace, convertWorkspace } from '../../../../services/workspace-adapter';
 import { CheWorkspaceBuilder } from '../../../../store/__mocks__/cheWorkspaceBuilder';
 import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
-import { DevWorkspaceClient } from '../../../../services/workspace-client/devWorkspaceClient';
+import { DevWorkspaceClient } from '../../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { container } from '../../../../inversify.config';
 
 // uses the Devfile Editor mock
@@ -134,10 +134,10 @@ describe('Editor Tab', () => {
         .build();
 
       const devWorkspaceCopy = JSON.parse(JSON.stringify(devWorkspace));
-      // mock devWorkspaceClient method to be able to save the devfile
+      // mock devworkspace method to be able to save the devfile
       class MockDevWorkspaceClient extends DevWorkspaceClient {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        async getWorkspaceByName(namespace: string, workspaceName: string): Promise<IDevWorkspace> {
+        async getWorkspaceByName(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
           return devWorkspaceCopy;
         }
       }
@@ -161,8 +161,8 @@ describe('Editor Tab', () => {
       render(component);
 
       // copy the workspace devfile, remove 'name' field and paste new devfile into the editor
-      const noNameDevfile = JSON.parse(JSON.stringify(workspace.devfile)) as IDevWorkspaceDevfile;
-      delete noNameDevfile.metadata.name;
+      const noNameDevfile = JSON.parse(JSON.stringify(workspace.devfile)) as devfileApi.Devfile;
+      delete (noNameDevfile as devfileApi.DevfileLike).metadata?.name;
       const noNameDevfileContent = dump(noNameDevfile);
 
       const editor = screen.getByRole('textbox');
@@ -184,7 +184,7 @@ describe('Editor Tab', () => {
           metadata: expect.objectContaining({
             name: workspaceName,
           }),
-        } as IDevWorkspace),
+        } as devfileApi.DevWorkspace),
       }));
 
     });
@@ -193,8 +193,8 @@ describe('Editor Tab', () => {
       render(component);
 
       // copy the workspace devfile, remove 'name' field and paste new devfile into the editor
-      const noNamespaceDevfile = JSON.parse(JSON.stringify(workspace.devfile)) as IDevWorkspaceDevfile;
-      delete noNamespaceDevfile.metadata.namespace;
+      const noNamespaceDevfile = JSON.parse(JSON.stringify(workspace.devfile)) as devfileApi.Devfile;
+      delete (noNamespaceDevfile as devfileApi.DevfileLike).metadata?.namespace;
       const noNamespaceDevfileContent = dump(noNamespaceDevfile);
 
       const editor = screen.getByRole('textbox');
@@ -216,7 +216,7 @@ describe('Editor Tab', () => {
           metadata: expect.objectContaining({
             namespace,
           }),
-        } as IDevWorkspace),
+        } as devfileApi.DevWorkspace),
       }));
 
     });

@@ -15,6 +15,7 @@ import 'keycloak-js';
 import axios from 'axios';
 import { inject, injectable } from 'inversify';
 import { KeycloakInstance } from 'keycloak-js';
+import common from '@eclipse-che/common';
 import { IssuesReporterService } from '../bootstrap/issuesReporter';
 import { KeycloakAuthService } from './auth';
 import isDocumentReady from '../helpers/document';
@@ -134,15 +135,17 @@ export class KeycloakSetupService {
 
       return settings;
     } catch (e) {
-      if (e.response?.status === 404) {
+      if (common.helpers.errors.isAxiosError(e) && e.response?.status === 404) {
+        // not found, which mean Che Server is configured to be run without keycloak.
         return;
       }
 
-      const errorMessage = 'Cannot get Keycloak settings' + (
-        e.response?.status === undefined
-          ? '. Response is not available, please check console for details.'
-          : `: ${e.response?.status} ${e.response?.statusText}`
-      );
+      let errorMessage = 'Cannot get Keycloak settings';
+      if (common.helpers.errors.isAxiosError(e)) {
+        errorMessage += ': ' + common.helpers.errors.getMessage(e);
+      } else {
+        errorMessage += '. Response is not available, please check the Network tab of Developer tools.';
+      }
       throw new Error(errorMessage);
     }
   }

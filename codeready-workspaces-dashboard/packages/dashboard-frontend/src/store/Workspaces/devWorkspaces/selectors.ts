@@ -13,8 +13,15 @@
 import { createSelector } from 'reselect';
 import { AppState } from '../..';
 
-const selectState = (state: AppState) => state.cheWorkspaces;
+const selectState = (state: AppState) => state.devWorkspaces;
 export const selectDevWorkspacesState = selectState;
+
+export const selectDevWorkspacesResourceVersion = createSelector(
+  selectState,
+  state => {
+    return state.resourceVersion;
+  }
+);
 
 export const selectAllDevWorkspaces = createSelector(
   selectState,

@@ -15,6 +15,11 @@ import { AppState } from '..';
 
 const selectState = (state: AppState) => state.infrastructureNamespaces;
 
+export const selectDefaultNamespace = createSelector(
+  selectState,
+  state => state.namespaces.find(namespace => namespace.attributes.default === 'true') || state.namespaces[0],
+);
+
 export const selectInfrastructureNamespaces = createSelector(
   selectState,
   state => state.namespaces,

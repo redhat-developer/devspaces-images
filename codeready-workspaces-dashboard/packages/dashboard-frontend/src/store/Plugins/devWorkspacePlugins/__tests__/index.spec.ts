@@ -14,7 +14,7 @@ import mockAxios, { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { AnyAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { IDevWorkspaceDevfile } from '@eclipse-che/devworkspace-client';
+import devfileApi from '../../../../services/devfileApi';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import * as dwPluginsStore from '..';
 import { AppState } from '../../..';
@@ -27,7 +27,7 @@ const plugin = {
   metadata: {
     name: 'void-sample',
   },
-} as IDevWorkspaceDevfile;
+} as devfileApi.Devfile;
 
 describe('dwPlugins store', () => {
 
@@ -65,7 +65,7 @@ describe('dwPlugins store', () => {
       (mockAxios.get as jest.Mock).mockRejectedValueOnce({
         isAxiosError: true,
         code: '500',
-        message: 'unexpected error',
+        message: 'Something unexpected happened.',
       } as AxiosError);
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>>;
@@ -83,7 +83,7 @@ describe('dwPlugins store', () => {
         url,
       }, {
         type: 'RECEIVE_DW_PLUGIN_ERROR',
-        error: expect.stringContaining('unexpected error'),
+        error: expect.stringContaining('Something unexpected happened.'),
         url,
       }];
 

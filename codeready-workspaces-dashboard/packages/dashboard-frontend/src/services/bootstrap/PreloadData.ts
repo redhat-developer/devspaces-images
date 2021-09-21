@@ -11,6 +11,7 @@
  */
 
 import { Store } from 'redux';
+import common from '@eclipse-che/common';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakSetupService } from '../keycloak/setup';
 import { AppState } from '../../store';
@@ -27,8 +28,8 @@ import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
 import { ResourceFetcherService } from '../resource-fetcher';
 import { IssuesReporterService } from './issuesReporter';
-import { CheWorkspaceClient } from '../workspace-client/cheWorkspaceClient';
-import { DevWorkspaceClient } from '../workspace-client/devWorkspaceClient';
+import { CheWorkspaceClient } from '../workspace-client/cheworkspace/cheWorkspaceClient';
+import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspaceClient';
 
 /**
  * This class prepares all init data.
@@ -85,7 +86,8 @@ export class PreloadData {
     try {
       await requestBranding()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
-      this.issuesReporterService.registerIssue('unknown', new Error(e));
+      const errorMessage = common.helpers.errors.getMessage(e);
+      this.issuesReporterService.registerIssue('unknown', new Error(errorMessage));
     }
   }
 
@@ -93,14 +95,26 @@ export class PreloadData {
     return this.cheWorkspaceClient.updateJsonRpcMasterApi();
   }
 
-  private async initializeNamespace(namespace: string): Promise<boolean> {
-    return this.devWorkspaceClient.initializeNamespace(namespace);
-  }
-
   private async watchNamespaces(namespace: string): Promise<void> {
-    const { updateDevWorkspaceStatus, updateDeletedDevWorkspaces, updateAddedDevWorkspaces } = DevWorkspacesStore.actionCreators;
-    const callbacks = { updateDevWorkspaceStatus, updateDeletedDevWorkspaces, updateAddedDevWorkspaces };
-    return this.devWorkspaceClient.subscribeToNamespace(namespace, callbacks, this.store.dispatch, this.store.getState);
+    const {
+      updateDevWorkspaceStatus,
+      updateDeletedDevWorkspaces,
+      updateAddedDevWorkspaces,
+      requestWorkspaces
+    } = DevWorkspacesStore.actionCreators;
+    const getResourceVersion = async () => {
+      await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
+      return this.store.getState().devWorkspaces.resourceVersion;
+    };
+    const dispatch = this.store.dispatch;
+    const getState = this.store.getState;
+    const callbacks = { getResourceVersion,
+      updateDevWorkspaceStatus: statusUpdate => updateDevWorkspaceStatus(statusUpdate)(dispatch, getState, undefined),
+      updateDeletedDevWorkspaces: workspaceIds => updateDeletedDevWorkspaces(workspaceIds)(dispatch, getState, undefined),
+      updateAddedDevWorkspaces: workspaces => updateAddedDevWorkspaces(workspaces)(dispatch, getState, undefined),
+    };
+
+    return await this.devWorkspaceClient.subscribeToNamespace({ namespace, callbacks });
   }
 
   private async fetchCurrentUser(): Promise<void> {
@@ -124,10 +138,8 @@ export class PreloadData {
     }
 
     const defaultNamespace = await this.cheWorkspaceClient.getDefaultNamespace();
-    const namespaceInitialized = await this.initializeNamespace(defaultNamespace);
-    if (namespaceInitialized) {
-      this.watchNamespaces(defaultNamespace);
-    }
+    await this.devWorkspaceClient.initializeNamespace(defaultNamespace);
+    this.watchNamespaces(defaultNamespace);
 
     const { requestDwDefaultEditor } = DwPluginsStore.actionCreators;
     try {

@@ -24,6 +24,7 @@ import { toTitle } from '../../../../services/storageTypes';
 
 import CustomWorkspaceTab from '..';
 import { FactoryResolver } from '../../../../services/helpers/types';
+import { Devfile } from '../../../../services/workspace-adapter';
 
 jest.mock('../../../../components/DevfileEditor', () => {
   return forwardRef(function DummyEditor(...args: any[]): React.ReactElement {
@@ -55,7 +56,7 @@ const dummyDevfile = {
   metadata: {
     name: 'Java Maven',
   },
-} as che.WorkspaceDevfile;
+} as Devfile;
 jest.mock('../../../../store/DevfileRegistries', () => {
   return {
     actionCreators: {
@@ -85,12 +86,12 @@ jest.mock('../../../../store/FactoryResolver/index.ts', () => {
 describe('Custom Workspace Tab', () => {
 
   const defaultInfrastructureNamespace = undefined;
-  const initialDevfile: che.WorkspaceDevfile = {
+  const initialDevfile: Devfile = {
     apiVersion: '1.0.0',
     metadata: {
       generateName: 'wksp-'
     }
-  } as che.WorkspaceDevfile;
+  } as Devfile;
 
   function renderComponent(store: Store, onDevfile: jest.Mock): RenderResult {
     return render(
@@ -119,6 +120,20 @@ describe('Custom Workspace Tab', () => {
     screen.getByRole('button', { name: /create & open/i });
   });
 
+  it('should use default template with schema version "2.1.0" if devworkspaces is enabled', () => {
+    const store = createStore({
+      isDevworkspacesEnabled: true,
+    });
+    const mockOnDevfile = jest.fn();
+    renderComponent(store, mockOnDevfile);
+
+    clickOnCreateAndOpenButton();
+
+    expect(mockOnDevfile).toHaveBeenCalledWith(expect.objectContaining({
+      schemaVersion: '2.1.0'
+    }), defaultInfrastructureNamespace, undefined);
+  });
+
   it('should handle click on "Create & Open" button', () => {
     const defaultStorageType = 'persistent';
     const store = createStore({
@@ -139,7 +154,7 @@ describe('Custom Workspace Tab', () => {
       const store = createStore({
         defaultStorageType
       });
-      const mockOnDevfile = jest.fn((devfile: che.WorkspaceDevfile, namespace: che.KubernetesNamespace) => {
+      const mockOnDevfile = jest.fn((devfile: Devfile, namespace: che.KubernetesNamespace) => {
         expect(namespace).toEqual(defaultInfrastructureNamespace);
         const expectedMeta = {
           name: 'new-workspace-name',
@@ -168,7 +183,7 @@ describe('Custom Workspace Tab', () => {
       const store = createStore({
         defaultStorageType
       });
-      const mockOnDevfile = jest.fn((devfile: che.WorkspaceDevfile, namespace: che.KubernetesNamespace) => {
+      const mockOnDevfile = jest.fn((devfile:  Devfile, namespace: che.KubernetesNamespace) => {
         expect(namespace).toEqual(defaultInfrastructureNamespace);
         const expectedAttributes: che.WorkspaceDevfileAttributes = {
           asyncPersist: 'true',
@@ -235,7 +250,7 @@ describe('Custom Workspace Tab', () => {
       const dummyCustomDevfile = {
         apiVersion: '1.0.0',
         metadata: { name: devfileName },
-      } as che.WorkspaceDevfile;
+      } as Devfile;
 
       const store = createStore();
       const mockOnDevfile = jest.fn();
@@ -347,7 +362,8 @@ function clickOnCreateAndOpenButton() {
 }
 
 function createStore(opts: {
-  defaultStorageType?: che.WorkspaceStorageType
+  defaultStorageType?: che.WorkspaceStorageType,
+  isDevworkspacesEnabled?: boolean
 } = {}): Store {
   return new FakeStoreBuilder()
     .withDevfileRegistries({
@@ -361,7 +377,7 @@ function createStore(opts: {
       devfile: {
         apiVersion: '1.0.0',
         metadata: { name: 'Custom Devfile' },
-      } as che.WorkspaceDevfile,
+      } as Devfile,
     } as FactoryResolver)
     .withBranding({
       docs: {
@@ -370,7 +386,8 @@ function createStore(opts: {
     } as any)
     .withWorkspacesSettings({
       'che.workspace.storage.available_types': 'async,ephemeral,persistent',
-      'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral'
+      'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral',
+      'che.devworkspaces.enabled': opts.isDevworkspacesEnabled ? 'true' : 'false'
     } as che.WorkspaceSettings)
     .build();
 }
