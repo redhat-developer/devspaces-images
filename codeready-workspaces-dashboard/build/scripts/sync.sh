@@ -88,8 +88,11 @@ fi
 # echo "Load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json [3]"
 configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
 YARN_VERSION=$(echo "${configjson}" | jq -r --arg CRW_VERSION "${CRW_VERSION}" '.Other["YARN_VERSION"][$CRW_VERSION]');
-echo "Install Yarn $YARN_VERSION into .yarn/ ... "
-yarn policies set-version ${YARN_VERSION}
+YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
+echo "Install Yarn $YARN_VERSION into $YARN_TARGET_DIR ... "
+mkdir -p "${YARN_TARGET_DIR}"
+curl -L "https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-${YARN_VERSION}.js" -o "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
+chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
 
 pushd "${TARGETDIR}" >/dev/null
 
