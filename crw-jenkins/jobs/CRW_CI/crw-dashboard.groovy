@@ -27,7 +27,7 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
             NODE_VERSION="" + config.Other.NODE_VERSION[JB]
-            YARN_VERSION="" + config.Other.NODE_VERSION[JB]
+            YARN_VERSION="" + config.Other.YARN_VERSION[JB]
         
             def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.dashboard[JB].upstream_branch[0]
             def BRANCH_CHECK=cmd.execute().text
