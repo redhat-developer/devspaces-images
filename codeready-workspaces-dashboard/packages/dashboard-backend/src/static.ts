@@ -34,6 +34,8 @@ export function registerStaticServer(publicFolder: string, server: FastifyInstan
   const doNotCache = [
     '/dashboard/',
     '/dashboard/index.html',
+    '/dashboard/service-worker.js',
+    '/dashboard/editor.worker.js',
     '/dashboard/assets/branding/product.json',
   ];
   server.addHook('onSend', (request: FastifyRequest, reply:  FastifyReply, payload: any, done: DoneFuncWithErrOrRes) => {

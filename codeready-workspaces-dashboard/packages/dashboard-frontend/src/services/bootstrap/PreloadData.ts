@@ -67,10 +67,11 @@ export class PreloadData {
       this.fetchCurrentUser(),
       this.fetchInfrastructureNamespaces(),
       this.fetchUserProfile(),
-      this.fetchPlugins(settings),
+      this.fetchPlugins(settings).then(() => {
+        return this.fetchDevfileSchema();
+      }),
       this.fetchDwPlugins(settings),
       this.fetchRegistriesMetadata(settings),
-      this.fetchDevfileSchema(),
       this.fetchWorkspaces(),
     ]);
     const errors = results
@@ -108,7 +109,8 @@ export class PreloadData {
     };
     const dispatch = this.store.dispatch;
     const getState = this.store.getState;
-    const callbacks = { getResourceVersion,
+    const callbacks = {
+      getResourceVersion,
       updateDevWorkspaceStatus: statusUpdate => updateDevWorkspaceStatus(statusUpdate)(dispatch, getState, undefined),
       updateDeletedDevWorkspaces: workspaceIds => updateDeletedDevWorkspaces(workspaceIds)(dispatch, getState, undefined),
       updateAddedDevWorkspaces: workspaces => updateAddedDevWorkspaces(workspaces)(dispatch, getState, undefined),

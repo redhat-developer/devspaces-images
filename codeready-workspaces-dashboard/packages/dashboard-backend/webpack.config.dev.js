@@ -16,6 +16,7 @@ const common = require('./webpack.config.common');
 module.exports = (env = {}) => {
   return merge(common(env), {
     mode: 'development',
+    devtool: 'eval-source-map',
     watchOptions: {
       ignored: /node_modules/,
       poll: 1000,

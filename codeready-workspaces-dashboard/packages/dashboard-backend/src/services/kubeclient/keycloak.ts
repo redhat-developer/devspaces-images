@@ -52,7 +52,7 @@ async function evaluateKeycloakEndpointUrl(): Promise<URL> {
     let keycloakEndpoint = response.data[ENDPOINT];
     // we should change a HOST in the case of using proxy to prevent the host check error
     console.log(`Evaluated keycloak endpoint to validate user's tokens: ${keycloakEndpoint}`);
-    if (isLocalRun()) {
+    if (isLocalRun) {
       const { pathname } = new URL(keycloakEndpoint);
       keycloakEndpoint = new URL(pathname, CHE_HOST);
       console.log(`Transforming keycloak URL for local run usage to: ${keycloakEndpoint}`);

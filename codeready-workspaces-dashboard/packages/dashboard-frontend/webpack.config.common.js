@@ -19,12 +19,18 @@ const path = require('path');
 const config = {
   entry: {
     client: path.join(__dirname, 'src/index.tsx'),
+    'service-worker': path.join(__dirname, 'src/service-worker.ts'),
+    'editor.worker': 'monaco-editor-core/esm/vs/editor/editor.worker.js'
   },
   output: {
     path: path.join(__dirname, 'lib'),
     publicPath: '/',
-    filename: 'client.[hash].js',
+    filename: (pathData) =>
+      pathData.chunk.name === 'service-worker' || pathData.chunk.name === 'editor.worker'
+        ? "[name].js"
+        : "[name].[hash].js",
     chunkFilename: '[name].[chunkhash].js',
+    globalObject: 'this',
   },
   optimization: {
     chunkIds: 'named',
@@ -64,48 +70,52 @@ const config = {
         enforce: 'pre',
         include: path.join(__dirname, 'src'),
         exclude: /node_modules/,
-        loader: 'eslint-loader',
-        options: {
-          cache: true,
-        },
+        use: [{
+          loader: 'eslint-loader',
+          options: {
+            cache: true,
+          }
+        }],
       },
       {
         test: /\.tsx?$/,
         include: path.join(__dirname, 'src'),
-        use: [
-          {
-            loader: 'ts-loader',
-          },
-        ],
+        use: ['ts-loader'],
         exclude: /node_modules/,
       },
       {
         test: /node_modules[\\\\|\/](yaml-language-server)/,
-        loader: 'umd-compat-loader'
+        use: ['umd-compat-loader']
       },
       {
         test: /node_modules[\\\\|/](vscode-json-languageservice)/,
-        loader: 'umd-compat-loader',
+        use: ['umd-compat-loader']
       },
       {
         test: /prettier\/parser-yaml/,
-        loader: 'null-loader',
+        use: ['null-loader']
       },
       {
         test: /prettier/,
-        loader: 'null-loader',
+        use: ['null-loader']
       },
       {
         test: /\.styl$/,
-        loader: 'style-loader!css-loader!stylus-loader',
+        use: [
+          'style-loader',
+          'css-loader',
+          'stylus-loader'
+        ]
       },
       {
         test: /\.(jpg|svg|woff|woff2|ttf|eot|ico)$/,
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]',
-          outputPath: 'fonts/'
-        }
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            outputPath: 'fonts/'
+          }
+        }]
       },
     ]
   },
@@ -124,7 +134,8 @@ const config = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './index.html'
+      template: path.resolve(__dirname, './index.html'),
+      filename: 'index.html',
     }),
     new stylusLoader.OptionsPlugin({
       default: {

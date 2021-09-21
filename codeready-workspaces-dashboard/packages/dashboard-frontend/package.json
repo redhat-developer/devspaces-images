@@ -22,7 +22,6 @@
     "build": "webpack --config webpack.config.prod.js",
     "build:source-map": "yarn run compile --devtool source-map",
     "start": "webpack-dev-server --progress --color --config webpack.config.dev.js",
-    "start:prod": "webpack-dev-server --color --disable-host-check --config webpack.config.prod-dev.js",
     "format": "tsfmt -r --useTsfmt tsfmt.json",
     "eslint": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}'",
     "eslint:fix": "tsc --noEmit && eslint '*/**/*.{js,ts,tsx}' --fix",

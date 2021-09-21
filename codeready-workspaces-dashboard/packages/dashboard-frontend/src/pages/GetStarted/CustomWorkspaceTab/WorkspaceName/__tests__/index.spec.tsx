@@ -11,12 +11,14 @@
  */
 
 import React from 'react';
-import { RenderResult, render, screen, fireEvent } from '@testing-library/react';
+import { RenderResult, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { WorkspaceNameFormGroup } from '..';
+import { ValidatedOptions } from '@patternfly/react-core/dist/js/helpers/constants';
 
 describe('Workspace Name Input', () => {
 
   const mockOnChange = jest.fn();
+  const mockOnValidated = jest.fn();
 
   function renderInput(generatedName: string, name: string): RenderResult {
     return render(
@@ -24,6 +26,7 @@ describe('Workspace Name Input', () => {
         generateName={generatedName}
         name={name}
         onChange={mockOnChange}
+        onValidated={mockOnValidated}
       />
     );
   }
@@ -68,6 +71,7 @@ describe('Workspace Name Input', () => {
         generateName='prefix'
         name={'new-name'}
         onChange={mockOnChange}
+        onValidated={mockOnValidated}
       />)
     );
 
@@ -155,6 +159,7 @@ describe('Workspace Name Input', () => {
       label = screen.queryByText(message);
       expect(label).toBeFalsy();
       expect(textbox).toBeValid();
+      expect(mockOnValidated).toHaveBeenCalledWith(expect.not.stringMatching(ValidatedOptions.error));
 
       const disallowedName1 = 'new*name';
 
@@ -162,6 +167,7 @@ describe('Workspace Name Input', () => {
       label = screen.queryByText(message);
       expect(label).toBeTruthy();
       expect(textbox).toBeInvalid();
+      expect(mockOnValidated).toHaveBeenCalledWith(ValidatedOptions.error);
 
       const disallowedName2 = '-new-name';
 
@@ -169,6 +175,7 @@ describe('Workspace Name Input', () => {
       label = screen.queryByText(message);
       expect(label).toBeTruthy();
       expect(textbox).toBeInvalid();
+      expect(mockOnValidated).toHaveBeenCalledWith(ValidatedOptions.error);
 
       const disallowedName3 = 'new-name-';
 
@@ -176,6 +183,7 @@ describe('Workspace Name Input', () => {
       label = screen.queryByText(message);
       expect(label).toBeTruthy();
       expect(textbox).toBeInvalid();
+      expect(mockOnValidated).toHaveBeenCalledWith(ValidatedOptions.error);
     });
 
   });

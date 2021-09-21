@@ -183,7 +183,7 @@ describe('Custom Workspace Tab', () => {
       const store = createStore({
         defaultStorageType
       });
-      const mockOnDevfile = jest.fn((devfile:  Devfile, namespace: che.KubernetesNamespace) => {
+      const mockOnDevfile = jest.fn((devfile: Devfile, namespace: che.KubernetesNamespace) => {
         expect(namespace).toEqual(defaultInfrastructureNamespace);
         const expectedAttributes: che.WorkspaceDevfileAttributes = {
           asyncPersist: 'true',
@@ -329,7 +329,7 @@ describe('Custom Workspace Tab', () => {
       const newDevfile = {
         apiVersion: '1.0.0',
         metadata: {
-          name: 'Manually Typed Devfile'
+          name: 'Manually-Typed-Devfile'
         }
       };
       fireEvent.change(editorTextbox, {

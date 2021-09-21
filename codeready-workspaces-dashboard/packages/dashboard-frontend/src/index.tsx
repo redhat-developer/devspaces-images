@@ -47,5 +47,9 @@ async function startApp(): Promise<void> {
     console.error('UD: preload data failed.', error);
   }
 
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js');
+  }
+
   ReactDOM.render(<Provider store={store}><App history={history} /></Provider>, ROOT);
 }

@@ -20,6 +20,7 @@ import { TextDocument, getLanguageService, LanguageService, CompletionItem } fro
 import { initDefaultEditorTheme } from '../../services/monacoThemeRegister';
 import stringify, { language, conf } from '../../services/helpers/editor';
 import $ from 'jquery';
+import { merge, isMatch } from 'lodash';
 import devfileApi from '../../services/devfileApi';
 import { selectDevfileSchema } from '../../store/DevfileRegistries/selectors';
 import { selectPlugins } from '../../store/Plugins/chePlugins/selectors';
@@ -37,6 +38,10 @@ const MONACO_CONFIG: editor.IStandaloneEditorConstructionOptions = {
   readOnly: false
 };
 
+(self as any).MonacoEnvironment = {
+  getWorkerUrl: () => './editor.worker.js'
+};
+
 type Props =
   MappedProps
   & {
@@ -44,6 +49,7 @@ type Props =
     decorationPattern?: string;
     onChange: (newValue: string, isValid: boolean) => void;
     isReadonly?: boolean;
+    additionSchema?: { [key: string]: any }
   };
 type State = {
   errorMessage: string;
@@ -74,71 +80,45 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
 
     // lazy initialization
     if (!window[YAML_SERVICE]) {
-      this.yamlService = getLanguageService(() => Promise.resolve(''), {} as any);
+      this.yamlService = getLanguageService(() => Promise.resolve(''), { resolveRelativePath: () => '' });
       window[YAML_SERVICE] = this.yamlService;
     } else {
       this.yamlService = window[YAML_SERVICE];
+      this.updateSchema();
       return;
     }
     if (!DevfileEditor.EDITOR_THEME) {
       // define the default
       DevfileEditor.EDITOR_THEME = initDefaultEditorTheme();
     }
-    if (languages) {
+    if (languages?.getLanguages && languages.getLanguages().find(language => language.id === LANGUAGE_ID) === undefined) {
       // register the YAML language with Monaco
       languages.register({
         id: LANGUAGE_ID,
         extensions: ['.yaml', '.yml'],
-        aliases: ['YAML'],
-        mimetypes: ['application/json'],
+        aliases: ['YAML', 'yaml'],
+        mimetypes: ['application/yaml'],
       });
       languages.setMonarchTokensProvider(LANGUAGE_ID, language);
       languages.setLanguageConfiguration(LANGUAGE_ID, conf);
-      // register language server providers
-      this.registerLanguageServerProviders();
     }
-    const jsonSchema = this.props.devfileSchema || {};
-    const items = this.props.plugins;
-    const properties = jsonSchema?.oneOf && jsonSchema.oneOf[0] ? jsonSchema.oneOf[0].properties : jsonSchema.properties;
-    const components = properties ? properties.components : undefined;
-    if (components) {
-      const mountSources = components.items.properties.mountSources;
-      // mount sources is specific only for some of component types but always appears
-      // patch schema and remove default value for boolean mount sources to avoid their appearing during the completion
-      if (mountSources && mountSources.default === 'false') {
-        delete mountSources.default;
-      }
-      jsonSchema.additionalProperties = true;
-      if (!components.defaultSnippets) {
-        components.defaultSnippets = [];
-      }
-      const pluginsId: string[] = [];
-      items.forEach((item: che.Plugin) => {
-        const id = `${item.publisher}/${item.name}/latest`;
-        if (pluginsId.indexOf(id) === -1 && item.type !== 'Che Editor') {
-          pluginsId.push(id);
-          components.defaultSnippets.push({
-            label: item.displayName,
-            description: item.description,
-            body: { id: id, type: 'chePlugin' },
-          });
-        } else {
-          pluginsId.push(item.id);
-        }
-      });
-      if (components.items && components.items.properties) {
-        if (!components.items.properties.id) {
-          components.items.properties.id = {
-            type: 'string',
-            description: 'Plugin\'s/Editor\'s id.',
-          };
-        }
-        components.items.properties.id.examples = pluginsId;
+    // register language server providers
+    this.registerLanguageServerProviders();
+    this.updateSchema();
+  }
+
+  private updateSchema(): void {
+    let jsonSchema = this.props.devfileSchema ? Object.assign({}, this.props.devfileSchema) : {};
+    const additionSchema = this.props.additionSchema;
+    if (additionSchema) {
+      if (jsonSchema?.oneOf) {
+        jsonSchema.oneOf = jsonSchema.oneOf.map(schema => merge({}, schema, additionSchema));
+      } else {
+        jsonSchema = merge({}, jsonSchema, additionSchema);
       }
     }
     const schemas = [{ uri: 'inmemory:yaml', fileMatch: ['*'], schema: jsonSchema }];
-    // add the devfile schema into yaml language server configuration
-    this.yamlService.configure({ validate: true, schemas, hover: true, completion: true });
+    this.yamlService.configure({ validate: true, hover: true, schemas, completion: true });
   }
 
   public updateContent(devfile: che.WorkspaceDevfile | devfileApi.Devfile): void {
@@ -150,9 +130,12 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     doc?.setValue(stringify(devfile));
   }
 
-  public componentDidUpdate(): void {
+  public componentDidUpdate(prevProps: Props): void {
     if (this.handleResize) {
       this.handleResize();
+    }
+    if (!isMatch(prevProps.additionSchema || {}, this.props.additionSchema || {})) {
+      this.updateSchema();
     }
   }
 

@@ -19,12 +19,4 @@ module.exports = {
   moduleDirectories: [
     'node_modules',
   ],
-  coverageThreshold: {
-    global: {
-      statements: 10,
-      branches: 2,
-      functions: 4,
-      lines: 9,
-    }
-  },
 };

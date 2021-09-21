@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Button, Form, PageSection, PageSectionVariants, } from '@patternfly/react-core';
+import { Button, Form, PageSection, PageSectionVariants, ValidatedOptions, } from '@patternfly/react-core';
 import { AppState } from '../../../store';
 import DevfileEditor, { DevfileEditor as Editor } from '../../../components/DevfileEditor';
 import StorageTypeFormGroup from './StorageType';
@@ -42,6 +42,8 @@ type State = {
   generateName?: string;
   workspaceName: string;
   isCreated: boolean;
+  isDevfileValid: boolean;
+  isWorkspaceNameValid: boolean;
 };
 
 export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
@@ -55,17 +57,17 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     const storageType = isCheDevfile(devfile) ? attributesToType(devfile.attributes) : 'persistent';
     const workspaceName = devfile.metadata.name ? devfile.metadata.name || '' : '';
     const generateName = isCheDevfile(devfile) && !workspaceName ? devfile.metadata.generateName : '';
-    this.state = { devfile, storageType, generateName, workspaceName, isCreated: false };
+    this.state = { devfile, storageType, generateName, workspaceName, isCreated: false, isDevfileValid: true, isWorkspaceNameValid: true };
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
-  private buildInitialDevfile(generateName ='wksp-'): Devfile {
+  private buildInitialDevfile(generateName = 'wksp-'): Devfile {
     const devfile = (this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true') ? {
-        schemaVersion: '2.1.0',
-        metadata: {
-          name: generateName + getRandomString(4).toLowerCase(),
-        }
-      } : {
+      schemaVersion: '2.1.0',
+      metadata: {
+        name: generateName + getRandomString(4).toLowerCase(),
+      }
+    } : {
       apiVersion: '1.0.0',
       metadata: {
         generateName
@@ -141,6 +143,9 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
   }
 
   private handleDevfileChange(newValue: string, isValid: boolean): void {
+    if (this.state.isDevfileValid !== isValid) {
+      this.setState({ isDevfileValid: isValid });
+    }
     if (!isValid) {
       return;
     }
@@ -192,9 +197,16 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     }
   }
 
+  private handleNameValidatedOptions(validatedOptions: ValidatedOptions): void {
+    const isWorkspaceNameValid = validatedOptions !== ValidatedOptions.error;
+    if (this.state.isWorkspaceNameValid !== isWorkspaceNameValid) {
+      this.setState({ isWorkspaceNameValid });
+    }
+  }
+
   public render(): React.ReactElement {
-    const { devfile, storageType, generateName, workspaceName, isCreated } = this.state;
-    const isStorageTypeDisabled = isDevfileV2Like(devfile);
+    const { devfile, storageType, generateName, workspaceName, isCreated, isDevfileValid, isWorkspaceNameValid } = this.state;
+    const isDevfileV2 = isDevfileV2Like(devfile);
     return (
       <>
         <PageSection
@@ -208,11 +220,12 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
               generateName={generateName}
               name={workspaceName}
               onChange={_name => this.handleWorkspaceNameChange(_name)}
+              onValidated={_validatedOptions => this.handleNameValidatedOptions(_validatedOptions)}
             />
             <StorageTypeFormGroup
               storageType={storageType}
               onChange={_storageType => this.handleStorageChange(_storageType)}
-              isDisable={isStorageTypeDisabled}
+              isDisable={isDevfileV2}
             />
           </Form>
         </PageSection>
@@ -240,7 +253,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
           <Button
             variant="primary"
             onClick={() => this.handleCreate()}
-            isDisabled={isCreated}
+            isDisabled={isCreated || !isDevfileValid || !isWorkspaceNameValid}
           >
             Create & Open
           </Button>

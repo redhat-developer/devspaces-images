@@ -25,9 +25,18 @@ module.exports = (env = {}) => {
     module: {
       rules: [
         {
+          enforce: 'pre',
+          test: /\.(ts|js)$/,
+          use: ["source-map-loader"],
+          include: [
+            path.resolve(__dirname, '../common'),
+            path.resolve(__dirname, 'src'),
+          ],
+        },
+        {
           test: /\.ts$/,
           loader: 'ts-loader',
-        }
+        },
       ]
     },
     resolve: {

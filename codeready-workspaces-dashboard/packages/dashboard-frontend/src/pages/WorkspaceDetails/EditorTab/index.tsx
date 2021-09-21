@@ -52,6 +52,7 @@ type State = {
   isExpanded: boolean;
   copied?: boolean;
   showDevfileV2ConfirmationModal: boolean;
+  additionSchema?: { [key: string]: any },
 };
 
 export class EditorTab extends React.PureComponent<Props, State> {
@@ -65,14 +66,18 @@ export class EditorTab extends React.PureComponent<Props, State> {
     super(props);
     this.devworkspaceClient = container.get(DevWorkspaceClient);
 
+    const devfile = Object.assign({}, this.props.workspace.devfile);
+    const additionSchema = this.getAdditionSchema(devfile);
+
     this.state = {
-      devfile: Object.assign({}, this.props.workspace.devfile),
+      devfile,
       hasChanges: false,
       isDevfileValid: true,
       hasRequestErrors: false,
       currentRequestError: '',
       isExpanded: false,
-      showDevfileV2ConfirmationModal: false
+      showDevfileV2ConfirmationModal: false,
+      additionSchema
     };
 
     this.cancelChanges = (): void => {
@@ -87,15 +92,34 @@ export class EditorTab extends React.PureComponent<Props, State> {
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
+  private getAdditionSchema(devfile: che.WorkspaceDevfile | devfileApi.Devfile): { [key: string]: any } | undefined {
+    return isDevfileV2(devfile) ? {
+      properties: {
+        metadata: {
+          properties: {
+            name: {
+              const: (devfile as devfileApi.Devfile).metadata.name
+            },
+            namespace: {
+              const: (devfile as devfileApi.Devfile).metadata.namespace
+            }
+          }
+        }
+      }
+    } : undefined;
+  }
+
   private init(): void {
     const devfile = Object.assign({}, this.props.workspace.devfile);
     if (devfile && (!this.originDevfile || !this.areEqual(devfile, this.originDevfile))) {
       this.originDevfile = devfile;
       this.updateEditor(devfile);
+      const additionSchema = this.getAdditionSchema(devfile);
       this.setState({
         hasRequestErrors: false,
         currentRequestError: '',
         hasChanges: false,
+        additionSchema
       });
     }
   }
@@ -110,7 +134,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
 
   public render(): React.ReactElement {
     const originDevfile = this.props.workspace.devfile;
-    const { devfile } = this.state;
+    const { devfile, additionSchema } = this.state;
 
     return (
       <React.Fragment>
@@ -159,6 +183,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
             }}
           />
           <DevfileEditor
+            additionSchema={additionSchema}
             ref={this.devfileEditorRef}
             devfile={originDevfile}
             decorationPattern="location[ \t]*(.*)[ \t]*$"

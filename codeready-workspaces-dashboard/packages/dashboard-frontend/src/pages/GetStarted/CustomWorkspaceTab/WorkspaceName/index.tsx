@@ -29,6 +29,7 @@ type Props = {
   generateName?: string;
   name: string;
   onChange: (name: string) => void;
+  onValidated: (validatedOptions: ValidatedOptions) => void;
 };
 
 type State = {
@@ -44,12 +45,15 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const validated = ValidatedOptions.default;
+
     this.state = {
       name: this.props.name,
       generateName: this.props.generateName,
-      validated: ValidatedOptions.default,
+      validated,
       placeholder: DEFAULT_PLACEHOLDER,
     };
+    this.props.onValidated(validated);
   }
 
   private handleChange(name: string): void {
@@ -95,7 +99,7 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
     });
   }
 
-  public componentDidUpdate(prevProps: Props): void {
+  public componentDidUpdate(prevProps: Props, prevState: State): void {
     if (prevProps.name !== this.props.name) {
       this.validate(this.props.name);
       this.setState({
@@ -107,6 +111,10 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
       this.setState({
         generateName: this.props.generateName,
       });
+    }
+
+    if (prevState.validated !== this.state.validated) {
+      this.props.onValidated(this.state.validated);
     }
   }
 

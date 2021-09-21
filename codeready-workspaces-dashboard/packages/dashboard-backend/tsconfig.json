@@ -9,6 +9,7 @@
     },
     "outDir": "lib",
     "rootDir": "src",
+    "sourceMap": true
   },
   "exclude": [
     "node_modules",

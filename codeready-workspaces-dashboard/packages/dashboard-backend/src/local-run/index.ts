@@ -14,9 +14,7 @@ import { FastifyInstance } from 'fastify';
 import { registerCheApiProxy } from './che-server';
 import { registerKeycloakProxy } from './keycloak';
 
-export function isLocalRun(): boolean {
-  return process.env['LOCAL_RUN'] === 'true';
-}
+export const isLocalRun = process.env['LOCAL_RUN'] === 'true';
 
 export function registerLocalServers(server: FastifyInstance, origin: string) {
   console.log('Running locally, setting up stubs');

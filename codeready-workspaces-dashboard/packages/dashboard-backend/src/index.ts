@@ -66,8 +66,8 @@ registerTemplateApi(server);
 
 registerCheApi(server);
 
-registerCors(isLocalRun(), server);
-if (isLocalRun()) {
+registerCors(isLocalRun, server);
+if (isLocalRun) {
   registerLocalServers(server, CHE_HOST);
 }
 
