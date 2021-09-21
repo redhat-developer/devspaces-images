@@ -86,7 +86,6 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 	rm -fr asset-*-unpacked
 fi
 
-# rhpkg sources
 outputFiles="$(ls asset-*.tar.gz || true)"
 if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources: ${outputFiles}"

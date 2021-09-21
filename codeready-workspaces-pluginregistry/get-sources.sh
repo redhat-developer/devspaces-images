@@ -60,7 +60,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	# update tarballs - step 2 - check old sources' tarballs
 	TARGZs="root-local.tgz resources.tgz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
-	rhpkg sources
+	rhpkg sources || true
 
 	# update tarballs - step 3 - create new tarballs
 	# NOTE: CRW-1610 used to be in /root/.local but now can be found in /opt/app-root/src/.local
