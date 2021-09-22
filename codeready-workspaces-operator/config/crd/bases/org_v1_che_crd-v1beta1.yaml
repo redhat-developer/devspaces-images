@@ -127,7 +127,7 @@ spec:
                 identityProviderImagePullPolicy:
                   description: Overrides the image pull policy used in the Identity
                     Provider, Keycloak or RH-SSO, deployment. Default value is `Always`
-                    for `nightly`, `next` or `latest` images, and `IfNotPresent` in
+                    for `next` or `latest` images, and `IfNotPresent` in
                     other cases.
                   type: string
                 identityProviderIngress:
@@ -339,7 +339,7 @@ spec:
                   type: string
                 postgresImagePullPolicy:
                   description: Overrides the image pull policy used in the PostgreSQL
-                    database deployment. Default value is `Always` for `nightly`,
+                    database deployment. Default value is `Always` for
                     `next` or `latest` images, and `IfNotPresent` in other cases.
                   type: string
               type: object
@@ -516,7 +516,7 @@ spec:
                   type: string
                 cheImagePullPolicy:
                   description: Overrides the image pull policy used in Che deployment.
-                    Default value is `Always` for `nightly`, `next` or `latest` images,
+                    Default value is `Always` for `next` or `latest` images,
                     and `IfNotPresent` in other cases.
                   type: string
                 cheImageTag:
@@ -594,7 +594,7 @@ spec:
                   type: string
                 dashboardImagePullPolicy:
                   description: Overrides the image pull policy used in the dashboard
-                    deployment. Default value is `Always` for `nightly`, `next` or
+                    deployment. Default value is `Always` for `next` or
                     `latest` images, and `IfNotPresent` in other cases.
                   type: string
                 dashboardIngress:
@@ -679,7 +679,7 @@ spec:
                   type: string
                 devfileRegistryPullPolicy:
                   description: Overrides the image pull policy used in the devfile
-                    registry deployment. Default value is `Always` for `nightly`,
+                    registry deployment. Default value is `Always` for
                     `next` or `latest` images, and `IfNotPresent` in other cases.
                   type: string
                 devfileRegistryRoute:
@@ -795,7 +795,7 @@ spec:
                   type: string
                 pluginRegistryPullPolicy:
                   description: Overrides the image pull policy used in the plugin
-                    registry deployment. Default value is `Always` for `nightly`,
+                    registry deployment. Default value is `Always` for
                     `next` or `latest` images, and `IfNotPresent` in other cases.
                   type: string
                 pluginRegistryRoute:

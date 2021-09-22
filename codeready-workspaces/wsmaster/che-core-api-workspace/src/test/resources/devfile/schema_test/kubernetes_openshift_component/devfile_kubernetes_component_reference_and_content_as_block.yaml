@@ -28,7 +28,7 @@ components:
         spec:
          containers:
           -
-           image: 'quay.io/eclipse/che-dev:nightly'
+           image: 'quay.io/eclipse/che-dev:next'
            name: dev
            resources:
             limits:

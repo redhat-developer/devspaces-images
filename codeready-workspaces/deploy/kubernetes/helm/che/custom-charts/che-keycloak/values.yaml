@@ -19,9 +19,9 @@ global:
     serverTrustStoreConfigMapName: ""
   # Image used by endpoint watcher (postgres)
   endpointWatcher:
-    image: quay.io/eclipse/che-endpoint-watcher:nightly
+    image: quay.io/eclipse/che-endpoint-watcher:next
 
-image: quay.io/eclipse/che-keycloak:nightly
+image: quay.io/eclipse/che-keycloak:next
 
 ## Admin credentials configuration
 # Manually define them in clear

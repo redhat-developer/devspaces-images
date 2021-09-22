@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/eclipse/che-plugin-broker/branch/master/graph/badge.svg)](https://codecov.io/gh/eclipse/che-plugin-broker)
 
 [![Master Build Status](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-plugin-broker-build-master/)](https://ci.centos.org/job/devtools-che-plugin-broker-build-master/)
-[![Nightly Build Status](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-che-plugin-broker-nightly/)](https://ci.centos.org/job/devtools-che-plugin-broker-nightly/)
+[![Next Build Status](https://ci.centos.org/buildStatus/icon?subject=next&job=devtools-che-plugin-broker-next/)](https://ci.centos.org/job/devtools-che-plugin-broker-next/)
 [![Release Build Status](https://ci.centos.org/buildStatus/icon?subject=release&job=devtools-che-plugin-broker-release/)](https://ci.centos.org/job/devtools-che-plugin-broker-release/)
 
 # This repo contains implementations of several Che plugin brokers
@@ -49,5 +49,5 @@ For more information, view the targets in the Makefile.
 The following [CentOS CI jobs](https://ci.centos.org/) are associated with the repository:
 
 - [`master`](https://ci.centos.org/job/devtools-che-plugin-broker-build-master/) - builds CentOS images on each commit to the [`master`](https://github.com/eclipse/che-plugin-broker/tree/master) branch and pushes them to [quay.io](https://quay.io/organization/eclipse).
-- [`nightly`](https://ci.centos.org/job/devtools-che-plugin-broker-nightly/) - builds CentOS images and pushes them to [quay.io](https://quay.io/organization/eclipse) on a daily basis from the [`master`](https://github.com/eclipse/che-plugin-broker/tree/master) branch.
+- [`next`](https://ci.centos.org/job/devtools-che-plugin-broker-next/) - builds CentOS images and pushes them to [quay.io](https://quay.io/organization/eclipse) on a daily basis from the [`master`](https://github.com/eclipse/che-plugin-broker/tree/master) branch.
 - [`release`](https://ci.centos.org/job/devtools-che-plugin-broker-release/) - builds CentOS and corresponding RHEL images from the [`release`](https://github.com/eclipse/che-plugin-broker/tree/release) branch. CentOS images are public and pushed to [quay.io](https://quay.io/organization/eclipse). RHEL images are also pushed to quay.io, but to the private repositories.

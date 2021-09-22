@@ -19,8 +19,8 @@ func TestProcessImagesEnvVar(t *testing.T) {
 	testcases := []testcase{
 		{
 			name:   "one image",
-			images: "che-theia=quay.io/eclipse/che-theia:nightly",
-			want:   map[string]string{"che-theia": "quay.io/eclipse/che-theia:nightly"},
+			images: "che-theia=quay.io/eclipse/che-theia:next",
+			want:   map[string]string{"che-theia": "quay.io/eclipse/che-theia:next"},
 		},
 		{
 			name:   "three images",

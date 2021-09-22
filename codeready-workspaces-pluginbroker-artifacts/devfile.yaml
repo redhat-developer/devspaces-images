@@ -28,7 +28,7 @@ components:
         containerPath: /plugins
 
   - type: dockerimage
-    image: 'quay.io/eclipse/che-plugin-registry:nightly'
+    image: 'quay.io/eclipse/che-plugin-registry:next'
     alias: plugin-registry
     endpoints:
       - name: plugin-registry-local

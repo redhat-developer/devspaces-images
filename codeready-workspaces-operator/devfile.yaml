@@ -23,7 +23,7 @@ components:
     memoryLimit: 1G
     type: dockerimage
     alias: dev
-    image: 'quay.io/eclipse/che-golang-1.12:nightly'
+    image: 'quay.io/eclipse/che-golang-1.12:next'
     env:
       - value: /go
         name: GOPATH

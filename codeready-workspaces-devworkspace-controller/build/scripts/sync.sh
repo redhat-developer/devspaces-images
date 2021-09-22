@@ -190,7 +190,7 @@ pushd "${TARGETDIR}" >/dev/null || exit 1
     # - name: RELATED_IMAGE_project_clone                                       DWPC_IMAGE
     #   value: quay.io/devfile/project-clone:v0.8.0
     # - name: RELATED_IMAGE_plugin_redhat_developer_web_terminal_4_5_0          CRW_MACHINEEXEC_IMAGE
-    #   value: quay.io/eclipse/che-machine-exec:nightly
+    #   value: quay.io/eclipse/che-machine-exec:next
     declare -A operator_replacements=(
         ["RELATED_IMAGE_devworkspace_webhook_server"]="${DWO_IMAGE}"
         ["RELATED_IMAGE_project_clone"]="${DWPC_IMAGE}"

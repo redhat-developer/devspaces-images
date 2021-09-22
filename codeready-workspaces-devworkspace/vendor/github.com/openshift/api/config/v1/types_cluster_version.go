@@ -267,7 +267,7 @@ type Release struct {
 	// url contains information about this release. This URL is set by
 	// the 'url' metadata property on a release or the metadata returned by
 	// the update API and should be displayed as a link in user
-	// interfaces. The URL field may not be set for test or nightly
+	// interfaces. The URL field may not be set for test or next
 	// releases.
 	// +optional
 	URL URL `json:"url,omitempty"`

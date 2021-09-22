@@ -97,7 +97,7 @@ while IFS= read -r -d '' d; do
 			-e 's|che/operator|codeready/operator|' \
 			-e 's|che-operator|codeready-operator|' \
 			-e 's|name: eclipse-che|name: codeready-workspaces|' \
-			-e "s|cheImageTag: 'nightly'|cheImageTag: ''|" \
+			-e "s|cheImageTag: 'next'|cheImageTag: ''|" \
 			-e 's|/bin/codeready-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/codeready-operator#\1.com/eclipse-che/che-operator#g' \
@@ -277,8 +277,8 @@ rm -rf "${TARGETDIR}/deploy"
 rm -rf "${TARGETDIR}/cmd"
 rm -rf "${TARGETDIR}/pkg/apis"
 rm -rf "${TARGETDIR}/pkg/controller"
-echo "Delete ${TARGETDIR}/bundle/nightly/eclipse-che-preview-kubernetes ${TARGETDIR}/bundle/stable"
-rm -rf "${TARGETDIR}/bundle/nightly/eclipse-che-preview-kubernetes"
+echo "Delete ${TARGETDIR}/bundle/next/eclipse-che-preview-kubernetes ${TARGETDIR}/bundle/stable"
+rm -rf "${TARGETDIR}/bundle/next/eclipse-che-preview-kubernetes"
 rm -rf "${TARGETDIR}/bundle/stable"
 
 # copy extra files

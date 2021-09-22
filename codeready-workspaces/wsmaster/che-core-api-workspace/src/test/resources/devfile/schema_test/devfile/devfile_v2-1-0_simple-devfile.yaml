@@ -18,7 +18,7 @@ attributes:
 components:
   - name: maven
     container:
-      image: quay.io/eclipse/che-java8-maven:nightly
+      image: quay.io/eclipse/che-java8-maven:next
       volumeMounts:
         - name: mavenrepo
           path: /root/.m2

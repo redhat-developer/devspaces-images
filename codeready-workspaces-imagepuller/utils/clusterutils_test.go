@@ -43,7 +43,7 @@ func TestGetContainers(t *testing.T) {
 			name: "two containers",
 			want: []corev1.Container{{
 				Name:            "che-theia",
-				Image:           "eclipse/che-theia:nightly",
+				Image:           "eclipse/che-theia:next",
 				Command:         defaultCommand,
 				Args:            defaultArgs,
 				ImagePullPolicy: corev1.PullAlways,
@@ -51,19 +51,19 @@ func TestGetContainers(t *testing.T) {
 				VolumeMounts:    defaultVolumeMounts,
 			}, {
 				Name:            "che-plugin-registry",
-				Image:           "quay.io/eclipse/che-plugin-registry:nightly",
+				Image:           "quay.io/eclipse/che-plugin-registry:next",
 				Command:         defaultCommand,
 				Args:            defaultArgs,
 				ImagePullPolicy: corev1.PullAlways,
 				Resources:       defaultResourceRequirements,
 				VolumeMounts:    defaultVolumeMounts,
 			}},
-			images: "che-theia=eclipse/che-theia:nightly;che-plugin-registry=quay.io/eclipse/che-plugin-registry:nightly",
+			images: "che-theia=eclipse/che-theia:next;che-plugin-registry=quay.io/eclipse/che-plugin-registry:next",
 		}, {
 			name: "four containers",
 			want: []corev1.Container{{
 				Name:            "che-sidecar-java",
-				Image:           "quay.io/eclipse/che-sidecar-java:nightly",
+				Image:           "quay.io/eclipse/che-sidecar-java:next",
 				Command:         defaultCommand,
 				Args:            defaultArgs,
 				ImagePullPolicy: corev1.PullAlways,
@@ -71,7 +71,7 @@ func TestGetContainers(t *testing.T) {
 				VolumeMounts:    defaultVolumeMounts,
 			}, {
 				Name:            "che-plugin-registry",
-				Image:           "quay.io/eclipse/che-plugin-registry:nightly",
+				Image:           "quay.io/eclipse/che-plugin-registry:next",
 				Command:         defaultCommand,
 				Args:            defaultArgs,
 				ImagePullPolicy: corev1.PullAlways,
@@ -79,7 +79,7 @@ func TestGetContainers(t *testing.T) {
 				VolumeMounts:    defaultVolumeMounts,
 			}, {
 				Name:            "che-devfile-registry",
-				Image:           "quay.io/eclipse/che-devfile-registry:nightly",
+				Image:           "quay.io/eclipse/che-devfile-registry:next",
 				Command:         defaultCommand,
 				Args:            defaultArgs,
 				ImagePullPolicy: corev1.PullAlways,
@@ -87,14 +87,14 @@ func TestGetContainers(t *testing.T) {
 				VolumeMounts:    defaultVolumeMounts,
 			}, {
 				Name:            "che-theia",
-				Image:           "quay.io/eclipse/che-theia:nightly",
+				Image:           "quay.io/eclipse/che-theia:next",
 				Command:         defaultCommand,
 				Args:            defaultArgs,
 				ImagePullPolicy: corev1.PullAlways,
 				Resources:       defaultResourceRequirements,
 				VolumeMounts:    defaultVolumeMounts,
 			}},
-			images: "che-sidecar-java=quay.io/eclipse/che-sidecar-java:nightly;che-plugin-registry=quay.io/eclipse/che-plugin-registry:nightly;che-devfile-registry=quay.io/eclipse/che-devfile-registry:nightly;che-theia=quay.io/eclipse/che-theia:nightly",
+			images: "che-sidecar-java=quay.io/eclipse/che-sidecar-java:next;che-plugin-registry=quay.io/eclipse/che-plugin-registry:next;che-devfile-registry=quay.io/eclipse/che-devfile-registry:next;che-theia=quay.io/eclipse/che-theia:next",
 		},
 	}
 	for _, c := range testcases {

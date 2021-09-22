@@ -148,7 +148,7 @@ function getV2Devfile(): api.che.workspace.devfile.Devfile {
       {
         name: 'maven',
         container: {
-          image: 'quay.io/eclipse/che-java8-maven:nightly',
+          image: 'quay.io/eclipse/che-java8-maven:next',
           volumeMounts: [
             {
               name: 'mavenrepo',

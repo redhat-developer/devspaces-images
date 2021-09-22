@@ -53,7 +53,7 @@ public class DefaultEditorProvisionerTest {
 
   private static final String TERMINAL_PLUGIN_NAME = "theia-terminal";
   private static final String TERMINAL_PLUGIN_VERSION = "0.0.4";
-  private static final String ASYNC_STORAGE_PLUGIN_REF = "eclipse/che-async-pv-plugin/nightly";
+  private static final String ASYNC_STORAGE_PLUGIN_REF = "eclipse/che-async-pv-plugin/next";
   private static final String TERMINAL_PLUGIN_REF =
       EDITOR_PUBLISHER + "/" + TERMINAL_PLUGIN_NAME + "/" + TERMINAL_PLUGIN_VERSION;
 

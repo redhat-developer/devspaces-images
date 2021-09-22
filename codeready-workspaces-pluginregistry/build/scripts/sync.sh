@@ -94,7 +94,7 @@ find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 # CRW-1792 transform che-editors.yaml#L5 and che-plugins.yaml#L3 to refer to /latest
 pushd "${TARGETDIR}" >/dev/null || exit 1
 for d in che-editors.yaml che-plugins.yaml; do 
-    sed -i ${d} -r -e "s|/nightly|/latest|" -e "s|/next|/latest|"
+    sed -i ${d} -r -e "s|/next|/latest|"
 done
 popd >/dev/null || exit
 

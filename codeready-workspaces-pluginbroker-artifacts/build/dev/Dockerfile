@@ -10,7 +10,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-FROM quay.io/eclipse/che-golang-1.14:nightly
+FROM quay.io/eclipse/che-golang-1.14:next
 
 ARG GO_BIN_LOCATION=${GOPATH}/bin
 

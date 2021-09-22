@@ -22,5 +22,5 @@ export SCRIPT_DIR
 
 load_jenkins_vars
 install_deps
-set_nightly_tag
+set_next_tag
 build_and_push

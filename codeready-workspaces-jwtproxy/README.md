@@ -1,5 +1,5 @@
 [![Master Build Status](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-jwtproxy-build-master/)](https://ci.centos.org/job/devtools-che-jwtproxy-build-master/)
-[![Nightly Build Status](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-che-jwtproxy-nightly/)](https://ci.centos.org/job/devtools-che-jwtproxy-nightly/)
+[![Next Build Status](https://ci.centos.org/buildStatus/icon?subject=next&job=devtools-che-jwtproxy-next/)](https://ci.centos.org/job/devtools-che-jwtproxy-next/)
 
 # JWT Proxy
 
@@ -343,4 +343,4 @@ docker run -it -v /local/folder/with/jwtproxy/:/config jwtproxy -config /config/
 The following [CentOS CI jobs](https://ci.centos.org/) are associated with the repository:
 
 - [![Master Build Status](https://ci.centos.org/buildStatus/icon?subject=master&job=devtools-che-jwtproxy-build-master/)](https://ci.centos.org/job/devtools-che-jwtproxy-build-master/) - builds CentOS images on each commit to the [`master`](https://github.com/eclipse/che-jwtproxy/tree/master) branch and pushes them to [quay.io](https://quay.io/organization/eclipse).
-- [![Nightly Build Status](https://ci.centos.org/buildStatus/icon?subject=nightly&job=devtools-che-jwtproxy-nightly/)](https://ci.centos.org/job/devtools-che-jwtproxy-nightly/) - builds CentOS images and pushes them to [quay.io](https://quay.io/organization/eclipse) on a daily basis from the [`master`](https://github.com/eclipse/che-jwtproxy/tree/master) branch.
+- [![Next Build Status](https://ci.centos.org/buildStatus/icon?subject=next&job=devtools-che-jwtproxy-next/)](https://ci.centos.org/job/devtools-che-jwtproxy-next/) - builds CentOS images and pushes them to [quay.io](https://quay.io/organization/eclipse) on a daily basis from the [`master`](https://github.com/eclipse/che-jwtproxy/tree/master) branch.

@@ -30,7 +30,7 @@ input:
         components:
           - name: web-terminal
             container:
-              image: quay.io/eclipse/che-machine-exec:nightly
+              image: quay.io/eclipse/che-machine-exec:next
               command: ["/go/bin/che-machine-exec",
                         "--authenticated-user-id", "$(DEVWORKSPACE_CREATOR)",
                         "--idle-timeout", "$(DEVWORKSPACE_IDLE_TIMEOUT)",
@@ -64,7 +64,7 @@ output:
         attributes:
           controller.devfile.io/imported-by: "web-terminal"
         container:
-          image: quay.io/eclipse/che-machine-exec:nightly
+          image: quay.io/eclipse/che-machine-exec:next
           command: ["/go/bin/che-machine-exec",
                     "--authenticated-user-id", "$(DEVWORKSPACE_CREATOR)",
                     "--idle-timeout", "$(DEVWORKSPACE_IDLE_TIMEOUT)",

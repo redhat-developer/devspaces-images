@@ -185,7 +185,7 @@ spec:
                       URL is set by the 'url' metadata property on a release or the
                       metadata returned by the update API and should be displayed
                       as a link in user interfaces. The URL field may not be set for
-                      test or nightly releases.
+                      test or next releases.
                     type: string
                   version:
                     description: version is a semantic versioning identifying the
@@ -253,7 +253,7 @@ spec:
                   description: url contains information about this release. This URL
                     is set by the 'url' metadata property on a release or the metadata
                     returned by the update API and should be displayed as a link in
-                    user interfaces. The URL field may not be set for test or nightly
+                    user interfaces. The URL field may not be set for test or next
                     releases.
                   type: string
                 version:

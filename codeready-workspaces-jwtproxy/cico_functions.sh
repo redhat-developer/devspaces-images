@@ -47,9 +47,9 @@ function install_deps() {
   echo 'CICO: Dependencies installed'
 }
 
-function set_nightly_tag() {
-  # Let's set the tag as nightly
-  export TAG="nightly"
+function set_next_tag() {
+  # Let's set the tag as next
+  export TAG="next"
 }
 
 function set_git_commit_tag() {
@@ -84,7 +84,7 @@ function build_and_push() {
   tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
   echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
 
-  # If additional tag is set (e.g. "nightly"), let's tag the image accordingly and also push to 'quay.io'
+  # If additional tag is set (e.g. "next"), let's tag the image accordingly and also push to 'quay.io'
   # Otherwise, let's tag the image as 'latest' and push to 'quay.io'
   TAG=${TAG:-${DEFAULT_TAG}}
   tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}"

@@ -7,7 +7,7 @@ serviceAccount:
 configMap:
   name: k8s-image-puller
   images: >
-    java11-maven=quay.io/eclipse/che-java11-maven:nightly;
+    java11-maven=quay.io/eclipse/che-java11-maven:next;
     che-theia=quay.io/eclipse/che-theia:next;
     java-plugin-runner=eclipse/che-remote-plugin-runner-java8:latest;
   cachingIntervalHours: 1

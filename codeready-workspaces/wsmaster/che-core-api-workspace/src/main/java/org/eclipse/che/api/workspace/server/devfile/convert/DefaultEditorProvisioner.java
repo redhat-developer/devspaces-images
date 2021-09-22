@@ -214,7 +214,7 @@ public class DefaultEditorProvisioner {
    * appropriate values.
    *
    * @param pluginRef - The formatted plugin reference (e.g.
-   *     eclipse/che-machine-exec-plugin/nightly)
+   *     eclipse/che-machine-exec-plugin/next)
    * @param contentProvider - The content provider used to read YAML data
    * @return - A {@link ComponentImpl} with it's ID and reference URL set.
    * @throws InfrastructureException when the parser cannot evalute the plugin's FQN.

@@ -82,7 +82,7 @@ public class UnrecoverablePodEventListenerTest {
   @Test
   public void testHandleUnrecoverableEventByMessage() throws Exception {
     // given
-    String unrecoverableEventMessage = "Failed to pull image eclipse/che-server:nightly-centos";
+    String unrecoverableEventMessage = "Failed to pull image eclipse/che-server:next-centos";
     PodEvent unrecoverableEvent =
         mockContainerEvent(
             WORKSPACE_POD_NAME,
@@ -102,7 +102,7 @@ public class UnrecoverablePodEventListenerTest {
   public void testDoNotHandleUnrecoverableEventFromNonWorkspacePod() throws Exception {
     // given
     final String unrecoverableEventMessage =
-        "Failed to pull image eclipse/che-server:nightly-centos";
+        "Failed to pull image eclipse/che-server:next-centos";
     final PodEvent unrecoverableEvent =
         mockContainerEvent(
             "NonWorkspacePod",

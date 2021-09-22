@@ -59,7 +59,7 @@ $ make docker-build docker-push IMG="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USE
 che-operator MAKE file provides ability to install che-operator(VSCode task `Deploy che-operator`):
 
 ```bash
-$ make deploy IMG=\"${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly\" 
+$ make deploy IMG=\"${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:next\" 
 
 $ kubectl apply -f config/samples/org.eclipse.che_v1_checluster.yaml -n <NAMESPACE>
 ```
@@ -112,7 +112,7 @@ $ make update-resources -s
 3. Build catalog source and bundle images:
 
 ```bash
-$ olm/buildAndPushBundleImages.sh -p <openshift|kubernetes> -c "nightly"
+$ olm/buildAndPushBundleImages.sh -p <openshift|kubernetes> -c "next"
 ```
 
 4. Create a custom catalog source yaml (update strategy is workaround for https://github.com/operator-framework/operator-lifecycle-manager/issues/903):
@@ -134,7 +134,7 @@ spec:
 5. Deploy Che operator:
 
 ```bash
-$ chectl server:deploy --installer=olm --platform=<CHECTL_SUPPORTED_PLATFORM> --catalog-source-yaml <PATH_TO_CUSTOM_CATALOG_SOURCE_YAML> --olm-channel=nightly --package-manifest-name=eclipse-che-preview-<openshift|kubernetes>
+$ chectl server:deploy --installer=olm --platform=<CHECTL_SUPPORTED_PLATFORM> --catalog-source-yaml <PATH_TO_CUSTOM_CATALOG_SOURCE_YAML> --olm-channel=next --package-manifest-name=eclipse-che-preview-<openshift|kubernetes>
 ```
 
 ### Deploy Che operator using operator-sdk
@@ -392,7 +392,7 @@ This command will update CRD files:
 
 CRD beta yamls should be used for back compatibility with Openshift 3.
 
-### Update nightly OLM bundle
+### Update next OLM bundle
 
 Sometimes, during development, you need to modify some YAML definitions in the `config` folder or Che cluster custom resource. There are most frequently changes which should be included to the new OLM bundle:
   - operator deployment `config/manager/manager.yaml`
