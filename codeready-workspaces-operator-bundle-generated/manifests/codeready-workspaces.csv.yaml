@@ -77,7 +77,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:47e4cb31c65e002913bd12c904d9c6306836825eca8329c214d0db6cc3aa6e82
-    createdAt: "2021-09-21T16:24:59+00:00"
+    createdAt: "2021-09-21T23:28:43+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1010,9 +1010,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMQK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:32d28aef989cadf8dda497dd3375de2c65fd0fde74935134cfc807a4c97e6631
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:89274e88a47ee6cb34c23933f8ded1888d7cc4ce4fefdd7b9e5fd74969690113
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:f3076b8b56a17359f4406227feb62e80d5f9acbccb04a38de13ce622611a0bac
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:06c3c5156f8b1016708cb2bdd49648f0b78eb1901f6c3966571d1f74591fb938
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:6239672e1db5003ef7cf069cb9f5eb50cf73de236c9a13f69e924d0e0bd98802
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:70e3d395521ea5112bdfc5a9b2f44bd4954065a2892fad3877eda5a25cae22d7
                 - name: RELATED_IMAGE_devfile_registry
@@ -1038,7 +1038,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:23b7a3e230b80b22835542577402f4ca87299c18ddc70f5ecce138c78a8b9ec9
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:ff7493853b99b3201f751db41d7987c26fc70e853ea3c4453257a8afcace585e
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:e8177c5de05ccdd6d12e360b65c63c889b2de725d573ffdedd8914230b118639
                 - name: RELATED_IMAGE_pvc_jobs
@@ -1404,9 +1404,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmqk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:32d28aef989cadf8dda497dd3375de2c65fd0fde74935134cfc807a4c97e6631
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:89274e88a47ee6cb34c23933f8ded1888d7cc4ce4fefdd7b9e5fd74969690113
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:f3076b8b56a17359f4406227feb62e80d5f9acbccb04a38de13ce622611a0bac
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:06c3c5156f8b1016708cb2bdd49648f0b78eb1901f6c3966571d1f74591fb938
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:6239672e1db5003ef7cf069cb9f5eb50cf73de236c9a13f69e924d0e0bd98802
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:70e3d395521ea5112bdfc5a9b2f44bd4954065a2892fad3877eda5a25cae22d7
   - name: devfile_registry
@@ -1432,7 +1432,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:23b7a3e230b80b22835542577402f4ca87299c18ddc70f5ecce138c78a8b9ec9
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:ff7493853b99b3201f751db41d7987c26fc70e853ea3c4453257a8afcace585e
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:e8177c5de05ccdd6d12e360b65c63c889b2de725d573ffdedd8914230b118639
   - name: pvc_jobs
