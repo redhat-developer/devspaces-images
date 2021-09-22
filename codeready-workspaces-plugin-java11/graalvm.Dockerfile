@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/jboss-eap-7/eap72-openjdk11-openshift-rhel8
-# FROM jboss-eap-7/eap72-openjdk11-openshift-rhel8:1.2-12
+# FROM jboss-eap-7/eap72-openjdk11-openshift-rhel8:1.2-35
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.1-328
 
