@@ -44,9 +44,6 @@ metadata:
               "chePostgresUser": "",
               "externalDb": false
             },
-            "devWorkspace": {
-              "enable": true
-            },
             "metrics": {
               "enable": true
             },
@@ -80,16 +77,16 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:47e4cb31c65e002913bd12c904d9c6306836825eca8329c214d0db6cc3aa6e82
-    createdAt: "2021-09-22T13:46:24+00:00"
+    createdAt: "2021-09-22T13:47:30+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
-    operatorframework.io/suggested-namespace: openshift-operators
+    operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
     operators.openshift.io/infrastructure-features: '["disconnected", "proxy-aware", "fips"]'
     operators.operatorframework.io/builder: operator-sdk-v1.6.1+git
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperatorallnamespaces.v2.12.100
+  name: crwoperator.v2.12.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -106,6 +103,9 @@ spec:
         path: devWorkspace.enable
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - path: devWorkspace
+        x-descriptors:
+        - urn:alm:descriptor:com.tectonic.ui:hidden
       statusDescriptors:
       - description: Status of a Che installation. Can be `Available`, `Unavailable`, or `Available, Rolling Update in Progress`.
         displayName: Status
@@ -918,7 +918,7 @@ spec:
                 - /manager
                 env:
                 - name: ALLOW_DEVWORKSPACE_ENGINE
-                  value: "true"
+                  value: "false"
                 - name: CHE_FLAVOR
                   value: codeready
                 - name: CHE_IDENTITY_POSTGRES_SECRET
@@ -930,7 +930,7 @@ spec:
                 - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                   value: ca-certs
                 - name: CHE_VERSION
-                  value: 2.12.100
+                  value: 2.12.0
                 - name: CONSOLE_LINK_DISPLAY_NAME
                   value: CodeReady Workspaces
                 - name: CONSOLE_LINK_IMAGE
@@ -1306,13 +1306,13 @@ spec:
         serviceAccountName: codeready-operator
     strategy: deployment
   installModes:
-  - supported: false
-    type: OwnNamespace
-  - supported: false
-    type: SingleNamespace
-  - supported: false
-    type: MultiNamespace
   - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: true
+    type: MultiNamespace
+  - supported: false
     type: AllNamespaces
   keywords:
   - eclipse che
@@ -1334,7 +1334,8 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.12.100
+  version: 2.12.0
+  replaces: crwoperator.v2.11.0
   relatedImages:
   - name: crw-2-rhel8-operator-47e4cb31c65e002913bd12c904d9c6306836825eca8329c214d0db6cc3aa6e82-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:47e4cb31c65e002913bd12c904d9c6306836825eca8329c214d0db6cc3aa6e82
