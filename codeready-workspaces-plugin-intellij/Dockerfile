@@ -7,7 +7,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.4-205 
+FROM ubi8-minimal:8.4-210 
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - IntelliJ Plugin" \ 
     DESCRIPTION="Red Hat CodeReady Workspaces - IntelliJ Plugin" \ 
