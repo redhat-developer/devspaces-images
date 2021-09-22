@@ -45,6 +45,8 @@ spec:
             - containerPort: 60000
               name: metrics
           env:
+            - name: ALLOW_DEVWORKSPACE_ENGINE
+              value: 'true'
             - name: CHE_FLAVOR
               value: codeready
             - name: CHE_IDENTITY_POSTGRES_SECRET
@@ -190,7 +192,7 @@ spec:
             - name: RELATED_IMAGE_devfile_registry
               value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.12
             - name: RELATED_IMAGE_devworkspace_controller
-              value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.8
+              value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.9
             - name: RELATED_IMAGE_dirigible_openshift_plugin_registry_image_IBZWQYJSGU3DUMZTGY2TMMZVMQYWKMBUGAZTMOJXMRSWCMBWG42GEYTCMRRTONBZMM2GEZJSMRRDEOJYGE4GCOJTMI4GKMLFGUZWGM3DGUYTINBRGEZQ____
               value: index.docker.io/dirigiblelabs/dirigible-openshift@sha256:3365635d1e0403697dea0674bbbdc749c4be2db29818a93b8e1e53c3c5144113
             - name: RELATED_IMAGE_eclipse_broadway_plugin_registry_image_IBZWQYJSGU3DUNJXMM4DEY3EHAYDMYJVGZTDMOLBME4DMNRTMY3DQNBQGVSDANZXHBRDMMRYMEZDSYJWGRTGEMJWHA4DCYRRGFRWKOLGGQ4DIZDEME3Q____
