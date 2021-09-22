@@ -284,8 +284,6 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
           prefix += '0';
         } else if (version === 'next') {
           prefix += '1';
-        } else if (version === 'nightly') {
-          prefix += '2';
         }
         versionText = `${prefix}${version}`;
       }
