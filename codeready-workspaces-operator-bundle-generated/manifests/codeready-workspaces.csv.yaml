@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:47e4cb31c65e002913bd12c904d9c6306836825eca8329c214d0db6cc3aa6e82
-    createdAt: "2021-09-22T13:46:24+00:00"
+    createdAt: "2021-09-22T15:57:10+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -990,7 +990,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_plugin_registry_image_GIXDCMQK
                   value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:ef372110ffa6644e8d5f8fa19aefdb5fa2393cb67dcba9a3f618a3138d2458ed
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_kubernetes_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:a9a1b37c6a3145cb8c8b5206d7920e0916727d809f5df3404cfa483e81045cd2
+                  value: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:827cd9b9c30e14ec3958445dc3ef1a087794a1f0259601e868619af746daee89
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK
                   value: registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8@sha256:d794597b27e15e47560ce63596226932d498243ac4327dfe5514af1645e3c23a
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMQK
@@ -1010,9 +1010,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMQK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:32d28aef989cadf8dda497dd3375de2c65fd0fde74935134cfc807a4c97e6631
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:f3076b8b56a17359f4406227feb62e80d5f9acbccb04a38de13ce622611a0bac
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dcf2e3ac5c154ebc1282c9de21691ba49135f78348999bf8cb3515547eed4a53
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:6239672e1db5003ef7cf069cb9f5eb50cf73de236c9a13f69e924d0e0bd98802
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:16a5043483a26e488a61c8469b348be50b99e4840e5588cbb2a3c11a75efd87c
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:70e3d395521ea5112bdfc5a9b2f44bd4954065a2892fad3877eda5a25cae22d7
                 - name: RELATED_IMAGE_devfile_registry
@@ -1383,7 +1383,7 @@ spec:
   - name: codeready_workspaces_plugin_java8_s390x_plugin_registry_image_gixdcmqk
     image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:ef372110ffa6644e8d5f8fa19aefdb5fa2393cb67dcba9a3f618a3138d2458ed
   - name: codeready_workspaces_plugin_kubernetes_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:a9a1b37c6a3145cb8c8b5206d7920e0916727d809f5df3404cfa483e81045cd2
+    image: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:827cd9b9c30e14ec3958445dc3ef1a087794a1f0259601e868619af746daee89
   - name: codeready_workspaces_plugin_openshift_plugin_registry_image_gixdcmqk
     image: registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8@sha256:d794597b27e15e47560ce63596226932d498243ac4327dfe5514af1645e3c23a
   - name: codeready_workspaces_stacks_cpp_devfile_registry_image_gixdcmqk
@@ -1403,9 +1403,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmqk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:32d28aef989cadf8dda497dd3375de2c65fd0fde74935134cfc807a4c97e6631
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:f3076b8b56a17359f4406227feb62e80d5f9acbccb04a38de13ce622611a0bac
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dcf2e3ac5c154ebc1282c9de21691ba49135f78348999bf8cb3515547eed4a53
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:6239672e1db5003ef7cf069cb9f5eb50cf73de236c9a13f69e924d0e0bd98802
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:16a5043483a26e488a61c8469b348be50b99e4840e5588cbb2a3c11a75efd87c
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:70e3d395521ea5112bdfc5a9b2f44bd4954065a2892fad3877eda5a25cae22d7
   - name: devfile_registry
