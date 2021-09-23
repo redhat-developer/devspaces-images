@@ -23,7 +23,7 @@ MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
 # TODO https://issues.redhat.com/browse/CRW-2167 switch to DWO 0.9
-DWO_TAG=0.8
+DWO_TAG=0.9
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
