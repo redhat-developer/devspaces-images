@@ -27,13 +27,8 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="devfile/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
-            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."devworkspace-controller"[JB].upstream_branch[0]
-            def BRANCH_CHECK=cmd.execute().text
-
-            SOURCE_BRANCH=""+config.Jobs."devworkspace-controller"[JB].upstream_branch[0];
-            if (!BRANCH_CHECK) {
-                SOURCE_BRANCH=""+config.Jobs."devworkspace-controller"[JB].upstream_branch[1]
-            }
+            //no check since devworkspace-controller uses non-standard branches
+            SOURCE_BRANCH=""+config.Jobs."devworkspace-controller"[JB].upstream_branch[0]
 
             description('''
 Artifact builder + sync job; triggers brew after syncing

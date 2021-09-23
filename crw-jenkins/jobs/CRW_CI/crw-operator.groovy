@@ -26,11 +26,17 @@ for (JB in JOB_BRANCHES) {
             MIDSTM_NAME="operator"
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
-            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.operator[JB].upstream_branch[0]
-            def BRANCH_CHECK=cmd.execute().text
 
-            SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[0];
-            if (!BRANCH_CHECK) {
+            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.operator[JB].upstream_branch[0]
+            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.operator[JB].upstream_branch[1]
+
+            def BRANCH_CHECK_EVEN=CMD_EVEN.execute().text
+            def BRANCH_CHECK_ODD=CMD_ODD.execute().text
+
+            SOURCE_BRANCH="main"
+            if (BRANCH_CHECK_EVEN) {
+                SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[0]
+            } else if (BRANCH_CHECK_ODD) {
                 SOURCE_BRANCH=""+config.Jobs.operator[JB].upstream_branch[1]
             }
 

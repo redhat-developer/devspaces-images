@@ -29,11 +29,17 @@ for (JB in JOB_BRANCHES) {
             NODE_VERSION="" + config.Other.NODE_VERSION[JB]
             YARN_VERSION="" + config.Other.YARN_VERSION[JB]
 
-            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.theia[JB].upstream_branch[0]
-            def BRANCH_CHECK=cmd.execute().text
+            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.theia[JB].upstream_branch[0]
+            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.theia[JB].upstream_branch[1]
 
-            SOURCE_BRANCH=""+config.Jobs.theia[JB].upstream_branch[0];
-            if (!BRANCH_CHECK) {
+            def BRANCH_CHECK_EVEN=CMD_EVEN.execute().text
+            def BRANCH_CHECK_ODD=CMD_ODD.execute().text
+
+            SOURCE_BRANCH="main"
+
+            if (BRANCH_CHECK_EVEN) {
+                SOURCE_BRANCH=""+config.Jobs.theia[JB].upstream_branch[0]
+            } else if (BRANCH_CHECK_ODD) {
                 SOURCE_BRANCH=""+config.Jobs.theia[JB].upstream_branch[1]
             }
 

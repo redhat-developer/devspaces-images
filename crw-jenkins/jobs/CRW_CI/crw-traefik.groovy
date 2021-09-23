@@ -27,13 +27,8 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="traefik/" + UPSTM_NAME
             GOLANG_VERSION="" + config.Other.GOLANG_VERSION[JB]
 
-            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.traefik[JB].upstream_branch[0]
-            def BRANCH_CHECK=cmd.execute().text
-
-            SOURCE_TAG=""+config.Jobs.traefik[JB].upstream_branch[0];
-            if (!BRANCH_CHECK) {
-                SOURCE_TAG=""+config.Jobs.traefik[JB].upstream_branch[1]
-            }
+            //No check since traefik uses non-standard branches
+            SOURCE_TAG=""+config.Jobs.traefik[JB].upstream_branch[0]
 
             description('''
 Artifact builder + sync job; triggers brew after syncing

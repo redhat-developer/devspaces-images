@@ -28,12 +28,13 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="redhat-developer/codeready-workspaces"
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
-            def cmd = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.devfileregistry[JB].upstream_branch[0]
-            def BRANCH_CHECK=cmd.execute().text
+            def CMD = "git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.devfileregistry[JB].upstream_branch[0]
+            def BRANCH_CHECK=CMD.execute().text
 
-            SOURCE_BRANCH=""+config.Jobs.devfileregistry[JB].upstream_branch[0];
+            SOURCE_BRANCH=""+config.Jobs.devfileregistry[JB].upstream_branch[0]
             if (!BRANCH_CHECK) {
-                SOURCE_BRANCH=""+config.Jobs.devfileregistry[JB].upstream_branch[1]
+                //devfileregistry uses crw-2.yy-rhel-8 so if branch doesn't exist use crw-2-rhel-8
+                SOURCE_BRANCH="crw-2-rhel-8"
             }
 
             description('''
