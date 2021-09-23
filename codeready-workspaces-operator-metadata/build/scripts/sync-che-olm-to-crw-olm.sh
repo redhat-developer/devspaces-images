@@ -23,7 +23,7 @@ MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 
 # TODO https://issues.redhat.com/browse/CRW-2167 switch to DWO 0.9
-DWO_TAG=0.8
+DWO_TAG=0.9
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
@@ -95,9 +95,8 @@ CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSI
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
 CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
 CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
-# old image from 2.10: DWO_IMAGE="${CRW_RRIO}/devworkspace-controller-rhel8:${CRW_VERSION}"
-# new image from 2.11+:
-DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
+# new image for 2.11+, but disabled in latest channel (and enabled in tech-preview-latest-all-namespaces channel -- see codeready-worksapces-operator-bundle)
+# DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
 CRW_JWTPROXY_IMAGE="${CRW_RRIO}/jwtproxy-rhel8:${CRW_VERSION}"
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
@@ -268,7 +267,10 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 	# yq changes - transform env vars from Che to CRW values
 	declare -A operator_replacements=(
-		["ALLOW_DEVWORKSPACE_ENGINE"]="false" # disable devWorkspace engine in latest channel
+		# disable devWorkspace engine in latest channel; remove DWO image from payload
+		["ALLOW_DEVWORKSPACE_ENGINE"]="false" 
+		["RELATED_IMAGE_devworkspace_controller"]="DELETEME"
+		
 		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 		["CHE_FLAVOR"]="codeready"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
@@ -276,7 +278,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
 		["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
-		["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 		["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
 
 		["RELATED_IMAGE_che_workspace_plugin_broker_metadata"]="${CRW_BROKER_METADATA_IMAGE}"
