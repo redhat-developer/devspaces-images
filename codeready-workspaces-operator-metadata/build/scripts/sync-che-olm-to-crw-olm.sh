@@ -178,6 +178,7 @@ ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-crw-olm.icon.txt")"
 for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	cp "${SOURCE_CSVFILE}" "${CSVFILE}"
 	# transform resulting file
+	NOW="$(date -u +%FT%T+00:00)"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
 		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
@@ -196,6 +197,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e 's|my-keycloak|my-rhsso|' \
 		\
 		-e "s|    - base64data: .+|${ICON}|" \
+		-e "s|createdAt:.+|createdAt: \"${NOW}\"|" \
 		\
 		-e 's|email: dfestal@redhat.com|email: nboldt@redhat.com|' \
 		-e 's|name: David Festal|name: Nick Boldt|' \
@@ -362,11 +364,5 @@ cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/o
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_chebackupserverconfigurations.yaml" "${TARGETDIR}/manifests/codeready-workspaces-backup-server-config.crd.yaml"
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusterbackups.yaml" "${TARGETDIR}/manifests/codeready-workspaces-backup.crd.yaml"
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusterrestores.yaml" "${TARGETDIR}/manifests/codeready-workspaces-restore.crd.yaml"
-
-# date in CSV will be updated only if there were any changes in CSV
-if [[ $(git status --porcelain | grep "M ${CSVFILE}") ]]; then
-	echo "Update date in ${CSVFILE}"
-	sed -r -e "s|createdAt:.+|createdAt: \"$(date -u +%FT%T+00:00)\"|" -i "${CSVFILE}"
-fi
 
 popd >/dev/null || exit
