@@ -179,7 +179,6 @@ ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-crw-olm.icon.txt")"
 for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	cp "${SOURCE_CSVFILE}" "${CSVFILE}"
 	# transform resulting file
-	NOW="$(date -u +%FT%T+00:00)"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
 		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
@@ -364,7 +363,8 @@ cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/o
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusterrestores.yaml" "${TARGETDIR}/manifests/codeready-workspaces-restore.crd.yaml"
 
 # date in CSV will be updated only if there were any changes in CSV
-if [[ git status --porcelain ]];
+if [[ git status --porcelain | grep "M ${CSVFILE}"]];
+	NOW="$(date -u +%FT%T+00:00)"
 	echo "Changes detected, updating the date in CSV file"
 	sed -r -e "s|createdAt:.+|createdAt: \"${NOW}\"|" -i "${CSVFILE}"
 else
