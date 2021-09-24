@@ -61,15 +61,14 @@ Phases:
     <li> build lang server dependencies (5 tarballs)</li>
     <li> build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)</li>
     <li> build theia images (3 images)</li>
-    <li> build internals (14-15 images): 
+    <li> build internals (14 images): 
         <ul>
             <li> backup (@since 2.12), configbump, operator, dashboard, devfileregistry, </li>
             <li> idea, imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, </li>
             <li> pluginbroker-metadata, pluginregistry, server, traefik,</li>
-            <li> devworkspace-controller (TODO: @removed 2.12), devworkspace (TODO: @removed 2.12) </li> 
         </ul>
     </li>
-    <li> build metadata image + iib</li>
+    <li> build bundle + metadata images + IIBs</li>
 </ol>
             ''')
             }

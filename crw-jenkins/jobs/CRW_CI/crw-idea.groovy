@@ -2,6 +2,10 @@ import groovy.json.JsonSlurper
 
 def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// @since 2.11
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 

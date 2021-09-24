@@ -2,10 +2,14 @@ import groovy.json.JsonSlurper
 
 def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// THIS FILE IS DEPRECATED and not used in 2.12+
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config.Jobs."devworkspace-controller".keySet()
+def JOB_BRANCHES = ["2.11"]
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false

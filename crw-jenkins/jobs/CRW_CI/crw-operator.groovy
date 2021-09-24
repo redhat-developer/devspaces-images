@@ -98,7 +98,7 @@ Artifact builder + sync job; triggers brew after syncing
 
                 // TODO remove DEV_WORKSPACE_CONTROLLER_VERSION and DEV_WORKSPACE_CHE_OPERATOR_VERSION once 2.12 is live (must keep it until 2.11 jobs are deleted)
                 // these are set in job-config.json and read by sync.sh so we don't need them here 
-                stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", "" + config.Jobs."devworkspace-controller"[JB].upstream_branch[0], "Branch (0.y.x or main) used to get deployment templates")
+                stringParam("DEV_WORKSPACE_CONTROLLER_VERSION", "" + config.Jobs."devworkspace-controller"["2.11"].upstream_branch[0], "Branch (0.y.x or main) used to get deployment templates")
                 stringParam("DEV_WORKSPACE_CHE_OPERATOR_VERSION", SOURCE_BRANCH, "Branch (7.yy.x or main) used to get deployment templates")
             }
 
