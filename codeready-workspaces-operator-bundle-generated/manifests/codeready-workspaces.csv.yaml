@@ -80,7 +80,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:6e93ead3478ee2528cbce3c908869015837960c44e63eb49c0ca369034cf1a9a
-    createdAt: "2021-09-24T05:08:29+00:00"
+    createdAt: "2021-09-24T12:38:32+00:00"
     description: A Kube-native development solution that delivers portable and collaborative developer workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
