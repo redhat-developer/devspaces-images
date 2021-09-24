@@ -363,12 +363,9 @@ cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/o
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusterrestores.yaml" "${TARGETDIR}/manifests/codeready-workspaces-restore.crd.yaml"
 
 # date in CSV will be updated only if there were any changes in CSV
-if [[ git status --porcelain | grep "M ${CSVFILE}"]];
-	NOW="$(date -u +%FT%T+00:00)"
+if [[ $(git status --porcelain | grep "M ${CSVFILE}") ]]; then
 	echo "Changes detected, updating the date in CSV file"
-	sed -r -e "s|createdAt:.+|createdAt: \"${NOW}\"|" -i "${CSVFILE}"
-else
-	echo "No changes detected, CSV date  will not be updated"
+	sed -r -e "s|createdAt:.+|createdAt: \"$(date -u +%FT%T+00:00)\"|" -i "${CSVFILE}"
 fi
 
 popd >/dev/null || exit
