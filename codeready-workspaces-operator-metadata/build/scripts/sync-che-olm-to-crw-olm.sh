@@ -364,7 +364,7 @@ cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/o
 
 # date in CSV will be updated only if there were any changes in CSV
 if [[ $(git status --porcelain | grep "M ${CSVFILE}") ]]; then
-	echo "Changes detected, updating the date in CSV file"
+	echo "Update date in ${CSVFILE}"
 	sed -r -e "s|createdAt:.+|createdAt: \"$(date -u +%FT%T+00:00)\"|" -i "${CSVFILE}"
 fi
 
