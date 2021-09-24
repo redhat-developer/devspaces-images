@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-backend",
-  "version": "7.36.2-SNAPSHOT",
+  "version": "7.36.3-SNAPSHOT",
   "description": "Dashboard backend for Eclipse Che",
   "main": "lib/server.js",
   "types": "lib/index.d.ts",
