@@ -3,7 +3,6 @@
 # 
 scratchFlag=""
 doRhpkgContainerBuild=1
-doMavenBuild=1
 forceBuild=0
 pullAssets=0
 
@@ -12,7 +11,6 @@ while [[ "$#" -gt 0 ]]; do
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	'-m'|'--nomaven') doMavenBuild=0; shift 0;;
 	'-p'|'--pull-assets') pullAssets=1; shift 0;;
 	esac
 	shift 1
@@ -20,7 +18,7 @@ done
 
 outputFile="asset-server.tgz"
 rm -f $outputFile .repository/
-if [[ ${doMavenBuild} -eq 1 ]]; then
+if [[ ${pullAssets} -eq 1 ]]; then
 	MVN_VER="3.6.3"
 	JDK_VER="11"
 	sudo yum -y install java-${JDK_VER}-openjdk java-${JDK_VER}-openjdk-devel
@@ -54,7 +52,7 @@ if [[ ${doMavenBuild} -eq 1 ]]; then
 fi
 rm -fr .repository/
 
-if [[ (-f ${outputFile}) || (${pullAssets} -eq 1) ]]; then
+if [[ -f ${outputFile} ]]; then
 	echo "[INFO] Upload new sources: ${outputFile}"
 	rhpkg new-sources ${outputFile}
 	echo "[INFO] Commit new sources from: ${outputFile}"
