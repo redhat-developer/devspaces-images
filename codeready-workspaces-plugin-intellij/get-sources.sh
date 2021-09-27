@@ -4,12 +4,12 @@
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-forcePull=0
+pullAssets=0
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
-		'-p'|'--force-pull') forcePull=1; shift 0;;
+		'-p'|'--pull-assets') pullAssets=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 		*) JOB_BRANCH="$1"; shift 0;;
 	esac
@@ -38,7 +38,7 @@ sed Dockerfile \
 		-e "s#ALECZAPKA_FONTS_VERSION=\"\([^\"]\+\)\"#ALECZAPKA_FONTS_VERSION=\"${ALECZAPKA_FONTS_VERSION}\"#" \
 		> Dockerfile.2
 
-if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ ${forcePull} -eq 1 ]]; then
+if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	rm -fr *.rpm *.tar.gz
 	mv -f Dockerfile.2 Dockerfile
 

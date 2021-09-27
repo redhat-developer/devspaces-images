@@ -5,13 +5,13 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
-forcePull=0
+pullAssets=0
 generateDockerfileLABELs=1
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
-		'-f'|'--force-build') forceBuild=1; shift 0;;
-		'-p'|'--force-pull') forcePull=1; shift 0;;
+	'-f'|'--force-build') forceBuild=1; shift 0;;
+	'-p'|'--pull-assets') pullAssets=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	*) JOB_BRANCH="$1"; shift 0;;
 	esac
@@ -166,7 +166,7 @@ for theTarGz in ${theTarGzs}; do
 		echo "[WARNING] Cannot resolve artifact fingerprints for ${outputFile}"
 	fi
 	
-	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${forcePull} -eq 1 ]]; then 
+	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${pullAssets} -eq 1 ]]; then 
 		curl -L -o ${outputFile} ${jenkinsURL}/${theTarGz}
 		outputFiles="${outputFiles} ${outputFile}"
 	fi
