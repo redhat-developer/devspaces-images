@@ -5,6 +5,7 @@ scratchFlag=""
 doRhpkgContainerBuild=1
 doMavenBuild=1
 forceBuild=0
+pullAssets=0
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -12,6 +13,7 @@ while [[ "$#" -gt 0 ]]; do
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-m'|'--nomaven') doMavenBuild=0; shift 0;;
+	'-p'|'--pull-assets') pullAssets=1; shift 0;;
 	esac
 	shift 1
 done
@@ -52,7 +54,7 @@ if [[ ${doMavenBuild} -eq 1 ]]; then
 fi
 rm -fr .repository/
 
-if [[ -f ${outputFile} ]]; then
+if [[ (-f ${outputFile}) || (${pullAssets} -eq 1) ]]; then
 	echo "[INFO] Upload new sources: ${outputFile}"
 	rhpkg new-sources ${outputFile}
 	echo "[INFO] Commit new sources from: ${outputFile}"
