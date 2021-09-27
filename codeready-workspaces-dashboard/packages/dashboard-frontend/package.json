@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@devfile/api": "0.0.1-1622573075",
-    "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1623136422",
+    "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1632729321",
     "@eclipse-che/devworkspace-client": "0.0.1-1625495079",
     "@eclipse-che/workspace-client": "0.0.1-1622804813",
     "@patternfly/react-core": "4.120.0",
