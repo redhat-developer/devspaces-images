@@ -34,10 +34,10 @@ COPY bin.tgz /tmp/
 # For OpenShift Client 4 (oc): rhocp-4.8-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109080022.p0.git.a0c12be.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109080022.p0.git.a0c12be.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109080022.p0.git.a0c12be.assembly.stream.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which dnf openshift-clients-4.8.0-202109080022.p0.git.a0c12be.assembly.stream.el8 && \
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.ppc64le.rpm
+RUN microdnf install -y bash tar gzip which dnf openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8 && \
     dnf -y -q update && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
