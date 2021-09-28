@@ -1,1 +1,1 @@
-./build.sh --nv 12.22.3 --cv 2.12 --ctb 7.36.x --tb crw-2.12.0 --tgr redhat-developer/eclipse-theia --no-cache --rm-cache --rmi:all --no-async-tests --ci --commit -e --tcs 56eaa6d0e08f15089b4c09f282579a852b75f182
+./build.sh --nv 12.22.3 --cv 2.12 --ctb 7.36.x --tb crw-2.12.0 --tgr redhat-developer/eclipse-theia --no-cache --rm-cache --rmi:all --no-async-tests --ci --commit -d -t -e --tcs 56eaa6d0e08f15089b4c09f282579a852b75f182
