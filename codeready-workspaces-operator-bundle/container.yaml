@@ -47,3 +47,5 @@ operator_manifests:
         rh-mongodb36-container: registry.redhat.io/rhscl/mongodb-36-rhel7
         ubi8-minimal-container: registry.redhat.io/ubi8/ubi-minimal
         ubi8-micro-container: registry.redhat.io/ubi8/ubi-micro
+        kube-rbac-proxy-container: openshift4/ose-kube-rbac-proxy
+        oauth-proxy-container: openshift4/ose-oauth-proxy
