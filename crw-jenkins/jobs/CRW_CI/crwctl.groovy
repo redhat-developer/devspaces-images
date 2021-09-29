@@ -6,7 +6,7 @@ def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
 // map branch to tag to use in operator.yaml and csv.yaml
-def JOB_BRANCHES = config.Jobs.crwctl.keySet()
+def JOB_BRANCHES = config."Management-Jobs".crwctl.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -22,21 +22,21 @@ for (JB in JOB_BRANCHES) {
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
-            disabled(config.Jobs.crwctl[JB].disabled) // on reload of job, disable to avoid churn
+            disabled(config."Management-Jobs".crwctl[JB].disabled) // on reload of job, disable to avoid churn
             UPSTM_NAME="chectl"
             SOURCE_REPO="che-incubator/" + UPSTM_NAME
 
-            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.crwctl[JB].upstream_branch[0]
-            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.crwctl[JB].upstream_branch[1]
+            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs".crwctl[JB].upstream_branch[0]
+            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs".crwctl[JB].upstream_branch[1]
 
             def BRANCH_CHECK_EVEN=CMD_EVEN.execute().text
             def BRANCH_CHECK_ODD=CMD_ODD.execute().text
 
             SOURCE_BRANCH="main"
             if (BRANCH_CHECK_EVEN) {
-                SOURCE_BRANCH=""+config.Jobs.crwctl[JB].upstream_branch[0]
+                SOURCE_BRANCH=""+config."Management-Jobs".crwctl[JB].upstream_branch[0]
             } else if (BRANCH_CHECK_ODD) {
-                SOURCE_BRANCH=""+config.Jobs.crwctl[JB].upstream_branch[1]
+                SOURCE_BRANCH=""+config."Management-Jobs".crwctl[JB].upstream_branch[1]
             }
 
             description('''

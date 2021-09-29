@@ -5,7 +5,7 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config.Jobs."operator-bundle".keySet()
+def JOB_BRANCHES = config."Management-Jobs"."operator-bundle".keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -21,7 +21,7 @@ for (JB in JOB_BRANCHES) {
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
-            disabled(config.Jobs."operator-bundle"[JB].disabled) // on reload of job, disable to avoid churn
+            disabled(config."Management-Jobs"."operator-bundle"[JB].disabled) // on reload of job, disable to avoid churn
             UPSTM_NAME="che-operator"
             MIDSTM_NAME="operator-bundle"
             SOURCE_REPO="eclipse/" + UPSTM_NAME
@@ -30,17 +30,17 @@ for (JB in JOB_BRANCHES) {
             CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
             CSV_VERSION_PREV=config.CSVs."operator-bundle"[JB].CSV_VERSION_PREV
 
-            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."operator-bundle"[JB].upstream_branch[0]
-            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."operator-bundle"[JB].upstream_branch[1]
+            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs"."operator-bundle"[JB].upstream_branch[0]
+            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs"."operator-bundle"[JB].upstream_branch[1]
 
             def BRANCH_CHECK_EVEN=CMD_EVEN.execute().text
             def BRANCH_CHECK_ODD=CMD_ODD.execute().text
 
             SOURCE_BRANCH="main"
             if (BRANCH_CHECK_EVEN) {
-                SOURCE_BRANCH=""+config.Jobs."operator-bundle"[JB].upstream_branch[0]
+                SOURCE_BRANCH=""+config."Management-Jobs"."operator-bundle"[JB].upstream_branch[0]
             } else if (BRANCH_CHECK_ODD) {
-                SOURCE_BRANCH=""+config.Jobs."operator-bundle"[JB].upstream_branch[1]
+                SOURCE_BRANCH=""+config."Management-Jobs"."operator-bundle"[JB].upstream_branch[1]
             }
 
             description('''
