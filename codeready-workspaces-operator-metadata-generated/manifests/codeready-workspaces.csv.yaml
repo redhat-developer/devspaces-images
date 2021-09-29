@@ -1010,9 +1010,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMQK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:32d28aef989cadf8dda497dd3375de2c65fd0fde74935134cfc807a4c97e6631
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:8b463abd84729638f81cbcd02225a69a3dcbc8de7a69cd82b54697aa59d599b0
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:2eb5fd69e08e3a1a8f557fe1d41170ee9dac89d15c5947aabc477d4e2107a9ea
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMQK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:9a944ea7e6665556537c2db9f5fe2600540e87fe1765019a73b3838efa718d3f
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:7c1fcf0a972e2905a0758d53e2155534643d0fbcbb688d57b54f05bafe323582
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:4a5a51764cb7f4eb3aab8f089826738d46ed40f6ec263d0697ae9f28107af06f
                 - name: RELATED_IMAGE_devfile_registry
@@ -1404,9 +1404,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmqk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:32d28aef989cadf8dda497dd3375de2c65fd0fde74935134cfc807a4c97e6631
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:8b463abd84729638f81cbcd02225a69a3dcbc8de7a69cd82b54697aa59d599b0
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:2eb5fd69e08e3a1a8f557fe1d41170ee9dac89d15c5947aabc477d4e2107a9ea
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmqk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:9a944ea7e6665556537c2db9f5fe2600540e87fe1765019a73b3838efa718d3f
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:7c1fcf0a972e2905a0758d53e2155534643d0fbcbb688d57b54f05bafe323582
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:4a5a51764cb7f4eb3aab8f089826738d46ed40f6ec263d0697ae9f28107af06f
   - name: devfile_registry
