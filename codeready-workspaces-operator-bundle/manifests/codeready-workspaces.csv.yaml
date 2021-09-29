@@ -971,6 +971,10 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devfileregistry-rhel8:2.13
                       - name: RELATED_IMAGE_devworkspace_controller
                         value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.9
+                      - name: RELATED_IMAGE_gateway_authentication_sidecar
+                        value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
+                      - name: RELATED_IMAGE_gateway_authorization_sidecar
+                        value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
                       - name: RELATED_IMAGE_internal_rest_backup_server
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-backup-rhel8:2.13
                       - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
