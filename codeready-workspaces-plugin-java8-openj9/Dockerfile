@@ -163,10 +163,10 @@ LABEL summary="$SUMMARY" \
 
 # insert generated LABELs below this line
 LABEL \
-	  jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1382/" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1382/artifact/**/::apache-maven-3.6.3-bin.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1382/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1382/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1382/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1382/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz" \
-	  jenkins.build.number="1382"
+	  jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1637/" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1637/artifact/**/::apache-maven-3.6.3-bin.tar.gz" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1637/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1637/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1637/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz" \
+	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/1637/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz" \
+	  jenkins.build.number="1637"
