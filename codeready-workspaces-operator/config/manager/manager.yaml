@@ -107,8 +107,6 @@ spec:
               value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.13
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
               value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.13
-            - name: RELATED_IMAGE_single_host_gateway_native_user_mode
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.13
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:

@@ -298,8 +298,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
 
 		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-		# CRW-1956 - not supported; use the same traefik image
-		["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 		["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
 
