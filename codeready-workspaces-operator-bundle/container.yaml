@@ -48,4 +48,4 @@ operator_manifests:
         ubi8-minimal-container: registry.redhat.io/ubi8/ubi-minimal
         ubi8-micro-container: registry.redhat.io/ubi8/ubi-micro
         kube-rbac-proxy-container: openshift4/ose-kube-rbac-proxy
-        oauth-proxy-container: openshift4/ose-oauth-proxy
+        golang-github-openshift-oauth-proxy-container: openshift4/ose-oauth-proxy
