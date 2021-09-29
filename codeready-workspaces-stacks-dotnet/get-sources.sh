@@ -6,6 +6,7 @@ while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-p'|'--pull-assets') shift 0;;
 	'-n'|'--nobuild') exit 0; shift 0;;
+	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	esac
 	shift 1
