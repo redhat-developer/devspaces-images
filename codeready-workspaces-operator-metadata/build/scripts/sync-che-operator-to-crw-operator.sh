@@ -208,8 +208,6 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"]="${CRW_JWTPROXY_IMAGE}"
 
 	["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-	# CRW-1956 - not supported; use the same traefik image
-	["RELATED_IMAGE_single_host_gateway_native_user_mode"]="${CRW_TRAEFIK_IMAGE}"
 	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
 	["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
 
@@ -300,7 +298,6 @@ cp -rf "${SOURCEDIR}/vendor" "${TARGETDIR}/vendor"
 sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultCheTLSSecretsCreationJobImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
 -e 's|(\t)(defaultInternalRestBackupServerImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_internal_rest_backup_server"\)\))|\1// \2|' \
--e 's|(\t)(defaultInternalRestBackupServerImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_single_host_gateway_native_user_mode"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authentication_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
@@ -308,7 +305,6 @@ sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultCheTLSSecretsCreationJobImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
 -e 's|(\t)(defaultInternalRestBackupServerImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_internal_rest_backup_server"\)\))|\1// \2|' \
--e 's|(\t)(defaultInternalRestBackupServerImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_single_host_gateway_native_user_mode"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authentication_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'

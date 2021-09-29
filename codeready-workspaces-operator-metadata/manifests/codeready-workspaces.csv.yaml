@@ -1130,8 +1130,6 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-traefik-rhel8:2.13
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-configbump-rhel8:2.13
-                      - name: RELATED_IMAGE_single_host_gateway_native_user_mode
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-traefik-rhel8:2.13
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:

@@ -985,8 +985,6 @@ spec:
                   value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:1b99d4f6e2f826d6460ff58dcb701675fd597926aa58b0cab49db9d72daacd33
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                   value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:fabd5ba99c40ec7ca57fe48860a33bdd2ef7d2c9d74b3ea65bda09b66c855edb
-                - name: RELATED_IMAGE_single_host_gateway_native_user_mode
-                  value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:1b99d4f6e2f826d6460ff58dcb701675fd597926aa58b0cab49db9d72daacd33
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
