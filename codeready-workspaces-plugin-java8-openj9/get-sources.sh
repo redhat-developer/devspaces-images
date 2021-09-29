@@ -5,14 +5,16 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
-forcePull=0
+pullAssets=0
 generateDockerfileLABELs=1
+targetFlag=""
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--force-pull') forcePull=1; shift 0;;
+	'-p'|'--pull-assets') pullAssets=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+	'-t'|'--target') targetFlag="--target $2"; shift 1;;
 	*) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
@@ -64,9 +66,12 @@ if [[ ! $jenkinsURL ]]; then
 	echo "[ERROR] Cannot resolve artifact(s) for this build. Must abort!"
 	exit 1
 fi
+log "[INFO] Using Brew with ${targetFlag}" 
 theTarGzs="
-lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/node10/target/codeready-workspaces-stacks-language-servers-dependencies-node10-x86_64.tar.gz
-lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/python/target/codeready-workspaces-stacks-language-servers-dependencies-python-x86_64.tar.gz
+lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/node10/target/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz
+lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/python/target/codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz
+lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/node10/target/codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz
+lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/python/target/codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz
 "
 lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/" # id
 # maven - install 3.6 from https://maven.apache.org/download.cgi
@@ -171,7 +176,7 @@ for theTarGz in ${theTarGzs}; do
 		echo "[WARNING] Cannot resolve artifact fingerprints for ${outputFile}"
 	fi
 	
-	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${forcePull} -eq 1 ]]; then 
+	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${pullAssets} -eq 1 ]]; then 
 		curl -L -o ${outputFile} ${jenkinsURL}/${theTarGz}
 		outputFiles="${outputFiles} ${outputFile}"
 	fi
@@ -184,7 +189,7 @@ sed Dockerfile \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${forcePull} -eq 1 ]]; then
+if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 	curl -sSL -O https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
@@ -212,9 +217,9 @@ if [[ ${outputFiles} ]]; then
 		git pull; git push; git status -s || true
 	fi
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		tmpfile=$(mktemp) && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
@@ -225,9 +230,9 @@ $ERRORS
 	fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
-		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${targetFlag} ${scratchFlag}"
 		git status || true
-		tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
+		tmpfile=$(mktemp) && rhpkg container-build ${targetFlag} ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 		taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
 		ERRORS="$(grep "image build failed" $tmpfile)" && rm -f $tmpfile
 		if [[ "$ERRORS" != "" ]]; then echo "Brew build has failed:
