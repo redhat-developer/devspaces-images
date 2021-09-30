@@ -93,7 +93,7 @@ echo " ########################################### "
 for c in ''' + CONTAINERS.trim() + '''; do
     d=codeready-workspaces-${c}-rhel8
     # special case for operator; all other images follow the pattern
-    if [[ $c == "operator" ]] || [[ $c == "operator-metadata" ]]; then 
+    if [[ $c == "operator" ]] || [[ $c == "operator-"* ]]; then 
         d=codeready-workspaces-${c}
     fi 
     ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
