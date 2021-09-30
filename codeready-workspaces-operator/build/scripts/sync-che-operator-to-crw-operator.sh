@@ -296,14 +296,12 @@ cp -rf "${SOURCEDIR}/vendor" "${TARGETDIR}/vendor"
 # Comment out not used images
 sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultCheTLSSecretsCreationJobImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
--e 's|(\t)(defaultInternalRestBackupServerImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_internal_rest_backup_server"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authentication_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
 
 sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultCheTLSSecretsCreationJobImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
--e 's|(\t)(defaultInternalRestBackupServerImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_internal_rest_backup_server"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authentication_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
