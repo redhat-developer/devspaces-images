@@ -21,6 +21,7 @@ DWO_TAG=0.9
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
+OPENSHIFT_TAG="v4.8"
 
 usage () {
 	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
@@ -31,6 +32,7 @@ usage () {
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
+	--openshift-tag ${OPENSHIFT_TAG}
 	"
 	exit
 }
@@ -51,6 +53,7 @@ while [[ "$#" -gt 0 ]]; do
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;;
+	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
   esac
   shift 1
 done
@@ -77,6 +80,8 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
+RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
+OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
 # global / generic changes
 pushd "${SOURCEDIR}" >/dev/null
@@ -216,10 +221,12 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 	["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
+	# CRW-2303 - @since 2.12 DWO only
+	["RELATED_IMAGE_gateway_authentication_sidecar"]="${OAUTH_PROXY_IMAGE}"
+	["RELATED_IMAGE_gateway_authorization_sidecar"]="${RBAC_PROXY_IMAGE}"
+
 	# remove env vars using DELETEME keyword
 	["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
-	["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
-	["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 	["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
 )
 
@@ -299,15 +306,11 @@ cp -rf "${SOURCEDIR}/vendor" "${TARGETDIR}/vendor"
 sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultCheTLSSecretsCreationJobImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
 -e 's|(\t)(defaultInternalRestBackupServerImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_single_host_gateway_native_user_mode"\)\))|\1// \2|' \
--e 's|(\t)(defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authentication_sidecar"\)\))|\1// \2|' \
--e 's|(\t)(defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
 
 sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
 -e 's|(\t)(defaultCheTLSSecretsCreationJobImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
 -e 's|(\t)(defaultInternalRestBackupServerImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_single_host_gateway_native_user_mode"\)\))|\1// \2|' \
--e 's|(\t)(defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authentication_sidecar"\)\))|\1// \2|' \
--e 's|(\t)(defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_authorization_sidecar"\)\))|\1// \2|' \
 -e 's|(\t)(defaultGatewayHeaderProxySidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
 
 popd >/dev/null || exit
