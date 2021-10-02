@@ -153,7 +153,10 @@ func cleanPreviousInstallation(rctx *RestoreContext, dataDir string) (bool, erro
 	skipBackupObjectsRequirement, _ := labels.NewRequirement(deploy.KubernetesPartOfLabelKey, selection.NotEquals, []string{checlusterbackup.BackupCheEclipseOrg})
 
 	cheResourcesLabelSelector := labels.NewSelector().Add(*cheInstanceRequirement).Add(*cheNameRequirement).Add(*skipBackupObjectsRequirement)
-	cheResourcesListOptions := &client.ListOptions{LabelSelector: cheResourcesLabelSelector}
+	cheResourcesListOptions := &client.ListOptions{
+		LabelSelector: cheResourcesLabelSelector,
+		Namespace:     rctx.namespace,
+	}
 	cheResourcesMatchingLabelsSelector := client.MatchingLabelsSelector{Selector: cheResourcesLabelSelector}
 
 	// Delete all Che related deployments, but keep operator (excluded by name) and internal backup server (excluded by label)
@@ -207,7 +210,8 @@ func deleteKeycloakPod(rctx *RestoreContext) (bool, error) {
 	k8sClient := util.GetK8Client()
 	keycloakPodName, err := k8sClient.GetDeploymentPod(deploy.IdentityProviderName, rctx.namespace)
 	if err != nil {
-		return false, err
+		// Keycloak pod is already deleted, just skip it
+		return true, nil
 	}
 	keycloakPodNsN := types.NamespacedName{Name: keycloakPodName, Namespace: rctx.namespace}
 	keycloakPod := &corev1.Pod{}

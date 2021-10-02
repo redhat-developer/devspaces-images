@@ -5,7 +5,6 @@
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 1.0.2
 
-CHANNELS = "next"
 
 ifndef VERBOSE
 MAKEFLAGS += --silent
@@ -13,27 +12,6 @@ endif
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
-
-# CHANNELS define the bundle channels used in the bundle.
-# Add a new line here if you would like to change its default config. (E.g CHANNELS = "preview,fast,stable")
-# To re-generate a bundle for other specific channels without changing the standard setup, you can:
-# - use the CHANNELS as arg of the bundle target (e.g make bundle CHANNELS=preview,fast,stable)
-# - use environment variables to overwrite this value (e.g export CHANNELS="preview,fast,stable")
-ifneq ($(origin CHANNELS), undefined)
-BUNDLE_CHANNELS := --channels=$(CHANNELS)
-endif
-
-DEFAULT_CHANNEL = "next"
-
-# DEFAULT_CHANNEL defines the default channel used in the bundle.
-# Add a new line here if you would like to change its default config. (E.g DEFAULT_CHANNEL = "stable")
-# To re-generate a bundle for any other default channel without changing the default setup, you can:
-# - use the DEFAULT_CHANNEL as arg of the bundle target (e.g make bundle DEFAULT_CHANNEL=stable)
-# - use environment variables to overwrite this value (e.g export DEFAULT_CHANNEL="stable")
-ifneq ($(origin DEFAULT_CHANNEL), undefined)
-BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
-endif
-BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
 
 OPERATOR_SDK_BINARY ?= operator-sdk
 
@@ -81,7 +59,7 @@ ECLIPSE_CHE_BACKUP_SERVER_CONFIGURATION_CRD="$(CRD_FOLDER)/org.eclipse.che_cheba
 ECLIPSE_CHE_BACKUP_CRD="$(CRD_FOLDER)/org.eclipse.che_checlusterbackups.yaml"
 ECLIPSE_CHE_RESTORE_CRD="$(CRD_FOLDER)/org.eclipse.che_checlusterrestores.yaml"
 
-DEV_WORKSPACE_CONTROLLER_VERSION="main"
+DEV_WORKSPACE_CONTROLLER_VERSION="v0.9.0"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -261,17 +239,29 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 generate: controller-gen ## Generate code containing DeepCopy, DeepCopyInto, and DeepCopyObject method implementations.
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
+compile:
+	binary="$(BINARY)"
+	if [ -z "$${binary}" ]; then
+		binary="/tmp/che-operator/che-operator"
+	fi
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO111MODULE=on go build -mod=vendor -a -o "$${binary}" main.go
+	echo "che-operator binary compiled to $${binary}"
+
 fmt: ## Run go fmt against code.
-	go fmt ./...
+  ifneq ($(shell command -v goimports 2> /dev/null),)
+	  find . -not -path "./vendor/*" -name "*.go" -exec goimports -w {} \;
+  else
+	  @echo "WARN: goimports is not installed -- formatting using go fmt instead."
+	  @echo "      Please install goimports to ensure file imports are consistent."
+	  go fmt -x ./...
+  endif
 
 vet: ## Run go vet against code.
 	go vet ./...
 
 ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
-test: manifests generate fmt vet ## Run tests.
-	mkdir -p ${ENVTEST_ASSETS_DIR}
-	test -f ${ENVTEST_ASSETS_DIR}/setup-envtest.sh || curl -sSLo ${ENVTEST_ASSETS_DIR}/setup-envtest.sh https://raw.githubusercontent.com/kubernetes-sigs/controller-runtime/v0.6.3/hack/setup-envtest.sh
-	source ${ENVTEST_ASSETS_DIR}/setup-envtest.sh; fetch_envtest_tools $(ENVTEST_ASSETS_DIR); setup_envtest_env $(ENVTEST_ASSETS_DIR); export MOCK_API=true; go test -mod=vendor ./... -coverprofile cover.out
+test: manifests generate fmt vet prepare-templates ## Run tests.
+	export MOCK_API=true; go test -mod=vendor ./... -coverprofile cover.out
 
 ##@ Build
 
@@ -376,6 +366,7 @@ create-env-file: prepare-templates
 	CLUSTER_API_URL=$$(oc whoami --show-server=true) || true;
 	if [ -n $${CLUSTER_API_URL} ]; then
 		echo "CLUSTER_API_URL='$${CLUSTER_API_URL}'" >> "${ENV_FILE}"
+		echo "ALLOW_DEVWORKSPACE_ENGINE='true'" >> "${ENV_FILE}"
 		echo "[INFO] Set up cluster api url: $${CLUSTER_API_URL}"
 	fi;
 	echo "WATCH_NAMESPACE='${ECLIPSE_CHE_NAMESPACE}'" >> "${ENV_FILE}"
@@ -466,7 +457,12 @@ update-roles:
 .PHONY: bundle
 bundle: generate manifests kustomize ## Generate bundle manifests and metadata, then validate generated files.
 	if [ -z "$(platform)" ]; then
-		echo "[INFO] You must specify 'platform' macros. For example: `make bundle platform=kubernetes`"
+		echo "[ERROR] You must specify 'platform' macros. For example: `make bundle platform=kubernetes`"
+		exit 1
+	fi
+
+	if [ -z "$(channel)" ]; then
+		echo "[ERROR] You must specify 'channel' macros. For example: `make bundle platform=kubernetes channel=next`"
 		exit 1
 	fi
 
@@ -476,15 +472,15 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 
 	echo "[INFO] Updating OperatorHub bundle for platform '$${platform}'"
 
-	NEXT_BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$${platform}" channel="next" -s)
-	NEW_CSV=$${NEXT_BUNDLE_PATH}/manifests/che-operator.clusterserviceversion.yaml
+	BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$${platform}" channel="$${channel}" -s)
+	NEW_CSV=$${BUNDLE_PATH}/manifests/che-operator.clusterserviceversion.yaml
 	newNextBundleVersion=$$(yq -r ".spec.version" "$${NEW_CSV}")
 	echo "[INFO] Creation new next bundle version: $${newNextBundleVersion}"
 
 	createdAtOld=$$(yq -r ".metadata.annotations.createdAt" "$${NEW_CSV}")
 
 	BUNDLE_PACKAGE="eclipse-che-preview-$(platform)"
-	BUNDLE_DIR="bundle/$(DEFAULT_CHANNEL)/$${BUNDLE_PACKAGE}"
+	BUNDLE_DIR="bundle/"$${channel}"/$${BUNDLE_PACKAGE}"
 	GENERATED_CSV_NAME=$${BUNDLE_PACKAGE}.clusterserviceversion.yaml
 	DESIRED_CSV_NAME=che-operator.clusterserviceversion.yaml
 	GENERATED_CRD_NAME=org.eclipse.che_checlusters.yaml
@@ -498,7 +494,8 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 	--version $${newNextBundleVersion} \
 	--package $${BUNDLE_PACKAGE} \
 	--output-dir $${BUNDLE_DIR} \
-	$(BUNDLE_METADATA_OPTS)
+	--channels=$(channel) \
+	--default-channel=$(channel)
 
 	rm -rf bundle.Dockerfile
 
@@ -521,7 +518,7 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 		mv "$${NEW_CSV}.new" "$${NEW_CSV}"
 	fi
 
-	platformCRD="$${NEXT_BUNDLE_PATH}/manifests/org_v1_che_crd.yaml"
+	platformCRD="$${BUNDLE_PATH}/manifests/org_v1_che_crd.yaml"
 	if [ "$${platform}" = "openshift" ]; then
 		yq -riY  '.spec.preserveUnknownFields = false' $${platformCRD}
 	fi
@@ -622,24 +619,21 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 	fi
 
 	# Fix CSV
+	echo "[INFO] Fix $${platform} CSV"
 	if [ "$${platform}" = "openshift" ]; then
-		echo "[INFO] Fix openshift sample"
-		sample=$$(yq -r ".metadata.annotations.\"alm-examples\"" "$${NEW_CSV}")
-		fixedSample=$$(echo "$${sample}" | yq -r ".[0] | del(.spec.k8s) | [.]" | sed -r 's/"/\\"/g')
-		# Update sample in the CSV
-		yq -rY " (.metadata.annotations.\"alm-examples\") = \"$${fixedSample}\"" "$${NEW_CSV}" > "$${NEW_CSV}.old"
-		mv "$${NEW_CSV}.old" "$${NEW_CSV}"
+		fixedSample=$$(yq -r ".metadata.annotations[\"alm-examples\"] | \
+			fromjson | \
+			del( .[] | select(.kind == \"CheCluster\") | .spec.k8s)" $${NEW_CSV} |  sed -r 's/"/\\"/g')
+
+		yq -riY ".metadata.annotations[\"alm-examples\"] = \"$${fixedSample}\"" $${NEW_CSV}
 	fi
 	if [ "$${platform}" = "kubernetes" ]; then
-		echo "[INFO] Fix kubernetes sample"
-		sample=$$(yq -r ".metadata.annotations.\"alm-examples\"" "$${NEW_CSV}")
-		fixedSample=$$(echo "$${sample}" | yq -r ".[0] | (.spec.k8s.ingressDomain) = \"\" | del(.spec.auth.openShiftoAuth) | [.]" | sed -r 's/"/\\"/g')
-		# Update sample in the CSV
-		yq -rY " (.metadata.annotations.\"alm-examples\") = \"$${fixedSample}\"" "$${NEW_CSV}" > "$${NEW_CSV}.old"
-		mv "$${NEW_CSV}.old" "$${NEW_CSV}"
+		fixedSample=$$(yq -r ".metadata.annotations[\"alm-examples\"] | \
+			fromjson | \
+			del( .[] | select(.kind == \"CheCluster\") | .spec.auth.openShiftoAuth) | \
+			( .[] | select(.kind == \"CheCluster\") | .spec.k8s.ingressDomain) |= \"\" " $${NEW_CSV} |  sed -r 's/"/\\"/g')
 
-		# Update annotations
-		echo "[INFO] Update kubernetes annotations"
+		yq -riY ".metadata.annotations[\"alm-examples\"] = \"$${fixedSample}\"" $${NEW_CSV}
 		yq -rYi "del(.metadata.annotations.\"operators.openshift.io/infrastructure-features\")" "$${NEW_CSV}"
 	fi
 
@@ -653,6 +647,24 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 	if [ "$${platform}" = "openshift" ]; then
 		yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec.containers[0].securityContext."allowPrivilegeEscalation") = false' "$${NEW_CSV}"
 		yq -riSY  '(.spec.install.spec.deployments[0].spec.template.spec.containers[0].securityContext."runAsNonRoot") = true' "$${NEW_CSV}"
+	fi
+
+	# set InstallMode for next-all-namespaces
+	if [ "$${channel}" = "next-all-namespaces" ]; then
+		yq -Yi '.spec.installModes[] |= if .type=="OwnNamespace" then .supported |= false else . end' "$${NEW_CSV}"
+		yq -Yi '.spec.installModes[] |= if .type=="SingleNamespace" then .supported |= false else . end' "$${NEW_CSV}"
+		yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "$${NEW_CSV}"
+		yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "$${NEW_CSV}"
+		yq -rYi '.metadata.annotations["operatorframework.io/suggested-namespace"] |= "openshift-operators"' "$${NEW_CSV}"
+
+		# Enable by default devWorkspace engine in `next-all-namespaces` channel
+		CSV_CR_SAMPLES=$$(yq -r ".metadata.annotations[\"alm-examples\"] | \
+				fromjson | \
+				( .[] | select(.kind == \"CheCluster\") | .spec.devWorkspace.enable) |= true" $${NEW_CSV} |  sed -r 's/"/\\"/g')
+		yq -riY ".metadata.annotations[\"alm-examples\"] = \"$${CSV_CR_SAMPLES}\"" $${NEW_CSV}
+
+		# Set specific OpenShift version
+		echo "\n  com.redhat.openshift.versions: \"v4.8\"" >> $${BUNDLE_PATH}/metadata/annotations.yaml
 	fi
 
 	# Base cluster service version file has got correctly sorted CRDs.
@@ -695,8 +707,14 @@ increment-next-version:
 		exit 1
 	fi
 
-	NEXT_BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$(platform)" channel="next" -s)
-	OPM_BUNDLE_MANIFESTS_DIR="$${NEXT_BUNDLE_PATH}/manifests"
+	if [ -z "$(channel)" ]; then
+		echo "[INFO] You must specify 'channel' macros. For example: `make bundle platform=kubernetes channel=next`"
+		exit 1
+	fi
+
+
+	BUNDLE_PATH=$$($(MAKE) getBundlePath platform="$(platform)" channel="$(channel)" -s)
+	OPM_BUNDLE_MANIFESTS_DIR="$${BUNDLE_PATH}/manifests"
 	CSV="$${OPM_BUNDLE_MANIFESTS_DIR}/che-operator.clusterserviceversion.yaml"
 
 	currentNextVersion=$$(yq -r ".spec.version" "$${CSV}")
@@ -753,9 +771,16 @@ get-next-version-increment:
 
 update-resources: SHELL := /bin/bash
 update-resources: check-requirements update-resource-images update-roles
-	for platform in 'kubernetes' 'openshift'
+	for platform in 'openshift' 'kubernetes'
 	do
-		$(MAKE) bundle "platform=$${platform}"
+		for channel in 'next-all-namespaces' 'next'
+		do
+			# Skip next-all-namespaces in kubernetes platform, is not supported
+			if [ $${channel} == "next-all-namespaces" ] && [ $${platform} == "kubernetes" ]; then
+				continue
+			fi
+			$(MAKE) bundle platform=$${platform} channel=$${channel}
+		done
 	done
 
 check-requirements:
@@ -842,8 +867,13 @@ bundle-build: ## Build the bundle image.
 		echo "[INFO] You must specify 'platform' macros. For example: `make bundle platform=kubernetes`"
 		exit 1
 	fi
+	if [ -z "$(channel)" ]; then
+		echo "[INFO] You must specify 'channel' macros. For example: `make bundle platform=kubernetes channel=next`"
+		exit 1
+	fi
+
 	BUNDLE_PACKAGE="eclipse-che-preview-$(platform)"
-	BUNDLE_DIR="bundle/$(DEFAULT_CHANNEL)/$${BUNDLE_PACKAGE}"
+	BUNDLE_DIR="bundle/$(channel)/$${BUNDLE_PACKAGE}"
 	cd $${BUNDLE_DIR}
 	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 	cd ../../..

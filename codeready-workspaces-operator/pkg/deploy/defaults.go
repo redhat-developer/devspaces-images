@@ -36,6 +36,7 @@ var (
 	defaultCheTLSSecretsCreationJobImage       string
 	defaultPvcJobsImage                        string
 	defaultPostgresImage                       string
+	defaultPostgres13Image                     string
 	defaultKeycloakImage                       string
 	defaultSingleHostGatewayImage              string
 	defaultSingleHostGatewayConfigSidecarImage string
@@ -77,7 +78,7 @@ const (
 	DefaultSecurityContextFsGroup   = "1724"
 	DefaultSecurityContextRunAsUser = "1724"
 
-	KubernetesImagePullerOperatorCSV = "kubernetes-imagepuller-operator.v0.0.4"
+	KubernetesImagePullerOperatorCSV = "kubernetes-imagepuller-operator.v0.0.9"
 
 	DefaultServerExposureStrategy = "multi-host"
 	NativeSingleHostExposureType  = "native"
@@ -176,15 +177,16 @@ func InitDefaultsFromFile(defaultsPath string) {
 	defaultDevfileRegistryImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_devfile_registry"))
 	defaultPvcJobsImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_pvc_jobs"))
 	defaultPostgresImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_postgres"))
+	defaultPostgres13Image = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_postgres_13_3"))
 	defaultKeycloakImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_keycloak"))
 	defaultSingleHostGatewayImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway"))
 	defaultSingleHostGatewayConfigSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_config_sidecar"))
-	// defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
-	// defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
+	defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
+	defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
 	defaultCheWorkspacePluginBrokerMetadataImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_metadata"))
 	defaultCheWorkspacePluginBrokerArtifactsImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_artifacts"))
 	defaultCheServerSecureExposerJwtProxyImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"))
-	// defaultInternalRestBackupServerImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
+	defaultInternalRestBackupServerImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
 
 	// Don't get some k8s specific env
 	if !util.IsOpenShift {
@@ -289,6 +291,14 @@ func DefaultPvcJobsImage(cr *orgv1.CheCluster) string {
 
 func DefaultPostgresImage(cr *orgv1.CheCluster) string {
 	return patchDefaultImageName(cr, defaultPostgresImage)
+}
+
+func DefaultPostgres13Image(cr *orgv1.CheCluster) string {
+	// it might be empty value until it propertly downstreamed
+	if defaultPostgres13Image == "" {
+		return defaultPostgres13Image
+	}
+	return patchDefaultImageName(cr, defaultPostgres13Image)
 }
 
 func DefaultDashboardImage(cr *orgv1.CheCluster) string {
@@ -437,12 +447,17 @@ func InitDefaultsFromEnv() {
 	defaultDevfileRegistryImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_devfile_registry"))
 	defaultPvcJobsImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_pvc_jobs"))
 	defaultPostgresImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_postgres"))
+
+	// allow not to set env variable into a container
+	// while downstream is not migrated to PostgreSQL 13.3 yet
+	defaultPostgres13Image = os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_postgres_13_3"))
+
 	defaultKeycloakImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_keycloak"))
 	defaultSingleHostGatewayImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway"))
 	defaultSingleHostGatewayConfigSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_config_sidecar"))
-	// defaultInternalRestBackupServerImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
-	// defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
-	// defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
+	defaultInternalRestBackupServerImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_internal_rest_backup_server"))
+	defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
+	defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
 	// defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_header_sidecar"))
 
 	// CRW images for that are mentioned in the Che server che.properties

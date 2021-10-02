@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/pkg/apis/che/v1alpha1"
+	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/api/v1alpha1"
 	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/eclipse-che/che-operator/pkg/util"
 	operatorsv1 "github.com/operator-framework/api/pkg/operators/v1"
@@ -28,8 +28,13 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/validation"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+)
+
+var (
+	log = ctrl.Log.WithName("image-puller")
 )
 
 var imagePullerFinalizerName = "kubernetesimagepullers.finalizers.che.eclipse.org"
@@ -43,6 +48,10 @@ type ImageAndName struct {
 // Reconcile the imagePuller section of the CheCluster CR.  If imagePuller.enable is set to true, install the Kubernetes Image Puller operator and create
 // a KubernetesImagePuller CR.  Add a finalizer to the CheCluster CR.  If false, remove the KubernetesImagePuller CR, uninstall the operator, and remove the finalizer.
 func ReconcileImagePuller(ctx *DeployContext) (reconcile.Result, error) {
+
+	if !ctx.CheCluster.ObjectMeta.DeletionTimestamp.IsZero() {
+		return DeleteImagePullerOperatorAndFinalizer(ctx)
+	}
 
 	// Determine what server groups the API Server knows about
 	foundPackagesAPI, foundOperatorsAPI, _, err := CheckNeededImagePullerApis(ctx)
@@ -153,6 +162,9 @@ func ReconcileImagePuller(ctx *DeployContext) (reconcile.Result, error) {
 			if ctx.CheCluster.Spec.ImagePuller.Spec.ConfigMapName == "" {
 				ctx.CheCluster.Spec.ImagePuller.Spec.ConfigMapName = imagePuller.Spec.ConfigMapName
 			}
+			if ctx.CheCluster.Spec.ImagePuller.Spec.ImagePullerImage == "" {
+				ctx.CheCluster.Spec.ImagePuller.Spec.ImagePullerImage = imagePuller.Spec.ImagePullerImage
+			}
 
 			// If ImagePuller specs are different, update the KubernetesImagePuller CR
 			if imagePuller.Spec != ctx.CheCluster.Spec.ImagePuller.Spec {
@@ -171,25 +183,31 @@ func ReconcileImagePuller(ctx *DeployContext) (reconcile.Result, error) {
 
 	} else {
 		if foundOperatorsAPI && foundPackagesAPI {
-			removed, err := UninstallImagePullerOperator(ctx)
-			if err != nil {
-				logrus.Errorf("Error uninstalling Image Puller: %v", err)
-				return reconcile.Result{}, err
-			}
-
-			if removed {
-				return reconcile.Result{RequeueAfter: time.Second}, nil
-			}
-
-			if HasImagePullerFinalizer(ctx.CheCluster) {
-				err = DeleteImagePullerFinalizer(ctx)
-				if err != nil {
-					logrus.Errorf("Error deleting finalizer: %v", err)
-					return reconcile.Result{}, err
-				}
-				return reconcile.Result{RequeueAfter: time.Second}, nil
-			}
+			return DeleteImagePullerOperatorAndFinalizer(ctx)
 		}
+	}
+	return reconcile.Result{}, nil
+}
+
+func DeleteImagePullerOperatorAndFinalizer(ctx *DeployContext) (reconcile.Result, error) {
+	requeue := false
+	if _, err := GetImagePullerOperator(ctx); err == nil {
+		requeue = true
+		if _, err := UninstallImagePullerOperator(ctx); err != nil {
+			logrus.Errorf("Error uninstalling Image Puller: %v", err)
+			return reconcile.Result{}, err
+		}
+	}
+	if HasImagePullerFinalizer(ctx.CheCluster) {
+		requeue = true
+		if err := DeleteImagePullerFinalizer(ctx); err != nil {
+			logrus.Errorf("Error deleting finalizer: %v", err)
+			return reconcile.Result{}, err
+		}
+	}
+
+	if requeue {
+		return reconcile.Result{RequeueAfter: time.Second}, nil
 	}
 	return reconcile.Result{}, nil
 }
@@ -276,7 +294,7 @@ func CheckNeededImagePullerApis(ctx *DeployContext) (bool, bool, bool, error) {
 
 	for _, l := range resourcesList {
 		for _, r := range l.APIResources {
-			if l.GroupVersion == chev1alpha1.SchemeGroupVersion.String() && r.Kind == "KubernetesImagePuller" {
+			if l.GroupVersion == chev1alpha1.SchemeBuilder.GroupVersion.String() && r.Kind == "KubernetesImagePuller" {
 				foundKubernetesImagePullerAPI = true
 			}
 		}
@@ -561,7 +579,6 @@ func SetImages(ctx *DeployContext, images []ImageAndName) error {
 // the image puller spec.  Returns true if the CheCluster was updated
 func UninstallImagePullerOperator(ctx *DeployContext) (bool, error) {
 	updated := false
-
 	_, hasOperatorsAPIs, hasImagePullerAPIs, err := CheckNeededImagePullerApis(ctx)
 	if err != nil {
 		return updated, err
@@ -569,8 +586,7 @@ func UninstallImagePullerOperator(ctx *DeployContext) (bool, error) {
 
 	if hasImagePullerAPIs {
 		// Delete the KubernetesImagePuller
-		imagePuller := &chev1alpha1.KubernetesImagePuller{}
-		err := ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Namespace: ctx.CheCluster.Namespace, Name: ctx.CheCluster.Name + "-image-puller"}, imagePuller)
+		imagePuller, err := GetImagePullerOperator(ctx)
 		if err != nil && !errors.IsNotFound(err) {
 			return updated, err
 		}
@@ -629,7 +645,8 @@ func UninstallImagePullerOperator(ctx *DeployContext) (bool, error) {
 	}
 
 	// Update CR to remove imagePullerSpec
-	if ctx.CheCluster.Spec.ImagePuller.Enable || ctx.CheCluster.Spec.ImagePuller.Spec != (chev1alpha1.KubernetesImagePullerSpec{}) {
+	if (ctx.CheCluster.Spec.ImagePuller.Enable || ctx.CheCluster.Spec.ImagePuller.Spec != (chev1alpha1.KubernetesImagePullerSpec{})) &&
+		ctx.CheCluster.ObjectMeta.DeletionTimestamp.IsZero() {
 		ctx.CheCluster.Spec.ImagePuller.Spec = chev1alpha1.KubernetesImagePullerSpec{}
 		logrus.Infof("Updating CheCluster %v to remove image puller spec", ctx.CheCluster.Name)
 		err := ctx.ClusterAPI.Client.Update(context.TODO(), ctx.CheCluster, &client.UpdateOptions{})
@@ -639,4 +656,14 @@ func UninstallImagePullerOperator(ctx *DeployContext) (bool, error) {
 		updated = true
 	}
 	return updated, nil
+}
+
+// GetImagePullerOperator returns the current kubernetes-imagepuller-operator if exists
+func GetImagePullerOperator(ctx *DeployContext) (*chev1alpha1.KubernetesImagePuller, error) {
+	imagePuller := &chev1alpha1.KubernetesImagePuller{}
+	err := ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Namespace: ctx.CheCluster.Namespace, Name: ctx.CheCluster.Name + "-image-puller"}, imagePuller)
+	if err != nil {
+		return nil, err
+	}
+	return imagePuller, nil
 }

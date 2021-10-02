@@ -28,8 +28,8 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
 func TestReadProxyConfiguration(t *testing.T) {
@@ -309,7 +309,7 @@ func TestReadProxyConfiguration(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			logf.SetLogger(zap.LoggerTo(os.Stdout, true))
+			logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
 			orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
 			testCase.initObjects = append(testCase.initObjects, testCase.clusterProxy, testCase.cheCluster)
 
@@ -318,20 +318,12 @@ func TestReadProxyConfiguration(t *testing.T) {
 			scheme.AddKnownTypes(configv1.SchemeGroupVersion, &configv1.Proxy{})
 
 			cli := fake.NewFakeClientWithScheme(scheme, testCase.initObjects...)
-			nonCachedClient := fake.NewFakeClientWithScheme(scheme, testCase.initObjects...)
 			clientSet := fakeclientset.NewSimpleClientset()
 			fakeDiscovery, _ := clientSet.Discovery().(*fakeDiscovery.FakeDiscovery)
 			fakeDiscovery.Fake.Resources = []*metav1.APIResourceList{}
 
 			os.Setenv("OPENSHIFT_VERSION", testCase.openShiftVersion)
 			util.IsOpenShift, util.IsOpenShift4, _ = util.DetectOpenShift()
-
-			r := &CheClusterReconciler{
-				client:          cli,
-				nonCachedClient: nonCachedClient,
-				discoveryClient: fakeDiscovery,
-				Scheme:          scheme,
-			}
 
 			deployContext := &deploy.DeployContext{
 				CheCluster: testCase.cheCluster,
@@ -342,7 +334,7 @@ func TestReadProxyConfiguration(t *testing.T) {
 				},
 			}
 
-			actualProxyConf, err := r.getProxyConfiguration(deployContext)
+			actualProxyConf, err := GetProxyConfiguration(deployContext)
 			if err != nil {
 				t.Fatalf("Error reading proxy configuration: %v", err)
 			}

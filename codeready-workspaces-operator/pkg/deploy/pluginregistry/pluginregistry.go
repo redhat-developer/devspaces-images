@@ -12,11 +12,13 @@
 package pluginregistry
 
 import (
+	"fmt"
 	"strings"
+
+	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
 
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/expose"
-	corev1 "k8s.io/api/core/v1"
 )
 
 type PluginRegistry struct {
@@ -45,16 +47,9 @@ func (p *PluginRegistry) SyncAll() (bool, error) {
 		return false, err
 	}
 
-	if p.deployContext.CheCluster.IsAirGapMode() {
-		done, err := p.SyncConfigMap()
-		if !done {
-			return false, err
-		}
-	} else {
-		done, err := deploy.DeleteNamespacedObject(p.deployContext, deploy.PluginRegistryName, &corev1.ConfigMap{})
-		if !done {
-			return false, err
-		}
+	done, err = p.SyncConfigMap()
+	if !done {
+		return false, err
 	}
 
 	done, err = p.SyncDeployment()
@@ -87,7 +82,8 @@ func (p *PluginRegistry) ExposeEndpoint() (string, bool, error) {
 		p.deployContext,
 		deploy.PluginRegistryName,
 		p.deployContext.CheCluster.Spec.Server.PluginRegistryRoute,
-		p.deployContext.CheCluster.Spec.Server.PluginRegistryIngress)
+		p.deployContext.CheCluster.Spec.Server.PluginRegistryIngress,
+		p.createGatewayConfig())
 }
 
 func (p *PluginRegistry) UpdateStatus(endpoint string) (bool, error) {
@@ -118,4 +114,16 @@ func (p *PluginRegistry) UpdateStatus(endpoint string) (bool, error) {
 func (p *PluginRegistry) SyncDeployment() (bool, error) {
 	spec := p.GetPluginRegistryDeploymentSpec()
 	return deploy.SyncDeploymentSpecToCluster(p.deployContext, spec, deploy.DefaultDeploymentDiffOpts)
+}
+
+func (p *PluginRegistry) createGatewayConfig() *gateway.TraefikConfig {
+	pathPrefix := "/" + deploy.PluginRegistryName
+	cfg := gateway.CreateCommonTraefikConfig(
+		deploy.PluginRegistryName,
+		fmt.Sprintf("PathPrefix(`%s`)", pathPrefix),
+		10,
+		"http://"+deploy.PluginRegistryName+":8080")
+	cfg.AddStripPrefix(deploy.PluginRegistryName, []string{pathPrefix})
+
+	return cfg
 }
