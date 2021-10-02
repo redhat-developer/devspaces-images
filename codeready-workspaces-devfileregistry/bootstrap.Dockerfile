@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-68 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-71 as builder
 USER 0
 
 ################# 
@@ -56,7 +56,7 @@ WORKDIR /build/
 # will be rewritten during build to use these values for base images.
 # ARG PATCHED_IMAGES_REG="quay.io"
 # ARG PATCHED_IMAGES_ORG="eclipse"
-# ARG PATCHED_IMAGES_TAG="nightly"
+# ARG PATCHED_IMAGES_TAG="next"
 # RUN TAG=${PATCHED_IMAGES_TAG} \
 #     ORGANIZATION=${PATCHED_IMAGES_ORG} \
 #     REGISTRY=${PATCHED_IMAGES_REG} \
@@ -78,7 +78,7 @@ RUN chmod -R g+rwX /build/devfiles
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-httpd-24:1-152 AS registry
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-httpd-24:1-156 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
