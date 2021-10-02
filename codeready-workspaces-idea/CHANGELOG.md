@@ -1,24 +1,6 @@
 # Changelog
 This document reflects the project's changes made after each release cycle
 
-## [YYYYMMDD] Unreleased
-
-### News
-
-- TBD
-
-### Added
-
-- TBD
-
-### Changed
-
-- TBD
-
-### Fixed
-
-- TBD
-
 ## [20210728]
 
 ### Changed
