@@ -13,7 +13,7 @@
 # assumes you have created asset-*.tar.gz files for all arches, but you'll only unpack the one for your arch
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-205.1626828526
+FROM ubi8-minimal:8.4-208
 COPY asset-*.tar.gz /tmp/assets/
 RUN microdnf -y install tar gzip shadow-utils && \
     adduser appuser && \
