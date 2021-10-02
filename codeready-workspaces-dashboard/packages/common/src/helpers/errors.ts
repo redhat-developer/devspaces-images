@@ -11,7 +11,7 @@
  */
 
 import { AxiosError, AxiosResponse } from 'axios';
-import { HttpError } from "@kubernetes/client-node";
+import { HttpError } from '@kubernetes/client-node';
 
 /**
  * This helper function does its best to get an error message from the provided object.
@@ -24,7 +24,7 @@ export function getMessage(error: unknown): string {
   }
 
   if (isKubeClientError(error)) {
-    let statusCode = error.statusCode || error.response.statusCode;
+    const statusCode = error.statusCode || error.response.statusCode;
     if (!statusCode || statusCode === -1) {
       return 'no response available due to network issue.';
     }
@@ -59,7 +59,7 @@ export function getMessage(error: unknown): string {
   }
 
   console.error('Unexpected error:', error);
-  return 'Unexpected error. Check DevTools console and network tabs for more information.'
+  return 'Unexpected error. Check DevTools console and network tabs for more information.';
 }
 
 export function isErrorLike(error: unknown): error is { message: string } {

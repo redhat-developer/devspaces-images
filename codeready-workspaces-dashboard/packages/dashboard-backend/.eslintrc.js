@@ -11,11 +11,22 @@
  */
 
 module.exports = {
-  '*.{js,ts,tsx}': [
-    'eslint --fix',
-    'yarn format',
+  env: {
+    node: true,
+  },
+  extends: [
+    '../../.eslintrc.js',
   ],
-  '*.css': [
-    'stylelint --fix',
-  ]
+  rules: {
+    'notice/notice': [
+      'error',
+      {
+        templateFile: '../../.config/copyright.js',
+        onNonMatchingHeader: 'report',
+        messages: {
+          reportAndSkip: 'Missing license header',
+        },
+      },
+    ],
+  },
 };

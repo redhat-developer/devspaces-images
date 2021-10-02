@@ -14,7 +14,6 @@ import * as k8s from '@kubernetes/client-node';
 import { helpers } from '@eclipse-che/common';
 import { devWorkspaceApiGroup, devworkspaceTemplateSubresource, devworkspaceVersion } from '../../const';
 import { IDevWorkspaceTemplate, IDevWorkspaceTemplateApi, } from '../../types';
-import { HttpError } from '@kubernetes/client-node';
 
 export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
   private readonly customObjectAPI: k8s.CustomObjectsApi;

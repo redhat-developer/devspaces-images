@@ -138,9 +138,7 @@ export class PreloadData {
     if (settings['che.devworkspaces.enabled'] !== 'true') {
       return;
     }
-
     const defaultNamespace = await this.cheWorkspaceClient.getDefaultNamespace();
-    await this.devWorkspaceClient.initializeNamespace(defaultNamespace);
     this.watchNamespaces(defaultNamespace);
 
     const { requestDwDefaultEditor } = DwPluginsStore.actionCreators;

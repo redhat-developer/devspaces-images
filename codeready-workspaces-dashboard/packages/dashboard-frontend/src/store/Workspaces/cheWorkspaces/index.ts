@@ -107,7 +107,7 @@ export type ActionCreators = {
     devfile: che.WorkspaceDevfile,
     namespace: string | undefined,
     infrastructureNamespace: string | undefined,
-    attributes: { [key: string]: string } | {},
+    attributes: { [key: string]: string },
   ) => AppThunk<KnownAction, Promise<void>>;
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
 };

@@ -25,6 +25,18 @@ module.exports = (env = {}) => {
     module: {
       rules: [
         {
+          test: /\.tsx?$/,
+          enforce: 'pre',
+          include: path.join(__dirname, 'src'),
+          exclude: /node_modules/,
+          use: [{
+            loader: 'eslint-loader',
+            options: {
+              cache: true,
+            }
+          }],
+        },
+        {
           enforce: 'pre',
           test: /\.(ts|js)$/,
           use: ["source-map-loader"],
@@ -53,7 +65,7 @@ module.exports = (env = {}) => {
             to: 'static/',
             transform(content, absoluteFrom) {
               // it needs to hide the top bar(the definition URL path)
-              if (absoluteFrom.split('/').reverse()[0] ===  'index.html') {
+              if (absoluteFrom.split('/').reverse()[0] === 'index.html') {
                 return content.toString().replace('layout: "StandaloneLayout"', '');
               }
               return content.toString();

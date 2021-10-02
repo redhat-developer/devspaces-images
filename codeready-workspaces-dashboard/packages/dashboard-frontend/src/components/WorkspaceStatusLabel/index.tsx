@@ -96,8 +96,20 @@ class WorkspaceStatusLabel extends React.PureComponent<Props> {
             {tooltip}
           </>
         );
+      case DevWorkspaceStatus.FAILING:
+        color = 'red';
+        return (
+          <>
+            <Label
+              data-tip=""
+              className={styles.statusLabel}
+              color={color}
+              icon={<InProgressIcon className={styles.rotate} />}
+            >Failing</Label>
+            {tooltip}
+          </>
+        );
       case WorkspaceStatus.ERROR:
-      case DevWorkspaceStatus.FAILED:
         color = 'red';
         return (
           <>
@@ -107,6 +119,19 @@ class WorkspaceStatusLabel extends React.PureComponent<Props> {
               color={color}
               icon={<ExclamationCircleIcon />}
             >Error</Label>
+            {tooltip}
+          </>
+        );
+      case DevWorkspaceStatus.FAILED:
+        color = 'red';
+        return (
+          <>
+            <Label
+              data-tip=""
+              className={styles.statusLabel}
+              color={color}
+              icon={<ExclamationCircleIcon />}
+            >Failed</Label>
             {tooltip}
           </>
         );

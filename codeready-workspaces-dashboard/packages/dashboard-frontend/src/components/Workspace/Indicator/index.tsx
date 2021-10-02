@@ -44,6 +44,10 @@ class WorkspaceIndicator extends React.PureComponent<Props> {
         color = 'green';
         icon = <ResourcesFullIcon color={color} />;
         break;
+      case DevWorkspaceStatus.FAILING:
+        color = 'red';
+        icon = <InProgressIcon className={styles.rotate} color={color} />;
+        break;
       case DevWorkspaceStatus.FAILED:
       case WorkspaceStatus.ERROR:
         color = 'red';

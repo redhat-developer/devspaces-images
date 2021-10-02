@@ -21,7 +21,6 @@ import {
 import { getDevWorkspaceClient } from './helper';
 import { restParams } from '../typings/models';
 import { getSchema } from '../services/helpers';
-import { IDevWorkspace } from '../devworkspace-client';
 
 const tags = ['devworkspace'];
 
@@ -42,7 +41,7 @@ export function registerDevworkspaceApi(server: FastifyInstance) {
     getSchema({ tags, params: namespacedWorkspaceSchema, body: patchSchema }),
     async function (request: FastifyRequest) {
       const { namespace, workspaceName } = request.params as restParams.INamespacedWorkspaceParam;
-      const patch = request.body as { op: string, path: string, value?: any; } [];
+      const patch = request.body as { op: string, path: string, value?: any; }[];
       const { devworkspaceApi } = await getDevWorkspaceClient(request);
       return devworkspaceApi.patch(namespace, workspaceName, patch);
     }
@@ -70,7 +69,8 @@ export function registerDevworkspaceApi(server: FastifyInstance) {
 
   server.delete(
     `${baseApiPath}/namespace/:namespace/devworkspaces/:workspaceName`,
-    getSchema({ tags,
+    getSchema({
+      tags,
       params: namespacedWorkspaceSchema,
       response: {
         204: {

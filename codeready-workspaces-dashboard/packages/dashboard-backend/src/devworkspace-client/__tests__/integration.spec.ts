@@ -73,7 +73,7 @@ describe('DevWorkspace API integration testing against cluster', () => {
       await dwClient.devworkspaceApi.delete(namespace, name);
       await delay(5000);
       const dwsInNamespace = await dwClient.devworkspaceApi.listInNamespace(namespace);
-      var nonTerminatingWsCount = 0;
+      let nonTerminatingWsCount = 0;
       for (const dw of dwsInNamespace.items) {
         if (dw.status?.phase !== 'Terminating') {
           nonTerminatingWsCount++;
@@ -103,7 +103,7 @@ describe('DevWorkspace API integration testing against cluster', () => {
       // initialize namespace if it doesn't exist
       await dwClient.cheApi.initializeNamespace(namespace);
       await delay(5000);
-      var namespaceExists: boolean;
+      let namespaceExists: boolean;
       if (await (dwClient.cheApi as any).isOpenShift()) {
         namespaceExists = await (dwClient.cheApi as any).doesProjectExist(namespace);
       } else {

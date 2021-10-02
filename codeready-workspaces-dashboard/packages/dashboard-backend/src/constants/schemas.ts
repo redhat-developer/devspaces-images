@@ -13,12 +13,12 @@
 import { template } from './examples';
 
 export const authenticationHeaderSchema = {
-    type: 'object',
-    properties: {
-        'authorization': {
-          type: 'string'
-        }
+  type: 'object',
+  properties: {
+    'authorization': {
+      type: 'string'
     }
+  }
 };
 
 export const namespacedWorkspaceSchema = {

@@ -28,7 +28,7 @@ export const STORAGE_KEY_RELOAD_NUMBER = 'UD:ErrorBoundary:reloaded';
 const RELOAD_TIMEOUT_SEC = 30;
 const RELOADS_FOR_EXTENDED_MESSAGE = 2;
 
-type Props = {};
+type Props = unknown;
 type State = {
   hasError: boolean;
   error?: Error;
@@ -183,7 +183,7 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
 
     let title = <>The application has been likely updated on the server.</>;
     if (countdownStopped === false) {
-      title = <>{title} Refreshing a page to get newer resources in { secondsRemain}.</>;
+      title = <>{title} Refreshing a page to get newer resources in {secondsRemain}.</>;
     }
 
     let message: React.ReactNode | undefined;

@@ -180,6 +180,9 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       || action === WorkspaceAction.START_IN_BACKGROUND) {
       return !workspace.isStarting && !workspace.isRunning && !workspace.isStopping;
     }
+    if (action === WorkspaceAction.STOP_WORKSPACE && workspace.hasError) {
+      return true;
+    }
     if (action === WorkspaceAction.STOP_WORKSPACE || action === WorkspaceAction.RESTART_WORKSPACE) {
       return workspace.isStarting || workspace.isRunning;
     }

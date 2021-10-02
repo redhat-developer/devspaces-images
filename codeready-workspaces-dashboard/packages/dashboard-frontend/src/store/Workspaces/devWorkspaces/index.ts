@@ -17,7 +17,11 @@ import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
-import { DevWorkspaceClient, DEVWORKSPACE_NEXT_START_ANNOTATION, IStatusUpdate } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
+import {
+  DevWorkspaceClient,
+  DEVWORKSPACE_NEXT_START_ANNOTATION,
+  IStatusUpdate
+} from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { deleteLogs, mergeLogs } from '../logs';
@@ -115,7 +119,7 @@ export type ActionCreators = {
   updateDevWorkspaceStatus: (message: IStatusUpdate) => AppThunk<KnownAction, void>;
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
   requestWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
-  startWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  startWorkspace: (workspace: devfileApi.DevWorkspace, debugWorkspace?: boolean) => AppThunk<KnownAction, Promise<void>>;
   restartWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   stopWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   terminateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
@@ -198,11 +202,12 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  startWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
+  startWorkspace: (workspace: devfileApi.DevWorkspace, debugWorkspace = false): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
     try {
+      await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
       let updatedWorkspace: devfileApi.DevWorkspace;
-      if (workspace.metadata.annotations && workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
+      if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
         // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
         const state = getState();
         const plugins = selectDwPluginsList(state);

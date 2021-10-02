@@ -69,6 +69,10 @@ export const actionCreators: ActionCreators = {
       try {
         const receivedBranding = await fetchBranding(url);
         branding = getBrandingData(receivedBranding);
+        dispatch({
+          type: 'RECEIVED_BRANDING',
+          data: branding,
+        });
       } catch (e) {
         const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + common.helpers.errors.getMessage(e);
         dispatch({
@@ -78,30 +82,24 @@ export const actionCreators: ActionCreators = {
         throw errorMessage;
       }
 
-      try {
-        // Use the products version if specified in product.json, otherwise use the default version given by che server
-        if (branding.productVersion) {
+      // Use the products version if specified in product.json, otherwise use the default version given by che server
+      if (!branding.productVersion) {
+        try {
+          const apiInfo = await getApiInfo();
+          branding.productVersion = apiInfo.implementationVersion;
+
           dispatch({
             type: 'RECEIVED_BRANDING',
             data: branding,
           });
-          return;
+        } catch (e) {
+          const errorMessage = 'OPTIONS request to "/api/" failed, reason: ' + common.helpers.errors.getMessage(e);
+          dispatch({
+            type: 'RECEIVED_BRANDING_ERROR',
+            error: errorMessage,
+          });
+          throw errorMessage;
         }
-
-        const apiInfo = await getApiInfo();
-        branding.productVersion = apiInfo.implementationVersion;
-
-        dispatch({
-          type: 'RECEIVED_BRANDING',
-          data: branding,
-        });
-      } catch (e) {
-        const errorMessage = 'OPTIONS request to "/api/" failed, reason: ' + common.helpers.errors.getMessage(e);
-        dispatch({
-          type: 'RECEIVED_BRANDING_ERROR',
-          error: errorMessage,
-        });
-        throw errorMessage;
       }
     },
 
@@ -139,7 +137,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   }
 };
 
-async function getApiInfo(): Promise<{implementationVersion: string}> {
+async function getApiInfo(): Promise<{ implementationVersion: string }> {
   if (isSafari) {
     return (await axios.options('/api/')).data;
   }

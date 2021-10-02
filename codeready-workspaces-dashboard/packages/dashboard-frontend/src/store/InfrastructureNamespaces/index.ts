@@ -53,6 +53,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_NAMESPACES' });
 
     try {
+      await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
       const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<Array<che.KubernetesNamespace>>();
       dispatch({
         type: 'RECEIVE_NAMESPACES',

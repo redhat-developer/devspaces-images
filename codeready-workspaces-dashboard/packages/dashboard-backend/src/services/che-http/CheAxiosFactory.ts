@@ -32,12 +32,12 @@ export class CheAxiosFactory {
 
     const proxyUrl = process.env.HTTP_PROXY || process.env.http_proxy;
     if (proxyUrl && proxyUrl !== '') {
-      const parsedUrl = url.parse(uri);
+      const parsedUrl = new url.URL(uri);
       if (parsedUrl.hostname && this.shouldProxy(parsedUrl.hostname)) {
         const axiosRequestConfig: AxiosRequestConfig | undefined = {
           proxy: false,
         };
-        const parsedProxyUrl = url.parse(proxyUrl);
+        const parsedProxyUrl = new url.URL(proxyUrl);
         const mainProxyOptions = CheAxiosFactory.getMainProxyOptions(parsedProxyUrl);
         const httpsProxyOptions = CheAxiosFactory.getHttpsProxyOptions(mainProxyOptions, parsedUrl.hostname, certificateAuthority);
         const httpOverHttpAgent = tunnel.httpOverHttp({ proxy: mainProxyOptions });
@@ -86,12 +86,19 @@ export class CheAxiosFactory {
     };
   }
 
-  private static getMainProxyOptions(parsedProxyUrl: url.UrlWithStringQuery): tunnel.ProxyOptions {
+  private static getMainProxyOptions(parsedProxyUrl: url.URL): tunnel.ProxyOptions {
     const port = Number(parsedProxyUrl.port);
+    const { username, password } = parsedProxyUrl;
+    // 'user:pass' or simply 'user'
+    const proxyAuth = (username && password)
+      ? `${username}:${password}`
+      : username
+        ? username
+        : undefined;
     return {
-      host: parsedProxyUrl.hostname!,
+      host: parsedProxyUrl.hostname,
       port: parsedProxyUrl.port !== '' && !isNaN(port) ? port : 3128,
-      proxyAuth: parsedProxyUrl.auth && parsedProxyUrl.auth !== '' ? parsedProxyUrl.auth : undefined,
+      proxyAuth,
     };
   }
 

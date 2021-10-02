@@ -57,7 +57,7 @@ class SubscriptionManager {
       this.channels.push(channel);
     }
     if (this.namespaceData) {
-      if (this.namespaceData!.getNamespace() === data.namespace) {
+      if (this.namespaceData.getNamespace() === data.namespace) {
         this.namespaceData.setParams(data.token, data.resourceVersion);
       }
     } else {
@@ -73,7 +73,7 @@ class SubscriptionManager {
 
   publish(channel: string, message: any): void {
     if (this.channels.indexOf(channel) !== -1) {
-      this.subscriber.send(JSON.stringify({message, channel}));
+      this.subscriber.send(JSON.stringify({ message, channel }));
     }
   }
 

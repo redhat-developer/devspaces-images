@@ -53,8 +53,8 @@ export class DevWorkspaceBuilder {
     return this;
   }
 
-  withMetadata(metadata: devfileApi.DevWorkspaceMetadata): DevWorkspaceBuilder {
-    this.workspace.metadata = metadata;
+  withMetadata(metadata: Partial<devfileApi.DevWorkspaceMetadata>): DevWorkspaceBuilder {
+    Object.assign(this.workspace.metadata, metadata);
     return this;
   }
 

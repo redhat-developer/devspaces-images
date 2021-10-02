@@ -19,7 +19,7 @@ import { AppState } from '../../../store';
 import { selectBranding } from '../../../store/Branding/selectors';
 import { DevWorkspaceClient } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 
-type Props = MappedProps & {};
+type Props = MappedProps;
 
 type State = {
   erroringWebSockets: string[];

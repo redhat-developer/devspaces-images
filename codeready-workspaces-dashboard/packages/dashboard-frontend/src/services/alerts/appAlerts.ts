@@ -14,20 +14,20 @@ import 'reflect-metadata';
 import { injectable } from 'inversify';
 import { AlertItem } from '../helpers/types';
 
+type Handler = (alerts: AlertItem[]) => void;
+
 /**
  * This class is handling the app alerts service.
  * @author Oleksii Orel
  */
 @injectable()
 export class AppAlerts {
-  private showAlertHandlers: Array<Function> = [];
+  private showAlertHandlers: Array<Handler> = [];
   private alerts: AlertItem[] = [];
 
   private onChange(): void {
     this.showAlertHandlers.forEach(handler => {
-      if (typeof handler === 'function') {
-        handler([...this.alerts]);
-      }
+      handler([...this.alerts]);
     });
   }
 
@@ -45,7 +45,7 @@ export class AppAlerts {
    * Subscribe on the show alert event.
    * @param handler
    */
-  public subscribe(handler: (alerts: AlertItem[]) => void): void {
+  public subscribe(handler: Handler): void {
     this.showAlertHandlers.push(handler);
   }
 
@@ -53,7 +53,7 @@ export class AppAlerts {
    * Unsubscribe on the show alert event.
    * @param handler
    */
-  public unsubscribe(handler: (alerts: AlertItem[]) => void): void {
+  public unsubscribe(handler: Handler): void {
     const index = this.showAlertHandlers.indexOf(handler);
     if (index !== -1) {
       this.showAlertHandlers.splice(index, 1);

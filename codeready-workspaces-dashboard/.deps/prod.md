@@ -5,11 +5,11 @@
 | [`@babel/runtime@7.15.4`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@devfile/api@2.2.0-alpha-1631030331`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | `@eclipse-che/api@7.36.0` | EPL-2.0 | clearlydefined |
-| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1623136422`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
-| [`@eclipse-che/common@7.34.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
-| [`@eclipse-che/dashboard-backend@7.34.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
-| [`@eclipse-che/dashboard-frontend@7.34.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
-| [`@eclipse-che/workspace-client@0.0.1-1622804813`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | N/A |
+| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1632729321`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/common@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
+| [`@eclipse-che/dashboard-backend@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
+| [`@eclipse-che/dashboard-frontend@7.37.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
+| [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | clearlydefined |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@kubernetes/client-node@0.14.3`](https://github.com/kubernetes-client/javascript.git) | Apache-2.0 | clearlydefined |
 | [`@panva/asn1.js@1.0.0`](https://github.com/panva/asn1.js.git) | MIT | clearlydefined |
@@ -169,7 +169,7 @@
 | [`get-intrinsic@1.1.1`](git+https://github.com/ljharb/get-intrinsic.git) | MIT | clearlydefined |
 | [`get-stream@4.1.0`](https://github.com/sindresorhus/get-stream.git) | MIT | clearlydefined |
 | [`getpass@0.1.7`](https://github.com/arekinath/node-getpass.git) | MIT | clearlydefined |
-| [`glob-to-regexp@0.3.0`](https://github.com/fitzgen/glob-to-regexp.git) | BSD |  |
+| [`glob-to-regexp@0.3.0`](https://github.com/fitzgen/glob-to-regexp.git) | BSD | #1140 |
 | [`glob@7.1.7`](git://github.com/isaacs/node-glob.git) | ISC | #994 |
 | [`globals@9.18.0`](https://github.com/sindresorhus/globals.git) | MIT | clearlydefined |
 | [`got@11.8.2`](https://github.com/sindresorhus/got.git) | MIT | clearlydefined |
@@ -349,7 +349,7 @@
 | [`setprototypeof@1.1.1`](https://github.com/wesleytodd/setprototypeof.git) | ISC | clearlydefined |
 | [`shebang-command@1.2.0`](https://github.com/kevva/shebang-command.git) | MIT | clearlydefined |
 | [`shebang-regex@1.0.0`](https://github.com/sindresorhus/shebang-regex.git) | MIT | clearlydefined |
-| [`shelljs@0.8.4`](git://github.com/shelljs/shelljs.git) | BSD-3-Clause | clearlydefined |
+| [`shelljs@0.8.4`](git://github.com/shelljs/shelljs.git) | BSD-3-Clause | #1126 |
 | [`side-channel@1.0.4`](git+https://github.com/ljharb/side-channel.git) | MIT | clearlydefined |
 | [`signal-exit@3.0.3`](https://github.com/tapjs/signal-exit.git) | ISC | clearlydefined |
 | [`slash@1.0.0`](https://github.com/sindresorhus/slash.git) | MIT | clearlydefined |

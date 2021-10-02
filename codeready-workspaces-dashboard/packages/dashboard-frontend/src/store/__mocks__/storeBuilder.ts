@@ -18,7 +18,6 @@ import { AppState } from '..';
 import { State as DevfileRegistriesState } from '../DevfileRegistries/index';
 import { ContainerCredentials, RegistryRow } from '../UserPreferences/types';
 import { State as WorkspacesState } from '../Workspaces/index';
-import { State as BannerAlertState } from '../BannerAlert';
 import { State as BrandingState } from '../Branding';
 import { State as FactoryResolverState } from '../FactoryResolver';
 import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';

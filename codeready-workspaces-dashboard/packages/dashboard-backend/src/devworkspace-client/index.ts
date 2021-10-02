@@ -19,9 +19,9 @@ import {
   IDevWorkspaceTemplateApi,
 } from './types';
 import { findApi } from './services/helpers';
-import {DevWorkspaceTemplateApi} from './services/api/template-api';
-import {DevWorkspaceApi} from './services/api/workspace-api';
-import {CheApi} from './services/api/che-api';
+import { DevWorkspaceTemplateApi } from './services/api/template-api';
+import { DevWorkspaceApi } from './services/api/workspace-api';
+import { CheApi } from './services/api/che-api';
 
 export * from './types';
 

@@ -36,7 +36,7 @@ import { selectBranding } from '../../store/Branding/selectors';
 import { selectRegistriesErrors } from '../../store/DevfileRegistries/selectors';
 import { Devfile, isCheDevfile } from '../../services/workspace-adapter';
 import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors';
-import { selectDefaultNamespace, selectInfrastructureNamespaces } from '../../store/InfrastructureNamespaces/selectors';
+import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
@@ -116,11 +116,14 @@ export class GetStarted extends React.PureComponent<Props, State> {
       [fileName: string]: string
     }
   ): Promise<void> {
-    const attr = stackName ? { stackName } : {};
+    const attr: { [key: string]: string } = {};
+    if (stackName) {
+      attr.stackName = stackName;
+    }
     if (isCheDevfile(devfile) && !devfile.metadata.name && devfile.metadata.generateName) {
-       const name = devfile.metadata.generateName + getRandomString(4).toLowerCase();
-       delete devfile.metadata.generateName;
-       devfile.metadata.name = name;
+      const name = devfile.metadata.generateName + getRandomString(4).toLowerCase();
+      delete devfile.metadata.generateName;
+      devfile.metadata.name = name;
     }
     const namespace = infrastructureNamespace ? infrastructureNamespace : this.props.defaultNamespace.name;
     let workspace: Workspace | undefined;
@@ -139,7 +142,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
     }
 
     if (!workspace) {
-      const errorMessage =  `Workspace "${namespace}/${devfile.metadata.name}" not found.`;
+      const errorMessage = `Workspace "${namespace}/${devfile.metadata.name}" not found.`;
       this.showAlert({
         key: 'find-workspace-failed',
         variant: AlertVariant.danger,

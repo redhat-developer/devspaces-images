@@ -16,7 +16,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import * as http from 'http';
 import { getMessage, isError } from '../errors';
 
-let mockAxios = new AxiosMockAdapter(axios);
+const mockAxios = new AxiosMockAdapter(axios);
 
 describe('Errors helper', () => {
 
@@ -57,25 +57,24 @@ describe('Errors helper', () => {
   it('should return default message and dump the provided object', () => {
     const notError = { alert: 'Beware of bugs!' };
 
-    const expectedMessage = 'Unexpected error. Check DevTools console and network tabs for more information.'
+    const expectedMessage = 'Unexpected error. Check DevTools console and network tabs for more information.';
     expect(getMessage(notError)).toEqual(expectedMessage);
 
     const expectedOutput = ['Unexpected error:', { 'alert': 'Beware of bugs!' }];
     expect(console.error).toBeCalledWith(...expectedOutput);
-  })
+  });
 
   describe('Frontend errors', () => {
-
 
     it('should return error message if server responds with error', async (done) => {
       const message = '"500 Internal Server Error" returned by "/location/".';
 
       mockAxios.onGet('/location/').replyOnce(() => {
-        return [500, {}, {},]
+        return [500, {}, {},];
       });
 
       try {
-        const data = await axios.get('/location/');
+        await axios.get('/location/');
         done.fail();
       } catch (e) {
         const err = e as AxiosError;
@@ -91,11 +90,11 @@ describe('Errors helper', () => {
       const message = 'The server failed to fulfill a request';
 
       mockAxios.onGet('/location/').replyOnce(() => {
-        return [500, { message }, {},]
+        return [500, { message }, {},];
       });
 
       try {
-        const data = await axios.get('/location/');
+        await axios.get('/location/');
         done.fail();
       } catch (e) {
         const err = e as AxiosError;
@@ -113,7 +112,7 @@ describe('Errors helper', () => {
       mockAxios.onGet('/location/').networkErrorOnce();
 
       try {
-        const data = await axios.get('/location/');
+        await axios.get('/location/');
         done.fail();
       } catch (e) {
         expect(getMessage(e)).toEqual(message);
@@ -127,7 +126,7 @@ describe('Errors helper', () => {
       mockAxios.onGet('/location/').timeoutOnce();
 
       try {
-        const data = await axios.get('/location/');
+        await axios.get('/location/');
         done.fail();
       } catch (e) {
         expect(getMessage(e)).toEqual(message);
@@ -141,7 +140,7 @@ describe('Errors helper', () => {
       mockAxios.onGet('/location/').abortRequestOnce();
 
       try {
-        const data = await axios.get('/location/');
+        await axios.get('/location/');
         done.fail();
       } catch (e) {
         expect(getMessage(e)).toEqual(message);
@@ -171,7 +170,7 @@ describe('Errors helper', () => {
     });
 
     it('should return error message if message from K8s is present', () => {
-      const expectedMessage = 'Error message from K8s.'
+      const expectedMessage = 'Error message from K8s.';
       const error: HttpError = {
         name: 'HttpError',
         message: expectedMessage,
@@ -187,7 +186,7 @@ describe('Errors helper', () => {
     });
 
     it('should return error message if message in response body is present', () => {
-      const expectedMessage = 'Error message from K8s.'
+      const expectedMessage = 'Error message from K8s.';
       const error: HttpError = {
         name: 'HttpError',
         message: expectedMessage,
@@ -201,7 +200,7 @@ describe('Errors helper', () => {
     });
 
     it('should return error message if `statusCode` is present', () => {
-      const expectedMessage = '"500" returned by "/location/".'
+      const expectedMessage = '"500" returned by "/location/".';
       const error: HttpError = {
         name: 'HttpError',
         message: expectedMessage,

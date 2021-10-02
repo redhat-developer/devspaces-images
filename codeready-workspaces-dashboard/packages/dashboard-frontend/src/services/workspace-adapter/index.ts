@@ -10,10 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import {
-  devfileToDevWorkspace,
-  devWorkspaceToDevfile,
-} from '../workspace-client/devworkspace/converters';
+import { devfileToDevWorkspace, devWorkspaceToDevfile, } from '../workspace-client/devworkspace/converters';
 import { attributesToType, typeToAttributes } from '../storageTypes';
 import { DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
 import { DEVWORKSPACE_NEXT_START_ANNOTATION } from '../workspace-client/devworkspace/devWorkspaceClient';
@@ -187,7 +184,8 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     if (isCheWorkspace(this.workspace)) {
       return this.workspace.status as WorkspaceStatus === WorkspaceStatus.ERROR;
     } else {
-      return WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus === DevWorkspaceStatus.FAILED;
+      const devWorkspaceStatus = WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus;
+      return devWorkspaceStatus === DevWorkspaceStatus.FAILED || devWorkspaceStatus === DevWorkspaceStatus.FAILING;
     }
   }
 
@@ -271,14 +269,6 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         if (converted.spec.template.components === undefined) {
           converted.spec.template.components = [];
         }
-        // filter out plugins to avoid duplicates
-        converted.spec.template.components.forEach(component => {
-          plugins.some((plugin, index) => {
-            if (plugin.name === component.name) {
-              plugins.splice(index, 1);
-            }
-          });
-        });
         converted.spec.template.components.push(...plugins);
         (this.workspace as devfileApi.DevWorkspace) = converted;
       } else {

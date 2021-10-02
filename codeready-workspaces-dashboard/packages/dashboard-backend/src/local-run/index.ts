@@ -13,8 +13,10 @@
 import { FastifyInstance } from 'fastify';
 import { registerCheApiProxy } from './che-server';
 import { registerKeycloakProxy } from './keycloak';
+import { authenticateDashboardRequestsHook } from './dashboard';
 
 export const isLocalRun = process.env['LOCAL_RUN'] === 'true';
+export const isNativeAuth = process.env['NATIVE_AUTH'] === 'true';
 
 export function registerLocalServers(server: FastifyInstance, origin: string) {
   console.log('Running locally, setting up stubs');
@@ -25,6 +27,19 @@ export function registerLocalServers(server: FastifyInstance, origin: string) {
     process.exit(1);
   }
 
-  registerCheApiProxy(server, cheApiProxyUpstream, origin);
-  registerKeycloakProxy(server, cheApiProxyUpstream, origin);
+  let clusterAccessToken = '';
+  if (isNativeAuth) {
+     clusterAccessToken = process.env.CLUSTER_ACCESS_TOKEN as string;
+    if (!clusterAccessToken) {
+      console.error('CLUSTER_ACCESS_TOKEN environment variable is required for native auth mode');
+      process.exit(1);
+    }
+
+    authenticateDashboardRequestsHook(server, clusterAccessToken);
+  } else {
+    // keycloak mode
+    registerKeycloakProxy(server, cheApiProxyUpstream, origin);
+  }
+
+  registerCheApiProxy(server, cheApiProxyUpstream, origin, clusterAccessToken);
 }

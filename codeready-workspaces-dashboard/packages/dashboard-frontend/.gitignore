@@ -1,3 +1,6 @@
 node_modules/
 lib/
 coverage/
+
+tsconfig.tsbuildinfo
+.eslintcache

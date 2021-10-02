@@ -27,6 +27,7 @@ describe('BannerAlertNotSupportedBrowser component', () => {
   });
 
   it('should show error message when error found after mounting', () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (isSafari as any) = true;
     render(<BannerAlertNotSupportedBrowser />);
 

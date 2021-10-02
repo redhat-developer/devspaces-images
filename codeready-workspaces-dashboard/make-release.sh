@@ -75,7 +75,7 @@ function update_pkgs_versions() {
   # update excluded dependencies vesion
   sed_in_place -e "s/@eclipse-che\/dashboard-backend@.*\`/@eclipse-che\/dashboard-backend@${VER}\`/" .deps/EXCLUDED/prod.md
   sed_in_place -e "s/@eclipse-che\/dashboard-frontend@.*\`/@eclipse-che\/dashboard-frontend@${VER}\`/" .deps/EXCLUDED/prod.md
-  sed_in_place -e "s/@eclipse-che\/dashboard-static-server@.*\`/@eclipse-che\/dashboard-static-server@${VER}\`/" .deps/EXCLUDED/prod.md
+  sed_in_place -e "s/@eclipse-che\/common@.*\`/@eclipse-che\/common@${VER}\`/" .deps/EXCLUDED/prod.md
   # we don't have all deps resolved. So, do no fail in case of failure
   # yarn license:generate || true
 }

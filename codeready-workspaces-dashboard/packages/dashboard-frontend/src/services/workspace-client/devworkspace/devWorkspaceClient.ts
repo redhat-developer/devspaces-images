@@ -27,7 +27,6 @@ import { KeycloakSetupService } from '../../keycloak/setup';
 import { delay } from '../../helpers/delay';
 import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
 import * as DwtApi from '../../dashboard-backend-client/devWorkspaceTemplateApi';
-import * as DwCheApi from '../../dashboard-backend-client/cheWorkspaceApi';
 import { WebsocketClient, SubscribeMessage } from '../../dashboard-backend-client/websocketClient';
 import { EventEmitter } from 'events';
 import { AppAlerts } from '../../alerts/appAlerts';
@@ -46,7 +45,7 @@ export interface IStatusUpdate {
 export type Subscriber = {
   namespace: string,
   callbacks: {
-    getResourceVersion: () => Promise<string|undefined>,
+    getResourceVersion: () => Promise<string | undefined>,
     updateDevWorkspaceStatus: (message: IStatusUpdate) => void,
     updateDeletedDevWorkspaces: (deletedWorkspacesIds: string[]) => void,
     updateAddedDevWorkspaces: (workspace: devfileApi.DevWorkspace[]) => void,
@@ -54,6 +53,8 @@ export type Subscriber = {
 };
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
+
+export const DEVWORKSPACE_DEBUG_START_ANNOTATION = 'controller.devfile.io/debug-start';
 
 export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
 
@@ -78,7 +79,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly showAlert: (alert: AlertItem) => void;
 
   constructor(@inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService,
-              @inject(AppAlerts) appAlerts: AppAlerts) {
+    @inject(AppAlerts) appAlerts: AppAlerts) {
     super(keycloakSetupService);
     this.previousItems = new Map();
     this.maxStatusAttempts = 10;
@@ -110,7 +111,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         });
       },
       onDidWebSocketClose: (event: CloseEvent) => {
-        if(event.code !== 1011 && event.reason) {
+        if (event.code !== 1011 && event.reason) {
           const key = `websocket-close-code-${event.code}`;
           this.showAlert({ key, variant: AlertVariant.warning, title: 'Failed to establish WebSocket to server: ' + event.reason });
         } else {
@@ -149,11 +150,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     let attempted = 0;
     while ((!workspace.status || !workspace.status.phase || !workspace.status.mainUrl) && attempted < this.maxStatusAttempts) {
       workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
-      this.checkForDevWorkspaceError(workspace);
       attempted += 1;
       await delay();
     }
-    this.checkForDevWorkspaceError(workspace);
     const workspaceStatus = workspace?.status;
     if (!workspaceStatus || !workspaceStatus.phase) {
       throw new Error(`Could not retrieve devworkspace status information from ${workspaceName} in namespace ${namespace}`);
@@ -168,7 +167,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     pluginsDevfile: devfileApi.Devfile[],
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
-    optionalFilesContent: {[fileName: string]: string},
+    optionalFilesContent: { [fileName: string]: string },
   ): Promise<devfileApi.DevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
@@ -293,11 +292,11 @@ export class DevWorkspaceClient extends WorkspaceClient {
               name: this.pluginRegistryUrlEnvName,
               value: pluginRegistryUrl || ''
             }
-            , {
+              , {
               name: this.pluginRegistryInternalUrlEnvName,
               value: pluginRegistryInternalUrl || ''
             }
-          ]);
+            ]);
           }
         }
       }
@@ -343,7 +342,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
     const patch: IPatch[] = [];
 
-    if (workspace.metadata.annotations && workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
+    if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
 
       /**
        * This is the case when you are annotating a devworkspace and will restart it later
@@ -373,8 +372,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
       // If the workspace currently has DEVWORKSPACE_NEXT_START_ANNOTATION then delete it since we are starting a devworkspace normally
       if (onClusterWorkspace.metadata.annotations && onClusterWorkspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
-        // We have to escape the slash when removing the annotation and ~1 is used as the escape character https://tools.ietf.org/html/rfc6902#appendix-A.14
-        const escapedAnnotation = DEVWORKSPACE_NEXT_START_ANNOTATION.replace('/', '~1');
+        const escapedAnnotation = this.escape(DEVWORKSPACE_NEXT_START_ANNOTATION);
         patch.push(
           {
             op: 'remove',
@@ -387,6 +385,11 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return DwApi.patchWorkspace(namespace, name, patch);
   }
 
+  private escape(key: string): string {
+    // We have to escape the slash and use ~1 instead. See https://tools.ietf.org/html/rfc6902#appendix-A.14
+    return key.replace(/\//g, '~1');
+  }
+
   /**
    * Created a normalize plugin name, which is a plugin name with all spaces replaced
    * to dashes and a workspaceId appended at the end
@@ -394,14 +397,40 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * @param workspaceId The id of the workspace
    */
   private normalizePluginName(pluginName: string, workspaceId: string): string {
-    return `${pluginName.replaceAll(' ', '-').toLowerCase()}-${workspaceId}`;
+    return `${pluginName.replace(/ /g, '-').toLowerCase()}-${workspaceId}`;
   }
 
   async delete(namespace: string, name: string): Promise<void> {
     await DwApi.deleteWorkspace(namespace, name);
   }
 
-  async changeWorkspaceStatus(namespace: string, name: string, started: boolean): Promise<devfileApi.DevWorkspace> {
+  getDebugMode(workspace: devfileApi.DevWorkspace): boolean {
+    return workspace.metadata.annotations?.[DEVWORKSPACE_DEBUG_START_ANNOTATION] === 'true';
+  }
+
+  async updateDebugMode(workspace: devfileApi.DevWorkspace, debugMode: boolean): Promise<devfileApi.DevWorkspace> {
+    const patch: IPatch[] = [];
+    const currentDebugMode = this.getDebugMode(workspace);
+
+    if (currentDebugMode === debugMode) {
+      return workspace;
+    }
+
+    const path = `/metadata/annotations/${this.escape(DEVWORKSPACE_DEBUG_START_ANNOTATION)}`;
+    if (!debugMode) {
+      patch.push({ op: 'remove', path });
+    } else {
+      if (workspace.metadata.annotations?.[DEVWORKSPACE_DEBUG_START_ANNOTATION]) {
+        patch.push({ op: 'replace', path, value: 'true' });
+      } else {
+        patch.push({ op: 'add', path, value: 'true' });
+      }
+    }
+
+    return await DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+  }
+
+  async changeWorkspaceStatus(namespace: string, name: string, started: boolean, skipErrorCheck?: boolean): Promise<devfileApi.DevWorkspace> {
     const changedWorkspace = await DwApi.patchWorkspace(namespace, name, [{
       op: 'replace',
       path: '/spec/started',
@@ -410,7 +439,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (!started) {
       this.lastDevWorkspaceLog.delete(WorkspaceAdapter.getId(changedWorkspace));
     }
-    this.checkForDevWorkspaceError(changedWorkspace);
+    if (!skipErrorCheck) {
+      this.checkForDevWorkspaceError(changedWorkspace);
+    }
     return changedWorkspace;
   }
 
@@ -418,12 +449,14 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * Add the plugin to the workspace
    * @param workspace A devworkspace
    * @param pluginName The name of the plugin
+   * @param namespace A namespace
    */
   private addPlugin(workspace: devfileApi.DevWorkspace, pluginName: string, namespace: string) {
     if (!workspace.spec.template.components) {
       workspace.spec.template.components = [];
     }
-    workspace.spec.template.components.push({
+    const components = workspace.spec.template.components.filter(component => component.name !== pluginName);
+    components.push({
       name: pluginName,
       plugin: {
         kubernetes: {
@@ -432,15 +465,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         }
       }
     });
-  }
-
-  /**
-   * Initialize the given namespace
-   * @param namespace The namespace you want to initialize
-   * @returns If the namespace has been initialized
-   */
-  async initializeNamespace(namespace: string): Promise<void> {
-    return DwCheApi.initializeNamespace(namespace);
+    workspace.spec.template.components = components;
   }
 
   async subscribeToNamespace(subscriber: Subscriber): Promise<void> {
@@ -449,11 +474,11 @@ export class DevWorkspaceClient extends WorkspaceClient {
   }
 
   private async subscribe(): Promise<void> {
-    if(!this.subscriber) {
+    if (!this.subscriber) {
       throw 'Error: Subscriber does not set.';
     }
 
-    const { namespace, callbacks } =  this.subscriber;
+    const { namespace, callbacks } = this.subscriber;
     const getSubscribeMessage = async (channel: string): Promise<SubscribeMessage> => {
       return { request: 'SUBSCRIBE', params: { namespace, resourceVersion: await callbacks.getResourceVersion() }, channel };
     };
@@ -464,7 +489,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       if (!isDevWorkspace(devworkspace)) {
         const title = `WebSocket channel "${onModified}" received object that is not a devWorkspace, skipping it.`;
         const key = `${onModified}-websocket-channel`;
-        console.warn(title , devworkspace);
+        console.warn(title, devworkspace);
         this.showAlert({ key, variant: AlertVariant.warning, title });
         return;
       }
@@ -488,7 +513,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       if (!isDevWorkspace(devworkspace)) {
         const title = `WebSocket channel "${onAdded}" received object that is not a devWorkspace, skipping it.`;
         const key = `${onAdded}-websocket-channel`;
-        console.warn(title , devworkspace);
+        console.warn(title, devworkspace);
         this.showAlert({ key, variant: AlertVariant.warning, title });
         return;
       }
@@ -498,10 +523,10 @@ export class DevWorkspaceClient extends WorkspaceClient {
     const onDeleted = 'onDeleted';
     await this.websocketClient.subscribe(await getSubscribeMessage(onDeleted));
     this.websocketClient.addListener(onDeleted, (maybeWorkspaceId: unknown) => {
-      if (typeof(maybeWorkspaceId) !== 'string') {
+      if (typeof (maybeWorkspaceId) !== 'string') {
         const title = `WebSocket channel "${onDeleted}" received value is not a string, skipping it.`;
         const key = `${onDeleted}-websocket-channel`;
-        console.warn(title , maybeWorkspaceId, typeof(maybeWorkspaceId));
+        console.warn(title, maybeWorkspaceId, typeof (maybeWorkspaceId));
         this.showAlert({ key, variant: AlertVariant.warning, title });
         return;
       }

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyInstance, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../constants/config';
 import { namespacedSchema, templateStartedSchema } from '../constants/schemas';
 import { getDevWorkspaceClient } from './helper';
@@ -22,7 +22,8 @@ const tags = ['template'];
 export function registerTemplateApi(server: FastifyInstance) {
   server.post(
     `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
-    getSchema({ tags,
+    getSchema({
+      tags,
       params: namespacedSchema,
       body: templateStartedSchema
     }),

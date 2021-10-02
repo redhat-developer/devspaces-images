@@ -14,7 +14,7 @@ import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
 import { createFastifyError } from '../helpers';
 import { URL } from 'url';
 import { CheAxiosFactory } from '../che-http/CheAxiosFactory';
-import { isLocalRun } from "../../local-run";
+import { isLocalRun } from '../../local-run';
 
 const CHE_HOST = process.env.CHE_INTERNAL_URL || process.env.CHE_HOST;
 const ENDPOINT = 'che.keycloak.userinfo.endpoint';
@@ -32,7 +32,7 @@ export async function validateToken(keycloakToken: string): Promise<void> {
   const headers = { Authorization: `Bearer ${keycloakToken}` };
   try {
     const axios = await cheAxiosFactory.getAxiosInstance(keycloakEndpointUrl.href);
-    await axios.get(keycloakEndpointUrl.href, {headers});
+    await axios.get(keycloakEndpointUrl.href, { headers });
     // token is a valid
   } catch (e) {
     throw createFastifyError(

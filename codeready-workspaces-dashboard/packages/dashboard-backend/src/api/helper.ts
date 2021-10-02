@@ -28,7 +28,7 @@ export function getDevWorkspaceClient(request: FastifyRequest): Promise<DevWorks
 }
 
 export function getToken(request: FastifyRequest): string {
-  const authorization = request.headers!.authorization;
+  const authorization = request.headers?.authorization;
   if (!authorization || !AUTHORIZATION_BEARER_PREFIX.test(authorization)) {
     throw createFastifyError('FST_UNAUTHORIZED', 'Bearer Token Authorization is required', 401);
   }

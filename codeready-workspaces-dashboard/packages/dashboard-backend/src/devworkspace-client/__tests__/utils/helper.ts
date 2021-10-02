@@ -12,7 +12,7 @@
 
 import { KubeConfig } from '@kubernetes/client-node';
 
-export async function delay(ms: number = 500): Promise<void> {
+export async function delay(ms = 500): Promise<void> {
   await new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 

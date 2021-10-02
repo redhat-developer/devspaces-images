@@ -20,19 +20,6 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const common = require('./webpack.config.common');
 
 module.exports = (env = {}) => {
-  const proxyTarget = env.server;
-  if (!proxyTarget) {
-    throw new Error('Che server URL is not set. Argument "--env.server=" is mandatory in development mode.');
-  }
-  const headers = {
-    origin: proxyTarget,
-  };
-  if (env.token) {
-    headers['Authorization'] = `Bearer ${env.token}`;
-  }
-
-  const dashboardServer = env.dashboardServer ? env.dashboardServer : 'http://localhost:8080';
-
   return merge(common(env), {
     mode: 'development',
     module: {
@@ -91,50 +78,6 @@ module.exports = (env = {}) => {
       splitChunks: false,
     },
     devtool: 'eval-cheap-module-source-map',
-    devServer: {
-      clientLogLevel: 'debug',
-      contentBase: path.join(__dirname, 'assets'),
-      contentBasePublicPath: '/assets/',
-      disableHostCheck: true,
-      host: 'localhost',
-      hot: true,
-      open: false,
-      port: 3000,
-      stats: 'errors-warnings',
-      // writeToDisk: true,
-      proxy: {
-        '/api/websocket': {
-          target: proxyTarget,
-          ws: true,
-          secure: false,
-          changeOrigin: true,
-          headers: headers
-        },
-        '/dashboard/api/websocket': {
-          target: dashboardServer,
-          ws: true,
-          secure: false,
-          changeOrigin: true,
-          headers: {
-            origin: dashboardServer,
-          },
-        },
-        '/dashboard/api': {
-          target: dashboardServer,
-          secure: false,
-          changeOrigin: true,
-          headers: {
-            origin: dashboardServer,
-          },
-        },
-        '/api': {
-          target: proxyTarget,
-          secure: false,
-          changeOrigin: true,
-          headers: headers,
-        }
-      },
-    },
     watchOptions: {
       aggregateTimeout: 1000,
       ignored: /node_modules/,

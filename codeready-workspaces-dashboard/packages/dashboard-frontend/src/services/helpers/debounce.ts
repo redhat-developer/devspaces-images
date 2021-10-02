@@ -12,6 +12,8 @@
 
 import { injectable } from 'inversify';
 
+type Handler = (isDebounceDelay: boolean) => void;
+
 /**
  * This class is handling the debounce delay service.
  * @author Oleksii Orel
@@ -20,7 +22,7 @@ import { injectable } from 'inversify';
 export class Debounce {
   private debounceTimer: any;
   private isDebounceDelay = false;
-  private debounceDelayHandlers: Array<Function> = [];
+  private debounceDelayHandlers: Array<Handler> = [];
 
   setDelay(timeDelay = 5000): void {
     this.setDebounceDelay(true);
@@ -35,9 +37,7 @@ export class Debounce {
   private setDebounceDelay(isDebounceDelay: boolean): void {
     this.isDebounceDelay = isDebounceDelay;
     this.debounceDelayHandlers.forEach(handler => {
-      if (typeof handler === 'function') {
-        handler(isDebounceDelay);
-      }
+      handler(isDebounceDelay);
     });
   }
 
@@ -45,7 +45,7 @@ export class Debounce {
    * Subscribe on the debounce delay event.
    * @param handler
    */
-  subscribe(handler: (isDebounceDelay: boolean) => void): void {
+  subscribe(handler: Handler): void {
     this.debounceDelayHandlers.push(handler);
   }
 

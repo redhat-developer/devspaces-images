@@ -53,30 +53,30 @@ export function devfileToDevWorkspace(devfile: devfileApi.Devfile, routingClass:
 }
 
 export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): devfileApi.Devfile {
-    const template = {
-        schemaVersion: '2.1.0',
-        metadata: {
-            name: devworkspace.metadata.name,
-            namespace: devworkspace.metadata.namespace,
-        },
-        components: [],
-    } as devfileApi.Devfile;
-    if (devworkspace.spec.template.projects) {
-        template.projects = devworkspace.spec.template.projects;
-    }
-    if (devworkspace.spec.template.components) {
-        template.components = filterPluginComponents(devworkspace.spec.template.components);
-    }
-    if (devworkspace.spec.template.commands) {
-        template.commands = devworkspace.spec.template.commands;
-    }
-    if (devworkspace.spec.template.events) {
-        template.events = devworkspace.spec.template.events;
-    }
-    return template;
+  const template = {
+    schemaVersion: '2.1.0',
+    metadata: {
+      name: devworkspace.metadata.name,
+      namespace: devworkspace.metadata.namespace,
+    },
+    components: [],
+  } as devfileApi.Devfile;
+  if (devworkspace.spec.template.projects) {
+    template.projects = devworkspace.spec.template.projects;
+  }
+  if (devworkspace.spec.template.components) {
+    template.components = filterPluginComponents(devworkspace.spec.template.components);
+  }
+  if (devworkspace.spec.template.commands) {
+    template.commands = devworkspace.spec.template.commands;
+  }
+  if (devworkspace.spec.template.events) {
+    template.events = devworkspace.spec.template.events;
+  }
+  return template;
 }
 
 // Filter plugins from components
 function filterPluginComponents(components: any[]): any[] {
-    return components.filter(comp => !('plugin' in comp));
+  return components.filter(comp => !('plugin' in comp));
 }

@@ -16,7 +16,7 @@ import BannerAlertWebSocket from './WebSocket';
 import BannerAlertCustomWarning from './Custom';
 import BannerAlertNotSupportedBrowser from './NotSupportedBrowser';
 
-type Props = {};
+type Props = unknown;
 
 type State = {
   bannerAlerts: React.ReactElement[];

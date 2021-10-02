@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import { RenderResult, render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { RenderResult, render, screen, fireEvent } from '@testing-library/react';
 import { WorkspaceNameFormGroup } from '..';
 import { ValidatedOptions } from '@patternfly/react-core/dist/js/helpers/constants';
 

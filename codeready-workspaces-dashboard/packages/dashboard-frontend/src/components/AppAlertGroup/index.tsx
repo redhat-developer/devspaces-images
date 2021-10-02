@@ -16,7 +16,7 @@ import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
 import { AlertItem } from '../../services/helpers/types';
 
-type Props = {};
+type Props = unknown;
 
 type State = {
   alerts: AlertItem[];

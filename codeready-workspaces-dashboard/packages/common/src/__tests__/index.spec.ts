@@ -17,6 +17,6 @@ describe('Common', () => {
   it('should export all shared code', () => {
     expect(common).toBeDefined();
     expect(common.helpers).toBeDefined();
-  })
+  });
 
 });

@@ -16,7 +16,6 @@ import args from 'args';
 import { registerStaticServer } from './static';
 import { registerDevworkspaceWebsocketWatcher } from './api/devworkspaceWebsocketWatcher';
 import { registerDevworkspaceApi } from './api/devworkspaceApi';
-import { registerCheApi } from './api/cheApi';
 import { registerTemplateApi } from './api/templateApi';
 import { registerLocalServers } from './local-run';
 import { registerCors } from './cors';
@@ -43,7 +42,7 @@ const server = fastify({
 server.addContentTypeParser(
   'application/merge-patch+json',
   { parseAs: 'string' },
-  function(req, body, done) {
+  function (req, body, done) {
     try {
       const json = JSON.parse(body as string);
       done(null, json);
@@ -64,8 +63,6 @@ registerDevworkspaceWebsocketWatcher(server);
 
 registerTemplateApi(server);
 
-registerCheApi(server);
-
 registerCors(isLocalRun, server);
 if (isLocalRun) {
   registerLocalServers(server, CHE_HOST);
@@ -76,7 +73,13 @@ server.listen(8080, '0.0.0.0', (err: Error, address: string) => {
     console.error(err);
     process.exit(1);
   }
-  console.log(`Server listening at ${address}`);
+  if (isLocalRun) {
+    // when we're running against keycloak, 0.0.0.0 is not allowed
+    // so suggesting to use whitelisted localhost instead
+    console.log('Server listening at http://localhost:8080/');
+  } else {
+    console.log(`Server listening at ${address}`);
+  }
 });
 
 server.ready(() => {

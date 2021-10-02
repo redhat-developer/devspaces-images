@@ -61,7 +61,7 @@ export class KeycloakSetupService {
 
   private user: che.User | undefined;
   private _ready: Promise<void>;
-  private resolveReadyPromise: Function;
+  private resolveReadyPromise: (value: void | PromiseLike<void>) => void;
 
   constructor() {
     this._ready = new Promise<void>(resolve => this.resolveReadyPromise = resolve);

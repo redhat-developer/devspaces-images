@@ -24,7 +24,7 @@ export const projectRequestModel = (namespace: string) => {
 
 export const namespaceModel = (namespace: string) => {
   return {
-    apiVersion: `v1`,
+    apiVersion: 'v1',
     kind: 'Namespace',
     metadata: {
       name: namespace,

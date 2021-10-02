@@ -8,8 +8,7 @@
       "@eclipse-che/common": ["../common/src"]
     },
     "outDir": "lib",
-    "rootDir": "src",
-    "sourceMap": true
+    "rootDir": "src"
   },
   "exclude": [
     "node_modules",

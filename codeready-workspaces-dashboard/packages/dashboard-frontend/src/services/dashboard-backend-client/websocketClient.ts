@@ -26,9 +26,11 @@ export type PublishMessage = {
   message: any
 };
 
+type Handler = (data: unknown) => void;
+
 export class WebsocketClient {
   private websocketStream: ReconnectingWebSocket;
-  private handlers: { [channel: string]: Function[] } = {};
+  private handlers: { [channel: string]: Handler[] } = {};
   private readonly onDidWebSocketFailing: (websocketContext: string) => void;
   private readonly onDidWebSocketOpen: (websocketContext: string) => void;
   private readonly onDidWebSocketClose: (event: CloseEvent) => void;
@@ -95,7 +97,7 @@ export class WebsocketClient {
    * @param  channel
    * @param  handler
    */
-  addListener(channel: string, handler: Function): void {
+  addListener(channel: string, handler: Handler): void {
     if (!this.handlers[channel]) {
       this.handlers[channel] = [];
     }
@@ -107,8 +109,8 @@ export class WebsocketClient {
    * @param event
    * @param handler
    */
-  removeListener(event: string, handler: Function): void {
-    if (this.handlers[event] && handler) {
+  removeListener(event: string, handler: Handler): void {
+    if (this.handlers[event]) {
       const index = this.handlers[event].indexOf(handler);
       if (index !== -1) {
         this.handlers[event].splice(index, 1);
@@ -137,9 +139,9 @@ export class WebsocketClient {
     return this.websocketStream.send(JSON.stringify(data));
   }
 
-  private callHandlers(channel: string, data: any): void {
+  private callHandlers(channel: string, data: unknown): void {
     if (this.handlers[channel] && this.handlers[channel].length > 0) {
-      this.handlers[channel].forEach((handler: Function) => handler(data));
+      this.handlers[channel].forEach((handler: Handler) => handler(data));
     }
   }
 }

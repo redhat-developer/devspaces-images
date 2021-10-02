@@ -139,16 +139,16 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
         <EmptyStateIcon icon={SearchIcon} />
         <Title headingLevel='h1'>
           No results found
-          </Title>
+        </Title>
         <EmptyStateBody>
           No results match the filter criteria. Clear filter to show results.
-          </EmptyStateBody>
+        </EmptyStateBody>
         <EmptyStatePrimary>
           <Button
             variant='link'
             onClick={(): void => this.props.clearFilter()}>
             Clear filter
-            </Button>
+          </Button>
         </EmptyStatePrimary>
       </EmptyState>
     );

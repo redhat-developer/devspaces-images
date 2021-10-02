@@ -53,6 +53,7 @@ export enum WorkspaceStatus {
 
 export enum DevWorkspaceStatus {
   FAILED = 'Failed',
+  FAILING = 'Failing',
   STARTING = 'Starting',
   TERMINATING = 'Terminating',
   RUNNING = 'Running',

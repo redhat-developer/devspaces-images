@@ -19,9 +19,9 @@ import { getToken } from './helper';
 const options = { websocket: true } as RouteShorthandOptions;
 
 async function handler(connection: SocketStream, request: FastifyRequest) {
-  const bearerAuthenticationToken = request?.headers?.authorization ?  getToken(request) :  undefined;
+  const bearerAuthenticationToken = request?.headers?.authorization ? getToken(request) : undefined;
 
-  const socket  = connection.socket;
+  const socket = connection.socket;
   const pubSubManager = new SubscribeManager(socket);
 
   socket.on('message', message => {

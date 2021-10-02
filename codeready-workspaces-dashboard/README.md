@@ -24,86 +24,82 @@ Below you can find installation instructions
 docker build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:next
 ```
 
-## Running
+## Running locally against remote Che Cluster
 
-Install all dependencies:
+To run Dashboard against Che Cluster you need access to Kubernetes cluster where it lives.
+So, make sure kubeconfig from $KUBECONFIG (or if unset ~/.kube/config) has the target cluster as current.
+If no - you may need to do oc login (if it's OpenShift) or modify it manually if it's Kubernetes.
+Then you can proceed to the following steps:
 
 ```sh
+# 1. Install all dependencies:
 yarn
-```
-
-and start dashboard locally:
-
-```sh
+# 2. Run server locally
 yarn start
+# If you want to make sure the latest bits are used, add flag to recompile
+# yarn start --force-build
+# Optionally you may need to set CHE_NAMESPACE where CheCluster CR live
+# which is eclipse-che by default
+# export CHE_NAMESPACE="my-custom-che"
 ```
 
 The development server serves the dashboard-frontend and dashboard-backend on [http://localhost:8080](http://localhost:8080).
 
-Note: dashboard backend uses the K8s/OpenShift cluster from the kubeconfig, so you may need to logging with oc first.
+Depending on your Che Cluster's routing, it may need additional configuration. See below:
+- **Keycloak**: Keycloak has allow-list for URLs which can receive token.
+  Localhost is not there by default, so you will need to configure it in the following way:
+  ```bash
+  # Note: eclipse-che is the default target namespace but if you have custom - change it below
+  CHE_NAMESPACE="eclipse-che"
+  cat <<EOF | kubectl apply -f -
+  apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: keycloak-custom-config
+    namespace: $CHE_NAMESPACE
+    labels:
+      app.kubernetes.io/part-of: che.eclipse.org
+      app.kubernetes.io/component: keycloak-configmap
+    annotations:
+      che.eclipse.org/mount-as: env
+      che.eclipse.org/ADDITIONAL_REDIRECT_URIS_env-name: ADDITIONAL_REDIRECT_URIS
+      che.eclipse.org/ADDITIONAL_WEBORIGINS_env-name: ADDITIONAL_WEBORIGINS
+  data:
+    ADDITIONAL_WEBORIGINS: '"http://localhost:8080", "http://localhost:3000"'
+    ADDITIONAL_REDIRECT_URIS: '"http://localhost:8080/*", "http://localhost:3000/*"'
+  EOF
+  # Note that if configmap is update but not created, you also need to rollout keycloak deployment
+  # oc patch deployment/keycloak --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
+  # oc patch deployment/keycloak --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
 
+  # Due temporary limitation we need to rollout che operator to apply changes
+  kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
+  ```
 
-We can start dev-server for dashboard-frontend only. The start command requires to specify
-a remote Eclipse Che server like:
+- **Native Auth**:
+  With Native Auth, routes are secured with OpenShift OAuth which we can't deal with easily.
+  So, instead when you do `yarn start` we bypass OpenShift OAuth proxy while requesting Che Server by doing `kubectl port-forward`. So, no additional configuration is needed but note that your Dashboard will be authentication with the user from the current KUBECONFIG.
 
+### Incremental builds
+
+You may would like to watch changes and recompile them incrementally:
 ```sh
-./local-start.sh
+yarn --cwd packages/dashboard-backend build:watch
+yarn --cwd packages/dashboard-frontend build:watch
 ```
 
-The development server serves the dashboard-frontend on [http://localhost:3000](http://localhost:3000).
+As an alternative to build:watch for frontend, you can run Dev Server.
 
-Note: For Che/CRW to allow connection from localhost it should be configured in accordance.
-
-```bash
-# Note: eclipse-che is the default target namespace but if you have custom - change it below
-CHE_NAMESPACE="eclipse-che"
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keycloak-custom-config
-  namespace: $CHE_NAMESPACE
-  labels:
-    app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: keycloak-configmap
-  annotations:
-    che.eclipse.org/mount-as: env
-    che.eclipse.org/ADDITIONAL_REDIRECT_URIS_env-name: ADDITIONAL_REDIRECT_URIS
-    che.eclipse.org/ADDITIONAL_WEBORIGINS_env-name: ADDITIONAL_WEBORIGINS
-data:
-  ADDITIONAL_WEBORIGINS: '"http://localhost:8080"'
-  ADDITIONAL_REDIRECT_URIS: '"http://localhost:8080/*"'
-EOF
-# Due temporary limitation we need to rollout che operator to apply changes
-kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
-```
-
-Note: To use CodeReady Workspaces(based on Che) Hosted by Red Hat instance at https://workspaces.openshift.com, use the fully qualified host name of the cluster.
-URL is looking like https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
+If Che is behind Keycloak (Che Server workspace engine or K8s DevWorkspace) you are able to run Dev Server against it directly:
 
 ```sh
-yarn frontend:start --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
+yarn frontend:start --env.server=https://192.168.39.132.nip.io
 ```
 
-To specify a different port, add `--port=3333`
-
-For redirect/authentication issues, please validate settings of Valid Redirect URIs and Web Origins on keycloak for `che-public` client.
-Valid Redirect URIs requires `http://localhost:3000/*` and Web Origins requires `http://localhost:3000` (using default port number)
-
-For better debugging experience you need to have React and Redux Developer Tools installed in your browser.
-
-### Production
-
-To launch the production mode, the command is
+If Che is behind Native Auth, local backend is prerequisite for Dev Server and then the command to run Dev Server is
 
 ```sh
-yarn --cwd packages/dashboard-frontend start:prod
-```
-
-To provide a custom remote server:
-
-```sh
-yarn --cwd packages/dashboard-frontend start:prod --env.server=https://codeready-codeready-workspaces-operator.apps.sandbox.x8i5.p1.openshiftapps.com
+yarn frontend:start --env.server=http://localhost:8080/
 ```
 
 ### Dependencies IP

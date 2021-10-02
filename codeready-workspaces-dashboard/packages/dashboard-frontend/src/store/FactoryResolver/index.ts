@@ -111,6 +111,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
 
     try {
+      await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
       const data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(location, overrideParams);
       if (!data.devfile) {
         throw 'The specified link does not contain a valid Devfile.';

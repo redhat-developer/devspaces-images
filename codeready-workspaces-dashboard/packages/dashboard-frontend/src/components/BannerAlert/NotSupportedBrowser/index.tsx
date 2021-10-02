@@ -14,7 +14,7 @@ import { Banner } from '@patternfly/react-core';
 import React from 'react';
 import { isSafari } from '../../../services/helpers/detectBrowser';
 
-type Props = {};
+type Props = unknown;
 
 type State = {
   isNotSupported: boolean;

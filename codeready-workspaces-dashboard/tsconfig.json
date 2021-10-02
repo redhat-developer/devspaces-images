@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     "strict": true,
     "noImplicitAny": true,
     "strictPropertyInitialization": true,
@@ -13,5 +14,6 @@
     "emitDecoratorMetadata": true,
     "noEmit": false,
     "baseUrl": "./packages",
+    "sourceMap": true
   },
 }

@@ -20,7 +20,7 @@ class DevWorkspaceWatcher {
   private readonly namespace: string;
   private resourceVersion: string;
   private token: string;
-  private unsubscribeFunction: { abort: Function } | undefined;
+  private unsubscribeFunction: { abort: () => void } | undefined;
 
   constructor(data: { token: string, namespace: string, resourceVersion: string, callbacks: IDevWorkspaceCallbacks }) {
     this.callbacks = data.callbacks;
@@ -47,7 +47,7 @@ class DevWorkspaceWatcher {
       if (this.unsubscribeFunction) {
         await this.unsubscribe();
       }
-      const {devworkspaceApi} = await (this.dwClientProvider.getDWClient(this.token));
+      const { devworkspaceApi } = await (this.dwClientProvider.getDWClient(this.token));
       const unsubscribeFunction = await devworkspaceApi.watchInNamespace(this.namespace, this.resourceVersion, this.callbacks);
       this.unsubscribeFunction = unsubscribeFunction;
     } catch (error) {

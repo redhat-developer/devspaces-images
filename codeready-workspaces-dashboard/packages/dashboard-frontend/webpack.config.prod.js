@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const CopyPlugin = require('copy-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
 const merge = require('webpack-merge');
@@ -46,12 +45,6 @@ const config = {
       'process.env.ENVIRONMENT': JSON.stringify('production'),
     }),
     new webpack.ProgressPlugin(),
-    new CopyPlugin({
-      patterns: [
-        { from: path.join(__dirname, 'assets'), to: 'assets' },
-        { from: path.join(__dirname, 'static'), to: 'static' },
-      ]
-    }),
     new StylelintPlugin({
       context: path.join(__dirname, 'src'),
       files: '**/*.css',
@@ -59,9 +52,6 @@ const config = {
     }),
     new CleanTerminalPlugin(),
   ],
-  output: {
-    publicPath: './',
-  },
 };
 
 module.exports = (env = {}) => {

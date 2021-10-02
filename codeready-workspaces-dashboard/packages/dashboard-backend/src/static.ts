@@ -38,11 +38,11 @@ export function registerStaticServer(publicFolder: string, server: FastifyInstan
     '/dashboard/editor.worker.js',
     '/dashboard/assets/branding/product.json',
   ];
-  server.addHook('onSend', (request: FastifyRequest, reply:  FastifyReply, payload: any, done: DoneFuncWithErrOrRes) => {
+  server.addHook('onSend', (request: FastifyRequest, reply: FastifyReply, payload: any, done: DoneFuncWithErrOrRes) => {
     const err = null;
     if (doNotCache.includes(request.url)) {
       reply.header('cache-control', 'no-store, max-age=0');
     }
     done(err, payload);
-  })
+  });
 }

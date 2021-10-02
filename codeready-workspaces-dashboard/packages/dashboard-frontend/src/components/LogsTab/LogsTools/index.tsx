@@ -68,8 +68,8 @@ class LogsTools extends React.PureComponent<Props, State> {
               {this.state.isExpanded ? (
                 <React.Fragment><CompressIcon />Compress</React.Fragment>
               ) : (
-                  <React.Fragment><ExpandIcon />Expand</React.Fragment>
-                )}
+                <React.Fragment><ExpandIcon />Expand</React.Fragment>
+              )}
             </Button>
           </FlexItem>
         </Flex>

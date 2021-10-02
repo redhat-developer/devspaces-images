@@ -11,8 +11,22 @@
  */
 
 module.exports = {
-  'hooks': {
-    'pre-commit': 'lint-staged',
-    'pre-push': 'sh ./test-staged.sh',
+  env: {
+    node: true,
+  },
+  extends: [
+    '../../.eslintrc.js',
+  ],
+  rules: {
+    'notice/notice': [
+      'error',
+      {
+        templateFile: '../../.config/copyright.js',
+        onNonMatchingHeader: 'report',
+        messages: {
+          reportAndSkip: 'Missing license header',
+        },
+      },
+    ],
   },
 };

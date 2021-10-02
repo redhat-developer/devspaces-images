@@ -23,7 +23,7 @@ export function registerKeycloakProxy(server: FastifyInstance, cheApiProxyUpstre
     websocket: false,
     replyOptions: {
       rewriteRequestHeaders: (originalReq, headers) => {
-        return Object.assign({...headers}, { origin });
+        return Object.assign({ ...headers }, { origin });
       }
     }
   });

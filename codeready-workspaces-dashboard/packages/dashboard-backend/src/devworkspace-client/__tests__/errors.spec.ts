@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { DevWorkspaceClient, IDevWorkspace, IDevWorkspaceCallbacks } from '../';
+import { DevWorkspaceClient } from '../';
 import { conditionalTest, isIntegrationTestEnabled } from './utils/suite';
 import { createKubeConfig } from './utils/helper';
 import { fail } from 'assert';
@@ -21,9 +21,9 @@ describe('Kubernetes API integration testing against cluster', () => {
 
   describe('Test Kubernetes errors', () => {
     conditionalTest('test when Custom API does not exist', isIntegrationTestEnabled, async (done) => {
-      let customObjectAPI = createKubeConfig().makeApiClient(k8s.CustomObjectsApi);
+      const customObjectAPI = createKubeConfig().makeApiClient(k8s.CustomObjectsApi);
       try {
-        const resp = await customObjectAPI.getNamespacedCustomObject(
+        await customObjectAPI.getNamespacedCustomObject(
           'non-existing-group',
           'v1',
           'any-namespace',
@@ -32,7 +32,7 @@ describe('Kubernetes API integration testing against cluster', () => {
         );
         fail('request to non-existing Custom API should fail');
       } catch (e) {
-        let errorMessage = 'unable get non-existing: ' + helpers.errors.getMessage(e);
+        const errorMessage = 'unable get non-existing: ' + helpers.errors.getMessage(e);
         expect(errorMessage).toBe('unable get non-existing: 404 page not found\n');
       }
       done();
@@ -40,7 +40,7 @@ describe('Kubernetes API integration testing against cluster', () => {
 
     conditionalTest('test when unauthorized', isIntegrationTestEnabled, async (done) => {
       const kc = createKubeConfig();
-      let currentUser = kc.getCurrentUser();
+      const currentUser = kc.getCurrentUser();
       if (!currentUser) {
         throw 'current user is not present in kubeconfig';
       }
@@ -59,23 +59,23 @@ describe('Kubernetes API integration testing against cluster', () => {
 
     conditionalTest('test watch when unauthorized', isIntegrationTestEnabled, async (done) => {
       const kc = createKubeConfig();
-      let currentUser = kc.getCurrentUser();
+      const currentUser = kc.getCurrentUser();
       if (!currentUser) {
         throw 'current user is not present in kubeconfig';
       }
       (currentUser as any).token = '';
 
       const dwClient = new DevWorkspaceClient(kc);
-      const err: Promise<string> = new Promise((resolve, reject) => {
+      const err: Promise<string> = new Promise((resolve) => {
         try {
           dwClient.devworkspaceApi.watchInNamespace('any', '', {
-            onModified: (workspace: IDevWorkspace) => {
+            onModified: () => {
               resolve('on modified is not expected to be called');
             },
-            onDeleted: (workspaceId: string) => {
+            onDeleted: () => {
               resolve('on deleted is not expected to be called');
             },
-            onAdded: (workspace: IDevWorkspace) => {
+            onAdded: () => {
               resolve('on added is not expected to be called');
             },
             onError: (error: string) => {
@@ -92,7 +92,7 @@ describe('Kubernetes API integration testing against cluster', () => {
 
     conditionalTest('test when request is not processed', isIntegrationTestEnabled, async (done) => {
       const kc = createKubeConfig();
-      let currentCluster = kc.getCurrentCluster();
+      const currentCluster = kc.getCurrentCluster();
       if (!currentCluster) {
         throw 'current cluster is not present in kubeconfig';
       }

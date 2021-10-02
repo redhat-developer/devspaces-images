@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const stylus_plugin = require('poststylus');
@@ -24,7 +25,7 @@ const config = {
   },
   output: {
     path: path.join(__dirname, 'lib'),
-    publicPath: '/',
+    publicPath: './',
     filename: (pathData) =>
       pathData.chunk.name === 'service-worker' || pathData.chunk.name === 'editor.worker'
         ? "[name].js"
@@ -136,6 +137,12 @@ const config = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './index.html'),
       filename: 'index.html',
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: path.join(__dirname, 'assets'), to: 'assets' },
+        { from: path.join(__dirname, 'static'), to: 'static' },
+      ]
     }),
     new stylusLoader.OptionsPlugin({
       default: {

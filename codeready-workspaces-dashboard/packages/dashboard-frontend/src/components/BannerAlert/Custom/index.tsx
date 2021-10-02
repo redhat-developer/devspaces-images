@@ -17,11 +17,9 @@ import sanitizeHtml from 'sanitize-html';
 import { AppState } from '../../../store';
 import { selectBannerAlertMessages } from '../../../store/BannerAlert/selectors';
 
-type Props = MappedProps & {};
+type Props = MappedProps;
 
-type State = {};
-
-class BannerAlertCustomWarning extends React.PureComponent<Props, State> {
+class BannerAlertCustomWarning extends React.PureComponent<Props> {
 
   render() {
     const messages = this.props.bannerAlertMessages;

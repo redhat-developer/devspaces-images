@@ -68,10 +68,10 @@ function UnsavedChangesModal(props: Props): React.ReactElement {
         setIsOpen(false);
       }}>
         Discard Changes
-                   </Button>,
+      </Button>,
       <Button key="cancel" variant="secondary" onClick={() => setIsOpen(false)}>
         Cancel
-                   </Button>,
+      </Button>,
     ]}
   >
     <TextContent>

@@ -11,18 +11,17 @@
  */
 
 import fastifyCors from 'fastify-cors';
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from 'fastify';
 
 export function registerCors(isLocalRun: boolean, server: FastifyInstance) {
-  // todo replace an 'any' with the target type
-  server.register(fastifyCors, () => (req: any, callback: any) => {
+  server.register(fastifyCors, () => (req: FastifyRequest, callback: (error: Error | null, options: FastifyPluginOptions) => unknown) => {
     // disable cors checks on when running locally
     const corsOptions = isLocalRun ? {
       origin: false
     } : {
-        origin: [process.env.CHE_HOST],
-        methods: ['GET', 'POST', 'PATCH', 'DELETE']
-      };
+      origin: [process.env.CHE_HOST],
+      methods: ['GET', 'POST', 'PATCH', 'DELETE']
+    };
     callback(null, corsOptions);
   });
 }

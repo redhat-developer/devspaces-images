@@ -17,7 +17,7 @@ import { InfrastructureNamespaceSelect } from '../InfrastructureNamespaceSelect'
 describe('Infrastructure Namespace Select', () => {
 
   const mockOnSelect = jest.fn();
-  const namespaces = getKubernetesNamespaces();
+  const namespaces = getKubernetesNamespace();
 
   function renderSelect(namespaces: che.KubernetesNamespace[]): RenderResult {
     return render(
@@ -57,7 +57,7 @@ describe('Infrastructure Namespace Select', () => {
 
 });
 
-function getKubernetesNamespaces(): che.KubernetesNamespace[] {
+function getKubernetesNamespace(): che.KubernetesNamespace[] {
   return [{
     name: 'first-namespace',
     attributes: {

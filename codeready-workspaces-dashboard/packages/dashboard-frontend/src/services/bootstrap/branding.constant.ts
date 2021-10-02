@@ -16,7 +16,7 @@ export type BrandingData = {
   productVersion?: string;
   links?: Link[];
   logoTextFile: string;
-  logoFile: string;  
+  logoFile: string;
   docs: BrandingDocs;
   configuration: BrandingConfiguration;
   header?: BrandingHeader;

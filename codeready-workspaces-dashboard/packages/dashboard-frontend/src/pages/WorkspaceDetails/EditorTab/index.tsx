@@ -331,7 +331,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
         workspaceCopy.ref.status = dw.status;
       }
       await this.props.onSave(workspaceCopy);
-      } catch (e) {
+    } catch (e) {
       const error = common.helpers.errors.getMessage(e).replace(/^Error: /gi, '');
       this.setState({
         hasChanges: true,
