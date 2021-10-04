@@ -27,6 +27,7 @@ DWO_TAG=0.9
 SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
+OPENSHIFT_TAG="v4.8"
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
 command -v skopeo >/dev/null 2>&1 || { echo "skopeo is not installed. Aborting."; exit 1; }
@@ -51,6 +52,7 @@ usage () {
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
+	--openshift-tag ${OPENSHIFT_TAG}
 	"
 	exit
 }
@@ -75,6 +77,7 @@ while [[ "$#" -gt 0 ]]; do
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;;
+	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
   esac
   shift 1
 done
@@ -107,6 +110,8 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
+RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
+OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
 # header to reattach to yaml files after yq transform removes it
 COPYRIGHT="#
@@ -291,10 +296,12 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
+		# CRW-2303 - @since 2.12 DWO only (but needs to be available even on non-DWO installs)
+		["RELATED_IMAGE_gateway_authentication_sidecar"]="${OAUTH_PROXY_IMAGE}"
+		["RELATED_IMAGE_gateway_authorization_sidecar"]="${RBAC_PROXY_IMAGE}"
+
 		# remove env vars using DELETEME keyword
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
-		["RELATED_IMAGE_gateway_authentication_sidecar"]="DELETEME"
-		["RELATED_IMAGE_gateway_authorization_sidecar"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
 	)
 	for updateName in "${!operator_replacements[@]}"; do
