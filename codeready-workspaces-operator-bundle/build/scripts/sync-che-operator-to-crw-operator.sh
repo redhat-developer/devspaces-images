@@ -224,7 +224,7 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
 	["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
-	# CRW-2303 - @since 2.12 DWO only
+	# CRW-2303 - @since 2.12 DWO only (but needs to be available even on non-DWO installs)
 	["RELATED_IMAGE_gateway_authentication_sidecar"]="${OAUTH_PROXY_IMAGE}"
 	["RELATED_IMAGE_gateway_authorization_sidecar"]="${RBAC_PROXY_IMAGE}"
 
