@@ -25,7 +25,7 @@ CSV_VERSION_PREV=""
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] -p [CRW CSV_VERSION_PREV]
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [-p CRW CSV_VERSION_PREV]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} -p 2.y-1.0"
     exit
 }
@@ -70,9 +70,10 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     if [[ -z "${CSV_VERSION_PREV}" ]]; then
         #get from json
         CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["operator-metadata"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
+        CRW_VERSION_PREV="${CSV_VERSION_PREV%.*}"
         
         #check
-        if ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-metadata:${CSV_VERSION_PREV} --raw) ; then
+        if [[ ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-metadata:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
             #get from latest
             curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
             if [[ $(cat /tmp/containerExtract.sh) == *"404"* ]] || [[ $(cat /tmp/containerExtract.sh) == *"Not Found"* ]]; then
@@ -88,8 +89,12 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
         fi
     fi
 fi
-echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
-echo "[INFO]   CSV_VERSION_PREV   = ${CSV_VERSION_PREV}"
+if [[ -n ${MIDSTM_BRANCH} ]]; then 
+  echo "[INFO] For CRW VERSION = ${CRW_VERSION} / MIDSTM_BRANCH = ${MIDSTM_BRANCH}:"
+else
+  echo "[INFO] For CRW VERSION = ${CRW_VERSION}:"
+fi
+echo "[INFO]     CSV_VERSION_PREV = ${CSV_VERSION_PREV}"
 
 # ignore changes in these files
 echo ".ci/
@@ -208,7 +213,17 @@ echo "Generated Dockerfile"
 pushd "${TARGETDIR}"/ >/dev/null || exit
 rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vendor/ version/ go.* *.go
 
+CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
 # transform into Brew-friendly version of CSV
-sed -r -i "${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml \
+sed -r -i "${CSVFILE}" \
   -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
-  -e "s@crw-2-rhel8-operator@operator@g"
+  -e "s@crw-2-rhel8-operator@operator@g" \
+  -e "s@:latest@:${CRW_VERSION}@g"
+
+# date in CSV will be updated only if there were any changes in CSV
+pushd ${CSVFILE%/*} >/dev/null || exit # targetdir/manifests/
+# git diff ${CSVFILE##*/}
+if [[ ! $(git diff ${CSVFILE##*/} | grep -v createdAt | egrep "^(-|\\+) " || true) ]]; then
+  git checkout ${CSVFILE##*/} || true
+fi
+popd >/dev/null || exit
