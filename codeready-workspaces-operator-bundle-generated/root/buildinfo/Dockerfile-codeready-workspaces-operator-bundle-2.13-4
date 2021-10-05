@@ -17,25 +17,25 @@ COPY manifests /manifests/
 COPY metadata /metadata/
 
 # append Brew metadata here 
-ENV SUMMARY="Red Hat CodeReady Workspaces operator-metadata container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces operator-metadata container" \
+ENV SUMMARY="Red Hat CodeReady Workspaces operator-bundle container" \
+    DESCRIPTION="Red Hat CodeReady Workspaces operator-bundle container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="operator-metadata"
+    COMPNAME="operator-bundle"
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \
       operators.operatorframework.io.bundle.metadata.v1=metadata/ \
-      operators.operatorframework.io.bundle.package.v1=codeready-workspaces \
-      operators.operatorframework.io.bundle.channels.v1=latest \
-      operators.operatorframework.io.bundle.channel.default.v1=latest \
+      operators.operatorframework.io.bundle.package.v1=codeready-workspaces2 \
+      operators.operatorframework.io.bundle.channels.v1=tech-preview-latest-all-namespaces \
+      operators.operatorframework.io.bundle.channel.default.v1=tech-preview-latest-all-namespaces \
       com.redhat.delivery.operator.bundle="true" \
-      com.redhat.openshift.versions="v4.6" \
+      com.redhat.openshift.versions="v4.8" \
       com.redhat.delivery.backport=false \
       summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
       io.k8s.display-name="$DESCRIPTION" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-rhel8-$COMPNAME-container" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
       version="2.13" \
       license="EPLv2" \
@@ -43,5 +43,5 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       io.openshift.expose-services="" \
       usage=""
 
-ADD codeready-workspaces-rhel8-operator-metadata-container-2.13-1.json /root/buildinfo/content_manifests/codeready-workspaces-rhel8-operator-metadata-container-2.13-1.json
-LABEL "release"="1" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-09-21T18:38:54.341145" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="2071fcccf4e883ac28e9d510e1a624e49612d5db" "com.redhat.build-host"="cpt-1008.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-metadata/images/2.13-1"
+ADD codeready-workspaces-operator-bundle-container-2.13-4.json /root/buildinfo/content_manifests/codeready-workspaces-operator-bundle-container-2.13-4.json
+LABEL "release"="4" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-10-05T20:51:26.662323" "architecture"="s390x" "vcs-type"="git" "vcs-ref"="5a2414914e4dbaa2b026dc6b49db0b3a8840e804" "com.redhat.build-host"="s390-c1-vm-03.prod.osbs.eng.bos.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-bundle/images/2.13-4"
