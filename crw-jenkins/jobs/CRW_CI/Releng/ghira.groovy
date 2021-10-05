@@ -10,7 +10,7 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         pipelineTriggers {
             triggers {
                 cron {
-                    spec ('H 0 * * 0') // every week on Sunday
+                    spec ('0 23 * * 2') // every week on Tuesday "night"
                 }
             }
         }
@@ -34,7 +34,7 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
     }
 
     parameters{
-        booleanParam("DRY_RUN", true, "default true; check box to not do anything, just output log")
+        booleanParam("DRY_RUN", false, "default true; check box to not do anything, just output log")
     }
 
     // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
