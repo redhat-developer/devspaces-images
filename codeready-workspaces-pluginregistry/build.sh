@@ -99,13 +99,11 @@ else
 fi
 REGISTRY_VERSION=$(jq -r '.Version' "${versionjson}");
 REGISTRY_GENERATOR_VERSION=$(jq -r --arg REGISTRY_VERSION "${REGISTRY_VERSION}" '.Other["@eclipse-che/plugin-registry-generator"][$REGISTRY_VERSION]' "${versionjson}");
-echo "REGISTRY_VERSION=${REGISTRY_VERSION}; REGISTRY_GENERATOR_VERSION=${REGISTRY_GENERATOR_VERSION}"
+# echo "REGISTRY_VERSION=${REGISTRY_VERSION}; REGISTRY_GENERATOR_VERSION=${REGISTRY_GENERATOR_VERSION}"
 
-# do not generate digests as they'll be added at runtime from the operator (see CRW-1157)
 echo "Generate artifacts"
-set -x
+# do not generate digests as they'll be added at runtime from the operator (see CRW-1157)
 npx @eclipse-che/plugin-registry-generator@"${REGISTRY_GENERATOR_VERSION}" --root-folder:"$(pwd)" --output-folder:"$(pwd)/output" "${BUILD_FLAGS_ARRAY[@]}" --skip-digest-generation:true
-set +x
 
 echo -e "\nTest entrypoint.sh"
 EMOJI_HEADER="-" EMOJI_PASS="[PASS]" EMOJI_FAIL="[FAIL]" "${base_dir}"/build/dockerfiles/test_entrypoint.sh
