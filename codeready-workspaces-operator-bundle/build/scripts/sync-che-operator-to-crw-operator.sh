@@ -52,7 +52,7 @@ while [[ "$#" -gt 0 ]]; do
 	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
-	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;;
+	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for both deprecated 9.6 and 13 (@since CRW 2.13)
 	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
   esac
   shift 1
@@ -84,6 +84,7 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
+POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES_TAG}"
 SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
@@ -221,7 +222,8 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
 
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
-	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}"
+	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
+	["RELATED_IMAGE_postgres_13_3"]="${POSTGRES13_IMAGE}" # CRW-2180 - new @since 2.13
 	["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
 	# CRW-2303 - @since 2.12 DWO only (but needs to be available even on non-DWO installs)
