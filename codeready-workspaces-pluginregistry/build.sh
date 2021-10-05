@@ -78,15 +78,15 @@ parse_arguments "$@"
 echo "Update yarn dependencies..."
 yarn
 
-# load VERSION.json file from ./ or  ../, or fall back to the internet if no local copy
+# load job-config.json file from ./ or  ../, or fall back to the internet if no local copy
 if [[ -f "${base_dir}/job-config.json" ]]; then
-    versionjson="${base_dir}/job-config.json"
-    echo "Load ${versionjson} [1]"
+    configjson="${base_dir}/job-config.json"
+    echo "Load ${configjson} [1]"
 elif [[ -f "${base_dir%/*}/job-config.json" ]]; then
-    versionjson="${base_dir%/*}/job-config.json"
-    echo "Load ${versionjson} [2]"
+    configjson="${base_dir%/*}/job-config.json"
+    echo "Load ${configjson} [2]"
 else
-    # echo "[WARN] Could not find VERSION.json in ${base_dir} or ${base_dir%/*}!"
+    # echo "[WARN] Could not find job-config.json in ${base_dir} or ${base_dir%/*}!"
     # try to compute branches from currently checked out branch; else fall back to hard coded value
     # where to find redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/product/getLatestImageTags.sh
     SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
@@ -94,16 +94,18 @@ else
         SCRIPTS_BRANCH="crw-2-rhel-8"
     fi
     echo "Load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json [3]"
-    curl -sSLo /tmp/VERSION.json https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json
-    versionjson=/tmp/VERSION.json
+    curl -sSLo /tmp/job-config.json https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json
+    configjson=/tmp/job-config.json
 fi
-REGISTRY_VERSION=$(jq -r '.Version' "${versionjson}");
-REGISTRY_GENERATOR_VERSION=$(jq -r --arg REGISTRY_VERSION "${REGISTRY_VERSION}" '.Other["@eclipse-che/plugin-registry-generator"][$REGISTRY_VERSION]' "${versionjson}");
-# echo "REGISTRY_VERSION=${REGISTRY_VERSION}; REGISTRY_GENERATOR_VERSION=${REGISTRY_GENERATOR_VERSION}"
+REGISTRY_VERSION=$(jq -r '.Version' "${configjson}");
+REGISTRY_GENERATOR_VERSION=$(jq -r --arg REGISTRY_VERSION "${REGISTRY_VERSION}" '.Other["@eclipse-che/plugin-registry-generator"][$REGISTRY_VERSION]' "${configjson}");
+echo "REGISTRY_VERSION=${REGISTRY_VERSION}; REGISTRY_GENERATOR_VERSION=${REGISTRY_GENERATOR_VERSION}"
 
-echo "Generate artifacts"
 # do not generate digests as they'll be added at runtime from the operator (see CRW-1157)
+echo "Generate artifacts"
+set -x
 npx @eclipse-che/plugin-registry-generator@"${REGISTRY_GENERATOR_VERSION}" --root-folder:"$(pwd)" --output-folder:"$(pwd)/output" "${BUILD_FLAGS_ARRAY[@]}" --skip-digest-generation:true
+set +x
 
 echo -e "\nTest entrypoint.sh"
 EMOJI_HEADER="-" EMOJI_PASS="[PASS]" EMOJI_FAIL="[FAIL]" "${base_dir}"/build/dockerfiles/test_entrypoint.sh
