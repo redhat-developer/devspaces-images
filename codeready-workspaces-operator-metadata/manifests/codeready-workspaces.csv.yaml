@@ -40,9 +40,9 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.13
-    createdAt: "2021-10-05T20:37:30+00:00"
-    description: A Kube-native development solution that delivers portable and collaborative
-      developer workspaces.
+    createdAt: "2021-10-06T18:58:57+00:00"
+    description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative
+      k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
     operators.openshift.io/infrastructure-features: '["disconnected", "proxy-aware",
