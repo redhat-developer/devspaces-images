@@ -326,6 +326,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	declare -A spec_insertions=(
 		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
+		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
+		['.metadata.annotations.description']="OCP 4.6+: Devfile v1 development solution for portable, collaborative k8s workspaces."
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
