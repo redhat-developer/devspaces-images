@@ -7,7 +7,7 @@ import groovy.transform.Field
 
 def MIDSTM_BRANCH = 'crw-2-rhel-8'
 def errorOccurred = false
-def String nodeLabel = 'rhel83||s390x-rhel8'  // ppc64le-rhel8 disabled with cffi error
+def String nodeLabel = 'rhel83'  // ppc64le-rhel8 disabled with cffi error; s390x-rhel8 disabled as rust compilation sometimes fails
 timeout(120) {
     node(nodeLabel){
         try {
@@ -26,9 +26,9 @@ timeout(120) {
                         }
 
                         sh '''#!/bin/bash -xe
-                            sudo dnf install -y python3-virtualenv redhat-rpm-config gcc libffi-devel python3-devel openssl-devel cargo rust
+                            sudo dnf install -yq python3-virtualenv redhat-rpm-config gcc libffi-devel python3-devel openssl-devel cargo rust
                             cd ${WORKSPACE}/crw/product/ghira
-                            pip install --upgrade pip
+                            pip install -q --upgrade pip
                             virtualenv-3 .
                             . bin/activate
                             pip install -r requirements.txt
