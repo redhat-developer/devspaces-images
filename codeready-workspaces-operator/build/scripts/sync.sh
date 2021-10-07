@@ -14,6 +14,8 @@
 
 set -e
 
+SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
+
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
@@ -26,7 +28,7 @@ DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [--dwob branch] [--dwcob branch] [--hrtpb branch]
+Usage:   $0 -v [CRW CSV_VERSION] -s [/path/to/${UPSTM_NAME}] -t [/path/to/generated] [--dwob branch] [--dwcob branch] [--hrtpb branch]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} --dwob 0.y.x --dwcob 7.yy.x --hrtpb v0.1.2"
     exit
 }
@@ -50,37 +52,6 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
-# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
-# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json
-# shellcheck disable=SC2086
-if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
-    MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
-    if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
-    configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/job-config.json")"
-    if [[ $configjson == *"404"* ]] || [[ $configjson == *"Not Found"* ]]; then 
-        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/job-config.json"
-        echo "[ERROR] Please use --dwob flag to set DEV_WORKSPACE_CONTROLLER_VERSION"
-        echo "[ERROR] Please use --hrtpb flag to set DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"
-        exit 1
-    fi
-    if [[ $MIDSTM_BRANCH == "crw-2-rhel-8" ]]; then
-        CRW_VERSION="$(echo "$configjson" | jq -r '.Version')"
-    else 
-        CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
-    fi
-    if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
-        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Other["DEV_WORKSPACE_CONTROLLER_VERSION"]["'${CRW_VERSION}'"]')"
-        if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
-    fi
-    if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
-        DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$configjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]["'${CRW_VERSION}'"]')"
-        if [[ ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} == "null" ]]; then DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"; fi
-    fi
-fi
-echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
-echo "[INFO]   DEV_WORKSPACE_CONTROLLER_VERSION   = ${DEV_WORKSPACE_CONTROLLER_VERSION}"
-echo "[INFO]   DEV_HEADER_REWRITE_TRAEFIK_PLUGIN  = ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
-
 # ignore changes in these files
 echo ".github/
 .git/
@@ -102,6 +73,7 @@ tests/basic-test.yaml
 sources
 make-release.sh
 build/scripts/insert-related-images-to-csv.sh
+build/scripts/util.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
@@ -119,14 +91,13 @@ sed_in_place() {
   fi
 }
 
-# fix versions in Dockerfile
-sed_in_place -r \
-    -e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-    -e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
-    "${TARGETDIR}"/Dockerfile
+if [[ -x "${SCRIPT_DIR}"/util.sh ]]; then                source "${SCRIPT_DIR}"/util.sh;
+elif [[ -x "${TARGETDIR}"/build/scripts/util.sh ]]; then source "${TARGETDIR}"/build/scripts/util.sh;
+else echo "Error: can't find util.sh in ${SCRIPT_DIR} or ${TARGETDIR}"; exit 1; fi
+updateDockerfileArgs "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
 
+cp "${TARGETDIR}"/bootstrap.Dockerfile "${TARGETDIR}"/Dockerfile
 # CRW-1956 when bootstrapping, get vendor sources for restic; then stop builder stage steps as we have all we need (and will fetch zips separately)
-cp "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
 #shellcheck disable=SC2016
 sed_in_place -r \
     -e "/.+upstream.+/d" \
