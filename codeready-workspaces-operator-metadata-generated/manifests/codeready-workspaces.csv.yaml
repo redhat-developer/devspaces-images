@@ -39,7 +39,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:06806cfa6b543cae495b45cb4eead6225652ee8c4fbaaf0e06a560154465dd0b
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
     createdAt: "2021-10-06T18:58:57+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -994,47 +994,47 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:4b5e994b00d10a6b6e8230a60bf971d56eb33716e3631f67e4e12c9f0acb707b
+                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:2ccb72f986d8863a7fae3431f7ed3af5727d8aca1e0f84f1771026f628743f87
                 - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-                  value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:c3d69dd0dff495c21a1fd9e955273c883d5482c3a22df3ee006375b8cec0dae9
+                  value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:fe1ae6af94cc74272a10bc3b359d54c5ad991e25b2fd30d468afc080086bec6b
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-                  value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:ca22bde45b03910d0a9f188ad54e3ed352c8ba369c4551113fa49dbce6f632a5
+                  value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:8b6063b116a78a6886e4e1afc836c5f7d03ce010d58af7b426dce4293d60cf25
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-                  value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:e7739ad46076d105b566d3fa8b115192dd27b5c2d6590a558d0c0c5d3022fe30
+                  value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:eeb65960c65eea8809900022730c6598ec40c14f7d64798038828126ffcca758
                 - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:9b6e11fcf60ddf14c971f8d104fedc267c40f82dee0786607d6e94dff0119ddc
+                  value: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:6fa4b7dc6832c22c2144ffe6827151cbcac323be6a930294c26c8940dbfdecce
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:99177dfaf55d201005b66d220fea0bdde6cac4386d44fe328e2596658a9fbe2a
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:445f3c6455edb54007ce87acd8a170793217c768e3561cfb2abb0d3f81a17bc5
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:99177dfaf55d201005b66d220fea0bdde6cac4386d44fe328e2596658a9fbe2a
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:445f3c6455edb54007ce87acd8a170793217c768e3561cfb2abb0d3f81a17bc5
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_ppc64le_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_s390x_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+                  value: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8@sha256:fdde2746ea406f91114fbcdc7d01163bac2571d7681bd57592430c84a6159734
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_openj9_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8@sha256:fdde2746ea406f91114fbcdc7d01163bac2571d7681bd57592430c84a6159734
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_ppc64le_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_ppc64le_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+                  value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_kubernetes_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:74ab565d830df74c0407417dacdec6c7e707961fbe125a34ee29dd8320da8f6c
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMYK
@@ -1056,13 +1056,13 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:c92ebcb2b4678c7f8fafce51f7d22a34c0c4ac455da0a2bae392661d06bedab1
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:c4076c9d10c4befb06971b5c49dcc6d2ddfb2fa2953d59f7a7633f219a30a3e4
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:0ae69799b628391b231ca361282eb9f76988d2a55a2eefaa305b5abd6f652b15
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:4443b58652002876e8f623db2f746104eefe060775819477b483b60353c87323
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:5abc8a7fbc808616b9216779b2a7f6300f4cf7bc4dbc29d75d47495db6723c3c
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:4cd63eb5493bcc2c7099330fa1f488a8dd9375647ff4617737f193db74c1367f
+                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8d8a0dff285da0374b7866cfa93a77079b2574552ec6d42b9696e5abc2c6f4ba
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:64e96596735dce7f77e96d34255827bd0b5d86d8bc5d538a387ba69c2b61e877
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:8c56107bd71f4d229f2ea730f2c27079d5340a0cdf91cd85da25297c11968e84
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1070,7 +1070,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:71527b0033776ac8a68e9c52937cbdac5909a56058105bcb6489c4a0cb9e4f4d
                 - name: RELATED_IMAGE_internal_rest_backup_server
-                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:26a9c22ea2e5c41e7326415381d6edd73081260b260dd6995e49f72bbc4d3ddd
+                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:c83c17f863160da1ae96f692958a851ae81fd03e35e9b1e661c53610d310f403
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
@@ -1088,7 +1088,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:b781a69a344417ecd84df30d6577df8735730398d1e3571d40d21b4bc7a3a596
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:0f25deae54dab3cfbc0f788706f5c8653b630e2903b2ca767625126ec03a961a
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:e8177c5de05ccdd6d12e360b65c63c889b2de725d573ffdedd8914230b118639
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1098,14 +1098,14 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:1b99d4f6e2f826d6460ff58dcb701675fd597926aa58b0cab49db9d72daacd33
+                  value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:088ab3c548ab9892472b6f915ef65142e83d8ce91d640718dd1d11f2afd727d9
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:0c613da61d835b5af82bc3d21d328bde06ce97dfcaa10a033ea45eb8d13a13cc
+                  value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:5e3e0b4a2c99987223235b120aaec73a43ff6f30145365bdf7137bbbbd2e3ea5
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:06806cfa6b543cae495b45cb4eead6225652ee8c4fbaaf0e06a560154465dd0b
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1387,52 +1387,52 @@ spec:
   version: 2.13.0
   replaces: crwoperator.v2.11.0
   relatedImages:
-  - name: crw-2-rhel8-operator-06806cfa6b543cae495b45cb4eead6225652ee8c4fbaaf0e06a560154465dd0b-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:06806cfa6b543cae495b45cb4eead6225652ee8c4fbaaf0e06a560154465dd0b
+  - name: crw-2-rhel8-operator-ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:06806cfa6b543cae495b45cb4eead6225652ee8c4fbaaf0e06a560154465dd0b
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
   - name: che_server
-    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:4b5e994b00d10a6b6e8230a60bf971d56eb33716e3631f67e4e12c9f0acb707b
+    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:2ccb72f986d8863a7fae3431f7ed3af5727d8aca1e0f84f1771026f628743f87
   - name: che_server_secure_exposer_jwt_proxy_image
-    image: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:c3d69dd0dff495c21a1fd9e955273c883d5482c3a22df3ee006375b8cec0dae9
+    image: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:fe1ae6af94cc74272a10bc3b359d54c5ad991e25b2fd30d468afc080086bec6b
   - name: che_workspace_plugin_broker_artifacts
-    image: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:ca22bde45b03910d0a9f188ad54e3ed352c8ba369c4551113fa49dbce6f632a5
+    image: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:8b6063b116a78a6886e4e1afc836c5f7d03ce010d58af7b426dce4293d60cf25
   - name: che_workspace_plugin_broker_metadata
-    image: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:e7739ad46076d105b566d3fa8b115192dd27b5c2d6590a558d0c0c5d3022fe30
+    image: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:eeb65960c65eea8809900022730c6598ec40c14f7d64798038828126ffcca758
   - name: codeready_workspaces_machineexec_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:9b6e11fcf60ddf14c971f8d104fedc267c40f82dee0786607d6e94dff0119ddc
+    image: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:6fa4b7dc6832c22c2144ffe6827151cbcac323be6a930294c26c8940dbfdecce
   - name: codeready_workspaces_plugin_java11_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:99177dfaf55d201005b66d220fea0bdde6cac4386d44fe328e2596658a9fbe2a
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:445f3c6455edb54007ce87acd8a170793217c768e3561cfb2abb0d3f81a17bc5
   - name: codeready_workspaces_plugin_java11_openj9_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
   - name: codeready_workspaces_plugin_java11_openj9_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
   - name: codeready_workspaces_plugin_java11_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:99177dfaf55d201005b66d220fea0bdde6cac4386d44fe328e2596658a9fbe2a
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8@sha256:445f3c6455edb54007ce87acd8a170793217c768e3561cfb2abb0d3f81a17bc5
   - name: codeready_workspaces_plugin_java11_ppc64le_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
   - name: codeready_workspaces_plugin_java11_ppc64le_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
   - name: codeready_workspaces_plugin_java11_s390x_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
   - name: codeready_workspaces_plugin_java11_s390x_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:6e8024287f0cbd4eeb804944f5da324744085ef873f6a2160a59090792278a27
+    image: registry.redhat.io/codeready-workspaces/plugin-java11-openj9-rhel8@sha256:03bb065e0832b02e48d83760a4357d1951942649fa296e59fd4e94edbae78aa9
   - name: codeready_workspaces_plugin_java8_devfile_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8@sha256:fdde2746ea406f91114fbcdc7d01163bac2571d7681bd57592430c84a6159734
   - name: codeready_workspaces_plugin_java8_openj9_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
   - name: codeready_workspaces_plugin_java8_openj9_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
   - name: codeready_workspaces_plugin_java8_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8@sha256:fdde2746ea406f91114fbcdc7d01163bac2571d7681bd57592430c84a6159734
   - name: codeready_workspaces_plugin_java8_ppc64le_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
   - name: codeready_workspaces_plugin_java8_ppc64le_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
   - name: codeready_workspaces_plugin_java8_s390x_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
   - name: codeready_workspaces_plugin_java8_s390x_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c012a1439fb8c0bae097a4e0e84342850a6972e96730d9e000f4384bc57d9ca6
+    image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:408db13bd72d2eeec8301467a6b9994ad4b89af0eccde4dfbf712fda0a3d9b4c
   - name: codeready_workspaces_plugin_kubernetes_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:74ab565d830df74c0407417dacdec6c7e707961fbe125a34ee29dd8320da8f6c
   - name: codeready_workspaces_plugin_openshift_plugin_registry_image_gixdcmyk
@@ -1454,13 +1454,13 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:c92ebcb2b4678c7f8fafce51f7d22a34c0c4ac455da0a2bae392661d06bedab1
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:c4076c9d10c4befb06971b5c49dcc6d2ddfb2fa2953d59f7a7633f219a30a3e4
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:0ae69799b628391b231ca361282eb9f76988d2a55a2eefaa305b5abd6f652b15
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:4443b58652002876e8f623db2f746104eefe060775819477b483b60353c87323
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:5abc8a7fbc808616b9216779b2a7f6300f4cf7bc4dbc29d75d47495db6723c3c
   - name: dashboard
-    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:4cd63eb5493bcc2c7099330fa1f488a8dd9375647ff4617737f193db74c1367f
+    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8d8a0dff285da0374b7866cfa93a77079b2574552ec6d42b9696e5abc2c6f4ba
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:64e96596735dce7f77e96d34255827bd0b5d86d8bc5d538a387ba69c2b61e877
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:8c56107bd71f4d229f2ea730f2c27079d5340a0cdf91cd85da25297c11968e84
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
   - name: gateway_authentication_sidecar
@@ -1468,7 +1468,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:71527b0033776ac8a68e9c52937cbdac5909a56058105bcb6489c4a0cb9e4f4d
   - name: internal_rest_backup_server
-    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:26a9c22ea2e5c41e7326415381d6edd73081260b260dd6995e49f72bbc4d3ddd
+    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:c83c17f863160da1ae96f692958a851ae81fd03e35e9b1e661c53610d310f403
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_gmxdacq_
@@ -1486,7 +1486,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:b781a69a344417ecd84df30d6577df8735730398d1e3571d40d21b4bc7a3a596
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:0f25deae54dab3cfbc0f788706f5c8653b630e2903b2ca767625126ec03a961a
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:e8177c5de05ccdd6d12e360b65c63c889b2de725d573ffdedd8914230b118639
   - name: postgres_13_3
@@ -1496,6 +1496,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:1b99d4f6e2f826d6460ff58dcb701675fd597926aa58b0cab49db9d72daacd33
+    image: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:088ab3c548ab9892472b6f915ef65142e83d8ce91d640718dd1d11f2afd727d9
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:0c613da61d835b5af82bc3d21d328bde06ce97dfcaa10a033ea45eb8d13a13cc
+    image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:5e3e0b4a2c99987223235b120aaec73a43ff6f30145365bdf7137bbbbd2e3ea5
