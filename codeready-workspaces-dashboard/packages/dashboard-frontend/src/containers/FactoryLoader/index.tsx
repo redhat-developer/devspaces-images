@@ -41,7 +41,7 @@ import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/dev
 import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
 
-const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create'];
+const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create', 'che-editor'];
 
 const DEFAULT_CREATE_POLICY = 'perclick';
 

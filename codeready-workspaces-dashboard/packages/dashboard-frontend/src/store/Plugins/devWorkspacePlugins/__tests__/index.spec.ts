@@ -18,6 +18,7 @@ import devfileApi from '../../../../services/devfileApi';
 import { FakeStoreBuilder } from '../../../__mocks__/storeBuilder';
 import * as dwPluginsStore from '..';
 import { AppState } from '../../..';
+import axios from 'axios';
 
 // mute the outputs
 console.error = jest.fn();
@@ -90,7 +91,7 @@ describe('dwPlugins store', () => {
       expect(actions).toEqual(expectedActions);
     });
 
-    it('should create REQUEST_DW_PLUGIN and RECEIVE_DW_PLUGIN when fetching the default editor', async () => {
+    it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR when fetching the default editor', async () => {
       (mockAxios.get as jest.Mock).mockResolvedValueOnce({
         data: JSON.stringify(plugin),
       });
@@ -102,61 +103,85 @@ describe('dwPlugins store', () => {
         'che.factory.default_editor': 'default-editor',
       } as che.WorkspaceSettings;
       await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor(settings));
-
       const actions = store.getActions();
 
-      const expectedActions: dwPluginsStore.KnownAction[] = [{
-        type: 'REQUEST_DW_PLUGIN',
-        url: expect.stringContaining('default-editor'),
-      }, {
+      const expectedActions: dwPluginsStore.KnownAction[] = [ {
         type: 'REQUEST_DW_DEFAULT_EDITOR',
-      }, {
-        type: 'RECEIVE_DW_PLUGIN',
-        plugin,
-        url: expect.stringContaining('default-editor'),
+      },{
+        type: 'RECEIVE_DW_DEFAULT_EDITOR',
+        defaultEditorName: 'default-editor',
+      },
+      {
+        type: 'REQUEST_DW_EDITOR',
+        editorName: 'default-editor',
       }];
-
       expect(actions).toEqual(expectedActions);
     });
 
-    it('should create REQUEST_DW_PLUGIN, RECEIVE_DW_PLUGIN_ERROR and RECEIVE_DW_DEFAULT_EDITOR_ERROR when failed to fetch the default editor', async () => {
-      (mockAxios.get as jest.Mock).mockRejectedValueOnce({
-        isAxiosError: true,
-        code: '500',
-        message: 'unexpected error',
-      } as AxiosError);
+    it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR when fetching http editor', async () => {
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: JSON.stringify(plugin),
+      });
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>>;
 
+      // no plugin url as it should fetch from the editor directly
       const settings = {
-        cheWorkspacePluginRegistryUrl: 'plugin-registry-location',
         'che.factory.default_editor': 'default-editor',
       } as che.WorkspaceSettings;
+      const editorLink = 'https://my-fake-editor.yaml';
+      await store.dispatch(dwPluginsStore.actionCreators.requestDwEditor(settings, editorLink));
+      const actions = store.getActions();
+
+      const expectedActions: dwPluginsStore.KnownAction[] = [ {
+        type: 'REQUEST_DW_EDITOR',
+        editorName: editorLink
+      },{
+        type: 'RECEIVE_DW_EDITOR',
+        editorName: editorLink,
+        plugin
+      }];
+      expect(actions).toEqual(expectedActions);
+
+      // check that we fetched the editor on axios
+      expect(axios.get).toBeCalledWith(editorLink);
+    });
+
+    it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR_ERROR when failed to fetch an editor', async () => {
+      (mockAxios.get as jest.Mock).mockRejectedValueOnce({
+        isAxiosError: true,
+        code: '500',
+        message: 'Something unexpected happened.',
+      } as AxiosError);
+
+      // no plugin url as it should fetch from the editor directly
+      const settings = {
+        'che.factory.default_editor': 'default-editor',
+      } as che.WorkspaceSettings;
+      const editorLink = 'https://my-fake-editor.yaml';
+
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>>;
+
       try {
-        await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor(settings));
+        await store.dispatch(dwPluginsStore.actionCreators.requestDwEditor(settings, editorLink));
       } catch (e) {
         // noop
       }
       const actions = store.getActions();
 
       const expectedActions: dwPluginsStore.KnownAction[] = [{
-        type: 'REQUEST_DW_PLUGIN',
-        url: expect.stringContaining('default-editor'),
+        type: 'REQUEST_DW_EDITOR',
+        editorName: editorLink,
       }, {
-        type: 'REQUEST_DW_DEFAULT_EDITOR',
-      }, {
-        type: 'RECEIVE_DW_PLUGIN_ERROR',
-        error: expect.stringContaining('unexpected error'),
-        url: expect.stringContaining('default-editor'),
-      }, {
-        type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
-        error: expect.stringContaining('unexpected error'),
+        type: 'RECEIVE_DW_EDITOR_ERROR',
+        error: expect.stringContaining('Failed to load the editor https://my-fake-editor.yaml. Invalid devfile.'),
+        editorName: editorLink,
       }];
 
       expect(actions).toEqual(expectedActions);
     });
 
-    it('should create only RECEIVE_DW_DEFAULT_EDITOR_ERROR if workspace settings don"t have necessary fields', async () => {
+    it('should create only RECEIVE_DW_DEFAULT_EDITOR_ERROR if workspace settings don\'t have necessary fields', async () => {
       (mockAxios.get as jest.Mock).mockResolvedValueOnce({
         data: {},
       });
@@ -171,13 +196,56 @@ describe('dwPlugins store', () => {
       }
       const actions = store.getActions();
 
-      const expectedActions: dwPluginsStore.KnownAction[] = [{
+      const expectedActions: dwPluginsStore.KnownAction[] = [
+        {
+          type: 'REQUEST_DW_DEFAULT_EDITOR',
+        },
+        {
         type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
-        error: 'Failed to load the default editor, reason: plugin registry URL or default editor ID is not provided by Che server.',
+        error: 'Failed to load the default editor, reason: default editor ID is not provided by Che server.',
       }];
 
       expect(actions).toEqual(expectedActions);
       expect(mockAxios.get).not.toHaveBeenCalled();
+    });
+
+    it('should create REQUEST_DW_EDITOR and RECEIVE_DW__EDITOR_ERROR when missing plugin registry URL to fetch the editor', async () => {
+      (mockAxios.get as jest.Mock).mockRejectedValueOnce({
+        isAxiosError: true,
+        code: '500',
+        message: 'unexpected error',
+      } as AxiosError);
+
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>>;
+
+      const settings = {
+        'che.factory.default_editor': 'default-editor',
+      } as che.WorkspaceSettings;
+      try {
+        await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultEditor(settings));
+      } catch (e) {
+        // noop
+      }
+      const actions = store.getActions();
+
+      const expectedActions: dwPluginsStore.KnownAction[] = [{
+        type: 'REQUEST_DW_DEFAULT_EDITOR',
+      },
+      {
+        type: 'RECEIVE_DW_DEFAULT_EDITOR',
+        defaultEditorName: 'default-editor',
+      },
+      {
+        type: 'REQUEST_DW_EDITOR',
+        editorName: 'default-editor',
+      },
+      {
+        type: 'RECEIVE_DW_EDITOR_ERROR',
+        editorName: 'default-editor',
+        error: expect.stringContaining(' plugin registry URL is not provided'),
+      },
+      ];
+      expect(actions).toEqual(expectedActions);
     });
 
   });
@@ -194,6 +262,7 @@ describe('dwPlugins store', () => {
       const expectedState: dwPluginsStore.State = {
         isLoading: false,
         plugins: {},
+        editors: {},
       };
 
       expect(initialState).toEqual(expectedState);
@@ -202,6 +271,7 @@ describe('dwPlugins store', () => {
     it('should return state if action type is not matched', () => {
       const initialState: dwPluginsStore.State = {
         isLoading: true,
+        editors: {},
         plugins: {},
       } as dwPluginsStore.State;
       const incomingAction = {
@@ -212,6 +282,7 @@ describe('dwPlugins store', () => {
       const expectedState: dwPluginsStore.State = {
         isLoading: true,
         plugins: {},
+        editors: {},
       };
       expect(newState).toEqual(expectedState);
 
@@ -220,6 +291,7 @@ describe('dwPlugins store', () => {
     it('should handle REQUEST_DW_PLUGIN', () => {
       const initialState: dwPluginsStore.State = {
         isLoading: false,
+        editors: {},
         plugins: {
           'devfile-location': {
             error: 'unexpected error',
@@ -235,6 +307,7 @@ describe('dwPlugins store', () => {
 
       const expectedState: dwPluginsStore.State = {
         isLoading: true,
+        editors: {},
         plugins: {
           'devfile-location': {},
         },
@@ -243,9 +316,40 @@ describe('dwPlugins store', () => {
       expect(newState).toEqual(expectedState);
     });
 
+    it('should handle REQUEST_DW_EDITOR', () => {
+      const initialState: dwPluginsStore.State = {
+        isLoading: false,
+        editors: {
+          'foo': {
+            error: 'unexpected error',
+          }
+        },
+        plugins: {},
+      };
+      const incomingAction: dwPluginsStore.RequestDwEditorAction = {
+        type: 'REQUEST_DW_EDITOR',
+        editorName: 'foo',
+      };
+
+      const newState = dwPluginsStore.reducer(initialState, incomingAction);
+
+      const expectedState: dwPluginsStore.State = {
+        isLoading: true,
+        editors: {
+          'foo': {
+            plugin: undefined
+          }
+        },
+        plugins: {},
+      };
+
+      expect(newState).toEqual(expectedState);
+    });
+
     it('should handle REQUEST_DW_DEFAULT_EDITOR', () => {
       const initialState: dwPluginsStore.State = {
         isLoading: false,
+        editors: {},
         plugins: {},
         defaultEditorError: 'unexpected error',
       };
@@ -257,6 +361,7 @@ describe('dwPlugins store', () => {
 
       const expectedState: dwPluginsStore.State = {
         isLoading: true,
+        editors: {},
         plugins: {},
       };
 
@@ -266,6 +371,7 @@ describe('dwPlugins store', () => {
     it('should handle RECEIVE_DW_PLUGIN', () => {
       const initialState: dwPluginsStore.State = {
         isLoading: true,
+        editors: {},
         plugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwPluginAction = {
@@ -278,6 +384,7 @@ describe('dwPlugins store', () => {
 
       const expectedState: dwPluginsStore.State = {
         isLoading: false,
+        editors: {},
         plugins: {
           'devfile-location': {
             plugin,
@@ -288,9 +395,37 @@ describe('dwPlugins store', () => {
       expect(newState).toEqual(expectedState);
     });
 
+    it('should handle RECEIVE_DW_EDITOR', () => {
+      const initialState: dwPluginsStore.State = {
+        isLoading: true,
+        editors: {},
+        plugins: {},
+      };
+      const incomingAction: dwPluginsStore.ReceiveDwEditorAction = {
+        type: 'RECEIVE_DW_EDITOR',
+        editorName: 'my-editor',
+        plugin,
+      };
+
+      const newState = dwPluginsStore.reducer(initialState, incomingAction);
+
+      const expectedState: dwPluginsStore.State = {
+        isLoading: false,
+        editors: {
+          'my-editor': {
+            plugin
+          }
+        },
+        plugins: {},
+      };
+
+      expect(newState).toEqual(expectedState);
+    });
+
     it('should handle RECEIVE_DW_PLUGIN_ERROR', () => {
       const initialState: dwPluginsStore.State = {
         isLoading: true,
+        editors: {},
         plugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwPluginErrorAction = {
@@ -303,6 +438,7 @@ describe('dwPlugins store', () => {
 
       const expectedState: dwPluginsStore.State = {
         isLoading: false,
+        editors: {},
         plugins: {
           'devfile-location': {
             error: 'unexpected error',
@@ -313,9 +449,37 @@ describe('dwPlugins store', () => {
       expect(newState).toEqual(expectedState);
     });
 
+    it('should handle RECEIVE_DW_EDITOR_ERROR', () => {
+      const initialState: dwPluginsStore.State = {
+        isLoading: true,
+        editors: {},
+        plugins: {},
+      };
+      const incomingAction: dwPluginsStore.RequestDwEditorErrorAction = {
+        type: 'RECEIVE_DW_EDITOR_ERROR',
+        editorName: 'foo',
+        error: 'unexpected error',
+      };
+
+      const newState = dwPluginsStore.reducer(initialState, incomingAction);
+
+      const expectedState: dwPluginsStore.State = {
+        isLoading: false,
+        editors: {
+          'foo': {
+            error: 'unexpected error'
+          }
+        },
+        plugins: {},
+      };
+
+      expect(newState).toEqual(expectedState);
+    });    
+
     it('should handle RECEIVE_DW_DEFAULT_EDITOR_ERROR', () => {
       const initialState: dwPluginsStore.State = {
         isLoading: true,
+        editors: {},
         plugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwDefaultEditorErrorAction = {
@@ -327,12 +491,36 @@ describe('dwPlugins store', () => {
 
       const expectedState: dwPluginsStore.State = {
         isLoading: false,
+        editors: {},
         plugins: {},
         defaultEditorError: 'unexpected error',
       };
 
       expect(newState).toEqual(expectedState);
     });
+
+    it('should handle RECEIVE_DW_DEFAULT_EDITOR', () => {
+      const initialState: dwPluginsStore.State = {
+        isLoading: true,
+        editors: {},
+        plugins: {},
+      };
+      const incomingAction: dwPluginsStore.ReceiveDwDefaultEditorAction = {
+        type: 'RECEIVE_DW_DEFAULT_EDITOR',
+        defaultEditorName: 'hello',
+      };
+
+      const newState = dwPluginsStore.reducer(initialState, incomingAction);
+
+      const expectedState: dwPluginsStore.State = {
+        isLoading: false,
+        editors: {},
+        plugins: {},
+        defaultEditorName: 'hello',
+      };
+
+      expect(newState).toEqual(expectedState);
+    });    
 
   });
 

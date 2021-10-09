@@ -19,7 +19,7 @@ export const devworkspaceSingularSubresource = 'devworkspace';
 export function devfileToDevWorkspace(devfile: devfileApi.Devfile, routingClass: string, started: boolean): devfileApi.DevWorkspace {
   const devfileAttributes = devfile.metadata.attributes || {};
   const devWorkspaceAnnotations = devfileAttributes['dw.metadata.annotations'] || {};
-  const template = {
+  const template: devfileApi.DevWorkspace = {
     apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
     kind: 'DevWorkspace',
     metadata: {
@@ -36,7 +36,7 @@ export function devfileToDevWorkspace(devfile: devfileApi.Devfile, routingClass:
         components: []
       }
     }
-  } as devfileApi.DevWorkspace;
+  };
   if (devfile.projects) {
     template.spec.template.projects = devfile.projects;
   }

@@ -14,6 +14,8 @@ import { cloneDeep } from 'lodash';
 import { convertWorkspace } from '..';
 import { CheWorkspaceBuilder, CHE_DEVFILE_STUB, CHE_RUNTIME_STUB } from '../../../store/__mocks__/cheWorkspaceBuilder';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/devWorkspace/metadata';
+import { DevWorkspaceStatus } from '../../helpers/types';
 import { StorageTypeTitle } from '../../storageTypes';
 
 /**
@@ -325,10 +327,12 @@ describe('Workspace adapter', () => {
     // todo fix that stub implementation
     it('should return timestamp of updating', () => {
       const timestamp = 22222222;
-      const updated = new Date(timestamp);
+      const updated = new Date(timestamp).toISOString();
       const devWorkspace = new DevWorkspaceBuilder()
         .build();
-      devWorkspace.metadata.creationTimestamp = updated;
+      devWorkspace.metadata.annotations = {
+        [DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]: updated,
+      };
       const workspace = convertWorkspace(devWorkspace);
       expect(workspace.updated).toEqual(timestamp);
     });
@@ -336,10 +340,10 @@ describe('Workspace adapter', () => {
     it('should return status', () => {
       const status = 'STARTING';
       const devWorkspace = new DevWorkspaceBuilder()
-        .withStatus(status)
+        .withStatus({ phase: status })
         .build();
       const workspace = convertWorkspace(devWorkspace);
-      expect(workspace.status).toEqual(status);
+      expect(workspace.status).toEqual(DevWorkspaceStatus[status]);
     });
 
     it('should return ideUrl', () => {

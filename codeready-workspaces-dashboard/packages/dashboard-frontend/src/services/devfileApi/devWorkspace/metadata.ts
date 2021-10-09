@@ -12,5 +12,13 @@
 
 import { V1alpha2DevWorkspaceMetadata } from '@devfile/api';
 
+export const DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION = 'che.eclipse.org/last-updated-timestamp';
+type DevWorkspaceMetadataAnnotation = {
+  DEVWORKSPACE_UPDATING_TIME_ANNOTATION?: string;
+}
+
 export type DevWorkspaceMetadata = V1alpha2DevWorkspaceMetadata
-  & Required<Pick<V1alpha2DevWorkspaceMetadata, 'labels' | 'name' | 'namespace' | 'uid'>>;
+  & Required<Pick<V1alpha2DevWorkspaceMetadata, 'labels' | 'name' | 'namespace' | 'uid'>>
+  & {
+    annotations?: DevWorkspaceMetadataAnnotation;
+  }

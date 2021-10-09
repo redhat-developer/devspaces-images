@@ -104,7 +104,7 @@ export function buildRow(
   );
 
   /* last modified time */
-  const lastModifiedMs = workspace.updated ? workspace.updated : workspace.created;
+  const lastModifiedMs = workspace.updated;
   let lastModifiedDate = '';
   if (lastModifiedMs) {
     const nowMs = Date.now();

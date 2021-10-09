@@ -19,7 +19,8 @@ import { Debounce } from './services/helpers/debounce';
 import { CheWorkspaceClient } from './services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppAlerts } from './services/alerts/appAlerts';
 import { IssuesReporterService } from './services/bootstrap/issuesReporter';
-import { DevWorkspaceClient } from './services/workspace-client/devworkspace/devWorkspaceClient';
+import { DevWorkspaceClient, IDevWorkspaceEditorProcess } from './services/workspace-client/devworkspace/devWorkspaceClient';
+import { DevWorkspaceEditorProcessTheia } from './services/workspace-client/devworkspace/DevWorkspaceEditorProcessTheia';
 
 const container = new Container();
 const { lazyInject } = getDecorators(container);
@@ -30,6 +31,7 @@ container.bind(KeycloakAuthService).toSelf().inSingletonScope();
 container.bind(Debounce).toSelf();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();
 container.bind(DevWorkspaceClient).toSelf().inSingletonScope();
+container.bind(IDevWorkspaceEditorProcess).to(DevWorkspaceEditorProcessTheia).inSingletonScope();
 container.bind(AppAlerts).toSelf().inSingletonScope();
 
 export { container, lazyInject };

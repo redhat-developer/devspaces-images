@@ -27,10 +27,11 @@ import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { DisposableCollection } from '../../../services/helpers/disposable';
-import { selectDwPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
+import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
 import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
-
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../../services/devfileApi/devWorkspace/metadata';
+import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
@@ -129,6 +130,7 @@ export type ActionCreators = {
   },
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
+    attributes: { [key: string]: string },
   ) => AppThunk<KnownAction, Promise<void>>;
 
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
@@ -158,7 +160,7 @@ export const actionCreators: ActionCreators = {
     onStatusUpdateReceived(dispatch, message);
   },
 
-  requestWorkspaces: (): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+  requestWorkspaces: (): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
 
     try {
@@ -170,6 +172,14 @@ export const actionCreators: ActionCreators = {
         workspaces,
         resourceVersion,
       });
+
+      const promises = workspaces
+        .filter(workspace => workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] === undefined)
+        .map(async (workspace) => {
+          // this will set updating timestamp to annotations and update the workspace
+          await actionCreators.updateWorkspace(workspace)(dispatch, getState, undefined);
+        });
+      await Promise.allSettled(promises);
     } catch (e) {
       const errorMessage = 'Failed to fetch available workspaces, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({
@@ -181,7 +191,7 @@ export const actionCreators: ActionCreators = {
 
   },
 
-  requestWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+  requestWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
 
     try {
@@ -192,6 +202,11 @@ export const actionCreators: ActionCreators = {
         type: 'UPDATE_DEVWORKSPACE',
         workspace: update,
       });
+
+      if (update.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] === undefined) {
+        // this will set updating timestamp to annotations and update the workspace
+        await actionCreators.updateWorkspace(update)(dispatch, getState, undefined);
+      }
     } catch (e) {
       const errorMessage = `Failed to fetch the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
       dispatch({
@@ -210,7 +225,7 @@ export const actionCreators: ActionCreators = {
       if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
         // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
         const state = getState();
-        const plugins = selectDwPluginsList(state);
+        const plugins = selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state);
 
         const storedDevWorkspace = JSON.parse(workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) as unknown;
         if (!isDevWorkspace(storedDevWorkspace)) {
@@ -223,7 +238,7 @@ export const actionCreators: ActionCreators = {
         workspace.spec.started = true;
         updatedWorkspace = await devWorkspaceClient.update(workspace, plugins);
       } else {
-        updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace.metadata.namespace, workspace.metadata.name, true);
+        updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true);
       }
       dispatch({
         type: 'UPDATE_DEVWORKSPACE',
@@ -274,7 +289,7 @@ export const actionCreators: ActionCreators = {
 
   stopWorkspace: (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
     try {
-      devWorkspaceClient.changeWorkspaceStatus(workspace.metadata.namespace, workspace.metadata.name, false);
+      devWorkspaceClient.changeWorkspaceStatus(workspace, false);
       dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId: WorkspaceAdapter.getId(workspace) });
     } catch (e) {
       const errorMessage = `Failed to stop the workspace ${workspace.metadata.name}, reason: ` + common.helpers.errors.getMessage(e);
@@ -333,26 +348,46 @@ export const actionCreators: ActionCreators = {
     },
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
+    attributes: { [key: string]: string },
   ): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
 
-    const state = getState();
+    let state = getState();
+
+    // do we have an optional editor parameter ?
+    let cheEditor : string | undefined = attributes?.['che-editor'];
+    if (cheEditor) {
+      // if the editor is different than the current default one, need to load a specific one
+      if (cheEditor !== state.dwPlugins.defaultEditorName) {
+        console.log(`User specified a different editor than the current default. Loading ${cheEditor} definition instead of ${state.dwPlugins.defaultEditorName}.`);
+        await dispatch(DwPluginsStore.actionCreators.requestDwEditor(state.workspacesSettings.settings, cheEditor));
+      }
+    } else {
+      // take the default editor name
+      console.log(`Using default editor ${state.dwPlugins.defaultEditorName}`);
+      cheEditor = state.dwPlugins.defaultEditorName;
+    }
 
     if (state.dwPlugins.defaultEditorError) {
       throw `Required sources failed when trying to create the workspace: ${state.dwPlugins.defaultEditorError}`;
     }
 
+    // refresh state
+    state = getState();
     dispatch({ type: 'REQUEST_DEVWORKSPACE' });
     try {
       // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
       const devWorkspaceDevfile = devfile as devfileApi.Devfile;
       const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
-      const dwPlugins = selectDwPluginsList(state);
-      const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, defaultNamespace, dwPlugins, pluginRegistryUrl, pluginRegistryInternalUrl, optionalFilesContent);
+      const dwEditors = selectDwEditorsPluginsList(cheEditor)(state);
+      const workspace = await devWorkspaceClient.create(devWorkspaceDevfile, defaultNamespace, dwEditors, pluginRegistryUrl, pluginRegistryInternalUrl, optionalFilesContent);
 
       dispatch({
         type: 'ADD_DEVWORKSPACE',
         workspace,
       });
+
+      // this will set updating timestamp to annotations and update the workspace
+      await actionCreators.updateWorkspace(workspace)(dispatch, getState, undefined);
     } catch (e) {
       const errorMessage = 'Failed to create a new workspace from the devfile, reason: ' + common.helpers.errors.getMessage(e);
       dispatch({

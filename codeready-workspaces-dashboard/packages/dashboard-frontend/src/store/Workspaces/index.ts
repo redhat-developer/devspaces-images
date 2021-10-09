@@ -265,7 +265,7 @@ export const actionCreators: ActionCreators = {
       if (cheDevworkspaceEnabled && isDevfileV2(devfile)) {
         const pluginRegistryUrl = state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
         const pluginRegistryInternalUrl = state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
-        await dispatch(DevWorkspacesStore.actionCreators.createWorkspaceFromDevfile(devfile, optionalFilesContent || {}, pluginRegistryUrl, pluginRegistryInternalUrl));
+        await dispatch(DevWorkspacesStore.actionCreators.createWorkspaceFromDevfile(devfile, optionalFilesContent || {}, pluginRegistryUrl, pluginRegistryInternalUrl, attributes));
         dispatch({ type: 'ADD_WORKSPACE' });
       } else {
         await dispatch(CheWorkspacesStore.actionCreators.createWorkspaceFromDevfile(devfile as che.WorkspaceDevfile, namespace, infrastructureNamespace, attributes));

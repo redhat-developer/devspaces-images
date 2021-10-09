@@ -18,16 +18,25 @@ import { AppThunk } from '../..';
 import { fetchDevfile, fetchData } from '../../../services/registry/devfiles';
 import { createObject } from '../../helpers';
 
+export interface PluginDefinition {
+    plugin?: devfileApi.Devfile;
+    error?: string;
+}
+
 export interface State {
   isLoading: boolean;
   plugins: {
-    [url: string]: {
-      plugin?: devfileApi.Devfile;
-      error?: string;
-    };
+    [url: string]: PluginDefinition;
   };
-
+  editors: {
+    [editorName: string]: PluginDefinition;
+  };
+  defaultEditorName?: string;
   defaultEditorError?: string;
+}
+
+export interface RequestDwDefaultEditorAction {
+  type: 'REQUEST_DW_DEFAULT_EDITOR';
 }
 
 export interface RequestDwPluginAction {
@@ -47,8 +56,26 @@ export interface ReceiveDwPluginErrorAction {
   error: string;
 }
 
-export interface RequestDwDefaultEditorAction {
-  type: 'REQUEST_DW_DEFAULT_EDITOR';
+export interface ReceiveDwEditorAction {
+  type: 'RECEIVE_DW_EDITOR';
+  editorName: string;
+  plugin: devfileApi.Devfile;
+}
+
+export interface RequestDwEditorAction {
+  type: 'REQUEST_DW_EDITOR';
+  editorName: string;
+}
+
+export interface ReceiveDwDefaultEditorAction {
+  type: 'RECEIVE_DW_DEFAULT_EDITOR';
+  defaultEditorName: string;
+}
+
+export interface RequestDwEditorErrorAction {
+  type: 'RECEIVE_DW_EDITOR_ERROR';
+  editorName: string;
+  error: string;
 }
 
 export interface ReceiveDwDefaultEditorErrorAction {
@@ -60,13 +87,17 @@ export type KnownAction = RequestDwPluginAction
   | ReceiveDwPluginAction
   | ReceiveDwPluginErrorAction
   | RequestDwDefaultEditorAction
-  | ReceiveDwDefaultEditorErrorAction;
+  | ReceiveDwDefaultEditorAction
+  | ReceiveDwDefaultEditorErrorAction
+  | RequestDwEditorAction
+  | ReceiveDwEditorAction
+  | RequestDwEditorErrorAction;
 
 export type ActionCreators = {
   requestDwDevfiles: (url: string) => AppThunk<KnownAction, Promise<void>>;
   requestDwDefaultEditor: (settings: che.WorkspaceSettings) => AppThunk<KnownAction, Promise<void>>;
+  requestDwEditor: (settings: che.WorkspaceSettings, editorName: string) => AppThunk<KnownAction, Promise<void>>;
 }
-
 export const actionCreators: ActionCreators = {
 
   requestDwDevfiles: (url: string): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
@@ -94,56 +125,84 @@ export const actionCreators: ActionCreators = {
     }
   },
 
-  requestDwDefaultEditor: (settings: che.WorkspaceSettings): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    const pluginRegistryUrl = settings.cheWorkspacePluginRegistryUrl;
-    const defaultEditor = settings['che.factory.default_editor'];
+  requestDwEditor: (settings: che.WorkspaceSettings, editorName: string): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+    dispatch({
+      type: 'REQUEST_DW_EDITOR',
+      editorName,
+    });
 
-    if (!pluginRegistryUrl || !defaultEditor) {
-      const errorMessage = 'Failed to load the default editor, reason: plugin registry URL or default editor ID is not provided by Che server.';
-      dispatch({
-        type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
+    let editorUrl;
+    // check if the editor is an id or a path to a given editor
+    if (editorName.startsWith('https://')) {
+      editorUrl = editorName;
+    } else {
+      const pluginRegistryUrl = settings.cheWorkspacePluginRegistryUrl;
+      editorUrl = `${settings.cheWorkspacePluginRegistryUrl}/plugins/${editorName}/devfile.yaml`;
+
+      if (!pluginRegistryUrl) {
+        const errorMessage = 'Failed to load the default editor, reason: plugin registry URL is not provided by Che server.';
+        dispatch({
+          type: 'RECEIVE_DW_EDITOR_ERROR',
+          editorName,
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
     }
 
-    const defaultEditorUrl = `${settings.cheWorkspacePluginRegistryUrl}/plugins/${settings['che.factory.default_editor']}/devfile.yaml`;
-
-    dispatch({
-      type: 'REQUEST_DW_PLUGIN',
-      url: defaultEditorUrl,
-    });
-    dispatch({
-      type: 'REQUEST_DW_DEFAULT_EDITOR',
-    });
     try {
-      const pluginContent = await fetchData<string>(defaultEditorUrl);
+      const pluginContent = await fetchData<string>(editorUrl);
       const plugin = safeLoad(pluginContent) as devfileApi.Devfile;
       dispatch({
-        type: 'RECEIVE_DW_PLUGIN',
-        url: defaultEditorUrl,
+        type: 'RECEIVE_DW_EDITOR',
+        editorName,
         plugin,
       });
     } catch (error) {
-      const errorMessage = `Failed to load the default editor, reason: "${defaultEditorUrl}" responds "${error}".`;
+      console.log(`Failed to load the content of the editor ${editorName}`, error);
+      const errorMessage = `Failed to load the editor ${editorName}. Invalid devfile. Check 'che-editor' param.`;
       dispatch({
-        type: 'RECEIVE_DW_PLUGIN_ERROR',
-        url: defaultEditorUrl,
-        error: errorMessage,
-      });
-      dispatch({
-        type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
+        type: 'RECEIVE_DW_EDITOR_ERROR',
+        editorName,
         error: errorMessage,
       });
       throw errorMessage;
     }
   },
 
+  requestDwDefaultEditor: (settings: che.WorkspaceSettings): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+    const defaultEditor = settings['che.factory.default_editor'];
+
+    dispatch({
+      type: 'REQUEST_DW_DEFAULT_EDITOR'
+    });
+
+    if (!defaultEditor) {
+      const errorMessage = 'Failed to load the default editor, reason: default editor ID is not provided by Che server.';
+      dispatch({
+        type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
+        error: errorMessage,
+      });
+      throw errorMessage;
+    }
+
+    dispatch({
+      type: 'RECEIVE_DW_DEFAULT_EDITOR',
+      defaultEditorName: defaultEditor,
+    });
+
+    // request default editor
+    dispatch(actionCreators.requestDwEditor(settings, defaultEditor));
+
+  }
+
 };
 
 const unloadedState: State = {
   isLoading: false,
   plugins: {},
+  editors: {},
+  defaultEditorName: undefined,
 };
 
 export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
@@ -163,9 +222,19 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
           }
         },
       });
+    case 'REQUEST_DW_EDITOR': 
+        return createObject(state, {
+          isLoading: true,
+          editors: Object.assign(state.editors, {
+            [action.editorName]: {
+              plugin: undefined,
+            }
+          }),
+        });
     case 'REQUEST_DW_DEFAULT_EDITOR':
       return createObject(state, {
         isLoading: true,
+        defaultEditorName: undefined,
         defaultEditorError: undefined,
       });
     case 'RECEIVE_DW_PLUGIN':
@@ -177,6 +246,24 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
           }
         }
       });
+    case 'RECEIVE_DW_EDITOR': 
+      return createObject(state, {
+          isLoading: false,
+          editors: Object.assign(state.editors, {
+            [action.editorName]: {
+              plugin: action.plugin,
+            }
+          })
+        });
+     case 'RECEIVE_DW_EDITOR_ERROR':
+          return createObject(state, {
+            isLoading: false,
+            editors: {
+              [action.editorName]: {
+                error: action.error,
+              }
+            }});
+      
     case 'RECEIVE_DW_PLUGIN_ERROR':
       return createObject(state, {
         isLoading: false,
@@ -193,7 +280,12 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         isLoading: false,
         defaultEditorError: action.error,
       });
-    default:
+    case 'RECEIVE_DW_DEFAULT_EDITOR':
+        return createObject(state, {
+          isLoading: false,
+          defaultEditorName: action.defaultEditorName,
+        });
+      default:
       return state;
   }
 };

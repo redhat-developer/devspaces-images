@@ -136,7 +136,7 @@
 | [`@octokit/graphql@4.8.0`](https://github.com/octokit/graphql.js.git) | MIT | clearlydefined |
 | [`@octokit/openapi-types@10.1.1`](https://github.com/octokit/openapi-types.ts.git) | MIT | clearlydefined |
 | [`@octokit/plugin-enterprise-rest@6.0.1`](https://github.com/octokit/plugin-enterprise-rest.js.git) | MIT | clearlydefined |
-| [`@octokit/plugin-paginate-rest@2.16.0`](https://github.com/octokit/plugin-paginate-rest.js.git) | MIT |  |
+| [`@octokit/plugin-paginate-rest@2.16.0`](https://github.com/octokit/plugin-paginate-rest.js.git) | MIT | #1193 |
 | [`@octokit/plugin-request-log@1.0.4`](https://github.com/octokit/plugin-request-log.js.git) | MIT | clearlydefined |
 | [`@octokit/plugin-rest-endpoint-methods@5.10.1`](https://github.com/octokit/plugin-rest-endpoint-methods.js.git) | MIT | clearlydefined |
 | [`@octokit/request-error@2.1.0`](https://github.com/octokit/request-error.js.git) | MIT | clearlydefined |
@@ -320,7 +320,7 @@
 | [`browserify-rsa@4.1.0`](https://github.com:crypto-browserify/browserify-rsa.git) | MIT | clearlydefined |
 | [`browserify-sign@4.2.1`](https://github.com/crypto-browserify/browserify-sign.git) | ISC | clearlydefined |
 | [`browserify-zlib@0.2.0`](git+https://github.com/devongovett/browserify-zlib.git) | MIT | clearlydefined |
-| [`browserslist@4.17.0`](https://github.com/browserslist/browserslist.git) | MIT | clearlydefined |
+| [`browserslist@4.17.0`](https://github.com/browserslist/browserslist.git) | MIT | #1213 |
 | [`bs-logger@0.2.6`](git+https://github.com/huafu/bs-logger.git) | MIT | clearlydefined |
 | [`bser@2.1.1`](https://github.com/facebook/watchman) | Apache-2.0 | clearlydefined |
 | [`buffer-from@1.1.2`](https://github.com/LinusU/buffer-from.git) | MIT | clearlydefined |
@@ -341,7 +341,7 @@
 | [`camel-case@4.1.2`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
 | [`camelcase-keys@6.2.2`](https://github.com/sindresorhus/camelcase-keys.git) | MIT | clearlydefined |
 | [`camelcase@5.3.1`](https://github.com/sindresorhus/camelcase.git) | MIT | clearlydefined |
-| [`caniuse-lite@1.0.30001255`](https://github.com/browserslist/caniuse-lite.git) | CC-BY-4.0 | clearlydefined |
+| [`caniuse-lite@1.0.30001255`](https://github.com/browserslist/caniuse-lite.git) | CC-BY-4.0 | #1196 |
 | [`capture-exit@2.0.0`](git+https://github.com/stefanpenner/capture-exit.git) | ISC | clearlydefined |
 | [`ccount@1.1.0`](https://github.com/wooorm/ccount.git) | MIT | clearlydefined |
 | [`chalk@4.1.2`](https://github.com/chalk/chalk.git) | MIT | clearlydefined |
@@ -464,7 +464,7 @@
 | [`dot-prop@5.3.0`](https://github.com/sindresorhus/dot-prop.git) | MIT | clearlydefined |
 | [`duplexer@0.1.2`](git://github.com/Raynos/duplexer.git) | MIT | #1002 |
 | [`duplexify@3.7.1`](git://github.com/mafintosh/duplexify) | MIT | clearlydefined |
-| [`electron-to-chromium@1.3.833`](https://github.com/kilian/electron-to-chromium/) | ISC | clearlydefined |
+| [`electron-to-chromium@1.3.833`](https://github.com/kilian/electron-to-chromium/) | ISC | #1204 |
 | [`elliptic@6.5.4`](git@github.com:indutny/elliptic) | MIT | [CQ23022](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23022) |
 | [`emittery@0.7.2`](https://github.com/sindresorhus/emittery.git) | MIT | clearlydefined |
 | [`emoji-regex@8.0.0`](https://github.com/mathiasbynens/emoji-regex.git) | MIT | clearlydefined |
@@ -484,7 +484,7 @@
 | [`eslint-loader@4.0.2`](https://github.com/webpack-contrib/eslint-loader.git) | MIT | clearlydefined |
 | [`eslint-plugin-notice@0.9.10`](https://github.com/nickdeis/eslint-plugin-notice) | MIT | clearlydefined |
 | [`eslint-plugin-react-hooks@4.2.0`](https://github.com/facebook/react.git) | MIT | clearlydefined |
-| [`eslint-plugin-react@7.26.0`](https://github.com/yannickcr/eslint-plugin-react) | MIT | clearlydefined |
+| [`eslint-plugin-react@7.26.0`](https://github.com/yannickcr/eslint-plugin-react) | MIT | #1216 |
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
 | [`eslint-utils@2.1.0`](git+https://github.com/mysticatea/eslint-utils.git) | MIT | clearlydefined |
 | [`eslint-visitor-keys@2.1.0`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | clearlydefined |
@@ -733,7 +733,7 @@
 | [`lower-case@2.0.2`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
 | [`lz-string@1.4.4`](https://github.com/pieroxy/lz-string.git) | WTFPL |  |
 | [`make-dir@3.1.0`](https://github.com/sindresorhus/make-dir.git) | MIT | clearlydefined |
-| [`make-fetch-happen@9.1.0`](https://github.com/npm/make-fetch-happen) | ISC | clearlydefined |
+| [`make-fetch-happen@9.1.0`](https://github.com/npm/make-fetch-happen) | ISC | #1194 |
 | [`makeerror@1.0.11`](https://github.com/daaku/nodejs-makeerror) | BSD-3-Clause | clearlydefined |
 | [`map-cache@0.2.2`](https://github.com/jonschlinkert/map-cache.git) | MIT | clearlydefined |
 | [`map-obj@4.2.1`](https://github.com/sindresorhus/map-obj.git) | MIT | clearlydefined |
@@ -1048,7 +1048,7 @@
 | [`supports-hyperlinks@2.2.0`](https://github.com/jamestalmage/supports-hyperlinks.git) | MIT | clearlydefined |
 | [`svg-tags@1.0.0`](git://github.com/element-io/svg-tags.git) | MIT | clearlydefined |
 | [`symbol-tree@3.2.4`](https://github.com/jsdom/js-symbol-tree.git) | MIT | clearlydefined |
-| [`table@6.7.1`](https://github.com/gajus/table) | BSD-3-Clause | clearlydefined |
+| [`table@6.7.1`](https://github.com/gajus/table) | BSD-3-Clause | #1215 |
 | [`tapable@1.1.3`](http://github.com/webpack/tapable.git) | MIT | clearlydefined |
 | [`temp-dir@1.0.0`](https://github.com/sindresorhus/temp-dir.git) | MIT | clearlydefined |
 | [`temp-write@4.0.0`](https://github.com/sindresorhus/temp-write.git) | MIT | clearlydefined |

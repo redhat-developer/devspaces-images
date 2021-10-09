@@ -10,11 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { inject, injectable } from 'inversify';
-import { InversifyBinding } from '@eclipse-che/che-theia-devworkspace-handler/lib/inversify/inversify-binding';
-import { CheTheiaPluginsDevfileResolver } from '@eclipse-che/che-theia-devworkspace-handler/lib/devfile/che-theia-plugins-devfile-resolver';
-import common from '@eclipse-che/common';
-import { SidecarPolicy } from '@eclipse-che/che-theia-devworkspace-handler/lib/api/devfile-context';
+import { inject, injectable, multiInject } from 'inversify';
 import { isWebTerminal } from '../../helpers/devworkspace';
 import { WorkspaceClient } from '../index';
 import devfileApi, { IPatch, isDevWorkspace } from '../../devfileApi';
@@ -33,6 +29,8 @@ import { AppAlerts } from '../../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
 import { WorkspaceAdapter } from '../../workspace-adapter';
 import { safeLoad } from 'js-yaml';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/devWorkspace/metadata';
+import { AxiosInstance } from 'axios';
 
 export interface IStatusUpdate {
   error?: string;
@@ -51,6 +49,46 @@ export type Subscriber = {
     updateAddedDevWorkspaces: (workspace: devfileApi.DevWorkspace[]) => void,
   }
 };
+
+/**
+ * Context provided to all editors when they need to process devfile
+ */
+export interface IDevWorkspaceEditorProcessingContext {
+
+  devfile: devfileApi.Devfile;
+
+  devWorkspace: devfileApi.DevWorkspace;
+
+  workspaceId: string;
+
+  devWorkspaceTemplates: devfileApi.DevWorkspaceTemplateLike[];
+
+  editorsDevfile: devfileApi.Devfile[];
+
+  pluginRegistryUrl?: string;
+
+  axios: AxiosInstance;
+
+  optionalFilesContent: { [fileName: string]: string };
+}
+
+/**
+* Editors need to implement this interface in dashboard to apply their stuff on top of devfiles
+*/
+export const IDevWorkspaceEditorProcess = Symbol.for('IDevWorkspaceEditorProcess');
+export interface IDevWorkspaceEditorProcess {
+
+  /**
+   * Returns true if the implementation is supporting the given devfile
+   */
+  match(context: IDevWorkspaceEditorProcessingContext): boolean;
+
+  /**
+   * Apply specific stuff of the editor
+   */
+  apply(context: IDevWorkspaceEditorProcessingContext): Promise<void>;
+
+}
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
@@ -79,7 +117,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly showAlert: (alert: AlertItem) => void;
 
   constructor(@inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService,
-    @inject(AppAlerts) appAlerts: AppAlerts) {
+    @inject(AppAlerts) appAlerts: AppAlerts,
+    @multiInject(IDevWorkspaceEditorProcess) private editorProcesses: IDevWorkspaceEditorProcess[],
+    ) {
     super(keycloakSetupService);
     this.previousItems = new Map();
     this.maxStatusAttempts = 10;
@@ -148,7 +188,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   async getWorkspaceByName(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
     let workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
     let attempted = 0;
-    while ((!workspace.status || !workspace.status.phase || !workspace.status.mainUrl) && attempted < this.maxStatusAttempts) {
+    while ((!workspace.status?.phase || !workspace.status.mainUrl) && attempted < this.maxStatusAttempts) {
       workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
       attempted += 1;
       await delay();
@@ -178,6 +218,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
     const routingClass = 'che';
     const devworkspace = devfileToDevWorkspace(devfile, routingClass, true);
+
+    if (devworkspace.metadata.annotations === undefined) {
+      devworkspace.metadata.annotations = {};
+    }
+    devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] = new Date().toISOString();
+
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
     const namespace = createdWorkspace.metadata.namespace;
     const name = createdWorkspace.metadata.name;
@@ -206,6 +252,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
 
     for (const pluginDevfile of editorsDevfile) {
+      if (!pluginDevfile || !pluginDevfile.metadata || !pluginDevfile.metadata.name) {
+        throw new Error('Failed to analyze the editor devfile, reason: Missing metadata.name attribute in the editor yaml file.');
+      }
       // TODO handle error in a proper way
       const pluginName = this.normalizePluginName(pluginDevfile.metadata.name, workspaceId);
 
@@ -221,43 +270,19 @@ export class DevWorkspaceClient extends WorkspaceClient {
       devWorkspaceTemplates.push(editorDWT);
     }
 
-    const devWorkspace: devfileApi.DevWorkspace = createdWorkspace;
-    // call theia library to insert all the logic
-    const inversifyBindings = new InversifyBinding();
-    const container = await inversifyBindings.initBindings({
-      pluginRegistryUrl: pluginRegistryUrl || '',
-      axiosInstance: this.axios,
-      insertTemplates: false,
-    });
-    const cheTheiaPluginsContent = optionalFilesContent['.che/che-theia-plugins.yaml'];
-    const vscodeExtensionsJsonContent = optionalFilesContent['.vscode/extensions.json'];
-    const cheTheiaPluginsDevfileResolver = container.get(CheTheiaPluginsDevfileResolver);
+    const editorProcessContext: IDevWorkspaceEditorProcessingContext = {
+      devfile,
+      devWorkspace: createdWorkspace,
+      workspaceId,
+      devWorkspaceTemplates,
+      editorsDevfile,
+      pluginRegistryUrl,
+      axios: this.axios,
+      optionalFilesContent
+    };
 
-    let sidecarPolicy: SidecarPolicy;
-    const devfileCheTheiaSidecarPolicy = (devfile as devfileApi.DevWorkspaceSpecTemplate).attributes?.['che-theia.eclipse.org/sidecar-policy'];
-    if (devfileCheTheiaSidecarPolicy === 'USE_DEV_CONTAINER') {
-      sidecarPolicy = SidecarPolicy.USE_DEV_CONTAINER;
-    } else {
-      sidecarPolicy = SidecarPolicy.MERGE_IMAGE;
-    }
-    console.debug('Loading devfile', devfile, 'with optional .che/che-theia-plugins.yaml', cheTheiaPluginsContent, 'and using editors devfile', editorsDevfile, 'and .vscode/extensions.json', vscodeExtensionsJsonContent, 'with sidecar policy', sidecarPolicy);
-    // call library to update devWorkspace and add optional templates
-    try {
-      await cheTheiaPluginsDevfileResolver.handle({
-        devfile,
-        cheTheiaPluginsContent,
-        vscodeExtensionsJsonContent,
-        devWorkspace,
-        devWorkspaceTemplates,
-        sidecarPolicy,
-        suffix: workspaceId,
-      });
-    } catch (e) {
-      console.error(e);
-      const errorMessage = common.helpers.errors.getMessage(e);
-      throw new Error(`Unable to resolve theia plugins: ${errorMessage}`);
-    }
-    console.debug('Devfile updated to', devfile, ' and templates updated to', devWorkspaceTemplates);
+    // if editors have some specific enhancements
+    await this.applySpecificEditors(editorProcessContext);
 
     await Promise.all(devWorkspaceTemplates.map(async template => {
       if (!template.metadata) {
@@ -265,10 +290,10 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
 
       // Update the namespace
-      (template.metadata as any).namespace = namespace;
+      template.metadata.namespace = namespace;
 
       // Update owner reference (to allow automatic cleanup)
-      (template.metadata as any).ownerReferences = [
+      template.metadata.ownerReferences = [
         {
           apiVersion: devfileGroupVersion,
           kind: devworkspaceSingularSubresource,
@@ -316,6 +341,20 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return DwApi.patchWorkspace(namespace, name, patch);
   }
 
+  // Stuff to do for some editors
+  protected async applySpecificEditors(context: IDevWorkspaceEditorProcessingContext): Promise<void> {
+      const matchingProcessors = this.editorProcesses.filter(editorProcessor => editorProcessor.match(context));
+      const start = performance.now();
+      // apply processors
+      await Promise.all(matchingProcessors.map(processor => processor.apply(context)));
+      const end = performance.now();
+
+      // notify if we processed stuff
+      if (matchingProcessors.length > 0) {
+        console.debug(`Took ${end - start}ms to apply editor specific changes`, 'Devfile updated to', context.devfile, ' and templates updated to', context.devWorkspaceTemplates);
+      }
+    }
+
   /**
    * Update a devworkspace.
    * If the workspace you want to update has the DEVWORKSPACE_NEXT_START_ANNOTATION then
@@ -342,21 +381,31 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
     const patch: IPatch[] = [];
 
-    if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
+    const updatingTimeAnnotationPath = '/metadata/annotations/' + this.escape(DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION);
+    if (workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] === undefined) {
+      patch.push({
+        op: 'add',
+        path: updatingTimeAnnotationPath,
+        value: new Date().toISOString(),
+      });
+    } else {
+      patch.push({
+        op: 'replace',
+        path: updatingTimeAnnotationPath,
+        value: new Date().toISOString(),
+      });
+    }
 
+    const nextStartAnnotationPath = '/metadata/annotations/' + this.escape(DEVWORKSPACE_NEXT_START_ANNOTATION);
+    if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
       /**
        * This is the case when you are annotating a devworkspace and will restart it later
        */
-      patch.push(
-        {
-          op: 'add',
-          path: '/metadata/annotations',
-          value: {
-            [DEVWORKSPACE_NEXT_START_ANNOTATION]: workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]
-          }
-        },
-
-      );
+      patch.push({
+        op: 'add',
+        path: nextStartAnnotationPath,
+        value: workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
+      });
     } else {
       /**
        * This is the case when you are updating a devworkspace normally
@@ -372,11 +421,10 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
       // If the workspace currently has DEVWORKSPACE_NEXT_START_ANNOTATION then delete it since we are starting a devworkspace normally
       if (onClusterWorkspace.metadata.annotations && onClusterWorkspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
-        const escapedAnnotation = this.escape(DEVWORKSPACE_NEXT_START_ANNOTATION);
         patch.push(
           {
             op: 'remove',
-            path: `/metadata/annotations/${escapedAnnotation}`,
+            path: nextStartAnnotationPath,
           }
         );
       }
@@ -430,12 +478,31 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return await DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
   }
 
-  async changeWorkspaceStatus(namespace: string, name: string, started: boolean, skipErrorCheck?: boolean): Promise<devfileApi.DevWorkspace> {
-    const changedWorkspace = await DwApi.patchWorkspace(namespace, name, [{
+  async changeWorkspaceStatus(workspace: devfileApi.DevWorkspace, started: boolean, skipErrorCheck?: boolean): Promise<devfileApi.DevWorkspace> {
+    const patch: IPatch[] = [{
       op: 'replace',
       path: '/spec/started',
       value: started
-    }]);
+    }];
+
+    if (started) {
+      const updatingTimeAnnotationPath = '/metadata/annotations/' + this.escape(DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION);
+      if (workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] === undefined) {
+        patch.push({
+          op: 'add',
+          path: updatingTimeAnnotationPath,
+          value: new Date().toISOString(),
+        });
+      } else {
+        patch.push({
+          op: 'replace',
+          path: updatingTimeAnnotationPath,
+          value: new Date().toISOString(),
+        });
+      }
+    }
+
+    const changedWorkspace = await DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
     if (!started) {
       this.lastDevWorkspaceLog.delete(WorkspaceAdapter.getId(changedWorkspace));
     }

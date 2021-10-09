@@ -103,8 +103,8 @@ export const selectAllWorkspacesSortedByTime = createSelector(
   }
 );
 const sortByUpdatedTimeFn = (workspaceA: Workspace, workspaceB: Workspace): -1 | 0 | 1 => {
-  const timeA = workspaceA.updated || workspaceA.created || 0;
-  const timeB = workspaceB.updated || workspaceB.created || 0;
+  const timeA = workspaceA.updated;
+  const timeB = workspaceB.updated;
   if (timeA > timeB) {
     return -1;
   } else if (timeA < timeB) {

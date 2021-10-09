@@ -63,6 +63,11 @@ export class DevWorkspaceBuilder {
     return this;
   }
 
+  /**
+   * @deprecated use `withStatus`
+   * @param ideUrl
+   * @returns
+   */
   withIdeUrl(ideUrl: string): DevWorkspaceBuilder {
     if (this.workspace.status === undefined) {
       this.workspace.status = this.buildStatus();
@@ -71,11 +76,27 @@ export class DevWorkspaceBuilder {
     return this;
   }
 
-  withStatus(status: keyof typeof WorkspaceStatus | keyof typeof DevWorkspaceStatus): DevWorkspaceBuilder {
+  withStatus(status: {
+    phase?: keyof typeof DevWorkspaceStatus,
+    devworkspaceId?: string,
+    mainUrl?: string,
+    message?: string,
+  }): DevWorkspaceBuilder {
     if (this.workspace.status === undefined) {
       this.workspace.status = this.buildStatus();
     }
-    this.workspace.status.phase = status;
+    if (status.phase) {
+      this.workspace.status.phase = DevWorkspaceStatus[status.phase];
+    }
+    if (status.devworkspaceId) {
+      this.workspace.status.devworkspaceId = status.devworkspaceId;
+    }
+    if (status.mainUrl) {
+      this.workspace.status.mainUrl = status.mainUrl;
+    }
+    if (status.message) {
+      this.workspace.status.message = status.message;
+    }
     return this;
   }
 

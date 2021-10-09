@@ -91,6 +91,7 @@ export class FakeStoreBuilder {
     },
     dwPlugins: {
       isLoading: false,
+      editors: {},
       plugins: {},
     },
   };

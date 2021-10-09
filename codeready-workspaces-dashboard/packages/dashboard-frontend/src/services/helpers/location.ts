@@ -38,8 +38,23 @@ export function buildFactoryLoaderLocation(url?: string): Location {
   if (!url) {
     pathAndQuery = ROUTE.LOAD_FACTORY;
   } else {
-    url = encodeURIComponent(url);
-    pathAndQuery = ROUTE.LOAD_FACTORY_URL.replace(':url', url);
+    // try to extract some parameters before doing the relocation
+    const fullUrl = new window.URL(url.toString());
+
+    // search for an editor switch and if there is one, remove it from the URL
+    const editorParam = fullUrl.searchParams.get('che-editor');
+    let editor;
+    if (editorParam && typeof(editorParam) === 'string') {
+        editor = editorParam.slice();
+    }
+    fullUrl.searchParams.delete('che-editor');
+    const encodedUrl = encodeURIComponent(fullUrl.toString());
+
+    // if editor specified, add it as a new parameter
+    pathAndQuery = ROUTE.LOAD_FACTORY_URL.replace(':url', encodedUrl);
+    if (editor) {
+      pathAndQuery = `${pathAndQuery}&che-editor=${editor}`;
+    }
   }
   return _buildLocationObject(pathAndQuery);
 }

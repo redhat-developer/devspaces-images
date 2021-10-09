@@ -16,6 +16,7 @@ import { DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
 import { DEVWORKSPACE_NEXT_START_ANNOTATION } from '../workspace-client/devworkspace/devWorkspaceClient';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../devfileApi';
 import { devWorkspaceKind } from '../devfileApi/devWorkspace';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../devfileApi/devWorkspace/metadata';
 
 export type Devfile = che.WorkspaceDevfile | devfileApi.Devfile;
 
@@ -122,7 +123,7 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     if (isCheWorkspace(this.workspace)) {
       if (this.workspace.attributes?.created) {
         // `created` is a Unix timestamp String
-        return new Date(parseInt(this.workspace.attributes.created)).getTime();
+        return new Date(parseInt(this.workspace.attributes.created, 10)).getTime();
       }
     } else {
       if (this.workspace.metadata.creationTimestamp) {
@@ -138,10 +139,15 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
    */
   get updated(): number {
     if (isCheWorkspace(this.workspace)) {
-      return parseInt(this.workspace.attributes?.updated || '', 10) || 0;
+      if (this.workspace.attributes?.updated) {
+        return new Date(parseInt(this.workspace.attributes.updated, 10)).getTime();
+      }
     } else {
-      return this.created;
+      if (this.workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]) {
+        return new Date(this.workspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]).getTime();
+      }
     }
+    return new Date().getTime();
   }
 
   get status(): WorkspaceStatus | DevWorkspaceStatus {
