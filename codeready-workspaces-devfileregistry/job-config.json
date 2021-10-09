@@ -1080,6 +1080,10 @@
       "2.13": "next",
       "2.x": "next"
     },
+    "DEV_WORKSPACE_CONTROLLER_VERSION": {
+      "2.13": "v0.9.0",
+      "2.x": "v0.9.0"
+    },
     "DEV_HEADER_REWRITE_TRAEFIK_PLUGIN": {
       "2.11": "v0.1.2",
       "2.12": "v0.1.2",
@@ -1088,9 +1092,9 @@
     },
     "@eclipse-che/plugin-registry-generator": {
       "2.11": "7.34.2",
-      "2.12": "7.36.0",
-      "2.13": "7.36.0",
-      "2.x": "7.36.0"
+      "2.12": "7.37.0",
+      "2.13": "7.37.0",
+      "2.x": "7.37.0"
     },
     "OPENSHIFT_CONTENT_SET_VERSION": {
       "2.11": "4.8",
