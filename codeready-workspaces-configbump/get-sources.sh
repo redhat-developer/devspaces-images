@@ -84,29 +84,32 @@ function addLabeln () {
 	echo -n "${PREFIX}${LABEL_VAL}"
 }
 
-function getFingerprints ()
+curlWithToken()
 {
-	outputFile=$1
-	latestFingerprint="$(curl -L ${jenkinsURL}/lastSuccessfulBuild/fingerprints/ 2>&1 | grep ${outputFile} | sed -e "s#.\+/fingerprint/\([0-9a-f]\+\)/\".\+#\1#")"
-	currentFingerprint="$(cat sources | grep ${outputFile} | sed -e "s#\([0-9a-f]\+\) .\+#\1#")"
+  curl -sSL -H "Authorization:token ${GITHUB_TOKEN}" "$1" "$2" "$3"
 }
 
-# get the public URL for the tarball(s)
+# check if existing release exists
+releases_URL="https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
+# shellcheck disable=2086
+RELEASE_ID=$(curlWithToken -H "Accept: application/vnd.github.v3+json" $releases_URL | jq -r --arg CSV_VERSION "${CSV_VERSION}" '.[] | select(.name=="Assets for the '$CSV_VERSION' traefik release")|.url' || true); RELEASE_ID=${RELEASE_ID##*/}
+if [[ -z $RELEASE_ID ]]; then 
+	echo "ERROR: could not compute RELEASE_ID from which to collect assets! Check https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
+	exit 1
+fi
+
+# get the public URLs for the tarball(s) from browser_download_url
+theTarGzs="$(curlWithToken https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases/${RELEASE_ID} | jq -r '.assets[].browser_download_url')"
 outputFiles=""
 
 #### override any existing tarballs with newer ones from Jenkins build
 for theTarGz in ${theTarGzs}; do
-	outputFile=${theTarGz##*/}
-	log "[INFO] Download ${jenkinsURL}/${theTarGz}:"
-	rm -f ${outputFile}
-	getFingerprints ${outputFile}
-	if [[ ! ${latestFingerprint} ]]; then 
-		echo "[WARNING] Cannot resolve artifact fingerprints for ${outputFile}"
-	fi
-	
-	if [[ "${latestFingerprint}" != "${currentFingerprint}" ]] || [[ ! -f ${outputFile} ]] || [[ ${pullAssets} -eq 1 ]]; then 
-		curl -sSL --insecure -o ${outputFile} ${jenkinsURL}/${theTarGz}
-		outputFiles="${outputFiles} ${outputFile}"
+	log "[INFO] Download ${theTarGz} -> ${theTarGz##*/}"
+	# TODO can we check if we already have the identical file before re-downloading it? eg., store sha512sums as assets files?
+	if [[ ! -f ./${theTarGz##*/} ]] || [[ ${pullAssets} -eq 1 ]]; then 
+		if [[ -f ./${theTarGz##*/} ]]; then rm -f ./${theTarGz##*/}; fi
+		curl -sSLo ./${theTarGz##*/} ${theTarGz}
+		outputFiles="${outputFiles} ${theTarGz##*/}"
 	fi
 done
 

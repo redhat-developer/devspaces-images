@@ -374,6 +374,13 @@ echo; echo "Asset tarballs generated. See the following folder(s) for content to
 du -sch "${TARGETDIR}"/asset*
 echo
 
+# upload the binary to GH
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
+./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${TARGETDIR}"/asset*
+
+
 if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
   newFiles="$(ls asset-*)"
   pushd "${TARGETDIR}" >/dev/null || exit 1
