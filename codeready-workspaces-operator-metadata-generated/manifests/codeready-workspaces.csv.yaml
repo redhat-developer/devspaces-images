@@ -1056,9 +1056,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dfed1e7b260967bba0fa0ce1cf37c9faed10809057907220350fe3875065dd6a
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:a1dbe3bf5ec10314eb2b4e5a7350363a7e18e0f2760f3c5d69d38435b4c0a5a6
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:9f27c5d67cdca07e4e8b962a539d747091eb5186e522986c3aae1b31d8a8a09c
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:cedf17cedadbe20825041d95e235a93f17d1689e740ebb62c3b8438257bec22c
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8d8a0dff285da0374b7866cfa93a77079b2574552ec6d42b9696e5abc2c6f4ba
                 - name: RELATED_IMAGE_devfile_registry
@@ -1066,9 +1066,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:cb87caff207e63b1655455155efa9f667025292758a88dfed453a5e7bca86107
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:5aec641ed3cb7f0ab3d0ac4f65264bb630384341b231632ccd504c6fd01b1313
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:71527b0033776ac8a68e9c52937cbdac5909a56058105bcb6489c4a0cb9e4f4d
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:a5c16c64229aac3564c66816c123e81a849ff93b8a443cd6ff14bd8d63c06644
                 - name: RELATED_IMAGE_internal_rest_backup_server
                   value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:c83c17f863160da1ae96f692958a851ae81fd03e35e9b1e661c53610d310f403
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
@@ -1454,9 +1454,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dfed1e7b260967bba0fa0ce1cf37c9faed10809057907220350fe3875065dd6a
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:a1dbe3bf5ec10314eb2b4e5a7350363a7e18e0f2760f3c5d69d38435b4c0a5a6
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:9f27c5d67cdca07e4e8b962a539d747091eb5186e522986c3aae1b31d8a8a09c
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:cedf17cedadbe20825041d95e235a93f17d1689e740ebb62c3b8438257bec22c
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8d8a0dff285da0374b7866cfa93a77079b2574552ec6d42b9696e5abc2c6f4ba
   - name: devfile_registry
@@ -1464,9 +1464,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:cb87caff207e63b1655455155efa9f667025292758a88dfed453a5e7bca86107
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:5aec641ed3cb7f0ab3d0ac4f65264bb630384341b231632ccd504c6fd01b1313
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:71527b0033776ac8a68e9c52937cbdac5909a56058105bcb6489c4a0cb9e4f4d
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:a5c16c64229aac3564c66816c123e81a849ff93b8a443cd6ff14bd8d63c06644
   - name: internal_rest_backup_server
     image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:c83c17f863160da1ae96f692958a851ae81fd03e35e9b1e661c53610d310f403
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
