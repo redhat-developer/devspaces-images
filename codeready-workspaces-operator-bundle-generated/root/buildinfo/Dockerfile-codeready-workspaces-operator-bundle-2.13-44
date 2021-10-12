@@ -43,5 +43,5 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       io.openshift.expose-services="" \
       usage=""
 
-ADD codeready-workspaces-operator-bundle-container-2.13-43.json /root/buildinfo/content_manifests/codeready-workspaces-operator-bundle-container-2.13-43.json
-LABEL "release"="43" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-10-12T03:58:28.374313" "architecture"="s390x" "vcs-type"="git" "vcs-ref"="b750ead16caf982d83d95740068cf3cd3fafcc32" "com.redhat.build-host"="s390-c1-vm-02.prod.osbs.eng.bos.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-bundle/images/2.13-43"
+ADD codeready-workspaces-operator-bundle-container-2.13-44.json /root/buildinfo/content_manifests/codeready-workspaces-operator-bundle-container-2.13-44.json
+LABEL "release"="44" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2021-10-12T05:25:27.718225" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="b750ead16caf982d83d95740068cf3cd3fafcc32" "com.redhat.build-host"="cpt-1002.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-bundle/images/2.13-44"
