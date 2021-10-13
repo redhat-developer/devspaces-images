@@ -92,7 +92,7 @@ curlWithToken()
 # check if existing release exists
 releases_URL="https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
 # shellcheck disable=2086
-RELEASE_ID=$(curlWithToken -H "Accept: application/vnd.github.v3+json" $releases_URL | jq -r --arg CSV_VERSION "${CSV_VERSION}" '.[] | select(.name=="Assets for the '$CSV_VERSION' traefik release")|.url' || true); RELEASE_ID=${RELEASE_ID##*/}
+RELEASE_ID=$(curlWithToken -H "Accept: application/vnd.github.v3+json" $releases_URL | jq -r --arg CSV_VERSION "${CSV_VERSION}" '.[] | select(.name=="Assets for the '$CSV_VERSION' configbump release")|.url' || true); RELEASE_ID=${RELEASE_ID##*/}
 if [[ -z $RELEASE_ID ]]; then 
 	echo "ERROR: could not compute RELEASE_ID from which to collect assets! Check https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
 	exit 1
