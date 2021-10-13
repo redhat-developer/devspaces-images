@@ -48,7 +48,6 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	sed Dockerfile --regexp-extended \
 		-e 's|COPY (.*) resources.tgz (.*)|COPY \1 \2|' \
 		-e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=true|' \
-		-e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=false|' \
 		-e 's|^ *COPY root-local.tgz|# &|' \
 		`# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
 		-e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1-\2:\3#" \
@@ -64,7 +63,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	echo "======= START BOOTSTRAP BUILD =======>"
 	# do not want digests in the BOOTSTRAP build so override default with false
 	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
-		--target builder --build-arg BOOTSTRAP=true --build-arg USE_DIGESTS=false
+		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
 	# update tarballs - step 2 - check old sources' tarballs
 	TARGZs="root-local.tgz resources.tgz"
