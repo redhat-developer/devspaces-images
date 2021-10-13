@@ -104,8 +104,7 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    `# Set arg options: enable USE_DIGESTS and disable BOOTSTRAP; update CRW_BRANCH to correct value` \
-    -e 's|ARG USE_DIGESTS=.*|ARG USE_DIGESTS=true|' \
+    `# Set arg options: disable BOOTSTRAP; update CRW_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG CRW_BRANCH=.*|ARG CRW_BRANCH=${CRW_BRANCH}|" \
     `# Enable offline build - copy in built binaries` \
