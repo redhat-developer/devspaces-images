@@ -114,6 +114,7 @@ for (int i=0; i < nodeLabelsMultiArch.size(); i++) {
                     util.installSkopeoFromContainer("")
                     util.installYq()
                     util.installPodman2()
+                    util.installHub("2.14.2", GOLANG_VERSION)
                     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                         usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
                         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {

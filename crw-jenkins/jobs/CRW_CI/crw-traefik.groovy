@@ -25,7 +25,6 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="traefik"
             MIDSTM_NAME="traefik"
             SOURCE_REPO="traefik/" + UPSTM_NAME
-            GOLANG_VERSION="" + config.Other.GOLANG_VERSION[JB]
 
             //No check since traefik uses non-standard branches
             SOURCE_TAG=""+config.Jobs.traefik[JB].upstream_branch[0]
@@ -71,7 +70,7 @@ Artifact builder + sync job; triggers brew after syncing
 
             parameters{
                 stringParam("SOURCE_TAG", SOURCE_TAG, "Fetch branch, then build from tag (if set)")
-                stringParam("GOLANG_VERSION", GOLANG_VERSION, "for 2.y, use 1.16.2 (traefik from v2.5.0)")
+                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for 2.y, use 1.16.2 (traefik from v2.5.0)")
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
