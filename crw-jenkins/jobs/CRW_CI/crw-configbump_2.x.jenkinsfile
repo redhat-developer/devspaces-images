@@ -130,10 +130,18 @@ for (int i=0; i < nodeLabels.size(); i++) {
                         if (NEW_SHA != OLD_SHA || FORCE_BUILD == "true") {
                             util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH, false)
                             util.loginToRegistries()
+                            CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
                             sh('''#!/bin/bash -xe
+                              CSV_VERSION="''' + CSV_VERSION + '''"
+                              MIDSTM_BRANCH="''' + MIDSTM_BRANCH + '''"
+                              ARCH="$(uname -m)"
                               cd ${WORKSPACE}/codeready-workspaces-images/''' + util.getCRWLongName(SYNC_REPO) + '''
                               chmod +x ./build/dockerfiles/*.sh
                               ./build/dockerfiles/rhel.Dockerfile.extract.assets.sh
+
+                              # upload to GH releases
+                              curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+                              ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix configbump "${WORKSPACE}/asset-configbump-${ARCH}.tar.gz"
                             ''')
                             currentBuild.description+="; New ${nodeLabel} artifacts built"
                         } else {
