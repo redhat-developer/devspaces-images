@@ -30,7 +30,7 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    '-v') CRW_VERSION="$2"; shift 1;;
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
@@ -42,7 +42,7 @@ done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+if [[ "${CRW_VERSION}" == "2.y" ]]; then usage; fi
 
 # ignore changes in these files
 echo ".github
