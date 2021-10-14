@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
-    createdAt: "2021-10-06T20:40:16+00:00"
+    createdAt: "2021-10-13T13:38:14+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -732,6 +732,14 @@ spec:
           verbs:
           - '*'
         - apiGroups:
+          - config.openshift.io
+          resourceNames:
+          - cluster
+          resources:
+          - consoles
+          verbs:
+          - get
+        - apiGroups:
           - workspace.devfile.io
           resources:
           - devworkspaces
@@ -1038,6 +1046,8 @@ spec:
                 command:
                 - /manager
                 env:
+                - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
+                  value: "false"
                 - name: ALLOW_DEVWORKSPACE_ENGINE
                   value: "true"
                 - name: CHE_FLAVOR
@@ -1131,9 +1141,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:9732ed2feceddb8160a2e4e24bce4fb3192656560930a9903c35acdc956516df
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b7c83216df3074073025daedd7f783b5631ba34c6c763ecffc0544348640b2eb
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:7a771761e0b3f18cb630d78be62e0a0e562c8073bbe399589d9b7e5f75466cd0
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:4ee8e24c74a3dbf2b597e08845d01e23ce34175cce3a1acbb702186d7f35eef1
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8d8a0dff285da0374b7866cfa93a77079b2574552ec6d42b9696e5abc2c6f4ba
                 - name: RELATED_IMAGE_devfile_registry
@@ -1173,7 +1183,7 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:088ab3c548ab9892472b6f915ef65142e83d8ce91d640718dd1d11f2afd727d9
+                  value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:9ead5f4e5ec3e73ffa75c2b774bcb9a596302e08c77e5e9a6739aadfdb13170a
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                   value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:5e3e0b4a2c99987223235b120aaec73a43ff6f30145365bdf7137bbbbd2e3ea5
                 - name: WATCH_NAMESPACE
@@ -1529,9 +1539,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:9732ed2feceddb8160a2e4e24bce4fb3192656560930a9903c35acdc956516df
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b7c83216df3074073025daedd7f783b5631ba34c6c763ecffc0544348640b2eb
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:7a771761e0b3f18cb630d78be62e0a0e562c8073bbe399589d9b7e5f75466cd0
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:4ee8e24c74a3dbf2b597e08845d01e23ce34175cce3a1acbb702186d7f35eef1
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8d8a0dff285da0374b7866cfa93a77079b2574552ec6d42b9696e5abc2c6f4ba
   - name: devfile_registry
@@ -1571,6 +1581,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:088ab3c548ab9892472b6f915ef65142e83d8ce91d640718dd1d11f2afd727d9
+    image: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:9ead5f4e5ec3e73ffa75c2b774bcb9a596302e08c77e5e9a6739aadfdb13170a
   - name: single_host_gateway_config_sidecar
     image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:5e3e0b4a2c99987223235b120aaec73a43ff6f30145365bdf7137bbbbd2e3ea5
