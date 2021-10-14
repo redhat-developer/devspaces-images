@@ -117,8 +117,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
-    createdAt: "2021-10-14T16:33:32+00:00"
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:9a679c2d7725992fe0c5557774630a604dbd36300a01298ecbf0335783e7eb3c
+    createdAt: "2021-10-14T20:55:51+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1167,11 +1167,11 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:896c1a9baf21400e8bc75e8b7fb22fc3a829aa3fee68ca9f8373111b7c21e27d
                 - name: RELATED_IMAGE_keycloak
-                  value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:b98f0b743dd406be726d8ba8c0437ed5228c7064015c1d48ef5f87eb365522bc
+                  value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:b92b2180440481827745c29857875f1169f0f5373efe07a447bd67909e70f601
                 - name: RELATED_IMAGE_keycloak_ppc64le
-                  value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
+                  value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:31bf3937c4cd8d00555bf00f4fc6e42b02796da72165c3f0245e62fc199664e8
                 - name: RELATED_IMAGE_keycloak_s390x
-                  value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
+                  value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:31bf3937c4cd8d00555bf00f4fc6e42b02796da72165c3f0245e62fc199664e8
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:0f25deae54dab3cfbc0f788706f5c8653b630e2903b2ca767625126ec03a961a
                 - name: RELATED_IMAGE_postgres
@@ -1190,7 +1190,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:9a679c2d7725992fe0c5557774630a604dbd36300a01298ecbf0335783e7eb3c
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1472,10 +1472,10 @@ spec:
   version: 2.13.100
   replaces: crwoperator.v2.12.0
   relatedImages:
-  - name: crw-2-rhel8-operator-ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
+  - name: crw-2-rhel8-operator-9a679c2d7725992fe0c5557774630a604dbd36300a01298ecbf0335783e7eb3c-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:9a679c2d7725992fe0c5557774630a604dbd36300a01298ecbf0335783e7eb3c
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ba76f6e7481a4f2a4e1e5d01180dd7984eea908d21d667b616bff272074c2d8c
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:9a679c2d7725992fe0c5557774630a604dbd36300a01298ecbf0335783e7eb3c
   - name: che_server
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:2ccb72f986d8863a7fae3431f7ed3af5727d8aca1e0f84f1771026f628743f87
   - name: che_server_secure_exposer_jwt_proxy_image
@@ -1565,11 +1565,11 @@ spec:
   - name: jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:896c1a9baf21400e8bc75e8b7fb22fc3a829aa3fee68ca9f8373111b7c21e27d
   - name: keycloak
-    image: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8@sha256:b98f0b743dd406be726d8ba8c0437ed5228c7064015c1d48ef5f87eb365522bc
+    image: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:b92b2180440481827745c29857875f1169f0f5373efe07a447bd67909e70f601
   - name: keycloak_ppc64le
-    image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
+    image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:31bf3937c4cd8d00555bf00f4fc6e42b02796da72165c3f0245e62fc199664e8
   - name: keycloak_s390x
-    image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
+    image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:31bf3937c4cd8d00555bf00f4fc6e42b02796da72165c3f0245e62fc199664e8
   - name: plugin_registry
     image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:0f25deae54dab3cfbc0f788706f5c8653b630e2903b2ca767625126ec03a961a
   - name: postgres
