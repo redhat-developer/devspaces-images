@@ -24,7 +24,7 @@ OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operato
 
 # TODO https://issues.redhat.com/browse/CRW-2167 switch to DWO 0.9
 DWO_TAG=0.9
-SSO_TAG=7.4
+SSO_TAG=7.5
 UBI_TAG=8.4
 POSTGRES_TAG=1
 OPENSHIFT_TAG="v4.8"
