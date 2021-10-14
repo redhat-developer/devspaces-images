@@ -10,6 +10,10 @@ forceBuild=0
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 pullAssets=0
 
+# compute project name from current dir
+SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
+projectName=${SCRIPT_DIR##*/}; projectName=${projectName/codeready-workspaces-/}; echo $projectName
+
 # compute CSV_VERSION from MIDSTM_BRANCH
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
 if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
@@ -49,7 +53,7 @@ curlWithToken()
 # check if existing release exists
 releases_URL="https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
 # shellcheck disable=2086
-RELEASE_ID=$(curlWithToken -H "Accept: application/vnd.github.v3+json" $releases_URL | jq -r --arg CSV_VERSION "${CSV_VERSION}" '.[] | select(.name=="Assets for the '$CSV_VERSION' traefik release")|.url' || true); RELEASE_ID=${RELEASE_ID##*/}
+RELEASE_ID=$(curlWithToken -H "Accept: application/vnd.github.v3+json" $releases_URL | jq -r --arg CSV_VERSION "${CSV_VERSION}" --arg projectName "${projectName}" '.[] | select(.name=="Assets for the '$CSV_VERSION' '$projectName' release")|.url' || true); RELEASE_ID=${RELEASE_ID##*/}
 if [[ -z $RELEASE_ID ]]; then 
 	echo "ERROR: could not compute RELEASE_ID from which to collect assets! Check https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
 	exit 1
