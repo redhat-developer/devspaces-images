@@ -14,7 +14,7 @@ pullAssets=0
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
 projectName=${SCRIPT_DIR##*/}; projectName=${projectName/codeready-workspaces-/}; 
 if [[ $projectName == "sources" ]]; then # compute a new string
-	projectName=$(git rev-parse --show-toplevel); projectName=${projectName##*/}; projectName=${projectName/codeready-workspaces-/}; 
+	projectName=$(git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)#\1#p' | sed -e "s#codeready-workspaces-##" -e "s#\.git##")
 fi
 # echo $projectName
 
