@@ -9,10 +9,13 @@
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
 //
+
 package dashboard
 
 import (
 	"fmt"
+
+	ctrl "sigs.k8s.io/controller-runtime"
 
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/expose"
@@ -24,6 +27,10 @@ import (
 
 const (
 	exposePath = "/dashboard/"
+)
+
+var (
+	log = ctrl.Log.WithName("dashboard")
 )
 
 type Dashboard struct {
@@ -113,7 +120,8 @@ func (d *Dashboard) createGatewayConfig() *gateway.TraefikConfig {
 		d.component,
 		fmt.Sprintf("PathPrefix(`%s`)", exposePath),
 		10,
-		"http://"+d.component+":8080")
+		"http://"+d.component+":8080",
+		[]string{})
 	if util.IsNativeUserModeEnabled(d.deployContext.CheCluster) {
 		cfg.AddAuthHeaderRewrite(d.component)
 	}

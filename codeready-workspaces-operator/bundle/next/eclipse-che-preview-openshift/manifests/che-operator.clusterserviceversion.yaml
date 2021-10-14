@@ -114,7 +114,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: codeready-workspaces-preview-openshift.v7.37.0-325.next
+  name: codeready-workspaces-preview-openshift.v7.38.0-328.next
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -749,6 +749,14 @@ spec:
               verbs:
                 - '*'
             - apiGroups:
+                - config.openshift.io
+              resourceNames:
+                - cluster
+              resources:
+                - consoles
+              verbs:
+                - get
+            - apiGroups:
                 - workspace.devfile.io
               resources:
                 - devworkspaces
@@ -1125,6 +1133,8 @@ spec:
                         value: "1"
                       - name: ALLOW_DEVWORKSPACE_ENGINE
                         value: "true"
+                      - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
+                        value: "false"
                     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:latest
                     imagePullPolicy: Always
                     livenessProbe:
@@ -1404,4 +1414,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.37.0-325.next
+  version: 7.38.0-328.next

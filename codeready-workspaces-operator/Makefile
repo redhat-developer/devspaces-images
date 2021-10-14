@@ -60,6 +60,7 @@ ECLIPSE_CHE_BACKUP_CRD="$(CRD_FOLDER)/org.eclipse.che_checlusterbackups.yaml"
 ECLIPSE_CHE_RESTORE_CRD="$(CRD_FOLDER)/org.eclipse.che_checlusterrestores.yaml"
 
 DEV_WORKSPACE_CONTROLLER_VERSION="v0.9.0"
+DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
@@ -319,6 +320,17 @@ prepare-templates:
 	unzip -q /tmp/devworkspace-operator.zip '*/deploy/deployment/*' -d /tmp
 	cp -rf /tmp/devfile-devworkspace-operator*/deploy/* /tmp/devworkspace-operator/templates
 	echo "[INFO] Downloading Dev Workspace operator templates completed."
+
+	echo "[INFO] Downloading Gateway plugin resources ..."
+	rm -f /tmp/asset-header-rewrite-traefik-plugin.zip
+	rm -rf /tmp/header-rewrite-traefik-plugin
+	rm -rf /tmp/*-header-rewrite-traefik-plugin-*/
+	curl -sL https://api.github.com/repos/che-incubator/header-rewrite-traefik-plugin/zipball/${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} > /tmp/asset-header-rewrite-traefik-plugin.zip
+
+	unzip -q /tmp/asset-header-rewrite-traefik-plugin.zip -d /tmp
+	mkdir -p /tmp/header-rewrite-traefik-plugin
+	mv /tmp/*-header-rewrite-traefik-plugin-*/headerRewrite.go /tmp/*-header-rewrite-traefik-plugin-*/.traefik.yml /tmp/header-rewrite-traefik-plugin
+	echo "[INFO] Downloading Gateway plugin resources completed."
 
 create-namespace:
 	set +e
@@ -664,7 +676,7 @@ bundle: generate manifests kustomize ## Generate bundle manifests and metadata, 
 		yq -riY ".metadata.annotations[\"alm-examples\"] = \"$${CSV_CR_SAMPLES}\"" $${NEW_CSV}
 
 		# Set specific OpenShift version
-		echo "\n  com.redhat.openshift.versions: \"v4.8\"" >> $${BUNDLE_PATH}/metadata/annotations.yaml
+		printf "\n  com.redhat.openshift.versions: \"v4.8\"" >> $${BUNDLE_PATH}/metadata/annotations.yaml
 	fi
 
 	# Base cluster service version file has got correctly sorted CRDs.

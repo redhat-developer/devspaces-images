@@ -45,6 +45,8 @@ spec:
             - containerPort: 60000
               name: metrics
           env:
+            - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
+              value: 'false'
             - name: ALLOW_DEVWORKSPACE_ENGINE
               value: 'true'
             - name: CHE_FLAVOR
@@ -96,11 +98,11 @@ spec:
             - name: RELATED_IMAGE_internal_rest_backup_server
               value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.13
             - name: RELATED_IMAGE_keycloak
-              value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
+              value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.5
             - name: RELATED_IMAGE_keycloak_ppc64le
-              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.5
             - name: RELATED_IMAGE_keycloak_s390x
-              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.5
             - name: RELATED_IMAGE_plugin_registry
               value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.13
             - name: RELATED_IMAGE_postgres
