@@ -40,7 +40,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.13
-    createdAt: "2021-10-13T13:38:59+00:00"
+    createdAt: "2021-10-14T16:33:14+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative
       k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1428,4 +1428,4 @@ spec:
   provider:
     name: Red Hat
   version: 2.13.0
-  replaces: crwoperator.v2.11.0
+  replaces: crwoperator.v2.12.0
