@@ -174,7 +174,7 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-98.1634036321.1634036321 as build-result
+FROM ubi8/nodejs-12:1-98 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
@@ -190,7 +190,7 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-98.1634036321.1634036321 as runtime
+FROM ubi8/nodejs-12:1-98.1634036321 as runtime
 USER 0
 RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
