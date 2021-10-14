@@ -12,7 +12,11 @@ pullAssets=0
 
 # compute project name from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
-projectName=${SCRIPT_DIR##*/}; projectName=${projectName/codeready-workspaces-/}; echo $projectName
+projectName=${SCRIPT_DIR##*/}; projectName=${projectName/codeready-workspaces-/}; 
+if [[ $projectName == "sources" ]]; then # compute a new string
+	projectName=$(git rev-parse --show-toplevel); projectName=${projectName##*/}; projectName=${projectName/codeready-workspaces-/}; 
+fi
+# echo $projectName
 
 # compute CSV_VERSION from MIDSTM_BRANCH
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
