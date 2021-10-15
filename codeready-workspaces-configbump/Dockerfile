@@ -28,18 +28,18 @@ USER appuser
 ENTRYPOINT ["/usr/local/bin/configbump"]
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces configbump container" \
-DESCRIPTION="Red Hat CodeReady Workspaces configbump container" \
+ENV SUMMARY="Red Hat CodeReady Workspaces ${SYNC_REPO} container" \
+DESCRIPTION="Red Hat CodeReady Workspaces ${SYNC_REPO} container" \
 PRODNAME="codeready-workspaces" \
-COMPNAME="configbump-rhel8" 
+COMPNAME="${SYNC_REPO}-rhel8" 
 LABEL summary="$SUMMARY" \
 description="$DESCRIPTION" \
 io.k8s.description="$DESCRIPTION" \
-io.k8s.display-name="$DESCRIPTION" \
+io.k8s.display-name=\"$DESCRIPTION" \
 io.openshift.tags="$PRODNAME,$COMPNAME" \
 com.redhat.component="$PRODNAME-$COMPNAME-container" \
 name="$PRODNAME/$COMPNAME" \
-version="2.13" \
+version="${CRW_VERSION}" \
 license="EPLv2" \
 maintainer="Nick Boldt <nboldt@redhat.com>" \
 io.openshift.expose-services="" \
