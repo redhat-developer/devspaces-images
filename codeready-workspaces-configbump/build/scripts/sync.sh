@@ -85,5 +85,5 @@ license="EPLv2" \\\r
 maintainer="Nick Boldt <nboldt@redhat.com>" \\\r
 io.openshift.expose-services="" \\\r
 usage="" \r'
-echo -e "$METADATA" >> $TARGET_DIR/Dockerfile
+echo -e "$METADATA" >> $TARGETDIR/Dockerfile
 echo "Converted Dockerfile"
