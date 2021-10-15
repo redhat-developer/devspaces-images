@@ -63,7 +63,7 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -avhz --checksum --exclude-from /tmp/rsync-upstream-exclude --exclude-from /tmp/rsync-brew-exclude --exclude .git/ --exclude .github/ --exclude .gitignore "${SOURCEDIR}"/ "${TARGETDIR}"
 
 #copy build/dockerfiles/brew.Dockerfile to Dockerfile
-rsync -avhz --checksum "${SOURCE_DIR}"/build/dockerfiles/brew.Dockerfile "${TARGET_DIR}"/Dockerfile
+rsync -avhz --checksum "${SOURCEDIR}"/build/dockerfiles/brew.Dockerfile "${TARGETDIR}"/Dockerfile
 
 rm -f /tmp/rsync-upstream-exclude /tmp/rsync-brew-exclude
 
