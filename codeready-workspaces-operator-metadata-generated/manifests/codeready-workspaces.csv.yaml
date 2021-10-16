@@ -1058,13 +1058,13 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8@sha256:689f3796da16ed9413260db02c15786e365d9dcaaadd38def179a89dd6cb0e8e
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:200243673222b5a7394448042e64cb011fcea266e02269df0e2410317221ba0b
+                  value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:6bf8c4676d12e67f41a80cf8fa39f40c8c651cfa08a8f78e87b94d3a8fc639bc
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:200243673222b5a7394448042e64cb011fcea266e02269df0e2410317221ba0b
+                  value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:6bf8c4676d12e67f41a80cf8fa39f40c8c651cfa08a8f78e87b94d3a8fc639bc
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
+                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:477066a0dd29e041cc1935a645371cf700e29fb559f041da35ff53e309720823
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
+                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:477066a0dd29e041cc1935a645371cf700e29fb559f041da35ff53e309720823
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b7c83216df3074073025daedd7f783b5631ba34c6c763ecffc0544348640b2eb
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
@@ -1456,13 +1456,13 @@ spec:
   - name: codeready_workspaces_stacks_dotnet_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8@sha256:689f3796da16ed9413260db02c15786e365d9dcaaadd38def179a89dd6cb0e8e
   - name: codeready_workspaces_stacks_golang_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:200243673222b5a7394448042e64cb011fcea266e02269df0e2410317221ba0b
+    image: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:6bf8c4676d12e67f41a80cf8fa39f40c8c651cfa08a8f78e87b94d3a8fc639bc
   - name: codeready_workspaces_stacks_golang_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:200243673222b5a7394448042e64cb011fcea266e02269df0e2410317221ba0b
+    image: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:6bf8c4676d12e67f41a80cf8fa39f40c8c651cfa08a8f78e87b94d3a8fc639bc
   - name: codeready_workspaces_stacks_php_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
+    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:477066a0dd29e041cc1935a645371cf700e29fb559f041da35ff53e309720823
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:255268e3a268438906b9eb569fd18bf12d2eb2e8fcf312d786e8f58be5146e51
+    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:477066a0dd29e041cc1935a645371cf700e29fb559f041da35ff53e309720823
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b7c83216df3074073025daedd7f783b5631ba34c6c763ecffc0544348640b2eb
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmyk
