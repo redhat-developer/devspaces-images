@@ -23,6 +23,7 @@ import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 import { ActionCreators } from '../../../store/Workspaces';
 import { AppThunk } from '../../../store';
 import { Workspace } from '../../../services/workspace-adapter';
+import { createHashHistory } from 'history';
 
 jest.mock('../../../store/Workspaces/index', () => {
   return {
@@ -37,6 +38,7 @@ jest.mock('../../../store/Workspaces/index', () => {
 
 describe('Workspace Actions', () => {
 
+  const history = createHashHistory();
   const actionButtonName = 'action-button';
   const valueInputId = 'value-input';
   const defaultWorkspaceId = 'workspace-0';
@@ -90,7 +92,7 @@ describe('Workspace Actions', () => {
       const store = createFakeStore();
       render(
         <Provider store={store}>
-          <WorkspaceActionsProvider>
+          <WorkspaceActionsProvider history={history}>
             <WorkspaceActionsConsumer>
               {context => (
                 <>
@@ -163,7 +165,7 @@ describe('Workspace Actions', () => {
       const store = createFakeStore();
       render(
         <Provider store={store}>
-          <WorkspaceActionsProvider>
+          <WorkspaceActionsProvider history={history}>
             <WorkspaceActionsConsumer>
               {context => (
                 <>

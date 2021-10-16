@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import { Location } from 'history';
+import { History, Location } from 'history';
 import { connect, ConnectedProps } from 'react-redux';
 import {
   AlertVariant,
@@ -28,6 +28,7 @@ import {
   buildDetailsLocation,
   buildIdeLoaderLocation,
   buildWorkspacesLocation,
+  toHref,
 } from '../../services/helpers/location';
 import {
   IdeLoaderTab,
@@ -41,16 +42,19 @@ import { WorkspaceActionsContext } from './context';
 import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
 import getRandomString from '../../services/helpers/random';
-import { isCheWorkspace } from '../../services/workspace-adapter';
+import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 
 type Deferred = {
   resolve: () => void;
   reject: () => void;
 }
 
-type Props = MappedProps & {
+type Props = MappedProps
+& { history: History }
+& {
   children: React.ReactElement;
 };
+
 type State = {
   toDelete: string[];
   wantDelete: string[];
@@ -86,6 +90,18 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
   }
 
   /**
+   * open the action in a new tab for DevWorkspaces
+   */
+  async handleLocation(location: Location, workspace: Workspace): Promise<Location | void> {
+    if (workspace.isDevWorkspace) {
+      const link = toHref(this.props.history, location);
+      window.open(link, workspace.id);
+    } else {
+      return location;
+    }
+  }
+
+  /**
    * Performs an action on the given workspace
    */
   private async handleAction(action: WorkspaceAction, id: string): Promise<Location | void> {
@@ -104,7 +120,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
     switch (action) {
       case WorkspaceAction.OPEN_IDE:
         {
-          return buildIdeLoaderLocation(workspace);
+          return this.handleLocation(buildIdeLoaderLocation(workspace), workspace);
         }
       case WorkspaceAction.EDIT_WORKSPACE:
         {
@@ -115,7 +131,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
           await this.props.startWorkspace(workspace, {
             'debug-workspace-start': true
           });
-          return buildIdeLoaderLocation(workspace, IdeLoaderTab.Logs);
+          return this.handleLocation(buildIdeLoaderLocation(workspace, IdeLoaderTab.Logs), workspace);
         }
       case WorkspaceAction.START_IN_BACKGROUND:
         {

@@ -134,11 +134,11 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactNode {
-    const { workspaceId } = this.props;
+    const { workspaceId, history } = this.props;
     const { isExpanded } = this.state;
 
     return (
-      <WorkspaceActionsProvider>
+      <WorkspaceActionsProvider history={history} >
         <WorkspaceActionsConsumer>
           {context => (
             <Dropdown

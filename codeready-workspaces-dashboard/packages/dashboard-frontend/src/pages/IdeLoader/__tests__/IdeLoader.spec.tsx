@@ -158,6 +158,7 @@ function renderComponent(
         hasError={hasError}
         status={workspaceStatus}
         ideUrl={ideUrl}
+        isDevWorkspace={false}
       />
     </Provider>,
   );

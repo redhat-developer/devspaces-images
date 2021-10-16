@@ -51,6 +51,7 @@ function renderComponent(
     <LogsTools
       logs={logs}
       handleExpand={handleExpand}
+      preventPostMessage
     />
   );
 }

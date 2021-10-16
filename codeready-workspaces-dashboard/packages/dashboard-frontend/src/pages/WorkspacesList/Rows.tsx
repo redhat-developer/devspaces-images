@@ -62,7 +62,7 @@ export function buildRows(
       const linkToIde = toHref(history, locationToIde);
 
       try {
-        rows.push(buildRow(workspace, isSelected, isDeleted, linkToDetails, linkToIde));
+        rows.push(buildRow(workspace, isSelected, isDeleted, linkToDetails, linkToIde, workspace.isDevWorkspace));
       } catch (e) {
         console.warn('Skip workspace: ', e);
       }
@@ -84,7 +84,8 @@ export function buildRow(
   isSelected: boolean,
   isDeleted: boolean,
   linkToDetails: string,
-  linkToIde: string
+  linkToIde: string,
+  isDevWorkspace: boolean,
 ): RowData {
   if (!workspace.name) {
     throw new Error('Empty workspace name.');
@@ -140,7 +141,11 @@ export function buildRow(
   if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
     open = 'deleting...';
   } else {
-    open = <a href={linkToIde}>Open</a>;
+    if (isDevWorkspace) {
+      open = <a href={linkToIde} target={workspace.id} rel='noreferrer'>Open</a>;
+    } else {
+      open = <a href={linkToIde}>Open</a>;
+    }
   }
 
   return {

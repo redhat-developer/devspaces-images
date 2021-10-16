@@ -21,6 +21,19 @@ components:
           protocol: http
           targetPort: 3000
       mountSources: true
+  - name: editor
+    plugin:
+      id: eclipse/che-theia/7.1.0
+  - name: terminal
+    plugin:
+      id: eclipse/che-machine-exec-plugin/7.1.0
+  - name: typescript-plugin
+    plugin:
+      id: che-incubator/typescript/1.30.2
+      components:
+        - name: "somename"
+          container:
+            memoryLimit: 512Mi
 commands:
   - id: download-dependencies
     exec:

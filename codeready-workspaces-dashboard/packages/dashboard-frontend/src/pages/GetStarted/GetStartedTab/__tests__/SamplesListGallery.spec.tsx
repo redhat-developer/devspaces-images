@@ -110,7 +110,6 @@ describe('Samples List Gallery', () => {
     let resolveFn: {
       (value?: unknown): void;
     };
-    const onCardClickedPromise = new Promise(resolve => resolveFn = resolve);
     const onCardClicked = jest.fn(() => resolveFn());
 
     // eslint-disable-next-line
@@ -120,15 +119,11 @@ describe('Samples List Gallery', () => {
     (mockAxios.get as any).mockResolvedValueOnce({
       data: {},
     });
-
+    const windowSpy = spyOn(window, 'open');
     const cardHeader = screen.getByText('Java with Spring Boot and MySQL');
     fireEvent.click(cardHeader);
-
-    await onCardClickedPromise;
-    expect(onCardClicked).toHaveBeenCalled();
     jest.runOnlyPendingTimers();
-    // should have been called with the v2 link
-    await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith('http://my-fake-repository.com/'));
+    expect(windowSpy).toBeCalledWith('http://localhost/#http://my-fake-repository.com/', '_blank');
 
   });
 

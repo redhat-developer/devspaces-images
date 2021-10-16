@@ -76,7 +76,7 @@
     "yaml-language-server": "^0.13.0"
   },
   "devDependencies": {
-    "@devfile/api": "^2.2.0-alpha-1628104895",
+    "@devfile/api": "^2.2.0-alpha-1633545768",
     "@eclipse-che/api": "^7.18.1",
     "@testing-library/dom": "^7.30.3",
     "@testing-library/jest-dom": "^5.10.1",

@@ -32,7 +32,10 @@ const maxLogLength = 200;
 const errorRe = /^Error: /gi;
 
 type Props =
-  { workspaceId: string }
+  {
+    workspaceId: string;
+    isDevWorkspace: boolean;
+  }
   & MappedProps;
 
 type State = {
@@ -134,9 +137,13 @@ export class LogsTab extends React.PureComponent<Props, State> {
     return (
       <PageSection variant={PageSectionVariants.light}>
         <div className={isExpanded ? styles.tabExpanded : ''}>
-          <LogsTools logs={logs ? logs : []} handleExpand={isExpanded => {
-            this.setState({ isExpanded });
-          }} />
+          <LogsTools
+            logs={logs ? logs : []}
+            preventPostMessage={this.props.isDevWorkspace}
+            handleExpand={isExpanded => {
+              this.setState({ isExpanded });
+            }}
+          />
           {this.terminal}
         </div>
       </PageSection>

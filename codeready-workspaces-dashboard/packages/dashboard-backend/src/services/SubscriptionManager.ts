@@ -11,8 +11,9 @@
  */
 
 import DevWorkspaceWatcher from './DevWorkspaceWatcher';
-import { IDevWorkspace, IDevWorkspaceCallbacks } from '../devworkspace-client';
+import { IDevWorkspaceCallbacks } from '../devworkspace-client';
 import WebSocket from 'ws';
+import { V1alpha2DevWorkspace } from '@devfile/api';
 
 class SubscriptionManager {
   private readonly subscriber: WebSocket;
@@ -24,13 +25,13 @@ class SubscriptionManager {
     this.subscriber = subscriber;
     this.channels = [];
     this.callbacks = {
-      onModified: (workspace: IDevWorkspace) => {
+      onModified: (workspace: V1alpha2DevWorkspace) => {
         this.publish('onModified', workspace);
       },
       onDeleted: (workspaceId: string) => {
         this.publish('onDeleted', workspaceId);
       },
-      onAdded: (workspace: IDevWorkspace) => {
+      onAdded: (workspace: V1alpha2DevWorkspace) => {
         this.publish('onAdded', workspace);
       },
       onError: (error: string) => {

@@ -11,17 +11,34 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
-import { ICheApi, } from '../../types';
-import { projectApiGroup, projectRequestResources, projectResources, } from '../../const';
-import { namespaceModel, projectRequestModel } from '../../const/models';
-import { findApi } from '../helpers';
+import { findApi } from '../../services/helpers';
 import { helpers } from '@eclipse-che/common';
 
-/**
- * @deprecated Che Server started to provide rest endpoint to get namespace prepared.
- * See for details https://github.com/eclipse/che/issues/20167
- */
-export class CheApi implements ICheApi {
+const projectResources = 'projects';
+const projectRequestResources = 'projectrequests';
+const projectApiGroup = 'project.openshift.io';
+
+const projectRequestModel = (namespace: string) => {
+  return {
+    apiVersion: `${projectApiGroup}/v1`,
+    kind: 'ProjectRequest',
+    metadata: {
+      name: namespace,
+    },
+  };
+};
+
+const namespaceModel = (namespace: string) => {
+  return {
+    apiVersion: 'v1',
+    kind: 'Namespace',
+    metadata: {
+      name: namespace,
+    },
+  };
+};
+
+export class NamespaceProvisioner {
   private readonly customObjectAPI: k8s.CustomObjectsApi;
   private readonly coreV1API: k8s.CoreV1Api;
   private readonly apisApi: k8s.ApisApi;

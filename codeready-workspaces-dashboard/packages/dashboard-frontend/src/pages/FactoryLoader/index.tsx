@@ -52,6 +52,7 @@ type Props = {
   currentStep: LoadFactorySteps,
   workspaceName: string;
   workspaceId: string;
+  isDevWorkspace: boolean;
   resolvedDevfileMessage?: string;
   callbacks?: {
     showAlert?: (options: AlertOptions) => void
@@ -213,7 +214,13 @@ class FactoryLoader extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { workspaceName, workspaceId, hasError, currentStep } = this.props;
+    const {
+      workspaceName,
+      workspaceId,
+      hasError,
+      currentStep,
+      isDevWorkspace,
+    } = this.props;
     const { alertVisible, currentRequestError, currentAlertVariant, alertActionLinks } = this.state;
 
     return (
@@ -259,7 +266,10 @@ class FactoryLoader extends React.PureComponent<Props, State> {
             </Tab>
             <Tab eventKey={LoadFactoryTabs.Logs} title={LoadFactoryTabs[LoadFactoryTabs.Logs]}
               id="factory-loader-page-logs-tab">
-              <WorkspaceLogs workspaceId={workspaceId} />
+              <WorkspaceLogs
+                workspaceId={workspaceId}
+                isDevWorkspace={isDevWorkspace}
+              />
             </Tab>
           </Tabs>
         </PageSection>

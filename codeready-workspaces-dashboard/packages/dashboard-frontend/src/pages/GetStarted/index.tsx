@@ -38,6 +38,7 @@ import { Devfile, isCheDevfile } from '../../services/workspace-adapter';
 import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
+import { selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 const CustomWorkspaceTab = React.lazy(() => import('./CustomWorkspaceTab'));
@@ -214,6 +215,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
     const title = 'Create Workspace';
     const quickAddTab: CreateWorkspaceTab = 'quick-add';
     const customWorkspaceTab: CreateWorkspaceTab = 'custom-workspace';
+    const isCustomWorkspaceHidden = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
 
     return (
       <React.Fragment>
@@ -242,7 +244,9 @@ export class GetStarted extends React.PureComponent<Props, State> {
                 />
               </Suspense>
             </Tab>
-            <Tab eventKey={customWorkspaceTab} title="Custom Workspace">
+            <Tab eventKey={customWorkspaceTab}
+                 isHidden = {isCustomWorkspaceHidden}
+                 title="Custom Workspace">
               <Suspense fallback={Fallback}>
                 <CustomWorkspaceTab
                   onDevfile={(devfile, infrastructureNamespace, optionalFilesContent) => {
@@ -263,6 +267,7 @@ const mapStateToProps = (state: AppState) => ({
   registriesErrors: selectRegistriesErrors(state),
   activeWorkspace: selectWorkspaceByQualifiedName(state),
   defaultNamespace: selectDefaultNamespace(state),
+  workspacesSettings: selectWorkspacesSettings(state),
 });
 
 const connector = connect(

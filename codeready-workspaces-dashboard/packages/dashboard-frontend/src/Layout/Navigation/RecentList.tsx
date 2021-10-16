@@ -33,7 +33,8 @@ function buildRecentWorkspacesItems(workspaces: Array<Workspace>, activePath: st
       to: navigateTo,
       label: workspaceName,
       status: workspace.status,
-      workspaceId: workspace.id
+      workspaceId: workspace.id,
+      isDevWorkspace: workspace.isDevWorkspace,
     };
     return <NavigationRecentItem key={item.to} item={item} activePath={activePath} history={history} />;
   });

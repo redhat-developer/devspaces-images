@@ -30,6 +30,7 @@ import * as DevfileRegistriesStore from '../../../../store/DevfileRegistries';
 import * as FactoryResolverStore from '../../../../store/FactoryResolver';
 import { GitRepoLocationInput } from './GitRepoLocationInput';
 import { AlertItem } from '../../../../services/helpers/types';
+import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 
 type Props =
   MappedProps
@@ -60,6 +61,16 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
   }
 
   private async handleLocationChange(location: string): Promise<void> {
+    // if devWorkspace is enabled
+    // use factory workflow to load the git location
+    const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+    if (cheDevworkspaceEnabled) {
+      const factoryUrl = `${window.location.origin}/#${location}`;
+      // open a new page to handle that
+      window.open(factoryUrl, '_blank');
+      return;
+    }
+
     try {
       this.setState({ isLoading: true });
       await this.props.requestFactoryResolver(location);
@@ -134,6 +145,7 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
+  workspacesSettings: selectWorkspacesSettings(state),
 });
 
 const connector = connect(

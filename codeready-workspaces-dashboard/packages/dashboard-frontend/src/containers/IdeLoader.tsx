@@ -49,6 +49,7 @@ type State = {
   ideUrl?: string;
   hasError: boolean;
   isWaitingForRestart: boolean;
+  isDevWorkspace: boolean;
 };
 
 class IdeLoaderContainer extends React.PureComponent<Props, State> {
@@ -83,6 +84,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     this.state = {
       currentStep: LoadIdeSteps.INITIALIZING,
       namespace,
+      isDevWorkspace: workspace?.isDevWorkspace || false,
       workspaceName,
       hasError: workspace?.hasError === true,
       preselectedTabKey: this.preselectedTabKey,
@@ -401,12 +403,13 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { currentStep, hasError, ideUrl, workspaceId, workspaceName, preselectedTabKey } = this.state;
+    const { currentStep, hasError, ideUrl, workspaceId, workspaceName, preselectedTabKey, isDevWorkspace } = this.state;
     const status = this.getCurrentStatus();
 
     return (
       <IdeLoader
         currentStep={currentStep}
+        isDevWorkspace={isDevWorkspace}
         workspaceId={workspaceId || ''}
         preselectedTabKey={preselectedTabKey}
         ideUrl={ideUrl}

@@ -12,17 +12,12 @@
 
 import * as k8s from '@kubernetes/client-node';
 import {
-  IDevWorkspace,
   IDevWorkspaceList,
   IDevWorkspaceApi,
   IDevWorkspaceCallbacks,
   IPatch,
 } from '../../types';
-import {
-  devworkspacePluralSubresource,
-  devworkspaceVersion,
-  devWorkspaceApiGroup,
-} from '../../const';
+import { devworkspaceGroup, devworkspaceLatestVersion, devworkspacePlural, V1alpha2DevWorkspace } from '@devfile/api';
 
 import { helpers } from '@eclipse-che/common';
 
@@ -38,10 +33,10 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
   async listInNamespace(namespace: string): Promise<IDevWorkspaceList> {
     try {
       const resp = await this.customObjectAPI.listNamespacedCustomObject(
-        devWorkspaceApiGroup,
-        devworkspaceVersion,
+        devworkspaceGroup,
+        devworkspaceLatestVersion,
         namespace,
-        devworkspacePluralSubresource
+        devworkspacePlural
       );
       return resp.body as IDevWorkspaceList;
     } catch (e) {
@@ -52,46 +47,54 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
   async getByName(
     namespace: string,
     name: string
-  ): Promise<IDevWorkspace> {
+  ): Promise<V1alpha2DevWorkspace> {
     try {
       const resp = await this.customObjectAPI.getNamespacedCustomObject(
-        devWorkspaceApiGroup,
-        devworkspaceVersion,
+        devworkspaceGroup,
+        devworkspaceLatestVersion,
         namespace,
-        devworkspacePluralSubresource,
+        devworkspacePlural,
         name
       );
-      return resp.body as IDevWorkspace;
+      return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
       throw new Error(`unable to get devworkspace ${namespace}/${name}: ` + helpers.errors.getMessage(e));
     }
   }
 
-  async create(devworkspace: IDevWorkspace): Promise<IDevWorkspace> {
+  async create(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace> {
     try {
+      if (!devworkspace.metadata?.name || !devworkspace.metadata?.namespace) {
+        throw 'DevWorkspace.spec.metadata with name and namespace are required';
+      }
+
       const resp = await this.customObjectAPI.createNamespacedCustomObject(
-        devWorkspaceApiGroup,
-        devworkspaceVersion,
+        devworkspaceGroup,
+        devworkspaceLatestVersion,
         devworkspace.metadata.namespace,
-        devworkspacePluralSubresource,
+        devworkspacePlural,
         devworkspace
       );
-      return resp.body as IDevWorkspace;
+      return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
       throw new Error('unable to create devworkspace: ' + helpers.errors.getMessage(e));
     }
   }
 
-  async update(devworkspace: IDevWorkspace): Promise<IDevWorkspace> {
+  async update(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace> {
     try {
+      if (!devworkspace.metadata?.name || !devworkspace.metadata?.namespace) {
+        throw 'DevWorkspace.spec.metadata with name and namespace are required';
+      }
+
       // you have to delete some elements from the devworkspace in order to update
       if (devworkspace.metadata?.uid) {
         devworkspace.metadata.uid = undefined;
       }
-      if (devworkspace.metadata.creationTimestamp) {
+      if (devworkspace.metadata?.creationTimestamp) {
         delete devworkspace.metadata.creationTimestamp;
       }
-      if (devworkspace.metadata.deletionTimestamp) {
+      if (devworkspace.metadata?.deletionTimestamp) {
         delete devworkspace.metadata.deletionTimestamp;
       }
 
@@ -99,14 +102,14 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
       const namespace = devworkspace.metadata.namespace;
 
       const resp = await this.customObjectAPI.replaceNamespacedCustomObject(
-        devWorkspaceApiGroup,
-        devworkspaceVersion,
+        devworkspaceGroup,
+        devworkspaceLatestVersion,
         namespace,
-        devworkspacePluralSubresource,
+        devworkspacePlural,
         name,
         devworkspace
       );
-      return resp.body as IDevWorkspace;
+      return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
       throw new Error('unable to update devworkspace: ' + helpers.errors.getMessage(e));
     }
@@ -115,10 +118,10 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
   async delete(namespace: string, name: string): Promise<void> {
     try {
       await this.customObjectAPI.deleteNamespacedCustomObject(
-        devWorkspaceApiGroup,
-        devworkspaceVersion,
+        devworkspaceGroup,
+        devworkspaceLatestVersion,
         namespace,
-        devworkspacePluralSubresource,
+        devworkspacePlural,
         name
       );
     } catch (e) {
@@ -129,7 +132,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
   /**
    * Patch a DevWorkspace
    */
-  async patch(namespace: string, name: string, patches: IPatch[]): Promise<IDevWorkspace> {
+  async patch(namespace: string, name: string, patches: IPatch[]): Promise<V1alpha2DevWorkspace> {
     return this.createPatch(namespace, name, patches);
   }
 
@@ -144,10 +147,10 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         },
       };
       const resp = await this.customObjectAPI.patchNamespacedCustomObject(
-        devWorkspaceApiGroup,
-        devworkspaceVersion,
+        devworkspaceGroup,
+        devworkspaceLatestVersion,
         namespace,
-        devworkspacePluralSubresource,
+        devworkspacePlural,
         name,
         patches,
         undefined,
@@ -155,25 +158,28 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         undefined,
         options
       );
-      return resp.body as IDevWorkspace;
+      return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
       throw new Error('unable to patch devworkspace: ' + helpers.errors.getMessage(e));
     }
   }
 
   async watchInNamespace(namespace: string, resourceVersion: string, callbacks: IDevWorkspaceCallbacks): Promise<{ abort: () => void }> {
-    const path = `/apis/${devWorkspaceApiGroup}/${devworkspaceVersion}/watch/namespaces/${namespace}/devworkspaces`;
+    const path = `/apis/${devworkspaceGroup}/${devworkspaceLatestVersion}/watch/namespaces/${namespace}/${devworkspacePlural}`;
     const queryParams = { watch: true, resourceVersion };
 
-    return this.customObjectWatch.watch(path, queryParams, (type: string, devworkspace: IDevWorkspace) => {
-      const workspaceId = devworkspace.status.devworkspaceId;
-
+    return this.customObjectWatch.watch(path, queryParams, (type: string, devworkspace: V1alpha2DevWorkspace) => {
       if (type === 'ADDED') {
         callbacks.onAdded(devworkspace);
       } else if (type === 'MODIFIED') {
         callbacks.onModified(devworkspace);
       } else if (type === 'DELETED') {
-        callbacks.onDeleted(workspaceId);
+        const workspaceId = devworkspace?.status?.devworkspaceId;
+        if (workspaceId) {
+          callbacks.onDeleted(workspaceId);
+        } else {
+           // workspace does not have id yet, means it's not processed by DWO yet
+        }
       } else if (type === 'ERROR') {
         callbacks.onError('Error: Unknown error.');
       } else {

@@ -34,8 +34,6 @@ import { AlertItem } from '../../../services/helpers/types';
 import { selectMetadataFiltered } from '../../../store/DevfileRegistries/selectors';
 import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
-import stringify from '../../../services/helpers/editor';
-import { updateDevfileMetadata } from '../updateDevfileMetadata';
 
 type Props =
   MappedProps
@@ -102,10 +100,12 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
       let optionalFilesContent;
       if (cheDevworkspaceEnabled) {
         const link = meta.links.v2;
-        await this.props.requestFactoryResolver(link);
-        const resolver = this.props.factoryResolver.resolver;
-        devfileContent = stringify(updateDevfileMetadata(resolver.devfile, meta));
-        optionalFilesContent = resolver.optionalFilesContent;
+        // use factory workflow to load the getting started samples
+        const factoryUrl = `${window.location.origin}/#${link}`;
+        // open a new page to handle that
+        window.open(factoryUrl, '_blank');
+        this.isLoading = false;
+        return;
       } else {
         devfileContent = await this.props.requestDevfile(meta.links.self) as string;
       }

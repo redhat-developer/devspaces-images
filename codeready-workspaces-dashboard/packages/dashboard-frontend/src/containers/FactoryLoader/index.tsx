@@ -25,7 +25,7 @@ import {
   selectWorkspaceById,
   selectWorkspaceByQualifiedName
 } from '../../store/Workspaces/selectors';
-import { selectPreferredStorageType } from '../../store/Workspaces/Settings/selectors';
+import { selectPreferredStorageType, selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
 import { buildIdeLoaderLocation, sanitizeLocation } from '../../services/helpers/location';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakAuthService } from '../../services/keycloak/auth';
@@ -72,6 +72,7 @@ type State = {
   currentStep: LoadFactorySteps;
   hasError: boolean;
   createPolicy: CreatePolicy;
+  cheDevworkspaceEnabled: boolean;
 };
 
 export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
@@ -88,12 +89,14 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     super(props);
 
     const { search } = this.props.history.location;
+    const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
 
     this.state = {
       currentStep: LoadFactorySteps.INITIALIZING,
       hasError: false,
       createPolicy: DEFAULT_CREATE_POLICY,
       search,
+      cheDevworkspaceEnabled,
     };
   }
 
@@ -140,11 +143,21 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
   }
 
+  private showOnlyContentIfDevWorkspace() : void {
+    if (this.state.cheDevworkspaceEnabled) {
+      // hide all bars
+      window.postMessage('hide-allbar', '*');
+    }
+  }
+
   public componentDidMount(): void {
+    this.showOnlyContentIfDevWorkspace();
     this.createWorkspaceFromFactory();
   }
 
   public async componentDidUpdate(): Promise<void> {
+    this.showOnlyContentIfDevWorkspace();
+
     const { history, workspace, factoryResolver } = this.props;
     if (this.state.search !== history.location.search) {
       this.setState({
@@ -526,7 +539,12 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { workspace } = this.props;
-    const { currentStep, resolvedDevfileMessage, hasError } = this.state;
+    const {
+      currentStep,
+      resolvedDevfileMessage,
+      hasError,
+      cheDevworkspaceEnabled,
+    } = this.state;
     const workspaceName = workspace ? workspace.name : '';
     const workspaceId = workspace ? workspace.id : '';
 
@@ -537,6 +555,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         resolvedDevfileMessage={resolvedDevfileMessage}
         workspaceId={workspaceId}
         workspaceName={workspaceName}
+        isDevWorkspace={cheDevworkspaceEnabled}
         callbacks={this.factoryLoaderCallbacks}
       />
     );
@@ -552,6 +571,7 @@ const mapStateToProps = (state: AppState) => ({
   preferredStorageType: selectPreferredStorageType(state),
   activeWorkspace: selectWorkspaceByQualifiedName(state),
   defaultNamespace: selectDefaultNamespace(state),
+  workspacesSettings: selectWorkspacesSettings(state),
 });
 
 const connector = connect(

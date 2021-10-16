@@ -35,8 +35,9 @@ export class KubeConfigProvider {
     }
 
     const user: User = {
-      // todo is there way to figure out openshift username?
-      // todo answer: there is with native auth. It's in dedicated header
+      // Note: potential improvement with native authentication
+      // it's possible to figure out the real username (dedicated header)
+      // but that's not exposed anywhere, so leave developer for time being
       name: 'developer',
       token: token,
     };

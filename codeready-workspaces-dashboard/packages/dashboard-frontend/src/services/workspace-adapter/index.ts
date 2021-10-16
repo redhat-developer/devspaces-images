@@ -39,6 +39,7 @@ export interface Workspace {
   readonly isStopping: boolean;
   readonly isRunning: boolean;
   readonly hasError: boolean;
+  readonly isDevWorkspace: boolean;
 }
 
 export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace> implements Workspace {
@@ -106,6 +107,10 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     } else {
       return this.workspace.metadata.namespace;
     }
+  }
+
+  get isDevWorkspace(): boolean {
+    return isDevWorkspace(this.workspace);
   }
 
   get infrastructureNamespace(): string {

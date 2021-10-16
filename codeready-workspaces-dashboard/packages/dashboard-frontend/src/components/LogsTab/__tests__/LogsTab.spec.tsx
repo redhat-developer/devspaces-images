@@ -86,6 +86,7 @@ function renderComponent(
     <Provider store={store}>
       <LogsTab
         workspaceId={workspaceId}
+        isDevWorkspace
       />
     </Provider>,
   );

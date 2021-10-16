@@ -130,6 +130,11 @@ export class Layout extends React.PureComponent<Props, State> {
           isSidebarVisible: false,
           isHeaderVisible,
         });
+      } else if (event.data === 'hide-allbar') {
+        this.setState({
+          isSidebarVisible: false,
+          isHeaderVisible: false,
+        });
       }
     };
     window.addEventListener('message', handleMessage, false);

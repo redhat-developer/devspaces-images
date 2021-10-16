@@ -45,6 +45,7 @@ type Props = {
   status: string | undefined;
   workspaceId: string;
   workspaceName: string;
+  isDevWorkspace: boolean;
   callbacks?: {
     showAlert?: (alertOptions: AlertOptions) => void
   };
@@ -59,6 +60,7 @@ type State = {
   currentAlertVariant?: AlertVariant;
   alertActionLinks?: React.ReactFragment;
   alertBody?: string | undefined;
+  isDevWorkspace: boolean;
 };
 
 export type AlertOptions = {
@@ -82,6 +84,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
     this.state = {
       alertVisible: false,
       currentRequestError: '',
+      isDevWorkspace: this.props.isDevWorkspace,
       workspaceId: this.props.workspaceId,
       activeTabKey: this.props.preselectedTabKey ? this.props.preselectedTabKey : IdeLoaderTab.Progress,
     };
@@ -120,7 +123,15 @@ class IdeLoader extends React.PureComponent<Props, State> {
     }
   }
 
+  private showOnlyContentIfDevWorkspace() : void {
+    if (this.state.isDevWorkspace) {
+      // hide all bars
+      window.postMessage('hide-allbar', '*');
+    }
+  }
+
   public componentDidMount(): void {
+    this.showOnlyContentIfDevWorkspace();
     if (this.props.ideUrl) {
       this.setState({ ideUrl: this.props.ideUrl });
     }
@@ -130,6 +141,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
   }
 
   public async componentDidUpdate(): Promise<void> {
+    this.showOnlyContentIfDevWorkspace();
     const { currentStep, hasError, ideUrl, workspaceId } = this.props;
 
     const current = this.wizardRef.current;
@@ -151,9 +163,20 @@ class IdeLoader extends React.PureComponent<Props, State> {
     if (this.state.ideUrl !== ideUrl) {
       this.setState({ ideUrl });
       if (ideUrl) {
-        await this.updateIdeIframe(ideUrl, 10);
+        if (this.state.isDevWorkspace) {
+          // in case of DevWorkspace, refresh the current window
+          await this.openInCurrentWindow(ideUrl);
+        } else {
+          // else, update the iFrame
+          await this.updateIdeIframe(ideUrl, 10);
+        }
       }
     }
+  }
+
+  // Open the link in the current window
+  private async openInCurrentWindow(url: string): Promise<void> {
+    window.location.replace(url);
   }
 
   private async updateIdeIframe(url: string, repeat?: number): Promise<void> {
@@ -291,7 +314,10 @@ class IdeLoader extends React.PureComponent<Props, State> {
             </Tab>
             <Tab eventKey={IdeLoaderTab.Logs} title={IdeLoaderTab[IdeLoaderTab.Logs]}
               id="ide-loader-page-logs-tab">
-              <WorkspaceLogs workspaceId={workspaceId} />
+              <WorkspaceLogs
+                workspaceId={workspaceId}
+                isDevWorkspace={this.props.isDevWorkspace}
+              />
             </Tab>
           </Tabs>
         </PageSection>

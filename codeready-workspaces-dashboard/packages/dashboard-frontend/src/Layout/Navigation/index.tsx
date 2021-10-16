@@ -34,6 +34,7 @@ export interface NavigationRecentItemObject {
   label: string,
   status: string;
   workspaceId: string;
+  isDevWorkspace: boolean;
 }
 
 type Props =

@@ -126,9 +126,10 @@ class NavigationItemWorkspaceActions extends React.PureComponent<Props, State> {
 
   public render(): React.ReactElement {
     const { isExpanded } = this.state;
+    const { history } = this.props;
     const menuAppendTo = document.getElementById('page-sidebar') || 'inline';
 
-    return (<WorkspaceActionsProvider>
+    return (<WorkspaceActionsProvider history={history}>
       <WorkspaceActionsConsumer>
         {context => (
           <Dropdown

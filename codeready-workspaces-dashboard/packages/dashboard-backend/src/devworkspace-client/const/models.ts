@@ -10,28 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { projectApiGroup } from './index';
-
-export const projectRequestModel = (namespace: string) => {
-  return {
-    apiVersion: `${projectApiGroup}/v1`,
-    kind: 'ProjectRequest',
-    metadata: {
-      name: namespace,
-    },
-  };
-};
-
-export const namespaceModel = (namespace: string) => {
-  return {
-    apiVersion: 'v1',
-    kind: 'Namespace',
-    metadata: {
-      name: namespace,
-    },
-  };
-};
-
 export enum deletePolicy {
   Background = 'Background',
   Foreground = 'Foreground'

@@ -62,7 +62,7 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
     }
 
     return (
-      <WorkspaceActionsProvider>
+      <WorkspaceActionsProvider history={history}>
         <WorkspaceActionsConsumer>
           {context => (
             <WorkspacesList

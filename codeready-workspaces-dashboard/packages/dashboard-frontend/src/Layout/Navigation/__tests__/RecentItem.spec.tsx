@@ -34,6 +34,7 @@ describe('Navigation Item', () => {
     status: '',
     label: 'workspace',
     to: '/namespace/workspace',
+    isDevWorkspace: false,
     workspaceId: 'test-wrks-id'
   };
 

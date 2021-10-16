@@ -325,10 +325,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@devfile/api@^2.2.0-alpha-1628104895", "@devfile/api@latest":
-  version "2.2.0-alpha-1631030331"
-  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.0-alpha-1631030331.tgz#2b8d1b60f8df08e650998d5b02cd20be9783d9c1"
-  integrity sha512-0ivcaeG0njRVTPNtEcrBSQkbGmxQol7lIGRxPyIzvgcvlfDUZR0tJUJgn76GBuFsS6DJbajW20VU06uEnq8ibA==
+"@devfile/api@^2.2.0-alpha-1633545768", "@devfile/api@latest":
+  version "2.2.0-alpha-1633545768"
+  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.0-alpha-1633545768.tgz#8bab3becdeec62565f39ac8f6690d73603ce12da"
+  integrity sha512-mZcz0Dm2w5tCRlOyOqLihlHSl4Wr3HXc6w7amgy6N14Yy37JzmrOecU9HR+Lc0AKiUeEnljPf823eJu+RRFdKQ==
   dependencies:
     "@types/bluebird" "3.5.21"
     "@types/request" "*"

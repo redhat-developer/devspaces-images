@@ -132,6 +132,7 @@ function renderComponent(
         workspaceId={workspaceId}
         hasError={hasError}
         resolvedDevfileMessage={resolvedDevfileMessage}
+        isDevWorkspace
       />
     </Provider>,
   );

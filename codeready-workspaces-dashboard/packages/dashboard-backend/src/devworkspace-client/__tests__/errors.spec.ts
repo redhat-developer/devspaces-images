@@ -45,6 +45,8 @@ describe('Kubernetes API integration testing against cluster', () => {
         throw 'current user is not present in kubeconfig';
       }
       (currentUser as any).token = '';
+      (currentUser as any).keyFile = '';
+      (currentUser as any).certFile = '';
 
       const dwClient = new DevWorkspaceClient(kc);
       try {
@@ -64,6 +66,8 @@ describe('Kubernetes API integration testing against cluster', () => {
         throw 'current user is not present in kubeconfig';
       }
       (currentUser as any).token = '';
+      (currentUser as any).keyFile = '';
+      (currentUser as any).certFile = '';
 
       const dwClient = new DevWorkspaceClient(kc);
       const err: Promise<string> = new Promise((resolve) => {
@@ -103,7 +107,7 @@ describe('Kubernetes API integration testing against cluster', () => {
         await dwClient.devworkspaceApi.getByName('any', 'non-existing');
         fail('devworkspace is expected not to be found');
       } catch (e) {
-        expect((e as Error).message).toBe('unable to get devworkspace any/non-existing: getaddrinfo EAI_AGAIN non-existing-k8s.127.0.0.1');
+        expect((e as Error).message).toBe('unable to get devworkspace any/non-existing: getaddrinfo ENOTFOUND non-existing-k8s.127.0.0.1');
       }
       done();
     }, 60000);
