@@ -46,46 +46,12 @@ timeout(120) {
                     TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
                     OLD_SHA = util.getLastCommitSHA(TARGET_DIR)
                     println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_SHA
-
-                    writeFile file: "rsync-upstream-exclude", text: '''.github
-.gitattributes'''
-                    // ignore files that are ONLY in downstream (not midstream or upstream)
-                    writeFile file: "rsync-brew-exclude", text: '''sources
-get-sources-jenkins.sh
-cvp.yml
-tests/
-content_sets.yml
-content_sets.repo
-container.yaml
-.gitignore'''
-                    sh('''
-                      rsync -avhz --checksum --exclude-from ${WORKSPACE}/rsync-upstream-exclude --exclude-from ${WORKSPACE}/rsync-brew-exclude --exclude .git/ --exclude .github/ --exclude .gitignore \
-                        ''' + SOURCE_DIR + '''/ ''' + TARGET_DIR
-                    )
-
-                    // copy build/dockerfiles/brew.Dockerfile to Dockerfile
-                    sh('''rsync -avhz --checksum ''' + SOURCE_DIR + '''/build/dockerfiles/brew.Dockerfile ''' + TARGET_DIR + '''/Dockerfile''')
-
-                    // append brew metadata to brew.Dockerfile after copying to downstream
+                    //rsync files
                     sh('''#!/bin/bash -xe
-METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
-DESCRIPTION="Red Hat CodeReady Workspaces ''' + SYNC_REPO + ''' container" \\\r
-PRODNAME="codeready-workspaces" \\\r
-COMPNAME="''' + SYNC_REPO + '''-rhel8" \r
-LABEL summary="$SUMMARY" \\\r
-description="$DESCRIPTION" \\\r
-io.k8s.description="$DESCRIPTION" \\\r
-io.k8s.display-name=\"$DESCRIPTION" \\\r
-io.openshift.tags="$PRODNAME,$COMPNAME" \\\r
-com.redhat.component="$PRODNAME-$COMPNAME-container" \\\r
-name="$PRODNAME/$COMPNAME" \\\r
-version="''' + CRW_VERSION + '''" \\\r
-license="EPLv2" \\\r
-maintainer="Nick Boldt <nboldt@redhat.com>" \\\r
-io.openshift.expose-services="" \\\r
-usage="" \r'
-echo -e "$METADATA" >> ''' + TARGET_DIR + '''/Dockerfile
-                    ''')
+                    cd ''' + TARGET_DIR + '''
+                    chmod +x build/scripts/sync.sh
+                    ./build/scripts/sync.sh -v ''' + CRW_VERSION + ''' -s ''' + SOURCE_DIR + ''' -t ''' + TARGET_DIR
+                    )
 
                     util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "-q --no-commit")
 
@@ -131,17 +97,11 @@ for (int i=0; i < nodeLabels.size(); i++) {
                             util.cloneRepoWithBootstrap("https://github.com/${DWNSTM_REPO}", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH, false)
                             util.loginToRegistries()
                             CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
-                            sh('''#!/bin/bash -xe
-                              CSV_VERSION="''' + CSV_VERSION + '''"
-                              MIDSTM_BRANCH="''' + MIDSTM_BRANCH + '''"
-                              ARCH="$(uname -m)"
-                              cd ${WORKSPACE}/codeready-workspaces-images/''' + util.getCRWLongName(SYNC_REPO) + '''
-                              chmod +x ./build/dockerfiles/*.sh
-                              ./build/dockerfiles/rhel.Dockerfile.extract.assets.sh
-
-                              # upload to GH releases
-                              curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-                              ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix configbump "${WORKSPACE}/asset-configbump-${ARCH}.tar.gz"
+                            TARGET_DIR = "${WORKSPACE}/codeready-workspaces-images/" + util.getCRWLongName(SYNC_REPO)
+                            sh('''#!/bin/bash -x
+                            cd ''' + TARGET_DIR+ '''
+                            chmod +x build/rhel.binary.build.sh
+                            ./build/rhel.binary.build.sh -v ''' + CSV_VERSION + ''' -b ''' + MIDSTM_BRANCH + '''
                             ''')
                             currentBuild.description+="; New ${nodeLabel} artifacts built"
                         } else {
