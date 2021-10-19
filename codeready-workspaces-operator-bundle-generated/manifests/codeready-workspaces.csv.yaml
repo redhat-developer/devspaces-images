@@ -79,8 +79,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:458802564043f3047e477045c9cf4e06ef6b9e41bd8de3a05f482250f326ea28
-    createdAt: "2021-10-06T20:40:16+00:00"
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:4437502493dabc0411db119b3d81cbd239212d8f3d6ebb7b3743b286ab81389b
+    createdAt: "2021-10-19T13:08:21+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -89,7 +89,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperatorallnamespaces.v2.12.100
+  name: crwoperatorallnamespaces.v2.12.101
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -930,7 +930,7 @@ spec:
                 - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                   value: ca-certs
                 - name: CHE_VERSION
-                  value: 2.12.100
+                  value: 2.12.101
                 - name: CONSOLE_LINK_DISPLAY_NAME
                   value: CodeReady Workspaces
                 - name: CONSOLE_LINK_IMAGE
@@ -1059,7 +1059,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:458802564043f3047e477045c9cf4e06ef6b9e41bd8de3a05f482250f326ea28
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:4437502493dabc0411db119b3d81cbd239212d8f3d6ebb7b3743b286ab81389b
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1086,7 +1086,7 @@ spec:
                 resources:
                   limits:
                     cpu: 500m
-                    memory: 256Mi
+                    memory: 1Gi
                   requests:
                     cpu: 100m
                     memory: 64Mi
@@ -1338,12 +1338,12 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.12.100
+  version: 2.12.101
   relatedImages:
-  - name: crw-2-rhel8-operator-458802564043f3047e477045c9cf4e06ef6b9e41bd8de3a05f482250f326ea28-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:458802564043f3047e477045c9cf4e06ef6b9e41bd8de3a05f482250f326ea28
+  - name: crw-2-rhel8-operator-4437502493dabc0411db119b3d81cbd239212d8f3d6ebb7b3743b286ab81389b-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:4437502493dabc0411db119b3d81cbd239212d8f3d6ebb7b3743b286ab81389b
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:458802564043f3047e477045c9cf4e06ef6b9e41bd8de3a05f482250f326ea28
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:4437502493dabc0411db119b3d81cbd239212d8f3d6ebb7b3743b286ab81389b
   - name: che_server
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:7d73e8c778becdff0a96303c501cc6260d27b2e1e77b55e200f944a3e7bdb86a
   - name: che_server_secure_exposer_jwt_proxy_image
