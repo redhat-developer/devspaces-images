@@ -1,4 +1,23 @@
-def JOB_BRANCHES = ["2.12"] // only one release at a time
+import groovy.json.JsonSlurper
+
+def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+
+def jsonSlurper = new JsonSlurper();
+def config = jsonSlurper.parseText(curlCMD);
+
+// for 2.yy, return 2.yy-1
+def computePreviousVersion(String ver){
+    verBits=ver.tokenize(".")
+    int vb1=Integer.parseInt(verBits[1])
+    if (vb1==0) {
+        return verBits[0] + ".0"
+    } else {
+        return verBits[0] + "." + (vb1-1)
+    }
+}
+
+def JOB_BRANCHES = [computePreviousVersion(config.Version+"")] // only one release at a time, previous stable one (2.yy-1)
+
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         // keep job disabled until we explicitly need it

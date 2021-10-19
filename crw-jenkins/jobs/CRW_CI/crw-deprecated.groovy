@@ -5,7 +5,7 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Management-Jobs".deprecated.keySet()
+def JOB_BRANCHES = config."Jobs".deprecated.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -23,7 +23,7 @@ for (JB in JOB_BRANCHES) {
         SOURCE_REPO="redhat-developer/" + UPSTM_NAME
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
-            disabled(config."Management-Jobs".deprecated[JB].disabled) // on reload of job, disable to avoid churn
+            disabled(config."Jobs".deprecated[JB].disabled) // on reload of job, disable to avoid churn
             description('''
 Lang server dependency builder
 <ul>

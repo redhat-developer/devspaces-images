@@ -5,7 +5,7 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Management-Jobs"."build-all-images".keySet()
+def JOB_BRANCHES = config."Jobs"."build-all-images".keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -22,7 +22,7 @@ for (JB in JOB_BRANCHES) {
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
             // keep job disabled until we explicitly need it
-            disabled(config."Management-Jobs"."build-all-images"[JB].disabled) 
+            disabled(config."Jobs"."build-all-images"[JB].disabled) 
 
             description('''
 This job is meant to be used to orchestrate rebuilding everything in CRW after a major branch update (7.yy.x -> 7.zz.x) or for global CVE updates.
