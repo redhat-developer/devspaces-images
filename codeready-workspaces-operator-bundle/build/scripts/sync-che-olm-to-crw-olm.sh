@@ -97,6 +97,13 @@ if [[ $CSV_VERSION =~ ^([0-9]+\.[0-9]+)\.([0-9]+) ]]; then # add 100 to the z di
   CSV_VERSION="${XY}.${ZZ}"
 fi
 
+if [[ $CSV_VERSION_PREV =~ ^([0-9]+\.[0-9]+)\.([0-9]+) ]]; then # add 100 to the z digit
+  XY=${BASH_REMATCH[1]}
+  ZZ=${BASH_REMATCH[2]}; (( ZZ=ZZ+100 ));
+
+  CSV_VERSION_PREV="${XY}.${ZZ}"
+fi
+
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/codeready-workspaces"
 CRW_OPERATOR="crw-2-rhel8-operator"
@@ -337,7 +344,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
+		[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
 		['.metadata.annotations.description']="Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
