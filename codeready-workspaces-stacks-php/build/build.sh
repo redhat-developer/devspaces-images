@@ -19,8 +19,13 @@ export PHP_XDEBUG_IMAGE="php-xdebug:tmp"
 
 usage () {
     echo "
+<<<<<<< HEAD
 Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
 Example: $0 -v 2.y.0 -n stacks-php
+=======
+Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
+Example: $0 -v 2.y.0 --noupload
+>>>>>>> d45fb80df (adding -v option to other build.sh scripts)
 "
     exit
 }
@@ -30,7 +35,10 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+<<<<<<< HEAD
     '-n') GH_RELEASE_NAME="$2"; shift 1;;
+=======
+>>>>>>> d45fb80df (adding -v option to other build.sh scripts)
     '--help'|'-h') usage;;
   esac
   shift 1
