@@ -78,9 +78,6 @@ Images to copy to quay:
   <li> <a href=https://quay.io/repository/crw/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
   <li> <a href=https://quay.io/repository/crw/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
   <li> <a href=https://quay.io/repository/crw/traefik-rhel8?tab=tags>traefik</a> </li>
-
-  <li> <a href=https://quay.io/repository/crw/devworkspace-controller-rhel8?tab=tags>devworkspace-controller</a> @since 2.8 to 2.11</li>
-  <li> <a href=https://quay.io/repository/crw/devworkspace-rhel8?tab=tags>devworkspace</a> @since 2.8 to 2.11</li>
   </td></tr>
   </table>
 </ul>
