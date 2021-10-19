@@ -58,7 +58,7 @@ spec:
             - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
               value: ca-certs
             - name: CHE_VERSION
-              value: 2.12.0
+              value: 2.12.1
             - name: CONSOLE_LINK_DISPLAY_NAME
               value: CodeReady Workspaces
             - name: CONSOLE_LINK_IMAGE
@@ -258,7 +258,7 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 256Mi
+              memory: 1Gi
             requests:
               cpu: 100m
               memory: 64Mi
