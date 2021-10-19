@@ -17,6 +17,24 @@ export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 export KAMEL_VERSION="1.5.0"
 export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.14.7-15"
 
+usage () {
+    echo "
+Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
+Example: $0 -v 2.y.0 --noupload
+"
+    exit
+}
+
+if [[ $# -lt 1 ]]; then usage; fi
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    '-v') CSV_VERSION="$2"; shift 1;;
+    '--help'|'-h') usage;;
+  esac
+  shift 1
+done
+
 cd "${SCRIPT_DIR}"
 [[ -e target ]] && rm -Rf target
 

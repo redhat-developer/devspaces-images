@@ -17,6 +17,25 @@ export NODEJS_IMAGE="registry.access.redhat.com/ubi8/nodejs-10:1-114"
 export NODEMON_VERSION=1.19.3  # find latest version: https://www.npmjs.com/package/nodemon
 export TYPERSCRIPT_VERSION=3.4.5  # find latest version: https://www.npmjs.com/package/typescript
 export TYPESCRIPT_LS_VERSION=0.3.7  # find latest version: https://www.npmjs.com/package/typescript-language-server
+
+usage () {
+    echo "
+Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
+Example: $0 -v 2.y.0 --noupload
+"
+    exit
+}
+
+if [[ $# -lt 1 ]]; then usage; fi
+
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    '-v') CSV_VERSION="$2"; shift 1;;
+    '--help'|'-h') usage;;
+  esac
+  shift 1
+done
+
 cd "$SCRIPT_DIR"
 [[ -e target ]] && rm -Rf target
 
