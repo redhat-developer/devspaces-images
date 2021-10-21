@@ -74,7 +74,7 @@ if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
   if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
       curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
   fi
-  ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${tarball}"
+  ./uploadAssetsToGHRelease.sh --push-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${tarball}"
 
   # cleanup
   podman rmi -f $TMP_IMG
