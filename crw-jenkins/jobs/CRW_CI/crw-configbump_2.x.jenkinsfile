@@ -88,7 +88,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                     def util = load "${WORKSPACE}/util.groovy"
                     cleanWs()
-                    util.installHub("2.14.2", GOLANG_VERSION)
+                    util.installHub("2.14.2", GOLANG_VERSION) // for publishing asset files to GH releases
                     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                         usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
                         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {

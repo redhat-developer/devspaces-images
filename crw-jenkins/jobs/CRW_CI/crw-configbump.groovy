@@ -52,6 +52,14 @@ Artifact builder + sync job; triggers brew after syncing
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
 <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
+<p>Results:
+    <ul>
+        <li><a href=https://github.com/redhat-developer/codeready-workspaces-images/releases?q=%22assets+for+the+'''+
+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+
+'''+'''+MIDSTM_NAME+'''+release%22&expanded=true>redhat-developer/codeready-workspaces-images/releases</a></li>
+        <li><a href=https://quay.io/crw/'''+MIDSTM_NAME+'''-rhel8>quay.io/crw/'''+MIDSTM_NAME+'''-rhel8</a></li>
+    </ul>
+</p>
             ''')
 
             properties {
@@ -61,7 +69,7 @@ Artifact builder + sync job; triggers brew after syncing
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                // disabled because no changes in the branch
+                // disabled because no changes in the branch / run this manually 
                 // pipelineTriggers {
                 //     triggers{
                 //         pollSCM{

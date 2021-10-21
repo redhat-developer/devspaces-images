@@ -53,8 +53,7 @@ Artifact builder + sync job; triggers brew after syncing
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
 <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
-<p>
-Results: <a href=http://quay.io/crw/pluginbroker-metadata-rhel8>quay.io/crw/jwtproxy-rhel8</a>
+<p>Results:<ul><li><a href=https://quay.io/crw/'''+MIDSTM_NAME+'''-rhel8>quay.io/crw/'''+MIDSTM_NAME+'''-rhel8</a></li></ul></p>
             ''')
 
             properties {

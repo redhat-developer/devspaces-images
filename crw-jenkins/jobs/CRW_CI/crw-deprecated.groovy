@@ -33,6 +33,13 @@ Lang server dependency builder
 
 <p>When done, downstream builds can be triggered using these artifacts using 
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream_''' + JOB_BRANCH + '''</a>
+<p>Results:
+    <ul>
+        <li><a href=https://github.com/redhat-developer/codeready-workspaces-images/releases?q=%22assets+for+the+'''+
+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+
+'''+deprecated+release%22&expanded=true>redhat-developer/codeready-workspaces-images/releases</a></li>
+    </ul>
+</p>
             ''')
 
             properties {
@@ -66,6 +73,7 @@ Lang server dependency builder
 
             parameters{
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for hub install")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 

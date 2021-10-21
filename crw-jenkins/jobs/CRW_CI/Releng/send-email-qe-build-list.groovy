@@ -20,6 +20,7 @@ for (JB in JOB_BRANCHES) {
         JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+        CSV_VERSION=config.CSVs."operator-metadata"[JB].CSV_VERSION
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."send-email-qe-build-list"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''
@@ -46,10 +47,10 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 
             parameters{
                 MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
-                stringParam("mailSubject","CRW " + JOB_BRANCH + ".0.tt-" + MMdd + " ready for QE",
+                stringParam("mailSubject","CRW " + CSV_VERSION + ".tt-" + MMdd + " ready for QE",
 '''email subject should be one of two formats: <br/>
-* CRW ''' + JOB_BRANCH + '''.0.ER-''' + MMdd + ''' ready for QE<br/>
-* CRW ''' + JOB_BRANCH + '''.0.RC-''' + MMdd + ''' ready for QE
+* CRW ''' + CSV_VERSION + '''.ER-''' + MMdd + ''' ready for QE<br/>
+* CRW ''' + CSV_VERSION + '''.RC-''' + MMdd + ''' ready for QE
 ''')
                 stringParam("errataURL","https://errata.devel.redhat.com/advisory/81387",'')
                 stringParam("epicURL", "https://issues.redhat.com/browse/CRW-2102")

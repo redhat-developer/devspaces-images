@@ -24,6 +24,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
                         def util = load "${WORKSPACE}/util.groovy"
                         cleanWs()
                         util.installPodman() // RHEL8 only, includes docker emulation
+                        util.installHub("2.14.2", GOLANG_VERSION) // for publishing asset files to GH releases
                         sh('''#!/bin/bash -xe
                          df -h; du -sch . ${WORKSPACE} /tmp 2>/dev/null || true
                         ''')

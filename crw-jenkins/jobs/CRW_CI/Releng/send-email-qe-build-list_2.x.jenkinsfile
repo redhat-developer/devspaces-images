@@ -46,6 +46,7 @@ timeout(90) {
             def util = load "${WORKSPACE}/util.groovy"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+            CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
             try { 
                 stage "Fetch latest image tags and send email"
                 cleanWs()
@@ -53,7 +54,7 @@ timeout(90) {
                 util.installYq()
                 util.installBrewKoji()
                 MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
-                if (mailSubject.contains("CRW " + JOB_BRANCH + ".0.tt-" + MMdd + " ready for QE") || mailSubject.equals(""))
+                if (mailSubject.contains("CRW " + CSV_VERSION + ".tt-" + MMdd + " ready for QE") || mailSubject.equals(""))
                 {
                     doSendEmail="false"
                     errorOccurred = errorOccurred + 'Error: need to set an actual email subject. Failure!\n'

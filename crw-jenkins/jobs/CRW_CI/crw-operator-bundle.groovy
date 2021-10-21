@@ -27,8 +27,6 @@ for (JB in JOB_BRANCHES) {
             SOURCE_REPO="eclipse/" + UPSTM_NAME
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
-            CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
-            CSV_VERSION_PREV=config.CSVs."operator-bundle"[JB].CSV_VERSION_PREV
 
             def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs"."operator-bundle"[JB].upstream_branch[0]
             def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs"."operator-bundle"[JB].upstream_branch[1]
@@ -64,6 +62,8 @@ Artifact builder + sync job; triggers brew after syncing
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
+
+<p>Results:<ul><li><a href=https://quay.io/crw/crw-2-rhel8-'''+MIDSTM_NAME+'''>quay.io/crw/crw-2-rhel8-'''+MIDSTM_NAME+'''</a></li></ul></p>
             ''')
 
             properties {
@@ -101,8 +101,8 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_REPO", MIDSTM_REPO)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
-                stringParam("CSV_VERSION", CSV_VERSION)
-                stringParam("CSV_VERSION_PREV", CSV_VERSION_PREV)
+                stringParam("CSV_VERSION", config.CSVs."operator-bundle"[JB].CSV_VERSION)
+                stringParam("CSV_VERSION_PREV", config.CSVs."operator-bundle"[JB].CSV_VERSION_PREV)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 

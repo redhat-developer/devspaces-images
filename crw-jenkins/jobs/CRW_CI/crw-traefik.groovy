@@ -38,8 +38,18 @@ Artifact builder + sync job; triggers brew after syncing
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
-<p>If <b style="color:green">downstream job fires</b>, see <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
+<p>If <b style="color:green">downstream job fires</b>, see 
+<a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
+<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
+<p>Results:
+    <ul>
+        <li><a href=https://github.com/redhat-developer/codeready-workspaces-images/releases?q=%22assets+for+the+'''+
+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+
+'''+'''+MIDSTM_NAME+'''+release%22&expanded=true>redhat-developer/codeready-workspaces-images/releases</a></li>
+        <li><a href=https://quay.io/crw/'''+MIDSTM_NAME+'''-rhel8>quay.io/crw/'''+MIDSTM_NAME+'''-rhel8</a></li>
+    </ul>
+</p>
             ''')
 
             properties {
@@ -57,7 +67,6 @@ Artifact builder + sync job; triggers brew after syncing
                 //         }
                 //     }
                 // }
-
                 disableResumeJobProperty()
             }
 

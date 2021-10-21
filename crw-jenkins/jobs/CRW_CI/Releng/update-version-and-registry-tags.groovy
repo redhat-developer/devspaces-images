@@ -12,10 +12,10 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         disabled(true)
 
         MIDSTM_BRANCH="crw-2-rhel-8"
-        CSV_VERSION=JOB_BRANCH+".0"
 
         description('''
-This job is meant to bootstrap a new release of CRW, by bumping versions in poms, registries, VERSION file, and committing changes.
+This job is meant to bootstrap a new release of CRW, by bumping versions in 
+job-config.json, VERSION file and registries, then committing changes.
         ''')
 
         properties {
@@ -33,7 +33,7 @@ This job is meant to bootstrap a new release of CRW, by bumping versions in poms
 
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to update")
-            stringParam("CSV_VERSION",CSV_VERSION,"version of CRW to use to update sources")
+            stringParam("CSV_VERSION",JOB_BRANCH+".0","future version of CRW to use when updating job-config.json, VERSION file and registry tags")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
