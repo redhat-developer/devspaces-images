@@ -66,22 +66,17 @@ fi
 # get the public URLs for the tarball(s) from browser_download_url
 theTarGzs="$(curlWithToken https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases/${RELEASE_ID} | jq -r '.assets[].browser_download_url')"
 
-#### override any existing tarballs with newer ones from Jenkins build
-for theTarGz in ${theTarGzs}; do
-	log "[INFO] Download ${theTarGz} -> ${theTarGz##*/}"
-	# TODO can we check if we already have the identical file before re-downloading it? eg., store sha512sums as assets files?
-	if [[ ! -f ./${theTarGz##*/} ]] || [[ ${pullAssets} -eq 1 ]]; then 
-		if [[ -f ./${theTarGz##*/} ]]; then rm -f ./${theTarGz##*/}; fi
-		curl -sSLo ./${theTarGz##*/} ${theTarGz}
-		outputFiles="${outputFiles} ${theTarGz##*/}"
-	fi
-done
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
 
-if [[ ${outputFiles} ]]; then
-	log "[INFO] Upload new sources: ${outputFiles}"
-	rhpkg new-sources ${outputFiles}
-	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="GH releases :: ${outputFiles}"
+log "[INFO] Download Assets:"
+./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" --prefix deprecated $theTarGzs
+
+	log "[INFO] Upload new sources: ${theTarGzs}"
+	rhpkg new-sources ${theTarGzs}
+	log "[INFO] Commit new sources from:${theTarGzs}"
+	COMMIT_MSG="GH releases :: ${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
@@ -100,7 +95,7 @@ $ERRORS
 
 "; exit 1; fi
 	fi
-else
+
 	if [[ ${forceBuild} -eq 1 ]]; then
 		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
@@ -115,4 +110,4 @@ $ERRORS
 	else
 		log "[INFO] No new sources, so nothing to build."
 	fi
-fi
+
