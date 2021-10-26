@@ -18,8 +18,8 @@ set -e
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
-UPSTM_NAME="che-backup-server-rest"
-MIDSTM_NAME="backup"
+UPSTM_NAME="che-kubernetes-image-puller"
+MIDSTM_NAME="imagepuller"
 
 usage () {
     echo "
@@ -56,7 +56,6 @@ build/scripts/sync.sh
 /container.yaml
 /content_sets.*
 /cvp.yml
-PLATFORMS
 README.md
 get-source*.sh
 tests/basic-test.yaml
@@ -76,21 +75,12 @@ BOOTSTRAP_DOCKERFILE='bootstrap.Dockerfile'
 cp ${TARGETDIR}/${TARGET_DOCKERFILE} ${TARGETDIR}/${BOOTSTRAP_DOCKERFILE}
 # transform Dockerfile
 sed "${SOURCEDIR}/Dockerfile" \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
-    `# Do not use micro ubi image as Brew doesn't support it. Also transform ubi8 link to downstream` \
-    -e 's|ubi8/ubi-micro|ubi8-minimal|' \
-    `# Replace go-toolset ubi8 with rhel8 version` \
-    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-    `# Delete git repository cloning` \
-    -e "/git clone/d" \
-    `# Delete downloading of the dependencies` \
-    -e '/go mod vendor/d' \
-    `# Add sources and dependencies into the image` \
-    -e '/RUN export ARCH=/i COPY asset* /tmp/' \
-    `# Put the the sources and dependencies in place like they had been downloaded before` \
-    -e '/cd rest-server/i \ \ \ \ tar -xzf /tmp/asset*.tgz --strip-components=2 -C $GOPATH && \\' \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  `# Replace go-toolset ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
+  -e 's|^# *(COPY resources.tgz .+)|\1|' \
   > "${TARGETDIR}/${TARGET_DOCKERFILE}"
 
 cat << EOT >> "${TARGETDIR}/${TARGET_DOCKERFILE}"
@@ -108,7 +98,7 @@ LABEL summary="\$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${CRW_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Mykola Morhun<mmorhun@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
+      maintainer="Ilya Buziuk <ibuziuk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
