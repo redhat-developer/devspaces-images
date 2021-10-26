@@ -6,19 +6,15 @@ import groovy.transform.Field
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
 // versionSuffix
-// PUBLISH_ARTIFACTS_TO_GITHUB
-// PUBLISH_ARTIFACTS_TO_RCM
+// PUBLISH_ARTIFACTS_TO_GITHUB - no longer used as of 2.13
+// PUBLISH_ARTIFACTS_TO_RCM - no longer used as of 2.13
 
 def installP7zip = true // p7zip install and use that to build crwctl
 def nodeLabel = "rhel8||rhel83"
-def platforms = "linux-x64,darwin-x64,win32-x64"
-def CTL_path = "codeready-workspaces-chectl"
-def SHA_CTL = "SHA_CTL"
-def GITHUB_RELEASE_NAME=""
 
 timeout(90) {
   node("${nodeLabel}"){ 
-    stage ("Build ${CTL_path}") {
+    stage ("Build crwctl") {
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
         string(credentialsId:'segment-write-key', variable: 'SEGMENT_WRITE_KEY'),
         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
@@ -28,8 +24,8 @@ timeout(90) {
           cleanWs()
           currentBuild.description="Check out code ..."
           util.cloneRepoWithBootstrap("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/${CTL_path}.git", "${WORKSPACE}/${CTL_path}", MIDSTM_BRANCH, true)
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/codeready-workspaces-images", MIDSTM_BRANCH, false)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-chectl.git", "${WORKSPACE}/crwctl", MIDSTM_BRANCH, true)
+          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
 
           currentBuild.description="Set up environment ..."
 
@@ -40,232 +36,20 @@ timeout(90) {
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
 
-          def CURRENT_DAY=sh(returnStdout:true,script:"date +'%Y%m%d-%H%M'").trim()
-          def SHORT_SHA1 = util.getLastCommitSHA("${WORKSPACE}/${CTL_path}")
-          def CHECTL_VERSION=""
-          if ("${versionSuffix}") {
-            CHECTL_VERSION="${CSV_VERSION}-${versionSuffix}"
-            GITHUB_RELEASE_NAME="${CSV_VERSION}-${versionSuffix}-${SHORT_SHA1}"
-          } else {
-            CHECTL_VERSION="${CSV_VERSION}-$CURRENT_DAY"
-            GITHUB_RELEASE_NAME="${CSV_VERSION}-$CURRENT_DAY-${SHORT_SHA1}"
-          }
-          def CUSTOM_TAG=GITHUB_RELEASE_NAME // OLD way: sh(returnStdout:true,script:"date +'%Y%m%d%H%M%S'").trim()
+          sh '''#!/bin/bash -xe
+export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
+export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
 
-          // RENAME artifacts to include version in the tarball: codeready-workspaces-2.1.0-crwctl-*.tar.gz
-          def TARBALL_PREFIX="codeready-workspaces-${CHECTL_VERSION}"
+cd ${WORKSPACE}/crwctl
+./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH + 
+  ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/crw-images ''' +
+  (versionSuffix.equals("GA")?" --rcm":"") + 
+  (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
 
-          SHA_CTL = util.getLastCommitSHA("${WORKSPACE}/${CTL_path}")
-          currentBuild.description="Sync from upstream chectl ..."
-
-          // set default CRW_SERVER_TAG and CRW_OPERATOR_TAG = 2.y
-          CRW_SERVER_TAG=CRW_VERSION
-          CRW_OPERATOR_TAG=CRW_VERSION
-          // compute CRW_SERVER_TAG and CRW_OPERATOR_TAG = 2.y-zzz
+          currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/" + CSV_VERSION + "-CI-assets>" + CSV_VERSION + "</a>"
           if (versionSuffix.equals("GA")) {
-            // get latest tags from RHEC stage repo, since we're rebuilding for GA
-            CRW_SERVER_TAG=util.getLatestImageAndTag("codeready-workspaces/server-rhel8", "stage").replaceAll(".+:(.+)",'$1')
-            CRW_OPERATOR_TAG=util.getLatestImageAndTag("codeready-workspaces/crw-2-rhel8-operator", "stage").replaceAll(".+:(.+)",'$1')
-          } else if (versionSuffix.contains("RC")) {
-            // get latest tags from quay, as we might not have the latest builds in RHEC stage
-            CRW_SERVER_TAG=util.getLatestImageAndTag("crw/server-rhel8", "quay").replaceAll(".+:(.+)",'$1')
-            CRW_OPERATOR_TAG=util.getLatestImageAndTag("crw/crw-2-rhel8-operator", "quay").replaceAll(".+:(.+)",'$1')
+            currentBuild.description += "; published to RCM"
           }
-          println "Using server:${CRW_SERVER_TAG} + operator:${CRW_OPERATOR_TAG}"
-          
-          sh '''#!/bin/bash -xe
-echo "0. Sync from upstream chectl"
-cd ${WORKSPACE}/''' + CTL_path + '''
-git checkout ''' + MIDSTM_BRANCH + '''
-
-# CRW-1579 change yamls to use :2.y tag, not :latest or :nightly - use that only for quay version of crwctl
-pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
-  FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
-  for d in ${FILES}; do
-    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#registry.redhat.io/codeready-workspaces/\\1:''' + CRW_VERSION + '''#g"
-  done
-popd >/dev/null
-
-./build/scripts/sync-chectl-to-crwctl.sh -b ''' + MIDSTM_BRANCH + ''' -s ${WORKSPACE}/chectl -t ${WORKSPACE}/''' + CTL_path + ''' \
-  --crw-version ''' + CRW_VERSION + ''' --server-tag ''' + CRW_SERVER_TAG + ''' --operator-tag ''' + CRW_OPERATOR_TAG + '''
-# commit changes
-set -x
-git add .
-git commit -s -m "ci: [sync] Push chectl @ ''' + SOURCE_BRANCH + ''' to codeready-workspaces-chectl @ ''' + MIDSTM_BRANCH + '''" . || true
-git push origin ''' + MIDSTM_BRANCH + ''' || true
-'''
-
-          currentBuild.description="Build redhat version ..."
-          sh '''#!/bin/bash -xe
-echo "1. Build using -redhat suffix and registry.redhat.io/codeready-workspaces/ URLs"
-cd ${WORKSPACE}/''' + CTL_path + '''
-
-# clean up from previous build if applicable
-jq -M --arg CHECTL_VERSION \"''' + CHECTL_VERSION + '''-redhat\" '.version = $CHECTL_VERSION' package.json > package.json2; mv -f package.json2 package.json
-git diff -u package.json
-git tag -f "''' + CUSTOM_TAG + '''-redhat"
-rm -fr lib/ node_modules/ templates/ tmp/ tsconfig.tsbuildinfo dist/
-echo "Insert SEGMENT_WRITE_KEY = $SEGMENT_WRITE_KEY into src/hooks/analytics/analytics.ts (redhat version)"
-sed -i "s|INSERT-KEY-HERE|''' + SEGMENT_WRITE_KEY + '''|g" src/hooks/analytics/analytics.ts
-yarn && npx oclif-dev pack -t ''' + platforms + '''
-mv dist/channels/*redhat dist/channels/redhat
-# copy from generic name specific name, so E2E/CI jobs can access tarballs from generic folder and filename (name doesn't change between builds)
-while IFS= read -r -d '' d; do
-  e=${d/redhat\\/crwctl/redhat\\/'''+TARBALL_PREFIX+'''-crwctl}
-  cp ${d} ${e}
-done <   <(find dist/channels/redhat -type f -name "*gz" -print0)
-pwd; du ./dist/channels/*/*gz
-
-git commit -s -m "ci: [update] package.json + README.md" package.json README.md || true
-git push origin ''' + MIDSTM_BRANCH + ''' || true
-'''
-
-          currentBuild.description="Prepare ${MIDSTM_BRANCH}-quay branch ..."
-          sh '''#!/bin/bash -xe
-echo "2. Prepare ''' + MIDSTM_BRANCH + '''-quay branch of crw operator repo"
-
-# check out from MIDSTM_BRANCH
-pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
-  git branch ''' + MIDSTM_BRANCH + '''-quay -f
-  git checkout ''' + MIDSTM_BRANCH + '''-quay
-  # CRW-1579 change yamls to use quay image, and :latest or :nightly
-  # do not use :2.y to allow stable builds to be auto-updated via crwctl on ocp3.11 - :latest tag triggers always-update (?)
-  FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
-  for d in ${FILES}; do
-    sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + 
-      (util.getJobBranch(MIDSTM_BRANCH).equals("2.x") ? "nightly" : "latest") + 
-    '''#g"
-  done
-
-  # push to ''' + MIDSTM_BRANCH + '''-quay branch
-  git commit -s -m "ci: [update] Push ''' + MIDSTM_BRANCH + ''' to ''' + MIDSTM_BRANCH + '''-quay branch" ${FILES}
-  git push origin ''' + MIDSTM_BRANCH + '''-quay -f
-popd >/dev/null
-# cleanup
-rm -fr ${WORKSPACE}/codeready-workspaces-images/
-'''
-          def RELEASE_DESCRIPTION=""
-          if ("${versionSuffix}") {
-            RELEASE_DESCRIPTION="Stable release ${GITHUB_RELEASE_NAME}"
-          } else {
-            RELEASE_DESCRIPTION="CI release ${GITHUB_RELEASE_NAME}"
-          }
-
-          if ( "${versionSuffix}" == "GA" && !PUBLISH_ARTIFACTS_TO_GITHUB.equals("true")) {
-            currentBuild.description="Skip building quay version PUBLISH_ARTIFACTS_TO_GITHUB=${PUBLISH_ARTIFACTS_TO_GITHUB} (false) + versionSuffix=${versionSuffix} (GA) ..."
-          } else {
-            currentBuild.description="Build quay version ..."
-            sh '''#!/bin/bash -xe
-echo "3. Build using ''' + MIDSTM_BRANCH + '''-quay branch, -quay suffix and quay.io/crw/ URLs"
-cd ${WORKSPACE}/''' + CTL_path + '''
-
-YAML_REPO="`cat package.json | jq -r '.dependencies["codeready-workspaces-operator"]'`-quay"
-jq -M --arg YAML_REPO \"${YAML_REPO}\" '.dependencies["codeready-workspaces-operator"] = $YAML_REPO' package.json > package.json2
-jq -M --arg CHECTL_VERSION \"''' + CHECTL_VERSION + '''-quay\" '.version = $CHECTL_VERSION' package.json2 > package.json
-git diff -u package.json
-git tag -f "''' + CUSTOM_TAG + '''-quay"
-rm -fr lib/ node_modules/ templates/ tmp/ tsconfig.tsbuildinfo
-echo "Insert SEGMENT_WRITE_KEY = $SEGMENT_WRITE_KEY into src/hooks/analytics/analytics.ts (quay version)"
-sed -i "s|INSERT-KEY-HERE|''' + SEGMENT_WRITE_KEY + '''|g" src/hooks/analytics/analytics.ts
-yarn && npx oclif-dev pack -t ''' + platforms + '''
-mv dist/channels/*quay dist/channels/quay
-# copy from generic name specific name, so E2E/CI jobs can access tarballs from generic folder and filename (name doesn't change between builds)
-while IFS= read -r -d '' d; do
-  e=${d/quay\\/crwctl/quay\\/'''+TARBALL_PREFIX+'''-crwctl}
-  cp ${d} ${e}
-done <   <(find dist/channels/quay -type f -name "*gz" -print0)
-pwd; du ./dist/channels/*/*gz
-'''
-            currentBuild.description="Publish to GH ..."
-            // Upload the artifacts and rename them on the fly to add ${TARBALL_PREFIX}-
-            if (PUBLISH_ARTIFACTS_TO_GITHUB.equals("true"))
-            {
-              def isPreRelease="true"; if ( "${versionSuffix}" == "GA" ) { isPreRelease="false"; }
-              sh "curl -XPOST -H 'Authorization:token ${GITHUB_TOKEN}' --data '{\"tag_name\": \"${CUSTOM_TAG}\", \"target_commitish\": \"${MIDSTM_BRANCH}\", \"name\": \"${GITHUB_RELEASE_NAME}\", \"body\": \"${RELEASE_DESCRIPTION}\", \"draft\": false, \"prerelease\": ${isPreRelease}}' https://api.github.com/repos/redhat-developer/codeready-workspaces-chectl/releases > /tmp/${CUSTOM_TAG}"
-
-              // Extract the id of the release from the creation response
-              def RELEASE_ID=sh(returnStdout:true,script:"jq -r .id /tmp/${CUSTOM_TAG}").trim()
-
-              sh '''#!/bin/bash -xe
-# upload artifacts for each platform
-pushd ${WORKSPACE}/''' + CTL_path + '''/dist/channels/quay/ 
-for platform in ''' + platforms.replaceAll(",", " ") + '''; do
-  curl -XPOST -H 'Authorization:token ''' + GITHUB_TOKEN + '''' -H 'Content-Type:application/octet-stream' --data-binary @''' + TARBALL_PREFIX + '''-crwctl-${platform}.tar.gz https://uploads.github.com/repos/redhat-developer/codeready-workspaces-chectl/releases/''' + RELEASE_ID + '''/assets?name=''' + TARBALL_PREFIX + '''-crwctl-${platform}.tar.gz
-done
-popd >/dev/null
-
-# refresh github pages
-pushd ${WORKSPACE}/''' + CTL_path + ''' >/dev/null
-git clone https://devstudio-release:''' + GITHUB_TOKEN + '''@github.com/redhat-developer/codeready-workspaces-chectl -b gh-pages --single-branch gh-pages
-popd >/dev/null
-
-pushd ${WORKSPACE}/''' + CTL_path + '''/gh-pages >/dev/null
-echo $(date +%s) > update && git add update && git commit -m "Update github pages" && git push origin gh-pages
-popd >/dev/null
-'''
-            }
-          }
-
-          // generate sources tarball
-          sh '''#!/bin/bash -xe
-pushd ${WORKSPACE}/''' + CTL_path + ''' >/dev/null
-# purge generated binaries and temp files
-rm -fr coverage/ lib/ node_modules/ templates/ tmp/ 
-tar czf ${WORKSPACE}/''' + TARBALL_PREFIX + '''-crwctl-sources.tar.gz --exclude=dist/ ./*
-popd >/dev/null 
-'''
-          archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/*logs/**, **/dist/**/*.tar.gz, **/dist/*.json, **/dist/linux-x64, **/dist/win32-x64, **/dist/darwin-x64, **/*sources.tar.gz"
-
-          currentBuild.description="Publish to RCM ..."
-          // Upload the artifacts and sources to RCM_GUEST server
-          if (PUBLISH_ARTIFACTS_TO_RCM.equals("true"))
-          {
-            sh '''#!/bin/bash -xe
-# accept host key
-echo "rcm-guest.app.eng.bos.redhat.com,10.16.101.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEApd6cnyFVRnS2EFf4qeNvav0o+xwd7g7AYeR9dxzJmCR3nSoVHA4Q/kV0qvWkyuslvdA41wziMgSpwq6H/DPLt41RPGDgJ5iGB5/EDo3HAKfnFmVAXzYUrJSrYd25A1eUDYHLeObtcL/sC/5bGPp/0deohUxLtgyLya4NjZoYPQY8vZE6fW56/CTyTdCEWohDRUqX76sgKlVBkYVbZ3uj92GZ9M88NgdlZk74lOsy5QiMJsFQ6cpNw+IPW3MBCd5NHVYFv/nbA3cTJHy25akvAwzk8Oi3o9Vo0Z4PSs2SsD9K9+UvCfP1TUTI4PXS8WpJV6cxknprk0PSIkDdNODzjw==
-" >> ~/.ssh/known_hosts
-
-# set up sshfs mount
-DESTHOST="crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@rcm-guest.app.eng.bos.redhat.com"
-RCMG="${DESTHOST}:/mnt/rcm-guest/staging/crw"
-sshfs --version
-for mnt in RCMG; do 
-  mkdir -p ${WORKSPACE}/${mnt}-ssh; 
-  if [[ $(file ${WORKSPACE}/${mnt}-ssh 2>&1) == *"Transport endpoint is not connected"* ]]; then fusermount -uz ${WORKSPACE}/${mnt}-ssh; fi
-  if [[ ! -d ${WORKSPACE}/${mnt}-ssh/crw ]]; then sshfs ${!mnt} ${WORKSPACE}/${mnt}-ssh; fi
-done
-
-# copy files to rcm-guest
-ssh "${DESTHOST}" "cd /mnt/rcm-guest/staging/crw && mkdir -p CRW-''' + CSV_VERSION + '''/ && ls -la . "
-rsync -zrlt --rsh=ssh --protocol=28 --exclude "crwctl*.tar.gz" \
-  ${WORKSPACE}/''' + TARBALL_PREFIX + '''-crwctl-sources.tar.gz \
-  ${WORKSPACE}/''' + CTL_path + '''/dist/channels/redhat/*gz \
-  ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/
-
-# clone files so we have a crwctl3 version too
-# codeready-workspaces-2.y.z-GA-crwctl-linux-x64.tar.gz -> codeready-workspaces-2.y.z-GA-crwctl3-linux-x64.tar.gz
-ssh "${DESTHOST}" "cd /mnt/rcm-guest/staging/crw/CRW-''' + CSV_VERSION + '''/ && for d in ''' + TARBALL_PREFIX + '''-crwctl-*; do cp \\$d \\${d/crwctl-/crwctl3-}; done" || true
-
-# echo what we have on disk
-ssh "${DESTHOST}" "cd /mnt/rcm-guest/staging/crw/CRW-''' + CSV_VERSION + '''/ && ls -la ''' + TARBALL_PREFIX + '''*" || true
-
-# trigger release
-ssh "${DESTHOST}" "/mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release CRW-''' + CSV_VERSION + '''" || true
-'''
-          }
-
-          if (!PUBLISH_ARTIFACTS_TO_GITHUB.equals("true") && !PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
-            echo 'PUBLISH_ARTIFACTS_TO_GITHUB != true, so nothing published to github.'
-            echo 'PUBLISH_ARTIFACTS_TO_RCM != true, so nothing published to RCM_GUEST.'
-            currentBuild.description = GITHUB_RELEASE_NAME + " not published"
-          } else if (!PUBLISH_ARTIFACTS_TO_GITHUB.equals("true") && PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
-            currentBuild.description = "Published to RCM: " + GITHUB_RELEASE_NAME
-          } else if (PUBLISH_ARTIFACTS_TO_GITHUB.equals("true") && !PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/tag/" + GITHUB_RELEASE_NAME + ">" + GITHUB_RELEASE_NAME + "</a>"
-          } else if (PUBLISH_ARTIFACTS_TO_GITHUB.equals("true") && PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/tag/" + GITHUB_RELEASE_NAME + ">" + GITHUB_RELEASE_NAME + "</a>; published to RCM"
-          }
-
         } catch (e) {
           // If there was an exception thrown, the build failed
           currentBuild.result = "FAILED"
