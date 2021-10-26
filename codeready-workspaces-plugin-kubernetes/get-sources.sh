@@ -36,51 +36,36 @@ KAMEL_BUILDSH="https://github.com/redhat-developer/codeready-workspaces-deprecat
 KAMEL_VERSION="$(curl -sSLo- ${KAMEL_BUILDSH} | grep "export KAMEL_VERSION" | sed -r -e 's#.+KAMEL_VERSION="(.+)"#\1#')"
 echo "Using KAMEL_VERSION = ${KAMEL_VERSION} from ${KAMEL_BUILDSH}"
 
-jenkinsURL=""
-checkJenkinsURL() {
-	checkURL="$1"
-	if [[ ! $(curl -sSLI ${checkURL} 2>&1 | grep -E "404|Not Found|Failed to connect|No route to host|Could not resolve host|Connection refused") ]]; then
-		jenkinsURL="$checkURL"
-	else
-		jenkinsURL=""
-	fi
-}
-# try local env var first
-if [[ ${JENKINS_URL} ]]; then 
-	checkJenkinsURL "${JENKINS_URL}job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
-fi
-# new jenkins & path
-if [[ ! $jenkinsURL ]]; then
-	checkJenkinsURL "https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/job/${UPSTREAM_JOB_NAME}"
-fi
-# old jenkins & path
-if [[ ! $jenkinsURL ]]; then
-	checkJenkinsURL "https://codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com/job/${UPSTREAM_JOB_NAME}"
-fi
-if [[ ! $jenkinsURL ]]; then
-	echo "[ERROR] Cannot resolve artifact(s) for this build. Must abort!"
-	exit 1
-fi
-lastSuccessfulURL="${jenkinsURL}/lastSuccessfulBuild/api/xml?xpath=/workflowRun/" # id
-
-jenkinsURL=${jenkinsURL}/lastSuccessfulBuild/artifact/codeready-workspaces-deprecated/kamel/target
 
 # patch Dockerfile to record versions we expect
 sed Dockerfile \
 		-e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
 		> Dockerfile.2
 
+theTarGzs="
+kamel-${KAMEL_VERSION}-x86_64.tar.gz
+kamel-${KAMEL_VERSION}-s390x.tar.gz
+kamel-${KAMEL_VERSION}-ppc64le.tar.gz
+"
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ ${pullAssets} -eq 1 ]]; then
 	rm -fr asset-*
 	mv -f Dockerfile.2 Dockerfile
+
+	if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    	curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+	fi
+
+	log "[INFO] Download Assets:"
+	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" --prefix deprecated $theTarGzs
+	
 	# x86
-	curl -sSLo - ${jenkinsURL}/kamel-${KAMEL_VERSION}-x86_64.tar.gz | tar -xz && mv kamel asset-x86_64-kamel
+	tar -xz && mv kamel asset-x86_64-kamel
 
 	# s390x
-	curl -sSLo - ${jenkinsURL}/kamel-${KAMEL_VERSION}-s390x.tar.gz | tar -xz && mv kamel asset-s390x-kamel
+	tar -xz && mv kamel asset-s390x-kamel
 
 	# ppc64le
-	curl -sSLo - ${jenkinsURL}/kamel-${KAMEL_VERSION}-ppc64le.tar.gz | tar -xz && mv kamel asset-ppc64le-kamel
+	tar -xz && mv kamel asset-ppc64le-kamel
 	
 	for d in asset-*; do echo "[INFO] Pack ${d}.tar.gz"; mv ${d} ${d##*-}; tar -cvzf ${d}.tar.gz ${d##*-}; mv ${d##*-} ${d}-unpacked; done
 	rm -fr asset-*-unpacked
@@ -91,13 +76,7 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
-	field=id; ID=$(curl -L -s -S ${lastSuccessfulURL}${field} | sed -e "s#<${field}>\(.\+\)</${field}>#\1#" -e "s#&lt;br/&gt; #\n#g" -e "s#\&lt;a.\+/a\&gt;##g")
-	if [[ $(echo $ID | grep -E "404 Not Found|ERROR 404|Application is not available") ]]; then 
-		echo $ID
-		echo "[ERROR] Problem loading ID from ${lastSuccessfulURL}${field} :: NOT FOUND!"
-		exit 1;
-	fi
-	COMMIT_MSG="Update from Jenkins :: kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME} :: ${ID}
+	COMMIT_MSG="Update from GitHub :: kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME}
 :: ${outputFiles}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
