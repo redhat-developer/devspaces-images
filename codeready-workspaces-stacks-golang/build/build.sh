@@ -20,8 +20,8 @@ export GOLANG_LS_VERSION="0.1.7"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
-Example: $0 -v 2.y.0 --noupload
+Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
+Example: $0 -v 2.y.0 -n stacks-golang
 "
     exit
 }
@@ -31,6 +31,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+    '-n') GH_RELEASE_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -53,6 +54,9 @@ if [[ ! -x $PODMAN ]]; then
     echo "[ERROR] docker is not installed. Aborting."; exit 1
   fi
 fi
+
+ARCH="$(uname -m)"
+tarball="codeready-workspaces-stacks-language-servers-dependencies-golang-${ARCH}.tar.gz"
 
 # go get LS go deps
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/go:/opt/app-root/src/go -u root ${GOLANG_IMAGE} sh -c "
@@ -82,12 +86,12 @@ ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/go:/opt/app-root/src/go -u root ${G
     wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s ${GOLANG_LINT_VERSION}
     chmod -R 777 /go
     "
-tar -czf "target/codeready-workspaces-stacks-language-servers-dependencies-golang-$(uname -m).tar.gz" -C target go
+tar -czf "target/${tarball}" -C target go
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix deprecated "target/codeready-workspaces-stacks-language-servers-dependencies-golang-$(uname -m).tar.gz"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball}"
 
 ${PODMAN} rmi -f ${GOLANG_IMAGE}

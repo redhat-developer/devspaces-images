@@ -18,8 +18,8 @@ export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-38:1"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
-Example: $0 -v 2.y.0 --noupload
+Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
+Example: $0 -v 2.y.0 -n plugin-java8-openj9
 "
     exit
 }
@@ -29,6 +29,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+    '-n') GH_RELEASE_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -53,6 +54,9 @@ echo ""
 
 mkdir -p target/python-ls
 
+ARCH="$(uname -m)"
+tarball="codeready-workspaces-stacks-language-servers-dependencies-python-${ARCH}.tar.gz"
+
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHON_IMAGE} sh -c "
     /usr/bin/python3 --version && /usr/bin/python3 -m pip --version && \
     /usr/bin/python3 -m pip install -q --upgrade  --no-warn-script-location pip && \
@@ -73,12 +77,12 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHO
     deactivate;
     mv .venv /tmp/python/
     "
-tar -czf "target/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz" -C target/python-ls .
+tar -czf "target/${tarball}" -C target/python-ls .
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --push-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix deprecated "target/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball}"
 
 ${PODMAN} rmi -f ${PYTHON_IMAGE}
