@@ -48,6 +48,25 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 </ul>
 
 Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases>chectl/releases</a>
+<p>
+@since 2.13: NOTE that <a href=lastSuccessfulBuild/artifact/crwctl/dist/channels/>
+Jenkins-hosted assets</a> are <b>deprecated and will be removed soon</b>.
+
+<p>
+To retrieve assets from github:
+<ul>
+<pre>
+cd /tmp
+git clone git@github.com:redhat-developer/codeready-workspaces-chectl.git --depth=1 crwctl && cd crwctl
+
+export GITHUB_TOKEN="github-token-here"
+
+$➔ hub release download 2.13.0-crwctl-CI-assets -i LIST
+...
+$➔ hub release download 2.13.0-crwctl-CI-assets -i "*crwctl-linux-x64*"
+</pre>
+</ul>
+
             ''')
 
             properties {

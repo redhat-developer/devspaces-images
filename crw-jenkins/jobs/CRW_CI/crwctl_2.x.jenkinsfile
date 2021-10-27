@@ -29,6 +29,7 @@ timeout(90) {
 
           currentBuild.description="Set up environment ..."
 
+          util.installHub() // for publishing asset files to GH releases
           util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
           // perl-Digest provides shasum for oclif-dev
           // need fuse-sshfs for mounting drive to copy to rcm-guest
@@ -36,6 +37,7 @@ timeout(90) {
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
 
+          currentBuild.description="Building ..."
           sh '''#!/bin/bash -xe
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
@@ -46,7 +48,20 @@ cd ${WORKSPACE}/crwctl
   (versionSuffix.equals("GA")?" --rcm":"") + 
   (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
 
-          currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/" + CSV_VERSION + "-CI-assets>" + CSV_VERSION + "</a>"
+          currentBuild.description="Builds done; archiving artifacts (deprecated) ..."
+          // TODO remove this when QE has migrated to GH releases
+          archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/*logs/**, **/dist/**/*.tar.gz, **/dist/*.json, **/dist/linux-x64, **/dist/win32-x64, **/dist/darwin-x64, **/*sources.tar.gz"
+
+          if (versionSuffix.equals("GA")){
+            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + 
+              "assets>" + CSV_VERSION + " GA</a>"
+          } else if (!versionSuffix.equals("")) {
+            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + versionSuffix + 
+              "-assets>" + CSV_VERSION + " " + versionSuffix + "</a>"
+          } else {
+            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + "CI" + 
+              "-assets>" + CSV_VERSION + " CI</a>"
+          }
           if (versionSuffix.equals("GA")) {
             currentBuild.description += "; published to RCM"
           }
