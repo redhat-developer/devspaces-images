@@ -16,6 +16,7 @@ set -e
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
+SYNC_REPO="traefik"
 UPLOAD_TO_GH=1
 
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
@@ -42,6 +43,8 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
+ARCH="$(uname -m)"
+
 PODMAN=$(command -v podman || true)
 if [[ ! -x $PODMAN ]]; then
   echo "[WARNING] podman is not installed."
@@ -66,7 +69,7 @@ ${PODMAN} run --rm -v "${RUN_DIR}"/target/brew-assets:/tmp/brew-assets -u root $
   "cp /go/src/github.com/traefik/traefik/dist/traefik /tmp/brew-assets"
 
 # tar the binary
-tarball="asset-traefik-$(uname -m).tar.gz"
+tarball="asset-${SYNC_REPO}-${ARCH}.tar.gz"
 tar -czf "${tarball}" -C target/brew-assets .
 
 if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
@@ -74,7 +77,7 @@ if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
   if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
       curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
   fi
-  ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix traefik "${tarball}"
+  ./uploadAssetsToGHRelease.sh -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --asset-name "${SYNC_REPO}" "${tarball}"
 
   # cleanup
   podman rmi -f $TMP_IMG
