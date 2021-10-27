@@ -5,19 +5,24 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
-pullAssets=0
+PULL_ASSETS=0
+DELETE_ASSETS=0
+PUBLISH_ASSETS=0
 generateDockerfileLABELs=1
 targetFlag=""
 UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.4
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.18"
+GH_RELEASE_NAME="plugin-java8-openj9"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') pullAssets=1; shift 0;;
+	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
+	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-t'|'--target') targetFlag="--target $2"; shift 1;;
 	'-v') CSV_VERSION="$2"; shift 1;;
@@ -32,12 +37,22 @@ function log()
 	echo "$1"
   fi
 }
-function logn()
-{
-  if [[ ${verbose} -gt 0 ]]; then
-	echo -n "$1"
-  fi
-}
+
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
+
+if [[ ${DELETE_ASSETS} -eq 1 ]]; then
+	log "[INFO] Delete Previous GitHub Releases:"
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+	exit 0;
+fi
+
+if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
+	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	./build/build.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+	exit 0;
+fi 
 
 # if not set, compute from current branch
 if [[ ! ${JOB_BRANCH} ]]; then 
@@ -45,20 +60,12 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-theTarGzs="
-codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz
-codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz
-codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz
-codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz
-"
-
 #### override any existing tarballs with newer ones from Jenkins build
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-
 log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" --prefix deprecated $theTarGzs
+./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+
+#get names of the downloaded tarballs
+theTarGzs="$(ls *.tar.gz)"
 
 # update Dockerfile to record version we expect for MAVEN_VERSION
 sed Dockerfile \
@@ -67,7 +74,7 @@ sed Dockerfile \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${pullAssets} -eq 1 ]]; then
+if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 	curl -sSL -O https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
@@ -77,8 +84,7 @@ outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.j
 log "[INFO] Upload new sources:${theTarGzs}"
 rhpkg new-sources ${theTarGzs}
 log "[INFO] Commit new sources from:${theTarGzs}"
-COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} 
-::${theTarGzs}"
+COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
 if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 	log "[INFO] No new sources, so nothing to build."
 elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

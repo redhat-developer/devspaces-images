@@ -20,8 +20,8 @@ export TYPESCRIPT_LS_VERSION=0.3.7  # find latest version: https://www.npmjs.com
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
-Example: $0 -v 2.y.0 --noupload
+Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
+Example: $0 -v 2.y.0 -n plugin-java8-openj9
 "
     exit
 }
@@ -31,6 +31,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+    '-n') GH_RELEASE_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -54,16 +55,19 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 
+ARCH="$(uname -m)"
+tarball="codeready-workspaces-stacks-language-servers-dependencies-node10-${ARCH}.tar.gz"
+
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/nodejs-ls:/node_modules -u root ${NODEJS_IMAGE} sh -c "
     npm install --prefix /node_modules nodemon@${NODEMON_VERSION} typescript@${TYPERSCRIPT_VERSION} typescript-language-server@${TYPESCRIPT_LS_VERSION}
     chmod -R 777 /node_modules
     "
-tar -czf "target/codeready-workspaces-stacks-language-servers-dependencies-node10-$(uname -m).tar.gz" -C target/nodejs-ls .
+tar -czf "target/${tarball}" -C target/nodejs-ls .
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --push-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix deprecated "target/codeready-workspaces-stacks-language-servers-dependencies-node10-$(uname -m).tar.gz"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball}"
 
 ${PODMAN} rmi -f ${NODEJS_IMAGE}

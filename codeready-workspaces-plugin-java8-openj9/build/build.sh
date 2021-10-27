@@ -12,8 +12,8 @@
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
-Example: $0 -v 2.y.0 --noupload
+Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
+Example: $0 -v 2.y.0 -n plugin-java8-openj9
 "
     exit
 }
@@ -23,10 +23,11 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+    '-n') GH_RELEASE_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
 done
 
-./../../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION}
-./../../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION}
+./../../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+./../../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
