@@ -24,8 +24,8 @@ if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
-Example: $0 -v 2.y.0 --noupload
+Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN] -n [GITHUB_RELEASE_NAME]
+Example: $0 -v 2.y.0 --noupload -n configbump
 "
     exit
 }
@@ -37,15 +37,15 @@ while [[ "$#" -gt 0 ]]; do
     '-v') CSV_VERSION="$2"; shift 1;;
     '-b') MIDSTM_BRANCH="$2"; shift 1;;
     '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;;
-    '-n'|'--noupload') UPLOAD_TO_GH=0;;
+    '-n') GH_RELEASE_NAME="$2"; shift 1;;
+    '--noupload') UPLOAD_TO_GH=0;;
     '--help'|'-h') usage;;
   esac
   shift 1
 done
 
 ARCH="$(uname -m)"
-
-#call rhel.Dockerfile.extract.asets
+tarball="asset-configbump-${ARCH}.tar.gz"
 chmod +x ./build/dockerfiles/*.sh
 ./build/dockerfiles/rhel.Dockerfile.extract.assets.sh
 

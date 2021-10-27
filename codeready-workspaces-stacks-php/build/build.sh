@@ -19,8 +19,8 @@ export PHP_XDEBUG_IMAGE="php-xdebug:tmp"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN]
-Example: $0 -v 2.y.0 --noupload
+Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
+Example: $0 -v 2.y.0 -n stacks-php
 "
     exit
 }
@@ -30,6 +30,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
+    '-n') GH_RELEASE_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -53,6 +54,10 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 
+ARCH="$(uname -m)"
+tarball_php="codeready-workspaces-stacks-language-servers-dependencies-php-${ARCH}.tar.gz"
+tarball_php_xdebug="codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-${ARCH}.tar.gz"
+
 ${PODMAN} build . -t ${PHP_LS_IMAGE} -f php-ls.Dockerfile
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/php-ls:/php ${PHP_LS_IMAGE} sh -c "
     cd /php
@@ -64,7 +69,13 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/php-ls:/php ${PHP_LS_IMAGE} sh -c "
     cp /usr/local/bin/composer /php/composer
     chmod -R 777 /php/*
     "
-tar -czf "target/codeready-workspaces-stacks-language-servers-dependencies-php-$(uname -m).tar.gz" -C target/php-ls .
+tar -czf "target/${tarball_php}" -C target/php-ls .
+
+# upload the binary to GH
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball_php}"
 
 mkdir -p target/php-xdebug
 ${PODMAN} build . -t ${PHP_XDEBUG_IMAGE} -f xdebug.Dockerfile
@@ -75,12 +86,8 @@ ${PODMAN} run -v "$SCRIPT_DIR"/target/php-xdebug:/xd ${PHP_XDEBUG_IMAGE} sh -c "
     cp /usr/lib64/php/modules/xdebug.so /xd/usr/lib64/php/modules/xdebug.so
     chmod -R 777 /xd
     "
-tar -czf "target/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-$(uname -m).tar.gz" -C target/php-xdebug .
+tar -czf "target/${tarball_php_xdebug}" -C target/php-xdebug .
 
-# upload the binary to GH
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-./uploadAssetsToGHRelease.sh --push-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --prefix deprecated "target/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-$(uname -m).tar.gz"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball_php_xdebug}"
 
 ${PODMAN} rmi -f ${PHP_LS_IMAGE} ${PHP_XDEBUG_IMAGE}

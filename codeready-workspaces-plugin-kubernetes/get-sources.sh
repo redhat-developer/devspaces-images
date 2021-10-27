@@ -4,12 +4,18 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
-pullAssets=0
+PULL_ASSETS=0
+DELETE_ASSETS=0
+PUBLISH_ASSETS=0
+GH_RELEASE_NAME="plugin-kubernetes"
+
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') pullAssets=1; shift 0;;
+	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
+	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	*) JOB_BRANCH="$1"; shift 0;;
 	esac
@@ -22,6 +28,22 @@ function log()
 		echo "$1"
 	fi
 }
+
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
+
+if [[ ${DELETE_ASSETS} -eq 1 ]]; then
+	log "[INFO] Delete Previous GitHub Releases:"
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+	exit 0;
+fi
+
+if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
+	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	./build/build.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+	exit 0;
+fi 
 
 # if not set, compute from current branch
 if [[ ! ${JOB_BRANCH} ]]; then 
@@ -42,36 +64,29 @@ sed Dockerfile \
 		-e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
 		> Dockerfile.2
 
-theTarGzs="
-kamel-${KAMEL_VERSION}-x86_64.tar.gz
-kamel-${KAMEL_VERSION}-s390x.tar.gz
-kamel-${KAMEL_VERSION}-ppc64le.tar.gz
-"
-if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ ${pullAssets} -eq 1 ]]; then
+
+if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	rm -fr asset-*
 	mv -f Dockerfile.2 Dockerfile
 
-	if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    	curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-	fi
 
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" --prefix deprecated $theTarGzs
+	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
 	
 	# x86
-	tar -xz && mv kamel asset-x86_64-kamel
+	./kamel-${KAMEL_VERSION}-x86_64.tar.gz | tar -xz && mv kamel asset-x86_64-kamel
 
 	# s390x
-	tar -xz && mv kamel asset-s390x-kamel
+	./kamel-${KAMEL_VERSION}-s390x.tar.gz | tar -xz && mv kamel asset-s390x-kamel
 
 	# ppc64le
-	tar -xz && mv kamel asset-ppc64le-kamel
+	./kamel-${KAMEL_VERSION}-ppc64le.tar.gz | tar -xz && mv kamel asset-ppc64le-kamel
 	
 	for d in asset-*; do echo "[INFO] Pack ${d}.tar.gz"; mv ${d} ${d##*-}; tar -cvzf ${d}.tar.gz ${d##*-}; mv ${d##*-} ${d}-unpacked; done
 	rm -fr asset-*-unpacked
 fi
 
-outputFiles="$(ls asset-*.tar.gz || true)"
+outputFiles="$(ls *.tar.gz || true)"
 if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
