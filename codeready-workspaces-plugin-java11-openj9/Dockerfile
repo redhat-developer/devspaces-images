@@ -18,8 +18,8 @@ ENV \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.18" \
-    JAVA_HOME=/usr/lib/jvm/java-11-openj9 \
-    PATH="/usr/lib/jvm/java-11-openj9:/opt/gradle/bin:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-8-jdk \
+    PATH="/usr/lib/jvm/ibm-semeru-open-8-jdk:/opt/gradle/bin:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -43,12 +43,9 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.s390x.rpm
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73631
-#                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/java-11-openj9/11.0.8.10.0.21.0/1.el8j9/$(uname -m)/java-11-openj9-11.0.8.10.0.21.0-1.el8j9.$(uname -m).rpm
+#                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/ibm-semeru-open-11-jdk/11.0.12.7_0.27.1/1.el8j9/$(uname -m)/ibm-semeru-open-11-jdk-11.0.12.7_0.27.1-1.el8j9.$(uname -m).rpm  
 RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8 \
-    java-11-openj9 \
-    java-11-openj9-devel \
-    java-11-openj9-src \
-    java-11-openj9-headless \
+    ibm-semeru-open-11-jdk \
     # we might not need all of this?
     sudo git procps-ng nss_wrapper bzip2 yum && \
     yum -y -q update && \
