@@ -17,6 +17,7 @@ while [[ "$#" -gt 0 ]]; do
 	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
 	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+	'-v') CSV_VERSION="$2"; shift 1;;
 	*) JOB_BRANCH="$1"; shift 0;;
 	esac
 	shift 1
@@ -30,7 +31,7 @@ function log()
 }
 
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${JOB_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
