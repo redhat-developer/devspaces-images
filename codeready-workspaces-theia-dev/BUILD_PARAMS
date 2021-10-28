@@ -1,6 +1,6 @@
 nodeVersion=12.22.3
 yarnVersion=1.22.5
-CRW_VERSION=2.13
+CRW_VERSION=2.14
 SOURCE_BRANCH=main
 THEIA_BRANCH=crw-2.13.0
 THEIA_GITHUB_REPO=redhat-developer/eclipse-theia
