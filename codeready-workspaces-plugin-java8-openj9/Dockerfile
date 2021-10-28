@@ -19,8 +19,8 @@ ENV HOME=/home/jboss \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.18" \
     PYTHON_VERSION="3.8" \
-    JAVA_HOME=/usr/lib/jvm/java-1.8.0-openj9 \
-    PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/lib/jvm/java-1.8.0-openj9:/opt/apache-maven/bin:/usr/bin:$PATH \
+    JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-8-jdk \
+    PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/lib/jvm/ibm-semeru-open-8-jdk:/opt/apache-maven/bin:/usr/bin:$PATH \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -41,10 +41,10 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.s390x.rpm
 # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
-#                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/java-1.8.0-openj9/1.8.0.262.10.0.21.0/1.el8j9/$(uname -m)/java-1.8.0-openj9-1.8.0.262.10.0.21.0-1.el8j9.$(uname -m).rpm
+#                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/ibm-semeru-open-8-jdk/1.8.0.302.b08_0.27.1/1.el8j9/$(uname -m)/ibm-semeru-open-8-jdk-1.8.0.302.b08_0.27.1-1.el8j9.$(uname -m).rpm
 RUN microdnf -y install yum && \
     yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8 \
-    java-1.8.0-openj9 java-1.8.0-openj9-devel java-1.8.0-openj9-headless \
+    ibm-semeru-open-8-jdk \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     sudo git procps-ng bzip2 && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
