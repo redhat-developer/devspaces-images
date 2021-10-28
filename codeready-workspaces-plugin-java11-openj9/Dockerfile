@@ -18,8 +18,8 @@ ENV \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.18" \
-    JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-8-jdk \
-    PATH="/usr/lib/jvm/ibm-semeru-open-8-jdk:/opt/gradle/bin:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-11-jdk \
+    PATH="/usr/lib/jvm/ibm-semeru-open-11-jdk:/opt/gradle/bin:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
