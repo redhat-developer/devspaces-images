@@ -150,7 +150,7 @@ VER_CHE=$(jq -r .version package.json)
 if [[ $VER_CHE =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-SNAPSHOT ]]; then # reduce the z digit, remove the snapshot suffix
   XX=${BASH_REMATCH[1]}
   YY=${BASH_REMATCH[2]}
-  ZZ=${BASH_REMATCH[3]}; (( ZZ=ZZ-1 )); if [[ ZZ -lt 0 ]]; then ZZ=0; fi
+  ZZ=${BASH_REMATCH[3]}; (( ZZ=ZZ-1 )); if [[ $ZZ -lt 0 ]]; then ZZ=0; fi
   VER_CHE="${XX}.${YY}.${ZZ}"
 fi
 echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
