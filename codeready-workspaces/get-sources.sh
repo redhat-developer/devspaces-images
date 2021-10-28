@@ -12,6 +12,9 @@ while [[ "$#" -gt 0 ]]; do
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-p'|'--pull-assets') pullAssets=1; shift 0;;
+	'-a'|'--publish-assets') exit 0; shift 0;;
+	'-d'|'--delete-assets') exit 0; shift 0;;
+	'-v') CSV_VERSION="$2"; shift 1;;
 	esac
 	shift 1
 done
