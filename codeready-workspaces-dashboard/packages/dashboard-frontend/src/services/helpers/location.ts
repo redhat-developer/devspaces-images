@@ -42,12 +42,16 @@ export function buildFactoryLoaderLocation(url?: string): Location {
     const fullUrl = new window.URL(url.toString());
 
     // search for an editor switch and if there is one, remove it from the URL
-    const editorParam = fullUrl.searchParams.get('che-editor');
-    let editor;
-    if (editorParam && typeof(editorParam) === 'string') {
-        editor = editorParam.slice();
+    const editor = extractUrlParam(fullUrl, 'che-editor');
+
+    // search for devfile switch and if there is one, remove it from the URL
+    let devfilePath = extractUrlParam(fullUrl, 'devfilePath');
+
+    // also use short name 'df' if long name is not found
+    if (!devfilePath) {
+      devfilePath = extractUrlParam(fullUrl, 'df');
     }
-    fullUrl.searchParams.delete('che-editor');
+
     const encodedUrl = encodeURIComponent(fullUrl.toString());
 
     // if editor specified, add it as a new parameter
@@ -55,8 +59,22 @@ export function buildFactoryLoaderLocation(url?: string): Location {
     if (editor) {
       pathAndQuery = `${pathAndQuery}&che-editor=${editor}`;
     }
+    if (devfilePath) {
+      pathAndQuery = `${pathAndQuery}&override.devfileFilename=${devfilePath}`;
+    }
   }
   return _buildLocationObject(pathAndQuery);
+}
+
+// if the given param is defined in the URL, return the value and delete param from the URL
+function extractUrlParam(fullUrl: URL, paramName: string): string | undefined {
+  const param = fullUrl.searchParams.get(paramName);
+  let value;
+  if (param && typeof(param) === 'string') {
+    value = param.slice();
+  }
+  fullUrl.searchParams.delete(paramName);
+  return value;
 }
 
 export function buildWorkspacesLocation(): Location {
