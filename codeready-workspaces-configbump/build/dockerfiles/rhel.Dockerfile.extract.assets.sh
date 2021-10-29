@@ -15,19 +15,8 @@ set -xe
 
 ARCH=$(uname -m)
 TMPIMG=configbump:tmp-${ARCH}
-PODMAN=$(command -v podman || true)
-if [[ ! -x $PODMAN ]]; then
-  echo "[WARNING] podman is not installed."
- PODMAN=$(command -v docker || true)
-  if [[ ! -x $PODMAN ]]; then
-    echo "[ERROR] docker is not installed. Aborting."; exit 1
-  fi
-fi
-
-# shellcheck disable=SC2155
+PODMAN=podman; if [[ ! $(which podman) ]]; then PODMAN=docker;fi
 TMPDIR=$(mktemp -d)
-
-if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
 
 # delete any old assets
 rm -fr ${TMPDIR} ${WORKSPACE}/asset-configbump-${ARCH}.tar.gz
