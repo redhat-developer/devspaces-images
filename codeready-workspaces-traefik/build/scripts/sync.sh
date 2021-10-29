@@ -65,6 +65,7 @@ tests/
 /container.yaml
 /content_sets.*
 /cvp.yml
+/cvp-owners.yml
 /patches/README.md
 README.md
 get-source*.sh

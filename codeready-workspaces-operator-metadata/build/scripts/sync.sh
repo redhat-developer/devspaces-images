@@ -106,11 +106,11 @@ echo ".ci/
 /container.yaml
 /content_sets.*
 /cvp.yml
+/cvp-owners.yml
 api/
 build/
 config/
 controllers/
-cvp-owners.yml
 Dependencies.md
 devfile.yaml
 devfiles.yaml

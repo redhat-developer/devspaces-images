@@ -51,10 +51,10 @@ echo ".github
 #ignore files that are ONLY in downstream (not midstream or upstream)
 echo "sources
 get-sources-jenkins.sh
-cvp.yml
 tests/
-content_sets.yml
-content_sets.repo
+/content_sets.*
+/cvp.yml
+/cvp-owners.yml
 container.yaml
 .gitignore
 "> /tmp/rsync-brew-exclude
