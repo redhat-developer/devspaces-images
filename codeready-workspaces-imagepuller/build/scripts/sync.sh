@@ -49,11 +49,14 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 echo ".github/
 .git/
 .gitattributes
+.gitignore
 .dockerignore
 .ci/
 .vscode/
 build/scripts/sync.sh
+devfile.yaml
 /container.yaml
+/cvp-owners.yml
 /content_sets.*
 /cvp.yml
 README.md
@@ -69,21 +72,19 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-TARGET_DOCKERFILE='Dockerfile'
-BOOTSTRAP_DOCKERFILE='bootstrap.Dockerfile'
 # use upstream dockerfile as bootstrap one (to retrieve dependencies for offline build)
-cp ${TARGETDIR}/${TARGET_DOCKERFILE} ${TARGETDIR}/${BOOTSTRAP_DOCKERFILE}
+cp ${SOURCEDIR}/docker/Dockerfile ${TARGETDIR}/bootstrap.Dockerfile
 # transform Dockerfile
-sed "${SOURCEDIR}/Dockerfile" \
+sed -r "${SOURCEDIR}/docker/Dockerfile" \
   `# Remove registry so build works in Brew` \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
   `# Replace go-toolset ubi8 with rhel8 version` \
   -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
   -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
   -e 's|^# *(COPY resources.tgz .+)|\1|' \
-  > "${TARGETDIR}/${TARGET_DOCKERFILE}"
+  > "${TARGETDIR}/Dockerfile"
 
-cat << EOT >> "${TARGETDIR}/${TARGET_DOCKERFILE}"
+cat << EOT >> "${TARGETDIR}/Dockerfile"
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\

@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.15.14-10 as builder
+FROM rhel8/go-toolset:1.15.14-14 as builder
 ENV GOPATH=/go/ \
     GO111MODULE=on
 
@@ -54,10 +54,11 @@ COPY --from=builder /kubernetes-image-puller/bin/sleep /bin/sleep
 CMD ["/kubernetes-image-puller"]
 
 # append Brew metadata here
+
 ENV SUMMARY="Red Hat CodeReady Workspaces imagepuller container" \
     DESCRIPTION="Red Hat CodeReady Workspaces imagepuller container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="imagepuller-rhel8" 
+    COMPNAME="imagepuller-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
@@ -67,6 +68,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="2.13" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Ilya Buziuk <ibuziuk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
-      usage="" 
+      usage=""
