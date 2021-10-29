@@ -1,3 +1,7 @@
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+///// THIS FILE IS DEPRECATED and should be removed for 2.14
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+
 import groovy.json.JsonSlurper
 
 def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text

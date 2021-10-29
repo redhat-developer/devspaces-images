@@ -49,12 +49,12 @@ if [[ ! ${CRW_VERSION} ]]; then usage; fi
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
     for d in \
+        crw-backup\
         crw-configbump\
         crw-dashboard\
         crw-deprecated\
         crw-devfileregistry\
-        crw-devworkspace-controller\
-        crw-devworkspace\
+        crw-idea\
         crw-imagepuller\
         crw-jwtproxy\
         crw-machineexec\

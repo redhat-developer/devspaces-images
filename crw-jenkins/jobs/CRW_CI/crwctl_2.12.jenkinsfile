@@ -78,7 +78,7 @@ echo "0. Sync from upstream chectl"
 cd ${WORKSPACE}/''' + CTL_path + '''
 git checkout ''' + MIDSTM_BRANCH + '''
 
-# CRW-1579 change yamls to use :2.y tag, not :latest or :nightly - use that only for quay version of crwctl
+# CRW-1579 change yamls to use :2.y tag, not :latest or :next - use that only for quay version of crwctl
 pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
   FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
@@ -128,12 +128,12 @@ echo "2. Prepare ''' + MIDSTM_BRANCH + '''-quay branch of crw operator repo"
 pushd ${WORKSPACE}/codeready-workspaces-images/ >/dev/null
   git branch ''' + MIDSTM_BRANCH + '''-quay -f
   git checkout ''' + MIDSTM_BRANCH + '''-quay
-  # CRW-1579 change yamls to use quay image, and :latest or :nightly
+  # CRW-1579 change yamls to use quay image, and :latest or :next
   # do not use :2.y to allow stable builds to be auto-updated via crwctl on ocp3.11 - :latest tag triggers always-update (?)
   FILES="codeready-workspaces-operator/config/manager/manager.yaml codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml"
   for d in ${FILES}; do
     sed -i ${d} -r -e "s#registry.redhat.io/codeready-workspaces/(.+):(.+)#quay.io/crw/\\1:''' + 
-      (util.getJobBranch(MIDSTM_BRANCH).equals("2.x") ? "nightly" : "latest") + 
+      (util.getJobBranch(MIDSTM_BRANCH).equals("2.x") ? "next" : "latest") + 
     '''#g"
   done
 

@@ -1,0 +1,164 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// SOURCE_REPO
+// SOURCE_BRANCH
+// MIDSTM_REPO
+// MIDSTM_BRANCH
+// MIDSTM_NAME
+// UPDATE_BASE_IMAGES_FLAGS = "" or "--tag \"1\\\\.13|8\\\\.[0-9]-\" " (if project is locked on golang 1.13 instead of latest)
+// FORCE_BUILD = "false"
+
+def SYNC_REPO = MIDSTM_NAME
+
+def OLD_SOURCE_SHA=""
+def OLD_MID_SHA=""
+def NEW_MID_SHA=""
+
+def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8' // TODO when CRW-2081 is resolved, we can add ||x86_64-rhel8' 
+timeout(180) {
+  node(nodeLabel) {
+    stage ("Sync repos on ${nodeLabel}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      cleanWs()
+      CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+      println "CRW_VERSION = '" + CRW_VERSION + "'"
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
+          usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
+          file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+            util.installSkopeoFromContainer("")
+            util.installYq()
+            // install node and yarn if versions defined
+            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
+
+            println "########################################################################################################"
+            println "##  Clone and update github.com/${SOURCE_REPO}.git"
+            println "########################################################################################################"
+            SOURCE_DIR="${WORKSPACE}/sources"
+            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
+            OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
+            println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
+
+            // TODO switch to dependabot for dockerfiles?
+            if(SOURCE_REPO.contains("codeready-workspaces")) {
+              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS})) // push updated base image change to upstream
+            } else {
+              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            }
+
+            println "########################################################################################################"
+            println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
+            println "########################################################################################################"
+            util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
+            TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
+            OLD_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+            println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_MID_SHA
+
+            CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+            CSV_VERSION_BASE=CSV_VERSION.replaceAll("([0-9]+\\.[0-9]+)\\.[0-9]+","\$1"); // extract 2.yy from 2.yy.z
+            // print "CSV_VERSION_BASE=" + CSV_VERSION_BASE
+
+            // CRW-2039 this can happen if the 2.x jobs have not all run and the operator sources still have the previous release's version
+            if (!CSV_VERSION_BASE.equals(CRW_VERSION)) { 
+              println "[WARNING] CSV version (from getCSVVersion() -> csv.yaml = " + CSV_VERSION + 
+                ") does not match CRW version (from getCrwVersion() -> VERSION = " + CRW_VERSION + ") !"
+              CSV_VERSION=CRW_VERSION+".0" // for .x builds, use CRW_VERSION.0
+            }
+            println("[INFO] Using CSV version = " + CSV_VERSION)
+
+            // rsync files to codeready-workspaces-images, and transform them
+            sh('''#!/bin/bash -xe
+cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' -s ''' + SOURCE_DIR + ''' -t ''' + TARGET_DIR
+            )
+
+            // push changes to codeready-workspaces-images
+            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            sh('''#!/bin/bash -xe
+cd ${WORKSPACE}/targetdwn
+git add ''' + util.getCRWLongName(SYNC_REPO) + '''
+git update-index --refresh || true # ignore timestamp updates
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
+  cd ''' + TARGET_DIR + '''
+  git add Dockerfile . -A -f
+  # note this might fail if we're syncing from a tag vs. a branch
+  git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''" Dockerfile . || true
+  git pull origin ''' + MIDSTM_BRANCH + ''' || true
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+  echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''"
+fi
+            ''')
+        }
+        NEW_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+        println "Got NEW_MID_SHA in targetdwn folder: " + NEW_MID_SHA
+
+        if (NEW_MID_SHA.equals(OLD_MID_SHA) && !FORCE_BUILD.equals("true")) {
+          currentBuild.result='UNSTABLE'
+        }
+        currentBuild.description="Upstream sync done"
+
+        println "########################################################################################################"
+        println "##  Trigger sync to downstream job"
+        println "########################################################################################################"
+        if (!OLD_MID_SHA.equals(NEW_MID_SHA) || FORCE_BUILD == "true") {
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          build(
+              job: 'sync-to-downstream_' + JOB_BRANCH,
+              wait: true,
+              propagate: true,
+              parameters: [
+                [
+                  $class: 'StringParameterValue',
+                  name: 'token',
+                  value: "CI_BUILD"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'cause',
+                  value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'REPOS',
+                  value: util.getCRWLongName(SYNC_REPO)
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'JOB_BRANCH',
+                  value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'UPDATE_BASE_IMAGES_FLAGS',
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: MIDSTM_BRANCH
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'FORCE_BUILD',
+                  value: true
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'SCRATCH',
+                  value: false
+                ]
+              ]
+            )
+          currentBuild.description+="; Downstream sync job triggered"
+        } else {
+          println "No changes upstream, nothing to sync / build in brew!"
+          currentBuild.description+="; No sync or Brew build"
+          currentBuild.result = 'UNSTABLE'
+        }
+      } // withCredentials
+    } // wrap
+  } // node
+} // timeout

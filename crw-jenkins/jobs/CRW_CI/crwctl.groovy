@@ -61,9 +61,9 @@ git clone git@github.com:redhat-developer/codeready-workspaces-chectl.git --dept
 
 export GITHUB_TOKEN="github-token-here"
 
-$➔ hub release download 2.13.0-crwctl-CI-assets -i LIST
+$➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-crwctl-CI-assets -i LIST
 ...
-$➔ hub release download 2.13.0-crwctl-CI-assets -i "*crwctl-linux-x64*"
+$➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-crwctl-CI-assets -i "*crwctl-linux-x64*"
 </pre>
 </ul>
 

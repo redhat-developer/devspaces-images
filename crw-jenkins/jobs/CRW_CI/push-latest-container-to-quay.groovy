@@ -84,7 +84,7 @@ Images to copy to quay:
             <p>NOTE:  If no nodes are available, run: <br/>
     <b><a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
     -c "codeready-workspaces-plugin-openshift-rhel8" --osbs --pushtoquay="''' + 
-    (JOB_BRANCH.equals("2.x") ? '''2.y nightly''' : JOB_BRANCH+''' latest''') + 
+    (JOB_BRANCH.equals("2.x") ? '''2.y next''' : JOB_BRANCH+''' latest''') + 
     '''"</b>
   
   to get latest from osbs and push to quay.
