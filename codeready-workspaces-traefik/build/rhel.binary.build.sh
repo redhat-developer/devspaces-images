@@ -78,8 +78,8 @@ if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
   if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
       curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
   fi
-  # delete existing release & tag & assets
-  ./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --asset-name "${SYNC_REPO}"
+  # delete existing release & tag & assets -- this will remove everything for each push for each arch, so can't be done here
+  # ./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --asset-name "${SYNC_REPO}"
   # create a new release & tag w/ fresh assets
   ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --asset-name "${SYNC_REPO}" "${tarball}"
 
