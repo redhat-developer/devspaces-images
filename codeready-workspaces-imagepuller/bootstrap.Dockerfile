@@ -8,12 +8,12 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.15.14-14 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
+FROM registry.access.redhat.com/ubi8/go-toolset:1.15.14-14 as builder
 ENV GOPATH=/go/ \
     GO111MODULE=on
 
-ARG BOOTSTRAP=false
+ARG BOOTSTRAP=true
 ENV BOOTSTRAP=${BOOTSTRAP}
 
 USER root
@@ -22,7 +22,7 @@ WORKDIR /kubernetes-image-puller
 COPY go.mod .
 COPY go.sum .
 # built in Brew, use tarball in lookaside cache; built locally, comment this out
-COPY resources.tgz /tmp/resources.tgz
+# COPY resources.tgz /tmp/resources.tgz
 # build locally, fetch mods
 RUN if [[ ${BOOTSTRAP} != "false" ]]; then \
       go mod download; \
@@ -37,7 +37,7 @@ RUN adduser appuser && \
     make build 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-210
+FROM registry.access.redhat.com/ubi8-minimal:8.4-210
 USER root
 RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 # CRW-528 copy actual cert
@@ -54,20 +54,3 @@ COPY --from=builder /kubernetes-image-puller/bin/sleep /bin/sleep
 CMD ["/kubernetes-image-puller"]
 
 # append Brew metadata here
-
-ENV SUMMARY="Red Hat CodeReady Workspaces imagepuller container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces imagepuller container" \
-    PRODNAME="codeready-workspaces" \
-    COMPNAME="imagepuller-rhel8"
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="2.14" \
-      license="EPLv2" \
-      maintainer="Ilya Buziuk <ibuziuk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""
