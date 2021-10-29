@@ -54,19 +54,28 @@ timeout(120) {
                     )
 
                     util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "-q --no-commit")
+                    CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
 
                     // push to dist-git
                     sh('''#!/bin/bash -xe
-                      export KRB5CCNAME=/var/tmp/crw-build_ccache
-                      cd ${WORKSPACE}/targetdwn
-                      git add ''' + util.getCRWLongName(SYNC_REPO) + '''
-                      git update-index --refresh || true  # ignore timestamp updates
-                      if [[ \$(git diff-index HEAD --) ]]; then # file changed
-                        cd ''' + TARGET_DIR + '''
-                        git add . -A -f
-                        git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
-                        git push origin ''' + MIDSTM_BRANCH + ''' || true
-                      fi
+cd ${WORKSPACE}/targetdwn
+git add ''' + util.getCRWLongName(SYNC_REPO) + '''
+git update-index --refresh || true # ignore timestamp updates
+DELETE_OLD_ASSETS=0
+if [[ \$(git diff-index HEAD --) ]]; then # file changed
+  cd ''' + TARGET_DIR + '''
+  git add . -A -f
+  git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
+  git pull origin ''' + MIDSTM_BRANCH + ''' || true
+  git push origin ''' + MIDSTM_BRANCH + ''' || true
+  DELETE_OLD_ASSETS=1
+fi
+if [[ $DELETE_OLD_ASSETS -eq 1 ]] || [[ "''' + FORCE_BUILD + '''" == "true" ]]; then
+  curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'''+ MIDSTM_BRANCH + '''/product/uploadAssetsToGHRelease.sh && \
+  chmod +x ./uploadAssetsToGHRelease.sh
+  # delete existing release & tag & assets -- this will remove everything for each push for each arch, so do it BEFORE we do the multiarch parallel loop
+  ./uploadAssetsToGHRelease.sh --delete-assets -v "''' + CSV_VERSION + '''" -b "'''+MIDSTM_BRANCH+'''" --asset-name "''' + SYNC_REPO  +'''"
+fi
                     ''')
                     NEW_SHA = util.getLastCommitSHA(TARGET_DIR)
                     println "Got NEW_SHA in targetdwn/${SYNC_REPO} folder: " + NEW_SHA

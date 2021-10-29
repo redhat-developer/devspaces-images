@@ -7,17 +7,21 @@ def config = jsonSlurper.parseText(curlCMD);
 
 def JOB_BRANCHES = config.Jobs.imagepuller.keySet()
 for (JB in JOB_BRANCHES) {
+    JOB_BRANCH=""+JB
     //check for jenkinsfile
     FILE_CHECK = false
     try {
-        fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-imagepuller_'+JB+'.jenkinsfile')
+        if (JOB_BRANCH.equals("2.12")) {
+            fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-imagepuller_'+JB+'.jenkinsfile')
+        } else {
+            fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
+        }
         FILE_CHECK = true
     }
     catch(err) {
         println "No jenkins file found for " + JB
     }
     if (FILE_CHECK) {
-        JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
@@ -25,6 +29,7 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="kubernetes-image-puller"
             MIDSTM_NAME="imagepuller"
             SOURCE_REPO="che-incubator/" + UPSTM_NAME
+            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
             def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.imagepuller[JB].upstream_branch[0]
             def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.imagepuller[JB].upstream_branch[1]
@@ -44,7 +49,7 @@ Artifact builder + sync job; triggers brew after syncing
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
@@ -82,8 +87,11 @@ Artifact builder + sync job; triggers brew after syncing
             }
 
             parameters{
+                stringParam("SOURCE_REPO", SOURCE_REPO)
                 stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
+                stringParam("MIDSTM_REPO", MIDSTM_REPO)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("MIDSTM_NAME", MIDSTM_NAME)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 

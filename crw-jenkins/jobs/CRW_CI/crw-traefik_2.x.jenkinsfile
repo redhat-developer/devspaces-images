@@ -81,20 +81,27 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
 git update-index --refresh || true # ignore timestamp updates
+DELETE_OLD_ASSETS=0
 if [[ \$(git diff-index HEAD --) ]]; then # file changed
   cd ''' + TARGET_DIR + '''
-  git add Dockerfile . -A -f
+  git add . -A -f
   # note this might fail if we're syncing from a tag vs. a branch
   git commit -s -m "ci: [sync] Update from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''" Dockerfile . || true
   git pull origin ''' + MIDSTM_BRANCH + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
-  echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''"
+  DELETE_OLD_ASSETS=1
+fi
+if [[ $DELETE_OLD_ASSETS -eq 1 ]] || [[ "''' + FORCE_BUILD + '''" == "true" ]]; then
+  curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'''+ MIDSTM_BRANCH + '''/product/uploadAssetsToGHRelease.sh && \
+  chmod +x ./uploadAssetsToGHRelease.sh
+  # delete existing release & tag & assets -- this will remove everything for each push for each arch, so do it BEFORE we do the multiarch parallel loop
+  ./uploadAssetsToGHRelease.sh --delete-assets -v "''' + CSV_VERSION + '''" -b "'''+MIDSTM_BRANCH+'''" --asset-name "''' + SYNC_REPO  +'''"
 fi
             ''')
+            NEW_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
+            println "Got NEW_MID_SHA in targetdwn folder: " + NEW_MID_SHA
+            currentBuild.description="Upstream sync done"
         } // withCredentials
-        NEW_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
-        println "Got NEW_MID_SHA in targetdwn folder: " + NEW_MID_SHA
-        currentBuild.description="Upstream sync done"
       } // wrap
     } // stage
   } // node

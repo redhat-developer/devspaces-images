@@ -9,11 +9,10 @@ import groovy.transform.Field
 // epicURL
 // additionalNotes
 // doSendEmail
-// doOSBS
 // RECIPIENTS
 // MIDSTM_BRANCH
 
-def sendMail(mailSubject,mailBody) { // NEW_OSBS
+def sendMail(mailSubject,mailBody) {
     def sender="nboldt@redhat.com" // # use a bot instead?
     emailext(
         subject: mailSubject,
@@ -69,21 +68,12 @@ timeout(90) {
                         script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
                         returnStdout: true).trim().split( '\n' )
                     def NEW_QUAY = ""
-                    def NEW_OSBS = ""
                     def NEW_NVR = ""
                     parallel quay_check: {
                         NEW_QUAY = sh (
                             script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
                             returnStdout: true).trim().split( '\n' )
                             errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
-                    }, 
-                    osbs_check: {
-                        if (doOSBS.equals("true")) {
-                            NEW_OSBS = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.osbs",
-                            returnStdout: true).trim().split( '\n' )
-                            errorOccurred = checkFailure(NEW_OSBS, "OSBS", errorOccurred)
-                        }
                     }, 
                     nvr_check: {
                         NEW_NVR = sh (
@@ -93,35 +83,20 @@ timeout(90) {
 
                     // diff quay tag list vs. nvr tag list
                     sh(script: '''#!/bin/bash -xe
-        ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.quay) > ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly
-        ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  > ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
+        ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.quay) -s > ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly
+        ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
         ''', returnStdout: true)
                     def DIFF_LATEST_IMAGES_QUAY_V_NVR = sh (
                         script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,nvr}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
                         returnStdout: true
                     ).trim()
 
-                    def DIFF_LATEST_IMAGES_QUAY_V_OSBS = ""
-
-                    if (doOSBS.equals("true")) {
-                        // diff quay tag list vs. OSBS tag list
-                        sh(script: '''#!/bin/bash -xe
-            ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.osbs)  > ${WORKSPACE}/LATEST_IMAGES.osbs.tagsonly
-            ''', returnStdout: true)
-                        DIFF_LATEST_IMAGES_QUAY_V_OSBS = sh (
-                            script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,osbs}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
-                            returnStdout: true
-                        ).trim()
-                    }
-
                     archiveArtifacts fingerprint: false, artifacts:"LATEST_IMAGES*"
-                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("") || !DIFF_LATEST_IMAGES_QUAY_V_OSBS.equals("")) {
+                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("")) {
                         // error! quay and nvr versions do not match
                         errorOccurred = errorOccurred + 'Error: Quay & Brew image versions not aligned:\n' + 
                         "=================== QUAY v NVR ===================\n" + 
                         DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
-                        "=================== QUAY v OSBS ===================\n" + 
-                        DIFF_LATEST_IMAGES_QUAY_V_OSBS + '\n' + 
                         ' Failure!\n'
                         currentBuild.description="Quay/Brew version mismatch!"
                         currentBuild.result = 'FAILURE'
@@ -140,7 +115,6 @@ timeout(90) {
                     }
 
                     def NEW_QUAY_L=""; NEW_QUAY.each { line -> if (line?.trim()) { NEW_QUAY_L=NEW_QUAY_L+"- ${line}\n" } }
-                    def NEW_OSBS_L=""; NEW_OSBS.each { line -> if (line?.trim()) { NEW_OSBS_L=NEW_OSBS_L+"= ${line}\n" } }
                     def NEW_NVR_L="";  NEW_NVR.each  { line -> if (line?.trim()) { NEW_NVR_L=NEW_NVR_L + "  ${line}\n" } } 
 
                     def mailBody = mailSubject
@@ -164,12 +138,6 @@ https://github.com/redhat-developer/codeready-workspaces-chectl/releases (if cop
 
 Quay Images:
 ''' + NEW_QUAY_L
-
-                    if (doOSBS.equals("true")) { 
-                        mailBody = mailBody + '''
-OSBS Images:
-''' + NEW_OSBS_L
-                    }
 
                     mailBody = mailBody + '''
 Brew NVRs (for use in ''' + errataURL + '''):
