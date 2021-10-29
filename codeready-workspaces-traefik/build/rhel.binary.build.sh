@@ -69,7 +69,8 @@ ${PODMAN} run --rm -v "${RUN_DIR}"/target/brew-assets:/tmp/brew-assets -u root $
   "cp /go/src/github.com/traefik/traefik/dist/traefik /tmp/brew-assets"
 
 # tar the binary
-tarball="asset-${SYNC_REPO}-${ARCH}.tar.gz"
+if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
+tarball="${WORKSPACE}/asset-${SYNC_REPO}-${ARCH}.tar.gz"
 tar -czf "${tarball}" -C target/brew-assets .
 
 if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
