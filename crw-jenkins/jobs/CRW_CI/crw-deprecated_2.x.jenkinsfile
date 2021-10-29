@@ -1,8 +1,9 @@
+#!/usr/bin/env groovy
+
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 ///// THIS FILE IS DEPRECATED and should be removed for 2.14
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 
-#!/usr/bin/env groovy
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:

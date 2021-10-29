@@ -1,8 +1,8 @@
+#!/usr/bin/env groovy
+
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 ///// THIS FILE IS DEPRECATED and not used in 2.13+
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-
-#!/usr/bin/env groovy
 
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH

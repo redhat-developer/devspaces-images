@@ -83,7 +83,7 @@ Results:
                 pipelineTriggers {
                     triggers{
                         pollSCM{
-                            scmpoll_spec("H H/4 * * *") // every 4hrs
+                            scmpoll_spec("H H * * *") // every 24hrs
                         }
                     }
                 }

@@ -1,15 +1,15 @@
 #!/usr/bin/env groovy
 
 // PARAMETERS for this pipeline:
-//   MIDSTM_BRANCH
-//   CSV_VERSION
+//   CRW_VERSION
 
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
+def MIDSTM_BRANCH = "crw-2-rhel-8"
 
-def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
+def buildNode = "rhel8||rhel83||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
 timeout(120) {
     node("${buildNode}"){ 
-        stage ("update version and registry tags") {
+        stage ("update versions/tags; disable ${CRW_VERSION} jobs") {
             wrap([$class: 'TimestamperBuildWrapper']) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) 
@@ -18,19 +18,27 @@ timeout(120) {
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
                     def util = load "${WORKSPACE}/util.groovy"
                     util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, false)
-                    currentBuild.description="Update ${MIDSTM_BRANCH} to ${CSV_VERSION} ..."
-                    sh '''
+                    CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                    currentBuild.description="Update ${MIDSTM_BRANCH} to ${CRW_VERSION}; disable ${CRW_VERSION} jobs ..."
+                    sh '''#!/bin/bash
 cd ${WORKSPACE}/targetmid
-./product/updateVersionAndRegistryTags.sh -b ''' + MIDSTM_BRANCH + ''' -v ''' + CSV_VERSION + ''' -w $(pwd)
-'''
-                    // NOTE: no need to bump versions in other repos: crw-theia, crw-chectl are generic and generative
+CRW_VERSION="''' + CRW_VERSION + '''"
+if [[ $CRW_VERSION =~ ^([0-9]+)\\.([0-9]+) ]]; then # reduce the y digit
+  XX=${BASH_REMATCH[1]}
+  YY2=${BASH_REMATCH[2]}; (( YY2=YY2-2 )); if [[ $YY2 -lt 0 ]]; then YY2=0; fi
+  YY3=${BASH_REMATCH[2]}; (( YY3=YY3-3 )); if [[ $YY3 -lt 0 ]]; then YY3=0; fi
+  CRW_VERSION_PREV2="${XX}.${YY2}"
+  CRW_VERSION_PREV3="${XX}.${YY3}"
+fi
 
-                    currentBuild.description="Updated ${MIDSTM_BRANCH} to ${CSV_VERSION}"
+# disable previous versions (2.yy-2, 2.yy-3), then latest version 2.yy too
+for thisver in ${CRW_VERSION_PREV3} ${CRW_VERSION_PREV2} ${CRW_VERSION}; do 
+    ./product/updateVersionAndRegistryTags.sh -t ${CRW_VERSION} --disable-jobs ${thisver} --disable-management-jobs ${thisver}
+done
+'''
+                    currentBuild.description="Updated ${MIDSTM_BRANCH} to ${CRW_VERSION}"
                 }
             }
         }
     }
 }
-
-// NOTE: now that crw repo is updated and ready to build, time to enable jobs and trigger them!
-// TODO: could we have a job that does the job enablement automatically?

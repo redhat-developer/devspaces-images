@@ -5,13 +5,18 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = [config.Version+""] // only one release at a time, latest 2.yy
+// for 2.yy, return 2.yy+1
+def computeNextVersion(String ver){
+    verBits=ver.tokenize(".")
+    int vb1=Integer.parseInt(verBits[1])
+    return verBits[0] + "." + (vb1+1)
+}
+
+def JOB_BRANCHES = [computeNextVersion(config.Version+"")] // only one release at a time, latest 2.yy+1
 for (String JOB_BRANCH : JOB_BRANCHES) {
     pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         // keep job disabled until we explicitly need it
         disabled(true)
-
-        MIDSTM_BRANCH="crw-2-rhel-8"
 
         description('''
 This job is meant to bootstrap a new release of CRW, by bumping versions in 
@@ -32,8 +37,7 @@ job-config.json, VERSION file and registries, then committing changes.
         }
 
         parameters{
-            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to update")
-            stringParam("CSV_VERSION",JOB_BRANCH+".0","future version of CRW to use when updating job-config.json, VERSION file and registry tags")
+            stringParam("CRW_VERSION",JOB_BRANCH,"future version of CRW to use when updating job-config.json, VERSION file and registry tags")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

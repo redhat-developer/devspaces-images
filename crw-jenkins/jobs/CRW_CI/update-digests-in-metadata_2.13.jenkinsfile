@@ -64,15 +64,17 @@ echo "<============ LATEST_IMAGES.new 1 ============"
 '''
 
                         // don't report a diff when new operator-bundle or operator-metadata, or we'll never get out of this recursion loop; instead report new images (anything that will cause a new metadata image to be rebuilt)
+                        // ignore theia-dev 
                         def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|operator-bundle|operator-metadata" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle|operator-metadata" || true
                         ''', returnStdout: true).trim()
 
                         // check diff including operator bundle or metadata, in case we forgot to update metadata
+                        // ignore theia-dev
                         def DIFF_LATEST_IMAGES_METADATA_ONLY = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES" | grep -E "operator-bundle|operator-metadata" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|operator-metadata" || true
                         ''', returnStdout: true).trim()
 
                         // define what to do when we are ready to push changes
@@ -114,7 +116,6 @@ grep -E -v "@@|dependencies/LATEST_IMAGES" | grep -E "operator-bundle|operator-m
                             echo currentBuild.description
                             echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA
 
-                            // TODO if the only change is for theia-dev, skip this build
                             parallel metadata: {
                                 build(
                                     job: 'crw-operator-metadata_' + JOB_BRANCH,
