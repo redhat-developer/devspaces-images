@@ -83,7 +83,6 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	fi
 
 	sudo rm -fr ${RESOURCES_DIR}
-	rm bootstrap.Dockerfile
 	${BUILDER} rmi ${tmpContainer}
 fi
 # update tarballs - step 4 - commit changes if diff different
