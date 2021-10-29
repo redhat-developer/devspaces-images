@@ -49,7 +49,8 @@ ARCH="$(uname -m)"
 chmod +x ./build/dockerfiles/*.sh
 ./build/dockerfiles/rhel.Dockerfile.extract.assets.sh
 
-tarball="asset-${SYNC_REPO}-${ARCH}.tar.gz"
+if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
+tarball="${WORKSPACE}/asset-${SYNC_REPO}-${ARCH}.tar.gz"
 if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
   # upload the binary to GH
   if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
