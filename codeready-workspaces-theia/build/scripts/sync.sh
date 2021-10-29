@@ -51,6 +51,7 @@ echo ".github/
 /container.yaml
 /content_sets.*
 /cvp.yml
+/cvp-owners.yml
 tests/basic-test.yaml
 sources
 rhel.Dockerfile

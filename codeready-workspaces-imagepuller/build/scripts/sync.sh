@@ -56,9 +56,9 @@ echo ".github/
 build/scripts/sync.sh
 devfile.yaml
 /container.yaml
-/cvp-owners.yml
 /content_sets.*
 /cvp.yml
+/cvp-owners.yml
 README.md
 get-source*.sh
 tests/basic-test.yaml

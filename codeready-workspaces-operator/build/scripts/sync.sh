@@ -64,6 +64,7 @@ devfiles.yaml
 /container.yaml
 /content_sets.*
 /cvp.yml
+/cvp-owners.yml
 PROJECT
 README.md
 RELEASE.md

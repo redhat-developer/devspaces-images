@@ -56,6 +56,7 @@ build/scripts/sync.sh
 /container.yaml
 /content_sets.*
 /cvp.yml
+/cvp-owners.yml
 get-source*.sh
 tests/basic-test.yaml
 sources

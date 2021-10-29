@@ -66,7 +66,9 @@ echo ".github/
 packages/dashboard-frontend/assets/branding/
 build/scripts/
 container.yaml
-content_sets.yml
+/content_sets.*
+/cvp.yml
+/cvp-owners.yml
 get-source*.sh
 sources
 /README.adoc

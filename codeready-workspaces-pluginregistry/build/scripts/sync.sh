@@ -76,7 +76,9 @@ echo ".github/
 /bootstrap.Dockerfile
 /cvp.yml
 /container.yaml
-/content_sets.yml
+/content_sets.*
+/cvp.yml
+/cvp-owners.yml
 /sources
 /get-source*.sh
 /tests/basic-test.yaml
