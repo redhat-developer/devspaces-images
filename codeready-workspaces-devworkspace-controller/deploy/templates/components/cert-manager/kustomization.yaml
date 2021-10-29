@@ -1,5 +1,0 @@
-resources:
-- self-signed-certificates.yaml
-
-configurations:
-- kustomizeconfig.yaml
