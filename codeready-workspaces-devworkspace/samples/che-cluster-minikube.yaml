@@ -1,9 +1,0 @@
-kind: CheCluster
-apiVersion: org.eclipse.che/v1
-metadata:
-  name: devworkspace-che
-spec:
-  devworkspace:
-    enable: true
-  k8s:
-    ingressDomain: ${MINIKUBE_IP}.nip.io
