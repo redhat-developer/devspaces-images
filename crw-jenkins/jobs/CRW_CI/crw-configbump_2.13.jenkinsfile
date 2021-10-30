@@ -55,6 +55,7 @@ timeout(120) {
 
                     util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "-q --no-commit")
                     CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+                    util.installHub("2.14.2", GOLANG_VERSION) // for publishing asset files to GH releases
 
                     // push to dist-git
                     sh('''#!/bin/bash -xe
