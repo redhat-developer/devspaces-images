@@ -11,11 +11,6 @@ import groovy.transform.Field
 // PLATFORMS
 
 // other params not worth setting in Jenkins (they don't change)
-// for 2.x
-// def THEIA_BRANCH = "master" // theia branch/tag to build: master (will then compute the correct SHA to use)
-// def THEIA_GITHUB_REPO = "eclipse-theia/theia" // default: eclipse-theia/theia; optional: redhat-developer/eclipse-theia
-// def THEIA_COMMIT_SHA = "" // leave blank to compute within build.sh; or look at https://github.com/eclipse-che/che-theia/blob/7.y.x/build.include#L16 = 4641a298
-// for 2.13
 def THEIA_BRANCH = "crw-2.13.0"
 def THEIA_GITHUB_REPO = "redhat-developer/eclipse-theia"
 def THEIA_COMMIT_SHA = "cd50236f058843ec6ca53bad7eee89de1cda4460"
