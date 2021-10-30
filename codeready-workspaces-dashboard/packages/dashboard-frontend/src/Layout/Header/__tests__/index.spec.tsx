@@ -72,13 +72,4 @@ describe('Page header', () => {
     expect(mockLogout).toHaveBeenCalled();
   });
 
-  it('should fire changeTheme event', () => {
-    render(component);
-
-    const changeThemeButton = screen.getByRole('button', { name: 'change theme' });
-    fireEvent.click(changeThemeButton);
-
-    expect(mockChangeTheme).toHaveBeenCalled();
-  });
-
 });

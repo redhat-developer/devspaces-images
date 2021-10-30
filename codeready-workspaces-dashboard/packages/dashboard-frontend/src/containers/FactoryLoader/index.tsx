@@ -25,7 +25,7 @@ import {
   selectWorkspaceById,
   selectWorkspaceByQualifiedName
 } from '../../store/Workspaces/selectors';
-import { selectPreferredStorageType, selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
+import { selectCheDevworkspaceEnabled, selectPreferredStorageType, selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
 import { buildIdeLoaderLocation, sanitizeLocation } from '../../services/helpers/location';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakAuthService } from '../../services/keycloak/auth';
@@ -38,8 +38,10 @@ import { selectDefaultNamespace, selectInfrastructureNamespaces } from '../../st
 import { safeLoad } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
-import devfileApi from '../../services/devfileApi';
+import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
+import { DevfileConverter } from './devfile-converter';
+import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create', 'che-editor'];
 
@@ -81,6 +83,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private overrideDevfileObject: {
     [params: string]: string
   } = {};
+  private converter: DevfileConverter;
 
   @lazyInject(KeycloakAuthService)
   private readonly keycloakAuthService: KeycloakAuthService;
@@ -89,7 +92,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     super(props);
 
     const { search } = this.props.history.location;
-    const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+    const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
 
     this.state = {
       currentStep: LoadFactorySteps.INITIALIZING,
@@ -98,6 +101,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       search,
       cheDevworkspaceEnabled,
     };
+
+    this.converter = new DevfileConverter();
   }
 
   private resetOverrideParams(): void {
@@ -143,7 +148,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  private showOnlyContentIfDevWorkspace() : void {
+  private showOnlyContentIfDevWorkspace(): void {
     if (this.state.cheDevworkspaceEnabled) {
       // hide all bars
       window.postMessage('hide-allbar', '*');
@@ -295,6 +300,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
     const { source } = this.factoryResolver.resolver;
     const searchParam = new window.URLSearchParams(this.state.search);
+    let devfile = this.getTargetDevfile();
     let resolvedDevfileMessage: string;
     // source tells where devfile comes from
     //  - no source: the url to raw content is used
@@ -306,11 +312,16 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       if (source === 'repo') {
         resolvedDevfileMessage = `Devfile could not be found in ${searchParam.get('url')}. Applying the default configuration`;
       } else {
-        resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'. Applying it`;
+        if (this.props.cheDevworkspaceEnabled === false && isDevfileV2(devfile)) {
+          resolvedDevfileMessage = `Devfile 2.x version found in repo ${searchParam.get('url')} as '${source}', converting it to devfile version 1`;
+          devfile = this.converter.devfileV2toDevfileV1(devfile);
+        } else {
+          resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'`;
+        }
       }
     }
     this.setState({ resolvedDevfileMessage });
-    return this.getTargetDevfile();
+    return devfile;
   }
 
   private resolvePrivateDevfile(oauthUrl: string, location: string): void {
@@ -572,6 +583,7 @@ const mapStateToProps = (state: AppState) => ({
   activeWorkspace: selectWorkspaceByQualifiedName(state),
   defaultNamespace: selectDefaultNamespace(state),
   workspacesSettings: selectWorkspacesSettings(state),
+  cheDevworkspaceEnabled: selectCheDevworkspaceEnabled(state),
 });
 
 const connector = connect(

@@ -20,6 +20,7 @@ import {
 } from '../../services/workspace-adapter';
 import * as CheWorkspacesStore from './cheWorkspaces';
 import * as DevWorkspacesStore from './devWorkspaces';
+import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
@@ -130,7 +131,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       let requestDevWorkspaces: Promise<any>;
       if (cheDevworkspaceEnabled) {
         requestDevWorkspaces = dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces());
@@ -154,7 +155,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
 
       if (cheDevworkspaceEnabled && isDevWorkspace(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.requestWorkspace(workspace.ref));
@@ -172,7 +173,7 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'REQUEST_WORKSPACES' });
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
 
       if (cheDevworkspaceEnabled && isDevWorkspace(workspace.ref)) {
         const debugWorkspace = params && params['debug-workspace-start'];
@@ -190,7 +191,7 @@ export const actionCreators: ActionCreators = {
   restartWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled && isDevWorkspace(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.restartWorkspace(workspace.ref));
       } else {
@@ -205,7 +206,7 @@ export const actionCreators: ActionCreators = {
   stopWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled && isDevWorkspace(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.stopWorkspace(workspace.ref));
       } else {
@@ -221,7 +222,7 @@ export const actionCreators: ActionCreators = {
   deleteWorkspace: (workspace: Workspace): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     try {
       const state = getState();
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled && isDevWorkspace(workspace.ref)) {
         await dispatch(DevWorkspacesStore.actionCreators.terminateWorkspace(workspace.ref));
       } else {
@@ -261,7 +262,7 @@ export const actionCreators: ActionCreators = {
     try {
       const state = getState();
 
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled && isDevfileV2(devfile)) {
         const pluginRegistryUrl = state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
         const pluginRegistryInternalUrl = state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
@@ -304,7 +305,7 @@ export const actionCreators: ActionCreators = {
 
   deleteWorkspaceLogs: (workspaceId: string): AppThunk<KnownAction> => (_dispatch, getState): void => {
     const state = getState();
-    const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+    const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
     if (cheDevworkspaceEnabled) {
       DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspaceId);
     }

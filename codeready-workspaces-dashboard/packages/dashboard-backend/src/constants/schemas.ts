@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { template } from './examples';
+import { dockerConfigExample } from './examples';
+import { JSONSchema7 } from 'json-schema';
 
-export const authenticationHeaderSchema = {
+export const authenticationHeaderSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     'authorization': {
@@ -21,7 +22,17 @@ export const authenticationHeaderSchema = {
   }
 };
 
-export const namespacedWorkspaceSchema = {
+export const namespacedDockerConfigSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string'
+    }
+  },
+  required: ['namespace']
+};
+
+export const namespacedWorkspaceSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     namespace: {
@@ -34,7 +45,7 @@ export const namespacedWorkspaceSchema = {
   required: ['namespace', 'workspaceName']
 };
 
-export const namespacedSchema = {
+export const namespacedSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     namespace: {
@@ -44,16 +55,33 @@ export const namespacedSchema = {
   required: ['namespace']
 };
 
-export const patchSchema = {
+export const patchSchema: JSONSchema7 = {
   type: 'array',
-  example: [{
-    op: 'replace',
-    path: '/spec/started',
-    value: true
-  }]
+  items: {
+    type: 'object',
+    properties: {
+      op: { type: 'string' },
+      path: { type: 'string' },
+      value: {} // matches any value
+    },
+  }
 };
 
-export const devworkspaceSchema = {
+export const dockerConfigSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    dockerconfig: {
+      type: 'string'
+    },
+    resourceVersion: {
+      type: 'string'
+    }
+  },
+  examples: [dockerConfigExample],
+  required: ['dockerconfig']
+};
+
+export const devworkspaceSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     devworkspace: {
@@ -63,7 +91,7 @@ export const devworkspaceSchema = {
   required: ['devworkspace']
 };
 
-export const templateStartedSchema = {
+export const templateStartedSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     template: {
@@ -73,10 +101,15 @@ export const templateStartedSchema = {
         kind: { type: 'string' },
         metadata: {
           type: 'object',
-          template: {
-            name: { type: 'string' },
-            namespace: { type: 'string' },
-            ownerReferences: { type: 'array' },
+          properties: {
+            template: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                namespace: { type: 'string' },
+                ownerReferences: { type: 'array' },
+              }
+            }
           }
         },
         spec: {
@@ -86,16 +119,20 @@ export const templateStartedSchema = {
             components: { type: 'array' },
             events: {
               type: 'object',
-              template: {
-                preStart: {
-                  type: 'array'
+              properties: {
+                template: {
+                  type: 'object',
+                  properties: {
+                    preStart: {
+                      type: 'array'
+                    }
+                  }
                 }
               }
             },
           },
         },
       },
-      example: template
     }
   }
 };

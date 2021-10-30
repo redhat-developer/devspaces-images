@@ -17,6 +17,7 @@ import { KeycloakSetupService } from '../keycloak/setup';
 import { AppState } from '../../store';
 import * as BannerAlertStore from '../../store/BannerAlert';
 import * as BrandingStore from '../../store/Branding';
+import * as ExternalApplicationsStore from '../../store/ExternalApplications';
 import * as DevfileRegistriesStore from '../../store/DevfileRegistries';
 import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamespaces';
 import * as PluginsStore from '../../store/Plugins/chePlugins';
@@ -73,6 +74,7 @@ export class PreloadData {
       this.fetchDwPlugins(settings),
       this.fetchRegistriesMetadata(settings),
       this.fetchWorkspaces(),
+      this.fetchApplications(),
     ]);
     const errors = results
       .filter(result => result.status === 'rejected')
@@ -80,6 +82,11 @@ export class PreloadData {
     if (errors.length > 0) {
       throw errors;
     }
+  }
+
+  private async fetchApplications(): Promise<void> {
+    const { requestClusterInfo } = ExternalApplicationsStore.actionCreators;
+    await requestClusterInfo()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchBranding(): Promise<void> {

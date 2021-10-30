@@ -34,6 +34,7 @@ import { AlertItem } from '../../../services/helpers/types';
 import { selectMetadataFiltered } from '../../../store/DevfileRegistries/selectors';
 import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
+import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
 
 type Props =
   MappedProps
@@ -95,7 +96,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
     }
     this.isLoading = true;
     try {
-      const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
       let devfileContent;
       let optionalFilesContent;
       if (cheDevworkspaceEnabled) {

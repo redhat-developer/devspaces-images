@@ -16,6 +16,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const stylus_plugin = require('poststylus');
 const stylusLoader = require('stylus-loader');
 const path = require('path');
+const webpack = require('webpack');
 
 const config = {
   entry: {
@@ -134,6 +135,9 @@ const config = {
     module: 'empty'
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.DASHBOARD_VERSION': JSON.stringify(require('./package.json').version),
+    }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './index.html'),
       filename: 'index.html',

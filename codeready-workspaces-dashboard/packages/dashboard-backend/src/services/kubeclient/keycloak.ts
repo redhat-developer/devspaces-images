@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
+import { helpers } from '@eclipse-che/common';
 import { createFastifyError } from '../helpers';
 import { URL } from 'url';
 import { CheAxiosFactory } from '../che-http/CheAxiosFactory';
@@ -37,7 +37,7 @@ export async function validateToken(keycloakToken: string): Promise<void> {
   } catch (e) {
     throw createFastifyError(
       'FST_UNAUTHORIZED',
-      `Failed to validate token: ${getMessage(e)}`,
+      `Failed to validate token: ${helpers.errors.getMessage(e)}`,
       401
     );
   }
@@ -64,7 +64,7 @@ async function evaluateKeycloakEndpointUrl(): Promise<URL> {
   } catch (e) {
     throw createFastifyError(
       'FST_UNAUTHORIZED',
-      `Failed to fetch keycloak settings: ${getMessage(e)}`,
+      `Failed to fetch keycloak settings: ${helpers.errors.getMessage(e)}`,
       401
     );
   }

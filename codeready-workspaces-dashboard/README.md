@@ -159,6 +159,45 @@ Field `"links"` allows you to configure links in the masthead, like
   ]
 ```
 
+#### External Applications Menu (experimental)
+
+The Dashboard has the ability to provide the way to navigate to the OpenShift cluster console via the `Applications` menu that is shown in the Dashboard masthead.
+This ability can be tunned by setting the environment variables:
+| Env var | Description | Default value |
+| ------- | ----------- | ------------- |
+| OPENSHIFT_CONSOLE_GROUP | The group title where Console link is shown | Applications |
+| OPENSHIFT_CONSOLE_TITLE | The title that is displayed near icon. Set to "" to hide that Console Link at all. | OpenShift Console |
+| OPENSHIFT_CONSOLE_ICON | The icon that is used for the link | ${CONSOLE_URL}/static/assets/redhat.png |
+
+The following example shows how to provision that env vars with Che Operator:
+```sh
+CHE_NAMESPACE="eclipse-che"
+cat <<EOF | kubectl apply -f -
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: che-dashboard-custom-config
+  namespace: eclipse-che
+  labels:
+    app.kubernetes.io/component: che-dashboard-configmap
+    app.kubernetes.io/part-of: che.eclipse.org
+  annotations:
+    che.eclipse.org/OPENSHIFT_CONSOLE_GROUP_env-name: OPENSHIFT_CONSOLE_GROUP
+    che.eclipse.org/OPENSHIFT_CONSOLE_TITLE_env-name: OPENSHIFT_CONSOLE_TITLE
+    che.eclipse.org/OPENSHIFT_CONSOLE_ICON_env-name: OPENSHIFT_CONSOLE_ICON
+    che.eclipse.org/mount-as: env
+data:
+  OPENSHIFT_CONSOLE_GROUP: Apps
+  OPENSHIFT_CONSOLE_TITLE: OpenShift Container Platform
+  OPENSHIFT_CONSOLE_ICON: https://example.com/icon.png
+EOF
+
+# Due temporary limitation we need to rollout che operator to apply changes
+kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
+```
+
+**Note**: This way to configure dashboard is experimental and may be changed.
+
 ## License
 
 Che is open sourced under the Eclipse Public License 2.0.

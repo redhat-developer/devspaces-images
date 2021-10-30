@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
+import { helpers } from '@eclipse-che/common';
 import { IDevWorkspaceCallbacks } from '../devworkspace-client';
 import { DwClientProvider } from './kubeclient/dwClientProvider';
 
@@ -50,7 +50,7 @@ class DevWorkspaceWatcher {
       const { devworkspaceApi } = await (this.dwClientProvider.getDWClient(this.token));
       this.unsubscribeFunction = await devworkspaceApi.watchInNamespace(this.namespace, this.resourceVersion, this.callbacks);
     } catch (error) {
-      this.callbacks.onError('Failed to watch devworkspace: ' + getMessage(error));
+      this.callbacks.onError('Failed to watch devworkspace: ' + helpers.errors.getMessage(error));
       await this.unsubscribe();
       throw error;
     }

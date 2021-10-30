@@ -465,6 +465,9 @@ function renderComponentV2(
       namespace: namespace,
       workspaceName: workspace.metadata.name,
     })
+    .withWorkspacesSettings({
+      'che.devworkspaces.enabled': 'true',
+    })
     .withFactoryResolver({
       v: '4.0',
       source: 'devfile.yaml',

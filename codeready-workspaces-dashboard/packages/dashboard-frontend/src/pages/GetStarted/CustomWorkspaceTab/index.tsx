@@ -26,6 +26,7 @@ import { updateDevfileMetadata } from '../updateDevfileMetadata';
 import { Devfile, isCheDevfile } from '../../../services/workspace-adapter';
 import getRandomString from '../../../services/helpers/random';
 import { isDevfileV2Like } from '../../../services/devfileApi';
+import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
 
 type Props = MappedProps
   & {
@@ -62,7 +63,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
   }
 
   private buildInitialDevfile(generateName = 'wksp-'): Devfile {
-    const devfile = (this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true') ? {
+    const devfile = isDevworkspacesEnabled(this.props.workspacesSettings) ? {
       schemaVersion: '2.1.0',
       metadata: {
         name: generateName + getRandomString(4).toLowerCase(),

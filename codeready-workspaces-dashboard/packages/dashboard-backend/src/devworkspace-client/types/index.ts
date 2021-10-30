@@ -11,6 +11,23 @@
  */
 
 import { V1alpha2DevWorkspace, V1alpha2DevWorkspaceTemplate } from '@devfile/api';
+import { api } from '@eclipse-che/common';
+
+/**
+ * Holds the methods for working with dockerconfig for devworkspace
+ * which is stored in Kubernetes Secret and is annotated in DevWorkspace operator specific way.
+ */
+export interface IDockerConfigApi {
+  /**
+   * Get DockerConfig in the specified namespace
+   */
+  read(namespace: string): Promise<api.IDockerConfig>;
+
+  /**
+   * Replace DockerConfig in the specified namespace
+   */
+  update(namespace: string, dockerCfg: api.IDockerConfig): Promise<api.IDockerConfig>;
+}
 
 export interface IDevWorkspaceApi {
     /**
@@ -49,7 +66,7 @@ export interface IDevWorkspaceApi {
     /**
      * Patches the DevWorkspace with given name in the specified namespace
      */
-    patch(namespace: string, name: string, patches: IPatch[]): Promise<V1alpha2DevWorkspace>;
+    patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace>;
 }
 
 export interface IDevWorkspaceTemplateApi {
@@ -69,6 +86,7 @@ export type IDevWorkspaceCallbacks = {
 export interface IDevWorkspaceClient {
   devworkspaceApi: IDevWorkspaceApi;
   templateApi: IDevWorkspaceTemplateApi;
+  dockerConfigApi: IDockerConfigApi;
   isDevWorkspaceApiEnabled(): Promise<boolean>;
 }
 
@@ -79,10 +97,4 @@ export interface IDevWorkspaceList {
         resourceVersion?: string;
     };
     items: V1alpha2DevWorkspace[];
-}
-
-export interface IPatch {
-  op: string;
-  path: string;
-  value?: any;
 }

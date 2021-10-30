@@ -12,62 +12,63 @@
 
 import { injectable } from 'inversify';
 
-type Handler = (isDebounceDelay: boolean) => void;
+type DebounceEventHandler = (onStart: boolean) => void;
 
 /**
- * This class is handling the debounce delay service.
+ * This class is handling debounce time service
  * @author Oleksii Orel
  */
 @injectable()
 export class Debounce {
-  private debounceTimer: any;
-  private isDebounceDelay = false;
-  private debounceDelayHandlers: Array<Handler> = [];
+  private isWaiting = false;
+  private delayTimer: number | undefined;
+  private handlers: DebounceEventHandler[] = [];
 
-  setDelay(timeDelay = 5000): void {
-    this.setDebounceDelay(true);
-    if (this.debounceTimer) {
-      clearTimeout(this.debounceTimer);
-    }
-    this.debounceTimer = setTimeout(() => {
-      this.setDebounceDelay(false);
-    }, timeDelay);
-  }
-
-  private setDebounceDelay(isDebounceDelay: boolean): void {
-    this.isDebounceDelay = isDebounceDelay;
-    this.debounceDelayHandlers.forEach(handler => {
-      handler(isDebounceDelay);
+  private onExecute(isWaiting: boolean): void {
+    this.isWaiting = isWaiting;
+    this.handlers.forEach(handler => {
+      handler(isWaiting);
     });
   }
 
   /**
-   * Subscribe on the debounce delay event.
-   * @param handler
+   * Execute all handlers depends on dueTime
+   * @param dueTime
    */
-  subscribe(handler: Handler): void {
-    this.debounceDelayHandlers.push(handler);
+  execute(dueTime = 5000): void {
+    if (this.delayTimer) {
+      return;
+    }
+    this.onExecute(true);
+    this.delayTimer = window.setTimeout(() => {
+      this.onExecute(false);
+      this.delayTimer = undefined;
+    }, dueTime);
   }
 
   /**
-   * Unsubscribe on the show alert event.
+   * Subscribe on the debounce execute event
    * @param handler
    */
-  public unsubscribe(handler: (isDebounceDelay: boolean) => void): void {
-    const index = this.debounceDelayHandlers.indexOf(handler);
+  subscribe(handler: DebounceEventHandler): void {
+    this.handlers.push(handler);
+  }
+
+  /**
+   * Unsubscribe on the debounce execute event
+   * @param handler
+   */
+  public unsubscribe(handler: DebounceEventHandler): void {
+    const index = this.handlers.indexOf(handler);
     if (index !== -1) {
-      this.debounceDelayHandlers.splice(index, 1);
+      this.handlers.splice(index, 1);
     }
   }
 
   /**
-   * Unsubscribe all.
+   * Unsubscribe from all execute events
    */
   unsubscribeAll(): void {
-    this.debounceDelayHandlers = [];
-  }
-
-  hasDelay(): boolean {
-    return this.isDebounceDelay;
+    this.handlers = [];
   }
 }

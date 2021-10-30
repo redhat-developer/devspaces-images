@@ -39,6 +39,7 @@ import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
 import { selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
+import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
 const CustomWorkspaceTab = React.lazy(() => import('./CustomWorkspaceTab'));
@@ -215,7 +216,7 @@ export class GetStarted extends React.PureComponent<Props, State> {
     const title = 'Create Workspace';
     const quickAddTab: CreateWorkspaceTab = 'quick-add';
     const customWorkspaceTab: CreateWorkspaceTab = 'custom-workspace';
-    const isCustomWorkspaceHidden = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+    const isCustomWorkspaceHidden = isDevworkspacesEnabled(this.props.workspacesSettings);
 
     return (
       <React.Fragment>

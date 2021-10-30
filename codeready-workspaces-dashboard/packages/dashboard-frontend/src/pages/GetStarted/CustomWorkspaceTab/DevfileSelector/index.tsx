@@ -38,6 +38,7 @@ import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/
 
 import styles from './index.module.css';
 import { Devfile } from 'dashboard-frontend/src/services/workspace-adapter';
+import { isDevworkspacesEnabled } from '../../../../services/helpers/devworkspace';
 
 type Props =
   MappedProps
@@ -82,7 +83,7 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
   private async handleDevfileSelect(meta: che.DevfileMetaData): Promise<void> {
     // clear location input
     this.devfileLocationRef.current?.clearInput();
-    const cheDevworkspaceEnabled = this.props.workspacesSettings['che.devworkspaces.enabled'] === 'true';
+    const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
     let devfile: api.che.workspace.devfile.Devfile;
     try {
       if (cheDevworkspaceEnabled) {

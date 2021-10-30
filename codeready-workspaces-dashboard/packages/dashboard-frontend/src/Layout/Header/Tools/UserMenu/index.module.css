@@ -1,0 +1,23 @@
+.refreshTokenArea {
+  display: none;
+  max-height: 210px;
+  padding: 7px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: var(--pf-global--BackgroundColor--200);
+  border: 1px solid var(--pf-global--BorderColor--dark-100);
+  border-radius: 3px;
+}
+
+.refreshTokenButtonHidden {
+  display: none !important;
+}
+
+.refreshTokenButtonHidden + span {
+  display: none;
+}
+
+.refreshTokenButtonHidden + span + pre {
+  display: block;
+}

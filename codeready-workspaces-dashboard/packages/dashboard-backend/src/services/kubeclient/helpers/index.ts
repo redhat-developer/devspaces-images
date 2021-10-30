@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getMessage } from '@eclipse-che/common/lib/helpers/errors';
+import { helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
 
 const projectApiGroup = 'project.openshift.io';
@@ -19,7 +19,7 @@ export async function isOpenShift(apisApi: k8s.ApisApi): Promise<boolean> {
   try {
     return findApi(apisApi, projectApiGroup);
   } catch (e) {
-    throw new Error(`Can't evaluate target platform: ${getMessage(e)}`);
+    throw new Error(`Can't evaluate target platform: ${helpers.errors.getMessage(e)}`);
   }
 }
 

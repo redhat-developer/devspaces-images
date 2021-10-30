@@ -31,6 +31,14 @@ export function registerDevworkspaceApi(server: FastifyInstance) {
     getSchema({ tags, params: namespacedSchema, body: devworkspaceSchema }),
     async function (request: FastifyRequest) {
       const { devworkspace } = request.body as restParams.IDevWorkspaceSpecParam;
+      const { namespace } = request.params as restParams.INamespacedParam;
+      if (!devworkspace.metadata) {
+        devworkspace.metadata = {};
+      }
+      if (!devworkspace.metadata.annotations) {
+        devworkspace.metadata.annotations = {};
+      }
+      devworkspace.metadata.namespace = namespace;
       const { devworkspaceApi } = await getDevWorkspaceClient(request);
       return devworkspaceApi.create(devworkspace);
     }

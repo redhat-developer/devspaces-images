@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`About Menu should correctly render the component 1`] = `
+<nav
+  aria-label="External Applications"
+  className="pf-c-app-launcher"
+  data-ouia-component-type="PF4/ApplicationLauncher"
+  data-ouia-safe={true}
+>
+  <button
+    aria-expanded={false}
+    aria-haspopup={true}
+    aria-label="External Applications"
+    className="pf-c-app-launcher__toggle"
+    data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+    data-ouia-component-type="PF4/DropdownToggle"
+    data-ouia-safe={true}
+    disabled={false}
+    id="pf-dropdown-toggle-id-0"
+    onClick={[Function]}
+    onKeyDown={[Function]}
+    type="button"
+  >
+    <span
+      className={null}
+    >
+      <svg
+        aria-hidden={true}
+        aria-labelledby={null}
+        fill="currentColor"
+        height="1em"
+        role="img"
+        style={
+          Object {
+            "verticalAlign": "-0.125em",
+          }
+        }
+        viewBox="0 0 512 512"
+        width="1em"
+      >
+        <path
+          d="M149.333 56v80c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V56c0-13.255 10.745-24 24-24h101.333c13.255 0 24 10.745 24 24zm181.334 240v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm32-240v80c0 13.255 10.745 24 24 24H488c13.255 0 24-10.745 24-24V56c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24zm-32 80V56c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.256 0 24.001-10.745 24.001-24zm-205.334 56H24c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24zM0 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H24c-13.255 0-24 10.745-24 24zm386.667-56H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zm0 160H488c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H386.667c-13.255 0-24 10.745-24 24v80c0 13.255 10.745 24 24 24zM181.333 376v80c0 13.255 10.745 24 24 24h101.333c13.255 0 24-10.745 24-24v-80c0-13.255-10.745-24-24-24H205.333c-13.255 0-24 10.745-24 24z"
+        />
+      </svg>
+    </span>
+  </button>
+</nav>
+`;

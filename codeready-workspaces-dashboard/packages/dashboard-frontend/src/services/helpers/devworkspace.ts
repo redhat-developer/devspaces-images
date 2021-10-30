@@ -18,3 +18,7 @@ export function isWebTerminal(workspaceOrDevfile: che.Workspace | api.che.worksp
   const labels = workspaceOrDevfile?.metadata?.labels;
   return !!labels && !!labels['console.openshift.io/terminal'];
 }
+
+export function isDevworkspacesEnabled(settings:  che.WorkspaceSettings): boolean {
+  return settings['che.devworkspaces.enabled'] === 'true';
+}

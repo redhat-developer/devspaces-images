@@ -18,6 +18,7 @@ import { createObject } from '../helpers';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { selectPlugins } from '../Plugins/chePlugins/selectors';
+import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -205,7 +206,7 @@ export const actionCreators: ActionCreators = {
 
       let schema = schemav1;
 
-      const cheDevworkspaceEnabled = state.workspacesSettings.settings['che.devworkspaces.enabled'] === 'true';
+      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled) {
         // This makes $ref resolve against the first schema, otherwise the yaml language server will report errors
         const patchedJSONString = JSON.stringify(schemav1).replaceAll('#/definitions', '#/oneOf/0/definitions');

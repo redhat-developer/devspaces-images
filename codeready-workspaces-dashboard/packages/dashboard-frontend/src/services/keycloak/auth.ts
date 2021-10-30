@@ -13,6 +13,7 @@
 import { injectable } from 'inversify';
 import { KeycloakInstance } from 'keycloak-js';
 import { getDefer, IDeferred } from '../helpers/deferred';
+import { AxiosRequestConfig } from 'axios';
 
 export type IKeycloakUserInfo = {
   email: string;
@@ -21,8 +22,6 @@ export type IKeycloakUserInfo = {
   preferred_username: string;
   sub: string;
 };
-
-const MAX_VALIDITY_TIME_SEC = 3600;
 
 /**
  * This class is handling interactions with Keycloak
@@ -53,18 +52,30 @@ export class KeycloakAuthService {
   }
 
   async forceUpdateToken(): Promise<void> {
-    return this.updateToken(MAX_VALIDITY_TIME_SEC);
+    await this.updateToken(3600);
   }
 
-  async updateToken(minValidity: number): Promise<void> {
+  async updateToken(minValidity: number, config?: AxiosRequestConfig): Promise<string | undefined> {
     const { keycloak } = KeycloakAuthService;
     if (!keycloak || !keycloak.updateToken) {
       return;
     }
     try {
-      await keycloak.updateToken(minValidity);
+      return new Promise((resolve, reject) => {
+        keycloak.updateToken(minValidity).success((refreshed: boolean) => {
+          const header = 'Authorization';
+          if (refreshed || (config && !config.headers.common[header])) {
+            if (config) {
+              config.headers.common[header] = `Bearer ${keycloak.token}`;
+            }
+          }
+          resolve(keycloak.token);
+        }).error((error: any) => {
+          reject(new Error(error));
+        });
+      });
     } catch (e) {
-      window.sessionStorage.setItem('oidcDashboardRedirectUrl', location.href);
+      window.sessionStorage.setItem('oidcDashboardRedirectUrl', window.location.href);
       if (keycloak && keycloak.login) {
         keycloak.login();
       }
@@ -83,7 +94,7 @@ export class KeycloakAuthService {
 
   logout(): void {
     window.sessionStorage.removeItem('githubToken');
-    window.sessionStorage.setItem('oidcDashboardRedirectUrl', location.href);
+    window.sessionStorage.setItem('oidcDashboardRedirectUrl', window.location.href);
     const { keycloak } = KeycloakAuthService;
     if (keycloak && keycloak.logout) {
       keycloak.logout({});

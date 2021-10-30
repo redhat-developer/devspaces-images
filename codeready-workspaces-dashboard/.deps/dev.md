@@ -699,6 +699,7 @@
 | [`jsdom@16.7.0`](https://github.com/jsdom/jsdom.git) | MIT |  |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
 | [`json-parse-even-better-errors@2.3.1`](https://github.com/npm/json-parse-even-better-errors) | MIT | clearlydefined |
+| [`json-schema@0.3.0`](http://github.com/kriszyp/json-schema) | (AFL-2.1 OR BSD-3-Clause) | clearlydefined |
 | [`json-stable-stringify-without-jsonify@1.0.1`](git://github.com/samn/json-stable-stringify.git) | MIT | clearlydefined |
 | [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | clearlydefined |
 | [`jsonparse@1.3.1`](http://github.com/creationix/jsonparse.git) | MIT | clearlydefined |

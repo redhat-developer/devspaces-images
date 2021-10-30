@@ -11,13 +11,15 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
-import { helpers } from '@eclipse-che/common';
 import {
   devworkspacetemplateGroup,
   devworkspacetemplateLatestVersion,
   devworkspacetemplatePlural, V1alpha2DevWorkspaceTemplate
 } from '@devfile/api';
 import { IDevWorkspaceTemplateApi, } from '../../types';
+import { createError } from '../helpers';
+
+const DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
 export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
   private readonly customObjectAPI: k8s.CustomObjectsApi;
@@ -36,7 +38,7 @@ export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
       );
       return (resp.body as any).items as V1alpha2DevWorkspaceTemplate[];
     } catch (e) {
-      throw new Error('unable to list devworkspace templates: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL, 'Unable to list devworkspace templates');
     }
   }
 
@@ -51,7 +53,7 @@ export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
       );
       return resp.body as V1alpha2DevWorkspaceTemplate;
     } catch (e) {
-      throw new Error(`unable to get devworkspace "${namespace}/${name}": ` + helpers.errors.getMessage(e));
+      throw createError(e, DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL, `Unable to get devworkspace "${namespace}/${name}"`);
     }
   }
 
@@ -72,7 +74,7 @@ export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
       );
       return resp.body as V1alpha2DevWorkspaceTemplate;
     } catch (e) {
-      throw new Error('unable to create DevWorkspaceTemplate: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL, 'Unable to create DevWorkspaceTemplate');
     }
   }
 
@@ -86,7 +88,7 @@ export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
         name
       );
     } catch (e) {
-      throw new Error('unable to delete devworkspace template: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL, 'Unable to delete devworkspace template');
     }
   }
 }

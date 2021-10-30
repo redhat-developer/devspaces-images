@@ -91,13 +91,14 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       isWaitingForRestart: false
     };
 
-    const callback = async () => {
-      await this.initWorkspace();
-    };
-    this.debounce.subscribe(callback);
+    this.debounce.subscribe(async onStart => {
+      if (onStart) {
+        await this.initWorkspace();
+      }
+    });
     this.toDispose.push({
       dispose: () => {
-        this.debounce.unsubscribe(callback);
+        this.debounce.unsubscribeAll();
       },
     });
   }
@@ -196,7 +197,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     } else if (workspace && workspace.hasError) {
       this.showErrorAlert(workspace);
     }
-    this.debounce.setDelay(1000);
+    this.debounce.execute(1000);
   }
 
   private showErrorAlert(workspace: Workspace) {
@@ -255,7 +256,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       });
     }
     this.checkOnStoppingStatus(workspace);
-    this.debounce.setDelay(1000);
+    this.debounce.execute(1000);
   }
 
   private checkOnStoppingStatus(workspace?: Workspace): void {

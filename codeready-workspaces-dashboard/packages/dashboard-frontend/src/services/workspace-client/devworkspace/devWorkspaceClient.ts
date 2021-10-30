@@ -13,7 +13,8 @@
 import { inject, injectable, multiInject } from 'inversify';
 import { isWebTerminal } from '../../helpers/devworkspace';
 import { WorkspaceClient } from '../index';
-import devfileApi, { IPatch, isDevWorkspace } from '../../devfileApi';
+import devfileApi, { isDevWorkspace } from '../../devfileApi';
+import { api } from '@eclipse-che/common';
 import {
   devfileToDevWorkspace,
   devWorkspaceApiGroup, devworkspaceSingularSubresource, devworkspaceVersion
@@ -379,7 +380,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     const namespace = workspace.metadata.namespace;
     const name = workspace.metadata.name;
 
-    const patch: IPatch[] = [];
+    const patch: api.IPatch[] = [];
 
     const updatingTimeAnnotationPath = '/metadata/annotations/' + this.escape(DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION);
     if (workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] === undefined) {
@@ -457,7 +458,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   }
 
   async updateDebugMode(workspace: devfileApi.DevWorkspace, debugMode: boolean): Promise<devfileApi.DevWorkspace> {
-    const patch: IPatch[] = [];
+    const patch: api.IPatch[] = [];
     const currentDebugMode = this.getDebugMode(workspace);
 
     if (currentDebugMode === debugMode) {
@@ -479,7 +480,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   }
 
   async changeWorkspaceStatus(workspace: devfileApi.DevWorkspace, started: boolean, skipErrorCheck?: boolean): Promise<devfileApi.DevWorkspace> {
-    const patch: IPatch[] = [{
+    const patch: api.IPatch[] = [{
       op: 'replace',
       path: '/spec/started',
       value: started

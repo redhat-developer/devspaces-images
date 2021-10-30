@@ -19,7 +19,7 @@
  *    target = {"map": {"target": "value", ...}}
  *    source = {"map": {"source": "value", ...}}
  *    newObject.map = createObject(target.map, source.map);
- * 
+ *
  * @param target an object that is usually a store state, e.g workspaces, plugins.
  * @param source a slice of a target object
  */

@@ -76,7 +76,6 @@ export default class Header extends React.PureComponent<Props, State> {
             history={this.props.history}
             user={this.props.user}
             logout={() => this.props.logout()}
-            changeTheme={theme => this.props.changeTheme(theme)}
           />
         }
       />

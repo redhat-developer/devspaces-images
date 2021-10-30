@@ -11,7 +11,7 @@ exports[`Page header tools should correctly render the component 1`] = `
       className="pf-c-page__header-tools-item"
     >
       <nav
-        aria-label="info button"
+        aria-label="About Menu"
         className="pf-c-app-launcher pf-m-align-right"
         data-ouia-component-type="PF4/ApplicationLauncher"
         data-ouia-safe={true}
@@ -19,7 +19,7 @@ exports[`Page header tools should correctly render the component 1`] = `
         <button
           aria-expanded={false}
           aria-haspopup={true}
-          aria-label="info button"
+          aria-label="About Menu"
           className="pf-c-app-launcher__toggle"
           data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
           data-ouia-component-type="PF4/DropdownToggle"
@@ -34,7 +34,7 @@ exports[`Page header tools should correctly render the component 1`] = `
             className={null}
           >
             <svg
-              alt=""
+              alt="About Menu Icon"
               aria-hidden={true}
               aria-labelledby={null}
               fill="currentColor"
@@ -55,6 +55,10 @@ exports[`Page header tools should correctly render the component 1`] = `
           </span>
         </button>
       </nav>
+    </div>
+    <div
+      className="pf-c-page__header-tools-item"
+    >
       <div
         className="pf-c-dropdown pf-m-align-right"
         data-ouia-component-id="OUIA-Generated-Dropdown-1"

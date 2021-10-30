@@ -24,9 +24,3 @@ export interface IDevWorkspacesList {
     [key: string]: string;
   }
 }
-
-export interface IPatch {
-  op: string;
-  path: string;
-  value?: any;
-}

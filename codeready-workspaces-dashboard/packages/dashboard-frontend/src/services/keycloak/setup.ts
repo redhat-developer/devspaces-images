@@ -59,6 +59,9 @@ export class KeycloakSetupService {
   @inject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
 
+  @inject(KeycloakAuthService)
+  private readonly keycloakAuthService: KeycloakAuthService;
+
   private user: che.User | undefined;
   private _ready: Promise<void>;
   private resolveReadyPromise: (value: void | PromiseLike<void>) => void;
@@ -69,6 +72,10 @@ export class KeycloakSetupService {
 
   async start(): Promise<void> {
     await this.doInitialization();
+    const { keycloak } = KeycloakAuthService;
+    if (keycloak) {
+      await this.setAuthorizationHeader();
+    }
     this.resolveReadyPromise();
 
     /* test API */
@@ -190,7 +197,7 @@ export class KeycloakSetupService {
   private async initKeycloak(config: KeycloakConfig, settings: KeycloakSettingsMap): Promise<KeycloakInstance> {
     let useNonce = false;
     const nonce = settings.get('che.keycloak.use_nonce');
-    if (nonce && typeof nonce === 'string') {
+    if (nonce) {
       useNonce = nonce.toLowerCase() === 'true';
     }
     const initOptions = {
@@ -225,10 +232,6 @@ export class KeycloakSetupService {
 
   private async testApiAttainability<T>(endpoint: string): Promise<T> {
     try {
-      const { keycloak } = KeycloakAuthService;
-      if (keycloak) {
-        await this.setAuthorizationHeader(keycloak);
-      }
       const response = await axios.get(endpoint);
       return response.data;
     } catch (e) {
@@ -236,27 +239,10 @@ export class KeycloakSetupService {
     }
   }
 
-  private async setAuthorizationHeader(keycloak: KeycloakInstance): Promise<void> {
-    try {
-      await this.updateToken(keycloak);
-    } catch (e) {
-      window.sessionStorage.setItem('oidcDashboardRedirectUrl', location.href);
-      keycloak.login();
-      throw new Error('Authorization is needed. \n' + e);
-    }
-
-    axios.interceptors.request.use(config => {
-      config.headers['Authorization'] = `Bearer ${keycloak.token}`;
+  private async setAuthorizationHeader(): Promise<void> {
+    axios.interceptors.request.use(async config => {
+      await this.keycloakAuthService.updateToken(5, config);
       return config;
     });
   }
-
-  private async updateToken(keycloak: KeycloakInstance): Promise<void> {
-    try {
-      await keycloak.updateToken(5);
-    } catch (e) {
-      throw new Error('Failed to update token. \n' + e);
-    }
-  }
-
 }

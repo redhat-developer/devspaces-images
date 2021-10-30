@@ -14,6 +14,7 @@ import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import * as BannerAlertStore from './BannerAlert';
 import * as BrandingStore from './Branding';
+import * as ExternalApplications from './ExternalApplications';
 import * as DevfileRegistriesStore from './DevfileRegistries';
 import * as FactoryResolverStore from './FactoryResolver';
 import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
@@ -26,11 +27,14 @@ import * as UserStore from './User';
 import * as UserProfileStore from './UserProfile';
 import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
 import * as WorkspacesSettingsStore from './Workspaces/Settings';
+import * as CheDockerConfigStore from './DockerConfig/che';
+import * as DwDockerConfigStore from './DockerConfig/dw';
 
 // the top-level state object
 export interface AppState {
   bannerAlert: BannerAlertStore.State;
   branding: BrandingStore.State;
+  externalApplications: ExternalApplications.State;
   devfileRegistries: DevfileRegistriesStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
   user: UserStore.State;
@@ -43,6 +47,8 @@ export interface AppState {
   userPreferences: UserPreferences.State;
   dwPlugins: DwPluginsStore.State;
   workspacesSettings: WorkspacesSettingsStore.State,
+  cheDockerConfig: CheDockerConfigStore.State;
+  dwDockerConfig: DwDockerConfigStore.State;
 }
 
 export const reducers = {
@@ -52,6 +58,7 @@ export const reducers = {
   devWorkspaces: DevWorkspacesStore.reducer,
   devfileRegistries: DevfileRegistriesStore.reducer,
   branding: BrandingStore.reducer,
+  externalApplications: ExternalApplications.reducer,
   user: UserStore.reducer,
   userProfile: UserProfileStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
@@ -60,16 +67,10 @@ export const reducers = {
   userPreferences: UserPreferences.reducer,
   dwPlugins: DwPluginsStore.reducer,
   workspacesSettings: WorkspacesSettingsStore.reducer,
+  cheDockerConfig: CheDockerConfigStore.reducer,
+  dwDockerConfig: DwDockerConfigStore.reducer,
 };
 
-// this type can be used as a hint on action creators so that its 'dispatch' and 'getState' params are
-// correctly typed to match your store.
-/**
- * @deprecated
- */
-export interface AppThunkAction<TAction> {
-  (dispatch: (action: TAction) => void, getState: () => AppState): void;
-}
 export type AppThunk<ActionType extends Action, ReturnType = void> = ThunkAction<
   ReturnType,
   AppState,

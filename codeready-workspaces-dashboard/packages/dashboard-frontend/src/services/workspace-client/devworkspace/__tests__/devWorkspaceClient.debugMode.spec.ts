@@ -74,7 +74,7 @@ describe('DevWorkspaceClient debug mode', () => {
           op: 'add',
           path: '/metadata/annotations/controller.devfile.io~1debug-start',
           value: 'true',
-        }], { headers: {} }]);
+        }]]);
       expect(resultData).toEqual(devWorkspaceWithDebug);
     });
 
@@ -97,7 +97,7 @@ describe('DevWorkspaceClient debug mode', () => {
           op: 'replace',
           path: '/metadata/annotations/controller.devfile.io~1debug-start',
           value: 'true',
-        }], { headers: {} }]);
+        }]]);
       expect(resultData).toEqual(devWorkspaceWithDebug);
     });
 
@@ -113,7 +113,7 @@ describe('DevWorkspaceClient debug mode', () => {
         [{
           op: 'remove',
           path: '/metadata/annotations/controller.devfile.io~1debug-start'
-        }], { headers: {} }]);
+        }]]);
       expect(resultData).toEqual(devWorkspaceNoDebug);
     });
   });

@@ -86,3 +86,5 @@ export enum WorkspaceAction {
   RESTART_WORKSPACE = 'Restart Workspace',
   EDIT_WORKSPACE = 'Edit Workspace',
 }
+
+export type UserPreferencesTab = 'container-registries';

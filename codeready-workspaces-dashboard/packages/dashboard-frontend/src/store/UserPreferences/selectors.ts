@@ -12,7 +12,6 @@
 
 import { createSelector } from 'reselect';
 import { AppState } from '..';
-import { RegistryRow, ContainerCredentials } from './types';
 
 const selectState = (state: AppState) => state.userPreferences;
 
@@ -25,20 +24,3 @@ export const selectPreferences = createSelector(
   selectState,
   state => state.preferences
 );
-
-export const selectRegistries = createSelector(
-  selectState,
-  state => getRegistries(state.preferences)
-);
-
-function getRegistries(preferences: che.UserPreferences): RegistryRow[] {
-  const registries: RegistryRow[] = [];
-  if (preferences.dockerCredentials) {
-    const containerCredentials: ContainerCredentials = JSON.parse(atob(preferences.dockerCredentials));
-    for (const [url, value] of Object.entries(containerCredentials)) {
-      const { username, password } = value || {};
-      registries.push({ url, username, password });
-    }
-  }
-  return registries;
-}

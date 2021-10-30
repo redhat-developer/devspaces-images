@@ -11,59 +11,69 @@
  */
 
 import axios from 'axios';
-import common from '@eclipse-che/common';
-import devfileApi, { IDevWorkspacesList, IPatch } from '../devfileApi';
-import { addAuthentication } from './auth';
+import { helpers, api } from '@eclipse-che/common';
+import devfileApi, { IDevWorkspacesList } from '../devfileApi';
 import { prefix } from './const';
 
 export async function createWorkspace(devworkspace: devfileApi.DevWorkspace): Promise<devfileApi.DevWorkspace> {
-  const headers = addAuthentication({});
   try {
     const response = await axios.post(`${prefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
-      { devworkspace },
-      { headers });
+      { devworkspace });
     return response.data;
   } catch (e) {
-    throw `Failed to create a new workspace. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to create a new workspace. ${helpers.errors.getMessage(e)}`;
   }
 }
 
 export async function listWorkspacesInNamespace(defaultNamespace: string): Promise<IDevWorkspacesList> {
-  const headers = addAuthentication({});
   try {
-    const response = await axios.get(`${prefix}/namespace/${defaultNamespace}/devworkspaces`, { headers });
+    const response = await axios.get(`${prefix}/namespace/${defaultNamespace}/devworkspaces`);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch the list of devWorkspaces. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to fetch the list of devWorkspaces. ${helpers.errors.getMessage(e)}`;
   }
 }
 
 export async function getWorkspaceByName(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
-  const headers = addAuthentication({});
   try {
-    const response = await axios.get(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`, { headers });
+    const response = await axios.get(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch workspace '${workspaceName}'. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to fetch workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
   }
 }
 
-export async function patchWorkspace(namespace: string, workspaceName: string, patch: IPatch[]): Promise<devfileApi.DevWorkspace> {
-  const headers = addAuthentication({});
+export async function patchWorkspace(namespace: string, workspaceName: string, patch: api.IPatch[]): Promise<devfileApi.DevWorkspace> {
   try {
-    const response = await axios.patch(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`, patch, { headers });
+    const response = await axios.patch(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`, patch);
     return response.data;
   } catch (e) {
-    throw `Failed to update workspace '${workspaceName}'. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to update workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
   }
 }
 
-export async function deleteWorkspace(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
-  const headers = addAuthentication({});
+export async function deleteWorkspace(namespace: string, workspaceName: string): Promise<void> {
   try {
-    const response = await axios.delete(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`, { headers });
+    await axios.delete(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`);
+  } catch (e) {
+    throw `Failed to delete workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
+  }
+}
+
+export async function getDockerConfig(namespace: string): Promise<api.IDockerConfig> {
+  try {
+    const response = await axios.get(`${prefix}/namespace/${namespace}/dockerconfig`);
     return response.data;
   } catch (e) {
-    throw `Failed to delete workspace '${workspaceName}'. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to fetch dockerconfig. ${helpers.errors.getMessage(e)}`;
+  }
+}
+
+export async function putDockerConfig(namespace: string, dockerconfig: api.IDockerConfig): Promise<api.IDockerConfig> {
+  try {
+    const response = await axios.put(`${prefix}/namespace/${namespace}/dockerconfig`, dockerconfig);
+    return response.data;
+  } catch (e) {
+    throw `Failed to put dockerconfig. ${helpers.errors.getMessage(e)}`;
   }
 }

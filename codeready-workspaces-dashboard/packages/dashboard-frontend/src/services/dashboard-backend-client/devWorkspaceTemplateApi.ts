@@ -14,13 +14,11 @@ import axios from 'axios';
 import common from '@eclipse-che/common';
 import devfileApi from '../devfileApi';
 import { prefix } from './const';
-import { addAuthentication } from './auth';
 
 export async function createTemplate(template: devfileApi.DevWorkspaceTemplate): Promise<devfileApi.DevWorkspaceTemplate> {
-  const headers = addAuthentication({});
   const url = `${prefix}/namespace/${template.metadata.namespace}/devworkspacetemplates`;
   try {
-    const response = await axios.post(url, { template }, { headers });
+    const response = await axios.post(url, { template });
     return response.data;
   } catch (e) {
     throw `Failed to create a new DevWorkspaceTemplates. ${common.helpers.errors.getMessage(e)}`;

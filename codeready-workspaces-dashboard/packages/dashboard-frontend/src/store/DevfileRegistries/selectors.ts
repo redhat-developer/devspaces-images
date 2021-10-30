@@ -14,6 +14,7 @@ import { createSelector } from 'reselect';
 import { AppState } from '..';
 import match from '../../services/helpers/filter';
 import { selectWorkspacesSettingsState } from '../Workspaces/Settings/selectors';
+import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
 const selectState = (state: AppState) => state.devfileRegistries;
 
@@ -26,7 +27,7 @@ export const selectRegistriesMetadata = createSelector(
       return metadata.map(meta => Object.assign({ registry }, meta));
     });
     const metadata = mergeRegistriesMetadata(registriesMetadata);
-    const cheDevworkspaceEnabled = workspacesSettingsState.settings['che.devworkspaces.enabled'] === 'true';
+    const cheDevworkspaceEnabled = isDevworkspacesEnabled(workspacesSettingsState.settings);
     if (cheDevworkspaceEnabled) {
       return filterDevfileV2Metadata(metadata);
     } else {

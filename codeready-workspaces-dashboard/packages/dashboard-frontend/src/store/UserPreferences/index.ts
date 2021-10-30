@@ -18,7 +18,6 @@ import { createObject } from '../helpers';
 import { AppThunk } from '..';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
-import { ContainerCredentials, RegistryRow } from './types';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -42,7 +41,6 @@ type KnownAction = RequestUserPreferencesAction
 export type ActionCreators = {
   requestUserPreferences: (filter: string | undefined) => AppThunk<KnownAction, Promise<void>>;
   replaceUserPreferences: (preferences: che.UserPreferences) => AppThunk<KnownAction, Promise<void>>;
-  updateContainerRegistries: (registries: RegistryRow[]) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
@@ -69,24 +67,7 @@ export const actionCreators: ActionCreators = {
       const errorMessage = 'Failed to update user preferences, reason: ' + common.helpers.errors.getMessage(e);
       throw new Error(errorMessage);
     }
-  },
-  updateContainerRegistries: (registries: RegistryRow[]): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    const newContainerCredentials: ContainerCredentials = {};
-    registries.forEach(item => {
-      const { url, username, password } = item;
-      newContainerCredentials[url] = { username, password };
-    });
-    try {
-      const prefUpdate = { dockerCredentials: btoa(JSON.stringify(newContainerCredentials)) };
-      dispatch({ type: 'REQUEST_USER_PREFERENCES' });
-      const preferences = await WorkspaceClient.restApiClient.updateUserPreferences(prefUpdate);
-      dispatch({ type: 'RECEIVE_USER_PREFERENCES', preferences });
-      return;
-    } catch (e) {
-      const errorMessage = 'Failed to update docker registries, reason: ' + common.helpers.errors.getMessage(e);
-      throw new Error(errorMessage);
-    }
-  },
+  }
 };
 
 const unloadedState: State = {

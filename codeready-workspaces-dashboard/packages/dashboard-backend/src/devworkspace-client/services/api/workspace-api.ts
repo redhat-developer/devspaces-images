@@ -15,11 +15,13 @@ import {
   IDevWorkspaceList,
   IDevWorkspaceApi,
   IDevWorkspaceCallbacks,
-  IPatch,
 } from '../../types';
 import { devworkspaceGroup, devworkspaceLatestVersion, devworkspacePlural, V1alpha2DevWorkspace } from '@devfile/api';
 
-import { helpers } from '@eclipse-che/common';
+import { api } from '@eclipse-che/common';
+import { createError } from '../helpers';
+
+const DEV_WORKSPACE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
 export class DevWorkspaceApi implements IDevWorkspaceApi {
   private readonly customObjectAPI: k8s.CustomObjectsApi;
@@ -40,7 +42,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
       );
       return resp.body as IDevWorkspaceList;
     } catch (e) {
-      throw new Error('unable to list devworkspaces: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to list devworkspaces');
     }
   }
 
@@ -58,14 +60,14 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
-      throw new Error(`unable to get devworkspace ${namespace}/${name}: ` + helpers.errors.getMessage(e));
+      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, `Unable to get devworkspace ${namespace}/${name}`);
     }
   }
 
   async create(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace> {
     try {
       if (!devworkspace.metadata?.name || !devworkspace.metadata?.namespace) {
-        throw 'DevWorkspace.spec.metadata with name and namespace are required';
+        throw 'DevWorkspace.metadata with name and namespace are required';
       }
 
       const resp = await this.customObjectAPI.createNamespacedCustomObject(
@@ -77,14 +79,14 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
-      throw new Error('unable to create devworkspace: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to create devworkspace');
     }
   }
 
   async update(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace> {
     try {
       if (!devworkspace.metadata?.name || !devworkspace.metadata?.namespace) {
-        throw 'DevWorkspace.spec.metadata with name and namespace are required';
+        throw 'DevWorkspace.metadata with name and namespace are required';
       }
 
       // you have to delete some elements from the devworkspace in order to update
@@ -111,7 +113,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
-      throw new Error('unable to update devworkspace: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to update devworkspace');
     }
   }
 
@@ -125,21 +127,21 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         name
       );
     } catch (e) {
-      throw new Error(`unable to delete devworkspace ${namespace}/${name}: ` + helpers.errors.getMessage(e));
+      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, `Unable to delete devworkspace ${namespace}/${name}`);
     }
   }
 
   /**
    * Patch a DevWorkspace
    */
-  async patch(namespace: string, name: string, patches: IPatch[]): Promise<V1alpha2DevWorkspace> {
+  async patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace> {
     return this.createPatch(namespace, name, patches);
   }
 
   private async createPatch(
     namespace: string,
     name: string,
-    patches: IPatch[]) {
+    patches: api.IPatch[]) {
     try {
       const options = {
         headers: {
@@ -160,7 +162,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
-      throw new Error('unable to patch devworkspace: ' + helpers.errors.getMessage(e));
+      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, 'Unable to patch devworkspace');
     }
   }
 
