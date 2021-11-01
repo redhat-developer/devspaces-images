@@ -31,7 +31,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
-    '-n') GH_RELEASE_NAME="$2"; shift 1;;
+    '-n') ASSET_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -56,18 +56,19 @@ if [[ ! -x $PODMAN ]]; then
 fi
 
 ARCH="$(uname -m)"
-tarball="codeready-workspaces-stacks-language-servers-dependencies-node10-${ARCH}.tar.gz"
+if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
+tarball="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-node10-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/nodejs-ls:/node_modules -u root ${NODEJS_IMAGE} sh -c "
     npm install --prefix /node_modules nodemon@${NODEMON_VERSION} typescript@${TYPERSCRIPT_VERSION} typescript-language-server@${TYPESCRIPT_LS_VERSION}
     chmod -R 777 /node_modules
     "
-tar -czf "target/${tarball}" -C target/nodejs-ls .
+tar -czf "${tarball}" -C target/nodejs-ls .
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball}"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
 
 ${PODMAN} rmi -f ${NODEJS_IMAGE}

@@ -29,7 +29,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
-    '-n') GH_RELEASE_NAME="$2"; shift 1;;
+    '-n') ASSET_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -55,7 +55,8 @@ echo ""
 mkdir -p target/python-ls
 
 ARCH="$(uname -m)"
-tarball="codeready-workspaces-stacks-language-servers-dependencies-python-${ARCH}.tar.gz"
+if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
+tarball="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-python-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHON_IMAGE} sh -c "
     /usr/bin/python3 --version && /usr/bin/python3 -m pip --version && \
@@ -77,12 +78,12 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHO
     deactivate;
     mv .venv /tmp/python/
     "
-tar -czf "target/${tarball}" -C target/python-ls .
+tar -czf "${tarball}" -C target/python-ls .
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball}"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
 
 ${PODMAN} rmi -f ${PYTHON_IMAGE}

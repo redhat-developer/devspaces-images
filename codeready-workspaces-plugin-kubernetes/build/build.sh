@@ -30,7 +30,7 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
-    '-n') GH_RELEASE_NAME="$2"; shift 1;;
+    '-n') ASSET_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -55,7 +55,8 @@ if [[ ! -x $PODMAN ]]; then
 fi
 
 ARCH="$(uname -m)"
-tarball="kamel-${KAMEL_VERSION}-${ARCH}.tar.gz"
+if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
+tarball="${WORKSPACE}/kamel-${KAMEL_VERSION}-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE} sh -c "
     cd /tmp
@@ -65,12 +66,12 @@ ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE
     make build-kamel
     cp  /tmp/camel-k-${KAMEL_VERSION}/kamel /kamel/kamel
     "
-tar -czf "target/${tarball}" -C target/kamel .
+tar -czf "${tarball}" -C target/kamel .
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${GH_RELEASE_NAME} "target/${tarball}"
+./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
 
 ${PODMAN} rmi -f ${GOLANG_IMAGE}

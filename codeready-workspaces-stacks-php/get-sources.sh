@@ -9,7 +9,7 @@ PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
 generateDockerfileLABELs=1
-GH_RELEASE_NAME="stacks-php"
+ASSET_NAME="php"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -24,7 +24,6 @@ while [[ "$#" -gt 0 ]]; do
 	esac
 	shift 1
 done
-UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}"
 
 function log()
 {
@@ -39,19 +38,19 @@ fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
 	log "[INFO] Delete Previous GitHub Releases:"
-	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	exit 0;
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	log "[INFO] Build Assets and Publish to GitHub Releases:"
-	./build/build.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi
 
 #### override any existing tarballs with newer ones from Jenkins build
 log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
 #get names of the downloaded tarballs
 theTarGzs="$(ls *.tar.gz)"

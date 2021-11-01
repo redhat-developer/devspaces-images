@@ -7,7 +7,7 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
-GH_RELEASE_NAME="plugin-kubernetes"
+ASSET_NAME="kubernetes"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -36,13 +36,13 @@ fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
 	log "[INFO] Delete Previous GitHub Releases:"
-	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	exit 0;
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	log "[INFO] Build Assets and Publish to GitHub Releases:"
-	./build/build.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi 
 
@@ -72,7 +72,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 
 
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	
 	# x86
 	./kamel-${KAMEL_VERSION}-x86_64.tar.gz | tar -xz && mv kamel asset-x86_64-kamel

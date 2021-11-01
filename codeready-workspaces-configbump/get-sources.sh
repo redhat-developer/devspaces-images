@@ -11,7 +11,7 @@ forceBuild=0
 PULL_ASSETS=0
 PUBLISH_ASSETS=0
 DELETE_ASSETS=0
-GH_RELEASE_NAME="configbump"
+ASSET_NAME="configbump"
 
 # compute project name from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
@@ -35,7 +35,6 @@ while [[ "$#" -gt 0 ]]; do
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 		'-v') CSV_VERSION="$2"; shift 1;;
-		'-b') MIDSTM_BRANCH="$2"; shift 1;;
 		'-ght') GITHUB_TOKEN="$2"; shift 1;;
 	esac
 	shift 1
@@ -54,18 +53,18 @@ fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
 	log "[INFO] Delete Previous GitHub Releases:"
-	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${projectName}
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	exit 0;
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	log "[INFO] Build Assets and Publish to GitHub Releases:"
-	./build/build.sh -v ${CSV_VERSION} -n ${projectName}
+	./build/rhel.binary.build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi
 
 log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${projectName}
+./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
 #get names of the downloaded tarballs
 theTarGzs="$(ls *.tar.gz)"

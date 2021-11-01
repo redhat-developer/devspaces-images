@@ -23,11 +23,11 @@ if [[ $# -lt 1 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
-    '-n') GH_RELEASE_NAME="$2"; shift 1;;
+    '-n') ASSET_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
 done
 
-./../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
-./../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+./../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION} -n ${ASSET_NAME}

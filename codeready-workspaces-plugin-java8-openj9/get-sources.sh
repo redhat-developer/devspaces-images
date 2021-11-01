@@ -14,7 +14,7 @@ UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.4
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.18"
-GH_RELEASE_NAME="plugin-java8-openj9"
+ASSET_NAME="java8-openj9"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
@@ -44,13 +44,13 @@ fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
 	log "[INFO] Delete Previous GitHub Releases:"
-	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	exit 0;
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	log "[INFO] Build Assets and Publish to GitHub Releases:"
-	./build/build.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi 
 
@@ -62,7 +62,7 @@ fi
 
 #### override any existing tarballs with newer ones from Jenkins build
 log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${GH_RELEASE_NAME}
+./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
 #get names of the downloaded tarballs
 theTarGzs="$(ls *.tar.gz)"
