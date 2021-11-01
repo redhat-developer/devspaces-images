@@ -29,5 +29,5 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-./../../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
-./../../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+./../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
+./../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION} -n ${GH_RELEASE_NAME}
