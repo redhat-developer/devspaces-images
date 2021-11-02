@@ -18,8 +18,8 @@ export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-38:1"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
-Example: $0 -v 2.y.0 -n plugin-java8-openj9
+Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
+Example: $0 -v 2.y.0 -n java8-openj9
 "
     exit
 }

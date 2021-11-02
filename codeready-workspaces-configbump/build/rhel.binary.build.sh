@@ -23,7 +23,7 @@ if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-b MIDSTM_BRANCH] [-ght GITHUB_TOKEN] -n [GITHUB_RELEASE_NAME]
+Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-ght GITHUB_TOKEN] -n [ASSET_NAME]
 Example: $0 -v 2.y.0 --noupload -n configbump
 "
     exit

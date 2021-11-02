@@ -20,8 +20,8 @@ export TYPESCRIPT_LS_VERSION=0.3.7  # find latest version: https://www.npmjs.com
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] -n [GITHUB_RELEASE_NAME]
-Example: $0 -v 2.y.0 -n plugin-java8-openj9
+Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
+Example: $0 -v 2.y.0 -n java8-openj9
 "
     exit
 }
