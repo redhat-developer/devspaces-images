@@ -53,25 +53,27 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
-UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}"
 
-#### override any existing tarballs with newer ones from Jenkins build
-log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
+	#### override any existing tarballs with newer ones from Jenkins build
+	log "[INFO] Download Assets:"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
-#get names of the downloaded tarballs
-theTarGzs="$(ls *.tar.gz)"
+	#get names of the downloaded tarballs
+	theTarGzs="$(ls *.tar.gz)"
 
-log "[INFO] Upload new sources:${theTarGzs}"
-rhpkg new-sources ${theTarGzs}
-log "[INFO] Commit new sources from:${theTarGzs}"
-COMMIT_MSG="Update from GitHub Releases:: ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
-if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
-	log "[INFO] No new sources, so nothing to build."
-elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-	log "[INFO] Push change:"
-	git pull; git push; git status -s || true
+	log "[INFO] Upload new sources:${theTarGzs}"
+	rhpkg new-sources ${theTarGzs}
+	log "[INFO] Commit new sources from:${theTarGzs}"
+	COMMIT_MSG="Update from GitHub Releases:: ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
+		log "[INFO] No new sources, so nothing to build."
+	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
+		log "[INFO] Push change:"
+		git pull; git push; git status -s || true
+	fi
 fi
+
 if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true

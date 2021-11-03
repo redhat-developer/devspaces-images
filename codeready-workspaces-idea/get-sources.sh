@@ -5,16 +5,16 @@ verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-# NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
+# NOTE: --pull-assets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
-pullAssets=0
+PULL_ASSETS=0
 
 idePackagingUrl=https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.3.tar.gz
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		'-p'|'--pull-assets') pullAssets=1; shift 0;;
+		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 		'-a'|'--publish-assets') exit 0; shift 0;;
 		'-d'|'--delete-assets') exit 0; shift 0;;
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
@@ -31,14 +31,8 @@ function log()
 	echo "$1"
 	fi
 }
-function logn()
-{
-	if [[ ${verbose} -gt 0 ]]; then
-	echo -n "$1"
-	fi
-}
 
-if [[ ${pullAssets} -eq 1 ]]; then
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
   JDK_VER="11"
   sudo yum -y install java-${JDK_VER}-openjdk java-${JDK_VER}-openjdk-devel
   export PATH="/usr/lib/jvm/java-${JDK_VER}-openjdk:/usr/bin:${PATH}"
@@ -67,7 +61,7 @@ if [[ ${pullAssets} -eq 1 ]]; then
   outputFiles="asset-ide-packaging.tar.gz asset-projector-server-assembly.zip asset-static-assembly.tar.gz"
 fi
 
-if [[ $(git diff-index HEAD --) ]] || [[ ${pullAssets} -eq 1 ]]; then
+if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	git add sources Dockerfile .gitignore || true
 	log "[INFO] Upload new sources: ${outputFiles}"
 	# shellcheck disable=SC2086

@@ -5,7 +5,7 @@ verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-# NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
+# NOTE: --pull-assets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
@@ -63,23 +63,26 @@ if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	exit 0;
 fi
 
-#### override any existing tarballs with newer ones from Jenkins build
-log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
+	#### override any existing tarballs with newer ones from Jenkins build
+	log "[INFO] Download Assets:"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
-#get names of the downloaded tarballs
-theTarGzs="$(ls *.tar.gz)"
+	#get names of the downloaded tarballs
+	theTarGzs="$(ls *.tar.gz)"
 
-log "[INFO] Upload new sources: ${theTarGzs}"
-rhpkg new-sources ${theTarGzs}
-log "[INFO] Commit new sources from:${theTarGzs}"
-COMMIT_MSG="GH releases :: ${theTarGzs}"
-if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
-	log "[INFO] No new sources, so nothing to build."
-elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-	log "[INFO] Push change:"
-	git pull; git push; git status -s || true
+	log "[INFO] Upload new sources: ${theTarGzs}"
+	rhpkg new-sources ${theTarGzs}
+	log "[INFO] Commit new sources from:${theTarGzs}"
+	COMMIT_MSG="GH releases :: ${theTarGzs}"
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+		log "[INFO] No new sources, so nothing to build."
+	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
+		log "[INFO] Push change:"
+		git pull; git push; git status -s || true
+	fi
 fi
+
 if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true

@@ -5,12 +5,12 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
-pullAssets=0
+PULL_ASSETS=0
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') pullAssets=1; shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-a'|'--publish-assets') exit 0; shift 0;;
 	'-d'|'--delete-assets') exit 0; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
@@ -24,12 +24,6 @@ function log()
 {
 	if [[ ${verbose} -gt 0 ]]; then
 	echo "$1"
-	fi
-}
-function logn()
-{
-	if [[ ${verbose} -gt 0 ]]; then
-	echo -n "$1"
 	fi
 }
 
@@ -58,7 +52,7 @@ sed Dockerfile \
 	> Dockerfile.2
 
 # pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${pullAssets} -eq 1 ]]; then
+if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz

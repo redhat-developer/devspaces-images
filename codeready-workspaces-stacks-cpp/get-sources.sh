@@ -1,10 +1,11 @@
 #!/bin/bash -xe
 # script to trigger rhpkg - no sources needed here
+PULL_ASSETS=0
 
 scratchFlag=""
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-	'-p'|'--pull-assets') shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-a'|'--publish-assets') exit 0; shift 0;;
 	'-d'|'--delete-assets') exit 0; shift 0;;
 	'-n'|'--nobuild') exit 0; shift 0;;

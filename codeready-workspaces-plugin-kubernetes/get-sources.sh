@@ -52,8 +52,6 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.6
-
 # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/crw-2-rhel-8/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 KAMEL_BUILDSH="https://github.com/redhat-developer/codeready-workspaces-deprecated/raw/$(git rev-parse --abbrev-ref HEAD)/kamel/build.sh"
 KAMEL_VERSION="$(curl -sSLo- ${KAMEL_BUILDSH} | grep "export KAMEL_VERSION" | sed -r -e 's#.+KAMEL_VERSION="(.+)"#\1#')"

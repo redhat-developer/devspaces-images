@@ -4,12 +4,12 @@
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-pullAssets=0
+PULL_ASSETS=0
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') pullAssets=1; shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-a'|'--publish-assets') exit 0; shift 0;;
 	'-d'|'--delete-assets') exit 0; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
@@ -39,7 +39,7 @@ sed Dockerfile \
 		-e "s#ODO_VERSION=\"\([^\"]\+\)\"#ODO_VERSION=\"${ODO_VERSION}\"#" \
 		> Dockerfile.2
 
-if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${pullAssets} -eq 1 ]]; then
+if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	mv -f Dockerfile.2 Dockerfile
 	mkdir -p x86_64 s390x ppc64le
 	curl -sSLo x86_64/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo

@@ -59,38 +59,41 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-#### override any existing tarballs with newer ones from Jenkins build
-log "[INFO] Download Assets:"
-./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
+	#### override any existing tarballs with newer ones from Jenkins build
+	log "[INFO] Download Assets:"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
-#get names of the downloaded tarballs
-theTarGzs="$(ls *.tar.gz)"
+	#get names of the downloaded tarballs
+	theTarGzs="$(ls *.tar.gz)"
 
-# update Dockerfile to record version we expect for MAVEN_VERSION
-sed Dockerfile \
-	-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
-	-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
-	> Dockerfile.2
+	# update Dockerfile to record version we expect for MAVEN_VERSION
+	sed Dockerfile \
+		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
+		-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
+		> Dockerfile.2
 
-# pull maven (if not present, or forced, or new version in dockerfile)
-if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
-	mv -f Dockerfile.2 Dockerfile
-	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-	curl -sSL -O https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+	# pull maven (if not present, or forced, or new version in dockerfile)
+	if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
+		mv -f Dockerfile.2 Dockerfile
+		curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+		curl -sSL -O https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+	fi
+	outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar ${theTarGzs}"
+
+
+	log "[INFO] Upload new sources:${theTarGzs}"
+	rhpkg new-sources ${theTarGzs}
+	log "[INFO] Commit new sources from:${theTarGzs}"
+	COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
+	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
+		log "[INFO] No new sources, so nothing to build."
+	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
+		log "[INFO] Push change:"
+		git pull; git push; git status -s || true
+	fi
 fi
-outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar ${theTarGzs}"
 
-
-log "[INFO] Upload new sources:${theTarGzs}"
-rhpkg new-sources ${theTarGzs}
-log "[INFO] Commit new sources from:${theTarGzs}"
-COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
-if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
-	log "[INFO] No new sources, so nothing to build."
-elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-	log "[INFO] Push change:"
-	git pull; git push; git status -s || true
-fi
 if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true
