@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM ubi8/python-38:1-71.1634036286 as builder
+FROM ubi8/python-38:1-74 as builder
 USER 0
 
 ARG BOOTSTRAP=false
@@ -60,7 +60,7 @@ RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
-FROM ubi8/httpd-24:1-156 AS registry
+FROM ubi8/httpd-24:1-160 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
