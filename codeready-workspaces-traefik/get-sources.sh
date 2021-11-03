@@ -64,7 +64,7 @@ if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 fi
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
-	#### override any existing tarballs with newer ones from Jenkins build
+	#### override any existing tarballs with newer ones from asset build
 	log "[INFO] Download Assets:"
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
@@ -74,7 +74,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Upload new sources: ${theTarGzs}"
 	rhpkg new-sources ${theTarGzs}
 	log "[INFO] Commit new sources from:${theTarGzs}"
-	COMMIT_MSG="GH releases :: ${theTarGzs}"
+	COMMIT_MSG="chore: update from GH ${ASSET_NAME} assets :: ${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

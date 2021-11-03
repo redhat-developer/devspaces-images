@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-# script to get tarball(s) from Jenkins, plus additional dependencies as needed
+# script to get tarball(s) from GitHub Releases, plus additional dependencies as needed
 verbose=1
 scratchFlag=""
 JOB_BRANCH=""
@@ -59,7 +59,7 @@ if [[ ! ${JOB_BRANCH} ]]; then
 fi
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
-	#### override any existing tarballs with newer ones from Jenkins build
+	#### override any existing tarballs with newer ones from asset build
 	log "[INFO] Download Assets:"
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
@@ -84,7 +84,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Upload new sources:${theTarGzs}"
 	rhpkg new-sources ${theTarGzs}
 	log "[INFO] Commit new sources from:${theTarGzs}"
-	COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${ASSET_NAME} Assets ::${theTarGzs}"
+	COMMIT_MSG="chore: update from GH ${ASSET_NAME} assets :: ${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
