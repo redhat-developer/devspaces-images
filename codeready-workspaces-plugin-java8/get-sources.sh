@@ -9,7 +9,6 @@ PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
 generateDockerfileLABELs=1
-UPSTREAM_JOB_NAME="crw-deprecated_${JOB_BRANCH}" # eg., 2.4
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.18"
@@ -85,7 +84,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Upload new sources:${theTarGzs}"
 	rhpkg new-sources ${theTarGzs}
 	log "[INFO] Commit new sources from:${theTarGzs}"
-	COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
+	COMMIT_MSG="Update from GitHub :: Maven ${MAVEN_VERSION} + ${ASSET_NAME} Assets ::${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

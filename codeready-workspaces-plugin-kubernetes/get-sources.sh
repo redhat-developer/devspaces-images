@@ -90,7 +90,7 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
-	COMMIT_MSG="Update from GitHub :: kamel ${KAMEL_VERSION} from ${UPSTREAM_JOB_NAME}
+	COMMIT_MSG="Update from GitHub :: kamel ${KAMEL_VERSION} from ${ASSET_NAME} Assets 
 :: ${outputFiles}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."

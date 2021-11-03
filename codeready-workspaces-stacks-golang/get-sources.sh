@@ -65,7 +65,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Upload new sources:${theTarGzs}"
 	rhpkg new-sources ${theTarGzs}
 	log "[INFO] Commit new sources from:${theTarGzs}"
-	COMMIT_MSG="Update from GitHub Releases:: ${UPSTREAM_JOB_NAME} ::${theTarGzs}"
+	COMMIT_MSG="Update from GitHub Releases:: ${ASSET_NAME} Assets ::${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
