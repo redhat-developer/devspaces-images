@@ -190,7 +190,7 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-98.1634036321 as runtime
+FROM ubi8/nodejs-12:1-101 as runtime
 USER 0
 RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
@@ -244,6 +244,7 @@ COPY asset-sshpass-sources.tar.gz /tmp/
 
 # Install sudo
 # Install git
+# Install git-lfs for Large File Storage
 # Install bzip2 to unpack files
 # Install which tool in order to search git
 # Install curl and bash
@@ -252,8 +253,8 @@ COPY asset-sshpass-sources.tar.gz /tmp/
 # Install sshpass for handling passwords for SSH keys
 # Install libsecret as Theia requires it
 # Install libsecret-devel on s390x and ppc64le for keytar build (binary included in npm package for x86)
-RUN yum install -y sudo git bzip2 which bash curl openssh less \
-    libsecret libsecret-devel \
+RUN LIBSECRET="libsecret libsecret-devel" \
+    && yum install -y $LIBSECRET sudo git git-lfs bzip2 which bash curl openssh less \
     && tar -xvf /tmp/asset-sshpass-sources.tar.gz -C /tmp/ && \
     cd /tmp/sshpass-*/ && ./configure && make install && cd .. && rm -rf *sshpass-* && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
@@ -280,6 +281,8 @@ RUN tar xzf /tmp/asset-yarn-runtime-image-$(uname -m).tar.gz -C / && \
     # Add yeoman, theia plugin & VS Code generator and typescript (to have tsc/typescript working)
     && yarn global add ${YARN_FLAGS} yo @theia/generator-plugin@0.0.1-1622834185 generator-code typescript@3.5.3 \
     && mkdir -p ${HOME}/.config/insight-nodejs/ \
+    # Copy the global git configuration to user config as global config is overwritten by a mounted file at runtime
+    && cp /etc/gitconfig ${HOME}/.gitconfig \
     && chmod -R 777 ${HOME}/.config/ \
     # Disable the statistics for yeoman
     && echo '{"optOut": true}' > $HOME/.config/insight-nodejs/insight-yo.json \
