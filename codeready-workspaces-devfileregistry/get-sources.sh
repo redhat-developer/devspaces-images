@@ -45,18 +45,11 @@ if [[ ${pullAssets} -eq 1 ]]; then
 	#
 
 	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
-	sed Dockerfile --regexp-extended \
-		-e 's|COPY (.*) resources.tgz (.*)|COPY \1 \2|' \
-		-e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=true|' \
-		-e 's|^ *COPY root-local.tgz|# &|' \
+	sed bootstrap.Dockerfile -i --regexp-extended \
 		`# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
 		-e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1-\2:\3#" \
 		`# replace ubi8-minimal:tag with reg-proxy/rh-osbs/ubi-minimal:tag` \
-		-e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#" \
-		-e 's|# (COPY .*content_sets.*)|\1|' \
-		`# disable swap images so we don't break x64 builds` \
-		-e 's|(RUN ./swap_images.sh.+)|# \1|' \
-		> bootstrap.Dockerfile
+		-e "s#^FROM ([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1:\2#"
 	echo "======= BOOTSTRAP DOCKERFILE =======>"
 	cat bootstrap.Dockerfile
 	echo "<======= BOOTSTRAP DOCKERFILE ======="
