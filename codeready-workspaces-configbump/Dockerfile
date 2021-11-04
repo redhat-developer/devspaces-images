@@ -28,19 +28,21 @@ USER appuser
 ENTRYPOINT ["/usr/local/bin/configbump"]
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces ${SYNC_REPO} container" \
-DESCRIPTION="Red Hat CodeReady Workspaces ${SYNC_REPO} container" \
-PRODNAME="codeready-workspaces" \
-COMPNAME="${SYNC_REPO}-rhel8" 
+
+ENV SUMMARY="Red Hat CodeReady Workspaces configbump container" \
+    DESCRIPTION="Red Hat CodeReady Workspaces configbump container" \
+    PRODNAME="codeready-workspaces" \
+    COMPNAME="configbump-rhel8" \
+
 LABEL summary="$SUMMARY" \
-description="$DESCRIPTION" \
-io.k8s.description="$DESCRIPTION" \
-io.k8s.display-name="$DESCRIPTION" \
-io.openshift.tags="$PRODNAME,$COMPNAME" \
-com.redhat.component="$PRODNAME-$COMPNAME-container" \
-name="$PRODNAME/$COMPNAME" \
-version="${CRW_VERSION}" \
-license="EPLv2" \
-maintainer="Nick Boldt <nboldt@redhat.com>" \
-io.openshift.expose-services="" \
-usage="" 
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$DESCRIPTION" \
+      io.openshift.tags="$PRODNAME,$COMPNAME" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
+      name="$PRODNAME/$COMPNAME" \
+      version="2.14" \
+      license="EPLv2" \
+      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
+      io.openshift.expose-services="" \
+      usage=""
