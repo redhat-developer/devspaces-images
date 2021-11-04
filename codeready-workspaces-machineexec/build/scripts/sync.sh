@@ -14,8 +14,6 @@
 
 set -e
 
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
-
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
@@ -34,9 +32,8 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
     '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
-    # paths to use for input and ouput
+    # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
     '--help'|'-h') usage;;
@@ -48,7 +45,7 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
-# global / generic changes
+# ignore changes in these files
 echo ".github/
 .git/
 .gitattributes
@@ -66,20 +63,21 @@ make-release.sh
 .dockerignore
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
 rm -f /tmp/rsync-excludes
 
 # ensure shell scripts are executable
-find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
+find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
 sed ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile -r \
-    `# Replace ubi8 with rhel8 version` \
-    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-    `# more replacements` \
-    -e "s#FROM registry.redhat.io/#FROM #g" \
-    -e "s#FROM registry.access.redhat.com/#FROM #g" \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
 > ${TARGETDIR}/Dockerfile
-cat << EOT >> ${TARGETDIR}/Dockerfile
+
+cat << EOT >> "${TARGETDIR}"/Dockerfile
+
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\

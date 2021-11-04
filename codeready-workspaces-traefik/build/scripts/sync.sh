@@ -106,11 +106,10 @@ cat << EOT >> "${TARGETDIR}"/Dockerfile
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    PRODNAME="codeready-workspaces" \\
-    COMPNAME="${MIDSTM_NAME}-rhel8" \\
     TRAEFIK_VERSION="${TRAEFIK_VERSION}" \\
-    GOLANG_VERSION="${GOLANG_VERSION}"
-
+    GOLANG_VERSION="${GOLANG_VERSION}" \\
+    PRODNAME="codeready-workspaces" \\
+    COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\
