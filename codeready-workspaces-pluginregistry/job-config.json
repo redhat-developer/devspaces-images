@@ -814,9 +814,19 @@
     }
   },
   "Other": {
+    "Errata": {
+      "2.12": "81387",
+      "2.13": "82818",
+      "2.x": ""
+    },
+    "Epic": {
+      "2.12": "CRW-2102",
+      "2.13": "CRW-2243",
+      "2.x": ""
+    },
     "FLOATING_QUAY_TAGS": {
-      "2.12": "latest",
-      "2.13": "next",
+      "2.12": "2.12",
+      "2.13": "latest",
       "2.x": "next"
     },
     "DEV_WORKSPACE_CONTROLLER_VERSION": {
@@ -835,8 +845,8 @@
     },
     "OPENSHIFT_CONTENT_SET_VERSION": {
       "2.12": "4.8",
-      "2.13": "4.8",
-      "2.x": "4.8"
+      "2.13": "4.9",
+      "2.x": "4.9"
     },
     "GOLANG_VERSION": {
       "2.12": "1.16.2",
