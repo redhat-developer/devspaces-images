@@ -1143,7 +1143,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:e400e95009d6c64656c0c8281bc5bc3de545bf46b268a48401c3baa18309fb3a
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:98bb9b185f591fc77b42796c4076d933988d38f6e3500bd2dbc60f9ffbb2d9af
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2685cdb4553afcf37c6e2507e8d579627356a0526fb0e9c03057d36b03c40edd
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2dfd60c60c775fee2c7a20c2e4d95be163587c233411232ca5bf6ea12ad8dcf3
                 - name: RELATED_IMAGE_devfile_registry
@@ -1185,7 +1185,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:d8b1ddd90c004bfdcf26042a3eb22a2881f6451a66a6adde543e7d98bf6f3f3d
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:4dd32e32dbdb1d36d076508babb9e7c58b3743adac38fe4443ed4fd865ffc4b3
+                  value: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:33349fcf78eafde62d09e4d4e1b8ed0217de7c0704d5dfd9180288af810ea9a5
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1541,7 +1541,7 @@ spec:
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:e400e95009d6c64656c0c8281bc5bc3de545bf46b268a48401c3baa18309fb3a
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:98bb9b185f591fc77b42796c4076d933988d38f6e3500bd2dbc60f9ffbb2d9af
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2685cdb4553afcf37c6e2507e8d579627356a0526fb0e9c03057d36b03c40edd
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2dfd60c60c775fee2c7a20c2e4d95be163587c233411232ca5bf6ea12ad8dcf3
   - name: devfile_registry
@@ -1583,4 +1583,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/codeready-workspaces/traefik-rhel8@sha256:d8b1ddd90c004bfdcf26042a3eb22a2881f6451a66a6adde543e7d98bf6f3f3d
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:4dd32e32dbdb1d36d076508babb9e7c58b3743adac38fe4443ed4fd865ffc4b3
+    image: registry.redhat.io/codeready-workspaces/configbump-rhel8@sha256:33349fcf78eafde62d09e4d4e1b8ed0217de7c0704d5dfd9180288af810ea9a5
