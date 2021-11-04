@@ -20,6 +20,23 @@ metadata:
       [
         {
           "apiVersion": "org.eclipse.che/v1",
+          "kind": "CheBackupServerConfiguration",
+          "metadata": {
+            "name": "eclipse-che-backup-server-configuration"
+          },
+          "spec": {
+            "awss3": {
+              "awsAccessKeySecretRef": "minio-credentials-secret",
+              "hostname": "minio.mydomain.net",
+              "port": 9000,
+              "protocol": "http",
+              "repositoryPasswordSecretRef": "secret-name",
+              "repositoryPath": "che-backups-bucket"
+            }
+          }
+        },
+        {
+          "apiVersion": "org.eclipse.che/v1",
           "kind": "CheCluster",
           "metadata": {
             "name": "codeready-workspaces"
@@ -71,13 +88,34 @@ metadata:
               "workspacePVCStorageClassName": ""
             }
           }
+        },
+        {
+          "apiVersion": "org.eclipse.che/v1",
+          "kind": "CheClusterBackup",
+          "metadata": {
+            "name": "eclipse-che-backup"
+          },
+          "spec": {
+            "backupServerConfigRef": "eclipse-che-backup-server-configuration",
+            "useInternalBackupServer": false
+          }
+        },
+        {
+          "apiVersion": "org.eclipse.che/v1",
+          "kind": "CheClusterRestore",
+          "metadata": {
+            "name": "eclipse-che-restore"
+          },
+          "spec": {
+            "backupServerConfigRef": "eclipse-che-backup-server-configuration"
+          }
         }
       ]
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.14
-    createdAt: "2021-11-04T13:11:10+00:00"
+    createdAt: "2021-11-04T14:02:43+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative
       k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
