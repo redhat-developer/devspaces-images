@@ -256,7 +256,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	fi
 
 	# Disable by default devWorkspace engine in `latest` channel
-	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations.\"alm-examples\"" "${CSVFILE}" | yq -r ".[0] | del(.spec.devWorkspace) | [.]"  | sed -r 's/"/\\"/g')
+	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations.\"alm-examples\" | fromjson | del(.[] | select(.kind == \"CheCluster\") | .spec.devWorkspace)" "${CSVFILE}" | sed -r 's/"/\\"/g')
 	yq -riY ".metadata.annotations[\"alm-examples\"] = \"${CSV_CR_SAMPLES}\"" ${CSVFILE}
 	yq -Yi '.spec.customresourcedefinitions.owned[] |= (select(.name == "checlusters.org.eclipse.che").specDescriptors += [{"path":"devWorkspace", "x-descriptors": ["urn:alm:descriptor:com.tectonic.ui:hidden"]}])' "${CSVFILE}"
 
