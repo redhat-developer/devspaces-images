@@ -5,10 +5,13 @@ verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-# NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
+# NOTE: --pull-assets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
-pullAssets=0
+PULL_ASSETS=0
+PUBLISH_ASSETS=0
+DELETE_ASSETS=0
+ASSET_NAME="traefik"
 
 # compute project name from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
@@ -25,12 +28,13 @@ CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/co
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		'-p'|'--pull-assets') pullAssets=1; shift 0;;
+		'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
+		'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 		'-v') CSV_VERSION="$2"; shift 1;;
-		'-b') MIDSTM_BRANCH="$2"; shift 1;;
 		'-ght') GITHUB_TOKEN="$2"; shift 1;;
 	esac
 	shift 1
@@ -42,46 +46,35 @@ function log()
 	echo "$1"
 	fi
 }
-function logn()
-{
-	if [[ ${verbose} -gt 0 ]]; then
-	echo -n "$1"
-	fi
-}
 
-curlWithToken()
-{
-  curl -sSL -H "Authorization:token ${GITHUB_TOKEN}" "$1" "$2" "$3"
-}
-
-# check if existing release exists
-releases_URL="https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
-# shellcheck disable=2086
-RELEASE_ID=$(curlWithToken -H "Accept: application/vnd.github.v3+json" $releases_URL | jq -r --arg CSV_VERSION "${CSV_VERSION}" --arg projectName "${projectName}" '.[] | select(.name=="Assets for the '$CSV_VERSION' '$projectName' release")|.url' || true); RELEASE_ID=${RELEASE_ID##*/}
-if [[ -z $RELEASE_ID ]]; then 
-	echo "ERROR: could not compute RELEASE_ID from which to collect assets! Check https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases"
-	exit 1
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 
-# get the public URLs for the tarball(s) from browser_download_url
-theTarGzs="$(curlWithToken https://api.github.com/repos/redhat-developer/codeready-workspaces-images/releases/${RELEASE_ID} | jq -r '.assets[].browser_download_url')"
+if [[ ${DELETE_ASSETS} -eq 1 ]]; then
+	log "[INFO] Delete Previous GitHub Releases:"
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}}
+	exit 0;
+fi
 
-#### override any existing tarballs with newer ones from Jenkins build
-for theTarGz in ${theTarGzs}; do
-	log "[INFO] Download ${theTarGz} -> ${theTarGz##*/}"
-	# TODO can we check if we already have the identical file before re-downloading it? eg., store sha512sums as assets files?
-	if [[ ! -f ./${theTarGz##*/} ]] || [[ ${pullAssets} -eq 1 ]]; then 
-		if [[ -f ./${theTarGz##*/} ]]; then rm -f ./${theTarGz##*/}; fi
-		curl -sSLo ./${theTarGz##*/} ${theTarGz}
-		outputFiles="${outputFiles} ${theTarGz##*/}"
-	fi
-done
+if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
+	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	./build/rhel.binary.build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+	exit 0;
+fi
 
-if [[ ${outputFiles} ]]; then
-	log "[INFO] Upload new sources: ${outputFiles}"
-	rhpkg new-sources ${outputFiles}
-	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="GH releases :: ${outputFiles}"
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
+	#### override any existing tarballs with newer ones from asset build
+	log "[INFO] Download Assets:"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+
+	#get names of the downloaded tarballs
+	theTarGzs="$(ls *.tar.gz)"
+
+	log "[INFO] Upload new sources: ${theTarGzs}"
+	rhpkg new-sources ${theTarGzs}
+	log "[INFO] Commit new sources from:${theTarGzs}"
+	COMMIT_MSG="chore: update from GH ${ASSET_NAME} assets :: ${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
@@ -99,7 +92,7 @@ if [[ ${outputFiles} ]]; then
 $ERRORS
 
 "; exit 1; fi
-	fi
+fi
 else
 	if [[ ${forceBuild} -eq 1 ]]; then
 		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"

@@ -4,21 +4,24 @@
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-pullAssets=0
+PULL_ASSETS=0
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	'-p'|'--pull-assets') pullAssets=1; shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+	'-a'|'--publish-assets') exit 0; shift 0;;
+	'-d'|'--delete-assets') exit 0; shift 0;;
+	'-v') CSV_VERSION="$2"; shift 1;;
 	esac
 	shift 1
 done
 
 outputFile="asset-server.tgz"
 rm -f $outputFile .repository/
-if [[ ${pullAssets} -eq 1 ]]; then
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	MVN_VER="3.6.3"
 	JDK_VER="11"
 	sudo yum -y install java-${JDK_VER}-openjdk java-${JDK_VER}-openjdk-devel
