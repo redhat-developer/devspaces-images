@@ -17,12 +17,13 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-SYNC_REPO="configbump"
+UPSTM_NAME="configbump"
+MIDSTM_NAME="configbump"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${SYNC_REPO}] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${SYNC_REPO} -t /tmp/${SYNC_REPO}"
+Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME}"
     exit
 }
 
@@ -30,7 +31,7 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') CRW_VERSION="$2"; shift 1;;
+    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
@@ -42,48 +43,59 @@ done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-if [[ "${CRW_VERSION}" == "2.y" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # ignore changes in these files
-echo ".github
+echo ".github/
+.git/
+.gitignore
+.dockerignore
+.semaphoreci
+.travis
+.travis.yaml
 .gitattributes
-" > /tmp/rsync-upstream-exclude
-#ignore files that are ONLY in downstream (not midstream or upstream)
-echo "sources
-get-sources-jenkins.sh
+build/
 tests/
+/container.yaml
 /content_sets.*
 /cvp.yml
 /cvp-owners.yml
-container.yaml
-.gitignore
-"> /tmp/rsync-brew-exclude
-
+get-source*.sh
+tests/basic-test.yaml
+sources
+make-release.sh
+rhel.Dockerfile
+" > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
-rsync -avhz --checksum --exclude-from /tmp/rsync-upstream-exclude --exclude-from /tmp/rsync-brew-exclude --exclude .git/ --exclude .github/ --exclude .gitignore "${SOURCEDIR}"/ "${TARGETDIR}"
+rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
+rm -f /tmp/rsync-excludes
 
-#copy build/dockerfiles/brew.Dockerfile to Dockerfile
-rsync -avhz --checksum "${SOURCEDIR}"/build/dockerfiles/brew.Dockerfile "${TARGETDIR}"/Dockerfile
+# ensure shell scripts are executable
+find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-rm -f /tmp/rsync-upstream-exclude /tmp/rsync-brew-exclude
+sed -r \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  "${SOURCEDIR}"/build/dockerfiles/brew.Dockerfile > "${TARGETDIR}"/Dockerfile
 
-#append brew metadata to brew.Dockerfile after copying to downstream
+cat << EOT >> "${TARGETDIR}"/Dockerfile
 
-METADATA='ENV SUMMARY="Red Hat CodeReady Workspaces ${SYNC_REPO} container" \\\r
-DESCRIPTION="Red Hat CodeReady Workspaces ${SYNC_REPO} container" \\\r
-PRODNAME="codeready-workspaces" \\\r
-COMPNAME="${SYNC_REPO}-rhel8" \r
-LABEL summary="$SUMMARY" \\\r
-description="$DESCRIPTION" \\\r
-io.k8s.description="$DESCRIPTION" \\\r
-io.k8s.display-name="$DESCRIPTION" \\\r
-io.openshift.tags="$PRODNAME,$COMPNAME" \\\r
-com.redhat.component="$PRODNAME-$COMPNAME-container" \\\r
-name="$PRODNAME/$COMPNAME" \\\r
-version="${CRW_VERSION}" \\\r
-license="EPLv2" \\\r
-maintainer="Nick Boldt <nboldt@redhat.com>" \\\r
-io.openshift.expose-services="" \\\r
-usage="" \r'
-echo -e "$METADATA" >> $TARGETDIR/Dockerfile
+ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
+    PRODNAME="codeready-workspaces" \\
+    COMPNAME="${MIDSTM_NAME}-rhel8" \\
+
+LABEL summary="\$SUMMARY" \\
+      description="\$DESCRIPTION" \\
+      io.k8s.description="\$DESCRIPTION" \\
+      io.k8s.display-name="\$DESCRIPTION" \\
+      io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
+      com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
+      name="\$PRODNAME/\$COMPNAME" \\
+      version="${CRW_VERSION}" \\
+      license="EPLv2" \\
+      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
+      io.openshift.expose-services="" \\
+      usage=""
+EOT
 echo "Converted Dockerfile"
