@@ -34,8 +34,9 @@ for (JB in JOB_BRANCHES) {
 
                 disableResumeJobProperty()
                 disableConcurrentBuildsJobProperty()
-                quietPeriod(30) // no more than one build every 30s
             }
+
+            quietPeriod(28800) // limit builds to 1 every 8 hrs (in sec)
 
             logRotator {
                 daysToKeep(5)

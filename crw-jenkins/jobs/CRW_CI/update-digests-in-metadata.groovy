@@ -59,9 +59,8 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
                 maxPerNode(1)
                 maxTotal(1)
             }
-
-            // limit builds to 1 every 2 hrs
-            quietPeriod(7200) // in sec
+            
+            quietPeriod(14400) // limit builds to 1 every 4 hrs (in sec)
 
             logRotator {
                 daysToKeep(5)

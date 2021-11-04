@@ -73,8 +73,7 @@ Artifact builder + sync job; triggers brew after syncing
                 disableResumeJobProperty()
             }
 
-            // limit builds to 1 every 20 min
-            quietPeriod(1200) // in sec
+            quietPeriod(3600) // limit builds to 1 every 1h (in sec)
 
             logRotator {
                 daysToKeep(5)

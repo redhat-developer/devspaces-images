@@ -23,8 +23,7 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         maxTotal(1)
     }
 
-    // limit builds to 1 every 2 hrs
-    quietPeriod(7200) // in sec
+    quietPeriod(86400) // limit builds to 1 every 24 hrs (in sec)
 
     logRotator {
         daysToKeep(5)

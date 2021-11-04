@@ -25,7 +25,11 @@ for (JB in JOB_BRANCHES) {
             disabled(config."Jobs"."build-all-images"[JB].disabled) 
 
             description('''
-This job is meant to be used to orchestrate rebuilding everything in CRW after a major branch update (7.yy.x -> 7.zz.x) or for global CVE updates.
+<p>Since this build depends on multiple upstream repos (eclipse theia, che-theia), this build is configured 
+to trigger weekly on ''' + (JOB_BRANCH.equals("2.x") ? "Sundays" : "Saturdays") + '''.
+<p>
+This job is meant to be used to orchestrate rebuilding everything in CRW after a major branch update (7.yy.x -> 7.yy+1.x) or 
+for global CVE updates.
 <p>Do not abuse this job!
             ''')
 
@@ -37,7 +41,8 @@ This job is meant to be used to orchestrate rebuilding everything in CRW after a
                 pipelineTriggers {
                     triggers{
                         cron {
-                            spec ('H 23 * * 5') // every Friday night at 23:HH
+                            // 2.x: Sun at 23:HH; 2.yy: Sat
+                            spec(JOB_BRANCH.equals("2.x") ? "H H * * 0" : "H H * * 6") 
                         }
                     }
                 }
@@ -45,6 +50,8 @@ This job is meant to be used to orchestrate rebuilding everything in CRW after a
                 disableResumeJobProperty()
                 disableConcurrentBuildsJobProperty()
             }
+
+            quietPeriod(86400) // limit builds to 1 every 24 hrs (in sec)
 
             logRotator {
                 daysToKeep(5)

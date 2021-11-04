@@ -44,6 +44,9 @@ for (JB in JOB_BRANCHES) {
             }
 
             description('''
+<p>Since this build depends on multiple upstream repos (eclipse theia, che-theia), this build is configured 
+to only poll scm weekly on ''' + (JOB_BRANCH.equals("2.x") ? "Tues/Thurs" : "Thurs") + ''' to avoid nuissance respins.
+<p>
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
 
@@ -83,20 +86,22 @@ Results:
                 pipelineTriggers {
                     triggers{
                         pollSCM{
-                            scmpoll_spec("H H * * *") // every 24hrs
+                            // 2.x: Tues/Thurs; 2.yy: Thurs only
+                            scmpoll_spec(JOB_BRANCH.equals("2.x") ? "H H * * 2,4" : "H H * * 4") 
                         }
                     }
                 }
 
                 disableResumeJobProperty()
                 disableConcurrentBuildsJobProperty()
-                quietPeriod(30) // no more than one build every 30s
             }
 
             throttleConcurrentBuilds {
                 maxPerNode(1)
                 maxTotal(1)
             }
+
+            quietPeriod(28800) // limit builds to 1 every 8 hrs (in sec)
 
             logRotator {
                 daysToKeep(5)

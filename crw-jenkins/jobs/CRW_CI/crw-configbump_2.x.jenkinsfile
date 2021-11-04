@@ -15,9 +15,8 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-// TODO should this be on rhel83 instead?
-// Nodes to run artifact build on ex. ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
-def List nodeLabelsMultiArch = ['rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+// Nodes to run artifact build on ex. ['rhel83', 's390x-rhel8', 'ppc64le-rhel8']
+def List nodeLabelsMultiArch = ['rhel83', 's390x-rhel8', 'ppc64le-rhel8']
 def Map tasks = [failFast: false]
 
 def String nodeLabelAnyArch = "rhel8||rhel83||s390x-rhel8||ppc64le-rhel8"

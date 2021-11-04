@@ -65,8 +65,9 @@ Lang server dependency builder
 
                 disableResumeJobProperty()
                 disableConcurrentBuildsJobProperty()
-                quietPeriod(30) // no more than one build every 30s
             }
+
+            quietPeriod(3600) // limit builds to 1 every 1h (in sec)
 
             logRotator {
                 daysToKeep(5)

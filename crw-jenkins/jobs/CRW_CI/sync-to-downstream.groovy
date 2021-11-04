@@ -68,8 +68,10 @@ codeready-workspaces-stacks-dotnet,
 codeready-workspaces-stacks-golang, 
 codeready-workspaces-stacks-php''')
                 stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
+                stringParam("OPENSHIFT_CONTENT_SET_VERSION", config.Other.OPENSHIFT_CONTENT_SET_VERSION[JB])
                 stringParam("nodeVersion", "", "Leave blank if not needed")
                 stringParam("yarnVersion", "", "Leave blank if not needed")
+                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for hub install")
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
