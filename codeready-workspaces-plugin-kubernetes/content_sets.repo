@@ -16,9 +16,9 @@ baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/oc
 enabled=1
 gpgcheck=0
 
-[rhocp-4.8-for-rhel-8-rpms]
-name=rhocp-4.8-for-rhel-8-rpms
-baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/rhocp/4.8/os/
+[rhocp-4.9-for-rhel-8-rpms]
+name=rhocp-4.9-for-rhel-8-rpms
+baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/rhocp/4.9/os/
 enabled=1
 gpgcheck=0
 
