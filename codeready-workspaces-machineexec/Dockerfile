@@ -30,6 +30,7 @@ USER unprivilegeduser
 ENTRYPOINT ["/go/bin/che-machine-exec"]
 
 # append Brew metadata here
+
 ENV SUMMARY="Red Hat CodeReady Workspaces machineexec container" \
     DESCRIPTION="Red Hat CodeReady Workspaces machineexec container" \
     PRODNAME="codeready-workspaces" \
