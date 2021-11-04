@@ -73,7 +73,7 @@ Artifact builder + sync job; triggers brew after syncing
                 // pipelineTriggers {
                 //     triggers{
                 //         pollSCM{
-                //             scmpoll_spec("H H/8 * * *") // every 8hrs
+                //             scmpoll_spec("H H * * *") // every 24hrs
                 //         }
                 //     }
                 // }

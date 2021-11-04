@@ -67,7 +67,7 @@ Results: <a href=http://quay.io/crw/machinexec-rhel8>quay.io/crw/machinexec-rhel
                 pipelineTriggers {
                     triggers{
                         pollSCM{
-                            scmpoll_spec("H H/24 * * *") // every 24hrs
+                            scmpoll_spec("H H * * *") // every 24hrs
                         }
                     }
                 }

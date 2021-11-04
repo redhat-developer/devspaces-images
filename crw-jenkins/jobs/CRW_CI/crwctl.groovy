@@ -79,7 +79,7 @@ $➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+''
                 pipelineTriggers {
                     triggers{
                         pollSCM{
-                            scmpoll_spec("H H/3 * * *") // every 3hrs
+                            scmpoll_spec("H H/6 * * *") // every 6hrs
                         }
                     }
                 }
