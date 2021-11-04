@@ -105,8 +105,8 @@ spec:
               value: quay.io/eclipse/che-java11-maven@sha256:cc9e3cb0b00357ed118c130ce9f8e8e4724c718f8e2a1bd294f81696116d7b32
             - name: RELATED_IMAGE_che_java8_maven_devfile_registry_image_MNSTANJSGZTA____
               value: quay.io/eclipse/che-java8-maven@sha256:efff1c6b997cc14099173b3a7e94e700afcde3b246822888955f9e637aefcbdb
-            - name: RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJSGU3DUZBSGNRTKZLFG44TENDFG4YTCNLFGU2WINRTGM4WKOBZGQ2TIZLFHFRWINBTGFTGIYRUGEZTEYJWMI3TEYJTMUZTGOBQMYZTCNBWGQZA____
-              value: quay.io/eclipse/che-machine-exec@sha256:d23c5ee7924e7115e55d6339e89454ee9cd431fdb4132a6b72a3e3380f314642
+            - name: RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJSGU3DUNLBMM3DEMJUMQZDGMLEGY2DAOJZG42TGYZRGMYTIMZZGI3DQMBRGBSTGNTFGIZTCYZYHA2TCOJZGE4DMOBXMRRDOYLFMY2TGYLGMRRQ____
+              value: quay.io/eclipse/che-machine-exec@sha256:5ac6214d231d64099753c131439268010e36e231c88519918687db7aef53afdc
             - name: RELATED_IMAGE_che_nodejs10_community_devfile_registry_image_MNSTANJSGZTA____
               value: quay.io/eclipse/che-nodejs10-community@sha256:6ce1df02636cb02b4c07947a99cb75538b7a04a7a578d3941878d46f496c57c4
             - name: RELATED_IMAGE_che_nodejs10_ubi_devfile_registry_image_MNSTANJSGZTA____
@@ -181,10 +181,10 @@ spec:
               value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.13
             - name: RELATED_IMAGE_che_sidecar_workspace_data_sync_plugin_registry_image_IBZWQYJSGU3DUOBYMQYDCMRVHAZTOZBVME2TOY3CGI2GEYRTMVSDQMLFGZQTQZRUGEYTSYJVGA2DGYRXHEZDMYTEGJRGIMBRG4YTAOBVGRRTINDGGEYA____
               value: quay.io/eclipse/che-sidecar-workspace-data-sync@sha256:88d0125837d5a57cb24bb3ed81e6a8f4119a5043b7926bd2bd01710854c44f10
-            - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUMJWHA3GIYZZGE2DSOJZHE2DQYZSMEZTSMJWMMYDSZDBME4TOZBTGFSWCYRQMQ4TQOBZMEYTSYZQG4ZGIOLEMIYWCYTEHE3DINBZME3A____
-              value: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:1686dc914999948c2a3916c09daa97d31eab0d9889a19c072d9db1abd96449a6
-            - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUNLBMRRWCNBYMU4TOMRVHE4DEZRRGBTDENDBGIZWCN3BMNRWKYZRGZRTEY3GMM4DKZBSMU3TGMZWHEYDSYZSGI4WINLDGA2DEMDGGVTA____
-              value: quay.io/eclipse/che-theia@sha256:5adca48e9725982f10f24a23a7accec16c2cfc85d2e7336909c229d5c0420f5f
+            - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUOJSGMYWKNLEGNRDMZJQG43WCZTDGU2TIZJSGY2TIODBGMYWMM3CMU2GEYZVGFSGGYRYMYYTANJXMI3WCMJXGBSWKMZUGE3DMY3EGFSA____
+              value: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:9231e5d3b6e077afc554e26548a31f3be4bc51dcb8f1057b7a170ee34166cd1d
+            - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUNZYGM3GKN3DGI4DMZBYGM2TMNLCMY4DOZBQHBRDQOBTMI4DSNLFGM2TCZRSME4GEMJYMI3GIYZTGY2DCMDCME2GEOBYHE2TEMTBMY2A____
+              value: quay.io/eclipse/che-theia@sha256:7836e7c286d83565bf87d08b883b895e351f2a8b18b6dc36410ba4b889522af4
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
               value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.13
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
