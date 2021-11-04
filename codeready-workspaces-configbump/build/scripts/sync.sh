@@ -17,6 +17,7 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+
 UPSTM_NAME="configbump"
 MIDSTM_NAME="configbump"
 
@@ -35,7 +36,6 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    # special params for this sync
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -83,8 +83,7 @@ cat << EOT >> "${TARGETDIR}"/Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
-    COMPNAME="${MIDSTM_NAME}-rhel8" \\
-
+    COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\
