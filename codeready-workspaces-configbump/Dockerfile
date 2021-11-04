@@ -32,7 +32,7 @@ ENTRYPOINT ["/usr/local/bin/configbump"]
 ENV SUMMARY="Red Hat CodeReady Workspaces configbump container" \
     DESCRIPTION="Red Hat CodeReady Workspaces configbump container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="configbump-rhel8" \
+    COMPNAME="configbump-rhel8"
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
