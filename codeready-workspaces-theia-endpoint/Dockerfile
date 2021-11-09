@@ -71,6 +71,7 @@ LABEL summary="$SUMMARY" \
 
 # Setup extra stuff
 # curl already installed in ubi8
+RUN microdnf install -y python38 jq && pip3 install yq
 
 COPY --from=builder /home/theia/plugin-remote-endpoint /plugin-remote-endpoint
 
