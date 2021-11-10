@@ -41,13 +41,6 @@ timeout(600) {
                     def List PHASE_LIST = PHASES.tokenize(" ").collect { it.trim() }
 
                     if (PHASE_LIST.contains("1")) {
-                        // rebuild lang server artifacts
-                        currentJob="crw-deprecated_" + JOB_BRANCH
-                        lastBuildId = util.runJob(jenkinsPath + currentJob, true) // DO wait for this to finish, eg., #6
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId}>${currentJob}#${lastBuildId}</a>"
-                    }
-
-                    if (PHASE_LIST.contains("2")) {
                         // all the sidecars - start this early since it's 10 builds
                         currentJob="sync-to-downstream_" + JOB_BRANCH
                         lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this set of 10 builds to finish
@@ -56,7 +49,7 @@ timeout(600) {
 
                     currentQuayImageTheia=""
                     currentQuayImageTheiaEndpoint=""
-                    if (PHASE_LIST.contains("3")) {
+                    if (PHASE_LIST.contains("2")) {
                         // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
                         currentJob="crw-theia-sources_" + JOB_BRANCH
                         currentQuayImageTheia = util.getLatestImageAndTag("crw/theia-rhel8", "quay")
@@ -66,7 +59,7 @@ timeout(600) {
                         lastBuildId = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                     }
 
-                    if (PHASE_LIST.contains("4")) {
+                    if (PHASE_LIST.contains("3")) {
                         def jobsList = [
                             "backup":"backup-rhel8",
                             "configbump":"configbump-rhel8",
@@ -107,7 +100,7 @@ timeout(600) {
                         parallel(tasks)
                     }
 
-                    if (PHASE_LIST.contains("3")) {
+                    if (PHASE_LIST.contains("2")) {
                         // wait until theia is rebuilt too
                         if (!util.waitForNewQuayImage("crw/theia-rhel8", currentQuayImageTheia)) {
                             currentBuild.result = 'FAILED'
@@ -121,7 +114,7 @@ timeout(600) {
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId}>crw-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId}</a>"
                     }
 
-                    if (PHASE_LIST.contains("5")) {
+                    if (PHASE_LIST.contains("4")) {
                         currentQuayImageMetadata = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-metadata", "quay")
                         println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
 

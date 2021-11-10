@@ -39,8 +39,7 @@ timeout(90) {
                     util.installYq()
                     util.installBrewKoji()
 
-                    withCredentials([string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
-                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+                    withCredentials([file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
                         util.bootstrap(CRW_KEYTAB)
 
                         sh (
@@ -50,12 +49,6 @@ timeout(90) {
                         def NEW_NVR = ""
                         parallel copy_to_quay: {
                             def statusCode = sh(script: '''#!/bin/bash -xe
-QUAY_REGISTRY="quay.io/crw/"
-QUAY_USER="crw+crwci"
-
-echo "[INFO]: Log into quay.io..."
-echo "${QUAY_TOKEN}" | docker login -u="${QUAY_USER}" --password-stdin ${QUAY_REGISTRY}
-
 echo " ########################################### "
 echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
 echo " ########################################### "
