@@ -105,8 +105,8 @@ spec:
               value: quay.io/eclipse/che-java11-maven@sha256:cc9e3cb0b00357ed118c130ce9f8e8e4724c718f8e2a1bd294f81696116d7b32
             - name: RELATED_IMAGE_che_java8_maven_devfile_registry_image_MNSTANJSGZTA____
               value: quay.io/eclipse/che-java8-maven@sha256:efff1c6b997cc14099173b3a7e94e700afcde3b246822888955f9e637aefcbdb
-            - name: RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJSGU3DUNLBMM3DEMJUMQZDGMLEGY2DAOJZG42TGYZRGMYTIMZZGI3DQMBRGBSTGNTFGIZTCYZYHA2TCOJZGE4DMOBXMRRDOYLFMY2TGYLGMRRQ____
-              value: quay.io/eclipse/che-machine-exec@sha256:5ac6214d231d64099753c131439268010e36e231c88519918687db7aef53afdc
+            - name: RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJSGU3DUY3CGE4GMMLEMIYGMOJRHFSGIZRSMM2DOM3EG43WMZBUGE2WMZRVGQYGKMRRGVSGIMZWMQ2GMYJYHA3WGNZZG43DCOBSGI2WMYRTMI2Q____
+              value: quay.io/eclipse/che-machine-exec@sha256:cb18f1db0f919ddf2c473d77fd415ff540e215dd36d4fa887c797618225fb3b5
             - name: RELATED_IMAGE_che_nodejs10_community_devfile_registry_image_MNSTANJSGZTA____
               value: quay.io/eclipse/che-nodejs10-community@sha256:6ce1df02636cb02b4c07947a99cb75538b7a04a7a578d3941878d46f496c57c4
             - name: RELATED_IMAGE_che_nodejs10_ubi_devfile_registry_image_MNSTANJSGZTA____
@@ -181,10 +181,10 @@ spec:
               value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.13
             - name: RELATED_IMAGE_che_sidecar_workspace_data_sync_plugin_registry_image_IBZWQYJSGU3DUOBYMQYDCMRVHAZTOZBVME2TOY3CGI2GEYRTMVSDQMLFGZQTQZRUGEYTSYJVGA2DGYRXHEZDMYTEGJRGIMBRG4YTAOBVGRRTINDGGEYA____
               value: quay.io/eclipse/che-sidecar-workspace-data-sync@sha256:88d0125837d5a57cb24bb3ed81e6a8f4119a5043b7926bd2bd01710854c44f10
-            - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUOJSGMYWKNLEGNRDMZJQG43WCZTDGU2TIZJSGY2TIODBGMYWMM3CMU2GEYZVGFSGGYRYMYYTANJXMI3WCMJXGBSWKMZUGE3DMY3EGFSA____
-              value: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:9231e5d3b6e077afc554e26548a31f3be4bc51dcb8f1057b7a170ee34166cd1d
-            - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUNZYGM3GKN3DGI4DMZBYGM2TMNLCMY4DOZBQHBRDQOBTMI4DSNLFGM2TCZRSME4GEMJYMI3GIYZTGY2DCMDCME2GEOBYHE2TEMTBMY2A____
-              value: quay.io/eclipse/che-theia@sha256:7836e7c286d83565bf87d08b883b895e351f2a8b18b6dc36410ba4b889522af4
+            - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUYJUHE3TKYJTMM2DQOLGG5TGENZYGE2DIZLGMQZDEMJSHBQTQMTFHBSGGNRXMJTDIZDFGFTDSZJZMY2WMNTDG4ZDSOBUMUZWIODDGA3A____
+              value: quay.io/eclipse/che-theia-endpoint-runtime-binary@sha256:a4975a3c489f7fb78144efd22128a82e8dc67bf4de1f9e9f5f6c72984e3d8c06
+            - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUYJSGIYDSMZYGAYDMMBZGM2TIYZWGJQTGNDCGI4DENRYGI4TMNBTGA4TSNTGGNQWMZBZGZSDOZTCGQYDIMDGMI2GEMRZGQYGGYRUME3A____
+              value: quay.io/eclipse/che-theia@sha256:a22093800609354c62a34b28268296430996f3afd96d7fb4040fb4b2940cb4a6
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
               value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.13
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
@@ -208,11 +208,11 @@ spec:
             - name: RELATED_IMAGE_internal_rest_backup_server
               value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.13
             - name: RELATED_IMAGE_keycloak
-              value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:7.5
+              value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
             - name: RELATED_IMAGE_keycloak_ppc64le
-              value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8:7.5
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
             - name: RELATED_IMAGE_keycloak_s390x
-              value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8:7.5
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
             - name: RELATED_IMAGE_mta_vscode_extension_plugin_registry_image_IBZWQYJSGU3DUOJUMJQTAMZSMYZTONJRHE2GCNLDHE3GIODDMFTGMMLEHFSDIZBQMVSTEZBTGE4TSYLBGEYTQNBTMNQWGNDBMMZTKNBWMEZDOMJRMI2Q____
               value: quay.io/windupeng/mta-vscode-extension@sha256:94ba032f375194a5c96d8caff1d9d4d0ee2d3199aa11843cac4ac3546a2711b5
             - name: RELATED_IMAGE_plugin_registry
@@ -230,7 +230,7 @@ spec:
             - name: RELATED_IMAGE_ubi8_minimal_devfile_registry_image_HAXDG___
               value: registry.access.redhat.com/ubi8-minimal@sha256:2f6b88c037c0503da7704bccd3fc73cb76324101af39ad28f16460e7bce98324
             - name: RELATED_IMAGE_ubi_minimal_devfile_registry_image_
-              value: registry.access.redhat.com/ubi8/ubi-minimal@sha256:54ef2173bba7384dc7609e8affbae1c36f8a3ec137cacc0866116d65dd4b9afe
+              value: registry.access.redhat.com/ubi8/ubi-minimal@sha256:c536d4c63253318fdfc1db499f8f4bb0881db7fbd6f3d1554b4d54c812f85cc7
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
