@@ -25,4 +25,8 @@ if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && sudo -n true > /de
     sudo chown "${USER_ID}:${GROUP_ID}" /projects
 fi
 
+if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
+  ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+fi
+
 exec "$@"

@@ -51,7 +51,7 @@ RUN microdnf install -y bash tar gzip which dnf openshift-clients-4.9.0-20210910
 ADD etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+CMD tail -f /dev/null
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - Openshift plugin container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - Openshift plugin container" \

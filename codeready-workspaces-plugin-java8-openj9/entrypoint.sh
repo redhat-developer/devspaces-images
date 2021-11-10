@@ -37,4 +37,8 @@ fi
 # shellcheck source=/dev/null
 source "${HOME}"/.venv/bin/activate
 
+if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
+  ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+fi
+
 exec "$@"
