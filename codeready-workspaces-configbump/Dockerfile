@@ -13,7 +13,7 @@
 # assumes you have created asset-*.tar.gz files for all arches, but you'll only unpack the one for your arch
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.4-212
+FROM ubi8-minimal:8.5-204
 COPY asset-*.tar.gz /tmp/assets/
 RUN microdnf -y install tar gzip shadow-utils && \
     adduser appuser && \
@@ -33,7 +33,6 @@ ENV SUMMARY="Red Hat CodeReady Workspaces configbump container" \
     DESCRIPTION="Red Hat CodeReady Workspaces configbump container" \
     PRODNAME="codeready-workspaces" \
     COMPNAME="configbump-rhel8"
-
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
