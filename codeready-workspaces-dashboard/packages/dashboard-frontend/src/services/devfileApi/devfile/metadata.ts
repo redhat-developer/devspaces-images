@@ -12,8 +12,7 @@
 
 import { V220DevfileMetadata } from '@devfile/api';
 
-export type DevfileMetadataLike = V220DevfileMetadata &
-{
+export type DevfileMetadataLike = V220DevfileMetadata & {
   namespace?: string;
 };
 

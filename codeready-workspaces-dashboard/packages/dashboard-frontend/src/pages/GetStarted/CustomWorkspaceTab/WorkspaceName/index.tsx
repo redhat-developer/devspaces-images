@@ -23,7 +23,8 @@ const DEFAULT_PLACEHOLDER = 'Enter a workspace name';
 const ERROR_REQUIRED_VALUE = 'A value is required.';
 const ERROR_MIN_LENGTH = `The name has to be at least ${MIN_LENGTH} characters long.`;
 const ERROR_MAX_LENGTH = `The name is too long. The maximum length is ${MAX_LENGTH} characters.`;
-const ERROR_PATTERN_MISMATCH = 'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
+const ERROR_PATTERN_MISMATCH =
+  'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
 
 type Props = {
   generateName?: string;
@@ -41,7 +42,6 @@ type State = {
 };
 
 export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -156,5 +156,4 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
       </FormGroup>
     );
   }
-
 }

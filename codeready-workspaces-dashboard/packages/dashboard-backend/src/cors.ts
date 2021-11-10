@@ -14,14 +14,23 @@ import fastifyCors from 'fastify-cors';
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from 'fastify';
 
 export function registerCors(isLocalRun: boolean, server: FastifyInstance) {
-  server.register(fastifyCors, () => (req: FastifyRequest, callback: (error: Error | null, options: FastifyPluginOptions) => unknown) => {
-    // disable cors checks on when running locally
-    const corsOptions = isLocalRun ? {
-      origin: false
-    } : {
-      origin: [process.env.CHE_HOST],
-      methods: ['GET', 'POST', 'PATCH', 'DELETE']
-    };
-    callback(null, corsOptions);
-  });
+  server.register(
+    fastifyCors,
+    () =>
+      (
+        req: FastifyRequest,
+        callback: (error: Error | null, options: FastifyPluginOptions) => unknown,
+      ) => {
+        // disable cors checks on when running locally
+        const corsOptions = isLocalRun
+          ? {
+              origin: false,
+            }
+          : {
+              origin: [process.env.CHE_HOST],
+              methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+            };
+        callback(null, corsOptions);
+      },
+  );
 }

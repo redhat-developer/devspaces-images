@@ -19,7 +19,10 @@ import { SamplesListHeader } from './SamplesListHeader';
 import SamplesListToolbar from './SamplesListToolbar';
 import SamplesListGallery from './SamplesListGallery';
 import { selectIsLoading } from '../../../store/Workspaces/selectors';
-import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
+import {
+  selectPreferredStorageType,
+  selectWorkspacesSettings,
+} from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
 import { updateDevfile } from '../../../services/storageTypes';
 import stringify from '../../../services/helpers/editor';
@@ -29,11 +32,14 @@ import { Devfile } from '../../../services/workspace-adapter';
 
 // At runtime, Redux will merge together...
 type Props = {
-  onDevfile: (devfileContent: string, stackName: string, optionalFilesContent?: {
-    [fileName: string]: string
-  }) => Promise<void>;
-}
-  & MappedProps;
+  onDevfile: (
+    devfileContent: string,
+    stackName: string,
+    optionalFilesContent?: {
+      [fileName: string]: string;
+    },
+  ) => Promise<void>;
+} & MappedProps;
 type State = {
   temporary?: boolean;
   persistVolumesDefault: string;
@@ -45,11 +51,13 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const persistVolumesDefault = this.props.preferredStorageType === 'ephemeral' ? 'false'
-      : this.props.workspacesSettings['che.workspace.persist_volumes.default'];
+    const persistVolumesDefault =
+      this.props.preferredStorageType === 'ephemeral'
+        ? 'false'
+        : this.props.workspacesSettings['che.workspace.persist_volumes.default'];
 
     this.state = {
-      persistVolumesDefault
+      persistVolumesDefault,
     };
     this.isLoading = false;
   }
@@ -58,7 +66,11 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     this.setState({ temporary });
   }
 
-  private async handleSampleCardClick(devfileContent: string, stackName: string, optionalFilesContent?: { [fileName: string]: string }): Promise<void> {
+  private async handleSampleCardClick(
+    devfileContent: string,
+    stackName: string,
+    optionalFilesContent?: { [fileName: string]: string },
+  ): Promise<void> {
     if (this.isLoading) {
       return;
     }
@@ -67,7 +79,10 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     if (this.state.temporary === undefined) {
       devfile = updateDevfile(devfile, this.props.preferredStorageType);
     } else if (this.props.preferredStorageType === 'async') {
-      devfile = updateDevfile(devfile, this.state.temporary ? 'ephemeral' : this.props.preferredStorageType);
+      devfile = updateDevfile(
+        devfile,
+        this.state.temporary ? 'ephemeral' : this.props.preferredStorageType,
+      );
     } else {
       devfile = updateDevfile(devfile, this.state.temporary ? 'ephemeral' : 'persistent');
     }
@@ -85,7 +100,11 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     const updatedDevfile = updateDevfile(devfile, this.props.preferredStorageType);
     const devfileContent = stringify(updatedDevfile);
 
-    return this.props.onDevfile(devfileContent, stackName, resolverState.optionalFilesContent || {});
+    return this.props.onDevfile(
+      devfileContent,
+      stackName,
+      resolverState.optionalFilesContent || {},
+    );
   }
 
   public render(): React.ReactElement {
@@ -94,13 +113,12 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     return (
       <>
         <CheProgress isLoading={isLoading} />
-        <PageSection
-          variant={PageSectionVariants.default}
-          style={{ background: '#f0f0f0' }}
-        >
+        <PageSection variant={PageSectionVariants.default} style={{ background: '#f0f0f0' }}>
           <PageSection variant={PageSectionVariants.light}>
             <ImportFromGit
-              onDevfileResolve={(resolverState, location) => this.handleDevfileResolver(resolverState, location)}
+              onDevfileResolve={(resolverState, location) =>
+                this.handleDevfileResolver(resolverState, location)
+              }
             />
           </PageSection>
           <PageSection
@@ -112,12 +130,19 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
                 <SamplesListHeader />
               </FlexItem>
               <FlexItem grow={{ default: 'grow' }} spacer={{ default: 'spacerLg' }}>
-                <SamplesListToolbar persistVolumesDefault={this.state.persistVolumesDefault}
-                  onTemporaryStorageChange={temporary => this.handleTemporaryStorageChange(temporary)} />
+                <SamplesListToolbar
+                  persistVolumesDefault={this.state.persistVolumesDefault}
+                  onTemporaryStorageChange={temporary =>
+                    this.handleTemporaryStorageChange(temporary)
+                  }
+                />
               </FlexItem>
             </Flex>
             <SamplesListGallery
-              onCardClick={(devfileContent, stackName, optionalFilesContent) => this.handleSampleCardClick(devfileContent, stackName, optionalFilesContent)} />
+              onCardClick={(devfileContent, stackName, optionalFilesContent) =>
+                this.handleSampleCardClick(devfileContent, stackName, optionalFilesContent)
+              }
+            />
           </PageSection>
         </PageSection>
       </>
@@ -131,8 +156,6 @@ const mapStateToProps = (state: AppState) => ({
   preferredStorageType: selectPreferredStorageType(state),
 });
 
-const connector = connect(
-  mapStateToProps
-);
+const connector = connect(mapStateToProps);
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(SamplesListTab);

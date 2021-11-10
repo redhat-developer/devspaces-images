@@ -32,42 +32,49 @@ interface RequestUserPreferencesAction {
 
 interface ReceiveUserPreferencesAction {
   type: 'RECEIVE_USER_PREFERENCES';
-  preferences: che.UserPreferences
+  preferences: che.UserPreferences;
 }
 
-type KnownAction = RequestUserPreferencesAction
-  | ReceiveUserPreferencesAction;
+type KnownAction = RequestUserPreferencesAction | ReceiveUserPreferencesAction;
 
 export type ActionCreators = {
   requestUserPreferences: (filter: string | undefined) => AppThunk<KnownAction, Promise<void>>;
-  replaceUserPreferences: (preferences: che.UserPreferences) => AppThunk<KnownAction, Promise<void>>;
+  replaceUserPreferences: (
+    preferences: che.UserPreferences,
+  ) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
-  requestUserPreferences: (filter: string | undefined): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'REQUEST_USER_PREFERENCES' });
+  requestUserPreferences:
+    (filter: string | undefined): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_USER_PREFERENCES' });
 
-    try {
-      const data = await WorkspaceClient.restApiClient.getUserPreferences(filter);
-      dispatch({ type: 'RECEIVE_USER_PREFERENCES', preferences: data });
-      return;
-    } catch (e) {
-      const errorMessage = 'Failed to request user preferences, reason: ' + common.helpers.errors.getMessage(e);
-      throw new Error(errorMessage);
-    }
-  },
-  replaceUserPreferences: (preferences: che.UserPreferences): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'REQUEST_USER_PREFERENCES' });
+      try {
+        const data = await WorkspaceClient.restApiClient.getUserPreferences(filter);
+        dispatch({ type: 'RECEIVE_USER_PREFERENCES', preferences: data });
+        return;
+      } catch (e) {
+        const errorMessage =
+          'Failed to request user preferences, reason: ' + common.helpers.errors.getMessage(e);
+        throw new Error(errorMessage);
+      }
+    },
+  replaceUserPreferences:
+    (preferences: che.UserPreferences): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_USER_PREFERENCES' });
 
-    try {
-      await WorkspaceClient.restApiClient.replaceUserPreferences(preferences);
-      dispatch({ type: 'RECEIVE_USER_PREFERENCES', preferences });
-      return;
-    } catch (e) {
-      const errorMessage = 'Failed to update user preferences, reason: ' + common.helpers.errors.getMessage(e);
-      throw new Error(errorMessage);
-    }
-  }
+      try {
+        await WorkspaceClient.restApiClient.replaceUserPreferences(preferences);
+        dispatch({ type: 'RECEIVE_USER_PREFERENCES', preferences });
+        return;
+      } catch (e) {
+        const errorMessage =
+          'Failed to update user preferences, reason: ' + common.helpers.errors.getMessage(e);
+        throw new Error(errorMessage);
+      }
+    },
 };
 
 const unloadedState: State = {
@@ -75,7 +82,10 @@ const unloadedState: State = {
   isLoading: false,
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
@@ -89,7 +99,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
     case 'RECEIVE_USER_PREFERENCES':
       return createObject(state, {
         isLoading: false,
-        preferences: action.preferences
+        preferences: action.preferences,
       });
     default:
       return state;

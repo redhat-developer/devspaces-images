@@ -17,17 +17,12 @@ import mockMetadata from '../../../__tests__/devfileMetadata.json';
 import { DevfileSelect } from '../DevfileSelect';
 
 describe('Infrastructure Namespace Select', () => {
-
   const mockOnClear = jest.fn();
   const mockOnSelect = jest.fn();
 
   function renderSelect(): RenderResult {
     return render(
-      <DevfileSelect
-        metadata={mockMetadata}
-        onClear={mockOnClear}
-        onSelect={mockOnSelect}
-      />
+      <DevfileSelect metadata={mockMetadata} onClear={mockOnClear} onSelect={mockOnSelect} />,
     );
   }
 
@@ -36,8 +31,12 @@ describe('Infrastructure Namespace Select', () => {
   beforeEach(() => {
     renderSelect();
 
-    selectTextbox = screen.getByRole('textbox', { name: /Select a devfile template/ }) as HTMLInputElement;
-    selectToggleButton = screen.getByRole('button', { name: /Select a devfile template/ }) as HTMLButtonElement;
+    selectTextbox = screen.getByRole('textbox', {
+      name: /Select a devfile template/,
+    }) as HTMLInputElement;
+    selectToggleButton = screen.getByRole('button', {
+      name: /Select a devfile template/,
+    }) as HTMLButtonElement;
   });
 
   afterEach(() => {
@@ -61,7 +60,6 @@ describe('Infrastructure Namespace Select', () => {
   });
 
   describe('filtering templates', () => {
-
     let filterClearButton: HTMLButtonElement;
     beforeEach(async () => {
       /* type into filter field */
@@ -102,7 +100,5 @@ describe('Infrastructure Namespace Select', () => {
       const filteredOptions = screen.getAllByRole('option');
       expect(filteredOptions.length).toEqual(mockMetadata.length);
     });
-
   });
-
 });

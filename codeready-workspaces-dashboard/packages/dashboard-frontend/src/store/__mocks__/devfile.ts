@@ -11,11 +11,10 @@
  */
 
 export class DevfileBuilder {
-
   private devfile: che.WorkspaceDevfile = {
     apiVersion: '1.0.0',
     metadata: {
-      generateName: 'stub-devfile-'
+      generateName: 'stub-devfile-',
     },
   } as che.WorkspaceDevfile;
 
@@ -48,5 +47,4 @@ export class DevfileBuilder {
   public build(): che.WorkspaceDevfile {
     return this.devfile;
   }
-
 }

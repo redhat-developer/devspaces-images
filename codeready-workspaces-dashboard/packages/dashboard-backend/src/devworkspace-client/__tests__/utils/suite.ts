@@ -10,20 +10,30 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export function conditionalTest(testName: string, testCondition: () => boolean | Promise<boolean>, testCallback: (done: jest.DoneCallback) => void | Promise<void>, timeout: number): void {
-    it(testName, async (done) => {
-        const evaluatedCondition = await testCondition();
-        if (evaluatedCondition) {
-            testCallback(done);
-        } else {
-            console.warn(`${testName} was skipped`);
-            done();
-        }
-    }, timeout);
+export function conditionalTest(
+  testName: string,
+  testCondition: () => boolean | Promise<boolean>,
+  testCallback: (done: jest.DoneCallback) => void | Promise<void>,
+  timeout: number,
+): void {
+  it(
+    testName,
+    async done => {
+      const evaluatedCondition = await testCondition();
+      if (evaluatedCondition) {
+        testCallback(done);
+      } else {
+        console.warn(`${testName} was skipped`);
+        done();
+      }
+    },
+    timeout,
+  );
 }
 
 export const INTEGRATION_TEST_ENV = 'INTEGRATION_TESTS';
-export const isIntegrationTestEnabled = () => INTEGRATION_TEST_ENV in process.env && process.env[INTEGRATION_TEST_ENV] === 'true';
+export const isIntegrationTestEnabled = () =>
+  INTEGRATION_TEST_ENV in process.env && process.env[INTEGRATION_TEST_ENV] === 'true';
 
 export async function delay(ms = 500): Promise<void> {
   await new Promise<void>(resolve => setTimeout(resolve, ms));

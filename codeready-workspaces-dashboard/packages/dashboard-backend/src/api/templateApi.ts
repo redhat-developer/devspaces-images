@@ -25,7 +25,7 @@ export function registerTemplateApi(server: FastifyInstance) {
     getSchema({
       tags,
       params: namespacedSchema,
-      body: templateStartedSchema
+      body: templateStartedSchema,
     }),
     async function (request: FastifyRequest) {
       const { template } = request.body as restParams.ITemplateBodyParam;
@@ -36,6 +36,6 @@ export function registerTemplateApi(server: FastifyInstance) {
       template.metadata.namespace = namespace;
       const { templateApi } = await getDevWorkspaceClient(request);
       return templateApi.create(template);
-    }
+    },
   );
 }

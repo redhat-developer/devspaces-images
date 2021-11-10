@@ -39,7 +39,7 @@ class SubscriptionManager {
         this.namespaceData = undefined;
         // code 1011: Internal Error
         this.subscriber.close(1011, error);
-      }
+      },
     };
   }
 
@@ -53,7 +53,10 @@ class SubscriptionManager {
     }
   }
 
-  subscribe(channel: string, data: { token: string, namespace: string, resourceVersion: string }): void {
+  subscribe(
+    channel: string,
+    data: { token: string; namespace: string; resourceVersion: string },
+  ): void {
     if (this.channels.indexOf(channel) === -1) {
       this.channels.push(channel);
     }
@@ -77,7 +80,6 @@ class SubscriptionManager {
       this.subscriber.send(JSON.stringify({ message, channel }));
     }
   }
-
 }
 
 export default SubscriptionManager;

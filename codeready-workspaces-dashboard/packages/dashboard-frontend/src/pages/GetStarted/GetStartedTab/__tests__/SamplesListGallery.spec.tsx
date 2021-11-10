@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { Store } from 'redux';
-import { render, screen, RenderResult, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, RenderResult, fireEvent } from '@testing-library/react';
 import mockAxios from 'axios';
 import SamplesListGallery from '../SamplesListGallery';
 import { Provider } from 'react-redux';
@@ -26,21 +26,25 @@ const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../../../store/FactoryResolver', () => {
   return {
     actionCreators: {
-      requestFactoryResolver: (location: string, overrideParams?: {
-        [params: string]: string
-      }) => async (): Promise<void> => {
-        if (!overrideParams) {
-          requestFactoryResolverMock(location);
-        } else {
-          requestFactoryResolverMock(location, overrideParams);
-        }
-      }
-    }
+      requestFactoryResolver:
+        (
+          location: string,
+          overrideParams?: {
+            [params: string]: string;
+          },
+        ) =>
+        async (): Promise<void> => {
+          if (!overrideParams) {
+            requestFactoryResolverMock(location);
+          } else {
+            requestFactoryResolverMock(location, overrideParams);
+          }
+        },
+    },
   };
 });
 
 describe('Samples List Gallery', () => {
-
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -52,12 +56,12 @@ describe('Samples List Gallery', () => {
 
   function renderGallery(
     store: Store,
-    onCardClicked: () => void = (): void => undefined
+    onCardClicked: () => void = (): void => undefined,
   ): RenderResult {
     return render(
       <Provider store={store}>
         <SamplesListGallery onCardClick={onCardClicked} />
-      </Provider>
+      </Provider>,
     );
   }
 
@@ -78,15 +82,13 @@ describe('Samples List Gallery', () => {
     const cards = screen.getAllByRole('article');
     // only one link is with devfile v2 format
     expect(cards.length).toEqual(1);
-
   });
 
   it('should handle "onCardClick" event', async () => {
-
     let resolveFn: {
       (value?: unknown): void;
     };
-    const onCardClickedPromise = new Promise(resolve => resolveFn = resolve);
+    const onCardClickedPromise = new Promise(resolve => (resolveFn = resolve));
     const onCardClicked = jest.fn(() => resolveFn());
 
     // eslint-disable-next-line
@@ -102,11 +104,9 @@ describe('Samples List Gallery', () => {
 
     await onCardClickedPromise;
     expect(onCardClicked).toHaveBeenCalled();
-
   });
 
   it('should handle "onCardClick" event for v2 metadata', async () => {
-
     let resolveFn: {
       (value?: unknown): void;
     };
@@ -124,7 +124,6 @@ describe('Samples List Gallery', () => {
     fireEvent.click(cardHeader);
     jest.runOnlyPendingTimers();
     expect(windowSpy).toBeCalledWith('http://localhost/#http://my-fake-repository.com/', '_blank');
-
   });
 
   it('should render empty state', () => {
@@ -135,7 +134,6 @@ describe('Samples List Gallery', () => {
     const emptyStateTitle = screen.getByRole('heading', { name: 'No results found' });
     expect(emptyStateTitle).toBeTruthy();
   });
-
 });
 
 function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?: boolean): Store {
@@ -152,8 +150,8 @@ function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?:
   return new FakeStoreBuilder()
     .withBranding({
       docs: {
-        storageTypes: 'https://docs.location'
-      }
+        storageTypes: 'https://docs.location',
+      },
     } as BrandingData)
     .withWorkspacesSettings(workspaceSettings as WorkspaceSettings)
     .withFactoryResolver({
@@ -163,9 +161,9 @@ function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?:
       location: 'http://fake-location',
       scm_info: {
         clone_url: 'http://github.com/clone-url',
-        scm_provider: 'github'
+        scm_provider: 'github',
       },
-      links: []
+      links: [],
     })
     .withDevfileRegistries({ registries })
     .build();

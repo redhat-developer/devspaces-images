@@ -20,14 +20,11 @@ import { selectInfrastructureNamespaces } from '../../../../store/Infrastructure
 
 import styles from './index.module.css';
 
-type Props =
-  MappedProps
-  & {
-    onChange: (namespace: che.KubernetesNamespace) => void;
-  };
+type Props = MappedProps & {
+  onChange: (namespace: che.KubernetesNamespace) => void;
+};
 
 export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props> {
-
   private namespaces: che.KubernetesNamespace[];
   private fieldId = 'infrastructure-namespace';
 
@@ -44,8 +41,7 @@ export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props>
     }
 
     if (namespaces.length === 1) {
-      const name = this.namespaces[0].attributes.displayName
-        || this.namespaces[0].name;
+      const name = this.namespaces[0].attributes.displayName || this.namespaces[0].name;
       return (
         <TextInput
           aria-describedby="infrastructure-namespace-helper"
@@ -78,17 +74,13 @@ export class InfrastructureNamespaceFormGroup extends React.PureComponent<Props>
         labelIcon={
           <Tooltip
             isContentLeftAligned
-            content={
-              <div>The infrastructure namespace where the workspace will be created.</div>
-            }
+            content={<div>The infrastructure namespace where the workspace will be created.</div>}
           >
             <QuestionCircleIcon />
           </Tooltip>
         }
       >
-        <div className={styles.namespaceSelector}>
-          {infrastructureNamespaces}
-        </div>
+        <div className={styles.namespaceSelector}>{infrastructureNamespaces}</div>
       </FormGroup>
     );
   }
@@ -98,9 +90,7 @@ const mapStateToProps = (state: AppState) => ({
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
 });
 
-const connector = connect(
-  mapStateToProps
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(InfrastructureNamespaceFormGroup);

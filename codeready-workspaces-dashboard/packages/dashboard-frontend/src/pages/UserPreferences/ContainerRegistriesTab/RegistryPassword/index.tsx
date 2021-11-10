@@ -12,7 +12,13 @@
 
 import React from 'react';
 import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
-import { Button, FormGroup, InputGroupText, TextInput, ValidatedOptions } from '@patternfly/react-core';
+import {
+  Button,
+  FormGroup,
+  InputGroupText,
+  TextInput,
+  ValidatedOptions,
+} from '@patternfly/react-core';
 
 const MAX_LENGTH = 10000;
 const ERROR_REQUIRED_VALUE = 'A value is required.';
@@ -31,7 +37,6 @@ type State = {
 };
 
 export class RegistryPasswordFormGroup extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -62,7 +67,7 @@ export class RegistryPasswordFormGroup extends React.PureComponent<Props, State>
     }
   }
 
-  private validate(password: string): { valid: ValidatedOptions; errorMessage?: string; } {
+  private validate(password: string): { valid: ValidatedOptions; errorMessage?: string } {
     if (password.length === 0) {
       return {
         errorMessage: ERROR_REQUIRED_VALUE,
@@ -103,12 +108,15 @@ export class RegistryPasswordFormGroup extends React.PureComponent<Props, State>
             validated={valid}
             onChange={_password => this.onChange(_password)}
           />
-          <Button variant="control" aria-label="show" onClick={() => this.setState({ isHidden: !isHidden })}>
-            {isHidden ? (<EyeSlashIcon />) : (<EyeIcon />)}
+          <Button
+            variant="control"
+            aria-label="show"
+            onClick={() => this.setState({ isHidden: !isHidden })}
+          >
+            {isHidden ? <EyeSlashIcon /> : <EyeIcon />}
           </Button>
         </InputGroupText>
       </FormGroup>
     );
   }
-
 }

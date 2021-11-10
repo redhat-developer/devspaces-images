@@ -30,11 +30,7 @@ import {
   buildWorkspacesLocation,
   toHref,
 } from '../../services/helpers/location';
-import {
-  IdeLoaderTab,
-  WorkspaceAction,
-  WorkspaceDetailsTab
-} from '../../services/helpers/types';
+import { IdeLoaderTab, WorkspaceAction, WorkspaceDetailsTab } from '../../services/helpers/types';
 import { AppState } from '../../store';
 import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 import * as WorkspacesStore from '../../store/Workspaces';
@@ -47,11 +43,9 @@ import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 type Deferred = {
   resolve: () => void;
   reject: () => void;
-}
+};
 
-type Props = MappedProps
-& { history: History }
-& {
+type Props = MappedProps & { history: History } & {
   children: React.ReactElement;
 };
 
@@ -64,7 +58,6 @@ type State = {
 };
 
 export class WorkspaceActionsProvider extends React.Component<Props, State> {
-
   @lazyInject(AppAlerts)
   private appAlerts: AppAlerts;
 
@@ -77,7 +70,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
       toDelete: [],
       wantDelete: [],
       isOpen: false,
-      isConfirmed: false
+      isConfirmed: false,
     };
   }
 
@@ -118,21 +111,18 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
     }
 
     switch (action) {
-      case WorkspaceAction.OPEN_IDE:
-        {
-          return this.handleLocation(buildIdeLoaderLocation(workspace), workspace);
-        }
-      case WorkspaceAction.EDIT_WORKSPACE:
-        {
-          return buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
-        }
-      case WorkspaceAction.START_DEBUG_AND_OPEN_LOGS:
-        {
-          await this.props.startWorkspace(workspace, {
-            'debug-workspace-start': true
-          });
-          return this.handleLocation(buildIdeLoaderLocation(workspace, IdeLoaderTab.Logs), workspace);
-        }
+      case WorkspaceAction.OPEN_IDE: {
+        return this.handleLocation(buildIdeLoaderLocation(workspace), workspace);
+      }
+      case WorkspaceAction.EDIT_WORKSPACE: {
+        return buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
+      }
+      case WorkspaceAction.START_DEBUG_AND_OPEN_LOGS: {
+        await this.props.startWorkspace(workspace, {
+          'debug-workspace-start': true,
+        });
+        return this.handleLocation(buildIdeLoaderLocation(workspace, IdeLoaderTab.Logs), workspace);
+      }
       case WorkspaceAction.START_IN_BACKGROUND:
         {
           await this.props.startWorkspace(workspace);
@@ -242,9 +232,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
 
     const body = (
       <TextContent>
-        <Text component={TextVariants.p}>
-          {confirmationText}
-        </Text>
+        <Text component={TextVariants.p}>{confirmationText}</Text>
         <Checkbox
           style={{ margin: '0 0 0 0.4rem' }}
           data-testid="confirmation-checkbox"
@@ -309,17 +297,13 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
       </WorkspaceActionsContext.Provider>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  WorkspacesStore.actionCreators,
-);
+const connector = connect(mapStateToProps, WorkspacesStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(WorkspaceActionsProvider);

@@ -67,8 +67,8 @@ export default class DevfileEditor extends React.PureComponent<Props, State> {
     };
 
     return (
-      <div className='devfile-editor'>
-        <div className='monaco'>
+      <div className="devfile-editor">
+        <div className="monaco">
           <textarea
             id="devfile-editor"
             onChange={onChange}
@@ -76,8 +76,10 @@ export default class DevfileEditor extends React.PureComponent<Props, State> {
             value={content}
           ></textarea>
         </div>
-        <div className='error'></div>
-        <a target='_blank' rel='noopener noreferrer'>Devfile Documentation</a>
+        <div className="error"></div>
+        <a target="_blank" rel="noopener noreferrer">
+          Devfile Documentation
+        </a>
       </div>
     );
   }
@@ -85,5 +87,4 @@ export default class DevfileEditor extends React.PureComponent<Props, State> {
   private onChange(newValue: string, isValid: boolean): void {
     this.props.onChange(newValue, isValid);
   }
-
 }

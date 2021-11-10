@@ -10,7 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export function mergeLogs(mapA: Map<string, string[]>, mapB: Map<string, string[]>): Map<string, string[]> {
+export function mergeLogs(
+  mapA: Map<string, string[]>,
+  mapB: Map<string, string[]>,
+): Map<string, string[]> {
   if (!mapA.size) {
     return mapB;
   }
@@ -37,4 +40,3 @@ export function deleteLogs(map: Map<string, string[]>, key: string): Map<string,
   cloned.delete(key);
   return cloned;
 }
-

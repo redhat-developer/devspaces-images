@@ -18,7 +18,7 @@ export const CHE_DEVFILE_STUB: che.WorkspaceDevfile = {
   apiVersion: '1.0.0',
   metadata: {
     name: 'wksp-' + getRandomString(4),
-  }
+  },
 } as che.WorkspaceDevfile;
 
 export const CHE_RUNTIME_STUB: che.WorkspaceRuntime = {
@@ -44,7 +44,6 @@ export const CHE_RUNTIME_STUB: che.WorkspaceRuntime = {
 };
 
 export class CheWorkspaceBuilder {
-
   private workspace: che.Workspace = {
     id: getRandomString(4),
     status: WorkspaceStatus.STOPPED,

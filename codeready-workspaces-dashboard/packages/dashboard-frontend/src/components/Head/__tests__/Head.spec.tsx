@@ -26,18 +26,27 @@ jest.mock('react-helmet', () => {
 });
 
 describe('The head component for setting document title', () => {
-  const store = new FakeStoreBuilder().withBranding({ title: 'Dummy product title' } as BrandingData).build();
+  const store = new FakeStoreBuilder()
+    .withBranding({ title: 'Dummy product title' } as BrandingData)
+    .build();
 
   it('should render default title correctly', () => {
-    const element = (<Provider store={store}><Head /></Provider>);
+    const element = (
+      <Provider store={store}>
+        <Head />
+      </Provider>
+    );
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });
 
   it('should render Quick Add page title correctly', () => {
-    const element = (<Provider store={store}><Head pageName="Quick Add" /></Provider>);
+    const element = (
+      <Provider store={store}>
+        <Head pageName="Quick Add" />
+      </Provider>
+    );
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });
-
 });

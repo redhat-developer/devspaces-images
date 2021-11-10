@@ -138,13 +138,13 @@
 | [`@octokit/plugin-enterprise-rest@6.0.1`](https://github.com/octokit/plugin-enterprise-rest.js.git) | MIT | clearlydefined |
 | [`@octokit/plugin-paginate-rest@2.16.0`](https://github.com/octokit/plugin-paginate-rest.js.git) | MIT | #1193 |
 | [`@octokit/plugin-request-log@1.0.4`](https://github.com/octokit/plugin-request-log.js.git) | MIT | clearlydefined |
-| [`@octokit/plugin-rest-endpoint-methods@5.10.1`](https://github.com/octokit/plugin-rest-endpoint-methods.js.git) | MIT | clearlydefined |
+| [`@octokit/plugin-rest-endpoint-methods@5.10.1`](https://github.com/octokit/plugin-rest-endpoint-methods.js.git) | MIT | #1365 |
 | [`@octokit/request-error@2.1.0`](https://github.com/octokit/request-error.js.git) | MIT | clearlydefined |
 | [`@octokit/request@5.6.1`](https://github.com/octokit/request.js.git) | MIT | clearlydefined |
 | [`@octokit/rest@18.10.0`](https://github.com/octokit/rest.js.git) | MIT | clearlydefined |
-| [`@octokit/types@6.27.0`](https://github.com/octokit/types.ts.git) | MIT | clearlydefined |
+| [`@octokit/types@6.27.0`](https://github.com/octokit/types.ts.git) | MIT | #1330 |
 | [`@sinonjs/commons@1.8.3`](git+https://github.com/sinonjs/commons.git) | BSD-3-Clause | clearlydefined |
-| [`@sinonjs/fake-timers@6.0.1`](http://github.com/sinonjs/fake-timers.git) | BSD-3-Clause | clearlydefined |
+| [`@sinonjs/fake-timers@6.0.1`](http://github.com/sinonjs/fake-timers.git) | BSD-3-Clause | #1348 |
 | [`@stylelint/postcss-css-in-js@0.37.2`](https://github.com/stylelint/postcss-css-in-js.git) | MIT | clearlydefined |
 | [`@stylelint/postcss-markdown@0.36.2`](https://github.com/stylelint/postcss-markdown.git) | MIT | clearlydefined |
 | [`@testing-library/dom@7.31.2`](https://github.com/testing-library/dom-testing-library) | MIT | clearlydefined |
@@ -413,7 +413,7 @@
 | [`crypto-random-string@2.0.0`](https://github.com/sindresorhus/crypto-random-string.git) | MIT | clearlydefined |
 | [`css-loader@3.6.0`](https://github.com/webpack-contrib/css-loader.git) | MIT | clearlydefined |
 | [`css-parse@2.0.0`](https://github.com/reworkcss/css-parse.git) | MIT | clearlydefined |
-| [`css-select@4.1.3`](git://github.com/fb55/css-select.git) | BSD-2-Clause | clearlydefined |
+| [`css-select@4.1.3`](git://github.com/fb55/css-select.git) | BSD-2-Clause | #1332 |
 | [`css-what@5.0.1`](https://github.com/fb55/css-what) | BSD-2-Clause | clearlydefined |
 | [`css.escape@1.5.1`](https://github.com/mathiasbynens/CSS.escape.git) | MIT | clearlydefined |
 | [`css@3.0.0`](https://github.com/reworkcss/css.git) | MIT | clearlydefined |
@@ -481,8 +481,10 @@
 | [`escalade@3.1.1`](https://github.com/lukeed/escalade.git) | MIT | clearlydefined |
 | [`escape-goat@2.1.1`](https://github.com/sindresorhus/escape-goat.git) | MIT | clearlydefined |
 | [`escodegen@2.0.0`](http://github.com/estools/escodegen.git) | BSD-2-Clause | clearlydefined |
+| [`eslint-config-prettier@8.3.0`](https://github.com/prettier/eslint-config-prettier.git) | MIT | clearlydefined |
 | [`eslint-loader@4.0.2`](https://github.com/webpack-contrib/eslint-loader.git) | MIT | clearlydefined |
 | [`eslint-plugin-notice@0.9.10`](https://github.com/nickdeis/eslint-plugin-notice) | MIT | clearlydefined |
+| [`eslint-plugin-prettier@4.0.0`](git+https://github.com/prettier/eslint-plugin-prettier.git) | MIT | clearlydefined |
 | [`eslint-plugin-react-hooks@4.2.0`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`eslint-plugin-react@7.26.0`](https://github.com/yannickcr/eslint-plugin-react) | MIT | #1216 |
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
@@ -506,6 +508,7 @@
 | [`extend-shallow@2.0.1`](https://github.com/jonschlinkert/extend-shallow.git) | MIT | clearlydefined |
 | [`external-editor@3.1.0`](git+https://github.com/mrkmg/node-external-editor.git) | MIT | clearlydefined |
 | [`extglob@2.0.4`](https://github.com/micromatch/extglob.git) | MIT | clearlydefined |
+| [`fast-diff@1.2.0`](https://github.com/jhchen/fast-diff) | Apache-2.0 | clearlydefined |
 | [`fast-glob@3.2.7`](https://github.com/mrmlnc/fast-glob.git) | MIT | clearlydefined |
 | [`fast-levenshtein@2.0.6`](https://github.com/hiddentao/fast-levenshtein.git) | MIT | clearlydefined |
 | [`fastest-levenshtein@1.0.12`](git+https://github.com/ka-weihe/fastest-levenshtein.git) | MIT | clearlydefined |
@@ -732,7 +735,7 @@
 | [`longest-streak@2.0.4`](https://github.com/wooorm/longest-streak.git) | MIT | clearlydefined |
 | [`loud-rejection@1.6.0`](https://github.com/sindresorhus/loud-rejection.git) | MIT | clearlydefined |
 | [`lower-case@2.0.2`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
-| [`lz-string@1.4.4`](https://github.com/pieroxy/lz-string.git) | WTFPL |  |
+| [`lz-string@1.4.4`](https://github.com/pieroxy/lz-string.git) | WTFPL | #1378 |
 | [`make-dir@3.1.0`](https://github.com/sindresorhus/make-dir.git) | MIT | clearlydefined |
 | [`make-fetch-happen@9.1.0`](https://github.com/npm/make-fetch-happen) | ISC | #1194 |
 | [`makeerror@1.0.11`](https://github.com/daaku/nodejs-makeerror) | BSD-3-Clause | clearlydefined |
@@ -898,6 +901,8 @@
 | [`poststylus@1.0.1`](https://github.com/seaneking/poststylus.git) | MIT | clearlydefined |
 | [`prelude-ls@1.1.2`](git://github.com/gkz/prelude-ls.git) | MIT | clearlydefined |
 | [`prepend-http@2.0.0`](https://github.com/sindresorhus/prepend-http.git) | MIT | clearlydefined |
+| [`prettier-linter-helpers@1.0.0`](git+https://github.com/prettier/prettier-linter-helpers.git) | MIT | clearlydefined |
+| [`prettier@2.4.1`](https://github.com/prettier/prettier.git) | MIT |  |
 | [`pretty-error@2.1.2`](https://github.com/AriaMinaei/pretty-error.git) | MIT | clearlydefined |
 | [`pretty-format@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`process-nextick-args@2.0.1`](https://github.com/calvinmetcalf/process-nextick-args.git) | MIT | clearlydefined |
@@ -1086,7 +1091,7 @@
 | [`type-detect@4.0.8`](git+ssh://git@github.com/chaijs/type-detect.git) | MIT | clearlydefined |
 | [`type-is@1.6.18`](https://github.com/jshttp/type-is.git) | MIT | clearlydefined |
 | [`typedarray@0.0.6`](git://github.com/substack/typedarray.git) | MIT | clearlydefined |
-| [`typescript@4.4.2`](https://github.com/Microsoft/TypeScript.git) | Apache-2.0 |  |
+| [`typescript@4.4.2`](https://github.com/Microsoft/TypeScript.git) | Apache-2.0 | #1354 |
 | [`uglify-js@3.14.2`](https://github.com/mishoo/UglifyJS.git) | BSD-2-Clause | clearlydefined |
 | [`uid-number@0.0.6`](git://github.com/isaacs/uid-number.git) | ISC | clearlydefined |
 | [`umask@1.1.0`](https://github.com/smikes/umask.git) | MIT | clearlydefined |

@@ -17,7 +17,7 @@ import {
   Avatar,
   PageHeaderTools,
   PageHeaderToolsGroup,
-  PageHeaderToolsItem
+  PageHeaderToolsItem,
 } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../../store';
@@ -28,15 +28,12 @@ import UserMenu from './UserMenu';
 import { ApplicationsMenu } from './ApplicationsMenu';
 import { selectApplications } from '../../../store/ExternalApplications/selectors';
 
-type Props =
-  MappedProps
-  & {
-    history: History;
-    user: che.User | undefined;
-    logout: () => void;
-  };
+type Props = MappedProps & {
+  history: History;
+  user: che.User | undefined;
+  logout: () => void;
+};
 export class HeaderTools extends React.PureComponent<Props> {
-
   constructor(props: Props) {
     super(props);
   }
@@ -51,11 +48,7 @@ export class HeaderTools extends React.PureComponent<Props> {
       <>
         <PageHeaderTools>
           <PageHeaderToolsGroup>
-            {applications.length !== 0 &&
-              <ApplicationsMenu
-                applications={applications}
-              />
-            }
+            {applications.length !== 0 && <ApplicationsMenu applications={applications} />}
             <PageHeaderToolsItem>
               <AboutMenu
                 branding={this.props.branding}
@@ -63,7 +56,7 @@ export class HeaderTools extends React.PureComponent<Props> {
                 userProfile={this.props.userProfile}
               />
             </PageHeaderToolsItem>
-            {isUserAuthenticated &&
+            {isUserAuthenticated && (
               <PageHeaderToolsItem>
                 <UserMenu
                   branding={this.props.branding}
@@ -73,10 +66,9 @@ export class HeaderTools extends React.PureComponent<Props> {
                   logout={() => this.props.logout()}
                 />
               </PageHeaderToolsItem>
-            }
+            )}
           </PageHeaderToolsGroup>
-          {isUserAuthenticated &&
-            <Avatar src={imageUrl} alt='Avatar image' />}
+          {isUserAuthenticated && <Avatar src={imageUrl} alt="Avatar image" />}
         </PageHeaderTools>
       </>
     );
@@ -90,9 +82,7 @@ const mapStateToProps = (state: AppState) => ({
   extApps: state.externalApplications,
 });
 
-const connector = connect(
-  mapStateToProps,
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(HeaderTools);

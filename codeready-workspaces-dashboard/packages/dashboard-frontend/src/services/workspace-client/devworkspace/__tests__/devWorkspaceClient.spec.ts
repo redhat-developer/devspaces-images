@@ -16,7 +16,6 @@ import mockAxios from 'axios';
 import { DevWorkspaceClient } from '../devWorkspaceClient';
 
 describe('DevWorkspace client', () => {
-
   let client: DevWorkspaceClient;
 
   beforeEach(() => {
@@ -36,9 +35,7 @@ describe('DevWorkspace client', () => {
         phase: 'RUNNING',
       })
       .build();
-    expect(
-      () => client.checkForDevWorkspaceError(devWorkspace1)
-    ).not.toThrow();
+    expect(() => client.checkForDevWorkspaceError(devWorkspace1)).not.toThrow();
 
     const devWorkspace2 = new DevWorkspaceBuilder()
       .withId('id-wksp-test')
@@ -48,9 +45,9 @@ describe('DevWorkspace client', () => {
         phase: 'FAILED',
       })
       .build();
-    expect(
-      () => client.checkForDevWorkspaceError(devWorkspace2)
-    ).toThrowError(new Error('Unknown error occured when trying to process the devworkspace'));
+    expect(() => client.checkForDevWorkspaceError(devWorkspace2)).toThrowError(
+      new Error('Unknown error occured when trying to process the devworkspace'),
+    );
 
     const devWorkspace3 = new DevWorkspaceBuilder()
       .withId('id-wksp-test')
@@ -61,9 +58,9 @@ describe('DevWorkspace client', () => {
         message: 'failure reason if any',
       })
       .build();
-    expect(
-      () => client.checkForDevWorkspaceError(devWorkspace3)
-    ).toThrowError(new Error('failure reason if any'));
+    expect(() => client.checkForDevWorkspaceError(devWorkspace3)).toThrowError(
+      new Error('failure reason if any'),
+    );
   });
 
   it('should fetch all devworkspaces', async () => {
@@ -118,5 +115,4 @@ describe('DevWorkspace client', () => {
     const newWorkspace = await client.getWorkspaceByName(namespace, name);
     expect(newWorkspace).toEqual(workspaceReady);
   });
-
 });

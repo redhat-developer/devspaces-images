@@ -21,7 +21,6 @@ import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { Provider } from 'react-redux';
 
 describe('Navigation Item', () => {
-
   let activeItem = '';
   const item: NavigationItemObject = {
     icon: <HomeIcon />,
@@ -34,10 +33,7 @@ describe('Navigation Item', () => {
     return render(
       <Provider store={store}>
         <MemoryRouter>
-          <NavigationMainItem
-            item={item}
-            activePath={activeItem}
-          />
+          <NavigationMainItem item={item} activePath={activeItem} />
         </MemoryRouter>
       </Provider>,
     );
@@ -51,7 +47,6 @@ describe('Navigation Item', () => {
   });
 
   describe('activation', () => {
-
     it('should render not active navigation item', () => {
       renderComponent();
 
@@ -76,10 +71,7 @@ describe('Navigation Item', () => {
       rerender(
         <Provider store={store}>
           <MemoryRouter>
-            <NavigationMainItem
-              item={item}
-              activePath={activeItem}
-            />
+            <NavigationMainItem item={item} activePath={activeItem} />
           </MemoryRouter>
         </Provider>,
       );
@@ -87,7 +79,5 @@ describe('Navigation Item', () => {
       const link = screen.getByRole('link');
       expect(link).toHaveAttribute('aria-current');
     });
-
   });
-
 });

@@ -13,16 +13,19 @@
 import { V1alpha2DevWorkspaceTemplate } from '@devfile/api';
 import { DevWorkspaceTemplateMetadata } from './metadata';
 
-export type DevWorkspaceTemplateLike = V1alpha2DevWorkspaceTemplate
-  & Required<Pick<V1alpha2DevWorkspaceTemplate, 'apiVersion' | 'kind'>>;
+export type DevWorkspaceTemplateLike = V1alpha2DevWorkspaceTemplate &
+  Required<Pick<V1alpha2DevWorkspaceTemplate, 'apiVersion' | 'kind'>>;
 
-type DevWorkspaceTemplateRequired = Pick<V1alpha2DevWorkspaceTemplate, 'apiVersion' | 'kind' | 'metadata'>;
+type DevWorkspaceTemplateRequired = Pick<
+  V1alpha2DevWorkspaceTemplate,
+  'apiVersion' | 'kind' | 'metadata'
+>;
 type DevWorkspaceTemplateRequiredField = keyof DevWorkspaceTemplateRequired;
 
-export const devWorkspaceTemplateRequiredFields: `${DevWorkspaceTemplateRequiredField} | ${DevWorkspaceTemplateRequiredField} | ${DevWorkspaceTemplateRequiredField}` = 'apiVersion | kind | metadata';
+export const devWorkspaceTemplateRequiredFields: `${DevWorkspaceTemplateRequiredField} | ${DevWorkspaceTemplateRequiredField} | ${DevWorkspaceTemplateRequiredField}` =
+  'apiVersion | kind | metadata';
 
-export type DevWorkspaceTemplate = V1alpha2DevWorkspaceTemplate
-  & Required<DevWorkspaceTemplateRequired>
-  & {
+export type DevWorkspaceTemplate = V1alpha2DevWorkspaceTemplate &
+  Required<DevWorkspaceTemplateRequired> & {
     metadata: DevWorkspaceTemplateMetadata;
   };

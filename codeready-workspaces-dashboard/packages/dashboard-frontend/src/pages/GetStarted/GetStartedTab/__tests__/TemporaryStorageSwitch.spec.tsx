@@ -20,7 +20,6 @@ import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
 describe('Temporary Storage Switch', () => {
-
   const mockOnChange = jest.fn();
 
   function renderSwitch(store: Store, persistVolumesDefault: 'true' | 'false'): RenderResult {
@@ -28,8 +27,9 @@ describe('Temporary Storage Switch', () => {
       <Provider store={store}>
         <TemporaryStorageSwitch
           persistVolumesDefault={persistVolumesDefault}
-          onChange={mockOnChange} />
-      </Provider>
+          onChange={mockOnChange}
+        />
+      </Provider>,
     );
   }
 
@@ -58,7 +58,6 @@ describe('Temporary Storage Switch', () => {
     expect(switchInput.checked).toBeTruthy();
     expect(mockOnChange).toHaveBeenCalledTimes(1);
   });
-
 });
 
 function createFakeStore(metadata?: che.DevfileMetaData[]): Store {
@@ -71,10 +70,10 @@ function createFakeStore(metadata?: che.DevfileMetaData[]): Store {
   return new FakeStoreBuilder()
     .withBranding({
       docs: {
-        storageTypes: 'https://docs.location'
-      }
+        storageTypes: 'https://docs.location',
+      },
     } as BrandingData)
-    .withDevfileRegistries({ registries, })
+    .withDevfileRegistries({ registries })
     .build();
 }
 

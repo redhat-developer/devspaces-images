@@ -16,7 +16,6 @@ import { DevWorkspaceClient } from '../devWorkspaceClient';
 import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
 
 describe('DevWorkspace client, update', () => {
-
   let client: DevWorkspaceClient;
 
   const timestampOld = '2021-09-01T00:00:01.000Z';
@@ -44,12 +43,14 @@ describe('DevWorkspace client, update', () => {
       .withName('wksp-test')
       .withStatus({
         phase: 'RUNNING',
-        mainUrl: 'link/ide'
+        mainUrl: 'link/ide',
       })
       .build();
 
     jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
-    const spyPatchWorkspace = jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
+    const spyPatchWorkspace = jest
+      .spyOn(DwApi, 'patchWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
 
     await client.update(testWorkspace);
 
@@ -72,16 +73,18 @@ describe('DevWorkspace client, update', () => {
       .withMetadata({
         annotations: {
           'che.eclipse.org/last-updated-timestamp': timestampOld,
-        }
+        },
       })
       .withStatus({
         phase: 'RUNNING',
-        mainUrl: 'link/ide'
+        mainUrl: 'link/ide',
       })
       .build();
 
     jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
-    const spyPatchWorkspace = jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
+    const spyPatchWorkspace = jest
+      .spyOn(DwApi, 'patchWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
 
     await client.update(testWorkspace);
 
@@ -97,5 +100,4 @@ describe('DevWorkspace client, update', () => {
       ]),
     );
   });
-
 });

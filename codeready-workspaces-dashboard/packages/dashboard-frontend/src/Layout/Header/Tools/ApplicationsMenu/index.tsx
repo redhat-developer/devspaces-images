@@ -11,7 +11,11 @@
  */
 
 import React from 'react';
-import { ApplicationLauncher, ApplicationLauncherGroup, ApplicationLauncherItem } from '@patternfly/react-core';
+import {
+  ApplicationLauncher,
+  ApplicationLauncherGroup,
+  ApplicationLauncherItem,
+} from '@patternfly/react-core';
 import { ApplicationInfo } from '@eclipse-che/common';
 
 type Props = {
@@ -22,7 +26,6 @@ type State = {
 };
 
 export class ApplicationsMenu extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -75,10 +78,7 @@ export class ApplicationsMenu extends React.PureComponent<Props, State> {
         return;
       }
       const groupItem = (
-        <ApplicationLauncherGroup
-          key={group}
-          label={group}
-        >
+        <ApplicationLauncherGroup key={group} label={group}>
           {items}
         </ApplicationLauncherGroup>
       );
@@ -93,12 +93,11 @@ export class ApplicationsMenu extends React.PureComponent<Props, State> {
 
     return (
       <ApplicationLauncher
-        aria-label='External Applications'
+        aria-label="External Applications"
         isOpen={this.state.isOpen}
         onToggle={isOpen => this.onToggle(isOpen)}
         items={groupedItems}
       />
     );
   }
-
 }

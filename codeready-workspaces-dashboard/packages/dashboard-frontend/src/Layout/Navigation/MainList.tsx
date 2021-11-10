@@ -19,14 +19,11 @@ import { AppState } from '../../store';
 import { connect, ConnectedProps } from 'react-redux';
 import { selectAllWorkspacesNumber } from '../../store/Workspaces/selectors';
 
-type Props =
-  MappedProps
-  & {
-    activePath: string,
-  };
+type Props = MappedProps & {
+  activePath: string;
+};
 
 export class NavigationMainList extends React.PureComponent<Props> {
-
   private get items(): NavigationItemObject[] {
     const { allWorkspacesNumber } = this.props;
 
@@ -40,20 +37,10 @@ export class NavigationMainList extends React.PureComponent<Props> {
     const { activePath } = this.props;
 
     const navItems = this.items.map(item => {
-      return (
-        <NavigationMainItem
-          key={item.label}
-          item={item}
-          activePath={activePath}
-        />
-      );
+      return <NavigationMainItem key={item.label} item={item} activePath={activePath} />;
     });
 
-    return (
-      <NavList>
-        {navItems}
-      </NavList>
-    );
+    return <NavList>{navItems}</NavList>;
   }
 }
 
@@ -61,9 +48,7 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspacesNumber: selectAllWorkspacesNumber(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-);
+const connector = connect(mapStateToProps);
 
-type MappedProps = ConnectedProps<typeof connector>
+type MappedProps = ConnectedProps<typeof connector>;
 export default connector(NavigationMainList);

@@ -27,9 +27,7 @@ describe('About Menu', () => {
 
   const component = (
     <Provider store={store}>
-      <ApplicationsMenu
-        applications={applications}
-      />
+      <ApplicationsMenu applications={applications} />
     </Provider>
   );
 
@@ -89,26 +87,29 @@ describe('About Menu', () => {
     expect(screen.getByText(group1)).toBeInTheDocument();
     expect(screen.getByText(group2)).toBeInTheDocument();
   });
-
 });
 
 function createStore(): Store {
   return new FakeStoreBuilder()
-    .withApplications([{
-      title: 'External App #1',
-      url: 'http://example.com/ext/app/1',
-      icon: 'http://example.com/ext/app/1/assets/logo.png',
-      group: 'Group 1',
-    }, {
-      title: 'External App #2',
-      url: 'http://example.com/ext/app/2',
-      icon: 'http://example.com/ext/app/2/assets/logo.png',
-      'group': 'Group 1',
-    }, {
-      title: 'External App #3',
-      url: 'http://example.com/ext/app/3',
-      icon: 'http://example.com/ext/app/3/assets/logo.png',
-      'group': 'Group 2',
-    }])
+    .withApplications([
+      {
+        title: 'External App #1',
+        url: 'http://example.com/ext/app/1',
+        icon: 'http://example.com/ext/app/1/assets/logo.png',
+        group: 'Group 1',
+      },
+      {
+        title: 'External App #2',
+        url: 'http://example.com/ext/app/2',
+        icon: 'http://example.com/ext/app/2/assets/logo.png',
+        group: 'Group 1',
+      },
+      {
+        title: 'External App #3',
+        url: 'http://example.com/ext/app/3',
+        icon: 'http://example.com/ext/app/3/assets/logo.png',
+        group: 'Group 2',
+      },
+    ])
     .build();
 }

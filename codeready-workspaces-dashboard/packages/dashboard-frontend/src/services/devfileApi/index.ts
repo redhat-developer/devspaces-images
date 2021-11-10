@@ -22,5 +22,5 @@ export interface IDevWorkspacesList {
   metadata: {
     resourceVersion: string;
     [key: string]: string;
-  }
+  };
 }

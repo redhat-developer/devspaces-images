@@ -19,21 +19,23 @@ import DeleteRegistriesModal from '../DeleteRegistriesModal';
 import { FakeRegistryBuilder } from '../../__tests__/__mocks__/registryRowBuilder';
 
 describe('Delete Registries Modal', () => {
-
   const mockOnDelete = jest.fn();
   const mockOnCancel = jest.fn();
 
   function getComponent(
     isDeleteModalOpen: boolean,
     selectedItems: string[],
-    currentRegistry?: RegistryEntry
+    currentRegistry?: RegistryEntry,
   ): React.ReactElement {
-    return (<DeleteRegistriesModal
-      selectedItems={selectedItems}
-      onCancel={mockOnCancel}
-      onDelete={mockOnDelete}
-      isOpen={isDeleteModalOpen}
-      registry={currentRegistry} />);
+    return (
+      <DeleteRegistriesModal
+        selectedItems={selectedItems}
+        onCancel={mockOnCancel}
+        onDelete={mockOnDelete}
+        isOpen={isDeleteModalOpen}
+        registry={currentRegistry}
+      />
+    );
   }
 
   afterEach(() => {
@@ -49,11 +51,14 @@ describe('Delete Registries Modal', () => {
   });
 
   it('should correctly render the component', () => {
-    const registry = new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('tst').build();
+    const registry = new FakeRegistryBuilder()
+      .withUrl('http://test.reg')
+      .withPassword('tst')
+      .build();
     const component = getComponent(true, [], registry);
     render(component);
 
-    const label = screen.queryByText('Would you like to delete registry \'http://test.reg\'?');
+    const label = screen.queryByText("Would you like to delete registry 'http://test.reg'?");
     expect(label).toBeTruthy();
 
     const checkbox = screen.queryByTestId('warning-info-checkbox');
@@ -70,7 +75,7 @@ describe('Delete Registries Modal', () => {
     const component = getComponent(true, ['http://testreg.com']);
     render(component);
 
-    const label = screen.queryByText('Would you like to delete registry \'http://testreg.com\'?');
+    const label = screen.queryByText("Would you like to delete registry 'http://testreg.com'?");
     expect(label).toBeTruthy();
   });
 
@@ -83,7 +88,10 @@ describe('Delete Registries Modal', () => {
   });
 
   it('should fire onDelete the target registry event', () => {
-    const registry = new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('tst').build();
+    const registry = new FakeRegistryBuilder()
+      .withUrl('http://test.reg')
+      .withPassword('tst')
+      .build();
     const component = getComponent(true, [], registry);
     render(component);
 
@@ -125,5 +133,4 @@ describe('Delete Registries Modal', () => {
 
     expect(mockOnCancel).toBeCalled();
   });
-
 });

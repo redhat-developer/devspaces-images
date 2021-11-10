@@ -12,10 +12,7 @@
 
 import { FastifyInstance, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../constants/config';
-import {
-  dockerConfigSchema,
-  namespacedDockerConfigSchema
-} from '../constants/schemas';
+import { dockerConfigSchema, namespacedDockerConfigSchema } from '../constants/schemas';
 import { getDevWorkspaceClient } from './helper';
 import { restParams } from '../typings/models';
 import { getSchema } from '../services/helpers';
@@ -23,7 +20,6 @@ import { getSchema } from '../services/helpers';
 const tags = ['dockerconfig'];
 
 export function registerDockerConfigApi(server: FastifyInstance) {
-
   server.put(
     `${baseApiPath}/namespace/:namespace/dockerconfig`,
     getSchema({ tags, params: namespacedDockerConfigSchema, body: dockerConfigSchema }),
@@ -33,7 +29,7 @@ export function registerDockerConfigApi(server: FastifyInstance) {
       const { dockerConfigApi } = await getDevWorkspaceClient(request);
 
       return dockerConfigApi.update(namespace, dockerCfg);
-    }
+    },
   );
 
   server.get(
@@ -44,6 +40,6 @@ export function registerDockerConfigApi(server: FastifyInstance) {
       const { dockerConfigApi } = await getDevWorkspaceClient(request);
 
       return dockerConfigApi.read(namespace);
-    }
+    },
   );
 }

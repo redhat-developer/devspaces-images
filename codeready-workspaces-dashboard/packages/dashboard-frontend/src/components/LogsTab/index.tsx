@@ -17,7 +17,7 @@ import {
   EmptyStateIcon,
   EmptyStateBody,
   PageSection,
-  PageSectionVariants
+  PageSectionVariants,
 } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
@@ -31,12 +31,10 @@ import styles from './index.module.css';
 const maxLogLength = 200;
 const errorRe = /^Error: /gi;
 
-type Props =
-  {
-    workspaceId: string;
-    isDevWorkspace: boolean;
-  }
-  & MappedProps;
+type Props = {
+  workspaceId: string;
+  isDevWorkspace: boolean;
+} & MappedProps;
 
 type State = {
   isExpanded: boolean;
@@ -46,7 +44,6 @@ type State = {
 };
 
 export class LogsTab extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -69,18 +66,20 @@ export class LogsTab extends React.PureComponent<Props, State> {
   private updateLogsData() {
     const { workspaceId, workspacesLogs, allWorkspaces } = this.props;
     if (allWorkspaces && allWorkspaces.length > 0) {
-
       const workspace = allWorkspaces.find(workspace => workspace.id === workspaceId);
       if (!workspace) {
         return;
       }
 
-      const hasError = workspace.status && WorkspaceStatus[workspace.status] === WorkspaceStatus.ERROR;
+      const hasError =
+        workspace.status && WorkspaceStatus[workspace.status] === WorkspaceStatus.ERROR;
       if (hasError && !this.state.hasError) {
         this.setState({ hasError });
       }
 
-      const isStopped = workspace.status !== undefined && WorkspaceStatus[workspace.status] === WorkspaceStatus.STOPPED;
+      const isStopped =
+        workspace.status !== undefined &&
+        WorkspaceStatus[workspace.status] === WorkspaceStatus.STOPPED;
       if (this.state.isStopped !== isStopped) {
         this.setState({ isStopped });
       }
@@ -104,17 +103,20 @@ export class LogsTab extends React.PureComponent<Props, State> {
     return (
       <div className={styles.consoleOutput}>
         <div>{logs.length} lines</div>
-        <pre>{logs.map((item: string, i: number) => {
-          if (errorRe.test(item)) {
-            return (
-              <p className={styles.errorColor} key={item + i}>
-                {item.replace(errorRe, '')}
-              </p>
-            );
-          }
-          return (<p key={item + i}>{item}</p>);
-        })}</pre>
-      </div>);
+        <pre>
+          {logs.map((item: string, i: number) => {
+            if (errorRe.test(item)) {
+              return (
+                <p className={styles.errorColor} key={item + i}>
+                  {item.replace(errorRe, '')}
+                </p>
+              );
+            }
+            return <p key={item + i}>{item}</p>;
+          })}
+        </pre>
+      </div>
+    );
   }
 
   render() {
@@ -127,9 +129,7 @@ export class LogsTab extends React.PureComponent<Props, State> {
           <Title headingLevel="h4" size="lg">
             No Logs to display
           </Title>
-          <EmptyStateBody>
-            Logs will be displayed in a running workspace.
-          </EmptyStateBody>
+          <EmptyStateBody>Logs will be displayed in a running workspace.</EmptyStateBody>
         </EmptyState>
       );
     }
@@ -149,7 +149,6 @@ export class LogsTab extends React.PureComponent<Props, State> {
       </PageSection>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({

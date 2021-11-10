@@ -16,18 +16,25 @@ import createError from 'fastify-error';
 import { FastifyError } from 'fastify';
 
 export async function delay(ms = 500): Promise<void> {
-  await new Promise((resolve) => {
+  await new Promise(resolve => {
     setTimeout(resolve, ms);
   });
 }
 
-export function getSchema(additionalParams: restParams.ISchemaParams): { schema: restParams.ISchemaParams } {
-  const schema = Object.assign({
-    headers: authenticationHeaderSchema,
-    security: [{
-      Authorization: ''
-    }],
-  }, additionalParams);
+export function getSchema(additionalParams: restParams.ISchemaParams): {
+  schema: restParams.ISchemaParams;
+} {
+  const schema = Object.assign(
+    {
+      headers: authenticationHeaderSchema,
+      security: [
+        {
+          Authorization: '',
+        },
+      ],
+    },
+    additionalParams,
+  );
 
   return { schema };
 }

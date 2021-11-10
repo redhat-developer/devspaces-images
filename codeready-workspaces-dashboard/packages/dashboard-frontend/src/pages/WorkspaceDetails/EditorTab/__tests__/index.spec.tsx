@@ -28,24 +28,17 @@ import { container } from '../../../../inversify.config';
 
 // uses the Devfile Editor mock
 jest.mock('../../../../components/DevfileEditor');
-jest.mock(
-  '../EditorTools',
-  () => {
-    const FakeEditorTools = () => <div>Editor Tools</div>;
-    FakeEditorTools.displayName = 'EditorTools';
-    return FakeEditorTools;
-  },
-);
+jest.mock('../EditorTools', () => {
+  const FakeEditorTools = () => <div>Editor Tools</div>;
+  FakeEditorTools.displayName = 'EditorTools';
+  return FakeEditorTools;
+});
 
 describe('Editor Tab', () => {
-
   const mockOnSave = jest.fn();
   const mockOnWorkspaceWarning = jest.fn();
 
-  function getComponent(
-    store: Store,
-    workspace: Workspace,
-  ): React.ReactElement {
+  function getComponent(store: Store, workspace: Workspace): React.ReactElement {
     return (
       <Provider store={store}>
         <EditorTab
@@ -62,23 +55,19 @@ describe('Editor Tab', () => {
   });
 
   describe('Che workspaces', () => {
-
     const workspaceName = 'test-workspace';
     let workspace: Workspace;
     let component: React.ReactElement;
 
     beforeEach(() => {
-      const cheWorkspace = new CheWorkspaceBuilder()
-        .withName(workspaceName)
-        .build();
+      const cheWorkspace = new CheWorkspaceBuilder().withName(workspaceName).build();
       const store = new FakeStoreBuilder()
         .withCheWorkspaces({
-          workspaces: [cheWorkspace]
+          workspaces: [cheWorkspace],
         })
         .build();
       workspace = convertWorkspace(cheWorkspace);
       component = getComponent(store, workspace);
-
     });
 
     it('should render the component', () => {
@@ -107,18 +96,18 @@ describe('Editor Tab', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-        workspace: expect.objectContaining({
-          devfile: expect.objectContaining({
-            metadata: {
-              name: workspaceName,
-            },
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          workspace: expect.objectContaining({
+            devfile: expect.objectContaining({
+              metadata: {
+                name: workspaceName,
+              },
+            }),
           }),
         }),
-      }));
-
+      );
     });
-
   });
 
   describe('devworkspaces', () => {
@@ -136,16 +125,20 @@ describe('Editor Tab', () => {
       const devWorkspaceCopy = JSON.parse(JSON.stringify(devWorkspace));
       // mock devworkspace method to be able to save the devfile
       class MockDevWorkspaceClient extends DevWorkspaceClient {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        async getWorkspaceByName(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
+        /* eslint-disable @typescript-eslint/no-unused-vars */
+        async getWorkspaceByName(
+          namespace: string,
+          workspaceName: string,
+        ): Promise<devfileApi.DevWorkspace> {
           return devWorkspaceCopy;
         }
+        /* eslint-enable @typescript-eslint/no-unused-vars */
       }
       container.rebind(DevWorkspaceClient).to(MockDevWorkspaceClient).inSingletonScope();
 
       const store = new FakeStoreBuilder()
         .withDevWorkspaces({
-          workspaces: [devWorkspace]
+          workspaces: [devWorkspace],
         })
         .build();
       workspace = convertWorkspace(devWorkspace);
@@ -178,22 +171,25 @@ describe('Editor Tab', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-        workspace: expect.objectContaining({
-          kind: 'DevWorkspace',
-          metadata: expect.objectContaining({
-            name: workspaceName,
-          }),
-        } as devfileApi.DevWorkspace),
-      }));
-
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          workspace: expect.objectContaining({
+            kind: 'DevWorkspace',
+            metadata: expect.objectContaining({
+              name: workspaceName,
+            }),
+          } as devfileApi.DevWorkspace),
+        }),
+      );
     });
 
     it('should restore namespace', async () => {
       render(component);
 
       // copy the workspace devfile, remove 'name' field and paste new devfile into the editor
-      const noNamespaceDevfile = JSON.parse(JSON.stringify(workspace.devfile)) as devfileApi.Devfile;
+      const noNamespaceDevfile = JSON.parse(
+        JSON.stringify(workspace.devfile),
+      ) as devfileApi.Devfile;
       delete (noNamespaceDevfile as devfileApi.DevfileLike).metadata?.namespace;
       const noNamespaceDevfileContent = dump(noNamespaceDevfile);
 
@@ -210,17 +206,16 @@ describe('Editor Tab', () => {
       userEvent.click(saveButton);
 
       await waitFor(() => expect(mockOnSave).toHaveBeenCalled());
-      expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
-        workspace: expect.objectContaining({
-          kind: 'DevWorkspace',
-          metadata: expect.objectContaining({
-            namespace,
-          }),
-        } as devfileApi.DevWorkspace),
-      }));
-
+      expect(mockOnSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          workspace: expect.objectContaining({
+            kind: 'DevWorkspace',
+            metadata: expect.objectContaining({
+              namespace,
+            }),
+          } as devfileApi.DevWorkspace),
+        }),
+      );
     });
-
   });
-
 });

@@ -10,13 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import {
-  PageSection,
-  PageSectionVariants,
-  Tab,
-  Tabs,
-  Title,
-} from '@patternfly/react-core';
+import { PageSection, PageSectionVariants, Tab, Tabs, Title } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
@@ -24,7 +18,6 @@ import Head from '../../components/Head';
 import { UserPreferencesTab } from '../../services/helpers/types';
 import { ROUTE } from '../../route.enum';
 import { AppState } from '../../store';
-import * as DockerConfigStore from '../../store/DockerConfig';
 import { selectIsLoading, selectRegistries } from '../../store/DockerConfig/selectors';
 
 const ContanerRegistryList = React.lazy(() => import('./ContainerRegistriesTab'));
@@ -35,7 +28,7 @@ type Props = {
 
 type State = {
   activeTabKey: UserPreferencesTab;
-}
+};
 
 export class UserPreferences extends React.PureComponent<Props, State> {
   constructor(props: Props) {
@@ -53,7 +46,7 @@ export class UserPreferences extends React.PureComponent<Props, State> {
 
     if (search) {
       const searchParam = new URLSearchParams(search.substring(1));
-      if (pathname === ROUTE.USER_PREFERENCES && searchParam.get('tab') as UserPreferencesTab) {
+      if (pathname === ROUTE.USER_PREFERENCES && (searchParam.get('tab') as UserPreferencesTab)) {
         return searchParam.get('tab') as UserPreferencesTab;
       }
     }
@@ -61,7 +54,10 @@ export class UserPreferences extends React.PureComponent<Props, State> {
     return 'container-registries';
   }
 
-  private handleTabClick(event: React.MouseEvent<HTMLElement, MouseEvent>, activeTabKey: React.ReactText): void {
+  private handleTabClick(
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    activeTabKey: React.ReactText,
+  ): void {
     this.props.history.push(`${ROUTE.USER_PREFERENCES}?tab=${activeTabKey}`);
 
     this.setState({
@@ -83,15 +79,14 @@ export class UserPreferences extends React.PureComponent<Props, State> {
           id="user-preferences-tabs"
           style={{ backgroundColor: 'var(--pf-global--BackgroundColor--100)' }}
           activeKey={activeTabKey}
-          onSelect={(event, tabKey) => this.handleTabClick(event, tabKey)}>
+          onSelect={(event, tabKey) => this.handleTabClick(event, tabKey)}
+        >
           <Tab
             id="container-registries-tab"
             eventKey={containerRegistriesTab}
             title="Containter Registries"
           >
-            <ContanerRegistryList
-              history={this.props.history}
-            />
+            <ContanerRegistryList history={this.props.history} />
           </Tab>
         </Tabs>
       </React.Fragment>
@@ -104,9 +99,7 @@ const mapStateToProps = (state: AppState) => ({
   isLoading: selectIsLoading(state),
 });
 
-const connector = connect(
-  mapStateToProps
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(UserPreferences);

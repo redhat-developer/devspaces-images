@@ -42,7 +42,6 @@ type State = {
 };
 
 export class ErrorBoundary extends React.PureComponent<Props, State> {
-
   private readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
@@ -139,7 +138,7 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
     }, 1000);
 
     this.toDispose.push({
-      dispose: () => window.clearInterval(id)
+      dispose: () => window.clearInterval(id),
     });
   }
 
@@ -163,9 +162,7 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
       >
         {expanded && errorInfo && (
           <TextContent>
-            <Text component={TextVariants.pre}>
-              {errorInfo.componentStack}
-            </Text>
+            <Text component={TextVariants.pre}>{errorInfo.componentStack}</Text>
           </TextContent>
         )}
       </Alert>
@@ -183,7 +180,11 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
 
     let title = <>The application has been likely updated on the server.</>;
     if (countdownStopped === false) {
-      title = <>{title} Refreshing a page to get newer resources in {secondsRemain}.</>;
+      title = (
+        <>
+          {title} Refreshing a page to get newer resources in {secondsRemain}.
+        </>
+      );
     }
 
     let message: React.ReactNode | undefined;
@@ -198,16 +199,15 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
         title={title}
         actionLinks={
           <React.Fragment>
-            <AlertActionLink onClick={() => this.handleReloadNow()}>
-              Reload now
-            </AlertActionLink>
+            <AlertActionLink onClick={() => this.handleReloadNow()}>Reload now</AlertActionLink>
             {countdownStopped === false && (
               <AlertActionLink onClick={() => this.handleStopCountdown()}>
                 Stop countdown
               </AlertActionLink>
             )}
           </React.Fragment>
-        }>
+        }
+      >
         {message}
       </Alert>
     );
@@ -224,15 +224,10 @@ export class ErrorBoundary extends React.PureComponent<Props, State> {
     const reloadAlert = this.buildReloadAlert();
 
     return (
-      <PageSection
-        variant={PageSectionVariants.light}
-        isFilled={true}
-      >
+      <PageSection variant={PageSectionVariants.light} isFilled={true}>
         {reloadAlert}
         {errorMessageAlert}
       </PageSection>
     );
-
   }
-
 }

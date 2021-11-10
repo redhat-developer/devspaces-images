@@ -80,11 +80,7 @@ export class AboutModal extends React.PureComponent<Props> {
           {username && (
             <>
               <TextListItem component="dt">Username</TextListItem>
-              <TextListItem
-                component="dd"
-                className="co-select-to-copy"
-                data-testid="username"
-              >
+              <TextListItem component="dd" className="co-select-to-copy" data-testid="username">
                 {username}
               </TextListItem>
             </>
@@ -92,11 +88,7 @@ export class AboutModal extends React.PureComponent<Props> {
           {browserName && (
             <>
               <TextListItem component="dt">Browser Name</TextListItem>
-              <TextListItem
-                component="dd"
-                className="co-select-to-copy"
-                data-testid="browser-name"
-              >
+              <TextListItem component="dd" className="co-select-to-copy" data-testid="browser-name">
                 {browserName}
               </TextListItem>
             </>
@@ -116,11 +108,7 @@ export class AboutModal extends React.PureComponent<Props> {
           {browserOS && (
             <>
               <TextListItem component="dt">Browser OS</TextListItem>
-              <TextListItem
-                component="dd"
-                className="co-select-to-copy"
-                data-testid="browser-os"
-              >
+              <TextListItem component="dd" className="co-select-to-copy" data-testid="browser-os">
                 {browserOS}
               </TextListItem>
             </>
@@ -131,11 +119,7 @@ export class AboutModal extends React.PureComponent<Props> {
   }
 
   public render(): React.ReactElement {
-    const {
-      isOpen,
-      logo,
-      productName,
-    } = this.props;
+    const { isOpen, logo, productName } = this.props;
 
     const modalContent = this.buildContent();
 

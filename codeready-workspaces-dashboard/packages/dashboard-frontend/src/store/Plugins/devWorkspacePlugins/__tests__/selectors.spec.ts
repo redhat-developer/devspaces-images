@@ -19,7 +19,6 @@ import { AppState } from '../../..';
 import { selectDwPlugins, selectDwPluginsList, selectDwDefaultEditorError } from '../selectors';
 
 describe('dwPlugins selectors', () => {
-
   const plugins = {
     'plugin-location-1': {
       plugin: {
@@ -44,12 +43,11 @@ describe('dwPlugins selectors', () => {
 
   it('should return all plugins and errors', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withDwPlugins(
-        plugins,
-        false,
-        'default editor fetching error',
-      )
-      .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, store.KnownAction>>;
+      .withDwPlugins(plugins, false, 'default editor fetching error')
+      .build() as MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, store.KnownAction>
+    >;
     const state = fakeStore.getState();
 
     const expectedPlugins = plugins;
@@ -59,12 +57,11 @@ describe('dwPlugins selectors', () => {
 
   it('should return array of plugins', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withDwPlugins(
-        plugins,
-        false,
-        'default editor fetching error',
-      )
-      .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, store.KnownAction>>;
+      .withDwPlugins(plugins, false, 'default editor fetching error')
+      .build() as MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, store.KnownAction>
+    >;
     const state = fakeStore.getState();
 
     const expectedPlugins = [
@@ -87,16 +84,14 @@ describe('dwPlugins selectors', () => {
 
   it('should return an error related to default editor fetching', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withDwPlugins(
-        plugins,
-        false,
-        'default editor fetching error',
-      )
-      .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, store.KnownAction>>;
+      .withDwPlugins(plugins, false, 'default editor fetching error')
+      .build() as MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, store.KnownAction>
+    >;
     const state = fakeStore.getState();
 
     const selectedError = selectDwDefaultEditorError(state);
     expect(selectedError).toEqual('default editor fetching error');
   });
-
 });

@@ -26,13 +26,14 @@ export async function isOpenShift(apisApi: k8s.ApisApi): Promise<boolean> {
 async function findApi(apisApi: k8s.ApisApi, apiName: string, version?: string): Promise<boolean> {
   const resp = await apisApi.getAPIVersions();
   const groups = resp.body.groups;
-  const filtered =
-    groups.some((apiGroup: k8s.V1APIGroup) => {
-      if (version) {
-        return apiGroup.name === apiName
-          && apiGroup.versions.some(versionGroup => versionGroup.version === version);
-      }
-      return apiGroup.name === apiName;
-    });
+  const filtered = groups.some((apiGroup: k8s.V1APIGroup) => {
+    if (version) {
+      return (
+        apiGroup.name === apiName &&
+        apiGroup.versions.some(versionGroup => versionGroup.version === version)
+      );
+    }
+    return apiGroup.name === apiName;
+  });
   return filtered;
 }

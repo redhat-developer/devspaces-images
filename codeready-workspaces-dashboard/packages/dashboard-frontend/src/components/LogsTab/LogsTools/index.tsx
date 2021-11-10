@@ -65,15 +65,24 @@ class LogsTools extends React.PureComponent<Props, State> {
       <div className={styles.logsTools}>
         <Flex>
           <FlexItem>
-            <a download="logs.txt" href={logsBlobUrl}><DownloadIcon />Download</a>
+            <a download="logs.txt" href={logsBlobUrl}>
+              <DownloadIcon />
+              Download
+            </a>
           </FlexItem>
           <Divider isVertical />
           <FlexItem>
             <Button variant="link" onClick={() => this.handleExpand()}>
               {this.state.isExpanded ? (
-                <React.Fragment><CompressIcon />Compress</React.Fragment>
+                <React.Fragment>
+                  <CompressIcon />
+                  Compress
+                </React.Fragment>
               ) : (
-                <React.Fragment><ExpandIcon />Expand</React.Fragment>
+                <React.Fragment>
+                  <ExpandIcon />
+                  Expand
+                </React.Fragment>
               )}
             </Button>
           </FlexItem>

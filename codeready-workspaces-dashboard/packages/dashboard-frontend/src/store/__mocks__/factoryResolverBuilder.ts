@@ -13,7 +13,6 @@
 import { FactoryResolver, FactoryResolverScmInfo } from '../../services/helpers/types';
 
 export class FactoryResolverBuilder {
-
   private factoryResolver = {
     v: '4.0',
   } as FactoryResolver;
@@ -41,5 +40,4 @@ export class FactoryResolverBuilder {
   build(): FactoryResolver {
     return this.factoryResolver;
   }
-
 }

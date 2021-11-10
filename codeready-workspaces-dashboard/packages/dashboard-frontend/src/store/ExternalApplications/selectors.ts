@@ -15,12 +15,6 @@ import { AppState } from '..';
 
 const selectState = (state: AppState) => state.externalApplications;
 
-export const selectApplications = createSelector(
-  selectState,
-  state => state.applications,
-);
+export const selectApplications = createSelector(selectState, state => state.applications);
 
-export const selectApplicationsError = createSelector(
-  selectState,
-  state => state.error,
-);
+export const selectApplicationsError = createSelector(selectState, state => state.error);

@@ -38,7 +38,7 @@ export async function validateToken(keycloakToken: string): Promise<void> {
     throw createFastifyError(
       'FST_UNAUTHORIZED',
       `Failed to validate token: ${helpers.errors.getMessage(e)}`,
-      401
+      401,
     );
   }
 }
@@ -65,7 +65,7 @@ async function evaluateKeycloakEndpointUrl(): Promise<URL> {
     throw createFastifyError(
       'FST_UNAUTHORIZED',
       `Failed to fetch keycloak settings: ${helpers.errors.getMessage(e)}`,
-      401
+      401,
     );
   }
 }

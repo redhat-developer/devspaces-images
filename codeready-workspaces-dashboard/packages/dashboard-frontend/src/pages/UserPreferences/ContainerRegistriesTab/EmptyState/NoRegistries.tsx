@@ -23,10 +23,9 @@ import { RegistryIcon, PlusCircleIcon } from '@patternfly/react-icons';
 
 type Props = {
   onAddRegistry: () => void;
-}
+};
 
 export default class NoRegistriesEmptyState extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     return (
       <EmptyState isFullHeight={true} variant={EmptyStateVariant.small}>
@@ -47,5 +46,4 @@ export default class NoRegistriesEmptyState extends React.PureComponent<Props> {
       </EmptyState>
     );
   }
-
 }

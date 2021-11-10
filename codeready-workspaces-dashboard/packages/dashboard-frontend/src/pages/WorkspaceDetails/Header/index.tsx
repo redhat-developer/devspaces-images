@@ -34,7 +34,6 @@ type Props = {
 };
 
 class Header extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     const { workspaceName, status, children, workspacesLink } = this.props;
 
@@ -42,35 +41,22 @@ class Header extends React.PureComponent<Props> {
       <PageSection variant={PageSectionVariants.light}>
         <Stack hasGutter={true}>
           <StackItem>
-
             <Breadcrumb className={styles.breadcrumb}>
-              <BreadcrumbItem to={workspacesLink}>
-                Workspaces
-              </BreadcrumbItem>
-              <BreadcrumbItem isActive>
-                {workspaceName}
-              </BreadcrumbItem>
+              <BreadcrumbItem to={workspacesLink}>Workspaces</BreadcrumbItem>
+              <BreadcrumbItem isActive>{workspaceName}</BreadcrumbItem>
             </Breadcrumb>
           </StackItem>
           <StackItem>
             <Flex>
-              <FlexItem
-                alignSelf={{ default: 'alignSelfCenter' }}
-              >
+              <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
                 <TextContent>
-                  <Text component={TextVariants.h1}>
-                    {workspaceName}
-                  </Text>
+                  <Text component={TextVariants.h1}>{workspaceName}</Text>
                 </TextContent>
               </FlexItem>
               <FlexItem>
                 <WorkspaceStatusLabel status={status} />
               </FlexItem>
-              <FlexItem
-                align={{ default: 'alignRight' }}
-              >
-                {children}
-              </FlexItem>
+              <FlexItem align={{ default: 'alignRight' }}>{children}</FlexItem>
             </Flex>
           </StackItem>
         </Stack>

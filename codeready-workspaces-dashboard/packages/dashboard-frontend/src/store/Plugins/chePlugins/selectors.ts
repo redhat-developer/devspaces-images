@@ -16,12 +16,6 @@ import { AppState } from '../..';
 const selectState = (state: AppState) => state.plugins;
 export const selectPluginsState = selectState;
 
-export const selectPlugins = createSelector(
-  selectState,
-  state => state.plugins,
-);
+export const selectPlugins = createSelector(selectState, state => state.plugins);
 
-export const selectPluginsError = createSelector(
-  selectState,
-  state => state.error,
-);
+export const selectPluginsError = createSelector(selectState, state => state.error);

@@ -32,7 +32,7 @@ jest.mock('../../../components/Head', () => {
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
-    return (<div>Dummy Tooltip</div>);
+    return <div>Dummy Tooltip</div>;
   };
 });
 
@@ -52,7 +52,6 @@ let mockOnAction = jest.fn().mockResolvedValue(undefined);
 let mockShowConfirmation = jest.fn().mockResolvedValue(undefined);
 
 describe('Workspaces List Page', () => {
-
   beforeEach(() => {
     workspaces = [0, 1, 2, 3, 4]
       .map(i => createFakeCheWorkspace('workspace-' + i, 'workspace-' + i))
@@ -83,15 +82,15 @@ describe('Workspaces List Page', () => {
     expect(screen.queryByRole('searchbox')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /filter workspaces/i })).toBeTruthy();
 
-    const deleteSelectedButton = screen.queryByRole('button', { name: /delete selected workspaces/i });
+    const deleteSelectedButton = screen.queryByRole('button', {
+      name: /delete selected workspaces/i,
+    });
     expect(deleteSelectedButton).toBeTruthy();
     expect(deleteSelectedButton).toBeDisabled();
   });
 
   describe('Toolbar', () => {
-
     describe('Select All Checkbox', () => {
-
       it('should select all rows', () => {
         renderComponent();
 
@@ -115,13 +114,10 @@ describe('Workspaces List Page', () => {
         rowCheckboxes.forEach(checkbox => {
           expect(checkbox).not.toBeChecked();
         });
-
       });
-
     });
 
     describe('Workspaces Filter', () => {
-
       it('should filter rows', () => {
         renderComponent();
 
@@ -139,15 +135,15 @@ describe('Workspaces List Page', () => {
         // including the header row
         expect(rowsFiltered.length).toEqual(2);
       });
-
     });
 
     describe('Bulk Delete Button', () => {
-
       it('should emit event if confirmed', async () => {
         renderComponent();
 
-        const deleteSelectedButton = screen.getByRole('button', { name: /delete selected workspaces/i });
+        const deleteSelectedButton = screen.getByRole('button', {
+          name: /delete selected workspaces/i,
+        });
 
         const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
 
@@ -160,16 +156,27 @@ describe('Workspaces List Page', () => {
 
         await waitFor(() => expect(mockOnAction).toHaveBeenCalledTimes(3));
 
-        expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.DELETE_WORKSPACE, workspaces[0].id);
-        expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.DELETE_WORKSPACE, workspaces[1].id);
-        expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.DELETE_WORKSPACE, workspaces[2].id);
+        expect(mockOnAction).toHaveBeenCalledWith(
+          WorkspaceAction.DELETE_WORKSPACE,
+          workspaces[0].id,
+        );
+        expect(mockOnAction).toHaveBeenCalledWith(
+          WorkspaceAction.DELETE_WORKSPACE,
+          workspaces[1].id,
+        );
+        expect(mockOnAction).toHaveBeenCalledWith(
+          WorkspaceAction.DELETE_WORKSPACE,
+          workspaces[2].id,
+        );
       });
 
       it('should not emit event if not confirmed', async () => {
         mockShowConfirmation = jest.fn().mockRejectedValue(undefined);
         renderComponent();
 
-        const deleteSelectedButton = screen.getByRole('button', { name: /delete selected workspaces/i });
+        const deleteSelectedButton = screen.getByRole('button', {
+          name: /delete selected workspaces/i,
+        });
 
         const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
 
@@ -182,7 +189,6 @@ describe('Workspaces List Page', () => {
 
         await waitFor(() => expect(mockOnAction).not.toHaveBeenCalled());
       });
-
     });
 
     it('should bulk delete visible workspaces only', async () => {
@@ -201,17 +207,21 @@ describe('Workspaces List Page', () => {
       userEvent.click(bulkDeleteButton);
 
       await waitFor(() => expect(mockOnAction).toHaveBeenCalledTimes(1));
-      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.DELETE_WORKSPACE, workspaces[0].devfile.metadata.name);
+      expect(mockOnAction).toHaveBeenCalledWith(
+        WorkspaceAction.DELETE_WORKSPACE,
+        workspaces[0].devfile.metadata.name,
+      );
     });
 
     it('should expose correct number of workspaces to delete https://github.com/eclipse/che/issues/19057', async () => {
       let wantToDelete: string[] = [];
-      mockOnAction = jest.fn()
-        .mockImplementation((action: string, workspaceName: string) => {
-          workspaces = workspaces.filter(workspace => workspace.devfile.metadata.name !== workspaceName);
-          wantToDelete = workspaces.map(workspace => workspace.devfile.metadata.name!);
-          return Promise.resolve();
-        });
+      mockOnAction = jest.fn().mockImplementation((action: string, workspaceName: string) => {
+        workspaces = workspaces.filter(
+          workspace => workspace.devfile.metadata.name !== workspaceName,
+        );
+        wantToDelete = workspaces.map(workspace => workspace.devfile.metadata.name!);
+        return Promise.resolve();
+      });
       const { rerender } = renderComponent();
 
       /* delete one workspace */
@@ -234,17 +244,17 @@ describe('Workspaces List Page', () => {
       const selectAllCheckbox = screen.getByRole('checkbox', { name: /select all workspaces/i });
       userEvent.click(selectAllCheckbox);
 
-      const deleteSelectedButton = screen.getByRole('button', { name: /delete selected workspaces/i });
+      const deleteSelectedButton = screen.getByRole('button', {
+        name: /delete selected workspaces/i,
+      });
       expect(deleteSelectedButton).toBeEnabled();
       userEvent.click(deleteSelectedButton);
 
       expect(mockShowConfirmation).toHaveBeenCalledWith(wantToDelete);
     });
-
   });
 
   describe('Table', () => {
-
     it('should handle workspaces that are being deleted', () => {
       // mute the outputs
       console.error = jest.fn();
@@ -314,7 +324,10 @@ describe('Workspaces List Page', () => {
       const startDebugAction = screen.getByRole('button', { name: /verbose mode/i });
       userEvent.click(startDebugAction);
 
-      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, workspaces[0].id);
+      expect(mockOnAction).toHaveBeenCalledWith(
+        WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,
+        workspaces[0].id,
+      );
     });
 
     it('should handle "Start in Background" action', () => {
@@ -327,7 +340,10 @@ describe('Workspaces List Page', () => {
       const openInBackgroundAction = screen.getByRole('button', { name: /background/i });
       userEvent.click(openInBackgroundAction);
 
-      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.START_IN_BACKGROUND, workspaces[0].id);
+      expect(mockOnAction).toHaveBeenCalledWith(
+        WorkspaceAction.START_IN_BACKGROUND,
+        workspaces[0].id,
+      );
     });
 
     it('should handle "Stop Workspace" action', () => {
@@ -337,7 +353,13 @@ describe('Workspaces List Page', () => {
         activeEnv: 'default',
       };
       workspaces[0] = convertWorkspace(
-        createFakeCheWorkspace('workspace-' + 0, 'workspace-' + 0, undefined, WorkspaceStatus.RUNNING, runtime)
+        createFakeCheWorkspace(
+          'workspace-' + 0,
+          'workspace-' + 0,
+          undefined,
+          WorkspaceStatus.RUNNING,
+          runtime,
+        ),
       );
 
       renderComponent();
@@ -366,11 +388,9 @@ describe('Workspaces List Page', () => {
 
       expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.DELETE_WORKSPACE, workspaces[0].id);
     });
-
   });
 
   describe('Empty State', () => {
-
     it('should handle when no workspaces', () => {
       workspaces = [];
       renderComponent();
@@ -395,9 +415,7 @@ describe('Workspaces List Page', () => {
       const emptyStateTitle = screen.queryByRole('heading', { name: /nothing found/i });
       expect(emptyStateTitle).toBeTruthy();
     });
-
   });
-
 });
 
 function getComponent(): React.ReactElement {
@@ -410,12 +428,9 @@ function getComponent(): React.ReactElement {
       onAction={mockOnAction}
       showConfirmation={mockShowConfirmation}
       toDelete={isDeleted}
-    >
-    </WorkspacesList>
+    ></WorkspacesList>
   );
 }
 function renderComponent(): RenderResult {
-  return render(
-    getComponent()
-  );
+  return render(getComponent());
 }

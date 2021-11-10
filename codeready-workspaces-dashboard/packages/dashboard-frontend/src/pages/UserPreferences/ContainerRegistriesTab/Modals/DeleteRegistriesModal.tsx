@@ -11,7 +11,15 @@
  */
 
 import React from 'react';
-import { Button, ButtonVariant, ModalVariant, Modal, TextContent, Text, Checkbox } from '@patternfly/react-core';
+import {
+  Button,
+  ButtonVariant,
+  ModalVariant,
+  Modal,
+  TextContent,
+  Text,
+  Checkbox,
+} from '@patternfly/react-core';
 import { RegistryEntry } from '../../../../store/DockerConfig/types';
 
 type Props = {
@@ -20,13 +28,12 @@ type Props = {
   isOpen: boolean;
   onDelete: (registry?: RegistryEntry) => void;
   onCancel: () => void;
-}
+};
 type State = {
   warningInfoCheck: boolean;
-}
+};
 
 export default class DeleteRegistriesModal extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -86,23 +93,24 @@ export default class DeleteRegistriesModal extends React.PureComponent<Props, St
         isOpen={isOpen}
         onClose={onCancel}
         aria-label="warning-info"
-        footer={(
+        footer={
           <React.Fragment>
-            <Button variant={ButtonVariant.danger} isDisabled={!warningInfoCheck}
+            <Button
+              variant={ButtonVariant.danger}
+              isDisabled={!warningInfoCheck}
               data-testid="delete-button"
-              onClick={() => onDelete(registry)}>
+              onClick={() => onDelete(registry)}
+            >
               Delete
             </Button>
-            <Button variant={ButtonVariant.link}
-              data-testid="cancel-button"
-              onClick={onCancel}>
+            <Button variant={ButtonVariant.link} data-testid="cancel-button" onClick={onCancel}>
               Cancel
             </Button>
-          </React.Fragment>)}
+          </React.Fragment>
+        }
       >
         {this.getDeleteModalContent()}
       </Modal>
     );
   }
-
 }

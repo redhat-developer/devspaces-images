@@ -11,20 +11,16 @@
  */
 
 import React from 'react';
-import {
-  Progress,
-  ProgressMeasureLocation,
-  ProgressSize,
-} from '@patternfly/react-core';
+import { Progress, ProgressMeasureLocation, ProgressSize } from '@patternfly/react-core';
 
 import styles from './index.module.css';
 
 type Props = {
-  isLoading: boolean
+  isLoading: boolean;
 };
 
 type State = {
-  progressVal: number
+  progressVal: number;
 };
 
 class CheProgress extends React.PureComponent<Props, State> {
@@ -80,15 +76,19 @@ class CheProgress extends React.PureComponent<Props, State> {
 
     return (
       <span className={styles.progressLine}>
-        {this.props.isLoading || this.state.progressVal !== 0 ?
-          (<Progress id="che-progress-ind"
+        {this.props.isLoading || this.state.progressVal !== 0 ? (
+          <Progress
+            id="che-progress-ind"
             value={progressVal}
             size={ProgressSize.sm}
-            measureLocation={ProgressMeasureLocation.none} />) : ''}
+            measureLocation={ProgressMeasureLocation.none}
+          />
+        ) : (
+          ''
+        )}
       </span>
     );
   }
-
 }
 
 export default CheProgress;

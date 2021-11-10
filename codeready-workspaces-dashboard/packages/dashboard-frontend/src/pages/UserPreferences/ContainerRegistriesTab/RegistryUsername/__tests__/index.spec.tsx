@@ -18,11 +18,14 @@ import renderer from 'react-test-renderer';
 import { RegistryUsernameFormGroup } from '..';
 
 describe('Registry Username Input', () => {
-
   const mockOnChange = jest.fn();
 
   function getComponent(username: string): React.ReactElement {
-    return (<Form><RegistryUsernameFormGroup username={username} onChange={mockOnChange} /></Form>);
+    return (
+      <Form>
+        <RegistryUsernameFormGroup username={username} onChange={mockOnChange} />
+      </Form>
+    );
   }
 
   afterEach(() => {
@@ -73,7 +76,6 @@ describe('Registry Username Input', () => {
   });
 
   describe('validation', () => {
-
     it('should handle maximum value length', () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
@@ -100,5 +102,4 @@ describe('Registry Username Input', () => {
       expect(input).toBeInvalid();
     });
   });
-
 });

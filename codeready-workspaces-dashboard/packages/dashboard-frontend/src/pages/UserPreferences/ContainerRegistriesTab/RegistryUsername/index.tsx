@@ -28,7 +28,6 @@ type State = {
 };
 
 export class RegistryUsernameFormGroup extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -58,7 +57,7 @@ export class RegistryUsernameFormGroup extends React.PureComponent<Props, State>
     }
   }
 
-  private validate(username: string): { valid: ValidatedOptions; errorMessage?: string; } {
+  private validate(username: string): { valid: ValidatedOptions; errorMessage?: string } {
     if (username.length > MAX_LENGTH) {
       return {
         errorMessage: ERROR_MAX_LENGTH,
@@ -93,5 +92,4 @@ export class RegistryUsernameFormGroup extends React.PureComponent<Props, State>
       </FormGroup>
     );
   }
-
 }

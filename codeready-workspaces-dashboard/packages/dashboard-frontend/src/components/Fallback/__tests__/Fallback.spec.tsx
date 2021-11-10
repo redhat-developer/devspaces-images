@@ -15,15 +15,13 @@ import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
 import Fallback from '..';
 
 describe('React element that is rendered while waiting for the component to load', () => {
-
   it('should render fallback correctly', () => {
     expect(getComponentSnapshot(Fallback)).toMatchSnapshot();
   });
-
 });
 
 function getComponentSnapshot(
-  component: React.ReactElement
+  component: React.ReactElement,
 ): null | ReactTestRendererJSON | ReactTestRendererJSON[] {
   return renderer.create(component).toJSON();
 }

@@ -15,17 +15,23 @@ import { helpers, api } from '@eclipse-che/common';
 import devfileApi, { IDevWorkspacesList } from '../devfileApi';
 import { prefix } from './const';
 
-export async function createWorkspace(devworkspace: devfileApi.DevWorkspace): Promise<devfileApi.DevWorkspace> {
+export async function createWorkspace(
+  devworkspace: devfileApi.DevWorkspace,
+): Promise<devfileApi.DevWorkspace> {
   try {
-    const response = await axios.post(`${prefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
-      { devworkspace });
+    const response = await axios.post(
+      `${prefix}/namespace/${devworkspace.metadata.namespace}/devworkspaces`,
+      { devworkspace },
+    );
     return response.data;
   } catch (e) {
     throw `Failed to create a new workspace. ${helpers.errors.getMessage(e)}`;
   }
 }
 
-export async function listWorkspacesInNamespace(defaultNamespace: string): Promise<IDevWorkspacesList> {
+export async function listWorkspacesInNamespace(
+  defaultNamespace: string,
+): Promise<IDevWorkspacesList> {
   try {
     const response = await axios.get(`${prefix}/namespace/${defaultNamespace}/devworkspaces`);
     return response.data;
@@ -34,18 +40,30 @@ export async function listWorkspacesInNamespace(defaultNamespace: string): Promi
   }
 }
 
-export async function getWorkspaceByName(namespace: string, workspaceName: string): Promise<devfileApi.DevWorkspace> {
+export async function getWorkspaceByName(
+  namespace: string,
+  workspaceName: string,
+): Promise<devfileApi.DevWorkspace> {
   try {
-    const response = await axios.get(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`);
+    const response = await axios.get(
+      `${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
+    );
     return response.data;
   } catch (e) {
     throw `Failed to fetch workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
   }
 }
 
-export async function patchWorkspace(namespace: string, workspaceName: string, patch: api.IPatch[]): Promise<devfileApi.DevWorkspace> {
+export async function patchWorkspace(
+  namespace: string,
+  workspaceName: string,
+  patch: api.IPatch[],
+): Promise<devfileApi.DevWorkspace> {
   try {
-    const response = await axios.patch(`${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`, patch);
+    const response = await axios.patch(
+      `${prefix}/namespace/${namespace}/devworkspaces/${workspaceName}`,
+      patch,
+    );
     return response.data;
   } catch (e) {
     throw `Failed to update workspace '${workspaceName}'. ${helpers.errors.getMessage(e)}`;
@@ -69,7 +87,10 @@ export async function getDockerConfig(namespace: string): Promise<api.IDockerCon
   }
 }
 
-export async function putDockerConfig(namespace: string, dockerconfig: api.IDockerConfig): Promise<api.IDockerConfig> {
+export async function putDockerConfig(
+  namespace: string,
+  dockerconfig: api.IDockerConfig,
+): Promise<api.IDockerConfig> {
   try {
     const response = await axios.put(`${prefix}/namespace/${namespace}/dockerconfig`, dockerconfig);
     return response.data;

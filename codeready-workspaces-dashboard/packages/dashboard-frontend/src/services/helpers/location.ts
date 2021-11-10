@@ -20,13 +20,13 @@ import { Workspace } from '../workspace-adapter';
 export function buildIdeLoaderLocation(workspace: Workspace, tab?: IdeLoaderTab): Location {
   let pathAndQuery: string;
   if (!tab) {
-    pathAndQuery = ROUTE.IDE_LOADER
-      .replace(':namespace', workspace.namespace)
-      .replace(':workspaceName', workspace.name);
+    pathAndQuery = ROUTE.IDE_LOADER.replace(':namespace', workspace.namespace).replace(
+      ':workspaceName',
+      workspace.name,
+    );
   } else {
     const tabId = IdeLoaderTab[tab];
-    pathAndQuery = ROUTE.IDE_LOADER_TAB
-      .replace(':namespace', workspace.namespace)
+    pathAndQuery = ROUTE.IDE_LOADER_TAB.replace(':namespace', workspace.namespace)
       .replace(':workspaceName', workspace.name)
       .replace(':tabId', tabId);
   }
@@ -70,7 +70,7 @@ export function buildFactoryLoaderLocation(url?: string): Location {
 function extractUrlParam(fullUrl: URL, paramName: string): string | undefined {
   const param = fullUrl.searchParams.get(paramName);
   let value;
-  if (param && typeof(param) === 'string') {
+  if (param && typeof param === 'string') {
     value = param.slice();
   }
   fullUrl.searchParams.delete(paramName);
@@ -86,8 +86,7 @@ export function buildGettingStartedLocation(tab?: CreateWorkspaceTab): Location 
   if (!tab) {
     pathAndQuery = ROUTE.GET_STARTED;
   } else {
-    pathAndQuery = ROUTE.GET_STARTED_TAB
-      .replace(':tabId', tab);
+    pathAndQuery = ROUTE.GET_STARTED_TAB.replace(':tabId', tab);
   }
   return _buildLocationObject(pathAndQuery);
 }
@@ -95,12 +94,12 @@ export function buildGettingStartedLocation(tab?: CreateWorkspaceTab): Location 
 export function buildDetailsLocation(workspace: Workspace, tab?: WorkspaceDetailsTab): Location {
   let pathAndQuery: string;
   if (!tab) {
-    pathAndQuery = ROUTE.WORKSPACE_DETAILS
-      .replace(':namespace', workspace.namespace)
-      .replace(':workspaceName', workspace.name);
+    pathAndQuery = ROUTE.WORKSPACE_DETAILS.replace(':namespace', workspace.namespace).replace(
+      ':workspaceName',
+      workspace.name,
+    );
   } else {
-    pathAndQuery = ROUTE.WORKSPACE_DETAILS_TAB
-      .replace(':namespace', workspace.namespace)
+    pathAndQuery = ROUTE.WORKSPACE_DETAILS_TAB.replace(':namespace', workspace.namespace)
       .replace(':workspaceName', workspace.name)
       .replace(':tabId', tab);
   }
@@ -113,7 +112,7 @@ function _buildLocationObject(pathAndQuery: string): Location {
     pathname: tmpUrl.pathname,
     search: tmpUrl.search,
     hash: tmpUrl.hash,
-    state: undefined
+    state: undefined,
   };
 }
 

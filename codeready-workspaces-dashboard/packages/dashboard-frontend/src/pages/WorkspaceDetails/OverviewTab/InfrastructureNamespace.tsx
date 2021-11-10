@@ -20,13 +20,10 @@ type Props = {
 };
 
 class InfrastructureNamespaceFormGroup extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     return (
       <FormGroup label="Kubernetes Namespace" fieldId="infrastructure-namespace">
-        <div className={overviewStyles.readonly}>
-          {this.props.namespace}
-        </div>
+        <div className={overviewStyles.readonly}>{this.props.namespace}</div>
       </FormGroup>
     );
   }

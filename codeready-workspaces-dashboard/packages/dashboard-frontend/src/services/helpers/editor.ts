@@ -11,7 +11,10 @@
  */
 
 import { safeDump } from 'js-yaml';
-import { LanguageConfiguration, IMonarchLanguage } from 'monaco-editor-core/esm/vs/editor/editor.main';
+import {
+  LanguageConfiguration,
+  IMonarchLanguage,
+} from 'monaco-editor-core/esm/vs/editor/editor.main';
 import devfileApi from '../devfileApi';
 
 const sortOrder: Array<keyof che.WorkspaceDevfile | keyof devfileApi.Devfile> = [
@@ -62,15 +65,31 @@ export default function stringify(devfile: che.WorkspaceDevfile | devfileApi.Dev
  */
 export const conf = {
   comments: { lineComment: '#' },
-  brackets: [['{', '}'], ['[', ']'], ['(', ')']],
-  autoClosingPairs: [{ open: '{', close: '}' }, { open: '[', close: ']' }, { open: '(', close: ')' }, {
-    open: '"',
-    close: '"',
-  }, { open: '\'', close: '\'' }],
-  surroundingPairs: [{ open: '{', close: '}' }, { open: '[', close: ']' }, { open: '(', close: ')' }, {
-    open: '"',
-    close: '"',
-  }, { open: '\'', close: '\'' }],
+  brackets: [
+    ['{', '}'],
+    ['[', ']'],
+    ['(', ')'],
+  ],
+  autoClosingPairs: [
+    { open: '{', close: '}' },
+    { open: '[', close: ']' },
+    { open: '(', close: ')' },
+    {
+      open: '"',
+      close: '"',
+    },
+    { open: "'", close: "'" },
+  ],
+  surroundingPairs: [
+    { open: '{', close: '}' },
+    { open: '[', close: ']' },
+    { open: '(', close: ')' },
+    {
+      open: '"',
+      close: '"',
+    },
+    { open: "'", close: "'" },
+  ],
   folding: { offSide: true },
 } as LanguageConfiguration;
 
@@ -143,11 +162,17 @@ export const language = {
     ],
     multiString: [[/^( +).+$/, 'string', '@multiStringContinued.$1']],
     multiStringContinued: [
-      [/^( *).+$/, { cases: { '$1==$S2': 'string', '@default': { token: '@rematch', next: '@popall' } } }],
+      [
+        /^( *).+$/,
+        { cases: { '$1==$S2': 'string', '@default': { token: '@rematch', next: '@popall' } } },
+      ],
     ],
     whitespace: [[/[ \t\r\n]+/, 'white']],
     comment: [[/#.*$/, 'comment']],
-    flowCollections: [[/\[/, '@brackets', '@array'], [/{/, '@brackets', '@object']],
+    flowCollections: [
+      [/\[/, '@brackets', '@array'],
+      [/{/, '@brackets', '@object'],
+    ],
     flowScalars: [
       [/"([^"\\]|\\.)*$/, 'string.invalid'],
       [/'([^'\\]|\\.)*$/, 'string.invalid'],

@@ -31,20 +31,17 @@ import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
 import * as styles from './index.module.css';
 
-type Props =
-  MappedProps
-  & {
-    branding: BrandingData;
-    history: History;
-    user: che.User | undefined;
-    userProfile: api.che.user.Profile | undefined;
-    logout: () => void;
-  };
+type Props = MappedProps & {
+  branding: BrandingData;
+  history: History;
+  user: che.User | undefined;
+  userProfile: api.che.user.Profile | undefined;
+  logout: () => void;
+};
 type State = {
   isOpened: boolean;
 };
 export class UserMenu extends React.PureComponent<Props, State> {
-
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
 
@@ -149,11 +146,14 @@ export class UserMenu extends React.PureComponent<Props, State> {
           title: 'Login command',
           children: (
             <React.Fragment>
-              <Button variant={ButtonVariant.link} isInline={true}
+              <Button
+                variant={ButtonVariant.link}
+                isInline={true}
                 onClick={e => {
                   const target = e.target as Element;
                   target.classList.add(styles.refreshTokenButtonHidden);
-                }}>
+                }}
+              >
                 Click here
               </Button>
               <span> to see the login command and copy it manually.</span>
@@ -173,65 +173,49 @@ export class UserMenu extends React.PureComponent<Props, State> {
 
   private buildUserDropdownItems(): Array<React.ReactElement> {
     return [
-      (
-        <DropdownItem
-          key='user-account'
-          component='button'
-          onClick={() => this.props.history.push(ROUTE.USER_ACCOUNT)}
-        >
-          Account
-        </DropdownItem>
-      ),
-      (
-        <DropdownItem
-          key='user-preferences'
-          component='button'
-          onClick={() => this.props.history.push(ROUTE.USER_PREFERENCES)}
-        >
-          User Preferences
-        </DropdownItem>
-      ),
-      (
-        <DropdownItem
-          key='copy-login-command'
-          component='button'
-          onClick={async () => await this.onCopyLoginCommand()}
-        >
-          {`Copy ${this.getCliTool()} login command`}
-        </DropdownItem>
-      ),
-      (
-        <DropdownItem
-          key='account_logout'
-          component='button'
-          onClick={() => this.props.logout()}
-        >
-          Logout
-        </DropdownItem>
-      )
+      <DropdownItem
+        key="user-account"
+        component="button"
+        onClick={() => this.props.history.push(ROUTE.USER_ACCOUNT)}
+      >
+        Account
+      </DropdownItem>,
+      <DropdownItem
+        key="user-preferences"
+        component="button"
+        onClick={() => this.props.history.push(ROUTE.USER_PREFERENCES)}
+      >
+        User Preferences
+      </DropdownItem>,
+      <DropdownItem
+        key="copy-login-command"
+        component="button"
+        onClick={async () => await this.onCopyLoginCommand()}
+      >
+        {`Copy ${this.getCliTool()} login command`}
+      </DropdownItem>,
+      <DropdownItem key="account_logout" component="button" onClick={() => this.props.logout()}>
+        Logout
+      </DropdownItem>,
     ];
   }
 
   private buildUserToggleButton(): React.ReactElement {
     const username = this.getUsername();
     return (
-      <DropdownToggle
-        onToggle={(isOpen) => this.onUsernameButtonToggle(isOpen)}
-      >
+      <DropdownToggle onToggle={isOpen => this.onUsernameButtonToggle(isOpen)}>
         {username}
       </DropdownToggle>
     );
   }
 
   public render(): React.ReactElement {
-    const {
-      isOpened: isUsernameDropdownOpen,
-    } = this.state;
+    const { isOpened: isUsernameDropdownOpen } = this.state;
 
     return (
       <Dropdown
         isPlain
-        position='right'
+        position="right"
         onSelect={() => this.onUsernameSelect()}
         isOpen={isUsernameDropdownOpen}
         toggle={this.buildUserToggleButton()}
@@ -243,10 +227,7 @@ export class UserMenu extends React.PureComponent<Props, State> {
 
 const mapStateToProps = () => ({});
 
-const connector = connect(
-  mapStateToProps,
-  InfrastructureNamespacesStore.actionCreators,
-);
+const connector = connect(mapStateToProps, InfrastructureNamespacesStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(UserMenu);

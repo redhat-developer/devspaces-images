@@ -23,14 +23,13 @@ mockedAxios.get = jest.fn();
 console.log = jest.fn();
 
 describe('Resource fetcher', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('should not request resources if nothing configured', () => {
     const service = new ResourceFetcherService();
-    jest.spyOn((service as any), 'appendLink');
+    jest.spyOn(service as any, 'appendLink');
 
     const store = new FakeStoreBuilder()
       .withBranding({
@@ -45,14 +44,14 @@ describe('Resource fetcher', () => {
 
   it('should request CheCDN resources', async () => {
     const service = new ResourceFetcherService();
-    jest.spyOn((service as any), 'appendLink');
+    jest.spyOn(service as any, 'appendLink');
 
     mockedAxios.get = jest.fn().mockResolvedValue({
       data: [
         { cdn: 'che/resource/1', chunk: 'resource-1' },
         { cdn: 'che/resource/2', chunk: 'resource-2' },
         { cdn: 'che/resource/3', chunk: 'resource-3' },
-      ]
+      ],
     });
 
     const store = new FakeStoreBuilder()
@@ -60,7 +59,7 @@ describe('Resource fetcher', () => {
         configuration: {
           prefetch: {
             cheCDN: 'che/cdn',
-          }
+          },
         },
       } as BrandingData)
       .build();
@@ -77,18 +76,14 @@ describe('Resource fetcher', () => {
 
   it('should request other resources', async () => {
     const service = new ResourceFetcherService();
-    jest.spyOn((service as any), 'appendLink');
+    jest.spyOn(service as any, 'appendLink');
 
     const store = new FakeStoreBuilder()
       .withBranding({
         configuration: {
           prefetch: {
-            resources: [
-              'other/resource/1',
-              'other/resource/2',
-              'other/resource/3',
-            ]
-          }
+            resources: ['other/resource/1', 'other/resource/2', 'other/resource/3'],
+          },
         },
       } as BrandingData)
       .build();
@@ -101,5 +96,4 @@ describe('Resource fetcher', () => {
     expect((service as any).appendLink).toHaveBeenCalledWith('other/resource/2');
     expect((service as any).appendLink).toHaveBeenCalledWith('other/resource/3');
   });
-
 });

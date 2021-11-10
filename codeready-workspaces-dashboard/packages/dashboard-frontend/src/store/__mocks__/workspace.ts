@@ -23,7 +23,9 @@ export const createFakeCheWorkspace = (
   runtime?: che.WorkspaceRuntime,
 ): che.Workspace => {
   if (runtime && status === WorkspaceStatus.STOPPED) {
-    throw new Error('Failed creating a stub workspace. Workspace runtime object is only combined with "RUNNING" status');
+    throw new Error(
+      'Failed creating a stub workspace. Workspace runtime object is only combined with "RUNNING" status',
+    );
   }
   return {
     id: workspaceId,

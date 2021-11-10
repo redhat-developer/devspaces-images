@@ -38,11 +38,10 @@ export class NoResourceComponent extends React.Component {
 console.error = jest.fn();
 
 function wrapComponent(componentToWrap: React.ReactNode) {
-  return (<ErrorBoundary>{componentToWrap}</ErrorBoundary>);
+  return <ErrorBoundary>{componentToWrap}</ErrorBoundary>;
 }
 
 describe('Error boundary', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -60,7 +59,6 @@ describe('Error boundary', () => {
   });
 
   describe('error details', () => {
-
     it('should show and hide the error stack', () => {
       const errorBoundary = wrapComponent(<BadComponent />);
       render(errorBoundary);
@@ -76,11 +74,9 @@ describe('Error boundary', () => {
       expect(screen.queryByText('in BadComponent', { exact: false })).toBeFalsy();
       expect(screen.queryByText('in ErrorBoundary', { exact: false })).toBeFalsy();
     });
-
   });
 
   describe('when some resources are absent', () => {
-
     const { reload } = window.location;
 
     beforeEach(() => {
@@ -102,7 +98,11 @@ describe('Error boundary', () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
-      expect(screen.queryByText('The application has been likely updated on the server.', { exact: false })).toBeTruthy();
+      expect(
+        screen.queryByText('The application has been likely updated on the server.', {
+          exact: false,
+        }),
+      ).toBeTruthy();
     });
 
     it('should provide the countdown to the next page reload', () => {
@@ -111,7 +111,9 @@ describe('Error boundary', () => {
       const errorBoundary = wrapComponent(<NoResourceComponent />);
       render(errorBoundary);
 
-      expect(screen.queryByText('Refreshing a page to get newer resources in', { exact: false })).toBeTruthy();
+      expect(
+        screen.queryByText('Refreshing a page to get newer resources in', { exact: false }),
+      ).toBeTruthy();
       expect(screen.queryByText('30 seconds', { exact: false })).toBeTruthy();
 
       jest.advanceTimersByTime(5000);
@@ -125,7 +127,9 @@ describe('Error boundary', () => {
       const stopCountdownAction = screen.getByRole('button', { name: 'Stop countdown' });
       userEvent.click(stopCountdownAction);
 
-      expect(screen.queryByText('Refreshing a page to get newer resources in', { exact: false })).toBeFalsy();
+      expect(
+        screen.queryByText('Refreshing a page to get newer resources in', { exact: false }),
+      ).toBeFalsy();
     });
 
     it('should not reload page when countdown is stopped', () => {
@@ -181,7 +185,12 @@ describe('Error boundary', () => {
       window.dispatchEvent(new Event('beforeunload'));
       render(errorBoundary);
 
-      expect(screen.queryByText('Contact an administrator if refreshing continues after the next load.', { exact: true })).toBeTruthy();
+      expect(
+        screen.queryByText(
+          'Contact an administrator if refreshing continues after the next load.',
+          { exact: true },
+        ),
+      ).toBeTruthy();
     });
 
     it('should reset the number of reloads', () => {
@@ -218,7 +227,5 @@ describe('Error boundary', () => {
 
       expect(sessionStorage.getItem(STORAGE_KEY_RELOAD_NUMBER)).toBeNull();
     });
-
   });
-
 });

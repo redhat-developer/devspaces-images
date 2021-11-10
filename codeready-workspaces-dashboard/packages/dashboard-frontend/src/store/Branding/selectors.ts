@@ -15,12 +15,6 @@ import { AppState } from '..';
 
 const selectState = (state: AppState) => state.branding;
 
-export const selectBranding = createSelector(
-  selectState,
-  state => state.data,
-);
+export const selectBranding = createSelector(selectState, state => state.data);
 
-export const selectBrandingError = createSelector(
-  selectState,
-  state => state.error,
-);
+export const selectBrandingError = createSelector(selectState, state => state.error);

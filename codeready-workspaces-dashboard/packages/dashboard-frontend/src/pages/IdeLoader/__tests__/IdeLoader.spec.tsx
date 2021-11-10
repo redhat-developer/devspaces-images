@@ -29,7 +29,7 @@ jest.mock('../../../services/helpers/tools', () => {
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
-    return (<div>Dummy Tooltip</div>);
+    return <div>Dummy Tooltip</div>;
   };
 });
 
@@ -37,16 +37,24 @@ const workspaceName = 'wksp-test';
 const workspaceId = 'testWorkspaceId';
 
 describe('The Ide Loader page  component', () => {
-
   it('should render INITIALIZING step correctly', () => {
     const currentStep = LoadIdeSteps.INITIALIZING;
     const hasError = false;
     const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError, workspace.status);
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      hasError,
+      workspace.status,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -54,12 +62,26 @@ describe('The Ide Loader page  component', () => {
   it('should render INITIALIZING step with an error correctly', () => {
     const currentStep = LoadIdeSteps.INITIALIZING;
     const hasError = true;
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName, undefined, WorkspaceStatus.ERROR);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const workspace = createFakeCheWorkspace(
+      workspaceId,
+      workspaceName,
+      undefined,
+      WorkspaceStatus.ERROR,
+    );
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError, workspace.status);
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      hasError,
+      workspace.status,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -67,12 +89,26 @@ describe('The Ide Loader page  component', () => {
   it('should render START_WORKSPACE step correctly', () => {
     const currentStep = LoadIdeSteps.START_WORKSPACE;
 
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName, undefined, WorkspaceStatus.STARTING);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const workspace = createFakeCheWorkspace(
+      workspaceId,
+      workspaceName,
+      undefined,
+      WorkspaceStatus.STARTING,
+    );
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, false, workspace.status);
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      false,
+      workspace.status,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -81,11 +117,20 @@ describe('The Ide Loader page  component', () => {
     const currentStep = LoadIdeSteps.START_WORKSPACE;
 
     const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, true, WorkspaceStatus.ERROR);
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      true,
+      WorkspaceStatus.ERROR,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -98,12 +143,27 @@ describe('The Ide Loader page  component', () => {
       status: WorkspaceStatus.RUNNING,
       activeEnv: 'default',
     };
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName, undefined, WorkspaceStatus.RUNNING, runtime);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const workspace = createFakeCheWorkspace(
+      workspaceId,
+      workspaceName,
+      undefined,
+      WorkspaceStatus.RUNNING,
+      runtime,
+    );
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, false, workspace.status);
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      false,
+      workspace.status,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -112,10 +172,19 @@ describe('The Ide Loader page  component', () => {
     const currentStep = LoadIdeSteps.OPEN_IDE;
 
     const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, true, WorkspaceStatus.ERROR);
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      true,
+      WorkspaceStatus.ERROR,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -129,15 +198,30 @@ describe('The Ide Loader page  component', () => {
       status: WorkspaceStatus.RUNNING,
       activeEnv: 'default',
     };
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName, undefined, WorkspaceStatus.RUNNING, runtime);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, false, workspace.status, ideUrl);
+    const workspace = createFakeCheWorkspace(
+      workspaceId,
+      workspaceName,
+      undefined,
+      WorkspaceStatus.RUNNING,
+      runtime,
+    );
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      false,
+      workspace.status,
+      ideUrl,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });
-
 });
 
 function renderComponent(

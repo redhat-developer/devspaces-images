@@ -40,12 +40,11 @@ import UnsavedChangesModal from '../../components/UnsavedChangesModal';
 
 export const SECTION_THEME = PageSectionVariants.light;
 
-type Props =
-  {
-    workspacesLink: string;
-    onSave: (workspace: Workspace, activeTab: WorkspaceDetailsTab | undefined) => Promise<void>;
-    history: History;
-  } & MappedProps;
+type Props = {
+  workspacesLink: string;
+  onSave: (workspace: Workspace, activeTab: WorkspaceDetailsTab | undefined) => Promise<void>;
+  history: History;
+} & MappedProps;
 
 type State = {
   activeTabKey: WorkspaceDetailsTab;
@@ -61,7 +60,10 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
   private alert: { variant?: AlertVariant; title?: string } = {};
   public showAlert: (variant: AlertVariant, title: string) => void;
-  private readonly handleTabClick: (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText) => void;
+  private readonly handleTabClick: (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    tabIndex: React.ReactText,
+  ) => void;
 
   private readonly editorTabPageRef: React.RefObject<Editor>;
   private readonly overviewTabPageRef: React.RefObject<Overview>;
@@ -74,15 +76,21 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
     this.state = {
       activeTabKey: this.getActiveTabKey(this.props.history.location.search),
-      hasWarningMessage: false
+      hasWarningMessage: false,
     };
 
     // Toggle currently active tab
-    this.handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText): void => {
+    this.handleTabClick = (
+      event: React.MouseEvent<HTMLElement, MouseEvent>,
+      tabIndex: React.ReactText,
+    ): void => {
       const searchParams = new window.URLSearchParams(this.props.history.location.search);
       const { clickedTabIndex } = this.state;
       this.setState({ clickedTabIndex: tabIndex as WorkspaceDetailsTab });
-      const tab = clickedTabIndex && this.hasUnsavedChanges() ? clickedTabIndex : tabIndex as WorkspaceDetailsTab;
+      const tab =
+        clickedTabIndex && this.hasUnsavedChanges()
+          ? clickedTabIndex
+          : (tabIndex as WorkspaceDetailsTab);
       searchParams.set('tab', tab);
       this.props.history.location.search = searchParams.toString();
       this.props.history.push(this.props.history.location);
@@ -90,7 +98,9 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
     this.showAlert = (variant: AlertVariant, title: string): void => {
       this.alert = { variant, title };
-      const key = `wrks-details-${(('0000' + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4))}`;
+      const key = `wrks-details-${(
+        '0000' + ((Math.random() * Math.pow(36, 4)) << 0).toString(36)
+      ).slice(-4)}`;
       this.appAlerts.showAlert({ key, title, variant });
     };
   }
@@ -146,7 +156,10 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
   private hasUnsavedChanges(): boolean {
     if (this.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
-      return this.editorTabPageRef.current?.state.hasChanges || !this.editorTabPageRef.current?.state.isDevfileValid;
+      return (
+        this.editorTabPageRef.current?.state.hasChanges ||
+        !this.editorTabPageRef.current?.state.isDevfileValid
+      );
     } else if (this.state.activeTabKey === WorkspaceDetailsTab.OVERVIEW) {
       return this.overviewTabPageRef.current?.hasChanges === true;
     }
@@ -174,17 +187,25 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
             workspaceId={workspace.id}
             workspaceName={workspaceName}
             status={workspace.status}
-            history={this.props.history} />
+            history={this.props.history}
+          />
         </Header>
-        <PageSection variant={SECTION_THEME} className='workspace-details-tabs'>
-          {(this.state.hasWarningMessage) && (
-            <Alert variant={AlertVariant.warning} isInline
-              title={(<React.Fragment>
-                The workspace <em>{workspaceName}&nbsp;</em> should be restarted to apply changes.
-              </React.Fragment>)}
-              actionClose={(<AlertActionCloseButton
-                onClose={() => this.setState({ hasWarningMessage: false })} />)
-              } />
+        <PageSection variant={SECTION_THEME} className="workspace-details-tabs">
+          {this.state.hasWarningMessage && (
+            <Alert
+              variant={AlertVariant.warning}
+              isInline
+              title={
+                <React.Fragment>
+                  The workspace <em>{workspaceName}&nbsp;</em> should be restarted to apply changes.
+                </React.Fragment>
+              }
+              actionClose={
+                <AlertActionCloseButton
+                  onClose={() => this.setState({ hasWarningMessage: false })}
+                />
+              }
+            />
           )}
           <Tabs activeKey={this.state.activeTabKey} onSelect={this.handleTabClick}>
             <Tab eventKey={WorkspaceDetailsTab.OVERVIEW} title={WorkspaceDetailsTab.OVERVIEW}>
@@ -201,7 +222,8 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
                 ref={this.editorTabPageRef}
                 workspace={workspace}
                 onSave={workspace => this.onSave(workspace)}
-                onDevWorkspaceWarning={() => this.setState({ hasWarningMessage: true })} />
+                onDevWorkspaceWarning={() => this.setState({ hasWarningMessage: true })}
+              />
             </Tab>
             {/* <Tab eventKey={WorkspaceDetailsTabs.Logs} title={WorkspaceDetailsTabs[WorkspaceDetailsTabs.Logs]}>*/}
             {/*  <LogsTab workspaceId={workspace.id} />*/}
@@ -218,14 +240,16 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   }
 
   private async onSave(workspace: Workspace): Promise<void> {
-    if (this.props.workspace && isCheWorkspace((this.props.workspace as Workspace).ref)
-      && (this.props.workspace.status !== WorkspaceStatus.STOPPED)) {
+    if (
+      this.props.workspace &&
+      isCheWorkspace((this.props.workspace as Workspace).ref) &&
+      this.props.workspace.status !== WorkspaceStatus.STOPPED
+    ) {
       this.setState({ hasWarningMessage: true });
     }
     await this.props.onSave(workspace, this.state.activeTabKey);
     this.editorTabPageRef.current?.cancelChanges();
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -233,12 +257,7 @@ const mapStateToProps = (state: AppState) => ({
   workspace: selectWorkspaceById(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  null,
-  null,
-  { forwardRef: true },
-);
+const connector = connect(mapStateToProps, null, null, { forwardRef: true });
 
-type MappedProps = ConnectedProps<typeof connector>
+type MappedProps = ConnectedProps<typeof connector>;
 export default connector(WorkspaceDetails);

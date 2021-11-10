@@ -12,13 +12,13 @@
 
 export enum deletePolicy {
   Background = 'Background',
-  Foreground = 'Foreground'
+  Foreground = 'Foreground',
 }
 
 export const deletionOptions = (policy: deletePolicy) => {
   return {
     apiVersion: 'v1',
     kind: 'DeleteOptions',
-    propagationPolicy: policy
+    propagationPolicy: policy,
   };
 };

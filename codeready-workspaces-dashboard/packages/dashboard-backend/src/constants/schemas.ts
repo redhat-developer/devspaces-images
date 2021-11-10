@@ -16,43 +16,43 @@ import { JSONSchema7 } from 'json-schema';
 export const authenticationHeaderSchema: JSONSchema7 = {
   type: 'object',
   properties: {
-    'authorization': {
-      type: 'string'
-    }
-  }
+    authorization: {
+      type: 'string',
+    },
+  },
 };
 
 export const namespacedDockerConfigSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     namespace: {
-      type: 'string'
-    }
+      type: 'string',
+    },
   },
-  required: ['namespace']
+  required: ['namespace'],
 };
 
 export const namespacedWorkspaceSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     namespace: {
-      type: 'string'
+      type: 'string',
     },
     workspaceName: {
-      type: 'string'
-    }
+      type: 'string',
+    },
   },
-  required: ['namespace', 'workspaceName']
+  required: ['namespace', 'workspaceName'],
 };
 
 export const namespacedSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     namespace: {
-      type: 'string'
+      type: 'string',
     },
   },
-  required: ['namespace']
+  required: ['namespace'],
 };
 
 export const patchSchema: JSONSchema7 = {
@@ -62,33 +62,33 @@ export const patchSchema: JSONSchema7 = {
     properties: {
       op: { type: 'string' },
       path: { type: 'string' },
-      value: {} // matches any value
+      value: {}, // matches any value
     },
-  }
+  },
 };
 
 export const dockerConfigSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     dockerconfig: {
-      type: 'string'
+      type: 'string',
     },
     resourceVersion: {
-      type: 'string'
-    }
+      type: 'string',
+    },
   },
   examples: [dockerConfigExample],
-  required: ['dockerconfig']
+  required: ['dockerconfig'],
 };
 
 export const devworkspaceSchema: JSONSchema7 = {
   type: 'object',
   properties: {
     devworkspace: {
-      type: 'object'
-    }
+      type: 'object',
+    },
   },
-  required: ['devworkspace']
+  required: ['devworkspace'],
 };
 
 export const templateStartedSchema: JSONSchema7 = {
@@ -108,9 +108,9 @@ export const templateStartedSchema: JSONSchema7 = {
                 name: { type: 'string' },
                 namespace: { type: 'string' },
                 ownerReferences: { type: 'array' },
-              }
-            }
-          }
+              },
+            },
+          },
         },
         spec: {
           type: 'object',
@@ -124,16 +124,15 @@ export const templateStartedSchema: JSONSchema7 = {
                   type: 'object',
                   properties: {
                     preStart: {
-                      type: 'array'
-                    }
-                  }
-                }
-              }
+                      type: 'array',
+                    },
+                  },
+                },
+              },
             },
           },
         },
       },
-    }
-  }
+    },
+  },
 };
-

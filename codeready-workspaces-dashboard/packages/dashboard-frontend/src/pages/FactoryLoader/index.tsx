@@ -22,7 +22,8 @@ import {
   AlertActionCloseButton,
   AlertGroup,
   AlertVariant,
-  Wizard, WizardStep,
+  Wizard,
+  WizardStep,
 } from '@patternfly/react-core';
 import Head from '../../components/Head';
 import Header from '../../components/Header';
@@ -48,15 +49,15 @@ export type AlertOptions = {
 };
 
 type Props = {
-  hasError: boolean,
-  currentStep: LoadFactorySteps,
+  hasError: boolean;
+  currentStep: LoadFactorySteps;
   workspaceName: string;
   workspaceId: string;
   isDevWorkspace: boolean;
   resolvedDevfileMessage?: string;
   callbacks?: {
-    showAlert?: (options: AlertOptions) => void
-  }
+    showAlert?: (options: AlertOptions) => void;
+  };
 };
 
 type State = {
@@ -70,7 +71,10 @@ type State = {
 class FactoryLoader extends React.PureComponent<Props, State> {
   public showAlert: (options: AlertOptions) => void;
   private readonly hideAlert: () => void;
-  private readonly handleTabClick: (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText) => void;
+  private readonly handleTabClick: (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    tabIndex: React.ReactText,
+  ) => void;
 
   private readonly wizardRef: RefObject<any>;
 
@@ -86,7 +90,10 @@ class FactoryLoader extends React.PureComponent<Props, State> {
     this.wizardRef = React.createRef();
 
     // Toggle currently active tab
-    this.handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText): void => {
+    this.handleTabClick = (
+      event: React.MouseEvent<HTMLElement, MouseEvent>,
+      tabIndex: React.ReactText,
+    ): void => {
       this.setState({ activeTabKey: tabIndex as LoadFactoryTabs });
       if (this.state.activeTabKey === LoadFactoryTabs.Progress) {
         this.setState({ alertVisible: false });
@@ -95,7 +102,11 @@ class FactoryLoader extends React.PureComponent<Props, State> {
     // Init showAlert
     let showAlertTimer: number;
     this.showAlert = (alertOptions: AlertOptions): void => {
-      this.setState({ currentRequestError: alertOptions.title, currentAlertVariant: alertOptions.alertVariant, alertActionLinks: alertOptions?.alertActionLinks });
+      this.setState({
+        currentRequestError: alertOptions.title,
+        currentAlertVariant: alertOptions.alertVariant,
+        alertActionLinks: alertOptions?.alertActionLinks,
+      });
       if (this.state.activeTabKey === LoadFactoryTabs.Progress) {
         return;
       }
@@ -103,9 +114,12 @@ class FactoryLoader extends React.PureComponent<Props, State> {
       if (showAlertTimer) {
         clearTimeout(showAlertTimer);
       }
-      showAlertTimer = window.setTimeout(() => {
-        this.setState({ alertVisible: false });
-      }, alertOptions.alertVariant === AlertVariant.success ? 2000 : 10000);
+      showAlertTimer = window.setTimeout(
+        () => {
+          this.setState({ alertVisible: false });
+        },
+        alertOptions.alertVariant === AlertVariant.success ? 2000 : 10000,
+      );
     };
     this.hideAlert = (): void => this.setState({ alertVisible: false });
     // Prepare showAlert as a callback
@@ -128,16 +142,23 @@ class FactoryLoader extends React.PureComponent<Props, State> {
   private getIcon(step: LoadFactorySteps, className = ''): React.ReactNode {
     const { currentStep, hasError } = this.props;
     if (currentStep > step) {
-      return (<React.Fragment>
-        <CheckCircleIcon className={className} color="green" />
-      </React.Fragment>);
+      return (
+        <React.Fragment>
+          <CheckCircleIcon className={className} color="green" />
+        </React.Fragment>
+      );
     } else if (currentStep === step) {
       if (hasError) {
         return <ExclamationCircleIcon className={className} color="red" />;
       }
-      return (<React.Fragment>
-        <InProgressIcon className={`${workspaceStatusLabelStyles.rotate} ${className}`} color="#0e6fe0" />
-      </React.Fragment>);
+      return (
+        <React.Fragment>
+          <InProgressIcon
+            className={`${workspaceStatusLabelStyles.rotate} ${className}`}
+            color="#0e6fe0"
+          />
+        </React.Fragment>
+      );
     }
     return '';
   }
@@ -161,35 +182,27 @@ class FactoryLoader extends React.PureComponent<Props, State> {
     return [
       {
         id: LoadFactorySteps.INITIALIZING,
-        name: getTitle(
-          LoadFactorySteps.INITIALIZING,
-          'Initializing',
-          'wizard-icon'),
+        name: getTitle(LoadFactorySteps.INITIALIZING, 'Initializing', 'wizard-icon'),
         canJumpTo: currentStep >= LoadFactorySteps.INITIALIZING,
       },
       {
-        name: getTitle(
-          LoadFactorySteps.CREATE_WORKSPACE,
-          'Creating a workspace',
-          'wizard-icon'),
+        name: getTitle(LoadFactorySteps.CREATE_WORKSPACE, 'Creating a workspace', 'wizard-icon'),
         steps: [
           {
             id: LoadFactorySteps.LOOKING_FOR_DEVFILE,
             name: getTitle(
               LoadFactorySteps.LOOKING_FOR_DEVFILE,
-              currentStep <= LoadFactorySteps.LOOKING_FOR_DEVFILE ?
-                'Looking for devfile' :
-                resolvedDevfileMessage ?
-                  `${resolvedDevfileMessage}` :
-                  'Devfile could not be found',
+              currentStep <= LoadFactorySteps.LOOKING_FOR_DEVFILE
+                ? 'Looking for devfile'
+                : resolvedDevfileMessage
+                ? `${resolvedDevfileMessage}`
+                : 'Devfile could not be found',
             ),
             canJumpTo: currentStep >= LoadFactorySteps.LOOKING_FOR_DEVFILE,
           },
           {
             id: LoadFactorySteps.APPLYING_DEVFILE,
-            name: getTitle(
-              LoadFactorySteps.APPLYING_DEVFILE,
-              'Applying devfile'),
+            name: getTitle(LoadFactorySteps.APPLYING_DEVFILE, 'Applying devfile'),
             canJumpTo: currentStep >= LoadFactorySteps.APPLYING_DEVFILE,
           },
         ],
@@ -199,28 +212,20 @@ class FactoryLoader extends React.PureComponent<Props, State> {
         name: getTitle(
           LoadFactorySteps.START_WORKSPACE,
           'Waiting for workspace to start',
-          'wizard-icon'),
+          'wizard-icon',
+        ),
         canJumpTo: currentStep >= LoadFactorySteps.START_WORKSPACE,
       },
       {
         id: LoadFactorySteps.OPEN_IDE,
-        name: getTitle(
-          LoadFactorySteps.OPEN_IDE,
-          'Open IDE',
-          'wizard-icon'),
+        name: getTitle(LoadFactorySteps.OPEN_IDE, 'Open IDE', 'wizard-icon'),
         canJumpTo: currentStep >= LoadFactorySteps.OPEN_IDE,
       },
     ];
   }
 
   public render(): React.ReactElement {
-    const {
-      workspaceName,
-      workspaceId,
-      hasError,
-      currentStep,
-      isDevWorkspace,
-    } = this.props;
+    const { workspaceName, workspaceId, hasError, currentStep, isDevWorkspace } = this.props;
     const { alertVisible, currentRequestError, currentAlertVariant, alertActionLinks } = this.state;
 
     return (
@@ -236,21 +241,33 @@ class FactoryLoader extends React.PureComponent<Props, State> {
             />
           </AlertGroup>
         )}
-        <Header title={`Starting workspace ${workspaceName}`}
-          status={hasError ? WorkspaceStatus.ERROR : WorkspaceStatus.STARTING} />
+        <Header
+          title={`Starting workspace ${workspaceName}`}
+          status={hasError ? WorkspaceStatus.ERROR : WorkspaceStatus.STARTING}
+        />
         <PageSection variant={SECTION_THEME} className="load-factory-page" isFilled={true}>
-          <Tabs activeKey={this.state.activeTabKey} onSelect={this.handleTabClick} inset={{ default: 'insetLg' }}
-            id="factory-loader-page-tabs">
-            <Tab eventKey={LoadFactoryTabs.Progress} title={LoadFactoryTabs[LoadFactoryTabs.Progress]}
-              id="factory-loader-page-wizard-tab">
+          <Tabs
+            activeKey={this.state.activeTabKey}
+            onSelect={this.handleTabClick}
+            inset={{ default: 'insetLg' }}
+            id="factory-loader-page-tabs"
+          >
+            <Tab
+              eventKey={LoadFactoryTabs.Progress}
+              title={LoadFactoryTabs[LoadFactoryTabs.Progress]}
+              id="factory-loader-page-wizard-tab"
+            >
               <PageSection>
-                {(hasError && this.state.currentRequestError) && (
+                {hasError && this.state.currentRequestError && (
                   <Alert
                     isInline
                     variant={currentAlertVariant}
                     title={currentRequestError}
-                    actionClose={<AlertActionCloseButton
-                      onClose={() => this.setState({ currentRequestError: '' })} />}
+                    actionClose={
+                      <AlertActionCloseButton
+                        onClose={() => this.setState({ currentRequestError: '' })}
+                      />
+                    }
                     actionLinks={alertActionLinks}
                   />
                 )}
@@ -258,18 +275,18 @@ class FactoryLoader extends React.PureComponent<Props, State> {
                   className="load-factory-wizard"
                   steps={this.getSteps()}
                   ref={this.wizardRef}
-                  footer={(<span />)}
+                  footer={<span />}
                   height={300}
                   startAtStep={currentStep}
                 />
               </PageSection>
             </Tab>
-            <Tab eventKey={LoadFactoryTabs.Logs} title={LoadFactoryTabs[LoadFactoryTabs.Logs]}
-              id="factory-loader-page-logs-tab">
-              <WorkspaceLogs
-                workspaceId={workspaceId}
-                isDevWorkspace={isDevWorkspace}
-              />
+            <Tab
+              eventKey={LoadFactoryTabs.Logs}
+              title={LoadFactoryTabs[LoadFactoryTabs.Logs]}
+              id="factory-loader-page-logs-tab"
+            >
+              <WorkspaceLogs workspaceId={workspaceId} isDevWorkspace={isDevWorkspace} />
             </Tab>
           </Tabs>
         </PageSection>

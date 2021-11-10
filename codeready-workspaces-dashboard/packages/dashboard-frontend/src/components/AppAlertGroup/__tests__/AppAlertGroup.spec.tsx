@@ -20,7 +20,6 @@ import { AppAlerts } from '../../../services/alerts/appAlerts';
 const appAlerts = container.get(AppAlerts);
 
 describe('AppAlertGroup component', () => {
-
   const showAlert = (title: string): void => {
     const key = 'wrks-delete';
     const variant = AlertVariant.success;
@@ -67,11 +66,8 @@ describe('AppAlertGroup component', () => {
 
     expect(screen.queryAllByText(title).length).toEqual(0);
   });
-
 });
 
-function renderComponent(
-  component: React.ReactElement
-): RenderResult {
+function renderComponent(component: React.ReactElement): RenderResult {
   return render(component);
 }

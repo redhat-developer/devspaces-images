@@ -11,22 +11,15 @@
  */
 
 import React from 'react';
-import {
-  Brand,
-  Card,
-  CardBody,
-  CardHeader,
-  CardHeaderMain,
-} from '@patternfly/react-core';
+import { Brand, Card, CardBody, CardHeader, CardHeaderMain } from '@patternfly/react-core';
 import './SampleCard.styl';
 
 type SampleCardProps = {
   metadata: che.DevfileMetaData;
   onClick: (metadata: che.DevfileMetaData) => void;
-}
+};
 
 export class SampleCard extends React.PureComponent<SampleCardProps> {
-
   render(): React.ReactElement {
     const metadata = this.props.metadata;
     const devfileIcon = this.buildIcon(metadata);
@@ -43,9 +36,7 @@ export class SampleCard extends React.PureComponent<SampleCardProps> {
         className={'sample-card'}
       >
         <CardHeader>
-          <CardHeaderMain>
-            {devfileIcon}
-          </CardHeaderMain>
+          <CardHeaderMain>{devfileIcon}</CardHeaderMain>
         </CardHeader>
         <CardHeader>{metadata.displayName}</CardHeader>
         <CardBody>{metadata.description}</CardBody>
@@ -54,14 +45,12 @@ export class SampleCard extends React.PureComponent<SampleCardProps> {
   }
 
   private buildIcon(metadata: che.DevfileMetaData): React.ReactElement {
-    return metadata.icon
-      ? (<Brand
-        src={metadata.icon}
-        alt={metadata.displayName}
-        style={{ height: '64px' }} />)
-      : (<div className='blank-icon'>
-        <div className='codicon codicon-symbol-method'></div>
-      </div>);
+    return metadata.icon ? (
+      <Brand src={metadata.icon} alt={metadata.displayName} style={{ height: '64px' }} />
+    ) : (
+      <div className="blank-icon">
+        <div className="codicon codicon-symbol-method"></div>
+      </div>
+    );
   }
-
 }

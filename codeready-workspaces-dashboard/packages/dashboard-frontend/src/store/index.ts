@@ -46,7 +46,7 @@ export interface AppState {
   factoryResolver: FactoryResolverStore.State;
   userPreferences: UserPreferences.State;
   dwPlugins: DwPluginsStore.State;
-  workspacesSettings: WorkspacesSettingsStore.State,
+  workspacesSettings: WorkspacesSettingsStore.State;
   cheDockerConfig: CheDockerConfigStore.State;
   dwDockerConfig: DwDockerConfigStore.State;
 }

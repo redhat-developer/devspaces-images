@@ -31,7 +31,6 @@ type State = {
 };
 
 export class AboutMenu extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -64,27 +63,23 @@ export class AboutMenu extends React.PureComponent<Props, State> {
   private buildLauncherItems(): React.ReactNode[] {
     const branding = this.props.branding;
     const items: React.ReactElement[] = [];
-    branding.links?.forEach((link) => {
+    branding.links?.forEach(link => {
       items.push(
         <ApplicationLauncherItem
           key={link.text}
           isExternal={true}
-          component='button'
+          component="button"
           onClick={() => window.open(link.href, '_blank')}
         >
           {link.text}
-        </ApplicationLauncherItem>
+        </ApplicationLauncherItem>,
       );
     });
 
     const group = (
-      <ApplicationLauncherGroup key='info_button'>
+      <ApplicationLauncherGroup key="info_button">
         {items}
-        <ApplicationLauncherItem
-          key='about'
-          component='button'
-          onClick={(e) => this.showModal(e)}
-        >
+        <ApplicationLauncherItem key="about" component="button" onClick={e => this.showModal(e)}>
           About
         </ApplicationLauncherItem>
       </ApplicationLauncherGroup>
@@ -114,10 +109,7 @@ export class AboutMenu extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const {
-      isLauncherOpen,
-      isModalOpen,
-    } = this.state;
+    const { isLauncherOpen, isModalOpen } = this.state;
 
     const username = this.getUsername();
     const { logoFile, name, productVersion } = this.props.branding;
@@ -128,9 +120,9 @@ export class AboutMenu extends React.PureComponent<Props, State> {
           onToggle={() => this.onLauncherToggle()}
           isOpen={isLauncherOpen}
           items={this.buildLauncherItems()}
-          aria-label='About Menu'
-          position='right'
-          toggleIcon={<QuestionCircleIcon alt='About Menu Icon' />}
+          aria-label="About Menu"
+          position="right"
+          toggleIcon={<QuestionCircleIcon alt="About Menu Icon" />}
         />
         <AboutModal
           isOpen={isModalOpen}

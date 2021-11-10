@@ -25,6 +25,8 @@
     "test": "lerna run test --stream -- $@",
     "pretest": "yarn run prebuild",
     "test:coverage": "yarn run test -- --runInBand --coverage",
+    "format:check": "yarn workspaces run format:check",
+    "format:fix": "lerna run --stream  format:fix",
     "lint:check": "yarn workspaces run lint:check",
     "lint:fix": "lerna run --stream lint:fix"
   },

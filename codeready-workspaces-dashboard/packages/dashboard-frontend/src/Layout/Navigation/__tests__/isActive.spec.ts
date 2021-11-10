@@ -14,7 +14,6 @@ import { ROUTE } from '../../../route.enum';
 import isActive from '../isActive';
 
 describe('Active navigation item', () => {
-
   it('should match equal paths', () => {
     const itemPath = ROUTE.GET_STARTED;
     const activePath = ROUTE.GET_STARTED;
@@ -39,5 +38,4 @@ describe('Active navigation item', () => {
     const activePath = ROUTE.GET_STARTED;
     expect(isActive(itemPath, activePath)).toEqual(false);
   });
-
 });

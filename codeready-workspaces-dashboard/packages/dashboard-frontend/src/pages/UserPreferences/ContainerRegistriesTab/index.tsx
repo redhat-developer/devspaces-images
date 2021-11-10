@@ -52,10 +52,9 @@ type State = {
   isDeleteModalOpen: boolean;
   isEditModalOpen: boolean;
   activeTabKey: string;
-}
+};
 
 export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
-
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
 
@@ -94,7 +93,7 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
   }
 
   public async componentDidMount(): Promise<void> {
-    const { isLoading, requestCredentials  } = this.props;
+    const { isLoading, requestCredentials } = this.props;
     if (!isLoading) {
       requestCredentials();
     }
@@ -132,16 +131,15 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
     if (/^http[s]?:\/\/.*/.test(url)) {
       return [
         <span key="host">
-          <a href={url} target="_blank" rel="noreferrer">{url}</a>
+          <a href={url} target="_blank" rel="noreferrer">
+            {url}
+          </a>
         </span>,
         <span key="username">{username}</span>,
       ];
     }
 
-    return [
-      <span key="host">{url}</span>,
-      <span key="username">{username}</span>,
-    ];
+    return [<span key="host">{url}</span>, <span key="username">{username}</span>];
   }
 
   private showOnAddRegistryModal(): void {
@@ -159,7 +157,9 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
   private async onDelete(registry?: RegistryEntry): Promise<void> {
     let registries: RegistryEntry[];
     if (registry === undefined) {
-      registries = this.state.registries.filter(registry => !this.state.selectedItems.includes(registry.url));
+      registries = this.state.registries.filter(
+        registry => !this.state.selectedItems.includes(registry.url),
+      );
     } else {
       registries = [...this.state.registries];
       const index = registries.findIndex(_registry => _registry.url === registry.url);
@@ -271,15 +271,28 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
 
   render(): React.ReactNode {
     const { isLoading } = this.props;
-    const { isEditModalOpen, isDeleteModalOpen, currentRegistry, currentRegistryIndex, selectedItems } = this.state;
+    const {
+      isEditModalOpen,
+      isDeleteModalOpen,
+      currentRegistry,
+      currentRegistryIndex,
+      selectedItems,
+    } = this.state;
     const columns = ['Host', 'Username'];
-    const rows = this.state.registries.map(registry => ({
-      cells: this.buildRegistryRow(registry),
-      selected: selectedItems.includes(registry.url),
-    })) || [];
+    const rows =
+      this.state.registries.map(registry => ({
+        cells: this.buildRegistryRow(registry),
+        selected: selectedItems.includes(registry.url),
+      })) || [];
     const actions = [
-      { title: 'Edit registry', onClick: (event, rowIndex) => this.showOnEditRegistryModal(rowIndex) },
-      { title: 'Delete registry', onClick: (event, rowIndex) => this.showOnDeleteRegistryModal(rowIndex) },
+      {
+        title: 'Edit registry',
+        onClick: (event, rowIndex) => this.showOnEditRegistryModal(rowIndex),
+      },
+      {
+        title: 'Delete registry',
+        onClick: (event, rowIndex) => this.showOnDeleteRegistryModal(rowIndex),
+      },
     ];
 
     return (
@@ -290,47 +303,68 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
           onChange={_registry => this.handleRegistryChange(_registry)}
           isEditMode={this.isEditMode}
           registry={currentRegistry}
-          isOpen={isEditModalOpen} />
+          isOpen={isEditModalOpen}
+        />
         <PageSection>
-          {rows.length === 0 ?
-            (<NoRegistriesEmptyState onAddRegistry={() => this.showOnAddRegistryModal()} />) :
-            (<React.Fragment>
+          {rows.length === 0 ? (
+            <NoRegistriesEmptyState onAddRegistry={() => this.showOnAddRegistryModal()} />
+          ) : (
+            <React.Fragment>
               <DeleteRegistriesModal
                 selectedItems={selectedItems}
                 onCancel={() => this.setDeleteModalStatus(false)}
                 onDelete={_registry => this.onDelete(_registry)}
                 isOpen={isDeleteModalOpen}
-                registry={currentRegistryIndex !== -1 ? currentRegistry : undefined} />
+                registry={currentRegistryIndex !== -1 ? currentRegistry : undefined}
+              />
               <Toolbar id="registries-list-toolbar" className="pf-m-page-insets">
                 <ToolbarContent>
                   <ToolbarItem>
-                    <Button variant={ButtonVariant.danger} isDisabled={this.state.selectedItems.length === 0}
+                    <Button
+                      variant={ButtonVariant.danger}
+                      isDisabled={this.state.selectedItems.length === 0}
                       data-testid="bulk-delete-button"
-                      onClick={() => this.handleDelete()}>
+                      onClick={() => this.handleDelete()}
+                    >
                       Delete
                     </Button>
                   </ToolbarItem>
                   <ToolbarItem
-                    alignment={{ md: 'alignRight', lg: 'alignRight', xl: 'alignRight', '2xl': 'alignRight' }}
+                    alignment={{
+                      md: 'alignRight',
+                      lg: 'alignRight',
+                      xl: 'alignRight',
+                      '2xl': 'alignRight',
+                    }}
                   >
-                    <Button variant={ButtonVariant.link} data-testid="add-button"
+                    <Button
+                      variant={ButtonVariant.link}
+                      data-testid="add-button"
                       icon={<PlusCircleIcon />}
                       iconPosition="left"
-                      onClick={() => this.showOnAddRegistryModal()}>
+                      onClick={() => this.showOnAddRegistryModal()}
+                    >
                       Add Container Registry
                     </Button>
                   </ToolbarItem>
                 </ToolbarContent>
               </Toolbar>
-              <Table cells={columns} actions={actions} rows={rows}
+              <Table
+                cells={columns}
+                actions={actions}
+                rows={rows}
                 onSelect={(event, isSelected, rowIndex) => {
                   this.onChangeRegistrySelection(isSelected, rowIndex);
                 }}
-                canSelectAll={true} aria-label="Container credentials" variant="compact">
+                canSelectAll={true}
+                aria-label="Container credentials"
+                variant="compact"
+              >
                 <TableHeader />
                 <TableBody />
               </Table>
-            </React.Fragment>)}
+            </React.Fragment>
+          )}
         </PageSection>
       </React.Fragment>
     );
@@ -342,10 +376,7 @@ const mapStateToProps = (state: AppState) => ({
   isLoading: selectIsLoading(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  DockerConfigStore.actionCreators,
-);
+const connector = connect(mapStateToProps, DockerConfigStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(ContainerRegistriesTab);

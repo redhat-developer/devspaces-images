@@ -19,7 +19,6 @@ import { toTitle } from '../../../../../services/storageTypes';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 
 describe('Storage Type Selector', () => {
-
   const mockOnChange = jest.fn();
 
   function renderSelector(storageType: che.WorkspaceStorageType): RenderResult {
@@ -27,11 +26,8 @@ describe('Storage Type Selector', () => {
 
     return render(
       <Provider store={store}>
-        <StorageTypeFormGroup
-          storageType={storageType}
-          onChange={mockOnChange}
-        />
-      </Provider>
+        <StorageTypeFormGroup storageType={storageType} onChange={mockOnChange} />
+      </Provider>,
     );
   }
 
@@ -108,11 +104,8 @@ describe('Storage Type Selector', () => {
     const store = buildStore(defaultStorageType);
     rerender(
       <Provider store={store}>
-        <StorageTypeFormGroup
-          storageType={nextStorageType}
-          onChange={mockOnChange}
-        />
-      </Provider>
+        <StorageTypeFormGroup storageType={nextStorageType} onChange={mockOnChange} />
+      </Provider>,
     );
 
     const nextToggleElement = screen.getByRole('button', { name: toTitle(nextStorageType) });
@@ -136,18 +129,17 @@ describe('Storage Type Selector', () => {
     expect(link).toBeVisible();
     expect(link.getAttribute('href')).toEqual('https://che-docs/storage-types');
   });
-
 });
 
 function buildStore(storageType: string) {
   const settings: che.WorkspaceSettings = {
     'che.workspace.storage.available_types': 'async,ephemeral,persistent',
-    'che.workspace.storage.preferred_type': storageType
+    'che.workspace.storage.preferred_type': storageType,
   } as che.WorkspaceSettings;
   const branding = {
     docs: {
-      storageTypes: 'https://che-docs/storage-types'
-    }
+      storageTypes: 'https://che-docs/storage-types',
+    },
   } as any;
 
   const store = new FakeStoreBuilder()

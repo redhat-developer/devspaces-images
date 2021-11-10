@@ -23,7 +23,6 @@ const SECRET_LABELS = { 'controller.devfile.io/devworkspace_pullsecret': 'true' 
 const DOCKER_CONFIG_API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 
 export class DockerConfigApi implements IDockerConfigApi {
-
   private readonly coreV1API: k8s.CoreV1Api;
 
   constructor(kc: k8s.KubeConfig) {
@@ -53,7 +52,10 @@ export class DockerConfigApi implements IDockerConfigApi {
       } catch (e) {
         if (helpers.errors.isKubeClientError(e) && e.statusCode === 404) {
           const dockerConfigSecret = this.toDockerConfigSecret(dockerCfg);
-          const { body } = await this.coreV1API.createNamespacedSecret(namespace, dockerConfigSecret);
+          const { body } = await this.coreV1API.createNamespacedSecret(
+            namespace,
+            dockerConfigSecret,
+          );
           return this.toDockerConfig(body);
         }
         throw e;
@@ -71,14 +73,14 @@ export class DockerConfigApi implements IDockerConfigApi {
     return {
       apiVersion: 'v1',
       data: {
-        [SECRET_KEY]: dockerCfg.dockerconfig || ''
+        [SECRET_KEY]: dockerCfg.dockerconfig || '',
       },
       kind: 'Secret',
       metadata: {
         name: SECRET_NAME,
         labels: SECRET_LABELS,
       },
-      type: 'kubernetes.io/dockerconfigjson'
+      type: 'kubernetes.io/dockerconfigjson',
     };
   }
 

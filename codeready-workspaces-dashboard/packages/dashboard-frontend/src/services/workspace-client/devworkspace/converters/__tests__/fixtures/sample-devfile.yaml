@@ -5,12 +5,12 @@ metadata:
   attributes:
     author: Somebody
     dw.metadata.annotations:
-      any.custom.settings: "true"
+      any.custom.settings: 'true'
 projects:
   - name: project
     git:
       remotes:
-        origin: "https://github.com/che-samples/web-nodejs-sample.git"
+        origin: 'https://github.com/che-samples/web-nodejs-sample.git'
 components:
   - name: nodejs
     container:

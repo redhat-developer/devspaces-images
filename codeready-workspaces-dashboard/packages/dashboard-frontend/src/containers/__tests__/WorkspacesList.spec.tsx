@@ -23,7 +23,9 @@ import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
 import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
 
 let isLoadingResult = false;
-let workspaces = [0, 1, 2, 3, 4].map(i => createFakeCheWorkspace('workspace-' + i, 'workspace-' + i));
+let workspaces = [0, 1, 2, 3, 4].map(i =>
+  createFakeCheWorkspace('workspace-' + i, 'workspace-' + i),
+);
 
 jest.mock('../../store/Workspaces/index', () => {
   return {
@@ -45,30 +47,23 @@ jest.mock('../../pages/WorkspacesList', () => {
   const FakeWorkspacesList = () => <div>Workspaces List Page</div>;
   FakeWorkspacesList.displayName = 'WorkspacesList';
   return FakeWorkspacesList;
-},
-);
-jest.mock('../../components/Fallback', () => (
-  <div>Fallback Spinner</div>
-));
+});
+jest.mock('../../components/Fallback', () => <div>Fallback Spinner</div>);
 
 describe('Workspaces List Container', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('workspaces are fetched', () => {
-
     it('should show the workspaces list', () => {
       renderComponent(workspaces);
 
       expect(screen.queryByText('Workspaces List Page')).toBeTruthy();
     });
-
   });
 
   describe('while fetching workspaces', () => {
-
     it('should show the fallback', () => {
       isLoadingResult = true;
       workspaces = [];
@@ -76,9 +71,7 @@ describe('Workspaces List Container', () => {
 
       expect(screen.queryByText('Fallback Spinner')).toBeTruthy();
     });
-
   });
-
 });
 
 function renderComponent(workspaces: che.Workspace[]): RenderResult {
@@ -86,10 +79,8 @@ function renderComponent(workspaces: che.Workspace[]): RenderResult {
   const history = createHashHistory();
   return render(
     <Provider store={store}>
-      <WorkspacesList
-        history={history}
-      ></WorkspacesList>
-    </Provider>
+      <WorkspacesList history={history}></WorkspacesList>
+    </Provider>,
   );
 }
 

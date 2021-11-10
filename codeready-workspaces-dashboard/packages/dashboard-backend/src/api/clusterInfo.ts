@@ -13,22 +13,26 @@
 import { ApplicationInfo } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
 import { baseApiPath } from '../constants/config';
-import { CLUSTER_CONSOLE_GROUP, CLUSTER_CONSOLE_ICON, CLUSTER_CONSOLE_TITLE, CLUSTER_CONSOLE_URL } from '../devworkspace-client/services/cluster-info';
+import {
+  CLUSTER_CONSOLE_GROUP,
+  CLUSTER_CONSOLE_ICON,
+  CLUSTER_CONSOLE_TITLE,
+  CLUSTER_CONSOLE_URL,
+} from '../devworkspace-client/services/cluster-info';
 import { getSchema } from '../services/helpers';
 
 const tags = ['clusterInfo'];
 
 export function registerClusterInfo(server: FastifyInstance) {
-
   server.get(
     `${baseApiPath}/cluster-info`,
     getSchema({ tags }),
-    async () => ({
-      icon: CLUSTER_CONSOLE_ICON,
-      title: CLUSTER_CONSOLE_TITLE,
-      url: CLUSTER_CONSOLE_URL,
-      group: CLUSTER_CONSOLE_GROUP,
-    } as ApplicationInfo)
+    async () =>
+      ({
+        icon: CLUSTER_CONSOLE_ICON,
+        title: CLUSTER_CONSOLE_TITLE,
+        url: CLUSTER_CONSOLE_URL,
+        group: CLUSTER_CONSOLE_GROUP,
+      } as ApplicationInfo),
   );
-
 }

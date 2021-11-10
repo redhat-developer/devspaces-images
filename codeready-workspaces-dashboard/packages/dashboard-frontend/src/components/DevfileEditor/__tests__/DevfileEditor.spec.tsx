@@ -32,8 +32,8 @@ jest.mock('monaco-editor-core', () => {
       setMonarchTokensProvider: jest.fn(),
       setLanguageConfiguration: jest.fn(),
       CompletionItemInsertTextRule: {
-        InsertAsSnippet: jest.fn()
-      }
+        InsertAsSnippet: jest.fn(),
+      },
     },
     editor: {
       IModelDecoration: typeof [],
@@ -42,13 +42,12 @@ jest.mock('monaco-editor-core', () => {
       getValue: jest.fn(),
       setModelMarkers: jest.fn(),
       defineTheme: jest.fn(),
-      setTheme: jest.fn()
-    }
+      setTheme: jest.fn(),
+    },
   };
 });
 
 describe('The DevfileEditor component', () => {
-
   it('should initialize the component correctly', () => {
     const workspaceName = 'wksp-test';
     const workspaceId = 'testWorkspaceId';
@@ -66,16 +65,19 @@ function renderComponent(
   workspaceName: string,
   workspaceId: string,
   decorationPattern: string,
-  onChange: (newValue: string, isValid: boolean) => void
+  onChange: (newValue: string, isValid: boolean) => void,
 ): ReactTestRenderer {
   const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
-  const store = new FakeStoreBuilder().withCheWorkspaces({
-    workspaces: [workspace],
-  }).withBranding({
-    docs: {
-      devfile: 'devfile/documentation/link',
-    },
-  } as BrandingData).build();
+  const store = new FakeStoreBuilder()
+    .withCheWorkspaces({
+      workspaces: [workspace],
+    })
+    .withBranding({
+      docs: {
+        devfile: 'devfile/documentation/link',
+      },
+    } as BrandingData)
+    .build();
   return renderer.create(
     <Provider store={store}>
       <DevfileEditor

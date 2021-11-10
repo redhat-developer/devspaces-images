@@ -12,7 +12,7 @@
 
 import { Provider } from 'react-redux';
 import { Action, Store } from 'redux';
-import React, { forwardRef } from 'react';
+import React, { BaseSyntheticEvent, forwardRef } from 'react';
 import { RenderResult, render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import mockMetadata from '../../__tests__/devfileMetadata.json';
@@ -30,7 +30,7 @@ jest.mock('../../../../components/DevfileEditor', () => {
   return forwardRef(function DummyEditor(...args: any[]): React.ReactElement {
     const { devfile, onChange } = args[0];
     const devfileStr = JSON.stringify(devfile);
-    function onContentChange(event) {
+    function onContentChange(event: BaseSyntheticEvent) {
       event.persist();
       const { value } = event.target;
       /* Expected an empty value and a valid JSON string */
@@ -40,13 +40,15 @@ jest.mock('../../../../components/DevfileEditor', () => {
         onChange(value, true);
       }
     }
-    const input = (<input
-      data-testid="dummy-editor"
-      name="dummy-editor"
-      type="text"
-      onChange={onContentChange}
-      value={devfileStr}
-    />);
+    const input = (
+      <input
+        data-testid="dummy-editor"
+        name="dummy-editor"
+        type="text"
+        onChange={onContentChange}
+        value={devfileStr}
+      />
+    );
     return input;
   });
 });
@@ -58,48 +60,58 @@ const dummyDevfile = {
   },
 } as Devfile;
 jest.mock('../../../../store/DevfileRegistries', () => {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   return {
     actionCreators: {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      requestDevfile: (location: string): AppThunk<Action, Promise<string>> => async (): Promise<string> => {
-        return Promise.resolve(JSON.stringify(dummyDevfile));
+      requestDevfile:
+        (location: string): AppThunk<Action, Promise<string>> =>
+        async (): Promise<string> => {
+          return Promise.resolve(JSON.stringify(dummyDevfile));
+        },
+      requestJsonSchema: (): AppThunk<Action, Promise<void>> => async (): Promise<void> =>
+        Promise.resolve(),
+      requestRegistriesMetadata: (): AppThunk<Action, Promise<void>> => async (): Promise<void> =>
+        Promise.resolve(),
+      clearFilter: (): AppThunk<Action, void> => (): void => {
+        return;
       },
-      requestJsonSchema: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => Promise.resolve(),
-      requestRegistriesMetadata: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => Promise.resolve(),
-      clearFilter: (): AppThunk<Action, void> => (): void => { return; },
-      setFilter: (): AppThunk<Action, void> => (): void => { return; },
+      setFilter: (): AppThunk<Action, void> => (): void => {
+        return;
+      },
     } as DevfileRegistriesStore.ActionCreators,
   };
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 });
 
 jest.mock('../../../../store/FactoryResolver/index.ts', () => {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   return {
     actionCreators: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      requestFactoryResolver: (location: string): AppThunk<Action, Promise<void>> => async (dispatch): Promise<void> => {
-        return Promise.resolve();
-      }
+      requestFactoryResolver:
+        (location: string): AppThunk<Action, Promise<void>> =>
+        async (dispatch): Promise<void> => {
+          return Promise.resolve();
+        },
     } as FactoryResolverStore.ActionCreators,
   };
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 });
 
 describe('Custom Workspace Tab', () => {
-
   const defaultInfrastructureNamespace = undefined;
   const initialDevfile: Devfile = {
     apiVersion: '1.0.0',
     metadata: {
-      generateName: 'wksp-'
-    }
+      generateName: 'wksp-',
+    },
   } as Devfile;
 
   function renderComponent(store: Store, onDevfile: jest.Mock): RenderResult {
     return render(
       <Provider store={store}>
-        <CustomWorkspaceTab
-          onDevfile={onDevfile}
-        />
-      </Provider>
+        <CustomWorkspaceTab onDevfile={onDevfile} />
+      </Provider>,
     );
   }
 
@@ -129,30 +141,37 @@ describe('Custom Workspace Tab', () => {
 
     clickOnCreateAndOpenButton();
 
-    expect(mockOnDevfile).toHaveBeenCalledWith(expect.objectContaining({
-      schemaVersion: '2.1.0'
-    }), defaultInfrastructureNamespace, undefined);
+    expect(mockOnDevfile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        schemaVersion: '2.1.0',
+      }),
+      defaultInfrastructureNamespace,
+      undefined,
+    );
   });
 
   it('should handle click on "Create & Open" button', () => {
     const defaultStorageType = 'persistent';
     const store = createStore({
-      defaultStorageType
+      defaultStorageType,
     });
     const mockOnDevfile = jest.fn();
     renderComponent(store, mockOnDevfile);
 
     clickOnCreateAndOpenButton();
 
-    expect(mockOnDevfile).toHaveBeenCalledWith(initialDevfile, defaultInfrastructureNamespace, undefined);
+    expect(mockOnDevfile).toHaveBeenCalledWith(
+      initialDevfile,
+      defaultInfrastructureNamespace,
+      undefined,
+    );
   });
 
   describe('workspace name field', () => {
-
     it('should handle workspace name changing', () => {
       const defaultStorageType = 'persistent';
       const store = createStore({
-        defaultStorageType
+        defaultStorageType,
       });
       const mockOnDevfile = jest.fn((devfile: Devfile, namespace: che.KubernetesNamespace) => {
         expect(namespace).toEqual(defaultInfrastructureNamespace);
@@ -160,7 +179,7 @@ describe('Custom Workspace Tab', () => {
           name: 'new-workspace-name',
         };
         expect(devfile).toMatchObject({
-          metadata: expectedMeta
+          metadata: expectedMeta,
         });
       });
       renderComponent(store, mockOnDevfile);
@@ -173,15 +192,13 @@ describe('Custom Workspace Tab', () => {
 
       expect(mockOnDevfile).toHaveBeenCalled();
     });
-
   });
 
   describe('storage type field', () => {
-
     it('should handle storage type changing', () => {
       const defaultStorageType = 'persistent';
       const store = createStore({
-        defaultStorageType
+        defaultStorageType,
       });
       const mockOnDevfile = jest.fn((devfile: Devfile, namespace: che.KubernetesNamespace) => {
         expect(namespace).toEqual(defaultInfrastructureNamespace);
@@ -190,7 +207,7 @@ describe('Custom Workspace Tab', () => {
           persistVolumes: 'false',
         };
         expect(devfile).toMatchObject({
-          attributes: expectedAttributes
+          attributes: expectedAttributes,
         });
       });
       renderComponent(store, mockOnDevfile);
@@ -210,18 +227,18 @@ describe('Custom Workspace Tab', () => {
 
       expect(mockOnDevfile).toHaveBeenCalled();
     });
-
   });
 
   describe('devfile selector', () => {
-
     it('should handle selecting a devfile template', async () => {
       const store = createStore();
       const mockOnDevfile = jest.fn();
       renderComponent(store, mockOnDevfile);
 
       /* expand list of options */
-      const selectTemplateToggle = screen.getByRole('button', { name: /select a devfile template/i });
+      const selectTemplateToggle = screen.getByRole('button', {
+        name: /select a devfile template/i,
+      });
       userEvent.click(selectTemplateToggle);
 
       /* choose a template */
@@ -231,9 +248,7 @@ describe('Custom Workspace Tab', () => {
       userEvent.click(templateOption);
 
       /* wait until chosen option is applied */
-      await waitFor(() =>
-        screen.queryAllByText(templateName)
-      );
+      await waitFor(() => screen.queryAllByText(templateName));
 
       clickOnCreateAndOpenButton();
 
@@ -268,9 +283,7 @@ describe('Custom Workspace Tab', () => {
       userEvent.click(loadDevfileButton);
 
       /* wait until custom devfile is loaded */
-      await waitFor(() =>
-        screen.queryAllByText(devfileName)
-      );
+      await waitFor(() => screen.queryAllByText(devfileName));
 
       clickOnCreateAndOpenButton();
 
@@ -281,12 +294,10 @@ describe('Custom Workspace Tab', () => {
         undefined,
       );
     });
-
   });
 
   describe('devfile editor', () => {
-
-    it('should correctly apply the preferred storage type \'persistent\'', () => {
+    it("should correctly apply the preferred storage type 'persistent'", () => {
       const defaultStorageType = 'persistent';
       renderComponent(createStore({ defaultStorageType }), jest.fn());
 
@@ -295,7 +306,7 @@ describe('Custom Workspace Tab', () => {
       expect(editorTextbox.value).not.toContain('"asyncPersist":');
     });
 
-    it('should correctly apply the preferred storage type \'ephemeral\'', () => {
+    it("should correctly apply the preferred storage type 'ephemeral'", () => {
       const defaultStorageType = 'ephemeral';
       renderComponent(createStore({ defaultStorageType }), jest.fn());
 
@@ -304,7 +315,7 @@ describe('Custom Workspace Tab', () => {
       expect(editorTextbox.value).not.toContain('"asyncPersist":');
     });
 
-    it('should correctly apply the preferred storage type \'async\'', () => {
+    it("should correctly apply the preferred storage type 'async'", () => {
       const defaultStorageType = 'async';
       renderComponent(createStore({ defaultStorageType }), jest.fn());
 
@@ -329,8 +340,8 @@ describe('Custom Workspace Tab', () => {
       const newDevfile = {
         apiVersion: '1.0.0',
         metadata: {
-          name: 'Manually-Typed-Devfile'
-        }
+          name: 'Manually-Typed-Devfile',
+        },
       };
       fireEvent.change(editorTextbox, {
         target: {
@@ -348,12 +359,10 @@ describe('Custom Workspace Tab', () => {
       expect(mockOnDevfile).toHaveBeenCalledWith(
         expect.anything(),
         defaultInfrastructureNamespace,
-        undefined
+        undefined,
       );
     });
-
   });
-
 });
 
 function clickOnCreateAndOpenButton() {
@@ -361,17 +370,19 @@ function clickOnCreateAndOpenButton() {
   userEvent.click(createButton);
 }
 
-function createStore(opts: {
-  defaultStorageType?: che.WorkspaceStorageType,
-  isDevworkspacesEnabled?: boolean
-} = {}): Store {
+function createStore(
+  opts: {
+    defaultStorageType?: che.WorkspaceStorageType;
+    isDevworkspacesEnabled?: boolean;
+  } = {},
+): Store {
   return new FakeStoreBuilder()
     .withDevfileRegistries({
       registries: {
         'registry-location': {
           metadata: mockMetadata,
-        }
-      }
+        },
+      },
     })
     .withFactoryResolver({
       devfile: {
@@ -381,13 +392,15 @@ function createStore(opts: {
     } as FactoryResolver)
     .withBranding({
       docs: {
-        storageTypes: 'https://che-docs/storage-types'
-      }
+        storageTypes: 'https://che-docs/storage-types',
+      },
     } as any)
     .withWorkspacesSettings({
       'che.workspace.storage.available_types': 'async,ephemeral,persistent',
-      'che.workspace.storage.preferred_type': opts.defaultStorageType ? opts.defaultStorageType : 'ephemeral',
-      'che.devworkspaces.enabled': opts.isDevworkspacesEnabled ? 'true' : 'false'
+      'che.workspace.storage.preferred_type': opts.defaultStorageType
+        ? opts.defaultStorageType
+        : 'ephemeral',
+      'che.devworkspaces.enabled': opts.isDevworkspacesEnabled ? 'true' : 'false',
     } as che.WorkspaceSettings)
     .build();
 }

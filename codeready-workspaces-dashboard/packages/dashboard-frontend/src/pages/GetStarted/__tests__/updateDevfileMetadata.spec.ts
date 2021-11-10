@@ -14,7 +14,6 @@ import { updateDevfileMetadata } from '../updateDevfileMetadata';
 import { safeDump } from 'js-yaml';
 
 describe('Update devfile metadata', () => {
-
   it('should return a devfile V1 as is', () => {
     const devfile = {
       apiVersion: '1.0.0',
@@ -68,7 +67,6 @@ describe('Update devfile metadata', () => {
 
     expect(devfile.metadata.attributes).toEqual(attributes);
   });
-
 });
 
 function getMetadata(): che.DevfileMetaData {

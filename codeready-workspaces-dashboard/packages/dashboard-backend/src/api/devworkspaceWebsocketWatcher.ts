@@ -37,7 +37,10 @@ async function handler(connection: SocketStream, request: FastifyRequest) {
         pubSubManager.unsubscribe(channel);
         break;
       case 'SUBSCRIBE':
-        pubSubManager.subscribe(channel, params as { token: string, namespace: string, resourceVersion: string });
+        pubSubManager.subscribe(
+          channel,
+          params as { token: string; namespace: string; resourceVersion: string },
+        );
         break;
     }
   });

@@ -2,11 +2,7 @@
   {
     "displayName": "NodeJS Angular Web Application",
     "description": "Stack for developing NodeJS Angular Web Application",
-    "tags": [
-      "NodeJS",
-      "Angular",
-      "Alpine"
-    ],
+    "tags": ["NodeJS", "Angular", "Alpine"],
     "icon": "/images/angular.svg",
     "globalMemoryLimit": "2686Mi",
     "links": {
@@ -16,11 +12,7 @@
   {
     "displayName": "Apache Camel K",
     "description": "Stack with tooling ready to develop Integration projects with Apache Camel K",
-    "tags": [
-      "Apache Camel K",
-      "Red Hat Fuse",
-      "Integration"
-    ],
+    "tags": ["Apache Camel K", "Red Hat Fuse", "Integration"],
     "icon": "/images/camelk.svg",
     "globalMemoryLimit": "2850Mi",
     "links": {
@@ -30,15 +22,7 @@
   {
     "displayName": "Apache Camel based on Spring Boot",
     "description": "Stack with environment ready to develop Integration projects with Apache Camel based on Spring Boot.",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Debian",
-      "Apache Camel",
-      "Red Hat Fuse",
-      "Spring Boot"
-    ],
+    "tags": ["Java", "OpenJDK", "Maven", "Debian", "Apache Camel", "Red Hat Fuse", "Spring Boot"],
     "icon": "/images/camelk.svg",
     "globalMemoryLimit": "2930Mi",
     "links": {
@@ -72,12 +56,7 @@
   {
     "displayName": "C/C++",
     "description": "Stack with C/C++ and Clang 8",
-    "tags": [
-      "C/C++",
-      "clang",
-      "g++",
-      "gdb"
-    ],
+    "tags": ["C/C++", "clang", "g++", "gdb"],
     "icon": "/images/cpp.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -87,11 +66,7 @@
   {
     "displayName": ".NET Core",
     "description": "Stack with .Net 2.2",
-    "tags": [
-      "Debian",
-      "Dotnet",
-      "C#"
-    ],
+    "tags": ["Debian", "Dotnet", "C#"],
     "icon": "/images/dotnetcore.svg",
     "globalMemoryLimit": "2710Mi",
     "links": {
@@ -101,12 +76,7 @@
   {
     "displayName": "ASP.NET Core Web Application",
     "description": "Stack for developing ASP.NET Core Web Application",
-    "tags": [
-      "Debian",
-      "Dotnet",
-      "C#",
-      "ASP.NET"
-    ],
+    "tags": ["Debian", "Dotnet", "C#", "ASP.NET"],
     "icon": "/images/dotnetcore.svg",
     "globalMemoryLimit": "2710Mi",
     "links": {
@@ -116,10 +86,7 @@
   {
     "displayName": "Go",
     "description": "Stack with Go 1.12.10",
-    "tags": [
-      "Debian",
-      "Go"
-    ],
+    "tags": ["Debian", "Go"],
     "icon": "/images/go.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -129,12 +96,7 @@
   {
     "displayName": "Java Gradle",
     "description": "Java Stack with OpenJDK 11 and Gradle 6.2.1",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Gradle",
-      "Ubuntu"
-    ],
+    "tags": ["Java", "OpenJDK", "Gradle", "Ubuntu"],
     "icon": "/images/java.svg",
     "globalMemoryLimit": "2674Mi",
     "links": {
@@ -144,12 +106,7 @@
   {
     "displayName": "Java Maven",
     "description": "Java Stack with OpenJDK 11 and Maven 3.6.0",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Debian"
-    ],
+    "tags": ["Java", "OpenJDK", "Maven", "Debian"],
     "icon": "/images/java.svg",
     "globalMemoryLimit": "2674Mi",
     "links": {
@@ -159,13 +116,7 @@
   {
     "displayName": "Java with Spring Boot and MongoDB",
     "description": "Java stack with OpenJDK 8, MongoDB and Spring Boot Guestbook demo application",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Spring Boot",
-      "MongoDB"
-    ],
+    "tags": ["Java", "OpenJDK", "Maven", "Spring Boot", "MongoDB"],
     "icon": "/images/java.svg",
     "globalMemoryLimit": "2884Mi",
     "links": {
@@ -175,13 +126,7 @@
   {
     "displayName": "Java with Spring Boot and MySQL",
     "description": "Java stack with OpenJDK 8, MySQL and Spring Boot Petclinic demo application",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Spring Boot",
-      "MySQL"
-    ],
+    "tags": ["Java", "OpenJDK", "Maven", "Spring Boot", "MySQL"],
     "icon": "/images/springboot.svg",
     "globalMemoryLimit": "3372Mi",
     "links": {
@@ -192,12 +137,7 @@
   {
     "displayName": "Java Spring Boot",
     "description": "Java stack with OpenJDK 8 and Spring Boot Petclinic demo application",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Spring Boot"
-    ],
+    "tags": ["Java", "OpenJDK", "Maven", "Spring Boot"],
     "icon": "/images/springboot.svg",
     "globalMemoryLimit": "3072Mi",
     "links": {
@@ -207,12 +147,7 @@
   {
     "displayName": "Java Vert.x",
     "description": "Java stack with OpenJDK 8 and Vert.x demo application",
-    "tags": [
-      "Java",
-      "OpenJDK",
-      "Maven",
-      "Vertx"
-    ],
+    "tags": ["Java", "OpenJDK", "Maven", "Vertx"],
     "icon": "/images/vertx.svg",
     "globalMemoryLimit": "2674Mi",
     "links": {
@@ -222,11 +157,7 @@
   {
     "displayName": "NodeJS Express Web Application",
     "description": "Stack with NodeJS 10",
-    "tags": [
-      "NodeJS",
-      "Express",
-      "ubi8"
-    ],
+    "tags": ["NodeJS", "Express", "ubi8"],
     "icon": "/images/nodejs.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -236,14 +167,7 @@
   {
     "displayName": "NodeJS MongoDB Web Application",
     "description": "Stack with NodeJS 10 and MongoDB 3.4",
-    "tags": [
-      "NodeJS",
-      "Express",
-      "MongoDB",
-      "RealWorld",
-      "ubi8",
-      "Centos"
-    ],
+    "tags": ["NodeJS", "Express", "MongoDB", "RealWorld", "ubi8", "Centos"],
     "icon": "/images/nodejs.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -253,12 +177,7 @@
   {
     "displayName": "NodeJS React Web Application",
     "description": "Stack for developing NodeJS React Web Application",
-    "tags": [
-      "NodeJS",
-      "React",
-      "Redux",
-      "RealWorld"
-    ],
+    "tags": ["NodeJS", "React", "Redux", "RealWorld"],
     "icon": "/images/nodejs.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -268,12 +187,7 @@
   {
     "displayName": "NodeJS Web Application based on Yarn",
     "description": "Stack for developing NodeJS Web Application based on Yarn",
-    "tags": [
-      "NodeJS",
-      "Alpine",
-      "Yarn",
-      "React"
-    ],
+    "tags": ["NodeJS", "Alpine", "Yarn", "React"],
     "icon": "/images/nodejs.svg",
     "globalMemoryLimit": "2198Mi",
     "links": {
@@ -283,13 +197,7 @@
   {
     "displayName": "PHP Laravel with MySQL",
     "description": "PHP Stack with Laravel and MySQL real world application",
-    "tags": [
-      "PHP",
-      "Apache",
-      "MySQL",
-      "Centos",
-      "Debian"
-    ],
+    "tags": ["PHP", "Apache", "MySQL", "Centos", "Debian"],
     "icon": "/images/php.svg",
     "globalMemoryLimit": "2686Mi",
     "links": {
@@ -299,13 +207,7 @@
   {
     "displayName": "PHP with MySQL",
     "description": "PHP Stack with MySQL and simple database application",
-    "tags": [
-      "PHP",
-      "Apache",
-      "MySQL",
-      "Debian",
-      "Centos"
-    ],
+    "tags": ["PHP", "Apache", "MySQL", "Debian", "Centos"],
     "icon": "/images/php.svg",
     "globalMemoryLimit": "2686Mi",
     "links": {
@@ -315,14 +217,7 @@
   {
     "displayName": "PHP Symfony",
     "description": "PHP Stack with Symfony Demo Application https://symfony.com/",
-    "tags": [
-      "PHP",
-      "Apache",
-      "MySQL",
-      "Symfony",
-      "Debian",
-      "Centos"
-    ],
+    "tags": ["PHP", "Apache", "MySQL", "Symfony", "Debian", "Centos"],
     "icon": "/images/php.svg",
     "globalMemoryLimit": "2686Mi",
     "links": {
@@ -332,11 +227,7 @@
   {
     "displayName": "PHP Simple",
     "description": "PHP Stack with PHP 7.1 and simple web application",
-    "tags": [
-      "PHP",
-      "Apache",
-      "Debian"
-    ],
+    "tags": ["PHP", "Apache", "Debian"],
     "icon": "/images/php.svg",
     "globalMemoryLimit": "2430Mi",
     "links": {
@@ -346,11 +237,7 @@
   {
     "displayName": "Python",
     "description": "Python Stack with Python 3.7",
-    "tags": [
-      "Centos",
-      "Python",
-      "pip"
-    ],
+    "tags": ["Centos", "Python", "pip"],
     "icon": "/images/python.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -360,11 +247,7 @@
   {
     "displayName": "Python Django",
     "description": "Python Stack with Python 3.7 and Django application",
-    "tags": [
-      "Centos",
-      "Python",
-      "pip"
-    ],
+    "tags": ["Centos", "Python", "pip"],
     "icon": "/images/python.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {
@@ -374,13 +257,7 @@
   {
     "displayName": "Quarkus Tools",
     "description": "Quarkus Tools with OpenJDK 8 and Maven 3.6.3",
-    "tags": [
-      "Java",
-      "Quarkus",
-      "OpenJDK",
-      "Maven",
-      "Debian"
-    ],
+    "tags": ["Java", "Quarkus", "OpenJDK", "Maven", "Debian"],
     "icon": "/images/quarkus.svg",
     "globalMemoryLimit": "2674Mi",
     "links": {
@@ -390,9 +267,7 @@
   {
     "displayName": "Rust",
     "description": "Rust Stack with Rust 1.39",
-    "tags": [
-      "Rust"
-    ],
+    "tags": ["Rust"],
     "icon": "/images/rust.svg",
     "globalMemoryLimit": "1686Mi",
     "links": {

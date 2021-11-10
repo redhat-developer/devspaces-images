@@ -16,7 +16,6 @@ import { DevWorkspaceClient } from '../devWorkspaceClient';
 import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
 
 describe('DevWorkspace client, changeWorkspaceStatus', () => {
-
   let client: DevWorkspaceClient;
 
   const timestampOld = '2021-09-01T00:00:01.000Z';
@@ -44,11 +43,13 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
       .withName('wksp-test')
       .withStatus({
         phase: 'RUNNING',
-        mainUrl: 'link/ide'
+        mainUrl: 'link/ide',
       })
       .build();
 
-    const spyPatchWorkspace = jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
+    const spyPatchWorkspace = jest
+      .spyOn(DwApi, 'patchWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
 
     await client.changeWorkspaceStatus(testWorkspace, true);
 
@@ -71,15 +72,17 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
       .withMetadata({
         annotations: {
           'che.eclipse.org/last-updated-timestamp': timestampOld,
-        }
+        },
       })
       .withStatus({
         phase: 'RUNNING',
-        mainUrl: 'link/ide'
+        mainUrl: 'link/ide',
       })
       .build();
 
-    const spyPatchWorkspace = jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
+    const spyPatchWorkspace = jest
+      .spyOn(DwApi, 'patchWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
 
     await client.changeWorkspaceStatus(testWorkspace, true);
 
@@ -101,11 +104,13 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
       .withName('wksp-test')
       .withStatus({
         phase: 'RUNNING',
-        mainUrl: 'link/ide'
+        mainUrl: 'link/ide',
       })
       .build();
 
-    const spyPatchWorkspace = jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
+    const spyPatchWorkspace = jest
+      .spyOn(DwApi, 'patchWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
 
     await client.changeWorkspaceStatus(testWorkspace, false);
 
@@ -119,5 +124,4 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
       ]),
     );
   });
-
 });

@@ -25,20 +25,21 @@ export const initDefaultEditorTheme = (): string | undefined => {
     rules: [
       {
         token: 'string.yaml',
-        foreground: '000000'
-      }, {
+        foreground: '000000',
+      },
+      {
         token: 'comment',
-        foreground: '777777'
-      }],
+        foreground: '777777',
+      },
+    ],
     colors: {
       'editor.lineHighlightBackground': '#f0f0f0',
       'editorLineNumber.foreground': '#aaaaaa',
-      'editorGutter.background': '#f8f8f8'
-    }
+      'editorGutter.background': '#f8f8f8',
+    },
   });
 
   editor.setTheme(DEFAULT_CHE_THEME);
 
   return DEFAULT_CHE_THEME;
 };
-

@@ -33,8 +33,7 @@ if (!CHE_HOST) {
   process.exit(1);
 }
 
-args
-  .option('publicFolder', 'The public folder to serve', './public');
+args.option('publicFolder', 'The public folder to serve', './public');
 
 const { publicFolder } = args.parse(process.argv) as { publicFolder: string };
 
@@ -53,7 +52,7 @@ server.addContentTypeParser(
       const error = new Error(helpers.errors.getMessage(e));
       done(error, undefined);
     }
-  }
+  },
 );
 
 registerStaticServer(publicFolder, server);

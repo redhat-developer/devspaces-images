@@ -16,7 +16,11 @@ export const devworkspaceVersion = 'v1alpha2';
 export const devWorkspaceApiGroup = 'workspace.devfile.io';
 export const devworkspaceSingularSubresource = 'devworkspace';
 
-export function devfileToDevWorkspace(devfile: devfileApi.Devfile, routingClass: string, started: boolean): devfileApi.DevWorkspace {
+export function devfileToDevWorkspace(
+  devfile: devfileApi.Devfile,
+  routingClass: string,
+  started: boolean,
+): devfileApi.DevWorkspace {
   const devfileAttributes = devfile.metadata.attributes || {};
   const devWorkspaceAnnotations = devfileAttributes['dw.metadata.annotations'] || {};
   const template: devfileApi.DevWorkspace = {
@@ -33,9 +37,9 @@ export function devfileToDevWorkspace(devfile: devfileApi.Devfile, routingClass:
       started,
       routingClass,
       template: {
-        components: []
-      }
-    }
+        components: [],
+      },
+    },
   };
   if (devfile.projects) {
     template.spec.template.projects = devfile.projects;

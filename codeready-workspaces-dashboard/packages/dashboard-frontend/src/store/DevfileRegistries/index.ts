@@ -87,15 +87,16 @@ interface ReceiveSchemaErrorAction {
 }
 
 interface SetFilterValue extends Action {
-  type: 'SET_FILTER',
+  type: 'SET_FILTER';
   value: string;
 }
 
 interface ClearFilterValue extends Action {
-  type: 'CLEAR_FILTER',
+  type: 'CLEAR_FILTER';
 }
 
-type KnownAction = RequestRegistryMetadataAction
+type KnownAction =
+  | RequestRegistryMetadataAction
   | ReceiveRegistryMetadataAction
   | ReceiveRegistryErrorAction
   | RequestDevfileAction
@@ -116,15 +117,14 @@ export type ActionCreators = {
 };
 
 export const actionCreators: ActionCreators = {
-
   /**
    * Request devfile metadata from available registries. `registryUrls` is space-separated list of urls.
    */
-  requestRegistriesMetadata: (registryUrls: string): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'REQUEST_REGISTRY_METADATA' });
-    const promises = registryUrls
-      .split(' ')
-      .map(async url => {
+  requestRegistriesMetadata:
+    (registryUrls: string): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_REGISTRY_METADATA' });
+      const promises = registryUrls.split(' ').map(async url => {
         try {
           const metadata = await fetchRegistryMetadata(url);
           dispatch({
@@ -142,112 +142,118 @@ export const actionCreators: ActionCreators = {
           throw error;
         }
       });
-    const results = await Promise.allSettled(promises);
-    results.forEach(result => {
-      if (result.status === 'rejected') {
-        throw result.reason;
+      const results = await Promise.allSettled(promises);
+      results.forEach(result => {
+        if (result.status === 'rejected') {
+          throw result.reason;
+        }
+      });
+    },
+
+  requestDevfile:
+    (url: string): AppThunk<KnownAction, Promise<string>> =>
+    async (dispatch): Promise<string> => {
+      dispatch({ type: 'REQUEST_DEVFILE' });
+      try {
+        const devfile = await fetchDevfile(url);
+        dispatch({ type: 'RECEIVE_DEVFILE', devfile, url });
+        return devfile;
+      } catch (e) {
+        throw new Error(`Failed to request a devfile from URL: ${url}, \n` + e);
       }
-    });
-  },
+    },
 
-  requestDevfile: (url: string): AppThunk<KnownAction, Promise<string>> => async (dispatch): Promise<string> => {
-    dispatch({ type: 'REQUEST_DEVFILE' });
-    try {
-      const devfile = await fetchDevfile(url);
-      dispatch({ type: 'RECEIVE_DEVFILE', devfile, url });
-      return devfile;
-    } catch (e) {
-      throw new Error(`Failed to request a devfile from URL: ${url}, \n` + e);
-    }
-  },
-
-  requestJsonSchema: (): AppThunk<KnownAction, any> => async (dispatch, getState): Promise<any> => {
-    dispatch({ type: 'REQUEST_SCHEMA' });
-    try {
-      const state = getState();
-      const schemav1 = await WorkspaceClient.restApiClient.getDevfileSchema<{ [key: string]: any }>('1.0.0');
-      const items = selectPlugins(state);
-      const components = schemav1?.properties ? schemav1.properties.components : undefined;
-      if (components) {
-        const mountSources = components.items.properties.mountSources;
-        // mount sources is specific only for some of component types but always appears
-        // patch schema and remove default value for boolean mount sources to avoid their appearing during the completion
-        if (mountSources && mountSources.default === 'false') {
-          delete mountSources.default;
-        }
-        schemav1.additionalProperties = true;
-        if (!components.defaultSnippets) {
-          components.defaultSnippets = [];
-        }
-        const pluginsId: string[] = [];
-        items.forEach((item: che.Plugin) => {
-          const id = `${item.publisher}/${item.name}/latest`;
-          if (pluginsId.indexOf(id) === -1 && item.type !== 'Che Editor') {
-            pluginsId.push(id);
-            components.defaultSnippets.push({
-              label: item.displayName,
-              description: item.description,
-              body: { id: id, type: 'chePlugin' },
-            });
-          } else {
-            pluginsId.push(item.id);
+  requestJsonSchema:
+    (): AppThunk<KnownAction, any> =>
+    async (dispatch, getState): Promise<any> => {
+      dispatch({ type: 'REQUEST_SCHEMA' });
+      try {
+        const state = getState();
+        const schemav1 = await WorkspaceClient.restApiClient.getDevfileSchema<{
+          [key: string]: any;
+        }>('1.0.0');
+        const items = selectPlugins(state);
+        const components = schemav1?.properties ? schemav1.properties.components : undefined;
+        if (components) {
+          const mountSources = components.items.properties.mountSources;
+          // mount sources is specific only for some of component types but always appears
+          // patch schema and remove default value for boolean mount sources to avoid their appearing during the completion
+          if (mountSources && mountSources.default === 'false') {
+            delete mountSources.default;
           }
+          schemav1.additionalProperties = true;
+          if (!components.defaultSnippets) {
+            components.defaultSnippets = [];
+          }
+          const pluginsId: string[] = [];
+          items.forEach((item: che.Plugin) => {
+            const id = `${item.publisher}/${item.name}/latest`;
+            if (pluginsId.indexOf(id) === -1 && item.type !== 'Che Editor') {
+              pluginsId.push(id);
+              components.defaultSnippets.push({
+                label: item.displayName,
+                description: item.description,
+                body: { id: id, type: 'chePlugin' },
+              });
+            } else {
+              pluginsId.push(item.id);
+            }
+          });
+          if (components.items && components.items.properties) {
+            if (!components.items.properties.id) {
+              components.items.properties.id = {
+                type: 'string',
+                description: 'Plugin/Editor id.',
+              };
+            }
+            components.items.properties.id.examples = pluginsId;
+          }
+        }
+
+        let schema = schemav1;
+
+        const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
+        if (cheDevworkspaceEnabled) {
+          // This makes $ref resolve against the first schema, otherwise the yaml language server will report errors
+          const patchedJSONString = JSON.stringify(schemav1).replaceAll(
+            '#/definitions',
+            '#/oneOf/0/definitions',
+          );
+          const parsedSchemaV1 = JSON.parse(patchedJSONString);
+
+          const schemav200 = await WorkspaceClient.restApiClient.getDevfileSchema('2.0.0');
+          const schemav210 = await WorkspaceClient.restApiClient.getDevfileSchema('2.1.0');
+          const schemav220alpha = await WorkspaceClient.restApiClient.getDevfileSchema('2.2.0');
+          schema = {
+            oneOf: [parsedSchemaV1, schemav200, schemav210, schemav220alpha],
+          };
+        }
+
+        dispatch({
+          type: 'RECEIVE_SCHEMA',
+          schema,
         });
-        if (components.items && components.items.properties) {
-          if (!components.items.properties.id) {
-            components.items.properties.id = {
-              type: 'string',
-              description: 'Plugin\'s/Editor\'s id.',
-            };
-          }
-          components.items.properties.id.examples = pluginsId;
-        }
+        return schema;
+      } catch (e) {
+        const errorMessage =
+          'Failed to request devfile JSON schema, reason: ' + common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_SCHEMA_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
       }
+    },
 
-      let schema = schemav1;
-
-      const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
-      if (cheDevworkspaceEnabled) {
-        // This makes $ref resolve against the first schema, otherwise the yaml language server will report errors
-        const patchedJSONString = JSON.stringify(schemav1).replaceAll('#/definitions', '#/oneOf/0/definitions');
-        const parsedSchemaV1 = JSON.parse(patchedJSONString);
-
-        const schemav200 = await WorkspaceClient.restApiClient.getDevfileSchema('2.0.0');
-        const schemav210 = await WorkspaceClient.restApiClient.getDevfileSchema('2.1.0');
-        const schemav220alpha = await WorkspaceClient.restApiClient.getDevfileSchema('2.2.0');
-        schema = {
-          oneOf: [
-            parsedSchemaV1,
-            schemav200,
-            schemav210,
-            schemav220alpha
-          ]
-        };
-      }
-
-      dispatch({
-        type: 'RECEIVE_SCHEMA',
-        schema,
-      });
-      return schema;
-    } catch (e) {
-      const errorMessage = 'Failed to request devfile JSON schema, reason: ' + common.helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_SCHEMA_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
-    }
-  },
-
-  setFilter: (value: string): AppThunk<SetFilterValue, void> => dispatch => {
-    dispatch({ type: 'SET_FILTER', value });
-  },
+  setFilter:
+    (value: string): AppThunk<SetFilterValue, void> =>
+    dispatch => {
+      dispatch({ type: 'SET_FILTER', value });
+    },
 
   clearFilter: (): AppThunk<ClearFilterValue, void> => dispatch => {
     dispatch({ type: 'CLEAR_FILTER' });
-  }
-
+  },
 };
 
 const unloadedState: State = {
@@ -259,7 +265,10 @@ const unloadedState: State = {
   filter: '',
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
@@ -304,8 +313,8 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
         devfiles: {
           [action.url]: {
             content: action.devfile,
-          }
-        }
+          },
+        },
       });
     case 'RECEIVE_SCHEMA':
       return createObject(state, {
@@ -334,5 +343,4 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
     default:
       return state;
   }
-
 };

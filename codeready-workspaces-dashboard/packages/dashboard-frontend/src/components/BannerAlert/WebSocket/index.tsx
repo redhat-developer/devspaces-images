@@ -34,7 +34,10 @@ class BannerAlertWebSocket extends React.PureComponent<Props, State> {
     this.cheWorkspaceClient = container.get(CheWorkspaceClient);
     this.devWorkspaceClient = container.get(DevWorkspaceClient);
     this.state = {
-      erroringWebSockets: [...this.cheWorkspaceClient.failingWebSockets, ...this.devWorkspaceClient.failingWebSockets],
+      erroringWebSockets: [
+        ...this.cheWorkspaceClient.failingWebSockets,
+        ...this.devWorkspaceClient.failingWebSockets,
+      ],
     };
   }
 
@@ -51,7 +54,7 @@ class BannerAlertWebSocket extends React.PureComponent<Props, State> {
     });
     this.devWorkspaceClient.onWebSocketFailed(() => {
       this.setState({
-        erroringWebSockets: this.devWorkspaceClient.failingWebSockets
+        erroringWebSockets: this.devWorkspaceClient.failingWebSockets,
       });
     });
   }
@@ -61,15 +64,14 @@ class BannerAlertWebSocket extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const webSocketTroubleshootingDocs = this.props.branding.docs
-      .webSocketTroubleshooting;
+    const webSocketTroubleshootingDocs = this.props.branding.docs.webSocketTroubleshooting;
     return (
       <Banner className="pf-u-text-align-center" variant="warning">
         WebSocket connections are failing. Refer to &quot;
         <a href={webSocketTroubleshootingDocs} rel="noreferrer" target="_blank">
           Network Troubleshooting
-        </a>&quot;
-        in the user guide.
+        </a>
+        &quot; in the user guide.
       </Banner>
     );
   }

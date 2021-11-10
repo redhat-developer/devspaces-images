@@ -24,9 +24,8 @@ import { che as cheApi } from '@eclipse-che/api';
 import devfileApi from '../../services/devfileApi';
 
 export class DevfileConverter {
-
   componentEndpointV2toComponentEndpointV1(
-    componentEndpoints?: V220DevfileComponentsItemsContainerEndpoints[]
+    componentEndpoints?: V220DevfileComponentsItemsContainerEndpoints[],
   ): cheApi.workspace.devfile.Endpoint[] | undefined {
     if (componentEndpoints) {
       return componentEndpoints.map(endpointV2 => {
@@ -53,7 +52,9 @@ export class DevfileConverter {
     return undefined;
   }
 
-  componentEnvV2toComponentEnvV1(componentEnvs?: V220DevfileComponentsItemsContainerEnv[]): cheApi.workspace.devfile.Env[] | undefined {
+  componentEnvV2toComponentEnvV1(
+    componentEnvs?: V220DevfileComponentsItemsContainerEnv[],
+  ): cheApi.workspace.devfile.Env[] | undefined {
     if (componentEnvs) {
       return componentEnvs.map(envV2 => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,7 +117,9 @@ export class DevfileConverter {
       }
 
       devfileV1Component.env = this.componentEnvV2toComponentEnvV1(componentV2.container.env);
-      devfileV1Component.endpoints = this.componentEndpointV2toComponentEndpointV1(componentV2.container.endpoints);
+      devfileV1Component.endpoints = this.componentEndpointV2toComponentEndpointV1(
+        componentV2.container.endpoints,
+      );
     }
 
     if (!devfileV1Component.env) {
@@ -158,7 +161,7 @@ export class DevfileConverter {
 
   projectInfoToProjectSource(
     project: V220DevfileProjects,
-    projectInfo: V220DevfileProjectsItemsGit
+    projectInfo: V220DevfileProjectsItemsGit,
   ): cheApi.workspace.devfile.Source {
     const gitSource: cheApi.workspace.devfile.Source = {};
 
@@ -192,7 +195,9 @@ export class DevfileConverter {
     return gitSource;
   }
 
-  metadataV2toMetadataV1(metadataV2?: devfileApi.DevfileMetadata): cheApi.workspace.devfile.Metadata {
+  metadataV2toMetadataV1(
+    metadataV2?: devfileApi.DevfileMetadata,
+  ): cheApi.workspace.devfile.Metadata {
     const devfileMetadataV1: cheApi.workspace.devfile.Metadata = {};
     if (metadataV2) {
       if (metadataV2.name) {
@@ -277,5 +282,4 @@ export class DevfileConverter {
 
     return devfileV1;
   }
-
 }

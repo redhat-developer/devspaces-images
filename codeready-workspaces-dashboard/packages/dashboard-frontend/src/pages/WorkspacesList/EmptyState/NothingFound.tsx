@@ -21,13 +21,9 @@ import {
 import { SearchIcon } from '@patternfly/react-icons';
 
 export default class NothingFoundEmptyState extends React.PureComponent {
-
   public render(): React.ReactElement {
     return (
-      <EmptyState
-        isFullHeight={true}
-        variant={EmptyStateVariant.small}
-      >
+      <EmptyState isFullHeight={true} variant={EmptyStateVariant.small}>
         <EmptyStateIcon icon={SearchIcon} />
         <Title headingLevel="h4" size="lg">
           Nothing Found
@@ -38,5 +34,4 @@ export default class NothingFoundEmptyState extends React.PureComponent {
       </EmptyState>
     );
   }
-
 }

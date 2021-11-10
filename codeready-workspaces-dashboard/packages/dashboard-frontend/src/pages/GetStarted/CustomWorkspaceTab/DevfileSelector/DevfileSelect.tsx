@@ -49,10 +49,7 @@ export class DevfileSelect extends React.PureComponent<Props, State> {
 
   private buildSelectOptions(metadata: che.DevfileMetaData[]): React.ReactElement[] {
     return metadata.map(meta => (
-      <SelectOption
-        key={meta.links.self}
-        value={this.buildOption(meta)}
-      />
+      <SelectOption key={meta.links.self} value={this.buildOption(meta)} />
     ));
   }
 
@@ -67,9 +64,8 @@ export class DevfileSelect extends React.PureComponent<Props, State> {
           return false;
         }
 
-        return meta.displayName.toLowerCase()
-          .includes(value.toLowerCase());
-      }
+        return meta.displayName.toLowerCase().includes(value.toLowerCase());
+      },
     };
   }
 
@@ -79,9 +75,7 @@ export class DevfileSelect extends React.PureComponent<Props, State> {
     });
   }
 
-  private handleSelect(
-    value: string | SelectOptionObject,
-  ): void {
+  private handleSelect(value: string | SelectOptionObject): void {
     const selected = value as MetadataSelectOptionObject;
     this.setState({
       selected,
@@ -93,7 +87,7 @@ export class DevfileSelect extends React.PureComponent<Props, State> {
   private handleClearSelection(): void {
     this.setState({
       selected: undefined,
-      isOpen: false
+      isOpen: false,
     });
     if (this.props.onClear) {
       this.props.onClear();
@@ -125,9 +119,9 @@ export class DevfileSelect extends React.PureComponent<Props, State> {
           onFilter={event => this.handleCustomFilter(event)}
           onSelect={(event, value) => this.handleSelect(value)}
           onToggle={isExpanded => this.handleToggle(isExpanded)}
-          placeholderText='Select a devfile template'
+          placeholderText="Select a devfile template"
           selections={selected}
-          typeAheadAriaLabel='Select a devfile template'
+          typeAheadAriaLabel="Select a devfile template"
           variant={SelectVariant.typeahead}
         >
           {this.options}

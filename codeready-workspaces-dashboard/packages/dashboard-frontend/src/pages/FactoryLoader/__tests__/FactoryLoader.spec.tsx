@@ -21,19 +21,20 @@ import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
-    return (<div>Dummy Tooltip</div>);
+    return <div>Dummy Tooltip</div>;
   };
 });
 
 const workspaceName = 'wksp-test';
 const workspaceId = 'testWorkspaceId';
 const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
-const store = new FakeStoreBuilder().withCheWorkspaces({
-  workspaces: [workspace],
-}).build();
+const store = new FakeStoreBuilder()
+  .withCheWorkspaces({
+    workspaces: [workspace],
+  })
+  .build();
 
 describe('The Factory Loader page  component', () => {
-
   it('should render INITIALIZING step correctly', () => {
     const currentStep = LoadFactorySteps.INITIALIZING;
     const hasError = false;
@@ -54,7 +55,14 @@ describe('The Factory Loader page  component', () => {
     const currentStep = LoadFactorySteps.LOOKING_FOR_DEVFILE;
     const hasError = false;
     const resolvedDevfileMessage = '`devfile.yaml` in git repo https://github.com/test/test.git';
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError, resolvedDevfileMessage);
+    const component = renderComponent(
+      store,
+      currentStep,
+      workspaceName,
+      workspaceId,
+      hasError,
+      resolvedDevfileMessage,
+    );
 
     expect(component.toJSON()).toMatchSnapshot();
   });

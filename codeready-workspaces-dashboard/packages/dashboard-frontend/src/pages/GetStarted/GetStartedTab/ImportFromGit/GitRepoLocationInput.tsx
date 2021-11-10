@@ -22,7 +22,7 @@ import {
   FormGroup,
   Text,
   TextVariants,
-  TextContent
+  TextContent,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
@@ -71,9 +71,7 @@ export class GitRepoLocationInput extends React.PureComponent<Props, State> {
     } else {
       this.setState({
         validated: ValidatedOptions.error,
-        errorMessage: validity.typeMismatch
-          ? ERROR_TYPE_MISMATCH
-          : undefined,
+        errorMessage: validity.typeMismatch ? ERROR_TYPE_MISMATCH : undefined,
       });
     }
 
@@ -89,15 +87,18 @@ export class GitRepoLocationInput extends React.PureComponent<Props, State> {
   public render() {
     const { location, validated, errorMessage } = this.state;
     const fieldId = 'git-repo-url';
-    const buttonDisabled = location === '' || validated === ValidatedOptions.error || this.props.isLoading;
+    const buttonDisabled =
+      location === '' || validated === ValidatedOptions.error || this.props.isLoading;
 
     return (
-      <Form onSubmit={e => {
-        e.preventDefault();
-        if (!buttonDisabled) {
-          this.handleClick();
-        }
-      }}>
+      <Form
+        onSubmit={e => {
+          e.preventDefault();
+          if (!buttonDisabled) {
+            this.handleClick();
+          }
+        }}
+      >
         <FormGroup
           fieldId={fieldId}
           validated={validated}
@@ -127,12 +128,13 @@ export class GitRepoLocationInput extends React.PureComponent<Props, State> {
                 isDisabled={buttonDisabled}
                 variant={ButtonVariant.secondary}
                 onClick={() => this.handleClick()}
-              >Create & Open</Button>
+              >
+                Create & Open
+              </Button>
             </FlexItem>
           </Flex>
         </FormGroup>
       </Form>
     );
   }
-
 }

@@ -17,19 +17,19 @@ type Props = {
   fieldId: string;
   namespaces: che.KubernetesNamespace[];
   onSelect: (namespace: che.KubernetesNamespace) => void;
-}
+};
 type State = {
   selected: string;
   isExpanded: boolean;
-}
+};
 
 export class InfrastructureNamespaceSelect extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
-    const defaultNamespace = this.props.namespaces
-      .find(namespace => namespace.attributes.default === 'true') || this.props.namespaces[0];
+    const defaultNamespace =
+      this.props.namespaces.find(namespace => namespace.attributes.default === 'true') ||
+      this.props.namespaces[0];
 
     this.state = {
       isExpanded: false,
@@ -46,9 +46,8 @@ export class InfrastructureNamespaceSelect extends React.PureComponent<Props, St
   }
 
   private handleSelect(event: React.MouseEvent | React.ChangeEvent, selected: any): void {
-    const selectedNamespace = this.props.namespaces.find(namespace =>
-      namespace.attributes.displayName === selected
-      || namespace.name === selected
+    const selectedNamespace = this.props.namespaces.find(
+      namespace => namespace.attributes.displayName === selected || namespace.name === selected,
     );
 
     this.setState({
@@ -62,8 +61,9 @@ export class InfrastructureNamespaceSelect extends React.PureComponent<Props, St
   }
 
   render(): React.ReactNode {
-    const options = this.props.namespaces.map(namespace =>
-      namespace.attributes.displayName || namespace.name);
+    const options = this.props.namespaces.map(
+      namespace => namespace.attributes.displayName || namespace.name,
+    );
 
     return (
       <Select
@@ -76,13 +76,9 @@ export class InfrastructureNamespaceSelect extends React.PureComponent<Props, St
         toggleId={this.props.fieldId}
       >
         {options.map((option, index) => (
-          <SelectOption
-            key={index}
-            value={option}
-          />
+          <SelectOption key={index} value={option} />
         ))}
       </Select>
     );
   }
-
 }

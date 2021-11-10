@@ -12,10 +12,9 @@
 
 import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
-import { DevWorkspaceStatus, WorkspaceStatus } from '../../services/helpers/types';
+import { DevWorkspaceStatus } from '../../services/helpers/types';
 
 export class DevWorkspaceBuilder {
-
   private workspace: devfileApi.DevWorkspace = {
     kind: 'DevWorkspace',
     apiVersion: 'workspace.devfile.io/v1alpha2',
@@ -24,18 +23,20 @@ export class DevWorkspaceBuilder {
       labels: {},
       name: 'dev-wksp-' + getRandomString(4),
       namespace: '',
-      uid: 'uid-' + getRandomString(4)
+      uid: 'uid-' + getRandomString(4),
     },
     spec: {
       started: false,
       routingClass: 'che',
       template: {},
     },
-  }
+  };
 
   private buildStatus(id?: string): devfileApi.DevWorkspaceStatus {
     return {
-      devworkspaceId: (id ? id : 'workspace' + this.workspace.metadata.uid.split('-').splice(0, 3).join('')),
+      devworkspaceId: id
+        ? id
+        : 'workspace' + this.workspace.metadata.uid.split('-').splice(0, 3).join(''),
     };
   }
 
@@ -77,10 +78,10 @@ export class DevWorkspaceBuilder {
   }
 
   withStatus(status: {
-    phase?: keyof typeof DevWorkspaceStatus,
-    devworkspaceId?: string,
-    mainUrl?: string,
-    message?: string,
+    phase?: keyof typeof DevWorkspaceStatus;
+    devworkspaceId?: string;
+    mainUrl?: string;
+    message?: string;
   }): DevWorkspaceBuilder {
     if (this.workspace.status === undefined) {
       this.workspace.status = this.buildStatus();
@@ -108,5 +109,4 @@ export class DevWorkspaceBuilder {
   build(): devfileApi.DevWorkspace {
     return this.workspace;
   }
-
 }

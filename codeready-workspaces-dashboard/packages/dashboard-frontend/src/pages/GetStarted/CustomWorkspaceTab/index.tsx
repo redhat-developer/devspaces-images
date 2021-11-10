@@ -12,14 +12,23 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { Button, Form, PageSection, PageSectionVariants, ValidatedOptions, } from '@patternfly/react-core';
+import {
+  Button,
+  Form,
+  PageSection,
+  PageSectionVariants,
+  ValidatedOptions,
+} from '@patternfly/react-core';
 import { AppState } from '../../../store';
 import DevfileEditor, { DevfileEditor as Editor } from '../../../components/DevfileEditor';
 import StorageTypeFormGroup from './StorageType';
 import { WorkspaceNameFormGroup } from './WorkspaceName';
 import DevfileSelectorFormGroup from './DevfileSelector';
 import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
-import { selectPreferredStorageType, selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
+import {
+  selectPreferredStorageType,
+  selectWorkspacesSettings,
+} from '../../../store/Workspaces/Settings/selectors';
 import { attributesToType, updateDevfile } from '../../../services/storageTypes';
 import { safeLoad } from 'js-yaml';
 import { updateDevfileMetadata } from '../updateDevfileMetadata';
@@ -28,14 +37,13 @@ import getRandomString from '../../../services/helpers/random';
 import { isDevfileV2Like } from '../../../services/devfileApi';
 import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
 
-type Props = MappedProps
-  & {
-    onDevfile: (
-      devfile: api.che.workspace.devfile.Devfile,
-      InfrastructureNamespace: string | undefined,
-      optionalFilesContent: { [fileName: string]: string } | undefined,
-    ) => Promise<void>;
-  };
+type Props = MappedProps & {
+  onDevfile: (
+    devfile: api.che.workspace.devfile.Devfile,
+    InfrastructureNamespace: string | undefined,
+    optionalFilesContent: { [fileName: string]: string } | undefined,
+  ) => Promise<void>;
+};
 type State = {
   storageType: che.WorkspaceStorageType;
   devfile: Devfile;
@@ -48,7 +56,6 @@ type State = {
 };
 
 export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
-
   private devfileEditorRef: React.RefObject<Editor>;
 
   constructor(props: Props) {
@@ -57,23 +64,34 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     const devfile = this.buildInitialDevfile();
     const storageType = isCheDevfile(devfile) ? attributesToType(devfile.attributes) : 'persistent';
     const workspaceName = devfile.metadata.name ? devfile.metadata.name || '' : '';
-    const generateName = isCheDevfile(devfile) && !workspaceName ? devfile.metadata.generateName : '';
-    this.state = { devfile, storageType, generateName, workspaceName, isCreated: false, isDevfileValid: true, isWorkspaceNameValid: true };
+    const generateName =
+      isCheDevfile(devfile) && !workspaceName ? devfile.metadata.generateName : '';
+    this.state = {
+      devfile,
+      storageType,
+      generateName,
+      workspaceName,
+      isCreated: false,
+      isDevfileValid: true,
+      isWorkspaceNameValid: true,
+    };
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
   private buildInitialDevfile(generateName = 'wksp-'): Devfile {
-    const devfile = isDevworkspacesEnabled(this.props.workspacesSettings) ? {
-      schemaVersion: '2.1.0',
-      metadata: {
-        name: generateName + getRandomString(4).toLowerCase(),
-      }
-    } : {
-      apiVersion: '1.0.0',
-      metadata: {
-        generateName
-      }
-    };
+    const devfile = isDevworkspacesEnabled(this.props.workspacesSettings)
+      ? {
+          schemaVersion: '2.1.0',
+          metadata: {
+            name: generateName + getRandomString(4).toLowerCase(),
+          },
+        }
+      : {
+          apiVersion: '1.0.0',
+          metadata: {
+            generateName,
+          },
+        };
 
     return updateDevfile(devfile as Devfile, this.props.preferredStorageType);
   }
@@ -99,7 +117,10 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     this.updateEditor(devfile);
   }
 
-  private handleStorageChange(storageType: che.WorkspaceStorageType, workspaceDevfile?: Devfile): void {
+  private handleStorageChange(
+    storageType: che.WorkspaceStorageType,
+    workspaceDevfile?: Devfile,
+  ): void {
     const devfile = workspaceDevfile ? workspaceDevfile : this.state.devfile;
     if (!devfile) {
       return;
@@ -182,7 +203,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
 
   private async handleCreate(): Promise<void> {
     this.setState({
-      isCreated: true
+      isCreated: true,
     });
     try {
       const { devfile } = this.state;
@@ -206,16 +227,24 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { devfile, storageType, generateName, workspaceName, isCreated, isDevfileValid, isWorkspaceNameValid } = this.state;
+    const {
+      devfile,
+      storageType,
+      generateName,
+      workspaceName,
+      isCreated,
+      isDevfileValid,
+      isWorkspaceNameValid,
+    } = this.state;
     const isDevfileV2 = isDevfileV2Like(devfile);
     return (
       <>
-        <PageSection
-          variant={PageSectionVariants.light}
-        >
+        <PageSection variant={PageSectionVariants.light}>
           <Form isHorizontal>
             <InfrastructureNamespaceFormGroup
-              onChange={(_namespace: che.KubernetesNamespace) => this.handleInfrastructureNamespaceChange(_namespace)}
+              onChange={(_namespace: che.KubernetesNamespace) =>
+                this.handleInfrastructureNamespaceChange(_namespace)
+              }
             />
             <WorkspaceNameFormGroup
               generateName={generateName}
@@ -230,19 +259,13 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
             />
           </Form>
         </PageSection>
-        <PageSection
-          isFilled
-          variant={PageSectionVariants.light}
-        >
+        <PageSection isFilled variant={PageSectionVariants.light}>
           <DevfileSelectorFormGroup
             onDevfile={devfile => this.handleNewDevfile(devfile)}
             onClear={() => this.handleNewDevfile()}
           />
         </PageSection>
-        <PageSection
-          className="workspace-details-editor"
-          variant={PageSectionVariants.light}
-        >
+        <PageSection className="workspace-details-editor" variant={PageSectionVariants.light}>
           <DevfileEditor
             ref={this.devfileEditorRef}
             devfile={devfile}
@@ -269,9 +292,7 @@ const mapStateToProps = (state: AppState) => ({
   preferredStorageType: selectPreferredStorageType(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(CustomWorkspaceTab);

@@ -5,7 +5,7 @@ metadata:
   name: nodejs-stack
   namespace: dwclient-test
   annotations:
-    any.custom.settings: "true"
+    any.custom.settings: 'true'
   uid: ''
 spec:
   routingClass: che
@@ -15,7 +15,7 @@ spec:
       - name: project
         git:
           remotes:
-            origin: "https://github.com/che-samples/web-nodejs-sample.git"
+            origin: 'https://github.com/che-samples/web-nodejs-sample.git'
     components:
       - name: nodejs
         container:
@@ -36,7 +36,7 @@ spec:
         plugin:
           id: che-incubator/typescript/1.30.2
           components:
-            - name: "somename"
+            - name: 'somename'
               container:
                 memoryLimit: 512Mi
     commands:

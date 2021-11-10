@@ -14,22 +14,29 @@ import { isDevfileV2 } from '../../services/devfileApi';
 import { safeDump } from 'js-yaml';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
-  DEVWORKSPACE_METADATA_ANNOTATION
+  DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import getRandomString from '../../services/helpers/random';
 
-export function updateDevfileMetadata(devfile: api.che.workspace.devfile.Devfile, meta?: che.DevfileMetaData): api.che.workspace.devfile.Devfile {
+export function updateDevfileMetadata(
+  devfile: api.che.workspace.devfile.Devfile,
+  meta?: che.DevfileMetaData,
+): api.che.workspace.devfile.Devfile {
   if (isDevfileV2(devfile)) {
     // provide metadata about the origin of the devfile with DevWorkspace
-    const devfileSource = safeDump(meta ? {
-      sample: {
-        registry: meta.registry,
-        displayName: meta.displayName,
-        location: meta.links?.v2,
-      },
-    } : {
-      custom: {},
-    });
+    const devfileSource = safeDump(
+      meta
+        ? {
+            sample: {
+              registry: meta.registry,
+              displayName: meta.displayName,
+              location: meta.links?.v2,
+            },
+          }
+        : {
+            custom: {},
+          },
+    );
     const metadata = devfile.metadata;
     if (meta && metadata.name) {
       metadata.name = `${metadata.name}-${getRandomString(4).toLowerCase()}`;
@@ -40,7 +47,8 @@ export function updateDevfileMetadata(devfile: api.che.workspace.devfile.Devfile
     if (!metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
       metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
     }
-    metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] = devfileSource;
+    metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
+      devfileSource;
     return Object.assign({}, devfile, { metadata });
   }
 

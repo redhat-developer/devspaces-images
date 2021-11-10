@@ -11,9 +11,15 @@
  */
 
 export default function match(value: string, tokens: string): boolean {
-  return tokens.trim().toLowerCase().split(/\W+/).every(
-    token => value.trim().toLowerCase().split(/\W+/).some(
-      word => word.startsWith(token)
-    )
-  );
+  return tokens
+    .trim()
+    .toLowerCase()
+    .split(/\W+/)
+    .every(token =>
+      value
+        .trim()
+        .toLowerCase()
+        .split(/\W+/)
+        .some(word => word.startsWith(token)),
+    );
 }

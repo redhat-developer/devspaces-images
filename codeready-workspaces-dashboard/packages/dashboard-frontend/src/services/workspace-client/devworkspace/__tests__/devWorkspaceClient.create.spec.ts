@@ -17,7 +17,6 @@ import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
 import devfileApi from '../../../devfileApi';
 
 describe('DevWorkspace client, create', () => {
-
   let client: DevWorkspaceClient;
 
   const timestampNew = '2021-10-01T00:00:01.000Z';
@@ -56,7 +55,9 @@ describe('DevWorkspace client, create', () => {
       })
       .build();
 
-    const spyCreateWorkspace = jest.spyOn(DwApi, 'createWorkspace').mockResolvedValueOnce(testWorkspace);
+    const spyCreateWorkspace = jest
+      .spyOn(DwApi, 'createWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
     jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
 
     await client.create(testDevfile, namespace, [], undefined, undefined, {});
@@ -71,5 +72,4 @@ describe('DevWorkspace client, create', () => {
       }),
     );
   });
-
 });

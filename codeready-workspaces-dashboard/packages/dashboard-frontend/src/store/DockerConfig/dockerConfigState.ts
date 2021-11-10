@@ -14,7 +14,7 @@ import { RegistryEntry } from './types';
 
 export interface State {
   isLoading: boolean;
-  registries: RegistryEntry[]
+  registries: RegistryEntry[];
   resourceVersion?: string;
   error: string | undefined;
 }

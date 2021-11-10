@@ -15,17 +15,16 @@ import { RenderResult, render, screen, fireEvent } from '@testing-library/react'
 import { InfrastructureNamespaceSelect } from '../InfrastructureNamespaceSelect';
 
 describe('Infrastructure Namespace Select', () => {
-
   const mockOnSelect = jest.fn();
   const namespaces = getKubernetesNamespace();
 
   function renderSelect(namespaces: che.KubernetesNamespace[]): RenderResult {
     return render(
       <InfrastructureNamespaceSelect
-        fieldId='test-id'
+        fieldId="test-id"
         namespaces={namespaces}
         onSelect={mockOnSelect}
-      />
+      />,
     );
   }
 
@@ -54,23 +53,25 @@ describe('Infrastructure Namespace Select', () => {
     fireEvent.click(firstNamespaceOption);
     expect(mockOnSelect).toHaveBeenCalledWith(namespaces[0]);
   });
-
 });
 
 function getKubernetesNamespace(): che.KubernetesNamespace[] {
-  return [{
-    name: 'first-namespace',
-    attributes: {
-      phase: '',
-      default: 'false',
-      displayName: 'First Namespace'
-    }
-  }, {
-    name: 'second-namespace',
-    attributes: {
-      phase: '',
-      default: 'true',
-      displayName: 'Second Namespace',
-    }
-  }];
+  return [
+    {
+      name: 'first-namespace',
+      attributes: {
+        phase: '',
+        default: 'false',
+        displayName: 'First Namespace',
+      },
+    },
+    {
+      name: 'second-namespace',
+      attributes: {
+        phase: '',
+        default: 'true',
+        displayName: 'Second Namespace',
+      },
+    },
+  ];
 }

@@ -19,21 +19,23 @@ import EditRegistryModal from '../EditRegistryModal';
 import { FakeRegistryBuilder } from '../../__tests__/__mocks__/registryRowBuilder';
 
 describe('Edit Registry Modal', () => {
-
   const mockOnChange = jest.fn();
   const mockOnCancel = jest.fn();
 
   function getComponent(
     isModalOpen: boolean,
     isEditMode: boolean,
-    currentRegistry: RegistryEntry
+    currentRegistry: RegistryEntry,
   ): React.ReactElement {
-    return (<EditRegistryModal
-      onCancel={mockOnCancel}
-      onChange={mockOnChange}
-      isEditMode={isEditMode}
-      registry={currentRegistry}
-      isOpen={isModalOpen} />);
+    return (
+      <EditRegistryModal
+        onCancel={mockOnCancel}
+        onChange={mockOnChange}
+        isEditMode={isEditMode}
+        registry={currentRegistry}
+        isOpen={isModalOpen}
+      />
+    );
   }
 
   afterEach(() => {
@@ -50,7 +52,10 @@ describe('Edit Registry Modal', () => {
   });
 
   it('should correctly render the edit registry component', () => {
-    const registry = new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('tst').build();
+    const registry = new FakeRegistryBuilder()
+      .withUrl('http://test.reg')
+      .withPassword('tst')
+      .build();
     const component = getComponent(true, true, registry);
     const { rerender } = render(component);
 
@@ -69,7 +74,10 @@ describe('Edit Registry Modal', () => {
   });
 
   it('should fire onChange registries event', () => {
-    const registry = new FakeRegistryBuilder().withUrl('http://test').withPassword('qwerty').build();
+    const registry = new FakeRegistryBuilder()
+      .withUrl('http://test')
+      .withPassword('qwerty')
+      .build();
     const component = getComponent(true, true, registry);
     render(component);
 
@@ -94,5 +102,4 @@ describe('Edit Registry Modal', () => {
 
     expect(mockOnCancel).toBeCalled();
   });
-
 });

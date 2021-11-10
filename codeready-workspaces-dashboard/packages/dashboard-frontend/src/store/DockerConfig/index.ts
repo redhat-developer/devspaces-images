@@ -20,29 +20,31 @@ import { selectDevworkspacesEnabled } from '../Workspaces/Settings/selectors';
 
 export type ActionCreators = {
   requestCredentials: () => AppThunk<Action, Promise<void>>;
-  updateCredentials: (registries: RegistryEntry[]) => AppThunk<Action, Promise<void>>
+  updateCredentials: (registries: RegistryEntry[]) => AppThunk<Action, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
+  requestCredentials:
+    (): AppThunk<Action, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      const state = getState();
+      if (selectDevworkspacesEnabled(state)) {
+        const namespace = selectDefaultNamespace(state).name;
+        await dispatch(DevWorkspacesStore.actionCreators.requestCredentials(namespace));
+      } else {
+        await dispatch(CheWorkspacesStore.actionCreators.requestCredentials());
+      }
+    },
 
-  requestCredentials: (): AppThunk<Action, Promise<void>> => async (dispatch, getState): Promise<void> => {
-    const state = getState();
-    if (selectDevworkspacesEnabled(state)) {
-      const namespace = selectDefaultNamespace(state).name;
-      await dispatch(DevWorkspacesStore.actionCreators.requestCredentials(namespace));
-    } else {
-      await dispatch(CheWorkspacesStore.actionCreators.requestCredentials());
-    }
-  },
-
-  updateCredentials: (registries: RegistryEntry[]): AppThunk<Action, Promise<void>> => async (dispatch, getState): Promise<void> => {
-    const state = getState();
-    if (selectDevworkspacesEnabled(state)) {
-      const namespace = selectDefaultNamespace(state).name;
-      await dispatch(DevWorkspacesStore.actionCreators.updateCredentials(namespace, registries));
-    } else {
-      await dispatch(CheWorkspacesStore.actionCreators.updateCredentials(registries));
-    }
-  }
-
+  updateCredentials:
+    (registries: RegistryEntry[]): AppThunk<Action, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      const state = getState();
+      if (selectDevworkspacesEnabled(state)) {
+        const namespace = selectDefaultNamespace(state).name;
+        await dispatch(DevWorkspacesStore.actionCreators.updateCredentials(namespace, registries));
+      } else {
+        await dispatch(CheWorkspacesStore.actionCreators.updateCredentials(registries));
+      }
+    },
 };

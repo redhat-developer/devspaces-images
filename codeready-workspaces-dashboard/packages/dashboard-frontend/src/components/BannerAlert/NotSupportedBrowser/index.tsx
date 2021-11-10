@@ -21,7 +21,6 @@ type State = {
 };
 
 export default class BannerAlertNotSupportedBrowser extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -37,7 +36,8 @@ export default class BannerAlertNotSupportedBrowser extends React.PureComponent<
 
     return (
       <Banner className="pf-u-text-align-center" variant="warning">
-        The browser you are using is not supported. We recommend using <b>Google Chrome</b> to have the best possible experience.
+        The browser you are using is not supported. We recommend using <b>Google Chrome</b> to have
+        the best possible experience.
       </Banner>
     );
   }

@@ -21,7 +21,6 @@ jest.mock('../../../../services/helpers/tools', () => {
 });
 
 describe('The LogsTools component', () => {
-
   it('should render the component correctly', () => {
     const logs = [
       'Pulling image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
@@ -45,13 +44,7 @@ describe('The LogsTools component', () => {
 
 function renderComponent(
   logs: string[],
-  handleExpand: (isExpand: boolean) => void
+  handleExpand: (isExpand: boolean) => void,
 ): ReactTestRenderer {
-  return renderer.create(
-    <LogsTools
-      logs={logs}
-      handleExpand={handleExpand}
-      preventPostMessage
-    />
-  );
+  return renderer.create(<LogsTools logs={logs} handleExpand={handleExpand} preventPostMessage />);
 }

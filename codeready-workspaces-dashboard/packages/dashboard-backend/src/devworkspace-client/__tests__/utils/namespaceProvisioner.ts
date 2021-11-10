@@ -70,12 +70,13 @@ export class NamespaceProvisioner {
 
   async doesProjectExist(projectName: string): Promise<boolean> {
     try {
-      const resp = await this.customObjectAPI.listClusterCustomObject(projectApiGroup, 'v1', projectResources);
-      const projectList = (resp.body as any).items;
-      return (
-        projectList.filter((x: any) => x.metadata.name === projectName)
-          .length > 0
+      const resp = await this.customObjectAPI.listClusterCustomObject(
+        projectApiGroup,
+        'v1',
+        projectResources,
       );
+      const projectList = (resp.body as any).items;
+      return projectList.filter((x: any) => x.metadata.name === projectName).length > 0;
     } catch (e) {
       return false;
     }
@@ -105,7 +106,7 @@ export class NamespaceProvisioner {
         projectApiGroup,
         'v1',
         projectRequestResources,
-        projectRequestModel(namespace)
+        projectRequestModel(namespace),
       );
     } catch (e) {
       throw new Error('unable to create project: ' + helpers.errors.getMessage(e));
@@ -114,9 +115,7 @@ export class NamespaceProvisioner {
 
   private async createNamespace(namespace: string): Promise<void> {
     try {
-      await this.coreV1API.createNamespace(
-        namespaceModel(namespace)
-      );
+      await this.coreV1API.createNamespace(namespaceModel(namespace));
     } catch (e) {
       throw new Error('unable to create namespace: ' + helpers.errors.getMessage(e));
     }

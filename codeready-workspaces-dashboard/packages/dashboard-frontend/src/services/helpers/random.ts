@@ -13,7 +13,9 @@
 export default function getRandomString(length: number): string {
   let str = '';
   while (str.length < length) {
-    str += '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'[(Math.random() * 60) | 0];
+    str += '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'[
+      (Math.random() * 60) | 0
+    ];
   }
   return str;
 }

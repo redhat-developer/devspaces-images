@@ -24,17 +24,18 @@ import {
 import TemporaryStorageSwitch from './TemporaryStorageSwitch';
 import * as DevfileRegistriesStore from '../../../store/DevfileRegistries';
 import { AppState } from '../../../store';
-import { selectFilterValue, selectMetadataFiltered } from '../../../store/DevfileRegistries/selectors';
+import {
+  selectFilterValue,
+  selectMetadataFiltered,
+} from '../../../store/DevfileRegistries/selectors';
 
-type Props =
-  MappedProps
-  & {
-    persistVolumesDefault: string;
-    onTemporaryStorageChange: (temporary: boolean) => void;
-  };
+type Props = MappedProps & {
+  persistVolumesDefault: string;
+  onTemporaryStorageChange: (temporary: boolean) => void;
+};
 type State = {
   filterValue: string;
-}
+};
 
 export class SamplesListToolbar extends React.PureComponent<Props, State> {
   handleTextInputChange: TextInputProps['onChange'];
@@ -52,9 +53,14 @@ export class SamplesListToolbar extends React.PureComponent<Props, State> {
       this.props.setFilter(searchValue);
     };
     this.buildSearchBox = (filterValue: string): React.ReactElement => (
-      <TextInput value={filterValue} type="search" onChange={this.handleTextInputChange} aria-label="Filter samples list" placeholder="Filter by" />
+      <TextInput
+        value={filterValue}
+        type="search"
+        onChange={this.handleTextInputChange}
+        aria-label="Filter samples list"
+        placeholder="Filter by"
+      />
     );
-
   }
 
   componentWillUnmount(): void {
@@ -67,36 +73,34 @@ export class SamplesListToolbar extends React.PureComponent<Props, State> {
 
     return (
       <Flex className={'pf-u-m-md pf-u-mb-0 pf-u-mr-0'}>
-        <FlexItem>
-          {this.buildSearchBox(filterValue)}
-        </FlexItem>
+        <FlexItem>{this.buildSearchBox(filterValue)}</FlexItem>
         <FlexItem>
           <TextContent>
-            <Text>
-              {this.buildCount(foundCount, filterValue)}
-            </Text>
+            <Text>{this.buildCount(foundCount, filterValue)}</Text>
           </TextContent>
         </FlexItem>
         <FlexItem align={{ default: 'alignRight' }}>
           <TemporaryStorageSwitch
             persistVolumesDefault={this.props.persistVolumesDefault}
-            onChange={this.props.onTemporaryStorageChange} />
+            onChange={this.props.onTemporaryStorageChange}
+          />
         </FlexItem>
       </Flex>
     );
   }
 
   private buildCount(foundCount: number, searchValue: string): React.ReactElement {
-    return searchValue === ''
-      ? <span></span>
-      : (<Pluralize
+    return searchValue === '' ? (
+      <span></span>
+    ) : (
+      <Pluralize
         singular={'item'}
         count={foundCount}
         zero={'Nothing found'}
-        data-testid='toolbar-results-count'
-      />);
+        data-testid="toolbar-results-count"
+      />
+    );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -104,10 +108,7 @@ const mapStateToProps = (state: AppState) => ({
   metadataFiltered: selectMetadataFiltered(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  DevfileRegistriesStore.actionCreators,
-);
+const connector = connect(mapStateToProps, DevfileRegistriesStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(SamplesListToolbar);

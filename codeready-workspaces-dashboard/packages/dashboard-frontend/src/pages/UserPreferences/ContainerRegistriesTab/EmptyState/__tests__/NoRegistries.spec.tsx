@@ -18,9 +18,8 @@ describe('No registries component for empty state', () => {
   const onAdd = jest.fn();
 
   it('should render title correctly', () => {
-    const element = (<NoRegistriesEmptyState onAddRegistry={onAdd} />);
+    const element = <NoRegistriesEmptyState onAddRegistry={onAdd} />;
 
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });
-
 });

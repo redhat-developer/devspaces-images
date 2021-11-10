@@ -21,10 +21,9 @@ import * as styles from './index.module.css';
 type Props = {
   branding: BrandingData;
   issue: Issue;
-}
+};
 
 export class IssueComponent extends React.PureComponent<Props> {
-
   public render(): React.ReactNode {
     const { issue } = this.props;
 
@@ -48,22 +47,34 @@ export class IssueComponent extends React.PureComponent<Props> {
           Certificate Error
         </Text>
         <Text component={TextVariants.p}>
-          Your {productName} server may be using a self-signed certificate. To resolve this issue, try to import the servers CA certificate into your browser, as described <a href={certDocumentation} target="_blank" rel="noreferrer">here</a>.
+          Your {productName} server may be using a self-signed certificate. To resolve this issue,
+          try to import the servers CA certificate into your browser, as described{' '}
+          <a href={certDocumentation} target="_blank" rel="noreferrer">
+            here
+          </a>
+          .
         </Text>
-        <Text component={TextVariants.p}>After importing the certificate, refresh your browser.</Text>
-        <Text component={TextVariants.p}><a href="/">Refresh Now</a></Text>
+        <Text component={TextVariants.p}>
+          After importing the certificate, refresh your browser.
+        </Text>
+        <Text component={TextVariants.p}>
+          <a href="/">Refresh Now</a>
+        </Text>
       </TextContent>
     );
   }
 
   private renderSsoError(error: Error): React.ReactNode {
-
-    const messageTextbox = (<Text component={TextVariants.p}>
-      We are experiencing some technical difficulties from our SSO{error ? ':' : '.'}
-    </Text>);
-    const errorTextbox = !error
-      ? undefined
-      : (<Text component={TextVariants.pre} className={styles.errorMessage}>{error.message}</Text>);
+    const messageTextbox = (
+      <Text component={TextVariants.p}>
+        We are experiencing some technical difficulties from our SSO{error ? ':' : '.'}
+      </Text>
+    );
+    const errorTextbox = !error ? undefined : (
+      <Text component={TextVariants.pre} className={styles.errorMessage}>
+        {error.message}
+      </Text>
+    );
 
     return (
       <TextContent>
@@ -74,16 +85,19 @@ export class IssueComponent extends React.PureComponent<Props> {
         {messageTextbox}
         {errorTextbox}
         <Text component={TextVariants.p}>
-          Please try <kbd className={styles.keybinding}>Shift</kbd>+<kbd className={styles.keybinding}>Refresh</kbd>
+          Please try <kbd className={styles.keybinding}>Shift</kbd>+
+          <kbd className={styles.keybinding}>Refresh</kbd>
         </Text>
       </TextContent>
     );
   }
 
   private renderUnknownError(error: Error): React.ReactNode {
-    const errorTextbox = !error
-      ? undefined
-      : (<Text component={TextVariants.pre} className={styles.errorMessage}>{error.message}</Text>);
+    const errorTextbox = !error ? undefined : (
+      <Text component={TextVariants.pre} className={styles.errorMessage}>
+        {error.message}
+      </Text>
+    );
 
     return (
       <TextContent>
@@ -98,5 +112,4 @@ export class IssueComponent extends React.PureComponent<Props> {
       </TextContent>
     );
   }
-
 }

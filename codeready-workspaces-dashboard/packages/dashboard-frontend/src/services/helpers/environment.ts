@@ -16,7 +16,7 @@ export type Environment = {
   server?: string;
 };
 export type ProdEnvironment = {
-  type: 'production'
+  type: 'production';
 };
 export type DevEnvironment = {
   type: 'development';
@@ -25,7 +25,10 @@ export type DevEnvironment = {
 
 export function getEnvironment(): Environment {
   const env: Environment = {
-    type: (process && process.env && process.env.ENVIRONMENT as EnvironmentType) === 'development' ? 'development' : 'production',
+    type:
+      (process && process.env && (process.env.ENVIRONMENT as EnvironmentType)) === 'development'
+        ? 'development'
+        : 'production',
   };
   if (env.type === 'development') {
     env.server = process.env.SERVER;

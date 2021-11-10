@@ -21,12 +21,14 @@ describe('Unsaved Changes modal window', () => {
 
   const history = createHashHistory();
 
-  const component = (<UnsavedChangesModal
-    history={history}
-    hasUnsavedChanges={hasUnsavedChanges}
-    onDiscardChanges={onDiscardChanges}
-    isOpenInitState={true}
-  />);
+  const component = (
+    <UnsavedChangesModal
+      history={history}
+      hasUnsavedChanges={hasUnsavedChanges}
+      onDiscardChanges={onDiscardChanges}
+      isOpenInitState={true}
+    />
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -38,7 +40,8 @@ describe('Unsaved Changes modal window', () => {
   });
 
   it('should inform users about unsaved changes', () => {
-    const message = 'You have unsaved changes. You may go ahead and discard all changes, or close this window and save them.';
+    const message =
+      'You have unsaved changes. You may go ahead and discard all changes, or close this window and save them.';
 
     render(component);
 
@@ -54,5 +57,4 @@ describe('Unsaved Changes modal window', () => {
 
     expect(onDiscardChanges).toHaveBeenCalledWith('/');
   });
-
 });

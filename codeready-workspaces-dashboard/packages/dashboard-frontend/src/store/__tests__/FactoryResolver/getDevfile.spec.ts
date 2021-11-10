@@ -45,24 +45,27 @@ describe('Get a devfile from factory resolver object', () => {
     const factoryResolver = new FactoryResolverBuilder()
       .withDevfile(devfile)
       .withScmInfo({
-        'clone_url': location,
-        'scm_provider': 'github',
+        clone_url: location,
+        scm_provider: 'github',
       })
       .build();
 
     const targetDevfile = getDevfile(factoryResolver, location);
 
-    expect(targetDevfile).toEqual(expect.objectContaining({
-      projects: [{
-        git: {
-          remotes: {
-            origin: 'http://dummy/test.com/project-demo',
+    expect(targetDevfile).toEqual(
+      expect.objectContaining({
+        projects: [
+          {
+            git: {
+              remotes: {
+                origin: 'http://dummy/test.com/project-demo',
+              },
+            },
+            name: 'project-demo',
           },
-        },
-        name: 'project-demo',
-      },
-      ],
-    }));
+        ],
+      }),
+    );
   });
 
   it('should return a devfile V2 with a scm meta with a source', () => {
@@ -71,8 +74,8 @@ describe('Get a devfile from factory resolver object', () => {
       .withDevfile(devfile)
       .withSource('devfile.yaml')
       .withScmInfo({
-        'clone_url': location,
-        'scm_provider': 'github',
+        clone_url: location,
+        scm_provider: 'github',
       })
       .build();
     const attributes = {
@@ -97,9 +100,9 @@ describe('Get a devfile from factory resolver object', () => {
       .withDevfile(devfile)
       .withSource('devfile.yaml')
       .withScmInfo({
-        'clone_url': location,
-        'scm_provider': 'github',
-        branch: 'devfile2'
+        clone_url: location,
+        scm_provider: 'github',
+        branch: 'devfile2',
       })
       .build();
     const attributes = {
@@ -121,13 +124,11 @@ describe('Get a devfile from factory resolver object', () => {
 
   it('should return a devfile V2 with a scm meta with an URL', () => {
     const devfile = getV2Devfile();
-    const factoryResolver = new FactoryResolverBuilder()
-      .withDevfile(devfile)
-      .build();
+    const factoryResolver = new FactoryResolverBuilder().withDevfile(devfile).build();
     const attributes = {
       'dw.metadata.annotations': {
         'che.eclipse.org/devfile-source': safeDump({
-          url: { location }
+          url: { location },
         }),
       },
     };

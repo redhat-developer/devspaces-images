@@ -30,16 +30,15 @@ type Props = {
   isOpen: boolean;
   onChange: (registry: RegistryEntry) => void;
   onCancel: () => void;
-}
+};
 type State = {
   editRegistry: RegistryEntry;
   urlValid: ValidatedOptions;
   usernameValid: ValidatedOptions;
   passwordValid: ValidatedOptions;
-}
+};
 
 export default class EditRegistryModal extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -126,7 +125,10 @@ export default class EditRegistryModal extends React.PureComponent<Props, State>
   }
 
   private get isUrlValid(): boolean {
-    const { urlValid, editRegistry: { url } } = this.state;
+    const {
+      urlValid,
+      editRegistry: { url },
+    } = this.state;
     return urlValid !== ValidatedOptions.error && url.length > 0;
   }
 
@@ -135,29 +137,38 @@ export default class EditRegistryModal extends React.PureComponent<Props, State>
   }
 
   private get isPasswordValid(): boolean {
-    const { passwordValid, editRegistry: { password } } = this.state;
-    return passwordValid !== ValidatedOptions.error && (password !== undefined && password.length > 0);
+    const {
+      passwordValid,
+      editRegistry: { password },
+    } = this.state;
+    return (
+      passwordValid !== ValidatedOptions.error && password !== undefined && password.length > 0
+    );
   }
 
   private getRegistryModalFooter(): React.ReactNode {
     const { onCancel, isEditMode } = this.props;
-    const isDisabled = !(this.isUrlChange || this.isUsernameChange || this.isPasswordChange)
-      || !this.isUrlValid || !this.isUsernameValid || !this.isPasswordValid;
+    const isDisabled =
+      !(this.isUrlChange || this.isUsernameChange || this.isPasswordChange) ||
+      !this.isUrlValid ||
+      !this.isUsernameValid ||
+      !this.isPasswordValid;
 
     return (
       <React.Fragment>
-        <Button variant={ButtonVariant.primary}
+        <Button
+          variant={ButtonVariant.primary}
           isDisabled={isDisabled}
           data-testid="edit-button"
-          onClick={() => this.handleRegistryChange()}>
+          onClick={() => this.handleRegistryChange()}
+        >
           {isEditMode ? 'Save' : 'Add'}
         </Button>
-        <Button variant={ButtonVariant.link}
-          data-testid="cancel-button"
-          onClick={onCancel}>
+        <Button variant={ButtonVariant.link} data-testid="cancel-button" onClick={onCancel}>
           Cancel
         </Button>
-      </React.Fragment>);
+      </React.Fragment>
+    );
   }
 
   public render(): React.ReactElement {
@@ -180,15 +191,18 @@ export default class EditRegistryModal extends React.PureComponent<Props, State>
           />
           <RegistryUsernameFormGroup
             username={editRegistry.username}
-            onChange={(username: string, valid: ValidatedOptions) => this.handleUsernameChange(username, valid)}
+            onChange={(username: string, valid: ValidatedOptions) =>
+              this.handleUsernameChange(username, valid)
+            }
           />
           <RegistryPasswordFormGroup
             password={editRegistry.password}
-            onChange={(password: string, valid: ValidatedOptions) => this.handlePasswordChange(password, valid)}
+            onChange={(password: string, valid: ValidatedOptions) =>
+              this.handlePasswordChange(password, valid)
+            }
           />
         </Form>
       </Modal>
     );
   }
-
 }

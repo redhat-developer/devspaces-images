@@ -21,20 +21,24 @@ import { AppThunk } from '../../../../../store';
 import { ActionCreators, ResourceQueryParams } from '../../../../../store/Workspaces';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 jest.mock('../../../../../store/Workspaces/index', () => {
   return {
     actionCreators: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      startWorkspace: (workspace: Workspace, params?: ResourceQueryParams): AppThunk<any, Promise<void>> => async (): Promise<void> => {
-        return Promise.resolve();
-      },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      stopWorkspace: (workspace: Workspace): AppThunk<any, Promise<void>> => async (): Promise<void> => {
-        return Promise.resolve();
-      }
+      startWorkspace:
+        (workspace: Workspace, params?: ResourceQueryParams): AppThunk<any, Promise<void>> =>
+        async (): Promise<void> => {
+          return Promise.resolve();
+        },
+      stopWorkspace:
+        (workspace: Workspace): AppThunk<any, Promise<void>> =>
+        async (): Promise<void> => {
+          return Promise.resolve();
+        },
     } as ActionCreators,
   };
 });
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 const namespace = 'che';
 const workspaceName = 'test-workspace-name';
@@ -47,19 +51,22 @@ const store = new FakeStoreBuilder()
   })
   .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
   .withCheWorkspaces({
-    workspaces: [{
-      id: workspaceId,
-      namespace,
-      status: WorkspaceStatus[workspaceStoppedStatus],
-      devfile: {
-        apiVersion: 'v1',
-        components: [],
-        metadata: {
-          name: workspaceName,
-        }
-      }
-    }]
-  }).build();
+    workspaces: [
+      {
+        id: workspaceId,
+        namespace,
+        status: WorkspaceStatus[workspaceStoppedStatus],
+        devfile: {
+          apiVersion: 'v1',
+          components: [],
+          metadata: {
+            name: workspaceName,
+          },
+        },
+      },
+    ],
+  })
+  .build();
 
 describe('Workspace WorkspaceAction widget', () => {
   it('should call the callback with OPEN action', async () => {
@@ -77,7 +84,9 @@ describe('Workspace WorkspaceAction widget', () => {
     const targetAction = screen.getByText(action);
     targetAction.click();
 
-    await waitFor(() => expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`));
+    await waitFor(() =>
+      expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`),
+    );
   });
 
   it('should call the callback with OPEN_IN_VERBOSE_MODE action', async () => {
@@ -95,7 +104,9 @@ describe('Workspace WorkspaceAction widget', () => {
     const targetAction = screen.getByText(action);
     targetAction.click();
 
-    await waitFor(() => expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`));
+    await waitFor(() =>
+      expect(history.location.pathname).toBe(`/ide/${namespace}/test-workspace-name`),
+    );
   });
 
   it('should call the callback with START_IN_BACKGROUND action', () => {
@@ -116,7 +127,7 @@ describe('Workspace WorkspaceAction widget', () => {
     expect(history.location.pathname).toBe('/');
   });
 
-  it('shouldn\'t call the callback with STOP_WORKSPACE action if disabled', () => {
+  it('should not call the callback with STOP_WORKSPACE action if disabled', () => {
     const action = WorkspaceAction.STOP_WORKSPACE;
     const history = createHashHistory();
     renderComponent(createComponent(workspaceStoppedStatus, workspaceName, workspaceId, history));
@@ -155,23 +166,18 @@ function createComponent(
   workspaceStatus: WorkspaceStatus,
   workspaceName: string,
   workspaceId: string,
-  history: History
+  history: History,
 ): React.ReactElement {
   return (
     <HeaderActionSelect
       workspaceId={workspaceId}
       workspaceName={workspaceName}
       history={history}
-      status={workspaceStatus} />
+      status={workspaceStatus}
+    />
   );
 }
 
-function renderComponent(
-  component: React.ReactElement
-): RenderResult {
-  return render(
-    <Provider store={store}>
-      {component}
-    </Provider>
-  );
+function renderComponent(component: React.ReactElement): RenderResult {
+  return render(<Provider store={store}>{component}</Provider>);
 }

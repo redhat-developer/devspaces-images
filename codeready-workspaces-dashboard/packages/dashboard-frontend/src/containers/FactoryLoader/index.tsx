@@ -23,9 +23,13 @@ import FactoryLoader from '../../pages/FactoryLoader';
 import {
   selectAllWorkspaces,
   selectWorkspaceById,
-  selectWorkspaceByQualifiedName
+  selectWorkspaceByQualifiedName,
 } from '../../store/Workspaces/selectors';
-import { selectCheDevworkspaceEnabled, selectPreferredStorageType, selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
+import {
+  selectCheDevworkspaceEnabled,
+  selectPreferredStorageType,
+  selectWorkspacesSettings,
+} from '../../store/Workspaces/Settings/selectors';
 import { buildIdeLoaderLocation, sanitizeLocation } from '../../services/helpers/location';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakAuthService } from '../../services/keycloak/auth';
@@ -34,7 +38,10 @@ import { isOAuthResponse } from '../../store/FactoryResolver';
 import { updateDevfile } from '../../services/storageTypes';
 import { isCheDevfile, isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import { AlertOptions } from '../../pages/FactoryLoader';
-import { selectDefaultNamespace, selectInfrastructureNamespaces } from '../../store/InfrastructureNamespaces/selectors';
+import {
+  selectDefaultNamespace,
+  selectInfrastructureNamespaces,
+} from '../../store/InfrastructureNamespaces/selectors';
 import { safeLoad } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
@@ -43,7 +50,12 @@ import getRandomString from '../../services/helpers/random';
 import { DevfileConverter } from './devfile-converter';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
-const WS_ATTRIBUTES_TO_SAVE: string[] = ['workspaceDeploymentLabels', 'workspaceDeploymentAnnotations', 'policies.create', 'che-editor'];
+const WS_ATTRIBUTES_TO_SAVE: string[] = [
+  'workspaceDeploymentLabels',
+  'workspaceDeploymentAnnotations',
+  'policies.create',
+  'che-editor',
+];
 
 const DEFAULT_CREATE_POLICY = 'perclick';
 
@@ -51,7 +63,7 @@ export type CreatePolicy = 'perclick' | 'peruser';
 
 enum ErrorCodes {
   INVALID_REQUEST = 'invalid_request',
-  ACCESS_DENIED = 'access_denied'
+  ACCESS_DENIED = 'access_denied',
 }
 
 export enum LoadFactorySteps {
@@ -60,12 +72,10 @@ export enum LoadFactorySteps {
   LOOKING_FOR_DEVFILE,
   APPLYING_DEVFILE,
   START_WORKSPACE,
-  OPEN_IDE
+  OPEN_IDE,
 }
 
-type Props =
-  MappedProps
-  & { history: History };
+type Props = MappedProps & { history: History };
 
 type State = {
   search?: string;
@@ -81,7 +91,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private factoryLoaderCallbacks: { showAlert?: (options: AlertOptions) => void } = {};
   private factoryResolver: FactoryResolverStore.State;
   private overrideDevfileObject: {
-    [params: string]: string
+    [params: string]: string;
   } = {};
   private converter: DevfileConverter;
 
@@ -135,7 +145,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       const currentAlertOptions = alertOptions;
       alertOptions = {
         title: currentAlertOptions,
-        alertVariant: AlertVariant.danger
+        alertVariant: AlertVariant.danger,
       } as AlertOptions;
     }
     if (alertOptions.alertVariant === AlertVariant.danger) {
@@ -176,14 +186,19 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       this.factoryResolver = factoryResolver;
     }
 
-    if (this.state.currentStep === LoadFactorySteps.START_WORKSPACE &&
-      workspace && workspace.isRunning) {
+    if (
+      this.state.currentStep === LoadFactorySteps.START_WORKSPACE &&
+      workspace &&
+      workspace.isRunning
+    ) {
       await this.openIde();
     }
 
-    if (workspace &&
+    if (
+      workspace &&
       workspace.hasError &&
-      this.state.currentStep === LoadFactorySteps.START_WORKSPACE) {
+      this.state.currentStep === LoadFactorySteps.START_WORKSPACE
+    ) {
       this.showAlert('Unknown workspace error.');
     }
   }
@@ -204,7 +219,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   private isCreatePolicy(val: string): val is CreatePolicy {
-    return val && (val as CreatePolicy) === 'perclick' || (val as CreatePolicy) === 'peruser';
+    return (val && (val as CreatePolicy) === 'perclick') || (val as CreatePolicy) === 'peruser';
   }
 
   private getCreatePolicy(attrs: { [key: string]: string }): CreatePolicy | undefined {
@@ -212,7 +227,9 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     if (this.isCreatePolicy(policy)) {
       return policy;
     }
-    this.showAlert(`Unsupported create policy '${policy}' is specified while the only following are supported: peruser, perclick. Please fix 'policies.create' parameter and try again.`);
+    this.showAlert(
+      `Unsupported create policy '${policy}' is specified while the only following are supported: peruser, perclick. Please fix 'policies.create' parameter and try again.`,
+    );
     return undefined;
   }
 
@@ -282,8 +299,12 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     return attrs;
   }
 
-  private async resolveDevfile(location: string): Promise<api.che.workspace.devfile.Devfile | undefined> {
-    const override = Object.entries(this.overrideDevfileObject).length ? this.overrideDevfileObject : undefined;
+  private async resolveDevfile(
+    location: string,
+  ): Promise<api.che.workspace.devfile.Devfile | undefined> {
+    const override = Object.entries(this.overrideDevfileObject).length
+      ? this.overrideDevfileObject
+      : undefined;
     try {
       await this.props.requestFactoryResolver(location, override);
     } catch (e) {
@@ -310,10 +331,14 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       resolvedDevfileMessage = `Devfile loaded from ${searchParam.get('url')}`;
     } else {
       if (source === 'repo') {
-        resolvedDevfileMessage = `Devfile could not be found in ${searchParam.get('url')}. Applying the default configuration`;
+        resolvedDevfileMessage = `Devfile could not be found in ${searchParam.get(
+          'url',
+        )}. Applying the default configuration`;
       } else {
         if (this.props.cheDevworkspaceEnabled === false && isDevfileV2(devfile)) {
-          resolvedDevfileMessage = `Devfile 2.x version found in repo ${searchParam.get('url')} as '${source}', converting it to devfile version 1`;
+          resolvedDevfileMessage = `Devfile 2.x version found in repo ${searchParam.get(
+            'url',
+          )} as '${source}', converting it to devfile version 1`;
           devfile = this.converter.devfileV2toDevfileV1(devfile);
         } else {
           resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'`;
@@ -330,7 +355,9 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       const namespaces = this.props.infrastructureNamespaces;
       if (namespaces.length === 1) {
         if (!namespaces[0].attributes.phase) {
-          this.showAlert('Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.');
+          this.showAlert(
+            'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
+          );
           return;
         }
       }
@@ -348,7 +375,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       if (KeycloakAuthService.keycloak) {
         oauthUrlTmp.searchParams.set('token', KeycloakAuthService.keycloak.token as string);
       }
-      const fullOauthUrl = oauthUrlTmp.toString() + '&redirect_after_login=' + redirectUrl.toString();
+      const fullOauthUrl =
+        oauthUrlTmp.toString() + '&redirect_after_login=' + redirectUrl.toString();
 
       if (isDevEnvironment(env)) {
         window.open(fullOauthUrl);
@@ -379,7 +407,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   private async resolveWorkspace(
     devfile: api.che.workspace.devfile.Devfile | devfileApi.Devfile,
-    attrs: { [key: string]: string }
+    attrs: { [key: string]: string },
   ): Promise<Workspace | undefined> {
     let workspace: Workspace | undefined;
     const stackName = this.getWorkspaceV1StackName(attrs.factoryParams);
@@ -387,8 +415,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       workspace = this.props.allWorkspaces.find(workspace => {
         if (isCheWorkspace(workspace.ref)) {
           return workspace.ref?.attributes?.stackName === stackName;
-        }
-        else {
+        } else {
           const annotations = workspace.ref.metadata.annotations;
           const source = annotations ? annotations[DEVWORKSPACE_DEVFILE_SOURCE] : undefined;
           if (source) {
@@ -413,7 +440,13 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       }
       const namespace = this.props.defaultNamespace?.name;
       try {
-        await this.props.createWorkspaceFromDevfile(devfile, undefined, namespace, attrs, this.factoryResolver.resolver.optionalFilesContent || {});
+        await this.props.createWorkspaceFromDevfile(
+          devfile,
+          undefined,
+          namespace,
+          attrs,
+          this.factoryResolver.resolver.optionalFilesContent || {},
+        );
         this.props.setWorkspaceQualifiedName(namespace, devfile.metadata.name as string);
         workspace = this.props.activeWorkspace;
       } catch (e) {
@@ -429,9 +462,10 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     // not implemented for dev workspaces yet
     if (isCheWorkspace(workspace.ref) && workspace.storageType === 'ephemeral') {
       this.showAlert({
-        title: 'You\'re starting an ephemeral workspace. All changes to the source code will be lost ' +
+        title:
+          "You're starting an ephemeral workspace. All changes to the source code will be lost " +
           'when the workspace is stopped unless they are pushed to a remote code repository.',
-        alertVariant: AlertVariant.warning
+        alertVariant: AlertVariant.warning,
       });
     }
 
@@ -448,9 +482,13 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private errorActionLinks(): React.ReactFragment {
     return (
       <React.Fragment>
-        <AlertActionLink onClick={() => {
-          this.tryAgainHandler();
-        }}>Click to try again</AlertActionLink>
+        <AlertActionLink
+          onClick={() => {
+            this.tryAgainHandler();
+          }}
+        >
+          Click to try again
+        </AlertActionLink>
       </React.Fragment>
     );
   }
@@ -460,8 +498,10 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     if (!workspace) {
       return;
     }
-    if (this.state.currentStep !== LoadFactorySteps.START_WORKSPACE
-      && this.state.currentStep !== LoadFactorySteps.OPEN_IDE) {
+    if (
+      this.state.currentStep !== LoadFactorySteps.START_WORKSPACE &&
+      this.state.currentStep !== LoadFactorySteps.OPEN_IDE
+    ) {
       try {
         await this.props.requestWorkspace(workspace);
         if (workspace.isStopped) {
@@ -489,7 +529,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     if (errorCode === ErrorCodes.INVALID_REQUEST) {
       this.showAlert({
         alertActionLinks: this.errorActionLinks(),
-        title: 'Could not resolve devfile from private repository because authentication request is missing' +
+        title:
+          'Could not resolve devfile from private repository because authentication request is missing' +
           ' a parameter, contains an invalid parameter, includes a parameter more than once, or is otherwise invalid.',
         alertVariant: AlertVariant.danger,
       });
@@ -499,7 +540,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       if (!this.state.hasError) {
         this.showAlert({
           alertActionLinks: this.errorActionLinks(),
-          title: 'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
+          title:
+            'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
           alertVariant: AlertVariant.danger,
         });
       }
@@ -550,12 +592,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { workspace } = this.props;
-    const {
-      currentStep,
-      resolvedDevfileMessage,
-      hasError,
-      cheDevworkspaceEnabled,
-    } = this.state;
+    const { currentStep, resolvedDevfileMessage, hasError, cheDevworkspaceEnabled } = this.state;
     const workspaceName = workspace ? workspace.name : '';
     const workspaceId = workspace ? workspace.id : '';
 
@@ -571,7 +608,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       />
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -586,13 +622,10 @@ const mapStateToProps = (state: AppState) => ({
   cheDevworkspaceEnabled: selectCheDevworkspaceEnabled(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  {
-    ...FactoryResolverStore.actionCreators,
-    ...WorkspaceStore.actionCreators,
-  },
-);
+const connector = connect(mapStateToProps, {
+  ...FactoryResolverStore.actionCreators,
+  ...WorkspaceStore.actionCreators,
+});
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(FactoryLoaderContainer);

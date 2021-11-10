@@ -17,7 +17,6 @@ import InfrastructureNamespaceFormGroup from '..';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 
 describe('Infrastructure Namespace', () => {
-
   const mockOnChange = jest.fn();
 
   function renderComponent(namespaces: che.KubernetesNamespace[]): RenderResult {
@@ -25,10 +24,8 @@ describe('Infrastructure Namespace', () => {
 
     return render(
       <Provider store={store}>
-        <InfrastructureNamespaceFormGroup
-          onChange={mockOnChange}
-        />
-      </Provider>
+        <InfrastructureNamespaceFormGroup onChange={mockOnChange} />
+      </Provider>,
     );
   }
 
@@ -89,27 +86,32 @@ describe('Infrastructure Namespace', () => {
 
     expect(mockOnChange).toHaveBeenCalled();
   });
-
 });
 
 function getOneNamespace(): che.KubernetesNamespace[] {
-  return [{
-    name: 'dummy-namespace',
-    attributes: {
-      phase: 'Active'
-    }
-  }];
+  return [
+    {
+      name: 'dummy-namespace',
+      attributes: {
+        phase: 'Active',
+      },
+    },
+  ];
 }
 
 function getThreeNamespaces(): che.KubernetesNamespace[] {
-  return [{
-    name: 'dummy-namespace-1',
-    attributes: { phase: 'Active' }
-  }, {
-    name: 'dummy-namespace-2',
-    attributes: { phase: 'Active' }
-  }, {
-    name: 'dummy-namespace-3',
-    attributes: { phase: 'Active' }
-  }];
+  return [
+    {
+      name: 'dummy-namespace-1',
+      attributes: { phase: 'Active' },
+    },
+    {
+      name: 'dummy-namespace-2',
+      attributes: { phase: 'Active' },
+    },
+    {
+      name: 'dummy-namespace-3',
+      attributes: { phase: 'Active' },
+    },
+  ];
 }

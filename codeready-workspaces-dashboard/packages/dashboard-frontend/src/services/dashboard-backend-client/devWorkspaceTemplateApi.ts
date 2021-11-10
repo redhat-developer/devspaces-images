@@ -15,7 +15,9 @@ import common from '@eclipse-che/common';
 import devfileApi from '../devfileApi';
 import { prefix } from './const';
 
-export async function createTemplate(template: devfileApi.DevWorkspaceTemplate): Promise<devfileApi.DevWorkspaceTemplate> {
+export async function createTemplate(
+  template: devfileApi.DevWorkspaceTemplate,
+): Promise<devfileApi.DevWorkspaceTemplate> {
   const url = `${prefix}/namespace/${template.metadata.namespace}/devworkspacetemplates`;
   try {
     const response = await axios.post(url, { template });

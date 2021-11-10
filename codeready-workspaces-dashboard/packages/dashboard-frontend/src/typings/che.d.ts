@@ -11,7 +11,6 @@
  */
 
 declare namespace che {
-
   export interface Workspace {
     id: string;
     projects?: any;

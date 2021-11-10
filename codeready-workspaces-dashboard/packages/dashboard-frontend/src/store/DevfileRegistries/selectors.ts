@@ -33,30 +33,23 @@ export const selectRegistriesMetadata = createSelector(
     } else {
       return metadata;
     }
-
-  }
+  },
 );
 
-export const selectRegistriesErrors = createSelector(
-  selectState,
-  state => {
-    const errors: Array<{ url: string, errorMessage: string }> = [];
-    for (const [url, value] of Object.entries(state.registries)) {
-      if (value.error) {
-        errors.push({
-          url,
-          errorMessage: value.error,
-        });
-      }
+export const selectRegistriesErrors = createSelector(selectState, state => {
+  const errors: Array<{ url: string; errorMessage: string }> = [];
+  for (const [url, value] of Object.entries(state.registries)) {
+    if (value.error) {
+      errors.push({
+        url,
+        errorMessage: value.error,
+      });
     }
-    return errors;
   }
-);
+  return errors;
+});
 
-export const selectFilterValue = createSelector(
-  selectState,
-  state => state.filter
-);
+export const selectFilterValue = createSelector(selectState, state => state.filter);
 
 export const selectMetadataFiltered = createSelector(
   selectState,
@@ -67,15 +60,16 @@ export const selectMetadataFiltered = createSelector(
       return metadata;
     }
     return metadata.filter(meta => matches(meta, filterValue));
-  }
+  },
 );
 
 function matches(meta: che.DevfileMetaData, filterValue: string): boolean {
-  return match(meta.displayName, filterValue)
-    || match(meta.description || '', filterValue);
+  return match(meta.displayName, filterValue) || match(meta.description || '', filterValue);
 }
 
-function mergeRegistriesMetadata(registriesMetadata: Array<Array<che.DevfileMetaData>>): Array<che.DevfileMetaData> {
+function mergeRegistriesMetadata(
+  registriesMetadata: Array<Array<che.DevfileMetaData>>,
+): Array<che.DevfileMetaData> {
   return registriesMetadata.reduce((mergedMetadata, registryMetadata) => {
     return mergedMetadata.concat(registryMetadata);
   }, []);
@@ -85,12 +79,6 @@ function filterDevfileV2Metadata(metadata: Array<che.DevfileMetaData>): Array<ch
   return metadata.filter(metadata => metadata.links?.v2);
 }
 
-export const selectDevfileSchema = createSelector(
-  selectState,
-  state => state.schema.schema,
-);
+export const selectDevfileSchema = createSelector(selectState, state => state.schema.schema);
 
-export const selectDevfileSchemaError = createSelector(
-  selectState,
-  state => state.schema.error,
-);
+export const selectDevfileSchemaError = createSelector(selectState, state => state.schema.error);

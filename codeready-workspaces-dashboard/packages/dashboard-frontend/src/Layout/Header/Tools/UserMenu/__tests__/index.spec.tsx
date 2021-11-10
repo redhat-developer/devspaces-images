@@ -19,7 +19,10 @@ import { Action, Store } from 'redux';
 import UserMenu from '..';
 import { AppThunk } from '../../../../../store';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { BrandingData, BRANDING_DEFAULT } from '../../../../../services/bootstrap/branding.constant';
+import {
+  BrandingData,
+  BRANDING_DEFAULT,
+} from '../../../../../services/bootstrap/branding.constant';
 import * as InfrastructureNamespacesStore from '../../../../../store/InfrastructureNamespaces';
 import { selectBranding } from '../../../../../store/Branding/selectors';
 import { selectUserProfile } from '../../../../../store/UserProfile/selectors';
@@ -27,9 +30,11 @@ import { selectUserProfile } from '../../../../../store/UserProfile/selectors';
 jest.mock('../../../../../store/InfrastructureNamespaces', () => {
   return {
     actionCreators: {
-      requestNamespaces: (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> => async (): Promise<che.KubernetesNamespace[]> => {
-        return Promise.resolve([]);
-      }
+      requestNamespaces:
+        (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> =>
+        async (): Promise<che.KubernetesNamespace[]> => {
+          return Promise.resolve([]);
+        },
     } as InfrastructureNamespacesStore.ActionCreators,
   };
 });
@@ -108,9 +113,10 @@ describe('User Menu', () => {
     const copyLoginCommandButton = screen.getByText(`Copy ${productCli} login command`);
     fireEvent.click(copyLoginCommandButton);
 
-    await waitFor(() => expect(mockClipboardWriteText).toHaveBeenCalledWith('crwctl auth:login localhost'));
+    await waitFor(() =>
+      expect(mockClipboardWriteText).toHaveBeenCalledWith('crwctl auth:login localhost'),
+    );
   });
-
 });
 
 function createStore(cheCliTool: string, name: string, email: string): Store {
@@ -119,15 +125,14 @@ function createStore(cheCliTool: string, name: string, email: string): Store {
       attributes: {
         preferred_username: name,
       },
-      email
+      email,
     } as api.che.user.Profile)
     .withBranding({
       configuration: {
-        cheCliTool
+        cheCliTool,
       },
       links: BRANDING_DEFAULT.links,
-      docs: {
-      },
+      docs: {},
     } as BrandingData)
     .build();
 }

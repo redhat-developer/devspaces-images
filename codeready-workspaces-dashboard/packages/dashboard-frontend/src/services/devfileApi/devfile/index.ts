@@ -13,13 +13,11 @@
 import { V220Devfile } from '@devfile/api';
 import { DevfileMetadata, DevfileMetadataLike } from './metadata';
 
-export type DevfileLike = V220Devfile
-  & {
-    metadata?: DevfileMetadataLike;
-  };
+export type DevfileLike = V220Devfile & {
+  metadata?: DevfileMetadataLike;
+};
 
-export type Devfile = DevfileLike
-  & Required<Pick<DevfileLike, 'metadata'>>
-  & {
+export type Devfile = DevfileLike &
+  Required<Pick<DevfileLike, 'metadata'>> & {
     metadata?: DevfileMetadata;
   };

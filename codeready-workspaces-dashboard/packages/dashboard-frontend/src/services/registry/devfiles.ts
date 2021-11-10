@@ -17,8 +17,7 @@ import common from '@eclipse-che/common';
 const axiosInstance = axios.create();
 
 function createURL(url: string, baseUrl: string): URL {
-
-  // todo Remove it after fixing all source links https://github.com/eclipse/che/issues/19140
+  // Remove it after fixing all source links https://github.com/eclipse/che/issues/19140
   if (/^\/(\w+)/.test(url)) {
     return new URL(`.${url}`, baseUrl);
   }
@@ -69,7 +68,8 @@ export async function fetchRegistryMetadata(registryUrl: string): Promise<che.De
       return meta;
     });
   } catch (error) {
-    const errorMessage = `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + error;
+    const errorMessage =
+      `Failed to fetch devfiles metadata from registry URL: ${registryUrl}, reason: ` + error;
     console.error(errorMessage);
     throw errorMessage;
   }

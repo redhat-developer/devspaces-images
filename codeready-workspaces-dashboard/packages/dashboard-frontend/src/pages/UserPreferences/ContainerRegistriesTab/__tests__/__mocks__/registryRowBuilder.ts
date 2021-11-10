@@ -13,7 +13,6 @@
 import { RegistryEntry } from '../../../../../store/DockerConfig/types';
 
 export class FakeRegistryBuilder {
-
   private registry: RegistryEntry = { url: '', password: '', username: '' };
 
   public withUrl(url: string): FakeRegistryBuilder {
@@ -34,5 +33,4 @@ export class FakeRegistryBuilder {
   public build(): RegistryEntry {
     return this.registry;
   }
-
 }

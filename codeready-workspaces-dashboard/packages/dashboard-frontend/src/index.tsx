@@ -51,5 +51,10 @@ async function startApp(): Promise<void> {
     navigator.serviceWorker.register('./service-worker.js');
   }
 
-  ReactDOM.render(<Provider store={store}><App history={history} /></Provider>, ROOT);
+  ReactDOM.render(
+    <Provider store={store}>
+      <App history={history} />
+    </Provider>,
+    ROOT,
+  );
 }

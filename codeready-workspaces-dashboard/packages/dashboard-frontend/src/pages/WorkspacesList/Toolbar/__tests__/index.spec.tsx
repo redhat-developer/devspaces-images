@@ -28,17 +28,18 @@ const mockOnFilter = jest.fn();
 const mockOnToggleSelectAll = jest.fn();
 
 describe('Workspaces List Toolbar', () => {
-
   function renderComponent(): RenderResult {
-    return render(<WorkspacesListToolbar
-      workspaces={workspaces}
-      selectedAll={isSelectedAll}
-      enabledDelete={isEnabledDelete}
-      onAddWorkspace={() => mockOnAddWorkspace()}
-      onBulkDelete={() => mockOnBulkDelete()}
-      onFilter={filtered => mockOnFilter(filtered)}
-      onToggleSelectAll={isSelectedAll => mockOnToggleSelectAll(isSelectedAll)}
-    />);
+    return render(
+      <WorkspacesListToolbar
+        workspaces={workspaces}
+        selectedAll={isSelectedAll}
+        enabledDelete={isEnabledDelete}
+        onAddWorkspace={() => mockOnAddWorkspace()}
+        onBulkDelete={() => mockOnBulkDelete()}
+        onFilter={filtered => mockOnFilter(filtered)}
+        onToggleSelectAll={isSelectedAll => mockOnToggleSelectAll(isSelectedAll)}
+      />,
+    );
   }
 
   beforeEach(() => {
@@ -148,5 +149,4 @@ describe('Workspaces List Toolbar', () => {
 
     expect(mockOnFilter).toHaveBeenCalledWith(workspaces);
   });
-
 });

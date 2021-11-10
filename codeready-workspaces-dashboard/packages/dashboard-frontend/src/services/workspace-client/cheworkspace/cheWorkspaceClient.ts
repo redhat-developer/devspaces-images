@@ -11,7 +11,11 @@
  */
 
 import { inject, injectable } from 'inversify';
-import { default as WorkspaceClientLib, IWorkspaceMasterApi, IRemoteAPI } from '@eclipse-che/workspace-client';
+import {
+  default as WorkspaceClientLib,
+  IWorkspaceMasterApi,
+  IRemoteAPI,
+} from '@eclipse-che/workspace-client';
 import { EventEmitter } from 'events';
 import { WorkspaceClient } from '../index';
 import { KeycloakSetupService } from '../../keycloak/setup';
@@ -112,7 +116,9 @@ export class CheWorkspaceClient extends WorkspaceClient {
     if (namespaces.length === 1) {
       return namespaces[0].name;
     }
-    const defaultNamespace = namespaces.filter(kubernetesNamespace => kubernetesNamespace.attributes.default === 'true');
+    const defaultNamespace = namespaces.filter(
+      kubernetesNamespace => kubernetesNamespace.attributes.default === 'true',
+    );
     if (defaultNamespace.length === 0) {
       throw new Error('Default namespace is not found');
     }

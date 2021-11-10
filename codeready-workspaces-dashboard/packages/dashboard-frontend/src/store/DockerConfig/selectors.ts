@@ -13,7 +13,7 @@
 import { createSelector } from 'reselect';
 import { AppState } from '..';
 import { selectDevworkspacesEnabled } from '../Workspaces/Settings/selectors';
-import  { State } from  './dockerConfigState';
+import { State } from './dockerConfigState';
 
 const selectCheDockerConfigState = (state: AppState) => state.cheDockerConfig;
 const selectDwDockerConfigState = (state: AppState) => state.dwDockerConfig;
@@ -31,23 +31,14 @@ const selectState = createSelector(
   },
 );
 
-export const selectIsLoading = createSelector(
-  selectState,
-  (state) => {
-    return state.isLoading;
-  },
-);
+export const selectIsLoading = createSelector(selectState, state => {
+  return state.isLoading;
+});
 
-export const selectRegistries = createSelector(
-  selectState,
-  (state: State) => {
-    return state.registries;
-  },
-);
+export const selectRegistries = createSelector(selectState, (state: State) => {
+  return state.registries;
+});
 
-export const selectError = createSelector(
-  selectState,
-  (state) => {
-    return state.error;
-  },
-);
+export const selectError = createSelector(selectState, state => {
+  return state.error;
+});

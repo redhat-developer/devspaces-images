@@ -36,13 +36,15 @@ import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/sel
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
 import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
 
-type Props =
-  MappedProps
-  & {
-    onCardClick: (devfileContent: string, stackName: string, optionalFilesContent?: {
-      [fileName: string]: string
-    }) => void;
-  };
+type Props = MappedProps & {
+  onCardClick: (
+    devfileContent: string,
+    stackName: string,
+    optionalFilesContent?: {
+      [fileName: string]: string;
+    },
+  ) => void;
+};
 type State = {
   alerts: AlertItem[];
 };
@@ -80,9 +82,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
               />
             ))}
           </AlertGroup>
-          <Gallery hasGutter={true}>
-            {cards}
-          </Gallery>
+          <Gallery hasGutter={true}>{cards}</Gallery>
         </React.Fragment>
       );
     }
@@ -108,17 +108,20 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
         this.isLoading = false;
         return;
       } else {
-        devfileContent = await this.props.requestDevfile(meta.links.self) as string;
+        devfileContent = (await this.props.requestDevfile(meta.links.self)) as string;
       }
       this.props.onCardClick(devfileContent, meta.displayName, optionalFilesContent);
     } catch (e) {
       console.warn('Failed to load devfile.', e);
 
-      const alerts = [...this.state.alerts, {
-        key: meta.links.self,
-        title: `Failed to load devfile "${meta.displayName}"`,
-        variant: AlertVariant.warning,
-      }];
+      const alerts = [
+        ...this.state.alerts,
+        {
+          key: meta.links.self,
+          title: `Failed to load devfile "${meta.displayName}"`,
+          variant: AlertVariant.warning,
+        },
+      ];
       this.setState({ alerts });
     }
     this.isLoading = false;
@@ -138,23 +141,18 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
     return (
       <EmptyState variant={EmptyStateVariant.full}>
         <EmptyStateIcon icon={SearchIcon} />
-        <Title headingLevel='h1'>
-          No results found
-        </Title>
+        <Title headingLevel="h1">No results found</Title>
         <EmptyStateBody>
           No results match the filter criteria. Clear filter to show results.
         </EmptyStateBody>
         <EmptyStatePrimary>
-          <Button
-            variant='link'
-            onClick={(): void => this.props.clearFilter()}>
+          <Button variant="link" onClick={(): void => this.props.clearFilter()}>
             Clear filter
           </Button>
         </EmptyStatePrimary>
       </EmptyState>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -163,13 +161,10 @@ const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
 });
 
-const connector = connect(
-  mapStateToProps,
-  {
-    ...DevfileRegistriesStore.actionCreators,
-    ...FactoryResolverStore.actionCreators,
-  }
-);
+const connector = connect(mapStateToProps, {
+  ...DevfileRegistriesStore.actionCreators,
+  ...FactoryResolverStore.actionCreators,
+});
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(SamplesListGallery);

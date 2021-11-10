@@ -30,15 +30,11 @@ const issue = {
 } as Issue;
 const component = (
   <ErrorReporter>
-    <IssueComponent
-      branding={brandingData}
-      issue={issue}
-    />
+    <IssueComponent branding={brandingData} issue={issue} />
   </ErrorReporter>
 );
 
 describe('ErrorReporter component', () => {
-
   it('should correctly render the reported issue', () => {
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
@@ -47,5 +43,4 @@ describe('ErrorReporter component', () => {
     render(component);
     expect(screen.queryByText(issue.error.message)).toBeTruthy();
   });
-
 });

@@ -37,7 +37,6 @@ import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspac
  * @author Oleksii Orel
  */
 export class PreloadData {
-
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
 
@@ -108,7 +107,7 @@ export class PreloadData {
       updateDevWorkspaceStatus,
       updateDeletedDevWorkspaces,
       updateAddedDevWorkspaces,
-      requestWorkspaces
+      requestWorkspaces,
     } = DevWorkspacesStore.actionCreators;
     const getResourceVersion = async () => {
       await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
@@ -118,9 +117,12 @@ export class PreloadData {
     const getState = this.store.getState;
     const callbacks = {
       getResourceVersion,
-      updateDevWorkspaceStatus: statusUpdate => updateDevWorkspaceStatus(statusUpdate)(dispatch, getState, undefined),
-      updateDeletedDevWorkspaces: workspaceIds => updateDeletedDevWorkspaces(workspaceIds)(dispatch, getState, undefined),
-      updateAddedDevWorkspaces: workspaces => updateAddedDevWorkspaces(workspaces)(dispatch, getState, undefined),
+      updateDevWorkspaceStatus: statusUpdate =>
+        updateDevWorkspaceStatus(statusUpdate)(dispatch, getState, undefined),
+      updateDeletedDevWorkspaces: workspaceIds =>
+        updateDeletedDevWorkspaces(workspaceIds)(dispatch, getState, undefined),
+      updateAddedDevWorkspaces: workspaces =>
+        updateAddedDevWorkspaces(workspaces)(dispatch, getState, undefined),
     };
 
     return await this.devWorkspaceClient.subscribeToNamespace({ namespace, callbacks });
@@ -138,7 +140,11 @@ export class PreloadData {
 
   private async fetchPlugins(settings: che.WorkspaceSettings): Promise<void> {
     const { requestPlugins } = PluginsStore.actionCreators;
-    await requestPlugins(settings.cheWorkspacePluginRegistryUrl || '')(this.store.dispatch, this.store.getState, undefined);
+    await requestPlugins(settings.cheWorkspacePluginRegistryUrl || '')(
+      this.store.dispatch,
+      this.store.getState,
+      undefined,
+    );
   }
 
   private async fetchDwPlugins(settings: che.WorkspaceSettings): Promise<void> {
@@ -178,7 +184,11 @@ export class PreloadData {
 
   private async fetchRegistriesMetadata(settings: che.WorkspaceSettings): Promise<void> {
     const { requestRegistriesMetadata } = DevfileRegistriesStore.actionCreators;
-    await requestRegistriesMetadata(settings.cheWorkspaceDevfileRegistryUrl || '')(this.store.dispatch, this.store.getState, undefined);
+    await requestRegistriesMetadata(settings.cheWorkspaceDevfileRegistryUrl || '')(
+      this.store.dispatch,
+      this.store.getState,
+      undefined,
+    );
   }
 
   private async fetchDevfileSchema(): Promise<void> {

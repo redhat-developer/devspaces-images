@@ -47,7 +47,8 @@ type Props = {
   workspaceName: string;
   isDevWorkspace: boolean;
   callbacks?: {
-    showAlert?: (alertOptions: AlertOptions) => void
+    showAlert?: (alertOptions: AlertOptions) => void;
+    hideAlert?: () => void;
   };
 };
 
@@ -73,7 +74,10 @@ export type AlertOptions = {
 
 class IdeLoader extends React.PureComponent<Props, State> {
   private readonly hideAlert: () => void;
-  private readonly handleTabClick: (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText) => void;
+  private readonly handleTabClick: (
+    event: React.MouseEvent<HTMLElement, MouseEvent>,
+    tabIndex: React.ReactText,
+  ) => void;
   public showAlert: (options: AlertOptions) => void;
 
   private readonly wizardRef: RefObject<any>;
@@ -86,13 +90,18 @@ class IdeLoader extends React.PureComponent<Props, State> {
       currentRequestError: '',
       isDevWorkspace: this.props.isDevWorkspace,
       workspaceId: this.props.workspaceId,
-      activeTabKey: this.props.preselectedTabKey ? this.props.preselectedTabKey : IdeLoaderTab.Progress,
+      activeTabKey: this.props.preselectedTabKey
+        ? this.props.preselectedTabKey
+        : IdeLoaderTab.Progress,
     };
 
     this.wizardRef = React.createRef();
 
     // Toggle currently active tab
-    this.handleTabClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, tabIndex: React.ReactText): void => {
+    this.handleTabClick = (
+      event: React.MouseEvent<HTMLElement, MouseEvent>,
+      tabIndex: React.ReactText,
+    ): void => {
       this.setState({ activeTabKey: tabIndex as IdeLoaderTab });
       if (this.state.activeTabKey === IdeLoaderTab.Progress) {
         this.setState({ alertVisible: false });
@@ -102,7 +111,12 @@ class IdeLoader extends React.PureComponent<Props, State> {
     // Init showAlert
     let showAlertTimer: number;
     this.showAlert = (alertOptions: AlertOptions): void => {
-      this.setState({ currentRequestError: alertOptions.title, currentAlertVariant: alertOptions.alertVariant, alertActionLinks: alertOptions?.alertActionLinks, alertBody: alertOptions?.body });
+      this.setState({
+        currentRequestError: alertOptions.title,
+        currentAlertVariant: alertOptions.alertVariant,
+        alertActionLinks: alertOptions?.alertActionLinks,
+        alertBody: alertOptions?.body,
+      });
       if (this.state.activeTabKey === IdeLoaderTab.Progress) {
         return;
       }
@@ -110,20 +124,35 @@ class IdeLoader extends React.PureComponent<Props, State> {
       if (showAlertTimer) {
         clearTimeout(showAlertTimer);
       }
-      showAlertTimer = window.setTimeout(() => {
-        this.setState({ alertVisible: false });
-      }, alertOptions.alertVariant === AlertVariant.success ? 2000 : 10000);
+      showAlertTimer = window.setTimeout(
+        () => {
+          this.setState({ alertVisible: false });
+        },
+        alertOptions.alertVariant === AlertVariant.success ? 2000 : 10000,
+      );
     };
-    this.hideAlert = (): void => this.setState({ alertVisible: false });
+    this.hideAlert = (): void => {
+      this.setState({
+        alertVisible: false,
+        currentRequestError: '',
+      });
+    };
     // Prepare showAlert as a callback
-    if (this.props.callbacks && !this.props.callbacks.showAlert) {
-      this.props.callbacks.showAlert = (alertOptions: AlertOptions) => {
-        this.showAlert(alertOptions);
-      };
+    if (this.props.callbacks) {
+      if (this.props.callbacks.showAlert === undefined) {
+        this.props.callbacks.showAlert = (alertOptions: AlertOptions) => {
+          this.showAlert(alertOptions);
+        };
+      }
+      if (this.props.callbacks.hideAlert === undefined) {
+        this.props.callbacks.hideAlert = () => {
+          this.hideAlert();
+        };
+      }
     }
   }
 
-  private showOnlyContentIfDevWorkspace() : void {
+  private showOnlyContentIfDevWorkspace(): void {
     if (this.state.isDevWorkspace) {
       // hide all bars
       window.postMessage('hide-allbar', '*');
@@ -190,7 +219,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
       const message = 'Cannot find IDE iframe element.';
       this.showAlert({
         alertVariant: AlertVariant.warning,
-        title: message
+        title: message,
       });
       console.error(message);
     }
@@ -199,16 +228,17 @@ class IdeLoader extends React.PureComponent<Props, State> {
   private getIcon(step: LoadIdeSteps, className = ''): React.ReactNode {
     const { currentStep, hasError } = this.props;
     if (currentStep > step) {
-      return (<React.Fragment>
-        <CheckCircleIcon className={className} color="green" />
-      </React.Fragment>);
+      return <CheckCircleIcon className={className} color="green" />;
     } else if (currentStep === step) {
       if (hasError) {
         return <ExclamationCircleIcon className={className} color="red" />;
       }
-      return (<React.Fragment>
-        <InProgressIcon className={`${workspaceStatusLabelStyles.rotate} ${className}`} color="#0e6fe0" />
-      </React.Fragment>);
+      return (
+        <InProgressIcon
+          className={`${workspaceStatusLabelStyles.rotate} ${className}`}
+          color="#0e6fe0"
+        />
+      );
     }
     return '';
   }
@@ -232,10 +262,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
     return [
       {
         id: LoadIdeSteps.INITIALIZING,
-        name: getTitle(
-          LoadIdeSteps.INITIALIZING,
-          'Initializing',
-          'wizard-icon'),
+        name: getTitle(LoadIdeSteps.INITIALIZING, 'Initializing', 'wizard-icon'),
         canJumpTo: currentStep >= LoadIdeSteps.INITIALIZING,
       },
       {
@@ -243,15 +270,13 @@ class IdeLoader extends React.PureComponent<Props, State> {
         name: getTitle(
           LoadIdeSteps.START_WORKSPACE,
           'Waiting for workspace to start',
-          'wizard-icon'),
+          'wizard-icon',
+        ),
         canJumpTo: currentStep >= LoadIdeSteps.START_WORKSPACE,
       },
       {
         id: LoadIdeSteps.OPEN_IDE,
-        name: getTitle(
-          LoadIdeSteps.OPEN_IDE,
-          'Open IDE',
-          'wizard-icon'),
+        name: getTitle(LoadIdeSteps.OPEN_IDE, 'Open IDE', 'wizard-icon'),
         canJumpTo: currentStep >= LoadIdeSteps.OPEN_IDE,
       },
     ];
@@ -264,7 +289,11 @@ class IdeLoader extends React.PureComponent<Props, State> {
     if (ideUrl) {
       return (
         <div className="ide-iframe-page">
-          <iframe id="ide-iframe" src="./static/loader.html" allow="fullscreen *;clipboard-write *;clipboard-read *" />
+          <iframe
+            id="ide-iframe"
+            src="./static/loader.html"
+            allow="fullscreen *;clipboard-write *;clipboard-read *"
+          />
         </div>
       );
     }
@@ -282,21 +311,30 @@ class IdeLoader extends React.PureComponent<Props, State> {
             />
           </AlertGroup>
         )}
-        <Header title={`Starting workspace ${workspaceName}`}
-          status={status} />
+        <Header title={`Starting workspace ${workspaceName}`} status={status} />
         <PageSection variant={SECTION_THEME} className="ide-loader-page" isFilled={true}>
-          <Tabs activeKey={this.state.activeTabKey} onSelect={this.handleTabClick} inset={{ default: 'insetLg' }}
-            id="ide-loader-page-tabs">
-            <Tab eventKey={IdeLoaderTab.Progress} title={IdeLoaderTab[IdeLoaderTab.Progress]}
-              id="ide-loader-page-wizard-tab">
+          <Tabs
+            activeKey={this.state.activeTabKey}
+            onSelect={this.handleTabClick}
+            inset={{ default: 'insetLg' }}
+            id="ide-loader-page-tabs"
+          >
+            <Tab
+              eventKey={IdeLoaderTab.Progress}
+              title={IdeLoaderTab[IdeLoaderTab.Progress]}
+              id="ide-loader-page-wizard-tab"
+            >
               <PageSection>
-                {(this.state.currentRequestError) && (
+                {this.state.currentRequestError && (
                   <Alert
                     isInline
                     variant={currentAlertVariant}
                     title={currentRequestError}
-                    actionClose={<AlertActionCloseButton
-                      onClose={() => this.setState({ currentRequestError: '' })} />}
+                    actionClose={
+                      <AlertActionCloseButton
+                        onClose={() => this.setState({ currentRequestError: '' })}
+                      />
+                    }
                     actionLinks={alertActionLinks}
                   >
                     {this.state.alertBody}
@@ -306,18 +344,18 @@ class IdeLoader extends React.PureComponent<Props, State> {
                   className="ide-loader-wizard"
                   steps={this.getSteps()}
                   ref={this.wizardRef}
-                  footer={(<span />)}
+                  footer={<span />}
                   height={500}
                   startAtStep={currentStep}
                 />
               </PageSection>
             </Tab>
-            <Tab eventKey={IdeLoaderTab.Logs} title={IdeLoaderTab[IdeLoaderTab.Logs]}
-              id="ide-loader-page-logs-tab">
-              <WorkspaceLogs
-                workspaceId={workspaceId}
-                isDevWorkspace={this.props.isDevWorkspace}
-              />
+            <Tab
+              eventKey={IdeLoaderTab.Logs}
+              title={IdeLoaderTab[IdeLoaderTab.Logs]}
+              id="ide-loader-page-logs-tab"
+            >
+              <WorkspaceLogs workspaceId={workspaceId} isDevWorkspace={this.props.isDevWorkspace} />
             </Tab>
           </Tabs>
         </PageSection>

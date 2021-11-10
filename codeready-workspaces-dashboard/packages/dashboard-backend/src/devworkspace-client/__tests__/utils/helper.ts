@@ -20,7 +20,7 @@ export function createKubeConfig(): KubeConfig {
   const kc = new KubeConfig();
   let kubeconfigFile = process.env['KUBECONFIG'];
   if (!kubeconfigFile) {
-    kubeconfigFile =  process.env['HOME'] + '/.kube/config';
+    kubeconfigFile = process.env['HOME'] + '/.kube/config';
   }
   kc.loadFromFile(kubeconfigFile);
   return kc;

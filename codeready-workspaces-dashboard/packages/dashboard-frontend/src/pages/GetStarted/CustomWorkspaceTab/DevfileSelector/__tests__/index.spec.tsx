@@ -27,29 +27,27 @@ console.error = jest.fn();
 jest.mock('../../../../../store/FactoryResolver/index.ts', () => {
   return {
     actionCreators: {
-      requestFactoryResolver: (location: string): AppThunk<Action, Promise<void>> => async (): Promise<void> => {
-        if (/nonexisting/.test(location)) {
-          return Promise.reject();
-        }
-        return Promise.resolve();
-      }
+      requestFactoryResolver:
+        (location: string): AppThunk<Action, Promise<void>> =>
+        async (): Promise<void> => {
+          if (/nonexisting/.test(location)) {
+            return Promise.reject();
+          }
+          return Promise.resolve();
+        },
     } as FactoryResolverStore.ActionCreators,
   };
 });
 
 describe('Devfile Selector', () => {
-
   const mockOnDevfile = jest.fn();
   const mockOnClear = jest.fn();
 
   function renderComponent(store: Store): RenderResult {
     return render(
       <Provider store={store}>
-        <DevfileSelectorFormGroup
-          onDevfile={mockOnDevfile}
-          onClear={mockOnClear}
-        />
-      </Provider>
+        <DevfileSelectorFormGroup onDevfile={mockOnDevfile} onClear={mockOnClear} />
+      </Provider>,
     );
   }
 
@@ -70,7 +68,9 @@ describe('Devfile Selector', () => {
 
     loadButton = screen.getByRole('button', { name: 'Load Devfile' }) as HTMLInputElement;
     locationTextbox = screen.getByRole('textbox', { name: 'URL of devfile' }) as HTMLInputElement;
-    selectToggleButton = screen.getByRole('button', { name: /Select a devfile template/ }) as HTMLButtonElement;
+    selectToggleButton = screen.getByRole('button', {
+      name: /Select a devfile template/,
+    }) as HTMLButtonElement;
   });
 
   afterEach(() => {
@@ -84,7 +84,6 @@ describe('Devfile Selector', () => {
   });
 
   describe('selecting a devfile template', () => {
-
     const expectedMeta = JSON.stringify({
       displayName: 'Java Maven Stub',
     } as che.DevfileMetaData);
@@ -121,11 +120,9 @@ describe('Devfile Selector', () => {
         expect(screen.queryByText(/failed to load/i)).not.toBeInTheDocument();
       });
     });
-
   });
 
   describe('selecting a devfile template when location is not empty', () => {
-
     const expectedMeta = JSON.stringify({
       displayName: 'Java Maven Stub',
     } as che.DevfileMetaData);
@@ -152,11 +149,9 @@ describe('Devfile Selector', () => {
     it('should disable "Load Devfile" button', () => {
       expect(loadButton).toBeDisabled();
     });
-
   });
 
   describe('selecting a devfile template when request to registry failed', () => {
-
     beforeEach(() => {
       (mockAxios.get as jest.Mock).mockRejectedValueOnce({});
 
@@ -183,11 +178,9 @@ describe('Devfile Selector', () => {
         expect(screen.queryByText(/failed to load/i)).toBeInTheDocument();
       });
     });
-
   });
 
   describe('typing a custom devfile location', () => {
-
     beforeEach(() => {
       /* enter devfile location into location input */
       fireEvent.change(locationTextbox, { target: { value: 'http://resource/location' } });
@@ -197,11 +190,9 @@ describe('Devfile Selector', () => {
       expect(loadButton).toBeInTheDocument();
       expect(loadButton).toBeEnabled();
     });
-
   });
 
   describe('clicking on "Load devfile" button', () => {
-
     beforeEach(() => {
       /* enter devfile location into location input */
       fireEvent.change(locationTextbox, { target: { value: 'http://resource/location' } });
@@ -214,11 +205,9 @@ describe('Devfile Selector', () => {
         expect(mockOnDevfile).toHaveBeenCalled();
       });
     });
-
   });
 
   describe('clicking on "Load devfile" button when a template is selected', () => {
-
     const expectedMeta = JSON.stringify({
       displayName: 'Java Maven Stub',
     } as che.DevfileMetaData);
@@ -243,14 +232,14 @@ describe('Devfile Selector', () => {
         expect(screen.queryByText('Java Maven')).not.toBeInTheDocument();
       });
     });
-
   });
 
   describe('clicking on "Load devfile" button when request failed', () => {
-
     beforeEach(() => {
       /* enter devfile location into location input */
-      fireEvent.change(locationTextbox, { target: { value: 'http://nonexisting/resource/location' } });
+      fireEvent.change(locationTextbox, {
+        target: { value: 'http://nonexisting/resource/location' },
+      });
 
       fireEvent.click(loadButton);
     });
@@ -266,7 +255,5 @@ describe('Devfile Selector', () => {
         expect(screen.queryByText(/failed to load/i)).toBeInTheDocument();
       });
     });
-
   });
-
 });

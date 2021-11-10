@@ -20,7 +20,6 @@ import { Store } from 'redux';
 const issueWarning = 'Something happened.';
 
 describe('BannerAlertCustomWarning component', () => {
-
   it('should not show header warning message when no warning option is present', () => {
     renderComponent(storeBuilder([]));
     expect(screen.queryByText(issueWarning)).not.toBeInTheDocument();
@@ -32,30 +31,23 @@ describe('BannerAlertCustomWarning component', () => {
   });
 
   it('should show several messages', () => {
-    renderComponent(storeBuilder([
-      issueWarning + '#1',
-      issueWarning + '#2',
-      issueWarning + '#3',
-    ]));
-    expect(screen.queryAllByText(issueWarning, {
-      exact: false
-    }).length).toEqual(3);
+    renderComponent(storeBuilder([issueWarning + '#1', issueWarning + '#2', issueWarning + '#3']));
+    expect(
+      screen.queryAllByText(issueWarning, {
+        exact: false,
+      }).length,
+    ).toEqual(3);
   });
-
 });
 
-function renderComponent(
-  store: Store<any, any>
-): RenderResult {
+function renderComponent(store: Store<any, any>): RenderResult {
   return render(
     <Provider store={store}>
-      <BannerAlertCustomWarning/>
-    </Provider>
+      <BannerAlertCustomWarning />
+    </Provider>,
   );
 }
 
 function storeBuilder(messages: string[]): Store {
-  return new FakeStoreBuilder()
-    .withBannerAlert(messages)
-    .build();
+  return new FakeStoreBuilder().withBannerAlert(messages).build();
 }

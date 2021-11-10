@@ -13,7 +13,6 @@
 import match from '../filter';
 
 describe('filter/match', () => {
-
   const value = 'Lorem ipsum dolor sit amet';
 
   it('should match if starts with token value', () => {
@@ -58,5 +57,4 @@ describe('filter/match', () => {
     const result = match(value, filterTokenNotToMatch);
     expect(result).toBe(false);
   });
-
 });

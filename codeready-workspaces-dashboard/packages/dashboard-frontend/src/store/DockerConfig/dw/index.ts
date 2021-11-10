@@ -38,52 +38,64 @@ export type KnownAction = RequestCredentialsAction | SetCredentialsAction | Rece
 
 export type ActionCreators = {
   requestCredentials: (namespace: string) => AppThunk<KnownAction, Promise<void>>;
-  updateCredentials: (namespace: string, registries: RegistryEntry[]) => AppThunk<KnownAction, Promise<void>>;
+  updateCredentials: (
+    namespace: string,
+    registries: RegistryEntry[],
+  ) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
+  requestCredentials:
+    (namespace: string): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS' });
+      try {
+        const { registries, resourceVersion } = await getDockerConfig(namespace);
+        dispatch({
+          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          registries,
+          resourceVersion,
+        });
+      } catch (e) {
+        const errorMessage = helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 
-  requestCredentials: (namespace: string): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS' });
-    try {
-      const { registries, resourceVersion } =  await getDockerConfig(namespace);
-      dispatch({
-        type: 'SET_DEVWORKSPACE_CREDENTIALS',
-        registries,
-        resourceVersion,
-      });
-    } catch (e) {
-      const errorMessage = helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
-        error: errorMessage
-      });
-      throw errorMessage;
-    }
-  },
-
-  updateCredentials: (namespace: string, registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
-    dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS' });
-    const { dwDockerConfig } = getState();
-    try {
-      const { resourceVersion } = await putDockerConfig(namespace, registries, dwDockerConfig?.resourceVersion);
-      dispatch({
-        type: 'SET_DEVWORKSPACE_CREDENTIALS',
-        registries,
-        resourceVersion
-      });
-    } catch (e) {
-      const errorMessage = helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
-        error: errorMessage
-      });
-      throw errorMessage;
-    }
-  }
+  updateCredentials:
+    (namespace: string, registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      dispatch({ type: 'REQUEST_DEVWORKSPACE_CREDENTIALS' });
+      const { dwDockerConfig } = getState();
+      try {
+        const { resourceVersion } = await putDockerConfig(
+          namespace,
+          registries,
+          dwDockerConfig?.resourceVersion,
+        );
+        dispatch({
+          type: 'SET_DEVWORKSPACE_CREDENTIALS',
+          registries,
+          resourceVersion,
+        });
+      } catch (e) {
+        const errorMessage = helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_DEVWORKSPACE_CREDENTIALS_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 };
 
-async function getDockerConfig(namespace: string): Promise<{ registries: RegistryEntry[], resourceVersion?: string }> {
+async function getDockerConfig(
+  namespace: string,
+): Promise<{ registries: RegistryEntry[]; resourceVersion?: string }> {
   let dockerconfig, resourceVersion: string | undefined;
   try {
     const resp = await DwApi.getDockerConfig(namespace);
@@ -107,7 +119,11 @@ async function getDockerConfig(namespace: string): Promise<{ registries: Registr
   return { registries, resourceVersion };
 }
 
-function putDockerConfig(namespace: string, registries: RegistryEntry[], resourceVersion?: string): Promise<api.IDockerConfig> {
+function putDockerConfig(
+  namespace: string,
+  registries: RegistryEntry[],
+  resourceVersion?: string,
+): Promise<api.IDockerConfig> {
   const configObj = { auths: {} };
   const dockerconfig: api.IDockerConfig = { dockerconfig: '' };
   try {
@@ -162,6 +178,4 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     default:
       return state;
   }
-
 };
-

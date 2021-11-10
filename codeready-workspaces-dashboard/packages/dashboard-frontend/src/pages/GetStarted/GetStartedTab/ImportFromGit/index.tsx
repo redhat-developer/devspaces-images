@@ -33,11 +33,9 @@ import { AlertItem } from '../../../../services/helpers/types';
 import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { isDevworkspacesEnabled } from '../../../../services/helpers/devworkspace';
 
-type Props =
-  MappedProps
-  & {
-    onDevfileResolve: (resolverState: FactoryResolverStore.ResolverState, location: string) => void;
-  };
+type Props = MappedProps & {
+  onDevfileResolve: (resolverState: FactoryResolverStore.ResolverState, location: string) => void;
+};
 type State = {
   isLoading: boolean;
   alerts: AlertItem[];
@@ -113,13 +111,14 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
             />
           ))}
         </AlertGroup>
-        <FormGroup fieldId='import-from-git' label={
-          <TextContent>
-            <Text component={TextVariants.h4}>
-              Import from Git
-            </Text>
-          </TextContent>
-        }>
+        <FormGroup
+          fieldId="import-from-git"
+          label={
+            <TextContent>
+              <Text component={TextVariants.h4}>Import from Git</Text>
+            </TextContent>
+          }
+        >
           <Flex style={{ marginTop: '15px', minHeight: '85px' }}>
             <FlexItem>
               <TextContent>
@@ -141,7 +140,6 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
       </>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -149,13 +147,10 @@ const mapStateToProps = (state: AppState) => ({
   workspacesSettings: selectWorkspacesSettings(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  {
-    ...DevfileRegistriesStore.actionCreators,
-    ...FactoryResolverStore.actionCreators,
-  },
-);
+const connector = connect(mapStateToProps, {
+  ...DevfileRegistriesStore.actionCreators,
+  ...FactoryResolverStore.actionCreators,
+});
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(ImportFromGit);

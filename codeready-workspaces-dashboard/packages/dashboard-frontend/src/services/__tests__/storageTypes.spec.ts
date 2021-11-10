@@ -14,11 +14,8 @@ import { updateDevfile } from '../storageTypes';
 import { DevfileBuilder } from '../../store/__mocks__/devfile';
 
 describe('Storage Types Service', () => {
-
   describe('updateDevfile()', () => {
-
     describe('setting the "persistent" storage', () => {
-
       const expectedAttr = undefined;
 
       it('should correctly update a devfile without volumes', () => {
@@ -49,11 +46,9 @@ describe('Storage Types Service', () => {
 
         expect(newDevfile.attributes).toEqual(expectedAttr);
       });
-
     });
 
     describe('setting the "ephemeral" storage', () => {
-
       const expectedAttr: che.WorkspaceDevfileAttributes = {
         persistVolumes: 'false',
       };
@@ -86,11 +81,9 @@ describe('Storage Types Service', () => {
 
         expect(newDevfile.attributes).toEqual(expectedAttr);
       });
-
     });
 
     describe('setting the "async" storage', () => {
-
       const expectedAttr: che.WorkspaceDevfileAttributes = {
         persistVolumes: 'false',
         asyncPersist: 'true',
@@ -124,11 +117,8 @@ describe('Storage Types Service', () => {
         expect(newDevfile.attributes).toEqual(expectedAttr);
         expect(newDevfile).toEqual(devfile);
       });
-
     });
-
   });
-
 });
 
 function getDevfileWithoutAttributes(): che.WorkspaceDevfile {
@@ -153,7 +143,7 @@ function getDevfileWithEphemeralStorage(): che.WorkspaceDevfile {
 function getDevfileWithAsyncStorage(): che.WorkspaceDevfile {
   const devfile = new DevfileBuilder().withAttributes({
     persistVolumes: 'false',
-    asyncPersist: 'true'
+    asyncPersist: 'true',
   });
   return devfile.build();
 }

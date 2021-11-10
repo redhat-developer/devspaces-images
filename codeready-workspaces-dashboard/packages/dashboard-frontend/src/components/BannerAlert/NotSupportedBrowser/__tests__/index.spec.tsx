@@ -18,12 +18,13 @@ import { isSafari } from '../../../../services/helpers/detectBrowser';
 const unsupportedBrowserMessage = 'The browser you are using is not supported.';
 
 describe('BannerAlertNotSupportedBrowser component', () => {
-
   it('should not show error message', () => {
     render(<BannerAlertNotSupportedBrowser />);
-    expect(screen.queryByText(unsupportedBrowserMessage, {
-      exact: false
-    })).toBeFalsy();
+    expect(
+      screen.queryByText(unsupportedBrowserMessage, {
+        exact: false,
+      }),
+    ).toBeFalsy();
   });
 
   it('should show error message when error found after mounting', () => {
@@ -31,9 +32,10 @@ describe('BannerAlertNotSupportedBrowser component', () => {
     (isSafari as any) = true;
     render(<BannerAlertNotSupportedBrowser />);
 
-    expect(screen.queryByText(unsupportedBrowserMessage, {
-      exact: false
-    })).toBeTruthy();
+    expect(
+      screen.queryByText(unsupportedBrowserMessage, {
+        exact: false,
+      }),
+    ).toBeTruthy();
   });
-
 });

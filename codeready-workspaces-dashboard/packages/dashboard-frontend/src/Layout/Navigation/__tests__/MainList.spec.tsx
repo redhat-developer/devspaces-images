@@ -21,7 +21,6 @@ import { Provider } from 'react-redux';
 import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 
 describe('Navigation Main List', () => {
-
   it('should have correct number of main navigation items', () => {
     render(buildElement());
 
@@ -49,19 +48,17 @@ describe('Navigation Main List', () => {
 
     expect(screen.queryByRole('link', { name: 'Workspaces (3)' })).toBeInTheDocument();
   });
-
 });
 
 function buildElement(workspaces: che.Workspace[] = []): JSX.Element {
   const store = new FakeStoreBuilder().withCheWorkspaces({ workspaces }).build();
-  return (<Provider store={store}>
-    <MemoryRouter>
-      <Nav
-        onSelect={() => jest.fn()}
-        theme="light"
-      >
-        <NavigationMainList activePath="" />
-      </Nav>
-    </MemoryRouter>
-  </Provider>);
+  return (
+    <Provider store={store}>
+      <MemoryRouter>
+        <Nav onSelect={() => jest.fn()} theme="light">
+          <NavigationMainList activePath="" />
+        </Nav>
+      </MemoryRouter>
+    </Provider>
+  );
 }

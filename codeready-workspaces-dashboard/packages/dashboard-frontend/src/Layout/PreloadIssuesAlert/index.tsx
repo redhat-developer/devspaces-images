@@ -13,7 +13,10 @@
 import React from 'react';
 import { ConnectedProps, connect } from 'react-redux';
 import { AppState } from '../../store';
-import { selectRegistriesErrors, selectDevfileSchemaError } from '../../store/DevfileRegistries/selectors';
+import {
+  selectRegistriesErrors,
+  selectDevfileSchemaError,
+} from '../../store/DevfileRegistries/selectors';
 import { selectPluginsError } from '../../store/Plugins/chePlugins/selectors';
 import { selectDwDefaultEditorError } from '../../store/Plugins/devWorkspacePlugins/selectors';
 import { selectInfrastructureNamespacesError } from '../../store/InfrastructureNamespaces/selectors';
@@ -28,7 +31,6 @@ import { AppAlerts } from '../../services/alerts/appAlerts';
 type Props = MappedProps;
 
 export class PreloadIssuesAlert extends React.PureComponent<Props> {
-
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
 
@@ -112,7 +114,6 @@ export class PreloadIssuesAlert extends React.PureComponent<Props> {
   render() {
     return '';
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -127,10 +128,7 @@ const mapStateToProps = (state: AppState) => ({
   workspacesError: selectWorkspacesError(state),
 });
 
-const connector = connect(
-  mapStateToProps
-);
+const connector = connect(mapStateToProps);
 
-type MappedProps = ConnectedProps<typeof connector>
+type MappedProps = ConnectedProps<typeof connector>;
 export default connector(PreloadIssuesAlert);
-

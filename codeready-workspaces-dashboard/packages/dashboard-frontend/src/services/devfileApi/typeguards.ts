@@ -17,13 +17,14 @@ export function isDevfileV2Like(devfile: unknown): devfile is devfileApi.Devfile
 }
 
 export function isDevfileV2(devfile: unknown): devfile is devfileApi.Devfile {
-  return (devfile as devfileApi.Devfile).schemaVersion !== undefined
-    && isDevfileV2Metadata((devfile as devfileApi.Devfile).metadata);
+  return (
+    (devfile as devfileApi.Devfile).schemaVersion !== undefined &&
+    isDevfileV2Metadata((devfile as devfileApi.Devfile).metadata)
+  );
 }
 
 export function isDevfileV2Metadata(metadata: unknown): metadata is devfileApi.DevfileMetadata {
-  return metadata !== undefined
-    && (metadata as devfileApi.DevfileMetadata).name !== undefined;
+  return metadata !== undefined && (metadata as devfileApi.DevfileMetadata).name !== undefined;
 }
 
 export function isDevWorkspaceLike(workspace: unknown): workspace is devfileApi.DevWorkspaceLike {
@@ -31,39 +32,56 @@ export function isDevWorkspaceLike(workspace: unknown): workspace is devfileApi.
 }
 
 export function isDevWorkspace(workspace: unknown): workspace is devfileApi.DevWorkspace {
-  return workspace !== undefined
-    && isDevWorkspaceLike((workspace as devfileApi.DevWorkspace))
-    && (workspace as devfileApi.DevWorkspace).apiVersion !== undefined
-    && isDevWorkspaceMetadata((workspace as devfileApi.DevWorkspace).metadata)
-    && isDevWorkspaceSpec((workspace as devfileApi.DevWorkspace).spec);
+  return (
+    workspace !== undefined &&
+    isDevWorkspaceLike(workspace as devfileApi.DevWorkspace) &&
+    (workspace as devfileApi.DevWorkspace).apiVersion !== undefined &&
+    isDevWorkspaceMetadata((workspace as devfileApi.DevWorkspace).metadata) &&
+    isDevWorkspaceSpec((workspace as devfileApi.DevWorkspace).spec)
+  );
 }
 
 export function isDevWorkspaceSpec(spec: unknown): spec is devfileApi.DevWorkspaceSpec {
-  return spec !== undefined
-    && (spec as devfileApi.DevWorkspaceSpec).template !== undefined;
+  return spec !== undefined && (spec as devfileApi.DevWorkspaceSpec).template !== undefined;
 }
 
-export function isDevWorkspaceMetadata(metadata: unknown): metadata is devfileApi.DevWorkspaceMetadata {
-  return metadata !== undefined
-    && (metadata as devfileApi.DevWorkspaceMetadata).labels !== undefined
-    && (metadata as devfileApi.DevWorkspaceMetadata).name !== undefined
-    && (metadata as devfileApi.DevWorkspaceMetadata).namespace !== undefined
-    && (metadata as devfileApi.DevWorkspaceMetadata).uid !== undefined;
+export function isDevWorkspaceMetadata(
+  metadata: unknown,
+): metadata is devfileApi.DevWorkspaceMetadata {
+  return (
+    metadata !== undefined &&
+    (metadata as devfileApi.DevWorkspaceMetadata).labels !== undefined &&
+    (metadata as devfileApi.DevWorkspaceMetadata).name !== undefined &&
+    (metadata as devfileApi.DevWorkspaceMetadata).namespace !== undefined &&
+    (metadata as devfileApi.DevWorkspaceMetadata).uid !== undefined
+  );
 }
 
-export function isDevWorkspaceTemplateLike(template: unknown): template is devfileApi.DevWorkspaceTemplateLike {
-  return template !== undefined
-    && (template as devfileApi.DevWorkspaceTemplateLike).kind === 'DevWorkspaceTemplate';
+export function isDevWorkspaceTemplateLike(
+  template: unknown,
+): template is devfileApi.DevWorkspaceTemplateLike {
+  return (
+    template !== undefined &&
+    (template as devfileApi.DevWorkspaceTemplateLike).kind === 'DevWorkspaceTemplate'
+  );
 }
 
-export function isDevWorkspaceTemplate(template: unknown): template is devfileApi.DevWorkspaceTemplate {
-  return template !== undefined
-    && isDevWorkspaceTemplateLike((template as devfileApi.DevWorkspaceTemplate))
-    && isDevWorkspaceTemplateMetadata((template as devfileApi.DevWorkspaceTemplate).metadata);
+export function isDevWorkspaceTemplate(
+  template: unknown,
+): template is devfileApi.DevWorkspaceTemplate {
+  return (
+    template !== undefined &&
+    isDevWorkspaceTemplateLike(template as devfileApi.DevWorkspaceTemplate) &&
+    isDevWorkspaceTemplateMetadata((template as devfileApi.DevWorkspaceTemplate).metadata)
+  );
 }
 
-export function isDevWorkspaceTemplateMetadata(metadata: unknown): metadata is devfileApi.DevWorkspaceTemplateMetadata {
-  return metadata !== undefined
-    && (metadata as devfileApi.DevWorkspaceTemplateMetadata).name !== undefined
-    && (metadata as devfileApi.DevWorkspaceTemplateMetadata).namespace !== undefined;
+export function isDevWorkspaceTemplateMetadata(
+  metadata: unknown,
+): metadata is devfileApi.DevWorkspaceTemplateMetadata {
+  return (
+    metadata !== undefined &&
+    (metadata as devfileApi.DevWorkspaceTemplateMetadata).name !== undefined &&
+    (metadata as devfileApi.DevWorkspaceTemplateMetadata).namespace !== undefined
+  );
 }

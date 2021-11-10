@@ -29,7 +29,7 @@ export function registerLocalServers(server: FastifyInstance, origin: string) {
 
   let clusterAccessToken = '';
   if (isNativeAuth) {
-     clusterAccessToken = process.env.CLUSTER_ACCESS_TOKEN as string;
+    clusterAccessToken = process.env.CLUSTER_ACCESS_TOKEN as string;
     if (!clusterAccessToken) {
       console.error('CLUSTER_ACCESS_TOKEN environment variable is required for native auth mode');
       process.exit(1);

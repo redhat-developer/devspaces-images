@@ -23,23 +23,29 @@ const failingWebSocketName = 'Failing websocket';
 const failingMessage = 'WebSocket connections are failing';
 
 class mockCheWorkspaceClient extends CheWorkspaceClient {
-  get failingWebSockets() { return [failingWebSocketName]; }
+  get failingWebSockets() {
+    return [failingWebSocketName];
+  }
 }
 
-const store = new FakeStoreBuilder().withBranding({
-  docs: {
-    webSocketTroubleshooting: 'http://sample_documentation'
-  }
-} as BrandingData).build();
+const store = new FakeStoreBuilder()
+  .withBranding({
+    docs: {
+      webSocketTroubleshooting: 'http://sample_documentation',
+    },
+  } as BrandingData)
+  .build();
 
 describe('BannerAlertWebSocket component', () => {
   it('should show error message when error found before mounting', () => {
     container.rebind(CheWorkspaceClient).to(mockCheWorkspaceClient).inSingletonScope();
     const component = renderComponent(<BannerAlertWebSocket />);
     container.rebind(CheWorkspaceClient).to(CheWorkspaceClient).inSingletonScope();
-    expect(component.getAllByText(failingMessage, {
-      exact: false
-    }).length).toEqual(1);
+    expect(
+      component.getAllByText(failingMessage, {
+        exact: false,
+      }).length,
+    ).toEqual(1);
   });
 
   it('should show error message when error found after mounting', () => {
@@ -49,32 +55,31 @@ describe('BannerAlertWebSocket component', () => {
       </Provider>
     );
     const component = renderComponent(comp);
-    expect(component.queryAllByText(failingMessage, {
-      exact: false
-    })).toEqual([]);
+    expect(
+      component.queryAllByText(failingMessage, {
+        exact: false,
+      }),
+    ).toEqual([]);
     container.rebind(CheWorkspaceClient).to(mockCheWorkspaceClient).inSingletonScope();
     component.rerender(comp);
     container.rebind(CheWorkspaceClient).to(CheWorkspaceClient).inSingletonScope();
-    expect(component.getAllByText(failingMessage, {
-      exact: false
-    }).length).toEqual(1);
+    expect(
+      component.getAllByText(failingMessage, {
+        exact: false,
+      }).length,
+    ).toEqual(1);
   });
 
   it('should not show error message if none is present', () => {
     const component = renderComponent(<BannerAlertWebSocket />);
-    expect(component.queryAllByText(failingMessage, {
-      exact: false
-    })).toEqual([]);
+    expect(
+      component.queryAllByText(failingMessage, {
+        exact: false,
+      }),
+    ).toEqual([]);
   });
-
 });
 
-function renderComponent(
-  component: React.ReactElement
-): RenderResult {
-  return render(
-    <Provider store={store}>
-      {component}
-    </Provider>
-  );
+function renderComponent(component: React.ReactElement): RenderResult {
+  return render(<Provider store={store}>{component}</Provider>);
 }

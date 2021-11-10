@@ -20,18 +20,14 @@ type Props = {
 };
 
 class ProjectsFormGroup extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     const projects = this.props.projects.join(', ');
     return (
       <FormGroup label="Projects" fieldId="projects">
-        <div className={overviewStyles.readonly}>
-          {projects}
-        </div>
+        <div className={overviewStyles.readonly}>{projects}</div>
       </FormGroup>
     );
   }
 }
 
 export default ProjectsFormGroup;
-

@@ -11,10 +11,7 @@
  */
 
 import React from 'react';
-import {
-  NavGroup,
-  NavList,
-} from '@patternfly/react-core';
+import { NavGroup, NavList } from '@patternfly/react-core';
 
 import NavigationRecentItem from './RecentItem';
 import { NavigationRecentItemObject } from '.';
@@ -22,13 +19,18 @@ import { ROUTE } from '../../route.enum';
 import { Workspace } from '../../services/workspace-adapter';
 import { History } from 'history';
 
-function buildRecentWorkspacesItems(workspaces: Array<Workspace>, activePath: string, history: History): Array<React.ReactElement> {
+function buildRecentWorkspacesItems(
+  workspaces: Array<Workspace>,
+  activePath: string,
+  history: History,
+): Array<React.ReactElement> {
   return workspaces.map(workspace => {
     const workspaceName = workspace.name;
     const namespace = workspace.namespace;
-    const navigateTo = ROUTE.IDE_LOADER
-      .replace(':namespace', namespace)
-      .replace(':workspaceName', workspaceName);
+    const navigateTo = ROUTE.IDE_LOADER.replace(':namespace', namespace).replace(
+      ':workspaceName',
+      workspaceName,
+    );
     const item: NavigationRecentItemObject = {
       to: navigateTo,
       label: workspaceName,
@@ -36,12 +38,22 @@ function buildRecentWorkspacesItems(workspaces: Array<Workspace>, activePath: st
       workspaceId: workspace.id,
       isDevWorkspace: workspace.isDevWorkspace,
     };
-    return <NavigationRecentItem key={item.to} item={item} activePath={activePath} history={history} />;
+    return (
+      <NavigationRecentItem key={item.to} item={item} activePath={activePath} history={history} />
+    );
   });
 }
 
-function NavigationRecentList(props: { workspaces: Array<Workspace>, activePath: string, history: History }): React.ReactElement {
-  const recentWorkspaceItems = buildRecentWorkspacesItems(props.workspaces, props.activePath, props.history);
+function NavigationRecentList(props: {
+  workspaces: Array<Workspace>;
+  activePath: string;
+  history: History;
+}): React.ReactElement {
+  const recentWorkspaceItems = buildRecentWorkspacesItems(
+    props.workspaces,
+    props.activePath,
+    props.history,
+  );
   return (
     <NavList>
       <NavGroup title="RECENT WORKSPACES" style={{ marginTop: '25px' }}>

@@ -10,12 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { Button, FormGroup, InputGroupText, TextInput, ValidatedOptions } from '@patternfly/react-core';
+import {
+  Button,
+  FormGroup,
+  InputGroupText,
+  TextInput,
+  ValidatedOptions,
+} from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
 import React from 'react';
 
 const MAX_LENGTH = 256;
-const PATTERN = '^http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+$';
+const PATTERN =
+  '^http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+$';
 const ERROR_REQUIRED_VALUE = 'A value is required.';
 const ERROR_MAX_LENGTH = `The url is too long. The maximum length is ${MAX_LENGTH} characters.`;
 
@@ -32,7 +39,6 @@ type State = {
 };
 
 export class RegistryUrlFormGroup extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -63,7 +69,7 @@ export class RegistryUrlFormGroup extends React.PureComponent<Props, State> {
     }
   }
 
-  private validate(url: string): { valid: ValidatedOptions; errorMessage?: string; } {
+  private validate(url: string): { valid: ValidatedOptions; errorMessage?: string } {
     if (url.length === 0) {
       return {
         errorMessage: ERROR_REQUIRED_VALUE,
@@ -104,15 +110,8 @@ export class RegistryUrlFormGroup extends React.PureComponent<Props, State> {
             validated={valid}
             onChange={_url => this.onChange(_url)}
           />
-          <Button
-            variant="link"
-            isDisabled={!url || !isUrl}
-            aria-label="open registry">
-            <a
-              href={url}
-              style={{ color: 'inherit' }}
-              target="_blank"
-              rel="noreferrer">
+          <Button variant="link" isDisabled={!url || !isUrl} aria-label="open registry">
+            <a href={url} style={{ color: 'inherit' }} target="_blank" rel="noreferrer">
               <ExternalLinkAltIcon />
             </a>
           </Button>
@@ -120,5 +119,4 @@ export class RegistryUrlFormGroup extends React.PureComponent<Props, State> {
       </FormGroup>
     );
   }
-
 }

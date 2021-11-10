@@ -34,10 +34,10 @@ export function getMessage(error: unknown): string {
       // for unknown reason, the error message could be in response body
       const message = (error.response as any)?.body?.message;
       if (message) {
-        return  message;
+        return message;
       }
     }
-    if (error.body && typeof (error.body) === 'string') {
+    if (error.body && typeof error.body === 'string') {
       // pure http response body without message available
       return error.body;
     }
@@ -59,7 +59,7 @@ export function getMessage(error: unknown): string {
     return error.message;
   }
 
-  if (typeof (error) === 'string') {
+  if (typeof error === 'string') {
     return error;
   }
 
@@ -68,32 +68,36 @@ export function getMessage(error: unknown): string {
 }
 
 export function isErrorLike(error: unknown): error is { message: string } {
-  return error !== undefined
-    && (error as Error).message !== undefined
-    && typeof (error as Error).message === 'string';
+  return (
+    error !== undefined &&
+    (error as Error).message !== undefined &&
+    typeof (error as Error).message === 'string'
+  );
 }
 
 export function isError(error: unknown): error is Error {
-  return isErrorLike(error)
-    && (error as Error).name !== undefined;
+  return isErrorLike(error) && (error as Error).name !== undefined;
 }
 
 export function isAxiosResponse(response: unknown): response is AxiosResponse {
-  return response !== undefined
-    && (response as AxiosResponse).status !== undefined
-    && (response as AxiosResponse).statusText !== undefined
-    && (response as AxiosResponse).headers !== undefined
-    && (response as AxiosResponse).config !== undefined
-    && (response as AxiosResponse).data !== undefined;
+  return (
+    response !== undefined &&
+    (response as AxiosResponse).status !== undefined &&
+    (response as AxiosResponse).statusText !== undefined &&
+    (response as AxiosResponse).headers !== undefined &&
+    (response as AxiosResponse).config !== undefined &&
+    (response as AxiosResponse).data !== undefined
+  );
 }
 
 export function isAxiosError(object: unknown): object is AxiosError {
-  return object !== undefined
-    && (object as AxiosError).isAxiosError === true;
+  return object !== undefined && (object as AxiosError).isAxiosError === true;
 }
 
 export function isKubeClientError(error: unknown): error is HttpError {
-  return isError(error)
-    && (error as HttpError).response !== undefined
-    && 'body' in (error as HttpError);
+  return (
+    isError(error) &&
+    (error as HttpError).response !== undefined &&
+    'body' in (error as HttpError)
+  );
 }

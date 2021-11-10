@@ -15,10 +15,7 @@ import * as api from './dto/api';
 
 export * from './dto/application-info';
 
-export {
-  helpers,
-  api,
-};
+export { helpers, api };
 
 const common = {
   helpers,

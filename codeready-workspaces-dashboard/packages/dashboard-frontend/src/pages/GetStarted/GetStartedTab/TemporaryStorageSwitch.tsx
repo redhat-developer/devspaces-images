@@ -11,28 +11,21 @@
  */
 
 import React, { FormEvent } from 'react';
-import {
-  Switch,
-  Text,
-  Tooltip,
-  TooltipPosition
-} from '@patternfly/react-core';
+import { Switch, Text, Tooltip, TooltipPosition } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../../store';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { selectBranding } from '../../../store/Branding/selectors';
 
-type Props = MappedProps
-  & {
-    persistVolumesDefault: string;
-    onChange: (temporary: boolean) => void;
-  };
+type Props = MappedProps & {
+  persistVolumesDefault: string;
+  onChange: (temporary: boolean) => void;
+};
 type State = {
   isChecked: boolean;
 };
 
 export class TemporaryStorageSwitch extends React.PureComponent<Props, State> {
-
   private handleChange: (checked: boolean, event: FormEvent<HTMLInputElement>) => void;
 
   constructor(props: Props) {
@@ -69,9 +62,12 @@ export class TemporaryStorageSwitch extends React.PureComponent<Props, State> {
             position={TooltipPosition.top}
             content={
               <React.Fragment>
-                Temporary Storage allows for faster I/O but may have limited storage and is not persistent.
+                Temporary Storage allows for faster I/O but may have limited storage and is not
+                persistent.
                 <Text>
-                  <a rel="noreferrer" target="_blank" href={href}>Open documentation page</a>
+                  <a rel="noreferrer" target="_blank" href={href}>
+                    Open documentation page
+                  </a>
                 </Text>
               </React.Fragment>
             }
@@ -82,16 +78,13 @@ export class TemporaryStorageSwitch extends React.PureComponent<Props, State> {
       </React.Fragment>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 

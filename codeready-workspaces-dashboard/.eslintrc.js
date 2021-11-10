@@ -20,6 +20,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
+    'prettier',
   ],
   ignorePatterns: [
     '.github/',
@@ -36,16 +37,14 @@ module.exports = {
   plugins: [
     '@typescript-eslint',
     'notice',
+    'prettier',
   ],
   rules: {
+    'prettier/prettier': 'error',
     'no-tabs': 'error',
     'linebreak-style': [
       'error',
       'unix'
-    ],
-    quotes: [
-      'error',
-      'single'
     ],
     semi: [
       'error',
@@ -76,6 +75,10 @@ module.exports = {
         'location': 'start'
       }
     ],
+
+    // disabled to avoid conflicts with prettier
+    quotes: 'off',
+
     // TODO enable rules below and fix errors
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',

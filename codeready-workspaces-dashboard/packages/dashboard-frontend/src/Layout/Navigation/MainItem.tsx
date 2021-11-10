@@ -19,16 +19,13 @@ import isActive from './isActive';
 
 import styles from './index.module.css';
 
-function NavigationMainItem(props: { item: NavigationItemObject, activePath?: string }): React.ReactElement {
+function NavigationMainItem(props: {
+  item: NavigationItemObject;
+  activePath?: string;
+}): React.ReactElement {
   return (
-    <NavItem
-      itemId={props.item.to}
-      isActive={isActive(props.item.to, props.activePath)}
-    >
-      <Link
-        to={props.item.to}
-        className={styles.mainItem}
-      >
+    <NavItem itemId={props.item.to} isActive={isActive(props.item.to, props.activePath)}>
+      <Link to={props.item.to} className={styles.mainItem}>
         {props.item.label}
       </Link>
     </NavItem>

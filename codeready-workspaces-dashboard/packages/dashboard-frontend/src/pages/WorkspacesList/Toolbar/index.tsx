@@ -11,7 +11,16 @@
  */
 
 import React from 'react';
-import { ToolbarContent, ToolbarItem, Checkbox, Toolbar, Button, InputGroup, TextInput, ToolbarToggleGroup } from '@patternfly/react-core';
+import {
+  ToolbarContent,
+  ToolbarItem,
+  Checkbox,
+  Toolbar,
+  Button,
+  InputGroup,
+  TextInput,
+  ToolbarToggleGroup,
+} from '@patternfly/react-core';
 import { EllipsisVIcon, PlusCircleIcon, SearchIcon } from '@patternfly/react-icons';
 import match from '../../../services/helpers/filter';
 
@@ -20,7 +29,7 @@ import { Workspace } from '../../../services/workspace-adapter';
 
 type Props = {
   selectedAll: boolean;
-  workspaces: Workspace[],
+  workspaces: Workspace[];
   enabledDelete: boolean;
   onAddWorkspace: () => void;
   onBulkDelete: () => Promise<void>;
@@ -34,7 +43,6 @@ type State = {
 };
 
 export default class WorkspacesListToolbar extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -81,8 +89,7 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
   }
 
   private filterWorkspaces(filterValue: string): Workspace[] {
-    return this.props.workspaces.filter(workspace =>
-      match(workspace.name || '', filterValue));
+    return this.props.workspaces.filter(workspace => match(workspace.name || '', filterValue));
   }
 
   private handleFilterApply(): void {
@@ -103,14 +110,18 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
   }
 
   public componentDidUpdate(prevProps: Props): void {
-    if (this.props.selectedAll !== prevProps.selectedAll
-      && this.props.selectedAll !== this.state.selectedAll) {
+    if (
+      this.props.selectedAll !== prevProps.selectedAll &&
+      this.props.selectedAll !== this.state.selectedAll
+    ) {
       this.setState({
         selectedAll: this.props.selectedAll,
       });
     }
-    if (this.props.enabledDelete !== prevProps.enabledDelete
-      && this.props.enabledDelete !== this.state.enabledDelete) {
+    if (
+      this.props.enabledDelete !== prevProps.enabledDelete &&
+      this.props.enabledDelete !== this.state.enabledDelete
+    ) {
       this.setState({
         enabledDelete: this.props.enabledDelete,
       });
@@ -121,10 +132,7 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
     const { selectedAll, filterValue, enabledDelete } = this.state;
 
     const checkboxItem = (
-      <ToolbarItem
-        variant="bulk-select"
-        className={styles.toolbarCheckbox}
-      >
+      <ToolbarItem variant="bulk-select" className={styles.toolbarCheckbox}>
         <Checkbox
           isChecked={selectedAll}
           onChange={isChecked => this.handleToggleSelectAll(isChecked)}
@@ -198,5 +206,4 @@ export default class WorkspacesListToolbar extends React.PureComponent<Props, St
       </Toolbar>
     );
   }
-
 }

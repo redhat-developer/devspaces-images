@@ -27,7 +27,6 @@ type Props = {
 };
 
 class WorkspaceIndicator extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     const { status } = this.props;
 
@@ -69,7 +68,9 @@ class WorkspaceIndicator extends React.PureComponent<Props> {
           data-tip={status.toUpperCase()}
           className={styles.statusIndicator}
           data-testid="workspace-status-indicator"
-        >{icon}</span>
+        >
+          {icon}
+        </span>
         <ReactTooltip backgroundColor="black" textColor="white" effect="solid" />
       </>
     );

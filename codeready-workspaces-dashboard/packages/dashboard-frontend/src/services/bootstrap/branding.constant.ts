@@ -20,11 +20,11 @@ export type BrandingData = {
   docs: BrandingDocs;
   configuration: BrandingConfiguration;
   header?: BrandingHeader;
-}
+};
 
 export type BrandingHeader = {
   warning: string;
-}
+};
 
 export type BrandingDocs = {
   devfile: string;
@@ -34,22 +34,22 @@ export type BrandingDocs = {
   faq?: string;
   storageTypes: string;
   webSocketTroubleshooting: string;
-}
+};
 
 export type BrandingConfiguration = {
   cheCliTool: string;
   prefetch?: PrefetchConfiguration;
-}
+};
 
 export type PrefetchConfiguration = {
   cheCDN?: string;
   resources: string[];
-}
+};
 
 export type Link = {
   text: string;
   href: string;
-}
+};
 
 export enum TogglableFeature {
   WORKSPACE_SHARING = 'workspaceSharing',
@@ -68,15 +68,15 @@ export const BRANDING_DEFAULT: BrandingData = {
   links: [
     {
       text: 'Make a wish',
-      href: 'mailto:che-dev@eclipse.org'
+      href: 'mailto:che-dev@eclipse.org',
     },
     {
       text: 'Documentation',
-      href: 'https://www.eclipse.org/che/docs/che-7'
+      href: 'https://www.eclipse.org/che/docs/che-7',
     },
     {
       text: 'Community',
-      href: 'https://www.eclipse.org/che/'
+      href: 'https://www.eclipse.org/che/',
     },
   ],
   docs: {
@@ -85,9 +85,10 @@ export const BRANDING_DEFAULT: BrandingData = {
     certificate: 'https://www.eclipse.org/che/docs/che-7/importing-certificates-to-browsers/',
     general: 'https://www.eclipse.org/che/docs/che-7',
     storageTypes: 'https://www.eclipse.org/che/docs/che-7/configuring-storage-types/',
-    webSocketTroubleshooting: 'https://www.eclipse.org/che/docs/che-7/troubleshooting-network-problems/#troubleshooting-websocket-secure-connections_troubleshooting-network-problems'
+    webSocketTroubleshooting:
+      'https://www.eclipse.org/che/docs/che-7/troubleshooting-network-problems/#troubleshooting-websocket-secure-connections_troubleshooting-network-problems',
   },
   configuration: {
-    cheCliTool: 'chectl'
+    cheCliTool: 'chectl',
   },
 };

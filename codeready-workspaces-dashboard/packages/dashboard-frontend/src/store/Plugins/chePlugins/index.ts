@@ -39,41 +39,41 @@ interface ReceivePluginsErrorAction {
   error: string;
 }
 
-type KnownAction = RequestPluginsAction
-  | ReceivePluginsAction
-  | ReceivePluginsErrorAction;
+type KnownAction = RequestPluginsAction | ReceivePluginsAction | ReceivePluginsErrorAction;
 
 export type ActionCreators = {
   requestPlugins: (registryUrl: string) => AppThunk<KnownAction, Promise<che.Plugin[]>>;
 };
 
 export const actionCreators: ActionCreators = {
+  requestPlugins:
+    (registryUrl: string): AppThunk<KnownAction, Promise<che.Plugin[]>> =>
+    async (dispatch): Promise<che.Plugin[]> => {
+      dispatch({ type: 'REQUEST_PLUGINS' });
 
-  requestPlugins: (registryUrl: string): AppThunk<KnownAction, Promise<che.Plugin[]>> => async (dispatch): Promise<che.Plugin[]> => {
-    dispatch({ type: 'REQUEST_PLUGINS' });
+      try {
+        const response = await axiosInstance.request<che.Plugin[]>({
+          method: 'GET',
+          url: `${registryUrl}/plugins/`,
+        });
+        const plugins = response.data;
 
-    try {
-      const response = await axiosInstance.request<che.Plugin[]>({
-        'method': 'GET',
-        'url': `${registryUrl}/plugins/`,
-      });
-      const plugins = response.data;
-
-      dispatch({
-        type: 'RECEIVE_PLUGINS',
-        plugins,
-      });
-      return plugins;
-    } catch (e) {
-      const errorMessage = `Failed to fetch plugins from registry URL: ${registryUrl}, reason: ` + common.helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_PLUGINS_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
-    }
-  },
-
+        dispatch({
+          type: 'RECEIVE_PLUGINS',
+          plugins,
+        });
+        return plugins;
+      } catch (e) {
+        const errorMessage =
+          `Failed to fetch plugins from registry URL: ${registryUrl}, reason: ` +
+          common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_PLUGINS_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 };
 
 const unloadedState: State = {
@@ -81,7 +81,10 @@ const unloadedState: State = {
   plugins: [],
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }

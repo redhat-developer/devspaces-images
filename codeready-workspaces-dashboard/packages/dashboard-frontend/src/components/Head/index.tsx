@@ -16,15 +16,16 @@ import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../store';
 import { selectBranding } from '../../store/Branding/selectors';
 
-type Props = MappedProps
-  & {
-    pageName?: string;
-  };
+type Props = MappedProps & {
+  pageName?: string;
+};
 
 class Head extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
-    const { pageName, branding: { title } } = this.props;
+    const {
+      pageName,
+      branding: { title },
+    } = this.props;
 
     return (
       <Helmet>
@@ -32,16 +33,13 @@ class Head extends React.PureComponent<Props> {
       </Helmet>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(Head);

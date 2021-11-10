@@ -11,8 +11,19 @@
  */
 
 import {
-  Button, Title, PageSection, Text, TextInput, Form, FormGroup, ActionGroup, StackItem, Stack,
-  ButtonVariant, PageSectionVariants, TextVariants,
+  Button,
+  Title,
+  PageSection,
+  Text,
+  TextInput,
+  Form,
+  FormGroup,
+  ActionGroup,
+  StackItem,
+  Stack,
+  ButtonVariant,
+  PageSectionVariants,
+  TextVariants,
 } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
@@ -34,10 +45,9 @@ type State = {
   lastName: string;
   email: string;
   login: string;
-}
+};
 
 export class UserAccount extends React.PureComponent<Props, State> {
-
   @lazyInject(KeycloakAuthService)
   private readonly keycloakAuth: KeycloakAuthService;
 
@@ -47,7 +57,8 @@ export class UserAccount extends React.PureComponent<Props, State> {
     const { userProfile } = this.props;
 
     const email = userProfile ? userProfile.email : '';
-    const login = userProfile && userProfile.attributes ? userProfile.attributes.preferred_username : '';
+    const login =
+      userProfile && userProfile.attributes ? userProfile.attributes.preferred_username : '';
     const firstName = userProfile && userProfile.attributes ? userProfile.attributes.firstName : '';
     const lastName = userProfile && userProfile.attributes ? userProfile.attributes.lastName : '';
     const profileUrl = KeycloakAuthService.sso ? this.keycloakAuth.getProfileUrl() : '';
@@ -79,52 +90,25 @@ export class UserAccount extends React.PureComponent<Props, State> {
             </StackItem>
             <StackItem isFilled>
               <Form isWidthLimited>
-                <FormGroup
-                  label="Login"
-                  fieldId="form-group-login"
-                >
-                  <TextInput
-                    aria-label="readonly login"
-                    value={login}
-                    isDisabled
-                  />
+                <FormGroup label="Login" fieldId="form-group-login">
+                  <TextInput aria-label="readonly login" value={login} isDisabled />
                 </FormGroup>
-                <FormGroup
-                  label="Email"
-                  fieldId="form-group-email"
-                >
-                  <TextInput
-                    aria-label="readonly email"
-                    value={email}
-                    isDisabled
-                  />
+                <FormGroup label="Email" fieldId="form-group-email">
+                  <TextInput aria-label="readonly email" value={email} isDisabled />
                 </FormGroup>
-                <FormGroup
-                  label="First Name"
-                  fieldId="form-group-first-name"
-                >
-                  <TextInput
-                    aria-label="readonly first name"
-                    value={firstName}
-                    isDisabled
-                  />
+                <FormGroup label="First Name" fieldId="form-group-first-name">
+                  <TextInput aria-label="readonly first name" value={firstName} isDisabled />
                 </FormGroup>
-                <FormGroup
-                  label="Last Name"
-                  fieldId="form-group-last-name"
-                >
-                  <TextInput
-                    aria-label="readonly last name"
-                    value={lastName}
-                    isDisabled
-                  />
+                <FormGroup label="Last Name" fieldId="form-group-last-name">
+                  <TextInput aria-label="readonly last name" value={lastName} isDisabled />
                 </FormGroup>
                 <ActionGroup>
                   <Button
                     variant={ButtonVariant.primary}
                     onClick={() => this.onEdit()}
                     isDisabled={!profileUrl}
-                    aria-label="edit account info">
+                    aria-label="edit account info"
+                  >
                     Edit
                   </Button>
                 </ActionGroup>
@@ -142,9 +126,7 @@ const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-);
+const connector = connect(mapStateToProps);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(UserAccount);

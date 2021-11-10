@@ -41,59 +41,72 @@ export type ActionCreators = {
 };
 
 export const actionCreators: ActionCreators = {
-
-  requestCredentials: (): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
-    dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS' });
-    const { userPreferences: { preferences } } = getState();
-    try {
-      await dispatch(UserPreferences.actionCreators.requestUserPreferences(undefined));
-      const registries: RegistryEntry[] = [];
-      if (preferences.dockerCredentials) {
-        const containerCredentials: ContainerCredentials = JSON.parse(window.atob(preferences.dockerCredentials));
-        for (const [url, value] of Object.entries(containerCredentials)) {
-          const { username, password } = value || {};
-          registries.push({ url, username, password });
+  requestCredentials:
+    (): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS' });
+      const {
+        userPreferences: { preferences },
+      } = getState();
+      try {
+        await dispatch(UserPreferences.actionCreators.requestUserPreferences(undefined));
+        const registries: RegistryEntry[] = [];
+        if (preferences.dockerCredentials) {
+          const containerCredentials: ContainerCredentials = JSON.parse(
+            window.atob(preferences.dockerCredentials),
+          );
+          for (const [url, value] of Object.entries(containerCredentials)) {
+            const { username, password } = value || {};
+            registries.push({ url, username, password });
+          }
         }
+        dispatch({
+          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+          registries,
+        });
+      } catch (e) {
+        const errorMessage =
+          'Failed to request the docker config. Reason: ' + helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
       }
-      dispatch({
-        type: 'SET_CHEWORKSPACE_CREDENTIALS',
-        registries,
-      });
-    } catch (e) {
-      const errorMessage = 'Failed to request the docker config. Reason: ' + helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR',
-        error: errorMessage
-      });
-      throw errorMessage;
-    }
-  },
+    },
 
-  updateCredentials: (registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
-    dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS' });
-    const { userPreferences: { preferences } } = getState();
-    const newContainerCredentials: ContainerCredentials = {};
-    registries.forEach(item => {
-      const { url, username, password } = item;
-      newContainerCredentials[url] = { username, password };
-    });
-    const dockerCredentials = window.btoa(JSON.stringify(newContainerCredentials));
-    const prefUpdate = Object.assign({}, preferences, { dockerCredentials }) as che.UserPreferences;
-    try {
-      await dispatch(UserPreferences.actionCreators.replaceUserPreferences(prefUpdate));
-      dispatch({
-        type: 'SET_CHEWORKSPACE_CREDENTIALS',
-        registries
+  updateCredentials:
+    (registries: RegistryEntry[]): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      dispatch({ type: 'REQUEST_CHEWORKSPACE_CREDENTIALS' });
+      const {
+        userPreferences: { preferences },
+      } = getState();
+      const newContainerCredentials: ContainerCredentials = {};
+      registries.forEach(item => {
+        const { url, username, password } = item;
+        newContainerCredentials[url] = { username, password };
       });
-    } catch (e) {
-      const errorMessage = 'Failed to update the docker cofig. Reason: ' + helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR',
-        error: errorMessage
-      });
-      throw errorMessage;
-    }
-  }
+      const dockerCredentials = window.btoa(JSON.stringify(newContainerCredentials));
+      const prefUpdate = Object.assign({}, preferences, {
+        dockerCredentials,
+      }) as che.UserPreferences;
+      try {
+        await dispatch(UserPreferences.actionCreators.replaceUserPreferences(prefUpdate));
+        dispatch({
+          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+          registries,
+        });
+      } catch (e) {
+        const errorMessage =
+          'Failed to update the docker cofig. Reason: ' + helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 };
 
 const unloadedState: State = {

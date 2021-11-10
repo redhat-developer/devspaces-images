@@ -42,11 +42,12 @@ function UnsavedChangesModal(props: Props): React.ReactElement {
     if (props.hasUnsavedChanges()) {
       // show a confirmation dialog
       setIsOpen(true);
-      const focusedElement = (
-        document.hasFocus() &&
-        document.activeElement !== document.body &&
-        document.activeElement !== document.documentElement && document.activeElement
-      ) || null;
+      const focusedElement =
+        (document.hasFocus() &&
+          document.activeElement !== document.body &&
+          document.activeElement !== document.documentElement &&
+          document.activeElement) ||
+        null;
       if (focusedElement) {
         (focusedElement as HTMLBaseElement).blur();
       }
@@ -57,29 +58,38 @@ function UnsavedChangesModal(props: Props): React.ReactElement {
     return true;
   });
 
-  return (<Modal variant={ModalVariant.small} isOpen={isOpen}
-    title="Unsaved Changes"
-    onClose={() => setIsOpen(false)}
-    actions={[
-      <Button key="confirm" variant="primary" onClick={() => {
-        setTimeout(() => {
-          props.onDiscardChanges(pathname);
-        }, 100);
-        setIsOpen(false);
-      }}>
-        Discard Changes
-      </Button>,
-      <Button key="cancel" variant="secondary" onClick={() => setIsOpen(false)}>
-        Cancel
-      </Button>,
-    ]}
-  >
-    <TextContent>
-      <Text>
-        You have unsaved changes. You may go ahead and discard all changes, or close this window and save them.
-      </Text>
-    </TextContent>
-  </Modal>);
+  return (
+    <Modal
+      variant={ModalVariant.small}
+      isOpen={isOpen}
+      title="Unsaved Changes"
+      onClose={() => setIsOpen(false)}
+      actions={[
+        <Button
+          key="confirm"
+          variant="primary"
+          onClick={() => {
+            setTimeout(() => {
+              props.onDiscardChanges(pathname);
+            }, 100);
+            setIsOpen(false);
+          }}
+        >
+          Discard Changes
+        </Button>,
+        <Button key="cancel" variant="secondary" onClick={() => setIsOpen(false)}>
+          Cancel
+        </Button>,
+      ]}
+    >
+      <TextContent>
+        <Text>
+          You have unsaved changes. You may go ahead and discard all changes, or close this window
+          and save them.
+        </Text>
+      </TextContent>
+    </Modal>
+  );
 }
 
 UnsavedChangesModal.displayName = 'UnsavedChangesModal';

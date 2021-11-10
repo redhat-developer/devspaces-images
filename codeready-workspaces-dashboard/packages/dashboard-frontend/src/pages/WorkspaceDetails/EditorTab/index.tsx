@@ -32,7 +32,10 @@ import EditorTools from './EditorTools';
 import { convertWorkspace, isCheWorkspace, Workspace } from '../../../services/workspace-adapter';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../../../services/devfileApi';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
-import { DevWorkspaceClient, DEVWORKSPACE_NEXT_START_ANNOTATION } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
+import {
+  DevWorkspaceClient,
+  DEVWORKSPACE_NEXT_START_ANNOTATION,
+} from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { container } from '../../../inversify.config';
 
 import styles from './index.module.css';
@@ -52,7 +55,7 @@ type State = {
   isExpanded: boolean;
   copied?: boolean;
   showDevfileV2ConfirmationModal: boolean;
-  additionSchema?: { [key: string]: any },
+  additionSchema?: { [key: string]: any };
 };
 
 export class EditorTab extends React.PureComponent<Props, State> {
@@ -77,7 +80,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
       currentRequestError: '',
       isExpanded: false,
       showDevfileV2ConfirmationModal: false,
-      additionSchema
+      additionSchema,
     };
 
     this.cancelChanges = (): void => {
@@ -92,21 +95,25 @@ export class EditorTab extends React.PureComponent<Props, State> {
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
-  private getAdditionSchema(devfile: che.WorkspaceDevfile | devfileApi.Devfile): { [key: string]: any } | undefined {
-    return isDevfileV2(devfile) ? {
-      properties: {
-        metadata: {
+  private getAdditionSchema(
+    devfile: che.WorkspaceDevfile | devfileApi.Devfile,
+  ): { [key: string]: any } | undefined {
+    return isDevfileV2(devfile)
+      ? {
           properties: {
-            name: {
-              const: (devfile as devfileApi.Devfile).metadata.name
+            metadata: {
+              properties: {
+                name: {
+                  const: (devfile as devfileApi.Devfile).metadata.name,
+                },
+                namespace: {
+                  const: (devfile as devfileApi.Devfile).metadata.namespace,
+                },
+              },
             },
-            namespace: {
-              const: (devfile as devfileApi.Devfile).metadata.namespace
-            }
-          }
+          },
         }
-      }
-    } : undefined;
+      : undefined;
   }
 
   private init(): void {
@@ -119,7 +126,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
         hasRequestErrors: false,
         currentRequestError: '',
         hasChanges: false,
-        additionSchema
+        additionSchema,
       });
     }
   }
@@ -139,40 +146,53 @@ export class EditorTab extends React.PureComponent<Props, State> {
     return (
       <React.Fragment>
         <br />
-        {(this.state.currentRequestError) && (
+        {this.state.currentRequestError && (
           <Alert
-            variant={AlertVariant.danger} isInline title={this.state.currentRequestError}
-            actionClose={<AlertActionCloseButton onClose={() => this.setState({ currentRequestError: '' })} />}
+            variant={AlertVariant.danger}
+            isInline
+            title={this.state.currentRequestError}
+            actionClose={
+              <AlertActionCloseButton onClose={() => this.setState({ currentRequestError: '' })} />
+            }
           />
         )}
-        {(this.state.showDevfileV2ConfirmationModal) && (
-          <Modal variant={ModalVariant.small} isOpen={true}
+        {this.state.showDevfileV2ConfirmationModal && (
+          <Modal
+            variant={ModalVariant.small}
+            isOpen={true}
             title="Restart Workspace"
             onClose={() => this.devfileV2ConfirmationCancellation()}
             actions={[
               <Button key="yes" variant="primary" onClick={() => this.saveDevfile()}>
                 Yes
               </Button>,
-              <Button key="no" variant="secondary" onClick={() => this.devfileV2ConfirmationCancellation()}>
+              <Button
+                key="no"
+                variant="secondary"
+                onClick={() => this.devfileV2ConfirmationCancellation()}
+              >
                 No
               </Button>,
             ]}
           >
             <TextContent>
-              <Text>
-                Would you like to restart the workspace with the changes?
-              </Text>
+              <Text>Would you like to restart the workspace with the changes?</Text>
             </TextContent>
           </Modal>
         )}
         <TextContent
-          className={this.state.isExpanded ? styles.editorTabExpanded : styles.editorTab}>
-          {(this.state.currentRequestError && this.state.isExpanded) && (
+          className={this.state.isExpanded ? styles.editorTabExpanded : styles.editorTab}
+        >
+          {this.state.currentRequestError && this.state.isExpanded && (
             <AlertGroup isToast>
               <Alert
                 variant={AlertVariant.danger}
                 title={this.state.currentRequestError}
-                actionClose={<AlertActionCloseButton onClose={() => this.setState({ currentRequestError: '' })} />}
+                actionClose={
+                  <AlertActionCloseButton
+                    onClose={() => this.setState({ currentRequestError: '' })}
+                  />
+                }
               />
             </AlertGroup>
           )}
@@ -190,10 +210,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
             onChange={(newValue, isValid) => this.onDevfileChange(newValue, isValid)}
           />
           <Flex direction={{ default: 'column' }}>
-            <FlexItem
-              align={{ default: 'alignRight' }}
-              className={styles.buttonsGroup}
-            >
+            <FlexItem align={{ default: 'alignRight' }} className={styles.buttonsGroup}>
               <Button
                 onClick={() => this.onSave()}
                 variant="primary"
@@ -233,13 +250,15 @@ export class EditorTab extends React.PureComponent<Props, State> {
       convertedDevWorkspace.devfile = devfile;
       // Store the devfile in here
       (convertedDevWorkspace.ref as devfileApi.DevWorkspace).metadata.annotations = {
-        [DEVWORKSPACE_NEXT_START_ANNOTATION]: JSON.stringify((convertedDevWorkspace.ref as devfileApi.DevWorkspace)),
+        [DEVWORKSPACE_NEXT_START_ANNOTATION]: JSON.stringify(
+          convertedDevWorkspace.ref as devfileApi.DevWorkspace,
+        ),
       };
       convertedDevWorkspace.ref.status = devworkspace.status;
       this.props.onDevWorkspaceWarning();
       this.props.onSave(convertedDevWorkspace);
       this.setState({
-        showDevfileV2ConfirmationModal: false
+        showDevfileV2ConfirmationModal: false,
       });
     } catch (e) {
       const errorMessage = common.helpers.errors.getMessage(e);
@@ -284,11 +303,14 @@ export class EditorTab extends React.PureComponent<Props, State> {
   }
 
   private async onSave(): Promise<void> {
-    if (isCheWorkspace(this.props.workspace.ref) || this.props.workspace.status !== DevWorkspaceStatus.RUNNING.toUpperCase()) {
+    if (
+      isCheWorkspace(this.props.workspace.ref) ||
+      this.props.workspace.status !== DevWorkspaceStatus.RUNNING.toUpperCase()
+    ) {
       this.saveDevfile();
     } else {
       this.setState({
-        showDevfileV2ConfirmationModal: true
+        showDevfileV2ConfirmationModal: true,
       });
     }
   }
@@ -299,9 +321,14 @@ export class EditorTab extends React.PureComponent<Props, State> {
    */
   private async checkForModifiedClusterDevWorkspace(): Promise<void> {
     const currentDevWorkspace = this.props.workspace.ref as devfileApi.DevWorkspace;
-    const clusterDevWorkspace = await this.devworkspaceClient.getWorkspaceByName(currentDevWorkspace.metadata.namespace, currentDevWorkspace.metadata.name);
+    const clusterDevWorkspace = await this.devworkspaceClient.getWorkspaceByName(
+      currentDevWorkspace.metadata.namespace,
+      currentDevWorkspace.metadata.name,
+    );
     if (!lodash.isEqual(clusterDevWorkspace.spec.template, currentDevWorkspace.spec.template)) {
-      throw new Error('Could not save devfile to cluster. The clusters devfile and the incoming devfile are different. Please reload the page to get an updated devfile.');
+      throw new Error(
+        'Could not save devfile to cluster. The clusters devfile and the incoming devfile are different. Please reload the page to get an updated devfile.',
+      );
     }
   }
 
@@ -340,19 +367,29 @@ export class EditorTab extends React.PureComponent<Props, State> {
       });
     }
     this.setState({
-      showDevfileV2ConfirmationModal: false
+      showDevfileV2ConfirmationModal: false,
     });
   }
 
-  private sortKeysInObject(obj: che.WorkspaceDevfile | devfileApi.Devfile): che.WorkspaceDevfile | devfileApi.Devfile {
-    return Object.keys(obj).sort().reduce((result: che.WorkspaceDevfile | devfileApi.Devfile, key: string) => {
-      result[key] = obj[key];
-      return result;
-    }, {} as che.WorkspaceDevfile | devfileApi.Devfile);
+  private sortKeysInObject(
+    obj: che.WorkspaceDevfile | devfileApi.Devfile,
+  ): che.WorkspaceDevfile | devfileApi.Devfile {
+    return Object.keys(obj)
+      .sort()
+      .reduce((result: che.WorkspaceDevfile | devfileApi.Devfile, key: string) => {
+        result[key] = obj[key];
+        return result;
+      }, {} as che.WorkspaceDevfile | devfileApi.Devfile);
   }
 
-  private areEqual(a: che.WorkspaceDevfile | devfileApi.Devfile, b: che.WorkspaceDevfile | devfileApi.Devfile): boolean {
-    return JSON.stringify(this.sortKeysInObject(a)) == JSON.stringify(this.sortKeysInObject(b as che.WorkspaceDevfile));
+  private areEqual(
+    a: che.WorkspaceDevfile | devfileApi.Devfile,
+    b: che.WorkspaceDevfile | devfileApi.Devfile,
+  ): boolean {
+    return (
+      JSON.stringify(this.sortKeysInObject(a)) ==
+      JSON.stringify(this.sortKeysInObject(b as che.WorkspaceDevfile))
+    );
   }
 }
 

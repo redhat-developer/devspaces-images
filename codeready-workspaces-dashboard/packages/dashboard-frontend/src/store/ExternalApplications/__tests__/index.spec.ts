@@ -20,7 +20,6 @@ import * as testStore from '..';
 import { ApplicationInfo } from '@eclipse-che/common';
 
 describe('externalApplications store', () => {
-
   const clusterInfo: ApplicationInfo = {
     url: 'web/console/url',
     title: 'Web Console',
@@ -32,11 +31,16 @@ describe('externalApplications store', () => {
   });
 
   describe('actions', () => {
-
-    let appStore: MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, testStore.KnownAction>>;
+    let appStore: MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, testStore.KnownAction>
+    >;
 
     beforeEach(() => {
-      appStore = new FakeStoreBuilder().build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, testStore.KnownAction>>;
+      appStore = new FakeStoreBuilder().build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, testStore.KnownAction>
+      >;
     });
 
     it('should create REQUEST_APP_INFO and RECEIVE_APP_INFO when fetching cluster info', async () => {
@@ -48,12 +52,15 @@ describe('externalApplications store', () => {
 
       const actions = appStore.getActions();
 
-      const expectedActions: testStore.KnownAction[] = [{
-        type: testStore.Type.REQUEST_APP_INFO,
-      }, {
-        type: testStore.Type.RECEIVE_APP_INFO,
-        appInfo: clusterInfo,
-      }];
+      const expectedActions: testStore.KnownAction[] = [
+        {
+          type: testStore.Type.REQUEST_APP_INFO,
+        },
+        {
+          type: testStore.Type.RECEIVE_APP_INFO,
+          appInfo: clusterInfo,
+        },
+      ];
 
       expect(actions).toEqual(expectedActions);
     });
@@ -73,20 +80,21 @@ describe('externalApplications store', () => {
 
       const actions = appStore.getActions();
 
-      const expectedActions: testStore.KnownAction[] = [{
-        type: testStore.Type.REQUEST_APP_INFO,
-      }, {
-        type: testStore.Type.RECEIVE_APP_INFO_ERROR,
-        error: expect.stringContaining('Something unexpected happened.'),
-      }];
+      const expectedActions: testStore.KnownAction[] = [
+        {
+          type: testStore.Type.REQUEST_APP_INFO,
+        },
+        {
+          type: testStore.Type.RECEIVE_APP_INFO_ERROR,
+          error: expect.stringContaining('Something unexpected happened.'),
+        },
+      ];
 
       expect(actions).toEqual(expectedActions);
     });
-
   });
 
   describe('reducers', () => {
-
     it('should return initial state', () => {
       const incomingAction: testStore.RequestAppInfoAction = {
         type: testStore.Type.REQUEST_APP_INFO,
@@ -116,7 +124,6 @@ describe('externalApplications store', () => {
         applications: [],
       };
       expect(newState).toEqual(expectedState);
-
     });
 
     it('should handle REQUEST_APP_INFO', () => {
@@ -153,11 +160,13 @@ describe('externalApplications store', () => {
 
       const expectedState: testStore.State = {
         isLoading: false,
-        applications: [{
-          url: 'web/console/url',
-          title: 'Web Console',
-          icon: 'web/console/icon.png',
-        }],
+        applications: [
+          {
+            url: 'web/console/url',
+            title: 'Web Console',
+            icon: 'web/console/icon.png',
+          },
+        ],
       };
 
       expect(newState).toEqual(expectedState);
@@ -183,7 +192,5 @@ describe('externalApplications store', () => {
 
       expect(newState).toEqual(expectedState);
     });
-
   });
-
 });

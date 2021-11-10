@@ -19,20 +19,19 @@ export const devWorkspaceKind: DevWorkspaceKind = 'DevWorkspace';
 
 type DevWorkspaceLikeRequired = Pick<V1alpha2DevWorkspace, 'apiVersion' | 'kind'>;
 
-export type DevWorkspaceLike = V1alpha2DevWorkspace
-  & Required<DevWorkspaceLikeRequired>
-  & {
+export type DevWorkspaceLike = V1alpha2DevWorkspace &
+  Required<DevWorkspaceLikeRequired> & {
     kind: DevWorkspaceKind;
   };
 
 type DevWorkspaceRequired = Pick<DevWorkspaceLike, 'apiVersion' | 'kind' | 'metadata' | 'spec'>;
 type DevWorkspaceRequiredField = keyof DevWorkspaceRequired;
 
-export const devWorkspaceRequiredFields: `${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField}` = 'apiVersion | kind | metadata | spec';
+export const devWorkspaceRequiredFields: `${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField}` =
+  'apiVersion | kind | metadata | spec';
 
-export type DevWorkspace = DevWorkspaceLike
-  & Required<DevWorkspaceRequired>
-  & {
+export type DevWorkspace = DevWorkspaceLike &
+  Required<DevWorkspaceRequired> & {
     metadata: DevWorkspaceMetadata;
     spec: DevWorkspaceSpec;
   };

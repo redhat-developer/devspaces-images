@@ -20,7 +20,6 @@ import { selectBranding } from '../../../store/Branding/selectors';
 type Props = MappedProps;
 
 class BannerAlertBranding extends React.PureComponent<Props> {
-
   render() {
     const warningMessage = this.props.branding.header?.warning;
     if (!warningMessage) {
@@ -30,9 +29,9 @@ class BannerAlertBranding extends React.PureComponent<Props> {
     const warningMessageHTML = sanitizeHtml(warningMessage, {
       allowedTags: ['a'],
       allowedAttributes: {
-        'a': ['href', 'target']
+        a: ['href', 'target'],
       },
-      allowedSchemes: ['http', 'https']
+      allowedSchemes: ['http', 'https'],
     });
 
     return (

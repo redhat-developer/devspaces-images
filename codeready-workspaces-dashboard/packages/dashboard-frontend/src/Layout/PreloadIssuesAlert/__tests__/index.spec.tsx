@@ -19,10 +19,8 @@ import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import AppAlertGroup from '../../../components/AppAlertGroup';
 
 describe('PreloadIssuesAlert component', () => {
-
   it('should not show any alerts', () => {
-    const store = new FakeStoreBuilder()
-      .build();
+    const store = new FakeStoreBuilder().build();
     renderComponent(store);
 
     const alertHeading = screen.queryByRole('heading', { name: /danger alert/i });
@@ -53,7 +51,9 @@ describe('PreloadIssuesAlert component', () => {
     const devfileRegistryAlert = screen.queryByRole('heading', { name: /expected error 2/i });
     expect(devfileRegistryAlert).toBeTruthy();
 
-    const infrastructureNamespacesAlert = screen.queryByRole('heading', { name: /expected error 3/i });
+    const infrastructureNamespacesAlert = screen.queryByRole('heading', {
+      name: /expected error 3/i,
+    });
     expect(infrastructureNamespacesAlert).toBeTruthy();
 
     const pluginsAlert = screen.queryByRole('heading', { name: /expected error 4/i });
@@ -68,7 +68,6 @@ describe('PreloadIssuesAlert component', () => {
     const workspacesSettingsAlert = screen.queryByRole('heading', { name: /expected error 7/i });
     expect(workspacesSettingsAlert).toBeTruthy();
   });
-
 });
 
 function renderComponent(store: Store): RenderResult {
@@ -76,6 +75,6 @@ function renderComponent(store: Store): RenderResult {
     <Provider store={store}>
       <AppAlertGroup />
       <PreloadIssuesAlert />
-    </Provider>
+    </Provider>,
   );
 }

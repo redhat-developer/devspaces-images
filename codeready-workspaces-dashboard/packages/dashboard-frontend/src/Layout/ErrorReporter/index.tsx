@@ -17,10 +17,9 @@ import * as styles from './index.module.css';
 
 type Props = {
   children?: React.ReactElement;
-}
+};
 
 export class ErrorReporter extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     return (
       <Page>
@@ -32,9 +31,7 @@ export class ErrorReporter extends React.PureComponent<Props> {
           <Stack>
             <StackItem isFilled></StackItem>
             <StackItem className={styles.errorMessageContainer}>
-              <Bullseye>
-                {this.props.children}
-              </Bullseye>
+              <Bullseye>{this.props.children}</Bullseye>
             </StackItem>
             <StackItem isFilled></StackItem>
           </Stack>
@@ -42,5 +39,4 @@ export class ErrorReporter extends React.PureComponent<Props> {
       </Page>
     );
   }
-
 }

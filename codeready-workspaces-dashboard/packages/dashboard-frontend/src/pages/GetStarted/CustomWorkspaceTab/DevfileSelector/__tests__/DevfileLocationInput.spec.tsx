@@ -15,15 +15,10 @@ import { RenderResult, render, screen, fireEvent } from '@testing-library/react'
 import { DevfileLocationInput } from '../DevfileLocationInput';
 
 describe('Devfile Location', () => {
-
   const mockOnChange = jest.fn();
 
   function renderComponent(): RenderResult {
-    return render(
-      <DevfileLocationInput
-        onChange={mockOnChange}
-      />
-    );
+    return render(<DevfileLocationInput onChange={mockOnChange} />);
   }
 
   afterEach(() => {
@@ -66,5 +61,4 @@ describe('Devfile Location', () => {
 
     expect(mockOnChange).toHaveBeenCalledWith('http://resource/location');
   });
-
 });

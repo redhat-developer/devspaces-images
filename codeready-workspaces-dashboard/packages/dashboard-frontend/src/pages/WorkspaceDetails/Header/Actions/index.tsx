@@ -16,8 +16,15 @@ import React from 'react';
 import { History } from 'history';
 import common from '@eclipse-che/common';
 import WorkspaceActionsProvider from '../../../../containers/WorkspaceActions';
-import { WorkspaceAction, WorkspaceStatus, DevWorkspaceStatus } from '../../../../services/helpers/types';
-import { ActionContextType, WorkspaceActionsConsumer } from '../../../../containers/WorkspaceActions/context';
+import {
+  WorkspaceAction,
+  WorkspaceStatus,
+  DevWorkspaceStatus,
+} from '../../../../services/helpers/types';
+import {
+  ActionContextType,
+  WorkspaceActionsConsumer,
+} from '../../../../containers/WorkspaceActions/context';
 import { lazyInject } from '../../../../inversify.config';
 import { AppAlerts } from '../../../../services/alerts/appAlerts';
 import getRandomString from '../../../../services/helpers/random';
@@ -34,10 +41,9 @@ type Props = {
 type State = {
   isExpanded: boolean;
   isModalOpen: boolean;
-}
+};
 
 export class HeaderActionSelect extends React.PureComponent<Props, State> {
-
   @lazyInject(AppAlerts)
   private appAlerts: AppAlerts;
 
@@ -57,7 +63,10 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
     this.setState({ isExpanded });
   }
 
-  private async handleSelect(selectedAction: WorkspaceAction, context: ActionContextType): Promise<void> {
+  private async handleSelect(
+    selectedAction: WorkspaceAction,
+    context: ActionContextType,
+  ): Promise<void> {
     this.setState({
       isExpanded: false,
     });
@@ -76,7 +85,9 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
       this.props.history.push(nextPath);
     } catch (e) {
       const errorMessage = common.helpers.errors.getMessage(e);
-      const message = `Unable to ${selectedAction.toLocaleLowerCase()} ${this.props.workspaceName}. ` + errorMessage.replace('Error: ', '');
+      const message =
+        `Unable to ${selectedAction.toLocaleLowerCase()} ${this.props.workspaceName}. ` +
+        errorMessage.replace('Error: ', '');
       this.showAlert(message);
       console.warn(message);
     }
@@ -94,42 +105,52 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
     const { status } = this.props;
 
     return [
-      (<DropdownItem
+      <DropdownItem
         key={`action-${WorkspaceAction.OPEN_IDE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING}
-        onClick={async () => this.handleSelect(WorkspaceAction.OPEN_IDE, context)}>
+        onClick={async () => this.handleSelect(WorkspaceAction.OPEN_IDE, context)}
+      >
         <div>{WorkspaceAction.OPEN_IDE}</div>
-      </DropdownItem>),
-      (<DropdownItem
+      </DropdownItem>,
+      <DropdownItem
         key={`action-${WorkspaceAction.START_DEBUG_AND_OPEN_LOGS}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status !== WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, context)}>
+        onClick={async () => this.handleSelect(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, context)}
+      >
         <div>{WorkspaceAction.START_DEBUG_AND_OPEN_LOGS}</div>
-      </DropdownItem>),
-      (<DropdownItem
+      </DropdownItem>,
+      <DropdownItem
         key={`action-${WorkspaceAction.START_IN_BACKGROUND}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status !== WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.START_IN_BACKGROUND, context)}>
+        onClick={async () => this.handleSelect(WorkspaceAction.START_IN_BACKGROUND, context)}
+      >
         <div>{WorkspaceAction.START_IN_BACKGROUND}</div>
-      </DropdownItem>),
-      (<DropdownItem
+      </DropdownItem>,
+      <DropdownItem
         key={`action-${WorkspaceAction.RESTART_WORKSPACE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.RESTART_WORKSPACE, context)}>
+        onClick={async () => this.handleSelect(WorkspaceAction.RESTART_WORKSPACE, context)}
+      >
         <div>{WorkspaceAction.RESTART_WORKSPACE}</div>
-      </DropdownItem>),
-      (<DropdownItem
+      </DropdownItem>,
+      <DropdownItem
         key={`action-${WorkspaceAction.STOP_WORKSPACE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.STOP_WORKSPACE, context)}>
+        onClick={async () => this.handleSelect(WorkspaceAction.STOP_WORKSPACE, context)}
+      >
         <div>{WorkspaceAction.STOP_WORKSPACE}</div>
-      </DropdownItem>),
-      (<DropdownItem
+      </DropdownItem>,
+      <DropdownItem
         key={`action-${WorkspaceAction.DELETE_WORKSPACE}`}
-        isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STARTING || status === WorkspaceStatus.STOPPING}
-        onClick={async () => this.handleSelect(WorkspaceAction.DELETE_WORKSPACE, context)}>
+        isDisabled={
+          status === DevWorkspaceStatus.TERMINATING ||
+          status === WorkspaceStatus.STARTING ||
+          status === WorkspaceStatus.STOPPING
+        }
+        onClick={async () => this.handleSelect(WorkspaceAction.DELETE_WORKSPACE, context)}
+      >
         <div>{WorkspaceAction.DELETE_WORKSPACE}</div>
-      </DropdownItem>),
+      </DropdownItem>,
     ];
   }
 
@@ -138,20 +159,21 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
     const { isExpanded } = this.state;
 
     return (
-      <WorkspaceActionsProvider history={history} >
+      <WorkspaceActionsProvider history={history}>
         <WorkspaceActionsConsumer>
           {context => (
             <Dropdown
               className="workspace-action-selector"
-              toggle={(
+              toggle={
                 <DropdownToggle
                   data-testid={`${workspaceId}-action-dropdown`}
                   onToggle={isExpanded => this.handleToggle(isExpanded)}
                   toggleIndicator={CaretDownIcon}
-                  isPrimary>
+                  isPrimary
+                >
                   Actions
                 </DropdownToggle>
-              )}
+              }
               isOpen={isExpanded}
               position="right"
               dropdownItems={this.getDropdownItems(context)}

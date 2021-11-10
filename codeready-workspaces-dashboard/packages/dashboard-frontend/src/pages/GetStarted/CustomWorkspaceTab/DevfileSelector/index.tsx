@@ -40,12 +40,10 @@ import styles from './index.module.css';
 import { Devfile } from 'dashboard-frontend/src/services/workspace-adapter';
 import { isDevworkspacesEnabled } from '../../../../services/helpers/devworkspace';
 
-type Props =
-  MappedProps
-  & {
-    onDevfile: (devfile: Devfile) => void;
-    onClear?: () => void;
-  };
+type Props = MappedProps & {
+  onDevfile: (devfile: Devfile) => void;
+  onClear?: () => void;
+};
 type State = {
   isLoading: boolean;
   alerts: AlertItem[];
@@ -90,7 +88,7 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
         await this.props.requestFactoryResolver(meta.links.v2);
         devfile = updateDevfileMetadata(this.props.factoryResolver.resolver.devfile, meta);
       } else {
-        devfile = safeLoad(await this.props.requestDevfile(meta.links.self) as string);
+        devfile = safeLoad((await this.props.requestDevfile(meta.links.self)) as string);
       }
       this.props.onDevfile(devfile);
     } catch (e) {
@@ -149,20 +147,14 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
             />
           ))}
         </AlertGroup>
-        <FormGroup
-          label='Devfile'
-          isRequired
-          fieldId='devfile-selector'
-        >
+        <FormGroup label="Devfile" isRequired fieldId="devfile-selector">
           <TextContent>
             <Text component={TextVariants.small}>
               Select a devfile from a templates or enter devfile URL
             </Text>
           </TextContent>
           <Flex direction={{ default: 'column', lg: 'row' }}>
-            <Flex
-              direction={{ default: 'row' }}
-            >
+            <Flex direction={{ default: 'row' }}>
               <FlexItem grow={{ default: 'grow' }} className={styles.templateSelector}>
                 <DevfileSelect
                   ref={this.devfileSelectRef}
@@ -185,7 +177,6 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
       </React.Fragment>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -194,13 +185,10 @@ const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
 });
 
-const connector = connect(
-  mapStateToProps,
-  {
-    ...DevfileRegistriesStore.actionCreators,
-    ...FactoryResolverStore.actionCreators,
-  },
-);
+const connector = connect(mapStateToProps, {
+  ...DevfileRegistriesStore.actionCreators,
+  ...FactoryResolverStore.actionCreators,
+});
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(DevfileSelectorFormGroup);

@@ -22,34 +22,35 @@ import NavigationRecentList from './RecentList';
 import * as WorkspacesStore from '../../store/Workspaces';
 import { selectAllWorkspaces, selectRecentWorkspaces } from '../../store/Workspaces/selectors';
 import { ROUTE } from '../../route.enum';
-import { buildGettingStartedLocation, buildWorkspacesLocation, sanitizeLocation } from '../../services/helpers/location';
+import {
+  buildGettingStartedLocation,
+  buildWorkspacesLocation,
+  sanitizeLocation,
+} from '../../services/helpers/location';
 
 export interface NavigationItemObject {
-  to: string,
-  label: string,
+  to: string;
+  label: string;
   icon?: React.ReactElement;
 }
 export interface NavigationRecentItemObject {
-  to: string,
-  label: string,
+  to: string;
+  label: string;
   status: string;
   workspaceId: string;
   isDevWorkspace: boolean;
 }
 
-type Props =
-  MappedProps
-  & {
-    history: History;
-    theme: ThemeVariant;
-  };
+type Props = MappedProps & {
+  history: History;
+  theme: ThemeVariant;
+};
 
 type State = {
   activeLocation: Location;
 };
 
 export class Navigation extends React.PureComponent<Props, State> {
-
   private readonly unregisterFn: UnregisterCallback;
 
   constructor(props: Props) {
@@ -114,13 +115,11 @@ export class Navigation extends React.PureComponent<Props, State> {
 
     return (
       <Nav
-        aria-label='Navigation'
+        aria-label="Navigation"
         onSelect={selected => this.handleNavSelect(selected)}
         theme={theme}
       >
-        <NavigationMainList
-          activePath={activeLocation.pathname}
-        />
+        <NavigationMainList activePath={activeLocation.pathname} />
         <NavigationRecentList
           workspaces={recent}
           activePath={activeLocation.pathname}
@@ -129,17 +128,13 @@ export class Navigation extends React.PureComponent<Props, State> {
       </Nav>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
   recentWorkspaces: selectRecentWorkspaces(state),
   allWorkspaces: selectAllWorkspaces(state),
 });
-const connector = connect(
-  mapStateToProps,
-  WorkspacesStore.actionCreators,
-);
+const connector = connect(mapStateToProps, WorkspacesStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 

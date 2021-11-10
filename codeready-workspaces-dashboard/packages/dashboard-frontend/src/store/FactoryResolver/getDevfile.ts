@@ -16,7 +16,7 @@ import { getProjectName } from '../../services/helpers/getProjectName';
 import { safeDump } from 'js-yaml';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
-  DEVWORKSPACE_METADATA_ANNOTATION
+  DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 
 /**
@@ -24,7 +24,10 @@ import {
  * @param data a FactoryResolver object.
  * @param location a source location.
  */
-export function getDevfile(data: FactoryResolver, location: string): api.che.workspace.devfile.Devfile {
+export function getDevfile(
+  data: FactoryResolver,
+  location: string,
+): api.che.workspace.devfile.Devfile {
   let devfile = data.devfile;
 
   if (isDevfileV2(devfile)) {
@@ -32,12 +35,13 @@ export function getDevfile(data: FactoryResolver, location: string): api.che.wor
       devfile.components = [];
     }
     // temporary solution for fix che-server serialization bug with empty volume
-    const components = devfile.components.map(component => {
-      if (Object.keys(component).length === 1 && component.name) {
-        component.volume = {};
-      }
-      return component;
-    }) || [];
+    const components =
+      devfile.components.map(component => {
+        if (Object.keys(component).length === 1 && component.name) {
+          component.volume = {};
+        }
+        return component;
+      }) || [];
     devfile = Object.assign(devfile, { components });
     // add a default project
     const projects: DevfileV2ProjectSource[] = [];
@@ -82,7 +86,8 @@ export function getDevfile(data: FactoryResolver, location: string): api.che.wor
     if (!metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
       metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
     }
-    metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] = devfileSource;
+    metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
+      devfileSource;
     devfile = Object.assign({}, devfile, { metadata });
   }
 

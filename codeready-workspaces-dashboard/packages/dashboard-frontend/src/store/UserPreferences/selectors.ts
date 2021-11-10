@@ -15,12 +15,6 @@ import { AppState } from '..';
 
 const selectState = (state: AppState) => state.userPreferences;
 
-export const selectIsLoading = createSelector(
-  selectState,
-  state => state.isLoading,
-);
+export const selectIsLoading = createSelector(selectState, state => state.isLoading);
 
-export const selectPreferences = createSelector(
-  selectState,
-  state => state.preferences
-);
+export const selectPreferences = createSelector(selectState, state => state.preferences);

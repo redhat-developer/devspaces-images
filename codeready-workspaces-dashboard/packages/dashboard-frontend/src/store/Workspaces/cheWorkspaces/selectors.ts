@@ -16,14 +16,8 @@ import { AppState } from '../..';
 const selectState = (state: AppState) => state.cheWorkspaces;
 export const selectCheWorkspacesState = selectState;
 
-export const selectAllCheWorkspaces = createSelector(
-  selectState,
-  state => {
-    return state.workspaces;
-  }
-);
+export const selectAllCheWorkspaces = createSelector(selectState, state => {
+  return state.workspaces;
+});
 
-export const selectCheWorkspacesError = createSelector(
-  selectState,
-  state => state.error,
-);
+export const selectCheWorkspacesError = createSelector(selectState, state => state.error);

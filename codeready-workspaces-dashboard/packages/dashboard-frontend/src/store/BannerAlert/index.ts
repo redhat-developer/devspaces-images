@@ -19,7 +19,7 @@ export interface State {
 }
 
 interface AddBannerAction {
-  type: 'ADD_BANNER',
+  type: 'ADD_BANNER';
   message: string;
 }
 
@@ -28,37 +28,41 @@ interface RemoveBannerAction {
   message: string;
 }
 
-type KnownAction = AddBannerAction
-  | RemoveBannerAction;
+type KnownAction = AddBannerAction | RemoveBannerAction;
 
 export type ActionCreators = {
-  addBanner: (message: string) => AppThunk<AddBannerAction>,
-  removeBanner: (message: string) => AppThunk<RemoveBannerAction>,
+  addBanner: (message: string) => AppThunk<AddBannerAction>;
+  removeBanner: (message: string) => AppThunk<RemoveBannerAction>;
 };
 
 export const actionCreators: ActionCreators = {
+  addBanner:
+    (message: string): AppThunk<AddBannerAction> =>
+    dispatch => {
+      dispatch({
+        type: 'ADD_BANNER',
+        message,
+      });
+    },
 
-  addBanner: (message: string): AppThunk<AddBannerAction> => dispatch => {
-    dispatch({
-      type: 'ADD_BANNER',
-      message,
-    });
-  },
-
-  removeBanner: (message: string): AppThunk<RemoveBannerAction> => dispatch => {
-    dispatch({
-      type: 'REMOVE_BANNER',
-      message,
-    });
-  },
-
+  removeBanner:
+    (message: string): AppThunk<RemoveBannerAction> =>
+    dispatch => {
+      dispatch({
+        type: 'REMOVE_BANNER',
+        message,
+      });
+    },
 };
 
 const unloadedState: State = {
   messages: [],
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
@@ -68,17 +72,15 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
   switch (action.type) {
     case 'ADD_BANNER':
       return createObject(state, {
-        messages:
-          state.messages.includes(action.message)
-            ? state.messages
-            : state.messages.concat([action.message]),
+        messages: state.messages.includes(action.message)
+          ? state.messages
+          : state.messages.concat([action.message]),
       });
     case 'REMOVE_BANNER':
       return createObject(state, {
-        messages:
-          state.messages.includes(action.message)
-            ? state.messages.filter(message => message !== action.message)
-            : state.messages,
+        messages: state.messages.includes(action.message)
+          ? state.messages.filter(message => message !== action.message)
+          : state.messages,
       });
     default:
       return state;

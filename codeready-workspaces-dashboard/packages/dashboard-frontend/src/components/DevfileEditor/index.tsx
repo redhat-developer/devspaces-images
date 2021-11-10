@@ -14,9 +14,17 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { AppState } from '../../store';
 import { DisposableCollection } from '../../services/helpers/disposable';
-import { ProtocolToMonacoConverter, MonacoToProtocolConverter } from 'monaco-languageclient/lib/monaco-converter';
+import {
+  ProtocolToMonacoConverter,
+  MonacoToProtocolConverter,
+} from 'monaco-languageclient/lib/monaco-converter';
 import { languages, editor, Range, Position, IRange } from 'monaco-editor-core';
-import { TextDocument, getLanguageService, LanguageService, CompletionItem } from 'yaml-language-server';
+import {
+  TextDocument,
+  getLanguageService,
+  LanguageService,
+  CompletionItem,
+} from 'yaml-language-server';
 import { initDefaultEditorTheme } from '../../services/monacoThemeRegister';
 import stringify, { language, conf } from '../../services/helpers/editor';
 import $ from 'jquery';
@@ -35,22 +43,20 @@ const MONACO_CONFIG: editor.IStandaloneEditorConstructionOptions = {
   wordWrap: 'on',
   lineNumbers: 'on',
   scrollBeyondLastLine: false,
-  readOnly: false
+  readOnly: false,
 };
 
 (self as any).MonacoEnvironment = {
-  getWorkerUrl: () => './editor.worker.js'
+  getWorkerUrl: () => './editor.worker.js',
 };
 
-type Props =
-  MappedProps
-  & {
-    devfile: che.WorkspaceDevfile | devfileApi.Devfile;
-    decorationPattern?: string;
-    onChange: (newValue: string, isValid: boolean) => void;
-    isReadonly?: boolean;
-    additionSchema?: { [key: string]: any }
-  };
+type Props = MappedProps & {
+  devfile: che.WorkspaceDevfile | devfileApi.Devfile;
+  decorationPattern?: string;
+  onChange: (newValue: string, isValid: boolean) => void;
+  isReadonly?: boolean;
+  additionSchema?: { [key: string]: any };
+};
 type State = {
   errorMessage: string;
 };
@@ -63,12 +69,13 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
   private readonly yamlService: LanguageService;
   private m2p = new MonacoToProtocolConverter();
   private p2m = new ProtocolToMonacoConverter();
-  private createDocument = (model): TextDocument => TextDocument.create(
-    'inmemory://model.yaml',
-    model.getModeId(),
-    model.getVersionId(),
-    model.getValue(),
-  );
+  private createDocument = (model): TextDocument =>
+    TextDocument.create(
+      'inmemory://model.yaml',
+      model.getModeId(),
+      model.getVersionId(),
+      model.getValue(),
+    );
   private skipNextOnChange: boolean;
 
   constructor(props: Props) {
@@ -80,7 +87,9 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
 
     // lazy initialization
     if (!window[YAML_SERVICE]) {
-      this.yamlService = getLanguageService(() => Promise.resolve(''), { resolveRelativePath: () => '' });
+      this.yamlService = getLanguageService(() => Promise.resolve(''), {
+        resolveRelativePath: () => '',
+      });
       window[YAML_SERVICE] = this.yamlService;
     } else {
       this.yamlService = window[YAML_SERVICE];
@@ -91,7 +100,10 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
       // define the default
       DevfileEditor.EDITOR_THEME = initDefaultEditorTheme();
     }
-    if (languages?.getLanguages && languages.getLanguages().find(language => language.id === LANGUAGE_ID) === undefined) {
+    if (
+      languages?.getLanguages &&
+      languages.getLanguages().find(language => language.id === LANGUAGE_ID) === undefined
+    ) {
       // register the YAML language with Monaco
       languages.register({
         id: LANGUAGE_ID,
@@ -144,13 +156,16 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     const element = $('.devfile-editor .monaco').get(0);
     if (element) {
       const value = stringify(this.props.devfile);
-      this.editor = editor.create(element, Object.assign(
-        { value },
-        {
-          ...MONACO_CONFIG,
-          readOnly: !!this.props.isReadonly,
-        }
-      ));
+      this.editor = editor.create(
+        element,
+        Object.assign(
+          { value },
+          {
+            ...MONACO_CONFIG,
+            readOnly: !!this.props.isReadonly,
+          },
+        ),
+      );
       const doc = this.editor.getModel();
       doc?.updateOptions({ tabSize: 2 });
 
@@ -190,7 +205,10 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
         return;
       }
       const { data } = event;
-      if ((data === 'show-navbar' || data === 'hide-navbar' || data === 'toggle-navbar') && this.handleResize) {
+      if (
+        (data === 'show-navbar' || data === 'hide-navbar' || data === 'toggle-navbar') &&
+        this.handleResize
+      ) {
         this.handleResize();
       }
     };
@@ -212,10 +230,12 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     const { errorMessage } = this.state;
 
     return (
-      <div className='devfile-editor'>
-        <div className='monaco'>&nbsp;</div>
-        <div className='error'>{errorMessage}</div>
-        <a target='_blank' rel='noopener noreferrer' href={href}>Devfile Documentation</a>
+      <div className="devfile-editor">
+        <div className="monaco">&nbsp;</div>
+        <div className="error">{errorMessage}</div>
+        <a target="_blank" rel="noopener noreferrer" href={href}>
+          Devfile Documentation
+        </a>
       </div>
     );
   }
@@ -303,14 +323,18 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     languages.registerCompletionItemProvider(LANGUAGE_ID, {
       provideCompletionItems(model: editor.ITextModel, position: Position) {
         const document = createDocument(model);
-        return yamlService.doComplete(document, m2p.asPosition(position.lineNumber, position.column), true)
+        return yamlService
+          .doComplete(document, m2p.asPosition(position.lineNumber, position.column), true)
           .then(list => {
-            const completionResult = p2m.asCompletionResult(list as any, {
-              startColumn: position.column,
-              startLineNumber: position.lineNumber,
-              endColumn: position.column,
-              endLineNumber: position.lineNumber,
-            } as IRange);
+            const completionResult = p2m.asCompletionResult(
+              list as any,
+              {
+                startColumn: position.column,
+                startLineNumber: position.lineNumber,
+                endColumn: position.column,
+                endLineNumber: position.lineNumber,
+              } as IRange,
+            );
             if (!completionResult || !completionResult.suggestions) {
               return completionResult;
             }
@@ -318,7 +342,9 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
             const defaultInsertTextRules = languages.CompletionItemInsertTextRule.InsertAsSnippet;
             const suggestions = completionResult.suggestions.map(suggestion => {
               return Object.assign(suggestion, {
-                insertTextRules: suggestion.insertTextRules ? suggestion.insertTextRules : defaultInsertTextRules,
+                insertTextRules: suggestion.insertTextRules
+                  ? suggestion.insertTextRules
+                  : defaultInsertTextRules,
                 sortText: createSortText(suggestion.insertText),
               });
             });
@@ -326,7 +352,8 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
           });
       },
       async resolveCompletionItem(model, range, item) {
-        return (yamlService as any).doResolve(m2p.asCompletionItem(item))
+        return (yamlService as any)
+          .doResolve(m2p.asCompletionItem(item))
           .then((result: CompletionItem) => p2m.asCompletionItem(result as any, range));
       },
     } as any);
@@ -339,7 +366,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
       async provideHover(model: editor.ITextModel, position: Position) {
         const hover = await yamlService.doHover(
           createDocument(model),
-          m2p.asPosition(position.lineNumber, position.column)
+          m2p.asPosition(position.lineNumber, position.column),
         );
         return p2m.asHover(hover);
       },
@@ -385,12 +412,7 @@ const mapStateToProps = (state: AppState) => ({
   plugins: selectPlugins(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  null,
-  null,
-  { forwardRef: true },
-);
+const connector = connect(mapStateToProps, null, null, { forwardRef: true });
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(DevfileEditor);

@@ -14,7 +14,6 @@ import { IDevWorkspaceTemplate } from '../devworkspace-client';
 import { V1alpha2DevWorkspace } from '@devfile/api';
 
 declare namespace restParams {
-
   export interface INamespacedParam {
     namespace: string;
   }

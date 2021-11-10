@@ -16,7 +16,7 @@ import { prefix } from './const';
 
 export async function fetchClusterInfo(): Promise<ApplicationInfo> {
   try {
-    const response = await axios.get(`${prefix}/cluster-info`,);
+    const response = await axios.get(`${prefix}/cluster-info`);
     return response.data;
   } catch (e) {
     throw `Failed to fetch cluster information. ${common.helpers.errors.getMessage(e)}`;

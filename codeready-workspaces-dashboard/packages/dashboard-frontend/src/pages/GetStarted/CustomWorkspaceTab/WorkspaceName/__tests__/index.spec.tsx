@@ -16,7 +16,6 @@ import { WorkspaceNameFormGroup } from '..';
 import { ValidatedOptions } from '@patternfly/react-core/dist/js/helpers/constants';
 
 describe('Workspace Name Input', () => {
-
   const mockOnChange = jest.fn();
   const mockOnValidated = jest.fn();
 
@@ -27,7 +26,7 @@ describe('Workspace Name Input', () => {
         name={name}
         onChange={mockOnChange}
         onValidated={mockOnValidated}
-      />
+      />,
     );
   }
 
@@ -67,12 +66,12 @@ describe('Workspace Name Input', () => {
     expect(input).toHaveValue('name');
 
     rerender(
-      (<WorkspaceNameFormGroup
-        generateName='prefix'
+      <WorkspaceNameFormGroup
+        generateName="prefix"
         name={'new-name'}
         onChange={mockOnChange}
         onValidated={mockOnValidated}
-      />)
+      />,
     );
 
     expect(input).toHaveValue('new-name');
@@ -151,7 +150,8 @@ describe('Workspace Name Input', () => {
 
     it('should handle pattern mismatch', () => {
       let label: HTMLElement | null;
-      const message = 'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
+      const message =
+        'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
 
       const allowedName = 'new-name';
 
@@ -159,7 +159,9 @@ describe('Workspace Name Input', () => {
       label = screen.queryByText(message);
       expect(label).toBeFalsy();
       expect(textbox).toBeValid();
-      expect(mockOnValidated).toHaveBeenCalledWith(expect.not.stringMatching(ValidatedOptions.error));
+      expect(mockOnValidated).toHaveBeenCalledWith(
+        expect.not.stringMatching(ValidatedOptions.error),
+      );
 
       const disallowedName1 = 'new*name';
 
@@ -185,7 +187,5 @@ describe('Workspace Name Input', () => {
       expect(textbox).toBeInvalid();
       expect(mockOnValidated).toHaveBeenCalledWith(ValidatedOptions.error);
     });
-
   });
-
 });

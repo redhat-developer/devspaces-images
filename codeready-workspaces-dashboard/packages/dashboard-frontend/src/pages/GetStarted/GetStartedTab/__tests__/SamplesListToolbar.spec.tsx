@@ -21,16 +21,13 @@ import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
 describe('Samples List Toolbar', () => {
-
   function renderToolbar(): RenderResult {
     // eslint-disable-next-line
     const store = createFakeStore(mockMetadata);
     return render(
       <Provider store={store}>
-        <SamplesListToolbar
-          persistVolumesDefault={'false'}
-          onTemporaryStorageChange={jest.fn()} />
-      </Provider>
+        <SamplesListToolbar persistVolumesDefault={'false'} onTemporaryStorageChange={jest.fn()} />
+      </Provider>,
     );
   }
 
@@ -57,9 +54,10 @@ describe('Samples List Toolbar', () => {
     fireEvent.change(filterInput, { target: { value: 'NodeJS Angular Web Application' } });
 
     expect(DevfileRegistriesStore.actionCreators.setFilter).toHaveBeenCalledTimes(1);
-    expect(DevfileRegistriesStore.actionCreators.setFilter).toHaveBeenCalledWith('NodeJS Angular Web Application');
+    expect(DevfileRegistriesStore.actionCreators.setFilter).toHaveBeenCalledWith(
+      'NodeJS Angular Web Application',
+    );
   });
-
 });
 
 function createFakeStore(metadata?: che.DevfileMetaData[]): Store {
@@ -72,10 +70,9 @@ function createFakeStore(metadata?: che.DevfileMetaData[]): Store {
   return new FakeStoreBuilder()
     .withBranding({
       docs: {
-        storageTypes: 'https://docs.location'
-      }
+        storageTypes: 'https://docs.location',
+      },
     } as BrandingData)
-    .withDevfileRegistries({ registries, })
+    .withDevfileRegistries({ registries })
     .build();
 }
-

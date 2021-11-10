@@ -141,7 +141,8 @@ exports[`Issue component should render the certification error 1`] = `
   >
     Your 
     Product Name
-     server may be using a self-signed certificate. To resolve this issue, try to import the servers CA certificate into your browser, as described 
+     server may be using a self-signed certificate. To resolve this issue, try to import the servers CA certificate into your browser, as described
+     
     <a
       href="certificate/troubleshooting/location"
       rel="noreferrer"

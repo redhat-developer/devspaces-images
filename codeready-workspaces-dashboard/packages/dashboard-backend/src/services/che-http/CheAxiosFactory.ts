@@ -39,7 +39,11 @@ export class CheAxiosFactory {
         };
         const parsedProxyUrl = new url.URL(proxyUrl);
         const mainProxyOptions = CheAxiosFactory.getMainProxyOptions(parsedProxyUrl);
-        const httpsProxyOptions = CheAxiosFactory.getHttpsProxyOptions(mainProxyOptions, parsedUrl.hostname, certificateAuthority);
+        const httpsProxyOptions = CheAxiosFactory.getHttpsProxyOptions(
+          mainProxyOptions,
+          parsedUrl.hostname,
+          certificateAuthority,
+        );
         const httpOverHttpAgent = tunnel.httpOverHttp({ proxy: mainProxyOptions });
         const httpOverHttpsAgent = tunnel.httpOverHttps({ proxy: httpsProxyOptions });
         const httpsOverHttpAgent = tunnel.httpsOverHttp({
@@ -75,7 +79,7 @@ export class CheAxiosFactory {
   private static getHttpsProxyOptions(
     mainProxyOptions: tunnel.ProxyOptions,
     servername: string | undefined,
-    certificateAuthority: Buffer[] | undefined
+    certificateAuthority: Buffer[] | undefined,
   ): tunnel.HttpsProxyOptions {
     return {
       host: mainProxyOptions.host,
@@ -90,11 +94,8 @@ export class CheAxiosFactory {
     const port = Number(parsedProxyUrl.port);
     const { username, password } = parsedProxyUrl;
     // 'user:pass' or simply 'user'
-    const proxyAuth = (username && password)
-      ? `${username}:${password}`
-      : username
-        ? username
-        : undefined;
+    const proxyAuth =
+      username && password ? `${username}:${password}` : username ? username : undefined;
     return {
       host: parsedProxyUrl.hostname,
       port: parsedProxyUrl.port !== '' && !isNaN(port) ? port : 3128,

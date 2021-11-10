@@ -28,7 +28,6 @@ export type IKeycloakUserInfo = {
  */
 @injectable()
 export class KeycloakAuthService {
-
   /* indicates that SSO enabled */
   static sso = false;
   /* keycloak instance */
@@ -42,11 +41,14 @@ export class KeycloakAuthService {
       return defer.promise;
     }
 
-    KeycloakAuthService.keycloak.loadUserInfo().success(userInfo => {
-      defer.resolve(userInfo as any);
-    }).error((error: any) => {
-      defer.reject(`User info fetching failed, error: ${error}`);
-    });
+    KeycloakAuthService.keycloak
+      .loadUserInfo()
+      .success(userInfo => {
+        defer.resolve(userInfo as any);
+      })
+      .error((error: any) => {
+        defer.reject(`User info fetching failed, error: ${error}`);
+      });
 
     return defer.promise;
   }
@@ -62,17 +64,20 @@ export class KeycloakAuthService {
     }
     try {
       return new Promise((resolve, reject) => {
-        keycloak.updateToken(minValidity).success((refreshed: boolean) => {
-          const header = 'Authorization';
-          if (refreshed || (config && !config.headers.common[header])) {
-            if (config) {
-              config.headers.common[header] = `Bearer ${keycloak.token}`;
+        keycloak
+          .updateToken(minValidity)
+          .success((refreshed: boolean) => {
+            const header = 'Authorization';
+            if (refreshed || (config && !config.headers.common[header])) {
+              if (config) {
+                config.headers.common[header] = `Bearer ${keycloak.token}`;
+              }
             }
-          }
-          resolve(keycloak.token);
-        }).error((error: any) => {
-          reject(new Error(error));
-        });
+            resolve(keycloak.token);
+          })
+          .error((error: any) => {
+            reject(new Error(error));
+          });
       });
     } catch (e) {
       window.sessionStorage.setItem('oidcDashboardRedirectUrl', window.location.href);
@@ -100,5 +105,4 @@ export class KeycloakAuthService {
       keycloak.logout({});
     }
   }
-
 }

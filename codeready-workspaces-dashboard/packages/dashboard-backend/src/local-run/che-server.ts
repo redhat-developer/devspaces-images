@@ -13,10 +13,12 @@
 import { FastifyInstance, FastifyRequest, RouteShorthandOptions } from 'fastify';
 import fastifyHttpProxy from 'fastify-http-proxy';
 
-export function registerCheApiProxy(server: FastifyInstance,
-                                    cheApiProxyUpstream: string,
-                                    origin: string,
-                                    clusterAccessToken?: string) {
+export function registerCheApiProxy(
+  server: FastifyInstance,
+  cheApiProxyUpstream: string,
+  origin: string,
+  clusterAccessToken?: string,
+) {
   console.log(`Dashboard proxies requests to Che Server API on ${cheApiProxyUpstream}/api.`);
   // server api
   server.register(fastifyHttpProxy, {
@@ -32,8 +34,8 @@ export function registerCheApiProxy(server: FastifyInstance,
         }
 
         return Object.assign({ ...headers }, { origin });
-      }
-    }
+      },
+    },
   });
   // stub OPTIONS requests to '/api/' since they fails when running the backend locally.
   server.addHook('onRequest', (request, reply, done) => {
@@ -48,12 +50,18 @@ export function registerCheApiProxy(server: FastifyInstance,
   // because the real proxy fails to some reason
   // but since che workspace and devworkspace are not expected to work at the same time
   // faking is an easier solution
-  server.get('/api/websocket', { websocket: true } as RouteShorthandOptions, (connection: FastifyRequest) => {
-    connection.socket.on('message', message => {
-      const data = JSON.parse(message);
-      if (data?.id && data?.jsonrpc) {
-        (connection.socket as any).send(JSON.stringify({ jsonrpc: data.jsonrpc, id: data.id, result: [] }));
-      }
-    });
-  });
+  server.get(
+    '/api/websocket',
+    { websocket: true } as RouteShorthandOptions,
+    (connection: FastifyRequest) => {
+      connection.socket.on('message', message => {
+        const data = JSON.parse(message);
+        if (data?.id && data?.jsonrpc) {
+          (connection.socket as any).send(
+            JSON.stringify({ jsonrpc: data.jsonrpc, id: data.id, result: [] }),
+          );
+        }
+      });
+    },
+  );
 }

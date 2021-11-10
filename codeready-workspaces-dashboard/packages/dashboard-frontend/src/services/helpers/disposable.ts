@@ -38,8 +38,7 @@ export class DisposableCollection implements Disposable {
         if (index !== -1) {
           disposables.splice(index, 1);
         }
-      }
+      },
     };
   }
-
 }

@@ -18,22 +18,28 @@ import * as store from '..';
 import { selectApplications, selectApplicationsError } from '../selectors';
 
 describe('External applications', () => {
-
   it('should return applications error', () => {
     const fakeStore = new FakeStoreBuilder()
       .withApplications(
-        [{
-          title: 'App1',
-          url: 'my/app/1',
-          icon: 'my/app/1/logo'
-        }, {
-          title: 'App2',
-          url: 'my/app/2',
-          icon: 'my/app/2/logo'
-        }],
+        [
+          {
+            title: 'App1',
+            url: 'my/app/1',
+            icon: 'my/app/1/logo',
+          },
+          {
+            title: 'App2',
+            url: 'my/app/2',
+            icon: 'my/app/2/logo',
+          },
+        ],
         false,
-        'Something unexpected'
-      ).build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, store.KnownAction>>;
+        'Something unexpected',
+      )
+      .build() as MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, store.KnownAction>
+    >;
     const state = fakeStore.getState();
 
     const selectedError = selectApplicationsError(state);
@@ -43,32 +49,39 @@ describe('External applications', () => {
   it('should return all applications', () => {
     const fakeStore = new FakeStoreBuilder()
       .withApplications(
-        [{
-          title: 'App1',
-          url: 'my/app/1',
-          icon: 'my/app/1/logo'
-        }, {
-          title: 'App2',
-          url: 'my/app/2',
-          icon: 'my/app/2/logo'
-        }],
+        [
+          {
+            title: 'App1',
+            url: 'my/app/1',
+            icon: 'my/app/1/logo',
+          },
+          {
+            title: 'App2',
+            url: 'my/app/2',
+            icon: 'my/app/2/logo',
+          },
+        ],
         false,
-        'Something unexpected'
-      ).build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, store.KnownAction>>;
+        'Something unexpected',
+      )
+      .build() as MockStoreEnhanced<
+      AppState,
+      ThunkDispatch<AppState, undefined, store.KnownAction>
+    >;
     const state = fakeStore.getState();
 
     const selectedApps = selectApplications(state);
-    expect(selectedApps).toEqual(
-      [{
+    expect(selectedApps).toEqual([
+      {
         title: 'App1',
         url: 'my/app/1',
-        icon: 'my/app/1/logo'
-      }, {
+        icon: 'my/app/1/logo',
+      },
+      {
         title: 'App2',
         url: 'my/app/2',
-        icon: 'my/app/2/logo'
-      }]
-    );
+        icon: 'my/app/2/logo',
+      },
+    ]);
   });
-
 });

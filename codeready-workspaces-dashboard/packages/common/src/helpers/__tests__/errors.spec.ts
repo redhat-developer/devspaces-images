@@ -19,7 +19,6 @@ import { getMessage, isError } from '../errors';
 const mockAxios = new AxiosMockAdapter(axios);
 
 describe('Errors helper', () => {
-
   // mute the outputs
   console.error = jest.fn();
 
@@ -29,14 +28,12 @@ describe('Errors helper', () => {
   });
 
   describe('Typeguards', () => {
-
     it('should check if error', () => {
       const message = 'Expected error.';
       const error = new Error(message);
       expect(isError(error)).toEqual(true);
       expect(isError(message)).toEqual(false);
     });
-
   });
 
   it('should return default message', () => {
@@ -57,20 +54,20 @@ describe('Errors helper', () => {
   it('should return default message and dump the provided object', () => {
     const notError = { alert: 'Beware of bugs!' };
 
-    const expectedMessage = 'Unexpected error. Check DevTools console and network tabs for more information.';
+    const expectedMessage =
+      'Unexpected error. Check DevTools console and network tabs for more information.';
     expect(getMessage(notError)).toEqual(expectedMessage);
 
-    const expectedOutput = ['Unexpected error:', { 'alert': 'Beware of bugs!' }];
+    const expectedOutput = ['Unexpected error:', { alert: 'Beware of bugs!' }];
     expect(console.error).toBeCalledWith(...expectedOutput);
   });
 
   describe('Frontend errors', () => {
-
-    it('should return error message if server responds with error', async (done) => {
+    it('should return error message if server responds with error', async done => {
       const message = '"500 Internal Server Error" returned by "/location/".';
 
       mockAxios.onGet('/location/').replyOnce(() => {
-        return [500, {}, {},];
+        return [500, {}, {}];
       });
 
       try {
@@ -79,18 +76,19 @@ describe('Errors helper', () => {
       } catch (e) {
         const err = e as AxiosError;
         // provide `statusText` to the response because mocking library cannot do that
-        (err.response as AxiosResponse<unknown>).statusText = 'Internal Server Error';
+        (err.response as AxiosResponse<unknown>).statusText =
+          'Internal Server Error';
 
         expect(getMessage(err)).toEqual(message);
         done();
       }
     });
 
-    it('should return error message if server responds with error', async (done) => {
+    it('should return error message if server responds with error', async done => {
       const message = 'The server failed to fulfill a request';
 
       mockAxios.onGet('/location/').replyOnce(() => {
-        return [500, { message }, {},];
+        return [500, { message }, {}];
       });
 
       try {
@@ -99,14 +97,15 @@ describe('Errors helper', () => {
       } catch (e) {
         const err = e as AxiosError;
         // provide `statusText` to the response because mocking library cannot do that
-        (err.response as AxiosResponse<unknown>).statusText = 'Internal Server Error';
+        (err.response as AxiosResponse<unknown>).statusText =
+          'Internal Server Error';
 
         expect(getMessage(err)).toEqual(message);
         done();
       }
     });
 
-    it('should return error message if network error', async (done) => {
+    it('should return error message if network error', async done => {
       const message = 'Network Error';
 
       mockAxios.onGet('/location/').networkErrorOnce();
@@ -120,7 +119,7 @@ describe('Errors helper', () => {
       }
     });
 
-    it('should return error message if network timeout', async (done) => {
+    it('should return error message if network timeout', async done => {
       const message = 'timeout of 0ms exceeded';
 
       mockAxios.onGet('/location/').timeoutOnce();
@@ -134,7 +133,7 @@ describe('Errors helper', () => {
       }
     });
 
-    it('should return error message if request aborted', async (done) => {
+    it('should return error message if request aborted', async done => {
       const message = 'Request aborted';
 
       mockAxios.onGet('/location/').abortRequestOnce();
@@ -147,17 +146,15 @@ describe('Errors helper', () => {
         done();
       }
     });
-
   });
 
   describe('Backend errors', () => {
-
     it('should return error message if no response available', () => {
       const error: HttpError = {
         name: 'HttpError',
         message: 'HttpError message',
         response: {
-          url: '/location/'
+          url: '/location/',
         } as http.IncomingMessage,
         body: 'No response available',
         statusCode: -1,
@@ -175,7 +172,7 @@ describe('Errors helper', () => {
         name: 'HttpError',
         message: 'HttpError message',
         response: {
-          url: '/location/'
+          url: '/location/',
         } as http.IncomingMessage,
         body: {
           message: expectedMessage,
@@ -191,7 +188,7 @@ describe('Errors helper', () => {
         name: 'HttpError',
         message: 'HttpError message',
         response: {
-          url: '/location/'
+          url: '/location/',
         } as http.IncomingMessage,
         body: expectedMessage,
         statusCode: 500,
@@ -205,7 +202,7 @@ describe('Errors helper', () => {
         name: 'HttpError',
         message: expectedMessage,
         response: {
-          url: '/location/'
+          url: '/location/',
         } as http.IncomingMessage,
         body: undefined,
         statusCode: 500,
@@ -214,15 +211,16 @@ describe('Errors helper', () => {
     });
 
     it('should return error message if `response.body.message` is present', () => {
-      const expectedMessage = 'Secrets "devworkspace-container-registry-dockercfg" already exist.';
+      const expectedMessage =
+        'Secrets "devworkspace-container-registry-dockercfg" already exist.';
       const error: HttpError = {
         name: 'HttpError',
         message: 'HttpError message',
         response: {
           url: '/location/',
           body: {
-            message: expectedMessage
-          }
+            message: expectedMessage,
+          },
         } as any,
         body: undefined,
         statusCode: 409,
@@ -236,7 +234,7 @@ describe('Errors helper', () => {
         name: 'HttpError',
         message: 'HttpError message',
         response: {
-          url: '/location/'
+          url: '/location/',
         } as http.IncomingMessage,
         body: 'Test message.',
         statusCode: 409,
@@ -250,7 +248,7 @@ describe('Errors helper', () => {
         name: 'HttpError',
         message: 'HttpError message',
         response: {
-          url: '/location/'
+          url: '/location/',
         } as http.IncomingMessage,
         body: {
           test: 'test',
@@ -259,8 +257,5 @@ describe('Errors helper', () => {
       };
       expect(getMessage(error)).toEqual(expectedMessage);
     });
-
   });
-
 });
-

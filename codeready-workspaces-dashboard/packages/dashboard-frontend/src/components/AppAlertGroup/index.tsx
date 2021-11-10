@@ -23,7 +23,6 @@ type State = {
 };
 
 class AppAlertGroup extends React.PureComponent<Props, State> {
-
   @lazyInject(AppAlerts)
   private readonly appAlerts: AppAlerts;
 
@@ -71,18 +70,26 @@ class AppAlertGroup extends React.PureComponent<Props, State> {
       this.appAlerts.removeAlert(key);
     }, this.getTime(variant));
     return (
-      <Alert variant={variant} title={title} key={key} actionClose={
-        <AlertActionCloseButton onClose={() => {
-          clearTimeout(showAlertTimer);
-          this.appAlerts.removeAlert(key);
-        }} />
-      } >{children ? children : ''}</Alert>);
+      <Alert
+        variant={variant}
+        title={title}
+        key={key}
+        actionClose={
+          <AlertActionCloseButton
+            onClose={() => {
+              clearTimeout(showAlertTimer);
+              this.appAlerts.removeAlert(key);
+            }}
+          />
+        }
+      >
+        {children ? children : ''}
+      </Alert>
+    );
   }
 
   public render(): React.ReactElement {
-    return (
-      <AlertGroup isToast>{this.state.alerts.map(alert => this.getAlert(alert))}</AlertGroup>
-    );
+    return <AlertGroup isToast>{this.state.alerts.map(alert => this.getAlert(alert))}</AlertGroup>;
   }
 }
 

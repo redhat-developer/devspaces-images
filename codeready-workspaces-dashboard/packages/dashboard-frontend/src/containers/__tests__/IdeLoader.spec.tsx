@@ -27,56 +27,71 @@ import { ActionCreators } from '../../store/Workspaces';
 import { Workspace } from '../../services/workspace-adapter';
 
 const showAlertMock = jest.fn();
+const hideAlertMock = jest.fn();
 const requestWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const setWorkspaceIdMock = jest.fn();
 const clearWorkspaceIdMock = jest.fn();
 
 jest.mock('../../store/Workspaces/index', () => {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   return {
     actionCreators: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      requestWorkspace: (workspace: Workspace): AppThunk<Action, Promise<void>> => async (): Promise<void> => { requestWorkspaceMock(); },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      startWorkspace: (workspace: Workspace): AppThunk<Action, Promise<void>> => async (): Promise<void> => { startWorkspaceMock(); },
+      requestWorkspace:
+        (workspace: Workspace): AppThunk<Action, Promise<void>> =>
+        async (): Promise<void> => {
+          requestWorkspaceMock();
+        },
+      startWorkspace:
+        (workspace: Workspace): AppThunk<Action, Promise<void>> =>
+        async (): Promise<void> => {
+          startWorkspaceMock();
+        },
       requestWorkspaces: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => {
         return Promise.resolve();
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      setWorkspaceId: (id: string): AppThunk<Action, void> => (): void => setWorkspaceIdMock(),
-      clearWorkspaceId: (): AppThunk<Action, void> => (): void => clearWorkspaceIdMock()
+      setWorkspaceId:
+        (id: string): AppThunk<Action, void> =>
+        (): void =>
+          setWorkspaceIdMock(),
+      clearWorkspaceId: (): AppThunk<Action, void> => (): void => clearWorkspaceIdMock(),
     } as ActionCreators,
   };
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 });
 
 jest.mock('../../pages/IdeLoader', () => {
   return function DummyWizard(props: {
-    hasError: boolean,
-    status: string | undefined,
-    currentStep: LoadIdeSteps,
+    hasError: boolean;
+    status: string | undefined;
+    currentStep: LoadIdeSteps;
     workspaceName: string;
     workspaceId: string;
     ideUrl?: string;
     callbacks?: {
-      showAlert?: (alertOptions: AlertOptions) => void
-    }
+      showAlert?: (alertOptions: AlertOptions) => void;
+      hideAlert?: () => void;
+    };
   }): React.ReactElement {
     if (props.callbacks) {
       props.callbacks.showAlert = showAlertMock;
+      props.callbacks.hideAlert = hideAlertMock;
     }
-    return (<div>Dummy Wizard
-      <div data-testid="ide-loader-has-error">{props.hasError.toString()}</div>
-      <div data-testid="ide-loader-current-step">{props.currentStep}</div>
-      <div data-testid="ide-loader-workspace-name">{props.workspaceName}</div>
-      <div data-testid="ide-loader-workspace-id">{props.workspaceId}</div>
-      <div data-testid="ide-loader-workspace-ide-url">{props.ideUrl}</div>
-      <div data-testid="ide-loader-workspace-status">{props.status}</div>
-    </div>);
+    return (
+      <div>
+        Dummy Wizard
+        <div data-testid="ide-loader-has-error">{props.hasError.toString()}</div>
+        <div data-testid="ide-loader-current-step">{props.currentStep}</div>
+        <div data-testid="ide-loader-workspace-name">{props.workspaceName}</div>
+        <div data-testid="ide-loader-workspace-id">{props.workspaceId}</div>
+        <div data-testid="ide-loader-workspace-ide-url">{props.ideUrl}</div>
+        <div data-testid="ide-loader-workspace-status">{props.status}</div>
+      </div>
+    );
   };
 });
 
 describe('IDE Loader container', () => {
-
   const runtime: che.WorkspaceRuntime = {
     machines: {
       'theia-ide-test': {
@@ -105,38 +120,24 @@ describe('IDE Loader container', () => {
     })
     .withCheWorkspaces({
       workspaces: [
-        createFakeCheWorkspace(
-          'id-wksp-1',
-          'name-wksp-1',
-          'admin1',
-        ),
+        createFakeCheWorkspace('id-wksp-1', 'name-wksp-1', 'admin1'),
         createFakeCheWorkspace(
           'id-wksp-2',
           'name-wksp-2',
           'admin2',
           WorkspaceStatus.RUNNING,
-          runtime
+          runtime,
         ),
-        createFakeCheWorkspace(
-          'id-wksp-3',
-          'name-wksp-3',
-          'admin3',
-          WorkspaceStatus.ERROR
-        ),
+        createFakeCheWorkspace('id-wksp-3', 'name-wksp-3', 'admin3', WorkspaceStatus.ERROR),
       ],
     })
     .build();
 
-  const renderComponent = (
-    namespace: string,
-    workspaceName: string,
-  ): RenderResult => {
+  const renderComponent = (namespace: string, workspaceName: string): RenderResult => {
     const props = getMockRouterProps(ROUTE.IDE_LOADER, { namespace, workspaceName });
     return render(
       <Provider store={store}>
-        <IdeLoaderContainer
-          {...props}
-        />
+        <IdeLoaderContainer {...props} />
       </Provider>,
     );
   };
@@ -149,41 +150,48 @@ describe('IDE Loader container', () => {
     const namespace = 'admin3';
     const workspaceName = 'name-wksp-46';
 
-    renderComponent(
-      namespace,
-      workspaceName,
-    );
+    renderComponent(namespace, workspaceName);
 
     expect(startWorkspaceMock).not.toBeCalled();
     expect(requestWorkspaceMock).not.toBeCalled();
 
-    await waitFor(() => expect(showAlertMock).toBeCalledWith(expect.objectContaining({
-      alertVariant: 'danger',
-      title: 'Failed to find the target workspace.'
-    })));
+    await waitFor(() =>
+      expect(showAlertMock).toBeCalledWith(
+        expect.objectContaining({
+          alertVariant: 'danger',
+          title: 'Failed to find the target workspace.',
+        }),
+      ),
+    );
 
     const elementHasError = screen.getByTestId('ide-loader-has-error');
     expect(elementHasError.innerHTML).toEqual('true');
 
-    const elementCurrentStep = screen.getByTestId('ide-loader-current-step');
-    expect(LoadIdeSteps[elementCurrentStep.innerHTML]).toEqual(LoadIdeSteps[LoadIdeSteps.INITIALIZING]);
+    const elementCurrentStep = Number.parseInt(
+      screen.getByTestId('ide-loader-current-step').innerHTML,
+      10,
+    );
+    expect(LoadIdeSteps[elementCurrentStep]).toEqual(LoadIdeSteps[LoadIdeSteps.INITIALIZING]);
   });
 
   it('error links are passed to alert when workspace start error is found', () => {
     const namespace = 'admin3';
     const workspaceName = 'name-wksp-3';
 
-    renderComponent(
-      namespace,
-      workspaceName,
-    );
+    renderComponent(namespace, workspaceName);
 
     expect(requestWorkspaceMock).toBeCalled();
     expect(startWorkspaceMock).not.toBeCalled();
 
-    expect(showAlertMock).toBeCalledTimes(1);
+    expect(showAlertMock).toBeCalled();
 
-    const errorAlerts = <React.Fragment><AlertActionLink onClick={() => jest.fn()}>Open in Verbose mode</AlertActionLink><AlertActionLink onClick={() => jest.fn()}>Open Logs</AlertActionLink></React.Fragment>;
+    const errorAlerts = (
+      <React.Fragment>
+        <AlertActionLink onClick={() => jest.fn()}>Restart</AlertActionLink>
+        <AlertActionLink onClick={() => jest.fn()}>Open in Verbose mode</AlertActionLink>
+        <AlertActionLink onClick={() => jest.fn()}>Open Logs</AlertActionLink>
+      </React.Fragment>
+    );
     const firstCalledArgs = showAlertMock.mock.calls[0][0];
     expect(firstCalledArgs.title).toEqual('Workspace name-wksp-3 failed to start');
     expect(firstCalledArgs.alertVariant).toEqual('danger');
@@ -194,8 +202,11 @@ describe('IDE Loader container', () => {
 
     expect(setWorkspaceIdMock).toBeCalled();
 
-    const elementCurrentStep = screen.getByTestId('ide-loader-current-step');
-    expect(LoadIdeSteps[elementCurrentStep.innerHTML]).toEqual(LoadIdeSteps[LoadIdeSteps.START_WORKSPACE]);
+    const elementCurrentStep = Number.parseInt(
+      screen.getByTestId('ide-loader-current-step').innerHTML,
+      10,
+    );
+    expect(LoadIdeSteps[elementCurrentStep]).toEqual(LoadIdeSteps[LoadIdeSteps.START_WORKSPACE]);
   });
 
   it('should have correct WORKSPACE START and waiting for the workspace runtime', async () => {
@@ -203,10 +214,7 @@ describe('IDE Loader container', () => {
     const workspaceId = 'id-wksp-1';
     const workspaceName = 'name-wksp-1';
 
-    renderComponent(
-      namespace,
-      workspaceName,
-    );
+    renderComponent(namespace, workspaceName);
 
     expect(requestWorkspaceMock).toBeCalled();
 
@@ -223,8 +231,11 @@ describe('IDE Loader container', () => {
     const elementWorkspaceName = screen.getByTestId('ide-loader-workspace-name');
     expect(elementWorkspaceName.innerHTML).toEqual(workspaceName);
 
-    const elementCurrentStep = screen.getByTestId('ide-loader-current-step');
-    expect(LoadIdeSteps[elementCurrentStep.innerHTML]).toEqual(LoadIdeSteps[LoadIdeSteps.START_WORKSPACE]);
+    const elementCurrentStep = Number.parseInt(
+      screen.getByTestId('ide-loader-current-step').innerHTML,
+      10,
+    );
+    expect(LoadIdeSteps[elementCurrentStep]).toEqual(LoadIdeSteps[LoadIdeSteps.START_WORKSPACE]);
 
     const elementIdeUrl = screen.getByTestId('ide-loader-workspace-ide-url');
     expect(elementIdeUrl.innerHTML).toEqual('');
@@ -235,10 +246,7 @@ describe('IDE Loader container', () => {
     const namespace = 'admin2';
     const workspaceName = 'name-wksp-2';
 
-    renderComponent(
-      namespace,
-      workspaceName,
-    );
+    renderComponent(namespace, workspaceName);
 
     expect(startWorkspaceMock).not.toBeCalled();
     expect(requestWorkspaceMock).not.toBeCalled();
@@ -249,8 +257,11 @@ describe('IDE Loader container', () => {
     const elementWorkspaceName = screen.getByTestId('ide-loader-workspace-name');
     expect(elementWorkspaceName.innerHTML).toEqual(workspaceName);
 
-    const elementCurrentStep = screen.getByTestId('ide-loader-current-step');
-    expect(LoadIdeSteps[elementCurrentStep.innerHTML]).toEqual(LoadIdeSteps[LoadIdeSteps.OPEN_IDE]);
+    const elementCurrentStep = Number.parseInt(
+      screen.getByTestId('ide-loader-current-step').innerHTML,
+      10,
+    );
+    expect(LoadIdeSteps[elementCurrentStep]).toEqual(LoadIdeSteps[LoadIdeSteps.OPEN_IDE]);
 
     const elementWorkspaceId = screen.getByTestId('ide-loader-workspace-id');
     expect(elementWorkspaceId.innerHTML).toEqual('');
@@ -258,5 +269,4 @@ describe('IDE Loader container', () => {
     const elementIdeUrl = screen.getByTestId('ide-loader-workspace-ide-url');
     expect(elementIdeUrl.innerHTML).toEqual(ideUrl);
   });
-
 });

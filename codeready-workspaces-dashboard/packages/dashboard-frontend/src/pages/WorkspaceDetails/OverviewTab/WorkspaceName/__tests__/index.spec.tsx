@@ -15,17 +15,10 @@ import { RenderResult, render, screen, fireEvent } from '@testing-library/react'
 import { WorkspaceNameFormGroup } from '..';
 
 describe('Overview Tab Workspace Name Input', () => {
-
   const mockOnSave = jest.fn();
 
   function renderInput(name: string): RenderResult {
-    return render(
-      <WorkspaceNameFormGroup
-        name={name}
-        readonly={false}
-        onSave={mockOnSave}
-      />
-    );
+    return render(<WorkspaceNameFormGroup name={name} readonly={false} onSave={mockOnSave} />);
   }
 
   afterEach(() => {
@@ -63,13 +56,7 @@ describe('Overview Tab Workspace Name Input', () => {
   });
 
   it('should make form readonly', () => {
-    render(
-      <WorkspaceNameFormGroup
-        name='wksp-name'
-        readonly={true}
-        onSave={mockOnSave}
-      />
-    );
+    render(<WorkspaceNameFormGroup name="wksp-name" readonly={true} onSave={mockOnSave} />);
 
     expect(screen.queryByTestId('overview-name-edit-toggle')).not.toBeInTheDocument();
   });
@@ -82,13 +69,7 @@ describe('Overview Tab Workspace Name Input', () => {
     const input = screen.getByRole('textbox');
     expect(input).toHaveValue('name');
 
-    rerender(
-      (<WorkspaceNameFormGroup
-        name={'new-name'}
-        readonly={false}
-        onSave={mockOnSave}
-      />)
-    );
+    rerender(<WorkspaceNameFormGroup name={'new-name'} readonly={false} onSave={mockOnSave} />);
 
     expect(input).toHaveValue('new-name');
   });
@@ -172,7 +153,8 @@ describe('Overview Tab Workspace Name Input', () => {
 
     it('should handle pattern mismatch', () => {
       let label: HTMLElement | null;
-      const message = 'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
+      const message =
+        'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
 
       const allowedName = 'new-name';
 
@@ -202,7 +184,5 @@ describe('Overview Tab Workspace Name Input', () => {
       expect(label).toBeTruthy();
       expect(textbox).toBeInvalid();
     });
-
   });
-
 });

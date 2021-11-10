@@ -24,13 +24,12 @@ const brandingData = {
 } as BrandingData;
 
 describe('Issue component', () => {
-
   it('should render the certification error', () => {
     const issue = {
       type: 'cert',
       error: new Error('Certificate Error Message'),
     } as Issue;
-    const component = (<IssueComponent branding={brandingData} issue={issue} />);
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
 
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
@@ -40,7 +39,7 @@ describe('Issue component', () => {
       type: 'sso',
       error: new Error('SSO Error Message'),
     } as Issue;
-    const component = (<IssueComponent branding={brandingData} issue={issue} />);
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
 
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
@@ -50,9 +49,8 @@ describe('Issue component', () => {
       type: 'unknown',
       error: new Error('Unknown Error Message'),
     } as Issue;
-    const component = (<IssueComponent branding={brandingData} issue={issue} />);
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
 
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
-
 });

@@ -36,12 +36,10 @@ import { selectBranding } from '../store/Branding/selectors';
 const THEME_KEY = 'theme';
 const IS_MANAGED_SIDEBAR = false;
 
-type Props =
-  MappedProps
-  & {
-    children: React.ReactNode;
-    history: History;
-  };
+type Props = MappedProps & {
+  children: React.ReactNode;
+  history: History;
+};
 type State = {
   isSidebarVisible: boolean;
   isHeaderVisible: boolean;
@@ -49,7 +47,6 @@ type State = {
 };
 
 export class Layout extends React.PureComponent<Props, State> {
-
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
 
@@ -61,7 +58,8 @@ export class Layout extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const theme: ThemeVariant = window.sessionStorage.getItem(THEME_KEY) as ThemeVariant || ThemeVariant.DARK;
+    const theme: ThemeVariant =
+      (window.sessionStorage.getItem(THEME_KEY) as ThemeVariant) || ThemeVariant.DARK;
 
     this.state = {
       isHeaderVisible: true,
@@ -123,9 +121,9 @@ export class Layout extends React.PureComponent<Props, State> {
           isSidebarVisible: true,
           isHeaderVisible: true,
         });
-      }
-      else if (event.data === 'hide-navbar') {
-        const isHeaderVisible = !this.testIdePath() || document.getElementById('ide-iframe') === null;
+      } else if (event.data === 'hide-navbar') {
+        const isHeaderVisible =
+          !this.testIdePath() || document.getElementById('ide-iframe') === null;
         this.setState({
           isSidebarVisible: false,
           isHeaderVisible,
@@ -153,10 +151,7 @@ export class Layout extends React.PureComponent<Props, State> {
       if (issue) {
         return (
           <ErrorReporter>
-            <IssueComponent
-              branding={brandingData}
-              issue={issue}
-            />
+            <IssueComponent branding={brandingData} issue={issue} />
           </ErrorReporter>
         );
       }
@@ -198,7 +193,6 @@ export class Layout extends React.PureComponent<Props, State> {
       </Page>
     );
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -206,9 +200,7 @@ const mapStateToProps = (state: AppState) => ({
   user: selectUser(state),
 });
 
-const connector = connect(
-  mapStateToProps
-);
+const connector = connect(mapStateToProps);
 
-type MappedProps = ConnectedProps<typeof connector>
+type MappedProps = ConnectedProps<typeof connector>;
 export default connector(Layout);

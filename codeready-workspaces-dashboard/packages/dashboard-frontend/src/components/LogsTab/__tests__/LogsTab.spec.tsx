@@ -16,7 +16,10 @@ import renderer, { ReactTestRenderer } from 'react-test-renderer';
 import { Store } from 'redux';
 import LogsTab from '..';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import { createFakeCheWorkspace, createFakeWorkspaceLogs } from '../../../store/__mocks__/workspace';
+import {
+  createFakeCheWorkspace,
+  createFakeWorkspaceLogs,
+} from '../../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../../services/helpers/types';
 
 jest.mock('../../../services/helpers/tools', () => {
@@ -38,9 +41,11 @@ describe('The LogsTab component', () => {
 
   it('should render empty state widget correctly', () => {
     const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
     const component = renderComponent(store, workspaceId);
 
@@ -48,11 +53,19 @@ describe('The LogsTab component', () => {
   });
 
   it('should render workspace-logs widget without logs correctly', () => {
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName, namespace, status, runtime);
+    const workspace = createFakeCheWorkspace(
+      workspaceId,
+      workspaceName,
+      namespace,
+      status,
+      runtime,
+    );
 
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-    }).build();
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+      })
+      .build();
 
     const component = renderComponent(store, workspaceId);
 
@@ -60,17 +73,25 @@ describe('The LogsTab component', () => {
   });
 
   it('should render workspace-logs widget with logs inside correctly', () => {
-    const workspace = createFakeCheWorkspace(workspaceId, workspaceName, namespace, status, runtime);
+    const workspace = createFakeCheWorkspace(
+      workspaceId,
+      workspaceName,
+      namespace,
+      status,
+      runtime,
+    );
     const workspacesLogs = createFakeWorkspaceLogs(workspaceId, [
       'Pulling image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
       'Successfully pulled image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"',
       'Created container remote-runtime-injectorvpj',
       'Started container remote-runtime-injectorvpj',
     ]);
-    const store = new FakeStoreBuilder().withCheWorkspaces({
-      workspaces: [workspace],
-      workspacesLogs: workspacesLogs
-    }).build();
+    const store = new FakeStoreBuilder()
+      .withCheWorkspaces({
+        workspaces: [workspace],
+        workspacesLogs: workspacesLogs,
+      })
+      .build();
 
     const component = renderComponent(store, workspaceId);
 
@@ -78,16 +99,10 @@ describe('The LogsTab component', () => {
   });
 });
 
-function renderComponent(
-  store: Store,
-  workspaceId: string,
-): ReactTestRenderer {
+function renderComponent(store: Store, workspaceId: string): ReactTestRenderer {
   return renderer.create(
     <Provider store={store}>
-      <LogsTab
-        workspaceId={workspaceId}
-        isDevWorkspace
-      />
+      <LogsTab workspaceId={workspaceId} isDevWorkspace />
     </Provider>,
   );
 }

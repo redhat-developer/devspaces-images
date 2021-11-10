@@ -13,13 +13,19 @@
 import * as k8s from '@kubernetes/client-node';
 import { helpers } from '@eclipse-che/common';
 
-export async function findApi(apisApi: k8s.ApisApi, apiName: string, version?: string): Promise<boolean> {
+export async function findApi(
+  apisApi: k8s.ApisApi,
+  apiName: string,
+  version?: string,
+): Promise<boolean> {
   const resp = await apisApi.getAPIVersions();
   const groups = resp.body.groups;
   return groups.some((apiGroup: k8s.V1APIGroup) => {
     if (version) {
-      return apiGroup.name === apiName
-        && apiGroup.versions.some(versionGroup => versionGroup.version === version);
+      return (
+        apiGroup.name === apiName &&
+        apiGroup.versions.some(versionGroup => versionGroup.version === version)
+      );
     }
     return apiGroup.name === apiName;
   });
@@ -35,9 +41,18 @@ class DevWorkspaceClientError extends Error {
   }
 }
 
-export function createError(error: unknown, name: string, additionalMessage: string): DevWorkspaceClientError {
-  const statusCode: number = helpers.errors.isKubeClientError(error) && error.statusCode ? error.statusCode : 500;
+export function createError(
+  error: unknown,
+  name: string,
+  additionalMessage: string,
+): DevWorkspaceClientError {
+  const statusCode: number =
+    helpers.errors.isKubeClientError(error) && error.statusCode ? error.statusCode : 500;
   const originErrorMessage = helpers.errors.getMessage(error);
 
-  return new DevWorkspaceClientError(`${additionalMessage}: ${originErrorMessage}`, name, statusCode);
+  return new DevWorkspaceClientError(
+    `${additionalMessage}: ${originErrorMessage}`,
+    name,
+    statusCode,
+  );
 }

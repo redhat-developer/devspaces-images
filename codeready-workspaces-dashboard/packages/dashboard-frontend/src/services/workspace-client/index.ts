@@ -31,7 +31,7 @@ export abstract class WorkspaceClient {
   private readonly keycloakAuthService: KeycloakAuthService;
 
   constructor(private keycloakSetupService: KeycloakSetupService) {
-    // todo change this temporary solution after adding the proper method to workspace-client https://github.com/eclipse/che/issues/18311
+    // change this temporary solution after adding the proper method to workspace-client https://github.com/eclipse/che/issues/18311
     this.axios = (WorkspaceClientLib as any).createAxiosInstance({ loggingEnabled: false });
 
     this.keycloakSetupService.ready.then(() => {
@@ -44,13 +44,19 @@ export abstract class WorkspaceClient {
         return config;
       });
 
-      window.addEventListener('message', (event: MessageEvent) => {
-        if (typeof event.data === 'string' && event.data.startsWith('update-token:')) {
-          const receivedValue = parseInt(event.data.split(':')[1], 10);
-          const validityTime = Number.isNaN(receivedValue) ? VALIDITY_TIME : Math.ceil(receivedValue / 1000);
-          this.keycloakAuthService.updateToken(validityTime);
-        }
-      }, false);
+      window.addEventListener(
+        'message',
+        (event: MessageEvent) => {
+          if (typeof event.data === 'string' && event.data.startsWith('update-token:')) {
+            const receivedValue = parseInt(event.data.split(':')[1], 10);
+            const validityTime = Number.isNaN(receivedValue)
+              ? VALIDITY_TIME
+              : Math.ceil(receivedValue / 1000);
+            this.keycloakAuthService.updateToken(validityTime);
+          }
+        },
+        false,
+      );
     });
   }
 

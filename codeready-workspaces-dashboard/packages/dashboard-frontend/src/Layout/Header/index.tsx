@@ -12,10 +12,7 @@
 
 import { History } from 'history';
 import React from 'react';
-import {
-  Brand,
-  PageHeader,
-} from '@patternfly/react-core';
+import { Brand, PageHeader } from '@patternfly/react-core';
 import { User } from 'che';
 
 import HeaderTools from './Tools';
@@ -37,7 +34,6 @@ type State = {
 };
 
 export default class Header extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -59,7 +55,7 @@ export default class Header extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const logo = <Brand src={this.props.logoUrl} alt='Logo' />;
+    const logo = <Brand src={this.props.logoUrl} alt="Logo" />;
 
     const className = this.state.isVisible ? styles.headerShow : styles.headerHide;
 
@@ -81,5 +77,4 @@ export default class Header extends React.PureComponent<Props, State> {
       />
     );
   }
-
 }

@@ -11,7 +11,12 @@
  */
 
 import { Button, FormGroup, InputGroup, TextInput, ValidatedOptions } from '@patternfly/react-core';
-import { CheckIcon, ExclamationCircleIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
+import {
+  CheckIcon,
+  ExclamationCircleIcon,
+  PencilAltIcon,
+  TimesIcon,
+} from '@patternfly/react-icons';
 import React from 'react';
 
 import overviewStyles from '../index.module.css';
@@ -23,14 +28,15 @@ const PATTERN = `^(?:[a-zA-Z0-9][-_.a-zA-Z0-9]{1,${MAX_LENGTH - 2}}[a-zA-Z0-9])?
 const ERROR_REQUIRED_VALUE = 'A value is required.';
 const ERROR_MIN_LENGTH = `The name has to be at least ${MIN_LENGTH} characters long.`;
 const ERROR_MAX_LENGTH = `The name is too long. The maximum length is ${MAX_LENGTH} characters.`;
-const ERROR_PATTERN_MISMATCH = 'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
+const ERROR_PATTERN_MISMATCH =
+  'The name can contain digits, latin letters, underscores and it should not contain special characters like space, dollar, etc. It should start and end only with digit or latin letter.';
 
 type Props = {
   name: string;
   readonly: boolean;
   onSave: (name: string) => Promise<void>;
   onChange?: (name: string) => void;
-  callbacks?: { cancelChanges?: () => void }
+  callbacks?: { cancelChanges?: () => void };
 };
 
 type State = {
@@ -42,7 +48,6 @@ type State = {
 };
 
 export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -153,7 +158,8 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
   public render(): React.ReactElement {
     const { readonly } = this.props;
     const { name, errorMessage, validated, isEditMode } = this.state;
-    const isSaveButtonDisable = this.state.validated === ValidatedOptions.error || !this.state.hasChanges;
+    const isSaveButtonDisable =
+      this.state.validated === ValidatedOptions.error || !this.state.hasChanges;
     const fieldId = 'workspace-name';
 
     return (
@@ -165,12 +171,8 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
         helperTextInvalidIcon={<ExclamationCircleIcon />}
         validated={validated}
       >
-        {(readonly) && (
-          <span className={overviewStyles.readonly}>
-            {name}
-          </span>
-        )}
-        {(!readonly && !isEditMode) && (
+        {readonly && <span className={overviewStyles.readonly}>{name}</span>}
+        {!readonly && !isEditMode && (
           <span className={overviewStyles.editable}>
             {name}
             <Button
@@ -182,7 +184,7 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
             </Button>
           </span>
         )}
-        {(isEditMode) && (
+        {isEditMode && (
           <InputGroup className={workspaceNameStyles.nameInput}>
             <TextInput
               value={name}
@@ -217,5 +219,4 @@ export class WorkspaceNameFormGroup extends React.PureComponent<Props, State> {
       </FormGroup>
     );
   }
-
 }

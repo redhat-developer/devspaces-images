@@ -42,30 +42,14 @@ const items: RouteItem[] = [
 
 function Routes(): React.ReactElement {
   const routes = items.map(item => (
-    <Route exact
-      key={item.to}
-      path={item.to}
-      component={item.component}
-    />
+    <Route exact key={item.to} path={item.to} component={item.component} />
   ));
   return (
     <Switch>
-      <Route
-        key="simple-factory-url-1"
-        path="/http:\/\/*"
-        render={redirectToFactoryLoader}
-      />
-      <Route
-        key="simple-factory-url-2"
-        path="/https:\/\/*"
-        render={redirectToFactoryLoader}
-      />
+      <Route key="simple-factory-url-1" path="/http:\/\/*" render={redirectToFactoryLoader} />
+      <Route key="simple-factory-url-2" path="/https:\/\/*" render={redirectToFactoryLoader} />
       {...routes}
-      <Redirect
-        key="redirect-to-home"
-        path='*'
-        to='/'
-      />
+      <Redirect key="redirect-to-home" path="*" to="/" />
     </Switch>
   );
 }

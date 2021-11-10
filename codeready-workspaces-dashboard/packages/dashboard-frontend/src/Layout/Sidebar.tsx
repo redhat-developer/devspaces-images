@@ -25,7 +25,6 @@ type Props = {
 };
 
 export default class Sidebar extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     const { isNavOpen, history, theme } = this.props;
 
@@ -33,11 +32,8 @@ export default class Sidebar extends React.PureComponent<Props> {
       <PageSidebar
         isNavOpen={isNavOpen}
         theme={theme}
-        nav={
-          <Navigation history={history} theme={theme} />
-        }
+        nav={<Navigation history={history} theme={theme} />}
       />
     );
   }
-
 }

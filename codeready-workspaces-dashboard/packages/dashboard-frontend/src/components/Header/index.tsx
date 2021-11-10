@@ -18,7 +18,7 @@ import {
   PageSectionVariants,
   Text,
   TextContent,
-  TextVariants
+  TextVariants,
 } from '@patternfly/react-core';
 import WorkspaceStatusLabel from '../WorkspaceStatusLabel';
 
@@ -30,20 +30,15 @@ type Props = {
 };
 
 class Header extends React.PureComponent<Props> {
-
   public render(): React.ReactElement {
     const { title, status } = this.props;
 
     return (
       <PageSection variant={SECTION_THEME}>
         <Flex>
-          <FlexItem
-            alignSelf={{ default: 'alignSelfCenter' }}
-          >
+          <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
             <TextContent>
-              <Text component={TextVariants.h1}>
-                {title}
-              </Text>
+              <Text component={TextVariants.h1}>{title}</Text>
             </TextContent>
           </FlexItem>
           {status && (

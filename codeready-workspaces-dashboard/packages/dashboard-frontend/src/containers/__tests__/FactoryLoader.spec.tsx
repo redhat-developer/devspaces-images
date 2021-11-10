@@ -38,13 +38,14 @@ const clearWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
 jest.mock('../../store/Workspaces/index', () => {
   return {
     actionCreators: {
-      requestWorkspace: (id) => async (): Promise<void> => {
+      requestWorkspace: id => async (): Promise<void> => {
         requestWorkspaceMock(id);
       },
       startWorkspace: workspace => async (): Promise<void> => {
         startWorkspaceMock(workspace);
       },
-      createWorkspaceFromDevfile: (devfile, namespace, infrastructureNamespace, attributes) =>
+      createWorkspaceFromDevfile:
+        (devfile, namespace, infrastructureNamespace, attributes) =>
         async (): Promise<Workspace> => {
           createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
           jest.runOnlyPendingTimers();
@@ -54,7 +55,7 @@ jest.mock('../../store/Workspaces/index', () => {
             namespace,
             devfile,
             temporary: false,
-            status: 'STOPPED'
+            status: 'STOPPED',
           });
         },
       setWorkspaceId: (id: string) => async (): Promise<void> => {
@@ -63,9 +64,10 @@ jest.mock('../../store/Workspaces/index', () => {
       clearWorkspaceId: () => async (): Promise<void> => {
         clearWorkspaceIdMock();
       },
-      setWorkspaceQualifiedName: ( namespace: string, workspaceName: string) => async (): Promise<void> => {
-        setWorkspaceQualifiedName(namespace, workspaceName);
-      },
+      setWorkspaceQualifiedName:
+        (namespace: string, workspaceName: string) => async (): Promise<void> => {
+          setWorkspaceQualifiedName(namespace, workspaceName);
+        },
     },
   };
 });
@@ -73,47 +75,54 @@ jest.mock('../../store/Workspaces/index', () => {
 jest.mock('../../store/FactoryResolver', () => {
   return {
     actionCreators: {
-      requestFactoryResolver: (location: string, overrideParams?: {
-        [params: string]: string
-      }) => async (): Promise<void> => {
-        if (!overrideParams) {
-          requestFactoryResolverMock(location);
-        } else {
-          requestFactoryResolverMock(location, overrideParams);
-        }
-      }
-    }
+      requestFactoryResolver:
+        (
+          location: string,
+          overrideParams?: {
+            [params: string]: string;
+          },
+        ) =>
+        async (): Promise<void> => {
+          if (!overrideParams) {
+            requestFactoryResolverMock(location);
+          } else {
+            requestFactoryResolverMock(location, overrideParams);
+          }
+        },
+    },
   };
 });
 
 jest.mock('../../pages/FactoryLoader', () => {
   return function DummyWizard(props: {
-    hasError: boolean,
-    currentStep: LoadFactorySteps,
+    hasError: boolean;
+    currentStep: LoadFactorySteps;
     workspaceName: string;
     workspaceId: string;
     resolvedDevfileMessage?: string;
     callbacks?: {
-      showAlert?: (alertOptions: AlertOptions) => void
-    }
+      showAlert?: (alertOptions: AlertOptions) => void;
+    };
   }): React.ReactElement {
     if (props.callbacks) {
       props.callbacks.showAlert = showAlertMock;
     }
-    return (<div>Dummy Wizard
-      <div data-testid="factory-loader-has-error">{props.hasError.toString()}</div>
-      <div data-testid="factory-loader-current-step">{props.currentStep}</div>
-      <div data-testid="factory-loader-workspace-name">{props.workspaceName}</div>
-      <div data-testid="factory-loader-workspace-id">{props.workspaceId}</div>
-      <div data-testid="factory-loader-devfile-location-info">{props.resolvedDevfileMessage}</div>
-    </div>);
+    return (
+      <div>
+        Dummy Wizard
+        <div data-testid="factory-loader-has-error">{props.hasError.toString()}</div>
+        <div data-testid="factory-loader-current-step">{props.currentStep}</div>
+        <div data-testid="factory-loader-workspace-name">{props.workspaceName}</div>
+        <div data-testid="factory-loader-workspace-id">{props.workspaceId}</div>
+        <div data-testid="factory-loader-devfile-location-info">{props.resolvedDevfileMessage}</div>
+      </div>
+    );
   };
 });
 
 const namespace = 'che';
 
 describe('Factory Loader container', () => {
-
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -125,7 +134,6 @@ describe('Factory Loader container', () => {
   });
 
   describe('Use a devfile V1', () => {
-
     it('should resolve the factory, create and start a new workspace', async () => {
       const location = 'http://test-location';
       const workspace = createFakeCheWorkspace('wrksp-test-id', 'wrksp-test-name');
@@ -136,22 +144,37 @@ describe('Factory Loader container', () => {
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
 
       await waitFor(() => expect(clearWorkspaceIdMock).toHaveBeenCalled());
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(workspace.devfile, undefined, namespace, { stackName: location + '/' }));
-      expect(setWorkspaceQualifiedName).toHaveBeenCalledWith(namespace, workspace.devfile.metadata.name);
+        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
+          workspace.devfile,
+          undefined,
+          namespace,
+          { stackName: location + '/' },
+        ),
+      );
+      expect(setWorkspaceQualifiedName).toHaveBeenCalledWith(
+        namespace,
+        workspace.devfile.metadata.name,
+      );
 
       jest.runOnlyPendingTimers();
       expect(showAlertMock).not.toHaveBeenCalled();
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
       await waitFor(() => expect(startWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.START_WORKSPACE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.START_WORKSPACE],
+      );
     });
 
     it('should resolve the factory, create a new workspace and open IDE', async () => {
@@ -164,22 +187,36 @@ describe('Factory Loader container', () => {
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
 
       await waitFor(() => expect(clearWorkspaceIdMock).toHaveBeenCalled());
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(workspace.devfile, undefined, namespace, { stackName: location + '/' }));
-      expect(setWorkspaceQualifiedName).toHaveBeenCalledWith(namespace, workspace.devfile.metadata.name);
+        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
+          workspace.devfile,
+          undefined,
+          namespace,
+          { stackName: location + '/' },
+        ),
+      );
+      expect(setWorkspaceQualifiedName).toHaveBeenCalledWith(
+        namespace,
+        workspace.devfile.metadata.name,
+      );
 
       jest.runOnlyPendingTimers();
       expect(showAlertMock).toBeCalledWith({
         alertVariant: AlertVariant.warning,
-        title: 'You\'re starting an ephemeral workspace. All changes to the source code will be lost ' +
-          'when the workspace is stopped unless they are pushed to a remote code repository.'
+        title:
+          "You're starting an ephemeral workspace. All changes to the source code will be lost " +
+          'when the workspace is stopped unless they are pushed to a remote code repository.',
       });
       expect(setWorkspaceIdMock).toHaveBeenCalledWith(workspace.id);
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
@@ -187,7 +224,9 @@ describe('Factory Loader container', () => {
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.OPEN_IDE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.OPEN_IDE],
+      );
     });
 
     it('should resolve the factory, create a new workspace with param overriding', async () => {
@@ -196,14 +235,19 @@ describe('Factory Loader container', () => {
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(
-        location.split('&')[0], {
-        'override.metadata.generateName': 'testPrefix'
-      }));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0], {
+          'override.metadata.generateName': 'testPrefix',
+        }),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
@@ -213,9 +257,13 @@ describe('Factory Loader container', () => {
             metadata: {
               name: 'name-wksp-2',
             },
-            attributes: { persistVolumes: 'false' }
-          }, undefined, namespace,
-          { stackName: 'http://test-location/?override.metadata.generateName=testPrefix' }));
+            attributes: { persistVolumes: 'false' },
+          },
+          undefined,
+          namespace,
+          { stackName: 'http://test-location/?override.metadata.generateName=testPrefix' },
+        ),
+      );
     });
 
     it('should show a target error with "error_code=invalid_request"', () => {
@@ -225,13 +273,18 @@ describe('Factory Loader container', () => {
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.INITIALIZING]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.INITIALIZING],
+      );
 
-      expect(showAlertMock).toHaveBeenCalledWith(expect.objectContaining({
-        alertVariant: 'danger',
-        title: 'Could not resolve devfile from private repository because authentication request is missing a parameter,' +
-          ' contains an invalid parameter, includes a parameter more than once, or is otherwise invalid.',
-      }));
+      expect(showAlertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          alertVariant: 'danger',
+          title:
+            'Could not resolve devfile from private repository because authentication request is missing a parameter,' +
+            ' contains an invalid parameter, includes a parameter more than once, or is otherwise invalid.',
+        }),
+      );
     });
 
     it('should show a target error with "error_code=access_denied"', () => {
@@ -241,49 +294,76 @@ describe('Factory Loader container', () => {
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.INITIALIZING]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.INITIALIZING],
+      );
 
-      expect(showAlertMock).toHaveBeenCalledWith(expect.objectContaining({
-        alertVariant: 'danger',
-        title: 'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
-      }));
+      expect(showAlertMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          alertVariant: 'danger',
+          title:
+            'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
+        }),
+      );
     });
 
     it('should resolve the factory with "policies.create=peruser"', async () => {
       const location = 'http://test-location&policies.create=peruser';
-      const workspace = createFakeWorkspaceWithRuntimeV1('id-wksp-test', 'http://test-location/?policies.create=peruser');
+      const workspace = createFakeWorkspaceWithRuntimeV1(
+        'id-wksp-test',
+        'http://test-location/?policies.create=peruser',
+      );
       const workspaceAdapter = convertWorkspace(workspace);
 
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       expect(createWorkspaceFromDevfileMock).not.toHaveBeenCalled();
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.OPEN_IDE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.OPEN_IDE],
+      );
     });
 
     it('should resolve the factory with  the preferred storage type "persistent"', async () => {
       const location = 'http://test-location';
       const preferredStorageType = 'persistent';
-      const workspace = createFakeWorkspaceWithRuntimeV1('test-wksp-id', 'test-stack-name', 'test-wksp-name', {});
+      const workspace = createFakeWorkspaceWithRuntimeV1(
+        'test-wksp-id',
+        'test-stack-name',
+        'test-wksp-name',
+        {},
+      );
 
       renderComponentV1(location, workspace, preferredStorageType);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
@@ -293,22 +373,38 @@ describe('Factory Loader container', () => {
             metadata: {
               name: 'test-wksp-name',
             },
-          }, undefined, namespace, { stackName: location + '/' }));
+          },
+          undefined,
+          namespace,
+          { stackName: location + '/' },
+        ),
+      );
     });
 
     it('should resolve the factory with  the preferred storage type "ephemeral"', async () => {
       const location = 'http://test-location';
       const preferredStorageType = 'ephemeral';
-      const workspace = createFakeWorkspaceWithRuntimeV1('test-wksp-id', 'test-stack-name', 'test-wksp-name', {});
+      const workspace = createFakeWorkspaceWithRuntimeV1(
+        'test-wksp-id',
+        'test-stack-name',
+        'test-wksp-name',
+        {},
+      );
 
       renderComponentV1(location, workspace, preferredStorageType);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
@@ -317,22 +413,38 @@ describe('Factory Loader container', () => {
             attributes: {
               persistVolumes: 'false',
             },
-          }), undefined, namespace, { stackName: location + '/' }));
+          }),
+          undefined,
+          namespace,
+          { stackName: location + '/' },
+        ),
+      );
     });
 
     it('should resolve the factory with  the preferred storage type "async"', async () => {
       const location = 'http://test-location';
       const preferredStorageType = 'async';
-      const workspace = createFakeWorkspaceWithRuntimeV1('test-wksp-id', 'test-stack-name', 'test-wksp-name', {});
+      const workspace = createFakeWorkspaceWithRuntimeV1(
+        'test-wksp-id',
+        'test-stack-name',
+        'test-wksp-name',
+        {},
+      );
 
       renderComponentV1(location, workspace, preferredStorageType);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
       await waitFor(() =>
@@ -342,27 +454,38 @@ describe('Factory Loader container', () => {
               persistVolumes: 'false',
               asyncPersist: 'true',
             },
-          }), undefined, namespace, { stackName: location + '/' }));
+          }),
+          undefined,
+          namespace,
+          { stackName: location + '/' },
+        ),
+      );
     });
 
     it('should show an error if something wrong with Repository/Devfile URL', async () => {
-      const message = 'Repository/Devfile URL is missing. Please specify it via url query param: ' +
-        window.location.origin + window.location.pathname + '#/load-factory?url= .';
+      const message =
+        'Repository/Devfile URL is missing. Please specify it via url query param: ' +
+        window.location.origin +
+        window.location.pathname +
+        '#/load-factory?url= .';
       const workspace = createFakeWorkspaceWithRuntimeV1('id-wksp-test');
       renderComponentV1('', workspace);
 
       expect(requestFactoryResolverMock).not.toBeCalled();
-      await waitFor(() => expect(showAlertMock).toBeCalledWith({ alertVariant: AlertVariant.danger, title: message }));
+      await waitFor(() =>
+        expect(showAlertMock).toBeCalledWith({ alertVariant: AlertVariant.danger, title: message }),
+      );
       const elementHasError = screen.getByTestId('factory-loader-has-error');
       expect(elementHasError.innerHTML).toEqual('true');
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.CREATE_WORKSPACE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.CREATE_WORKSPACE],
+      );
     });
   });
 
   describe('Use a devfile V2', () => {
-
     it('should resolve the factory with create policie "peruser" and open existing workspace', async () => {
       const location = 'http://test-location&policies.create=peruser';
       const name = 'test-name';
@@ -374,11 +497,17 @@ describe('Factory Loader container', () => {
       renderComponentV2(location, devWorkspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
 
@@ -396,11 +525,17 @@ describe('Factory Loader container', () => {
       renderComponentV2(location, devWorkspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
-      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
 
       jest.runOnlyPendingTimers();
 
@@ -413,15 +548,22 @@ describe('Factory Loader container', () => {
               namespace: 'test',
               attributes: {
                 'dw.metadata.annotations': {
-                  'che.eclipse.org/devfile-source': safeDump({ factory: { params: 'url=http://test2-location&policies.create=peruser' } })
-                }
-              }
+                  'che.eclipse.org/devfile-source': safeDump({
+                    factory: { params: 'url=http://test2-location&policies.create=peruser' },
+                  }),
+                },
+              },
             },
             components: [],
-          }, undefined, undefined, {
-          factoryParams: 'url=http://test2-location&policies.create=peruser',
-          'policies.create': 'peruser'
-        }));
+          },
+          undefined,
+          undefined,
+          {
+            factoryParams: 'url=http://test2-location&policies.create=peruser',
+            'policies.create': 'peruser',
+          },
+        ),
+      );
     });
   });
 
@@ -435,26 +577,30 @@ describe('Factory Loader container', () => {
     renderComponentV2(location, devWorkspace);
 
     const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-    expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE]);
+    expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+    );
 
     jest.runOnlyPendingTimers();
-    await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]));
-    expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE]);
+    await waitFor(() =>
+      expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+    );
+    expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+    );
 
     jest.runOnlyPendingTimers();
 
     await waitFor(() => expect(createWorkspaceFromDevfileMock).toHaveBeenCalledTimes(1));
   });
-
 });
 
-function renderComponentV2(
-  url: string,
-  workspace: devfileApi.DevWorkspace,
-): RenderResult {
+function renderComponentV2(url: string, workspace: devfileApi.DevWorkspace): RenderResult {
   const wrks = convertWorkspace(workspace);
   (wrks.ref as devfileApi.DevWorkspace).metadata.annotations = {
-    'che.eclipse.org/devfile-source': safeDump({ factory: { params: 'url=http://test-location&policies.create=peruser' } })
+    'che.eclipse.org/devfile-source': safeDump({
+      factory: { params: 'url=http://test-location&policies.create=peruser' },
+    }),
   };
   const store = new FakeStoreBuilder()
     .withDevWorkspaces({
@@ -475,18 +621,16 @@ function renderComponentV2(
       location: url.split('&')[0],
       scm_info: {
         clone_url: 'http://github.com/clone-url',
-        scm_provider: 'github'
+        scm_provider: 'github',
       },
-      links: []
+      links: [],
     })
     .build();
   const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url });
 
   return render(
     <Provider store={store}>
-      <FactoryLoaderContainer
-        {...props}
-      />
+      <FactoryLoaderContainer {...props} />
     </Provider>,
   );
 }
@@ -494,9 +638,11 @@ function renderComponentV2(
 function renderComponentV1(
   url: string,
   workspace: che.Workspace,
-  preferredStorageType?: che.WorkspaceStorageType
+  preferredStorageType?: che.WorkspaceStorageType,
 ): RenderResult {
-  const settings = preferredStorageType ? { 'che.workspace.storage.preferred_type': preferredStorageType } : {};
+  const settings = preferredStorageType
+    ? { 'che.workspace.storage.preferred_type': preferredStorageType }
+    : {};
   const store = new FakeStoreBuilder()
     .withCheWorkspaces({
       workspaces: [workspace],
@@ -504,7 +650,7 @@ function renderComponentV1(
     .withWorkspaces({
       workspaceId: workspace.id,
       namespace: namespace,
-      workspaceName: workspace.devfile.metadata.name
+      workspaceName: workspace.devfile.metadata.name,
     })
     .withWorkspacesSettings(settings as che.WorkspaceSettings)
     .withFactoryResolver({
@@ -512,7 +658,7 @@ function renderComponentV1(
       source: 'devfile.yaml',
       devfile: workspace.devfile as api.che.workspace.devfile.Devfile,
       location: url.split('&')[0],
-      links: []
+      links: [],
     })
     .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
     .build();
@@ -520,9 +666,7 @@ function renderComponentV1(
 
   return render(
     <Provider store={store}>
-      <FactoryLoaderContainer
-        {...props}
-      />
+      <FactoryLoaderContainer {...props} />
     </Provider>,
   );
 }
@@ -531,7 +675,7 @@ function createFakeWorkspaceWithRuntimeV1(
   workspaceId: string,
   stackName = '',
   workspaceName = 'name-wksp-2',
-  attributes: che.WorkspaceDevfileAttributes = { persistVolumes: 'false' }
+  attributes: che.WorkspaceDevfileAttributes = { persistVolumes: 'false' },
 ): che.Workspace {
   const workspace = createFakeCheWorkspace(
     workspaceId,
@@ -558,13 +702,13 @@ function createFakeWorkspaceWithRuntimeV1(
       },
       status: WorkspaceStatus.RUNNING,
       activeEnv: 'default',
-    }
+    },
   );
   workspace.devfile.attributes = attributes;
   if (!workspace.attributes) {
     workspace.attributes = {
       infrastructureNamespace: '',
-      created: ''
+      created: '',
     };
   }
   workspace.attributes.stackName = stackName;

@@ -21,23 +21,24 @@ jest.mock('detect-browser/index.js', () => {
         name: 'chrome',
         version: '1.0.0',
         os: 'linux',
-        type: 'browser'
+        type: 'browser',
       };
-    }
+    },
   };
 });
 
 describe('About modal', () => {
-
   const closeModal = jest.fn();
-  const component = (<AboutModal
-    productName="Che"
-    serverVersion="0.0.1"
-    closeModal={closeModal}
-    isOpen={true}
-    logo="./"
-    username="test-user"
-  />);
+  const component = (
+    <AboutModal
+      productName="Che"
+      serverVersion="0.0.1"
+      closeModal={closeModal}
+      isOpen={true}
+      logo="./"
+      username="test-user"
+    />
+  );
 
   beforeEach(() => {
     jest.clearAllMocks();

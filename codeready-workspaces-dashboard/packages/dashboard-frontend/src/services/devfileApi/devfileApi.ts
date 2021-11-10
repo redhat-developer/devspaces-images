@@ -10,37 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export {
-  Devfile,
-  DevfileLike,
-} from './devfile';
+export { Devfile, DevfileLike } from './devfile';
 
-export {
-  DevfileMetadata,
-} from './devfile/metadata';
+export { DevfileMetadata } from './devfile/metadata';
 
-export {
-  DevWorkspace,
-  DevWorkspaceKind,
-  DevWorkspaceLike,
-} from './devWorkspace';
+export { DevWorkspace, DevWorkspaceKind, DevWorkspaceLike } from './devWorkspace';
 
-export {
-  DevWorkspaceSpec,
-} from './devWorkspace/spec';
+export { DevWorkspaceSpec } from './devWorkspace/spec';
 
-export {
-  DevWorkspaceMetadata,
-} from './devWorkspace/metadata';
+export { DevWorkspaceMetadata } from './devWorkspace/metadata';
 
-export {
-  DevWorkspaceTemplate,
-  DevWorkspaceTemplateLike,
-} from './devWorkspace/template';
+export { DevWorkspaceTemplate, DevWorkspaceTemplateLike } from './devWorkspace/template';
 
-export {
-  DevWorkspaceTemplateMetadata,
-} from './devWorkspace/template/metadata';
+export { DevWorkspaceTemplateMetadata } from './devWorkspace/template/metadata';
 
 export {
   V1alpha2DevWorkspaceStatus as DevWorkspaceStatus,

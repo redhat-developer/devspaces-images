@@ -12,17 +12,14 @@
 
 import { injectable } from 'inversify';
 
-export type IssueType = 'cert'
-  | 'sso'
-  | 'unknown';
+export type IssueType = 'cert' | 'sso' | 'unknown';
 export type Issue = {
   type: IssueType;
   error: Error;
-}
+};
 
 @injectable()
 export class IssuesReporterService {
-
   private issues: Issue[] = [];
 
   public get hasIssue(): boolean {
@@ -40,5 +37,4 @@ export class IssuesReporterService {
   public reportAllIssues(): Issue[] {
     return this.issues;
   }
-
 }

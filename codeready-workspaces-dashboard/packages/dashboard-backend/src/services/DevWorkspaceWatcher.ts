@@ -22,7 +22,12 @@ class DevWorkspaceWatcher {
   private token: string;
   private unsubscribeFunction: { abort: () => void } | undefined;
 
-  constructor(data: { token: string, namespace: string, resourceVersion: string, callbacks: IDevWorkspaceCallbacks }) {
+  constructor(data: {
+    token: string;
+    namespace: string;
+    resourceVersion: string;
+    callbacks: IDevWorkspaceCallbacks;
+  }) {
     this.callbacks = data.callbacks;
     this.namespace = data.namespace;
     this.resourceVersion = data.resourceVersion;
@@ -47,8 +52,12 @@ class DevWorkspaceWatcher {
       if (this.unsubscribeFunction) {
         await this.unsubscribe();
       }
-      const { devworkspaceApi } = await (this.dwClientProvider.getDWClient(this.token));
-      this.unsubscribeFunction = await devworkspaceApi.watchInNamespace(this.namespace, this.resourceVersion, this.callbacks);
+      const { devworkspaceApi } = await this.dwClientProvider.getDWClient(this.token);
+      this.unsubscribeFunction = await devworkspaceApi.watchInNamespace(
+        this.namespace,
+        this.resourceVersion,
+        this.callbacks,
+      );
     } catch (error) {
       this.callbacks.onError('Failed to watch devworkspace: ' + helpers.errors.getMessage(error));
       await this.unsubscribe();
@@ -64,7 +73,6 @@ class DevWorkspaceWatcher {
     }
     throw 'Error: There are no subscriptions.';
   }
-
 }
 
 export default DevWorkspaceWatcher;

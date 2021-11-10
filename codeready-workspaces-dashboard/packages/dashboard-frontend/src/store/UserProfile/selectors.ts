@@ -16,12 +16,6 @@ import { AppState } from '..';
 const selectState = (state: AppState) => state.userProfile;
 export const selectUserProfileState = selectState;
 
-export const selectUserProfile = createSelector(
-  selectState,
-  state => state.profile,
-);
+export const selectUserProfile = createSelector(selectState, state => state.profile);
 
-export const selectUserProfileError = createSelector(
-  selectState,
-  state => state.error,
-);
+export const selectUserProfileError = createSelector(selectState, state => state.error);

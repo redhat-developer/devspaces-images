@@ -11,8 +11,8 @@
  */
 
 export const CLUSTER_CONSOLE_URL = process.env['OPENSHIFT_CONSOLE_URL'] || '';
-export const CLUSTER_CONSOLE_TITLE = process.env['OPENSHIFT_CONSOLE_TITLE']
-  || 'OpenShift console';
-export const CLUSTER_CONSOLE_ICON = process.env['OPENSHIFT_CONSOLE_ICON']
-  || (CLUSTER_CONSOLE_URL ? CLUSTER_CONSOLE_URL + '/static/assets/redhat.svg' : '');
+export const CLUSTER_CONSOLE_TITLE = process.env['OPENSHIFT_CONSOLE_TITLE'] || 'OpenShift console';
+export const CLUSTER_CONSOLE_ICON =
+  process.env['OPENSHIFT_CONSOLE_ICON'] ||
+  (CLUSTER_CONSOLE_URL ? CLUSTER_CONSOLE_URL + '/static/assets/redhat.svg' : '');
 export const CLUSTER_CONSOLE_GROUP = process.env['OPENSHIFT_CONSOLE_GROUP'];

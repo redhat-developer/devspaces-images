@@ -10,7 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { devfileToDevWorkspace, devWorkspaceToDevfile, } from '../workspace-client/devworkspace/converters';
+import {
+  devfileToDevWorkspace,
+  devWorkspaceToDevfile,
+} from '../workspace-client/devworkspace/converters';
 import { attributesToType, typeToAttributes } from '../storageTypes';
 import { DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
 import { DEVWORKSPACE_NEXT_START_ANNOTATION } from '../workspace-client/devworkspace/devWorkspaceClient';
@@ -42,7 +45,9 @@ export interface Workspace {
   readonly isDevWorkspace: boolean;
 }
 
-export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace> implements Workspace {
+export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
+  implements Workspace
+{
   private workspace: T;
 
   constructor(workspace: T) {
@@ -65,7 +70,9 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     }
   }
 
-  static getStatus(workspace: che.Workspace | devfileApi.DevWorkspace): WorkspaceStatus | DevWorkspaceStatus {
+  static getStatus(
+    workspace: che.Workspace | devfileApi.DevWorkspace,
+  ): WorkspaceStatus | DevWorkspaceStatus {
     if (isCheWorkspace(workspace)) {
       return workspace.status as WorkspaceStatus;
     } else {
@@ -149,7 +156,9 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
       }
     } else {
       if (this.workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]) {
-        return new Date(this.workspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]).getTime();
+        return new Date(
+          this.workspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION],
+        ).getTime();
       }
     }
     return new Date().getTime();
@@ -161,42 +170,57 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
 
   get isStarting(): boolean {
     if (isCheWorkspace(this.workspace)) {
-      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STARTING;
+      return (this.workspace.status as WorkspaceStatus) === WorkspaceStatus.STARTING;
     } else {
-      return WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus === DevWorkspaceStatus.STARTING;
+      return (
+        (WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus) ===
+        DevWorkspaceStatus.STARTING
+      );
     }
   }
 
   get isStopped(): boolean {
     if (isCheWorkspace(this.workspace)) {
-      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STOPPED;
+      return (this.workspace.status as WorkspaceStatus) === WorkspaceStatus.STOPPED;
     } else {
-      return WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus === DevWorkspaceStatus.STOPPED;
+      return (
+        (WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus) ===
+        DevWorkspaceStatus.STOPPED
+      );
     }
   }
 
   get isStopping(): boolean {
     if (isCheWorkspace(this.workspace)) {
-      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.STOPPING;
+      return (this.workspace.status as WorkspaceStatus) === WorkspaceStatus.STOPPING;
     } else {
-      return WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus === DevWorkspaceStatus.STOPPING;
+      return (
+        (WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus) ===
+        DevWorkspaceStatus.STOPPING
+      );
     }
   }
 
   get isRunning(): boolean {
     if (isCheWorkspace(this.workspace)) {
-      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.RUNNING;
+      return (this.workspace.status as WorkspaceStatus) === WorkspaceStatus.RUNNING;
     } else {
-      return WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus === DevWorkspaceStatus.RUNNING;
+      return (
+        (WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus) ===
+        DevWorkspaceStatus.RUNNING
+      );
     }
   }
 
   get hasError(): boolean {
     if (isCheWorkspace(this.workspace)) {
-      return this.workspace.status as WorkspaceStatus === WorkspaceStatus.ERROR;
+      return (this.workspace.status as WorkspaceStatus) === WorkspaceStatus.ERROR;
     } else {
       const devWorkspaceStatus = WorkspaceAdapter.getStatus(this.workspace) as DevWorkspaceStatus;
-      return devWorkspaceStatus === DevWorkspaceStatus.FAILED || devWorkspaceStatus === DevWorkspaceStatus.FAILING;
+      return (
+        devWorkspaceStatus === DevWorkspaceStatus.FAILED ||
+        devWorkspaceStatus === DevWorkspaceStatus.FAILING
+      );
     }
   }
 
@@ -251,10 +275,17 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
 
   get devfile(): che.WorkspaceDevfile | devfileApi.Devfile {
     if (isCheWorkspace(this.workspace)) {
-      return this.workspace.devfile as T extends che.Workspace ? che.WorkspaceDevfile : devfileApi.Devfile;
+      return this.workspace.devfile as T extends che.Workspace
+        ? che.WorkspaceDevfile
+        : devfileApi.Devfile;
     } else {
-      if (this.workspace.metadata.annotations && this.workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
-        const devfile = devWorkspaceToDevfile(JSON.parse(this.workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]));
+      if (
+        this.workspace.metadata.annotations &&
+        this.workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]
+      ) {
+        const devfile = devWorkspaceToDevfile(
+          JSON.parse(this.workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION]),
+        );
         if (isDevfileV2(devfile)) {
           return devfile;
         }
@@ -274,7 +305,7 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         devfile as devfileApi.Devfile,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         this.workspace.spec.routingClass!,
-        this.workspace.spec.started
+        this.workspace.spec.started,
       );
       if (isDevWorkspace(converted)) {
         if (converted.spec.template.components === undefined) {
@@ -283,32 +314,40 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         converted.spec.template.components.push(...plugins);
         (this.workspace as devfileApi.DevWorkspace) = converted;
       } else {
-        console.error(`WorkspaceAdapter: the received devworkspace either has wrong "kind" (not ${devWorkspaceKind}) or lacks some of mandatory fields: `, converted);
-        throw new Error('Unexpected error happened. Please check the Console tab of Developer tools.');
+        console.error(
+          `WorkspaceAdapter: the received devworkspace either has wrong "kind" (not ${devWorkspaceKind}) or lacks some of mandatory fields: `,
+          converted,
+        );
+        throw new Error(
+          'Unexpected error happened. Please check the Console tab of Developer tools.',
+        );
       }
     }
   }
 
   get projects(): string[] {
     if (isCheWorkspace(this.workspace)) {
-      return (this.workspace.devfile.projects || [])
-        .map(project => project.name);
+      return (this.workspace.devfile.projects || []).map(project => project.name);
     } else {
-      return (this.workspace.spec.template.projects || [])
-        .map(project => project.name);
+      return (this.workspace.spec.template.projects || []).map(project => project.name);
     }
   }
-
 }
 
-export function convertWorkspace<T extends che.Workspace | devfileApi.DevWorkspace>(workspace: T): Workspace {
+export function convertWorkspace<T extends che.Workspace | devfileApi.DevWorkspace>(
+  workspace: T,
+): Workspace {
   return new WorkspaceAdapter(workspace);
 }
 
-export function isCheWorkspace(workspace: che.Workspace | devfileApi.DevWorkspace): workspace is che.Workspace {
-  return (workspace as che.Workspace).id !== undefined
-    && (workspace as che.Workspace).devfile !== undefined
-    && (workspace as che.Workspace).status !== undefined;
+export function isCheWorkspace(
+  workspace: che.Workspace | devfileApi.DevWorkspace,
+): workspace is che.Workspace {
+  return (
+    (workspace as che.Workspace).id !== undefined &&
+    (workspace as che.Workspace).devfile !== undefined &&
+    (workspace as che.Workspace).status !== undefined
+  );
 }
 
 export function isCheDevfile(devfile: Devfile): devfile is che.WorkspaceDevfile {

@@ -24,7 +24,7 @@ export function registerSwagger(server: FastifyInstance): void {
       info: {
         title: 'Che Dashboard Backend Swagger',
         description: 'Testing the Dashboard Backend API',
-        version: '0.1.0'
+        version: '0.1.0',
       },
       'x-express-openapi-validation-strict': false,
       components: {
@@ -32,9 +32,9 @@ export function registerSwagger(server: FastifyInstance): void {
           Authorization: {
             type: 'apiKey',
             name: 'Authorization',
-            in: 'header'
-          }
-        }
+            in: 'header',
+          },
+        },
       },
     },
     uiConfig: {
@@ -48,6 +48,6 @@ export function registerSwagger(server: FastifyInstance): void {
         delete schema?.headers?.properties?.authorization;
       }
       return schema;
-    }
+    },
   });
 }

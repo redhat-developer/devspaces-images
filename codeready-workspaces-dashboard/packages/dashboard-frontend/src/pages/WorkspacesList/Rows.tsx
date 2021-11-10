@@ -15,7 +15,11 @@ import { History } from 'history';
 import { IRow, SortByDirection } from '@patternfly/react-table';
 import WorkspaceIndicator from '../../components/Workspace/Indicator';
 import { formatDate, formatRelativeDate } from '../../services/helpers/date';
-import { buildDetailsLocation, toHref, buildIdeLoaderLocation } from '../../services/helpers/location';
+import {
+  buildDetailsLocation,
+  toHref,
+  buildIdeLoaderLocation,
+} from '../../services/helpers/location';
 import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import devfileApi from '../../services/devfileApi';
 import { DevWorkspaceStatus } from '../../services/helpers/types';
@@ -32,7 +36,7 @@ export function buildRows(
   toDelete: string[],
   filtered: string[],
   selected: string[],
-  sortBy: { index: number, direction: SortByDirection }
+  sortBy: { index: number; direction: SortByDirection },
 ): RowData[] {
   const rows: RowData[] = [];
   workspaces
@@ -62,7 +66,16 @@ export function buildRows(
       const linkToIde = toHref(history, locationToIde);
 
       try {
-        rows.push(buildRow(workspace, isSelected, isDeleted, linkToDetails, linkToIde, workspace.isDevWorkspace));
+        rows.push(
+          buildRow(
+            workspace,
+            isSelected,
+            isDeleted,
+            linkToDetails,
+            linkToIde,
+            workspace.isDevWorkspace,
+          ),
+        );
       } catch (e) {
         console.warn('Skip workspace: ', e);
       }
@@ -95,7 +108,7 @@ export function buildRow(
   }
 
   /* workspace status indicator */
-  const statusIndicator = (<WorkspaceIndicator status={workspace.status} />);
+  const statusIndicator = <WorkspaceIndicator status={workspace.status} />;
   /* workspace name */
   const details = (
     <span>
@@ -142,7 +155,11 @@ export function buildRow(
     open = 'deleting...';
   } else {
     if (isDevWorkspace) {
-      open = <a href={linkToIde} target={workspace.id} rel='noreferrer'>Open</a>;
+      open = (
+        <a href={linkToIde} target={workspace.id} rel="noreferrer">
+          Open
+        </a>
+      );
     } else {
       open = <a href={linkToIde}>Open</a>;
     }
@@ -156,16 +173,16 @@ export function buildRow(
       },
       {
         title: lastModifiedDate,
-        key: 'last-modified-time'
+        key: 'last-modified-time',
       },
       {
         title: projectsList,
-        key: 'projects-list'
+        key: 'projects-list',
       },
       {
         // Cell is visible only on Sm
         title: open,
-        key: 'open-ide-visible-sm'
+        key: 'open-ide-visible-sm',
       },
       {
         // Cell is hidden only on Sm

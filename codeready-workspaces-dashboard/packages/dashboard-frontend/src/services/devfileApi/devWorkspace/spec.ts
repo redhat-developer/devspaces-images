@@ -12,5 +12,5 @@
 
 import { V1alpha2DevWorkspaceSpec } from '@devfile/api';
 
-export type DevWorkspaceSpec = V1alpha2DevWorkspaceSpec
-  & Required<Pick<V1alpha2DevWorkspaceSpec, 'template'>>;
+export type DevWorkspaceSpec = V1alpha2DevWorkspaceSpec &
+  Required<Pick<V1alpha2DevWorkspaceSpec, 'template'>>;

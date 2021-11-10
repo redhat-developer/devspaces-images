@@ -18,11 +18,14 @@ import renderer from 'react-test-renderer';
 import { RegistryPasswordFormGroup } from '..';
 
 describe('Registry Password Input', () => {
-
   const mockOnChange = jest.fn();
 
   function getComponent(password: string): React.ReactElement {
-    return (<Form><RegistryPasswordFormGroup password={password} onChange={mockOnChange} /></Form>);
+    return (
+      <Form>
+        <RegistryPasswordFormGroup password={password} onChange={mockOnChange} />
+      </Form>
+    );
   }
 
   afterEach(() => {
@@ -56,7 +59,11 @@ describe('Registry Password Input', () => {
     const input = screen.getByTestId('registry-password-input');
     expect(input).toHaveValue('*test');
 
-    rerender(<Form><RegistryPasswordFormGroup password={'*testreg#'} onChange={mockOnChange} /></Form>);
+    rerender(
+      <Form>
+        <RegistryPasswordFormGroup password={'*testreg#'} onChange={mockOnChange} />
+      </Form>,
+    );
 
     expect(input).toHaveValue('*testreg#');
   });
@@ -77,7 +84,6 @@ describe('Registry Password Input', () => {
   });
 
   describe('validation', () => {
-
     it('should handle empty value', () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
@@ -118,5 +124,4 @@ describe('Registry Password Input', () => {
       expect(input).toBeInvalid();
     });
   });
-
 });

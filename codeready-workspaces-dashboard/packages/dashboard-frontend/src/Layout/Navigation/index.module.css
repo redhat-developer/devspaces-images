@@ -18,7 +18,7 @@
   white-space: nowrap;
 }
 
-.navItem [class*="nav__link"] {
+.navItem [class*='nav__link'] {
   padding-left: 45px;
 }
 
@@ -39,7 +39,7 @@
   color: inherit !important;
 }
 
-.navItem > div:not([class*="expanded"]) {
+.navItem > div:not([class*='expanded']) {
   display: none;
 }
 

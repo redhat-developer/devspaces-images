@@ -30,9 +30,11 @@ jest.mock('gravatar-url', () => {
 jest.mock('../../../../store/InfrastructureNamespaces', () => {
   return {
     actionCreators: {
-      requestNamespaces: (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> => async (): Promise<che.KubernetesNamespace[]> => {
-        return Promise.resolve([]);
-      }
+      requestNamespaces:
+        (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> =>
+        async (): Promise<che.KubernetesNamespace[]> => {
+          return Promise.resolve([]);
+        },
     } as InfrastructureNamespacesStore.ActionCreators,
   };
 });
@@ -54,11 +56,7 @@ describe('Page header tools', () => {
 
   const component = (
     <Provider store={store}>
-      <HeaderTools
-        history={history}
-        user={user}
-        logout={mockLogout}
-      />
+      <HeaderTools history={history} user={user} logout={mockLogout} />
     </Provider>
   );
 
@@ -69,7 +67,6 @@ describe('Page header tools', () => {
   it('should correctly render the component', () => {
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
-
 });
 
 function createStore(cheCliTool: string, name: string, email: string): Store {
@@ -78,15 +75,14 @@ function createStore(cheCliTool: string, name: string, email: string): Store {
       attributes: {
         preferred_username: name,
       },
-      email
+      email,
     } as api.che.user.Profile)
     .withBranding({
       configuration: {
-        cheCliTool
+        cheCliTool,
       },
       links: BRANDING_DEFAULT.links,
-      docs: {
-      },
+      docs: {},
     } as BrandingData)
     .build();
 }

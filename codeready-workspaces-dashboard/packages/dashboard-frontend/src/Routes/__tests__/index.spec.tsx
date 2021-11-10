@@ -32,32 +32,32 @@ import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
 
 jest.mock('../../pages/GetStarted', () => {
   return function GetStarted() {
-    return (<span>Quick Add</span>);
+    return <span>Quick Add</span>;
   };
 });
 jest.mock('../../containers/WorkspacesList.tsx', () => {
   return function WorkspacesList() {
-    return (<span>Workspaces List</span>);
+    return <span>Workspaces List</span>;
   };
 });
 jest.mock('../../containers/WorkspaceDetails', () => {
   return function WorkspaceDetails() {
-    return (<span>Workspace Details</span>);
+    return <span>Workspace Details</span>;
   };
 });
 jest.mock('../../containers/IdeLoader', () => {
   return function IdeLoader() {
-    return (<span>Ide Loader</span>);
+    return <span>Ide Loader</span>;
   };
 });
 jest.mock('../../pages/UserPreferences', () => {
   return function UserPreferences() {
-    return (<span>User Preferences</span>);
+    return <span>User Preferences</span>;
   };
 });
 jest.mock('../../pages/UserAccount', () => {
   return function UserPreferences() {
-    return (<span>User Account</span>);
+    return <span>User Account</span>;
   };
 });
 
@@ -65,12 +65,11 @@ let location: Location;
 jest.mock('../../containers/FactoryLoader', () => {
   return function FactoryLoader(props: RouteComponentProps) {
     location = props.location;
-    return (<span>Factory Loader</span>);
+    return <span>Factory Loader</span>;
   };
 });
 
 describe('Routes', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -89,7 +88,6 @@ describe('Routes', () => {
   }
 
   describe('Quick Add route', () => {
-
     it('should handle "/"', async () => {
       const path = ROUTE.HOME;
       render(getComponent(path));
@@ -125,11 +123,9 @@ describe('Routes', () => {
 
       expect(screen.queryByText('Quick Add')).toBeTruthy();
     });
-
   });
 
   describe('Workspaces List route', () => {
-
     it('should handle "/workspaces"', async () => {
       const location = buildWorkspacesLocation();
       render(getComponent(location));
@@ -138,19 +134,13 @@ describe('Routes', () => {
 
       expect(screen.queryByText('Workspaces List')).toBeTruthy();
     });
-
   });
 
   describe('Workspace Details route', () => {
-
     let workspace: Workspace;
 
     beforeEach(() => {
-      workspace = convertWorkspace(
-        new CheWorkspaceBuilder()
-          .withNamespace('namespace')
-          .build()
-      );
+      workspace = convertWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
     });
 
     it('should handle "/workspace/namespace/name"', async () => {
@@ -188,19 +178,13 @@ describe('Routes', () => {
 
       expect(screen.queryByText('Workspace Details')).toBeTruthy();
     });
-
   });
 
   describe('IDE Loader route', () => {
-
     let workspace: Workspace;
 
     beforeEach(() => {
-      workspace = convertWorkspace(
-        new CheWorkspaceBuilder()
-          .withNamespace('namespace')
-          .build()
-      );
+      workspace = convertWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
     });
 
     it('should handle "/ide/namespace/name"', async () => {
@@ -229,11 +213,9 @@ describe('Routes', () => {
 
       expect(screen.queryByText('Ide Loader')).toBeTruthy();
     });
-
   });
 
   describe('Factory Loader route', () => {
-
     it('should handle "/factory-loader?url=http://example.com"', async () => {
       const factoryUrl = 'http://example.com/factory';
       const location = buildFactoryLoaderLocation(factoryUrl);
@@ -245,12 +227,13 @@ describe('Routes', () => {
     });
 
     describe('redirection', () => {
-
       it('should handle an unsecured factory link without params', async () => {
         const factoryUrl = 'http://example.com/factory';
         render(getComponent('/' + factoryUrl));
 
-        await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument(),
+        );
 
         expect(screen.queryByText('Factory Loader')).toBeTruthy();
 
@@ -262,7 +245,9 @@ describe('Routes', () => {
         const factoryUrl = 'https://example.com/factory';
         render(getComponent('/' + factoryUrl));
 
-        await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument(),
+        );
 
         expect(screen.queryByText('Factory Loader')).toBeTruthy();
 
@@ -274,7 +259,9 @@ describe('Routes', () => {
         const factoryUrl = 'http://example.com/factory?createPolicy=perUser';
         render(getComponent('/' + factoryUrl));
 
-        await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument(),
+        );
 
         expect(screen.queryByText('Factory Loader')).toBeTruthy();
 
@@ -287,7 +274,9 @@ describe('Routes', () => {
         const oauthParams = '&state=param1&session_state=param2&code=param3';
         render(getComponent('/' + factoryUrl + oauthParams));
 
-        await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument(),
+        );
 
         expect(screen.queryByText('Factory Loader')).toBeTruthy();
 
@@ -300,20 +289,19 @@ describe('Routes', () => {
         const oauthParams = '&state=param1&session_state=param2&code=param3';
         render(getComponent('/' + factoryUrl + oauthParams));
 
-        await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+        await waitFor(() =>
+          expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument(),
+        );
 
         expect(screen.queryByText('Factory Loader')).toBeTruthy();
 
         const locationSearchPart = `?url=${encodeURIComponent(factoryUrl)}`;
         expect(location.search).toEqual(locationSearchPart);
       });
-
     });
-
   });
 
   describe('User Preferences route', () => {
-
     it('should handle "/user-preferences"', async () => {
       const path = ROUTE.USER_PREFERENCES;
       render(getComponent(path));
@@ -322,11 +310,9 @@ describe('Routes', () => {
 
       expect(screen.queryByText('User Preferences')).toBeTruthy();
     });
-
   });
 
   describe('User Account route', () => {
-
     it('should handle "/user-account"', async () => {
       const path = ROUTE.USER_ACCOUNT;
       render(getComponent(path));
@@ -335,7 +321,5 @@ describe('Routes', () => {
 
       expect(screen.queryByText('User Account')).toBeTruthy();
     });
-
   });
-
 });

@@ -21,8 +21,8 @@ jest.mock('../../../UserPreferences', () => {
   return {
     actionCreators: {
       requestUserPreferences: () => (): Promise<void> => Promise.resolve(),
-      replaceUserPreferences: () => (): Promise<void> => Promise.resolve()
-    }
+      replaceUserPreferences: () => (): Promise<void> => Promise.resolve(),
+    },
   };
 });
 
@@ -30,34 +30,41 @@ jest.mock('../../../UserPreferences', () => {
 console.error = jest.fn();
 
 describe('cheDockerConfig store', () => {
-
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   describe('actions', () => {
-
     it('should create REQUEST_CHEWORKSPACE_CREDENTIALS and SET_CHEWORKSPACE_CREDENTIALS when requestCredentials', async () => {
       const store = new FakeStoreBuilder()
         .withUserPreferences({
-          dockerCredentials: 'eyJkdW1teS5pbyI6eyJwYXNzd29yZCI6IlhYWFhYWFhYWFhYWFhYWCIsInVzZXJuYW1lIjoidGVzdG5hbWUifX0='
+          dockerCredentials:
+            'eyJkdW1teS5pbyI6eyJwYXNzd29yZCI6IlhYWFhYWFhYWFhYWFhYWCIsInVzZXJuYW1lIjoidGVzdG5hbWUifX0=',
         })
-        .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, cheDockerConfigStore.KnownAction>>;
+        .build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, cheDockerConfigStore.KnownAction>
+      >;
 
       await store.dispatch(cheDockerConfigStore.actionCreators.requestCredentials());
 
       const actions = store.getActions();
 
-      const expectedActions: cheDockerConfigStore.KnownAction[] = [{
-        type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
-      }, {
-        type: 'SET_CHEWORKSPACE_CREDENTIALS',
-        registries: [{
-          password: 'XXXXXXXXXXXXXXX',
-          url: 'dummy.io',
-          username: 'testname'
-        }]
-      }];
+      const expectedActions: cheDockerConfigStore.KnownAction[] = [
+        {
+          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+        },
+        {
+          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+          registries: [
+            {
+              password: 'XXXXXXXXXXXXXXX',
+              url: 'dummy.io',
+              username: 'testname',
+            },
+          ],
+        },
+      ];
 
       expect(actions).toEqual(expectedActions);
     });
@@ -65,37 +72,49 @@ describe('cheDockerConfig store', () => {
     it('should create REQUEST_CHEWORKSPACE_CREDENTIALS and SET_CHEWORKSPACE_CREDENTIALS when updateCredentials', async () => {
       const store = new FakeStoreBuilder()
         .withUserPreferences({
-          dockerCredentials: 'eyJkdW1teS5pbyI6eyJwYXNzd29yZCI6IlhYWFhYWFhYWFhYWFhYWCIsInVzZXJuYW1lIjoidGVzdG5hbWUifX0='
+          dockerCredentials:
+            'eyJkdW1teS5pbyI6eyJwYXNzd29yZCI6IlhYWFhYWFhYWFhYWFhYWCIsInVzZXJuYW1lIjoidGVzdG5hbWUifX0=',
         })
-        .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, cheDockerConfigStore.KnownAction>>;
+        .build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, cheDockerConfigStore.KnownAction>
+      >;
 
-      await store.dispatch(cheDockerConfigStore.actionCreators.updateCredentials([{
-        password: 'YYYYYYYYYYYY',
-        url: 'dummy.io',
-        username: 'testname2'
-      }]));
+      await store.dispatch(
+        cheDockerConfigStore.actionCreators.updateCredentials([
+          {
+            password: 'YYYYYYYYYYYY',
+            url: 'dummy.io',
+            username: 'testname2',
+          },
+        ]),
+      );
 
       const actions = store.getActions();
 
-      const expectedActions: cheDockerConfigStore.KnownAction[] = [{
-        type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
-      }, {
-        type: 'SET_CHEWORKSPACE_CREDENTIALS',
-        registries: [{
-          password: 'YYYYYYYYYYYY',
-          url: 'dummy.io',
-          username: 'testname2'
-        }]
-      }];
+      const expectedActions: cheDockerConfigStore.KnownAction[] = [
+        {
+          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
+        },
+        {
+          type: 'SET_CHEWORKSPACE_CREDENTIALS',
+          registries: [
+            {
+              password: 'YYYYYYYYYYYY',
+              url: 'dummy.io',
+              username: 'testname2',
+            },
+          ],
+        },
+      ];
 
       expect(actions).toEqual(expectedActions);
     });
 
     describe('reducers', () => {
-
       it('should return initial state', () => {
         const incomingAction: cheDockerConfigStore.RequestCredentialsAction = {
-          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS'
+          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
         };
         const initialState = cheDockerConfigStore.reducer(undefined, incomingAction);
 
@@ -111,27 +130,31 @@ describe('cheDockerConfig store', () => {
       it('should return state if action type is not matched', () => {
         const initialState: cheDockerConfigStore.State = {
           isLoading: false,
-          registries: [{
-            password: 'YYYYYYYYYYYY',
-            url: 'dummy.io',
-            username: 'testname3'
-          }],
+          registries: [
+            {
+              password: 'YYYYYYYYYYYY',
+              url: 'dummy.io',
+              username: 'testname3',
+            },
+          ],
           error: undefined,
         } as cheDockerConfigStore.State;
         const incomingAction = {
           type: 'OTHER_ACTION',
           isLoading: true,
-          registries: []
+          registries: [],
         } as AnyAction;
         const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
 
         const expectedState: cheDockerConfigStore.State = {
           isLoading: false,
-          registries: [{
-            password: 'YYYYYYYYYYYY',
-            url: 'dummy.io',
-            username: 'testname3'
-          }],
+          registries: [
+            {
+              password: 'YYYYYYYYYYYY',
+              url: 'dummy.io',
+              username: 'testname3',
+            },
+          ],
           error: undefined,
         };
         expect(newState).toEqual(expectedState);
@@ -140,27 +163,31 @@ describe('cheDockerConfig store', () => {
       it('should handle REQUEST_CHEWORKSPACE_CREDENTIALS', () => {
         const initialState: cheDockerConfigStore.State = {
           isLoading: false,
-          registries: [{
-            password: '********',
-            url: 'dummy.io',
-            username: 'testname4'
-          }],
+          registries: [
+            {
+              password: '********',
+              url: 'dummy.io',
+              username: 'testname4',
+            },
+          ],
           error: undefined,
         };
         const incomingAction: cheDockerConfigStore.RequestCredentialsAction = {
-          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS'
+          type: 'REQUEST_CHEWORKSPACE_CREDENTIALS',
         };
 
         const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
 
         const expectedState: cheDockerConfigStore.State = {
           isLoading: true,
-          registries: [{
-            password: '********',
-            url: 'dummy.io',
-            username: 'testname4'
-          }],
-          error: undefined
+          registries: [
+            {
+              password: '********',
+              url: 'dummy.io',
+              username: 'testname4',
+            },
+          ],
+          error: undefined,
         };
 
         expect(newState).toEqual(expectedState);
@@ -169,16 +196,18 @@ describe('cheDockerConfig store', () => {
       it('should handle SET_CHEWORKSPACE_CREDENTIALS', () => {
         const initialState: cheDockerConfigStore.State = {
           isLoading: true,
-          registries: [{
-            password: '********',
-            url: 'dummy.io',
-            username: 'testname4'
-          }],
+          registries: [
+            {
+              password: '********',
+              url: 'dummy.io',
+              username: 'testname4',
+            },
+          ],
           error: undefined,
         };
         const incomingAction: cheDockerConfigStore.SetCredentialsAction = {
           type: 'SET_CHEWORKSPACE_CREDENTIALS',
-          registries: []
+          registries: [],
         };
 
         const newState = cheDockerConfigStore.reducer(initialState, incomingAction);
@@ -186,7 +215,7 @@ describe('cheDockerConfig store', () => {
         const expectedState: cheDockerConfigStore.State = {
           isLoading: false,
           registries: [],
-          error: undefined
+          error: undefined,
         };
 
         expect(newState).toEqual(expectedState);
@@ -197,7 +226,7 @@ describe('cheDockerConfig store', () => {
           isLoading: true,
           registries: [],
           resourceVersion: undefined,
-          error: undefined
+          error: undefined,
         };
         const incomingAction: cheDockerConfigStore.ReceiveErrorAction = {
           type: 'RECEIVE_CHEWORKSPACE_CREDENTIALS_ERROR',
@@ -210,7 +239,7 @@ describe('cheDockerConfig store', () => {
           isLoading: false,
           registries: [],
           resourceVersion: undefined,
-          error: 'unexpected error'
+          error: 'unexpected error',
         };
 
         expect(newState).toEqual(expectedState);

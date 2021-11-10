@@ -80,9 +80,7 @@ export class OverviewTab extends React.Component<Props, State> {
 
     return (
       <React.Fragment>
-        <PageSection
-          variant={PageSectionVariants.light}
-        >
+        <PageSection variant={PageSectionVariants.light}>
           <Form isHorizontal onSubmit={e => e.preventDefault()}>
             <WorkspaceNameFormGroup
               name={workspaceName}
@@ -111,7 +109,6 @@ export class OverviewTab extends React.Component<Props, State> {
     workspaceCopy.devfile = devfile;
     await this.props.onSave(workspaceCopy);
   }
-
 }
 
 export default OverviewTab;

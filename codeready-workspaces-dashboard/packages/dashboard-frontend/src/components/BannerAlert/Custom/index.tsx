@@ -20,7 +20,6 @@ import { selectBannerAlertMessages } from '../../../store/BannerAlert/selectors'
 type Props = MappedProps;
 
 class BannerAlertCustomWarning extends React.PureComponent<Props> {
-
   render() {
     const messages = this.props.bannerAlertMessages;
     if (messages.length === 0) {
@@ -31,27 +30,19 @@ class BannerAlertCustomWarning extends React.PureComponent<Props> {
       sanitizeHtml(message, {
         allowedTags: ['a'],
         allowedAttributes: {
-          'a': ['href', 'target']
+          a: ['href', 'target'],
         },
-        allowedSchemes: ['http', 'https']
-      })
+        allowedSchemes: ['http', 'https'],
+      }),
     );
 
-    const banners = sanitizedMessages.map(message =>
-      <Banner
-        key={message}
-        className="pf-u-text-align-center"
-        variant="warning"
-      >
+    const banners = sanitizedMessages.map(message => (
+      <Banner key={message} className="pf-u-text-align-center" variant="warning">
         <div dangerouslySetInnerHTML={{ __html: message }}></div>
       </Banner>
-    );
+    ));
 
-    return (
-      <>
-        {banners}
-      </>
-    );
+    return <>{banners}</>;
   }
 }
 

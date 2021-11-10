@@ -62,10 +62,14 @@ describe('ContainerRegistries', () => {
   });
 
   it('should correctly render the component which contains two registries', () => {
-    const component = getComponent(new FakeStoreBuilder().withCheDockerConfig([
-      new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('qwerty').build(),
-      new FakeRegistryBuilder().withUrl('https://tstreg.com').withPassword('123').build(),
-    ]).build());
+    const component = getComponent(
+      new FakeStoreBuilder()
+        .withCheDockerConfig([
+          new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('qwerty').build(),
+          new FakeRegistryBuilder().withUrl('https://tstreg.com').withPassword('123').build(),
+        ])
+        .build(),
+    );
     render(component);
 
     const addRegistryButton = screen.queryByTestId('add-button');
@@ -95,17 +99,23 @@ describe('ContainerRegistries', () => {
     expect(editButton).toBeEnabled();
 
     userEvent.click(editButton);
-    expect(mockUpdateCredentials).toBeCalledWith([{
-      url: 'http://tst',
-      username: '',
-      password: 'qwe',
-    }]);
+    expect(mockUpdateCredentials).toBeCalledWith([
+      {
+        url: 'http://tst',
+        username: '',
+        password: 'qwe',
+      },
+    ]);
   });
 
   it('should delete a registry', () => {
-    const component = getComponent(new FakeStoreBuilder().withCheDockerConfig([
-      new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('qwerty').build(),
-    ]).build());
+    const component = getComponent(
+      new FakeStoreBuilder()
+        .withCheDockerConfig([
+          new FakeRegistryBuilder().withUrl('http://test.reg').withPassword('qwerty').build(),
+        ])
+        .build(),
+    );
     render(component);
 
     const menuButton = screen.getByLabelText('Actions');
@@ -114,7 +124,7 @@ describe('ContainerRegistries', () => {
     const deleteItem = screen.getByRole('menuitem', { name: /Delete registry/i });
     userEvent.click(deleteItem);
 
-    const label = screen.queryByText('Would you like to delete registry \'http://test.reg\'?');
+    const label = screen.queryByText("Would you like to delete registry 'http://test.reg'?");
     expect(label).toBeTruthy();
 
     const deleteButton = screen.getByTestId('delete-button');
@@ -127,5 +137,4 @@ describe('ContainerRegistries', () => {
     userEvent.click(deleteButton);
     expect(mockUpdateCredentials).toBeCalledWith([]);
   });
-
 });

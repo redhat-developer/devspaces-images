@@ -42,18 +42,15 @@ export interface ReceivedAppInfoErrorAction {
   error: string;
 }
 
-export type KnownAction =
-  RequestAppInfoAction
-  | ReceiveAppInfoAction
-  | ReceivedAppInfoErrorAction;
+export type KnownAction = RequestAppInfoAction | ReceiveAppInfoAction | ReceivedAppInfoErrorAction;
 
 export type ActionCreators = {
   requestClusterInfo: () => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
-
-  requestClusterInfo: (): AppThunk<KnownAction, Promise<void>> =>
+  requestClusterInfo:
+    (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       dispatch({
         type: Type.REQUEST_APP_INFO,
@@ -66,7 +63,8 @@ export const actionCreators: ActionCreators = {
           appInfo,
         });
       } catch (e) {
-        const errorMessage = 'Failed to fetch cluster properties, reason: ' + common.helpers.errors.getMessage(e);
+        const errorMessage =
+          'Failed to fetch cluster properties, reason: ' + common.helpers.errors.getMessage(e);
         dispatch({
           type: Type.RECEIVE_APP_INFO_ERROR,
           error: errorMessage,
@@ -74,7 +72,6 @@ export const actionCreators: ActionCreators = {
         throw errorMessage;
       }
     },
-
 };
 
 const unloadedState: State = {
@@ -82,7 +79,10 @@ const unloadedState: State = {
   applications: [],
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }

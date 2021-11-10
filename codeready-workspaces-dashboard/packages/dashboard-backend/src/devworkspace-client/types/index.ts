@@ -30,57 +30,61 @@ export interface IDockerConfigApi {
 }
 
 export interface IDevWorkspaceApi {
-    /**
-     * Get the DevWorkspace with given namespace in the specified namespace
-     */
-    getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspace>;
+  /**
+   * Get the DevWorkspace with given namespace in the specified namespace
+   */
+  getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspace>;
 
-    /**
-     * Get list of devworkspaces in the given namespace
-     */
-    listInNamespace(namespace: string): Promise<IDevWorkspaceList>;
+  /**
+   * Get list of devworkspaces in the given namespace
+   */
+  listInNamespace(namespace: string): Promise<IDevWorkspaceList>;
 
-    /**
-     * Listen to all DevWorkspaces changes in the given namespace
-     * @param namespace namespace where to listen to DevWorkspaces changes
-     * @param resourceVersion special mark that all changes up to a given resourceVersion have already been sent
-     * @param callbacks callback will be invoked when change happens
-     */
-    watchInNamespace(namespace: string, resourceVersion: string, callbacks: IDevWorkspaceCallbacks): Promise<{ abort: () => void }>;
+  /**
+   * Listen to all DevWorkspaces changes in the given namespace
+   * @param namespace namespace where to listen to DevWorkspaces changes
+   * @param resourceVersion special mark that all changes up to a given resourceVersion have already been sent
+   * @param callbacks callback will be invoked when change happens
+   */
+  watchInNamespace(
+    namespace: string,
+    resourceVersion: string,
+    callbacks: IDevWorkspaceCallbacks,
+  ): Promise<{ abort: () => void }>;
 
-    /**
-     * Create a devworkspace based on the specified configuration.
-     */
-    create(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace>;
+  /**
+   * Create a devworkspace based on the specified configuration.
+   */
+  create(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace>;
 
-    /**
-     * Updates the DevWorkspace with the given configuration
-     */
-    update(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace>;
+  /**
+   * Updates the DevWorkspace with the given configuration
+   */
+  update(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace>;
 
-    /**
-     * Delete the DevWorkspace with given name in the specified namespace
-     */
-    delete(namespace: string, name: string): Promise<void>;
+  /**
+   * Delete the DevWorkspace with given name in the specified namespace
+   */
+  delete(namespace: string, name: string): Promise<void>;
 
-    /**
-     * Patches the DevWorkspace with given name in the specified namespace
-     */
-    patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace>;
+  /**
+   * Patches the DevWorkspace with given name in the specified namespace
+   */
+  patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace>;
 }
 
 export interface IDevWorkspaceTemplateApi {
-    listInNamespace(namespace: string): Promise<V1alpha2DevWorkspaceTemplate[]>;
-    getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspaceTemplate>;
-    delete(namespace: string, name: string): Promise<void>;
-    create(template: V1alpha2DevWorkspaceTemplate): Promise<V1alpha2DevWorkspaceTemplate>;
+  listInNamespace(namespace: string): Promise<V1alpha2DevWorkspaceTemplate[]>;
+  getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspaceTemplate>;
+  delete(namespace: string, name: string): Promise<void>;
+  create(template: V1alpha2DevWorkspaceTemplate): Promise<V1alpha2DevWorkspaceTemplate>;
 }
 
 export type IDevWorkspaceCallbacks = {
-    onModified: (workspace: V1alpha2DevWorkspace) => void;
-    onDeleted: (workspaceId: string) => void;
-    onAdded: (workspace: V1alpha2DevWorkspace) => void;
-    onError: (error: string) => void;
+  onModified: (workspace: V1alpha2DevWorkspace) => void;
+  onDeleted: (workspaceId: string) => void;
+  onAdded: (workspace: V1alpha2DevWorkspace) => void;
+  onError: (error: string) => void;
 };
 
 export interface IDevWorkspaceClient {
@@ -91,10 +95,10 @@ export interface IDevWorkspaceClient {
 }
 
 export interface IDevWorkspaceList {
-    apiVersion: string;
-    kind: string;
-    metadata: {
-        resourceVersion?: string;
-    };
-    items: V1alpha2DevWorkspace[];
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    resourceVersion?: string;
+  };
+  items: V1alpha2DevWorkspace[];
 }

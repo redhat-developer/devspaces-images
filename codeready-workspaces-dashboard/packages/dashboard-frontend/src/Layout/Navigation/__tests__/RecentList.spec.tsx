@@ -25,7 +25,7 @@ import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 
 jest.mock('react-tooltip', () => {
   return function DummyTooltip(): React.ReactElement {
-    return (<div>Dummy Tooltip</div>);
+    return <div>Dummy Tooltip</div>;
   };
 });
 
@@ -33,20 +33,16 @@ const cheWorkspaces = [1, 2, 3].map(i => createFakeCheWorkspace('wksp-' + i, 'wk
 const workspaces = cheWorkspaces.map(workspace => convertWorkspace(workspace));
 
 describe('Navigation Recent List', () => {
-
   function renderComponent(store: Store, workspaces: Workspace[]): RenderResult {
     const history = createHashHistory();
     return render(
       <Provider store={store}>
         <MemoryRouter>
-          <Nav
-            onSelect={() => jest.fn()}
-            theme="light"
-          >
+          <Nav onSelect={() => jest.fn()} theme="light">
             <NavigationRecentList workspaces={workspaces} activePath="" history={history} />
           </Nav>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
   }
 
@@ -79,14 +75,11 @@ describe('Navigation Recent List', () => {
     rerender(
       <Provider store={store}>
         <MemoryRouter>
-          <Nav
-            onSelect={() => jest.fn()}
-            theme="light"
-          >
+          <Nav onSelect={() => jest.fn()} theme="light">
             <NavigationRecentList workspaces={workspaces} activePath="" history={history} />
           </Nav>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     const itemLabels = screen.getAllByTestId('recent-workspace-item');
@@ -95,11 +88,8 @@ describe('Navigation Recent List', () => {
     expect(itemLabels[1]).toHaveTextContent('wksp-2');
     expect(itemLabels[2]).toHaveTextContent('wksp-1');
   });
-
 });
 
 function createFakeStore(): Store {
-  return new FakeStoreBuilder()
-    .withCheWorkspaces({ workspaces: cheWorkspaces })
-    .build();
+  return new FakeStoreBuilder().withCheWorkspaces({ workspaces: cheWorkspaces }).build();
 }

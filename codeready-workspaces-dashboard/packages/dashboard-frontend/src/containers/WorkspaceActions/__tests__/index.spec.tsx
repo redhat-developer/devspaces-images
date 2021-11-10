@@ -26,18 +26,20 @@ import { Workspace } from '../../../services/workspace-adapter';
 import { createHashHistory } from 'history';
 
 jest.mock('../../../store/Workspaces/index', () => {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   return {
     actionCreators: {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      deleteWorkspace: (workspace: Workspace): AppThunk<Action, Promise<void>> => async (): Promise<void> => {
-        return Promise.resolve();
-      },
+      deleteWorkspace:
+        (workspace: Workspace): AppThunk<Action, Promise<void>> =>
+        async (): Promise<void> => {
+          return Promise.resolve();
+        },
     } as ActionCreators,
   };
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 });
 
 describe('Workspace Actions', () => {
-
   const history = createHashHistory();
   const actionButtonName = 'action-button';
   const valueInputId = 'value-input';
@@ -45,7 +47,8 @@ describe('Workspace Actions', () => {
   const nonExistingWorkspaceId = 'non-existing-workspace';
 
   const mockOnAction = jest.fn((ctx: ActionContextType, action: WorkspaceAction, id: string) =>
-    ctx.handleAction(action, id));
+    ctx.handleAction(action, id),
+  );
   const mockOnCancel = jest.fn();
 
   window.console.warn = jest.fn();
@@ -55,21 +58,18 @@ describe('Workspace Actions', () => {
   });
 
   describe('using without context provider', () => {
-
     function renderComponent(action: WorkspaceAction): RenderResult {
       const store = createFakeStore();
       return render(
         <Provider store={store}>
           <WorkspaceActionsConsumer>
             {context => (
-              <button
-                onClick={() => mockOnAction(context, action, 'workspace-0')}
-              >
+              <button onClick={() => mockOnAction(context, action, 'workspace-0')}>
                 {actionButtonName}
               </button>
             )}
           </WorkspaceActionsConsumer>
-        </Provider>
+        </Provider>,
       );
     }
 
@@ -79,15 +79,11 @@ describe('Workspace Actions', () => {
       const actionButton = screen.getByRole('button');
       userEvent.click(actionButton);
 
-      expect(window.console.warn).toHaveBeenCalledWith(
-        expect.stringContaining('not created yet')
-      );
+      expect(window.console.warn).toHaveBeenCalledWith(expect.stringContaining('not created yet'));
     });
-
   });
 
   describe('using with context provider, handling actions', () => {
-
     function renderComponent(action: WorkspaceAction, id = defaultWorkspaceId) {
       const store = createFakeStore();
       render(
@@ -96,20 +92,15 @@ describe('Workspace Actions', () => {
             <WorkspaceActionsConsumer>
               {context => (
                 <>
-                  <button
-                    onClick={() => mockOnAction(context, action, id)}
-                  >
+                  <button onClick={() => mockOnAction(context, action, id)}>
                     {actionButtonName}
                   </button>
-                  <input
-                    data-testid={valueInputId}
-                    defaultValue={context.toDelete.join(',')}
-                  />
+                  <input data-testid={valueInputId} defaultValue={context.toDelete.join(',')} />
                 </>
               )}
             </WorkspaceActionsConsumer>
           </WorkspaceActionsProvider>
-        </Provider>
+        </Provider>,
       );
     }
 
@@ -120,7 +111,7 @@ describe('Workspace Actions', () => {
       userEvent.click(actionButton);
 
       expect(window.console.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/workspace not found/i)
+        expect.stringMatching(/workspace not found/i),
       );
     });
 
@@ -131,7 +122,7 @@ describe('Workspace Actions', () => {
       userEvent.click(actionButton);
 
       expect(window.console.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/unhandled action type/i)
+        expect.stringMatching(/unhandled action type/i),
       );
     });
 
@@ -153,14 +144,12 @@ describe('Workspace Actions', () => {
       userEvent.click(actionButton);
 
       expect(window.console.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/workspace.+?is being deleted/i)
+        expect.stringMatching(/workspace.+?is being deleted/i),
       );
     });
-
   });
 
   describe('using with context provider, confirmation dialog', () => {
-
     function renderComponent(action: WorkspaceAction, id = defaultWorkspaceId) {
       const store = createFakeStore();
       render(
@@ -170,23 +159,21 @@ describe('Workspace Actions', () => {
               {context => (
                 <>
                   <button
-                    onClick={
-                      () => context.showConfirmation([id])
+                    onClick={() =>
+                      context
+                        .showConfirmation([id])
                         .then(() => mockOnAction(context, action, id))
                         .catch(() => mockOnCancel())
                     }
                   >
                     {actionButtonName}
                   </button>
-                  <input
-                    data-testid={valueInputId}
-                    defaultValue={context.toDelete.join(',')}
-                  />
+                  <input data-testid={valueInputId} defaultValue={context.toDelete.join(',')} />
                 </>
               )}
             </WorkspaceActionsConsumer>
           </WorkspaceActionsProvider>
-        </Provider>
+        </Provider>,
       );
     }
 
@@ -196,7 +183,11 @@ describe('Workspace Actions', () => {
       const actionButton = screen.getByRole('button');
       userEvent.click(actionButton);
 
-      await waitFor(() => expect(screen.queryByRole('dialog', { name: /delete workspaces confirmation/i })).toBeTruthy());
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('dialog', { name: /delete workspaces confirmation/i }),
+        ).toBeTruthy(),
+      );
 
       const closeButton = screen.queryByRole('button', { name: 'Close' });
       expect(closeButton).toBeTruthy();
@@ -221,7 +212,11 @@ describe('Workspace Actions', () => {
       const actionButton = screen.getByRole('button');
       userEvent.click(actionButton);
 
-      await waitFor(() => expect(screen.queryByRole('dialog', { name: /delete workspaces confirmation/i })).toBeTruthy());
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('dialog', { name: /delete workspaces confirmation/i }),
+        ).toBeTruthy(),
+      );
 
       const closeButton = screen.getByRole('button', { name: 'Close' });
       userEvent.click(closeButton);
@@ -238,7 +233,11 @@ describe('Workspace Actions', () => {
       const actionButton = screen.getByRole('button');
       userEvent.click(actionButton);
 
-      await waitFor(() => expect(screen.queryByRole('dialog', { name: /delete workspaces confirmation/i })).toBeTruthy());
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('dialog', { name: /delete workspaces confirmation/i }),
+        ).toBeTruthy(),
+      );
 
       const cancelButton = screen.getByRole('button', { name: 'Cancel' });
       userEvent.click(cancelButton);
@@ -255,7 +254,11 @@ describe('Workspace Actions', () => {
       const actionButton = screen.getByRole('button');
       userEvent.click(actionButton);
 
-      await waitFor(() => expect(screen.queryByRole('dialog', { name: /delete workspaces confirmation/i })).toBeTruthy());
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('dialog', { name: /delete workspaces confirmation/i }),
+        ).toBeTruthy(),
+      );
 
       const confirmationCheckbox = screen.getByRole('checkbox', { name: /i understand/i });
       userEvent.click(confirmationCheckbox);
@@ -269,13 +272,13 @@ describe('Workspace Actions', () => {
       expect(mockOnCancel).not.toBeCalled();
       expect(mockOnAction).toBeCalled();
     });
-
   });
-
 });
 
 function createFakeStore(): Store {
-  const workspaces = [0, 1, 2, 3, 4].map(i => createFakeCheWorkspace('workspace-' + i, 'workspace-' + i));
+  const workspaces = [0, 1, 2, 3, 4].map(i =>
+    createFakeCheWorkspace('workspace-' + i, 'workspace-' + i),
+  );
   return new FakeStoreBuilder()
     .withCheWorkspaces({
       workspaces,

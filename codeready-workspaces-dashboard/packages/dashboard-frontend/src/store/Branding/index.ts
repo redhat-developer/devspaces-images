@@ -44,10 +44,7 @@ export interface ReceivedBrandingErrorAction {
   error: string;
 }
 
-type KnownAction =
-  RequestBrandingAction
-  | ReceivedBrandingAction
-  | ReceivedBrandingErrorAction;
+type KnownAction = RequestBrandingAction | ReceivedBrandingAction | ReceivedBrandingErrorAction;
 
 export type ActionCreators = {
   requestBranding: () => AppThunk<KnownAction, Promise<void>>;
@@ -56,8 +53,8 @@ export type ActionCreators = {
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 
 export const actionCreators: ActionCreators = {
-
-  requestBranding: (): AppThunk<KnownAction, Promise<void>> =>
+  requestBranding:
+    (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       const url = `${ASSET_PREFIX}product.json`;
 
@@ -74,7 +71,9 @@ export const actionCreators: ActionCreators = {
           data: branding,
         });
       } catch (e) {
-        const errorMessage = `Failed to fetch branding data by URL: "${url}", reason: ` + common.helpers.errors.getMessage(e);
+        const errorMessage =
+          `Failed to fetch branding data by URL: "${url}", reason: ` +
+          common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVED_BRANDING_ERROR',
           error: errorMessage,
@@ -93,7 +92,8 @@ export const actionCreators: ActionCreators = {
             data: branding,
           });
         } catch (e) {
-          const errorMessage = 'OPTIONS request to "/api/" failed, reason: ' + common.helpers.errors.getMessage(e);
+          const errorMessage =
+            'OPTIONS request to "/api/" failed, reason: ' + common.helpers.errors.getMessage(e);
           dispatch({
             type: 'RECEIVED_BRANDING_ERROR',
             error: errorMessage,
@@ -102,7 +102,6 @@ export const actionCreators: ActionCreators = {
         }
       }
     },
-
 };
 
 const unloadedState: State = {
@@ -110,7 +109,10 @@ const unloadedState: State = {
   data: getBrandingData(),
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }
@@ -140,8 +142,7 @@ export const reducer: Reducer<State> = (state: State | undefined, incomingAction
 async function getApiInfo(): Promise<{ implementationVersion: string }> {
   if (isSafari) {
     return (await axios.options('/api/')).data;
-  }
-  else {
+  } else {
     return cheWorkspaceClient.restApiClient.getApiInfo();
   }
 }

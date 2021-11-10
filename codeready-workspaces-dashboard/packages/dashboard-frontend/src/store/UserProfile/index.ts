@@ -41,7 +41,8 @@ interface ReceiveUserProfileErrorAction {
   error: string;
 }
 
-type KnownAction = RequestUserProfileAction
+type KnownAction =
+  | RequestUserProfileAction
   | ReceiveUserProfileAction
   | ReceiveUserProfileErrorAction;
 
@@ -50,24 +51,27 @@ export type ActionCreators = {
 };
 
 export const actionCreators: ActionCreators = {
-  requestUserProfile: (): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'REQUEST_USER_PROFILE' });
+  requestUserProfile:
+    (): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_USER_PROFILE' });
 
-    try {
-      const profile = await WorkspaceClient.restApiClient.getCurrentUserProfile();
-      dispatch({
-        type: 'RECEIVE_USER_PROFILE',
-        profile,
-      });
-    } catch (e) {
-      const errorMessage = 'Failed to fetch the user profile, reason: ' + common.helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_USER_PROFILE_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
-    }
-  },
+      try {
+        const profile = await WorkspaceClient.restApiClient.getCurrentUserProfile();
+        dispatch({
+          type: 'RECEIVE_USER_PROFILE',
+          profile,
+        });
+      } catch (e) {
+        const errorMessage =
+          'Failed to fetch the user profile, reason: ' + common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_USER_PROFILE_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 };
 
 const unloadedState: State = {
@@ -75,7 +79,10 @@ const unloadedState: State = {
   isLoading: false,
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }

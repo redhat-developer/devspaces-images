@@ -39,37 +39,39 @@ interface ReceiveNamespacesErrorAction {
   error: string;
 }
 
-type KnownAction = RequestNamespacesAction
-  | ReceiveNamespacesAction
-  | ReceiveNamespacesErrorAction;
+type KnownAction = RequestNamespacesAction | ReceiveNamespacesAction | ReceiveNamespacesErrorAction;
 
 export type ActionCreators = {
   requestNamespaces: () => AppThunk<KnownAction, Promise<Array<che.KubernetesNamespace>>>;
 };
 
 export const actionCreators: ActionCreators = {
+  requestNamespaces:
+    (): AppThunk<KnownAction, Promise<Array<che.KubernetesNamespace>>> =>
+    async (dispatch): Promise<Array<che.KubernetesNamespace>> => {
+      dispatch({ type: 'REQUEST_NAMESPACES' });
 
-  requestNamespaces: (): AppThunk<KnownAction, Promise<Array<che.KubernetesNamespace>>> => async (dispatch): Promise<Array<che.KubernetesNamespace>> => {
-    dispatch({ type: 'REQUEST_NAMESPACES' });
-
-    try {
-      await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
-      const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<Array<che.KubernetesNamespace>>();
-      dispatch({
-        type: 'RECEIVE_NAMESPACES',
-        namespaces,
-      });
-      return namespaces;
-    } catch (e) {
-      const errorMessage = 'Failed to fetch list of available kubernetes namespaces, reason: ' + common.helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_NAMESPACES_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
-    }
-  },
-
+      try {
+        await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
+        const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<
+          Array<che.KubernetesNamespace>
+        >();
+        dispatch({
+          type: 'RECEIVE_NAMESPACES',
+          namespaces,
+        });
+        return namespaces;
+      } catch (e) {
+        const errorMessage =
+          'Failed to fetch list of available kubernetes namespaces, reason: ' +
+          common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_NAMESPACES_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 };
 
 const unloadedState: State = {
@@ -77,7 +79,10 @@ const unloadedState: State = {
   namespaces: [],
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }

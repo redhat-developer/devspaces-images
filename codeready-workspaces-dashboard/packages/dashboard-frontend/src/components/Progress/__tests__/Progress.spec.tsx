@@ -15,11 +15,10 @@ import renderer, { ReactTestRendererJSON } from 'react-test-renderer';
 import CheProgress from '..';
 
 describe('Progress component', () => {
-
   it('should render progress without loading correctly', () => {
     const isLoading = false;
 
-    const component = (<CheProgress isLoading={isLoading} />);
+    const component = <CheProgress isLoading={isLoading} />;
 
     expect(getComponentSnapshot(component)).toMatchSnapshot();
   });
@@ -27,15 +26,14 @@ describe('Progress component', () => {
   it('should render progress with loading correctly', () => {
     const isLoading = true;
 
-    const component = (<CheProgress isLoading={isLoading} />);
+    const component = <CheProgress isLoading={isLoading} />;
 
     expect(getComponentSnapshot(component)).toMatchSnapshot();
   });
-
 });
 
 function getComponentSnapshot(
-  component: React.ReactElement
+  component: React.ReactElement,
 ): null | ReactTestRendererJSON | ReactTestRendererJSON[] {
   return renderer.create(component).toJSON();
 }

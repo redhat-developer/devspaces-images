@@ -16,21 +16,12 @@ import { AppState } from '../..';
 const selectState = (state: AppState) => state.devWorkspaces;
 export const selectDevWorkspacesState = selectState;
 
-export const selectDevWorkspacesResourceVersion = createSelector(
-  selectState,
-  state => {
-    return state.resourceVersion;
-  }
-);
+export const selectDevWorkspacesResourceVersion = createSelector(selectState, state => {
+  return state.resourceVersion;
+});
 
-export const selectAllDevWorkspaces = createSelector(
-  selectState,
-  state => {
-    return state.workspaces;
-  }
-);
+export const selectAllDevWorkspaces = createSelector(selectState, state => {
+  return state.workspaces;
+});
 
-export const selectDevWorkspacesError = createSelector(
-  selectState,
-  state => state.error,
-);
+export const selectDevWorkspacesError = createSelector(selectState, state => state.error);

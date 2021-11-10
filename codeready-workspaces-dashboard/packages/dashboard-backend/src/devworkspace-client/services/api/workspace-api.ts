@@ -11,12 +11,13 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
+import { IDevWorkspaceList, IDevWorkspaceApi, IDevWorkspaceCallbacks } from '../../types';
 import {
-  IDevWorkspaceList,
-  IDevWorkspaceApi,
-  IDevWorkspaceCallbacks,
-} from '../../types';
-import { devworkspaceGroup, devworkspaceLatestVersion, devworkspacePlural, V1alpha2DevWorkspace } from '@devfile/api';
+  devworkspaceGroup,
+  devworkspaceLatestVersion,
+  devworkspacePlural,
+  V1alpha2DevWorkspace,
+} from '@devfile/api';
 
 import { api } from '@eclipse-che/common';
 import { createError } from '../helpers';
@@ -38,7 +39,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         devworkspaceGroup,
         devworkspaceLatestVersion,
         namespace,
-        devworkspacePlural
+        devworkspacePlural,
       );
       return resp.body as IDevWorkspaceList;
     } catch (e) {
@@ -46,21 +47,22 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
     }
   }
 
-  async getByName(
-    namespace: string,
-    name: string
-  ): Promise<V1alpha2DevWorkspace> {
+  async getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspace> {
     try {
       const resp = await this.customObjectAPI.getNamespacedCustomObject(
         devworkspaceGroup,
         devworkspaceLatestVersion,
         namespace,
         devworkspacePlural,
-        name
+        name,
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
-      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, `Unable to get devworkspace ${namespace}/${name}`);
+      throw createError(
+        e,
+        DEV_WORKSPACE_API_ERROR_LABEL,
+        `Unable to get devworkspace ${namespace}/${name}`,
+      );
     }
   }
 
@@ -75,7 +77,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         devworkspaceLatestVersion,
         devworkspace.metadata.namespace,
         devworkspacePlural,
-        devworkspace
+        devworkspace,
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
@@ -109,7 +111,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         namespace,
         devworkspacePlural,
         name,
-        devworkspace
+        devworkspace,
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
@@ -124,24 +126,29 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         devworkspaceLatestVersion,
         namespace,
         devworkspacePlural,
-        name
+        name,
       );
     } catch (e) {
-      throw createError(e, DEV_WORKSPACE_API_ERROR_LABEL, `Unable to delete devworkspace ${namespace}/${name}`);
+      throw createError(
+        e,
+        DEV_WORKSPACE_API_ERROR_LABEL,
+        `Unable to delete devworkspace ${namespace}/${name}`,
+      );
     }
   }
 
   /**
    * Patch a DevWorkspace
    */
-  async patch(namespace: string, name: string, patches: api.IPatch[]): Promise<V1alpha2DevWorkspace> {
+  async patch(
+    namespace: string,
+    name: string,
+    patches: api.IPatch[],
+  ): Promise<V1alpha2DevWorkspace> {
     return this.createPatch(namespace, name, patches);
   }
 
-  private async createPatch(
-    namespace: string,
-    name: string,
-    patches: api.IPatch[]) {
+  private async createPatch(namespace: string, name: string, patches: api.IPatch[]) {
     try {
       const options = {
         headers: {
@@ -158,7 +165,7 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         undefined,
         undefined,
         undefined,
-        options
+        options,
       );
       return resp.body as V1alpha2DevWorkspace;
     } catch (e) {
@@ -166,42 +173,51 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
     }
   }
 
-  async watchInNamespace(namespace: string, resourceVersion: string, callbacks: IDevWorkspaceCallbacks): Promise<{ abort: () => void }> {
+  async watchInNamespace(
+    namespace: string,
+    resourceVersion: string,
+    callbacks: IDevWorkspaceCallbacks,
+  ): Promise<{ abort: () => void }> {
     const path = `/apis/${devworkspaceGroup}/${devworkspaceLatestVersion}/watch/namespaces/${namespace}/${devworkspacePlural}`;
     const queryParams = { watch: true, resourceVersion };
 
-    return this.customObjectWatch.watch(path, queryParams, (type: string, devworkspace: V1alpha2DevWorkspace) => {
-      if (type === 'ADDED') {
-        callbacks.onAdded(devworkspace);
-      } else if (type === 'MODIFIED') {
-        callbacks.onModified(devworkspace);
-      } else if (type === 'DELETED') {
-        const workspaceId = devworkspace?.status?.devworkspaceId;
-        if (workspaceId) {
-          callbacks.onDeleted(workspaceId);
+    return this.customObjectWatch.watch(
+      path,
+      queryParams,
+      (type: string, devworkspace: V1alpha2DevWorkspace) => {
+        if (type === 'ADDED') {
+          callbacks.onAdded(devworkspace);
+        } else if (type === 'MODIFIED') {
+          callbacks.onModified(devworkspace);
+        } else if (type === 'DELETED') {
+          const workspaceId = devworkspace?.status?.devworkspaceId;
+          if (workspaceId) {
+            callbacks.onDeleted(workspaceId);
+          } else {
+            // workspace does not have id yet, means it's not processed by DWO yet
+          }
+        } else if (type === 'ERROR') {
+          callbacks.onError('Error: Unknown error.');
         } else {
-           // workspace does not have id yet, means it's not processed by DWO yet
+          callbacks.onError(`Error: Unknown type '${type}'.`);
         }
-      } else if (type === 'ERROR') {
-        callbacks.onError('Error: Unknown error.');
-      } else {
-        callbacks.onError(`Error: Unknown type '${type}'.`);
-      }
-    }, (error: any) => {
-      let message;
-      if (error && error.message) {
-        message = error.message;
-      } else {
-        // unexpected error format. Log it and expose to user what we can
-        console.log('Unexpected error', error);
-        if (error) {
-          message = error.toString();
+      },
+      (error: any) => {
+        let message;
+        if (error && error.message) {
+          message = error.message;
+        } else {
+          // unexpected error format. Log it and expose to user what we can
+          console.log('Unexpected error', error);
+          if (error) {
+            message = error.toString();
+          }
+          if (!message) {
+            message = 'unknown. Contact admin to check server logs';
+          }
         }
-        if (!message) {
-          message = 'unknown. Contact admin to check server logs';
-        }
-      }
-      callbacks.onError(`Error: ${message}`);
-    });
+        callbacks.onError(`Error: ${message}`);
+      },
+    );
   }
 }

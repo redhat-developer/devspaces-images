@@ -18,25 +18,29 @@ import { selectIsLoading, selectRegistries, selectError } from '../selectors';
 import { AnyAction } from 'redux';
 
 describe('dockerConfig selectors', () => {
-
-  const registries = [{
-    url: 'dummy.io',
-    username: 'testname1',
-    password: 'XXXXXXXXXXXXXXX',
-  }, {
-    url: 'dummy.io',
-    username: 'testname2',
-    password: 'YYYYYYYYYYYYYYY',
-  },
+  const registries = [
+    {
+      url: 'dummy.io',
+      username: 'testname1',
+      password: 'XXXXXXXXXXXXXXX',
+    },
+    {
+      url: 'dummy.io',
+      username: 'testname2',
+      password: 'YYYYYYYYYYYYYYY',
+    },
   ];
 
   describe('devworkspaces enabled', () => {
     it('should return all registries', () => {
       const fakeStore = new FakeStoreBuilder()
         .withDwDockerConfig(registries, false)
-        .withWorkspacesSettings({
-          ['che.devworkspaces.enabled']: 'true'
-        }, false)
+        .withWorkspacesSettings(
+          {
+            ['che.devworkspaces.enabled']: 'true',
+          },
+          false,
+        )
         .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
       const state = fakeStore.getState();
 
@@ -48,9 +52,12 @@ describe('dockerConfig selectors', () => {
     it('should return isLoading status', () => {
       const fakeStore = new FakeStoreBuilder()
         .withDwDockerConfig([], true)
-        .withWorkspacesSettings({
-          ['che.devworkspaces.enabled']: 'true'
-        }, false)
+        .withWorkspacesSettings(
+          {
+            ['che.devworkspaces.enabled']: 'true',
+          },
+          false,
+        )
         .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
       const state = fakeStore.getState();
 
@@ -61,14 +68,13 @@ describe('dockerConfig selectors', () => {
 
     it('should return an error related to default editor fetching', () => {
       const fakeStore = new FakeStoreBuilder()
-        .withDwDockerConfig(
-          registries,
+        .withDwDockerConfig(registries, false, 'default editor fetching error')
+        .withWorkspacesSettings(
+          {
+            ['che.devworkspaces.enabled']: 'true',
+          },
           false,
-          'default editor fetching error',
         )
-        .withWorkspacesSettings({
-          ['che.devworkspaces.enabled']: 'true'
-        }, false)
         .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
       const state = fakeStore.getState();
 
@@ -102,11 +108,7 @@ describe('dockerConfig selectors', () => {
 
     it('should return an error related to default editor fetching', () => {
       const fakeStore = new FakeStoreBuilder()
-        .withCheDockerConfig(
-          registries,
-          false,
-          'default editor fetching error',
-        )
+        .withCheDockerConfig(registries, false, 'default editor fetching error')
         .build() as MockStoreEnhanced<AppState, ThunkDispatch<AppState, undefined, AnyAction>>;
       const state = fakeStore.getState();
 

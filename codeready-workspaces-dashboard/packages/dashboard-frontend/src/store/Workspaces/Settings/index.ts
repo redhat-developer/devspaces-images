@@ -26,7 +26,7 @@ export interface State {
 }
 
 interface RequestWorkspaceSettingsAction {
-  type: 'REQUEST_WORKSPACE_SETTINGS'
+  type: 'REQUEST_WORKSPACE_SETTINGS';
 }
 
 interface ReceiveWorkspaceSettingsAction {
@@ -38,7 +38,8 @@ interface ReceiveWorkspaceSettingsErrorAction {
   error: string;
 }
 
-type KnownAction = RequestWorkspaceSettingsAction
+type KnownAction =
+  | RequestWorkspaceSettingsAction
   | ReceiveWorkspaceSettingsAction
   | ReceiveWorkspaceSettingsErrorAction;
 
@@ -47,25 +48,28 @@ export type ActionCreators = {
 };
 
 export const actionCreators: ActionCreators = {
+  requestSettings:
+    (): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_WORKSPACE_SETTINGS' });
 
-  requestSettings: (): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
-    dispatch({ type: 'REQUEST_WORKSPACE_SETTINGS' });
-
-    try {
-      const settings = await cheWorkspaceClient.restApiClient.getSettings<che.WorkspaceSettings>();
-      dispatch({
-        type: 'RECEIVE_WORKSPACE_SETTINGS',
-        settings,
-      });
-    } catch (e) {
-      const errorMessage = 'Failed to fetch workspaces settings, reason: ' + common.helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_WORKSPACE_SETTINGS_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
-    }
-  },
+      try {
+        const settings =
+          await cheWorkspaceClient.restApiClient.getSettings<che.WorkspaceSettings>();
+        dispatch({
+          type: 'RECEIVE_WORKSPACE_SETTINGS',
+          settings,
+        });
+      } catch (e) {
+        const errorMessage =
+          'Failed to fetch workspaces settings, reason: ' + common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_WORKSPACE_SETTINGS_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
 };
 
 const unloadedState: State = {

@@ -23,7 +23,6 @@ type State = {
 };
 
 export class BannerAlert extends React.PureComponent<Props, State> {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -32,7 +31,7 @@ export class BannerAlert extends React.PureComponent<Props, State> {
         <BannerAlertWebSocket key="BannerAlertWebSocket"></BannerAlertWebSocket>,
         <BannerAlertBranding key="BannerAlertBranding"></BannerAlertBranding>,
         <BannerAlertCustomWarning key="BannerAlertCustomWarning"></BannerAlertCustomWarning>,
-      ]
+      ],
     };
   }
 
@@ -40,10 +39,10 @@ export class BannerAlert extends React.PureComponent<Props, State> {
     const banners = this.state.bannerAlerts;
     return (
       <div>
-        {
+        {banners.map(banner => (
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          banners.map(banner => <div key={banner.key!}>{banner}</div>)
-        }
+          <div key={banner.key!}>{banner}</div>
+        ))}
       </div>
     );
   }

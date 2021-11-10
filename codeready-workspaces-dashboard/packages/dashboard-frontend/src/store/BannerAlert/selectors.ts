@@ -15,7 +15,4 @@ import { AppState } from '..';
 
 const selectState = (state: AppState) => state.bannerAlert;
 
-export const selectBannerAlertMessages = createSelector(
-  selectState,
-  state => state.messages,
-);
+export const selectBannerAlertMessages = createSelector(selectState, state => state.messages);

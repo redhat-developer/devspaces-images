@@ -14,11 +14,13 @@
  * Check to see if the workspace is a web terminal
  * @param workspaceOrDevfile The workspace or devfile you want to check
  */
-export function isWebTerminal(workspaceOrDevfile: che.Workspace | api.che.workspace.devfile.Devfile): boolean {
+export function isWebTerminal(
+  workspaceOrDevfile: che.Workspace | api.che.workspace.devfile.Devfile,
+): boolean {
   const labels = workspaceOrDevfile?.metadata?.labels;
   return !!labels && !!labels['console.openshift.io/terminal'];
 }
 
-export function isDevworkspacesEnabled(settings:  che.WorkspaceSettings): boolean {
+export function isDevworkspacesEnabled(settings: che.WorkspaceSettings): boolean {
   return settings['che.devworkspaces.enabled'] === 'true';
 }

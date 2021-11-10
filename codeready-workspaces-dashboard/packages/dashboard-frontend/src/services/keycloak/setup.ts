@@ -34,19 +34,24 @@ const keycloakSettingsFields = [
   'che.keycloak.use_nonce',
   'che.keycloak.userinfo.endpoint',
   'che.keycloak.username_claim',
-  'che.keycloak.redirect_url.dashboard'] as const;
+  'che.keycloak.redirect_url.dashboard',
+] as const;
 type KeycloakSettingsField = typeof keycloakSettingsFields[number];
 
-function isOfTypeKeycloakSettingsField(settingField: string): settingField is KeycloakSettingsField {
+function isOfTypeKeycloakSettingsField(
+  settingField: string,
+): settingField is KeycloakSettingsField {
   return (keycloakSettingsFields as readonly string[]).indexOf(settingField) >= 0;
 }
 
 type KeycloakSettingsMap = Map<KeycloakSettingsField, string>;
 
-type KeycloakConfig = Keycloak.KeycloakConfig | {
-  oidcProvider: string;
-  clientId: string;
-}
+type KeycloakConfig =
+  | Keycloak.KeycloakConfig
+  | {
+      oidcProvider: string;
+      clientId: string;
+    };
 
 /**
  * This class is handling the keycloak settings data.
@@ -55,7 +60,6 @@ type KeycloakConfig = Keycloak.KeycloakConfig | {
 
 @injectable()
 export class KeycloakSetupService {
-
   @inject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
 
@@ -67,7 +71,7 @@ export class KeycloakSetupService {
   private resolveReadyPromise: (value: void | PromiseLike<void>) => void;
 
   constructor() {
-    this._ready = new Promise<void>(resolve => this.resolveReadyPromise = resolve);
+    this._ready = new Promise<void>(resolve => (this.resolveReadyPromise = resolve));
   }
 
   async start(): Promise<void> {
@@ -151,7 +155,8 @@ export class KeycloakSetupService {
       if (common.helpers.errors.isAxiosError(e)) {
         errorMessage += ': ' + common.helpers.errors.getMessage(e);
       } else {
-        errorMessage += '. Response is not available, please check the Network tab of Developer tools.';
+        errorMessage +=
+          '. Response is not available, please check the Network tab of Developer tools.';
       }
       throw new Error(errorMessage);
     }
@@ -184,17 +189,20 @@ export class KeycloakSetupService {
       return {
         url: settings.get('che.keycloak.auth_server_url'),
         realm: settings.get('che.keycloak.realm') || '',
-        clientId: settings.get('che.keycloak.client_id') || ''
+        clientId: settings.get('che.keycloak.client_id') || '',
       };
     } else {
       return {
         oidcProvider: theOidcProvider,
-        clientId: settings.get('che.keycloak.client_id') || ''
+        clientId: settings.get('che.keycloak.client_id') || '',
       };
     }
   }
 
-  private async initKeycloak(config: KeycloakConfig, settings: KeycloakSettingsMap): Promise<KeycloakInstance> {
+  private async initKeycloak(
+    config: KeycloakConfig,
+    settings: KeycloakSettingsMap,
+  ): Promise<KeycloakInstance> {
     let useNonce = false;
     const nonce = settings.get('che.keycloak.use_nonce');
     if (nonce) {
@@ -213,20 +221,26 @@ export class KeycloakSetupService {
     window.sessionStorage.setItem('oidcDashboardRedirectUrl', location.href);
 
     return new Promise((resolve, reject) => {
-      keycloak.init({
-        onLoad: 'login-required',
-        checkLoginIframe: false,
-        useNonce: initOptions['useNonce'],
-      }).success(() => {
-        resolve(keycloak);
-      }).error((keycloakError: Keycloak.KeycloakError) => {
-        const errorDescr = keycloakError ? `${keycloakError.error}: ${keycloakError.error_description}` : '';
-        const errorMessage = 'Keycloak initialization failed' + (errorDescr ? ': ' : '') + errorDescr;
+      keycloak
+        .init({
+          onLoad: 'login-required',
+          checkLoginIframe: false,
+          useNonce: initOptions['useNonce'],
+        })
+        .success(() => {
+          resolve(keycloak);
+        })
+        .error((keycloakError: Keycloak.KeycloakError) => {
+          const errorDescr = keycloakError
+            ? `${keycloakError.error}: ${keycloakError.error_description}`
+            : '';
+          const errorMessage =
+            'Keycloak initialization failed' + (errorDescr ? ': ' : '') + errorDescr;
 
-        this.issuesReporterService.registerIssue('sso', new Error(errorMessage));
+          this.issuesReporterService.registerIssue('sso', new Error(errorMessage));
 
-        reject(new Error(errorMessage));
-      });
+          reject(new Error(errorMessage));
+        });
     });
   }
 

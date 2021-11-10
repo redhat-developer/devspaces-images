@@ -13,9 +13,7 @@
 import { createObject } from '../helpers';
 
 describe('Store helpers', () => {
-
   describe('Creates a new state object', () => {
-
     it('should copy all enumerable own properties from two source objects to a new one', () => {
       const source = { a: [1], b: [2, 3] };
       const newSource = { b: [3], c: [4] };
@@ -26,7 +24,5 @@ describe('Store helpers', () => {
       expect(newSource).toEqual({ b: [3], c: [4] });
       expect(target).toEqual({ a: [1], b: [3], c: [4] });
     });
-
   });
-
 });

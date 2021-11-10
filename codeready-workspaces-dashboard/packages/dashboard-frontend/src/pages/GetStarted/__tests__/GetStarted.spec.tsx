@@ -30,7 +30,7 @@ const workspaceName = 'wksp-test';
 const dummyDevfile = {
   apiVersion: '1.0.0',
   metadata: {
-    name: workspaceName
+    name: workspaceName,
   },
 } as Devfile;
 const workspace = new CheWorkspaceBuilder()
@@ -41,35 +41,46 @@ const workspace = new CheWorkspaceBuilder()
 jest.mock('../../../store/Workspaces/index', () => {
   return {
     actionCreators: {
-      createWorkspaceFromDevfile: (devfile, namespace, infrastructureNamespace, attributes) =>
+      createWorkspaceFromDevfile:
+        (devfile, namespace, infrastructureNamespace, attributes) =>
         async (): Promise<Workspace> => {
           createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
-          return convertWorkspace({ id: 'id-wksp-test', attributes, namespace, devfile: dummyDevfile as che.WorkspaceDevfile, temporary: false, status: 'STOPPED' });
+          return convertWorkspace({
+            id: 'id-wksp-test',
+            attributes,
+            namespace,
+            devfile: dummyDevfile as che.WorkspaceDevfile,
+            temporary: false,
+            status: 'STOPPED',
+          });
         },
       startWorkspace: workspace => async (): Promise<void> => {
         startWorkspaceMock(workspace);
       },
-      setWorkspaceQualifiedName: ( namespace: string, workspaceName: string) => async (): Promise<void> => {
-        setWorkspaceQualifiedName(namespace, workspaceName);
-      },
+      setWorkspaceQualifiedName:
+        (namespace: string, workspaceName: string) => async (): Promise<void> => {
+          setWorkspaceQualifiedName(namespace, workspaceName);
+        },
     },
   };
 });
 
 jest.mock('../GetStartedTab', () => {
   return function DummyTab(props: {
-    onDevfile: (devfileContent: string, stackName: string) => Promise<void>
+    onDevfile: (devfileContent: string, stackName: string) => Promise<void>;
   }): React.ReactElement {
     return (
       <span>
         Samples List Tab Content
-        <button onClick={() => {
-          props.onDevfile(
-            JSON.stringify(dummyDevfile),
-            'dummyStackName',
-          );
-        }}>Dummy Devfile</button>
-      </span>);
+        <button
+          onClick={() => {
+            props.onDevfile(JSON.stringify(dummyDevfile), 'dummyStackName');
+          }}
+        >
+          Dummy Devfile
+        </button>
+      </span>
+    );
   };
 });
 jest.mock('../CustomWorkspaceTab', () => {
@@ -79,7 +90,6 @@ jest.mock('../CustomWorkspaceTab', () => {
 });
 
 describe('Quick Add page', () => {
-
   it('should create and start a new workspace', async () => {
     renderGetStartedPage();
 
@@ -91,7 +101,12 @@ describe('Quick Add page', () => {
     const devfileButton = screen.getByRole('button', { name: 'Dummy Devfile' });
     devfileButton.click();
 
-    expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(dummyDevfile, undefined, namespace, { stackName: 'dummyStackName' });
+    expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
+      dummyDevfile,
+      undefined,
+      namespace,
+      { stackName: 'dummyStackName' },
+    );
   });
 
   it('should have correct masthead when Quick Add tab is active', () => {
@@ -113,7 +128,6 @@ describe('Quick Add page', () => {
 
     expect(masthead.textContent?.startsWith('Custom Workspace'));
   });
-
 });
 
 function renderGetStartedPage(): void {
@@ -122,14 +136,14 @@ function renderGetStartedPage(): void {
   render(
     <Provider store={store}>
       <GetStarted history={history} />
-    </Provider>
+    </Provider>,
   );
 }
 
 function createFakeStore(): Store {
   return new FakeStoreBuilder()
     .withBranding({
-      name: 'test'
+      name: 'test',
     } as BrandingData)
     .withCheWorkspaces({
       workspaces: [workspace],
@@ -137,7 +151,7 @@ function createFakeStore(): Store {
     .withWorkspaces({
       workspaceId: workspace.id,
       namespace: namespace,
-      workspaceName: workspace.devfile.metadata.name
+      workspaceName: workspace.devfile.metadata.name,
     })
     .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
     .build();

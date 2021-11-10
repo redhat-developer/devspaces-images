@@ -13,12 +13,9 @@
 import { mergeLogs } from '../logs';
 
 describe('Workspaces store > runtime logs', () => {
-
   it('should correctly merge new logs with the empty logs map', () => {
     const emptyLogsMap = new Map<string, string[]>();
-    const newLogsMap = new Map<string, string[]>([
-      ['worksId1', ['test log 1.1', 'test log 1.2']],
-    ]);
+    const newLogsMap = new Map<string, string[]>([['worksId1', ['test log 1.1', 'test log 1.2']]]);
     const resultLogsMap = mergeLogs(emptyLogsMap, newLogsMap);
 
     expect(resultLogsMap.has('worksId1')).toBeTruthy();
@@ -34,9 +31,7 @@ describe('Workspaces store > runtime logs', () => {
       ['worksId1', ['test log 1.1']],
       ['worksId2', ['test log 2.1']],
     ]);
-    const newLogsMap = new Map<string, string[]>([
-      ['worksId2', ['test log 2.2']],
-    ]);
+    const newLogsMap = new Map<string, string[]>([['worksId2', ['test log 2.2']]]);
     const resultLogsMap = mergeLogs(logsMap, newLogsMap);
 
     expect(resultLogsMap.has('worksId1')).toBeTruthy();
@@ -51,5 +46,4 @@ describe('Workspaces store > runtime logs', () => {
     expect(worksId2Log[0]).toEqual('test log 2.1');
     expect(worksId2Log[1]).toEqual('test log 2.2');
   });
-
 });

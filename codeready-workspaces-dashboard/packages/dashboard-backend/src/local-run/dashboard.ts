@@ -12,7 +12,10 @@
 
 import { FastifyInstance } from 'fastify';
 
-export function authenticateDashboardRequestsHook(server: FastifyInstance, clusterAccessToken: string) {
+export function authenticateDashboardRequestsHook(
+  server: FastifyInstance,
+  clusterAccessToken: string,
+) {
   // authenticate requests to Dashboard Backend
   server.addHook('onRequest', (request, reply, done) => {
     if (request.url.startsWith('/dashboard/api')) {

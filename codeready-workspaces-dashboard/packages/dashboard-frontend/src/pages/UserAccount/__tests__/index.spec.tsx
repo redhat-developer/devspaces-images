@@ -23,7 +23,6 @@ import { selectBranding } from '../../../store/Branding/selectors';
 import { selectUserProfile } from '../../../store/UserProfile/selectors';
 
 describe('UserAccount page', () => {
-
   const history = createHashHistory();
 
   const getComponent = (store: Store): React.ReactElement => {
@@ -44,9 +43,11 @@ describe('UserAccount page', () => {
   };
 
   it('should correctly render the component without profile data', () => {
-    const store = new FakeStoreBuilder().withBranding({
-      name: 'test',
-    } as BrandingData).build();
+    const store = new FakeStoreBuilder()
+      .withBranding({
+        name: 'test',
+      } as BrandingData)
+      .build();
     const component = getComponent(store);
     render(component);
 
@@ -62,7 +63,7 @@ describe('UserAccount page', () => {
   it('should correctly render the component which contains profile data', () => {
     const store = new FakeStoreBuilder()
       .withBranding({
-        name: 'Product name'
+        name: 'Product name',
       } as BrandingData)
       .withUserProfile({
         attributes: {
@@ -84,5 +85,4 @@ describe('UserAccount page', () => {
 
     expect(json).toMatchSnapshot();
   });
-
 });

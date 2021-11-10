@@ -18,7 +18,10 @@ import { Action, Store } from 'redux';
 import { AboutMenu } from '..';
 import { AppThunk } from '../../../../../store';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { BrandingData, BRANDING_DEFAULT } from '../../../../../services/bootstrap/branding.constant';
+import {
+  BrandingData,
+  BRANDING_DEFAULT,
+} from '../../../../../services/bootstrap/branding.constant';
 import * as InfrastructureNamespacesStore from '../../../../../store/InfrastructureNamespaces';
 import { selectBranding } from '../../../../../store/Branding/selectors';
 import { selectUserProfile } from '../../../../../store/UserProfile/selectors';
@@ -32,9 +35,11 @@ jest.mock('gravatar-url', () => {
 jest.mock('../../../../../store/InfrastructureNamespaces', () => {
   return {
     actionCreators: {
-      requestNamespaces: (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> => async (): Promise<che.KubernetesNamespace[]> => {
-        return Promise.resolve([]);
-      }
+      requestNamespaces:
+        (): AppThunk<Action, Promise<che.KubernetesNamespace[]>> =>
+        async (): Promise<che.KubernetesNamespace[]> => {
+          return Promise.resolve([]);
+        },
     } as InfrastructureNamespacesStore.ActionCreators,
   };
 });
@@ -57,11 +62,7 @@ describe('About Menu', () => {
 
   const component = (
     <Provider store={store}>
-      <AboutMenu
-        branding={branding}
-        user={user}
-        userProfile={userProfile}
-      />
+      <AboutMenu branding={branding} user={user} userProfile={userProfile} />
     </Provider>
   );
 
@@ -92,10 +93,7 @@ describe('About Menu', () => {
     const makeAWishItem = screen.getByRole('menuitem', { name: /Make a wish/i });
     fireEvent.click(makeAWishItem);
 
-    expect(global.open).toHaveBeenCalledWith(
-      'mailto:che-dev@eclipse.org',
-      '_blank'
-    );
+    expect(global.open).toHaveBeenCalledWith('mailto:che-dev@eclipse.org', '_blank');
   });
 
   it('should open page with the documentation url', () => {
@@ -107,10 +105,7 @@ describe('About Menu', () => {
     const documentationItem = screen.getByRole('menuitem', { name: /Documentation/i });
     fireEvent.click(documentationItem);
 
-    expect(global.open).toHaveBeenCalledWith(
-      'https://www.eclipse.org/che/docs/che-7',
-      '_blank'
-    );
+    expect(global.open).toHaveBeenCalledWith('https://www.eclipse.org/che/docs/che-7', '_blank');
   });
 
   it('should open page with the community url', () => {
@@ -122,10 +117,7 @@ describe('About Menu', () => {
     const helpItem = screen.getByRole('menuitem', { name: new RegExp('Community', 'i') });
     fireEvent.click(helpItem);
 
-    expect(global.open).toHaveBeenCalledWith(
-      'https://www.eclipse.org/che/',
-      '_blank'
-    );
+    expect(global.open).toHaveBeenCalledWith('https://www.eclipse.org/che/', '_blank');
   });
 
   it('should fire the about dropdown event', () => {
@@ -140,7 +132,6 @@ describe('About Menu', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).not.toBeNull();
   });
-
 });
 
 function createStore(cheCliTool: string, name: string, email: string): Store {
@@ -149,15 +140,14 @@ function createStore(cheCliTool: string, name: string, email: string): Store {
       attributes: {
         preferred_username: name,
       },
-      email
+      email,
     } as api.che.user.Profile)
     .withBranding({
       configuration: {
-        cheCliTool
+        cheCliTool,
       },
       links: BRANDING_DEFAULT.links,
-      docs: {
-      },
+      docs: {},
     } as BrandingData)
     .build();
 }

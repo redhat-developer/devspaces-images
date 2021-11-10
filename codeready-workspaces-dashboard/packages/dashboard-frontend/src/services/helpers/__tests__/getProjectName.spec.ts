@@ -13,7 +13,6 @@
 import { getProjectName } from '../getProjectName';
 
 describe('Get a project name based on location', () => {
-
   it('should return a valid name less then 63 symbols', () => {
     let cloneUrl = 'http://dummy/test.com/project-demo';
 
@@ -39,12 +38,11 @@ describe('Get a project name based on location', () => {
     expect(projectName).toEqual('project-demo');
   });
 
-  it('should return a valid name after replacement of forbidden characters [^-a-zA-Z0-9] to \'-\'', () => {
+  it('should return a valid name after replacement of forbidden characters [^-a-zA-Z0-9] to "-"', () => {
     const cloneUrl = 'http://dummy/test.com/proj$$$$$___$ect-de$$$$_____mo';
 
     const projectName = getProjectName(cloneUrl);
 
     expect(projectName).toEqual('proj-ect-de-mo');
   });
-
 });

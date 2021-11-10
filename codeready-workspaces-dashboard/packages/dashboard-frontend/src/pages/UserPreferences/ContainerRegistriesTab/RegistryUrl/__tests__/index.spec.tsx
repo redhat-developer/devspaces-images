@@ -18,11 +18,14 @@ import renderer from 'react-test-renderer';
 import { RegistryUrlFormGroup } from '..';
 
 describe('Registry Url Input', () => {
-
   const mockOnChange = jest.fn();
 
   function getComponent(url: string): React.ReactElement {
-    return (<Form><RegistryUrlFormGroup url={url} onChange={mockOnChange} /></Form>);
+    return (
+      <Form>
+        <RegistryUrlFormGroup url={url} onChange={mockOnChange} />
+      </Form>
+    );
   }
 
   afterEach(() => {
@@ -76,7 +79,6 @@ describe('Registry Url Input', () => {
   });
 
   describe('validation', () => {
-
     it('should handle empty value', () => {
       const component = getComponent('https://testreg.com/test1');
       render(component);
@@ -117,5 +119,4 @@ describe('Registry Url Input', () => {
       expect(input).toBeInvalid();
     });
   });
-
 });

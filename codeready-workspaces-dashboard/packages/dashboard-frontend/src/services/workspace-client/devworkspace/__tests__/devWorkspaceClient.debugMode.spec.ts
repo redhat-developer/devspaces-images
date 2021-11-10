@@ -26,11 +26,15 @@ describe('DevWorkspaceClient debug mode', () => {
 
   beforeEach(() => {
     devWorkspaceNoDebug = new DevWorkspaceBuilder().withMetadata({ name, namespace }).build();
-    devWorkspaceWithDebug = new DevWorkspaceBuilder().withMetadata({
-      annotations: {
-        [DEVWORKSPACE_DEBUG_START_ANNOTATION]: 'true',
-      }, name, namespace
-    }).build();
+    devWorkspaceWithDebug = new DevWorkspaceBuilder()
+      .withMetadata({
+        annotations: {
+          [DEVWORKSPACE_DEBUG_START_ANNOTATION]: 'true',
+        },
+        name,
+        namespace,
+      })
+      .build();
   });
 
   describe('getting debug mode', () => {
@@ -49,7 +53,7 @@ describe('DevWorkspaceClient debug mode', () => {
     });
 
     it('if debug mode doesn`t change, the patch request shouldn`t be called', async () => {
-      const mockPatch = (mockAxios.patch as jest.Mock);
+      const mockPatch = mockAxios.patch as jest.Mock;
       mockPatch.mockResolvedValue({ data: undefined });
 
       let resultData = await devWorkspaceClient.updateDebugMode(devWorkspaceNoDebug, false);
@@ -62,58 +66,80 @@ describe('DevWorkspaceClient debug mode', () => {
     });
 
     it('if debug mode has changed to true, the patch "add" request should be called', async () => {
-      const mockPatch = (mockAxios.patch as jest.Mock);
+      const mockPatch = mockAxios.patch as jest.Mock;
       mockPatch.mockResolvedValue({ data: devWorkspaceWithDebug });
 
       expect(devWorkspaceClient.getDebugMode(devWorkspaceNoDebug)).toEqual(false);
 
-      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(devWorkspaceNoDebug, true);
+      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(
+        devWorkspaceNoDebug,
+        true,
+      );
       expect(mockPatch.mock.calls[mockPatch.mock.calls.length - 1]).toEqual([
         `/dashboard/api/namespace/${namespace}/devworkspaces/${name}`,
-        [{
-          op: 'add',
-          path: '/metadata/annotations/controller.devfile.io~1debug-start',
-          value: 'true',
-        }]]);
+        [
+          {
+            op: 'add',
+            path: '/metadata/annotations/controller.devfile.io~1debug-start',
+            value: 'true',
+          },
+        ],
+      ]);
       expect(resultData).toEqual(devWorkspaceWithDebug);
     });
 
     it('if debug mode has changed to true, the patch "replace" request should be called', async () => {
-      const mockPatch = (mockAxios.patch as jest.Mock);
+      const mockPatch = mockAxios.patch as jest.Mock;
       mockPatch.mockResolvedValue({ data: devWorkspaceWithDebug });
 
-      const devWorkspaceNoDebug = new DevWorkspaceBuilder().withMetadata({
-        annotations: {
-          [DEVWORKSPACE_DEBUG_START_ANNOTATION]: 'false',
-        }, name, namespace
-      }).build();
+      const devWorkspaceNoDebug = new DevWorkspaceBuilder()
+        .withMetadata({
+          annotations: {
+            [DEVWORKSPACE_DEBUG_START_ANNOTATION]: 'false',
+          },
+          name,
+          namespace,
+        })
+        .build();
 
       expect(devWorkspaceClient.getDebugMode(devWorkspaceNoDebug)).toEqual(false);
 
-      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(devWorkspaceNoDebug, true);
+      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(
+        devWorkspaceNoDebug,
+        true,
+      );
       expect(mockPatch.mock.calls[mockPatch.mock.calls.length - 1]).toEqual([
         `/dashboard/api/namespace/${namespace}/devworkspaces/${name}`,
-        [{
-          op: 'replace',
-          path: '/metadata/annotations/controller.devfile.io~1debug-start',
-          value: 'true',
-        }]]);
+        [
+          {
+            op: 'replace',
+            path: '/metadata/annotations/controller.devfile.io~1debug-start',
+            value: 'true',
+          },
+        ],
+      ]);
       expect(resultData).toEqual(devWorkspaceWithDebug);
     });
 
     it('if debug mode has changed to false, the patch "remove" request should be called', async () => {
-      const mockPatch = (mockAxios.patch as jest.Mock);
+      const mockPatch = mockAxios.patch as jest.Mock;
       mockPatch.mockResolvedValue({ data: devWorkspaceNoDebug });
 
       expect(devWorkspaceClient.getDebugMode(devWorkspaceWithDebug)).toEqual(true);
 
-      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(devWorkspaceWithDebug, false);
+      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(
+        devWorkspaceWithDebug,
+        false,
+      );
       expect(mockPatch.mock.calls[mockPatch.mock.calls.length - 1]).toEqual([
         `/dashboard/api/namespace/${namespace}/devworkspaces/${name}`,
-        [{
-          op: 'remove',
-          path: '/metadata/annotations/controller.devfile.io~1debug-start'
-        }]]);
+        [
+          {
+            op: 'remove',
+            path: '/metadata/annotations/controller.devfile.io~1debug-start',
+          },
+        ],
+      ]);
       expect(resultData).toEqual(devWorkspaceNoDebug);
     });
   });

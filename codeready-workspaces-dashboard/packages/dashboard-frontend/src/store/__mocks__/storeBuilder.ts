@@ -29,7 +29,6 @@ import devfileApi from '../../services/devfileApi';
 import { ApplicationInfo } from '@eclipse-che/common';
 
 export class FakeStoreBuilder {
-
   private state: AppState = {
     bannerAlert: {
       messages: [],
@@ -92,7 +91,7 @@ export class FakeStoreBuilder {
     } as InfrastructureNamespaceState,
     userPreferences: {
       isLoading: false,
-      preferences: {}
+      preferences: {},
     },
     dwPlugins: {
       isLoading: false,
@@ -102,13 +101,13 @@ export class FakeStoreBuilder {
     dwDockerConfig: {
       isLoading: false,
       registries: [],
-      error: undefined
+      error: undefined,
     },
     cheDockerConfig: {
       isLoading: false,
       registries: [],
-      error: undefined
-    }
+      error: undefined,
+    },
   };
 
   public withBannerAlert(messages: string[]): FakeStoreBuilder {
@@ -116,27 +115,42 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public withDwDockerConfig(registries: RegistryEntry[], isLoading = false, error?: string): FakeStoreBuilder {
+  public withDwDockerConfig(
+    registries: RegistryEntry[],
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
     this.state.dwDockerConfig.registries = registries;
     this.state.dwDockerConfig.isLoading = isLoading;
     this.state.dwDockerConfig.error = error;
     return this;
   }
 
-  public withCheDockerConfig(registries: RegistryEntry[], isLoading = false, error?: string): FakeStoreBuilder {
+  public withCheDockerConfig(
+    registries: RegistryEntry[],
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
     this.state.cheDockerConfig.registries = registries;
     this.state.cheDockerConfig.isLoading = isLoading;
     this.state.cheDockerConfig.error = error;
     return this;
   }
 
-  public withUserPreferences(preferences: che.UserPreferences, isLoading = false): FakeStoreBuilder {
+  public withUserPreferences(
+    preferences: che.UserPreferences,
+    isLoading = false,
+  ): FakeStoreBuilder {
     this.state.userPreferences.preferences = preferences;
     this.state.userPreferences.isLoading = isLoading;
     return this;
   }
 
-  public withApplications(applications: ApplicationInfo[], isLoading = false, error?: string): FakeStoreBuilder {
+  public withApplications(
+    applications: ApplicationInfo[],
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
     this.state.externalApplications.applications = Object.assign([], applications);
     this.state.externalApplications.isLoading = isLoading;
     this.state.externalApplications.error = error;
@@ -156,7 +170,11 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public withInfrastructureNamespace(namespaces: che.KubernetesNamespace[], isLoading = false, error?: string): FakeStoreBuilder {
+  public withInfrastructureNamespace(
+    namespaces: che.KubernetesNamespace[],
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
     this.state.infrastructureNamespaces.namespaces = Object.assign([], namespaces);
     this.state.infrastructureNamespaces.isLoading = isLoading;
     this.state.infrastructureNamespaces.error = error;
@@ -184,10 +202,11 @@ export class FakeStoreBuilder {
 
   public withDevfileRegistries(
     options: {
-      devfiles?: { [location: string]: { content: string, error: string } },
-      registries?: { [location: string]: { metadata?: che.DevfileMetaData[], error?: string } },
-      schema?: any,
-    }, isLoading = false,
+      devfiles?: { [location: string]: { content: string; error: string } };
+      registries?: { [location: string]: { metadata?: che.DevfileMetaData[]; error?: string } };
+      schema?: any;
+    },
+    isLoading = false,
   ): FakeStoreBuilder {
     if (options.devfiles) {
       this.state.devfileRegistries.devfiles = Object.assign({}, options.devfiles);
@@ -215,8 +234,8 @@ export class FakeStoreBuilder {
 
   public withCheWorkspaces(
     options: {
-      workspaces?: che.Workspace[],
-      workspacesLogs?: Map<string, string[]>,
+      workspaces?: che.Workspace[];
+      workspacesLogs?: Map<string, string[]>;
     },
     isLoading = false,
     error?: string,
@@ -234,8 +253,8 @@ export class FakeStoreBuilder {
 
   public withDevWorkspaces(
     options: {
-      workspaces?: devfileApi.DevWorkspace[],
-      workspacesLogs?: Map<string, string[]>,
+      workspaces?: devfileApi.DevWorkspace[];
+      workspacesLogs?: Map<string, string[]>;
     },
     isLoading = false,
     error?: string,
@@ -253,12 +272,12 @@ export class FakeStoreBuilder {
 
   public withWorkspaces(
     options: {
-      namespace?: string,
-      workspaceName?: string,
-      workspaceId?: string,
-      recentNumber?: number
+      namespace?: string;
+      workspaceName?: string;
+      workspaceId?: string;
+      recentNumber?: number;
     },
-    isLoading = false
+    isLoading = false,
   ): FakeStoreBuilder {
     if (options.namespace) {
       this.state.workspaces.namespace = options.namespace;
@@ -277,7 +296,7 @@ export class FakeStoreBuilder {
   }
 
   public withDwPlugins(
-    plugins: { [location: string]: { plugin?: devfileApi.Devfile, error?: string } },
+    plugins: { [location: string]: { plugin?: devfileApi.Devfile; error?: string } },
     isLoading = false,
     defaultEditorError?: string,
   ) {
@@ -293,5 +312,4 @@ export class FakeStoreBuilder {
     const mockStore = createMockStore(middlewares);
     return mockStore(this.state);
   }
-
 }

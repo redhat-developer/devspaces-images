@@ -15,29 +15,22 @@ import { render, screen, RenderResult, fireEvent } from '@testing-library/react'
 import { SampleCard } from '../SampleCard';
 
 describe('Devfile Metadata Card', () => {
-
   const metadata: che.DevfileMetaData = {
-    'displayName': 'Go',
-    'description': 'Stack with Go 1.12.10',
-    'tags': [
-      'Debian',
-      'Go'
-    ],
-    'icon': '/images/go.svg',
-    'globalMemoryLimit': '1686Mi',
-    'links': {
-      'self': '/devfiles/go/devfile.yaml'
+    displayName: 'Go',
+    description: 'Stack with Go 1.12.10',
+    tags: ['Debian', 'Go'],
+    icon: '/images/go.svg',
+    globalMemoryLimit: '1686Mi',
+    links: {
+      self: '/devfiles/go/devfile.yaml',
     },
   };
   const onCardClick = jest.fn();
 
   function renderCard(): RenderResult {
     return render(
-      <SampleCard
-        key={metadata.links.self}
-        metadata={metadata}
-        onClick={onCardClick}
-      />);
+      <SampleCard key={metadata.links.self} metadata={metadata} onClick={onCardClick} />,
+    );
   }
 
   it('should have a correct title in header', () => {
@@ -71,5 +64,4 @@ describe('Devfile Metadata Card', () => {
 
     expect(onCardClick).toHaveBeenCalledWith(metadata);
   });
-
 });

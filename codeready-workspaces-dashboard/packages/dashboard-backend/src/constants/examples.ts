@@ -16,11 +16,13 @@ export const dockerConfigExample = {
     const username = 'janedoe';
     const passsword = 'xxxxxxxxxxxxxxxxxxxxxxx';
     const auth = new Buffer(`${username}:${passsword}`).toString('base64');
-    const buff = new Buffer(JSON.stringify({
-      auths: {
-        [registry]: { auth },
-      }
-    }));
+    const buff = new Buffer(
+      JSON.stringify({
+        auths: {
+          [registry]: { auth },
+        },
+      }),
+    );
     return buff.toString('base64');
-  }
+  },
 };

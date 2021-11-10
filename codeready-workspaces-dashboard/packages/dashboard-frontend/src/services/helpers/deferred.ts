@@ -17,7 +17,7 @@ export type IDeferred<T> = {
   resolve(value?: T | PromiseLike<T>): void;
   reject(reason?: any): void;
   promise: Promise<T>;
-}
+};
 
 export const getDefer = <T>(): IDeferred<T> => {
   const defer = {} as IDeferred<T>;

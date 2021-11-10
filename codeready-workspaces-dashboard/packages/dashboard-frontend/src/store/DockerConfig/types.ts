@@ -20,5 +20,5 @@ export type ContainerCredentials = {
   [key: string]: {
     username?: string;
     password?: string;
-  }
+  };
 };

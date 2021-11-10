@@ -13,7 +13,11 @@
 import { FastifyInstance } from 'fastify';
 import fastifyHttpProxy from 'fastify-http-proxy';
 
-export function registerKeycloakProxy(server: FastifyInstance, cheApiProxyUpstream: string, origin: string) {
+export function registerKeycloakProxy(
+  server: FastifyInstance,
+  cheApiProxyUpstream: string,
+  origin: string,
+) {
   console.log(`Dashboard proxies requests to Keycloak on "${cheApiProxyUpstream}/auth".`);
   server.register(fastifyHttpProxy, {
     upstream: cheApiProxyUpstream,
@@ -24,7 +28,7 @@ export function registerKeycloakProxy(server: FastifyInstance, cheApiProxyUpstre
     replyOptions: {
       rewriteRequestHeaders: (originalReq, headers) => {
         return Object.assign({ ...headers }, { origin });
-      }
-    }
+      },
+    },
   });
 }

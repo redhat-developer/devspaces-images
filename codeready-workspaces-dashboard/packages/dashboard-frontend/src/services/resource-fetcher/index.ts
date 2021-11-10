@@ -21,7 +21,6 @@ export type ResourceEntry = {
 };
 
 export class ResourceFetcherService {
-
   public async prefetchResources(state: AppState): Promise<void> {
     const prefetch = state.branding.data.configuration.prefetch;
     if (!prefetch) {
@@ -43,8 +42,8 @@ export class ResourceFetcherService {
       const response = await axios.get<ResourceEntry[]>(url, {
         headers: {
           'Cache-Control': 'no-cache',
-          'Expires': '0',
-        }
+          Expires: '0',
+        },
       });
 
       if (!response.data) {
@@ -85,6 +84,4 @@ export class ResourceFetcherService {
     link.href = url;
     document.head.appendChild(link);
   }
-
 }
-

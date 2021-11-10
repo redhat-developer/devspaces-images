@@ -16,14 +16,14 @@ import { getDefer } from '../helpers/deferred';
 import { KeycloakAuthService } from '../keycloak/auth';
 
 export type SubscribeMessage = {
-  request: string,
-  channel: string,
-  params: { token?: string, namespace: string, resourceVersion?: string }
+  request: string;
+  channel: string;
+  params: { token?: string; namespace: string; resourceVersion?: string };
 };
 
 export type PublishMessage = {
-  channel: string,
-  message: any
+  channel: string;
+  message: any;
 };
 
 type Handler = (data: unknown) => void;
@@ -36,9 +36,9 @@ export class WebsocketClient {
   private readonly onDidWebSocketClose: (event: CloseEvent) => void;
 
   constructor(callbacks: {
-    onDidWebSocketFailing: (websocketContext: string) => void,
-    onDidWebSocketOpen: (websocketContext: string) => void,
-    onDidWebSocketClose: (event: CloseEvent) => void
+    onDidWebSocketFailing: (websocketContext: string) => void;
+    onDidWebSocketOpen: (websocketContext: string) => void;
+    onDidWebSocketClose: (event: CloseEvent) => void;
   }) {
     this.onDidWebSocketFailing = callbacks.onDidWebSocketFailing;
     this.onDidWebSocketOpen = callbacks.onDidWebSocketOpen;
@@ -58,7 +58,7 @@ export class WebsocketClient {
     const location = origin.replace('http', 'ws') + websocketContext;
     this.websocketStream = new ReconnectingWebSocket(location, [], {
       connectionTimeout: 20000,
-      minReconnectionDelay: 2000
+      minReconnectionDelay: 2000,
     });
 
     this.websocketStream.addEventListener('open', () => {

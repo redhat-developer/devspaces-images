@@ -17,17 +17,25 @@ import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import WorkspaceDetails, { WorkspaceDetails as Details } from '../pages/WorkspaceDetails';
 import common from '@eclipse-che/common';
-import { buildDetailsLocation, toHref, buildWorkspacesLocation } from '../services/helpers/location';
+import {
+  buildDetailsLocation,
+  toHref,
+  buildWorkspacesLocation,
+} from '../services/helpers/location';
 import { WorkspaceDetailsTab } from '../services/helpers/types';
 import { Workspace } from '../services/workspace-adapter';
 import { AppState } from '../store';
 import * as WorkspacesStore from '../store/Workspaces';
-import { selectAllWorkspaces, selectIsLoading, selectWorkspaceById } from '../store/Workspaces/selectors';
+import {
+  selectAllWorkspaces,
+  selectIsLoading,
+  selectWorkspaceById,
+} from '../store/Workspaces/selectors';
 
-type Props =
-  MappedProps
-  & { history: History }
-  & RouteComponentProps<{ namespace: string; workspaceName: string }>; // incoming parameters
+type Props = MappedProps & { history: History } & RouteComponentProps<{
+    namespace: string;
+    workspaceName: string;
+  }>; // incoming parameters
 
 class WorkspaceDetailsContainer extends React.Component<Props> {
   private workspacesLink: string;
@@ -41,7 +49,7 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
     this.workspaceDetailsPageRef = React.createRef<Details>();
 
     const namespace = this.props.match.params.namespace;
-    const workspaceName = (this.props.match.params.workspaceName.split('&'))[0];
+    const workspaceName = this.props.match.params.workspaceName.split('&')[0];
     if (workspaceName !== this.props.match.params.workspaceName) {
       const pathname = `/workspace/${namespace}/${workspaceName}`;
       this.props.history.replace({ pathname });
@@ -49,13 +57,23 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
   }
 
   private async init(): Promise<void> {
-    const { match: { params }, allWorkspaces, isLoading, requestWorkspaces, setWorkspaceId } = this.props;
-    let workspace = allWorkspaces.find(workspace =>
-      workspace.namespace === params.namespace && workspace.name === params.workspaceName);
+    const {
+      match: { params },
+      allWorkspaces,
+      isLoading,
+      requestWorkspaces,
+      setWorkspaceId,
+    } = this.props;
+    let workspace = allWorkspaces.find(
+      workspace =>
+        workspace.namespace === params.namespace && workspace.name === params.workspaceName,
+    );
     if (!isLoading && !workspace) {
       await requestWorkspaces();
-      workspace = allWorkspaces?.find(workspace =>
-        workspace.namespace === params.namespace && workspace.name === params.workspaceName);
+      workspace = allWorkspaces?.find(
+        workspace =>
+          workspace.namespace === params.namespace && workspace.name === params.workspaceName,
+      );
     }
     if (workspace) {
       setWorkspaceId(workspace.id);
@@ -82,8 +100,9 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
     const namespace = this.props.match.params.namespace;
     const workspaceName = this.props.match.params.workspaceName;
 
-    const workspace = this.props.allWorkspaces?.find(workspace =>
-      workspace.namespace === namespace && workspace.name === workspaceName);
+    const workspace = this.props.allWorkspaces?.find(
+      workspace => workspace.namespace === namespace && workspace.name === workspaceName,
+    );
     if (workspace) {
       this.props.setWorkspaceId(workspace.id);
     }
@@ -97,7 +116,9 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
       <WorkspaceDetails
         ref={this.workspaceDetailsPageRef}
         workspacesLink={this.workspacesLink}
-        onSave={(workspace: Workspace, activeTab?: WorkspaceDetailsTab) => this.onSave(workspace, activeTab)}
+        onSave={(workspace: Workspace, activeTab?: WorkspaceDetailsTab) =>
+          this.onSave(workspace, activeTab)
+        }
         history={this.props.history}
       />
     );
@@ -113,13 +134,14 @@ class WorkspaceDetailsContainer extends React.Component<Props> {
       this.props.history.replace(location);
     } catch (e) {
       const errorMessage = common.helpers.errors.getMessage(e);
-      if (this.workspaceDetailsPageRef.current?.state.activeTabKey === WorkspaceDetailsTab.DEVFILE) {
+      if (
+        this.workspaceDetailsPageRef.current?.state.activeTabKey === WorkspaceDetailsTab.DEVFILE
+      ) {
         throw errorMessage;
       }
       this.showAlert(errorMessage);
     }
   }
-
 }
 
 const mapStateToProps = (state: AppState) => ({
@@ -128,10 +150,7 @@ const mapStateToProps = (state: AppState) => ({
   workspace: selectWorkspaceById(state),
 });
 
-const connector = connect(
-  mapStateToProps,
-  WorkspacesStore.actionCreators,
-);
+const connector = connect(mapStateToProps, WorkspacesStore.actionCreators);
 
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(WorkspaceDetailsContainer);

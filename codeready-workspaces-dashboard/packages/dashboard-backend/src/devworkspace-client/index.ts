@@ -14,11 +14,12 @@ import * as k8s from '@kubernetes/client-node';
 import {
   IDevWorkspaceApi,
   IDevWorkspaceClient,
-  IDevWorkspaceTemplateApi, IDockerConfigApi,
+  IDevWorkspaceTemplateApi,
+  IDockerConfigApi,
 } from './types';
 import { findApi } from './services/helpers';
-import {DevWorkspaceTemplateApi} from './services/api/template-api';
-import {DevWorkspaceApi} from './services/api/workspace-api';
+import { DevWorkspaceTemplateApi } from './services/api/template-api';
+import { DevWorkspaceApi } from './services/api/workspace-api';
 import { devworkspaceGroup, devworkspaceLatestVersion } from '@devfile/api';
 import { DockerConfigApi } from './services/api/dockerConfigApi';
 

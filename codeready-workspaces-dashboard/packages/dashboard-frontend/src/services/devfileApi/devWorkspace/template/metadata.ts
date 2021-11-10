@@ -12,5 +12,5 @@
 
 import { V1alpha2DevWorkspaceTemplateMetadata } from '@devfile/api';
 
-export type DevWorkspaceTemplateMetadata = V1alpha2DevWorkspaceTemplateMetadata
-  & Required<Pick<V1alpha2DevWorkspaceTemplateMetadata, 'annotations' | 'name' | 'namespace'>>;
+export type DevWorkspaceTemplateMetadata = V1alpha2DevWorkspaceTemplateMetadata &
+  Required<Pick<V1alpha2DevWorkspaceTemplateMetadata, 'annotations' | 'name' | 'namespace'>>;

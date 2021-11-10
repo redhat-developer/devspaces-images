@@ -19,7 +19,7 @@ import {
   Flex,
   FlexItem,
   Form,
-  FormGroup
+  FormGroup,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
@@ -79,9 +79,7 @@ export class DevfileLocationInput extends React.PureComponent<Props, State> {
     } else {
       this.setState({
         validated: ValidatedOptions.error,
-        errorMessage: validity.typeMismatch
-          ? ERROR_TYPE_MISMATCH
-          : undefined,
+        errorMessage: validity.typeMismatch ? ERROR_TYPE_MISMATCH : undefined,
       });
     }
 
@@ -98,28 +96,28 @@ export class DevfileLocationInput extends React.PureComponent<Props, State> {
     const { location, validated, errorMessage } = this.state;
 
     const fieldId = 'devfile-url';
-    const buttonDisabled = location === '' || validated === ValidatedOptions.error || this.props.isLoading;
+    const buttonDisabled =
+      location === '' || validated === ValidatedOptions.error || this.props.isLoading;
     return (
-      <Form onSubmit={e => {
-        e.preventDefault();
-        if (!buttonDisabled) {
-          this.handleClick();
-        }
-      }}>
+      <Form
+        onSubmit={e => {
+          e.preventDefault();
+          if (!buttonDisabled) {
+            this.handleClick();
+          }
+        }}
+      >
         <FormGroup
           fieldId={fieldId}
           validated={validated}
           helperTextInvalid={errorMessage}
           helperTextInvalidIcon={<ExclamationCircleIcon />}
         >
-          <Flex
-            direction={{ default: 'row' }}
-            grow={{ default: 'grow' }}
-          >
+          <Flex direction={{ default: 'row' }} grow={{ default: 'grow' }}>
             <FlexItem grow={{ default: 'grow' }}>
               <TextInput
                 id={fieldId}
-                type='url'
+                type="url"
                 aria-label="URL of devfile"
                 validated={validated}
                 placeholder="Enter devfile URL"
@@ -142,5 +140,4 @@ export class DevfileLocationInput extends React.PureComponent<Props, State> {
       </Form>
     );
   }
-
 }

@@ -28,10 +28,10 @@ export type OAuthResponse = {
     oauth_provider: string;
     oauth_version: string;
     oauth_authentication_url: string;
-  },
+  };
   errorCode: number;
   message: string;
-}
+};
 
 export function isOAuthResponse(response: any): response is OAuthResponse {
   if (response?.attributes?.oauth_provider && response?.attributes?.oauth_authentication_url) {
@@ -49,7 +49,7 @@ export interface ResolverState {
     branch?: string;
   };
   optionalFilesContent?: {
-    [fileName: string]: string
+    [fileName: string]: string;
   };
 }
 
@@ -73,13 +73,22 @@ interface ReceiveFactoryResolverErrorAction {
   error: string;
 }
 
-type KnownAction = RequestFactoryResolverAction | ReceiveFactoryResolverAction | ReceiveFactoryResolverErrorAction;
+type KnownAction =
+  | RequestFactoryResolverAction
+  | ReceiveFactoryResolverAction
+  | ReceiveFactoryResolverErrorAction;
 
 export type ActionCreators = {
-  requestFactoryResolver: (location: string, overrideParams?: { [params: string]: string }) => AppThunk<KnownAction, Promise<void>>;
+  requestFactoryResolver: (
+    location: string,
+    overrideParams?: { [params: string]: string },
+  ) => AppThunk<KnownAction, Promise<void>>;
 };
 
-export async function grabLink(links: api.che.core.rest.Link, filename: string): Promise<string | undefined> {
+export async function grabLink(
+  links: api.che.core.rest.Link,
+  filename: string,
+): Promise<string | undefined> {
   // handle servers not yet providing links
   if (!links || links.length === 0) {
     return undefined;
@@ -95,7 +104,14 @@ export async function grabLink(links: api.che.core.rest.Link, filename: string):
   try {
     // load it in raw format
     // see https://github.com/axios/axios/issues/907
-    const response = await axios.get<string>(href, { responseType: 'text', transformResponse: [(data) => { return data; }] });
+    const response = await axios.get<string>(href, {
+      responseType: 'text',
+      transformResponse: [
+        data => {
+          return data;
+        },
+      ],
+    });
     return response.data;
   } catch (error) {
     // content may not be there
@@ -107,65 +123,72 @@ export async function grabLink(links: api.che.core.rest.Link, filename: string):
 }
 
 export const actionCreators: ActionCreators = {
+  requestFactoryResolver:
+    (
+      location: string,
+      overrideParams?: { [params: string]: string },
+    ): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
 
-  requestFactoryResolver: (location: string, overrideParams?: { [params: string]: string }): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
-    dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
+      try {
+        await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
+        const data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(
+          location,
+          overrideParams,
+        );
+        if (!data.devfile) {
+          throw 'The specified link does not contain a valid Devfile.';
+        }
+        // now, grab content of optional files if they're there
+        const optionalFilesContent = {};
+        const vscodeExtensionsJson = await grabLink(data.links, '.vscode/extensions.json');
+        if (vscodeExtensionsJson) {
+          optionalFilesContent['.vscode/extensions.json'] = vscodeExtensionsJson;
+        }
+        const cheTheiaPlugins = await grabLink(data.links, '.che/che-theia-plugins.yaml');
+        if (cheTheiaPlugins) {
+          optionalFilesContent['.che/che-theia-plugins.yaml'] = cheTheiaPlugins;
+        }
+        const cheEditor = await grabLink(data.links, '.che/che-editor.yaml');
+        if (cheEditor) {
+          optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
+        }
+        const devfile = getDevfile(data, location);
 
-    const state = getState();
-
-    try {
-
-      await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
-      const data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(location, overrideParams);
-      if (!data.devfile) {
-        throw 'The specified link does not contain a valid Devfile.';
+        const { source, scm_info } = data;
+        dispatch({
+          type: 'RECEIVE_FACTORY_RESOLVER',
+          resolver: { location, devfile, source, scm_info, optionalFilesContent },
+        });
+        return;
+      } catch (e) {
+        const error = e as RequestError;
+        const response = error.response as AxiosResponse;
+        const responseData = response.data;
+        if (response.status === 401 && isOAuthResponse(responseData)) {
+          throw responseData;
+        }
+        const errorMessage =
+          'Failed to request factory resolver: ' + common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
       }
-      // now, grab content of optional files if they're there
-      const optionalFilesContent = {};
-      const vscodeExtensionsJson = await grabLink(data.links, '.vscode/extensions.json');
-      if (vscodeExtensionsJson) {
-        optionalFilesContent['.vscode/extensions.json'] = vscodeExtensionsJson;
-      }
-      const cheTheiaPlugins = await grabLink(data.links, '.che/che-theia-plugins.yaml');
-      if (cheTheiaPlugins) {
-        optionalFilesContent['.che/che-theia-plugins.yaml'] = cheTheiaPlugins;
-      }
-      const cheEditor = await grabLink(data.links, '.che/che-editor.yaml');
-      if (cheEditor) {
-        optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
-      }
-      const devfile = getDevfile(data, location);
-
-      const { source, scm_info } = data;
-      dispatch({
-        type: 'RECEIVE_FACTORY_RESOLVER',
-        resolver: { location, devfile, source, scm_info, optionalFilesContent }
-      });
-      return;
-    } catch (e) {
-      const error = e as RequestError;
-      const response = error.response as AxiosResponse;
-      const responseData = response.data;
-      if (response.status === 401 && isOAuthResponse(responseData)) {
-        throw responseData;
-      }
-      const errorMessage = 'Failed to request factory resolver: ' + common.helpers.errors.getMessage(e);
-      dispatch({
-        type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
-        error: errorMessage,
-      });
-      throw errorMessage;
-    }
-  },
-
+    },
 };
 
 const unloadedState: State = {
   isLoading: false,
-  resolver: {}
+  resolver: {},
 };
 
-export const reducer: Reducer<State> = (state: State | undefined, incomingAction: Action): State => {
+export const reducer: Reducer<State> = (
+  state: State | undefined,
+  incomingAction: Action,
+): State => {
   if (state === undefined) {
     return unloadedState;
   }

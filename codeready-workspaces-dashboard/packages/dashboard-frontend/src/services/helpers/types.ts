@@ -30,9 +30,9 @@ export interface FactoryResolver {
 }
 
 export type FactoryResolverScmInfo = {
-  'clone_url': string;
-  'scm_provider': string;
-  'branch'?: string;
+  clone_url: string;
+  scm_provider: string;
+  branch?: string;
 };
 
 export type DevfileV2ProjectSource = {
@@ -40,7 +40,7 @@ export type DevfileV2ProjectSource = {
   git: {
     remotes: { origin: string };
     checkoutFrom?: { revision: string };
-  }
+  };
 };
 
 export enum WorkspaceStatus {
@@ -58,11 +58,10 @@ export enum DevWorkspaceStatus {
   TERMINATING = 'Terminating',
   RUNNING = 'Running',
   STOPPED = 'Stopped',
-  STOPPING = 'Stopping'
+  STOPPING = 'Stopping',
 }
 
-export type CreateWorkspaceTab = 'quick-add'
-  | 'custom-workspace';
+export type CreateWorkspaceTab = 'quick-add' | 'custom-workspace';
 
 export enum IdeLoaderTab {
   Progress = 0,
