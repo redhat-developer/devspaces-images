@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.14
-    createdAt: "2021-10-29T01:55:10+00:00"
+    createdAt: "2021-11-11T04:36:56+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1
       instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1173,10 +1173,6 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php-rhel8:2.14
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCNAK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php-rhel8:2.14
-                      - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNAK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-endpoint-rhel8:2.14
-                      - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNAK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.14
                       - name: RELATED_IMAGE_dashboard
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-dashboard-rhel8:2.14
                       - name: RELATED_IMAGE_devfile_registry
