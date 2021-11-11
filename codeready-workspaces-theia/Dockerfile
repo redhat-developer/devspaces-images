@@ -190,7 +190,7 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-101 as runtime
+FROM ubi8/nodejs-12:1-102 as runtime
 USER 0
 RUN yum -y -q update --nobest && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
