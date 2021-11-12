@@ -1,5 +1,5 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
-FROM ubi8-minimal:8.4-210 
+FROM ubi8-minimal:8.5-204 
 
 COPY asset-*.tar.gz /tmp/assets/ 
 COPY script/ca-certificates.crt /etc/ssl/certs/
@@ -17,11 +17,10 @@ ENTRYPOINT ["/traefik"]
 
 ENV SUMMARY="Red Hat CodeReady Workspaces traefik container" \
     DESCRIPTION="Red Hat CodeReady Workspaces traefik container" \
-    PRODNAME="codeready-workspaces" \
-    COMPNAME="traefik-rhel8" \
     TRAEFIK_VERSION="v2.5.0" \
-    GOLANG_VERSION="1.16.2"
-
+    GOLANG_VERSION="1.16.2" \
+    PRODNAME="codeready-workspaces" \
+    COMPNAME="traefik-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \
