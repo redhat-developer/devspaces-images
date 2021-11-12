@@ -70,7 +70,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 
 
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	
 	# x86
 	./kamel-${KAMEL_VERSION}-x86_64.tar.gz | tar -xz && mv kamel asset-x86_64-kamel
