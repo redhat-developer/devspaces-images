@@ -4,6 +4,7 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 def SOURCE_REPO = "traefik/traefik" 
+String SOURCE_BRANCH = "master" // NOTE: can use https://github.com/redhat-developer/traefik/tree/crw-2.y-rhel-8 if need to fork or use a commit that's not behind a tag/branch
 //   SOURCE_TAG // the tag of the release to rebuild from upstream
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use as target
 //   MIDSTM_BRANCH

@@ -33,7 +33,8 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
     }
 
     parameters{
-        booleanParam("DRY_RUN", false, "default true; check box to not do anything, just output log")
+        booleanParam("DRY_RUN", false, "check box for dry run only (no issues will be created)")
+        stringParam("NUM_WEEKS", "2", "look at issues closed in last n weeks; default 2")
     }
 
     // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

@@ -13,8 +13,8 @@ timeout(120) {
         try {
             stage ("Check for updated images") {
                 wrap([$class: 'TimestamperBuildWrapper']) {
-                    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_KEY'),
-			            usernamePassword(credentialsId: 'jira-user-password', usernameVariable: 'JIRA_USER', passwordVariable: 'JIRA_PASSWORD'),
+                    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+			            usernamePassword(credentialsId: 'jira-email-token', usernameVariable: 'JIRA_EMAIL', passwordVariable: 'JIRA_TOKEN'),
                         file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
                         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
                         def util = load "${WORKSPACE}/util.groovy"
@@ -22,17 +22,23 @@ timeout(120) {
                         util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
                         GHIRA_OPTIONS = ''
                         if (DRY_RUN.equals("true")) {
-                            GHIRA_OPTIONS += "--dryrun"
+                            GHIRA_OPTIONS += " --dryrun"
+                        }
+                        if (!NUM_WEEKS.equals("")) {
+                            GHIRA_OPTIONS += " --weeks " + NUM_WEEKS
                         }
 
                         sh '''#!/bin/bash -xe
-                            sudo dnf install -yq python3-virtualenv redhat-rpm-config gcc libffi-devel python3-devel openssl-devel cargo rust
-                            cd ${WORKSPACE}/crw/product/ghira
-                            pip install -q --upgrade pip
-                            virtualenv-3 .
-                            . bin/activate
-                            pip install -r requirements.txt
-                            python3 ghira ''' + GHIRA_OPTIONS + '''
+sudo dnf install -yq python3-virtualenv redhat-rpm-config gcc libffi-devel python3-devel openssl-devel cargo rust
+cd ${WORKSPACE}/crw/product/ghira
+pip install -q --upgrade pip
+virtualenv-3 .
+. bin/activate
+pip install -r requirements.txt
+export JIRA_EMAIL="''' + JIRA_EMAIL + '''"
+export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
+export JIRA_TOKEN="''' + JIRA_TOKEN + '''"
+python3 ghira ''' + GHIRA_OPTIONS + '''
                             '''
                     } // with
                 } // wrap
