@@ -65,7 +65,7 @@ fi
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --fetch-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 
 	#get names of the downloaded tarballs
 	theTarGzs="$(ls *.tar.gz)"
