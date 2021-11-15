@@ -114,7 +114,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:fa6ae635ce3e4581ad2e13e95ef0c48975e95ce8642f6252577abe7c92b63068
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:415dad894e8268c1c9836599b95eff87da5b87ff032d040fc0301d9e0daba30d
     createdAt: "2021-11-10T15:33:06+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1137,9 +1137,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:be418de31d091fe112904d30f7e8d0a900eccdaa4ff579aa5be545c105f74e35
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:230774a1a7b2aaeaf95c39295c8c271aff61d73301c44735c970bc0fcc23fdf3
+                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:3a6ff083fde5d262456c96b4752e3d802046ef14d9864f52aa31176aff18bcdd
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCMYK
-                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:230774a1a7b2aaeaf95c39295c8c271aff61d73301c44735c970bc0fcc23fdf3
+                  value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:3a6ff083fde5d262456c96b4752e3d802046ef14d9864f52aa31176aff18bcdd
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCMYK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:e400e95009d6c64656c0c8281bc5bc3de545bf46b268a48401c3baa18309fb3a
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCMYK
@@ -1147,7 +1147,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2dfd60c60c775fee2c7a20c2e4d95be163587c233411232ca5bf6ea12ad8dcf3
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:43f9db7034e4dd7d4d6e983a24bb6a531ebb2ebb13d273ad4feab3ced7e31ce9
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:95bb0ad3a8db800f7aff6e4049a1f1bfa1c705ebecca4ae2c9d1c5bf28d19052
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1173,7 +1173,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:22b1c6ae4622a4680ad00d8ea610db3025d6d1cf50f08eff342238c5588c9817
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:798931885554875fe728d1fe84bfed70c844902a1e67ce0d451ce82156ebca4c
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1190,7 +1190,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:fa6ae635ce3e4581ad2e13e95ef0c48975e95ce8642f6252577abe7c92b63068
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:415dad894e8268c1c9836599b95eff87da5b87ff032d040fc0301d9e0daba30d
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1472,10 +1472,10 @@ spec:
   version: 2.13.0
   replaces: crwoperator.v2.12.1
   relatedImages:
-  - name: crw-2-rhel8-operator-fa6ae635ce3e4581ad2e13e95ef0c48975e95ce8642f6252577abe7c92b63068-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:fa6ae635ce3e4581ad2e13e95ef0c48975e95ce8642f6252577abe7c92b63068
+  - name: crw-2-rhel8-operator-415dad894e8268c1c9836599b95eff87da5b87ff032d040fc0301d9e0daba30d-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:415dad894e8268c1c9836599b95eff87da5b87ff032d040fc0301d9e0daba30d
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:fa6ae635ce3e4581ad2e13e95ef0c48975e95ce8642f6252577abe7c92b63068
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:415dad894e8268c1c9836599b95eff87da5b87ff032d040fc0301d9e0daba30d
   - name: che_server
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:d9e37967d0d8115a13f9590527cc931bb74e4fdd3e21459e91923112f6c12d84
   - name: che_server_secure_exposer_jwt_proxy_image
@@ -1535,9 +1535,9 @@ spec:
   - name: codeready_workspaces_stacks_golang_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8@sha256:be418de31d091fe112904d30f7e8d0a900eccdaa4ff579aa5be545c105f74e35
   - name: codeready_workspaces_stacks_php_devfile_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:230774a1a7b2aaeaf95c39295c8c271aff61d73301c44735c970bc0fcc23fdf3
+    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:3a6ff083fde5d262456c96b4752e3d802046ef14d9864f52aa31176aff18bcdd
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcmyk
-    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:230774a1a7b2aaeaf95c39295c8c271aff61d73301c44735c970bc0fcc23fdf3
+    image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:3a6ff083fde5d262456c96b4752e3d802046ef14d9864f52aa31176aff18bcdd
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcmyk
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:e400e95009d6c64656c0c8281bc5bc3de545bf46b268a48401c3baa18309fb3a
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcmyk
@@ -1545,7 +1545,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2dfd60c60c775fee2c7a20c2e4d95be163587c233411232ca5bf6ea12ad8dcf3
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:43f9db7034e4dd7d4d6e983a24bb6a531ebb2ebb13d273ad4feab3ced7e31ce9
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:95bb0ad3a8db800f7aff6e4049a1f1bfa1c705ebecca4ae2c9d1c5bf28d19052
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
   - name: gateway_authentication_sidecar
@@ -1571,7 +1571,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:4ff9d6342dfd3b85234ea554b92867c649744ece9aa7f8751aae06bf9d2d324c
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:22b1c6ae4622a4680ad00d8ea610db3025d6d1cf50f08eff342238c5588c9817
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:798931885554875fe728d1fe84bfed70c844902a1e67ce0d451ce82156ebca4c
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
