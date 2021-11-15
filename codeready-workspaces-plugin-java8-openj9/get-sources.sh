@@ -13,7 +13,7 @@ targetFlag=""
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.18"
-ASSET_NAME="java8-openj9"
+ASSET_NAME="plugin-java8-openj9"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in

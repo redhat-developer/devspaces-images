@@ -1,6 +1,5 @@
 #!/bin/bash -xe
-# script to get tarball(s) from Jenkins, plus additional dependencies as needed
-# 
+# script to get dependencies and trigger rhpkg build
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0

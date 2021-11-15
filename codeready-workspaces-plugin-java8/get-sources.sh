@@ -12,7 +12,7 @@ generateDockerfileLABELs=1
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.18"
-ASSET_NAME="java8"
+ASSET_NAME="plugin-java8"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in

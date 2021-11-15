@@ -7,7 +7,7 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
-ASSET_NAME="kubernetes"
+ASSET_NAME="plugin-kubernetes"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in

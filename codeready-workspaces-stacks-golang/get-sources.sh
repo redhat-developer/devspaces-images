@@ -9,7 +9,7 @@ PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
 generateDockerfileLABELs=1
-ASSET_NAME="golang"
+ASSET_NAME="stacks-golang"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in

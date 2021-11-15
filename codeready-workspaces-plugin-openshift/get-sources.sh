@@ -1,6 +1,5 @@
 #!/bin/bash -xe
-# script to trigger rhpkg - no sources needed here
-
+# script to build/fetch sources, then trigger rhpkg 
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0

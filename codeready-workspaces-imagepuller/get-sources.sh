@@ -1,4 +1,5 @@
 #!/bin/bash -xe
+# script to get dependencies and trigger rhpkg build
 
 scratchFlag=""
 doRhpkgContainerBuild=1
