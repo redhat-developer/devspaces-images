@@ -27,4 +27,10 @@ if ! grep -Fq "${USER_ID}" /etc/passwd; then
     sed "s/\${HOME}/\/home\/jboss/g" > /etc/group
 fi
 
+${HOME}/gopath.sh
+
+if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
+  ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+fi
+
 exec "$@"

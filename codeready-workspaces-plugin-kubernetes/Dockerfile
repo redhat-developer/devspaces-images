@@ -78,7 +78,7 @@ RUN microdnf install -y which dnf && dnf module reset -y nodejs && \
 ADD etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+CMD tail -f /dev/null
 
 ENV SUMMARY="Red Hat CodeReady Workspaces - Kubernetes plugin container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - Kubernetes plugin container" \

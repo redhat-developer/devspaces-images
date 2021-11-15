@@ -36,34 +36,8 @@ if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && sudo -n true > /de
     sudo chown ${USER_ID}:${GROUP_ID} /projects
 fi
 
-# SITTERM / SIGINT
-responsible_shutdown() {
-  echo ""
-  echo "Received SIGTERM"
-  kill -SIGINT ${PID}
-  wait ${PID}
-  exit;
-}
-
-set -e
-
-# setup handlers
-# on callback, kill the last background process, which is `tail -f /dev/null` and execute the specified handler
-trap 'responsible_shutdown' SIGHUP SIGTERM SIGINT
-
-${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
-
-PID=$!
-
-# See: http://veithen.github.io/2014/11/16/sigterm-propagation.html
-wait ${PID}
-wait ${PID}
-EXIT_STATUS=$?
-
-# wait forever
-while true
-do
-  tail -f /dev/null & wait ${!}
-done
+if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
+  ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
+fi
 
 exec "$@"

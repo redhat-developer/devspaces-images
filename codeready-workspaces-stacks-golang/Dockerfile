@@ -80,7 +80,7 @@ RUN mkdir -p ${HOME}/go && \
 USER jboss
 ENTRYPOINT ["/home/jboss/entrypoint.sh"]
 WORKDIR /projects
-CMD ${HOME}/gopath.sh & tail -f /dev/null
+CMD tail -f /dev/null
 
 
 # insert generated LABELs below this line
