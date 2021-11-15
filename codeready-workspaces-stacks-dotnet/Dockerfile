@@ -45,13 +45,13 @@ USER root
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io
 # COPY content_sets*repo /etc/yum.repos.d/
 
-# For OpenShift Client 4 (oc): rhocp-4.8-for-rhel-8-x86_64-rpms
+# For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.8/os/Packages/o/openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8.ppc64le.rpm
-RUN yum install -y --setopt=tsflags=nodocs wget curl openshift-clients-4.8.0-202109201328.p0.git.88e7eba.assembly.stream.el8 dotnet dotnet-host \
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.ppc64le.rpm
+RUN yum install -y --setopt=tsflags=nodocs wget curl openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8 dotnet dotnet-host \
     dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION} && \
     yum remove -y nodejs && \
     yum -y -q update && \
