@@ -91,6 +91,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
               util.installHub("2.14.2", GOLANG_VERSION)
               CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
               println("[INFO] Using CSV version = " + CSV_VERSION)
+              util.bootstrap(CRW_KEYTAB, true) // force bootstrapping again on each node, in case we haven't logged in to registries
               util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
               sh('''#!/bin/bash -xe
                 pushd sources/''' + SYNC_REPOS[i] + '''
@@ -138,6 +139,7 @@ timeout(600) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
+            util.bootstrap(CRW_KEYTAB, true) // force bootstrapping again on each node, in case we haven't logged in to registries
             util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
@@ -197,8 +199,7 @@ rm -f /tmp/rsync-excludes
                   export KRB5CCNAME=/var/tmp/crw-build_ccache
                   cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
                   if [[ -f get-sources.sh ]]; then
-		     # TODO should this use -v CSV_VERSION instead of JOB_BRANCH?
-                    ./get-sources.sh --pull-assets --nobuild ''' + JOB_BRANCH + '''
+                    ./get-sources.sh --pull-assets --nobuild -v ''' + CSV_VERSION + '''
                   else 
                     echo "[ERROR] Could not run get-sources.sh!"; exit 1
                   fi
