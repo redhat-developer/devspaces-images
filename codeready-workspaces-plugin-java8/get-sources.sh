@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 # script to get tarball(s) from GitHub Releases, plus additional dependencies as needed
+TARGETDIR=$(cd "$(dirname "$0")"; pwd)
 verbose=1
 scratchFlag=""
 JOB_BRANCH=""
@@ -61,7 +62,9 @@ fi
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	#### override any existing tarballs with newer ones from asset build
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	REPO_PATH=""
+	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 
 	#get names of the downloaded tarballs
 	theTarGzs="$(ls *.tar.gz)"

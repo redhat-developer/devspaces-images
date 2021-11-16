@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 # script to trigger rhpkg after fetching GH release asset files
-#
+TARGETDIR=$(cd "$(dirname "$0")"; pwd)
 verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
@@ -65,7 +65,9 @@ fi
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	REPO_PATH=""
+	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 
 	#get names of the downloaded tarballs
 	theTarGzs="$(ls *.tar.gz)"

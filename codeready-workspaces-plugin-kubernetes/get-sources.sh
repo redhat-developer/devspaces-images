@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 # script to get tarball(s) from GitHub Releases
+TARGETDIR=$(cd "$(dirname "$0")"; pwd)
 scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
@@ -70,7 +71,9 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 
 
 	log "[INFO] Download Assets:"
-	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	REPO_PATH=""
+	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"
+	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 	
 	# x86
 	./kamel-${KAMEL_VERSION}-x86_64.tar.gz | tar -xz && mv kamel asset-x86_64-kamel
