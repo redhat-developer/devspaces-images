@@ -119,7 +119,7 @@ fi
 if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Commit new sources"
 	rhpkg new-sources ${TARGZs}
-	COMMIT_MSG="Update ${TARGZs}"
+	COMMIT_MSG="${TARGZs}"
 	maxfilesize=$(du -b ${TARGZs} | sed -r -e "s#\t.+##" | sort -Vr | head -1)
 	# include any new files...
 	git add . -A -f

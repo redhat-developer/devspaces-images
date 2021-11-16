@@ -93,7 +93,7 @@ if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
-	COMMIT_MSG="chore: update from GH ${ASSET_NAME} assets :: ${theTarGzs}"
+	COMMIT_MSG="GH ${ASSET_NAME} assets :: ${theTarGzs}"
 	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
