@@ -21,3 +21,6 @@ traefik_changelog.md
 /asset-traefik-x86_64.tar.gz
 /asset-traefik-s390x.tar.gz
 /asset-traefik-ppc64le.tar.gz
+/asset--ppc64le.tar.gz
+/asset--s390x.tar.gz
+/asset--x86_64.tar.gz
