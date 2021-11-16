@@ -66,7 +66,7 @@ fi
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Download Assets:"
 	REPO_PATH=""
-	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"
+	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"; fi
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 
 	#get names of the downloaded tarballs
