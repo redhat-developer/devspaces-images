@@ -7,17 +7,21 @@ def config = jsonSlurper.parseText(curlCMD);
 
 def JOB_BRANCHES = config.Jobs.configbump.keySet()
 for (JB in JOB_BRANCHES) {
+    JOB_BRANCH=""+JB
     //check for jenkinsfile
     FILE_CHECK = false
     try {
-        fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-configbump_'+JB+'.jenkinsfile')
+        if (JOB_BRANCH.equals("2.13")) {
+            fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-configbump_'+JB+'.jenkinsfile')
+        } else {
+            fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
+        }
         FILE_CHECK = true
     }
     catch(err) {
         println "No jenkins file found for " + JB
     }
     if (FILE_CHECK) {
-        JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
@@ -25,6 +29,7 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="configbump"
             MIDSTM_NAME="configbump"
             SOURCE_REPO="che-incubator/" + UPSTM_NAME
+            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
             def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.configbump[JB].upstream_branch[0]
             def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.configbump[JB].upstream_branch[1]
@@ -77,6 +82,7 @@ Artifact builder + sync job; triggers brew after syncing
                 //         }
                 //     }
                 // }
+
                 disableResumeJobProperty()
             }
 
@@ -88,9 +94,12 @@ Artifact builder + sync job; triggers brew after syncing
             }
 
             parameters{
+                stringParam("SOURCE_REPO", SOURCE_REPO)
                 stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
-                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for hub install")
+                stringParam("MIDSTM_REPO", MIDSTM_REPO)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("MIDSTM_NAME", MIDSTM_NAME)
+                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for hub install")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 
@@ -100,7 +109,11 @@ Artifact builder + sync job; triggers brew after syncing
             definition {
                 cps{
                     sandbox(true)
-                    script(readFileFromWorkspace('jobs/CRW_CI/crw-configbump_'+JOB_BRANCH+'.jenkinsfile'))
+                    if (JOB_BRANCH.equals("2.13")) {
+                        script(readFileFromWorkspace('jobs/CRW_CI/crw-configbump_'+JOB_BRANCH+'.jenkinsfile'))
+                    } else {
+                        script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                    }
                 }
             }
         }

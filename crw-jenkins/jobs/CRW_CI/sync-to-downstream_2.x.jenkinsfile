@@ -32,15 +32,17 @@ timeout(120) {
         println("[INFO] Using CSV version = " + CSV_VERSION)
         util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
         for (int i=0; i < SYNC_REPOS.size(); i++) {//actually use hub to remove release for each repo in SYNC_REPOs
-          sh('''#!/bin/bash -xe
-            pushd sources/''' + SYNC_REPOS[i] + '''
-            if [[ -f get-sources.sh ]]; then 
-              ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
-            else 
-              echo "[ERROR] Could not run get-sources.sh!"; exit 1
-            fi
-            popd
-          ''')
+          if (SYNC_REPOS[i]?.trim()) { // filter out nullstring values
+            sh('''#!/bin/bash -xe
+              pushd sources/''' + SYNC_REPOS[i] + '''
+              if [[ -f get-sources.sh ]]; then 
+                ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
+              else 
+                echo "[ERROR] Could not run get-sources.sh --delete-assets (for ''' + SYNC_REPOS[i] + ''')"; exit 1
+              fi
+              popd
+            ''')
+          } //if not null
         }//for
       }//creds
     }//stage
@@ -50,67 +52,70 @@ timeout(120) {
 // prestage #2 for building lang servers - create assets and publish to GH releases
 // TODO this could be run in a parallel() block to save time
 for (int i=0; i < SYNC_REPOS.size(); i++) {
-  if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
-    nodeLabelString = ""
-    timeout(120) {
-      node(nodeLabelAnyArch){
-        stage("Determine arches on which to build"){
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-            def util = load "${WORKSPACE}/util.groovy"
-            util.installYq()
-            nodeLabelString = sh( 
-              script: '''
-curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOS[i] + '''/container.yaml | yq -r '.platforms.only[]' 
-              ''', returnStdout: true).trim()
-        }
-      }//node
-    }//timeout
-    def List nodeLabels = nodeLabelString.tokenize("\n")
-    nodeLabel=nodeLabelXArch // by default assume we're on x64
-    for (int j=0; j < nodeLabels.size(); j++) {
-      print "NodeLabel[j]: " + nodeLabels[j]
-      switch(nodeLabels[j]) {
-        case "s390x":
-          nodeLabel = "s390x-rhel8"
-          break
-        case "ppc64le":
-          nodeLabel = "ppc64le-rhel8"
-          break
-      }
-      print "[" + (j+1) + "/" + nodeLabels.size() + "] Run on ${nodeLabel}"
+  SYNC_REPOi=SYNC_REPOS[i]
+  if (SYNC_REPOi?.trim()) { // filter out nullstring values
+    if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
+      nodeLabelString = ""
       timeout(120) {
-        node(nodeLabel){
-          stage("Build assets for " + SYNC_REPOS[i]) {
-            withCredentials([
-              string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-              string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
-              usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
-              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')
-            ]) {
-              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+        node(nodeLabelAnyArch){
+          stage("Determine arches on which to build"){
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
               def util = load "${WORKSPACE}/util.groovy"
-              cleanWs()
-              util.installHub("2.14.2", GOLANG_VERSION)
-              CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
-              println("[INFO] Using CSV version = " + CSV_VERSION)
-              util.bootstrap(CRW_KEYTAB, true) // force bootstrapping again on each node, in case we haven't logged in to registries
-              util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
-              sh('''#!/bin/bash -xe
-                pushd sources/''' + SYNC_REPOS[i] + '''
-                if [[ -f get-sources.sh ]]; then 
-                  sudo setenforce 0 || true # disable selinux for podman builds
-                  ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
-                else 
-                  echo "[ERROR] Could not run get-sources.sh!"; exit 1
-                fi
-                popd
-              ''')
-            }//creds
-          }//stage
+              util.installYq()
+              nodeLabelString = sh( 
+                script: '''
+  curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOS[i] + '''/container.yaml | yq -r '.platforms.only[]' 
+                ''', returnStdout: true).trim()
+          }
         }//node
       }//timeout
-    }//for
-  }//if
+      def List nodeLabels = nodeLabelString.tokenize("\n")
+      nodeLabel=nodeLabelXArch // by default assume we're on x64
+      for (int j=0; j < nodeLabels.size(); j++) {
+        print "NodeLabel[j]: " + nodeLabels[j]
+        switch(nodeLabels[j]) {
+          case "s390x":
+            nodeLabel = "s390x-rhel8"
+            break
+          case "ppc64le":
+            nodeLabel = "ppc64le-rhel8"
+            break
+        }
+        print "[" + (j+1) + "/" + nodeLabels.size() + "] Run on ${nodeLabel}"
+        timeout(120) {
+          node(nodeLabel){
+            stage("Build assets for " + SYNC_REPOi) {
+              withCredentials([
+                string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+                string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
+                usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
+                file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')
+              ]) {
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+                def util = load "${WORKSPACE}/util.groovy"
+                cleanWs()
+                util.installHub("2.14.2", GOLANG_VERSION)
+                CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+                println("[INFO] Using CSV version = " + CSV_VERSION)
+                util.loginToRegistries() // force log in to registries
+                util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+                sh('''#!/bin/bash -xe
+                  pushd sources/''' + SYNC_REPOi + '''
+                  if [[ -f get-sources.sh ]]; then 
+                    sudo setenforce 0 || true # disable selinux for podman builds
+                    ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
+                  else 
+                    echo "[ERROR] Could not run get-sources.sh --publish-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+                  fi
+                  popd
+                ''')
+              }//creds
+            }//stage
+          }//node
+        }//timeout
+      }//for
+    }//if
+  }//if not null
 }//for
 
 // NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...

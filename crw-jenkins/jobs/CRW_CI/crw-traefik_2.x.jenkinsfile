@@ -1,5 +1,9 @@
 #!/usr/bin/env groovy
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+///// THIS FILE IS DEPRECATED and not used in 2.14+
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+
 import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
@@ -134,7 +138,7 @@ for (int i=0; i < nodeLabelsMultiArch.size(); i++) {
                             sh('''#!/bin/bash -x
                             cd ''' + TARGET_DIR+ '''
                             chmod +x build/rhel.binary.build.sh
-                            ./build/rhel.binary.build.sh -v ''' + CSV_VERSION + ''' -b ''' + MIDSTM_BRANCH + '''
+                            ./build/rhel.binary.build.sh -v ''' + CSV_VERSION + ''' -b ''' + MIDSTM_BRANCH + ''' -n ''' + MIDSTM_NAME + '''
                             ''')
                             currentBuild.description+="; New ${nodeLabelMultiArch} artifacts built"
                         } else {

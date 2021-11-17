@@ -7,17 +7,21 @@ def config = jsonSlurper.parseText(curlCMD);
 
 def JOB_BRANCHES = config.Jobs.traefik.keySet()
 for (JB in JOB_BRANCHES) {
+    JOB_BRANCH=""+JB
     //check for jenkinsfile
     FILE_CHECK = false
     try {
-        fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-traefik_'+JB+'.jenkinsfile')
+        if (JOB_BRANCH.equals("2.13")) {
+            fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-traefik_'+JB+'.jenkinsfile')
+        } else {
+            fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
+        }
         FILE_CHECK = true
     }
     catch(err) {
         println "No jenkins file found for " + JB
     }
     if (FILE_CHECK) {
-        JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
@@ -25,8 +29,10 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="traefik"
             MIDSTM_NAME="traefik"
             SOURCE_REPO="traefik/" + UPSTM_NAME
+            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
-            //No check since traefik uses non-standard branches
+            //No check since traefik uses a tag instead of a branch
+            SOURCE_BRANCH="master"
             SOURCE_TAG=""+config.Jobs.traefik[JB].upstream_branch[0]
 
             description('''
@@ -67,6 +73,7 @@ Artifact builder + sync job; triggers brew after syncing
                 //         }
                 //     }
                 // }
+
                 disableResumeJobProperty()
             }
 
@@ -78,9 +85,13 @@ Artifact builder + sync job; triggers brew after syncing
             }
 
             parameters{
+                stringParam("SOURCE_REPO", SOURCE_REPO)
+                stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
                 stringParam("SOURCE_TAG", SOURCE_TAG, "Fetch branch, then build from tag (if set)")
-                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for 2.y, use 1.16.2 (traefik from v2.5.0)")
+                stringParam("MIDSTM_REPO", MIDSTM_REPO)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("MIDSTM_NAME", MIDSTM_NAME)
+                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for 2.y, use 1.16.2 (traefik from v2.5.0)")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 
@@ -90,7 +101,11 @@ Artifact builder + sync job; triggers brew after syncing
             definition {
                 cps{
                     sandbox(true)
-                    script(readFileFromWorkspace('jobs/CRW_CI/crw-traefik_'+JOB_BRANCH+'.jenkinsfile'))
+                    if (JOB_BRANCH.equals("2.13")) {
+                        script(readFileFromWorkspace('jobs/CRW_CI/crw-traefik_'+JOB_BRANCH+'.jenkinsfile'))
+                    } else {
+                        script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                    }
                 }
             }
         }
