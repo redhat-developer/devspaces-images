@@ -1123,7 +1123,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_s390x_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c1c5284a11c4a79c2c15b802f5f9b57be671e6ba94d30be44521c93ebd780e82
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_kubernetes_plugin_registry_image_GIXDCNAK
-                  value: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:20d5a65bbf637b7a55fac8e4758b62ffb2e3ed5f2bcdaedb90d131116d3e35ae
+                  value: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:27090706a7631954dc445d59af76934d30adb3d41e890fd4a0fc47abc8b61c91
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8@sha256:37856159727976284b68636412c9295629bf42062d0f27e798610d2bfbb649f9
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCNAK
@@ -1523,7 +1523,7 @@ spec:
   - name: codeready_workspaces_plugin_java8_s390x_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/plugin-java8-openj9-rhel8@sha256:c1c5284a11c4a79c2c15b802f5f9b57be671e6ba94d30be44521c93ebd780e82
   - name: codeready_workspaces_plugin_kubernetes_plugin_registry_image_gixdcnak
-    image: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:20d5a65bbf637b7a55fac8e4758b62ffb2e3ed5f2bcdaedb90d131116d3e35ae
+    image: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8@sha256:27090706a7631954dc445d59af76934d30adb3d41e890fd4a0fc47abc8b61c91
   - name: codeready_workspaces_plugin_openshift_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8@sha256:37856159727976284b68636412c9295629bf42062d0f27e798610d2bfbb649f9
   - name: codeready_workspaces_stacks_cpp_devfile_registry_image_gixdcnak
