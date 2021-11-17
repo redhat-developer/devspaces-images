@@ -53,7 +53,7 @@ fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
 	log "[INFO] Delete Previous GitHub Releases:"
-	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}}
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	exit 0;
 fi
 

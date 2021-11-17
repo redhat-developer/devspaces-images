@@ -69,7 +69,7 @@ ${PODMAN} run --rm -v "${RUN_DIR}"/target/brew-assets:/tmp/brew-assets -u root $
 
 # tar the binary
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball="${WORKSPACE}/asset-${SYNC_REPO}-${ARCH}.tar.gz"
+tarball="${WORKSPACE}/asset-${ASSET_NAME}-${ARCH}.tar.gz"
 tar -czf "${tarball}" -C target/brew-assets .
 
 if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
