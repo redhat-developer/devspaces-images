@@ -74,25 +74,9 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 	REPO_PATH=""
 	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"; fi
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
-	
-	# x86
-	tar -xz ./kamel-${KAMEL_VERSION}-x86_64.tar.gz && mv kamel asset-x86_64-kamel
-
-	# s390x
-	tar -xz ./kamel-${KAMEL_VERSION}-s390x.tar.gz && mv kamel asset-s390x-kamel
-
-	# ppc64le
-	tar -xz ./kamel-${KAMEL_VERSION}-ppc64le.tar.gz && mv kamel asset-ppc64le-kamel
-	
-	for d in asset-*; do
-		echo "[INFO] Pack ${d}.tar.gz"
-		mv ${d} ${d##*-}
-		tar -cvzf ${d}.tar.gz ${d##*-}
-		mv ${d##*-} ${d}-unpacked; done
-	rm -fr asset-*-unpacked
 fi
 
-outputFiles="$(ls *.tar.gz || true)"
+outputFiles="$(ls asset-*.tar.gz || true)"
 if [[ ${outputFiles} ]]; then
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}

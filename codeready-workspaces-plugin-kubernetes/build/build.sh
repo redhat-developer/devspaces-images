@@ -56,7 +56,7 @@ fi
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball="${WORKSPACE}/kamel-${KAMEL_VERSION}-${ARCH}.tar.gz"
+tarball="${WORKSPACE}/asset-${ARCH}-kamel.tar.gz"
 
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE} sh -c "
     cd /tmp
