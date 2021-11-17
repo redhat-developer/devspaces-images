@@ -107,10 +107,14 @@ export async function grabLink(links: api.che.core.rest.Link, filename: string):
 }
 
 export const actionCreators: ActionCreators = {
-  requestFactoryResolver: (location: string, overrideParams?: { [params: string]: string }): AppThunk<KnownAction, Promise<void>> => async (dispatch): Promise<void> => {
+
+  requestFactoryResolver: (location: string, overrideParams?: { [params: string]: string }): AppThunk<KnownAction, Promise<void>> => async (dispatch, getState): Promise<void> => {
     dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
 
+    const state = getState();
+
     try {
+
       await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
       const data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(location, overrideParams);
       if (!data.devfile) {
@@ -131,6 +135,7 @@ export const actionCreators: ActionCreators = {
         optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
       }
       const devfile = getDevfile(data, location);
+
       const { source, scm_info } = data;
       dispatch({
         type: 'RECEIVE_FACTORY_RESOLVER',
