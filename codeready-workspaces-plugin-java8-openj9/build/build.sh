@@ -14,7 +14,7 @@
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
-Example: $0 -v 2.y.0 -n java8-openj9
+Example: $0 -v 2.y.0 -n plugin-java8-openj9
 "
     exit
 }
