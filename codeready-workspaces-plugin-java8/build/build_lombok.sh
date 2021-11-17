@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -13,13 +13,13 @@
 
 # shellcheck disable=SC2155
 export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
-export OPENJDK11_IMAGE="registry.access.redhat.com/ubi8/openjdk-11:1.10-1.1634738701"
+export OPENJDK11_IMAGE="registry.access.redhat.com/ubi8/openjdk-11:1.10"
 export ANT_VERSION=1.10.12
 
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
-Example: $0 -v 2.y.0 -n java8-openj9
+Example: $0 -v 2.y.0 -n noarch
 "
     exit
 }
