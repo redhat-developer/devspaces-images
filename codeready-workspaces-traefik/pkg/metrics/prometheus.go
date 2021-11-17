@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-kit/kit/metrics"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
@@ -83,14 +84,14 @@ func PrometheusHandler() http.Handler {
 func RegisterPrometheus(ctx context.Context, config *types.Prometheus) Registry {
 	standardRegistry := initStandardRegistry(config)
 
-	if err := promRegistry.Register(stdprometheus.NewProcessCollector(stdprometheus.ProcessCollectorOpts{})); err != nil {
+	if err := promRegistry.Register(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{})); err != nil {
 		var arErr stdprometheus.AlreadyRegisteredError
 		if !errors.As(err, &arErr) {
 			log.FromContext(ctx).Warn("ProcessCollector is already registered")
 		}
 	}
 
-	if err := promRegistry.Register(stdprometheus.NewGoCollector()); err != nil {
+	if err := promRegistry.Register(collectors.NewGoCollector()); err != nil {
 		var arErr stdprometheus.AlreadyRegisteredError
 		if !errors.As(err, &arErr) {
 			log.FromContext(ctx).Warn("GoCollector is already registered")
@@ -380,6 +381,12 @@ func (ps *prometheusState) isOutdated(collector *collector) bool {
 		return true
 	}
 
+	if routerName, ok := labels["router"]; ok {
+		if !ps.dynamicConfig.hasRouter(routerName) {
+			return true
+		}
+	}
+
 	if serviceName, ok := labels["service"]; ok {
 		if !ps.dynamicConfig.hasService(serviceName) {
 			return true
@@ -417,6 +424,11 @@ func (d *dynamicConfig) hasEntryPoint(entrypointName string) bool {
 
 func (d *dynamicConfig) hasService(serviceName string) bool {
 	_, ok := d.services[serviceName]
+	return ok
+}
+
+func (d *dynamicConfig) hasRouter(routerName string) bool {
+	_, ok := d.routers[routerName]
 	return ok
 }
 

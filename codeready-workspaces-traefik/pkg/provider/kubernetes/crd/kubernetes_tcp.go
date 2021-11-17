@@ -10,6 +10,7 @@ import (
 
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/provider"
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/traefik/traefik/v2/pkg/tls"
 	corev1 "k8s.io/api/core/v1"
@@ -93,7 +94,7 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 				conf.Services[serviceName].Weighted.Services = append(conf.Services[serviceName].Weighted.Services, srv)
 			}
 
-			conf.Routers[serviceName] = &dynamic.TCPRouter{
+			r := &dynamic.TCPRouter{
 				EntryPoints: ingressRouteTCP.Spec.EntryPoints,
 				Middlewares: mds,
 				Rule:        route.Match,
@@ -101,32 +102,38 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 			}
 
 			if ingressRouteTCP.Spec.TLS != nil {
-				conf.Routers[serviceName].TLS = &dynamic.RouterTCPTLSConfig{
+				r.TLS = &dynamic.RouterTCPTLSConfig{
 					Passthrough:  ingressRouteTCP.Spec.TLS.Passthrough,
 					CertResolver: ingressRouteTCP.Spec.TLS.CertResolver,
 					Domains:      ingressRouteTCP.Spec.TLS.Domains,
 				}
 
-				if ingressRouteTCP.Spec.TLS.Options == nil || len(ingressRouteTCP.Spec.TLS.Options.Name) == 0 {
-					continue
-				}
-
-				tlsOptionsName := ingressRouteTCP.Spec.TLS.Options.Name
-				// Is a Kubernetes CRD reference (i.e. not a cross-provider reference)
-				ns := ingressRouteTCP.Spec.TLS.Options.Namespace
-				if !strings.Contains(tlsOptionsName, "@") {
-					if len(ns) == 0 {
-						ns = ingressRouteTCP.Namespace
+				if ingressRouteTCP.Spec.TLS.Options != nil && len(ingressRouteTCP.Spec.TLS.Options.Name) > 0 {
+					tlsOptionsName := ingressRouteTCP.Spec.TLS.Options.Name
+					// Is a Kubernetes CRD reference (i.e. not a cross-provider reference)
+					ns := ingressRouteTCP.Spec.TLS.Options.Namespace
+					if !strings.Contains(tlsOptionsName, providerNamespaceSeparator) {
+						if len(ns) == 0 {
+							ns = ingressRouteTCP.Namespace
+						}
+						tlsOptionsName = makeID(ns, tlsOptionsName)
+					} else if len(ns) > 0 {
+						logger.
+							WithField("TLSOption", ingressRouteTCP.Spec.TLS.Options.Name).
+							Warnf("Namespace %q is ignored in cross-provider context", ns)
 					}
-					tlsOptionsName = makeID(ns, tlsOptionsName)
-				} else if len(ns) > 0 {
-					logger.
-						WithField("TLSoptions", ingressRouteTCP.Spec.TLS.Options.Name).
-						Warnf("namespace %q is ignored in cross-provider context", ns)
-				}
 
-				conf.Routers[serviceName].TLS.Options = tlsOptionsName
+					if !isNamespaceAllowed(p.AllowCrossNamespace, ingressRouteTCP.Namespace, ns) {
+						logger.Errorf("TLSOption %s/%s is not in the IngressRouteTCP namespace %s",
+							ns, ingressRouteTCP.Spec.TLS.Options.Name, ingressRouteTCP.Namespace)
+						continue
+					}
+
+					r.TLS.Options = tlsOptionsName
+				}
 			}
+
+			conf.Routers[serviceName] = r
 		}
 	}
 
@@ -156,7 +163,7 @@ func (p *Provider) makeMiddlewareTCPKeys(ctx context.Context, ingRouteTCPNamespa
 			ns = mi.Namespace
 		}
 
-		mds = append(mds, makeID(ns, mi.Name))
+		mds = append(mds, provider.Normalize(makeID(ns, mi.Name)))
 	}
 
 	return mds, nil

@@ -284,6 +284,12 @@ http:
     authResponseHeadersRegex = "^X-"
 ```
 
+!!! tip
+
+    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+
+    When defining a regular expression within YAML, any escaped character needs to be escaped twice: `example\.com` needs to be written as `example\\.com`.
+
 ### `authRequestHeaders`
 
 The `authRequestHeaders` option is the list of the headers to copy from the request to the authentication server.
@@ -347,7 +353,8 @@ The `tls` option is the TLS configuration from Traefik to the authentication ser
 
 #### `tls.ca`
 
-Certificate Authority used for the secured connection to the authentication server.
+Certificate Authority used for the secured connection to the authentication server,
+defaults to the system bundle.
 
 ```yaml tab="Docker"
 labels:

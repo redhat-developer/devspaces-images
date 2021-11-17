@@ -7,6 +7,8 @@ Managing Request/Response headers
 
 The Headers middleware manages the headers of requests and responses.
 
+A set of forwarded headers are automatically added by default. See the [FAQ](../../getting-started/faq.md#what-are-the-forwarded-headers-when-proxying-http-requests) for more information.
+
 ## Configuration Examples
 
 ### Adding Headers to the Request and the Response
@@ -331,7 +333,9 @@ It allows all origins that contain any match of a regular expression in the `acc
 
 !!! tip
 
-    Regular expressions can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+
+    When defining a regular expression within YAML, any escaped character needs to be escaped twice: `example\.com` needs to be written as `example\\.com`.
 
 ### `accessControlExposeHeaders`
 
