@@ -15,6 +15,7 @@
 export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 export OPENJDK11_IMAGE="registry.access.redhat.com/ubi8/openjdk-11:1.10"
 export ANT_VERSION=1.10.12
+export LOMBOK_VERSION=1.18.22
 
 usage () {
     echo "
@@ -62,12 +63,12 @@ ${PODMAN} run --name lomboktmp -u root ${OPENJDK11_IMAGE} sh -c "
     && ln -sfn /opt/ant/bin/ant /usr/bin/ant \
     && rm apache-ant-${ANT_VERSION}-bin.tar.gz && \
     git clone --quiet https://github.com/projectlombok/lombok.git lombok && \
-    cd lombok && ant dist
+    cd lombok && git checkout tags/v${LOMBOK_VERSION} -b v${LOMBOK_VERSION} && ant dist
     "
-${PODMAN} cp lomboktmp:/home/jboss/lombok/dist/lombok.jar ${SCRIPT_DIR}/target/lombok-ls/
+${PODMAN} cp lomboktmp:/home/jboss/lombok/dist/lombok-${LOMBOK_VERSION}.jar ${SCRIPT_DIR}/target/lombok-ls/
 ${PODMAN} rm -f lomboktmp
 
-jarfile="${SCRIPT_DIR}/target/lombok-ls/lombok.jar"
+jarfile="${SCRIPT_DIR}/target/lombok-ls/lombok-${LOMBOK_VERSION}.jar"
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
