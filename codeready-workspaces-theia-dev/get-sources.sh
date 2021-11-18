@@ -2,6 +2,7 @@
 # script to get tarball(s) from quay
 verbose=1
 scratchFlag=""
+JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
 # NOTE: pullAssets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
@@ -15,12 +16,24 @@ while [[ "$#" -gt 0 ]]; do
   '-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
   '-f'|'--force-build') forceBuild=1; shift 0;;
   '-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-  '-v') CSV_VERSION="$2"; shift 1;;
+  *) JOB_BRANCH="$1"; shift 0;;
   esac
   shift 1
 done
 
-DWNSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+# if not set, compute from current branch
+if [[ ! ${JOB_BRANCH} ]]; then 
+  DWNSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  JOB_BRANCH=${DWNSTM_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
+else
+  if [[ ${JOB_BRANCH} == "2.x" ]]; then 
+    DWNSTM_BRANCH="crw-2-rhel-8"
+  else
+    DWNSTM_BRANCH="crw-${JOB_BRANCH}-rhel-8"
+  fi
+fi
+if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
+# echo "Got DWNSTM_BRANCH=${DWNSTM_BRANCH} and JOB_BRANCH=${JOB_BRANCH}"
 
 function log()
 {
@@ -29,16 +42,11 @@ function log()
   fi
 }
 
-if [[ ! $CSV_VERSION ]]; then
-  echo "Error: must set CSV_VERSION via -v flag"
-  exit
-fi
-
 OLD_SHA="$(git rev-parse --short=4 HEAD)"
 if [[ ${pullAssets} -eq 1 ]]; then 
   # collect assets. NOTE: target folder must end in theia-dev/, theia/ or theia-endpoint/ to auto-compute what to collect; 
   # otherwise an override flag is needed: -d, --theia-dev, -t, --theia, -e, --theia-endpoint
-  ./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --cv $CSV_VERSION --target $(pwd)/ --rmi:tmp --ci --commit
+  ./build/scripts/collect-assets.sh --cb ${DWNSTM_BRANCH} --target $(pwd)/ --rmi:tmp --ci --commit
 fi
 NEW_SHA="$(git rev-parse --short=4 HEAD)"
 
