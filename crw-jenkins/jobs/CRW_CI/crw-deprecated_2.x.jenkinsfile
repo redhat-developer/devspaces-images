@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-///// THIS FILE IS DEPRECATED and should be removed for 2.14
+///// THIS FILE IS DEPRECATED and should be removed when branching for 2.14
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 
 import groovy.transform.Field

@@ -40,14 +40,24 @@ timeout(180) {
             println "########################################################################################################"
             SOURCE_DIR="${WORKSPACE}/sources"
             util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
+            // fetch correct build tag if defined (eg., traefik)
+            if (util.globalVar({SOURCE_TAG})?.trim()) { 
+              sh('''#!/bin/bash
+echo "Switch to SOURCE_TAG = ''' + util.globalVar({SOURCE_TAG}) + '''"
+git config advice.detachedHead false
+cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
+              )
+            }
+
             OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
             println "Got OLD_SOURCE_SHA in sources folder: " + OLD_SOURCE_SHA
 
-            // TODO switch to dependabot for dockerfiles?
-            if(SOURCE_REPO.contains("codeready-workspaces")) {
-              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS})) // push updated base image change to upstream
-            } else {
-              util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            if (!util.globalVar({SOURCE_TAG})?.trim()) { 
+              if(SOURCE_REPO.contains("codeready-workspaces")) {
+                util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS})) // push updated base image change to upstream
+              } else {
+                util.updateBaseImages(SOURCE_DIR, SOURCE_BRANCH, "-f Dockerfile --nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+              }
             }
 
             println "########################################################################################################"
@@ -76,7 +86,7 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
             )
 
             // push changes to codeready-workspaces-images
-            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit " + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit -f \"*ockerfile\"" + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
             sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getCRWLongName(SYNC_REPO) + '''
