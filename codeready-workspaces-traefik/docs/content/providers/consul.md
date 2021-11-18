@@ -64,7 +64,7 @@ Defines a username to connect to Consul with.
 providers:
   consul:
     # ...
-    username: "foo"
+    usename: "foo"
 ```
 
 ```toml tab="File (TOML)"
@@ -106,8 +106,7 @@ _Optional_
 
 #### `tls.ca`
 
-Certificate Authority used for the secure connection to Consul,
-defaults to the system bundle.
+Certificate Authority used for the secure connection to Consul.
 
 ```yaml tab="File (YAML)"
 providers:

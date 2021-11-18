@@ -160,7 +160,9 @@ func reset(field reflect.Value, name string) error {
 			}
 		}
 	case reflect.Interface:
-		return fmt.Errorf("reset not supported for interface type (for %s field)", name)
+		if !field.IsNil() {
+			return reset(field.Elem(), "")
+		}
 	default:
 		// Primitive type
 		field.Set(reflect.Zero(field.Type()))

@@ -32,8 +32,7 @@ entryPoints:
       trustedIPs:
       - foobar
       - foobar
-    http3:
-      advertisedPort: 42
+    enableHTTP3: true
     udp:
       timeout: 42
     http:
@@ -272,7 +271,6 @@ metrics:
     addEntryPointsLabels: true
     addRoutersLabels: true
     addServicesLabels: true
-    prefix: foobar
   statsD:
     address: foobar
     pushInterval: 42
@@ -291,8 +289,6 @@ metrics:
     addEntryPointsLabels: true
     addRoutersLabels: true
     addServicesLabels: true
-    additionalLabels:
-      foobar: foobar
 ping:
   entryPoint: foobar
   manualRouting: true
@@ -376,7 +372,6 @@ certificatesResolvers:
     acme:
       email: foobar
       caServer: foobar
-      certificatesDuration: 2160
       preferredChain: foobar
       storage: foobar
       keyType: foobar
@@ -397,7 +392,6 @@ certificatesResolvers:
     acme:
       email: foobar
       caServer: foobar
-      certificatesDuration: 2160
       preferredChain: foobar
       storage: foobar
       keyType: foobar

@@ -54,9 +54,6 @@ Certificates resolvers configuration. (Default: ```false```)
 `TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_CASERVER`:  
 CA server to use. (Default: ```https://acme-v02.api.letsencrypt.org/directory```)
 
-`TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_CERTIFICATESDURATION`:  
-Certificates' duration in hours. (Default: ```2160```)
-
 `TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_DNSCHALLENGE`:  
 Activate DNS-01 Challenge. (Default: ```false```)
 
@@ -105,6 +102,9 @@ Entry points definition. (Default: ```false```)
 `TRAEFIK_ENTRYPOINTS_<NAME>_ADDRESS`:  
 Entry point address.
 
+`TRAEFIK_ENTRYPOINTS_<NAME>_ENABLEHTTP3`:  
+Enable HTTP3. (Default: ```false```)
+
 `TRAEFIK_ENTRYPOINTS_<NAME>_FORWARDEDHEADERS_INSECURE`:  
 Trust all forwarded headers. (Default: ```false```)
 
@@ -113,12 +113,6 @@ Trust only forwarded headers from selected IPs.
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP`:  
 HTTP configuration.
-
-`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP3`:  
-HTTP3 configuration. (Default: ```false```)
-
-`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP3_ADVERTISEDPORT`:  
-UDP port to advertise, on which HTTP/3 is available. (Default: ```0```)
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_MIDDLEWARES`:  
 Default middlewares for the routers linked to the entry point.
@@ -243,9 +237,6 @@ Enable metrics on routers. (Default: ```false```)
 `TRAEFIK_METRICS_DATADOG_ADDSERVICESLABELS`:  
 Enable metrics on services. (Default: ```true```)
 
-`TRAEFIK_METRICS_DATADOG_PREFIX`:  
-Prefix to use for metrics collection. (Default: ```traefik```)
-
 `TRAEFIK_METRICS_DATADOG_PUSHINTERVAL`:  
 Datadog push interval. (Default: ```10```)
 
@@ -254,9 +245,6 @@ InfluxDB metrics exporter type. (Default: ```false```)
 
 `TRAEFIK_METRICS_INFLUXDB_ADDENTRYPOINTSLABELS`:  
 Enable metrics on entry points. (Default: ```true```)
-
-`TRAEFIK_METRICS_INFLUXDB_ADDITIONALLABELS_<NAME>`:  
-Additional labels (influxdb tags) on all metrics
 
 `TRAEFIK_METRICS_INFLUXDB_ADDRESS`:  
 InfluxDB address. (Default: ```localhost:8089```)
@@ -871,79 +859,76 @@ OpenTracing configuration. (Default: ```false```)
 Settings for Datadog. (Default: ```false```)
 
 `TRAEFIK_TRACING_DATADOG_BAGAGEPREFIXHEADERNAME`:  
-Sets the header name prefix used to store baggage items in a map.
+Specifies the header name prefix that will be used to store baggage items in a map.
 
 `TRAEFIK_TRACING_DATADOG_DEBUG`:  
-Enables Datadog debug. (Default: ```false```)
+Enable Datadog debug. (Default: ```false```)
 
 `TRAEFIK_TRACING_DATADOG_GLOBALTAG`:  
-Sets a key:value tag on all spans.
+Key:Value tag to be set on all the spans.
 
 `TRAEFIK_TRACING_DATADOG_LOCALAGENTHOSTPORT`:  
-Sets the Datadog Agent host:port. (Default: ```localhost:8126```)
+Set datadog-agent's host:port that the reporter will used. (Default: ```localhost:8126```)
 
 `TRAEFIK_TRACING_DATADOG_PARENTIDHEADERNAME`:  
-Sets the header name used to store the parent ID.
+Specifies the header name that will be used to store the parent ID.
 
 `TRAEFIK_TRACING_DATADOG_PRIORITYSAMPLING`:  
-Enables priority sampling. When using distributed tracing, this option must be enabled in order to get all the parts of a distributed trace sampled. (Default: ```false```)
+Enable priority sampling. When using distributed tracing, this option must be enabled in order to get all the parts of a distributed trace sampled. (Default: ```false```)
 
 `TRAEFIK_TRACING_DATADOG_SAMPLINGPRIORITYHEADERNAME`:  
-Sets the header name used to store the sampling priority.
+Specifies the header name that will be used to store the sampling priority.
 
 `TRAEFIK_TRACING_DATADOG_TRACEIDHEADERNAME`:  
-Sets the header name used to store the trace ID.
+Specifies the header name that will be used to store the trace ID.
 
 `TRAEFIK_TRACING_ELASTIC`:  
 Settings for Elastic. (Default: ```false```)
 
 `TRAEFIK_TRACING_ELASTIC_SECRETTOKEN`:  
-Sets the token used to connect to Elastic APM Server.
+Set the token used to connect to Elastic APM Server.
 
 `TRAEFIK_TRACING_ELASTIC_SERVERURL`:  
-Sets the URL of the Elastic APM server.
+Set the URL of the Elastic APM server.
 
 `TRAEFIK_TRACING_ELASTIC_SERVICEENVIRONMENT`:  
-Sets the name of the environment Traefik is deployed in, e.g. 'production' or 'staging'.
+Set the name of the environment Traefik is deployed in, e.g. 'production' or 'staging'.
 
 `TRAEFIK_TRACING_HAYSTACK`:  
 Settings for Haystack. (Default: ```false```)
 
 `TRAEFIK_TRACING_HAYSTACK_BAGGAGEPREFIXHEADERNAME`:  
-Sets the header name prefix used to store baggage items in a map.
+Specifies the header name prefix that will be used to store baggage items in a map.
 
 `TRAEFIK_TRACING_HAYSTACK_GLOBALTAG`:  
-Sets a key:value tag on all spans.
+Key:Value tag to be set on all the spans.
 
 `TRAEFIK_TRACING_HAYSTACK_LOCALAGENTHOST`:  
-Sets the Haystack Agent host. (Default: ```127.0.0.1```)
+Set haystack-agent's host that the reporter will used. (Default: ```127.0.0.1```)
 
 `TRAEFIK_TRACING_HAYSTACK_LOCALAGENTPORT`:  
-Sets the Haystack Agent port. (Default: ```35000```)
+Set haystack-agent's port that the reporter will used. (Default: ```35000```)
 
 `TRAEFIK_TRACING_HAYSTACK_PARENTIDHEADERNAME`:  
-Sets the header name used to store the parent ID.
+Specifies the header name that will be used to store the parent ID.
 
 `TRAEFIK_TRACING_HAYSTACK_SPANIDHEADERNAME`:  
-Sets the header name used to store the span ID.
+Specifies the header name that will be used to store the span ID.
 
 `TRAEFIK_TRACING_HAYSTACK_TRACEIDHEADERNAME`:  
-Sets the header name used to store the trace ID.
+Specifies the header name that will be used to store the trace ID.
 
 `TRAEFIK_TRACING_INSTANA`:  
 Settings for Instana. (Default: ```false```)
 
-`TRAEFIK_TRACING_INSTANA_ENABLEAUTOPROFILE`:  
-Enables automatic profiling for the Traefik process. (Default: ```false```)
-
 `TRAEFIK_TRACING_INSTANA_LOCALAGENTHOST`:  
-Sets the Instana Agent host.
+Set instana-agent's host that the reporter will used.
 
 `TRAEFIK_TRACING_INSTANA_LOCALAGENTPORT`:  
-Sets the Instana Agent port. (Default: ```42699```)
+Set instana-agent's port that the reporter will used. (Default: ```42699```)
 
 `TRAEFIK_TRACING_INSTANA_LOGLEVEL`:  
-Sets the log level for the Instana tracer. ('error','warn','info','debug') (Default: ```info```)
+Set instana-agent's log level. ('error','warn','info','debug') (Default: ```info```)
 
 `TRAEFIK_TRACING_JAEGER`:  
 Settings for Jaeger. (Default: ```false```)
@@ -958,28 +943,28 @@ Password for basic http authentication when sending spans to jaeger-collector.
 User for basic http authentication when sending spans to jaeger-collector.
 
 `TRAEFIK_TRACING_JAEGER_DISABLEATTEMPTRECONNECTING`:  
-Disables the periodic re-resolution of the agent's hostname and reconnection if there was a change. (Default: ```true```)
+Disable the periodic re-resolution of the agent's hostname and reconnection if there was a change. (Default: ```true```)
 
 `TRAEFIK_TRACING_JAEGER_GEN128BIT`:  
-Generates 128 bits span IDs. (Default: ```false```)
+Generate 128 bit span IDs. (Default: ```false```)
 
 `TRAEFIK_TRACING_JAEGER_LOCALAGENTHOSTPORT`:  
-Sets the Jaeger Agent host:port. (Default: ```127.0.0.1:6831```)
+Set jaeger-agent's host:port that the reporter will used. (Default: ```127.0.0.1:6831```)
 
 `TRAEFIK_TRACING_JAEGER_PROPAGATION`:  
-Sets the propagation format (jaeger/b3). (Default: ```jaeger```)
+Which propagation format to use (jaeger/b3). (Default: ```jaeger```)
 
 `TRAEFIK_TRACING_JAEGER_SAMPLINGPARAM`:  
-Sets the sampling parameter. (Default: ```1.000000```)
+Set the sampling parameter. (Default: ```1.000000```)
 
 `TRAEFIK_TRACING_JAEGER_SAMPLINGSERVERURL`:  
-Sets the sampling server URL. (Default: ```http://localhost:5778/sampling```)
+Set the sampling server url. (Default: ```http://localhost:5778/sampling```)
 
 `TRAEFIK_TRACING_JAEGER_SAMPLINGTYPE`:  
-Sets the sampling type. (Default: ```const```)
+Set the sampling type. (Default: ```const```)
 
 `TRAEFIK_TRACING_JAEGER_TRACECONTEXTHEADERNAME`:  
-Sets the header name used to store the trace ID. (Default: ```uber-trace-id```)
+Set the header to use for the trace-id. (Default: ```uber-trace-id```)
 
 `TRAEFIK_TRACING_SERVICENAME`:  
 Set the name for this service. (Default: ```traefik```)
@@ -991,13 +976,13 @@ Set the maximum character limit for Span names (default 0 = no limit). (Default:
 Settings for Zipkin. (Default: ```false```)
 
 `TRAEFIK_TRACING_ZIPKIN_HTTPENDPOINT`:  
-Sets the HTTP Endpoint to report traces to. (Default: ```http://localhost:9411/api/v2/spans```)
+HTTP Endpoint to report traces to. (Default: ```http://localhost:9411/api/v2/spans```)
 
 `TRAEFIK_TRACING_ZIPKIN_ID128BIT`:  
-Uses 128 bits root span IDs. (Default: ```true```)
+Use Zipkin 128 bit root span IDs. (Default: ```true```)
 
 `TRAEFIK_TRACING_ZIPKIN_SAMESPAN`:  
-Uses SameSpan RPC style traces. (Default: ```false```)
+Use Zipkin SameSpan RPC style traces. (Default: ```false```)
 
 `TRAEFIK_TRACING_ZIPKIN_SAMPLERATE`:  
-Sets the rate between 0.0 and 1.0 of requests to trace. (Default: ```1.000000```)
+The rate between 0.0 and 1.0 of requests to trace. (Default: ```1.000000```)

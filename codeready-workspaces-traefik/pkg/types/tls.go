@@ -4,14 +4,11 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"errors"
 	"fmt"
 	"os"
 
 	"github.com/traefik/traefik/v2/pkg/log"
 )
-
-// +k8s:deepcopy-gen=true
 
 // ClientTLS holds TLS specific configurations as client
 // CA, Cert and Key can be either path or file contents.
@@ -30,9 +27,7 @@ func (clientTLS *ClientTLS) CreateTLSConfig(ctx context.Context) (*tls.Config, e
 		return nil, nil
 	}
 
-	// Not initialized, to rely on system bundle.
-	var caPool *x509.CertPool
-
+	caPool := x509.NewCertPool()
 	clientAuth := tls.NoClientCert
 	if clientTLS.CA != "" {
 		var ca []byte
@@ -46,9 +41,8 @@ func (clientTLS *ClientTLS) CreateTLSConfig(ctx context.Context) (*tls.Config, e
 			ca = []byte(clientTLS.CA)
 		}
 
-		caPool = x509.NewCertPool()
 		if !caPool.AppendCertsFromPEM(ca) {
-			return nil, errors.New("failed to parse CA")
+			return nil, fmt.Errorf("failed to parse CA")
 		}
 
 		if clientTLS.CAOptional {
@@ -58,24 +52,34 @@ func (clientTLS *ClientTLS) CreateTLSConfig(ctx context.Context) (*tls.Config, e
 		}
 	}
 
-	hasCert := len(clientTLS.Cert) > 0
-	hasKey := len(clientTLS.Key) > 0
-
-	if hasCert != hasKey {
-		return nil, errors.New("both TLS cert and key must be defined")
+	if !clientTLS.InsecureSkipVerify && (len(clientTLS.Cert) == 0 || len(clientTLS.Key) == 0) {
+		return nil, fmt.Errorf("TLS Certificate or Key file must be set when TLS configuration is created")
 	}
 
-	if !hasCert || !hasKey {
-		return &tls.Config{
-			RootCAs:            caPool,
-			InsecureSkipVerify: clientTLS.InsecureSkipVerify,
-			ClientAuth:         clientAuth,
-		}, nil
-	}
+	cert := tls.Certificate{}
+	_, errKeyIsFile := os.Stat(clientTLS.Key)
 
-	cert, err := loadKeyPair(clientTLS.Cert, clientTLS.Key)
-	if err != nil {
-		return nil, err
+	if len(clientTLS.Cert) > 0 && len(clientTLS.Key) > 0 {
+		var err error
+		if _, errCertIsFile := os.Stat(clientTLS.Cert); errCertIsFile == nil {
+			if errKeyIsFile == nil {
+				cert, err = tls.LoadX509KeyPair(clientTLS.Cert, clientTLS.Key)
+				if err != nil {
+					return nil, fmt.Errorf("failed to load TLS keypair: %w", err)
+				}
+			} else {
+				return nil, fmt.Errorf("TLS cert is a file, but tls key is not")
+			}
+		} else {
+			if errKeyIsFile != nil {
+				cert, err = tls.X509KeyPair([]byte(clientTLS.Cert), []byte(clientTLS.Key))
+				if err != nil {
+					return nil, fmt.Errorf("failed to load TLS keypair: %w", err)
+				}
+			} else {
+				return nil, fmt.Errorf("TLS key is a file, but tls cert is not")
+			}
+		}
 	}
 
 	return &tls.Config{
@@ -84,28 +88,4 @@ func (clientTLS *ClientTLS) CreateTLSConfig(ctx context.Context) (*tls.Config, e
 		InsecureSkipVerify: clientTLS.InsecureSkipVerify,
 		ClientAuth:         clientAuth,
 	}, nil
-}
-
-func loadKeyPair(cert, key string) (tls.Certificate, error) {
-	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
-	if err == nil {
-		return keyPair, nil
-	}
-
-	_, err = os.Stat(cert)
-	if err != nil {
-		return tls.Certificate{}, errors.New("cert file does not exist")
-	}
-
-	_, err = os.Stat(key)
-	if err != nil {
-		return tls.Certificate{}, errors.New("key file does not exist")
-	}
-
-	keyPair, err = tls.LoadX509KeyPair(cert, key)
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-
-	return keyPair, nil
 }

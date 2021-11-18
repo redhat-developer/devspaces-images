@@ -19,6 +19,10 @@ RUN apk --update upgrade \
     && update-ca-certificates \
     && rm -rf /var/cache/apk/*
 
+RUN mkdir -p /usr/local/bin \
+    && curl -fsSL -o /usr/local/bin/go-bindata https://github.com/containous/go-bindata/releases/download/v1.0.0/go-bindata \
+    && chmod +x /usr/local/bin/go-bindata
+
 WORKDIR /go/src/github.com/traefik/traefik
 
 # Download go modules
@@ -28,13 +32,13 @@ RUN GO111MODULE=on GOPROXY=https://proxy.golang.org go mod download
 
 COPY . /go/src/github.com/traefik/traefik
 
-RUN rm -rf /go/src/github.com/traefik/traefik/webui/static/
-COPY --from=webui /src/webui/static/ /go/src/github.com/traefik/traefik/webui/static/
+RUN rm -rf /go/src/github.com/traefik/traefik/static/
+COPY --from=webui /src/static/ /go/src/github.com/traefik/traefik/static/
 
 RUN ./script/make.sh generate binary
 
 ## IMAGE
-FROM alpine:3.14
+FROM alpine:3.10
 
 RUN apk --no-cache --no-progress add bash curl ca-certificates tzdata \
     && update-ca-certificates \

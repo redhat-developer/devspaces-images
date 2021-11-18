@@ -16,6 +16,9 @@
   [linters-settings.gocyclo]
     min-complexity = 14.0
 
+  [linters-settings.maligned]
+    suggest-new = true
+
   [linters-settings.goconst]
     min-len = 3.0
     min-occurrences = 4.0
@@ -96,10 +99,6 @@
     "godox", # Too strict
     "forcetypeassert", # Too strict
     "tagliatelle", # Not compatible with current tags.
-    "varnamelen", # not relevant
-    "nilnil", # not relevant
-    "ireturn", # not relevant
-    "contextcheck", # too many false-positive
   ]
 
 [issues]

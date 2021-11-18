@@ -128,7 +128,6 @@ http:
         excludedContentTypes:
         - foobar
         - foobar
-        minResponseBodyBytes: 42
     Middleware06:
       contentType:
         autoDetect: true
@@ -251,7 +250,6 @@ http:
             province: true
             locality: true
             organization: true
-            organizationalUnit: true
             commonName: true
             serialNumber: true
             domainComponent: true
@@ -472,9 +470,6 @@ tls:
         clientAuthType: foobar
       sniStrict: true
       preferServerCipherSuites: true
-      alpnProtocols:
-        - foobar
-        - foobar
     Options1:
       minVersion: foobar
       maxVersion: foobar
@@ -491,9 +486,6 @@ tls:
         clientAuthType: foobar
       sniStrict: true
       preferServerCipherSuites: true
-      alpnProtocols:
-        - foobar
-        - foobar
   stores:
     Store0:
       defaultCertificate:

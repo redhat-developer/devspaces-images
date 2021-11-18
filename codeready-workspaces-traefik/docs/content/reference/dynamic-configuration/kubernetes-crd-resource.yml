@@ -194,9 +194,6 @@ spec:
     clientAuthType: RequireAndVerifyClientCert
   sniStrict: true
   preferServerCipherSuites: true
-  alpnProtocols:
-    - foobar
-    - foobar
 
 ---
 apiVersion: traefik.containo.us/v1alpha1

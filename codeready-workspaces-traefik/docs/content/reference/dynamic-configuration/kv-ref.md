@@ -15,7 +15,6 @@
 | `traefik/http/middlewares/Middleware04/circuitBreaker/expression` | `foobar` |
 | `traefik/http/middlewares/Middleware05/compress/excludedContentTypes/0` | `foobar` |
 | `traefik/http/middlewares/Middleware05/compress/excludedContentTypes/1` | `foobar` |
-| `traefik/http/middlewares/Middleware05/compress/minResponseBodyBytes` | `42` |
 | `traefik/http/middlewares/Middleware06/contentType/autoDetect` | `true` |
 | `traefik/http/middlewares/Middleware07/digestAuth/headerField` | `foobar` |
 | `traefik/http/middlewares/Middleware07/digestAuth/realm` | `foobar` |
@@ -107,7 +106,6 @@
 | `traefik/http/middlewares/Middleware13/passTLSClientCert/info/subject/domainComponent` | `true` |
 | `traefik/http/middlewares/Middleware13/passTLSClientCert/info/subject/locality` | `true` |
 | `traefik/http/middlewares/Middleware13/passTLSClientCert/info/subject/organization` | `true` |
-| `traefik/http/middlewares/Middleware13/passTLSClientCert/info/subject/organizationalUnit` | `true` |
 | `traefik/http/middlewares/Middleware13/passTLSClientCert/info/subject/province` | `true` |
 | `traefik/http/middlewares/Middleware13/passTLSClientCert/info/subject/serialNumber` | `true` |
 | `traefik/http/middlewares/Middleware13/passTLSClientCert/pem` | `true` |
@@ -276,8 +274,6 @@
 | `traefik/tls/certificates/1/keyFile` | `foobar` |
 | `traefik/tls/certificates/1/stores/0` | `foobar` |
 | `traefik/tls/certificates/1/stores/1` | `foobar` |
-| `traefik/tls/options/Options0/alpnProtocols/0` | `foobar` |
-| `traefik/tls/options/Options0/alpnProtocols/1` | `foobar` |
 | `traefik/tls/options/Options0/cipherSuites/0` | `foobar` |
 | `traefik/tls/options/Options0/cipherSuites/1` | `foobar` |
 | `traefik/tls/options/Options0/clientAuth/caFiles/0` | `foobar` |
@@ -289,8 +285,6 @@
 | `traefik/tls/options/Options0/minVersion` | `foobar` |
 | `traefik/tls/options/Options0/preferServerCipherSuites` | `true` |
 | `traefik/tls/options/Options0/sniStrict` | `true` |
-| `traefik/tls/options/Options1/alpnProtocols/0` | `foobar` |
-| `traefik/tls/options/Options1/alpnProtocols/1` | `foobar` |
 | `traefik/tls/options/Options1/cipherSuites/0` | `foobar` |
 | `traefik/tls/options/Options1/cipherSuites/1` | `foobar` |
 | `traefik/tls/options/Options1/clientAuth/caFiles/0` | `foobar` |

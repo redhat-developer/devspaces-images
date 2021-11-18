@@ -11,15 +11,6 @@ type statusCodeRecoder interface {
 	Status() int
 }
 
-// newStatusCodeRecoder returns an initialized statusCodeRecoder.
-func newStatusCodeRecoder(rw http.ResponseWriter, status int) statusCodeRecoder {
-	recorder := &statusCodeWithoutCloseNotify{rw, status}
-	if _, ok := rw.(http.CloseNotifier); ok {
-		return &statusCodeWithCloseNotify{recorder}
-	}
-	return recorder
-}
-
 type statusCodeWithoutCloseNotify struct {
 	http.ResponseWriter
 	status int
@@ -54,4 +45,13 @@ type statusCodeWithCloseNotify struct {
 
 func (s *statusCodeWithCloseNotify) CloseNotify() <-chan bool {
 	return s.ResponseWriter.(http.CloseNotifier).CloseNotify()
+}
+
+// newStatusCodeRecoder returns an initialized statusCodeRecoder.
+func newStatusCodeRecoder(rw http.ResponseWriter, status int) statusCodeRecoder {
+	recorder := &statusCodeWithoutCloseNotify{rw, status}
+	if _, ok := rw.(http.CloseNotifier); ok {
+		return &statusCodeWithCloseNotify{recorder}
+	}
+	return recorder
 }

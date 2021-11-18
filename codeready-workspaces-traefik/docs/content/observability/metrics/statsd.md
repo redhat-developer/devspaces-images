@@ -60,7 +60,7 @@ metrics:
 --metrics.statsd.addEntryPointsLabels=true
 ```
 
-#### `addRoutersLabels`
+#### `AddRoutersLabels`
 
 _Optional, Default=false_
 

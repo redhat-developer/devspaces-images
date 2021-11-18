@@ -1,6 +1,6 @@
 # Datadog
 
-To enable the Datadog tracer:
+To enable the Datadog:
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -20,7 +20,7 @@ tracing:
 
 _Required, Default="127.0.0.1:8126"_
 
-Local Agent Host Port instructs the reporter to send spans to the Datadog Agent at this address (host:port).
+Local Agent Host Port instructs reporter to send spans to datadog-tracing-agent at this address.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -42,7 +42,7 @@ tracing:
 
 _Optional, Default=false_
 
-Enables Datadog debug.
+Enable Datadog debug.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -64,7 +64,7 @@ tracing:
 
 _Optional, Default=empty_
 
-Applies a shared key:value tag on all spans.
+Apply shared tag in a form of Key:Value to all the traces.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -86,8 +86,7 @@ tracing:
 
 _Optional, Default=false_
 
-Enables priority sampling.
-When using distributed tracing, 
+Enable priority sampling. When using distributed tracing,
 this option must be enabled in order to get all the parts of a distributed trace sampled.
 
 ```yaml tab="File (YAML)"

@@ -51,7 +51,7 @@ labels:
 
 ```yaml tab="File (YAML)"
 # Accepts request from defined IP
-tcp:
+http:
   middlewares:
     test-ipwhitelist:
       ipWhiteList:

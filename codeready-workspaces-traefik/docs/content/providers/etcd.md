@@ -64,7 +64,7 @@ Defines a username with which to connect to etcd.
 providers:
   etcd:
     # ...
-    username: "foo"
+    usename: "foo"
 ```
 
 ```toml tab="File (TOML)"
@@ -106,8 +106,7 @@ _Optional_
 
 #### `tls.ca`
 
-Certificate Authority used for the secure connection to etcd,
-defaults to the system bundle.
+Certificate Authority used for the secure connection to etcd.
 
 ```yaml tab="File (YAML)"
 providers:

@@ -23,7 +23,6 @@ type compress struct {
 	next     http.Handler
 	name     string
 	excludes []string
-	minSize  int
 }
 
 // New creates a new compress middleware.
@@ -40,12 +39,7 @@ func New(ctx context.Context, next http.Handler, conf dynamic.Compress, name str
 		excludes = append(excludes, mediaType)
 	}
 
-	minSize := gzhttp.DefaultMinSize
-	if conf.MinResponseBodyBytes > 0 {
-		minSize = conf.MinResponseBodyBytes
-	}
-
-	return &compress{next: next, name: name, excludes: excludes, minSize: minSize}, nil
+	return &compress{next: next, name: name, excludes: excludes}, nil
 }
 
 func (c *compress) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
@@ -70,7 +64,7 @@ func (c *compress) gzipHandler(ctx context.Context) http.Handler {
 	wrapper, err := gzhttp.NewWrapper(
 		gzhttp.ExceptContentTypes(c.excludes),
 		gzhttp.CompressionLevel(gzip.DefaultCompression),
-		gzhttp.MinSize(c.minSize))
+		gzhttp.MinSize(gzhttp.DefaultMinSize))
 	if err != nil {
 		log.FromContext(ctx).Error(err)
 	}

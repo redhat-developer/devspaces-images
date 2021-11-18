@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	legolog "github.com/go-acme/lego/v4/log"
 	"github.com/sirupsen/logrus"
 	ptypes "github.com/traefik/paerser/types"
@@ -107,6 +108,7 @@ type API struct {
 	Debug     bool `description:"Enable additional endpoints for debugging and profiling." json:"debug,omitempty" toml:"debug,omitempty" yaml:"debug,omitempty" export:"true"`
 	// TODO: Re-enable statistics
 	// Statistics      *types.Statistics `description:"Enable more detailed statistics." json:"statistics,omitempty" toml:"statistics,omitempty" yaml:"statistics,omitempty" export:"true" label:"allowEmpty" file:"allowEmpty"`
+	DashboardAssets *assetfs.AssetFS `json:"-" toml:"-" yaml:"-" label:"-" file:"-"`
 }
 
 // SetDefaults sets the default values.
@@ -247,11 +249,8 @@ func (c *Configuration) SetEffectiveConfiguration() {
 	}
 
 	if c.Experimental == nil || !c.Experimental.HTTP3 {
-		for epName, ep := range c.EntryPoints {
-			if ep.HTTP3 != nil {
-				ep.HTTP3 = nil
-				log.WithoutContext().Debugf("Disabling HTTP3 configuration for entryPoint %q: HTTP3 is disabled in the experimental configuration section", epName)
-			}
+		for _, ep := range c.EntryPoints {
+			ep.EnableHTTP3 = false
 		}
 	}
 

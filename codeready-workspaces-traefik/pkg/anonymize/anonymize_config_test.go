@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ptypes "github.com/traefik/paerser/types"
@@ -147,8 +148,6 @@ func TestDo_dynamicConfiguration(t *testing.T) {
 					DialTimeout:           42,
 					ResponseHeaderTimeout: 42,
 					IdleConnTimeout:       42,
-					ReadIdleTimeout:       42,
-					PingTimeout:           42,
 				},
 			},
 		},
@@ -274,7 +273,7 @@ func TestDo_dynamicConfiguration(t *testing.T) {
 				},
 				ForwardAuth: &dynamic.ForwardAuth{
 					Address: "127.0.0.1",
-					TLS: &types.ClientTLS{
+					TLS: &dynamic.ClientTLS{
 						CA:                 "ca.pem",
 						CAOptional:         true,
 						Cert:               "cert.pem",
@@ -316,17 +315,16 @@ func TestDo_dynamicConfiguration(t *testing.T) {
 						NotAfter:  true,
 						NotBefore: true,
 						Sans:      true,
-						Subject: &dynamic.TLSClientCertificateSubjectDNInfo{
-							Country:            true,
-							Province:           true,
-							Locality:           true,
-							Organization:       true,
-							OrganizationalUnit: true,
-							CommonName:         true,
-							SerialNumber:       true,
-							DomainComponent:    true,
+						Subject: &dynamic.TLSCLientCertificateDNInfo{
+							Country:         true,
+							Province:        true,
+							Locality:        true,
+							Organization:    true,
+							CommonName:      true,
+							SerialNumber:    true,
+							DomainComponent: true,
 						},
-						Issuer: &dynamic.TLSClientCertificateIssuerDNInfo{
+						Issuer: &dynamic.TLSCLientCertificateDNInfo{
 							Country:         true,
 							Province:        true,
 							Locality:        true,
@@ -470,7 +468,7 @@ func TestDo_dynamicConfiguration(t *testing.T) {
 	require.NoError(t, err)
 
 	if *updateExpected {
-		require.NoError(t, os.WriteFile("testdata/anonymized-dynamic-config.json", []byte(cleanJSON), 0o666))
+		require.NoError(t, os.WriteFile("testdata/anonymized-dynamic-config.json", []byte(cleanJSON), 0666))
 	}
 
 	expected := strings.TrimSuffix(string(expectedConfiguration), "\n")
@@ -779,6 +777,18 @@ func TestDo_staticConfiguration(t *testing.T) {
 		Insecure:  true,
 		Dashboard: true,
 		Debug:     true,
+		DashboardAssets: &assetfs.AssetFS{
+			Asset: func(path string) ([]byte, error) {
+				return nil, nil
+			},
+			AssetDir: func(path string) ([]string, error) {
+				return nil, nil
+			},
+			AssetInfo: func(path string) (os.FileInfo, error) {
+				return nil, nil
+			},
+			Prefix: "fii",
+		},
 	}
 
 	config.Metrics = &types.Metrics{
@@ -914,12 +924,11 @@ func TestDo_staticConfiguration(t *testing.T) {
 	config.CertificatesResolvers = map[string]static.CertificateResolver{
 		"CertificateResolver0": {
 			ACME: &acme.Configuration{
-				Email:                "acme Email",
-				CAServer:             "CAServer",
-				CertificatesDuration: 42,
-				PreferredChain:       "foobar",
-				Storage:              "Storage",
-				KeyType:              "MyKeyType",
+				Email:          "acme Email",
+				CAServer:       "CAServer",
+				PreferredChain: "foobar",
+				Storage:        "Storage",
+				KeyType:        "MyKeyType",
 				DNSChallenge: &acme.DNSChallenge{
 					Provider:                "DNSProvider",
 					DelayBeforeCheck:        42,
@@ -966,7 +975,7 @@ func TestDo_staticConfiguration(t *testing.T) {
 	require.NoError(t, err)
 
 	if *updateExpected {
-		require.NoError(t, os.WriteFile("testdata/anonymized-static-config.json", []byte(cleanJSON), 0o666))
+		require.NoError(t, os.WriteFile("testdata/anonymized-static-config.json", []byte(cleanJSON), 0666))
 	}
 
 	expected := strings.TrimSuffix(string(expectedConfiguration), "\n")

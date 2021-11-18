@@ -26,7 +26,7 @@ func TestHandler(t *testing.T) {
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/test", Status: []string{"500-501", "503-599"}},
 			backendCode: http.StatusOK,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintln(w, "My error page.")
+				fmt.Fprintln(w, "My error page.")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
@@ -39,7 +39,7 @@ func TestHandler(t *testing.T) {
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/test", Status: []string{"500-501", "503-599"}},
 			backendCode: http.StatusPartialContent,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintln(w, "My error page.")
+				fmt.Fprintln(w, "My error page.")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
@@ -52,7 +52,7 @@ func TestHandler(t *testing.T) {
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/test", Status: []string{"500-501", "503-599"}},
 			backendCode: http.StatusNotModified,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintln(w, "whatever, should not be called")
+				fmt.Fprintln(w, "whatever, should not be called")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
@@ -65,12 +65,13 @@ func TestHandler(t *testing.T) {
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/test", Status: []string{"500-501", "503-599"}},
 			backendCode: http.StatusInternalServerError,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintln(w, "My error page.")
+				fmt.Fprintln(w, "My error page.")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
 				assert.Equal(t, http.StatusInternalServerError, recorder.Code, "HTTP status")
 				assert.Contains(t, recorder.Body.String(), "My error page.")
+				assert.NotContains(t, recorder.Body.String(), "oops", "Should not return the oops page")
 			},
 		},
 		{
@@ -78,12 +79,13 @@ func TestHandler(t *testing.T) {
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/test", Status: []string{"500-501", "503-599"}},
 			backendCode: http.StatusBadGateway,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintln(w, "My error page.")
+				fmt.Fprintln(w, "My error page.")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
 				assert.Equal(t, http.StatusBadGateway, recorder.Code, "HTTP status")
 				assert.Contains(t, recorder.Body.String(), http.StatusText(http.StatusBadGateway))
+				assert.NotContains(t, recorder.Body.String(), "Test Server", "Should return the oops page since we have not configured the 502 code")
 			},
 		},
 		{
@@ -91,46 +93,35 @@ func TestHandler(t *testing.T) {
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/{status}", Status: []string{"503-503"}},
 			backendCode: http.StatusServiceUnavailable,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.RequestURI != "/503" {
-					return
+				if r.RequestURI == "/503" {
+					fmt.Fprintln(w, "My 503 page.")
+				} else {
+					fmt.Fprintln(w, "Failed")
 				}
-
-				_, _ = fmt.Fprintln(w, "My 503 page.")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
 				assert.Equal(t, http.StatusServiceUnavailable, recorder.Code, "HTTP status")
 				assert.Contains(t, recorder.Body.String(), "My 503 page.")
+				assert.NotContains(t, recorder.Body.String(), "oops", "Should not return the oops page")
 			},
 		},
 		{
-			desc:        "single code and query replacement",
+			desc:        "Single code",
 			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/{status}", Status: []string{"503"}},
 			backendCode: http.StatusServiceUnavailable,
 			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.RequestURI != "/503" {
-					return
+				if r.RequestURI == "/503" {
+					fmt.Fprintln(w, "My 503 page.")
+				} else {
+					fmt.Fprintln(w, "Failed")
 				}
-
-				_, _ = fmt.Fprintln(w, "My 503 page.")
 			}),
 			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				t.Helper()
 				assert.Equal(t, http.StatusServiceUnavailable, recorder.Code, "HTTP status")
 				assert.Contains(t, recorder.Body.String(), "My 503 page.")
-			},
-		},
-		{
-			desc:        "forward request host header",
-			errorPage:   &dynamic.ErrorPage{Service: "error", Query: "/test", Status: []string{"503"}},
-			backendCode: http.StatusServiceUnavailable,
-			backendErrorHandler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				_, _ = fmt.Fprintln(w, r.Host)
-			}),
-			validate: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				t.Helper()
-				assert.Equal(t, http.StatusServiceUnavailable, recorder.Code, "HTTP status")
-				assert.Contains(t, recorder.Body.String(), "localhost")
+				assert.NotContains(t, recorder.Body.String(), "oops", "Should not return the oops page")
 			},
 		},
 	}
@@ -144,11 +135,10 @@ func TestHandler(t *testing.T) {
 
 			handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(test.backendCode)
-
 				if test.backendCode == http.StatusNotModified {
 					return
 				}
-				_, _ = fmt.Fprintln(w, http.StatusText(test.backendCode))
+				fmt.Fprintln(w, http.StatusText(test.backendCode))
 			})
 			errorPageHandler, err := New(context.Background(), handler, *test.errorPage, serviceBuilderMock, "test")
 			require.NoError(t, err)

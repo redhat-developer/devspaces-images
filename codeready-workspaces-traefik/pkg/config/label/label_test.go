@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/require"
 	ptypes "github.com/traefik/paerser/types"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
-	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func TestDecodeConfiguration(t *testing.T) {
@@ -96,7 +95,6 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.domaincomponent":     "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.locality":            "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.organization":        "true",
-		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.organizationalunit":  "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.province":            "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.serialnumber":        "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.issuer.commonname":           "true",
@@ -127,7 +125,7 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware16.retry.initialinterval":                              "1s",
 		"traefik.http.middlewares.Middleware17.stripprefix.prefixes":                               "foobar, fiibar",
 		"traefik.http.middlewares.Middleware18.stripprefixregex.regex":                             "foobar, fiibar",
-		"traefik.http.middlewares.Middleware19.compress.minresponsebodybytes":                      "42",
+		"traefik.http.middlewares.Middleware19.compress":                                           "true",
 		"traefik.http.middlewares.Middleware20.plugin.tomato.aaa":                                  "foo1",
 		"traefik.http.middlewares.Middleware20.plugin.tomato.bbb":                                  "foo2",
 		"traefik.http.routers.Router0.entrypoints":                                                 "foobar, fiibar",
@@ -368,17 +366,16 @@ func TestDecodeConfiguration(t *testing.T) {
 							NotAfter:     true,
 							NotBefore:    true,
 							SerialNumber: true,
-							Subject: &dynamic.TLSClientCertificateSubjectDNInfo{
-								Country:            true,
-								Province:           true,
-								Locality:           true,
-								Organization:       true,
-								OrganizationalUnit: true,
-								CommonName:         true,
-								SerialNumber:       true,
-								DomainComponent:    true,
+							Subject: &dynamic.TLSCLientCertificateDNInfo{
+								Country:         true,
+								Province:        true,
+								Locality:        true,
+								Organization:    true,
+								CommonName:      true,
+								SerialNumber:    true,
+								DomainComponent: true,
 							},
-							Issuer: &dynamic.TLSClientCertificateIssuerDNInfo{
+							Issuer: &dynamic.TLSCLientCertificateDNInfo{
 								Country:         true,
 								Province:        true,
 								Locality:        true,
@@ -455,9 +452,7 @@ func TestDecodeConfiguration(t *testing.T) {
 					},
 				},
 				"Middleware19": {
-					Compress: &dynamic.Compress{
-						MinResponseBodyBytes: 42,
-					},
+					Compress: &dynamic.Compress{},
 				},
 				"Middleware2": {
 					Buffering: &dynamic.Buffering{
@@ -506,7 +501,7 @@ func TestDecodeConfiguration(t *testing.T) {
 				"Middleware7": {
 					ForwardAuth: &dynamic.ForwardAuth{
 						Address: "foobar",
-						TLS: &types.ClientTLS{
+						TLS: &dynamic.ClientTLS{
 							CA:                 "foobar",
 							CAOptional:         true,
 							Cert:               "foobar",
@@ -849,17 +844,16 @@ func TestEncodeConfiguration(t *testing.T) {
 							NotAfter:     true,
 							NotBefore:    true,
 							SerialNumber: true,
-							Subject: &dynamic.TLSClientCertificateSubjectDNInfo{
-								Country:            true,
-								Province:           true,
-								Locality:           true,
-								Organization:       true,
-								OrganizationalUnit: true,
-								CommonName:         true,
-								SerialNumber:       true,
-								DomainComponent:    true,
+							Subject: &dynamic.TLSCLientCertificateDNInfo{
+								Country:         true,
+								Province:        true,
+								Locality:        true,
+								Organization:    true,
+								CommonName:      true,
+								SerialNumber:    true,
+								DomainComponent: true,
 							},
-							Issuer: &dynamic.TLSClientCertificateIssuerDNInfo{
+							Issuer: &dynamic.TLSCLientCertificateDNInfo{
 								Country:         true,
 								Province:        true,
 								Locality:        true,
@@ -935,9 +929,7 @@ func TestEncodeConfiguration(t *testing.T) {
 					},
 				},
 				"Middleware19": {
-					Compress: &dynamic.Compress{
-						MinResponseBodyBytes: 42,
-					},
+					Compress: &dynamic.Compress{},
 				},
 				"Middleware2": {
 					Buffering: &dynamic.Buffering{
@@ -994,7 +986,7 @@ func TestEncodeConfiguration(t *testing.T) {
 				"Middleware7": {
 					ForwardAuth: &dynamic.ForwardAuth{
 						Address: "foobar",
-						TLS: &types.ClientTLS{
+						TLS: &dynamic.ClientTLS{
 							CA:                 "foobar",
 							CAOptional:         true,
 							Cert:               "foobar",
@@ -1242,7 +1234,6 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.Province":            "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.Locality":            "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.Organization":        "true",
-		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.OrganizationalUnit":  "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.CommonName":          "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.SerialNumber":        "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.DomainComponent":     "true",
@@ -1275,7 +1266,7 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware17.StripPrefix.Prefixes":                               "foobar, fiibar",
 		"traefik.HTTP.Middlewares.Middleware17.StripPrefix.ForceSlash":                             "true",
 		"traefik.HTTP.Middlewares.Middleware18.StripPrefixRegex.Regex":                             "foobar, fiibar",
-		"traefik.HTTP.Middlewares.Middleware19.Compress.MinResponseBodyBytes":                      "42",
+		"traefik.HTTP.Middlewares.Middleware19.Compress":                                           "true",
 		"traefik.HTTP.Middlewares.Middleware20.Plugin.tomato.aaa":                                  "foo1",
 		"traefik.HTTP.Middlewares.Middleware20.Plugin.tomato.bbb":                                  "foo2",
 

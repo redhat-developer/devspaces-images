@@ -1,116 +1,124 @@
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: GatewayClass
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
   name: my-gateway-class
 spec:
-  controllerName: traefik.io/gateway-controller
+  controller: traefik.io/gateway-controller
 
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: Gateway
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
   name: my-gateway
   namespace: default
 spec:
   gatewayClassName: my-gateway-class
-  listeners: # Use GatewayClass defaults for listener definition.
-    - name: http
-      protocol: HTTP
+  listeners:  # Use GatewayClass defaults for listener definition.
+    - protocol: HTTP
       port: 80
-
-    - name: https
-      protocol: HTTPS
-      port: 443
-      tls:
-        certificateRefs:
-          - kind: Secret
-            name: mysecret
-
-    - name: tcp
-      protocol: TCP
+      routes:
+        kind: HTTPRoute
+        namespaces:
+          from: Same
+        selector:
+          matchLabels:
+            app: foo
+     - protocol: HTTPS
+       port: 443
+       tls:
+         certificateRef:
+           group: "core"
+           kind: "Secret"
+           name: "mysecret"
+       routes:
+         kind: HTTPRoute
+         selector:
+           matchLabels:
+             app: foo
+    - protocol: TCP
       port: 9000
-      allowedRoutes:
-        kinds:
-          - kind: TCPRoute
-
-    - name: tls
-      protocol: TLS
+      routes:
+        kind: TCPRoute
+        namespaces:
+          from: Same
+        selector:
+          matchLabels:
+            app: footcp
+    - protocol: TLS
       port: 9443
       hostname: example.com
       tls:
-        - certificateRefs:
-            - kind: Secret
-              name: mysecret
+        certificateRef:
+          group: "core"
+          kind: "Secret"
+          name: "mysecret"
+      routes:
+        kind: TLSRoute
+        namespaces:
+          from: Same
+        selector:
+          matchLabels:
+            app: footls
 
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: HTTPRoute
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
-  name: http-app
+  name: http-app-1
   namespace: default
-
+  labels:
+    app: foo
 spec:
-  parentRefs:
-    - name: my-gateway
-
   hostnames:
-    - foo.com
-
+    - "foo.com"
   rules:
     - matches:
         - path:
             type: Exact
             value: /bar
-
-      backendRefs:
-        - name: whoami
+      forwardTo:
+        - serviceName: whoami
           port: 80
           weight: 1
-
     - matches:
         - path:
-            type: PathPrefix
+            type: Prefix
             value: /foo
-
-      backendRefs:
-        - group: traefik.containo.us
-          kind: TraefikService
-          name: myservice@file
+      forwardTo:
+        - backendRef:
+            group: traefik.containo.us
+            kind: TraefikService
+            name: myservice@file
           weight: 1
           port: 80
 
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TCPRoute
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
-  name: tcp-app
+  name: tcp-app-1
   namespace: default
-
+  labels:
+    app: footcp
 spec:
-  parentRefs:
-    - name: my-gateway
-
   rules:
-    - backendRefs:
-        - name: whoamitcp
+     - forwardTo:
+        - serviceName: whoamitcp
           port: 9000
           weight: 1
 
 ---
-apiVersion: gateway.networking.k8s.io/v1alpha2
 kind: TLSRoute
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
-  name: tls-app
+  name: tls-app-1
   namespace: default
-
+  labels:
+    app: footls
 spec:
-  parentRefs:
-    - name: my-gateway
-      sectionName: tls
-
   rules:
-    - backendRefs:
-        - name: whoamitcp
+    - forwardTo:
+        - serviceName: whoamitcp
           port: 9000
           weight: 1

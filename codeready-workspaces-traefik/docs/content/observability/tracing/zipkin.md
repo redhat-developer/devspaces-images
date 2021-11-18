@@ -1,6 +1,6 @@
 # Zipkin
 
-To enable the Zipkin tracer:
+To enable the Zipkin:
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -20,7 +20,7 @@ tracing:
 
 _Required, Default="http://localhost:9411/api/v2/spans"_
 
-HTTP endpoint used to send data.
+Zipkin HTTP endpoint used to send data.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -42,7 +42,7 @@ tracing:
 
 _Optional, Default=false_
 
-Uses SameSpan RPC style traces.
+Use Zipkin SameSpan RPC style traces.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -64,7 +64,7 @@ tracing:
 
 _Optional, Default=true_
 
-Uses 128 bits trace IDs.
+Use Zipkin 128 bit trace IDs.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -86,7 +86,7 @@ tracing:
 
 _Required, Default=1.0_
 
-The proportion of requests to trace, specified between 0.0 and 1.0.
+The rate between 0.0 and 1.0 of requests to trace.
 
 ```yaml tab="File (YAML)"
 tracing:

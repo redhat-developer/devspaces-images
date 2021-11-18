@@ -100,8 +100,7 @@ They can be defined by using a file (YAML or TOML) or CLI arguments.
     entryPoints:
       name:
         address: ":8888" # same as ":8888/tcp"
-        http3:
-          advertisedPort: 8888
+        enableHTTP3: true
         transport:
           lifeCycle:
             requestAcceptGraceTimeout: 42
@@ -127,8 +126,7 @@ They can be defined by using a file (YAML or TOML) or CLI arguments.
     [entryPoints]
       [entryPoints.name]
         address = ":8888" # same as ":8888/tcp"
-        [entryPoints.name.http3]
-          advertisedPort = 8888
+        enableHTTP3 = true
         [entryPoints.name.transport]
           [entryPoints.name.transport.lifeCycle]
             requestAcceptGraceTimeout = 42
@@ -148,7 +146,7 @@ They can be defined by using a file (YAML or TOML) or CLI arguments.
     ```bash tab="CLI"
     ## Static configuration
     --entryPoints.name.address=:8888 # same as :8888/tcp
-    --entryPoints.name.http3.advertisedport=8888
+    --entryPoints.name.http3=true
     --entryPoints.name.transport.lifeCycle.requestAcceptGraceTimeout=42
     --entryPoints.name.transport.lifeCycle.graceTimeOut=42
     --entryPoints.name.transport.respondingTimeouts.readTimeout=42
@@ -223,11 +221,9 @@ If both TCP and UDP are wanted for the same port, two entryPoints definitions ar
 
     Full details for how to specify `address` can be found in [net.Listen](https://golang.org/pkg/net/#Listen) (and [net.Dial](https://golang.org/pkg/net/#Dial)) of the doc for go.
 
-### HTTP3
+### EnableHTTP3
 
-#### `http3`
-
-`http3` enables HTTP3 protocol on the entryPoint.
+`enableHTTP3` defines that you want to enable HTTP3 on this `address`.
 You can only enable HTTP3 on a TCP entrypoint.
 Enabling HTTP3 will automatically add the correct headers for the connection upgrade to HTTP3.
 
@@ -244,51 +240,22 @@ Enabling HTTP3 will automatically add the correct headers for the connection upg
     ```yaml tab="File (YAML)"
     experimental:
       http3: true
-
+    
     entryPoints:
       name:
-        http3: {}
+        enableHTTP3: true
     ```
 
     ```toml tab="File (TOML)"
     [experimental]
       http3 = true
     
-    [entryPoints.name.http3]
+    [entryPoints.name]
+      enableHTTP3 = true
     ```
     
     ```bash tab="CLI"
-    --experimental.http3=true --entrypoints.name.http3
-    ```
-
-#### `advertisedPort`
-
-`http3.advertisedPort` defines which UDP port to advertise as the HTTP3 authority.
-It defaults to the entrypoint's address port.
-It can be used to override the authority in the `alt-svc` header, for example if the public facing port is different from where Traefik is listening.
-
-!!! info "http3.advertisedPort"
-
-    ```yaml tab="File (YAML)"
-    experimental:
-      http3: true
-
-    entryPoints:
-      name:
-        http3:
-          advertisedPort: 443
-    ```
-
-    ```toml tab="File (TOML)"
-    [experimental]
-      http3 = true
-    
-    [entryPoints.name.http3]
-      advertisedPort = 443
-    ```
-    
-    ```bash tab="CLI"
-    --experimental.http3=true --entrypoints.name.http3.advertisedport=443
+    --experimental.http3=true --entrypoints.name.enablehttp3=true
     ```
 
 ### Forwarded Headers

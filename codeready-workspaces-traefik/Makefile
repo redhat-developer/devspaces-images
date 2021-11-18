@@ -59,12 +59,12 @@ build-webui-image:
 
 ## Generate WebUI
 generate-webui:
-	if [ ! -d "webui/static" ]; then \
+	if [ ! -d "static" ]; then \
 		$(MAKE) build-webui-image; \
-		mkdir -p webui/static; \
-		docker run --rm -v "$$PWD/webui/static":'/src/webui/static' traefik-webui npm run build:nc; \
-		docker run --rm -v "$$PWD/webui/static":'/src/webui/static' traefik-webui chown -R $(shell id -u):$(shell id -g) ./static; \
-		echo 'For more information show `webui/readme.md`' > $$PWD/webui/static/DONT-EDIT-FILES-IN-THIS-DIRECTORY.md; \
+		mkdir -p static; \
+		docker run --rm -v "$$PWD/static":'/src/static' traefik-webui npm run build:nc; \
+		docker run --rm -v "$$PWD/static":'/src/static' traefik-webui chown -R $(shell id -u):$(shell id -g) ../static; \
+		echo 'For more information show `webui/readme.md`' > $$PWD/static/DONT-EDIT-FILES-IN-THIS-DIRECTORY.md; \
 	fi
 
 ## Build the linux binary
@@ -117,7 +117,7 @@ validate: $(PRE_TARGET)
 
 ## Clean up static directory and build a Docker Traefik image
 build-image: binary
-	rm -rf webui/static
+	rm -rf static
 	docker build -t $(TRAEFIK_IMAGE) .
 
 ## Build a Docker Traefik image
@@ -140,7 +140,7 @@ docs-serve:
 docs-pull-images:
 	make -C ./docs docs-pull-images
 
-## Generate CRD clientset and CRD manifests
+## Generate CRD clientset
 generate-crd:
 	@$(CURDIR)/script/code-gen.sh
 

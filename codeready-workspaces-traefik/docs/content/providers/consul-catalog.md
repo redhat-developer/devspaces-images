@@ -368,8 +368,7 @@ Defines TLS options for Consul server endpoint.
 
 _Optional_
 
-Certificate Authority used for the secure connection to Consul,
-defaults to the system bundle.
+`ca` is the path to the CA certificate used for Consul communication, defaults to the system bundle if not specified.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -532,8 +531,8 @@ _Optional, Default=```Host(`{{ normalize .Name }}`)```_
 The default host rule for all services.
 
 For a given service, if no routing rule was defined by a tag, it is defined by this `defaultRule` instead.
-The `defaultRule` must be set to a valid [Go template](https://pkg.go.dev/text/template/),
-and can include [sprig template functions](https://masterminds.github.io/sprig/).
+The `defaultRule` must be set to a valid [Go template](https://golang.org/pkg/text/template/),
+and can include [sprig template functions](http://masterminds.github.io/sprig/).
 The service name can be accessed with the `Name` identifier,
 and the template has access to all the labels (i.e. tags beginning with the `prefix`) defined on this service.
 

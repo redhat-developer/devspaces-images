@@ -2,7 +2,7 @@ package tcpipwhitelist
 
 import (
 	"context"
-	"io"
+	"io/ioutil"
 	"net"
 	"testing"
 
@@ -103,7 +103,7 @@ func TestIPWhiteLister_ServeHTTP(t *testing.T) {
 				whiteLister.ServeTCP(&contextWriteCloser{client, addr{test.remoteAddr}})
 			}()
 
-			read, err := io.ReadAll(server)
+			read, err := ioutil.ReadAll(server)
 			require.NoError(t, err)
 
 			assert.Equal(t, test.expected, string(read))

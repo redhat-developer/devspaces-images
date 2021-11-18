@@ -4,9 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"crypto/sha1"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,7 +23,6 @@ import (
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/traefik/v2/pkg/tls"
-	"github.com/traefik/traefik/v2/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -340,32 +337,15 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 					logger.Errorf("Error while reading IdleConnTimeout: %v", err)
 				}
 			}
-
-			if serversTransport.Spec.ForwardingTimeouts.ReadIdleTimeout != nil {
-				err := forwardingTimeout.ReadIdleTimeout.Set(serversTransport.Spec.ForwardingTimeouts.ReadIdleTimeout.String())
-				if err != nil {
-					logger.Errorf("Error while reading ReadIdleTimeout: %v", err)
-				}
-			}
-
-			if serversTransport.Spec.ForwardingTimeouts.PingTimeout != nil {
-				err := forwardingTimeout.PingTimeout.Set(serversTransport.Spec.ForwardingTimeouts.PingTimeout.String())
-				if err != nil {
-					logger.Errorf("Error while reading PingTimeout: %v", err)
-				}
-			}
 		}
 
-		id := provider.Normalize(makeID(serversTransport.Namespace, serversTransport.Name))
-		conf.HTTP.ServersTransports[id] = &dynamic.ServersTransport{
+		conf.HTTP.ServersTransports[serversTransport.Name] = &dynamic.ServersTransport{
 			ServerName:          serversTransport.Spec.ServerName,
 			InsecureSkipVerify:  serversTransport.Spec.InsecureSkipVerify,
 			RootCAs:             rootCAs,
 			Certificates:        certs,
-			DisableHTTP2:        serversTransport.Spec.DisableHTTP2,
 			MaxIdleConnsPerHost: serversTransport.Spec.MaxIdleConnsPerHost,
 			ForwardingTimeouts:  forwardingTimeout,
-			PeerCertURI:         serversTransport.Spec.PeerCertURI,
 		}
 	}
 
@@ -498,7 +478,7 @@ func createForwardAuthMiddleware(k8sClient Client, namespace string, auth *v1alp
 		return forwardAuth, nil
 	}
 
-	forwardAuth.TLS = &types.ClientTLS{
+	forwardAuth.TLS = &dynamic.ClientTLS{
 		CAOptional:         auth.TLS.CAOptional,
 		InsecureSkipVerify: auth.TLS.InsecureSkipVerify,
 	}
@@ -575,38 +555,9 @@ func createBasicAuthMiddleware(client Client, namespace string, basicAuth *v1alp
 		return nil, nil
 	}
 
-	if basicAuth.Secret == "" {
-		return nil, fmt.Errorf("auth secret must be set")
-	}
-
-	secret, ok, err := client.GetSecret(namespace, basicAuth.Secret)
+	credentials, err := getAuthCredentials(client, basicAuth.Secret, namespace)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch secret '%s/%s': %w", namespace, basicAuth.Secret, err)
-	}
-	if !ok {
-		return nil, fmt.Errorf("secret '%s/%s' not found", namespace, basicAuth.Secret)
-	}
-	if secret == nil {
-		return nil, fmt.Errorf("data for secret '%s/%s' must not be nil", namespace, basicAuth.Secret)
-	}
-
-	if secret.Type == corev1.SecretTypeBasicAuth {
-		credentials, err := loadBasicAuthCredentials(secret)
-		if err != nil {
-			return nil, fmt.Errorf("failed to load basic auth credentials: %w", err)
-		}
-
-		return &dynamic.BasicAuth{
-			Users:        credentials,
-			Realm:        basicAuth.Realm,
-			RemoveHeader: basicAuth.RemoveHeader,
-			HeaderField:  basicAuth.HeaderField,
-		}, nil
-	}
-
-	credentials, err := loadAuthCredentials(secret)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load basic auth credentials: %w", err)
+		return nil, err
 	}
 
 	return &dynamic.BasicAuth{
@@ -622,24 +573,9 @@ func createDigestAuthMiddleware(client Client, namespace string, digestAuth *v1a
 		return nil, nil
 	}
 
-	if digestAuth.Secret == "" {
-		return nil, fmt.Errorf("auth secret must be set")
-	}
-
-	secret, ok, err := client.GetSecret(namespace, digestAuth.Secret)
+	credentials, err := getAuthCredentials(client, digestAuth.Secret, namespace)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch secret '%s/%s': %w", namespace, digestAuth.Secret, err)
-	}
-	if !ok {
-		return nil, fmt.Errorf("secret '%s/%s' not found", namespace, digestAuth.Secret)
-	}
-	if secret == nil {
-		return nil, fmt.Errorf("data for secret '%s/%s' must not be nil", namespace, digestAuth.Secret)
-	}
-
-	credentials, err := loadAuthCredentials(secret)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load digest auth credentials: %w", err)
+		return nil, err
 	}
 
 	return &dynamic.DigestAuth{
@@ -650,23 +586,32 @@ func createDigestAuthMiddleware(client Client, namespace string, digestAuth *v1a
 	}, nil
 }
 
-func loadBasicAuthCredentials(secret *corev1.Secret) ([]string, error) {
-	username, usernameExists := secret.Data["username"]
-	password, passwordExists := secret.Data["password"]
-	if !(usernameExists && passwordExists) {
-		return nil, fmt.Errorf("secret '%s/%s' must contain both username and password keys", secret.Namespace, secret.Name)
+func getAuthCredentials(k8sClient Client, authSecret, namespace string) ([]string, error) {
+	if authSecret == "" {
+		return nil, fmt.Errorf("auth secret must be set")
 	}
 
-	hash := sha1.New()
-	hash.Write(password)
-	passwordSum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+	auth, err := loadAuthCredentials(namespace, authSecret, k8sClient)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load auth credentials: %w", err)
+	}
 
-	return []string{fmt.Sprintf("%s:{SHA}%s", username, passwordSum)}, nil
+	return auth, nil
 }
 
-func loadAuthCredentials(secret *corev1.Secret) ([]string, error) {
+func loadAuthCredentials(namespace, secretName string, k8sClient Client) ([]string, error) {
+	secret, ok, err := k8sClient.GetSecret(namespace, secretName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch secret '%s/%s': %w", namespace, secretName, err)
+	}
+	if !ok {
+		return nil, fmt.Errorf("secret '%s/%s' not found", namespace, secretName)
+	}
+	if secret == nil {
+		return nil, fmt.Errorf("data for secret '%s/%s' must not be nil", namespace, secretName)
+	}
 	if len(secret.Data) != 1 {
-		return nil, fmt.Errorf("found %d elements for secret '%s/%s', must be single element exactly", len(secret.Data), secret.Namespace, secret.Name)
+		return nil, fmt.Errorf("found %d elements for secret '%s/%s', must be single element exactly", len(secret.Data), namespace, secretName)
 	}
 
 	var firstSecret []byte
@@ -683,10 +628,10 @@ func loadAuthCredentials(secret *corev1.Secret) ([]string, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading secret for %s/%s: %w", secret.Namespace, secret.Name, err)
+		return nil, fmt.Errorf("error reading secret for %s/%s: %w", namespace, secretName, err)
 	}
 	if len(credentials) == 0 {
-		return nil, fmt.Errorf("secret '%s/%s' does not contain any credentials", secret.Namespace, secret.Name)
+		return nil, fmt.Errorf("secret '%s/%s' does not contain any credentials", namespace, secretName)
 	}
 
 	return credentials, nil
@@ -758,12 +703,6 @@ func buildTLSOptions(ctx context.Context, client Client) map[string]tls.Options 
 			id = tlsOption.Name
 			nsDefault = append(nsDefault, tlsOption.Namespace)
 		}
-
-		alpnProtocols := tls.DefaultTLSOptions.ALPNProtocols
-		if len(tlsOption.Spec.ALPNProtocols) > 0 {
-			alpnProtocols = tlsOption.Spec.ALPNProtocols
-		}
-
 		tlsOptions[id] = tls.Options{
 			MinVersion:       tlsOption.Spec.MinVersion,
 			MaxVersion:       tlsOption.Spec.MaxVersion,
@@ -775,7 +714,6 @@ func buildTLSOptions(ctx context.Context, client Client) map[string]tls.Options 
 			},
 			SniStrict:                tlsOption.Spec.SniStrict,
 			PreferServerCipherSuites: tlsOption.Spec.PreferServerCipherSuites,
-			ALPNProtocols:            alpnProtocols,
 		}
 	}
 

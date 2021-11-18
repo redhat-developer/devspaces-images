@@ -11,47 +11,47 @@ data:
 
 ---
 kind: GatewayClass
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
   name: my-gateway-class
 spec:
-  controllerName: unkown.io/gateway-controller
+  controller: unkown.io/gateway-controller
 
 ---
 kind: Gateway
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
   name: my-gateway
   namespace: default
 spec:
   gatewayClassName: my-gateway-class
-  listeners: # Use GatewayClass defaults for listener definition.
-    - name: tls
-      protocol: TLS
+  listeners:  # Use GatewayClass defaults for listener definition.
+    - protocol: TLS
       tls:
-        certificateRefs:
-          - kind: Secret
-            name: supersecret
-            group: ""
+        certificateRef:
+          kind: Secret
+          name: supersecret
+          group: core
       port: 8080
-      allowedRoutes:
-        kinds:
-          - kind: TCPRoute
-            group: gateway.networking.k8s.io
+      routes:
+        kind: TCPRoute
         namespaces:
           from: Same
+        selector:
+          matchLabels:
+            app: foo
 
 ---
 kind: TCPRoute
-apiVersion: gateway.networking.k8s.io/v1alpha2
+apiVersion: networking.x-k8s.io/v1alpha1
 metadata:
   name: tls-app-1
   namespace: default
+  labels:
+    app: foo
 spec:
   rules:
-    - backendRefs:
-        - name: whoamitcp
+    - forwardTo:
+        - serviceName: whoamitcp
           port: 80
           weight: 1
-          kind: Service
-          group: ""

@@ -3,9 +3,7 @@ package service
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/traefik/traefik/v2/pkg/api"
-	"github.com/traefik/traefik/v2/pkg/api/dashboard"
 	"github.com/traefik/traefik/v2/pkg/config/runtime"
 	"github.com/traefik/traefik/v2/pkg/config/static"
 	"github.com/traefik/traefik/v2/pkg/metrics"
@@ -38,17 +36,10 @@ func NewManagerFactory(staticConfiguration static.Configuration, routinesPool *s
 	}
 
 	if staticConfiguration.API != nil {
-		apiRouterBuilder := api.NewBuilder(staticConfiguration)
+		factory.api = api.NewBuilder(staticConfiguration)
 
 		if staticConfiguration.API.Dashboard {
-			factory.dashboardHandler = dashboard.Handler{}
-			factory.api = func(configuration *runtime.Configuration) http.Handler {
-				router := apiRouterBuilder(configuration).(*mux.Router)
-				dashboard.Append(router, nil)
-				return router
-			}
-		} else {
-			factory.api = apiRouterBuilder
+			factory.dashboardHandler = api.DashboardHandler{Assets: staticConfiguration.API.DashboardAssets}
 		}
 	}
 

@@ -1,6 +1,6 @@
 # Elastic
 
-To enable the Elastic tracer:
+To enable the Elastic:
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -20,7 +20,7 @@ tracing:
 
 _Optional, Default="http://localhost:8200"_
 
-URL of the Elastic APM server.
+APM ServerURL is the URL of the Elastic APM server.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -42,7 +42,7 @@ tracing:
 
 _Optional, Default=""_
 
-Token used to connect to Elastic APM Server.
+APM Secret Token is the token used to connect to Elastic APM Server.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -64,7 +64,7 @@ tracing:
 
 _Optional, Default=""_
 
-Environment's name where Traefik is deployed in, e.g. `production` or `staging`.
+APM Service Environment is the name of the environment Traefik is deployed in, e.g. `production` or `staging`.
 
 ```yaml tab="File (YAML)"
 tracing:

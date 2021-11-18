@@ -22,18 +22,13 @@ type responseModifier struct {
 }
 
 // modifier can be nil.
-func newResponseModifier(w http.ResponseWriter, r *http.Request, modifier func(*http.Response) error) http.ResponseWriter {
-	rm := &responseModifier{
+func newResponseModifier(w http.ResponseWriter, r *http.Request, modifier func(*http.Response) error) *responseModifier {
+	return &responseModifier{
 		req:      r,
 		rw:       w,
 		modifier: modifier,
 		code:     http.StatusOK,
 	}
-
-	if _, ok := w.(http.CloseNotifier); ok {
-		return responseModifierWithCloseNotify{responseModifier: rm}
-	}
-	return rm
 }
 
 func (r *responseModifier) WriteHeader(code int) {
@@ -98,11 +93,7 @@ func (r *responseModifier) Flush() {
 	}
 }
 
-type responseModifierWithCloseNotify struct {
-	*responseModifier
-}
-
 // CloseNotify implements http.CloseNotifier.
-func (r *responseModifierWithCloseNotify) CloseNotify() <-chan bool {
-	return r.responseModifier.rw.(http.CloseNotifier).CloseNotify()
+func (r *responseModifier) CloseNotify() <-chan bool {
+	return r.rw.(http.CloseNotifier).CloseNotify()
 }

@@ -35,10 +35,8 @@ var attributeTypeNames = map[string]string{
 	"0.9.2342.19200300.100.1.25": "DC", // Domain component OID - RFC 2247
 }
 
-// IssuerDistinguishedNameOptions is a struct for specifying the configuration
-// for the distinguished name info of the issuer. This information is defined in
-// RFC3739, section 3.1.1.
-type IssuerDistinguishedNameOptions struct {
+// DistinguishedNameOptions is a struct for specifying the configuration for the distinguished name info.
+type DistinguishedNameOptions struct {
 	CommonName          bool
 	CountryName         bool
 	DomainComponent     bool
@@ -48,12 +46,12 @@ type IssuerDistinguishedNameOptions struct {
 	StateOrProvinceName bool
 }
 
-func newIssuerDistinguishedNameOptions(info *dynamic.TLSClientCertificateIssuerDNInfo) *IssuerDistinguishedNameOptions {
+func newDistinguishedNameOptions(info *dynamic.TLSCLientCertificateDNInfo) *DistinguishedNameOptions {
 	if info == nil {
 		return nil
 	}
 
-	return &IssuerDistinguishedNameOptions{
+	return &DistinguishedNameOptions{
 		CommonName:          info.CommonName,
 		CountryName:         info.Country,
 		DomainComponent:     info.DomainComponent,
@@ -64,44 +62,13 @@ func newIssuerDistinguishedNameOptions(info *dynamic.TLSClientCertificateIssuerD
 	}
 }
 
-// SubjectDistinguishedNameOptions is a struct for specifying the configuration
-// for the distinguished name info of the subject. This information is defined
-// in RFC3739, section 3.1.2.
-type SubjectDistinguishedNameOptions struct {
-	CommonName             bool
-	CountryName            bool
-	DomainComponent        bool
-	LocalityName           bool
-	OrganizationName       bool
-	OrganizationalUnitName bool
-	SerialNumber           bool
-	StateOrProvinceName    bool
-}
-
-func newSubjectDistinguishedNameOptions(info *dynamic.TLSClientCertificateSubjectDNInfo) *SubjectDistinguishedNameOptions {
-	if info == nil {
-		return nil
-	}
-
-	return &SubjectDistinguishedNameOptions{
-		CommonName:             info.CommonName,
-		CountryName:            info.Country,
-		DomainComponent:        info.DomainComponent,
-		LocalityName:           info.Locality,
-		OrganizationName:       info.Organization,
-		OrganizationalUnitName: info.OrganizationalUnit,
-		SerialNumber:           info.SerialNumber,
-		StateOrProvinceName:    info.Province,
-	}
-}
-
 // tlsClientCertificateInfo is a struct for specifying the configuration for the passTLSClientCert middleware.
 type tlsClientCertificateInfo struct {
 	notAfter     bool
 	notBefore    bool
 	sans         bool
-	subject      *SubjectDistinguishedNameOptions
-	issuer       *IssuerDistinguishedNameOptions
+	subject      *DistinguishedNameOptions
+	issuer       *DistinguishedNameOptions
 	serialNumber bool
 }
 
@@ -111,10 +78,10 @@ func newTLSClientCertificateInfo(info *dynamic.TLSClientCertificateInfo) *tlsCli
 	}
 
 	return &tlsClientCertificateInfo{
-		issuer:       newIssuerDistinguishedNameOptions(info.Issuer),
+		issuer:       newDistinguishedNameOptions(info.Issuer),
 		notAfter:     info.NotAfter,
 		notBefore:    info.NotBefore,
-		subject:      newSubjectDistinguishedNameOptions(info.Subject),
+		subject:      newDistinguishedNameOptions(info.Subject),
 		serialNumber: info.SerialNumber,
 		sans:         info.Sans,
 	}
@@ -180,12 +147,12 @@ func (p *passTLSClientCert) getCertInfo(ctx context.Context, certs []*x509.Certi
 		var values []string
 
 		if p.info != nil {
-			subject := getSubjectDNInfo(ctx, p.info.subject, &peerCert.Subject)
+			subject := getDNInfo(ctx, p.info.subject, &peerCert.Subject)
 			if subject != "" {
 				values = append(values, fmt.Sprintf(`Subject="%s"`, strings.TrimSuffix(subject, subFieldSeparator)))
 			}
 
-			issuer := getIssuerDNInfo(ctx, p.info.issuer, &peerCert.Issuer)
+			issuer := getDNInfo(ctx, p.info.issuer, &peerCert.Issuer)
 			if issuer != "" {
 				values = append(values, fmt.Sprintf(`Issuer="%s"`, strings.TrimSuffix(issuer, subFieldSeparator)))
 			}
@@ -220,7 +187,7 @@ func (p *passTLSClientCert) getCertInfo(ctx context.Context, certs []*x509.Certi
 	return strings.Join(headerValues, certSeparator)
 }
 
-func getIssuerDNInfo(ctx context.Context, options *IssuerDistinguishedNameOptions, cs *pkix.Name) string {
+func getDNInfo(ctx context.Context, options *DistinguishedNameOptions, cs *pkix.Name) string {
 	if options == nil {
 		return ""
 	}
@@ -249,52 +216,6 @@ func getIssuerDNInfo(ctx context.Context, options *IssuerDistinguishedNameOption
 
 	if options.OrganizationName {
 		writeParts(ctx, content, cs.Organization, "O")
-	}
-
-	if options.SerialNumber {
-		writePart(ctx, content, cs.SerialNumber, "SN")
-	}
-
-	if options.CommonName {
-		writePart(ctx, content, cs.CommonName, "CN")
-	}
-
-	return content.String()
-}
-
-func getSubjectDNInfo(ctx context.Context, options *SubjectDistinguishedNameOptions, cs *pkix.Name) string {
-	if options == nil {
-		return ""
-	}
-
-	content := &strings.Builder{}
-
-	// Manage non standard attributes
-	for _, name := range cs.Names {
-		// Domain Component - RFC 2247
-		if options.DomainComponent && attributeTypeNames[name.Type.String()] == "DC" {
-			content.WriteString(fmt.Sprintf("DC=%s%s", name.Value, subFieldSeparator))
-		}
-	}
-
-	if options.CountryName {
-		writeParts(ctx, content, cs.Country, "C")
-	}
-
-	if options.StateOrProvinceName {
-		writeParts(ctx, content, cs.Province, "ST")
-	}
-
-	if options.LocalityName {
-		writeParts(ctx, content, cs.Locality, "L")
-	}
-
-	if options.OrganizationName {
-		writeParts(ctx, content, cs.Organization, "O")
-	}
-
-	if options.OrganizationalUnitName {
-		writeParts(ctx, content, cs.OrganizationalUnit, "OU")
 	}
 
 	if options.SerialNumber {

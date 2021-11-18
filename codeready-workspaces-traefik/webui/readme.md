@@ -14,15 +14,15 @@ Traefik Web UI provide 2 types of information:
 Use the make file :
 
 ```shell
-make build-image      # Generate Docker image
-make generate-webui   # Generate static contents in `traefik/webui/static/` folder.
+make build           # Generate Docker image
+make generate-webui  # Generate static contents in `traefik/static/` folder.
 ```
 
 ## How to build (only for frontend developer)
 
 - prerequisite: [Node 12.11+](https://nodejs.org) [Npm](https://www.npmjs.com/)
 
-- Go to the `webui` directory
+- Go to the directory `webui`
 
 - To install dependencies, execute the following commands:
 
@@ -32,23 +32,23 @@ make generate-webui   # Generate static contents in `traefik/webui/static/` fold
 
   - `npm run build`
 
-- Static contents are built in the `webui/static` directory
+- Static contents are build in the directory `static`
 
-**Do not manually change the files in the `webui/static` directory**
+**Don't change manually the files in the directory `static`**
 
-- The build allows to:
+- The build allow to:
   - optimize all JavaScript
   - optimize all CSS
   - add vendor prefixes to CSS (cross-bowser support)
   - add a hash in the file names to prevent browser cache problems
-  - optimize all images at build time
+  - all images will be optimized at build
   - bundle JavaScript in one file
 
 ## How to edit (only for frontend developer)
 
-**Do not manually change the files in the `webui/static` directory**
+**Don't change manually the files in the directory `static`**
 
-- Go to the `webui` directory
+- Go to the directory `webui`
 - Edit files in `webui/src`
 - Run in development mode :
   - `npm run dev`

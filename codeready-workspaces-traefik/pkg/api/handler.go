@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 
+	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/config/runtime"
@@ -47,7 +48,10 @@ type RunTimeRepresentation struct {
 
 // Handler serves the configuration and status of Traefik on API endpoints.
 type Handler struct {
-	staticConfig static.Configuration
+	dashboard       bool
+	debug           bool
+	staticConfig    static.Configuration
+	dashboardAssets *assetfs.AssetFS
 
 	// runtimeConfiguration is the data set used to create all the data representations exposed by the API.
 	runtimeConfiguration *runtime.Configuration
@@ -69,8 +73,11 @@ func New(staticConfig static.Configuration, runtimeConfig *runtime.Configuration
 	}
 
 	return &Handler{
+		dashboard:            staticConfig.API.Dashboard,
+		dashboardAssets:      staticConfig.API.DashboardAssets,
 		runtimeConfiguration: rConfig,
 		staticConfig:         staticConfig,
+		debug:                staticConfig.API.Debug,
 	}
 }
 
@@ -78,7 +85,7 @@ func New(staticConfig static.Configuration, runtimeConfig *runtime.Configuration
 func (h Handler) createRouter() *mux.Router {
 	router := mux.NewRouter()
 
-	if h.staticConfig.API.Debug {
+	if h.debug {
 		DebugHandler{}.Append(router)
 	}
 
@@ -110,6 +117,10 @@ func (h Handler) createRouter() *mux.Router {
 	router.Methods(http.MethodGet).Path("/api/udp/services/{serviceID}").HandlerFunc(h.getUDPService)
 
 	version.Handler{}.Append(router)
+
+	if h.dashboard {
+		DashboardHandler{Assets: h.dashboardAssets}.Append(router)
+	}
 
 	return router
 }

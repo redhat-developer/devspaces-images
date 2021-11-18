@@ -427,8 +427,8 @@ _Optional, Default=```Host(`{{ normalize .Name }}`)```_
 
 The `defaultRule` option defines what routing rule to apply to a container if no rule is defined by a label.
 
-It must be a valid [Go template](https://pkg.go.dev/text/template/), and can use
-[sprig template functions](https://masterminds.github.io/sprig/).
+It must be a valid [Go template](https://golang.org/pkg/text/template/), and can use
+[sprig template functions](http://masterminds.github.io/sprig/).
 The container service name can be accessed with the `Name` identifier,
 and the template has access to all the labels defined on this container.
 
@@ -615,8 +615,7 @@ _Optional_
 
 #### `tls.ca`
 
-Certificate Authority used for the secure connection to Docker,
-defaults to the system bundle.
+Certificate Authority used for the secure connection to Docker.
 
 ```yaml tab="File (YAML)"
 providers:

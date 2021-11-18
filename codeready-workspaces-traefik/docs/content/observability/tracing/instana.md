@@ -1,6 +1,6 @@
 # Instana
 
-To enable the Instana tracer:
+To enable the Instana:
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -18,9 +18,9 @@ tracing:
 
 #### `localAgentHost`
 
-_Required, Default="127.0.0.1"_
+_Require, Default="127.0.0.1"_
 
-Local Agent Host instructs reporter to send spans to the Instana Agent at this address.
+Local Agent Host instructs reporter to send spans to instana-agent at this address.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -40,9 +40,9 @@ tracing:
 
 #### `localAgentPort`
 
-_Required, Default=42699_
+_Require, Default=42699_
 
-Local Agent port instructs reporter to send spans to the Instana Agent listening on this port.
+Local Agent port instructs reporter to send spans to the instana-agent at this port.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -62,11 +62,11 @@ tracing:
 
 #### `logLevel`
 
-_Required, Default="info"_
+_Require, Default="info"_
 
-Sets Instana tracer log level.
+Set Instana tracer log level.
 
-Valid values are:
+Valid values for logLevel field are:
 
 - `error`
 - `warn`
@@ -87,26 +87,4 @@ tracing:
 
 ```bash tab="CLI"
 --tracing.instana.logLevel=info
-```
-
-#### `enableAutoProfile`
-
-_Required, Default=false_
-
-Enables [automatic profiling](https://www.instana.com/docs/ecosystem/go/#instana-autoprofile) for the Traefik process.
-
-```yaml tab="File (YAML)"
-tracing:
-  instana:
-    enableAutoProfile: true
-```
-
-```toml tab="File (TOML)"
-[tracing]
-  [tracing.instana]
-    enableAutoProfile = true
-```
-
-```bash tab="CLI"
---tracing.instana.enableAutoProfile=true
 ```
