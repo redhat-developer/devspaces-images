@@ -53,17 +53,20 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 
-${PODMAN} run --rm -v "$SCRIPT_DIR"/target/lombok-ls:/home/jboss/lombok/dist -u root ${OPENJDK11_IMAGE} sh -c "
+${PODMAN} run --name lomboktmp -u root ${OPENJDK11_IMAGE} sh -c "
     microdnf update && microdnf install git && \
     curl -sSLO https://dlcdn.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
-	&& tar xvfz apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt \
-	&& ln -sfn /opt/apache-ant-${ANT_VERSION} /opt/ant \
-	&& echo ANT_HOME=/opt/ant >> /etc/environment \
-	&& ln -sfn /opt/ant/bin/ant /usr/bin/ant \
-	&& rm apache-ant-${ANT_VERSION}-bin.tar.gz && \
+    && tar xvfz apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt \
+    && ln -sfn /opt/apache-ant-${ANT_VERSION} /opt/ant \
+    && echo ANT_HOME=/opt/ant >> /etc/environment \
+    && ln -sfn /opt/ant/bin/ant /usr/bin/ant \
+    && rm apache-ant-${ANT_VERSION}-bin.tar.gz && \
     git clone --quiet https://github.com/projectlombok/lombok.git lombok && \
     cd lombok && ant dist
     "
+${PODMAN} cp lomboktmp:/home/jboss/lombok/dist/lombok.jar ${SCRIPT_DIR}/target/lombok-ls/
+${PODMAN} rm -f lomboktmp
+
 jarfile="${SCRIPT_DIR}/target/lombok-ls/lombok.jar"
 
 # upload the binary to GH
