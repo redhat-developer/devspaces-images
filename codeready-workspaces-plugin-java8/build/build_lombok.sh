@@ -53,7 +53,7 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 
-${PODMAN} run --name dummy -u root ${OPENJDK11_IMAGE} sh -c "
+${PODMAN} run --name lomboktmp -u root ${OPENJDK11_IMAGE} sh -c "
     microdnf update && microdnf install git && \
     curl -sSLO https://dlcdn.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
     && tar xvfz apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt \
@@ -64,8 +64,8 @@ ${PODMAN} run --name dummy -u root ${OPENJDK11_IMAGE} sh -c "
     git clone --quiet https://github.com/projectlombok/lombok.git lombok && \
     cd lombok && ant dist
     "
-${PODMAN} cp dummy:/home/jboss/lombok/dist/lombok.jar ${SCRIPT_DIR}/target/lombok-ls/
-${PODMAN} rm -f dummy
+${PODMAN} cp lomboktmp:/home/jboss/lombok/dist/lombok.jar ${SCRIPT_DIR}/target/lombok-ls/
+${PODMAN} rm -f lomboktmp
 
 jarfile="${SCRIPT_DIR}/target/lombok-ls/lombok.jar"
 
