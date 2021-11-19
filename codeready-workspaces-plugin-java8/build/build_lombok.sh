@@ -49,6 +49,14 @@ echo ""
 echo "CodeReady Workspaces :: java plugin library :: lombok"
 echo ""
 
+# if version we want already exists we're done
+if [[ ! $(curl -sSI https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar | grep 404) ]]; then
+  echo "Asset already exists: https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar"
+  echo "Nothing to do!"
+  exit 0
+fi
+
+
 mkdir -p target/lombok-ls
 
 PODMAN=$(command -v podman || true)
