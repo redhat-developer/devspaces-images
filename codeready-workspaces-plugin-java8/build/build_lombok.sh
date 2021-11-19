@@ -29,12 +29,18 @@ if [[ $# -lt 1 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+    '-b') MIDSTM_BRANCH="$2"; shift 1;;
     '-v') CSV_VERSION="$2"; shift 1;;
     '-n') ASSET_NAME="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
 done
+
+if [[ ! $MIDSTM_BRANCH ]]; then 
+  MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
+  if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
+fi
 
 cd "$SCRIPT_DIR"
 [[ -e target ]] && rm -Rf target
