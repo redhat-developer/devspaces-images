@@ -32,3 +32,4 @@ done
 
 ./../codeready-workspaces-plugin-java8/build/build_node10.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 ./../codeready-workspaces-plugin-java8/build/build_python.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./../codeready-workspaces-plugin-java8/build/build_lombok.sh -v ${CSV_VERSION} -n "noarch"
