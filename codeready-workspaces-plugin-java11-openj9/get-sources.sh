@@ -44,7 +44,7 @@ GRADLE_VERSION="6.1"
 # maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
 MAVEN_VERSION="3.6.3"
 
-LOMBOK_VERSION="1.18.18"
+LOMBOK_VERSION="1.18.22"
 
 # update Dockerfile to record version we expect for MAVEN_VERSION and GRADLE_VERSION
 sed Dockerfile \
@@ -59,7 +59,7 @@ if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ ! -f lombok-${LOMBO
 	mv -f Dockerfile.2 Dockerfile
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-	curl -sSL -O https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
 	log "[INFO] Upload new sources: gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar"
 	rhpkg new-sources gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar
 	log "[INFO] Commit new sources"

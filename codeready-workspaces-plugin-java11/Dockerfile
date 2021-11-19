@@ -17,7 +17,7 @@ USER root
 ENV \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
-    LOMBOK_VERSION="1.18.18" \
+    LOMBOK_VERSION="1.18.22" \
     JAVA_HOME=/usr/lib/jvm/java-11-openjdk \
     PATH="/usr/lib/jvm/java-11-openjdk:/opt/gradle/bin:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \

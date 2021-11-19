@@ -17,7 +17,7 @@ USER root
 ENV HOME=/home/jboss \
     NODEJS_VERSION=12 \
     MAVEN_VERSION="3.6.3" \
-    LOMBOK_VERSION="1.18.18" \
+    LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
     JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-8-jdk \
     PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/lib/jvm/ibm-semeru-open-8-jdk:/opt/apache-maven/bin:/usr/bin:$PATH \
