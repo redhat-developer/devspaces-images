@@ -48,7 +48,7 @@ RUN /tmp/nexe/index.js -v && \
 FROM ubi8-minimal:8.5-204 as runtime
 USER 0
 RUN microdnf -y install yum && \
-    yum -y -q update --nobest && \
+    yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 ENV SUMMARY="Red Hat CodeReady Workspaces - theia-endpoint container" \
