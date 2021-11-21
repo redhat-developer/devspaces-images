@@ -5,7 +5,7 @@
 | [`@babel/runtime@7.15.4`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@devfile/api@2.2.0-alpha-1633545768`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | `@eclipse-che/api@7.36.0` | EPL-2.0 | clearlydefined |
-| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1636121456`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1636123638`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/common@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-backend@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-frontend@7.37.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
@@ -146,7 +146,7 @@
 | [`fastify-http-proxy@5.0.0`](git+https://github.com/fastify/fastify-http-proxy.git) | MIT | clearlydefined |
 | [`fastify-plugin@3.0.0`](git+https://github.com/fastify/fastify-plugin.git) | MIT | clearlydefined |
 | [`fastify-reply-from@5.3.0`](git+https://github.com/fastify/fastify-reply-from.git) | MIT | clearlydefined |
-| [`fastify-static@4.2.3`](https://github.com/fastify/fastify-static.git) | MIT | clearlydefined |
+| [`fastify-static@4.4.2`](https://github.com/fastify/fastify-static.git) | MIT | clearlydefined |
 | [`fastify-swagger@4.11.0`](git+https://github.com/fastify/fastify-swagger.git) | MIT | clearlydefined |
 | [`fastify-warning@0.2.0`](git+https://github.com/fastify/fastify-warning.git) | MIT | clearlydefined |
 | [`fastify-websocket@3.2.2`](git+https://github.com/fastify/fastify-websocket.git) | MIT | clearlydefined |
@@ -274,6 +274,7 @@
 | [`os-tmpdir@1.0.2`](https://github.com/sindresorhus/os-tmpdir.git) | MIT | clearlydefined |
 | [`p-cancelable@2.1.1`](https://github.com/sindresorhus/p-cancelable.git) | MIT | clearlydefined |
 | [`p-finally@1.0.0`](https://github.com/sindresorhus/p-finally.git) | MIT | clearlydefined |
+| [`p-limit@3.1.0`](https://github.com/sindresorhus/p-limit.git) | MIT | clearlydefined |
 | [`parse-srcset@1.0.2`](git+https://github.com/albell/parse-srcset.git) | MIT | clearlydefined |
 | [`path-is-absolute@1.0.1`](https://github.com/sindresorhus/path-is-absolute.git) | MIT | clearlydefined |
 | [`path-key@2.0.1`](https://github.com/sindresorhus/path-key.git) | MIT | clearlydefined |
@@ -417,3 +418,4 @@
 | [`yallist@4.0.0`](git+https://github.com/isaacs/yallist.git) | ISC | clearlydefined |
 | [`yaml-language-server-parser@0.1.1`](https://github.com/redhat-developer/yaml-ast-parser.git) | Apache-2.0 | clearlydefined |
 | [`yaml-language-server@0.13.0`](https://github.com/redhat-developer/yaml-language-server.git) | MIT | clearlydefined |
+| [`yocto-queue@0.1.0`](https://github.com/sindresorhus/yocto-queue.git) | MIT | clearlydefined |

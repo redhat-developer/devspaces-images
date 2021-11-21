@@ -1173,5 +1173,4 @@
 | [`yaml@1.10.2`](https://github.com/eemeli/yaml.git) | ISC | clearlydefined |
 | [`yargs-parser@20.2.9`](https://github.com/yargs/yargs-parser.git) | ISC | clearlydefined |
 | [`yargs@13.3.2`](https://github.com/yargs/yargs.git) | MIT | clearlydefined |
-| [`yocto-queue@0.1.0`](https://github.com/sindresorhus/yocto-queue.git) | MIT | clearlydefined |
 | [`zwitch@1.0.5`](https://github.com/wooorm/zwitch.git) | MIT | clearlydefined |

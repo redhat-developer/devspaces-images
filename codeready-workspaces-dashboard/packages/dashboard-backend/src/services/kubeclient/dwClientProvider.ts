@@ -15,9 +15,13 @@ import { KubeConfig } from '@kubernetes/client-node';
 import { DevWorkspaceClient } from '../../devworkspace-client';
 import * as helper from './helpers';
 import { KubeConfigProvider } from './kubeConfigProvider';
-import { validateToken } from './keycloak';
+import { validateToken, evaluateKeycloakEndpointUrl } from './keycloak';
+import { helpers } from '@eclipse-che/common';
+
+const ERROR_INVALID_URL = 'ERR_INVALID_URL';
 
 export class DwClientProvider {
+  private static keycloakEndpoint: string | undefined;
   private kubeconfigProvider: KubeConfigProvider;
   private readonly isOpenShift: Promise<boolean>;
 
@@ -35,15 +39,32 @@ export class DwClientProvider {
       // on OpenShift it's supposed to be access token which we can use directly
       contextKc = this.kubeconfigProvider.getKubeConfig(token);
     } else {
-      // on K8s it's supposed to be keycloak token which we can't use to access the cluster
-      // so, validate token and use SA
-      try {
-        await validateToken(token);
-      } catch (e) {
-        console.error(e);
-        throw e;
+      if (DwClientProvider.keycloakEndpoint === undefined) {
+        try {
+          DwClientProvider.keycloakEndpoint = await evaluateKeycloakEndpointUrl();
+        } catch (e) {
+          if (
+            helpers.errors.isAxiosError(e) &&
+            helpers.errors.isAxiosResponse(e.response) &&
+            e.response.status !== 401 &&
+            e.response.status !== 404
+          ) {
+            throw e;
+          }
+          DwClientProvider.keycloakEndpoint = ERROR_INVALID_URL;
+          console.log(
+            "Cannot evaluate keycloak user's endpoint. It could be with native auth mode.",
+          );
+        }
       }
-      contextKc = this.kubeconfigProvider.getSAKubeConfig();
+      if (DwClientProvider.keycloakEndpoint != ERROR_INVALID_URL) {
+        // if it supposed to be keycloak token on K8s which we can't use to access the cluster
+        // so, validate token and use SA
+        await validateToken(DwClientProvider.keycloakEndpoint, token);
+        contextKc = this.kubeconfigProvider.getSAKubeConfig();
+      } else {
+        contextKc = this.kubeconfigProvider.getKubeConfig(token);
+      }
     }
     return new DevWorkspaceClient(contextKc);
   }

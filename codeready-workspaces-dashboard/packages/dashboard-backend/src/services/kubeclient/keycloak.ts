@@ -19,20 +19,16 @@ import { isLocalRun } from '../../local-run';
 const CHE_HOST = process.env.CHE_INTERNAL_URL || process.env.CHE_HOST;
 const ENDPOINT = 'che.keycloak.userinfo.endpoint';
 
-let keycloakEndpointUrl: URL | undefined;
-
 const cheAxiosFactory = new CheAxiosFactory();
 
-export async function validateToken(keycloakToken: string): Promise<void> {
-  // lazy initialization
-  if (!keycloakEndpointUrl) {
-    keycloakEndpointUrl = await evaluateKeycloakEndpointUrl();
-  }
-
+export async function validateToken(
+  keycloakEndpoint: string,
+  keycloakToken: string,
+): Promise<void> {
   const headers = { Authorization: `Bearer ${keycloakToken}` };
   try {
-    const axios = await cheAxiosFactory.getAxiosInstance(keycloakEndpointUrl.href);
-    await axios.get(keycloakEndpointUrl.href, { headers });
+    const axios = await cheAxiosFactory.getAxiosInstance(keycloakEndpoint);
+    await axios.get(keycloakEndpoint, { headers });
     // token is a valid
   } catch (e) {
     throw createFastifyError(
@@ -43,29 +39,22 @@ export async function validateToken(keycloakToken: string): Promise<void> {
   }
 }
 
-async function evaluateKeycloakEndpointUrl(): Promise<URL> {
-  try {
-    const keycloakSettingsUrl = new URL('/api/keycloak/settings', CHE_HOST);
-    console.log(`Evaluating keycloak user's endpoint with help of ${keycloakSettingsUrl}`);
-    const axios = await cheAxiosFactory.getAxiosInstance(keycloakSettingsUrl.href);
-    const response = await axios.get(keycloakSettingsUrl.href);
-    let keycloakEndpoint = response.data[ENDPOINT];
-    // we should change a HOST in the case of using proxy to prevent the host check error
-    console.log(`Evaluated keycloak endpoint to validate user's tokens: ${keycloakEndpoint}`);
-    if (isLocalRun) {
-      const { pathname } = new URL(keycloakEndpoint);
-      keycloakEndpoint = new URL(pathname, CHE_HOST);
-      console.log(`Transforming keycloak URL for local run usage to: ${keycloakEndpoint}`);
-      return keycloakEndpoint;
-    } else {
-      console.log(`Evaluated keycloak endpoint to validate user's tokens: ${keycloakEndpoint}`);
-      return new URL(keycloakEndpoint);
-    }
-  } catch (e) {
-    throw createFastifyError(
-      'FST_UNAUTHORIZED',
-      `Failed to fetch keycloak settings: ${helpers.errors.getMessage(e)}`,
-      401,
+export async function evaluateKeycloakEndpointUrl(): Promise<string> {
+  const keycloakSettingsUrl = new URL('/api/keycloak/settings', CHE_HOST);
+  console.log(`Evaluating keycloak user's endpoint with help of ${keycloakSettingsUrl}`);
+  const axios = await cheAxiosFactory.getAxiosInstance(keycloakSettingsUrl.href);
+  const response = await axios.get(keycloakSettingsUrl.href);
+  const keycloakEndpoint = new URL(response.data[ENDPOINT]);
+  // we should change a HOST in the case of using proxy to prevent the host check error
+  console.log(`Evaluated keycloak endpoint to validate user's tokens: ${keycloakEndpoint.href}`);
+
+  if (isLocalRun) {
+    const localRunKeycloakEndpoint = new URL(keycloakEndpoint.pathname, CHE_HOST);
+    console.log(
+      `Transforming keycloak URL for local run usage to: ${localRunKeycloakEndpoint.href}`,
     );
+    return localRunKeycloakEndpoint.href;
   }
+
+  return keycloakEndpoint.href;
 }

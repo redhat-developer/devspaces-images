@@ -1,4 +1,4 @@
-# Copyright (c) 2021     Red Hat, Inc.
+# Copyright (c) 2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,7 +11,7 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
 FROM ubi8/nodejs-12:1-102 as builder
 USER 0
-RUN yum -y -q --nobest update --exclude=unbound-libs && \
+RUN yum -y -q update --exclude=unbound-libs && \
     yum -y -q clean all && rm -rf /var/cache/yum
 
 COPY package.json /dashboard/
@@ -40,7 +40,7 @@ FROM ubi8/nodejs-12:1-102
 USER 0
 
 RUN \
-    yum -y -q --nobest update && \
+    yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
