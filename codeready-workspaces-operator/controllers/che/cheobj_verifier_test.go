@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,6 +9,7 @@
 // Contributors:
 //   Red Hat, Inc. - initial API and implementation
 //
+
 package che
 
 import (
@@ -39,8 +40,12 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   "test",
-			Labels: map[string]string{"app.kubernetes.io/part-of": "che.eclipse.org", "app.kubernetes.io/component": "ca-bundle"},
+			Name: "test",
+			Labels: map[string]string{
+				"app.kubernetes.io/part-of":   "che.eclipse.org",
+				"app.kubernetes.io/component": "ca-bundle",
+				"app.kubernetes.io/instance":  "che",
+			},
 		},
 	}
 
@@ -133,7 +138,7 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 				newTestObject.ObjectMeta.Labels = testCase.objLabels
 			}
 
-			isEclipseCheObj, req := IsTrustedBundleConfigMap(deployContext.ClusterAPI.NonCachedClient, testCase.watchNamespace, newTestObject)
+			isEclipseCheObj, req := IsTrustedBundleConfigMap(deployContext.ClusterAPI.NonCachingClient, testCase.watchNamespace, newTestObject)
 
 			assert.Equal(t, testCase.expectedIsEclipseCheObj, isEclipseCheObj)
 			if isEclipseCheObj {
@@ -159,8 +164,11 @@ func TestIsEclipseCheRelatedObj(t *testing.T) {
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:   "test",
-			Labels: map[string]string{"app.kubernetes.io/part-of": "che.eclipse.org"},
+			Name: "test",
+			Labels: map[string]string{
+				"app.kubernetes.io/part-of":  "che.eclipse.org",
+				"app.kubernetes.io/instance": "che",
+			},
 		},
 	}
 
@@ -224,7 +232,7 @@ func TestIsEclipseCheRelatedObj(t *testing.T) {
 			deployContext := deploy.GetTestDeployContext(nil, testCase.initObjects)
 
 			testObject.ObjectMeta.Namespace = testCase.objNamespace
-			isEclipseCheObj, req := IsEclipseCheRelatedObj(deployContext.ClusterAPI.NonCachedClient, testCase.watchNamespace, testObject)
+			isEclipseCheObj, req := IsEclipseCheRelatedObj(deployContext.ClusterAPI.NonCachingClient, testCase.watchNamespace, testObject)
 
 			assert.Equal(t, testCase.expectedIsEclipseCheObj, isEclipseCheObj)
 			if isEclipseCheObj {

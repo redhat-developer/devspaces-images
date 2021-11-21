@@ -17,6 +17,7 @@ metadata:
     app: codeready-operator
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
+    app.kubernetes.io/part-of: che.eclipse.org
     app.kubernetes.io/component: codeready-operator
 spec:
   replicas: 1
@@ -31,6 +32,7 @@ spec:
         app: codeready-operator
         app.kubernetes.io/name: che
         app.kubernetes.io/instance: che
+        app.kubernetes.io/part-of: che.eclipse.org
         app.kubernetes.io/component: codeready-operator
     spec:
       containers:

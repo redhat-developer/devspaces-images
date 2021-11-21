@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2020 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -347,10 +347,10 @@ func ReconcileIdentityProvider(deployContext *deploy.DeployContext) (deleted boo
 		if err == nil {
 			oAuthClient := &oauth.OAuthClient{}
 			oAuthClientName := deployContext.CheCluster.Spec.Auth.OAuthClientName
-			if err := deployContext.ClusterAPI.NonCachedClient.Get(context.TODO(), types.NamespacedName{Name: oAuthClientName, Namespace: ""}, oAuthClient); err != nil {
+			if err := deployContext.ClusterAPI.NonCachingClient.Get(context.TODO(), types.NamespacedName{Name: oAuthClientName, Namespace: ""}, oAuthClient); err != nil {
 				logrus.Errorf("OAuthClient %s not found: %s", oAuthClient.Name, err.Error())
 			}
-			if err := deployContext.ClusterAPI.NonCachedClient.Delete(context.TODO(), oAuthClient); err != nil {
+			if err := deployContext.ClusterAPI.NonCachingClient.Delete(context.TODO(), oAuthClient); err != nil {
 				logrus.Errorf("Failed to delete %s %s: %s", oAuthClient.Kind, oAuthClient.Name, err.Error())
 			}
 			return true, nil

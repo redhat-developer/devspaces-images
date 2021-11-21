@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -50,9 +50,9 @@ func TestSyncService(t *testing.T) {
 			},
 		},
 		ClusterAPI: deploy.ClusterAPI{
-			Client:          cli,
-			NonCachedClient: cli,
-			Scheme:          scheme.Scheme,
+			Client:           cli,
+			NonCachingClient: cli,
+			Scheme:           scheme.Scheme,
 		},
 	}
 
@@ -97,9 +97,9 @@ func TestSyncAll(t *testing.T) {
 	deployContext := &deploy.DeployContext{
 		CheCluster: cheCluster,
 		ClusterAPI: deploy.ClusterAPI{
-			Client:          cli,
-			NonCachedClient: cli,
-			Scheme:          scheme.Scheme,
+			Client:           cli,
+			NonCachingClient: cli,
+			Scheme:           scheme.Scheme,
 		},
 		Proxy: &deploy.Proxy{},
 	}
@@ -178,9 +178,9 @@ func TestSyncLegacyConfigMap(t *testing.T) {
 	deployContext := &deploy.DeployContext{
 		CheCluster: cheCluster,
 		ClusterAPI: deploy.ClusterAPI{
-			Client:          cli,
-			NonCachedClient: cli,
-			Scheme:          scheme.Scheme,
+			Client:           cli,
+			NonCachingClient: cli,
+			Scheme:           scheme.Scheme,
 		},
 		Proxy: &deploy.Proxy{},
 	}
@@ -234,9 +234,9 @@ func TestUpdateAvailabilityStatus(t *testing.T) {
 	deployContext := &deploy.DeployContext{
 		CheCluster: cheCluster,
 		ClusterAPI: deploy.ClusterAPI{
-			Client:          cli,
-			NonCachedClient: cli,
-			Scheme:          scheme.Scheme,
+			Client:           cli,
+			NonCachingClient: cli,
+			Scheme:           scheme.Scheme,
 		},
 	}
 

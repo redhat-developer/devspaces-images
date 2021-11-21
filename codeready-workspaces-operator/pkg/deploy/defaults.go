@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -124,6 +124,9 @@ const (
 
 	// CheServiceAccountName - service account name for che-server.
 	CheServiceAccountName = "che"
+
+	// Name of the secret that holds self-signed certificate for git connections
+	GitSelfSignedCertsConfigMapName = "che-git-self-signed-cert"
 
 	// limits
 	DefaultDashboardMemoryLimit   = "256Mi"

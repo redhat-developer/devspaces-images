@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -105,7 +105,7 @@ func ReconcileDevWorkspace(deployContext *deploy.DeployContext) (done bool, err 
 	}
 	if !isCreated {
 		namespace := &corev1.Namespace{}
-		err := deployContext.ClusterAPI.NonCachedClient.Get(context.TODO(), types.NamespacedName{Name: DevWorkspaceNamespace}, namespace)
+		err := deployContext.ClusterAPI.NonCachingClient.Get(context.TODO(), types.NamespacedName{Name: DevWorkspaceNamespace}, namespace)
 		if err != nil {
 			return false, err
 		}
@@ -193,7 +193,7 @@ func doesWebTerminalSubscriptionExist(deployContext *deploy.DeployContext) (bool
 	}
 
 	subscription := &operatorsv1alpha1.Subscription{}
-	if err := deployContext.ClusterAPI.NonCachedClient.Get(
+	if err := deployContext.ClusterAPI.NonCachingClient.Get(
 		context.TODO(),
 		types.NamespacedName{
 			Name:      WebTerminalOperatorSubscriptionName,
@@ -226,7 +226,7 @@ func createDwNamespace(deployContext *deploy.DeployContext) (bool, error) {
 
 func isOnlyOneOperatorManagesDWResources(deployContext *deploy.DeployContext) (bool, error) {
 	cheClusters := &orgv1.CheClusterList{}
-	err := deployContext.ClusterAPI.NonCachedClient.List(context.TODO(), cheClusters)
+	err := deployContext.ClusterAPI.NonCachingClient.List(context.TODO(), cheClusters)
 	if err != nil {
 		return false, err
 	}

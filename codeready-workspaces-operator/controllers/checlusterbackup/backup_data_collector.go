@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -220,11 +220,7 @@ func backupConfigMaps(bctx *BackupContext, destDir string) (bool, error) {
 		return true, err
 	}
 
-	fakeDeployContext := &deploy.DeployContext{
-		ClusterAPI: deploy.ClusterAPI{Client: bctx.r.nonCachingClient},
-		CheCluster: bctx.cheCR,
-	}
-	caBundlesConfigmaps, err := deploy.GetCACertsConfigMaps(fakeDeployContext)
+	caBundlesConfigmaps, err := deploy.GetCACertsConfigMaps(bctx.r.nonCachingClient, bctx.cheCR.GetNamespace())
 	if err != nil {
 		return false, err
 	}

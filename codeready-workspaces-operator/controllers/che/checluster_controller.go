@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2021 Red Hat, Inc.
+// Copyright (c) 2019-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -23,6 +23,7 @@ import (
 	"github.com/eclipse-che/che-operator/pkg/deploy/devfileregistry"
 	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
 	imagepuller "github.com/eclipse-che/che-operator/pkg/deploy/image-puller"
+	"github.com/eclipse-che/che-operator/pkg/deploy/migration"
 	openshiftoauth "github.com/eclipse-che/che-operator/pkg/deploy/openshift-oauth"
 	"github.com/eclipse-che/che-operator/pkg/deploy/pluginregistry"
 	"github.com/eclipse-che/che-operator/pkg/deploy/postgres"
@@ -87,6 +88,7 @@ func NewReconciler(
 
 	// order does matter
 	if !util.IsTestMode() {
+		reconcileManager.RegisterReconciler(migration.NewMigrator())
 		reconcileManager.RegisterReconciler(NewCheClusterValidator())
 	}
 	reconcileManager.RegisterReconciler(imagepuller.NewImagePuller())
@@ -222,10 +224,10 @@ func (r *CheClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 
 	tests := r.tests
 	clusterAPI := deploy.ClusterAPI{
-		Client:          r.client,
-		NonCachedClient: r.nonCachedClient,
-		DiscoveryClient: r.discoveryClient,
-		Scheme:          r.Scheme,
+		Client:           r.client,
+		NonCachingClient: r.nonCachedClient,
+		DiscoveryClient:  r.discoveryClient,
+		Scheme:           r.Scheme,
 	}
 
 	// Fetch the CheCluster instance
