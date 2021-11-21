@@ -9,6 +9,8 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
+#
+
 set -e
 
 #shellcheck disable=SC1073 disable=SC2066 disable=SC2153

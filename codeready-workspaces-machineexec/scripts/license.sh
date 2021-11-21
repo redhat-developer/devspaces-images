@@ -1,4 +1,5 @@
 #!/bin/bash
+#
 # Copyright (c) 2019-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
@@ -8,46 +9,54 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
+#
 
 export ROOT_DIR=$(dirname $(dirname $(readlink -f "$0")));
 
-# Validate a Eclipse Che license header
-function validateChectlLicenseHeader() {
-    python "${ROOT_DIR}"/scripts/validate-license.py $(find "${ROOT_DIR}" -type d \( -path "${ROOT_DIR}"/vendor -o -path "${ROOT_DIR}"/templates \) -prune -false \
+function setUpCodeBaseFileList() {
+  CODE_BASE_FILES=$(find "${ROOT_DIR}" -type d \( -path "${ROOT_DIR}"/vendor -o -path "${ROOT_DIR}"/templates \) -prune -false \
         -o -name '*.sh' -o -name '*.ts' -o -name '*.yml' -o -name '*.yaml' -o -name '*.go' \
         | grep -v vendor \
         | grep -v mocks)
 }
 
-# Add a license to a file without license
-function addLicensetoChectlCode() {
-    if ! command -v addlicense &> /dev/null
-    then
-        echo "Command addlicense not found locally. Please install it from https://github.com/google/addlicense."
-        exit 1
-    fi
+# Validate a license headers in the codebase.
+function validateLicenseHeader() {
+  if ! command -v check-license-header &> /dev/null; then
+    echo "Command 'check-license-header' not found locally. Please install it from https://github.com/che-incubator/check-license-header".
+    exit 1
+  fi
+  setUpCodeBaseFileList
+  check-license-header -f "${ROOT_DIR}"/hack/license_header.txt ${CODE_BASE_FILES}
+}
 
-    addlicense -v -f "${ROOT_DIR}"/license_header.txt $(find "${ROOT_DIR}" -type d \( -path "${ROOT_DIR}"/vendor \) -prune -false \
-        -o -name '*.sh' -o -name '*.ts' -o -name '*.yml' -o -name '*.yaml' -o -name '*.go' \
-        | grep -v mocks \
-        | grep -v vendor)
+# Add a license to a files without license.
+function addLicensesToCode() {
+  if ! command -v addlicense &> /dev/null
+  then
+    echo "Command 'addlicense' not found locally. Please install it from https://github.com/google/addlicense."
+    exit 1
+  fi
+
+  setUpCodeBaseFileList
+  addlicense -v -f "${ROOT_DIR}"/hack/license_header.txt ${CODE_BASE_FILES}
 }
 
 # catch first arguments with $1
 case "$1" in
  check)
   echo -e "[INFO] Launching Eclipse Che license header check."
-  validateChectlLicenseHeader
+  validateLicenseHeader
   ;;
  add)
   echo -e "[INFO] Start adding Eclipse Che license headers to code."
-  addLicensetoChectlCode
+  addLicensesToCode
   ;;
  *)
   # else
   echo "Usage: 
-    -c|--check-license: Check Eclipse license in codebase
-    -a|--add-license: Add a license to codebase. The file should not have any license if you execute this command.
+    'check' - check Eclipse license in codebase.
+    'add'   - add a license header in the files if not present.
   "
   ;;
 esac
