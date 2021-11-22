@@ -22,7 +22,7 @@ RUN export ARCH="$(uname -m)" && \
     GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o rest-server ./cmd/rest-server
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5
+FROM ubi8-minimal:8.5-204
 
 COPY --from=builder /tmp/go/rest-server/rest-server /usr/local/bin/rest-server
 COPY --from=builder /tmp/go/rest-server/LICENSE /usr/local/bin/rest-server-LICENSE.txt
