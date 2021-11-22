@@ -168,6 +168,9 @@ timeout(600) {
               if (SYNC_REPOS[i]?.trim()) { 
                 currentBuild.description+="<br/>Build container: ${SYNC_REPOS[i]}"
 
+                CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+                println("[INFO] Using CSV version = " + CSV_VERSION)
+
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
                 // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
                 util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
