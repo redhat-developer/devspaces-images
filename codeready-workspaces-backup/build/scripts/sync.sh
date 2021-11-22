@@ -76,12 +76,13 @@ BOOTSTRAP_DOCKERFILE='bootstrap.Dockerfile'
 # use upstream dockerfile as bootstrap one (to retrieve dependencies for offline build)
 cp ${TARGETDIR}/${TARGET_DOCKERFILE} ${TARGETDIR}/${BOOTSTRAP_DOCKERFILE}
 # transform Dockerfile
-sed "${SOURCEDIR}/Dockerfile" \
+sed -r "${SOURCEDIR}/Dockerfile" \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# Do not use micro ubi image as Brew doesn't support it. Also transform ubi8 link to downstream` \
-    -e 's|ubi8/ubi-micro|ubi8-minimal|' \
+    -e 's|ubi8/ubi-micro:(8\.[0-9]+).+|ubi8-minimal:\1|' \
+    -e 's|ubi8/ubi-micro$|ubi8-minimal|' \
     `# Replace go-toolset ubi8 with rhel8 version` \
     -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
     `# Delete git repository cloning` \
