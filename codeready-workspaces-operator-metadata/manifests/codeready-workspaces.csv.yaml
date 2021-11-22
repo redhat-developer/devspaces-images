@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.14
-    createdAt: "2021-11-19T17:12:17+00:00"
+    createdAt: "2021-11-22T17:12:25+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative
       k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -1253,7 +1253,7 @@ spec:
                     resources:
                       limits:
                         cpu: 500m
-                        memory: 5Gi
+                        memory: 256Mi
                       requests:
                         cpu: 100m
                         memory: 64Mi
