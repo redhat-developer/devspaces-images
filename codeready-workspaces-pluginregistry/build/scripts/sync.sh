@@ -106,8 +106,8 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
-    -e 's|ubi8/httpd-24:|rhel8/httpd-24:|g' \
+    `# CRW-2448 don't switch from ubi8 to rhel8 for OSBS` \
+    `# -e 's|ubi8/httpd-24:|rhel8/httpd-24:|g'` \
     `# Set arg options: disable BOOTSTRAP; update CRW_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG CRW_BRANCH=.*|ARG CRW_BRANCH=${CRW_BRANCH}|" \
