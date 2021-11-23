@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:8065ab67f57bb2aaf11b0b7324a5d65dc04ac072ca60fdddb155bfb6af7159fb
-    createdAt: "2021-11-22T17:12:25+00:00"
+    createdAt: "2021-11-23T21:12:28+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -820,6 +820,17 @@ spec:
           - create
         - apiGroups:
           - ""
+          resourceNames:
+          - workspace-preferences-configmap
+          resources:
+          - configmaps
+          verbs:
+          - create
+          - delete
+          - get
+          - patch
+        - apiGroups:
+          - ""
           resources:
           - configmaps
           - persistentvolumeclaims
@@ -853,6 +864,7 @@ spec:
           - create
           - delete
           - get
+          - patch
         - apiGroups:
           - ""
           resources:
@@ -1084,9 +1096,9 @@ spec:
                 - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
                   value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:d76da9bd3c92832cb4f3071521be942cf02c02cf7430eafafc6784b3aed87042
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-                  value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:766693bc35fdc8b88fdee7f91c3da4dc686748fc1e7b6240faaa47f1a8392f0b
+                  value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:ab36fcfe6cb41b58c84a0689b7121b48959b38218f9ab55072b8d87fece73639
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-                  value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:6ca1ce59906306980c2777bfd189c14c6fdfb2f55efce2390c559c19dcda49b0
+                  value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:80c24662ec71f2df8a2e7cdc388b7df5f88c90d5bb05c999435b2b4d82ca997b
                 - name: RELATED_IMAGE_codeready_workspaces_idea_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:842977bcac5164d36ad77a3c595d73955f4bc3dd5e26e1e4c66f87cb9e33c759
                 - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCNAK
@@ -1484,9 +1496,9 @@ spec:
   - name: che_server_secure_exposer_jwt_proxy_image
     image: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:d76da9bd3c92832cb4f3071521be942cf02c02cf7430eafafc6784b3aed87042
   - name: che_workspace_plugin_broker_artifacts
-    image: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:766693bc35fdc8b88fdee7f91c3da4dc686748fc1e7b6240faaa47f1a8392f0b
+    image: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8@sha256:ab36fcfe6cb41b58c84a0689b7121b48959b38218f9ab55072b8d87fece73639
   - name: che_workspace_plugin_broker_metadata
-    image: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:6ca1ce59906306980c2777bfd189c14c6fdfb2f55efce2390c559c19dcda49b0
+    image: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:80c24662ec71f2df8a2e7cdc388b7df5f88c90d5bb05c999435b2b4d82ca997b
   - name: codeready_workspaces_idea_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:842977bcac5164d36ad77a3c595d73955f4bc3dd5e26e1e4c66f87cb9e33c759
   - name: codeready_workspaces_machineexec_plugin_registry_image_gixdcnak
