@@ -306,19 +306,20 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     //  - repo: means no devfile is found and default is generated
     //  - any other - devfile is found in repository as filename from the value
     if (!source) {
-      resolvedDevfileMessage = `Devfile loaded from ${searchParam.get('url')}`;
+      resolvedDevfileMessage = `Devfile loaded from ${searchParam.get('url')}.`;
+    } else if (source === 'repo') {
+      resolvedDevfileMessage = `Devfile could not be found in ${searchParam.get(
+        'url',
+      )}. Applying the default configuration.`;
     } else {
-      if (source === 'repo') {
-        resolvedDevfileMessage = `Devfile could not be found in ${searchParam.get('url')}. Applying the default configuration`;
-      } else {
-        if (this.props.cheDevworkspaceEnabled === false && isDevfileV2(devfile)) {
-          resolvedDevfileMessage = `Devfile 2.x version found in repo ${searchParam.get('url')} as '${source}', converting it to devfile version 1`;
-          devfile = this.converter.devfileV2toDevfileV1(devfile);
-        } else {
-          resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'`;
-        }
-      }
+      resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'.`;
     }
+
+    if (this.props.cheDevworkspaceEnabled === false && isDevfileV2(devfile)) {
+      resolvedDevfileMessage += ' Devfile 2.x version found, converting it to devfile version 1.';
+      devfile = this.converter.devfileV2toDevfileV1(devfile);
+    }
+
     this.setState({ resolvedDevfileMessage });
     return devfile;
   }
