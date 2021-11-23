@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.14
-    createdAt: "2021-11-22T17:12:44+00:00"
+    createdAt: "2021-11-23T21:12:05+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1
       instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -853,6 +853,17 @@ spec:
                 - create
             - apiGroups:
                 - ""
+              resourceNames:
+                - workspace-preferences-configmap
+              resources:
+                - configmaps
+              verbs:
+                - create
+                - delete
+                - get
+                - patch
+            - apiGroups:
+                - ""
               resources:
                 - configmaps
                 - persistentvolumeclaims
@@ -886,6 +897,7 @@ spec:
                 - create
                 - delete
                 - get
+                - patch
             - apiGroups:
                 - ""
               resources:
