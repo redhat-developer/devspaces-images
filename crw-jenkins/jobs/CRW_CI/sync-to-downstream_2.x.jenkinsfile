@@ -21,9 +21,9 @@ currentBuild.description=""
 for (int i=0; i < SYNC_REPOS.size(); i++) {
   SYNC_REPOi="${SYNC_REPOS[i]}"
   def Map tasks = [failFast: true]
-  currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
   if (SYNC_REPOi?.trim()) { // filter out nullstring values
     if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
+      currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
       def String nodeLabelString = ""
       timeout(120) {
         node(nodeLabelAnyArch){
@@ -128,7 +128,12 @@ timeout(600) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
         def util = load "${WORKSPACE}/util.groovy"
         cleanWs()
-        currentBuild.description+="<br/>Install skopeo, rhpkg, "
+        if (currentBuild.description?.trim()) {
+          currentBuild.description+="<br/>"
+        } else {
+          currentBuild.description=""
+        }
+        currentBuild.description+="Install skopeo, rhpkg, "
         util.installSkopeoFromContainer("")
         util.installRhpkg()
         util.installHub("2.14.2", GOLANG_VERSION) // for get-sources.sh -> uploadAssetsToGHRelease.sh
