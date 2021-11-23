@@ -27,6 +27,23 @@ function log()
 	fi
 }
 
+
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
+
+if [[ ${DELETE_ASSETS} -eq 1 ]]; then
+	log "[INFO] Delete Previous GitHub Releases:"
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	exit 0;
+fi
+
+if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
+	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+	exit 0;
+fi 
+
 # if not set, compute from current branch
 if [[ ! ${JOB_BRANCH} ]]; then 
 	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
