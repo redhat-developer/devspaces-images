@@ -11,8 +11,8 @@ while [[ "$#" -gt 0 ]]; do
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
-	'-a'|'--publish-assets') exit 0; shift 0;;
-	'-d'|'--delete-assets') exit 0; shift 0;;
+	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-v') CSV_VERSION="$2"; shift 1;;
 	*) JOB_BRANCH="$1"; shift 0;;
@@ -26,6 +26,23 @@ function log()
 	echo "$1"
 	fi
 }
+
+
+if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+fi
+
+if [[ ${DELETE_ASSETS} -eq 1 ]]; then
+	log "[INFO] Delete Previous GitHub Releases:"
+	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+	exit 0;
+fi
+
+if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
+	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+	exit 0;
+fi 
 
 # if not set, compute from current branch
 if [[ ! ${JOB_BRANCH} ]]; then 
