@@ -56,8 +56,7 @@ if [[ ! $(curl -sSI https://github.com/redhat-developer/codeready-workspaces-ima
   exit 0
 fi
 
-
-mkdir -p target/lombok-ls
+mkdir -p target/lombok
 
 PODMAN=$(command -v podman || true)
 if [[ ! -x $PODMAN ]]; then
@@ -68,21 +67,23 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 
-${PODMAN} run --name lomboktmp -u root ${OPENJDK11_IMAGE} sh -c "
+if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
+jarfile="${WORKSPACE}/lombok-${LOMBOK_VERSION}.jar"
+
+${PODMAN} run --rm -v "$SCRIPT_DIR"/target/lombok:/tmp/lombok -u root ${OPENJDK11_IMAGE} sh -c "
     microdnf update && microdnf install git && \
-    curl -sSLO https://dlcdn.apache.org//ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
+    cd /tmp && \
+    curl -sSLO https://dlcdn.apache.org/ant/binaries/apache-ant-${ANT_VERSION}-bin.tar.gz \
     && tar xvfz apache-ant-${ANT_VERSION}-bin.tar.gz -C /opt \
     && ln -sfn /opt/apache-ant-${ANT_VERSION} /opt/ant \
     && echo ANT_HOME=/opt/ant >> /etc/environment \
     && ln -sfn /opt/ant/bin/ant /usr/bin/ant \
     && rm apache-ant-${ANT_VERSION}-bin.tar.gz && \
     git clone --quiet https://github.com/projectlombok/lombok.git lombok && \
-    cd lombok && git checkout tags/v${LOMBOK_VERSION} -b v${LOMBOK_VERSION} && ant dist
+    cd /tmp/lombok && git checkout tags/v${LOMBOK_VERSION} -b v${LOMBOK_VERSION} && ant dist && \
+    chmod -R 777 /tmp/lombok
     "
-${PODMAN} cp lomboktmp:/home/jboss/lombok/dist/lombok-${LOMBOK_VERSION}.jar ${SCRIPT_DIR}/target/lombok-ls/
-${PODMAN} rm -f lomboktmp
-
-jarfile="${SCRIPT_DIR}/target/lombok-ls/lombok-${LOMBOK_VERSION}.jar"
+cp target/lombok/dist/lombok-${LOMBOK_VERSION}.jar "${jarfile}"
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
