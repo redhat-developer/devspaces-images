@@ -5,15 +5,13 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
+// THEIA_BRANCH
+// THEIA_GITHUB_REPO
+// THEIA_COMMIT_SHA
 // nodeVersion
 // yarnVersion
 // CONTAINERS
 // PLATFORMS
-
-// other params not worth setting in Jenkins (they don't change)
-def THEIA_BRANCH = "crw-2.13.0"
-def THEIA_GITHUB_REPO = "redhat-developer/eclipse-theia"
-def THEIA_COMMIT_SHA = "cd50236f058843ec6ca53bad7eee89de1cda4460"
 
 // Nodes to run artifact build on ex. ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
 def List nodeLabels = ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']

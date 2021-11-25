@@ -5,15 +5,13 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // SOURCE_BRANCH
 // MIDSTM_BRANCH
+// THEIA_BRANCH
+// THEIA_GITHUB_REPO
+// THEIA_COMMIT_SHA
 // nodeVersion
 // yarnVersion
 // CONTAINERS
 // PLATFORMS
-
-// other params not worth setting in Jenkins (they don't change)
-def THEIA_BRANCH = "crw-2.12.0" // theia branch/tag to build: master (will then compute the correct SHA to use)
-def THEIA_GITHUB_REPO = "redhat-developer/eclipse-theia" // default: eclipse-theia/theia; optional: redhat-developer/eclipse-theia
-def THEIA_COMMIT_SHA = "56eaa6d0e08f15089b4c09f282579a852b75f182" // leave blank to compute within build.sh; or look at https://github.com/eclipse-che/che-theia/blob/7.y.x/build.include#L16 = 4641a298
 
 // Nodes to run artifact build on ex. ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
 def List nodeLabels = ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']

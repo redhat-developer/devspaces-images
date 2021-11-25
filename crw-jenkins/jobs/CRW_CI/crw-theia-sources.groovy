@@ -26,6 +26,9 @@ for (JB in JOB_BRANCHES) {
             MIDSTM_NAME="theia" // do we need three midstreams here? or three jobs?
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            THEIA_BRANCH="" + config.Other.THEIA_BUILD_PARAMS[JB].THEIA_BRANCH
+            THEIA_GITHUB_REPO="" + config.Other.THEIA_BUILD_PARAMS[JB].THEIA_GITHUB_REPO
+            THEIA_COMMIT_SHA="" + config.Other.THEIA_BUILD_PARAMS[JB].THEIA_COMMIT_SHA
             NODE_VERSION="" + config.Other.NODE_VERSION[JB]
             YARN_VERSION="" + config.Other.YARN_VERSION[JB]
 
@@ -113,6 +116,9 @@ Results:
             parameters{
                 stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                stringParam("THEIA_BRANCH", THEIA_BRANCH, "Eclipse Theia branch/tag to build")
+                stringParam("THEIA_GITHUB_REPO", THEIA_GITHUB_REPO, "default: eclipse-theia/theia; fork: redhat-developer/eclipse-theia")
+                stringParam("THEIA_COMMIT_SHA", THEIA_COMMIT_SHA, "leave blank to compute; or look at https://github.com/eclipse-che/che-theia/blob/7.y.x/build.include#L17")
                 stringParam("nodeVersion", NODE_VERSION, "Leave blank if not needed")
                 stringParam("yarnVersion", YARN_VERSION, "Leave blank if not needed")
                 // TODO CRW-1609 implement tag deletion option
