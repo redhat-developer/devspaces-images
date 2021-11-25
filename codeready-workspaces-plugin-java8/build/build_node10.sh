@@ -57,7 +57,7 @@ fi
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-node10-${ARCH}.tar.gz"
+tarball="${WORKSPACE}/asset-node10-ls-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/nodejs-ls:/node_modules -u root ${NODEJS_IMAGE} sh -c "
     npm install --prefix /node_modules nodemon@${NODEMON_VERSION} typescript@${TYPERSCRIPT_VERSION} typescript-language-server@${TYPESCRIPT_LS_VERSION}

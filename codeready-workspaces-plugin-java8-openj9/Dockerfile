@@ -91,8 +91,8 @@ RUN microdnf -y install yum && \
     # additional node stuff \
     mkdir -p ${HOME}/lang-server /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
-    if [[ -f /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-node10-$(uname -m).tar.gz ]]; then \
-        tar xzf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-node10-$(uname -m).tar.gz -C ${HOME}/lang-server/ && \
+    if [[ -f /tmp/assets/asset-node10-ls-$(uname -m).tar.gz ]]; then \
+        tar xzf /tmp/assets/asset-node10-ls-$(uname -m).tar.gz -C ${HOME}/lang-server/ && \
         ln -s ${HOME}/lang-server/node_modules/typescript-language-server/lib/cli.js /opt/app-root/src/.npm-global/bin/typescript-language-server && \
         ln -s ${HOME}/lang-server/node_modules/nodemon/bin/nodemon.js /opt/app-root/src/.npm-global/bin/nodemon && \
         ln -s ${HOME}/lang-server/node_modules/typescript/bin/tsc /opt/app-root/src/.npm-global/bin/tsc && \
@@ -105,9 +105,9 @@ RUN \
     # additional python stuff
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
-    if [[ -f /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz ]]; then \
+    if [[ -f /tmp/assets/asset-python-ls-$(uname -m).tar.gz ]]; then \
         mkdir -p /tmp/py-unpack && \
-        tar -xf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-python-$(uname -m).tar.gz -C /tmp/py-unpack && \
+        tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
         for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
         cp -R /tmp/py-unpack/bin/* /usr/bin && \
         cp -R /tmp/py-unpack/lib/* /usr/lib && \
@@ -160,13 +160,3 @@ LABEL summary="$SUMMARY" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
-
-# insert generated LABELs below this line
-LABEL \
-	  jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/::apache-maven-3.6.3-bin.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-s390x.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-s390x.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-node10-ppc64le.tar.gz" \
-	  jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-python-ppc64le.tar.gz" \
-	  jenkins.build.number="2228"

@@ -56,7 +56,7 @@ mkdir -p target/python-ls
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-python-${ARCH}.tar.gz"
+tarball="${WORKSPACE}/asset-python-ls-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHON_IMAGE} sh -c "
     /usr/bin/python3 --version && /usr/bin/python3 -m pip --version && \
