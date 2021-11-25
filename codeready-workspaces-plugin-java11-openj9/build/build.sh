@@ -30,4 +30,4 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-./../codeready-workspaces-plugin-java8/build/build_lombok.sh -v ${CSV_VERSION} -n "noarch"
+./../codeready-workspaces-plugin-java8/build/build_lombok.sh -v ${CSV_VERSION} -n "${ASSET_NAME}"

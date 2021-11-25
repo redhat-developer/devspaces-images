@@ -36,13 +36,13 @@ if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then
 fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
-	log "[INFO] Delete Previous GitHub Releases:"
+	log "[INFO] Delete ${CSV_VERSION} ${ASSET_NAME} assets and GH release:"
 	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 	exit 0;
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
-	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	log "[INFO] Build ${CSV_VERSION} ${ASSET_NAME} assets and publish to GH release:"
 	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi 
@@ -70,7 +70,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 	mv -f Dockerfile.2 Dockerfile
 
 
-	log "[INFO] Download Assets:"
+	log "[INFO] Download ${CSV_VERSION} ${ASSET_NAME} assets:"
 	REPO_PATH=""
 	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"; fi
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"

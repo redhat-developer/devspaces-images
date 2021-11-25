@@ -43,14 +43,13 @@ if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 
+# nothing to delete: noarch assets will check if they need to be rebuilt before deleting/publishing anew
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
-	log "[INFO] Delete Previous GitHub Releases:"
-	./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n "noarch"
 	exit 0;
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
-	log "[INFO] Build Assets and Publish to GitHub Releases:"
+	log "[INFO] Build ${CSV_VERSION} ${ASSET_NAME} assets and publish to GH release:"
 	./build/build.sh -v ${CSV_VERSION} -n "noarch"
 	exit 0;
 fi 
