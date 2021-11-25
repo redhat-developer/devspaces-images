@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Red Hat, Inc.
+# Copyright (c) 2018-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -69,7 +69,7 @@ RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
 
 ADD entrypoint.sh ${HOME}/entrypoint.sh
 RUN mkdir -p ${HOME}/go && \
-    tar -xvf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-golang-$(uname -m).tar.gz -C /tmp && \
+    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
     rm -fr tmp/go /tmp/assets && \
     for f in "/home/jboss" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
@@ -81,12 +81,3 @@ USER jboss
 ENTRYPOINT ["/home/jboss/entrypoint.sh"]
 WORKDIR /projects
 CMD tail -f /dev/null
-
-
-# insert generated LABELs below this line
-LABEL \
-			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-golang-ppc64le.tar.gz" \
-			jenkins.build.number="2228"

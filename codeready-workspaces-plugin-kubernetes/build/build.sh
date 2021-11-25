@@ -16,6 +16,7 @@ export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
 export KAMEL_VERSION="1.5.0"
 export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.14.7-15"
+ASSET_NAME="plugin-kubernetes"
 
 usage () {
     echo "
@@ -56,7 +57,7 @@ fi
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball="${WORKSPACE}/asset-${ARCH}-kamel.tar.gz"
+tarball="${WORKSPACE}/asset-kamel-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE} sh -c "
     cd /tmp

@@ -9,7 +9,6 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
-generateDockerfileLABELs=1
 ASSET_NAME="stacks-golang"
 
 while [[ "$#" -gt 0 ]]; do
