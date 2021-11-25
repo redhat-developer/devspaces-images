@@ -9,14 +9,13 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
-generateDockerfileLABELs=1
 # maven - install 3.6 from https://maven.apache.org/download.cgi
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.22"
 ASSET_NAME="plugin-java8"
 
 while [[ "$#" -gt 0 ]]; do
-  case $1 in
+	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
 	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
@@ -25,15 +24,15 @@ while [[ "$#" -gt 0 ]]; do
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-v') CSV_VERSION="$2"; shift 1;;
 	*) JOB_BRANCH="$1"; shift 0;;
-  esac
-  shift 1
+	esac
+	shift 1
 done
 
 function log()
 {
-  if [[ ${verbose} -gt 0 ]]; then
+	if [[ ${verbose} -gt 0 ]]; then
 	echo "$1"
-  fi
+	fi
 }
 
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
@@ -51,7 +50,6 @@ if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi 
-
 
 # if not set, compute from current branch
 if [[ ! ${JOB_BRANCH} ]]; then 
@@ -83,12 +81,11 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 		curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
 	fi
 	outputFiles="apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar ${theTarGzs}"
-
-	log "[INFO] Upload new sources:${outputFiles}"
+	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
-	log "[INFO] Commit new sources from:${outputFiles}"
-	COMMIT_MSG="GH ${ASSET_NAME} assets :: ${outputFiles}"
-	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]] ;then 
+	log "[INFO] Commit new sources from: ${outputFiles}"
+	COMMIT_MSG="ci: GH ${ASSET_NAME} + noarch assets :: ${outputFiles}"
+	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
@@ -121,7 +118,7 @@ $ERRORS
 	else
 		log "[INFO] No new sources, so nothing to build."
 	fi
-fi 
+fi
 
 # cleanup
 rm -fr Dockerfile.2

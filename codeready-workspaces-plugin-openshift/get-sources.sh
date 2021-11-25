@@ -51,8 +51,8 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	log "[INFO] Upload new sources: bin.tgz"
 	rhpkg new-sources bin.tgz
 	log "[INFO] Commit new sources"
-	COMMIT_MSG="odo ${ODO_VERSION}"
-	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	COMMIT_MSG="ci: odo ${ODO_VERSION}"
+	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
