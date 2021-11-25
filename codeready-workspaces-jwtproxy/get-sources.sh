@@ -68,8 +68,8 @@ fi
 if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	git add vendor bootstrap.Dockerfile || true
 	log "[INFO] Commit new vendor folder"
-	COMMIT_MSG="vendor folder"
-	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" bootstrap.Dockerfile .gitignore vendor) == *"nothing to commit, working tree clean"* ]]; then 
+	COMMIT_MSG="ci: vendor folder"
+	if [[ $(git commit -s -m "${COMMIT_MSG}" bootstrap.Dockerfile .gitignore vendor) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"

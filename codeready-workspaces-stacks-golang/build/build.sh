@@ -17,6 +17,7 @@ export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.15.14-3"
 export GOLANG_LINT_VERSION="v1.22.2"
 export GOLANG_LS_OLD_DEPS="console-stamp@0.2.9 strip-ansi@5.2.0 has-ansi@4.0.0 ansi-regex@4.1.0 chalk@2.4.2 escape-string-regexp@2.0.0 ansi-styles@4.1.0 supports-color@7.0.0"
 export GOLANG_LS_VERSION="0.1.7"
+ASSET_NAME="stacks-golang"
 
 usage () {
     echo "
@@ -57,7 +58,7 @@ fi
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-${ASSET_NAME}-${ARCH}.tar.gz"
+tarball="${WORKSPACE}/asset-golang-${ARCH}.tar.gz"
 
 # go get LS go deps
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/go:/opt/app-root/src/go -u root ${GOLANG_IMAGE} sh -c "

@@ -5,15 +5,25 @@ scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
-PULL_ASSETS=0
 targetFlag=""
+PULL_ASSETS=0
+DELETE_ASSETS=0
+PUBLISH_ASSETS=0
+
+# Gradle from https://services.gradle.org/distributions/
+GRADLE_VERSION="6.1"
+
+# maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
+MAVEN_VERSION="3.6.3"
+LOMBOK_VERSION="1.18.22"
+
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
-	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
 	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
+	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-t'|'--target') targetFlag="--target $2"; shift 1;;
 	'-v') CSV_VERSION="$2"; shift 1;;
@@ -28,7 +38,6 @@ function log()
 	echo "$1"
 	fi
 }
-
 
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
@@ -52,36 +61,28 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-# CRW-611 GraalVM CE and native-image version from https://github.com/graalvm/graalvm-ce-builds/releases/ (includes JDK 11)
-# GRAALVM_VERSION="19.3.1"
+if [[ ${PULL_ASSETS} -eq 1 ]]; then
+	# update Dockerfile to record version we expect for MAVEN_VERSION and GRADLE_VERSION
+	sed Dockerfile \
+		-e "s#GRADLE_VERSION=\"\([^\"]\+\)\"#GRADLE_VERSION=\"${GRADLE_VERSION}\"#" \
+		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
+		-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
+		> Dockerfile.2
 
-# Gradle from https://services.gradle.org/distributions/
-GRADLE_VERSION="6.1"
-
-# maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
-MAVEN_VERSION="3.6.3"
-
-LOMBOK_VERSION="1.18.22"
-
-# update Dockerfile to record version we expect for MAVEN_VERSION and GRADLE_VERSION
-sed Dockerfile \
-	-e "s#GRADLE_VERSION=\"\([^\"]\+\)\"#GRADLE_VERSION=\"${GRADLE_VERSION}\"#" \
-	-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
-	-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
-	> Dockerfile.2
-
-# pull maven and lobok if either is not present, or if forced, or new version in dockerfile
-if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ ! -f lombok-${LOMBOK_VERSION}.jar ]] || \
-	[[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
-	mv -f Dockerfile.2 Dockerfile
-	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
-	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
-	log "[INFO] Upload new sources: gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar"
-	rhpkg new-sources gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar
-	log "[INFO] Commit new sources"
-	COMMIT_MSG="Gradle ${GRADLE_VERSION}, Maven ${MAVEN_VERSION}, Lombok ${LOMBOK_VERSION}"
-	if [[ $(git commit -s -m "ci: [get sources] ${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
+	# pull maven and lobok if either is not present, or if forced, or new version in dockerfile
+	if [[ ! -f apache-maven-${MAVEN_VERSION}-bin.tar.gz ]] || [[ ! -f lombok-${LOMBOK_VERSION}.jar ]] || \
+		[[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
+		mv -f Dockerfile.2 Dockerfile
+		curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+		curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+		curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
+	fi
+	outputFiles="gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar"
+	log "[INFO] Upload new sources: ${outputFiles}"
+	rhpkg new-sources ${outputFiles}
+	log "[INFO] Commit new sources from: ${outputFiles}"
+	COMMIT_MSG="ci: Assets :: ${outputFiles}"
+	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"

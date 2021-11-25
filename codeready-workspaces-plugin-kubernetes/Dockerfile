@@ -1,4 +1,4 @@
-# Copyright (c) 2019 Red Hat, Inc.
+# Copyright (c) 2019-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -58,7 +58,7 @@ RUN microdnf install -y which dnf && dnf module reset -y nodejs && \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template && \
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-$(uname -m)-kamel.tar.gz ]]; then tar xzf /tmp/assets/asset-$(uname -m)-kamel.tar.gz -C /usr/local/bin/; fi; \
+    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
     chmod 755 /usr/local/bin/* && rm -fr /tmp/assets && \
     echo "========" && \
     echo -n "helm:    "; helm version --short --client; \

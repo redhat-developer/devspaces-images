@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Red Hat, Inc.
+# Copyright (c) 2018-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -41,7 +41,7 @@ COPY . /tmp/assets/
 
 # new for CRW 2
 RUN dnf install -y php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
-    tar xzf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-$(uname -m).tar.gz -C / 
+    tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / 
 
 # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
@@ -69,7 +69,7 @@ RUN useradd -u 1000 -G wheel,root -d ${HOME} --shell /bin/bash -m jboss && \
     chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/
 
 RUN mkdir -p ${HOME}/che/ls-php/php-language-server && \
-    tar xzf /tmp/assets/codeready-workspaces-stacks-language-servers-dependencies-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
+    tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
     cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer && \
     rm -fr /tmp/assets/
 
@@ -84,15 +84,3 @@ USER jboss
 ENTRYPOINT ["/home/jboss/entrypoint.sh"]
 WORKDIR /projects
 CMD tail -f /dev/null
-
-
-# insert generated LABELs below this line
-LABEL \
-			jenkins.build.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-x86_64.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-s390x.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-ppc64le.tar.gz" \
-			jenkins.artifact.url="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com/job/CRW_CI/view/CRW_CI/view/Pipelines/job/crw-deprecated_2.x/2228/artifact/**/codeready-workspaces-stacks-language-servers-dependencies-php-xdebug-ppc64le.tar.gz" \
-			jenkins.build.number="2228"

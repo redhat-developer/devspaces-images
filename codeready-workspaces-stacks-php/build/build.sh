@@ -16,6 +16,7 @@ export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 export PHP_LS_VERSION=5.4.6
 export PHP_LS_IMAGE="php-ls:tmp"
 export PHP_XDEBUG_IMAGE="php-xdebug:tmp"
+ASSET_NAME="stacks-php"
 
 usage () {
     echo "
@@ -56,8 +57,8 @@ fi
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball_php="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-${ASSET_NAME}-${ARCH}.tar.gz"
-tarball_php_xdebug="${WORKSPACE}/codeready-workspaces-stacks-language-servers-dependencies-${ASSET_NAME}-xdebug-${ARCH}.tar.gz"
+tarball_php="${WORKSPACE}/asset-php.tar.gz"
+tarball_php_xdebug="${WORKSPACE}/asset-php-xdebug-${ARCH}.tar.gz"
 
 ${PODMAN} build . -t ${PHP_LS_IMAGE} -f php-ls.Dockerfile
 ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/php-ls:/php ${PHP_LS_IMAGE} sh -c "
