@@ -57,7 +57,7 @@ fi
 
 ARCH="$(uname -m)"
 if [[ ! ${WORKSPACE} ]]; then WORKSPACE=/tmp; fi
-tarball_php="${WORKSPACE}/asset-php.tar.gz"
+tarball_php="${WORKSPACE}/asset-php-${ARCH}.tar.gz"
 tarball_php_xdebug="${WORKSPACE}/asset-php-xdebug-${ARCH}.tar.gz"
 
 ${PODMAN} build . -t ${PHP_LS_IMAGE} -f php-ls.Dockerfile
