@@ -70,7 +70,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile Dockerfile.2) ]] || [[ $
 	mv -f Dockerfile.2 Dockerfile
 
 
-	log "[INFO] Download Assets:"
+	log "[INFO] Download ${CSV_VERSION} ${ASSET_NAME} assets:"
 	REPO_PATH=""
 	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"; fi
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
