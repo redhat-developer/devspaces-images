@@ -117,15 +117,12 @@ fi
 
 getContainerExtract() {
   pushd /tmp >/dev/null || exit
-  if [[ ${MIDSTM_BRANCH} ]]; then 
+  if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh
+  elif [[ ${MIDSTM_BRANCH} ]] && [[ ! $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
     curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh
   else
-    # try to get the CRW_VERSION of the script
-    if [[ ${CRW_VERSION} ]] && [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep 404 || true) ]]; then
-      curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/product/containerExtract.sh
-    else
-      curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh
-    fi
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/product/containerExtract.sh
   fi
   chmod +x /tmp/containerExtract.sh
   popd >/dev/null || exit
