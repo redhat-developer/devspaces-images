@@ -12,7 +12,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: codeready-operator
-  namespace: system
+  namespace: eclipse-che
   labels:
     app: codeready-operator
     app.kubernetes.io/name: che

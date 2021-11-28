@@ -730,7 +730,7 @@ increment-next-version:
 	CSV="$${OPM_BUNDLE_MANIFESTS_DIR}/che-operator.clusterserviceversion.yaml"
 
 	currentNextVersion=$$(yq -r ".spec.version" "$${CSV}")
-	echo  "[INFO] current next $(platform) version: $${currentNextVersion}"
+	echo  "[INFO] Current next $(platform) version: $${currentNextVersion}"
 
 	incrementPart=$$($(MAKE) get-next-version-increment nextVersion="$${currentNextVersion}" -s)
 
@@ -749,7 +749,7 @@ increment-next-version:
 	echo "$${STABLE_MINOR_VERSION}"
 
 	incrementPart=$$((incrementPart+1))
-	newVersion="$${STABLE_MAJOR_VERSION}.$${STABLE_MINOR_VERSION}.0-$${incrementPart}.next"
+	newVersion="$${STABLE_MAJOR_VERSION}.$${STABLE_MINOR_VERSION}.0-$${incrementPart}.$(channel)"
 
 	echo "[INFO] Set up next $(platform) version: $${newVersion}"
 	yq -rY "(.spec.version) = \"$${newVersion}\" | (.metadata.name) = \"eclipse-che-preview-$(platform).v$${newVersion}\"" "$${CSV}" > "$${CSV}.old"
@@ -773,16 +773,13 @@ get-next-version-increment:
 		exit 1
 	fi
 
-	versionWithoutNext="$${nextVersion%.next}"
-
+	versionWithoutNext="$${nextVersion%.next*}"
 	version="$${versionWithoutNext%-*}"
-
 	incrementPart="$${versionWithoutNext#*-}"
-
 	echo "$${incrementPart}"
 
 update-resources: SHELL := /bin/bash
-update-resources: check-requirements update-resource-images update-roles
+update-resources: check-requirements update-resource-images update-roles update-helmcharts
 	for platform in 'openshift' 'kubernetes'
 	do
 		for channel in 'next-all-namespaces' 'next'
@@ -795,6 +792,34 @@ update-resources: check-requirements update-resource-images update-roles
 		done
 	done
 
+update-helmcharts: add-license-download check-requirements update-resource-images update-roles
+	HELMCHARTS_TEMPLATES="helmcharts/templates"
+	HELMCHARTS_CRDS="helmcharts/crds"
+
+	cp config/manager/manager.yaml $${HELMCHARTS_TEMPLATES}
+	cp config/rbac/cluster_role.yaml $${HELMCHARTS_TEMPLATES}
+	cp config/rbac/cluster_rolebinding.yaml $${HELMCHARTS_TEMPLATES}
+	cp config/rbac/service_account.yaml $${HELMCHARTS_TEMPLATES}
+	cp config/rbac/role.yaml $${HELMCHARTS_TEMPLATES}
+	cp config/rbac/role_binding.yaml $${HELMCHARTS_TEMPLATES}
+	cp config/samples/org.eclipse.che_v1_checluster.yaml $${HELMCHARTS_TEMPLATES}
+
+	cp config/crd/bases/org_v1_che_crd.yaml $${HELMCHARTS_CRDS}
+	cp config/crd/bases/org.eclipse.che_chebackupserverconfigurations_crd.yaml $${HELMCHARTS_CRDS}
+	cp config/crd/bases/org.eclipse.che_checlusterbackups_crd.yaml $${HELMCHARTS_CRDS}
+	cp config/crd/bases/org.eclipse.che_checlusterrestores_crd.yaml $${HELMCHARTS_CRDS}
+
+	## Set references to values
+	yq -riY ".spec.k8s.ingressDomain  |= \"{{ .Values.k8s.ingressDomain }}\"" $${HELMCHARTS_TEMPLATES}/org.eclipse.che_v1_checluster.yaml
+
+	yq -riY '.metadata.namespace = "{{ .Release.Namespace }}"' $${HELMCHARTS_TEMPLATES}/manager.yaml
+	yq -riY '.metadata.namespace = "{{ .Release.Namespace }}"' $${HELMCHARTS_TEMPLATES}/service_account.yaml
+	yq -riY '.metadata.namespace = "{{ .Release.Namespace }}"' $${HELMCHARTS_TEMPLATES}/role.yaml
+	yq -riY '.metadata.namespace = "{{ .Release.Namespace }}"' $${HELMCHARTS_TEMPLATES}/role_binding.yaml
+	yq -riY '.metadata.namespace = "{{ .Release.Namespace }}"' $${HELMCHARTS_TEMPLATES}/org.eclipse.che_v1_checluster.yaml
+	yq -riY '.subjects[0].namespace = "{{ .Release.Namespace }}"' $${HELMCHARTS_TEMPLATES}/cluster_rolebinding.yaml
+
+	$(MAKE) add-license $$(find ./helmcharts -name "*.yaml")
 check-requirements:
 	. olm/check-yq.sh
 
