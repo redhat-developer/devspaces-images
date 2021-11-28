@@ -332,7 +332,11 @@ Then you'll be able to run it with:
 
 Build JwtProxy docker image with:
 ```
-docker build -t jwtproxy .
+docker build -t jwtproxy -f build/dockerfiles/Dockerfile .
+```
+or
+```
+docker build -t jwtproxy -f build/dockerfiles/rhel.Dockerfile .
 ```
 
 Then you'll be able to run it with:
