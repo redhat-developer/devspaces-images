@@ -296,7 +296,13 @@ export class FakeStoreBuilder {
   }
 
   public withDwPlugins(
-    plugins: { [location: string]: { plugin?: devfileApi.Devfile; error?: string } },
+    plugins: {
+      [location: string]: {
+        plugin?: devfileApi.Devfile;
+        url: string;
+        error?: string;
+      };
+    },
     isLoading = false,
     defaultEditorError?: string,
   ) {

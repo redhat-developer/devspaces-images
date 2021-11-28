@@ -10,8 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { isDevfileV2 } from './devfileApi';
 import { getEnvironment, isDevEnvironment } from './helpers/environment';
-import { Devfile, isCheDevfile } from './workspace-adapter';
+import { Devfile } from './workspace-adapter';
 
 export enum StorageTypeTitle {
   async = 'Asynchronous',
@@ -87,39 +88,41 @@ export function attributesToType(
 }
 
 export function updateDevfile(devfile: Devfile, storageType: che.WorkspaceStorageType): Devfile {
+  if (isDevfileV2(devfile)) {
+    return devfile;
+  }
+
   const newDevfile = Object.assign({}, devfile) as che.WorkspaceDevfile;
-  if (isCheDevfile(devfile)) {
-    const attributes = (newDevfile as che.WorkspaceDevfile).attributes;
-    switch (storageType) {
-      case 'persistent':
-        if (attributes) {
-          delete attributes.persistVolumes;
-          delete attributes.asyncPersist;
-          if (Object.keys(attributes).length === 0) {
-            delete newDevfile.attributes;
-          }
+  const attributes = newDevfile.attributes;
+  switch (storageType) {
+    case 'persistent':
+      if (attributes) {
+        delete attributes.persistVolumes;
+        delete attributes.asyncPersist;
+        if (Object.keys(attributes).length === 0) {
+          delete newDevfile.attributes;
         }
-        break;
-      case 'ephemeral':
-        if (!attributes) {
-          newDevfile.attributes = { persistVolumes: 'false' };
-        } else {
-          attributes.persistVolumes = 'false';
-          delete attributes.asyncPersist;
-        }
-        break;
-      case 'async':
-        if (!attributes) {
-          newDevfile.attributes = {
-            persistVolumes: 'false',
-            asyncPersist: 'true',
-          };
-        } else {
-          attributes.persistVolumes = 'false';
-          attributes.asyncPersist = 'true';
-        }
-        break;
-    }
+      }
+      break;
+    case 'ephemeral':
+      if (!attributes) {
+        newDevfile.attributes = { persistVolumes: 'false' };
+      } else {
+        attributes.persistVolumes = 'false';
+        delete attributes.asyncPersist;
+      }
+      break;
+    case 'async':
+      if (!attributes) {
+        newDevfile.attributes = {
+          persistVolumes: 'false',
+          asyncPersist: 'true',
+        };
+      } else {
+        attributes.persistVolumes = 'false';
+        attributes.asyncPersist = 'true';
+      }
+      break;
   }
 
   return newDevfile;

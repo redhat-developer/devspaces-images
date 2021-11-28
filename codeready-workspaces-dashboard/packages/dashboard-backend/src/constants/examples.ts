@@ -14,8 +14,8 @@ export const dockerConfigExample = {
   get dockerconfig() {
     const registry = 'quay.io';
     const username = 'janedoe';
-    const passsword = 'xxxxxxxxxxxxxxxxxxxxxxx';
-    const auth = new Buffer(`${username}:${passsword}`).toString('base64');
+    const password = 'xxxxxxxxxxxxxxxxxxxxxxx';
+    const auth = new Buffer(`${username}:${password}`).toString('base64');
     const buff = new Buffer(
       JSON.stringify({
         auths: {

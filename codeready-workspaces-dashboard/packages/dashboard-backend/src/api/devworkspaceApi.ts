@@ -13,7 +13,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../constants/config';
 import {
-  patchSchema,
+  devworkspacePatchSchema,
   namespacedSchema,
   namespacedWorkspaceSchema,
   devworkspaceSchema,
@@ -45,7 +45,7 @@ export function registerDevworkspaceApi(server: FastifyInstance) {
 
   server.patch(
     `${baseApiPath}/namespace/:namespace/devworkspaces/:workspaceName`,
-    getSchema({ tags, params: namespacedWorkspaceSchema, body: patchSchema }),
+    getSchema({ tags, params: namespacedWorkspaceSchema, body: devworkspacePatchSchema }),
     async function (request: FastifyRequest) {
       const { namespace, workspaceName } = request.params as restParams.INamespacedWorkspaceParam;
       const patch = request.body as { op: string; path: string; value?: any }[];

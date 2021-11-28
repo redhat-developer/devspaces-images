@@ -5,7 +5,7 @@
 | [`@babel/runtime@7.15.4`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@devfile/api@2.2.0-alpha-1633545768`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | `@eclipse-che/api@7.36.0` | EPL-2.0 | clearlydefined |
-| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1636123638`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1637592995`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/common@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-backend@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-frontend@7.37.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |

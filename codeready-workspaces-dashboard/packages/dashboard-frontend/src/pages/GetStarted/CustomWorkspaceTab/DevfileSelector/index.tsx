@@ -86,7 +86,10 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
     try {
       if (cheDevworkspaceEnabled) {
         await this.props.requestFactoryResolver(meta.links.v2);
-        devfile = updateDevfileMetadata(this.props.factoryResolver.resolver.devfile, meta);
+        // at this point the resolver object is defined
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const resolvedDevfile = this.props.factoryResolver.resolver!.devfile;
+        devfile = updateDevfileMetadata(resolvedDevfile, meta);
       } else {
         devfile = safeLoad((await this.props.requestDevfile(meta.links.self)) as string);
       }
@@ -106,7 +109,9 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
     try {
       this.setState({ isLoading: true });
       await this.props.requestFactoryResolver(location);
-      const { resolver } = this.factoryResolver;
+      // at this point the resolver object is defined
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const resolver = this.factoryResolver.resolver!;
       if (resolver.source === 'repo') {
         throw new Error('devfile.yaml not found in the specified GitHub repository root.');
       }

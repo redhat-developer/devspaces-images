@@ -238,7 +238,7 @@ export class DevfileConverter {
     return devfileV1Project;
   }
 
-  devfileV2toDevfileV1(devfileV2: devfileApi.Devfile): cheApi.workspace.devfile.Devfile {
+  devfileV2toDevfileV1(devfileV2: devfileApi.Devfile): che.WorkspaceDevfile {
     const devfileV1: cheApi.workspace.devfile.Devfile = {
       apiVersion: '1.0.0',
       metadata: this.metadataV2toMetadataV1(devfileV2.metadata),
@@ -280,6 +280,6 @@ export class DevfileConverter {
       delete devfileV1Any.commands;
     }
 
-    return devfileV1;
+    return devfileV1 as che.WorkspaceDevfile;
   }
 }

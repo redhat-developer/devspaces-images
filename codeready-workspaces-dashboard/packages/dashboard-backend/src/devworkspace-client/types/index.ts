@@ -76,6 +76,11 @@ export interface IDevWorkspaceApi {
 export interface IDevWorkspaceTemplateApi {
   listInNamespace(namespace: string): Promise<V1alpha2DevWorkspaceTemplate[]>;
   getByName(namespace: string, name: string): Promise<V1alpha2DevWorkspaceTemplate>;
+  patch(
+    namespace: string,
+    name: string,
+    patches: api.IPatch[],
+  ): Promise<V1alpha2DevWorkspaceTemplate>;
   delete(namespace: string, name: string): Promise<void>;
   create(template: V1alpha2DevWorkspaceTemplate): Promise<V1alpha2DevWorkspaceTemplate>;
 }

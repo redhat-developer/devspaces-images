@@ -56,6 +56,7 @@ type State = {
   hasError: boolean;
   isWaitingForRestart: boolean;
   isDevWorkspace: boolean;
+  status?: string;
 };
 
 class IdeLoaderContainer extends React.PureComponent<Props, State> {
@@ -266,6 +267,12 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
         hasError: workspace.hasError,
       });
     }
+    const status = workspace?.status;
+    if (prevProps.workspace?.status !== status) {
+      this.setState({
+        status,
+      });
+    }
     if (!workspace) {
       const alertOptions = {
         title: `Workspace "${this.workspaceName}" is not found.`,
@@ -473,13 +480,6 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  private getCurrentStatus(): string | undefined {
-    const { allWorkspaces } = this.props;
-    const { workspaceId } = this.state;
-    const workspace = allWorkspaces.find(workspace => workspace.id === workspaceId);
-    return workspace?.status;
-  }
-
   render() {
     const {
       currentStep,
@@ -489,8 +489,8 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       workspaceName,
       preselectedTabKey,
       isDevWorkspace,
+      status,
     } = this.state;
-    const status = this.getCurrentStatus();
 
     return (
       <IdeLoader

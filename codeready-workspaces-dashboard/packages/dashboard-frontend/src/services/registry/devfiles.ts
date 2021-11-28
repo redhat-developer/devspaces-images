@@ -33,17 +33,26 @@ function resolveIconUrl(metadata: che.DevfileMetaData, baseUrl: string): string 
   return createURL(metadata.icon, baseUrl).href;
 }
 
-function resolveLinks(metadata: che.DevfileMetaData, baseUrl: string): any {
+export function resolveLinks(metadata: che.DevfileMetaData, baseUrl: string): any {
   const resolvedLinks = {};
   const linkNames = Object.keys(metadata.links);
   linkNames.map(linkName => {
-    let updatedLink = metadata.links[linkName];
-    if (!updatedLink.startsWith('http')) {
-      updatedLink = createURL(updatedLink, baseUrl).href;
-    }
-    resolvedLinks[linkName] = updatedLink;
+    resolvedLinks[linkName] = updateObjectLinks(metadata.links[linkName], baseUrl);
   });
   return resolvedLinks;
+}
+
+export function updateObjectLinks(object: any, baseUrl): any {
+  if (typeof object === 'string') {
+    if (!object.startsWith('http')) {
+      object = createURL(object, baseUrl).href;
+    }
+  } else {
+    Object.keys(object).forEach(key => {
+      object[key] = updateObjectLinks(object[key], baseUrl);
+    });
+  }
+  return object;
 }
 
 export async function fetchData<T>(url: string): Promise<T> {

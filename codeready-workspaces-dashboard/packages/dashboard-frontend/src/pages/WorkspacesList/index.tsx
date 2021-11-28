@@ -117,7 +117,6 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
             Visibility.visibleOnMd!,
           ),
         ],
-        /* eslint-enable @typescript-eslint/no-non-null-assertion */
       },
     ];
 
@@ -404,7 +403,6 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   public componentDidUpdate(prevProps: Props): void {
-    /* Update checkboxes states if workspaces list changes */
     if (prevProps.workspaces.length !== this.props.workspaces.length) {
       const selected: string[] = [];
       const filtered: string[] = [];
@@ -412,9 +410,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
         if (this.state.selected.indexOf(workspace.id) !== -1) {
           selected.push(workspace.id);
         }
-        if (this.state.filtered.indexOf(workspace.id) !== -1) {
-          filtered.push(workspace.id);
-        }
+        filtered.push(workspace.id);
       });
       const isSelectedAll =
         selected.length !== 0 && selected.length === this.props.workspaces.length;
@@ -485,7 +481,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
             areActionsDisabled={rowData => this.areActionsDisabled(rowData)}
             aria-label="Workspaces List Table"
             canSelectAll={false}
-            cells={this.columns || []}
+            cells={this.columns}
             onSelect={(event, isSelected, rowIndex, rowData) => {
               event.stopPropagation();
               this.handleSelect(isSelected, rowIndex, rowData);

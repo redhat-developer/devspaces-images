@@ -10,9 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, FastifyRequest } from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../constants/config';
-import { namespacedSchema, templateStartedSchema } from '../constants/schemas';
+import {
+  namespacedSchema,
+  namespacedTemplateSchema,
+  dwTemplatePatchSchema,
+  templateStartedSchema,
+} from '../constants/schemas';
 import { getDevWorkspaceClient } from './helper';
 import { getSchema } from '../services/helpers';
 import { restParams } from '../typings/models';
@@ -36,6 +41,64 @@ export function registerTemplateApi(server: FastifyInstance) {
       template.metadata.namespace = namespace;
       const { templateApi } = await getDevWorkspaceClient(request);
       return templateApi.create(template);
+    },
+  );
+
+  server.get(
+    `${baseApiPath}/namespace/:namespace/devworkspacetemplates`,
+    getSchema({
+      tags,
+      params: namespacedSchema,
+    }),
+    async function (request: FastifyRequest) {
+      const { namespace } = request.params as restParams.INamespacedParam;
+      const { templateApi } = await getDevWorkspaceClient(request);
+      return templateApi.listInNamespace(namespace);
+    },
+  );
+
+  server.patch(
+    `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+    getSchema({ tags, params: namespacedTemplateSchema, body: dwTemplatePatchSchema }),
+    async function (request: FastifyRequest) {
+      const { namespace, templateName } = request.params as restParams.INamespacedTemplateParam;
+      const patch = request.body as { op: string; path: string; value?: any }[];
+      const { templateApi } = await getDevWorkspaceClient(request);
+      return templateApi.patch(namespace, templateName, patch);
+    },
+  );
+
+  server.get(
+    `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+    getSchema({
+      tags,
+      params: namespacedTemplateSchema,
+    }),
+    async function (request: FastifyRequest) {
+      const { namespace, templateName } = request.params as restParams.INamespacedTemplateParam;
+      const { templateApi } = await getDevWorkspaceClient(request);
+      return templateApi.getByName(namespace, templateName);
+    },
+  );
+
+  server.delete(
+    `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
+    getSchema({
+      tags,
+      params: namespacedTemplateSchema,
+      response: {
+        204: {
+          description: 'The Template successfully deleted',
+          type: 'null',
+        },
+      },
+    }),
+    async function (request: FastifyRequest, reply: FastifyReply) {
+      const { namespace, templateName } = request.params as restParams.INamespacedTemplateParam;
+      const { devworkspaceApi } = await getDevWorkspaceClient(request);
+      await devworkspaceApi.delete(namespace, templateName);
+      reply.code(204);
+      return reply.send();
     },
   );
 }

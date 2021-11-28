@@ -47,7 +47,7 @@ describe('dwPlugins store', () => {
       >;
 
       const url = 'devworkspace-devfile-location';
-      await store.dispatch(dwPluginsStore.actionCreators.requestDwDevfiles(url));
+      await store.dispatch(dwPluginsStore.actionCreators.requestDwDevfile(url));
 
       const actions = store.getActions();
 
@@ -80,7 +80,7 @@ describe('dwPlugins store', () => {
 
       const url = 'devworkspace-devfile-location';
       try {
-        await store.dispatch(dwPluginsStore.actionCreators.requestDwDevfiles(url));
+        await store.dispatch(dwPluginsStore.actionCreators.requestDwDevfile(url));
       } catch (e) {
         // noop
       }
@@ -123,12 +123,24 @@ describe('dwPlugins store', () => {
           type: 'REQUEST_DW_DEFAULT_EDITOR',
         },
         {
-          type: 'RECEIVE_DW_DEFAULT_EDITOR',
-          defaultEditorName: 'default-editor',
-        },
-        {
           type: 'REQUEST_DW_EDITOR',
           editorName: 'default-editor',
+          url: 'plugin-registry-location/plugins/default-editor/devfile.yaml',
+        },
+        {
+          editorName: 'default-editor',
+          plugin: {
+            metadata: expect.objectContaining({ name: 'void-sample' }),
+            schemaVersion: '2.1.0',
+          },
+          type: 'RECEIVE_DW_EDITOR',
+
+          url: 'plugin-registry-location/plugins/default-editor/devfile.yaml',
+        },
+        {
+          type: 'RECEIVE_DW_DEFAULT_EDITOR',
+          defaultEditorName: 'default-editor',
+          url: 'plugin-registry-location/plugins/default-editor/devfile.yaml',
         },
       ];
       expect(actions).toEqual(expectedActions);
@@ -155,10 +167,12 @@ describe('dwPlugins store', () => {
       const expectedActions: dwPluginsStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_EDITOR',
+          url: 'https://my-fake-editor.yaml',
           editorName: editorLink,
         },
         {
           type: 'RECEIVE_DW_EDITOR',
+          url: 'https://my-fake-editor.yaml',
           editorName: editorLink,
           plugin,
         },
@@ -197,10 +211,12 @@ describe('dwPlugins store', () => {
       const expectedActions: dwPluginsStore.KnownAction[] = [
         {
           type: 'REQUEST_DW_EDITOR',
+          url: 'https://my-fake-editor.yaml',
           editorName: editorLink,
         },
         {
           type: 'RECEIVE_DW_EDITOR_ERROR',
+          url: 'https://my-fake-editor.yaml',
           error: expect.stringContaining(
             'Failed to load the editor https://my-fake-editor.yaml. Invalid devfile.',
           ),
@@ -271,15 +287,8 @@ describe('dwPlugins store', () => {
           type: 'REQUEST_DW_DEFAULT_EDITOR',
         },
         {
-          type: 'RECEIVE_DW_DEFAULT_EDITOR',
-          defaultEditorName: 'default-editor',
-        },
-        {
-          type: 'REQUEST_DW_EDITOR',
-          editorName: 'default-editor',
-        },
-        {
           type: 'RECEIVE_DW_EDITOR_ERROR',
+          url: 'undefined/plugins/default-editor/devfile.yaml',
           editorName: 'default-editor',
           error: expect.stringContaining(' plugin registry URL is not provided'),
         },
@@ -331,6 +340,7 @@ describe('dwPlugins store', () => {
         plugins: {
           'devfile-location': {
             error: 'unexpected error',
+            url: 'devfile-location',
           },
         },
       };
@@ -345,7 +355,9 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {
-          'devfile-location': {},
+          'devfile-location': {
+            url: 'devfile-location',
+          },
         },
       };
 
@@ -357,6 +369,7 @@ describe('dwPlugins store', () => {
         isLoading: false,
         editors: {
           foo: {
+            url: 'editor-location',
             error: 'unexpected error',
           },
         },
@@ -365,6 +378,7 @@ describe('dwPlugins store', () => {
       const incomingAction: dwPluginsStore.RequestDwEditorAction = {
         type: 'REQUEST_DW_EDITOR',
         editorName: 'foo',
+        url: 'editor-location',
       };
 
       const newState = dwPluginsStore.reducer(initialState, incomingAction);
@@ -374,6 +388,7 @@ describe('dwPlugins store', () => {
         editors: {
           foo: {
             plugin: undefined,
+            url: 'editor-location',
           },
         },
         plugins: {},
@@ -423,6 +438,7 @@ describe('dwPlugins store', () => {
         editors: {},
         plugins: {
           'devfile-location': {
+            url: 'devfile-location',
             plugin,
           },
         },
@@ -439,6 +455,7 @@ describe('dwPlugins store', () => {
       };
       const incomingAction: dwPluginsStore.ReceiveDwEditorAction = {
         type: 'RECEIVE_DW_EDITOR',
+        url: 'devfile-location',
         editorName: 'my-editor',
         plugin,
       };
@@ -449,6 +466,7 @@ describe('dwPlugins store', () => {
         isLoading: false,
         editors: {
           'my-editor': {
+            url: 'devfile-location',
             plugin,
           },
         },
@@ -477,6 +495,7 @@ describe('dwPlugins store', () => {
         editors: {},
         plugins: {
           'devfile-location': {
+            url: 'devfile-location',
             error: 'unexpected error',
           },
         },
@@ -493,6 +512,7 @@ describe('dwPlugins store', () => {
       };
       const incomingAction: dwPluginsStore.RequestDwEditorErrorAction = {
         type: 'RECEIVE_DW_EDITOR_ERROR',
+        url: 'editor-location',
         editorName: 'foo',
         error: 'unexpected error',
       };
@@ -504,6 +524,7 @@ describe('dwPlugins store', () => {
         editors: {
           foo: {
             error: 'unexpected error',
+            url: 'editor-location',
           },
         },
         plugins: {},
@@ -543,6 +564,7 @@ describe('dwPlugins store', () => {
       };
       const incomingAction: dwPluginsStore.ReceiveDwDefaultEditorAction = {
         type: 'RECEIVE_DW_DEFAULT_EDITOR',
+        url: 'default-editor-location',
         defaultEditorName: 'hello',
       };
 

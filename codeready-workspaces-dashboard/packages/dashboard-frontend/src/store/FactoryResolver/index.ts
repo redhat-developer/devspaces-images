@@ -11,8 +11,7 @@
  */
 
 import { Action, Reducer } from 'redux';
-import { RequestError } from '@eclipse-che/workspace-client';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import common from '@eclipse-che/common';
 import { FactoryResolver } from '../../services/helpers/types';
 import { container } from '../../inversify.config';
@@ -20,6 +19,8 @@ import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
 import { getDevfile } from './getDevfile';
+import { selectDevworkspacesEnabled } from '../Workspaces/Settings/selectors';
+import { Devfile } from '../../services/workspace-adapter';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -33,8 +34,11 @@ export type OAuthResponse = {
   message: string;
 };
 
-export function isOAuthResponse(response: any): response is OAuthResponse {
-  if (response?.attributes?.oauth_provider && response?.attributes?.oauth_authentication_url) {
+export function isOAuthResponse(responseData: any): responseData is OAuthResponse {
+  if (
+    responseData?.attributes?.oauth_provider &&
+    responseData?.attributes?.oauth_authentication_url
+  ) {
     return true;
   }
   return false;
@@ -42,7 +46,7 @@ export function isOAuthResponse(response: any): response is OAuthResponse {
 export interface ResolverState {
   location?: string;
   source?: string;
-  devfile?: api.che.workspace.devfile.Devfile;
+  devfile: Devfile;
   scm_info?: {
     clone_url: string;
     scm_provider: string;
@@ -55,7 +59,7 @@ export interface ResolverState {
 
 export interface State {
   isLoading: boolean;
-  resolver: ResolverState;
+  resolver?: ResolverState;
   error?: string;
 }
 
@@ -73,7 +77,7 @@ interface ReceiveFactoryResolverErrorAction {
   error: string;
 }
 
-type KnownAction =
+export type KnownAction =
   | RequestFactoryResolverAction
   | ReceiveFactoryResolverAction
   | ReceiveFactoryResolverErrorAction;
@@ -128,7 +132,7 @@ export const actionCreators: ActionCreators = {
       location: string,
       overrideParams?: { [params: string]: string },
     ): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
+    async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
 
       try {
@@ -154,7 +158,10 @@ export const actionCreators: ActionCreators = {
         if (cheEditor) {
           optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
         }
-        const devfile = getDevfile(data, location);
+
+        const state = getState();
+        const isDevworkspacesEnabled = selectDevworkspacesEnabled(state);
+        const devfile = getDevfile(data, location, isDevworkspacesEnabled);
 
         const { source, scm_info } = data;
         dispatch({
@@ -163,11 +170,14 @@ export const actionCreators: ActionCreators = {
         });
         return;
       } catch (e) {
-        const error = e as RequestError;
-        const response = error.response as AxiosResponse;
-        const responseData = response.data;
-        if (response.status === 401 && isOAuthResponse(responseData)) {
-          throw responseData;
+        if (
+          common.helpers.errors.isAxiosError(e) &&
+          common.helpers.errors.isAxiosResponse(e.response)
+        ) {
+          const responseData = e.response.data;
+          if (e.response.status === 401 && isOAuthResponse(responseData)) {
+            throw responseData;
+          }
         }
         const errorMessage =
           'Failed to request factory resolver: ' + common.helpers.errors.getMessage(e);
@@ -182,7 +192,6 @@ export const actionCreators: ActionCreators = {
 
 const unloadedState: State = {
   isLoading: false,
-  resolver: {},
 };
 
 export const reducer: Reducer<State> = (

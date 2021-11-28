@@ -73,7 +73,9 @@ export class ImportFromGit extends React.PureComponent<Props, State> {
     try {
       this.setState({ isLoading: true });
       await this.props.requestFactoryResolver(location);
-      const { resolver } = this.factoryResolver;
+      // at this point the resolver object is defined
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const resolver = this.factoryResolver.resolver!;
       this.props.onDevfileResolve(resolver, location);
       this.setState({ isLoading: false });
     } catch (e) {

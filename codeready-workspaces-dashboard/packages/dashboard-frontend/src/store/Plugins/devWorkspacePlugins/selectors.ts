@@ -13,6 +13,7 @@
 import { createSelector } from 'reselect';
 import { AppState } from '../..';
 import devfileApi from '../../../services/devfileApi';
+import { cloneDeep } from 'lodash';
 
 const selectState = (state: AppState) => state.dwPlugins;
 export const selectPluginsState = selectState;
@@ -31,10 +32,16 @@ export const selectDwEditorsPluginsList = EDITOR_NAME =>
   createSelector(
     selectState,
     state =>
-      Object.keys(state.editors)
-        .filter(key => key === EDITOR_NAME)
-        .map(key => state.editors[key])
-        .map(entry => entry.plugin) as devfileApi.Devfile[],
+      cloneDeep(
+        Object.keys(state.editors)
+          .filter(key => key === EDITOR_NAME)
+          .map(key => state.editors[key])
+          .filter(entry => entry.plugin)
+          .map(entry => ({ devfile: entry.plugin, url: entry.url })),
+      ) as {
+        devfile: devfileApi.Devfile;
+        url: string;
+      }[],
   );
 
 export const selectDwDefaultEditorError = createSelector(

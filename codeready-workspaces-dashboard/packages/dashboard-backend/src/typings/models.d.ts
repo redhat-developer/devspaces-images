@@ -27,6 +27,10 @@ declare namespace restParams {
     workspaceName: string;
   }
 
+  export interface INamespacedTemplateParam extends INamespacedParam {
+    templateName: string;
+  }
+
   export interface IStatusUpdate {
     error?: string;
     message?: string;

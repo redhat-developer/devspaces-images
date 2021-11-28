@@ -248,13 +248,15 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      const state = getState();
       try {
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
           // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
-          const state = getState();
-          const plugins = selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state);
+          const plugins = selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).map(
+            entry => entry.devfile,
+          );
 
           const storedDevWorkspace = JSON.parse(
             workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
@@ -298,7 +300,11 @@ export const actionCreators: ActionCreators = {
       const defer: IDeferred<void> = getDefer();
       const toDispose = new DisposableCollection();
       const onStatusChangeCallback = async status => {
-        if (status === DevWorkspaceStatus.STOPPED || status === DevWorkspaceStatus.FAILED) {
+        if (
+          status === DevWorkspaceStatus.STOPPED ||
+          status === DevWorkspaceStatus.FAILING ||
+          status === DevWorkspaceStatus.FAILED
+        ) {
           toDispose.dispose();
           try {
             await dispatch(actionCreators.startWorkspace(workspace));
@@ -310,6 +316,7 @@ export const actionCreators: ActionCreators = {
       };
       if (
         workspace.status?.phase === DevWorkspaceStatus.STOPPED ||
+        workspace.status?.phase === DevWorkspaceStatus.FAILING ||
         workspace.status?.phase === DevWorkspaceStatus.FAILED
       ) {
         onStatusChangeCallback(workspace.status.phase);
@@ -449,11 +456,11 @@ export const actionCreators: ActionCreators = {
         // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
         const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
-        const dwEditors = selectDwEditorsPluginsList(cheEditor)(state);
+        const dwEditorsList = selectDwEditorsPluginsList(cheEditor)(state);
         const workspace = await devWorkspaceClient.create(
           devWorkspaceDevfile,
           defaultNamespace,
-          dwEditors,
+          dwEditorsList,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
           optionalFilesContent,

@@ -19,6 +19,7 @@ import {
 } from '@devfile/api';
 import { IDevWorkspaceTemplateApi } from '../../types';
 import { createError } from '../helpers';
+import { api } from '@eclipse-che/common';
 
 const DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
@@ -88,6 +89,38 @@ export class DevWorkspaceTemplateApi implements IDevWorkspaceTemplateApi {
         DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL,
         'Unable to create DevWorkspaceTemplate',
       );
+    }
+  }
+
+  /**
+   * Patch a template
+   */
+  async patch(
+    namespace: string,
+    templateName: string,
+    patches: api.IPatch[],
+  ): Promise<V1alpha2DevWorkspaceTemplate> {
+    try {
+      const options = {
+        headers: {
+          'Content-type': k8s.PatchUtils.PATCH_FORMAT_JSON_PATCH,
+        },
+      };
+      const resp = await this.customObjectAPI.patchNamespacedCustomObject(
+        devworkspacetemplateGroup,
+        devworkspacetemplateLatestVersion,
+        namespace,
+        devworkspacetemplatePlural,
+        templateName,
+        patches,
+        undefined,
+        undefined,
+        undefined,
+        options,
+      );
+      return resp.body as V1alpha2DevWorkspaceTemplate;
+    } catch (e) {
+      throw createError(e, DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL, 'Unable to patch template');
     }
   }
 

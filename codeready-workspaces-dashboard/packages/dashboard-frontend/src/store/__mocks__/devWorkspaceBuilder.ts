@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1alpha2DevWorkspaceSpecTemplate } from '@devfile/api';
 import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
 import { DevWorkspaceStatus } from '../../services/helpers/types';
@@ -61,6 +62,11 @@ export class DevWorkspaceBuilder {
 
   withNamespace(namespace: string): DevWorkspaceBuilder {
     this.workspace.metadata.namespace = namespace;
+    return this;
+  }
+
+  withTemplate(template: V1alpha2DevWorkspaceSpecTemplate): DevWorkspaceBuilder {
+    this.workspace.spec.template = template;
     return this;
   }
 

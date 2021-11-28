@@ -28,13 +28,8 @@ export const selectPreferredStorageType = createSelector(selectWorkspacesSetting
   storageTypesService.getPreferred(settings),
 );
 
-export const selectDevworkspacesEnabled = createSelector(selectWorkspacesSettings, settings =>
-  isDevworkspacesEnabled(settings),
-);
-
 export const selectWorkspacesSettingsError = createSelector(selectState, state => state.error);
 
-export const selectCheDevworkspaceEnabled = createSelector(
-  selectState,
-  state => state.settings['che.devworkspaces.enabled'] === 'true',
+export const selectDevworkspacesEnabled = createSelector(selectState, state =>
+  isDevworkspacesEnabled(state?.settings || {}),
 );

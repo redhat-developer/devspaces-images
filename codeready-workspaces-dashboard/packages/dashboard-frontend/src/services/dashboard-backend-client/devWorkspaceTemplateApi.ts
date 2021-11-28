@@ -11,7 +11,7 @@
  */
 
 import axios from 'axios';
-import common from '@eclipse-che/common';
+import common, { api } from '@eclipse-che/common';
 import devfileApi from '../devfileApi';
 import { prefix } from './const';
 
@@ -23,6 +23,34 @@ export async function createTemplate(
     const response = await axios.post(url, { template });
     return response.data;
   } catch (e) {
-    throw `Failed to create a new DevWorkspaceTemplates. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to create a new devWorkspaceTemplate. ${common.helpers.errors.getMessage(e)}`;
+  }
+}
+
+export async function getTemplates(namespace: string): Promise<devfileApi.DevWorkspaceTemplate[]> {
+  const url = `${prefix}/namespace/${namespace}/devworkspacetemplates`;
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (e) {
+    throw `Failed to fetch devWorkspaceTemplates. ${common.helpers.errors.getMessage(e)}`;
+  }
+}
+
+export async function patchTemplate(
+  namespace: string,
+  templateName: string,
+  patch: api.IPatch[],
+): Promise<devfileApi.DevWorkspace> {
+  try {
+    const response = await axios.patch(
+      `${prefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`,
+      patch,
+    );
+    return response.data;
+  } catch (e) {
+    throw `Failed to update devWorkspaceTemplate '${templateName}'. ${common.helpers.errors.getMessage(
+      e,
+    )}`;
   }
 }

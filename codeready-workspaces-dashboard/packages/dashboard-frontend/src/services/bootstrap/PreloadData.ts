@@ -31,6 +31,9 @@ import { ResourceFetcherService } from '../resource-fetcher';
 import { IssuesReporterService } from './issuesReporter';
 import { CheWorkspaceClient } from '../workspace-client/cheworkspace/cheWorkspaceClient';
 import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspaceClient';
+import { isDevworkspacesEnabled } from '../helpers/devworkspace';
+import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlugins/selectors';
+import devfileApi from '../devfileApi';
 
 /**
  * This class prepares all init data.
@@ -72,6 +75,7 @@ export class PreloadData {
       }),
       this.fetchDwPlugins(settings),
       this.fetchRegistriesMetadata(settings),
+      this.updateDevWorkspaceTemplates(settings),
       this.fetchWorkspaces(),
       this.fetchApplications(),
     ]);
@@ -85,7 +89,13 @@ export class PreloadData {
 
   private async fetchApplications(): Promise<void> {
     const { requestClusterInfo } = ExternalApplicationsStore.actionCreators;
-    await requestClusterInfo()(this.store.dispatch, this.store.getState, undefined);
+    try {
+      await requestClusterInfo()(this.store.dispatch, this.store.getState, undefined);
+    } catch (e) {
+      console.warn(
+        'Unable to fetch cluster info. This is expected behaviour unless backend is configured to provide this information.',
+      );
+    }
   }
 
   private async fetchBranding(): Promise<void> {
@@ -148,12 +158,11 @@ export class PreloadData {
   }
 
   private async fetchDwPlugins(settings: che.WorkspaceSettings): Promise<void> {
-    if (settings['che.devworkspaces.enabled'] !== 'true') {
+    if (!isDevworkspacesEnabled(settings)) {
       return;
     }
     const defaultNamespace = await this.cheWorkspaceClient.getDefaultNamespace();
-    this.watchNamespaces(defaultNamespace);
-
+    await this.watchNamespaces(defaultNamespace);
     const { requestDwDefaultEditor } = DwPluginsStore.actionCreators;
     try {
       await requestDwDefaultEditor(settings)(this.store.dispatch, this.store.getState, undefined);
@@ -163,6 +172,29 @@ export class PreloadData {
       addBanner(message)(this.store.dispatch, this.store.getState, undefined);
 
       throw e;
+    }
+  }
+
+  private async updateDevWorkspaceTemplates(settings: che.WorkspaceSettings): Promise<void> {
+    if (!isDevworkspacesEnabled(settings)) {
+      return;
+    }
+    const defaultNamespace = await this.cheWorkspaceClient.getDefaultNamespace();
+    try {
+      const pluginsByUrl: { [url: string]: devfileApi.Devfile } = {};
+      const state = this.store.getState();
+      selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).forEach(dwEditor => {
+        pluginsByUrl[dwEditor.url] = dwEditor.devfile;
+      });
+      const updates = await this.devWorkspaceClient.checkForTemplatesUpdate(
+        defaultNamespace,
+        pluginsByUrl,
+      );
+      if (Object.keys(updates).length > 0) {
+        await this.devWorkspaceClient.updateTemplates(defaultNamespace, updates);
+      }
+    } catch (e) {
+      console.error('Failed to update templates.', e);
     }
   }
 

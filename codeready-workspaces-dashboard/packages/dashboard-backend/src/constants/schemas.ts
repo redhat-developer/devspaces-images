@@ -45,6 +45,19 @@ export const namespacedWorkspaceSchema: JSONSchema7 = {
   required: ['namespace', 'workspaceName'],
 };
 
+export const namespacedTemplateSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    namespace: {
+      type: 'string',
+    },
+    templateName: {
+      type: 'string',
+    },
+  },
+  required: ['namespace', 'templateName'],
+};
+
 export const namespacedSchema: JSONSchema7 = {
   type: 'object',
   properties: {
@@ -55,7 +68,7 @@ export const namespacedSchema: JSONSchema7 = {
   required: ['namespace'],
 };
 
-export const patchSchema: JSONSchema7 = {
+export const dwTemplatePatchSchema: JSONSchema7 = {
   type: 'array',
   items: {
     type: 'object',
@@ -65,6 +78,36 @@ export const patchSchema: JSONSchema7 = {
       value: {}, // matches any value
     },
   },
+  examples: [
+    [
+      {
+        op: 'replace',
+        path: '/spec/commands',
+        value: [],
+      },
+    ],
+  ],
+};
+
+export const devworkspacePatchSchema: JSONSchema7 = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      op: { type: 'string' },
+      path: { type: 'string' },
+      value: {}, // matches any value
+    },
+  },
+  examples: [
+    [
+      {
+        op: 'replace',
+        path: '/spec/started',
+        value: true,
+      },
+    ],
+  ],
 };
 
 export const dockerConfigSchema: JSONSchema7 = {

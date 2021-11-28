@@ -12,6 +12,7 @@
 
 import { AlertVariant } from '@patternfly/react-core';
 import * as React from 'react';
+import { Devfile } from '../workspace-adapter';
 
 export interface AlertItem {
   key: string;
@@ -23,7 +24,7 @@ export interface AlertItem {
 export interface FactoryResolver {
   v: string;
   source?: string;
-  devfile: api.che.workspace.devfile.Devfile;
+  devfile: Devfile;
   location?: string;
   scm_info?: FactoryResolverScmInfo;
   links: api.che.core.rest.Link[];

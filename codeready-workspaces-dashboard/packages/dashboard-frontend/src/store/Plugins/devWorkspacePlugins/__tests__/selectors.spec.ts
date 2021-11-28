@@ -18,9 +18,12 @@ import * as store from '..';
 import { AppState } from '../../..';
 import { selectDwPlugins, selectDwPluginsList, selectDwDefaultEditorError } from '../selectors';
 
+const url = 'devworkspace-devfile-location';
+
 describe('dwPlugins selectors', () => {
   const plugins = {
     'plugin-location-1': {
+      url,
       plugin: {
         schemaVersion: '2.1.0',
         metadata: {
@@ -29,6 +32,7 @@ describe('dwPlugins selectors', () => {
       } as devfileApi.Devfile,
     },
     'plugin-location-2': {
+      url,
       plugin: {
         schemaVersion: '2.1.0',
         metadata: {
@@ -37,6 +41,7 @@ describe('dwPlugins selectors', () => {
       } as devfileApi.Devfile,
     },
     'plugin-location-3': {
+      url,
       error: 'unexpected error',
     },
   };

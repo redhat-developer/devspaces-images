@@ -26,6 +26,7 @@ import { WorkspaceNameFormGroup } from './WorkspaceName';
 import DevfileSelectorFormGroup from './DevfileSelector';
 import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
 import {
+  selectDevworkspacesEnabled,
   selectPreferredStorageType,
   selectWorkspacesSettings,
 } from '../../../store/Workspaces/Settings/selectors';
@@ -33,9 +34,8 @@ import { attributesToType, updateDevfile } from '../../../services/storageTypes'
 import { safeLoad } from 'js-yaml';
 import { updateDevfileMetadata } from '../updateDevfileMetadata';
 import { Devfile, isCheDevfile } from '../../../services/workspace-adapter';
-import getRandomString from '../../../services/helpers/random';
 import { isDevfileV2Like } from '../../../services/devfileApi';
-import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
+import getDefaultDevfile from '../../../services/helpers/getDefaultDevfile';
 
 type Props = MappedProps & {
   onDevfile: (
@@ -78,22 +78,8 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     this.devfileEditorRef = React.createRef<Editor>();
   }
 
-  private buildInitialDevfile(generateName = 'wksp-'): Devfile {
-    const devfile = isDevworkspacesEnabled(this.props.workspacesSettings)
-      ? {
-          schemaVersion: '2.1.0',
-          metadata: {
-            name: generateName + getRandomString(4).toLowerCase(),
-          },
-        }
-      : {
-          apiVersion: '1.0.0',
-          metadata: {
-            generateName,
-          },
-        };
-
-    return updateDevfile(devfile as Devfile, this.props.preferredStorageType);
+  private buildInitialDevfile(): Devfile {
+    return getDefaultDevfile(this.props.cheDevworkspacesEnabled, this.props.preferredStorageType);
   }
 
   private handleInfrastructureNamespaceChange(namespace: che.KubernetesNamespace): void {
@@ -290,6 +276,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   workspacesSettings: selectWorkspacesSettings(state),
   preferredStorageType: selectPreferredStorageType(state),
+  cheDevworkspacesEnabled: selectDevworkspacesEnabled(state),
 });
 
 const connector = connect(mapStateToProps);

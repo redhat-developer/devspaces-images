@@ -10,9 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { getDevfile } from '../../FactoryResolver/getDevfile';
+import { getDevfile } from '../getDevfile';
 import { FactoryResolverBuilder } from '../../__mocks__/factoryResolverBuilder';
 import { safeDump } from 'js-yaml';
+import devfileApi from '../../../services/devfileApi';
 
 describe('Get a devfile from factory resolver object', () => {
   const location = 'http://dummy/test.com/project-demo';
@@ -26,7 +27,7 @@ describe('Get a devfile from factory resolver object', () => {
     };
     const factoryResolver = new FactoryResolverBuilder().withDevfile(devfile).build();
 
-    const targetDevfile = getDevfile(factoryResolver, location);
+    const targetDevfile = getDevfile(factoryResolver, location, false);
 
     expect(targetDevfile).toEqual(devfile);
   });
@@ -35,7 +36,7 @@ describe('Get a devfile from factory resolver object', () => {
     const devfile = getV2Devfile();
     const factoryResolver = new FactoryResolverBuilder().withDevfile(devfile).build();
 
-    const targetDevfile = getDevfile(factoryResolver, location);
+    const targetDevfile = getDevfile(factoryResolver, location, true);
 
     expect(targetDevfile).toEqual(devfile);
   });
@@ -50,7 +51,7 @@ describe('Get a devfile from factory resolver object', () => {
       })
       .build();
 
-    const targetDevfile = getDevfile(factoryResolver, location);
+    const targetDevfile = getDevfile(factoryResolver, location, true);
 
     expect(targetDevfile).toEqual(
       expect.objectContaining({
@@ -89,7 +90,7 @@ describe('Get a devfile from factory resolver object', () => {
       },
     };
 
-    const targetDevfile = getDevfile(factoryResolver, location);
+    const targetDevfile = getDevfile(factoryResolver, location, true) as devfileApi.Devfile;
 
     expect(targetDevfile.metadata.attributes).toEqual(attributes);
   });
@@ -117,7 +118,7 @@ describe('Get a devfile from factory resolver object', () => {
       },
     };
 
-    const targetDevfile = getDevfile(factoryResolver, location);
+    const targetDevfile = getDevfile(factoryResolver, location, true) as devfileApi.Devfile;
 
     expect(targetDevfile.metadata.attributes).toEqual(attributes);
   });
@@ -133,9 +134,26 @@ describe('Get a devfile from factory resolver object', () => {
       },
     };
 
-    const targetDevfile = getDevfile(factoryResolver, location);
+    const targetDevfile = getDevfile(factoryResolver, location, true) as devfileApi.Devfile;
 
     expect(targetDevfile.metadata.attributes).toEqual(attributes);
+  });
+
+  it('should return the default devfile v2 if devworkspace engine enabled and no devfiles in the repo', () => {
+    const devfile = {
+      apiVersion: '1.0.0',
+      metadata: {
+        name: 'spring-petclinic',
+      },
+    };
+    const factoryResolver = new FactoryResolverBuilder()
+      .withDevfile(devfile)
+      .withSource('repo')
+      .build();
+
+    const targetDevfile = getDevfile(factoryResolver, location, true);
+
+    expect(targetDevfile).toEqual(expect.objectContaining({ schemaVersion: '2.1.0' }));
   });
 });
 
