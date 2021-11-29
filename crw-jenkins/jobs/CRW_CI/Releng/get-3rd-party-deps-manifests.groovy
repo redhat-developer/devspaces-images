@@ -26,7 +26,7 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
         description('''
-Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can be published as part fo a GA release. 
+Collect sources from pkgs.devel and vsix files and push GH as part of a GA release. 
 
 <p>NOTE! Tags for the current release must exist first, but can be optionally created as part of this job.
         ''')

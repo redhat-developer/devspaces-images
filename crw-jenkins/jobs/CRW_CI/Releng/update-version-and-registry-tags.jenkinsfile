@@ -6,7 +6,7 @@
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
 def MIDSTM_BRANCH = "crw-2-rhel-8"
 
-def buildNode = "rhel8||rhel83||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
+def buildNode = "rhel83||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
 timeout(120) {
     node("${buildNode}"){ 
         stage ("update versions/tags; disable ${CRW_VERSION} jobs") {

@@ -10,7 +10,7 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_RCM - no longer used as of 2.13
 
 def installP7zip = true // p7zip install and use that to build crwctl
-def nodeLabel = "rhel8||rhel83"
+def nodeLabel = "rhel8" // sshmount for rcm guest doesn't work on rhel83!
 
 timeout(90) {
   node("${nodeLabel}"){ 
@@ -36,6 +36,12 @@ timeout(90) {
           util.installRPMs("fuse-sshfs perl-Digest-SHA", true)
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+
+          if (versionSuffix.equals("GA")) {
+            util.installPodman2()
+            currentBuild.description+=" Authenticate with reg.stage.r.io ..."
+            util.loginToStageRegistry()
+          }
 
           currentBuild.description="Building ..."
           sh '''#!/bin/bash -xe

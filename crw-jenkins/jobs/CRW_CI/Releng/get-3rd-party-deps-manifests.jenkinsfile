@@ -9,7 +9,7 @@ import groovy.transform.Field
 def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
-def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8"
+def buildNode = "rhel83||s390x-rhel8||ppc64le-rhel8"
 timeout(120) {
   node("${buildNode}"){
     stage("Collect 3rd party sources") {
@@ -71,6 +71,7 @@ tree ${WORKSPACE}/crw/product/manifest/${CSV_VERSION}
 
 git add ${CSV_VERSION}
 git commit -s -m "chore: [prodsec] Update product security manifests for ${CSV_VERSION}" ${CSV_VERSION}
+git pull origin ''' + MIDSTM_BRANCH + '''
 git push origin ''' + MIDSTM_BRANCH + '''
 
 # push manifests to MIDSTM_BRANCHNEXT branch too

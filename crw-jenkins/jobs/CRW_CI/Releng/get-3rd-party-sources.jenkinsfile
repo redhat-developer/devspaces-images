@@ -5,7 +5,7 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH
 
-def buildNode = "rhel8"
+def buildNode = "rhel8" // sshmount for rcm guest doesn't work on rhel83!
 timeout(120) {
   node("${buildNode}"){
     stage("Collect 3rd party sources") {

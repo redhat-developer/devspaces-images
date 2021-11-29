@@ -23,7 +23,7 @@ def NEW_MID_SHA=""
 def List nodeLabelsMultiArch = ['rhel83', 's390x-rhel8', 'ppc64le-rhel8']
 def Map tasks = [failFast: false]
 
-def String nodeLabelAnyArch = "rhel8||rhel83||s390x-rhel8||ppc64le-rhel8"
+def String nodeLabelAnyArch = "rhel83||s390x-rhel8||ppc64le-rhel8"
 timeout(120) {
   node(nodeLabelAnyArch) {
     stage ("Sync repos on ${nodeLabelAnyArch}") {

@@ -81,11 +81,8 @@ timeout(240) {
                   CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                   CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
                   sh(script: '''#!/bin/bash -xe
-QUAY_REGISTRY="quay.io/crw/"
-QUAY_USER="crw+crwci"
-
 echo "[INFO]: Log into quay.io..."
-echo "${QUAY_TOKEN}" | docker login -u="${QUAY_USER}" --password-stdin ${QUAY_REGISTRY}
+echo "${QUAY_TOKEN}" | docker login -u="crw+crwci" --password-stdin quay.io
 
 echo " ########################################### "
 echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"

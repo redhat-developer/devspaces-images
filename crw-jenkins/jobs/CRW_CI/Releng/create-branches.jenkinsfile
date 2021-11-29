@@ -11,7 +11,7 @@ def List GH_REPOS = [
     'codeready-workspaces-images',
     'codeready-workspaces-theia']
 
-def buildNode = "rhel8||s390x-rhel8||ppc64le-rhel8"
+def buildNode = "rhel83||s390x-rhel8||ppc64le-rhel8"
 timeout(120) {
     node("${buildNode}"){
         stage("Create branches") {
