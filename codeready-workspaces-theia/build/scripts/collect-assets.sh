@@ -147,7 +147,11 @@ if [[ ! -x $BUILDER ]]; then
 fi
 
 listAssets() {
-  find "$1/" -maxdepth 1 -name "asset*" -type f | sort -u | sed -r -e "s#^$1/*##"
+  find "$1/" -maxdepth 1 -name "asset-*" -type f | sort -u | sed -r -e "s#^$1/*##"
+}
+
+listWheels() {
+  find "$1/" -maxdepth 1 -name "*.whl" -type f | sort -u | sed -r -e "s#^$1/*##"
 }
 
 user=$(whoami)
@@ -338,7 +342,11 @@ collect_noarch_assets_crw_theia_endpoint_runtime_binary() {
   echo "URL to curl: ${download_url}"
   curl -sSL "${download_url}" -o "${TARGETDIR}"/asset-node-src.tar.gz
 
+  # yq wheels
+  python3 -m pip download yq -d "${TARGETDIR}"/
+
   listAssets "${TARGETDIR}"
+  listWheels "${TARGETDIR}"
 }
 
 getContainerExtract
@@ -367,12 +375,19 @@ if [[ ${DELETE_TMP_IMAGES} -eq 1 ]] || [[ ${DELETE_ALL_IMAGES} -eq 1 ]]; then
   ${BUILDER} rmi -f $TMP_THEIA_DEV_BUILDER_IMAGE $TMP_THEIA_BUILDER_IMAGE $TMP_THEIA_RUNTIME_IMAGE $TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE || true
 fi
 
-echo; echo "Asset tarballs generated. See the following folder(s) for content to upload to pkgs.devel.redhat.com:"
-du -sch "${TARGETDIR}"/asset*
-echo
+if [[ $(listAssets "${TARGETDIR}") ]]; then
+  echo; echo "Asset tarballs generated. See the following folder(s) for content to upload to pkgs.devel.redhat.com:"
+  du -sch "${TARGETDIR}"/asset-*
+  echo
+fi
+if [[ $(listWheels "${TARGETDIR}") ]]; then
+  echo; echo "Python wheels collected. See the following folder(s) for content to upload to pkgs.devel.redhat.com:"
+  du -sch "${TARGETDIR}"/*.whl
+  echo
+fi
 
 if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
-  newFiles="$(ls asset-*)"
+  newFiles="$(ls asset-* *.whl || true)"
   pushd "${TARGETDIR}" >/dev/null || exit 1
     set -x 
     echo "[INFO] Upload new sources: ${newFiles}"
@@ -386,8 +401,8 @@ if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
     fi
 
     # DON'T include asset-* files in git
-    git rm -fr asset-* ./*.orig 2>/dev/null || true 
-    rm -fr asset-* ./*.orig 2>/dev/null || true 
+    git rm -fr asset-* *.whl ./*.orig 2>/dev/null || true 
+    rm -fr asset-* *.whl ./*.orig 2>/dev/null || true 
     # include any new files, ignoring files we've removed
     git add . -f --ignore-removal
     if [[ $(git commit -s -m "[get sources] ${newFiles}" . || true) == *"nothing to commit, working tree clean"* ]]; then

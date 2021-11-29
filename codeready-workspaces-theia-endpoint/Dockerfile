@@ -47,10 +47,13 @@ RUN /tmp/nexe/index.js -v && \
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.5-204 as runtime
 USER 0
-RUN microdnf -y install yum && \
+RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && \
     yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+# copy previously cached yq dependency wheels for offline install
+COPY *.whl /tmp
+
 ENV SUMMARY="Red Hat CodeReady Workspaces - theia-endpoint container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - theia-endpoint container" \
     PRODNAME="codeready-workspaces" \
