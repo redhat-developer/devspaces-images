@@ -344,6 +344,8 @@ collect_noarch_assets_crw_theia_endpoint_runtime_binary() {
 
   # yq wheels
   python3 -m pip download yq -d "${TARGETDIR}"/
+  # exclude source tarball - only want wheels
+  rm -fr "${TARGETDIR}"/PyYAML-*.tar.gz
 
   listAssets "${TARGETDIR}"
   listWheels "${TARGETDIR}"
@@ -400,9 +402,9 @@ if [[ ${COMMIT_CHANGES} -eq 1 ]]; then
       rhpkg new-sources ${newFiles}
     fi
 
-    # DON'T include asset-* files in git
-    git rm -fr asset-* *.whl ./*.orig 2>/dev/null || true 
-    rm -fr asset-* *.whl ./*.orig 2>/dev/null || true 
+    # DON'T include asset-* files, wheels, or any tarballs in git
+    git rm -fr asset-* *.whl *.tar.gz *.tgz ./*.orig 2>/dev/null || true
+    rm -fr asset-* *.whl *.tar.gz *.tgz ./*.orig 2>/dev/null || true
     # include any new files, ignoring files we've removed
     git add . -f --ignore-removal
     if [[ $(git commit -s -m "[get sources] ${newFiles}" . || true) == *"nothing to commit, working tree clean"* ]]; then
