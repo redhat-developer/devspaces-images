@@ -1156,7 +1156,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:c9b823b9ac907f2d30f268902151e6c19448c3a8594e2f56ecf5c125683cea9f
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNAK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:ffe1f16123c0cc504a08391f2e61b1bd6f778fa5b3af10bc8f3bcaac1a8db5b2
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:1645cd4626b8ecd309ed769fc9b9cd6e26c101c997284be91399a0fe02368b2a
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:bae49d532d4607c216dd21470dbffc50c7a3cfe326203e99684d4f73562fe6dd
                 - name: RELATED_IMAGE_dashboard
@@ -1182,7 +1182,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:c9197d33a02b80c86e5f34d663405dbae5c6fae13dc61512debe1d16aeae5805
                 - name: RELATED_IMAGE_keycloak
-                  value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:6799c62b702843d18b505f2c1946037cbc193175f48fdc01bee09220935c608c
+                  value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:63a4a240a2f4c79e1314ecdc6bbcac9fc9b555bec44a621cc05ffeef817d2ba5
                 - name: RELATED_IMAGE_keycloak_ppc64le
                   value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:31bf3937c4cd8d00555bf00f4fc6e42b02796da72165c3f0245e62fc199664e8
                 - name: RELATED_IMAGE_keycloak_s390x
@@ -1556,7 +1556,7 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:c9b823b9ac907f2d30f268902151e6c19448c3a8594e2f56ecf5c125683cea9f
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcnak
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:ffe1f16123c0cc504a08391f2e61b1bd6f778fa5b3af10bc8f3bcaac1a8db5b2
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:1645cd4626b8ecd309ed769fc9b9cd6e26c101c997284be91399a0fe02368b2a
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:bae49d532d4607c216dd21470dbffc50c7a3cfe326203e99684d4f73562fe6dd
   - name: dashboard
@@ -1582,7 +1582,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:c9197d33a02b80c86e5f34d663405dbae5c6fae13dc61512debe1d16aeae5805
   - name: keycloak
-    image: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:6799c62b702843d18b505f2c1946037cbc193175f48fdc01bee09220935c608c
+    image: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:63a4a240a2f4c79e1314ecdc6bbcac9fc9b555bec44a621cc05ffeef817d2ba5
   - name: keycloak_ppc64le
     image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:31bf3937c4cd8d00555bf00f4fc6e42b02796da72165c3f0245e62fc199664e8
   - name: keycloak_s390x
