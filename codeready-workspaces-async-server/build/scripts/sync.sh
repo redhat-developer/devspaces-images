@@ -49,14 +49,13 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 echo ".github/
 .git/
 .gitattributes
-#REMOVE THIS LINE BUT MIDSTM ONLY
 build/scripts/sync.sh
 container.yaml
 content_sets.yaml
 cvp-owners.yml
 get-sources.sh
-#UPSTM ONLY REMOVE THIS LINE
-README.md
+/README.md
+/release.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/

@@ -47,10 +47,6 @@ function log()
 	fi
 }
 
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-
 if [[ ${forceBuild} -eq 1 ]] || [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true
