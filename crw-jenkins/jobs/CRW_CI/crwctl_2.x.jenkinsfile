@@ -10,7 +10,7 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_RCM - no longer used as of 2.13
 
 def installP7zip = true // p7zip install and use that to build crwctl
-def nodeLabel = "rhel8" // sshmount for rcm guest doesn't work on rhel83!
+def nodeLabel = "rhel83" 
 
 timeout(90) {
   node("${nodeLabel}"){ 
@@ -37,21 +37,26 @@ timeout(90) {
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
 
+          // for push to rcm-guest, set DESTHOST
+          DESTHOST=""
           if (versionSuffix.equals("GA")) {
             util.installPodman2()
             currentBuild.description+=" Authenticate with reg.stage.r.io ..."
             util.loginToStageRegistry()
+            // make sure we have a valid kerberos ticket for crw-build user
+            util.kinit(true)
+            // ssh mount the rcm-guest drive
+            DESTHOST=util.sshMountRcmGuest()
           }
 
           currentBuild.description="Building ..."
           sh '''#!/bin/bash -xe
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
-
 cd ${WORKSPACE}/codeready-workspaces-chectl
 ./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH + 
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/crw-images ''' +
-  (versionSuffix.equals("GA")?" --rcm":"") + 
+  (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") + 
   (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
 
           currentBuild.description="Builds done; archiving artifacts (deprecated) ..."
