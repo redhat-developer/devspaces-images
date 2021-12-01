@@ -366,7 +366,7 @@ spec:
                     pvcClaimSize:
                       description: Size of the persistent volume claim for database.
                         Defaults to `1Gi`. To update pvc storageclass that provisions
-                        it must support resize when CodeReady Workspaces has been already deployed.
+                        it must support resize when Eclipse Che has been already deployed.
                       type: string
                   type: object
                 devWorkspace:
@@ -511,7 +511,7 @@ spec:
                         registry to pull images from. This value overrides the container
                         registry organization defined in all the default container
                         images involved in a Che deployment. This is particularly
-                        useful to install CodeReady Workspaces in a restricted environment.
+                        useful to install Eclipse Che in a restricted environment.
                       type: string
                     allowUserDefinedWorkspaceNamespaces:
                       description: Deprecated. The value of this flag is ignored.
@@ -1123,7 +1123,6 @@ spec:
       storage: true
       subresources:
         status: {}
-  preserveUnknownFields: false
 status:
   acceptedNames:
     kind: ""
