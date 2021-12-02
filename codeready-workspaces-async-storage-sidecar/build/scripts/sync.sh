@@ -79,7 +79,6 @@ find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 # transform build/*/Dockerfile -> Dockerfile
 sed ${SOURCEDIR}/dockerfiles/${UPSTM_IMAGE}/ubi.Dockerfile -r \
   `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
   -e "s#FROM registry.redhat.io/#FROM #g" \
   -e "s#FROM registry.access.redhat.com/#FROM #g" \
 > ${TARGETDIR}/Dockerfile
