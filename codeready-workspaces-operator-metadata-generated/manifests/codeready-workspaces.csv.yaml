@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:b55384184ec5d41a18fc3e0786d881358707e9a2ba5f5942f9a7e2d04633d0b7
-    createdAt: "2021-11-23T21:12:28+00:00"
+    createdAt: "2021-11-30T21:12:19+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1156,9 +1156,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:c9b823b9ac907f2d30f268902151e6c19448c3a8594e2f56ecf5c125683cea9f
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNAK
-                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:1645cd4626b8ecd309ed769fc9b9cd6e26c101c997284be91399a0fe02368b2a
+                  value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dc91faa93b762ca8fc122484aa6e3ac62fb01197f9d8b64ddc1f16cfb6ea98af
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNAK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:bae49d532d4607c216dd21470dbffc50c7a3cfe326203e99684d4f73562fe6dd
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:0a47a30817937f3a2356e7f6b432cd2c9ac5115a1b916cce13d55237c73e8ac4
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:7d17152995d8b75103a96646a5d5a809b870fcd9d625ec5d1c0b265b12c20f74
                 - name: RELATED_IMAGE_devfile_registry
@@ -1232,7 +1232,7 @@ spec:
                 resources:
                   limits:
                     cpu: 500m
-                    memory: 256Mi
+                    memory: 5Gi
                   requests:
                     cpu: 100m
                     memory: 64Mi
@@ -1556,9 +1556,9 @@ spec:
   - name: codeready_workspaces_stacks_php_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/stacks-php-rhel8@sha256:c9b823b9ac907f2d30f268902151e6c19448c3a8594e2f56ecf5c125683cea9f
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcnak
-    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:1645cd4626b8ecd309ed769fc9b9cd6e26c101c997284be91399a0fe02368b2a
+    image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dc91faa93b762ca8fc122484aa6e3ac62fb01197f9d8b64ddc1f16cfb6ea98af
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnak
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:bae49d532d4607c216dd21470dbffc50c7a3cfe326203e99684d4f73562fe6dd
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:0a47a30817937f3a2356e7f6b432cd2c9ac5115a1b916cce13d55237c73e8ac4
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:7d17152995d8b75103a96646a5d5a809b870fcd9d625ec5d1c0b265b12c20f74
   - name: devfile_registry
