@@ -51,6 +51,9 @@ cd ${WORKSPACE}/crw/product/manifest/ && ./get-3rd-party-sources.sh --clean -b '
             sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/crw/product/manifest/
 
+# TODO CRW-1919 remove this when we no longer need it 
+export KRB5CCNAME=/var/tmp/crw-build_ccache
+
 # delete old releases before pushing latest one, to keep disk usage low
 ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw; OLD_VERS=\\$(ls -1 | grep -v "''' + CSV_VERSION +
   '''"); if [[ \\$OLD_VERS ]]; then echo 'Delete '\\$OLD_VERS; rm -fr \\$OLD_VERS; else echo 'Nothing to delete'; fi"

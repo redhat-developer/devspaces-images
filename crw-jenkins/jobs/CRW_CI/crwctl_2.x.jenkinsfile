@@ -53,6 +53,9 @@ timeout(90) {
           sh '''#!/bin/bash -xe
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
+
+# TODO CRW-1919 remove this when we no longer need it in build.sh
+# export KRB5CCNAME=/var/tmp/crw-build_ccache
 cd ${WORKSPACE}/codeready-workspaces-chectl
 ./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH + 
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/crw-images ''' +
