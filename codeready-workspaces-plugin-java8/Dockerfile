@@ -87,18 +87,9 @@ RUN microdnf -y install yum && \
     for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     \
     # additional node stuff \
-    mkdir -p ${HOME}/lang-server /opt/app-root/src/.npm-global/bin && \
+    mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
-    if [[ -f /tmp/assets/asset-node10-ls-$(uname -m).tar.gz ]]; then \
-        tar xzf /tmp/assets/asset-node10-ls-$(uname -m).tar.gz -C ${HOME}/lang-server/ && \
-        ln -s ${HOME}/lang-server/node_modules/typescript-language-server/lib/cli.js /opt/app-root/src/.npm-global/bin/typescript-language-server && \
-        ln -s ${HOME}/lang-server/node_modules/nodemon/bin/nodemon.js /opt/app-root/src/.npm-global/bin/nodemon && \
-        ln -s ${HOME}/lang-server/node_modules/typescript/bin/tsc /opt/app-root/src/.npm-global/bin/tsc && \
-        ln -s ${HOME}/lang-server/node_modules/typescript/bin/tsserver /opt/app-root/src/.npm-global/bin/tsserver && \
-        for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
-    else \
-        echo "[WARNING] Node lang server dependency tarball not found. Node support may be more limited on $(uname -m)"; \
-    fi
+    for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done
 RUN \
     # additional python stuff
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
