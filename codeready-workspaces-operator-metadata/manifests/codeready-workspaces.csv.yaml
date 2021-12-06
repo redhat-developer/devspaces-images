@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.14
-    createdAt: "2021-12-06T09:12:10+00:00"
+    createdAt: "2021-12-06T16:36:08+00:00"
     description: 'OCP 4.6+: Devfile v1 development solution for portable, collaborative
       k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -773,6 +773,14 @@ spec:
               verbs:
                 - get
             - apiGroups:
+                - ""
+              resources:
+                - pods/log
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
                 - workspace.devfile.io
               resources:
                 - devworkspaces
@@ -1212,7 +1220,7 @@ spec:
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
                         value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
                       - name: RELATED_IMAGE_gateway_authorization_sidecar_k8s
-                        value: quay.io/brancz/kube-rbac-proxy:v0.11.0
+                        value: DELETME
                       - name: RELATED_IMAGE_internal_rest_backup_server
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-backup-rhel8:2.14
                       - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
