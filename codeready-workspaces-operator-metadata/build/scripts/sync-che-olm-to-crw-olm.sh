@@ -301,7 +301,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_gateway_authorization_sidecar"]="${RBAC_PROXY_IMAGE}"
 
 		# remove env vars using DELETEME keyword
-		["RELATED_IMAGE_gateway_authorization_sidecar_k8s"]="DELETME"
+		["RELATED_IMAGE_gateway_authorization_sidecar_k8s"]="DELETEME"
 		["RELATED_IMAGE_che_tls_secrets_creation_job"]="DELETEME"
 		["RELATED_IMAGE_gateway_header_sidecar"]="DELETEME"
 	)
