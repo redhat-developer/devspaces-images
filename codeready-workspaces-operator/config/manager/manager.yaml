@@ -95,8 +95,12 @@ spec:
               value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.9
             - name: RELATED_IMAGE_gateway_authentication_sidecar
               value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
+            - name: RELATED_IMAGE_gateway_authentication_sidecar_k8s
+              value: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
             - name: RELATED_IMAGE_gateway_authorization_sidecar
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
+            - name: RELATED_IMAGE_gateway_authorization_sidecar_k8s
+              value: DELETME
             - name: RELATED_IMAGE_internal_rest_backup_server
               value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.14
             - name: RELATED_IMAGE_keycloak
@@ -148,7 +152,7 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 256Mi
+              memory: 5Gi
             requests:
               cpu: 100m
               memory: 64Mi

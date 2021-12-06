@@ -133,7 +133,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: codeready-workspaces-preview-kubernetes.v7.40.0-378.next
+  name: codeready-workspaces-preview-kubernetes.v7.40.0-383.next
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -756,6 +756,14 @@ spec:
               verbs:
                 - '*'
             - apiGroups:
+                - ""
+              resources:
+                - pods/log
+              verbs:
+                - get
+                - list
+                - watch
+            - apiGroups:
                 - workspace.devfile.io
               resources:
                 - devworkspaces
@@ -934,6 +942,13 @@ spec:
                 - get
                 - list
                 - watch
+            - apiGroups:
+                - authorization.k8s.io
+              resources:
+                - localsubjectaccessreviews
+                - subjectaccessreviews
+              verbs:
+                - create
             - apiGroups:
                 - batch
               resources:
@@ -1123,6 +1138,10 @@ spec:
                         value: quay.io/openshift/origin-oauth-proxy:4.7
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
                         value: quay.io/openshift/origin-kube-rbac-proxy:4.7
+                      - name: RELATED_IMAGE_gateway_authentication_sidecar_k8s
+                        value: quay.io/oauth2-proxy/oauth2-proxy:v7.2.0
+                      - name: RELATED_IMAGE_gateway_authorization_sidecar_k8s
+                        value: quay.io/brancz/kube-rbac-proxy:v0.11.0
                       - name: RELATED_IMAGE_gateway_header_sidecar
                         value: quay.io/che-incubator/header-rewrite-proxy:latest
                       - name: CHE_FLAVOR
@@ -1176,7 +1195,7 @@ spec:
                     resources:
                       limits:
                         cpu: 500m
-                        memory: 256Mi
+                        memory: 5Gi
                       requests:
                         cpu: 100m
                         memory: 64Mi
@@ -1406,4 +1425,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.40.0-378.next
+  version: 7.40.0-383.next

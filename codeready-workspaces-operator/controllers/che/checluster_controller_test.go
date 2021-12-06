@@ -106,11 +106,11 @@ func TestNativeUserModeEnabled(t *testing.T) {
 			expectedNativeUserValue: pointer.BoolPtr(true),
 		},
 		{
-			name:                    "codeready-operator should not modify nativeUserMode when not on openshift",
+			name:                    "codeready-operator should use nativeUserMode when devworkspaces on kubernetes and no initial value in CR for nativeUserMode",
 			isOpenshift:             false,
 			devworkspaceEnabled:     true,
 			initialNativeUserValue:  nil,
-			expectedNativeUserValue: nil,
+			expectedNativeUserValue: pointer.BoolPtr(true),
 		},
 		{
 			name:                    "codeready-operator not modify nativeUserMode when devworkspace not enabled",
@@ -799,49 +799,24 @@ func TestShouldDelegatePermissionsForCheWorkspaces(t *testing.T) {
 				t.Fatalf("Error reconciling: %v", err)
 			}
 
-			if !testCase.clusterRole {
-				viewRole := &rbac.Role{}
-				if err := r.client.Get(context.TODO(), types.NamespacedName{Name: deploy.ViewRoleName, Namespace: namespace}, viewRole); err != nil {
-					t.Errorf("role '%s' not found", deploy.ViewRoleName)
-				}
-				viewRoleBinding := &rbac.RoleBinding{}
-				if err := r.client.Get(context.TODO(), types.NamespacedName{Name: ViewRoleBindingName, Namespace: namespace}, viewRoleBinding); err != nil {
-					t.Errorf("rolebinding '%s' not found", ViewRoleBindingName)
-				}
+			manageNamespacesClusterRoleName := fmt.Sprintf(CheNamespaceEditorClusterRoleNameTemplate, namespace)
+			cheManageNamespaceClusterRole := &rbac.ClusterRole{}
+			if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: manageNamespacesClusterRoleName}, cheManageNamespaceClusterRole); err != nil {
+				t.Errorf("role '%s' not found", manageNamespacesClusterRoleName)
+			}
+			cheManageNamespaceClusterRoleBinding := &rbac.ClusterRoleBinding{}
+			if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: manageNamespacesClusterRoleName}, cheManageNamespaceClusterRoleBinding); err != nil {
+				t.Errorf("rolebinding '%s' not found", manageNamespacesClusterRoleName)
+			}
 
-				execRole := &rbac.Role{}
-				if err := r.client.Get(context.TODO(), types.NamespacedName{Name: deploy.ExecRoleName, Namespace: namespace}, execRole); err != nil {
-					t.Errorf("role '%s' not found", deploy.ExecRoleName)
-				}
-				execRoleBinding := &rbac.RoleBinding{}
-				if err := r.client.Get(context.TODO(), types.NamespacedName{Name: ExecRoleBindingName, Namespace: namespace}, execRoleBinding); err != nil {
-					t.Errorf("rolebinding '%s' not found", ExecRoleBindingName)
-				}
-
-				editRoleBinding := &rbac.RoleBinding{}
-				if err := r.client.Get(context.TODO(), types.NamespacedName{Name: EditRoleBindingName, Namespace: namespace}, editRoleBinding); err != nil {
-					t.Errorf("rolebinding '%s' not found", EditRoleBindingName)
-				}
-			} else {
-				manageNamespacesClusterRoleName := fmt.Sprintf(CheNamespaceEditorClusterRoleNameTemplate, namespace)
-				cheManageNamespaceClusterRole := &rbac.ClusterRole{}
-				if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: manageNamespacesClusterRoleName}, cheManageNamespaceClusterRole); err != nil {
-					t.Errorf("role '%s' not found", manageNamespacesClusterRoleName)
-				}
-				cheManageNamespaceClusterRoleBinding := &rbac.ClusterRoleBinding{}
-				if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: manageNamespacesClusterRoleName}, cheManageNamespaceClusterRoleBinding); err != nil {
-					t.Errorf("rolebinding '%s' not found", manageNamespacesClusterRoleName)
-				}
-
-				cheWorkspacesClusterRoleName := fmt.Sprintf(CheWorkspacesClusterRoleNameTemplate, namespace)
-				cheWorkspacesClusterRole := &rbac.ClusterRole{}
-				if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: cheWorkspacesClusterRoleName}, cheWorkspacesClusterRole); err != nil {
-					t.Errorf("role '%s' not found", cheWorkspacesClusterRole)
-				}
-				cheWorkspacesClusterRoleBinding := &rbac.ClusterRoleBinding{}
-				if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: cheWorkspacesClusterRoleName}, cheWorkspacesClusterRoleBinding); err != nil {
-					t.Errorf("rolebinding '%s' not found", cheWorkspacesClusterRole)
-				}
+			cheWorkspacesClusterRoleName := fmt.Sprintf(CheWorkspacesClusterRoleNameTemplate, namespace)
+			cheWorkspacesClusterRole := &rbac.ClusterRole{}
+			if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: cheWorkspacesClusterRoleName}, cheWorkspacesClusterRole); err != nil {
+				t.Errorf("role '%s' not found", cheWorkspacesClusterRole)
+			}
+			cheWorkspacesClusterRoleBinding := &rbac.ClusterRoleBinding{}
+			if err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: cheWorkspacesClusterRoleName}, cheWorkspacesClusterRoleBinding); err != nil {
+				t.Errorf("rolebinding '%s' not found", cheWorkspacesClusterRole)
 			}
 		})
 	}
