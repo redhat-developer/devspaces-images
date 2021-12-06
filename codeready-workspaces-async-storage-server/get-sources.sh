@@ -11,7 +11,6 @@ forceBuild=0
 PULL_ASSETS=0
 PUBLISH_ASSETS=0
 DELETE_ASSETS=0
-ASSET_NAME="configbump"
 
 # compute project name from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
@@ -24,7 +23,6 @@ fi
 # compute CSV_VERSION from MIDSTM_BRANCH
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
 if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
-CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/${MIDSTM_BRANCH}/codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml" | yq -r .spec.version)
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -48,7 +46,7 @@ function log()
 }
 
 if [[ ${forceBuild} -eq 1 ]] || [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
-	echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	echo "[INFO] #0 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true
 	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile

@@ -19,7 +19,7 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPSTM_NAME="workspace-data-sync"
-MIDSTM_NAME="async-server"
+MIDSTM_NAME="async-storage-server"
 
 usage () {
     echo "
