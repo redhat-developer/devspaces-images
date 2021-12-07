@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020 Red Hat, Inc.
+# Copyright (c) 2019-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -7,9 +7,8 @@
 # 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8/ubi-minimal:8.3-230
+FROM ubi8-minimal:8.5-204
 
-ADD content_sets_centos8.repo /etc/yum.repos.d/
 COPY  entrypoint.sh /usr/local/bin
 
 RUN mkdir /etc/ssh /var/run/sshd /.ssh \
@@ -35,10 +34,10 @@ RUN mkdir /etc/ssh /var/run/sshd /.ssh \
 COPY sshd_config /etc/ssh/sshd_config
 EXPOSE 2222
 ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
-ENV SUMMARY="Red Hat CodeReady Workspaces async-server container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces async-server container" \
+ENV SUMMARY="Red Hat CodeReady Workspaces async-storage-server container" \
+    DESCRIPTION="Red Hat CodeReady Workspaces async-storage-server container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="async-server-rhel8"
+    COMPNAME="async-storage-server-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
       io.k8s.description="$DESCRIPTION" \

@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020 Red Hat, Inc.
+# Copyright (c) 2019-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -7,7 +7,7 @@
 # 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.redhat.io/ubi8/ubi-minimal:8.3-230
+FROM registry.redhat.io/ubi8-minimal:8.5-204
 
 ADD content_sets_centos8.repo /etc/yum.repos.d/
 COPY  entrypoint.sh /usr/local/bin

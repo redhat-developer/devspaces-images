@@ -50,10 +50,10 @@ echo ".github/
 .git/
 .gitattributes
 build/scripts/sync.sh
+dockerfiles/sidecar/*
 container.yaml
 content_sets.yaml
 cvp-owners.yml
-get-sources.sh
 /README.md
 /release.sh
 " > /tmp/rsync-excludes
