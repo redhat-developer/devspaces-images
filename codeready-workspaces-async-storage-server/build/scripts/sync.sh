@@ -50,7 +50,7 @@ echo ".github/
 .git/
 .gitattributes
 build/scripts/sync.sh
-dockerfiles/sidecar/*
+dockerfiles/sidecar*
 container.yaml
 content_sets.yaml
 cvp-owners.yml
