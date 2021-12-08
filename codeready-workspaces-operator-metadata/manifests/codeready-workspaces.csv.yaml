@@ -126,7 +126,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-operator/
     support: Red Hat
-  name: crwoperator.v2.13.0
+  name: crwoperator.v2.13.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1094,7 +1094,7 @@ spec:
                       - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                         value: ca-certs
                       - name: CHE_VERSION
-                        value: 2.13.0
+                        value: 2.13.1
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: CodeReady Workspaces
                       - name: CONSOLE_LINK_IMAGE
@@ -1502,5 +1502,5 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.13.0
-  replaces: crwoperator.v2.12.1
+  version: 2.13.1
+  replaces: crwoperator.v2.13.0
