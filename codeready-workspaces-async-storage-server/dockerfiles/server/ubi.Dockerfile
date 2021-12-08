@@ -30,8 +30,8 @@ RUN mkdir /etc/ssh /var/run/sshd /.ssh \
     && chmod 0550 /.ssh \
     && chmod 0777 /.ssh/known_hosts \
     && sed -i s/root:!/"root:*"/g /etc/shadow \
-    && chmod +x /usr/local/bin/entrypoint.sh
+    && chmod +x ./entrypoint.sh
 
 COPY sshd_config /etc/ssh/sshd_config
 EXPOSE 2222
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
+ENTRYPOINT [ "dockerfiles/server/entrypoint.sh" ]
