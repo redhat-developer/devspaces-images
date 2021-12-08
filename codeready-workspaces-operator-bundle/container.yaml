@@ -29,7 +29,8 @@ operator_manifests:
         crw-2-rhel8-operator-package: rh-osbs/codeready-workspaces-operator
     - registry: registry.redhat.io
       package_mappings:
-        codeready-workspaces-operator-package: codeready-workspaces/crw-2-rhel8-operator
+        codeready-workspaces-operator-container: codeready-workspaces/crw-2-rhel8-operator
+        codeready-workspaces-rhel8-operator-container: codeready-workspaces/crw-2-rhel8-operator
         devworkspace-operator-container: devworkspace/devworkspace-rhel8-operator
         jboss-eap-xp3-openj9-11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8
         jboss-eap-xp3-openjdk11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
@@ -48,3 +49,26 @@ operator_manifests:
         ubi8-micro-container: registry.redhat.io/ubi8/ubi-micro
         kube-rbac-proxy-container: openshift4/ose-kube-rbac-proxy
         golang-github-openshift-oauth-proxy-container: openshift4/ose-oauth-proxy
+        codeready-workspaces-backup-rhel8-container: codeready-workspaces/backup-rhel8
+        codeready-workspaces-configbump-rhel8-container: codeready-workspaces/configbump-rhel8
+        codeready-workspaces-dashboard-rhel8-container: codeready-workspaces/dashboard-rhel8
+        codeready-workspaces-devfileregistry-rhel8-container: codeready-workspaces/devfileregistry-rhel8
+        codeready-workspaces-jwtproxy-rhel8-container: codeready-workspaces/jwtproxy-rhel8
+        codeready-workspaces-machineexec-rhel8-container: codeready-workspaces/machineexec-rhel8
+        codeready-workspaces-pluginbroker-artifacts-rhel8-container: codeready-workspaces/pluginbroker-artifacts-rhel8
+        codeready-workspaces-pluginbroker-metadata-rhel8-container: codeready-workspaces/pluginbroker-metadata-rhel8
+        codeready-workspaces-pluginregistry-rhel8-container: codeready-workspaces/pluginregistry-rhel8
+        codeready-workspaces-plugin-java8-openj9-rhel8-container: codeready-workspaces/plugin-java8-openj9-rhel8
+        codeready-workspaces-plugin-java8-rhel8-container: codeready-workspaces/plugin-java8-rhel8
+        codeready-workspaces-plugin-java11-openj9-rhel8-container: codeready-workspaces/plugin-java11-openj9-rhel8
+        codeready-workspaces-plugin-java11-rhel8-container: codeready-workspaces/plugin-java11-rhel8
+        codeready-workspaces-plugin-kubernetes-rhel8-container: codeready-workspaces/plugin-kubernetes-rhel8
+        codeready-workspaces-plugin-openshift-rhel8-container: codeready-workspaces/plugin-openshift-rhel8
+        codeready-workspaces-server-rhel8-container: codeready-workspaces/server-rhel8
+        codeready-workspaces-stacks-cpp-rhel8-container: codeready-workspaces/stacks-cpp-rhel8
+        codeready-workspaces-stacks-dotnet-rhel8-container: codeready-workspaces/stacks-dotnet-rhel8
+        codeready-workspaces-stacks-golang-rhel8-container: codeready-workspaces/stacks-golang-rhel8
+        codeready-workspaces-stacks-php-rhel8-container: codeready-workspaces/stacks-php-rhel8
+        codeready-workspaces-theia-endpoint-rhel8-container: codeready-workspaces/theia-endpoint-rhel8
+        codeready-workspaces-theia-rhel8-container: codeready-workspaces/theia-rhel8
+        codeready-workspaces-traefik-rhel8-container: codeready-workspaces/traefik-rhel8
