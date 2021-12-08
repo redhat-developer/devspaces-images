@@ -33,7 +33,7 @@ RUN mkdir /etc/ssh /var/run/sshd /.ssh \
 
 COPY sshd_config /etc/ssh/sshd_config
 EXPOSE 2222
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
+ENTRYPOINT [ "dockerfiles/server/entrypoint.sh" ]
 ENV SUMMARY="Red Hat CodeReady Workspaces async-storage-server container" \
     DESCRIPTION="Red Hat CodeReady Workspaces async-storage-server container" \
     PRODNAME="codeready-workspaces" \
