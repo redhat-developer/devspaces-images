@@ -213,12 +213,13 @@ echo "Generated Dockerfile"
 pushd "${TARGETDIR}"/ >/dev/null || exit
 rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vendor/ version/ go.* *.go
 
-CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
-# transform into Brew-friendly version of CSV
-sed -r -i "${CSVFILE}" \
-  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
-  -e "s@crw-2-rhel8-operator@operator@g" \
-  -e "s@:latest@:${CRW_VERSION}@g"
+# CRW-2543 For CRW 2.13.1 disable this so we get the RHEC images instead of the in-flight OSBS images
+# CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
+# # transform into Brew-friendly version of CSV
+# sed -r -i "${CSVFILE}" \
+#   -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
+#   -e "s@crw-2-rhel8-operator@operator@g" \
+#   -e "s@:latest@:${CRW_VERSION}@g"
 
 # date in CSV will be updated only if there were any changes in CSV
 pushd ${CSVFILE%/*} >/dev/null || exit # targetdir/manifests/

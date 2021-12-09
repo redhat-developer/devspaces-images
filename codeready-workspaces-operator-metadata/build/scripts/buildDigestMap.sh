@@ -78,10 +78,10 @@ for registry in ${REGISTRY_LIST}; do
   REGISTRY_IMAGES=""
   registry="${registry/\@sha256:*/:${TAG}}" # remove possible existing @sha256:... and use current tag instead
   getExternalImagesFromRegistry $registry
-  if [[ ! ${REGISTRY_IMAGES} ]]; then
-    registryalt=$(echo $registry | sed -r -e "s#registry.redhat.io/codeready-workspaces/#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g")
-    getExternalImagesFromRegistry $registryalt
-  fi
+  # if [[ ! ${REGISTRY_IMAGES} ]]; then
+  #   registryalt=$(echo $registry | sed -r -e "s#registry.redhat.io/codeready-workspaces/#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g")
+  #   getExternalImagesFromRegistry $registryalt
+  # fi
   echo "[INFO] ${0##*/} :: Found $(echo "${REGISTRY_IMAGES}" grep -v "Not found" | wc -l) images in registry"
   REGISTRY_IMAGES_ALL="${REGISTRY_IMAGES_ALL} ${REGISTRY_IMAGES}"
 done

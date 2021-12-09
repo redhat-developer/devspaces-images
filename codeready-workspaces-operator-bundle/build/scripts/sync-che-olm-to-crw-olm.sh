@@ -250,7 +250,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|quay.io/eclipse/che-keycloak:.+|${SSO_IMAGE}|" \
 		\
 		`# use internal image for operator, as codeready-workspaces-crw-2-rhel8-operator only exists in RHEC and Quay repos` \
-		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:${CRW_VERSION}#" \
+		`# CRW-2543 For CRW 2.13.1 disable this so we get the RHEC images instead of the in-flight OSBS images -e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:${CRW_VERSION}#"` \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
 		` # CRW-927 set suggested namespace, append cluster-monitoring = true (removed from upstream as not supported in community operators)` \
