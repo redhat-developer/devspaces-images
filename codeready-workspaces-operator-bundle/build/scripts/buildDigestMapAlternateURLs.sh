@@ -13,12 +13,15 @@
 # insert RELATED_IMAGE_ fields for images referenced by the plugin and devfile registries
 
 tmpfile=$(mktemp)
-echo ${image} | sed -r \
-    `# for plugin & devfile registries, use internal Brew versions` \
-    -e "s|registry.redhat.io/codeready-workspaces/(pluginregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\1|g" \
-    -e "s|registry.redhat.io/codeready-workspaces/(devfileregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\1|g" \
-    `# in all other cases (including operator) use published quay images to compute digests` \
-    -e "s|registry.redhat.io/codeready-workspaces/(.+)|quay.io/crw/\\1|g" \
+
+# CRW-2543 For CRW 2.13.1 disable this so we get the RHEC images instead of the in-flight OSBS images
+    # | sed -r \
+    # `# for plugin & devfile registries, use internal Brew versions` \
+    # -e "s|registry.redhat.io/codeready-workspaces/(pluginregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\1|g" \
+    # -e "s|registry.redhat.io/codeready-workspaces/(devfileregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\1|g" \
+    # `# in all other cases (including operator) use published quay images to compute digests` \
+    # -e "s|registry.redhat.io/codeready-workspaces/(.+)|quay.io/crw/\\1|g" \
+echo ${image} \
     > ${tmpfile}
 alt_image=$(cat ${tmpfile})
 rm -f ${tmpfile}
