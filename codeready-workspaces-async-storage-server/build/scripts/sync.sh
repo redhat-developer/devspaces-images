@@ -56,7 +56,7 @@ content_sets.yaml
 get-sources.sh
 cvp-owners.yml
 /README.md
-/release.sh
+release.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
