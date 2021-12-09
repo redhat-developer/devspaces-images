@@ -7,7 +7,7 @@
 # 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.redhat.io/ubi8/ubi8-minimal:8.5-204
+FROM registry.redhat.io/ubi8-minimal:8.5-204
 
 ADD content_sets_centos8.repo /etc/yum.repos.d/
 COPY  dockerfiles/server/entrypoint.sh /usr/local/bin
