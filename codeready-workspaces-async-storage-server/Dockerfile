@@ -9,7 +9,7 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.5-204
 
-COPY  entrypoint.sh /usr/local/bin
+COPY  dockerfiles/server/entrypoint.sh /usr/local/bin
 
 RUN mkdir /etc/ssh /var/run/sshd /.ssh \
     && microdnf update -y \
