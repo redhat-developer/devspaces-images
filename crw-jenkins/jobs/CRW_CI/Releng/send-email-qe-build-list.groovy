@@ -59,9 +59,6 @@ Send an email to QE announcing an ER or RC build, including a list of images.
                     '''<a href=https://issues.redhat.com/issues/?jql=project%20%3D%20CRW%20AND%20issuetype%20%3D%20Epic%20and%20text%20~%20%22overall%20epic%22%20order%20by%20key%20desc>Find an Epic</a>''')
                 textParam("additionalNotes",'''(purpose of this build or respin goes here, if applicable)''',"Stuff to mention before the lists of images")
                 booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
-                if (JOB_BRANCH.equals("2.12")) {
-                    booleanParam("doOSBS",false,'''if checked, include OSBS images in email''')
-                }
                 // # RECIPIENTS - comma and space separated list of recipient email addresses
                 stringParam("RECIPIENTS","codeready-workspaces-qa@redhat.com, che-prod@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")

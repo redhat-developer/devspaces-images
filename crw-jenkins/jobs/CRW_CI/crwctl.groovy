@@ -115,11 +115,6 @@ if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
 * push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
 * for GA suffix, push to RCM automatically (and copy to Github)
 ''')
-
-                if (JOB_BRANCH.equals("2.12")) {
-                    booleanParam("PUBLISH_ARTIFACTS_TO_GITHUB", false, "default false; check box to publish to GH releases")
-                    booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")
-                }
             }
 
             // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

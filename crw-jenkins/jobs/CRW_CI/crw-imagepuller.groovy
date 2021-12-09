@@ -101,11 +101,7 @@ Artifact builder + sync job; triggers brew after syncing
             definition {
                 cps{
                     sandbox(true)
-                    if (JOB_BRANCH.equals("2.12")) {
-                        script(readFileFromWorkspace('jobs/CRW_CI/crw-imagepuller_'+JOB_BRANCH+'.jenkinsfile'))
-                    } else {
-                        script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
-                    }
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
                 }
             }
         }
