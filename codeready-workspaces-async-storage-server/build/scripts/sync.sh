@@ -53,6 +53,7 @@ build/scripts/sync.sh
 dockerfiles/sidecar*
 container.yaml
 content_sets.yaml
+get-sources.sh
 cvp-owners.yml
 /README.md
 /release.sh
@@ -68,6 +69,10 @@ find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 sed -r "${SOURCEDIR}/dockerfiles/server/ubi.Dockerfile" \
     `# Strip registry from image references` \
     -e 's|FROM registry.redhat.io/|FROM |' \
+    `# remove .repo includes` \
+    -e 's|^(COPY content_set)|# \1|' \
+    `# fix references to copied files` \
+    -e 's|^COPY (entrypoint.sh\|sshd_config)|COPY dockerfiles/server/\1|' \
   > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
