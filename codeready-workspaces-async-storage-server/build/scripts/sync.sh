@@ -48,6 +48,7 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 # ignore changes in these files
 echo ".github/
 .git/
+.gitignore
 .gitattributes
 build/scripts/sync.sh
 dockerfiles/sidecar*
