@@ -155,7 +155,10 @@ describe('FactoryResolver store', () => {
           isAxiosError: true,
           code: '401',
           response: {
+            headers: {},
             status: 401,
+            statusText: 'Unauthorized',
+            config: {},
             data: {
               attributes: {
                 oauth_provider: 'oauth_provider',

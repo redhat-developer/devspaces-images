@@ -5,10 +5,12 @@
 | [`@babel/runtime@7.15.4`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@devfile/api@2.2.0-alpha-1633545768`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | `@eclipse-che/api@7.36.0` | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/che-code-devworkspace-handler@1.63.0-dev-2c23dcf`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | N/A |
 | [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1637592995`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/common@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-backend@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-frontend@7.37.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
+| [`@eclipse-che/devfile-converter@0.0.1-ba9d381`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | clearlydefined |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@kubernetes/client-node@0.14.3`](https://github.com/kubernetes-client/javascript.git) | Apache-2.0 | clearlydefined |
@@ -223,7 +225,7 @@
 | [`json-schema@0.2.3`](http://github.com/kriszyp/json-schema) | BSD* | #1046 |
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
 | [`json3@3.3.3`](git://github.com/bestiejs/json3.git) | MIT | clearlydefined |
-| [`json5@1.0.1`](git+https://github.com/json5/json5.git) | MIT | [CQ22351](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22351) |
+| [`json5@0.5.1`](https://github.com/aseemk/json5.git) | MIT | #1040 |
 | [`jsonc-parser@3.0.0`](https://github.com/microsoft/node-jsonc-parser) | MIT | clearlydefined |
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
 | [`jsonpath-plus@0.19.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
@@ -394,7 +396,7 @@
 | [`uri-js@4.4.1`](http://github.com/garycourt/uri-js) | BSD-2-Clause | #1086 |
 | [`url-parse@1.5.3`](https://github.com/unshiftio/url-parse.git) | MIT | clearlydefined |
 | [`util-deprecate@1.0.2`](git://github.com/TooTallNate/util-deprecate.git) | MIT | clearlydefined |
-| [`uuid@7.0.3`](https://github.com/uuidjs/uuid.git) | MIT | #57 |
+| [`uuid@3.4.0`](https://github.com/uuidjs/uuid.git) | MIT | clearlydefined |
 | [`value-equal@1.0.1`](https://github.com/mjackson/value-equal.git) | MIT | clearlydefined |
 | [`vary@1.1.2`](https://github.com/jshttp/vary.git) | MIT | clearlydefined |
 | [`verror@1.10.0`](git://github.com/davepacheco/node-verror.git) | MIT | clearlydefined |

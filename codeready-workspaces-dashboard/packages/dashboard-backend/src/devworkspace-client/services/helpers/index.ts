@@ -48,6 +48,11 @@ export function createError(
 ): DevWorkspaceClientError {
   const statusCode: number =
     helpers.errors.isKubeClientError(error) && error.statusCode ? error.statusCode : 500;
+
+  if (error === undefined) {
+    return new DevWorkspaceClientError(`${additionalMessage}.`, name, statusCode);
+  }
+
   const originErrorMessage = helpers.errors.getMessage(error);
 
   return new DevWorkspaceClientError(

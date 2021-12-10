@@ -52,6 +52,8 @@ export function buildFactoryLoaderLocation(url?: string): Location {
       devfilePath = extractUrlParam(fullUrl, 'df');
     }
 
+    // creation policy
+    const newWorkspace = extractUrlParam(fullUrl, 'new');
     const encodedUrl = encodeURIComponent(fullUrl.toString());
 
     // if editor specified, add it as a new parameter
@@ -61,6 +63,9 @@ export function buildFactoryLoaderLocation(url?: string): Location {
     }
     if (devfilePath) {
       pathAndQuery = `${pathAndQuery}&override.devfileFilename=${devfilePath}`;
+    }
+    if (newWorkspace) {
+      pathAndQuery = `${pathAndQuery}&policies.create=perclick`;
     }
   }
   return _buildLocationObject(pathAndQuery);
@@ -72,6 +77,11 @@ function extractUrlParam(fullUrl: URL, paramName: string): string | undefined {
   let value;
   if (param && typeof param === 'string') {
     value = param.slice();
+  } else if (!param) {
+    // boolean parameter
+    if (fullUrl.searchParams.has(paramName)) {
+      value = true;
+    }
   }
   fullUrl.searchParams.delete(paramName);
   return value;

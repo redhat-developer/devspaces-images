@@ -133,6 +133,35 @@ describe('Factory Loader container', () => {
     jest.useRealTimers();
   });
 
+  describe('default policy', () => {
+    const component = FactoryLoaderContainer.WrappedComponent;
+    const emptyProps = {
+      history: {
+        location: 'https://foo.location',
+      },
+    } as any;
+
+    it('default policy in in Che Server mode is perclick', () => {
+      const instance = new component({
+        ...emptyProps,
+        workspacesSettings: {
+          'che.devworkspaces.enabled': 'false',
+        },
+      });
+      expect(instance.state.createPolicy).toBe('perclick');
+    });
+
+    it('default policy in in DevWorkspaces mode is peruser', () => {
+      const instance = new component({
+        ...emptyProps,
+        workspacesSettings: {
+          'che.devworkspaces.enabled': 'true',
+        },
+      });
+      expect(instance.state.createPolicy).toBe('peruser');
+    });
+  });
+
   describe('converting devfiles', () => {
     it('should NOT convert devfile v1 in Che Server mode', async () => {
       const location = 'http://test-location';

@@ -12,6 +12,7 @@
 
 import * as k8s from '@kubernetes/client-node';
 import {
+  IServerConfigApi,
   IDevWorkspaceApi,
   IDevWorkspaceClient,
   IDevWorkspaceTemplateApi,
@@ -22,6 +23,7 @@ import { DevWorkspaceTemplateApi } from './services/api/template-api';
 import { DevWorkspaceApi } from './services/api/workspace-api';
 import { devworkspaceGroup, devworkspaceLatestVersion } from '@devfile/api';
 import { DockerConfigApi } from './services/api/dockerConfigApi';
+import { ServerConfigApi } from './services/api/serverConfigApi';
 
 export * from './types';
 
@@ -32,12 +34,14 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
   private readonly _templateApi: IDevWorkspaceTemplateApi;
   private readonly _devworkspaceApi: IDevWorkspaceApi;
   private readonly _dockerConfigApi: IDockerConfigApi;
+  private readonly _serverConfigApi: IServerConfigApi;
 
   constructor(kc: k8s.KubeConfig) {
     this._templateApi = new DevWorkspaceTemplateApi(kc);
     this._devworkspaceApi = new DevWorkspaceApi(kc);
-    this._apisApi = kc.makeApiClient(k8s.ApisApi);
     this._dockerConfigApi = new DockerConfigApi(kc);
+    this._serverConfigApi = new ServerConfigApi(kc);
+    this._apisApi = kc.makeApiClient(k8s.ApisApi);
   }
 
   get templateApi(): IDevWorkspaceTemplateApi {
@@ -50,6 +54,10 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
 
   get dockerConfigApi(): IDockerConfigApi {
     return this._dockerConfigApi;
+  }
+
+  get serverConfigApi(): IServerConfigApi {
+    return this._serverConfigApi;
   }
 
   async isDevWorkspaceApiEnabled(): Promise<boolean> {

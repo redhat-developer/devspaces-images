@@ -20,3 +20,8 @@ export interface IDockerConfig {
   dockerconfig: string | undefined;
   resourceVersion?: string;
 }
+
+export interface IWorkspacesDefaultPlugins {
+  editor: string;
+  plugins: string[];
+}

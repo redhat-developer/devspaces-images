@@ -44,7 +44,7 @@ export function getMessage(error: unknown): string {
     return `"${statusCode}" returned by "${error.response.url}".`;
   }
 
-  if (isAxiosError(error) && isAxiosResponse(error.response)) {
+  if (includesAxiosResponse(error)) {
     const response = error.response;
     if (response.data.message) {
       return response.data.message;
@@ -88,6 +88,21 @@ export function isAxiosResponse(response: unknown): response is AxiosResponse {
     (response as AxiosResponse).config !== undefined &&
     (response as AxiosResponse).data !== undefined
   );
+}
+
+type ObjectWithAxiosResponse = {
+  response: AxiosResponse;
+};
+export function includesAxiosResponse(
+  obj: unknown,
+): obj is ObjectWithAxiosResponse {
+  if (
+    obj !== undefined &&
+    isAxiosResponse((obj as ObjectWithAxiosResponse).response)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export function isAxiosError(object: unknown): object is AxiosError {

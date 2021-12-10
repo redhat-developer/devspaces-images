@@ -17,6 +17,7 @@ Arguments:
 Env vars:
   KUBECONFIG    : Kubeconfig file location. Default: "$HOME/.kube/config"
   CHE_NAMESPACE : kubernetes namespace where Che Cluster should be looked into. Default: "eclipse-che"
+  CHE_CRD_OBJECT_NAME : kubernetes CRD object name. Default: "eclipse-che"
 Examples:
 $0
 $0 --force-build
@@ -37,6 +38,9 @@ parse_args() {
 FORCE_BUILD="false"
 # Init Che Namespace with the default value if it's not set
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
+
+# Init Che CRD object name with the default value if it's not set
+CHE_CRD_OBJECT_NAME="${CHE_CRD_OBJECT_NAME:-eclipse-che}"
 
 # guide backend to use the current cluster from kubeconfig
 export LOCAL_RUN="true"
