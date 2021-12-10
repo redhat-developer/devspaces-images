@@ -8,7 +8,7 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-IMAGE_AGENT=che-sidecar-workspace-data-sync
+IMAGE_SIDECAR=che-sidecar-workspace-data-sync
 IMAGE_STORAGE=che-workspace-data-sync-storage
 TAG=$1
 ORGANIZATION=$2
@@ -16,7 +16,7 @@ REPOSITORY=$3
 
 function compile() {
   echo "Compile file sync progress watcher binary from source code"
-  $(GOOS=linux go build -o ./dockerfiles/agent/scripts/watcher ./watcher/watcher.go)
+  $(GOOS=linux go build -o ./dockerfiles/sidecar/scripts/watcher ./watcher/watcher.go)
   if [ $? != 0 ]; then
     echo "Failed to compile code"
     exit 0
@@ -25,10 +25,10 @@ function compile() {
 }
 
 function dockerBuild() {
-  printf "Build docker image %s/%s/%s:%s \n" "$REPOSITORY" "$ORGANIZATION" "$IMAGE_AGENT" "$TAG";
-  docker build -t "$REPOSITORY/$ORGANIZATION/$IMAGE_AGENT:$TAG" ./dockerfiles/agent
+  printf "Build docker image %s/%s/%s:%s \n" "$REPOSITORY" "$ORGANIZATION" "$IMAGE_SIDECAR" "$TAG";
+  docker build -t "$REPOSITORY/$ORGANIZATION/$IMAGE_SIDECAR:$TAG" ./dockerfiles/sidecar
   if [ $? != 0 ]; then
-    printf "Failed build docker image %s/%s/%s:%s \n" "$REPOSITORY" "$ORGANIZATION" "$IMAGE_AGENT" "$TAG";
+    printf "Failed build docker image %s/%s/%s:%s \n" "$REPOSITORY" "$ORGANIZATION" "$IMAGE_SIDECAR" "$TAG";
     exit 0
   fi
 

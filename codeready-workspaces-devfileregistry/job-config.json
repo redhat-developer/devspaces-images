@@ -2,21 +2,7 @@
   "Purpose": "To set configurations of jenkins jobs including upstream branches, dependencies and disabled status",
   "Version": 2.15,
   "Jobs": {
-    "async-sidecar": {
-      "2.12": {
-        "upstream_branch": [
-          "7.36.x",
-          "7.35.x"
-        ],
-        "disabled": true
-      },
-      "2.13": {
-        "upstream_branch": [
-          "7.38.x",
-          "7.37.x"
-        ],
-        "disabled": true
-      },
+    "async-storage-sidecar": {
       "2.14": {
         "upstream_branch": [
           "7.40.x",
