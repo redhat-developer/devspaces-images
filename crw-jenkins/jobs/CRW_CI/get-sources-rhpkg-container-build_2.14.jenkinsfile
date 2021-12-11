@@ -1,0 +1,159 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+import groovy.json.JsonSlurper
+
+// PARAMETERS for this pipeline:
+// MIDSTM_BRANCH
+// GIT_PATHs
+// QUAY_REPO_PATHs
+// UPDATE_BASE_IMAGES_FLAGS
+// FLOATING_QUAY_TAGS
+// SCRATCH
+// FORCE_BUILD
+
+@Field String NEW_TAG = ""
+// NOTE: if rpm kerberos/kinit/rhpkg problems reoccur on s390x, see CRW-1933; if rpm install in docker build problems reoccur, see CRW-1958
+// kinit problem on rhel83 - see https://issues.redhat.com/browse/CRW-1919 
+def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+currentBuild.description="Building " + QUAY_REPO_PATHs + "... "
+timeout(240) {
+  node(nodeLabel) { 
+    stage ("Build on ${nodeLabel}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "... "
+        withCredentials([
+            string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+            string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
+            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
+            usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
+        ]) {
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+            def util = load "${WORKSPACE}/util.groovy"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            cleanWs()
+            // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
+            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
+              if (QUAY_REPO_PATHs.contains("theia-dev") || QUAY_REPO_PATHs.contains("dashboard")) { // need make, c++ for node-gyp
+                currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
+                util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
+              } else {
+                currentBuild.description+="install node, yarn;<br/> "
+                util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
+              }
+            }
+
+            util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+            currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
+            try {
+              util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
+              echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
+              retry(2) {
+                sh('''#!/bin/bash -xe
+./rhpkg-container-build.sh ''' + JOB_BRANCH + ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
+                ''')
+              }
+
+              // compute BUILD_RESULT from output of rhpkg-container-build.sh, after BUILD_RESULT=
+              BUILD_RESULT=sh(returnStdout:true,script:'''sed -n '/BUILD_RESULT=/{:loop;n;p;b loop;}' ${WORKSPACE}/rhpkg-container-build.txt''').trim()
+              // compute the new tag (eg., 2.y-zz)
+              NEW_TAG=sh(returnStdout:true,script:'''grep 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
+              // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
+              TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
+              BUILD_DESC=sh(returnStdout:true,script:'''grep 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
+
+              if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
+                currentBuild.result = "UNSTABLE"
+              }
+              if (BUILD_RESULT.indexOf("ERROR")>=0 || BUILD_RESULT.indexOf("FAILURE")>=0 || !TASK_URL?.trim()) {
+                currentBuild.result = "FAILURE"
+              }
+
+              currentBuild.description+=" :: " + BUILD_DESC + " </br/> " + BUILD_RESULT
+
+              // if build has passed, trigger a copy to quay 
+              if (!currentBuild.result.equals("ABORTED") && 
+                  !currentBuild.result.equals("FAILURE") && 
+                  !currentBuild.result.equals("UNSTABLE")) {
+                withCredentials([string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
+                  sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
+                  CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                  CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+                  sh(script: '''#!/bin/bash -xe
+echo "[INFO]: Log into quay.io..."
+echo "${QUAY_TOKEN}" | docker login -u="crw+crwci" --password-stdin quay.io
+
+echo " ########################################### "
+echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
+echo " ########################################### "
+for c in ''' + CONTAINERS.trim() + '''; do
+    d=codeready-workspaces-${c}-rhel8
+    # special case for operator; all other images follow the pattern
+    if [[ $c == "operator" ]] || [[ $c == "operator-"* ]]; then 
+        d=codeready-workspaces-${c}
+    fi 
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+done
+wait
+                      ''', returnStatus: true)
+                  }
+                }
+            } catch (e) {
+              currentBuild.result = "FAILURE"
+              util.notifyBuildFailed()
+              throw e
+          }
+        } // with
+      } // wrap
+
+      CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+      println "########################################################################################################"
+      println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
+      println "########################################################################################################"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+      def util = load "${WORKSPACE}/util.groovy"
+      echo "currentBuild.result = " + currentBuild.result
+      if (!currentBuild.result.equals("ABORTED") && 
+          !currentBuild.result.equals("FAILURE") && 
+          !currentBuild.result.equals("UNSTABLE") && 
+          !SCRATCH.equals("true") && SCRATCH!=true && 
+          QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+        build(
+          job: 'push-latest-container-to-quay_' + JOB_BRANCH,
+          // TODO should these be set to wait and propagate: true?
+          wait: false,
+          propagate: false,
+          parameters: [
+            [
+              $class: 'StringParameterValue',
+              name: 'token',
+              value: "CI_BUILD"
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'cause',
+              value: "push+latest+${CONTAINERS}+to+quay"
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'CONTAINERS',
+              value: CONTAINERS
+            ],
+            [
+              $class: 'StringParameterValue',
+              name: 'FLOATING_QUAY_TAGS',
+              value: FLOATING_QUAY_TAGS
+            ]
+          ]
+        )
+        currentBuild.description+="; copied to quay"
+      } else {
+        println "No changes upstream, nothing to copy to quay!"
+        currentBuild.description+="; no quay copy"
+        currentBuild.result = 'UNSTABLE'
+      } // if
+    } // stage
+  } //node
+} // timeout
