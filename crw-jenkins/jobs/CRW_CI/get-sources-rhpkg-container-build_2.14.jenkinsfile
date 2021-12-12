@@ -14,7 +14,7 @@ import groovy.json.JsonSlurper
 @Field String NEW_TAG = ""
 // NOTE: if rpm kerberos/kinit/rhpkg problems reoccur on s390x, see CRW-1933; if rpm install in docker build problems reoccur, see CRW-1958
 // kinit problem on rhel83 - see https://issues.redhat.com/browse/CRW-1919 
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Building " + QUAY_REPO_PATHs + "... "
 timeout(240) {
   node(nodeLabel) { 

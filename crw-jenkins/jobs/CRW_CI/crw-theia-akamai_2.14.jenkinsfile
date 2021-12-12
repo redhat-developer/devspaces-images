@@ -7,7 +7,7 @@ import groovy.transform.Field
 
 // https://issues.redhat.com/browse/CRW-1011 job to set up cdn / akamai stuff for the theia-rhel8 image
 
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(30) {
     node(nodeLabel) {
         stage("Copy from OSBS to Quay") {

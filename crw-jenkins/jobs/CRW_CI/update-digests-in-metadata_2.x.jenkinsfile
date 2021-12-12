@@ -6,7 +6,7 @@ import groovy.transform.Field
     // MIDSTM_BRANCH
 
 def errorOccurred = false
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
     node(nodeLabel){ 
         try { 

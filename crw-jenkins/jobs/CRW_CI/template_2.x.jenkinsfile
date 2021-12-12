@@ -17,7 +17,7 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8' // TODO when CRW-2081 is resolved, we can add ||x86_64-rhel8' 
+def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {

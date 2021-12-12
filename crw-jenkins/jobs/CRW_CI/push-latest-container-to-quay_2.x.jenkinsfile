@@ -21,7 +21,7 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(90) {
     node(nodeLabel) {
@@ -190,7 +190,7 @@ node(nodeLabel){
         }
 
         // CRW-2095 publish operator-bundle-generated too
-        // TODO remove operator-metadata check after 2.14 when operator-metadata is gone
+        // TODO remove operator-metadata check in 2.15 when operator-metadata is gone
         if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*") || 
             CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
             // https://issues.redhat.com/browse/CRW-1564 if an update to operator-metadata, push new csv content into crw-images repo, 
@@ -206,7 +206,7 @@ node(nodeLabel){
                 util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
 
                 whichBundle="operator-bundle"
-                // TODO remove this after 2.14 when operator-metadata is gone
+                // TODO remove this in 2.15 when operator-metadata is gone
                 if (CONTAINERS.trim().equals("operator-metadata") || CONTAINERS.trim().matches(".*operator-metadata.*")) {
                     whichBundle="operator-metadata"
                 }

@@ -85,14 +85,14 @@ timeout(600) {
 
                     if (PHASE_LIST.contains("3")) {
                         def jobsList = [
-                            "async-storage-server",
-                            "async-storage-sidecar",
-                            "backup",
+                            "async-storage-server",     // @since 2.14
+                            "async-storage-sidecar",    // @since 2.14
+                            "backup",                   // @since 2.12
                             "configbump",
                             "operator", // special case: "crw-2-rhel8-operator"
                             "dashboard",
                             "devfileregistry",
-                            "idea",
+                            "idea",                     // @since 2.11
                             "imagepuller",
                             "jwtproxy",
                             "machineexec",
@@ -110,17 +110,22 @@ timeout(600) {
                             def val="${key}-rhel8" // image name
                             if (key.equals("operator")) { val="crw-2-rhel8-operator" }
                             def currentJobLoc="crw-" + key + "_" + JOB_BRANCH
-                            def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + val, "quay")
-                            tasks[currentJobLoc] = { ->
-                                println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
-                                def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
-                                lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
-                                println ("Started job for " + key + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
-                                if (!util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)) {
-                                    currentBuild.result = 'FAILED'
-                                    util.notifyBuildFailed()
+                            if (!util.checkURL(jenkinsURL + currentJobLoc)) { 
+                                println("[WARNING] No such job " + jenkinsURL + currentJobLoc + " : skip!"); 
+                                    currentBuild.description+="<br/>* SKIP: <a href=${jenkinsPath}${currentJobLoc}>${currentJobLoc}</a>"
+                            } else {
+                                def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + val, "quay")
+                                tasks[currentJobLoc] = { ->
+                                    println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
+                                    def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
+                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                                    println ("Started job for " + key + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
+                                    if (!util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)) {
+                                        currentBuild.result = 'FAILED'
+                                        util.notifyBuildFailed()
+                                    }
+                                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                                 }
-                                currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                             }
                         }
                         // wait in parallel

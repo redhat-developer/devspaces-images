@@ -36,7 +36,7 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 
 def errorOccurred = ""
 
-def nodeLabel = "rhel83||s390x-rhel8||ppc64le-rhel8"
+def nodeLabel = "rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8"
 timeout(90) {
     node("${nodeLabel}"){ 
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
