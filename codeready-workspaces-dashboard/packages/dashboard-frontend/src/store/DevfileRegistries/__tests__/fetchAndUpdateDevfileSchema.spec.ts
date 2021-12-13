@@ -10,11 +10,31 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import getDevfileSchema from '../../DevfileRegistries/getDevfileSchema';
+import fetchAndUpdateDevfileSchema from '../fetchAndUpdateDevfileSchema';
 import { JSONSchema7 } from 'json-schema';
 import { cloneDeep } from 'lodash';
+import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import { IRemoteAPI } from '@eclipse-che/workspace-client';
+import { container } from '../../../inversify.config';
 
 describe('Get devfile schema', () => {
+  const mockGetDevfileSchema = jest.fn();
+
+  beforeEach(() => {
+    class MockCheWorkspaceClient extends CheWorkspaceClient {
+      get restApiClient() {
+        return {
+          getDevfileSchema: async () => mockGetDevfileSchema(),
+        } as IRemoteAPI;
+      }
+    }
+    container.rebind(CheWorkspaceClient).to(MockCheWorkspaceClient).inSingletonScope();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('Should return unmodified schema if the schemaVersion property includes a constant', async () => {
     const schemaWithVersionConst = {
       description: 'Devfile describes the structure...',
@@ -32,12 +52,12 @@ describe('Get devfile schema', () => {
       },
     } as JSONSchema7;
 
-    const targetScheme = await getDevfileSchema(version => {
-      const cloneObj = cloneDeep(schemaWithVersionConst);
-      return Promise.resolve(cloneObj);
-    }, '2.0.0');
+    const mockWorkspaceClient = container.get(CheWorkspaceClient);
+    mockGetDevfileSchema.mockResolvedValueOnce(cloneDeep(schemaWithVersionConst));
 
-    expect(targetScheme).toEqual(schemaWithVersionConst);
+    const targetSchema = await fetchAndUpdateDevfileSchema(mockWorkspaceClient, '2.0.0');
+
+    expect(targetSchema).toEqual(schemaWithVersionConst);
   });
 
   it('Should return modified schema if the schemaVersion property does not include a constant', async () => {
@@ -56,14 +76,14 @@ describe('Get devfile schema', () => {
       },
     } as JSONSchema7;
 
-    const targetScheme = await getDevfileSchema(version => {
-      const cloneObj = cloneDeep(schemaWithoutVersionConst);
-      return Promise.resolve(cloneObj);
-    }, '2.0.0');
+    const mockWorkspaceClient = container.get(CheWorkspaceClient);
+    mockGetDevfileSchema.mockResolvedValueOnce(cloneDeep(schemaWithoutVersionConst));
 
-    expect(targetScheme).not.toEqual(schemaWithoutVersionConst);
+    const targetSchema = await fetchAndUpdateDevfileSchema(mockWorkspaceClient, '2.0.0');
 
-    expect(targetScheme).toEqual({
+    expect(targetSchema).not.toEqual(schemaWithoutVersionConst);
+
+    expect(targetSchema).toEqual({
       description: 'Devfile describes the structure...',
       type: 'object',
       title: 'Devfile schema',

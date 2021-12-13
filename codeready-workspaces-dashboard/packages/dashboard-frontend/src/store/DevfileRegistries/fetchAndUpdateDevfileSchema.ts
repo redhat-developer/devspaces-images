@@ -11,12 +11,13 @@
  */
 
 import { JSONSchema7 } from 'json-schema';
+import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 
-export default async function getDevfileSchema(
-  apiCallback: (schemaVersion: string) => Promise<JSONSchema7>,
+export default async function fetchAndUpdateDevfileSchema(
+  workspaceClient: CheWorkspaceClient,
   schemaVersion: string,
 ): Promise<JSONSchema7> {
-  const schema = await apiCallback(schemaVersion);
+  const schema = await workspaceClient.restApiClient.getDevfileSchema<JSONSchema7>(schemaVersion);
 
   if (
     typeof schema?.properties?.schemaVersion === 'object' &&
