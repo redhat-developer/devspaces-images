@@ -48,9 +48,9 @@ spec:
               name: metrics
           env:
             - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
-              value: "false"
+              value: 'false'
             - name: ALLOW_DEVWORKSPACE_ENGINE
-              value: "true"
+              value: 'true'
             - name: CHE_FLAVOR
               value: codeready
             - name: CHE_IDENTITY_POSTGRES_SECRET
@@ -72,7 +72,7 @@ spec:
             - name: CONSOLE_LINK_SECTION
               value: Red Hat Applications
             - name: MAX_CONCURRENT_RECONCILES
-              value: "1"
+              value: '1'
             - name: OPERATOR_NAME
               value: codeready-operator
             - name: POD_NAME
