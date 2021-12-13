@@ -85,6 +85,13 @@ export interface IDevWorkspaceTemplateApi {
   create(template: V1alpha2DevWorkspaceTemplate): Promise<V1alpha2DevWorkspaceTemplate>;
 }
 
+export interface IServerConfigApi {
+  /**
+   * Get server config from custom resources
+   */
+  getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]>;
+}
+
 export type IDevWorkspaceCallbacks = {
   onModified: (workspace: V1alpha2DevWorkspace) => void;
   onDeleted: (workspaceId: string) => void;
@@ -96,6 +103,7 @@ export interface IDevWorkspaceClient {
   devworkspaceApi: IDevWorkspaceApi;
   templateApi: IDevWorkspaceTemplateApi;
   dockerConfigApi: IDockerConfigApi;
+  serverConfigApi: IServerConfigApi;
   isDevWorkspaceApiEnabled(): Promise<boolean>;
 }
 

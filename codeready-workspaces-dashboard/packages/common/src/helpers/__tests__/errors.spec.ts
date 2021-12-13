@@ -14,7 +14,7 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import { HttpError } from '@kubernetes/client-node';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import * as http from 'http';
-import { getMessage, isError } from '../errors';
+import { getMessage, isAxiosError, isError } from '../errors';
 
 const mockAxios = new AxiosMockAdapter(axios);
 
@@ -33,6 +33,13 @@ describe('Errors helper', () => {
       const error = new Error(message);
       expect(isError(error)).toEqual(true);
       expect(isError(message)).toEqual(false);
+    });
+
+    it('should check if axios error', () => {
+      const message = 'Expected error.';
+      const error = new Error(message) as AxiosError;
+      error.isAxiosError = true;
+      expect(isAxiosError(error)).toEqual(true);
     });
   });
 
@@ -63,7 +70,7 @@ describe('Errors helper', () => {
   });
 
   describe('Frontend errors', () => {
-    it('should return error message if server responds with error', async done => {
+    it('should return error message if server responds with error #1', async done => {
       const message = '"500 Internal Server Error" returned by "/location/".';
 
       mockAxios.onGet('/location/').replyOnce(() => {
@@ -84,7 +91,7 @@ describe('Errors helper', () => {
       }
     });
 
-    it('should return error message if server responds with error', async done => {
+    it('should return error message if server responds with error #2', async done => {
       const message = 'The server failed to fulfill a request';
 
       mockAxios.onGet('/location/').replyOnce(() => {
@@ -99,6 +106,28 @@ describe('Errors helper', () => {
         // provide `statusText` to the response because mocking library cannot do that
         (err.response as AxiosResponse<unknown>).statusText =
           'Internal Server Error';
+
+        expect(getMessage(err)).toEqual(message);
+        done();
+      }
+    });
+
+    it('should return error message if server responds with error #3', async done => {
+      const message = '"500 Internal Server Error".';
+
+      mockAxios.onGet('/location/').replyOnce(() => {
+        return [500, {}, {}];
+      });
+
+      try {
+        await axios.get('/location/');
+        done.fail();
+      } catch (e) {
+        const err = e as AxiosError;
+        // provide `statusText` to the response because mocking library cannot do that
+        (err.response as AxiosResponse<unknown>).statusText =
+          'Internal Server Error';
+        delete err.config.url;
 
         expect(getMessage(err)).toEqual(message);
         done();

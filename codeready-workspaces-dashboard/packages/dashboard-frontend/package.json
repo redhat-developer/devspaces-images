@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.37.0-SNAPSHOT",
+  "version": "7.40.2-SNAPSHOT",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1637592995",
+    "@eclipse-che/devfile-converter": "0.0.1-69851f8",
     "@eclipse-che/workspace-client": "0.0.1-1632305737",
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",

@@ -67,38 +67,4 @@ export function registerTemplateApi(server: FastifyInstance) {
       return templateApi.patch(namespace, templateName, patch);
     },
   );
-
-  server.get(
-    `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
-    getSchema({
-      tags,
-      params: namespacedTemplateSchema,
-    }),
-    async function (request: FastifyRequest) {
-      const { namespace, templateName } = request.params as restParams.INamespacedTemplateParam;
-      const { templateApi } = await getDevWorkspaceClient(request);
-      return templateApi.getByName(namespace, templateName);
-    },
-  );
-
-  server.delete(
-    `${baseApiPath}/namespace/:namespace/devworkspacetemplates/:templateName`,
-    getSchema({
-      tags,
-      params: namespacedTemplateSchema,
-      response: {
-        204: {
-          description: 'The Template successfully deleted',
-          type: 'null',
-        },
-      },
-    }),
-    async function (request: FastifyRequest, reply: FastifyReply) {
-      const { namespace, templateName } = request.params as restParams.INamespacedTemplateParam;
-      const { devworkspaceApi } = await getDevWorkspaceClient(request);
-      await devworkspaceApi.delete(namespace, templateName);
-      reply.code(204);
-      return reply.send();
-    },
-  );
 }

@@ -325,6 +325,17 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@devfile/api@2.2.0-alpha-1637255314":
+  version "2.2.0-alpha-1637255314"
+  resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.0-alpha-1637255314.tgz#f2c628a61f18aecef3c0bcdc01e88faf4c4b287c"
+  integrity sha512-wlSk0iKbWXO6JAl5GIy6dpy91OoE/aHohzqUPXXbWaOsvWgjvQrWF8jcZl9UUnRKkhReMlaQOydMj6vkBu2Dyw==
+  dependencies:
+    "@types/bluebird" "3.5.21"
+    "@types/request" "*"
+    bluebird "^3.5.0"
+    request "^2.81.0"
+    rewire "^3.0.2"
+
 "@devfile/api@^2.2.0-alpha-1633545768", "@devfile/api@latest":
   version "2.2.0-alpha-1633545768"
   resolved "https://registry.yarnpkg.com/@devfile/api/-/api-2.2.0-alpha-1633545768.tgz#8bab3becdeec62565f39ac8f6690d73603ce12da"
@@ -341,6 +352,11 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.36.0.tgz#db8774cbf688df140631c0e60107bef36c194fb1"
   integrity sha512-ephKJ3rDG53CdhfWHZ5byR2MRnTlbKObOph4+aNH9DO+rI44GTX2f9U2DjwQmHCAyGEXJkT1DdRum6C6ZbfCKA==
 
+"@eclipse-che/api@^7.39.2":
+  version "7.39.2"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.39.2.tgz#a49d8a56345cbb52da7829652ffcad612e5f0391"
+  integrity sha512-13zSFY4+YjYBQOzQTXE71fAX37HMQm/3rkMHN8c7Ejg1UF8ILXwC3Z28xzlMv4kSxtecn0/frqbwoZN8wRjc/g==
+
 "@eclipse-che/che-theia-devworkspace-handler@0.0.1-1637592995":
   version "0.0.1-1637592995"
   resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1637592995.tgz#cc584fa11b06dc19f9c5b33d33334d29abd07a1e"
@@ -350,6 +366,18 @@
     axios "0.21.2"
     fs-extra "^9.1.0"
     inversify "^5.0.1"
+    js-yaml "^4.0.0"
+    jsonc-parser "^3.0.0"
+    reflect-metadata "^0.1.13"
+
+"@eclipse-che/devfile-converter@0.0.1-69851f8":
+  version "0.0.1-69851f8"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/devfile-converter/-/devfile-converter-0.0.1-69851f8.tgz#6ef4e94d20a7263a065b39b5c8dec0ed758d9c2f"
+  integrity sha512-KmcZ6wrJYs3vtcLXYXoaw1/qtkEyNHD8XjprqHiK2NhW6+NY/pdisg1od22ACd4jPIbC9PPgZZ+e79L36VqUUA==
+  dependencies:
+    "@devfile/api" "2.2.0-alpha-1637255314"
+    "@eclipse-che/api" "^7.39.2"
+    inversify "^6.0.0"
     js-yaml "^4.0.0"
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
@@ -7380,6 +7408,11 @@ inversify@^5.0.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/inversify/-/inversify-5.1.1.tgz#6fbd668c591337404e005a1946bfe0d802c08730"
   integrity sha512-j8grHGDzv1v+8T1sAQ+3boTCntFPfvxLCkNcxB1J8qA0lUN+fAlSyYd+RXKvaPRL4AGyPxViutBEJHNXOyUdFQ==
+
+inversify@^6.0.0:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/inversify/-/inversify-6.0.1.tgz#b20d35425d5d8c5cd156120237aad0008d969f02"
+  integrity sha512-B3ex30927698TJENHR++8FfEaJGqoWOgI6ZY5Ht/nLUsFCwHn6akbwtnUAPCgUepAnTpe2qHxhDNjoKLyz6rgQ==
 
 ip-regex@^2.1.0:
   version "2.1.0"

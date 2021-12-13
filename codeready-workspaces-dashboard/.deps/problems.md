@@ -10,5 +10,4 @@
 1. `fsevents@2.3.2`
 2. `jsdom@16.7.0`
 3. `node-notifier@8.0.2`
-4. `prettier@2.4.1`
-5. `tslint@5.9.1`
+4. `tslint@5.9.1`

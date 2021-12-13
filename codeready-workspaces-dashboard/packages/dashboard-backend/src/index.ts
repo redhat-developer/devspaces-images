@@ -25,6 +25,7 @@ import { isLocalRun } from './local-run';
 import { registerClusterInfo } from './api/clusterInfo';
 import { CLUSTER_CONSOLE_URL } from './devworkspace-client/services/cluster-info';
 import { registerDockerConfigApi } from './api/dockerConfigApi';
+import { registerServerConfigApi } from './api/serverConfigApi';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 
@@ -66,6 +67,8 @@ registerDevworkspaceWebsocketWatcher(server);
 registerTemplateApi(server);
 
 registerDockerConfigApi(server);
+
+registerServerConfigApi(server);
 
 if (CLUSTER_CONSOLE_URL) {
   registerClusterInfo(server);
