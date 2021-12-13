@@ -12,6 +12,7 @@
 package postgres
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -26,6 +27,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -54,7 +57,6 @@ func TestDeploymentSpec(t *testing.T) {
 			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
-					Name:      "eclipse-che",
 				},
 			},
 		},
@@ -68,7 +70,6 @@ func TestDeploymentSpec(t *testing.T) {
 			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
-					Name:      "eclipse-che",
 				},
 				Spec: orgv1.CheClusterSpec{
 					Database: orgv1.CheClusterSpecDB{
@@ -91,12 +92,25 @@ func TestDeploymentSpec(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
+			orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+			testCase.initObjects = append(testCase.initObjects)
+			cli := fake.NewFakeClientWithScheme(scheme.Scheme, testCase.initObjects...)
 
-			ctx := deploy.GetTestDeployContext(testCase.cheCluster, []runtime.Object{})
-			postgres := NewPostgresReconciler()
+			deployContext := &deploy.DeployContext{
+				CheCluster: testCase.cheCluster,
+				ClusterAPI: deploy.ClusterAPI{
+					Client: cli,
+					Scheme: scheme.Scheme,
+				},
+				Proxy: &deploy.Proxy{},
+			}
 
-			deployment, err := postgres.getDeploymentSpec(nil, ctx)
-			assert.Nil(t, err)
+			postgres := NewPostgres(deployContext)
+			deployment, err := postgres.GetDeploymentSpec(nil)
+			if err != nil {
+				t.Fatalf("Error creating deployment: %v", err)
+			}
+
 			util.CompareResources(deployment,
 				util.TestExpectedResources{
 					MemoryLimit:   testCase.memoryLimit,
@@ -111,18 +125,47 @@ func TestDeploymentSpec(t *testing.T) {
 	}
 }
 
-func TestPostgresReconcile(t *testing.T) {
-	util.IsOpenShift = true
-	ctx := deploy.GetTestDeployContext(nil, []runtime.Object{})
+func TestSyncAllToCluster(t *testing.T) {
+	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+	corev1.SchemeBuilder.AddToScheme(scheme.Scheme)
+	cli := fake.NewFakeClientWithScheme(scheme.Scheme)
+	deployContext := &deploy.DeployContext{
+		CheCluster: &orgv1.CheCluster{
+			ObjectMeta: metav1.ObjectMeta{
+				Namespace: "eclipse-che",
+				Name:      "eclipse-che",
+			},
+		},
+		ClusterAPI: deploy.ClusterAPI{
+			Client:           cli,
+			NonCachingClient: cli,
+			Scheme:           scheme.Scheme,
+		},
+	}
 
-	postgres := NewPostgresReconciler()
-	_, done, err := postgres.Reconcile(ctx)
-	assert.True(t, done)
-	assert.Nil(t, err)
+	postgres := NewPostgres(deployContext)
+	done, err := postgres.SyncAll()
+	if !done || err != nil {
+		t.Fatalf("Failed to sync PostgreSQL: %v", err)
+	}
 
-	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: "postgres", Namespace: "eclipse-che"}, &corev1.Service{}))
-	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: "postgres-data", Namespace: "eclipse-che"}, &corev1.PersistentVolumeClaim{}))
-	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: "postgres", Namespace: "eclipse-che"}, &appsv1.Deployment{}))
+	service := &corev1.Service{}
+	err = cli.Get(context.TODO(), types.NamespacedName{Name: deploy.PostgresName, Namespace: "eclipse-che"}, service)
+	if err != nil {
+		t.Fatalf("Failed to get service: %v", err)
+	}
+
+	pvc := &corev1.PersistentVolumeClaim{}
+	err = cli.Get(context.TODO(), types.NamespacedName{Name: deploy.DefaultPostgresVolumeClaimName, Namespace: "eclipse-che"}, pvc)
+	if err != nil {
+		t.Fatalf("Failed to get pvc: %v", err)
+	}
+
+	deployment := &appsv1.Deployment{}
+	err = cli.Get(context.TODO(), types.NamespacedName{Name: deploy.PostgresName, Namespace: "eclipse-che"}, deployment)
+	if err != nil {
+		t.Fatalf("Failed to get deployment: %v", err)
+	}
 }
 
 func TestGetPostgresImage(t *testing.T) {

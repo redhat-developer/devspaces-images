@@ -15,7 +15,6 @@ package dashboard
 import (
 	"fmt"
 
-	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/util"
 
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -60,10 +59,10 @@ func GetPrivilegedPoliciesRulesForKubernetes() []rbacv1.PolicyRule {
 	return rules
 }
 
-func (d *DashboardReconciler) getClusterRoleName(ctx *deploy.DeployContext) string {
-	return fmt.Sprintf(DashboardSAClusterRoleTemplate, ctx.CheCluster.Namespace)
+func (d *Dashboard) getClusterRoleName() string {
+	return fmt.Sprintf(DashboardSAClusterRoleTemplate, d.deployContext.CheCluster.Namespace)
 }
 
-func (d *DashboardReconciler) getClusterRoleBindingName(ctx *deploy.DeployContext) string {
-	return fmt.Sprintf(DashboardSAClusterRoleBindingTemplate, ctx.CheCluster.Namespace)
+func (d *Dashboard) getClusterRoleBindingName() string {
+	return fmt.Sprintf(DashboardSAClusterRoleBindingTemplate, d.deployContext.CheCluster.Namespace)
 }

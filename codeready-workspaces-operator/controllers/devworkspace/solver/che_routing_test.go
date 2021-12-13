@@ -267,7 +267,9 @@ func TestCreateRelocatedObjectsK8S(t *testing.T) {
 		cms := &corev1.ConfigMapList{}
 		cl.List(context.TODO(), cms)
 
-		assert.Len(t, cms.Items, 2)
+		if len(cms.Items) != 2 {
+			t.Errorf("there should be 2 configmaps created for the gateway config of the workspace but there were: %d", len(cms.Items))
+		}
 
 		var workspaceMainCfg *corev1.ConfigMap
 		var workspaceCfg *corev1.ConfigMap
@@ -280,73 +282,58 @@ func TestCreateRelocatedObjectsK8S(t *testing.T) {
 			}
 		}
 
-		assert.NotNil(t, workspaceMainCfg)
+		if workspaceMainCfg == nil {
+			t.Fatalf("traefik configuration for the workspace not found")
+		}
 
 		traefikMainWorkspaceConfig := workspaceMainCfg.Data["wsid.yml"]
-		assert.NotEmpty(t, traefikMainWorkspaceConfig)
+
+		if len(traefikMainWorkspaceConfig) == 0 {
+			t.Fatal("No traefik config file found in the main workspace config configmap")
+		}
 
 		traefikWorkspaceConfig := workspaceCfg.Data["workspace.yml"]
-		assert.NotEmpty(t, traefikWorkspaceConfig)
+		if len(traefikWorkspaceConfig) == 0 {
+			t.Fatal("No traefik config file found in the workspace config configmap")
+		}
 
 		workspaceConfig := gateway.TraefikConfig{}
-		assert.NoError(t, yaml.Unmarshal([]byte(traefikWorkspaceConfig), &workspaceConfig))
-		assert.Len(t, workspaceConfig.HTTP.Routers, 2)
+		if err := yaml.Unmarshal([]byte(traefikWorkspaceConfig), &workspaceConfig); err != nil {
+			t.Fatal(err)
+		}
+
+		if len(workspaceConfig.HTTP.Routers) != 1 {
+			t.Fatalf("Expected 1 traefik router but got %d", len(workspaceConfig.HTTP.Routers))
+		}
 
 		wsid := "wsid-m1-9999"
-		assert.Contains(t, workspaceConfig.HTTP.Routers, wsid)
-		assert.Len(t, workspaceConfig.HTTP.Routers[wsid].Middlewares, 2)
-		assert.Len(t, workspaceConfig.HTTP.Middlewares, 3)
+		if _, ok := workspaceConfig.HTTP.Routers[wsid]; !ok {
+			t.Fatal("traefik config doesn't contain expected workspace configuration")
+		}
+
+		if len(workspaceConfig.HTTP.Routers[wsid].Middlewares) != 1 {
+			t.Fatalf("Expected 1 middlewares in router but got '%d'", len(workspaceConfig.HTTP.Routers[wsid].Middlewares))
+		}
+
+		if len(workspaceConfig.HTTP.Middlewares) != 1 {
+			t.Fatalf("Expected 1 middlewares set but got '%d'", len(workspaceConfig.HTTP.Middlewares))
+		}
 
 		mwares := []string{wsid + gateway.StripPrefixMiddlewareSuffix}
 		for _, mware := range mwares {
-			assert.Contains(t, workspaceConfig.HTTP.Middlewares, mware)
+			if _, ok := workspaceConfig.HTTP.Middlewares[mware]; !ok {
+				t.Fatalf("traefik config doesn't set middleware '%s'", mware)
+			}
 			found := false
 			for _, r := range workspaceConfig.HTTP.Routers[wsid].Middlewares {
 				if r == mware {
 					found = true
 				}
 			}
-			assert.True(t, found)
-		}
-
-		workspaceMainConfig := gateway.TraefikConfig{}
-		assert.NoError(t, yaml.Unmarshal([]byte(traefikMainWorkspaceConfig), &workspaceMainConfig))
-		assert.Len(t, workspaceMainConfig.HTTP.Middlewares, 2)
-
-		wsid = "wsid"
-		mwares = []string{
-			wsid + gateway.AuthMiddlewareSuffix,
-			wsid + gateway.StripPrefixMiddlewareSuffix}
-		for _, mware := range mwares {
-			assert.Contains(t, workspaceMainConfig.HTTP.Middlewares, mware)
-
-			found := false
-			for _, r := range workspaceMainConfig.HTTP.Routers[wsid].Middlewares {
-				if r == mware {
-					found = true
-				}
+			if !found {
+				t.Fatalf("traefik config route doesn't set middleware '%s'", mware)
 			}
-			assert.Truef(t, found, "traefik config route doesn't set middleware '%s'", mware)
 		}
-
-		t.Run("testHealthzEndpointInMainWorkspaceRoute", func(t *testing.T) {
-			healthzName := "9999-healthz"
-			assert.Contains(t, workspaceMainConfig.HTTP.Routers, healthzName)
-			assert.Equal(t, workspaceMainConfig.HTTP.Routers[healthzName].Service, wsid)
-			assert.Equal(t, workspaceMainConfig.HTTP.Routers[healthzName].Rule, "Path(`/wsid/m1/9999/healthz`)")
-			assert.NotContains(t, workspaceMainConfig.HTTP.Routers[healthzName].Middlewares, "wsid"+gateway.AuthMiddlewareSuffix)
-			assert.Contains(t, workspaceMainConfig.HTTP.Routers[healthzName].Middlewares, "wsid"+gateway.StripPrefixMiddlewareSuffix)
-			assert.NotContains(t, workspaceMainConfig.HTTP.Routers[healthzName].Middlewares, "wsid"+gateway.HeaderRewriteMiddlewareSuffix)
-		})
-
-		t.Run("testHealthzEndpointInWorkspaceRoute", func(t *testing.T) {
-			healthzName := "wsid-m1-9999-healthz"
-			assert.Contains(t, workspaceConfig.HTTP.Routers, healthzName)
-			assert.Equal(t, workspaceConfig.HTTP.Routers[healthzName].Service, healthzName)
-			assert.Equal(t, workspaceConfig.HTTP.Routers[healthzName].Rule, "Path(`/m1/9999/healthz`)")
-			assert.NotContains(t, workspaceConfig.HTTP.Routers[healthzName].Middlewares, healthzName+gateway.AuthMiddlewareSuffix)
-			assert.Contains(t, workspaceConfig.HTTP.Routers[healthzName].Middlewares, healthzName+gateway.StripPrefixMiddlewareSuffix)
-		})
 
 	})
 }

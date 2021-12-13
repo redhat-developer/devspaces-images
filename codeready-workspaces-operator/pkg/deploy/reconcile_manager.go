@@ -12,6 +12,9 @@
 package deploy
 
 import (
+	"reflect"
+	"runtime"
+
 	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -68,7 +71,7 @@ func (manager *ReconcileManager) FinalizeAll(ctx *DeployContext) {
 	for _, reconciler := range manager.reconcilers {
 		err := reconciler.Finalize(ctx)
 		if err != nil {
-			reconcilerName := GetObjectType(reconciler)
+			reconcilerName := runtime.FuncForPC(reflect.ValueOf(reconciler).Pointer()).Name()
 			logrus.Errorf("Finalization failed for reconciler: `%s`, cause: %v", reconcilerName, err)
 		}
 	}

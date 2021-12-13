@@ -86,7 +86,6 @@ func TestReconcileDevWorkspace(t *testing.T) {
 					},
 					Server: orgv1.CheClusterSpecServer{
 						ServerExposureStrategy: "multi-host",
-						CustomCheProperties:    map[string]string{"CHE_INFRA_KUBERNETES_ENABLE__UNSUPPORTED__K8S": "true"},
 					},
 					K8s: orgv1.CheClusterSpecK8SOnly{
 						IngressDomain: "che.domain",
@@ -111,7 +110,6 @@ func TestReconcileDevWorkspace(t *testing.T) {
 					},
 					Server: orgv1.CheClusterSpecServer{
 						ServerExposureStrategy: "single-host",
-						CustomCheProperties:    map[string]string{"CHE_INFRA_KUBERNETES_ENABLE__UNSUPPORTED__K8S": "true"},
 					},
 					K8s: orgv1.CheClusterSpecK8SOnly{
 						IngressDomain: "che.domain",
@@ -138,8 +136,7 @@ func TestReconcileDevWorkspace(t *testing.T) {
 			err := os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 			assert.NoError(t, err)
 
-			devWorkspaceReconciler := NewDevWorkspaceReconciler()
-			_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+			done, err := ReconcileDevWorkspace(deployContext)
 			assert.NoError(t, err, "Reconcile failed")
 			assert.True(t, done, "Dev Workspace operator has not been provisioned")
 		})
@@ -166,10 +163,9 @@ func TestShouldNotReconcileDevWorkspaceIfForbidden(t *testing.T) {
 	err := os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "false")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+	reconciled, err := ReconcileDevWorkspace(deployContext)
 
-	assert.False(t, done, "DevWorkspace should not be reconciled")
+	assert.False(t, reconciled, "DevWorkspace should not be reconciled")
 	assert.NotNil(t, err, "Error expected")
 	assert.True(t, strings.Contains(err.Error(), "deploy CodeReady Workspaces from tech-preview channel"), "Unrecognized error occurred %v", err)
 }
@@ -205,11 +201,10 @@ func TestShouldReconcileDevWorkspaceIfDevWorkspaceDeploymentExists(t *testing.T)
 	err := os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "false")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+	reconciled, err := ReconcileDevWorkspace(deployContext)
 
 	assert.Nil(t, err, "Reconciliation error occurred %v", err)
-	assert.True(t, done, "DevWorkspace should be reconciled.")
+	assert.True(t, reconciled, "DevWorkspace should be reconciled.")
 }
 
 func TestReconcileWhenWebTerminalSubscriptionExists(t *testing.T) {
@@ -246,11 +241,9 @@ func TestReconcileWhenWebTerminalSubscriptionExists(t *testing.T) {
 	err := os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
-
+	isDone, err := ReconcileDevWorkspace(deployContext)
 	assert.NoError(t, err)
-	assert.True(t, done)
+	assert.True(t, isDone)
 
 	// verify that DWO is not provisioned
 	namespace := &corev1.Namespace{}
@@ -297,10 +290,9 @@ func TestReconcileDevWorkspaceCheckIfCSVExists(t *testing.T) {
 	err = os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+	reconciled, _ := ReconcileDevWorkspace(deployContext)
 
-	assert.True(t, done, "Reconcile is not triggered")
+	assert.True(t, reconciled, "Reconcile is not triggered")
 
 	// Get Devworkspace namespace. If error is thrown means devworkspace is not anymore installed if CSV is detected
 	err = deployContext.ClusterAPI.Client.Get(context.TODO(), client.ObjectKey{Name: DevWorkspaceNamespace}, &corev1.Namespace{})
@@ -333,11 +325,9 @@ func TestReconcileDevWorkspaceIfUnmanagedDWONamespaceExists(t *testing.T) {
 	util.IsOpenShift4 = true
 	err = os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 	assert.NoError(t, err)
+	reconciled, _ := ReconcileDevWorkspace(deployContext)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
-
-	assert.True(t, done, "Reconcile is not triggered")
+	assert.True(t, reconciled, "Reconcile is not triggered")
 
 	// check is reconcile created deployment if existing namespace is not annotated in che specific way
 	err = deployContext.ClusterAPI.Client.Get(context.TODO(), client.ObjectKey{Name: DevWorkspaceDeploymentName}, &appsv1.Deployment{})
@@ -378,10 +368,9 @@ func TestReconcileDevWorkspaceIfManagedDWONamespaceExists(t *testing.T) {
 	err = os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+	reconciled, err := ReconcileDevWorkspace(deployContext)
 
-	assert.True(t, done, "Reconcile is not triggered")
+	assert.True(t, reconciled, "Reconcile is not triggered")
 	assert.NoError(t, err, "Reconcile failed")
 
 	// check is reconcile created deployment if existing namespace is not annotated in che specific way
@@ -427,10 +416,9 @@ func TestReconcileDevWorkspaceIfManagedDWOShouldBeTakenUnderControl(t *testing.T
 	err = os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+	reconciled, err := ReconcileDevWorkspace(deployContext)
 
-	assert.True(t, done, "Reconcile is not triggered")
+	assert.True(t, reconciled, "Reconcile is not triggered")
 	assert.NoError(t, err, "Reconcile failed")
 
 	// check is reconcile updated namespace with according way
@@ -497,10 +485,9 @@ func TestReconcileDevWorkspaceIfManagedDWOShouldNotBeTakenUnderControl(t *testin
 	err = os.Setenv("ALLOW_DEVWORKSPACE_ENGINE", "true")
 	assert.NoError(t, err)
 
-	devWorkspaceReconciler := NewDevWorkspaceReconciler()
-	_, done, err := devWorkspaceReconciler.Reconcile(deployContext)
+	reconciled, err := ReconcileDevWorkspace(deployContext)
 
-	assert.True(t, done, "Reconcile is not triggered")
+	assert.True(t, reconciled, "Reconcile is not triggered")
 	assert.NoError(t, err, "Reconcile failed")
 
 	// check is reconcile updated namespace with according way

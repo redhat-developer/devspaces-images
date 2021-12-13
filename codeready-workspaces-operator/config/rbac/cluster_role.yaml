@@ -365,14 +365,6 @@ rules:
     - cluster
     verbs:
     - get
-  - apiGroups:
-    - ''
-    resources:
-    - pods/log
-    verbs:
-    - get
-    - list
-    - watch
   ### CHE-OPERATOR ROLES ONLY: END
   # devworkspace-controller-view-workspaces.ClusterRole.yaml
   - apiGroups:

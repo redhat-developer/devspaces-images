@@ -21,6 +21,7 @@ source "${OPERATOR_REPO}"/olm/olm.sh
 
 init() {
   unset CHANNEL
+  unset PLATFORM
   unset CATALOG_IMAGE
   unset OPERATOR_IMAGE
   unset NAMESPACE
@@ -28,6 +29,7 @@ init() {
   while [[ "$#" -gt 0 ]]; do
     case $1 in
       '--channel'|'-c') CHANNEL="$2"; shift 1;;
+      '--platform'|'-p') PLATFORM="$2"; shift 1;;
       '--namespace'|'-n') NAMESPACE="$2"; shift 1;;
       '--catalog-image'|'-i') CATALOG_IMAGE="$2"; shift 1;;
       '--help'|'-h') usage; exit;;
@@ -35,20 +37,20 @@ init() {
     shift 1
   done
 
-  if [[ ! ${CHANNEL} ]] || [[ ! ${CATALOG_IMAGE} ]] || [[ ! ${NAMESPACE} ]]; then usage; exit 1; fi
+  if [[ ! ${CHANNEL} ]] || [[ ! ${PLATFORM} ]] || [[ ! ${CATALOG_IMAGE} ]] || [[ ! ${NAMESPACE} ]]; then usage; exit 1; fi
 }
 
 usage () {
-	echo "Usage:   $0 -c (next|next-all-namespaces|stable) -i CATALOG_IMAGE -n NAMESPACE"
-	echo "Example: $0 -c next -i quay.io/eclipse/eclipse-che-openshift-opm-catalog:test -n eclipse-che"
+	echo "Usage:   $0 -p (openshift|kubernetes) -c (next|next-all-namespaces|stable) -i CATALOG_IMAGE -n NAMESPACE"
+	echo "Example: $0 -p openshift -c next -i quay.io/eclipse/eclipse-che-openshift-opm-catalog:test -n eclipse-che"
 }
 
 run() {
   createNamespace "${NAMESPACE}"
   installOperatorMarketPlace
-  installCatalogSource "${NAMESPACE}" "${CATALOG_IMAGE}"
+  installCatalogSource "${PLATFORM}" "${NAMESPACE}" "${CATALOG_IMAGE}"
 
-  getBundleListFromCatalogSource "${NAMESPACE}"
+  getBundleListFromCatalogSource "${PLATFORM}" "${NAMESPACE}"
   getPreviousCSVInfo "${CHANNEL}"
   getLatestCSVInfo "${CHANNEL}"
 
@@ -62,14 +64,14 @@ run() {
   forcePullingOlmImages "${NAMESPACE}" "${PREVIOUS_CSV_BUNDLE_IMAGE}"
   forcePullingOlmImages "${NAMESPACE}" "${LATEST_CSV_BUNDLE_IMAGE}"
 
-  subscribeToInstallation "${NAMESPACE}" "${CHANNEL}" "${PREVIOUS_CSV_NAME}"
-  installPackage "${NAMESPACE}"
+  subscribeToInstallation "${PLATFORM}" "${NAMESPACE}" "${CHANNEL}" "${PREVIOUS_CSV_NAME}"
+  installPackage "${PLATFORM}" "${NAMESPACE}"
   echo "[INFO] Installation of the previous che-operator version: ${PREVIOUS_CSV_NAME} successfully completed"
 
-  applyCheClusterCR ${PREVIOUS_CSV_NAME}
+  applyCheClusterCR ${PREVIOUS_CSV_NAME} ${PLATFORM}
   waitCheServerDeploy "${NAMESPACE}"
 
-  installPackage "${NAMESPACE}"
+  installPackage "${PLATFORM}" "${NAMESPACE}"
   echo "[INFO] Installation of the latest che-operator version: ${LATEST_CSV_NAME} successfully completed"
 }
 

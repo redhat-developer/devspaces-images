@@ -16,93 +16,79 @@ import (
 	"strings"
 
 	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/expose"
 )
 
-type PluginRegistryReconciler struct {
-	deploy.Reconcilable
+type PluginRegistry struct {
+	deployContext *deploy.DeployContext
 }
 
-func NewPluginRegistryReconciler() *PluginRegistryReconciler {
-	return &PluginRegistryReconciler{}
+func NewPluginRegistry(deployContext *deploy.DeployContext) *PluginRegistry {
+	return &PluginRegistry{
+		deployContext: deployContext,
+	}
 }
 
-func (p *PluginRegistryReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
-	if ctx.CheCluster.Spec.Server.ExternalPluginRegistry {
-		if ctx.CheCluster.Spec.Server.PluginRegistryUrl != ctx.CheCluster.Status.PluginRegistryURL {
-			ctx.CheCluster.Status.PluginRegistryURL = ctx.CheCluster.Spec.Server.PluginRegistryUrl
-			if err := deploy.UpdateCheCRStatus(ctx, "PluginRegistryUrl", ctx.CheCluster.Spec.Server.PluginRegistryUrl); err != nil {
-				return reconcile.Result{}, false, err
-			}
-		}
-
-		return reconcile.Result{}, true, nil
-	}
-
-	done, err := p.syncService(ctx)
+func (p *PluginRegistry) SyncAll() (bool, error) {
+	done, err := p.SyncService()
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
-	endpoint, done, err := p.ExposeEndpoint(ctx)
+	endpoint, done, err := p.ExposeEndpoint()
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
-	done, err = p.updateStatus(endpoint, ctx)
+	done, err = p.UpdateStatus(endpoint)
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
-	done, err = p.syncConfigMap(ctx)
+	done, err = p.SyncConfigMap()
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
-	done, err = p.syncDeployment(ctx)
+	done, err = p.SyncDeployment()
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
-	return reconcile.Result{}, true, nil
+	return true, nil
 }
 
-func (p *PluginRegistryReconciler) Finalize(ctx *deploy.DeployContext) error {
-	return nil
-}
-
-func (p *PluginRegistryReconciler) syncService(ctx *deploy.DeployContext) (bool, error) {
+func (p *PluginRegistry) SyncService() (bool, error) {
 	return deploy.SyncServiceToCluster(
-		ctx,
+		p.deployContext,
 		deploy.PluginRegistryName,
 		[]string{"http"},
 		[]int32{8080},
 		deploy.PluginRegistryName)
 }
 
-func (p *PluginRegistryReconciler) syncConfigMap(ctx *deploy.DeployContext) (bool, error) {
-	data, err := p.getConfigMapData(ctx)
+func (p *PluginRegistry) SyncConfigMap() (bool, error) {
+	data, err := p.GetConfigMapData()
 	if err != nil {
 		return false, err
 	}
-	return deploy.SyncConfigMapDataToCluster(ctx, deploy.PluginRegistryName, data, deploy.PluginRegistryName)
+	return deploy.SyncConfigMapDataToCluster(p.deployContext, deploy.PluginRegistryName, data, deploy.PluginRegistryName)
 }
 
-func (p *PluginRegistryReconciler) ExposeEndpoint(ctx *deploy.DeployContext) (string, bool, error) {
+func (p *PluginRegistry) ExposeEndpoint() (string, bool, error) {
 	return expose.Expose(
-		ctx,
+		p.deployContext,
 		deploy.PluginRegistryName,
-		ctx.CheCluster.Spec.Server.PluginRegistryRoute,
-		ctx.CheCluster.Spec.Server.PluginRegistryIngress,
-		p.createGatewayConfig(ctx))
+		p.deployContext.CheCluster.Spec.Server.PluginRegistryRoute,
+		p.deployContext.CheCluster.Spec.Server.PluginRegistryIngress,
+		p.createGatewayConfig())
 }
 
-func (p *PluginRegistryReconciler) updateStatus(endpoint string, ctx *deploy.DeployContext) (bool, error) {
+func (p *PluginRegistry) UpdateStatus(endpoint string) (bool, error) {
 	var pluginRegistryURL string
-	if ctx.CheCluster.Spec.Server.TlsSupport {
+	if p.deployContext.CheCluster.Spec.Server.TlsSupport {
 		pluginRegistryURL = "https://" + endpoint
 	} else {
 		pluginRegistryURL = "http://" + endpoint
@@ -115,9 +101,9 @@ func (p *PluginRegistryReconciler) updateStatus(endpoint string, ctx *deploy.Dep
 		pluginRegistryURL = pluginRegistryURL + "v3"
 	}
 
-	if pluginRegistryURL != ctx.CheCluster.Status.PluginRegistryURL {
-		ctx.CheCluster.Status.PluginRegistryURL = pluginRegistryURL
-		if err := deploy.UpdateCheCRStatus(ctx, "status: Plugin Registry URL", pluginRegistryURL); err != nil {
+	if pluginRegistryURL != p.deployContext.CheCluster.Status.PluginRegistryURL {
+		p.deployContext.CheCluster.Status.PluginRegistryURL = pluginRegistryURL
+		if err := deploy.UpdateCheCRStatus(p.deployContext, "status: Plugin Registry URL", pluginRegistryURL); err != nil {
 			return false, err
 		}
 	}
@@ -125,12 +111,12 @@ func (p *PluginRegistryReconciler) updateStatus(endpoint string, ctx *deploy.Dep
 	return true, nil
 }
 
-func (p *PluginRegistryReconciler) syncDeployment(ctx *deploy.DeployContext) (bool, error) {
-	spec := p.getPluginRegistryDeploymentSpec(ctx)
-	return deploy.SyncDeploymentSpecToCluster(ctx, spec, deploy.DefaultDeploymentDiffOpts)
+func (p *PluginRegistry) SyncDeployment() (bool, error) {
+	spec := p.GetPluginRegistryDeploymentSpec()
+	return deploy.SyncDeploymentSpecToCluster(p.deployContext, spec, deploy.DefaultDeploymentDiffOpts)
 }
 
-func (p *PluginRegistryReconciler) createGatewayConfig(ctx *deploy.DeployContext) *gateway.TraefikConfig {
+func (p *PluginRegistry) createGatewayConfig() *gateway.TraefikConfig {
 	pathPrefix := "/" + deploy.PluginRegistryName
 	cfg := gateway.CreateCommonTraefikConfig(
 		deploy.PluginRegistryName,

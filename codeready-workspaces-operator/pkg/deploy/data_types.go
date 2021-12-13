@@ -29,6 +29,7 @@ type DeployContext struct {
 	CheCluster              *orgv1.CheCluster
 	ClusterAPI              ClusterAPI
 	Proxy                   *Proxy
+	DefaultCheHost          string
 	IsSelfSignedCertificate bool
 }
 

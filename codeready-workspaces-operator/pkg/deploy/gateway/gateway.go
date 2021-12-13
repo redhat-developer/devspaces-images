@@ -16,6 +16,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"sigs.k8s.io/yaml"
 
@@ -36,7 +37,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
 const (
@@ -58,27 +58,6 @@ var (
 	configMapDiffOpts      = cmpopts.IgnoreFields(corev1.ConfigMap{}, "TypeMeta", "ObjectMeta")
 	secretDiffOpts         = cmpopts.IgnoreFields(corev1.Secret{}, "TypeMeta", "ObjectMeta")
 )
-
-type GatewayReconciler struct {
-	deploy.Reconcilable
-}
-
-func NewGatewayReconciler() *GatewayReconciler {
-	return &GatewayReconciler{}
-}
-
-func (p *GatewayReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
-	err := SyncGatewayToCluster(ctx)
-	if err != nil {
-		return reconcile.Result{}, false, err
-	}
-
-	return reconcile.Result{}, true, nil
-}
-
-func (p *GatewayReconciler) Finalize(ctx *deploy.DeployContext) error {
-	return nil
-}
 
 // SyncGatewayToCluster installs or deletes the gateway based on the custom resource configuration
 func SyncGatewayToCluster(deployContext *deploy.DeployContext) error {
@@ -108,7 +87,7 @@ func syncAll(deployContext *deploy.DeployContext) error {
 		return err
 	}
 
-	if deployContext.CheCluster.IsNativeUserModeEnabled() {
+	if util.IsOpenShift && deployContext.CheCluster.IsNativeUserModeEnabled() {
 		if oauthSecret, err := getGatewaySecretSpec(deployContext); err == nil {
 			if _, err := deploy.Sync(deployContext, oauthSecret, secretDiffOpts); err != nil {
 				return err
@@ -121,19 +100,17 @@ func syncAll(deployContext *deploy.DeployContext) error {
 			return err
 		}
 
-		kubeRbacProxyConfig := getGatewayKubeRbacProxyConfigSpec(instance)
-		if _, err := deploy.Sync(deployContext, &kubeRbacProxyConfig, configMapDiffOpts); err != nil {
+		if headerRewritePluginConfig, err := getGatewayHeaderRewritePluginConfigSpec(instance); err == nil {
+			if _, err := deploy.Sync(deployContext, headerRewritePluginConfig, configMapDiffOpts); err != nil {
+				return err
+			}
+		} else {
 			return err
 		}
 
-		if util.IsOpenShift {
-			if headerRewritePluginConfig, err := getGatewayHeaderRewritePluginConfigSpec(instance); err == nil {
-				if _, err := deploy.Sync(deployContext, headerRewritePluginConfig, configMapDiffOpts); err != nil {
-					return err
-				}
-			} else {
-				return err
-			}
+		kubeRbacProxyConfig := getGatewayKubeRbacProxyConfigSpec(instance)
+		if _, err := deploy.Sync(deployContext, &kubeRbacProxyConfig, configMapDiffOpts); err != nil {
+			return err
 		}
 	}
 
@@ -401,6 +378,90 @@ func getGatewayRoleBindingSpec(instance *orgv1.CheCluster) rbac.RoleBinding {
 	}
 }
 
+func getGatewayOauthProxyConfigSpec(instance *orgv1.CheCluster, cookieSecret string) corev1.ConfigMap {
+	return corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: corev1.SchemeGroupVersion.String(),
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "che-gateway-config-oauth-proxy",
+			Namespace: instance.Namespace,
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
+		},
+		Data: map[string]string{
+			"oauth-proxy.cfg": fmt.Sprintf(`
+http_address = ":%d"
+https_address = ""
+provider = "openshift"
+redirect_url = "https://%s/oauth/callback"
+upstreams = [
+	"http://127.0.0.1:8081/"
+]
+client_id = "%s"
+client_secret = "%s"
+scope = "user:full"
+openshift_service_account = "%s"
+cookie_secret = "%s"
+cookie_expire = "24h0m0s"
+email_domains = "*"
+cookie_httponly = false
+pass_access_token = true
+skip_provider_button = true
+%s
+`, GatewayServicePort,
+				instance.Spec.Server.CheHost,
+				instance.Spec.Auth.OAuthClientName,
+				instance.Spec.Auth.OAuthSecret,
+				GatewayServiceName,
+				cookieSecret,
+				skipAuthConfig(instance)),
+		},
+	}
+}
+
+func skipAuthConfig(instance *orgv1.CheCluster) string {
+	var skipAuthPaths []string
+	if !instance.Spec.Server.ExternalPluginRegistry {
+		skipAuthPaths = append(skipAuthPaths, "^/"+deploy.PluginRegistryName)
+	}
+	if !instance.Spec.Server.ExternalDevfileRegistry {
+		skipAuthPaths = append(skipAuthPaths, "^/"+deploy.DevfileRegistryName)
+	}
+	if util.IsOpenShift && instance.IsNativeUserModeEnabled() {
+		skipAuthPaths = append(skipAuthPaths, "/healthz$")
+	}
+	if len(skipAuthPaths) > 0 {
+		return fmt.Sprintf("skip_auth_regex = \"%s\"", strings.Join(skipAuthPaths, "|"))
+	}
+	return ""
+}
+
+func getGatewayKubeRbacProxyConfigSpec(instance *orgv1.CheCluster) corev1.ConfigMap {
+	return corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: corev1.SchemeGroupVersion.String(),
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "che-gateway-config-kube-rbac-proxy",
+			Namespace: instance.Namespace,
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
+		},
+		Data: map[string]string{
+			"authorization-config.yaml": `
+authorization:
+  rewrites:
+    byQueryParameter:
+      name: "namespace"
+  resourceAttributes:
+    apiVersion: v1
+    resource: services
+    namespace: "{{ .Value }}"`,
+		},
+	}
+}
+
 func generateRandomCookieSecret() []byte {
 	return []byte(base64.StdEncoding.EncodeToString([]byte(util.GeneratePasswd(16))))
 }
@@ -438,7 +499,7 @@ func getGatewayHeaderRewritePluginConfigSpec(instance *orgv1.CheCluster) (*corev
 
 func getGatewayTraefikConfigSpec(instance *orgv1.CheCluster) corev1.ConfigMap {
 	traefikPort := GatewayServicePort
-	if instance.IsNativeUserModeEnabled() {
+	if util.IsOpenShift && instance.IsNativeUserModeEnabled() {
 		traefikPort = 8081
 	}
 	data := fmt.Sprintf(`
@@ -527,6 +588,8 @@ func getContainersSpec(instance *orgv1.CheCluster) []corev1.Container {
 	configLabelsMap := util.GetMapValue(instance.Spec.Server.SingleHostGatewayConfigMapLabels, deploy.DefaultSingleHostGatewayConfigMapLabels)
 	gatewayImage := util.GetValue(instance.Spec.Server.SingleHostGatewayImage, deploy.DefaultSingleHostGatewayImage(instance))
 	configSidecarImage := util.GetValue(instance.Spec.Server.SingleHostGatewayConfigSidecarImage, deploy.DefaultSingleHostGatewayConfigSidecarImage(instance))
+	authnImage := util.GetValue(instance.Spec.Auth.GatewayAuthenticationSidecarImage, deploy.DefaultGatewayAuthenticationSidecarImage(instance))
+	authzImage := util.GetValue(instance.Spec.Auth.GatewayAuthorizationSidecarImage, deploy.DefaultGatewayAuthorizationSidecarImage(instance))
 	configLabels := labels.FormatLabels(configLabelsMap)
 
 	containers := []corev1.Container{
@@ -568,10 +631,42 @@ func getContainersSpec(instance *orgv1.CheCluster) []corev1.Container {
 		},
 	}
 
-	if instance.IsNativeUserModeEnabled() {
+	if util.IsOpenShift && instance.IsNativeUserModeEnabled() {
 		containers = append(containers,
-			getOauthProxyContainerSpec(instance),
-			getKubeRbacProxyContainerSpec(instance))
+			corev1.Container{
+				Name:            "oauth-proxy",
+				Image:           authnImage,
+				ImagePullPolicy: corev1.PullAlways,
+				Args: []string{
+					"--config=/etc/oauth-proxy/oauth-proxy.cfg",
+				},
+				VolumeMounts: []corev1.VolumeMount{
+					{
+						Name:      "oauth-proxy-config",
+						MountPath: "/etc/oauth-proxy",
+					},
+				},
+				Ports: []corev1.ContainerPort{
+					{ContainerPort: GatewayServicePort, Protocol: "TCP"},
+				},
+			},
+			corev1.Container{
+				Name:            "kube-rbac-proxy",
+				Image:           authzImage,
+				ImagePullPolicy: corev1.PullAlways,
+				Args: []string{
+					"--insecure-listen-address=0.0.0.0:8089",
+					"--upstream=http://127.0.0.1:8090/ping",
+					"--logtostderr=true",
+					"--config-file=/etc/kube-rbac-proxy/authorization-config.yaml",
+				},
+				VolumeMounts: []corev1.VolumeMount{
+					{
+						Name:      "kube-rbac-proxy-config",
+						MountPath: "/etc/kube-rbac-proxy",
+					},
+				},
+			})
 	}
 
 	return containers
@@ -618,23 +713,39 @@ func getVolumesSpec(instance *orgv1.CheCluster) []corev1.Volume {
 		},
 	}
 
-	if instance.IsNativeUserModeEnabled() {
-		volumes = append(volumes,
-			getOauthProxyConfigVolume(),
-			getKubeRbacProxyConfigVolume())
-
-		if util.IsOpenShift {
-			volumes = append(volumes, corev1.Volume{
-				Name: "header-rewrite-traefik-plugin",
-				VolumeSource: corev1.VolumeSource{
-					ConfigMap: &corev1.ConfigMapVolumeSource{
-						LocalObjectReference: corev1.LocalObjectReference{
-							Name: "che-gateway-config-header-rewrite-traefik-plugin",
-						},
+	if util.IsOpenShift && instance.IsNativeUserModeEnabled() {
+		volumes = append(volumes, corev1.Volume{
+			Name: "oauth-proxy-config",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: "che-gateway-config-oauth-proxy",
 					},
 				},
-			})
-		}
+			},
+		})
+
+		volumes = append(volumes, corev1.Volume{
+			Name: "header-rewrite-traefik-plugin",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: "che-gateway-config-header-rewrite-traefik-plugin",
+					},
+				},
+			},
+		})
+
+		volumes = append(volumes, corev1.Volume{
+			Name: "kube-rbac-proxy-config",
+			VolumeSource: corev1.VolumeSource{
+				ConfigMap: &corev1.ConfigMapVolumeSource{
+					LocalObjectReference: corev1.LocalObjectReference{
+						Name: "che-gateway-config-kube-rbac-proxy",
+					},
+				},
+			},
+		})
 	}
 
 	return volumes

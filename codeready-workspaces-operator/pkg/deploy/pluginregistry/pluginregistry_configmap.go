@@ -13,8 +13,6 @@ package pluginregistry
 
 import (
 	"encoding/json"
-
-	"github.com/eclipse-che/che-operator/pkg/deploy"
 )
 
 type PluginRegistryConfigMap struct {
@@ -23,12 +21,12 @@ type PluginRegistryConfigMap struct {
 	ChePluginRegistryURL                     string `json:"CHE_PLUGIN_REGISTRY_URL"`
 }
 
-func (p *PluginRegistryReconciler) getConfigMapData(ctx *deploy.DeployContext) (map[string]string, error) {
+func (p *PluginRegistry) GetConfigMapData() (map[string]string, error) {
 	pluginRegistryEnv := make(map[string]string)
 	data := &PluginRegistryConfigMap{
-		CheSidecarContainersRegistryURL:          ctx.CheCluster.Spec.Server.AirGapContainerRegistryHostname,
-		CheSidecarContainersRegistryOrganization: ctx.CheCluster.Spec.Server.AirGapContainerRegistryOrganization,
-		ChePluginRegistryURL:                     ctx.CheCluster.Status.PluginRegistryURL,
+		CheSidecarContainersRegistryURL:          p.deployContext.CheCluster.Spec.Server.AirGapContainerRegistryHostname,
+		CheSidecarContainersRegistryOrganization: p.deployContext.CheCluster.Spec.Server.AirGapContainerRegistryOrganization,
+		ChePluginRegistryURL:                     p.deployContext.CheCluster.Status.PluginRegistryURL,
 	}
 
 	out, err := json.Marshal(data)

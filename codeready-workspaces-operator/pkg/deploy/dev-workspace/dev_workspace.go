@@ -16,19 +16,24 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	admissionregistrationv1 "k8s.io/api/admissionregistration/v1"
 
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/util"
+	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	"github.com/sirupsen/logrus"
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-const (
+var (
 	DevWorkspaceNamespace      = "devworkspace-controller"
 	DevWorkspaceDeploymentName = "devworkspace-controller-manager"
 	DevWorkspaceWebhookName    = "controller.devfile.io"
@@ -50,50 +55,43 @@ var (
 	}
 )
 
-type DevWorkspaceReconciler struct {
-	deploy.Reconcilable
-}
-
-func NewDevWorkspaceReconciler() *DevWorkspaceReconciler {
-	return &DevWorkspaceReconciler{}
-}
-
-func (d *DevWorkspaceReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
+func ReconcileDevWorkspace(deployContext *deploy.DeployContext) (done bool, err error) {
 	if util.IsOpenShift && !util.IsOpenShift4 {
 		// OpenShift 3.x is not supported
-		return reconcile.Result{}, true, nil
+		return true, nil
 	}
 
-	if !ctx.CheCluster.Spec.DevWorkspace.Enable {
+	if !deployContext.CheCluster.Spec.DevWorkspace.Enable {
 		// Do nothing if DevWorkspace is disabled
-		return reconcile.Result{}, true, nil
+		return true, nil
 	}
 
-	if isDevWorkspaceOperatorCSVExists(ctx) {
+	if isDevWorkspaceOperatorCSVExists(deployContext) {
 		// Do nothing if DevWorkspace has been already deployed via OLM
-		return reconcile.Result{}, true, nil
+		return true, nil
 	}
 
 	if util.IsOpenShift {
-		wtoInstalled, err := isWebTerminalSubscriptionExist(ctx)
+		//
+		wtoInstalled, err := doesWebTerminalSubscriptionExist(deployContext)
 		if err != nil {
-			return reconcile.Result{Requeue: true}, false, err
+			return false, err
 		}
 		if wtoInstalled {
 			// Do nothing if WTO exists since it should bring or embeds DWO
-			return reconcile.Result{}, true, nil
+			return true, nil
 		}
 	}
 
 	if !deploy.IsDevWorkspaceEngineAllowed() {
 		// Note: When the tech-preview-stable-all-namespaces will be by default stable-all-namespaces 7.40.0?, change the channel from the log
-		exists, err := isDevWorkspaceDeploymentExists(ctx)
+		exists, err := isDevWorkspaceDeploymentExists(deployContext)
 		if err != nil {
-			return reconcile.Result{Requeue: true}, false, err
+			return false, err
 		}
 		if !exists {
 			// Don't allow to deploy a new DevWorkspace operator
-			return reconcile.Result{}, false, fmt.Errorf("To enable DevWorkspace engine, deploy CodeReady Workspaces from tech-preview channel.")
+			return false, fmt.Errorf("To enable DevWorkspace engine, deploy CodeReady Workspaces from tech-preview channel.")
 		}
 
 		// Allow existed CodeReady Workspaces and DevWorkspace deployments to work
@@ -101,52 +99,52 @@ func (d *DevWorkspaceReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile
 		logrus.Warnf("To enable DevWorkspace engine, deploy CodeReady Workspaces from tech-preview channel.")
 	}
 
-	isCreated, err := createDwNamespace(ctx)
+	isCreated, err := createDwNamespace(deployContext)
 	if err != nil {
-		return reconcile.Result{Requeue: true}, false, err
+		return false, err
 	}
 	if !isCreated {
 		namespace := &corev1.Namespace{}
-		err := ctx.ClusterAPI.NonCachingClient.Get(context.TODO(), types.NamespacedName{Name: DevWorkspaceNamespace}, namespace)
+		err := deployContext.ClusterAPI.NonCachingClient.Get(context.TODO(), types.NamespacedName{Name: DevWorkspaceNamespace}, namespace)
 		if err != nil {
-			return reconcile.Result{Requeue: true}, false, err
+			return false, err
 		}
 
 		namespaceOwnershipAnnotation := namespace.GetAnnotations()[deploy.CheEclipseOrgNamespace]
 		if namespaceOwnershipAnnotation == "" {
 			// don't manage DWO if namespace is create by someone else not but not Che Operator
-			return reconcile.Result{}, true, nil
+			return true, err
 		}
 
 		// if DWO is managed by another Che, check if we should take control under it after possible removal
-		if namespaceOwnershipAnnotation != ctx.CheCluster.Namespace {
-			isOnlyOneOperatorManagesDWResources, err := isOnlyOneOperatorManagesDWResources(ctx)
+		if namespaceOwnershipAnnotation != deployContext.CheCluster.Namespace {
+			isOnlyOneOperatorManagesDWResources, err := isOnlyOneOperatorManagesDWResources(deployContext)
 			if err != nil {
-				return reconcile.Result{Requeue: true}, false, err
+				return false, err
 			}
 			if !isOnlyOneOperatorManagesDWResources {
 				// Don't take a control over DWO if CheCluster in another CR is handling it
-				return reconcile.Result{}, true, nil
+				return true, nil
 			}
-			namespace.GetAnnotations()[deploy.CheEclipseOrgNamespace] = ctx.CheCluster.Namespace
-			_, err = deploy.Sync(ctx, namespace)
+			namespace.GetAnnotations()[deploy.CheEclipseOrgNamespace] = deployContext.CheCluster.Namespace
+			_, err = deploy.Sync(deployContext, namespace)
 			if err != nil {
-				return reconcile.Result{Requeue: true}, false, err
+				return false, err
 			}
 		}
 	}
 
 	// check if DW exists on the cluster
 	devWorkspaceWebHookExistedBeforeSync, err := deploy.Get(
-		ctx,
+		deployContext,
 		client.ObjectKey{Name: DevWorkspaceWebhookName},
 		&admissionregistrationv1.MutatingWebhookConfiguration{},
 	)
 
 	for _, syncItem := range syncItems {
-		_, err := syncItem(ctx)
+		_, err := syncItem(deployContext)
 		if err != nil {
-			return reconcile.Result{Requeue: true}, false, err
+			return false, err
 		}
 	}
 
@@ -157,9 +155,88 @@ func (d *DevWorkspaceReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile
 		}
 	}
 
-	return reconcile.Result{}, true, nil
+	return true, nil
 }
 
-func (d *DevWorkspaceReconciler) Finalize(ctx *deploy.DeployContext) error {
-	return nil
+func isDevWorkspaceDeploymentExists(deployContext *deploy.DeployContext) (bool, error) {
+	return deploy.Get(deployContext, types.NamespacedName{
+		Namespace: DevWorkspaceNamespace,
+		Name:      DevWorkspaceDeploymentName,
+	}, &appsv1.Deployment{})
+}
+
+func isDevWorkspaceOperatorCSVExists(deployContext *deploy.DeployContext) bool {
+	// If clusterserviceversions resource doesn't exist in cluster DWO as well will not be present
+	if !util.HasK8SResourceObject(deployContext.ClusterAPI.DiscoveryClient, ClusterServiceVersionResourceName) {
+		return false
+	}
+
+	csvList := &operatorsv1alpha1.ClusterServiceVersionList{}
+	err := deployContext.ClusterAPI.Client.List(context.TODO(), csvList, &client.ListOptions{})
+	if err != nil {
+		return false
+	}
+
+	for _, csv := range csvList.Items {
+		if strings.HasPrefix(csv.Name, DevWorkspaceCSVNamePrefix) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func doesWebTerminalSubscriptionExist(deployContext *deploy.DeployContext) (bool, error) {
+	// If subscriptions resource doesn't exist in cluster WTO as well will not be present
+	if !util.HasK8SResourceObject(deployContext.ClusterAPI.DiscoveryClient, SubscriptionResourceName) {
+		return false, nil
+	}
+
+	subscription := &operatorsv1alpha1.Subscription{}
+	if err := deployContext.ClusterAPI.NonCachingClient.Get(
+		context.TODO(),
+		types.NamespacedName{
+			Name:      WebTerminalOperatorSubscriptionName,
+			Namespace: WebTerminalOperatorNamespace,
+		},
+		subscription); err != nil {
+
+		if apierrors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func createDwNamespace(deployContext *deploy.DeployContext) (bool, error) {
+	namespace := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: DevWorkspaceNamespace,
+			Annotations: map[string]string{
+				deploy.CheEclipseOrgNamespace: deployContext.CheCluster.Namespace,
+			},
+		},
+		Spec: corev1.NamespaceSpec{},
+	}
+
+	return deploy.CreateIfNotExists(deployContext, namespace)
+}
+
+func isOnlyOneOperatorManagesDWResources(deployContext *deploy.DeployContext) (bool, error) {
+	cheClusters := &orgv1.CheClusterList{}
+	err := deployContext.ClusterAPI.NonCachingClient.List(context.TODO(), cheClusters)
+	if err != nil {
+		return false, err
+	}
+
+	devWorkspaceEnabledNum := 0
+	for _, cheCluster := range cheClusters.Items {
+		if cheCluster.Spec.DevWorkspace.Enable {
+			devWorkspaceEnabledNum++
+		}
+	}
+
+	return devWorkspaceEnabledNum == 1, nil
 }

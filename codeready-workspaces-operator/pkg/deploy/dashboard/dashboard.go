@@ -16,7 +16,6 @@ import (
 	"fmt"
 
 	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/expose"
@@ -34,98 +33,97 @@ var (
 	log = ctrl.Log.WithName("dashboard")
 )
 
-type DashboardReconciler struct {
-	deploy.Reconcilable
+type Dashboard struct {
+	deployContext *deploy.DeployContext
+	component     string
 }
 
-func NewDashboardReconciler() *DashboardReconciler {
-	return &DashboardReconciler{}
+func NewDashboard(deployContext *deploy.DeployContext) *Dashboard {
+	return &Dashboard{
+		deployContext: deployContext,
+		component:     deploy.DefaultCheFlavor(deployContext.CheCluster) + "-dashboard",
+	}
 }
 
-func (d *DashboardReconciler) getComponentName(ctx *deploy.DeployContext) string {
-	return deploy.DefaultCheFlavor(ctx.CheCluster) + "-dashboard"
+func (d *Dashboard) GetComponentName() string {
+	return d.component
 }
 
-func (d *DashboardReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
+func (d *Dashboard) Reconcile() (done bool, err error) {
 	// Create a new dashboard service
-	done, err := deploy.SyncServiceToCluster(ctx, d.getComponentName(ctx), []string{"http"}, []int32{8080}, d.getComponentName(ctx))
+	done, err = deploy.SyncServiceToCluster(d.deployContext, d.component, []string{"http"}, []int32{8080}, d.component)
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
 	// Expose dashboard service with route or ingress
-	_, done, err = expose.ExposeWithHostPath(ctx, d.getComponentName(ctx), ctx.CheCluster.Spec.Server.CheHost,
+	_, done, err = expose.ExposeWithHostPath(d.deployContext, d.component, d.deployContext.CheCluster.Spec.Server.CheHost,
 		exposePath,
-		ctx.CheCluster.Spec.Server.DashboardRoute,
-		ctx.CheCluster.Spec.Server.DashboardIngress,
-		d.createGatewayConfig(ctx),
+		d.deployContext.CheCluster.Spec.Server.DashboardRoute,
+		d.deployContext.CheCluster.Spec.Server.DashboardIngress,
+		d.createGatewayConfig(),
 	)
 	if !done {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
 
 	// we create dashboard SA in any case to keep a track on resources we access withing it
-	done, err = deploy.SyncServiceAccountToCluster(ctx, DashboardSA)
+	done, err = deploy.SyncServiceAccountToCluster(d.deployContext, DashboardSA)
 	if !done {
-		return reconcile.Result{}, false, err
+		return done, err
 	}
 
 	// on Kubernetes Dashboard needs privileged SA to work with user's objects
 	// for time being until Kubernetes did not get authentication
 	if !util.IsOpenShift {
-		done, err = deploy.SyncClusterRoleToCluster(ctx, d.getClusterRoleName(ctx), GetPrivilegedPoliciesRulesForKubernetes())
+		done, err = deploy.SyncClusterRoleToCluster(d.deployContext, d.getClusterRoleName(), GetPrivilegedPoliciesRulesForKubernetes())
 		if !done {
-			return reconcile.Result{}, false, err
+			return false, err
 		}
 
-		done, err = deploy.SyncClusterRoleBindingToCluster(ctx, d.getClusterRoleBindingName(ctx), DashboardSA, d.getClusterRoleName(ctx))
+		done, err = deploy.SyncClusterRoleBindingToCluster(d.deployContext, d.getClusterRoleBindingName(), DashboardSA, d.getClusterRoleName())
 		if !done {
-			return reconcile.Result{}, false, err
+			return false, err
 		}
 
-		err = deploy.AppendFinalizer(ctx, ClusterPermissionsDashboardFinalizer)
+		err = deploy.AppendFinalizer(d.deployContext, ClusterPermissionsDashboardFinalizer)
 		if err != nil {
-			return reconcile.Result{}, false, err
+			return false, err
 		}
 	}
 
 	// Deploy dashboard
-	spec, err := d.getDashboardDeploymentSpec(ctx)
+	spec, err := d.getDashboardDeploymentSpec()
 	if err != nil {
-		return reconcile.Result{}, false, err
+		return false, err
 	}
-
-	done, err = deploy.SyncDeploymentSpecToCluster(ctx, spec, deploy.DefaultDeploymentDiffOpts)
-	if !done {
-		return reconcile.Result{}, false, err
-	}
-
-	return reconcile.Result{}, true, nil
+	return deploy.SyncDeploymentSpecToCluster(d.deployContext, spec, deploy.DefaultDeploymentDiffOpts)
 }
 
-func (d *DashboardReconciler) Finalize(ctx *deploy.DeployContext) error {
-	done, err := deploy.Delete(ctx, types.NamespacedName{Name: d.getClusterRoleName(ctx)}, &rbacv1.ClusterRole{})
+func (d *Dashboard) Finalize() (done bool, err error) {
+	done, err = deploy.Delete(d.deployContext, types.NamespacedName{Name: d.getClusterRoleName()}, &rbacv1.ClusterRole{})
 	if !done {
-		return err
+		return false, err
 	}
 
-	done, err = deploy.Delete(ctx, types.NamespacedName{Name: d.getClusterRoleBindingName(ctx)}, &rbacv1.ClusterRoleBinding{})
+	done, err = deploy.Delete(d.deployContext, types.NamespacedName{Name: d.getClusterRoleBindingName()}, &rbacv1.ClusterRoleBinding{})
 	if !done {
-		return err
+		return false, err
 	}
 
-	return deploy.DeleteFinalizer(ctx, ClusterPermissionsDashboardFinalizer)
+	err = deploy.DeleteFinalizer(d.deployContext, ClusterPermissionsDashboardFinalizer)
+	return err == nil, err
 }
 
-func (d *DashboardReconciler) createGatewayConfig(ctx *deploy.DeployContext) *gateway.TraefikConfig {
+func (d *Dashboard) createGatewayConfig() *gateway.TraefikConfig {
 	cfg := gateway.CreateCommonTraefikConfig(
-		d.getComponentName(ctx),
+		d.component,
 		fmt.Sprintf("PathPrefix(`%s`)", exposePath),
 		10,
-		"http://"+d.getComponentName(ctx)+":8080",
+		"http://"+d.component+":8080",
 		[]string{})
-	if util.IsOpenShift && ctx.CheCluster.IsNativeUserModeEnabled() {
-		cfg.AddAuthHeaderRewrite(d.getComponentName(ctx))
+	if util.IsOpenShift && d.deployContext.CheCluster.IsNativeUserModeEnabled() {
+		cfg.AddAuthHeaderRewrite(d.component)
 	}
 	return cfg
 }

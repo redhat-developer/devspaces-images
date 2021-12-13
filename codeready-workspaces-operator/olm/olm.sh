@@ -20,31 +20,47 @@ ROOT_DIR=$(dirname "${BASE_DIR}")
 source ${ROOT_DIR}/olm/check-yq.sh
 
 function getPackageName() {
-  echo "eclipse-che-preview-openshift"
+  platform="${1}"
+  if [ -z "${1}" ]; then
+      echo "[ERROR] Please specify first argument: 'platform'"
+      exit 1
+  fi
+
+  echo "eclipse-che-preview-${platform}"
 }
 
 function getBundlePath() {
-  channel="${1}"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
+    exit 1
+  fi
+  channel="${2}"
   if [ -z "${channel}" ]; then
-    echo "[ERROR] 'channel' is not specified"
+    echo "[ERROR] Please specify second argument: 'channel'"
     exit 1
   fi
 
-  echo "${ROOT_DIR}/bundle/${channel}/$(getPackageName)"
+  echo "${ROOT_DIR}/bundle/${channel}/$(getPackageName "${platform}")"
 }
 
 createCatalogSource() {
-  namespace="${1}"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
+    exit 1
+  fi
+  namespace="${2}"
   if [ -z "${namespace}" ]; then
     echo "[ERROR] Please specify second argument: 'namespace'"
     exit 1
   fi
-  CATALOG_IMAGENAME="${2}"
+  CATALOG_IMAGENAME="${3}"
   if [ -z "${CATALOG_IMAGENAME}" ]; then
     echo "[ERROR] Please specify third argument: 'catalog image'"
     exit 1
   fi
-  packageName=$(getPackageName)
+  packageName=$(getPackageName "${platform}")
 
   kubectl apply -f - <<EOF
 apiVersion: operators.coreos.com/v1alpha1
@@ -63,18 +79,23 @@ EOF
 
 # Create catalog source to communicate with OLM using google rpc protocol.
 createRpcCatalogSource() {
-  namespace="${1}"
-  if [ -z "${namespace}" ]; then
-    echo "[ERROR] 'namespace' is not specified"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
     exit 1
   fi
-  indexIP="${2}"
+  namespace="${2}"
+  if [ -z "${namespace}" ]; then
+    echo "[ERROR] Please specify second argument: 'namespace'"
+    exit 1
+  fi
+  indexIP="${3}"
   if [ -z "${indexIP}" ]; then
-    echo "[ERROR] 'indexIP' is not specified"
+    echo "[ERROR] Please specify third argument: 'index IP'"
     exit 1
   fi
 
-  packageName=$(getPackageName)
+  packageName=$(getPackageName "${platform}")
 
 cat <<EOF | oc apply -n "${namespace}" -f - || return $?
 apiVersion: operators.coreos.com/v1alpha1
@@ -90,19 +111,24 @@ EOF
 }
 
 buildBundleImage() {
-  CATALOG_BUNDLE_IMAGE_NAME_LOCAL="${1}"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
+    exit 1
+  fi
+  CATALOG_BUNDLE_IMAGE_NAME_LOCAL="${2}"
   if [ -z "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" ]; then
-    echo "[ERROR] 'opm bundle' is not specified"
+    echo "[ERROR] Please specify second argument: 'opm bundle'"
     exit 1
   fi
-  channel="${2}"
+  channel="${3}"
   if [ -z "${channel}" ]; then
-    echo "[ERROR] 'channel' is not specified"
+    echo "[ERROR] Please specify third argument: 'channel'"
     exit 1
   fi
-  imageTool="${3}"
+  imageTool="${4}"
   if [ -z "${imageTool}" ]; then
-    echo "[ERROR] 'imageTool' is not specified"
+    echo "[ERROR] Please specify fourth argument: 'image tool'"
     exit 1
   fi
 
@@ -110,7 +136,7 @@ buildBundleImage() {
 
   pushd "${ROOT_DIR}" || exit
 
-  make bundle-build bundle-push channel="${channel}" BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" IMAGE_TOOL="${imageTool}"
+  make bundle-build bundle-push channel="${channel}" BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" platform="${platform}" IMAGE_TOOL="${imageTool}"
   popd || exit
 }
 
@@ -252,19 +278,24 @@ installOperatorMarketPlace() {
 }
 
 installCatalogSource() {
-  namespace="${1}"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
+    exit 1
+  fi
+  namespace="${2}"
   if [ -z "${namespace}" ]; then
-    echo "[ERROR] 'namespace' is not specified"
+    echo "[ERROR] Please specify second argument: 'namespace'"
     exit 1
   fi
-  CATALOG_IMAGENAME=${2}
+  CATALOG_IMAGENAME=${3}
   if [ -z "${CATALOG_IMAGENAME}" ]; then
-    echo "[ERROR] 'catalog image' is not specified"
+    echo "[ERROR] Please specify third argument: 'catalog image'"
     exit 1
   fi
-  packageName=$(getPackageName)
+  packageName=$(getPackageName "${platform}")
 
-  createCatalogSource "${namespace}" "${CATALOG_IMAGENAME}"
+  createCatalogSource "${platform}" "${namespace}" "${CATALOG_IMAGENAME}"
 
   i=0
   while [ $i -le 240 ]
@@ -285,14 +316,19 @@ installCatalogSource() {
 }
 
 subscribeToInstallation() {
-  namespace="${1}"
-  if [ -z "${namespace}" ]; then
-    echo "[ERROR] 'namespace' is not specified"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
     exit 1
   fi
-  channel="${2}"
+  namespace="${2}"
+  if [ -z "${namespace}" ]; then
+    echo "[ERROR] Please specify second argument: 'namespace'"
+    exit 1
+  fi
+  channel="${3}"
   if [ -z "${channel}" ]; then
-    echo "[ERROR] 'channel' is not specified"
+    echo "[ERROR] Please specify third argument: 'channel'"
     exit 1
   fi
 
@@ -304,7 +340,7 @@ subscribeToInstallation() {
     echo "[INFO] Subscribing to latest version for channel: '${channel}'"
   fi
 
-  packageName=$(getPackageName)
+  packageName=$(getPackageName "${platform}")
 
   kubectl apply -f - <<EOF
 apiVersion: operators.coreos.com/v1
@@ -343,12 +379,17 @@ EOF
 }
 
 installPackage() {
-  namespace="${1}"
-  if [ -z "${namespace}" ]; then
-    echo "[ERROR] 'namespace' is not specified"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
     exit 1
   fi
-  packageName=$(getPackageName)
+  namespace="${2}"
+  if [ -z "${namespace}" ]; then
+    echo "[ERROR] Please specify second argument: 'namespace'"
+    exit 1
+  fi
+  packageName=$(getPackageName "${platform}")
 
   echo "[INFO] Install operator package ${packageName} into namespace ${namespace}"
   installPlan=$(kubectl get subscription/"${packageName}" -n "${namespace}" -o jsonpath='{.status.installplan.name}')
@@ -365,6 +406,7 @@ installPackage() {
 
 applyCheClusterCR() {
   CSV_NAME=${1}
+  PLATFORM=${2}
 
   CHECLUSTER=$(kubectl get csv ${CSV_NAME} -n ${NAMESPACE} -o yaml \
     | yq -r ".metadata.annotations[\"alm-examples\"] | fromjson | .[] | select(.kind == \"CheCluster\")" \
@@ -372,8 +414,14 @@ applyCheClusterCR() {
     | yq -r ".spec.server.serverExposureStrategy = \"${CHE_EXPOSURE_STRATEGY:-multi-host}\"" \
     | yq -r ".spec.imagePuller.enable = ${IMAGE_PULLER_ENABLE:-false}")
 
+  echo "${CHECLUSTER}"
+  if [[ ${PLATFORM} == "kubernetes" ]]; then
+    CHECLUSTER=$(echo "${CHECLUSTER}" | yq -r ".spec.k8s.ingressDomain = \"$(minikube ip).nip.io\"")
+  fi
+
   echo "[INFO] Creating Custom Resource: "
   echo "${CHECLUSTER}"
+
   echo "${CHECLUSTER}" | kubectl apply -n $NAMESPACE -f -
 }
 
@@ -426,12 +474,17 @@ waitCatalogSourcePod() {
 }
 
 getBundleListFromCatalogSource() {
-  namespace="${1}"
-  if [ -z "${namespace}" ]; then
-    echo "[ERROR] 'namespace' is not specified"
+  platform="${1}"
+  if [ -z "${platform}" ]; then
+    echo "[ERROR] Please specify first argument: 'platform'"
     exit 1
   fi
-  packageName=$(getPackageName)
+  namespace="${2}"
+  if [ -z "${namespace}" ]; then
+    echo "[ERROR] Please specify second argument: 'namespace'"
+    exit 1
+  fi
+  packageName=$(getPackageName "${platform}")
   # Wait until catalog pod is created in cluster
   waitCatalogSourcePod
 
