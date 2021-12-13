@@ -29,8 +29,8 @@ WORKDIR /build/
 
 RUN ./check_mandatory_fields.sh devfiles
 # Cache projects in CRW 
-COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz
 
 # don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
 # RUN ./swap_yamlfiles.sh devfiles
@@ -39,3 +39,4 @@ RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
 
+RUN ./generate_devworkspace_templates.sh
