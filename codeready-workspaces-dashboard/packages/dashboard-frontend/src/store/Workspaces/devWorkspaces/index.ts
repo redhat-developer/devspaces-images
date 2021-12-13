@@ -248,16 +248,10 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
-      const state = getState();
       try {
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
-          // If the workspace has DEVWORKSPACE_NEXT_START_ANNOTATION then update the devworkspace with the DEVWORKSPACE_NEXT_START_ANNOTATION annotation value and then start the devworkspace
-          const plugins = selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).map(
-            entry => entry.devfile,
-          );
-
           const storedDevWorkspace = JSON.parse(
             workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
           ) as unknown;
@@ -274,7 +268,7 @@ export const actionCreators: ActionCreators = {
           delete workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION];
           workspace.spec.template = storedDevWorkspace.spec.template;
           workspace.spec.started = true;
-          updatedWorkspace = await devWorkspaceClient.update(workspace, plugins);
+          updatedWorkspace = await devWorkspaceClient.update(workspace);
         } else {
           updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true);
         }
@@ -345,7 +339,7 @@ export const actionCreators: ActionCreators = {
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       try {
-        devWorkspaceClient.changeWorkspaceStatus(workspace, false);
+        await devWorkspaceClient.changeWorkspaceStatus(workspace, false);
         dispatch({
           type: 'DELETE_DEVWORKSPACE_LOGS',
           workspaceId: WorkspaceAdapter.getId(workspace),
