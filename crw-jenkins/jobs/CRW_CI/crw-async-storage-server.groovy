@@ -5,9 +5,8 @@ def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-works
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config.Jobs.imagepuller.keySet()
+def JOB_BRANCHES = config.Jobs."async-storage-server".keySet()
 for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB
     //check for jenkinsfile
     FILE_CHECK = false
     try {
@@ -18,30 +17,36 @@ for (JB in JOB_BRANCHES) {
         println "No jenkins file found for " + JB
     }
     if (FILE_CHECK) {
+        JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
-            disabled(config.Jobs.imagepuller[JB].disabled) // on reload of job, disable to avoid churn
-            UPSTM_NAME="kubernetes-image-puller"
-            MIDSTM_NAME="imagepuller"
+            disabled(config.Jobs."async-storage-server"[JB].disabled) // on reload of job, disable to avoid churn
+            UPSTM_NAME="workspace-data-sync"
+            MIDSTM_NAME="async-storage-server"
             SOURCE_REPO="che-incubator/" + UPSTM_NAME
             MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
 
-            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.imagepuller[JB].upstream_branch[0]
-            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.imagepuller[JB].upstream_branch[1]
-            
+
+            def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."async-storage-server"[JB].upstream_branch[0]
+            def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs."async-storage-server"[JB].upstream_branch[1]
+
             def BRANCH_CHECK_EVEN=CMD_EVEN.execute().text
             def BRANCH_CHECK_ODD=CMD_ODD.execute().text
 
             SOURCE_BRANCH="main"
+
             if (BRANCH_CHECK_EVEN) {
-                SOURCE_BRANCH=""+config.Jobs.imagepuller[JB].upstream_branch[0]
+                SOURCE_BRANCH=""+config.Jobs."async-storage-server"[JB].upstream_branch[0]
             } else if (BRANCH_CHECK_ODD) {
-                SOURCE_BRANCH=""+config.Jobs.imagepuller[JB].upstream_branch[1]
+                SOURCE_BRANCH=""+config.Jobs."async-storage-server"[JB].upstream_branch[1]
             }
 
             description('''
-Artifact builder + sync job; triggers brew after syncing
+Async storage sidecar builder + sync job; triggers brew after syncing
+<p>There are two async-storage-related sync jobs:<br/>
+1. <a href=../crw-async-storage-sidecar_''' + JOB_BRANCH + '''>crw-async-storage-sidecar_''' + JOB_BRANCH + '''</a><br/>
+2. <a href=../crw-async-storage-server_''' + JOB_BRANCH + '''>crw-async-storage-server_''' + JOB_BRANCH + '''</a></p>
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
@@ -53,6 +58,7 @@ Artifact builder + sync job; triggers brew after syncing
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
 <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
+
 <p>Results:<ul><li><a href=https://quay.io/crw/'''+MIDSTM_NAME+'''-rhel8>quay.io/crw/'''+MIDSTM_NAME+'''-rhel8</a></li></ul></p>
             ''')
 
