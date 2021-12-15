@@ -349,9 +349,9 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 		# CRW-2571 relabel operatorhub tile title to clarify which operator is supported and which is tech preview
-		['.spec.displayName']="Red Hat CodeReady Workspaces - Technical Preview Support for Devfile v2"
+		['.spec.displayName']="Red Hat CodeReady Workspaces - Technical Preview Support for Devfile v2 and v1"
 		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
-		['.metadata.annotations.description']="Technical Preview: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
+		['.metadata.annotations.description']="Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
