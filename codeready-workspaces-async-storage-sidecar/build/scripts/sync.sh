@@ -22,7 +22,7 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPSTM_NAME="workspace-data-sync"
 UPSTM_IMAGE="sidecar"
-MIDSTM_NAME="async-${UPSTM_IMAGE}"
+MIDSTM_NAME="async-storage-${UPSTM_IMAGE}"
 
 usage () {
     echo "
@@ -122,13 +122,16 @@ COPY --from=builder $REMOTE_SOURCES_DIR/supercronic/app/supercronic /supercronic
   `# Provide scripts from builder image` \
   -e 's#COPY cron/backup-cron-job#COPY --from=builder /workspace-data-sync/dockerfiles/sidecar/cron/backup-cron-job#g' \
   -e 's#COPY scripts#COPY --from=builder /workspace-data-sync/dockerfiles/sidecar/s/scripts#g' \
-  `# Remove supercronic download & symlink` \
-  -e '/curl -fsSLO "$SUPERCRONIC_URL"/d' \
-  -e '/echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}"/d' \
   `# Insert builder image in the beginning` \
   -e "/# SPDX-License-Identifier: EPL-2.0/a \
    $build_image_multiline
 " \
+  `# Change supercronic installation` \
+  -e "s|#install supercronic|\&\& chmod +x \"/supercronic\" \&\& mv \"/supercronic\" \"/usr/local/bin/supercronic\" \n \ |" \
+  -e "/curl.*SUPERCRONIC_URL/,+4d" \
+  `# Change user addtition` \
+  -e 's|"\$USER"|\&\& useradd \$USER|' \
+  -e "/groupadd/,+4d" \
 > ${TARGETDIR}/Dockerfile
 
 cat << EOT >> ${TARGETDIR}/Dockerfile
@@ -145,7 +148,7 @@ LABEL summary="\$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${CRW_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Mykhailo Kuznietsov <amisevsk@redhat.com>, Ilya Buziuk <ibuziuk@redhat.com>" \\
+      maintainer="Mykhailo Kuznietsov <mkuznets@redhat.com>, Ilya Buziuk <ibuziuk@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
