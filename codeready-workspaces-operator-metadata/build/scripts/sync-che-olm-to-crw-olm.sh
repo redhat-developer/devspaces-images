@@ -329,7 +329,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 		# CRW-2571 relabel operatorhub tile title to clarify which operator is supported and which is tech preview
-		['.spec.displayName']="Red Hat CodeReady Workspaces for devfile v1 (deprecated)"
+		['.spec.displayName']="Red Hat CodeReady Workspaces for Devfile v1 (Deprecated)"
 		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
 		['.metadata.annotations.description']="Devfile v1 development solution for portable, collaborative k8s workspaces (deprecated)."
 	)
