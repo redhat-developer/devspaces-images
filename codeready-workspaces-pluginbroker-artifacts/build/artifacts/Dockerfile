@@ -15,7 +15,7 @@ FROM registry.access.redhat.com/ubi8/go-toolset:1.16.7-5 as builder
 USER root
 WORKDIR /build/che-plugin-broker/brokers/artifacts/cmd/
 COPY . /build/che-plugin-broker/
-RUN adduser appusger && \
+RUN adduser appuser && \
     CGO_ENABLED=0 GOOS=linux go build -mod vendor -a -ldflags '-w -s' -installsuffix cgo -o artifacts-broker main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal

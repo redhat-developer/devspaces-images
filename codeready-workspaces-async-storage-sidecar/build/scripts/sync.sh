@@ -64,8 +64,10 @@ sources
 yarn.lock
 /README.adoc
 /release.sh
+/build.sh
 /common.sh
 /RELEASE.md
+/dockerfiles/server/
 .cico
 .circleci
 *.orig
