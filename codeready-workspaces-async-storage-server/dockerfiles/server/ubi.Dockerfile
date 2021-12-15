@@ -13,7 +13,7 @@ COPY content_sets_centos8.repo /etc/yum.repos.d/
 COPY entrypoint.sh /usr/local/bin
 COPY sshd_config /etc/ssh/sshd_config
 
-RUN mkdir /etc/ssh /var/run/sshd /.ssh \
+RUN mkdir -p /etc/ssh /var/run/sshd /.ssh \
     && microdnf update -y \
     && microdnf install -y \
             rsync \

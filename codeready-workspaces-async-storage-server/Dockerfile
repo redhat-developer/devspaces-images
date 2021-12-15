@@ -13,7 +13,7 @@ FROM ubi8-minimal:8.5-204
 COPY dockerfiles/server/entrypoint.sh /usr/local/bin
 COPY dockerfiles/server/sshd_config /etc/ssh/sshd_config
 
-RUN mkdir /etc/ssh /var/run/sshd /.ssh \
+RUN mkdir -p /etc/ssh /var/run/sshd /.ssh \
     && microdnf update -y \
     && microdnf install -y \
             rsync \
