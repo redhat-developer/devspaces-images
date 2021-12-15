@@ -1165,11 +1165,11 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNAK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dc91faa93b762ca8fc122484aa6e3ac62fb01197f9d8b64ddc1f16cfb6ea98af
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNAK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:0a47a30817937f3a2356e7f6b432cd2c9ac5115a1b916cce13d55237c73e8ac4
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:d77ad676b175a54251dc5144421c2df7f04fa00d32fa236c6556fc1029da50f7
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:bdc8bd8a3a1dd12076d4ca3f9e6c74ca4cbc5356a216661e8a3bba53ad18a879
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:428781879d8f3ff08c5590949ee304930cb1edf1ad6e58c67bfbd9158f240ae4
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:ab3e8d4d93e43ec6045cd1e0281770f725e003de479856b09394118f19526910
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1565,11 +1565,11 @@ spec:
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcnak
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:dc91faa93b762ca8fc122484aa6e3ac62fb01197f9d8b64ddc1f16cfb6ea98af
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnak
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:0a47a30817937f3a2356e7f6b432cd2c9ac5115a1b916cce13d55237c73e8ac4
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:d77ad676b175a54251dc5144421c2df7f04fa00d32fa236c6556fc1029da50f7
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:bdc8bd8a3a1dd12076d4ca3f9e6c74ca4cbc5356a216661e8a3bba53ad18a879
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:428781879d8f3ff08c5590949ee304930cb1edf1ad6e58c67bfbd9158f240ae4
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:ab3e8d4d93e43ec6045cd1e0281770f725e003de479856b09394118f19526910
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
   - name: gateway_authentication_sidecar
