@@ -146,7 +146,7 @@ Brew NVRs (for use in ''' + errataURL + '''):
                     IIB_INFO = sh (
                         script: '''
 CRW_VERSION="'''+CRW_VERSION+'''"
-for csv in operator-metadata operator-bundle; do 
+for csv in operator-bundle; do 
     lastcsv=$(curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | \
         jq ".raw_messages[].msg.index | .added_bundle_images[0]" -r | sort -uV | \
         grep "${csv}:${CRW_VERSION}" | tail -1 | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-##");
@@ -164,7 +164,7 @@ Bundle Image, Index Image, OCP Version:
 
 (queried with: 
     CRW_VERSION="'''+CRW_VERSION+'''"
-    for csv in operator-metadata operator-bundle; do 
+    for csv in operator-bundle; do 
         lastcsv=$(curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | \
             jq ".raw_messages[].msg.index | .added_bundle_images[0]" -r | sort -uV | \
             grep "${csv}:${CRW_VERSION}" | tail -1 | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-##");

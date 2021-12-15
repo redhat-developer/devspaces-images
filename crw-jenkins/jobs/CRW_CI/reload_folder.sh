@@ -47,6 +47,7 @@ pushd .. >/dev/null || exit
         if [[ -f /tmp/token ]]; then
             USERTOKEN=$(cat /tmp/token)
             for VER in "2.x"; do # "2.y"
+                # TODO remove crw-operator-metadata after 2.14
                 for JOB in \
                     sync-to-downstream \
                     get-sources-rhpkg-container-build \

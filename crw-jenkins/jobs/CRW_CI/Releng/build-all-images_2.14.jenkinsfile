@@ -85,8 +85,6 @@ timeout(600) {
 
                     if (PHASE_LIST.contains("3")) {
                         def jobsList = [
-                            "async-storage-server",     // @since 2.14
-                            "async-storage-sidecar",    // @since 2.14
                             "backup",                   // @since 2.12
                             "configbump",
                             "operator", // special case: "crw-2-rhel8-operator"

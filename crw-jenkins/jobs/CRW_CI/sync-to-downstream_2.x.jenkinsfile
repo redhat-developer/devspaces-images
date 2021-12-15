@@ -255,7 +255,7 @@ rm -f /tmp/rsync-excludes
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
                   if ("${SYNC_REPOS[i]}".contains("-operator-")) {
-                    // SPECIAL CASE FOR operator (and operator-bundle, and operator-metadata)
+                    // SPECIAL CASE FOR operator (and operator-bundle)
                     QUAY_REPO_PATH="crw-2-rhel8-" + util.getCRWShortName("${SYNC_REPOS[i]}")
                   }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
@@ -364,9 +364,7 @@ node(nodeLabelAnyArch){
                     value: (
                         REPOS.contains("-operator-bundle") ? 
                           "build+crwctl+for+operator-bundle+sync+from+${BUILD_TAG}" : 
-                            (REPOS.contains("-operator-metadata") ? 
-                            "build+crwctl+for+operator-metadata+sync+from+${BUILD_TAG}" : 
-                            "build+crwctl+for+operator+sync+from+${BUILD_TAG}")
+                          "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
                     )
                   ],
                   [

@@ -23,7 +23,7 @@ for (JB in JOB_BRANCHES) {
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."update-digests-in-metadata"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
-This job will cause the operator-bundle and operator-metadata containers to rebuild in both Brew and Quay
+This job will cause the operator-bundle container to rebuild in both Brew and Quay
 if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> using 
 <a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>
 ./getLatestTags.sh --quay --hide</a>.
@@ -31,7 +31,8 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
   Results:
   <ul>
     <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-bundle?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-bundle</a> [@since 2.12, OCP 4.8+]</li>
-    <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-metadata</a> [deprecated, OCP 4.6]</li>
+    <!-- TODO remove crw-operator-metadata after 2.14 -->
+    <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-metadata</a> [deprecated, OCP 4.6, last release 2.14]</li>
 </ul>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 

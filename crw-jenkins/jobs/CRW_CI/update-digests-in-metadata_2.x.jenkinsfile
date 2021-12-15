@@ -54,7 +54,6 @@ echo "<============ LATEST_IMAGES ============"
                         def newSet = NEW_IMAGES as Set
                         // def currentSet = CURRENT_IMAGES as Set
                         def operatorBundleImage = newSet.find { it.contains("operator-bundle") } 
-                        def operatorMetadataImage = newSet.find { it.contains("operator-metadata") } 
                         // newSet.each { echo "New: $it" }
                         // currentSet.each { echo "Current: $it" }
                         sh '''#!/bin/bash -xe
@@ -63,18 +62,18 @@ cat ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new
 echo "<============ LATEST_IMAGES.new 1 ============"
 '''
 
-                        // don't report a diff when new operator-bundle or operator-metadata, or we'll never get out of this recursion loop; instead report new images (anything that will cause a new metadata image to be rebuilt)
+                        // don't report a diff when new operator-bundle, or we'll never get out of this recursion loop; instead report new images (anything that will cause a new bundle image to be rebuilt)
                         // ignore theia-dev 
-                        def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA = sh (script: '''
+                        def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle|operator-metadata" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle" || true
                         ''', returnStdout: true).trim()
 
-                        // check diff including operator bundle or metadata, in case we forgot to update metadata
+                        // check diff including operator bundle, in case we forgot to update
                         // ignore theia-dev
-                        def DIFF_LATEST_IMAGES_METADATA_ONLY = sh (script: '''
+                        def DIFF_LATEST_IMAGES_BUNDLE_ONLY = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|operator-metadata" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle" || true
                         ''', returnStdout: true).trim()
 
                         // define what to do when we are ready to push changes
@@ -96,42 +95,32 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|
 
                         currentBuild.description="Checking for changed images..."
 
-                        if (!DIFF_LATEST_IMAGES_METADATA_ONLY.equals("") && DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA.equals("")) { 
-                            // no changes, but a newer metadata image exists
-                            currentBuild.description="New metadata image detected: commit changes to LATEST_IMAGES"
+                        if (!DIFF_LATEST_IMAGES_BUNDLE_ONLY.equals("") && DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE.equals("")) { 
+                            // no changes, but a newer bundle image exists
+                            currentBuild.description="New bundle image detected: commit changes to LATEST_IMAGES"
                             echo currentBuild.description
-                            echo DIFF_LATEST_IMAGES_METADATA_ONLY
+                            echo DIFF_LATEST_IMAGES_BUNDLE_ONLY
 
                             sh COMMITCHANGES
                             currentBuild.result='UNSTABLE'
-                        } else if (DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA.equals("")) { 
+                        } else if (DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE.equals("")) { 
                             // no changes
                             currentBuild.description="No new images detected: nothing to do!"
                             echo currentBuild.description
                             currentBuild.result='UNSTABLE'
                         } else {
-                            currentBuild.description="Detected new images: rebuild operator-bundle and operator-metadata"
-                            listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
+                            currentBuild.description="Detected new images: rebuild operator-bundle"
+                            listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
                             for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
                             echo currentBuild.description
-                            echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA
+                            echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE
 
-                            parallel metadata: {
-                                build(
-                                    job: 'crw-operator-metadata_' + JOB_BRANCH,
-                                    wait: true,
-                                    propagate: true,
-                                    parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
-                                )
-                            },
-                            bundle: {
-                                build(
-                                    job: 'crw-operator-bundle_' + JOB_BRANCH,
-                                    wait: true,
-                                    propagate: true,
-                                    parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
-                                )
-                            }
+                            build(
+                                job: 'crw-operator-bundle_' + JOB_BRANCH,
+                                wait: true,
+                                propagate: true,
+                                parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
+                            )
 
                             while (true) 
                             {
@@ -142,15 +131,6 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|
                                 echo "${rebuiltOperatorBundleImage}"
                                 if (rebuiltOperatorBundleImage!=operatorBundleImage) {
                                     echo "Operator bundle has been rebuilt!"
-                                    break
-                                }
-                                def rebuiltOperatorMetadataImage = sh (
-                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
-                                returnStdout: true
-                                ).trim()
-                                echo "${rebuiltOperatorMetadataImage}"
-                                if (rebuiltOperatorMetadataImage!=operatorMetadataImage) {
-                                    echo "Operator metadata has been rebuilt!"
                                     break
                                 }
                                 sleep(time:120,unit:"SECONDS")

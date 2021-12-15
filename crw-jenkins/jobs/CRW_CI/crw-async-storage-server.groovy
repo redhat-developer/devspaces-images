@@ -1,5 +1,9 @@
 import groovy.json.JsonSlurper
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+///// THIS FILE IS DEPRECATED and should be moved to DWO in 2.15+
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
+
 def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
 
 def jsonSlurper = new JsonSlurper();

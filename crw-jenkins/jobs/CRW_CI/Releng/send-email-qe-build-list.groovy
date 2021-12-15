@@ -20,7 +20,7 @@ for (JB in JOB_BRANCHES) {
         JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-        CSV_VERSION=config.CSVs."operator-metadata"[JB].CSV_VERSION
+        CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."send-email-qe-build-list"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''

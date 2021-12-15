@@ -70,10 +70,9 @@ Phases:
     <li> build theia images (3 images)</li>
     <li> build internals (16 images): 
         <ul>
-            <li> async-storage-server (@since 2.14), async-storage-sidecar (@since 2.14), backup (@since 2.12), 
-            <li> configbump, operator, dashboard, </li>
+            <li> backup (@since 2.12), configbump, operator, dashboard, </li>
             <li> devfileregistry, idea (@since 2.11), imagepuller, jwtproxy, machineexec, </li>
-            <li> pluginbroker-artifacts, pluginbroker-metadata, pluginregistry, server, traefik,</li>
+            <li> pluginbroker-artifacts, pluginbroker-metadata, pluginregistry, server, traefik</li>
         </ul>
     </li>
     <li> build bundle + metadata images + IIBs</li>

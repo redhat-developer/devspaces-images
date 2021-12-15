@@ -38,7 +38,8 @@ Images to copy to quay:
   <li> <a href=https://quay.io/repository/crw/configbump-rhel8?tab=tags>configbump</a> </li>
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator?tab=tags>operator</a> 
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-bundle?tab=tags>operator-bundle</a> @since 2.12
-  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a> @deprecated 2.12</li>
+  <!-- TODO remove crw-operator-metadata after 2.14 -->
+  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a> @deprecated 2.12, last release 2.14</li>
   <li> <a href=https://quay.io/repository/crw/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
 
   </td><td>
@@ -123,10 +124,12 @@ Images to copy to quay:
                 }
             } */
 
-            parameters{ // plugin-intellij
-                textParam("CONTAINERS", '''\
-configbump operator operator-bundle operator-metadata dashboard devfileregistry \
-imagepuller jwtproxy machineexec \
+            parameters{ 
+            // TODO remove crw-operator-metadata after 2.14
+                if (JB.equals("2.14")) {
+                    textParam("CONTAINERS", '''\
+operator-metadata backup configbump operator operator-bundle dashboard devfileregistry \
+idea imagepuller jwtproxy machineexec \
 pluginbroker-metadata pluginbroker-artifacts plugin-java11-openj9 plugin-java11 plugin-java8-openj9 \
 plugin-java8 plugin-kubernetes plugin-openshift pluginregistry server \
 stacks-cpp stacks-dotnet stacks-golang stacks-php theia \
@@ -134,6 +137,18 @@ theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
+                } else {
+                    textParam("CONTAINERS", '''\
+backup configbump operator operator-bundle dashboard devfileregistry \
+idea imagepuller jwtproxy machineexec \
+pluginbroker-metadata pluginbroker-artifacts plugin-java11-openj9 plugin-java11 plugin-java8-openj9 \
+plugin-java8 plugin-kubernetes plugin-openshift pluginregistry server \
+stacks-cpp stacks-dotnet stacks-golang stacks-php theia \
+theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
+* no 'crw/' or 'codeready-workspaces-' prefix><br/>
+* no '-rhel8' suffix<br/>
+* include one, some, or all as needed''')
+                }
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
                 stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
             }
