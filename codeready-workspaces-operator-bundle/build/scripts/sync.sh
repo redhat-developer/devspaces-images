@@ -69,11 +69,11 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     
     if [[ -z "${CSV_VERSION_PREV}" ]]; then
         #get from json
-        CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["operator-metadata"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
+        CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["operator-bundle"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
         CRW_VERSION_PREV="${CSV_VERSION_PREV%.*}"
         
         #check
-        if [[ ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-metadata:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
+        if [[ ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-bundle:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
             #get from latest
             curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
             if [[ $(cat /tmp/containerExtract.sh) == *"404"* ]] || [[ $(cat /tmp/containerExtract.sh) == *"Not Found"* ]]; then
@@ -81,9 +81,9 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
                 exit 1
             fi
             chmod +x /tmp/containerExtract.sh
-            /tmp/containerExtract.sh registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-metadata:latest
-            CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-operator-metadata-latest-*/manifests/codeready-workspaces.csv.yaml)"
-            rm -fr /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-operator-metadata-latest-*
+            /tmp/containerExtract.sh registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-bundle:latest
+            CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-operator-bundle-latest-*/manifests/codeready-workspaces.csv.yaml)"
+            rm -fr /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-operator-bundle-latest-*
             rm -fr /tmp/containerExtract.sh
             if [[ ${CSV_VERSION_PREV} == "null" ]]; then CSV_VERSION_PREV="main"; fi
         fi
