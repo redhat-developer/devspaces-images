@@ -1,0 +1,10 @@
+#qe
+dnochevn@redhat.com: 
+    - UNSTABLE
+    - FAILURE
+    - SUCCESS
+#productization
+mkuznets@redhat.com:
+    - UNSTABLE
+    - FAILURE
+

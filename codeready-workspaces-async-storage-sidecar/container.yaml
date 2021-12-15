@@ -1,0 +1,32 @@
+---
+platforms:
+  # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
+
+  only:
+  - x86_64
+  - s390x
+  - ppc64le
+
+compose:
+  inherit: false
+  pulp_repos: true
+  signing_intent: release
+
+# instead of docker_api, use imagebuilder for multistage builds
+image_build_method: imagebuilder
+
+remote_sources:
+- name: websocket
+  remote_source:
+    repo: https://github.com/gorilla/websocket
+    ref: b65e62901fc1c0d968042419e74789f6af455eb9
+    pkg_managers:
+      - gomod
+- name: supercronic
+  remote_source:
+    repo: https://github.com/aptible/supercronic
+    ref: 76cc5fb33cedfa1bf3520a01d26a60ba71c238b6
+    pkg_managers:
+      - gomod
+    flags:
+    - gomod-vendor
