@@ -1,0 +1,7 @@
+# IDE's #
+.theia/
+.idea/
+.vscode/
+
+# Compiled #
+dockerfiles/sidecar/scripts/watcher

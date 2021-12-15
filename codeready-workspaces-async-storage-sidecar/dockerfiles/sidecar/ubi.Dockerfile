@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: EPL-2.0
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.redhat.io/ubi8/ubi-minimal:8.3-230
+FROM registry.redhat.io/ubi8-minimal:8.5-204
 
 ENV USER=user \
     UID=12345 \
