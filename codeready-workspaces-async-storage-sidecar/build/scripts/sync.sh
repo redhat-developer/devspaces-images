@@ -124,7 +124,7 @@ COPY --from=builder $REMOTE_SOURCES_DIR/supercronic/app/supercronic /supercronic
   -e '/content_sets_centos8/d' \
   `# Provide scripts from builder image` \
   -e 's#COPY cron/backup-cron-job#COPY --from=builder /workspace-data-sync/dockerfiles/sidecar/cron/backup-cron-job#g' \
-  -e 's#COPY scripts#COPY --from=builder /workspace-data-sync/dockerfiles/sidecar/s/scripts#g' \
+  -e 's#COPY scripts#COPY --from=builder /workspace-data-sync/dockerfiles/sidecar/scripts#g' \
   `# Insert builder image in the beginning` \
   -e "/# SPDX-License-Identifier: EPL-2.0/a \
    $build_image_multiline
