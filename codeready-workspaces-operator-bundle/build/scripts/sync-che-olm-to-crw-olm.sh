@@ -24,7 +24,7 @@ OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operato
 
 # TODO https://issues.redhat.com/browse/CRW-2167 switch to DWO 0.9
 DWO_TAG=0.9
-SSO_TAG=7.5
+SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
 OPENSHIFT_TAG="v4.8"
@@ -122,7 +122,7 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES_TAG}"
-SSO_IMAGE="registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8 too
+SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
