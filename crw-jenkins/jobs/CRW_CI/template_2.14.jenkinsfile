@@ -68,7 +68,9 @@ cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
             OLD_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
             println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_MID_SHA
 
-            CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+            // might be already defined by the referring job
+            CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+
             CSV_VERSION_BASE=CSV_VERSION.replaceAll("([0-9]+\\.[0-9]+)\\.[0-9]+","\$1"); // extract 2.yy from 2.yy.z
             // print "CSV_VERSION_BASE=" + CSV_VERSION_BASE
 
@@ -139,6 +141,11 @@ fi
                   $class: 'StringParameterValue',
                   name: 'JOB_BRANCH',
                   value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'CSV_VERSION',
+                  value: (CSV_VERSION ? CSV_VERSION : util.globalVar({CSV_VERSION}))
                 ],
                 [
                   $class: 'StringParameterValue',

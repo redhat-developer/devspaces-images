@@ -35,7 +35,8 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
               cleanWs()
               util.installYq()
               util.installHub("2.14.2", GOLANG_VERSION)
-              CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+              // might be already defined by the referring job
+              CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
               println("[INFO] Using CSV version = " + CSV_VERSION)
               util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
               nodeLabelString = sh( 
@@ -87,7 +88,8 @@ popd
                   def util = load "${WORKSPACE}/util.groovy"
                   cleanWs()
                   util.installHub("2.14.2", GOLANG_VERSION)
-                  CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+                  // might be already defined by the referring job
+                  CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
                   util.loginToRegistries() // force log in to registries
                   util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
@@ -175,15 +177,8 @@ timeout(600) {
                 if (currentBuild.description?.trim()) { currentBuild.description+="<br/>" }
                 currentBuild.description+="Build container: ${SYNC_REPOS[i]}"
 
-                // SPECIAL CASE FOR operator-bundle 2.14
-                if ("${SYNC_REPOS[i]}".contains("-operator-bundle")) {
-                  def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
-                  def jsonSlurper = new JsonSlurper();
-                  def config = jsonSlurper.parseText(curlCMD);
-                  CSV_VERSION=config.CSVs."operator-bundle"["2.14"].CSV_VERSION
-                } else {
-                  CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
-                }
+                // might be already defined by the referring job
+                CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                 println("[INFO] Using CSV version = " + CSV_VERSION)
 
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected

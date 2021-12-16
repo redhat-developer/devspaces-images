@@ -1,11 +1,11 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Management-Jobs"."sync-to-downstream".keySet()
+def JOB_BRANCHES = config."Management-Jobs"."sync-to-downstream"?.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -71,6 +71,7 @@ codeready-workspaces-stacks-php''')
                 stringParam("OPENSHIFT_CONTENT_SET_VERSION", config.Other.OPENSHIFT_CONTENT_SET_VERSION[JB])
                 stringParam("nodeVersion", "", "Leave blank if not needed")
                 stringParam("yarnVersion", "", "Leave blank if not needed")
+                stringParam("CSV_VERSION", "", "Leave blank to compute from job-config.json")
                 stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for hub install")
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
