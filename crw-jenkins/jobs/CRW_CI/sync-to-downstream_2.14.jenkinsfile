@@ -175,7 +175,15 @@ timeout(600) {
                 if (currentBuild.description?.trim()) { currentBuild.description+="<br/>" }
                 currentBuild.description+="Build container: ${SYNC_REPOS[i]}"
 
-                CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+                // SPECIAL CASE FOR operator-bundle 2.14
+                if ("${SYNC_REPOS[i]}".contains("-operator-bundle")) {
+                  def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+                  def jsonSlurper = new JsonSlurper();
+                  def config = jsonSlurper.parseText(curlCMD);
+                  CSV_VERSION=config.CSVs."operator-bundle"["2.14"].CSV_VERSION
+                } else {
+                  CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+                }
                 println("[INFO] Using CSV version = " + CSV_VERSION)
 
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
