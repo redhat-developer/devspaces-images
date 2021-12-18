@@ -7,7 +7,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.16.7-5 as builder
+FROM registry.access.redhat.com/ubi8/go-toolset:1.16.7-5.1638364094 as builder
 ENV GOPATH=/tmp/go/
 
 ENV REST_SERVER_TAG=v0.10.0
