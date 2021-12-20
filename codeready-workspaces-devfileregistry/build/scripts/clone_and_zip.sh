@@ -9,7 +9,7 @@
 
 set -e
 
-TEMP_REPO="/tmp/cloned"
+TEMP_REPO=$(mktemp -d -u)
 
 # Clone a git repository and create an archive zip at a specified location
 # Args:
@@ -23,7 +23,6 @@ function clone_and_zip() {
   local destination="$3"
   local sparse_checkout_dir="$4"
 
-  rm -fr "$TEMP_REPO"
   git clone "$repo" -b "$branch" --depth 1 "$TEMP_REPO" -q
   pushd "$TEMP_REPO" &>/dev/null
     if [ -n "$sparse_checkout_dir" ]; then
