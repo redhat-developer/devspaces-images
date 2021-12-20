@@ -1020,38 +1020,34 @@
   "CSVs": {
     "operator-bundle": {
       "2.13": {
-        "CSV_VERSION": "2.13.1",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION": "2.13.101-0.1639666401.p",
+        "CSV_VERSION_PREV": "2.13.100"
       },
       "2.14": {
-        "CSV_VERSION": "2.14.0",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION": "2.14.100",
+        "CSV_VERSION_PREV": "2.13.101-0.1639666401.p"
       },
       "2.15": {
         "CSV_VERSION": "2.15.0",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION_PREV": "2.13.101-0.1639666401.p"
       },
       "2.x": {
         "CSV_VERSION": "2.15.0",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION_PREV": "2.13.101-0.1639666401.p"
       }
     },
     "operator-metadata": {
       "2.13": {
-        "CSV_VERSION": "2.13.1",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION": "2.13.1-0.1639666398.p",
+        "CSV_VERSION_PREV": "2.13.1"
       },
       "2.14": {
         "CSV_VERSION": "2.14.0",
-        "CSV_VERSION_PREV": "2.13.0"
-      },
-      "2.15": {
-        "CSV_VERSION": "2.15.0",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION_PREV": "2.13.1-0.1639666398.p"
       },
       "2.x": {
         "CSV_VERSION": "2.15.0",
-        "CSV_VERSION_PREV": "2.13.0"
+        "CSV_VERSION_PREV": "2.13.1-0.1639666398.p"
       }
     }
   },
@@ -1088,7 +1084,7 @@
     },
     "@eclipse-che/plugin-registry-generator": {
       "2.13": "7.38.2",
-      "2.14": "7.40.1",
+      "2.14": "7.40.2",
       "2.15": "next",
       "2.x": "next"
     },
@@ -1104,14 +1100,14 @@
         "THEIA_COMMIT_SHA": "cd50236f058843ec6ca53bad7eee89de1cda4460"
       },
       "2.15": {
-        "THEIA_BRANCH": "crw-2.14.0",
-        "THEIA_GITHUB_REPO": "redhat-developer/eclipse-theia",
-        "THEIA_COMMIT_SHA": "cd50236f058843ec6ca53bad7eee89de1cda4460"
+        "THEIA_BRANCH": "master",
+        "THEIA_GITHUB_REPO": "eclipse-theia/theia",
+        "THEIA_COMMIT_SHA": ""
       },
       "2.x": {
-        "THEIA_BRANCH": "crw-2.14.0",
-        "THEIA_GITHUB_REPO": "redhat-developer/eclipse-theia",
-        "THEIA_COMMIT_SHA": "cd50236f058843ec6ca53bad7eee89de1cda4460"
+        "THEIA_BRANCH": "master",
+        "THEIA_GITHUB_REPO": "eclipse-theia/theia",
+        "THEIA_COMMIT_SHA": ""
       }
     },
     "OPENSHIFT_CONTENT_SET_VERSION": {
