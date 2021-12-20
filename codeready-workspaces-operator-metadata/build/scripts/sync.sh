@@ -69,21 +69,24 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     
     if [[ -z "${CSV_VERSION_PREV}" ]]; then
         #get from json
-        CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["operator-metadata"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
+        CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["'${MIDSTM_NAME}'"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
         CRW_VERSION_PREV="${CSV_VERSION_PREV%.*}"
+        echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$CRW_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}"
         
-        #check if metadata image exists for that tag
-        if [[ ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-metadata:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
-            # else get from latest
+        # check if image exists for that tag (doesn't work with CVE respins, only manual releases)
+        if [[ ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
+            # else get from latest released image
             curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
             if [[ $(cat /tmp/containerExtract.sh) == *"404"* ]] || [[ $(cat /tmp/containerExtract.sh) == *"Not Found"* ]]; then
                 echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh"
                 exit 1
             fi
             chmod +x /tmp/containerExtract.sh
-            /tmp/containerExtract.sh registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator-metadata:latest
-            CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-operator-metadata-latest-*/manifests/codeready-workspaces.csv.yaml)"
-            rm -fr /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-operator-metadata-latest-*
+            # NOTE: for CVE respins, container tag != CSV version, so we have to extract the container to get the CSV version, then replace + with -
+            /tmp/containerExtract.sh registry.redhat.io/codeready-workspaces/crw-2-rhel8-${MIDSTM_NAME}:latest
+            CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-${MIDSTM_NAME}-latest-*/manifests/codeready-workspaces.csv.yaml | tr "+" "-")"
+            echo "[INFO] registry.redhat.io/codeready-workspaces/crw-2-rhel8-${MIDSTM_NAME}:latest#.spec.version = ${CSV_VERSION_PREV}"
+            rm -fr /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-${MIDSTM_NAME}-latest-*
             rm -fr /tmp/containerExtract.sh
             if [[ ${CSV_VERSION_PREV} == "null" ]]; then CSV_VERSION_PREV="main"; fi
         fi
