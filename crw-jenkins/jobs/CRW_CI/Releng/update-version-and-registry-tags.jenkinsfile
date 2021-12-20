@@ -6,18 +6,17 @@
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
 def MIDSTM_BRANCH = "crw-2-rhel-8"
 
-def buildNode = "rhel83||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
+def buildNode = "x86_64-rhel8||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
 timeout(120) {
     node("${buildNode}"){ 
         stage ("update versions/tags; disable ${CRW_VERSION} jobs") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                    file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) 
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) 
                 {
                     cleanWs()
-                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-                    def util = load "${WORKSPACE}/util.groovy"
-                    util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, false)
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
+                    util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, false)
                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                     currentBuild.description="Update ${MIDSTM_BRANCH} to ${CRW_VERSION}; disable ${CRW_VERSION} jobs ..."
                     sh '''#!/bin/bash

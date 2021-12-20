@@ -36,22 +36,18 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 
 def errorOccurred = ""
 
-def nodeLabel = "rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8"
+def nodeLabel = "x86_64-rhel8||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8"
 timeout(90) {
     node("${nodeLabel}"){ 
-        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-            def util = load "${WORKSPACE}/util.groovy"
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+            def util = load "${WORKSPACE}/util2.groovy"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
             try { 
                 stage "Fetch latest image tags and send email"
                 cleanWs()
-                util.installSkopeoFromContainer("")
-                util.installYq()
-                util.installBrewKoji()
                 MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
                 if (mailSubject.contains("CRW " + CSV_VERSION + ".tt-" + MMdd + " ready for QE") || mailSubject.equals(""))
                 {

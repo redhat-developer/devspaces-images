@@ -14,8 +14,8 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 
-def String nodeLabelAnyArch = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
-def String nodeLabelXArch='rhel83||x86_64-rhel8' 
+def String nodeLabelAnyArch = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabelXArch='x86_64-rhel8' 
 
 currentBuild.description=""
 for (int i=0; i < SYNC_REPOS.size(); i++) {
@@ -30,15 +30,13 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
           // prestage #0 - get arches on which to build
           stage("Get arches + delete old assets"){
             withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
-              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-              def util = load "${WORKSPACE}/util.groovy"
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
               cleanWs()
-              util.installYq()
-              util.installHub("2.14.2", GOLANG_VERSION)
               // might be already defined by the referring job
               CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
               println("[INFO] Using CSV version = " + CSV_VERSION)
-              util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
               nodeLabelString = sh( 
                 script: '''
 curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
@@ -78,27 +76,19 @@ popd
           timeout(120) {
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
-                withCredentials([
-                  string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                  string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
-                  usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
-                  file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')
-                ]) {
-                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                  def util = load "${WORKSPACE}/util.groovy"
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  def util = load "${WORKSPACE}/util2.groovy"
                   cleanWs()
-                  util.installHub("2.14.2", GOLANG_VERSION)
                   // might be already defined by the referring job
                   CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
-                  util.loginToRegistries() // force log in to registries
-                  util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
                     pushd sources/''' + SYNC_REPOi + '''
-                    if [[ -f get-sources.sh ]]; then 
-                      sudo setenforce 0 || true # disable selinux for podman builds
+                    if [[ -f get-sources.sh ]]; then
                       ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
-                    else 
+                    else
                       echo "[ERROR] Could not run get-sources.sh --publish-assets (for ''' + SYNC_REPOi + ''')"; exit 1
                     fi
                     popd
@@ -127,37 +117,15 @@ timeout(600) {
   node(nodeLabelAnyArch) {
     stage ("Sync repos on ${nodeLabelAnyArch}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-        def util = load "${WORKSPACE}/util.groovy"
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
         cleanWs()
-        if (currentBuild.description?.trim()) {
-          currentBuild.description+="<br/>"
-        } else {
-          currentBuild.description=""
-        }
-        currentBuild.description+="Install skopeo, rhpkg, "
-        util.installSkopeoFromContainer("")
-        util.installRhpkg()
-        util.installHub("2.14.2", GOLANG_VERSION) // for get-sources.sh -> uploadAssetsToGHRelease.sh
-        // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
-        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
-          if (REPOS.contains("-theia-dev") || REPOS.contains("-dashboard")) { // need make, c++ for node-gyp
-            currentBuild.description+="node, yarn, make, c++, node-gyp;<br/> "
-            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
-          } else {
-            currentBuild.description+="node, yarn;"
-            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
-          }
-        }
 
-          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
-            util.bootstrap(CRW_KEYTAB, true) // force bootstrapping again on each node, in case we haven't logged in to registries
-            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
-
+            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
@@ -342,8 +310,8 @@ rm -f /tmp/rsync-excludes
 node(nodeLabelAnyArch){ 
   stage ("Build crwctl on ${nodeLabelAnyArch}") {
     if (REPOS.contains("-operator-")) { 
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-      def util = load "${WORKSPACE}/util.groovy"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      def util = load "${WORKSPACE}/util2.groovy"
       JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
       println "########################################################################################################"
       println "##  Build crwctl ${JOB_BRANCH}"

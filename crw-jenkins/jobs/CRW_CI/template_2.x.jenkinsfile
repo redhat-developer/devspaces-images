@@ -17,29 +17,22 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-      def util = load "${WORKSPACE}/util.groovy"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+      def util = load "${WORKSPACE}/util2.groovy"
       cleanWs()
       CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
       println "CRW_VERSION = '" + CRW_VERSION + "'"
-      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'), 
-          usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
-          file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-            util.installSkopeoFromContainer("")
-            util.installYq()
-            // install node and yarn if versions defined
-            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) { util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion})) }
-
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
             SOURCE_DIR="${WORKSPACE}/sources"
-            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
+            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
             // fetch correct build tag if defined (eg., traefik)
             if (util.globalVar({SOURCE_TAG})?.trim()) { 
               sh('''#!/bin/bash
@@ -63,7 +56,7 @@ cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
             println "########################################################################################################"
             println "##  Sync ${SYNC_REPO} to codeready-workspaces-images"
             println "########################################################################################################"
-            util.cloneRepoWithBootstrap("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
+            util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
             TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getCRWLongName(SYNC_REPO)
             OLD_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
             println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_MID_SHA

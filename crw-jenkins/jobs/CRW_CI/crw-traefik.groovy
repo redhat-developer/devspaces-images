@@ -91,7 +91,6 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_REPO", MIDSTM_REPO)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
-                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for 2.y, use 1.16.2 (traefik from v2.5.0)")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 

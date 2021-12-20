@@ -119,8 +119,6 @@ Results:
                 stringParam("THEIA_BRANCH", THEIA_BRANCH, "Eclipse Theia branch/tag to build")
                 stringParam("THEIA_GITHUB_REPO", THEIA_GITHUB_REPO, "default: eclipse-theia/theia; fork: redhat-developer/eclipse-theia")
                 stringParam("THEIA_COMMIT_SHA", THEIA_COMMIT_SHA, "leave blank to compute; or look at https://github.com/eclipse-che/che-theia/blob/7.y.x/build.include#L17")
-                stringParam("nodeVersion", NODE_VERSION, "Leave blank if not needed")
-                stringParam("yarnVersion", YARN_VERSION, "Leave blank if not needed")
                 // TODO CRW-1609 implement tag deletion option
                 // booleanParam("cleanTmpImages", false, "If true, delete tmp images from quay before starting build(s)")
                 // @since 2.9 - sync-to-downstream expects comma separated values

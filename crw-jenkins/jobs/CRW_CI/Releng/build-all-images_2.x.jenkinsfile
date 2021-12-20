@@ -4,25 +4,19 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
 
-def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(600) {
     node(nodeLabel) {
         stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-                def util = load "${WORKSPACE}/util.groovy"
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
-                util.installSkopeoFromContainer("")
-                util.installYq()
-                util.installRhpkg()
-                util.installBrewKoji()
                 CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                 println "CRW_VERSION = '" + CRW_VERSION + "'"
                 JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
                 currentBuild.description="Jobs run:"
-                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                     def currentJob="" // name of job
                     def currentQuayImage="" // last successful quay tag
                     def jenkinsPath="/job/CRW_CI/job/"

@@ -11,7 +11,7 @@ def MIDSTM_REPO = "redhat-developer/codeready-workspaces-images" // repo to use 
 def MIDSTM_NAME="traefik"
 //   FORCE_BUILD = "false"
 def SYNC_REPO = MIDSTM_NAME
-//   GOLANG_VERSION = "1.16.2"
+def GOLANG_VERSION = "1.16.2"
 
 def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
