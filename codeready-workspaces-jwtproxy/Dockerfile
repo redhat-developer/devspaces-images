@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.16.7-5 as builder
+FROM rhel8/go-toolset:1.16.12-2 as builder
 ENV GOPATH=/go/
 ENV PATH=/usr/lib/golang/bin:$PATH
 USER root
