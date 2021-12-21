@@ -158,7 +158,7 @@ timeout(600) {
                 println "########################################################################################################"
                 println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
                 sh('''
 SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"

@@ -98,9 +98,8 @@ timeout(600) {
                         def Map tasks = [failFast: false]
                         // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
                         for (job in jobsList) {
-                            def key="${job}"// job name
+                            def key=job.toString().trim().equals("operator") ? "crw-2-rhel8-operator" : "${job}"// job name
                             def val="${key}-rhel8" // image name
-                            if (key.equals("operator")) { val="crw-2-rhel8-operator" }
                             def currentJobLoc="crw-" + key + "_" + JOB_BRANCH
                             if (!util.checkURL(jenkinsURL + currentJobLoc)) { 
                                 println("[WARNING] No such job " + jenkinsURL + currentJobLoc + " : skip!"); 
