@@ -70,7 +70,9 @@ RUN ./swap_yamlfiles.sh devfiles
 RUN ./swap_images.sh devfiles
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
+RUN ./generate_devworkspace_templates.sh
 RUN chmod -R g+rwX /build/devfiles
+RUN chmod -R g+rwX /build/resources
 
 ################# 
 # PHASE TWO: configure registry image
