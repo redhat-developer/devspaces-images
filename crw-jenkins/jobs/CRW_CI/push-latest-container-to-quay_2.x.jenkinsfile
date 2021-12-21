@@ -97,7 +97,6 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             returnStdout: true
                         ).trim()
 
-                        archiveArtifacts fingerprint: false, artifacts:"LATEST_IMAGES*"
                         currentBuild.description="Copied: " + CONTAINERS.trim().replaceAll(" ",", ")
                         if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("")) {
                             // error! quay and nvr versions do not match
@@ -127,6 +126,16 @@ Quay Images:
 Brew NVRs:
 ''' + NEW_NVR_L
                         } // with
+                    cleanWs(
+                        cleanWhenSuccess: true,
+                        cleanWhenUnstable: true,
+                        cleanWhenNotBuilt: false,
+                        cleanWhenFailure: false,
+                        cleanWhenAborted: true,
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true
+                    )
                 } // wrap 
             } // stage
             if (!errorOccurred.equals("")) {
@@ -235,6 +244,16 @@ fi
             }
         } // if metadata or bundle
     } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: false,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
   } // stage
 } //node
 
@@ -272,5 +291,15 @@ node(nodeLabel){
             currentBuild.description+="; crw-theia-akamai triggered"
         } // if 2
     } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: false,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
   } // stage
 } //node

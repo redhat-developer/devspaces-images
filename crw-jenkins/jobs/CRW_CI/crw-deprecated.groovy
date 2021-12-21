@@ -1,5 +1,5 @@
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-///// THIS FILE IS DEPRECATED and should be removed for 2.14
+///// THIS FILE IS DEPRECATED and should be removed after 2.14 is live
 ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 
 import groovy.json.JsonSlurper

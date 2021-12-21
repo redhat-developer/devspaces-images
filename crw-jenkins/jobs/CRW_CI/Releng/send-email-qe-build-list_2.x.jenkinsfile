@@ -87,7 +87,6 @@ timeout(90) {
                         returnStdout: true
                     ).trim()
 
-                    archiveArtifacts fingerprint: false, artifacts:"LATEST_IMAGES*"
                     if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("")) {
                         // error! quay and nvr versions do not match
                         errorOccurred = errorOccurred + 'Error: Quay & Brew image versions not aligned:\n' + 

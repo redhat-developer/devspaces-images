@@ -44,7 +44,6 @@ Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
             booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")
-            booleanParam("ARCHIVE_ARTIFACTS_IN_JENKINS", false, "default false; check box to archive artifacts for testing purposes")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

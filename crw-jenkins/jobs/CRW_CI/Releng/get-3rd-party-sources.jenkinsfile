@@ -37,11 +37,6 @@ cd ${WORKSPACE}/crw/product/manifest/ && ./get-3rd-party-sources.sh --clean -b '
 '''
           currentBuild.description="Sources collected for " + CSV_VERSION
 
-          if (ARCHIVE_ARTIFACTS_IN_JENKINS.equals("true")) {
-          archiveArtifacts allowEmptyArchive: true, 
-            artifacts: "sources/containers/**, sources/vscode/**, crw/product/manifest/${CSV_VERSION}/**"
-          }
-
           // Upload the artifacts and sources to RCM_GUEST server
           if (PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
             // make sure we have a valid kerberos ticket for crw-build user

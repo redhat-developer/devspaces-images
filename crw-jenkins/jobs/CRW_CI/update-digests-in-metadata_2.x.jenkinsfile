@@ -138,10 +138,18 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle"
 
                             sh COMMITCHANGES
                         }
-                        archiveArtifacts fingerprint: false, artifacts:"crw/dependencies/LATEST_IMAGES*"
-                        
                     } // with
                 } // wrap
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: false,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
             } // stage
         } catch (e) {
             if (errorOccurred) {

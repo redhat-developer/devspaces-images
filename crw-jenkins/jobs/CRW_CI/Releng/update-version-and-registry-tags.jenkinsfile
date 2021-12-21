@@ -38,6 +38,16 @@ done
                     currentBuild.description="Updated ${MIDSTM_BRANCH} to ${CRW_VERSION}"
                 }
             }
-        }
-    }
-}
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: false,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+        } // stage
+    } // node
+} //timeout

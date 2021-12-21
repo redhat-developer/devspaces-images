@@ -47,7 +47,6 @@ Collect sources from pkgs.devel and vsix files and push GH as part of a GA relea
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
             booleanParam("TAG_RELEASE", false, "if true, tag the repos before collecting manifests")
-            booleanParam("ARCHIVE_ARTIFACTS_IN_JENKINS", false, "default false; check box to archive artifacts for testing purposes")
         }
 
         // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

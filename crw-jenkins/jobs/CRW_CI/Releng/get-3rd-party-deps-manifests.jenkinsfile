@@ -82,11 +82,18 @@ git pull origin ''' + MIDSTM_BRANCHNEXT + '''
 git cherry-pick $lastcommit
 git push origin ''' + MIDSTM_BRANCHNEXT + '''
 '''
-          if (ARCHIVE_ARTIFACTS_IN_JENKINS.equals("true")) {
-            archiveArtifacts allowEmptyArchive: true, artifacts: "crw/product/manifest/${CSV_VERSION}/**"
-          }
         } // with
       } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
     } // stage
   } //node
 } // timeout

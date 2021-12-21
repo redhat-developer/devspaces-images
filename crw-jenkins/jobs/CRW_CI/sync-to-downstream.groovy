@@ -25,9 +25,6 @@ for (JB in JOB_BRANCHES) {
             description('''
 Sync job between midstream repo https://github.com/redhat-developer/codeready-workspaces-images and pkgs.devel to provide sources for the plugin- and stack- images.
 
-<p>Several builds triggered by this job depend on artifacts from 
-<a href=../crw-deprecated_''' + JOB_BRANCH + '''/>crw-deprecated_''' + JOB_BRANCH + '''</a>
-
 <p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.
             ''')
 

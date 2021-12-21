@@ -38,6 +38,16 @@ git push origin ''' + MIDSTM_BRANCH + ''' || true
 
           } // withCredentials
       } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
     } // stage
   } // node
 } // timeout

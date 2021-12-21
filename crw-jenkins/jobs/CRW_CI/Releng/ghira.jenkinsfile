@@ -38,6 +38,16 @@ python ghira ''' + "${GHIRA_OPTIONS}" + '''
                             '''
                     } // with tokens
                 } // wrap
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: false,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
             } // stage
         } catch (e) {
             if (errorOccurred) {

@@ -95,7 +95,7 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
   echo "[sync] Updated  @ \$(git rev-parse --short=4 HEAD) from ''' + SOURCE_REPO + ''' @ ''' + OLD_SOURCE_SHA + '''"
 fi
             ''')
-        }
+        } // with
         NEW_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
         println "Got NEW_MID_SHA in targetdwn folder: " + NEW_MID_SHA
 
@@ -167,7 +167,17 @@ fi
           currentBuild.description+="; No sync or Brew build"
           currentBuild.result = 'UNSTABLE'
         }
-      } // withCredentials
-    } // wrap
+      } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } // stage
   } // node
 } // timeout

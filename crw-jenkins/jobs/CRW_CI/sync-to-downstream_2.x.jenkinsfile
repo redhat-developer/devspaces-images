@@ -106,6 +106,16 @@ popd
         println "##  Build assets for " + SYNC_REPOi
         println "########################################################################################################"
         parallel(tasks)
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: false,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
       }
     }//if
   }//if not null
@@ -301,6 +311,16 @@ rm -f /tmp/rsync-excludes
               } // if SYNC_REPO[i] is non-null
             } // for
           } // withCredentials
+          cleanWs(
+              cleanWhenSuccess: true,
+              cleanWhenUnstable: true,
+              cleanWhenNotBuilt: false,
+              cleanWhenFailure: false,
+              cleanWhenAborted: true,
+              deleteDirs: true,
+              disableDeferredWipeout: true,
+              notFailBuild: true
+          )
       } // wrap
     } // stage
   } // node
@@ -355,5 +375,15 @@ node(nodeLabelAnyArch){
         util.notifyBuildFailed()
       } // if
     } // if operator
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: false,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
   } // stage
 } //node

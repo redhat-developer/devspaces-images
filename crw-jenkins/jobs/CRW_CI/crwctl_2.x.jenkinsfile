@@ -51,10 +51,6 @@ cd ${WORKSPACE}/codeready-workspaces-chectl
   (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
           )
 
-          currentBuild.description="Builds done; archiving artifacts (deprecated) ..."
-          // TODO remove this when QE has migrated to GH releases
-          archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/*logs/**, **/dist/**/*.tar.gz, **/dist/*.json, **/dist/linux-x64, **/dist/win32-x64, **/dist/darwin-x64, **/*sources.tar.gz"
-
           if (versionSuffix.equals("GA")){
             currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + 
               "assets>" + CSV_VERSION + " GA</a>"
@@ -76,6 +72,16 @@ cd ${WORKSPACE}/codeready-workspaces-chectl
         } finally {
           // nothing to do here
         }
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: false,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
       } // with
     } // stage
   } // node
