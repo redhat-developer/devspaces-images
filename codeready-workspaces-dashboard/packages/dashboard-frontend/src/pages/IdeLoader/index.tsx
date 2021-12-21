@@ -30,7 +30,7 @@ import Header from '../../components/Header';
 import WorkspaceLogs from '../../components/LogsTab';
 import { LoadIdeSteps } from '../../containers/IdeLoader';
 import { delay } from '../../services/helpers/delay';
-import { IdeLoaderTab } from '../../services/helpers/types';
+import { WorkspaceStatus, DevWorkspaceStatus, IdeLoaderTab } from '../../services/helpers/types';
 
 import workspaceStatusLabelStyles from '../../components/WorkspaceStatusLabel/index.module.css';
 import './IdeLoader.styl';
@@ -55,7 +55,7 @@ type Props = {
 type State = {
   ideUrl?: string;
   workspaceId: string;
-  alertVisible: boolean;
+  isPopupAlertVisible: boolean;
   activeTabKey: IdeLoaderTab;
   currentRequestError: string;
   currentAlertVariant?: AlertVariant;
@@ -86,7 +86,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      alertVisible: false,
+      isPopupAlertVisible: false,
       currentRequestError: '',
       isDevWorkspace: this.props.isDevWorkspace,
       workspaceId: this.props.workspaceId,
@@ -102,53 +102,37 @@ class IdeLoader extends React.PureComponent<Props, State> {
       event: React.MouseEvent<HTMLElement, MouseEvent>,
       tabIndex: React.ReactText,
     ): void => {
-      this.setState({ activeTabKey: tabIndex as IdeLoaderTab });
-      if (this.state.activeTabKey === IdeLoaderTab.Progress) {
-        this.setState({ alertVisible: false });
-      }
+      this.setState({
+        activeTabKey: tabIndex as IdeLoaderTab,
+        isPopupAlertVisible: tabIndex === IdeLoaderTab.Logs,
+      });
     };
 
-    // Init showAlert
-    let showAlertTimer: number;
     this.showAlert = (alertOptions: AlertOptions): void => {
+      const { activeTabKey } = this.state;
+
       this.setState({
         currentRequestError: alertOptions.title,
         currentAlertVariant: alertOptions.alertVariant,
         alertActionLinks: alertOptions?.alertActionLinks,
         alertBody: alertOptions?.body,
+        isPopupAlertVisible: activeTabKey === IdeLoaderTab.Logs,
       });
-      if (this.state.activeTabKey === IdeLoaderTab.Progress) {
-        return;
-      }
-      this.setState({ alertVisible: true });
-      if (showAlertTimer) {
-        clearTimeout(showAlertTimer);
-      }
-      showAlertTimer = window.setTimeout(
-        () => {
-          this.setState({ alertVisible: false });
-        },
-        alertOptions.alertVariant === AlertVariant.success ? 2000 : 10000,
-      );
     };
     this.hideAlert = (): void => {
       this.setState({
-        alertVisible: false,
+        isPopupAlertVisible: false,
         currentRequestError: '',
       });
     };
     // Prepare showAlert as a callback
     if (this.props.callbacks) {
-      if (this.props.callbacks.showAlert === undefined) {
-        this.props.callbacks.showAlert = (alertOptions: AlertOptions) => {
-          this.showAlert(alertOptions);
-        };
-      }
-      if (this.props.callbacks.hideAlert === undefined) {
-        this.props.callbacks.hideAlert = () => {
-          this.hideAlert();
-        };
-      }
+      this.props.callbacks.showAlert = (alertOptions: AlertOptions) => {
+        this.showAlert(alertOptions);
+      };
+      this.props.callbacks.hideAlert = () => {
+        this.hideAlert();
+      };
     }
   }
 
@@ -185,7 +169,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
     if (this.state.workspaceId !== workspaceId) {
       this.setState({
         workspaceId,
-        alertVisible: false,
+        isPopupAlertVisible: false,
       });
     }
 
@@ -226,11 +210,15 @@ class IdeLoader extends React.PureComponent<Props, State> {
   }
 
   private getIcon(step: LoadIdeSteps, className = ''): React.ReactNode {
-    const { currentStep, hasError } = this.props;
+    const { currentStep, status, isDevWorkspace } = this.props;
     if (currentStep > step) {
       return <CheckCircleIcon className={className} color="green" />;
     } else if (currentStep === step) {
-      if (hasError) {
+      if (isDevWorkspace) {
+        if (status === DevWorkspaceStatus.FAILED || status === DevWorkspaceStatus.FAILING) {
+          return <ExclamationCircleIcon className={className} color="red" />;
+        }
+      } else if (status === WorkspaceStatus.ERROR) {
         return <ExclamationCircleIcon className={className} color="red" />;
       }
       return (
@@ -284,7 +272,8 @@ class IdeLoader extends React.PureComponent<Props, State> {
 
   public render(): React.ReactElement {
     const { workspaceName, workspaceId, ideUrl, status, currentStep } = this.props;
-    const { alertVisible, currentAlertVariant, currentRequestError, alertActionLinks } = this.state;
+    const { isPopupAlertVisible, currentAlertVariant, currentRequestError, alertActionLinks } =
+      this.state;
 
     if (ideUrl) {
       return (
@@ -301,14 +290,16 @@ class IdeLoader extends React.PureComponent<Props, State> {
     return (
       <React.Fragment>
         <Head pageName={`Loading ${workspaceName}`} />
-        {alertVisible && (
+        {isPopupAlertVisible && currentRequestError && (
           <AlertGroup isToast>
             <Alert
               variant={currentAlertVariant}
               title={currentRequestError}
               actionClose={<AlertActionCloseButton onClose={this.hideAlert} />}
               actionLinks={alertActionLinks}
-            />
+            >
+              {this.state.alertBody}
+            </Alert>
           </AlertGroup>
         )}
         <Header title={`Starting workspace ${workspaceName}`} status={status} />
@@ -325,16 +316,12 @@ class IdeLoader extends React.PureComponent<Props, State> {
               id="ide-loader-page-wizard-tab"
             >
               <PageSection>
-                {this.state.currentRequestError && (
+                {currentRequestError && (
                   <Alert
                     isInline
                     variant={currentAlertVariant}
                     title={currentRequestError}
-                    actionClose={
-                      <AlertActionCloseButton
-                        onClose={() => this.setState({ currentRequestError: '' })}
-                      />
-                    }
+                    actionClose={<AlertActionCloseButton onClose={this.hideAlert} />}
                     actionLinks={alertActionLinks}
                   >
                     {this.state.alertBody}

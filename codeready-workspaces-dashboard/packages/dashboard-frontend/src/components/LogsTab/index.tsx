@@ -21,15 +21,14 @@ import {
 } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { WorkspaceStatus } from '../../services/helpers/types';
 import LogsTools from './LogsTools';
 import { AppState } from '../../store';
 import { selectAllWorkspaces, selectLogs } from '../../store/Workspaces/selectors';
+import { isEqual } from 'lodash';
 
 import styles from './index.module.css';
 
 const maxLogLength = 200;
-const errorRe = /^Error: /gi;
 
 type Props = {
   workspaceId: string;
@@ -44,6 +43,8 @@ type State = {
 };
 
 export class LogsTab extends React.PureComponent<Props, State> {
+  private readonly errorRe: RegExp;
+
   constructor(props: Props) {
     super(props);
 
@@ -53,6 +54,8 @@ export class LogsTab extends React.PureComponent<Props, State> {
       hasError: false,
       logs: [],
     };
+
+    this.errorRe = props.isDevWorkspace ? /^[1-9]{0,5} error occurred:/i : /^Error: /i;
   }
 
   public componentDidMount(): void {
@@ -71,58 +74,55 @@ export class LogsTab extends React.PureComponent<Props, State> {
         return;
       }
 
-      const hasError =
-        workspace.status && WorkspaceStatus[workspace.status] === WorkspaceStatus.ERROR;
-      if (hasError && !this.state.hasError) {
-        this.setState({ hasError });
-      }
-
-      const isStopped =
-        workspace.status !== undefined &&
-        WorkspaceStatus[workspace.status] === WorkspaceStatus.STOPPED;
-      if (this.state.isStopped !== isStopped) {
-        this.setState({ isStopped });
-      }
-
       const logs = workspacesLogs.get(workspaceId);
-      // it's comparing of internal references of two objects
-      if (this.state.logs !== logs) {
-        this.setState({ logs });
+      const isStopped = workspace.isStopped;
+      if (this.state.isStopped !== isStopped || !isEqual(this.state.logs, logs)) {
+        this.setState({
+          isStopped,
+          logs,
+        });
       }
     }
   }
 
-  private get terminal(): React.ReactElement {
-    let logs = this.state.logs;
-    if (!logs) {
-      logs = [];
-    } else if (logs.length > maxLogLength) {
-      logs.splice(0, maxLogLength);
+  private getLines(): JSX.Element[] {
+    const logs = this.state.logs || [];
+    if (logs.length > maxLogLength) {
+      logs.splice(0, logs.length - maxLogLength);
     }
+
+    const createLine = (text: string, key: number, isError = false): React.ReactElement => {
+      return (
+        <p className={isError ? styles.errorColor : ''} key={`output_error_${key}`}>
+          {text.trim()}
+        </p>
+      );
+    };
+
+    return logs.map((item: string, index: number) => {
+      if (this.errorRe.test(item)) {
+        const errorMessage = item.replace(this.errorRe, '');
+        return createLine(errorMessage, index, true);
+      }
+      return createLine(item, index);
+    });
+  }
+
+  private get terminal(): React.ReactElement {
+    const lines = this.getLines();
 
     return (
       <div className={styles.consoleOutput}>
-        <div>{logs.length} lines</div>
-        <pre>
-          {logs.map((item: string, i: number) => {
-            if (errorRe.test(item)) {
-              return (
-                <p className={styles.errorColor} key={item + i}>
-                  {item.replace(errorRe, '')}
-                </p>
-              );
-            }
-            return <p key={item + i}>{item}</p>;
-          })}
-        </pre>
+        <div>{lines.length} lines</div>
+        <pre>{lines}</pre>
       </div>
     );
   }
 
   render() {
-    const { isExpanded, hasError, isStopped, logs } = this.state;
+    const { isExpanded, isStopped, logs } = this.state;
 
-    if (isStopped && !hasError) {
+    if (isStopped) {
       return (
         <EmptyState style={{ backgroundColor: '#f1f1f1' }}>
           <EmptyStateIcon icon={FileIcon} />

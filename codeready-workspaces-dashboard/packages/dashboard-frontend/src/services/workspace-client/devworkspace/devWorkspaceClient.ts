@@ -42,10 +42,9 @@ import { isEqual } from 'lodash';
 import { fetchData } from '../../registry/devfiles';
 
 export interface IStatusUpdate {
-  error?: string;
-  message?: string;
-  status?: string;
-  prevStatus?: string;
+  status: string;
+  message: string;
+  prevStatus: string | undefined;
   workspaceId: string;
 }
 
@@ -128,7 +127,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private subscriber: Subscriber | undefined;
   private previousItems: Map<string, Map<string, IStatusUpdate>>;
   private readonly maxStatusAttempts: number;
-  private lastDevWorkspaceLog: Map<string, string>;
   private readonly pluginRegistryUrlEnvName: string;
   private readonly pluginRegistryInternalUrlEnvName: string;
   private readonly dashboardUrlEnvName: string;
@@ -146,7 +144,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     super(keycloakSetupService);
     this.previousItems = new Map();
     this.maxStatusAttempts = 10;
-    this.lastDevWorkspaceLog = new Map();
     this.pluginRegistryUrlEnvName = 'CHE_PLUGIN_REGISTRY_URL';
     this.pluginRegistryInternalUrlEnvName = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
@@ -645,9 +642,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
       workspace.metadata.name,
       patch,
     );
-    if (!started) {
-      this.lastDevWorkspaceLog.delete(WorkspaceAdapter.getId(changedWorkspace));
-    }
     if (!skipErrorCheck) {
       this.checkForDevWorkspaceError(changedWorkspace);
     }
@@ -709,17 +703,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
         return;
       }
       const statusUpdate = this.createStatusUpdate(devworkspace);
-      const statusMessage = devworkspace.status?.message;
-      if (statusMessage) {
-        const workspaceId = WorkspaceAdapter.getId(devworkspace);
-        const lastMessage = this.lastDevWorkspaceLog.get(workspaceId);
-        // Only add new messages we haven't seen before
-        if (lastMessage !== statusMessage) {
-          statusUpdate.message = statusMessage;
-          this.lastDevWorkspaceLog.set(workspaceId, statusMessage);
-        }
+      if (statusUpdate !== undefined) {
+        callbacks.updateDevWorkspaceStatus(statusUpdate);
       }
-      callbacks.updateDevWorkspaceStatus(statusUpdate);
     });
 
     const onAdded = 'onAdded';
@@ -755,41 +741,40 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * and the new DevWorkspace
    * @param devworkspace The incoming DevWorkspace
    */
-  private createStatusUpdate(devworkspace: devfileApi.DevWorkspace): IStatusUpdate {
+  private createStatusUpdate(devworkspace: devfileApi.DevWorkspace): IStatusUpdate | undefined {
     const namespace = devworkspace.metadata.namespace;
     const workspaceId = WorkspaceAdapter.getId(devworkspace);
-    // Starting devworkspaces don't have status defined
-    const status =
-      typeof devworkspace?.status?.phase === 'string'
-        ? devworkspace.status.phase
-        : DevWorkspaceStatus.STARTING;
+    const status = devworkspace?.status?.phase || DevWorkspaceStatus.STARTING;
+    const message = devworkspace?.status?.message || '';
 
-    const prevWorkspace = this.previousItems.get(namespace);
-    if (prevWorkspace) {
-      const prevStatus = prevWorkspace.get(workspaceId);
-      const newUpdate: IStatusUpdate = {
-        workspaceId: workspaceId,
-        status: status,
-        prevStatus: prevStatus?.status,
-      };
-      prevWorkspace.set(workspaceId, newUpdate);
-      return newUpdate;
-    } else {
-      // there is not a previous update
-      const newStatus: IStatusUpdate = {
-        workspaceId,
-        status: status,
-        prevStatus: status,
-      };
-
-      const newStatusMap = new Map<string, IStatusUpdate>();
-      newStatusMap.set(workspaceId, newStatus);
-      this.previousItems.set(namespace, newStatusMap);
-      return newStatus;
+    if (!this.previousItems.has(namespace)) {
+      const defaultItem = new Map<string, IStatusUpdate>();
+      this.previousItems.set(namespace, defaultItem);
     }
+
+    const previousItem = this.previousItems.get(namespace);
+    const prevStatusUpdate = previousItem?.get(workspaceId);
+    const statusUpdate = {
+      status,
+      message,
+      workspaceId,
+      prevStatus: prevStatusUpdate?.status,
+    };
+
+    previousItem?.set(workspaceId, statusUpdate);
+
+    if (status === prevStatusUpdate?.status && message === prevStatusUpdate?.message) {
+      return undefined;
+    }
+
+    if (message === prevStatusUpdate?.message) {
+      return Object.assign({}, statusUpdate, { message: '' });
+    }
+
+    return statusUpdate;
   }
 
-  checkForDevWorkspaceError(devworkspace: devfileApi.DevWorkspace) {
+  public checkForDevWorkspaceError(devworkspace: devfileApi.DevWorkspace) {
     const currentPhase = WorkspaceAdapter.getStatus(devworkspace);
     if (currentPhase && currentPhase === DevWorkspaceStatus.FAILED) {
       const message = devworkspace.status?.message;

@@ -189,7 +189,6 @@ describe('IDE Loader container', () => {
       <React.Fragment>
         <AlertActionLink onClick={() => jest.fn()}>Restart</AlertActionLink>
         <AlertActionLink onClick={() => jest.fn()}>Open in Verbose mode</AlertActionLink>
-        <AlertActionLink onClick={() => jest.fn()}>Open Logs</AlertActionLink>
       </React.Fragment>
     );
     const firstCalledArgs = showAlertMock.mock.calls[0][0];
@@ -221,9 +220,6 @@ describe('IDE Loader container', () => {
     await waitFor(() => {
       expect(startWorkspaceMock).toHaveBeenCalledTimes(1);
     });
-
-    const elementHasError = screen.getByTestId('ide-loader-has-error');
-    expect(elementHasError.innerHTML).toEqual('false');
 
     const elementWorkspaceId = screen.getByTestId('ide-loader-workspace-id');
     expect(elementWorkspaceId.innerHTML).toEqual(workspaceId);

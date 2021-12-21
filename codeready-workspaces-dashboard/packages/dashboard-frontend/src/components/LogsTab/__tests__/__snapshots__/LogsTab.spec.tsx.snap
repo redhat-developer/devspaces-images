@@ -131,16 +131,24 @@ exports[`The LogsTab component should render workspace-logs widget with logs ins
          lines
       </div>
       <pre>
-        <p>
+        <p
+          className=""
+        >
           Pulling image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"
         </p>
-        <p>
+        <p
+          className=""
+        >
           Successfully pulled image "quay.io/eclipse/che-theia-endpoint-runtime-binary:next"
         </p>
-        <p>
+        <p
+          className=""
+        >
           Created container remote-runtime-injectorvpj
         </p>
-        <p>
+        <p
+          className=""
+        >
           Started container remote-runtime-injectorvpj
         </p>
       </pre>

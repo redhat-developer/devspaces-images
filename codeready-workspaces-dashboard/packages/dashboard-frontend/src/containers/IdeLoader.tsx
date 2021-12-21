@@ -63,7 +63,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
   @lazyInject(Debounce)
   private readonly debounce: Debounce;
 
-  private readonly loadFactoryPageCallbacks: {
+  private readonly ideLoaderCallbacks: {
     showAlert?: (alertOptions: AlertOptions) => void;
     hideAlert?: () => void;
   };
@@ -76,7 +76,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     const env = getEnvironment();
     this.isDevEnvironment = isDevEnvironment(env);
 
-    this.loadFactoryPageCallbacks = {};
+    this.ideLoaderCallbacks = {};
     const {
       match: { params },
       history,
@@ -140,18 +140,18 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   public showAlert(alertOptions: string | AlertOptions): void {
-    if (typeof alertOptions == 'string') {
+    if (typeof alertOptions === 'string') {
       const currentAlertOptions = alertOptions;
       alertOptions = {
         title: currentAlertOptions,
         alertVariant: AlertVariant.danger,
       } as AlertOptions;
     }
-    if (alertOptions.alertVariant === AlertVariant.danger) {
+    if (alertOptions.alertVariant === AlertVariant.danger && !this.state.hasError) {
       this.setState({ hasError: true });
     }
-    if (this.loadFactoryPageCallbacks.showAlert) {
-      this.loadFactoryPageCallbacks.showAlert(alertOptions);
+    if (this.ideLoaderCallbacks.showAlert) {
+      this.ideLoaderCallbacks.showAlert(alertOptions);
     } else {
       console.error(alertOptions.title);
     }
@@ -185,12 +185,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       if (devworkspacesEnabled === false) {
         window.postMessage('show-navbar', '*');
       }
-      try {
-        await this.restartWorkspace(workspace);
-      } catch (error) {
-        const errorMessage = common.helpers.errors.getMessage(error);
-        this.showAlert(errorMessage);
-      }
+      await this.restartWorkspace(workspace);
     }
   }
 
@@ -199,8 +194,13 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     try {
       await this.props.restartWorkspace(workspace);
       this.setState({ isWaitingForRestart: false });
-    } catch (e) {
+    } catch (error) {
       this.setState({ isWaitingForRestart: false });
+      const errorMessage = common.helpers.errors.getMessage(error);
+      this.showAlert({
+        title: errorMessage,
+        alertVariant: AlertVariant.danger,
+      });
     }
   }
 
@@ -235,59 +235,45 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     } else if (workspace && workspace.hasError) {
       this.showErrorAlert(workspace);
     }
-    this.applyIdeLoadingStep();
+    await this.applyIdeLoadingStep();
   }
 
   private showErrorAlert(workspace: Workspace) {
-    const wsLogs = this.props.workspacesLogs.get(workspace.id) || [];
+    const errorMessage = this.findErrorLogs(workspace) || 'Unknown error.';
+
     const alertActionLinks = this.errorActionLinks(workspace);
     this.showAlert({
       alertActionLinks: alertActionLinks,
       title: `Workspace ${this.state.workspaceName} failed to start`,
-      body: this.findErrorLogs(wsLogs).join('\n'),
       alertVariant: AlertVariant.danger,
+      body: errorMessage,
     });
   }
 
   public async componentDidUpdate(prevProps: Props, prevState: State): Promise<void> {
-    if (this.state.isWaitingForRestart) {
-      return;
-    }
     const {
       allWorkspaces,
       match: { params },
     } = this.props;
-    const { hasError } = this.state;
     const workspace = allWorkspaces.find(
       workspace =>
         workspace.namespace === params.namespace && workspace.name === this.workspaceName,
     );
     if (workspace) {
       this.setState({
-        hasError: workspace.hasError,
+        status: workspace.status,
       });
     }
-    const status = workspace?.status;
-    if (prevProps.workspace?.status !== status) {
-      this.setState({
-        status,
-      });
+    if (this.state.isWaitingForRestart) {
+      return;
     }
     if (!workspace) {
-      const alertOptions = {
+      this.showAlert({
         title: `Workspace "${this.workspaceName}" is not found.`,
         alertVariant: AlertVariant.danger,
-      };
-      if (this.loadFactoryPageCallbacks.showAlert) {
-        this.loadFactoryPageCallbacks.showAlert(alertOptions);
-      } else {
-        console.error(alertOptions.title);
-      }
-      this.setState({
-        hasError: true,
       });
     } else if (workspace.hasError) {
-      if (prevState.workspaceName === this.workspaceName && hasError) {
+      if (prevState.workspaceName === this.workspaceName) {
         // When the current workspace didn't have an error but now does then show it
         this.showErrorAlert(workspace);
       } else if (prevState.workspaceName !== this.workspaceName) {
@@ -298,6 +284,11 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
           workspaceId: workspace.id,
         });
         this.showErrorAlert(workspace);
+      }
+      if (workspace.hasError && !this.state.hasError) {
+        this.setState({
+          hasError: workspace.hasError,
+        });
       }
     } else if (prevState.workspaceName !== this.workspaceName) {
       await this.applyIdeLoadingStep();
@@ -319,19 +310,26 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       this.setState({
         currentStep: LoadIdeSteps.START_WORKSPACE,
       });
+    } else if (workspace?.isStopped && this.state.currentStep !== LoadIdeSteps.INITIALIZING) {
+      this.showAlert({
+        title: `Workspace "${this.workspaceName}" is failed to start.`,
+        alertVariant: AlertVariant.danger,
+      });
     }
   }
 
-  private findErrorLogs(wsLogs: string[]): string[] {
+  private findErrorLogs(workspace: Workspace): string {
+    const errorRe = workspace.isDevWorkspace ? /^[1-9]{0,5} error occurred:/i : /^Error: /i;
+    const wsLogs = this.props.workspacesLogs.get(workspace.id) || [];
+
     const errorLogs: string[] = [];
     wsLogs.forEach(e => {
-      if (e.startsWith('Error: Failed to run the workspace')) {
-        // Remove the default error message and the quotations that surround the error
-        const strippedError = e.replace('Error: Failed to run the workspace: ', '').slice(1, -1);
-        errorLogs.push(strippedError);
+      if (errorRe.test(e)) {
+        const message = e.replace(errorRe, '');
+        errorLogs.push(message);
       }
     });
-    return errorLogs;
+    return errorLogs.join('\n');
   }
 
   private errorActionLinks(workspace: Workspace): React.ReactFragment {
@@ -350,14 +348,6 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
           }}
         >
           Open in Verbose mode
-        </AlertActionLink>
-        <AlertActionLink
-          onClick={() => {
-            // Since patternfly appends numbers to an id we can't just get the tab by id so look for the tab item with Logs
-            this.logsHandler();
-          }}
-        >
-          Open Logs
         </AlertActionLink>
       </React.Fragment>
     );
@@ -491,7 +481,6 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       isDevWorkspace,
       status,
     } = this.state;
-
     return (
       <IdeLoader
         currentStep={currentStep}
@@ -502,7 +491,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
         hasError={hasError}
         status={status}
         workspaceName={workspaceName || ''}
-        callbacks={this.loadFactoryPageCallbacks}
+        callbacks={this.ideLoaderCallbacks}
       />
     );
   }

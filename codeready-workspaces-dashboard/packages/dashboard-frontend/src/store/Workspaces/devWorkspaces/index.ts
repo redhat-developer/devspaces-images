@@ -35,7 +35,6 @@ import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
-const devWorkspaceStatusMap = new Map<string, string | undefined>();
 const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
 export interface State {
@@ -71,6 +70,7 @@ interface UpdateWorkspaceStatusAction extends Action {
   type: 'UPDATE_DEVWORKSPACE_STATUS';
   workspaceId: string;
   status: string;
+  message: string;
 }
 
 interface UpdateWorkspacesLogsAction extends Action {
@@ -91,6 +91,7 @@ interface DeleteWorkspaceAction extends Action {
 interface TerminateWorkspaceAction extends Action {
   type: 'TERMINATE_DEVWORKSPACE';
   workspaceId: string;
+  message: string;
 }
 
 interface AddWorkspaceAction extends Action {
@@ -270,12 +271,20 @@ export const actionCreators: ActionCreators = {
           workspace.spec.started = true;
           updatedWorkspace = await devWorkspaceClient.update(workspace);
         } else {
-          updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true);
+          updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true, true);
         }
         dispatch({
           type: 'UPDATE_DEVWORKSPACE',
           workspace: updatedWorkspace,
         });
+        const workspaceId = workspace.status?.devworkspaceId;
+        if (workspaceId) {
+          dispatch({
+            type: 'DELETE_DEVWORKSPACE_LOGS',
+            workspaceId,
+          });
+        }
+        devWorkspaceClient.checkForDevWorkspaceError(updatedWorkspace);
       } catch (e) {
         const errorMessage =
           `Failed to start the workspace ${workspace.metadata.name}, reason: ` +
@@ -294,11 +303,7 @@ export const actionCreators: ActionCreators = {
       const defer: IDeferred<void> = getDefer();
       const toDispose = new DisposableCollection();
       const onStatusChangeCallback = async status => {
-        if (
-          status === DevWorkspaceStatus.STOPPED ||
-          status === DevWorkspaceStatus.FAILING ||
-          status === DevWorkspaceStatus.FAILED
-        ) {
+        if (status === DevWorkspaceStatus.STOPPED || status === DevWorkspaceStatus.FAILED) {
           toDispose.dispose();
           try {
             await dispatch(actionCreators.startWorkspace(workspace));
@@ -310,10 +315,9 @@ export const actionCreators: ActionCreators = {
       };
       if (
         workspace.status?.phase === DevWorkspaceStatus.STOPPED ||
-        workspace.status?.phase === DevWorkspaceStatus.FAILING ||
         workspace.status?.phase === DevWorkspaceStatus.FAILED
       ) {
-        onStatusChangeCallback(workspace.status.phase);
+        await onStatusChangeCallback(workspace.status.phase);
       } else {
         const workspaceId = WorkspaceAdapter.getId(workspace);
         onStatusChangeCallbacks.set(workspaceId, onStatusChangeCallback);
@@ -322,7 +326,8 @@ export const actionCreators: ActionCreators = {
         });
         if (
           workspace.status?.phase === DevWorkspaceStatus.RUNNING ||
-          workspace.status?.phase === DevWorkspaceStatus.STARTING
+          workspace.status?.phase === DevWorkspaceStatus.STARTING ||
+          workspace.status?.phase === DevWorkspaceStatus.FAILING
         ) {
           try {
             await dispatch(actionCreators.stopWorkspace(workspace));
@@ -367,6 +372,7 @@ export const actionCreators: ActionCreators = {
         dispatch({
           type: 'TERMINATE_DEVWORKSPACE',
           workspaceId,
+          message: workspace.status?.message || 'Cleaning up resources for deletion',
         });
         dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId });
       } catch (e) {
@@ -532,6 +538,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
               workspace.status = {} as devfileApi.DevWorkspaceStatus;
             }
             workspace.status.phase = action.status;
+            workspace.status.message = action.message;
           }
           return workspace;
         }),
@@ -555,6 +562,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
               targetWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
             }
             targetWorkspace.status.phase = DevWorkspaceStatus.TERMINATING;
+            targetWorkspace.status.message = action.message;
             return targetWorkspace;
           }
           return workspace;
@@ -583,49 +591,38 @@ async function onStatusUpdateReceived(
   dispatch: ThunkDispatch<State, undefined, KnownAction>,
   statusUpdate: IStatusUpdate,
 ) {
-  let status: string | undefined;
-  if (statusUpdate.error) {
-    const workspacesLogs = new Map<string, string[]>();
-    workspacesLogs.set(statusUpdate.workspaceId, [
-      `Error: Failed to run the workspace: "${statusUpdate.error}"`,
-    ]);
-    dispatch({
-      type: 'UPDATE_DEVWORKSPACE_LOGS',
-      workspacesLogs,
-    });
-    status = DevWorkspaceStatus.FAILED;
-  } else {
-    if (statusUpdate.message) {
-      const workspacesLogs = new Map<string, string[]>();
+  const { status } = statusUpdate;
 
-      /**
-       * Don't add in messages with no workspaces id or with stopped or stopping messages. The stopped and stopping messages
-       * only appear because we initially create a stopped devworkspace, add in devworkspace templates, and then start the devworkspace
-       */
-      if (
-        statusUpdate.workspaceId !== '' &&
-        statusUpdate.status !== DevWorkspaceStatus.STOPPED &&
-        statusUpdate.status !== DevWorkspaceStatus.STOPPING
-      ) {
-        workspacesLogs.set(statusUpdate.workspaceId, [statusUpdate.message]);
-        dispatch({
-          type: 'UPDATE_DEVWORKSPACE_LOGS',
-          workspacesLogs,
-        });
-      }
-    }
-    status = statusUpdate.status;
-    const callback = onStatusChangeCallbacks.get(statusUpdate.workspaceId);
-    if (callback && status) {
-      callback(status);
-    }
-  }
-  if (status && status !== devWorkspaceStatusMap.get(statusUpdate.workspaceId)) {
-    devWorkspaceStatusMap.set(statusUpdate.workspaceId, status);
+  if (status !== statusUpdate.prevStatus) {
     dispatch({
       type: 'UPDATE_DEVWORKSPACE_STATUS',
       workspaceId: statusUpdate.workspaceId,
+      message: statusUpdate.message,
       status,
     });
+  }
+
+  const callback = onStatusChangeCallbacks.get(statusUpdate.workspaceId);
+
+  if (callback && status) {
+    callback(status);
+  }
+
+  if (statusUpdate.message) {
+    if (statusUpdate.status !== DevWorkspaceStatus.STOPPED) {
+      const workspacesLogs = new Map<string, string[]>();
+      let message = statusUpdate.message;
+      if (
+        statusUpdate.status === DevWorkspaceStatus.FAILED ||
+        statusUpdate.status === DevWorkspaceStatus.FAILING
+      ) {
+        message = `1 error occurred: ${message}`;
+      }
+      workspacesLogs.set(statusUpdate.workspaceId, [message]);
+      dispatch({
+        type: 'UPDATE_DEVWORKSPACE_LOGS',
+        workspacesLogs,
+      });
+    }
   }
 }

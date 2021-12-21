@@ -14,7 +14,6 @@ import React from 'react';
 import { History, Location } from 'history';
 import { connect, ConnectedProps } from 'react-redux';
 import {
-  AlertVariant,
   Button,
   ButtonVariant,
   Checkbox,
@@ -35,9 +34,6 @@ import { AppState } from '../../store';
 import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 import * as WorkspacesStore from '../../store/Workspaces';
 import { WorkspaceActionsContext } from './context';
-import { lazyInject } from '../../inversify.config';
-import { AppAlerts } from '../../services/alerts/appAlerts';
-import getRandomString from '../../services/helpers/random';
 import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 
 type Deferred = {
@@ -58,9 +54,6 @@ type State = {
 };
 
 export class WorkspaceActionsProvider extends React.Component<Props, State> {
-  @lazyInject(AppAlerts)
-  private appAlerts: AppAlerts;
-
   private deleting: Set<string> = new Set();
 
   constructor(props: Props) {
@@ -72,14 +65,6 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
       isOpen: false,
       isConfirmed: false,
     };
-  }
-
-  private showAlert(message: string): void {
-    this.appAlerts.showAlert({
-      key: 'navbar-item-' + getRandomString(4),
-      title: message,
-      variant: AlertVariant.warning,
-    });
   }
 
   /**
@@ -125,7 +110,11 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
       }
       case WorkspaceAction.START_IN_BACKGROUND:
         {
-          await this.props.startWorkspace(workspace);
+          try {
+            await this.props.startWorkspace(workspace);
+          } catch (e) {
+            console.warn(e);
+          }
         }
         break;
       case WorkspaceAction.STOP_WORKSPACE:

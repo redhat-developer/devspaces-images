@@ -141,7 +141,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   public showAlert(alertOptions: string | AlertOptions): void {
-    if (typeof alertOptions == 'string') {
+    if (typeof alertOptions === 'string') {
       const currentAlertOptions = alertOptions;
       alertOptions = {
         title: currentAlertOptions,
@@ -193,13 +193,11 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     ) {
       await this.openIde();
     }
-
-    if (
-      workspace &&
-      workspace.hasError &&
-      this.state.currentStep === LoadFactorySteps.START_WORKSPACE
-    ) {
-      this.showAlert('Unknown workspace error.');
+    if (workspace && workspace.hasError && !this.state.hasError) {
+      const errorMessage =
+        (workspace.isDevWorkspace && (workspace.ref as devfileApi.DevWorkspace)?.status?.message) ||
+        'Unknown workspace error.';
+      this.showAlert(errorMessage);
     }
   }
 

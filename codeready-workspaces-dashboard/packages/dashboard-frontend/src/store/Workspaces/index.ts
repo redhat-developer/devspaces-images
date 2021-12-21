@@ -136,17 +136,16 @@ export const actionCreators: ActionCreators = {
       try {
         const state = getState();
         const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
-        let requestDevWorkspaces: Promise<any>;
+        let requestWorkspaces: Promise<any>;
+
+        // Hide devfile v1 workspaces if the DevWorkspace engine is enabled - https://github.com/eclipse/che/issues/20900
         if (cheDevworkspaceEnabled) {
-          requestDevWorkspaces = dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces());
+          requestWorkspaces = dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces());
         } else {
-          requestDevWorkspaces = Promise.resolve([]);
+          requestWorkspaces = dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces());
         }
 
-        await Promise.all([
-          dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces()),
-          requestDevWorkspaces,
-        ]);
+        await requestWorkspaces;
 
         dispatch({ type: 'RECEIVE_WORKSPACES' });
       } catch (e) {
