@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM registry.redhat.io/rhel8/go-toolset:1.16.7-5 as builder
+FROM registry.redhat.io/rhel8/go-toolset:1.16.12-2 as builder
 ENV GOPATH=/go/
 ENV PATH=/usr/lib/golang/bin:$PATH
 USER root
@@ -25,7 +25,7 @@ RUN \
     go mod vendor && CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -mod=mod -a -ldflags '-w -s' -a -installsuffix cgo -o jwtproxy cmd/jwtproxy/main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.redhat.io/ubi8-minimal:8.5-204
+FROM registry.redhat.io/ubi8-minimal:8.5-218
 RUN microdnf -y update || true && \
     microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 USER appuser
