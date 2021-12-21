@@ -1,11 +1,11 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Jobs"."build-all-images".keySet()
+def JOB_BRANCHES = config."Jobs"."build-all-images"?.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -63,40 +63,21 @@ for global CVE updates.
             parameters{
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
                 // TODO remove this after 2.13 is live
-                if (JOB_BRANCH.equals("2.13")) {
-                    stringParam("PHASES", "1 2 3 4 5", '''
+                stringParam("PHASES", "1 2 3 4", '''
 Phases:
 <ol>
-    <li> build lang server dependencies (5 tarballs) - deprecated @since 2.14</li>
     <li> build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)</li>
     <li> build theia images (3 images)</li>
-    <li> build internals (14 images): 
+    <li> build internals (16 images): 
         <ul>
-            <li> backup (@since 2.12), configbump, operator, dashboard, devfileregistry, </li>
-            <li> idea, imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, </li>
-            <li> pluginbroker-metadata, pluginregistry, server, traefik,</li>
+            <li> backup (@since 2.12), configbump, operator, dashboard, </li>
+            <li> devfileregistry, idea (@since 2.11), imagepuller, jwtproxy, machineexec, </li>
+            <li> pluginbroker-artifacts, pluginbroker-metadata, pluginregistry, server, traefik</li>
         </ul>
     </li>
     <li> build bundle + metadata images + IIBs</li>
 </ol>
                     ''')
-                } else {
-                    stringParam("PHASES", "1 2 3 4", '''
-Phases:
-<ol>
-    <li> build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)</li>
-    <li> build theia images (3 images)</li>
-    <li> build internals (14 images): 
-        <ul>
-            <li> backup (@since 2.12), configbump, operator, dashboard, devfileregistry, </li>
-            <li> idea, imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, </li>
-            <li> pluginbroker-metadata, pluginregistry, server, traefik,</li>
-        </ul>
-    </li>
-    <li> build bundle + metadata images + IIBs</li>
-</ol>
-                    ''')
-                }
             }
 
             // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

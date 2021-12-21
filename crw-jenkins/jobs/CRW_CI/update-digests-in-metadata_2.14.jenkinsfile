@@ -1,0 +1,174 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+    // MIDSTM_BRANCH
+
+def errorOccurred = false
+def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+timeout(120) {
+    node(nodeLabel){ 
+        try { 
+            stage ("Check for updated images") {
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
+                        def util = load "${WORKSPACE}/util.groovy"
+                        cleanWs()
+                        util.installSkopeoFromContainer("")
+                        util.installYq()
+                        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                        println "CRW_VERSION = '" + CRW_VERSION + "'"
+                        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+
+                        def NEW_IMAGES = sh (
+                            script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new",
+                            returnStdout: true
+                        ).trim().split()
+
+                        // check for Quay outage
+                        if (NEW_IMAGES.toString().indexOf("No tags matching")>-1)
+                        {
+                            errorOccurred = true
+                            error('Missing tags when reading from quay.io: may be experiencing an outage. Abort!')
+                            currentBuild.result = 'ABORTED'
+                        }
+                        echo "------"
+                        def CURRENT_IMAGES = sh (
+                            script: 'cat ${WORKSPACE}/crw/dependencies/LATEST_IMAGES',
+                            returnStdout: true
+                        ).trim().split()
+                
+                        sh '''#!/bin/bash -xe
+cp ${WORKSPACE}/crw/dependencies/LATEST_IMAGES{,.prev}
+echo "============ LATEST_IMAGES.prev ============>"
+cat ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.prev
+echo "<============ LATEST_IMAGES ============"
+'''
+
+                        // compare new and curent images
+                        def newSet = NEW_IMAGES as Set
+                        // def currentSet = CURRENT_IMAGES as Set
+                        def operatorBundleImage = newSet.find { it.contains("operator-bundle") } 
+                        def operatorMetadataImage = newSet.find { it.contains("operator-metadata") } 
+                        // newSet.each { echo "New: $it" }
+                        // currentSet.each { echo "Current: $it" }
+                        sh '''#!/bin/bash -xe
+echo "============ LATEST_IMAGES.new 1 ============>"
+cat ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new
+echo "<============ LATEST_IMAGES.new 1 ============"
+'''
+
+                        // don't report a diff when new operator-bundle or operator-metadata, or we'll never get out of this recursion loop; instead report new images (anything that will cause a new metadata image to be rebuilt)
+                        // ignore theia-dev 
+                        def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA = sh (script: '''
+diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle|operator-metadata" || true
+                        ''', returnStdout: true).trim()
+
+                        // check diff including operator bundle or metadata, in case we forgot to update metadata
+                        // ignore theia-dev
+                        def DIFF_LATEST_IMAGES_METADATA_ONLY = sh (script: '''
+diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|operator-metadata" || true
+                        ''', returnStdout: true).trim()
+
+                        // define what to do when we are ready to push changes
+                        def COMMITCHANGES = '''#!/bin/bash -xe
+                            pushd ${WORKSPACE}/crw >/dev/null
+
+                            # clean up unneeded files
+                            rm -f ./dependencies/LATEST_IMAGES{.new,.prev}
+
+                            # regenerate LATEST_IMAGES, LATEST_IMAGES_COMMITS, and LATEST_IMAGES_DIGESTS.json
+                            ./dependencies/LATEST_IMAGES.sh --commit
+
+                            echo "============ LATEST_IMAGES new 2 ============>"
+                            cat dependencies/LATEST_IMAGES
+                            echo "<============ LATEST_IMAGES new 2 ============"
+
+                            popd >/dev/null
+                        '''
+
+                        currentBuild.description="Checking for changed images..."
+
+                        if (!DIFF_LATEST_IMAGES_METADATA_ONLY.equals("") && DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA.equals("")) { 
+                            // no changes, but a newer metadata image exists
+                            currentBuild.description="New metadata image detected: commit changes to LATEST_IMAGES"
+                            echo currentBuild.description
+                            echo DIFF_LATEST_IMAGES_METADATA_ONLY
+
+                            sh COMMITCHANGES
+                            currentBuild.result='UNSTABLE'
+                        } else if (DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA.equals("")) { 
+                            // no changes
+                            currentBuild.description="No new images detected: nothing to do!"
+                            echo currentBuild.description
+                            currentBuild.result='UNSTABLE'
+                        } else {
+                            currentBuild.description="Detected new images: rebuild operator-bundle and operator-metadata"
+                            listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
+                            for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
+                            echo currentBuild.description
+                            echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA
+
+                            parallel metadata: {
+                                build(
+                                    job: 'crw-operator-metadata_' + JOB_BRANCH,
+                                    wait: true,
+                                    propagate: true,
+                                    parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
+                                )
+                            },
+                            bundle: {
+                                build(
+                                    job: 'crw-operator-bundle_' + JOB_BRANCH,
+                                    wait: true,
+                                    propagate: true,
+                                    parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
+                                )
+                            }
+
+                            while (true) 
+                            {
+                                def rebuiltOperatorBundleImage = sh (
+                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/crw-2-rhel8-operator-bundle' --quay --tag ${CRW_VERSION}- --hide",
+                                returnStdout: true
+                                ).trim()
+                                echo "${rebuiltOperatorBundleImage}"
+                                if (rebuiltOperatorBundleImage!=operatorBundleImage) {
+                                    echo "Operator bundle has been rebuilt!"
+                                    break
+                                }
+                                def rebuiltOperatorMetadataImage = sh (
+                                script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} -c 'crw/crw-2-rhel8-operator-metadata' --quay --tag ${CRW_VERSION}- --hide",
+                                returnStdout: true
+                                ).trim()
+                                echo "${rebuiltOperatorMetadataImage}"
+                                if (rebuiltOperatorMetadataImage!=operatorMetadataImage) {
+                                    echo "Operator metadata has been rebuilt!"
+                                    break
+                                }
+                                sleep(time:120,unit:"SECONDS")
+                            }
+
+                            sh COMMITCHANGES
+                        }
+                        archiveArtifacts fingerprint: false, artifacts:"crw/dependencies/LATEST_IMAGES*"
+                        
+                    } // with
+                } // wrap
+            } // stage
+        } catch (e) {
+            if (errorOccurred) {
+                util.notifyBuildFailed()
+                return
+            }
+            throw e
+        } // try-catch
+    } // node
+} // timeout

@@ -344,8 +344,8 @@ collect_noarch_assets_crw_theia_endpoint_runtime_binary() {
 
   # yq wheels
   python3 -m pip download yq -d "${TARGETDIR}"/
-  # exclude source tarball - only want wheels
-  rm -fr "${TARGETDIR}"/PyYAML-*.tar.gz
+  # exclude PyYAML source tarball & wheels (as they're single-arch and maybe not compatible w/ Brew builder)
+  rm -fr "${TARGETDIR}"/PyYAML-*.tar.gz "${TARGETDIR}"/PyYAML-*.whl
 
   listAssets "${TARGETDIR}"
   listWheels "${TARGETDIR}"

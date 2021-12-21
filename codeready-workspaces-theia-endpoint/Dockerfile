@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.14 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.15 as builder
 ARG NEXE_SHA1=0f0869b292f1d7b68ba6e170d628de68a10c009f
 
 WORKDIR /home/theia

@@ -7,14 +7,14 @@ import groovy.transform.Field
 
 def MIDSTM_BRANCH = 'crw-2-rhel-8'
 def errorOccurred = false
-def String nodeLabel = 'rhel83'  // ppc64le-rhel8 disabled with cffi error; s390x-rhel8 disabled as rust compilation sometimes fails
+def String nodeLabel = 'x86_64-rhel8'  // ppc64le-rhel8 disabled with cffi error; s390x-rhel8 disabled as rust compilation sometimes fails
 timeout(120) {
     node(nodeLabel){
         try {
             stage ("Check for updated images") {
                 wrap([$class: 'TimestamperBuildWrapper']) {
-                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                    def util = load "${WORKSPACE}/util.groovy"
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
                     cleanWs()
                     util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
                     GHIRA_OPTIONS = ''
@@ -25,21 +25,16 @@ timeout(120) {
                         GHIRA_OPTIONS += " --weeks " + NUM_WEEKS
                     }
                     print "Using GHIRA_OPTIONS = " + GHIRA_OPTIONS
-                    sh '''#!/bin/bash -xe
-sudo dnf install -yq python3-virtualenv redhat-rpm-config gcc libffi-devel python3-devel openssl-devel cargo rust
-cd ${WORKSPACE}/crw/product/ghira
-pip install --upgrade pip
-                    '''
-                    withCredentials([string(credentialsId: 'jira-jiralint-token', variable: 'JIRA_TOKEN'),string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'jira-jiralint-token', variable: 'JIRA_TOKEN'), string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                         sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/crw/product/ghira
-virtualenv-3 .
-. bin/activate
+pyenv virtualenv ghira -f
+pyenv local ghira
 pip install -r requirements.txt
 export JIRA_EMAIL="jiralint-codeready@redhat.com"
 export JIRA_TOKEN="''' + "${JIRA_TOKEN}" + '''"
 export GITHUB_TOKEN="''' + "${GITHUB_TOKEN}" + '''"
-python3 ghira ''' + "${GHIRA_OPTIONS}" + '''
+python ghira ''' + "${GHIRA_OPTIONS}" + '''
                             '''
                     } // with tokens
                 } // wrap

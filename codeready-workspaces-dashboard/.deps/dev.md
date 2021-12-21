@@ -902,7 +902,7 @@
 | [`prelude-ls@1.1.2`](git://github.com/gkz/prelude-ls.git) | MIT | clearlydefined |
 | [`prepend-http@2.0.0`](https://github.com/sindresorhus/prepend-http.git) | MIT | clearlydefined |
 | [`prettier-linter-helpers@1.0.0`](git+https://github.com/prettier/prettier-linter-helpers.git) | MIT | clearlydefined |
-| [`prettier@2.4.1`](https://github.com/prettier/prettier.git) | MIT |  |
+| [`prettier@2.4.1`](https://github.com/prettier/prettier.git) | MIT | #1585 |
 | [`pretty-error@2.1.2`](https://github.com/AriaMinaei/pretty-error.git) | MIT | clearlydefined |
 | [`pretty-format@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`process-nextick-args@2.0.1`](https://github.com/calvinmetcalf/process-nextick-args.git) | MIT | clearlydefined |
@@ -1124,7 +1124,6 @@
 | [`util.promisify@1.0.0`](git+https://github.com/ljharb/util.promisify.git) | MIT | clearlydefined |
 | [`util@0.11.1`](git://github.com/defunctzombie/node-util) | MIT | clearlydefined |
 | [`utils-merge@1.0.1`](git://github.com/jaredhanson/utils-merge.git) | MIT | clearlydefined |
-| [`uuid@3.4.0`](https://github.com/uuidjs/uuid.git) | MIT | clearlydefined |
 | [`v8-compile-cache@2.3.0`](https://github.com/zertosh/v8-compile-cache.git) | MIT | clearlydefined |
 | [`v8-to-istanbul@7.1.2`](https://github.com/istanbuljs/v8-to-istanbul.git) | ISC | clearlydefined |
 | [`validate-npm-package-license@3.0.4`](https://github.com/kemitchell/validate-npm-package-license.js.git) | Apache-2.0 | clearlydefined |

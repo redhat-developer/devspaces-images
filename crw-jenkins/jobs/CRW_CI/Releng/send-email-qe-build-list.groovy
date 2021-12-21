@@ -1,11 +1,11 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Management-Jobs"."send-email-qe-build-list".keySet()
+def JOB_BRANCHES = config."Management-Jobs"."send-email-qe-build-list"?.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -20,7 +20,7 @@ for (JB in JOB_BRANCHES) {
         JOB_BRANCH=""+JB
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
-        CSV_VERSION=config.CSVs."operator-metadata"[JB].CSV_VERSION
+        CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."send-email-qe-build-list"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''

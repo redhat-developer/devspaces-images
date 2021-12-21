@@ -42,11 +42,9 @@ export async function patchTemplate(
   templateName: string,
   patch: api.IPatch[],
 ): Promise<devfileApi.DevWorkspace> {
+  const url = `${prefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`;
   try {
-    const response = await axios.patch(
-      `${prefix}/namespace/${namespace}/devworkspacetemplates/${templateName}`,
-      patch,
-    );
+    const response = await axios.patch(url, patch);
     return response.data;
   } catch (e) {
     throw `Failed to update devWorkspaceTemplate '${templateName}'. ${common.helpers.errors.getMessage(

@@ -1,21 +1,17 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config.Jobs.imagepuller.keySet()
+def JOB_BRANCHES = config.Jobs.imagepuller?.keySet()
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     //check for jenkinsfile
     FILE_CHECK = false
     try {
-        if (JOB_BRANCH.equals("2.12")) {
-            fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-imagepuller_'+JB+'.jenkinsfile')
-        } else {
-            fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
-        }
+        fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
         FILE_CHECK = true
     }
     catch(err) {

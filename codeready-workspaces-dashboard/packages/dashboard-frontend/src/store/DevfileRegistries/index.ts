@@ -19,6 +19,7 @@ import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { selectPlugins } from '../Plugins/chePlugins/selectors';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
+import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -221,11 +222,12 @@ export const actionCreators: ActionCreators = {
           );
           const parsedSchemaV1 = JSON.parse(patchedJSONString);
 
-          const schemav200 = await WorkspaceClient.restApiClient.getDevfileSchema('2.0.0');
-          const schemav210 = await WorkspaceClient.restApiClient.getDevfileSchema('2.1.0');
-          const schemav220alpha = await WorkspaceClient.restApiClient.getDevfileSchema('2.2.0');
+          const schemav200 = await fetchAndUpdateDevfileSchema(WorkspaceClient, '2.0.0');
+          const schemav210 = await fetchAndUpdateDevfileSchema(WorkspaceClient, '2.1.0');
+          const schemav220 = await fetchAndUpdateDevfileSchema(WorkspaceClient, '2.2.0');
+
           schema = {
-            oneOf: [parsedSchemaV1, schemav200, schemav210, schemav220alpha],
+            oneOf: [parsedSchemaV1, schemav200, schemav210, schemav220],
           };
         }
 

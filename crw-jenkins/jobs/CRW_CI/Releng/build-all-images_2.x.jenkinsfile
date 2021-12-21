@@ -4,34 +4,19 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
 
-// Required due to JENKINS-27421
-// from https://stackoverflow.com/questions/42770775/how-to-define-and-iterate-over-map-in-jenkinsfile
-@NonCPS
-List<List<?>> mapToList(Map map) {
-  return map.collect { it ->
-    [it.key, it.value]
-  }
-}
-
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8' // requires rhpkg, cannot run on x86_64-rhel8
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(600) {
     node(nodeLabel) {
         stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-                def util = load "${WORKSPACE}/util.groovy"
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
-                util.installSkopeoFromContainer("")
-                util.installYq()
-                util.installRhpkg()
-                util.installBrewKoji()
                 CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                 println "CRW_VERSION = '" + CRW_VERSION + "'"
                 JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
                 currentBuild.description="Jobs run:"
-                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                     def currentJob="" // name of job
                     def currentQuayImage="" // last successful quay tag
                     def jenkinsPath="/job/CRW_CI/job/"
@@ -94,39 +79,44 @@ timeout(600) {
 
                     if (PHASE_LIST.contains("3")) {
                         def jobsList = [
-                            "backup":"backup-rhel8",
-                            "configbump":"configbump-rhel8",
-                            "operator":"crw-2-rhel8-operator",
-                            "dashboard": "dashboard-rhel8",
-                            "devfileregistry":"devfileregistry-rhel8",
-                            "idea":"idea-rhel8",
-                            "imagepuller":"imagepuller-rhel8",
-                            "jwtproxy":"jwtproxy-rhel8",
-                            "machineexec":"machineexec-rhel8",
-                            "pluginbroker-artifacts":"pluginbroker-artifacts-rhel8",
-                            "pluginbroker-metadata":"pluginbroker-metadata-rhel8",
-                            "pluginregistry":"pluginregistry-rhel8",
-                            "server":"server-rhel8",
-                            "traefik":"traefik-rhel8"
+                            "backup",                   // @since 2.12
+                            "configbump",
+                            "operator", // special case: "crw-2-rhel8-operator"
+                            "dashboard",
+                            "devfileregistry",
+                            "idea",                     // @since 2.11
+                            "imagepuller",
+                            "jwtproxy",
+                            "machineexec",
+                            "pluginbroker-artifacts",
+                            "pluginbroker-metadata",
+                            "pluginregistry",
+                            "server",
+                            "traefik"
                         ]
 
                         def Map tasks = [failFast: false]
                         // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
-                        for (kv in mapToList(jobsList)) {
-                            def key="${kv[0]}" // .key = kv[0]
-                            def val="${kv[1]}" // .value = kv[1]
+                        for (job in jobsList) {
+                            def key=job.toString().trim().equals("operator") ? "crw-2-rhel8-operator" : "${job}"// job name
+                            def val="${key}-rhel8" // image name
                             def currentJobLoc="crw-" + key + "_" + JOB_BRANCH
-                            def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + val, "quay")
-                            tasks[currentJobLoc] = { ->
-                                println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
-                                def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
-                                lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
-                                println ("Started job for " + key + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
-                                if (!util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)) {
-                                    currentBuild.result = 'FAILED'
-                                    util.notifyBuildFailed()
+                            if (!util.checkURL(jenkinsURL + currentJobLoc)) { 
+                                println("[WARNING] No such job " + jenkinsURL + currentJobLoc + " : skip!"); 
+                                    currentBuild.description+="<br/>* SKIP: <a href=${jenkinsPath}${currentJobLoc}>${currentJobLoc}</a>"
+                            } else {
+                                def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + val, "quay")
+                                tasks[currentJobLoc] = { ->
+                                    println ("Got currentQuayImageLoc (" + val + " / " + key + ") = " + currentQuayImageLoc)
+                                    def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
+                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                                    println ("Started job for " + key + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
+                                    if (!util.waitForNewQuayImage("crw/" + val, currentQuayImageLoc)) {
+                                        currentBuild.result = 'FAILED'
+                                        util.notifyBuildFailed()
+                                    }
+                                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                                 }
-                                currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
                             }
                         }
                         // wait in parallel
@@ -165,10 +155,10 @@ timeout(600) {
                     }
 
                     if (PHASE_LIST.contains("4")) {
-                        currentQuayImageMetadata = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-metadata", "quay")
-                        println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
+                        currentQuayImageBundle = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-bundle", "quay")
+                        println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
-                        // trigger update-digests job (to rebuild registries and metadata images)
+                        // trigger update-digests job (to rebuild registries and bundle images)
                         currentJob="update-digests-in-metadata_" + JOB_BRANCH
                         def int lastBuildId4 = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId4}>update-digests#${lastBuildId4}</a> triggered"

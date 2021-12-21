@@ -1,11 +1,11 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "curl -sSL https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".execute().text
+def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config.Jobs.traefik.keySet()
+def JOB_BRANCHES = config.Jobs.traefik?.keySet()
 for (JB in JOB_BRANCHES) {
     JOB_BRANCH=""+JB
     //check for jenkinsfile
@@ -91,7 +91,6 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_REPO", MIDSTM_REPO)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
-                stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for 2.y, use 1.16.2 (traefik from v2.5.0)")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 

@@ -47,8 +47,8 @@ import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
-import { DevfileConverter } from './devfile-converter';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
+import * as devfileConverter from '@eclipse-che/devfile-converter';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'workspaceDeploymentLabels',
@@ -56,8 +56,6 @@ const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'policies.create',
   'che-editor',
 ];
-
-const DEFAULT_CREATE_POLICY = 'perclick';
 
 export type CreatePolicy = 'perclick' | 'peruser';
 
@@ -93,7 +91,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private overrideDevfileObject: {
     [params: string]: string;
   } = {};
-  private converter: DevfileConverter;
 
   @lazyInject(KeycloakAuthService)
   private readonly keycloakAuthService: KeycloakAuthService;
@@ -103,16 +100,19 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
     const { search } = this.props.history.location;
     const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
-
+    const createPolicy = this.getDefaultCreatePolicy();
     this.state = {
       currentStep: LoadFactorySteps.INITIALIZING,
       hasError: false,
-      createPolicy: DEFAULT_CREATE_POLICY,
+      createPolicy,
       search,
       cheDevworkspaceEnabled,
     };
+  }
 
-    this.converter = new DevfileConverter();
+  private getDefaultCreatePolicy(): CreatePolicy {
+    const devWorkspaceMode = isDevworkspacesEnabled(this.props.workspacesSettings);
+    return devWorkspaceMode ? 'peruser' : 'perclick';
   }
 
   private resetOverrideParams(): void {
@@ -223,7 +223,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   private getCreatePolicy(attrs: { [key: string]: string }): CreatePolicy | undefined {
-    const policy = attrs['policies.create'] || DEFAULT_CREATE_POLICY;
+    const policy = attrs['policies.create'] || this.getDefaultCreatePolicy();
     if (this.isCreatePolicy(policy)) {
       return policy;
     }
@@ -337,7 +337,11 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
     if (this.props.cheDevworkspaceEnabled === false && isDevfileV2(devfile)) {
       resolvedDevfileMessage += ' Devfile 2.x version found, converting it to devfile version 1.';
-      devfile = this.converter.devfileV2toDevfileV1(devfile);
+      const { optionalFilesContent } = this.factoryResolver.resolver;
+      const externalAccess = async function (file: string): Promise<string> {
+        return optionalFilesContent?.[file] || '';
+      };
+      devfile = (await devfileConverter.v2ToV1(devfile, externalAccess)) as Devfile;
     }
 
     this.setState({ resolvedDevfileMessage });

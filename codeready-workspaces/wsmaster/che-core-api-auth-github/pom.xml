@@ -17,7 +17,7 @@
     <parent>
         <artifactId>che-master-parent</artifactId>
         <groupId>org.eclipse.che.core</groupId>
-        <version>7.40.0-SNAPSHOT</version>
+        <version>7.41.0-SNAPSHOT</version>
     </parent>
     <artifactId>che-core-api-auth-github</artifactId>
     <packaging>jar</packaging>
@@ -60,8 +60,13 @@
             <artifactId>che-core-commons-inject</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.che.core</groupId>
-            <artifactId>che-core-commons-json</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

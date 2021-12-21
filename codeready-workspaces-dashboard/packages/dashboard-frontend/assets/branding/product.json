@@ -1,7 +1,7 @@
 {
   "title": "CodeReady Workspaces ",
   "name": "CodeReady Workspaces",
-  "productVersion": "2.14 @ cc9ff7 #101 :: Eclipse Che Dashboard 7.37.0 @ e16f",
+  "productVersion": "2.15 @ 315c7 #106 :: Eclipse Che Dashboard 7.37.0 @ 6dcd",
   "logoFile": "che-logo.svg",
   "logoTextFile": "che-logo-text.svg",
   "links": [
@@ -11,7 +11,7 @@
     },
     {
       "text": "Documentation",
-      "href": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/"
+      "href": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/"
     },
     {
       "text": "Support",
@@ -19,13 +19,13 @@
     }
   ],
   "docs": {
-    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/html-single/end-user_guide/index#configuring-a-workspace-with-dashboard_crw",
-    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/html-single/end-user_guide/index#developer-workspaces_crw",
+    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/html-single/end-user_guide/index#configuring-a-workspace-with-dashboard_crw",
+    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/html-single/end-user_guide/index#developer-workspaces_crw",
     "converting": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.0/html-single/end-user_guide/index#converting-a-codeready-workspaces-1.2-workspace-to-a-codeready-workspaces-2.0-devfile",
-    "certificate": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/html-single/end-user_guide/index#importing-certificates-to-browsers_crw",
-    "general": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/",
-    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/html-single/installation_guide/index#configuring-storage-types_crw",
-    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.14/html-single/end-user_guide/index#troubleshooting-network-problems_crw"
+    "certificate": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/html-single/end-user_guide/index#importing-certificates-to-browsers_crw",
+    "general": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/",
+    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/html-single/installation_guide/index#configuring-storage-types_crw",
+    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.15/html-single/end-user_guide/index#troubleshooting-network-problems_crw"
   },
   "configuration": {
     "cheCliTool": "crwctl"

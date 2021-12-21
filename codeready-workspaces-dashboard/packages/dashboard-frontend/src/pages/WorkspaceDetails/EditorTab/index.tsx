@@ -303,11 +303,8 @@ export class EditorTab extends React.PureComponent<Props, State> {
   }
 
   private async onSave(): Promise<void> {
-    if (
-      isCheWorkspace(this.props.workspace.ref) ||
-      this.props.workspace.status !== DevWorkspaceStatus.RUNNING.toUpperCase()
-    ) {
-      this.saveDevfile();
+    if (!this.props.workspace.isRunning || isCheWorkspace(this.props.workspace.ref)) {
+      await this.saveDevfile();
     } else {
       this.setState({
         showDevfileV2ConfirmationModal: true,
