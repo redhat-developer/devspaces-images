@@ -65,11 +65,13 @@ RUN ./check_mandatory_fields.sh devfiles
 RUN ./swap_images.sh devfiles
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
+RUN ./generate_devworkspace_templates.sh
 RUN chmod -R g+rwX /build/devfiles
+RUN chmod -R g+rwX /build/resources
 
-################# 
+#################
 # PHASE TWO: configure registry image
-################# 
+#################
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/httpd-24
@@ -108,6 +110,7 @@ WORKDIR /var/www/html
 RUN mkdir -m 777 /var/www/html/devfiles
 COPY README.md .htaccess /var/www/html/
 COPY --from=builder /build/devfiles /var/www/html/devfiles
+COPY --from=builder /build/resources /var/www/html/resources
 COPY ./images /var/www/html/images
 COPY ./build/dockerfiles/rhel.entrypoint.sh ./build/dockerfiles/entrypoint.sh /usr/local/bin/
 RUN chmod g+rwX /usr/local/bin/entrypoint.sh /usr/local/bin/rhel.entrypoint.sh && \
