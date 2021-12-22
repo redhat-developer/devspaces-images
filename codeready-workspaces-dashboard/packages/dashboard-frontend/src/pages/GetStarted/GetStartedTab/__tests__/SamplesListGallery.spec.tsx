@@ -20,6 +20,7 @@ import mockMetadata from '../../__tests__/devfileMetadata.json';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import { Devfile } from '../../../../services/workspace-adapter';
+import { ConvertedState } from '../../../../store/FactoryResolver';
 
 const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
 
@@ -137,13 +138,18 @@ describe('Samples List Gallery', () => {
 });
 
 function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?: boolean): Store {
-  const registries = {};
+  const registries = {} as {
+    [location: string]: {
+      metadata?: che.DevfileMetaData[];
+      error?: string;
+    };
+  };
   if (metadata) {
     registries['registry-location'] = {
       metadata,
     };
   }
-  const workspaceSettings = {};
+  const workspaceSettings = {} as che.WorkspaceSettings;
   if (devWorkspaceEnabled) {
     workspaceSettings['che.devworkspaces.enabled'] = 'true';
   }
@@ -153,18 +159,23 @@ function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?:
         storageTypes: 'https://docs.location',
       },
     } as BrandingData)
-    .withWorkspacesSettings(workspaceSettings as che.WorkspaceSettings)
-    .withFactoryResolver({
-      v: '4.0',
-      source: 'devfile.yaml',
-      devfile: {} as Devfile,
-      location: 'http://fake-location',
-      scm_info: {
-        clone_url: 'http://github.com/clone-url',
-        scm_provider: 'github',
+    .withWorkspacesSettings(workspaceSettings)
+    .withFactoryResolver(
+      {
+        v: '4.0',
+        source: 'devfile.yaml',
+        devfile: {} as Devfile,
+        location: 'http://fake-location',
+        scm_info: {
+          clone_url: 'http://github.com/clone-url',
+          scm_provider: 'github',
+        },
+        links: [],
       },
-      links: [],
-    })
+      {
+        isConverted: false,
+      } as ConvertedState,
+    )
     .withDevfileRegistries({ registries })
     .build();
 }

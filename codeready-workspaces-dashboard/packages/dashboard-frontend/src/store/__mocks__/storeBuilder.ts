@@ -13,13 +13,12 @@
 import { Store } from 'redux';
 import createMockStore from 'redux-mock-store';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
-import { FactoryResolver } from '../../services/helpers/types';
 import { AppState } from '..';
 import { State as DevfileRegistriesState } from '../DevfileRegistries/index';
 import { RegistryEntry } from '../DockerConfig/types';
 import { State as WorkspacesState } from '../Workspaces/index';
 import { State as BrandingState } from '../Branding';
-import { State as FactoryResolverState } from '../FactoryResolver';
+import { ConvertedState, ResolverState, State as FactoryResolverState } from '../FactoryResolver';
 import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';
 import { State as PluginsState } from '../Plugins/chePlugins';
 import { State as UserState } from '../User';
@@ -164,8 +163,13 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public withFactoryResolver(resolver: FactoryResolver, isLoading = false): FakeStoreBuilder {
+  public withFactoryResolver(
+    resolver: ResolverState,
+    converted: ConvertedState,
+    isLoading = false,
+  ): FakeStoreBuilder {
     this.state.factoryResolver.resolver = Object.assign({}, resolver);
+    this.state.factoryResolver.converted = Object.assign({}, converted);
     this.state.factoryResolver.isLoading = isLoading;
     return this;
   }

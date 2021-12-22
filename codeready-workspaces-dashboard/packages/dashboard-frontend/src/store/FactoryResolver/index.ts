@@ -18,9 +18,18 @@ import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
-import { getDevfile } from './getDevfile';
-import { selectDevworkspacesEnabled } from '../Workspaces/Settings/selectors';
+import {
+  selectDevworkspacesEnabled,
+  selectPreferredStorageType,
+} from '../Workspaces/Settings/selectors';
 import { Devfile } from '../../services/workspace-adapter';
+import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
+import {
+  convertDevfileV1toDevfileV2,
+  convertDevfileV2toDevfileV1,
+} from '../../services/devfile/converters';
+import normalizeDevfileV2 from './normalizeDevfileV2';
+import normalizeDevfileV1 from './normalizeDevfileV1';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -43,23 +52,23 @@ export function isOAuthResponse(responseData: any): responseData is OAuthRespons
   }
   return false;
 }
-export interface ResolverState {
-  location?: string;
-  source?: string;
-  devfile: Devfile;
-  scm_info?: {
-    clone_url: string;
-    scm_provider: string;
-    branch?: string;
-  };
+export interface ResolverState extends FactoryResolver {
   optionalFilesContent?: {
     [fileName: string]: string;
   };
 }
 
+export interface ConvertedState {
+  resolvedDevfile: Devfile;
+  devfileV1: che.WorkspaceDevfile;
+  devfileV2: devfileApi.Devfile;
+  isConverted: boolean;
+}
+
 export interface State {
   isLoading: boolean;
   resolver?: ResolverState;
+  converted?: ConvertedState;
   error?: string;
 }
 
@@ -70,6 +79,7 @@ interface RequestFactoryResolverAction {
 interface ReceiveFactoryResolverAction {
   type: 'RECEIVE_FACTORY_RESOLVER';
   resolver: ResolverState;
+  converted: ConvertedState;
 }
 
 interface ReceiveFactoryResolverErrorAction {
@@ -161,12 +171,45 @@ export const actionCreators: ActionCreators = {
 
         const state = getState();
         const isDevworkspacesEnabled = selectDevworkspacesEnabled(state);
-        const devfile = getDevfile(data, location, isDevworkspacesEnabled);
+        const preferredStorageType = selectPreferredStorageType(state);
+        const resolvedDevfile = data.devfile;
+        const isResolvedDevfileV2 = isDevfileV2(resolvedDevfile);
+        let devfileV1: che.WorkspaceDevfile;
+        let devfileV2: devfileApi.Devfile;
+        if (isDevfileV2(data.devfile)) {
+          devfileV2 = normalizeDevfileV2(data.devfile, data, location);
+          devfileV1 = normalizeDevfileV1(
+            await convertDevfileV2toDevfileV1(devfileV2, optionalFilesContent),
+            preferredStorageType,
+          );
+        } else {
+          devfileV1 = normalizeDevfileV1(data.devfile, preferredStorageType);
+          devfileV2 = normalizeDevfileV2(
+            await convertDevfileV1toDevfileV2(devfileV1),
+            data,
+            location,
+          );
+        }
+        const converted: ConvertedState = {
+          resolvedDevfile,
+          isConverted:
+            (isDevworkspacesEnabled && isResolvedDevfileV2 === false) ||
+            (isDevworkspacesEnabled === false && isResolvedDevfileV2),
+          devfileV1,
+          devfileV2,
+        };
 
-        const { source, scm_info } = data;
+        const devfile: Devfile = isDevworkspacesEnabled ? devfileV2 : devfileV1;
+
         dispatch({
           type: 'RECEIVE_FACTORY_RESOLVER',
-          resolver: { location, devfile, source, scm_info, optionalFilesContent },
+          resolver: {
+            ...data,
+            location,
+            devfile,
+            optionalFilesContent,
+          },
+          converted,
         });
         return;
       } catch (e) {
@@ -210,6 +253,7 @@ export const reducer: Reducer<State> = (
       return createObject(state, {
         isLoading: false,
         resolver: action.resolver,
+        converted: action.converted,
       });
     case 'RECEIVE_FACTORY_RESOLVER_ERROR':
       return createObject(state, {

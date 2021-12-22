@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { updateDevfile } from '../storageTypes';
+import { updateDevfileStorageType } from '../storageTypes';
 import { Devfile } from '../workspace-adapter';
 import devfileApi from '../devfileApi';
 
@@ -23,9 +23,9 @@ export function getDefaultDevfileV1(
     metadata: {
       generateName,
     },
-  };
+  } as che.WorkspaceDevfile;
 
-  return updateDevfile(devfile as Devfile, preferredStorageType) as che.WorkspaceDevfile;
+  return updateDevfileStorageType(devfile, preferredStorageType) as che.WorkspaceDevfile;
 }
 
 export function getDefaultDevfileV2(name = 'wksp'): devfileApi.Devfile {

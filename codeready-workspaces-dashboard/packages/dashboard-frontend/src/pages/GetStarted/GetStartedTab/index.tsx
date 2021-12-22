@@ -24,7 +24,7 @@ import {
   selectWorkspacesSettings,
 } from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
-import { updateDevfile } from '../../../services/storageTypes';
+import { updateDevfileStorageType } from '../../../services/storageTypes';
 import stringify from '../../../services/helpers/editor';
 import ImportFromGit from './ImportFromGit';
 import { ResolverState } from '../../../store/FactoryResolver';
@@ -77,14 +77,17 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     let devfile = load(devfileContent);
 
     if (this.state.temporary === undefined) {
-      devfile = updateDevfile(devfile, this.props.preferredStorageType);
+      devfile = updateDevfileStorageType(devfile, this.props.preferredStorageType);
     } else if (this.props.preferredStorageType === 'async') {
-      devfile = updateDevfile(
+      devfile = updateDevfileStorageType(
         devfile,
         this.state.temporary ? 'ephemeral' : this.props.preferredStorageType,
       );
     } else {
-      devfile = updateDevfile(devfile, this.state.temporary ? 'ephemeral' : 'persistent');
+      devfile = updateDevfileStorageType(
+        devfile,
+        this.state.temporary ? 'ephemeral' : 'persistent',
+      );
     }
     this.isLoading = true;
     try {
@@ -97,7 +100,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 
   private handleDevfileResolver(resolverState: ResolverState, stackName: string): Promise<void> {
     const devfile: Devfile = resolverState.devfile;
-    const updatedDevfile = updateDevfile(devfile, this.props.preferredStorageType);
+    const updatedDevfile = updateDevfileStorageType(devfile, this.props.preferredStorageType);
     const devfileContent = stringify(updatedDevfile);
 
     return this.props.onDevfile(

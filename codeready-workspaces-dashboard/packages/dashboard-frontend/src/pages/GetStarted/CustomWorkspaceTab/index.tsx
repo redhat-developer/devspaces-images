@@ -30,7 +30,7 @@ import {
   selectPreferredStorageType,
   selectWorkspacesSettings,
 } from '../../../store/Workspaces/Settings/selectors';
-import { attributesToType, updateDevfile } from '../../../services/storageTypes';
+import { attributesToType, updateDevfileStorageType } from '../../../services/storageTypes';
 import { safeLoad } from 'js-yaml';
 import { updateDevfileMetadata } from '../updateDevfileMetadata';
 import { Devfile, isCheDevfile } from '../../../services/workspace-adapter';
@@ -112,7 +112,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
       return;
     }
 
-    const newDevfile = updateDevfile(devfile, storageType);
+    const newDevfile = updateDevfileStorageType(devfile, storageType);
 
     this.setState({
       storageType,
@@ -131,7 +131,7 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
       devfileContent?.attributes?.asyncPersist === undefined &&
       this.props.preferredStorageType
     ) {
-      devfile = updateDevfile(devfileContent, this.props.preferredStorageType);
+      devfile = updateDevfileStorageType(devfileContent, this.props.preferredStorageType);
     } else {
       devfile = devfileContent;
     }

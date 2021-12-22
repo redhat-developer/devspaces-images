@@ -35,7 +35,6 @@ import { lazyInject } from '../../inversify.config';
 import { KeycloakAuthService } from '../../services/keycloak/auth';
 import { getEnvironment, isDevEnvironment } from '../../services/helpers/environment';
 import { isOAuthResponse } from '../../store/FactoryResolver';
-import { updateDevfile } from '../../services/storageTypes';
 import { Devfile, isCheDevfile, isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import { AlertOptions } from '../../pages/FactoryLoader';
 import {
@@ -45,10 +44,9 @@ import {
 import { safeLoad } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
-import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
+import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
-import * as devfileConverter from '@eclipse-che/devfile-converter';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'workspaceDeploymentLabels',
@@ -121,23 +119,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   private updateOverrideParams(key: string, val: string): void {
     this.overrideDevfileObject[key] = val;
-  }
-
-  private getTargetDevfile(): Devfile {
-    // at this point the resolver object is defined
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    let devfile = this.factoryResolver.resolver!.devfile;
-
-    if (
-      isCheDevfile(devfile) &&
-      devfile?.attributes?.persistVolumes === undefined &&
-      devfile?.attributes?.asyncPersist === undefined &&
-      this.props.preferredStorageType
-    ) {
-      devfile = updateDevfile(devfile, this.props.preferredStorageType);
-    }
-
-    return devfile;
   }
 
   public showAlert(alertOptions: string | AlertOptions): void {
@@ -317,7 +298,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     }
     const { source } = this.factoryResolver.resolver;
     const searchParam = new window.URLSearchParams(this.state.search);
-    let devfile = this.getTargetDevfile();
+
+    const devfile = this.factoryResolver.resolver.devfile;
     let resolvedDevfileMessage: string;
     // source tells where devfile comes from
     //  - no source: the url to raw content is used
@@ -333,13 +315,22 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       resolvedDevfileMessage = `Devfile found in repo ${searchParam.get('url')} as '${source}'.`;
     }
 
-    if (this.props.cheDevworkspaceEnabled === false && isDevfileV2(devfile)) {
-      resolvedDevfileMessage += ' Devfile 2.x version found, converting it to devfile version 1.';
-      const { optionalFilesContent } = this.factoryResolver.resolver;
-      const externalAccess = async function (file: string): Promise<string> {
-        return optionalFilesContent?.[file] || '';
-      };
-      devfile = (await devfileConverter.v2ToV1(devfile, externalAccess)) as Devfile;
+    if (this.factoryResolver.converted?.isConverted && source !== 'repo') {
+      console.debug(
+        'Resolved devfile:\n',
+        JSON.stringify(this.factoryResolver.converted.resolvedDevfile, undefined, 2),
+      );
+      console.debug(
+        'Converted to:\n',
+        JSON.stringify(this.factoryResolver.resolver.devfile, undefined, 2),
+      );
+      if (this.props.cheDevworkspaceEnabled) {
+        resolvedDevfileMessage += ` Devfile version 1 found, converting it to devfile version ${
+          (devfile as devfileApi.Devfile).schemaVersion
+        }.`;
+      } else {
+        resolvedDevfileMessage += ' Devfile 2.x version found, converting it to devfile version 1.';
+      }
     }
 
     this.setState({ resolvedDevfileMessage });
@@ -350,13 +341,11 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     try {
       // looking for a pre-created infrastructure namespace
       const namespaces = this.props.infrastructureNamespaces;
-      if (namespaces.length === 1) {
-        if (!namespaces[0].attributes.phase) {
-          this.showAlert(
-            'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
-          );
-          return;
-        }
+      if (namespaces.length === 0 || (namespaces.length === 1 && !namespaces[0].attributes.phase)) {
+        this.showAlert(
+          'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
+        );
+        return;
       }
 
       const env = getEnvironment();

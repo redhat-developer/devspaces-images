@@ -1,17 +1,10 @@
 apiVersion: 1.0.0
 metadata:
-  generateName: che-dashboard-react-
+  generateName: che-dashboard-
 attributes:
   persistVolumes: 'false'
 components:
   - mountSources: true
-    endpoints:
-      - attributes:
-          public: 'true'
-          protocol: http
-          path: /
-        name: dashboard-dev-server
-        port: 3000
     command:
       - tail
       - '-f'
@@ -19,31 +12,23 @@ components:
     memoryLimit: 3Gi
     type: dockerimage
     alias: dashboard-dev
-    image: 'docker.io/node:12.20.1-alpine3.12'
-  - id: vscode/typescript-language-features/latest
-    type: chePlugin
+    image: 'quay.io/eclipse/che-nodejs12-community:next'
 commands:
   - name: '[UD] install dependencies'
     actions:
       - workdir: /projects/che-dashboard
         type: exec
-        command: yarn install
+        command: yarn install --non-interactive --modules-folder /tmp/node_modules && ln -s /tmp/node_modules /projects/che-dashboard/node_modules
         component: dashboard-dev
-  - name: '[UD] compile'
+  - name: '[UD] build'
     actions:
       - workdir: /projects/che-dashboard
         type: exec
-        command: yarn install && yarn compile
+        command: yarn build
         component: dashboard-dev
   - name: '[UD] test'
     actions:
       - workdir: /projects/che-dashboard
         type: exec
-        command: yarn install && yarn test
-        component: dashboard-dev
-  - name: '[UD] start'
-    actions:
-      - workdir: /projects/che-dashboard
-        type: exec
-        command: 'yarn install && yarn start --port=3000 --host=0.0.0.0 --env.server=${CHE_API_INTERNAL%????} --env.token=${CHE_MACHINE_TOKEN}'
+        command: yarn test
         component: dashboard-dev

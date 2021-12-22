@@ -21,11 +21,17 @@ import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../services/helpers/types';
 import FactoryLoaderContainer, { LoadFactorySteps } from '../FactoryLoader';
 import { AlertOptions } from '../../pages/IdeLoader';
-import { convertWorkspace, Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
+import { convertWorkspace, Devfile, WorkspaceAdapter } from '../../services/workspace-adapter';
 import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
 import devfileApi from '../../services/devfileApi';
 import { safeDump } from 'js-yaml';
 import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
+import { ConvertedState, ResolverState } from '../../store/FactoryResolver';
+import { actionCreators as workspacesActionCreators } from '../../store/Workspaces';
+import {
+  actionCreators as factoryResolverActionCreators,
+  isOAuthResponse,
+} from '../../store/FactoryResolver';
 
 const showAlertMock = jest.fn();
 const setWorkspaceQualifiedName = jest.fn();
@@ -36,62 +42,61 @@ const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
 const setWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
 const clearWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('../../store/Workspaces/index', () => {
-  return {
-    actionCreators: {
-      requestWorkspace: id => async (): Promise<void> => {
-        requestWorkspaceMock(id);
-      },
-      startWorkspace: workspace => async (): Promise<void> => {
-        startWorkspaceMock(workspace);
-      },
-      createWorkspaceFromDevfile:
-        (devfile, namespace, infrastructureNamespace, attributes) =>
-        async (): Promise<Workspace> => {
-          createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
-          return convertWorkspace({
-            id: 'id-wksp-test',
-            attributes,
-            namespace,
-            devfile,
-            temporary: false,
-            status: 'STOPPED',
-          });
-        },
-      setWorkspaceId: (id: string) => async (): Promise<void> => {
-        setWorkspaceIdMock(id);
-      },
-      clearWorkspaceId: () => async (): Promise<void> => {
-        clearWorkspaceIdMock();
-      },
-      setWorkspaceQualifiedName:
-        (namespace: string, workspaceName: string) => async (): Promise<void> => {
-          setWorkspaceQualifiedName(namespace, workspaceName);
-        },
+jest.mock('../../store/Workspaces');
+(workspacesActionCreators.requestWorkspace as jest.Mock).mockImplementation(
+  (id: string) => async () => requestWorkspaceMock(id),
+);
+(workspacesActionCreators.startWorkspace as jest.Mock).mockImplementation(
+  (workspace: string) => async () => startWorkspaceMock(workspace),
+);
+(workspacesActionCreators.createWorkspaceFromDevfile as jest.Mock).mockImplementation(
+  (
+      devfile: Devfile,
+      namespace: string,
+      infrastructureNamespace: string,
+      attributes: { [key: string]: string },
+    ) =>
+    async () => {
+      createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
+      return convertWorkspace({
+        id: 'id-wksp-test',
+        attributes: attributes as che.WorkspaceAttributes,
+        namespace,
+        devfile: devfile as che.WorkspaceDevfile,
+        temporary: false,
+        status: 'STOPPED',
+      });
     },
-  };
-});
+);
+(workspacesActionCreators.setWorkspaceId as jest.Mock).mockImplementation(
+  (id: string) => async () => setWorkspaceIdMock(id),
+);
+(workspacesActionCreators.clearWorkspaceId as jest.Mock).mockImplementation(
+  () => async () => clearWorkspaceIdMock(),
+);
+(workspacesActionCreators.setWorkspaceQualifiedName as jest.Mock).mockImplementation(
+  (namespace: string, workspaceName: string) => async () =>
+    setWorkspaceQualifiedName(namespace, workspaceName),
+);
 
-jest.mock('../../store/FactoryResolver', () => {
-  return {
-    actionCreators: {
-      requestFactoryResolver:
-        (
-          location: string,
-          overrideParams?: {
-            [params: string]: string;
-          },
-        ) =>
-        async (): Promise<void> => {
-          if (!overrideParams) {
-            requestFactoryResolverMock(location);
-          } else {
-            requestFactoryResolverMock(location, overrideParams);
-          }
-        },
+jest.mock('../../store/FactoryResolver');
+const actualModule = jest.requireActual('../../store/FactoryResolver');
+(isOAuthResponse as unknown as jest.Mock).mockImplementation(actualModule.isOAuthResponse);
+(factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+  (
+      location: string,
+      overrideParams?: {
+        [params: string]: string;
+      },
+    ) =>
+    async () => {
+      if (!overrideParams) {
+        requestFactoryResolverMock(location);
+      } else {
+        requestFactoryResolverMock(location, overrideParams);
+      }
     },
-  };
-});
+);
 
 jest.mock('../../pages/FactoryLoader', () => {
   return function DummyWizard(props: {
@@ -128,7 +133,7 @@ describe('Factory Loader container', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
   });
@@ -162,192 +167,13 @@ describe('Factory Loader container', () => {
     });
   });
 
-  describe('converting devfiles', () => {
-    it('should NOT convert devfile v1 in Che Server mode', async () => {
-      const location = 'http://test-location';
-      const workspaceV1 = new CheWorkspaceBuilder()
-        .withId('my-workspace-id')
-        .withName('my-project')
-        .build();
-      const workspace = convertWorkspace(workspaceV1);
-
-      const store = new FakeStoreBuilder()
-        .withCheWorkspaces({
-          workspaces: [workspaceV1],
-        })
-        .withWorkspaces({
-          workspaceId: workspace.id,
-          namespace: workspace.namespace,
-          workspaceName: workspace.name,
-        })
-        .withWorkspacesSettings({
-          'che.devworkspaces.enabled': 'false',
-        } as che.WorkspaceSettings)
-        .withFactoryResolver({
-          v: '4.0',
-          source: 'devfile.yaml',
-          devfile: workspace.devfile,
-          location,
-          links: [],
-        })
-        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-        .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      await waitFor(() => expect(startWorkspaceMock).toHaveBeenCalled());
-
-      const convertingMessage = screen.queryByText(
-        `Devfile 2.x version found, converting it to devfile version 1.`,
-        { exact: false },
-      );
-      // the message should not appear
-      expect(convertingMessage).toBeNull();
-
-      // the correct devfile should be passed
-      expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
-        workspace.devfile,
-        undefined,
-        expect.anything(),
-        expect.anything(),
-      );
-    });
-
-    it('should convert devfile v2 to v1 in Che Server mode', async () => {
-      const location = 'http://test-location';
-      const workspaceV2 = new DevWorkspaceBuilder()
-        .withId('my-workspace-id')
-        .withName('my-project')
-        .build();
-      const workspace = convertWorkspace(workspaceV2);
-      const workspaceV1 = new CheWorkspaceBuilder()
-        .withId(workspace.id)
-        .withName(workspace.name)
-        .build();
-
-      const store = new FakeStoreBuilder()
-        .withCheWorkspaces({
-          workspaces: [workspaceV1],
-        })
-        .withWorkspaces({
-          workspaceId: workspace.id,
-          namespace: workspace.namespace,
-          workspaceName: workspace.name,
-        })
-        .withWorkspacesSettings({
-          'che.devworkspaces.enabled': 'false',
-        } as che.WorkspaceSettings)
-        .withFactoryResolver({
-          v: '4.0',
-          source: 'devfile.yaml',
-          devfile: workspace.devfile,
-          location,
-          links: [],
-        })
-        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-        .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      await waitFor(() => expect(startWorkspaceMock).toHaveBeenCalled());
-
-      const convertingMessage = screen.queryByText(
-        `Devfile 2.x version found, converting it to devfile version 1.`,
-        { exact: false },
-      );
-      // the message should appear
-      expect(convertingMessage).not.toBeNull();
-
-      // the correct devfile should be passed
-      expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          apiVersion: workspaceV1.devfile.apiVersion,
-          metadata: expect.objectContaining({
-            name: expect.stringMatching(workspaceV1.devfile.metadata.name as string),
-          }),
-        } as che.WorkspaceDevfile),
-        undefined,
-        expect.anything(),
-        expect.anything(),
-      );
-    });
-
-    it('should NOT convert devfile v2 in devworkspaces mode', async () => {
-      const location = 'http://test-location';
-      const workspaceV2 = new DevWorkspaceBuilder()
-        .withId('my-workspace-id')
-        .withName('my-project')
-        .build();
-      const workspace = convertWorkspace(workspaceV2);
-
-      const store = new FakeStoreBuilder()
-        .withDevWorkspaces({
-          workspaces: [workspaceV2],
-        })
-        .withWorkspaces({
-          workspaceId: workspace.id,
-          namespace: workspace.namespace,
-          workspaceName: workspace.name,
-        })
-        .withWorkspacesSettings({
-          'che.devworkspaces.enabled': 'true',
-        } as che.WorkspaceSettings)
-        .withFactoryResolver({
-          v: '4.0',
-          source: 'devfile.yaml',
-          devfile: workspace.devfile,
-          location,
-          links: [],
-        })
-        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-        .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      await waitFor(() => expect(startWorkspaceMock).toHaveBeenCalled());
-
-      const convertingMessage = screen.queryByText(
-        `Devfile 2.x version found, converting it to devfile version 1.`,
-        { exact: false },
-      );
-      // the message should not appear
-      expect(convertingMessage).toBeNull();
-
-      // the correct devfile should be passed
-      const devfile = workspace.devfile as devfileApi.Devfile;
-      expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          schemaVersion: devfile.schemaVersion,
-          metadata: expect.objectContaining({
-            name: expect.stringMatching(devfile.metadata.name),
-          }),
-        } as devfileApi.Devfile),
-        undefined,
-        expect.anything(),
-        expect.anything(),
-      );
-    });
-  });
-
   describe('Use a devfile V1', () => {
     it('should resolve the factory, create and start a new workspace', async () => {
       const location = 'http://test-location';
-      const workspace = createFakeCheWorkspace('wrksp-test-id', 'wrksp-test-name');
+      const workspace = new CheWorkspaceBuilder()
+        .withId('wrksp-test-id')
+        .withName('wrksp-test-name')
+        .build();
       const workspaceAdapter = convertWorkspace(workspace);
 
       renderComponentV1(location, workspace);
@@ -550,128 +376,6 @@ describe('Factory Loader container', () => {
       );
     });
 
-    it('should resolve the factory with  the preferred storage type "persistent"', async () => {
-      const location = 'http://test-location';
-      const preferredStorageType = 'persistent';
-      const workspace = createFakeWorkspaceWithRuntimeV1(
-        'test-wksp-id',
-        'test-stack-name',
-        'test-wksp-name',
-        {},
-      );
-
-      renderComponentV1(location, workspace, preferredStorageType);
-
-      const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
-      );
-
-      jest.runOnlyPendingTimers();
-      await waitFor(() =>
-        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
-      );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
-      );
-
-      jest.runOnlyPendingTimers();
-      await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
-          {
-            apiVersion: '1.0.0',
-            metadata: {
-              name: 'test-wksp-name',
-            },
-          },
-          undefined,
-          namespace,
-          { stackName: location + '/' },
-        ),
-      );
-    });
-
-    it('should resolve the factory with  the preferred storage type "ephemeral"', async () => {
-      const location = 'http://test-location';
-      const preferredStorageType = 'ephemeral';
-      const workspace = createFakeWorkspaceWithRuntimeV1(
-        'test-wksp-id',
-        'test-stack-name',
-        'test-wksp-name',
-        {},
-      );
-
-      renderComponentV1(location, workspace, preferredStorageType);
-
-      const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
-      );
-
-      jest.runOnlyPendingTimers();
-      await waitFor(() =>
-        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
-      );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
-      );
-
-      jest.runOnlyPendingTimers();
-      await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            attributes: {
-              persistVolumes: 'false',
-            },
-          }),
-          undefined,
-          namespace,
-          { stackName: location + '/' },
-        ),
-      );
-    });
-
-    it('should resolve the factory with  the preferred storage type "async"', async () => {
-      const location = 'http://test-location';
-      const preferredStorageType = 'async';
-      const workspace = createFakeWorkspaceWithRuntimeV1(
-        'test-wksp-id',
-        'test-stack-name',
-        'test-wksp-name',
-        {},
-      );
-
-      renderComponentV1(location, workspace, preferredStorageType);
-
-      const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
-      );
-
-      jest.runOnlyPendingTimers();
-      await waitFor(() =>
-        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
-      );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
-      );
-
-      jest.runOnlyPendingTimers();
-      await waitFor(() =>
-        expect(createWorkspaceFromDevfileMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            attributes: {
-              persistVolumes: 'false',
-              asyncPersist: 'true',
-            },
-          }),
-          undefined,
-          namespace,
-          { stackName: location + '/' },
-        ),
-      );
-    });
-
     it('should show an error if something wrong with Repository/Devfile URL', async () => {
       const message =
         'Repository/Devfile URL is missing. Please specify it via url query param: ' +
@@ -696,7 +400,7 @@ describe('Factory Loader container', () => {
   });
 
   describe('Use a devfile V2', () => {
-    it('should resolve the factory with create policie "peruser" and open existing workspace', async () => {
+    it('should resolve the factory with create policy "peruser" and open existing workspace', async () => {
       const location = 'http://test-location&policies.create=peruser';
       const name = 'test-name';
       const devWorkspace = new DevWorkspaceBuilder()
@@ -775,33 +479,413 @@ describe('Factory Loader container', () => {
         ),
       );
     });
+
+    it('should resolve the factory with create policy "perclick" and create a new workspace', async () => {
+      const location = 'http://test-location&policies.create=perclick';
+      const devWorkspace = new DevWorkspaceBuilder()
+        .withId('id-wksp-test')
+        .withName('test-name')
+        .withNamespace('test')
+        .build();
+      renderComponentV2(location, devWorkspace);
+
+      const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
+      );
+
+      jest.runOnlyPendingTimers();
+      await waitFor(() =>
+        expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
+      );
+      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+        LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
+      );
+
+      jest.runOnlyPendingTimers();
+
+      await waitFor(() => expect(createWorkspaceFromDevfileMock).toHaveBeenCalledTimes(1));
+    });
   });
 
-  it('should resolve the factory with create policy "perclick" and create a new workspace', async () => {
-    const location = 'http://test-location&policies.create=perclick';
-    const devWorkspace = new DevWorkspaceBuilder()
-      .withId('id-wksp-test')
-      .withName('test-name')
-      .withNamespace('test')
-      .build();
-    renderComponentV2(location, devWorkspace);
+  describe('Resolving a devfile', () => {
+    it('should fail if request factory url fails', async () => {
+      const location = 'my-repository-location';
+      const errorMessage = '404. Not found';
 
-    const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-    expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-      LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
-    );
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          throw new Error(errorMessage);
+        },
+      );
 
-    jest.runOnlyPendingTimers();
-    await waitFor(() =>
-      expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
-    );
-    expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-      LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
-    );
+      const store = new FakeStoreBuilder().build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
 
-    jest.runOnlyPendingTimers();
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
 
-    await waitFor(() => expect(createWorkspaceFromDevfileMock).toHaveBeenCalledTimes(1));
+      await waitFor(() =>
+        expect(showAlertMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: expect.stringMatching(`Failed to resolve a devfile. ${errorMessage}`),
+          }),
+        ),
+      );
+    });
+
+    it('should fail if factory resolver url is different from requested url', async () => {
+      const location = 'my-repository-location';
+      const otherLocation = 'other-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock(otherLocation);
+        },
+      );
+
+      const store = new FakeStoreBuilder().build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() =>
+        expect(showAlertMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Failed to resolve a devfile.',
+          }),
+        ),
+      );
+    });
+
+    it('should provide message if raw content is resolved', async () => {
+      const location = 'my-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock();
+        },
+      );
+
+      const store = new FakeStoreBuilder()
+        .withFactoryResolver(
+          {
+            location,
+          } as ResolverState,
+          {
+            isConverted: false,
+          } as ConvertedState,
+        )
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
+
+      const devfileInfo = screen.getByTestId('factory-loader-devfile-location-info').textContent;
+      expect(devfileInfo).toEqual(`Devfile loaded from ${location}.`);
+    });
+
+    it('should provide message if the default devfile is resolved', async () => {
+      const location = 'my-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock();
+        },
+      );
+
+      const store = new FakeStoreBuilder()
+        .withFactoryResolver(
+          {
+            location,
+            source: 'repo',
+          } as ResolverState,
+          {
+            isConverted: false,
+          } as ConvertedState,
+        )
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
+
+      const devfileInfo = screen.getByTestId('factory-loader-devfile-location-info').textContent;
+      expect(devfileInfo).toEqual(
+        `Devfile could not be found in ${location}. Applying the default configuration.`,
+      );
+    });
+
+    it('should provide message if the devfile converted from v1 to v2.x.x', async () => {
+      const location = 'my-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock();
+        },
+      );
+
+      const store = new FakeStoreBuilder()
+        .withFactoryResolver(
+          {
+            location,
+          } as ResolverState,
+          {
+            isConverted: true,
+          } as ConvertedState,
+        )
+        .withWorkspacesSettings({
+          'che.devworkspaces.enabled': 'false',
+        })
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
+
+      const devfileInfo = screen.getByTestId('factory-loader-devfile-location-info').textContent;
+      expect(devfileInfo).toMatch('Devfile 2.x version found, converting it to devfile version 1.');
+    });
+
+    it('should provide message if the devfile converted from v2.x.x to v1', async () => {
+      const location = 'https://my-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock();
+        },
+      );
+
+      const devfile = {
+        schemaVersion: '2.3.4',
+        metadata: {
+          name: 'my-project',
+        },
+      } as devfileApi.Devfile;
+
+      const store = new FakeStoreBuilder()
+        .withFactoryResolver(
+          {
+            devfile,
+            location,
+          } as ResolverState,
+          {
+            isConverted: true,
+          } as ConvertedState,
+        )
+        .withWorkspacesSettings({
+          'che.devworkspaces.enabled': 'true',
+        })
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
+
+      const devfileInfo = screen.getByTestId('factory-loader-devfile-location-info').textContent;
+      expect(devfileInfo).toMatch(
+        `Devfile version 1 found, converting it to devfile version ${devfile.schemaVersion}.`,
+      );
+    });
+
+    it('should not provide message if devfile v1 is not converted', async () => {
+      const location = 'https://my-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock();
+        },
+      );
+
+      const devfile = {
+        apiVersion: '1.0.0',
+        metadata: {
+          name: 'my-project',
+        },
+      } as che.WorkspaceDevfile;
+
+      const store = new FakeStoreBuilder()
+        .withFactoryResolver(
+          {
+            devfile,
+            location,
+          } as ResolverState,
+          {
+            isConverted: false,
+          } as ConvertedState,
+        )
+        .withWorkspacesSettings({
+          'che.devworkspaces.enabled': 'false',
+        })
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
+
+      const devfileInfo = screen.getByTestId('factory-loader-devfile-location-info').textContent;
+      expect(devfileInfo).not.toMatch(`Devfile version 1 found, converting it`);
+    });
+
+    it('should not provide message if devfile v2.x.x is not converted', async () => {
+      const location = 'https://my-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          requestFactoryResolverMock();
+        },
+      );
+
+      const devfile = {
+        schemaVersion: '2.3.4',
+        metadata: {
+          name: 'my-project',
+        },
+      } as devfileApi.Devfile;
+
+      const store = new FakeStoreBuilder()
+        .withFactoryResolver(
+          {
+            devfile,
+            location,
+          } as ResolverState,
+          {
+            isConverted: false,
+          } as ConvertedState,
+        )
+        .withWorkspacesSettings({
+          'che.devworkspaces.enabled': 'true',
+        })
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
+
+      const devfileInfo = screen.getByTestId('factory-loader-devfile-location-info').textContent;
+      expect(devfileInfo).not.toMatch(
+        `Devfile version 1 found, converting it to devfile version 1.`,
+      );
+    });
+  });
+
+  describe('Resolving a private repository devfile', () => {
+    it('should handle the the namespace absence', async () => {
+      const location = 'private-repository-location';
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          throw {
+            attributes: {
+              oauth_provider: 'oauth_provider',
+              oauth_authentication_url: 'oauth_authentication_url',
+            },
+          };
+        },
+      );
+
+      const store = new FakeStoreBuilder().build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() =>
+        expect(showAlertMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: expect.stringMatching('The infrastructure namespace is required to be created.'),
+          }),
+        ),
+      );
+    });
+
+    it('should redirect to login page', async () => {
+      const privateRepoUrl = 'https://my-private.repo';
+      const oauthAuthenticationUrl = 'https://oauth_authentication_url';
+      const host = 'che-host';
+      const protocol = 'http://';
+      delete (window as any).location;
+      (window.location as any) = {
+        host,
+        protocol,
+      };
+      Object.defineProperty(window.location, 'href', {
+        set: () => {
+          // no-op
+        },
+        configurable: true,
+      });
+      const spy = jest.spyOn(window.location, 'href', 'set');
+
+      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
+        () => async () => {
+          throw {
+            attributes: {
+              oauth_provider: 'oauth_provider',
+              oauth_authentication_url: oauthAuthenticationUrl,
+            },
+          };
+        },
+      );
+
+      const store = new FakeStoreBuilder()
+        .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+        .build();
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: privateRepoUrl });
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      const expectedRedirectUrl = `${oauthAuthenticationUrl}/&redirect_after_login=${protocol}${host}/f?url=${encodeURIComponent(
+        privateRepoUrl,
+      )}`;
+
+      await waitFor(() => expect(spy).toHaveBeenCalledWith(expectedRedirectUrl));
+    });
   });
 });
 
@@ -824,17 +908,22 @@ function renderComponentV2(url: string, workspace: devfileApi.DevWorkspace): Ren
     .withWorkspacesSettings({
       'che.devworkspaces.enabled': 'true',
     })
-    .withFactoryResolver({
-      v: '4.0',
-      source: 'devfile.yaml',
-      devfile: convertWorkspace(workspace).devfile,
-      location: url.split('&')[0],
-      scm_info: {
-        clone_url: 'http://github.com/clone-url',
-        scm_provider: 'github',
+    .withFactoryResolver(
+      {
+        v: '4.0',
+        source: 'devfile.yaml',
+        devfile: convertWorkspace(workspace).devfile,
+        location: url.split('&')[0],
+        scm_info: {
+          clone_url: 'http://github.com/clone-url',
+          scm_provider: 'github',
+        },
+        links: [],
       },
-      links: [],
-    })
+      {
+        isConverted: false,
+      } as ConvertedState,
+    )
     .build();
   const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url });
 
@@ -863,13 +952,18 @@ function renderComponentV1(
       workspaceName: workspace.devfile.metadata.name,
     })
     .withWorkspacesSettings(settings as che.WorkspaceSettings)
-    .withFactoryResolver({
-      v: '4.0',
-      source: 'devfile.yaml',
-      devfile: workspace.devfile as che.WorkspaceDevfile,
-      location: url.split('&')[0],
-      links: [],
-    })
+    .withFactoryResolver(
+      {
+        v: '4.0',
+        source: 'devfile.yaml',
+        devfile: workspace.devfile as che.WorkspaceDevfile,
+        location: url.split('&')[0],
+        links: [],
+      },
+      {
+        isConverted: false,
+      } as ConvertedState,
+    )
     .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
     .build();
   const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url });

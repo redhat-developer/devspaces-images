@@ -87,12 +87,15 @@ export function attributesToType(
   return 'persistent';
 }
 
-export function updateDevfile(devfile: Devfile, storageType: che.WorkspaceStorageType): Devfile {
+export function updateDevfileStorageType(
+  devfile: Devfile,
+  storageType: che.WorkspaceStorageType,
+): Devfile {
   if (isDevfileV2(devfile)) {
     return devfile;
   }
 
-  const newDevfile = Object.assign({}, devfile) as che.WorkspaceDevfile;
+  const newDevfile = Object.assign({}, devfile);
   const attributes = newDevfile.attributes;
   switch (storageType) {
     case 'persistent':

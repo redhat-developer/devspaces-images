@@ -46,7 +46,11 @@ export const CHE_RUNTIME_STUB: che.WorkspaceRuntime = {
 export class CheWorkspaceBuilder {
   private workspace: che.Workspace = {
     id: getRandomString(4),
+    attributes: {
+      infrastructureNamespace: 'che',
+    } as che.WorkspaceAttributes,
     status: WorkspaceStatus.STOPPED,
+    namespace: 'admin',
     devfile: CHE_DEVFILE_STUB,
   };
 

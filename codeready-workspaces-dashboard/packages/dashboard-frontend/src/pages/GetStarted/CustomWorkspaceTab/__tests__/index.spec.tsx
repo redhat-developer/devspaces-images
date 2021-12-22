@@ -25,6 +25,7 @@ import { toTitle } from '../../../../services/storageTypes';
 import CustomWorkspaceTab from '..';
 import { FactoryResolver } from '../../../../services/helpers/types';
 import { Devfile } from '../../../../services/workspace-adapter';
+import { ConvertedState } from '../../../../store/FactoryResolver';
 
 jest.mock('../../../../components/DevfileEditor', () => {
   return forwardRef(function DummyEditor(...args: any[]): React.ReactElement {
@@ -384,12 +385,17 @@ function createStore(
         },
       },
     })
-    .withFactoryResolver({
-      devfile: {
-        apiVersion: '1.0.0',
-        metadata: { name: 'Custom Devfile' },
-      } as Devfile,
-    } as FactoryResolver)
+    .withFactoryResolver(
+      {
+        devfile: {
+          apiVersion: '1.0.0',
+          metadata: { name: 'Custom Devfile' },
+        } as Devfile,
+      } as FactoryResolver,
+      {
+        isConverted: false,
+      } as ConvertedState,
+    )
     .withBranding({
       docs: {
         storageTypes: 'https://che-docs/storage-types',
