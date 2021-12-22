@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5
-    createdAt: "2021-12-20T14:33:57+00:00"
+    createdAt: "2021-12-22T20:50:46+00:00"
     description: Devfile v1 and v2 development solution for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1492,7 +1492,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.14.0
-  replaces: crwoperator.v2.13.1-0.1639666398.p
+  replaces: crwoperator.v2.13.1-0.1639048036.p
   relatedImages:
   - name: crw-2-rhel8-operator-754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5
