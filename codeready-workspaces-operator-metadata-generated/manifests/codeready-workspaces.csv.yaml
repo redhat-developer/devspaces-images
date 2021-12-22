@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5
-    createdAt: "2021-12-22T20:50:46+00:00"
+    createdAt: "2021-12-22T22:52:18+00:00"
     description: Devfile v1 and v2 development solution for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
     operatorframework.io/cluster-monitoring: "true"
@@ -1195,7 +1195,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:046d86f43fe0d22531505f3a7cf3050baa5967e6443ac226d5a8402d589fab13
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:aed9d29e683a870183ec6aa8c95536b4f455df051df0f568d3eb9f0d418a5282
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:650a715a08927b11d78d8f520d0d9b623a3f9193eb98e1aed6eeebcaf4517b15
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1492,7 +1492,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.14.0
-  replaces: crwoperator.v2.13.1-0.1639048036.p
+  replaces: crwoperator.v2.13.1-0.1639666398.p
   relatedImages:
   - name: crw-2-rhel8-operator-754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5
@@ -1595,7 +1595,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:046d86f43fe0d22531505f3a7cf3050baa5967e6443ac226d5a8402d589fab13
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:aed9d29e683a870183ec6aa8c95536b4f455df051df0f568d3eb9f0d418a5282
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:650a715a08927b11d78d8f520d0d9b623a3f9193eb98e1aed6eeebcaf4517b15
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
