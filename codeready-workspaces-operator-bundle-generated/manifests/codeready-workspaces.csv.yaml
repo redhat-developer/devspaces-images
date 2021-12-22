@@ -1099,7 +1099,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:48b8c1f07dd58e65a6752246b2d7664e32cb50cdf37566a1cc8b034bb1e971c5
+                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:3843f4e3271d927cb1955bfa54b144729676988219dc21849a30a06c9aaab215
                 - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
                   value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:0ecfe3a467683d0a28f7b0736e884a3710438798ded46470451de63ec209380f
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
@@ -1199,7 +1199,7 @@ spec:
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
-                  value: registry.redhat.io/rhel8/postgresql-13@sha256:487183263b25ff4a0d68e97f17756aa9600ca640b20804ca34f19718e471f647
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:64c25d0c553b7ee5c1c963a037845610a66026ff41de4717019c1a180c9ca49b
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:c536d4c63253318fdfc1db499f8f4bb0881db7fbd6f3d1554b4d54c812f85cc7
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1499,7 +1499,7 @@ spec:
   - name: codeready-operator
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:754be519396a788adb1089826b4f3faca5c7721117fc2f73219a50436a6669c5
   - name: che_server
-    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:48b8c1f07dd58e65a6752246b2d7664e32cb50cdf37566a1cc8b034bb1e971c5
+    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:3843f4e3271d927cb1955bfa54b144729676988219dc21849a30a06c9aaab215
   - name: che_server_secure_exposer_jwt_proxy_image
     image: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:0ecfe3a467683d0a28f7b0736e884a3710438798ded46470451de63ec209380f
   - name: che_workspace_plugin_broker_artifacts
@@ -1599,7 +1599,7 @@ spec:
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
-    image: registry.redhat.io/rhel8/postgresql-13@sha256:487183263b25ff4a0d68e97f17756aa9600ca640b20804ca34f19718e471f647
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:64c25d0c553b7ee5c1c963a037845610a66026ff41de4717019c1a180c9ca49b
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:c536d4c63253318fdfc1db499f8f4bb0881db7fbd6f3d1554b4d54c812f85cc7
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
