@@ -113,6 +113,7 @@ fi
               job: 'sync-to-downstream_' + JOB_BRANCH,
               wait: true,
               propagate: true,
+              quietPeriod: 0,
               parameters: [
                 [
                   $class: 'StringParameterValue',

@@ -95,6 +95,16 @@ popd
                   ''')
                   currentBuild.description+="${thisArch} built; "
                 }//creds
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: false,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
               }//stage
             }//node
           }//timeout
@@ -106,16 +116,6 @@ popd
         println "##  Build assets for " + SYNC_REPOi
         println "########################################################################################################"
         parallel(tasks)
-        cleanWs(
-            cleanWhenSuccess: true,
-            cleanWhenUnstable: true,
-            cleanWhenNotBuilt: false,
-            cleanWhenFailure: false,
-            cleanWhenAborted: true,
-            deleteDirs: true,
-            disableDeferredWipeout: true,
-            notFailBuild: true
-        )
       }
     }//if
   }//if not null
@@ -245,6 +245,7 @@ rm -f /tmp/rsync-excludes
                     job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
                     wait: true,
                     propagate: true,
+                    quietPeriod: 0,
                     parameters: [
                       [
                         $class: 'StringParameterValue',
@@ -343,6 +344,7 @@ node(nodeLabelAnyArch){
                 job: 'crwctl_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
+                quietPeriod: 0,
                 parameters: [
                   [
                     $class: 'StringParameterValue',
@@ -374,16 +376,16 @@ node(nodeLabelAnyArch){
       } else {
         util.notifyBuildFailed()
       } // if
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
     } // if operator
-    cleanWs(
-        cleanWhenSuccess: true,
-        cleanWhenUnstable: true,
-        cleanWhenNotBuilt: false,
-        cleanWhenFailure: false,
-        cleanWhenAborted: true,
-        deleteDirs: true,
-        disableDeferredWipeout: true,
-        notFailBuild: true
-    )
   } // stage
 } //node

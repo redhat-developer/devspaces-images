@@ -6,24 +6,20 @@ import groovy.transform.Field
     // MIDSTM_BRANCH
 
 def errorOccurred = false
-def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(120) {
     node(nodeLabel){ 
         try { 
             stage ("Check for updated images") {
                 wrap([$class: 'TimestamperBuildWrapper']) {
-                    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-
-                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                        def util = load "${WORKSPACE}/util.groovy"
+                    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                        def util = load "${WORKSPACE}/util2.groovy"
                         cleanWs()
-                        util.installSkopeoFromContainer("")
-                        util.installYq()
                         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                         println "CRW_VERSION = '" + CRW_VERSION + "'"
                         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                        util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
                         def NEW_IMAGES = sh (
                             script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new",
@@ -119,6 +115,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle"
                                 job: 'crw-operator-bundle_' + JOB_BRANCH,
                                 wait: true,
                                 propagate: true,
+                                quietPeriod: 0,
                                 parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                             )
 

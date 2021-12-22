@@ -127,6 +127,16 @@ Quay Images:
 Brew NVRs:
 ''' + NEW_NVR_L
                         } // with
+                    cleanWs(
+                        cleanWhenSuccess: true,
+                        cleanWhenUnstable: true,
+                        cleanWhenNotBuilt: false,
+                        cleanWhenFailure: false,
+                        cleanWhenAborted: true,
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true
+                    )
                 } // wrap 
             } // stage
             if (!errorOccurred.equals("")) {
@@ -246,6 +256,16 @@ fi
             }
         } // if metadata or bundle
     } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: false,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
   } // stage
 } //node
 
@@ -283,5 +303,15 @@ node(nodeLabel){
             currentBuild.description+="; crw-theia-akamai triggered"
         } // if 2
     } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: false,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
   } // stage
 } //node

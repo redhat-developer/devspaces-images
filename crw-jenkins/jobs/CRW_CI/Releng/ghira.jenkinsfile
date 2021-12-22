@@ -16,16 +16,16 @@ timeout(120) {
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                     def util = load "${WORKSPACE}/util2.groovy"
                     cleanWs()
-                    util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
-                    GHIRA_OPTIONS = ''
-                    if (DRY_RUN.equals("true")) {
-                        GHIRA_OPTIONS += " --dryrun"
-                    }
-                    if (!NUM_WEEKS.equals("")) {
-                        GHIRA_OPTIONS += " --weeks " + NUM_WEEKS
-                    }
-                    print "Using GHIRA_OPTIONS = " + GHIRA_OPTIONS
                     withCredentials([string(credentialsId: 'jira-jiralint-token', variable: 'JIRA_TOKEN'), string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+                        GHIRA_OPTIONS = ''
+                        if (DRY_RUN.equals("true")) {
+                            GHIRA_OPTIONS += " --dryrun"
+                        }
+                        if (!NUM_WEEKS.equals("")) {
+                            GHIRA_OPTIONS += " --weeks " + NUM_WEEKS
+                        }
+                        print "Using GHIRA_OPTIONS = " + GHIRA_OPTIONS
                         sh '''#!/bin/bash -xe
 cd ${WORKSPACE}/crw/product/ghira
 pyenv virtualenv ghira -f
@@ -35,7 +35,7 @@ export JIRA_EMAIL="jiralint-codeready@redhat.com"
 export JIRA_TOKEN="''' + "${JIRA_TOKEN}" + '''"
 export GITHUB_TOKEN="''' + "${GITHUB_TOKEN}" + '''"
 python ghira ''' + "${GHIRA_OPTIONS}" + '''
-                            '''
+                        '''
                     } // with tokens
                 } // wrap
                 cleanWs(

@@ -105,6 +105,16 @@ popd
                   ''')
                   currentBuild.description+="${thisArch} built; "
                 }//creds
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: false,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
               }//stage
             }//node
           }//timeout
@@ -333,6 +343,16 @@ rm -f /tmp/rsync-excludes
               } // if SYNC_REPO[i] is non-null
             } // for
           } // withCredentials
+          cleanWs(
+              cleanWhenSuccess: true,
+              cleanWhenUnstable: true,
+              cleanWhenNotBuilt: false,
+              cleanWhenFailure: false,
+              cleanWhenAborted: true,
+              deleteDirs: true,
+              disableDeferredWipeout: true,
+              notFailBuild: true
+          )
       } // wrap
     } // stage
   } // node
@@ -388,6 +408,16 @@ node(nodeLabelAnyArch){
       } else {
         util.notifyBuildFailed()
       } // if
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
     } // if operator
   } // stage
 } //node

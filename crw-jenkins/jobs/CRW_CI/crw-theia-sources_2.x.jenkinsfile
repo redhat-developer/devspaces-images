@@ -8,8 +8,6 @@ import groovy.transform.Field
 // THEIA_BRANCH
 // THEIA_GITHUB_REPO
 // THEIA_COMMIT_SHA
-// nodeVersion
-// yarnVersion
 // CONTAINERS
 // PLATFORMS
 
@@ -56,9 +54,9 @@ timeout(120) {
           // }
 
           // set up build command, using -ci- image tags
-          def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} --no-cache --rm-cache --rmi:all --no-async-tests --ci"
           def nodeVersion = sh(script: '''curl -sSL  https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json | jq '.Other.NODE_VERSION["''' + CRW_VERSION + '''"]' ''', returnStdout: true).trim()
           def yarnVersion = sh(script: '''curl -sSL  https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json | jq '.Other.YARN_VERSION["''' + CRW_VERSION + '''"]' ''', returnStdout: true).trim()
+          def BUILD_PARAMS="--nv ${nodeVersion} --cv ${CRW_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} --no-cache --rm-cache --rmi:all --no-async-tests --ci"
           // commit changes into crw-theia/dockerfiles/ directly, so we can more easily sync to lower-midstream (crw-images) and downstream (pkgs.devel)
           BUILD_PARAMS=BUILD_PARAMS+" --commit"
 
@@ -246,6 +244,7 @@ node(nodeLabel) {
               job: 'sync-to-downstream_' + JOB_BRANCH,
               wait: true,
               propagate: true,
+              quietPeriod: 0,
               parameters: [
                 [
                   $class: 'StringParameterValue',
