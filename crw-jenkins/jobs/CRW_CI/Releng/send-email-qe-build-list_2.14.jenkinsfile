@@ -105,12 +105,14 @@ timeout(90) {
                         build job: "push-latest-containers-to-quay_${MIDSTM_BRANCH}", 
                             parameters: [[$class: 'StringParameterValue', name: 'MIDSTM_BRANCH', value: "${MIDSTM_BRANCH}"]],
                             propagate: false,
+                            quietPeriod: 0,
                             wait: true
 
                         // trigger an update of metadata and registries
                         build job: "update-digests-in-metadata_${MIDSTM_BRANCH}",
                             parameters: [[$class: 'StringParameterValue', name: 'MIDSTM_BRANCH', value: "${MIDSTM_BRANCH}"]],
                             propagate: false,
+                            quietPeriod: 0,
                             wait: true
                     }
 

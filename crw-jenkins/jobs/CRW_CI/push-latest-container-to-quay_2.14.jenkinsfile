@@ -179,6 +179,7 @@ node(nodeLabel){
                 job: 'update-digests-in-metadata_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
+                quietPeriod: 0,
                 parameters: [
                     [
                     $class: 'StringParameterValue',
@@ -287,6 +288,7 @@ node(nodeLabel){
                 job: 'crw-theia-akamai_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
+                quietPeriod: 0,
                 parameters: [
                     [
                     $class: 'StringParameterValue',

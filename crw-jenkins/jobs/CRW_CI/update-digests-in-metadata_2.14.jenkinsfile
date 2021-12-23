@@ -129,6 +129,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|
                                     job: 'crw-operator-bundle_' + JOB_BRANCH,
                                     wait: true,
                                     propagate: true,
+				    quietPeriod: 0,
                                     parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                                 )
                             }

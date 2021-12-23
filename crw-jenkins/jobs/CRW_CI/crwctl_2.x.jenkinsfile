@@ -10,7 +10,7 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_RCM - no longer used as of 2.13
 
 def installP7zip = true // p7zip install and use that to build crwctl
-def nodeLabel = "x86_64-rhel8"
+def nodeLabel = "x86_64-rhel8-dyn"
 
 timeout(90) {
   node("${nodeLabel}"){ 

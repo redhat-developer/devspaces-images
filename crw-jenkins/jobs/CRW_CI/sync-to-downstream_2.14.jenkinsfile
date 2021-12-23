@@ -277,6 +277,7 @@ rm -f /tmp/rsync-excludes
                     job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
                     wait: true,
                     propagate: true,
+                    quietPeriod: 0,
                     parameters: [
                       [
                         $class: 'StringParameterValue',
@@ -375,6 +376,7 @@ node(nodeLabelAnyArch){
                 job: 'crwctl_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
+                quietPeriod: 0,
                 parameters: [
                   [
                     $class: 'StringParameterValue',
