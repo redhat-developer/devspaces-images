@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:8663e661e1002414a89444410d69c56ad532856e07f1b03d027a6cbf2df8cca0
-    createdAt: "2021-12-23T05:07:45+00:00"
+    createdAt: "2021-12-23T08:08:31+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1185,7 +1185,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:d1f9a38bdda4a4339c13b79256fd68afa631463518fb912e966c07630dd80ab9
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:182ac6fa5b76baabfa6fec173e42b76ac723f30d706144a1b24d7d29141f1381
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:50c950df888b3b3c43c6cdfb1ef1f698c8f280915804a5d148b48c05e2a2bb93
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1508,7 +1508,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.15.0
-  replaces: crwoperatorallnamespaces.v2.13.101-0.1639666401.p
+  replaces: crwoperatorallnamespaces.v2.13.101-0.1639048038.p
   relatedImages:
   - name: crw-2-rhel8-operator-8663e661e1002414a89444410d69c56ad532856e07f1b03d027a6cbf2df8cca0-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:8663e661e1002414a89444410d69c56ad532856e07f1b03d027a6cbf2df8cca0
@@ -1585,7 +1585,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:d1f9a38bdda4a4339c13b79256fd68afa631463518fb912e966c07630dd80ab9
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:182ac6fa5b76baabfa6fec173e42b76ac723f30d706144a1b24d7d29141f1381
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:50c950df888b3b3c43c6cdfb1ef1f698c8f280915804a5d148b48c05e2a2bb93
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
   - name: gateway_authentication_sidecar
