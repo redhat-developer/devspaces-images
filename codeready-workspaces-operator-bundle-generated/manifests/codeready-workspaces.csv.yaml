@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:8663e661e1002414a89444410d69c56ad532856e07f1b03d027a6cbf2df8cca0
-    createdAt: "2021-12-22T21:11:47+00:00"
+    createdAt: "2021-12-23T00:44:12+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1508,7 +1508,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.15.0
-  replaces: crwoperatorallnamespaces.v2.13.101-0.1639666401.p
+  replaces: crwoperatorallnamespaces.v2.13.101-0.1639048038.p
   relatedImages:
   - name: crw-2-rhel8-operator-8663e661e1002414a89444410d69c56ad532856e07f1b03d027a6cbf2df8cca0-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:8663e661e1002414a89444410d69c56ad532856e07f1b03d027a6cbf2df8cca0
