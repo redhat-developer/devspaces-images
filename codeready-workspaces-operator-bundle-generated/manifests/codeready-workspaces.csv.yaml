@@ -104,7 +104,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a56530a0d93c292f63273de0cf20df7492777054880f49813658ade758f4d627
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
     createdAt: "2021-12-24T08:44:24+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1209,7 +1209,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a56530a0d93c292f63273de0cf20df7492777054880f49813658ade758f4d627
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1491,10 +1491,10 @@ spec:
   version: 2.15.0
   replaces: crwoperatorallnamespaces.v2.13.101-0.1639048038.p
   relatedImages:
-  - name: crw-2-rhel8-operator-a56530a0d93c292f63273de0cf20df7492777054880f49813658ade758f4d627-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a56530a0d93c292f63273de0cf20df7492777054880f49813658ade758f4d627
+  - name: crw-2-rhel8-operator-553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:a56530a0d93c292f63273de0cf20df7492777054880f49813658ade758f4d627
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
   - name: che_server
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:a36681e7e97d815355cc5e369ab7b06fc0d0fc96dbe55b16dac3bbb22d3d8a06
   - name: che_server_secure_exposer_jwt_proxy_image
