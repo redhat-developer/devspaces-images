@@ -49,8 +49,6 @@ spec:
           env:
             - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
               value: "false"
-            - name: ALLOW_DEVWORKSPACE_ENGINE
-              value: "true"
             - name: CHE_FLAVOR
               value: codeready
             - name: CHE_IDENTITY_POSTGRES_SECRET
