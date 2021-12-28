@@ -105,7 +105,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
-    createdAt: "2021-12-28T16:44:14+00:00"
+    createdAt: "2021-12-28T22:24:14+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1182,7 +1182,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:86e5fa1fa294987114be200890c2e516501e424aee0fb98ece25c95e7716295b
                 - name: RELATED_IMAGE_internal_rest_backup_server
-                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:40162d11ba02925260f222dd2cb8ed284d3b10cfc3ff13ba2b9fdc2d87795f28
+                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:b8c080e01bf60526970394279e8699f916846c3c6bd3e5e78e5185e9362ef0ff
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
@@ -1497,7 +1497,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.15.0
-  replaces: crwoperatorallnamespaces.v2.13.101-0.1639048038.p
+  replaces: crwoperatorallnamespaces.v2.13.101-0.1639666401.p
   relatedImages:
   - name: crw-2-rhel8-operator-553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
@@ -1582,7 +1582,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:86e5fa1fa294987114be200890c2e516501e424aee0fb98ece25c95e7716295b
   - name: internal_rest_backup_server
-    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:40162d11ba02925260f222dd2cb8ed284d3b10cfc3ff13ba2b9fdc2d87795f28
+    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:b8c080e01bf60526970394279e8699f916846c3c6bd3e5e78e5185e9362ef0ff
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_gmxdacq_
