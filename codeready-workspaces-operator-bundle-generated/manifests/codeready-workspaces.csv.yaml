@@ -105,7 +105,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:553f855c75b7d75f520a8b3fae95986473ddc995daff09f8821ef6924b183928
-    createdAt: "2021-12-26T08:50:54+00:00"
+    createdAt: "2021-12-28T16:44:14+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -928,6 +928,14 @@ spec:
           - patch
           - update
           - watch
+        - apiGroups:
+          - config.openshift.io
+          resourceNames:
+          - cluster
+          resources:
+          - proxies
+          verbs:
+          - get
         - apiGroups:
           - controller.devfile.io
           resources:
