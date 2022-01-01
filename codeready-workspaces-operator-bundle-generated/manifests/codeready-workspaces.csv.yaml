@@ -1182,7 +1182,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:86e5fa1fa294987114be200890c2e516501e424aee0fb98ece25c95e7716295b
                 - name: RELATED_IMAGE_internal_rest_backup_server
-                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:fbdaa68c3542fdde3d9df7203947d906fab1240d1d3aa6c93cb736a460042358
+                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:32a44cf08ab2c078484b4272baf97c28edf7d1206e020d9484b6c0aa0d9fa063
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
@@ -1582,7 +1582,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:86e5fa1fa294987114be200890c2e516501e424aee0fb98ece25c95e7716295b
   - name: internal_rest_backup_server
-    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:fbdaa68c3542fdde3d9df7203947d906fab1240d1d3aa6c93cb736a460042358
+    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:32a44cf08ab2c078484b4272baf97c28edf7d1206e020d9484b6c0aa0d9fa063
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_gmxdacq_
