@@ -12,12 +12,12 @@ import groovy.transform.Field
 // PLATFORMS
 
 // Nodes to run artifact build on ex. ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
-def List nodeLabels = ['x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
+def List nodeLabels = ['x86_64-rhel8-perm', 's390x-rhel8-perm', 'ppc64le-rhel8-perm']
 def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
 def List platforms = []
 def Map tasks = [failFast: false]
 timeout(120) {
-  def String nodeLabel = "${nodeLabels[1]}" // use static z builder for better polling support 
+  def String nodeLabel = "${nodeLabels[0]}" // use static x builder for better polling support 
   node(nodeLabel) {
     stage ("SCM Poll: Che Theia + update from.dockerfile stubs") {
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
@@ -216,7 +216,7 @@ stage("Builds") {
     }
 }
 
-nodeLabel = "${nodeLabels[1]}"
+nodeLabel = "${nodeLabels[0]}"
 node(nodeLabel) {
   stage ("Trigger sync to downstream job on ${nodeLabel}") {
     echo "currentBuild.result = " + currentBuild.result
