@@ -105,7 +105,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:e3c289e69256a831141735dfe8b0998f9751a606f0a8e94097e79d48d9539176
-    createdAt: "2022-01-04T10:44:27+00:00"
+    createdAt: "2022-01-04T20:44:28+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1194,7 +1194,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:44f82c43a730acbfb4ce2be81ca32197099c370eeb85cedbee3d1e89e9ac7684
                 - name: RELATED_IMAGE_keycloak
-                  value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:5f243a09cc53aae0f7a10a93e5a9010e17c164ea3318283a220c38cdb071d24a
+                  value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:5f0840a69642d13016430151892ec987fd67e711563b1dfb1a57353037c3bf79
                 - name: RELATED_IMAGE_keycloak_ppc64le
                   value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:82257eb30bc7c1e64008b6b2ac839f438af4e403724c2d2a4b9127494ad99cfc
                 - name: RELATED_IMAGE_keycloak_s390x
@@ -1497,7 +1497,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.15.0
-  replaces: crwoperatorallnamespaces.v2.13.101-0.1639048038.p
+  replaces: crwoperatorallnamespaces.v2.13.101-0.1639666401.p
   relatedImages:
   - name: crw-2-rhel8-operator-e3c289e69256a831141735dfe8b0998f9751a606f0a8e94097e79d48d9539176-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:e3c289e69256a831141735dfe8b0998f9751a606f0a8e94097e79d48d9539176
@@ -1594,7 +1594,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_s390x_11_openshift_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8@sha256:44f82c43a730acbfb4ce2be81ca32197099c370eeb85cedbee3d1e89e9ac7684
   - name: keycloak
-    image: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:5f243a09cc53aae0f7a10a93e5a9010e17c164ea3318283a220c38cdb071d24a
+    image: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:5f0840a69642d13016430151892ec987fd67e711563b1dfb1a57353037c3bf79
   - name: keycloak_ppc64le
     image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:82257eb30bc7c1e64008b6b2ac839f438af4e403724c2d2a4b9127494ad99cfc
   - name: keycloak_s390x
