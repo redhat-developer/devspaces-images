@@ -147,11 +147,35 @@ if [[ ! -x $BUILDER ]]; then
 fi
 
 listAssets() {
-  find "$1/" -maxdepth 1 -name "asset-*" -type f | sort -u | sed -r -e "s#^$1/*##"
+  thefiles="$(find "$1/" -maxdepth 1 -name "asset-*" -type f | sort -u | sed -r -e "s#^$1/*##")"
+  if [[ $2 ]]; then 
+    du -sch $thefiles
+  else
+    echo "$thefiles"
+  fi
 }
 
 listWheels() {
-  find "$1/" -maxdepth 1 -name "*.whl" -type f | sort -u | sed -r -e "s#^$1/*##"
+  thefiles="$(find "$1/" -maxdepth 1 -name "*.whl" -type f | sort -u | sed -r -e "s#^$1/*##")"
+  if [[ $2 ]]; then 
+    du -sch $thefiles
+  else
+    echo "$thefiles"
+  fi
+}
+
+debugData() {
+  echo "[DEBUG]  == RH version + arch, hostname  + IP, user and disk usage ==>"
+  echo "--"
+  cat /etc/redhat-release
+  uname -m
+  echo "--"
+  hostname -A;hostname -I
+  echo "--"
+  whoami
+  echo "--"
+  df -h / /tmp
+  echo "[DEBUG] <== RH version + arch, hostname  + IP, user and disk usage == "
 }
 
 user=$(whoami)
@@ -163,23 +187,32 @@ extractContainerTgz() {
   targetTarball="$3"
   # TODO remove this and use tar extraction rules in dockerfile instead
   subfolder="$4" # optionally, cd into a subfolder in the unpacked container before creating tarball
+  doclean="$5" # optionally, clean any leftover temp folders and force re-extraction
 
-  echo -e "[DEBUG] Disk space before $container extraction:\n$(df -h / /tmp)"
+  echo -e "[DEBUG] Disk space in / and /tmp before $container extraction:\n$(df -h / /tmp)"
   tmpcontainer="$(echo "$container" | tr "/:" "--")"
+  if [[ $doclean == "clean" ]]; then sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true); fi
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
     # get container and unpack into a /tmp/ folder
     time /tmp/containerExtract.sh "${container}" --tar-flags "${filesToCollect}"
-    unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1)"
   fi
-  echo "[INFO] Collect $filesToCollect from $unpackdir into ${targetTarball} ..."
-  pushd "${unpackdir}/${subfolder}" >/dev/null || exit 1
-    # shellcheck disable=SC2086
-    sudo tar -pzcf "${targetTarball}" ${filesToCollect#${subfolder}} && \
-    sudo chown -R "${user}:${user}" "${targetTarball}"
-  popd >/dev/null || exit 1
-  sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
-  echo -e "[DEBUG] Disk space after $container extraction:\n$(df -h / /tmp)"
+  unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
+  if [[ ! ${unpackdir} ]]; then
+    echo "[ERROR] Problem extracting ${container} to /tmp !"; debugData; exit 1
+  else
+    echo "[INFO] Collect $filesToCollect from $unpackdir into ${targetTarball} ..."
+    pushd "${unpackdir}/${subfolder}" >/dev/null || exit 1
+      # shellcheck disable=SC2086
+      sudo tar -pzcf "${targetTarball}" ${filesToCollect#${subfolder}} --no-ignore-command-error
+      if [[ $? -ne 0 ]]; then 
+        echo "[ERROR] Problem packing ${targetTarball} with ${filesToCollect#${subfolder}} !"; debugData; exit 1
+      fi
+      sudo chown -R "${user}:${user}" "${targetTarball}"
+    popd >/dev/null || exit 1
+    sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
+    echo -e "[DEBUG] Disk space in / and /tmp after $container extraction:\n$(df -h / /tmp)"
+  fi
 }
 
 extractContainerFile() {
@@ -210,8 +243,8 @@ collect_arch_assets_crw_theia_dev() {
   time extractContainerTgz "${TMP_THEIA_DEV_BUILDER_IMAGE}" "\
     usr/local/share/.cache/yarn/v*/ \
     home/theia-dev/.yarn-global \
-    opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-"${UNAME}".tgz
-  listAssets "${TARGETDIR}"
+    opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-"${UNAME}".tgz "" "clean"
+  listAssets "${TARGETDIR}" du
 }
 
 collect_noarch_assets_crw_theia_dev() {
@@ -225,7 +258,7 @@ collect_noarch_assets_crw_theia_dev() {
   popd >/dev/null || exit 1
   rm -fr "${cheTheiaSourcesDir}"
 
-  listAssets "${TARGETDIR}"
+  listAssets "${TARGETDIR}" du
 }
 
 ########################### theia
@@ -235,7 +268,7 @@ collect_arch_assets_crw_theia() {
   time extractContainerTgz "${TMP_THEIA_BUILDER_IMAGE}" "\
     usr/local/share/.cache/yarn/v*/ \
     home/theia-dev/.yarn-global \
-    opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-"${UNAME}".tar.gz
+    opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-"${UNAME}".tar.gz "" "clean"
 
   # post-install dependencies
   # /home/theia-dev/theia-source-code/packages/debug-nodejs/download = node debug vscode binary
@@ -266,9 +299,9 @@ collect_arch_assets_crw_theia() {
   #   /opt/app-root/src/.npm-global'
   time extractContainerTgz "${TMP_THEIA_RUNTIME_IMAGE}" "\
     usr/local/share/.cache/yarn/v*/ \
-    opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-runtime-image-"${UNAME}".tar.gz
+    opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-runtime-image-"${UNAME}".tar.gz "" "clean"
 
-  listAssets "${TARGETDIR}"
+  listAssets "${TARGETDIR}" du
 }
 
 collect_noarch_assets_crw_theia() {
@@ -311,7 +344,7 @@ collect_noarch_assets_crw_theia() {
   popd >/dev/null || exit 1
   rm -fr "${cheTheiaSourcesDir}"
 
-  listAssets "${TARGETDIR}"
+  listAssets "${TARGETDIR}" du
 }
 
 ########################### theia-endpoint
@@ -326,12 +359,12 @@ collect_arch_assets_crw_theia_endpoint_runtime_binary() {
   #   /usr/local/share/.config/yarn/global'
   time extractContainerTgz "${TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE}" "\
     usr/local/share/.cache/yarn/v*/ \
-    usr/local/share/.config/yarn/global" "${TARGETDIR}"/asset-theia-endpoint-runtime-binary-yarn-"${UNAME}".tar.gz
+    usr/local/share/.config/yarn/global" "${TARGETDIR}"/asset-theia-endpoint-runtime-binary-yarn-"${UNAME}".tar.gz "" "clean"
 
   time extractContainerTgz "${TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE}" 'tmp/nexe-cache' "${TARGETDIR}"/asset-theia-endpoint-runtime-pre-assembly-nexe-cache-"${UNAME}".tar.gz "tmp/"
   time extractContainerTgz "${TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE}" 'tmp/nexe' "${TARGETDIR}"/asset-theia-endpoint-runtime-pre-assembly-nexe-"${UNAME}".tar.gz "tmp/"
 
-  listAssets "${TARGETDIR}"
+  listAssets "${TARGETDIR}" du
 }
 
 collect_noarch_assets_crw_theia_endpoint_runtime_binary() {
@@ -347,8 +380,8 @@ collect_noarch_assets_crw_theia_endpoint_runtime_binary() {
   # exclude PyYAML source tarball & wheels (as they're single-arch and maybe not compatible w/ Brew builder)
   rm -fr "${TARGETDIR}"/PyYAML-*.tar.gz "${TARGETDIR}"/PyYAML-*.whl
 
-  listAssets "${TARGETDIR}"
-  listWheels "${TARGETDIR}"
+  listAssets "${TARGETDIR}" du
+  listWheels "${TARGETDIR}" du
 }
 
 getContainerExtract
@@ -382,7 +415,7 @@ if [[ $(listAssets "${TARGETDIR}") ]]; then
   du -sch "${TARGETDIR}"/asset-*
   echo
 fi
-if [[ $(listWheels "${TARGETDIR}") ]]; then
+if [[ NOARCHSTEPS == *"collect_noarch_assets_crw_theia_endpoint_runtime_binary"* ]] && [[ $(listWheels "${TARGETDIR}") ]]; then
   echo; echo "Python wheels collected. See the following folder(s) for content to upload to pkgs.devel.redhat.com:"
   du -sch "${TARGETDIR}"/*.whl
   echo
