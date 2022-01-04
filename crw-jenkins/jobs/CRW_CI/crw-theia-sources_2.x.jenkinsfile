@@ -221,7 +221,7 @@ node(nodeLabel) {
   stage ("Trigger sync to downstream job on ${nodeLabel}") {
     echo "currentBuild.result = " + currentBuild.result
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-    def util = load "${WORKSPACE}/util.groovy"
+    def util = load "${WORKSPACE}/util2.groovy"
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
       CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
       println "CRW_VERSION = '" + CRW_VERSION + "'"
