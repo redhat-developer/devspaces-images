@@ -77,33 +77,18 @@ RUN che-theia init -c ${HOME}/theia-source-code/che-theia/che-theia-init-sources
 # cleanup theia folders that we don't need to compile
 RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     rm -rf ${HOME}/theia-source-code/examples/electron && \
-    rm -rf ${HOME}/theia-source-code/packages/cpp && \
+    rm -rf ${HOME}/theia-source-code/examples/api-samples && \
+    rm -rf ${HOME}/theia-source-code/examples/api-tests && \
     rm -rf ${HOME}/theia-source-code/packages/git && \
-    rm -rf ${HOME}/theia-source-code/packages/java && \
-    rm -rf ${HOME}/theia-source-code/packages/java-debug && \
-    rm -rf ${HOME}/theia-source-code/packages/python && \
-    rm -rf ${HOME}/theia-source-code/packages/typescript && \
     # Allow the usage of ELECTRON_SKIP_BINARY_DOWNLOAD=1 by using a more recent version of electron \
-    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n    "**/keytar": "7.6.0", \n    "**/node-addon-api": "3.1.0",|' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n   "**/lerna": "2.2.0",\n    "**/keytar": "7.6.0", \n    "**/node-addon-api": "3.1.0",\n    "**/vscode-ripgrep": "1.12.0",|' ${HOME}/theia-source-code/package.json && \
     # remove all electron-browser module to not compile them
     find . -name "electron-browser"  | xargs rm -rf {} && \
     find . -name "*-electron-module.ts"  | xargs rm -rf {} && \
     rm -rf ${HOME}/theia-source-code/dev-packages/electron/native && \
     echo "" > ${HOME}/theia-source-code/dev-packages/electron/scripts/post-install.js && \
     # Remove linter/formatters of theia
-    sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json && \
-    # Remove external configs removed
-    sed -i -n '/.*packages\/cpp/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/git/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/java/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/java-debug/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/python/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*packages\/typescript/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*examples\/api-samples/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    sed -i -n '/.*examples\/electron/{N;s/.*//;x;d;};x;p;${x;p;}' ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json && \
-    # change update goal to be the eclipse che assembly
-    sed -i 's|.*"prepare:build".*|    \"prepare:build\"\: \"yarn build \&\& lerna run build\", |' ${HOME}/theia-source-code/package.json && \
-    cat ${HOME}/theia-source-code/configs/root-compilation.tsconfig.json
+    sed -i 's|concurrently -n compile,lint -c blue,green \\"theiaext compile\\" \\"theiaext lint\\"|concurrently -n compile -c blue \\"theiaext compile\\"|' ${HOME}/theia-source-code/dev-packages/ext-scripts/package.json
 
 RUN che-theia cdn --theia="${CDN_PREFIX}" --monaco="${MONACO_CDN_PREFIX}"
 
@@ -156,7 +141,7 @@ RUN rm -fr /home/theia-dev/theia-source-code/node_modules/*/electron /home/theia
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
 # For example, vscode ripgrep downloading is an example of such case.
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
-    yarn ${YARN_FLAGS}
+    yarn ${YARN_FLAGS} && yarn build
 
 # Run into production mode
 # revert offline mode (put back previous DNS resolution)
@@ -174,7 +159,7 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-102.1638363923 as build-result
+FROM ubi8/nodejs-12:1-104 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
@@ -190,7 +175,7 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-102.1638363923 as runtime
+FROM ubi8/nodejs-12:1-104 as runtime
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
