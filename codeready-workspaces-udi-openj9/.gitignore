@@ -1,0 +1,8 @@
+Dockerfile.local
+/helm
+/kubectl
+/kamel
+/asset-*
+/odo
+/oc
+/bin.tgz
