@@ -1183,7 +1183,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:3e10e2c966e42f1944791298f8e31de6fd89d1e836ee0b1349ce153d33a44240
                 - name: RELATED_IMAGE_internal_rest_backup_server
-                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:843e3d4061e3288d3e03288943e30ef0c9a5bfab32101551ea78cddcc800456c
+                  value: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:983ed6ed88ee3f05f9acf2aafafbf791bf7a471d68b575177ab1a8d2cb29858e
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_GMXDACQ_
@@ -1197,9 +1197,9 @@ spec:
                 - name: RELATED_IMAGE_keycloak
                   value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:5f0840a69642d13016430151892ec987fd67e711563b1dfb1a57353037c3bf79
                 - name: RELATED_IMAGE_keycloak_ppc64le
-                  value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:82257eb30bc7c1e64008b6b2ac839f438af4e403724c2d2a4b9127494ad99cfc
+                  value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:2d4ea7226f43e7e8e8d3fcef6d425eb5104a15acf07791355033300b80db2901
                 - name: RELATED_IMAGE_keycloak_s390x
-                  value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:82257eb30bc7c1e64008b6b2ac839f438af4e403724c2d2a4b9127494ad99cfc
+                  value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:2d4ea7226f43e7e8e8d3fcef6d425eb5104a15acf07791355033300b80db2901
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:b10eb008016c7eb87a8d2768f063632830c20b95249a9f108b0fdf81ed446d49
                 - name: RELATED_IMAGE_postgres
@@ -1583,7 +1583,7 @@ spec:
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:3e10e2c966e42f1944791298f8e31de6fd89d1e836ee0b1349ce153d33a44240
   - name: internal_rest_backup_server
-    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:843e3d4061e3288d3e03288943e30ef0c9a5bfab32101551ea78cddcc800456c
+    image: registry.redhat.io/codeready-workspaces/backup-rhel8@sha256:983ed6ed88ee3f05f9acf2aafafbf791bf7a471d68b575177ab1a8d2cb29858e
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openj9_11_openshift_devfile_registry_image_gmxdacq_
@@ -1597,9 +1597,9 @@ spec:
   - name: keycloak
     image: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8@sha256:5f0840a69642d13016430151892ec987fd67e711563b1dfb1a57353037c3bf79
   - name: keycloak_ppc64le
-    image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:82257eb30bc7c1e64008b6b2ac839f438af4e403724c2d2a4b9127494ad99cfc
+    image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:2d4ea7226f43e7e8e8d3fcef6d425eb5104a15acf07791355033300b80db2901
   - name: keycloak_s390x
-    image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:82257eb30bc7c1e64008b6b2ac839f438af4e403724c2d2a4b9127494ad99cfc
+    image: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8@sha256:2d4ea7226f43e7e8e8d3fcef6d425eb5104a15acf07791355033300b80db2901
   - name: plugin_registry
     image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:b10eb008016c7eb87a8d2768f063632830c20b95249a9f108b0fdf81ed446d49
   - name: postgres
