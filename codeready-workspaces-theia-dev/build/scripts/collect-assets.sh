@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2019-2021 Red Hat, Inc.
+# Copyright (c) 2019-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,7 +12,7 @@
 # script to collect assets from theia-dev, theia, and theia-endpoint builder + runtime container images
 # create tarballs & other files from those containers, which can then be committed to pkgs.devel repo
 
-nodeVersion="12.21.0" # version of node to use for theia containers (aligned to version in ubi base images)
+nodeVersion="12.22.5" # version of node to use for theia containers (aligned to version in ubi base images)
 PLATFORMS="s390x, ppc64le, x86_64"
 BUILD_TYPE="tmp" # use "tmp" prefix for temporary build tags in Quay, but if we're building based on a PR, set "pr" prefix
 
@@ -165,17 +165,17 @@ listWheels() {
 }
 
 debugData() {
-  echo "[DEBUG]  == RH version + arch, hostname  + IP, user and disk usage ==>"
-  echo "--"
+  echo "[DEBUG]  == RH version + arch, hostname  + IP, user; df -h / /tmp ==>"
+  echo "-- -- -- -- -- --"
   cat /etc/redhat-release
   uname -m
-  echo "--"
+  echo "-- -- -- -- -- --"
   hostname -A;hostname -I
-  echo "--"
+  echo "-- -- -- -- -- --"
   whoami
-  echo "--"
+  echo "-- -- -- -- -- --"
   df -h / /tmp
-  echo "[DEBUG] <== RH version + arch, hostname  + IP, user and disk usage == "
+  echo "[DEBUG] <== RH version + arch, hostname  + IP, user df -h / /tmp == "
 }
 
 user=$(whoami)
@@ -189,7 +189,7 @@ extractContainerTgz() {
   subfolder="$4" # optionally, cd into a subfolder in the unpacked container before creating tarball
   doclean="$5" # optionally, clean any leftover temp folders and force re-extraction
 
-  echo -e "[DEBUG] Disk space in / and /tmp before $container extraction:\n$(df -h / /tmp)"
+  echo "[DEBUG] Before $container extraction:"; debugData
   tmpcontainer="$(echo "$container" | tr "/:" "--")"
   if [[ $doclean == "clean" ]]; then sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true); fi
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
@@ -211,7 +211,7 @@ extractContainerTgz() {
       sudo chown -R "${user}:${user}" "${targetTarball}"
     popd >/dev/null || exit 1
     sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
-    echo -e "[DEBUG] Disk space in / and /tmp after $container extraction:\n$(df -h / /tmp)"
+  echo "[DEBUG] After $container extraction:"; debugData
   fi
 }
 
@@ -219,8 +219,7 @@ extractContainerFile() {
   container="$1"
   fileToCollect="$2"
   targetFile="$3"
-
-  echo -e "[DEBUG] Disk space before $container extraction:\n$(df -h / /tmp)"
+  echo "[DEBUG] Before $container extraction:"; debugData
   tmpcontainer="$(echo "$container" | tr "/:" "--")"
   unpackdir="$(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
@@ -234,7 +233,7 @@ extractContainerFile() {
     sudo chown -R "${user}:${user}" "${targetFile}"
   popd >/dev/null || exit 1
   sudo rm -fr $(find /tmp -name "${tmpcontainer}-*" -type d 2>/dev/null || true)
-  echo -e "[DEBUG] Disk space after $container extraction:\n$(df -h / /tmp)"
+  echo "[DEBUG] After $container extraction:"; debugData
 }
 
 ########################### theia-dev
