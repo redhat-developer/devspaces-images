@@ -1,6 +1,7 @@
 #!/bin/bash -xe
 # script to build/fetch sources, then trigger rhpkg 
 TARGETDIR=$(cd "$(dirname "$0")"; pwd)
+verbose=1
 scratchFlag=""
 JOB_BRANCH=""
 doRhpkgContainerBuild=1
@@ -8,6 +9,12 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
+# Gradle from https://services.gradle.org/distributions/
+GRADLE_VERSION="6.1"
+# maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
+MAVEN_VERSION="3.6.3"
+LOMBOK_VERSION="1.18.22"
+ODO_VERSION="v2.4.2"
 ASSET_NAME="udi"
 
 while [[ "$#" -gt 0 ]]; do
@@ -53,15 +60,6 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-# check required versions at https://github.com/redhat-developer/vscode-openshift-tools/releases
-# and https://github.com/redhat-developer/vscode-openshift-tools/blob/master/src/tools.json
-# note: as of 0.1.5 win/lin/mac binaries are included in the vsix (no plan to include s390x and ppc64le)
-
-# get correct version of odo from upstream
-# toolsJson="https://github.com/redhat-developer/vscode-openshift-tools/raw/master/src/tools.json"
-# curl -sSL $toolsJson -o - |	 jq ".odo.platform.linux.url" -r | sed -r -e "s#.+/clients/odo/v(.+)/odo.+#\1#"
-ODO_VERSION="v1.2.6"
-
 # see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/crw-2-rhel-8/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
 KAMEL_BUILDSH="https://github.com/redhat-developer/codeready-workspaces-deprecated/raw/$(git rev-parse --abbrev-ref HEAD)/kamel/build.sh"
 KAMEL_VERSION="$(curl -sSLo- ${KAMEL_BUILDSH} | grep "export KAMEL_VERSION" | sed -r -e 's#.+KAMEL_VERSION="(.+)"#\1#')"
@@ -71,6 +69,9 @@ echo "Using KAMEL_VERSION = ${KAMEL_VERSION} from ${KAMEL_BUILDSH}"
 sed Dockerfile \
 		-e "s#ODO_VERSION=\"\([^\"]\+\)\"#ODO_VERSION=\"${ODO_VERSION}\"#" \
         -e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
+		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
+		-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
+		-e "s#GRADLE_VERSION=\"\([^\"]\+\)\"#GRADLE_VERSION=\"${GRADLE_VERSION}\"#" \
 		> Dockerfile.2
 
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
@@ -91,7 +92,11 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	tar czf bin.tgz s390x x86_64 ppc64le
 	rm -Rf s390x x86_64 ppc64le
 
-    outputFiles="$(ls asset-*.tar.gz) bin.tgz"
+	#pull maven
+	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+
+    outputFiles="$(ls asset-*.tar.gz) bin.tgz gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar"
 
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
