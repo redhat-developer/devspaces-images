@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -19,7 +19,7 @@ export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-38:1"
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
-Example: $0 -v 2.y.0 -n plugin-java8-openj9
+Example: $0 -v 2.y.0 -n udi
 "
     exit
 }

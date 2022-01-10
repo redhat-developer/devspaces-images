@@ -1,4 +1,4 @@
-# Copyright (c) 20 Red Hat, Inc.
+# Copyright (c) 2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -97,8 +97,8 @@ RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf open
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
     if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && chmod 755 /usr/local/bin/* && \
-    rm -fr /tmp/bin.tgz /tmp/assets && \
+    tar xzf /tmp/assets-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && chmod 755 /usr/local/bin/* && \
+    rm -fr /tmp/assets-odo.tgz /tmp/assets && \
     # unpack gradle into /opt/gradle/,
     mkdir -p /opt; unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
     mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \

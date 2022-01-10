@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -14,9 +14,8 @@
 # shellcheck disable=SC2155
 export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
-export KAMEL_VERSION="1.5.0"
-export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.14.7-15"
-ASSET_NAME="kamel"
+export KAMEL_VERSION="1.7.0"
+export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.16.12-2"
 
 usage () {
     echo "

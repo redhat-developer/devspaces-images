@@ -5,7 +5,7 @@ Dockerfile.local
 /asset-*
 /odo
 /oc
-/bin.tgz
+/assets-odo.tgz
 apache-maven/
 /maven.tgz
 gradle/
@@ -13,5 +13,4 @@ gradle/
 /gradle-6.1-bin.zip
 graalvm/
 /apache-maven-3.6.3-bin.tar.gz
-/lombok-1.18.18.jar
 /lombok-1.18.22.jar

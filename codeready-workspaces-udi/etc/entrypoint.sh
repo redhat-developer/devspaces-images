@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2019-2021 Red Hat, Inc.
+# Copyright (c) 2019-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -42,7 +42,6 @@ if [ ! -f "${HOME}"/.venv/bin/activate ]; then
   echo "${HOME}"/.venv is empty, moving files from "${HOME}"/.venv-tmp/
   mv "${HOME}"/.venv-tmp/* "${HOME}"/.venv
 fi
-
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
