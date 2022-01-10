@@ -80,7 +80,7 @@ echo -n $THEIA_COMMIT_SHA
 
           // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
           sh """
-. ~/crw_env """ + CRW_VERSION + """
+. ~/crw_env ${CRW_VERSION}
 pushd ${WORKSPACE}/crw-theia-prepare >/dev/null
 echo nodeVersion=${nodeVersion} > BUILD_PARAMS
 echo yarnVersion=${yarnVersion} >> BUILD_PARAMS
@@ -89,8 +89,8 @@ echo SOURCE_BRANCH=${SOURCE_BRANCH} >> BUILD_PARAMS
 echo THEIA_BRANCH=${THEIA_BRANCH} >> BUILD_PARAMS
 echo THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} >> BUILD_PARAMS
 echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
-
 echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
+set +x
 git add BUILD_COMMAND BUILD_PARAMS || true
 git commit -s -m "ci: [update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
 git pull origin ${MIDSTM_BRANCH} || true
@@ -143,22 +143,25 @@ for (int i=0; i < nodeLabels.size(); i++) {
 
                 // parse THEIA_COMMIT_SHA from BUILD_PARAMS file
                 THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash
-  cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARAMS
-  ''', returnStdout: true).trim()
+cd crw-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARAMS
+''', returnStdout: true).trim()
                 echo "[INFO] Using Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA} from ${SOURCE_BRANCH} branch"
 
                 def buildStatusCode = 0
                 ansiColor('xterm') {
                   echo "[INFO] Build images: " + CONTAINERS
-                  buildStatusCode = sh script:'''#!/bin/bash -xe
-  . ~/crw_env ''' + CRW_VERSION + '''
-  export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
-  mkdir -p ${WORKSPACE}/logs/
-  pushd ${WORKSPACE}/crw-theia >/dev/null
-    node --version
-    $(cat BUILD_COMMAND) 2>&1 | tee ${WORKSPACE}/logs/crw-theia_buildlog.txt
-  popd >/dev/null
-  ''', returnStatus: true
+                  buildStatusCode = sh script:'''#!/bin/bash -e
+. ~/crw_env ''' + CRW_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
+export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
+mkdir -p ${WORKSPACE}/logs/
+pushd ${WORKSPACE}/crw-theia >/dev/null
+  set -x
+  $(cat BUILD_COMMAND) 2>&1 | tee ${WORKSPACE}/logs/crw-theia_buildlog.txt
+popd >/dev/null
+''', returnStatus: true
 
                   buildLog = readFile("${WORKSPACE}/logs/crw-theia_buildlog.txt").trim()
                   if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())

@@ -68,7 +68,7 @@ Phases:
 <ol>
     <li> build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)</li>
     <li> build theia images (3 images)</li>
-    <li> build internals (16 images): 
+    <li> build internals (14 images): 
         <ul>
             <li> backup (@since 2.12), configbump, operator, dashboard, </li>
             <li> devfileregistry, idea (@since 2.11), imagepuller, jwtproxy, machineexec, </li>

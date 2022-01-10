@@ -34,8 +34,12 @@ timeout(240) {
               sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
               echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
               retry(2) {
-                sh('''#!/bin/bash -xe
+                sh('''#!/bin/bash -e
 . ~/crw_env ''' + CRW_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
+set -x
 ./rhpkg-container-build.sh ''' + JOB_BRANCH + ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
                 ''')
               }

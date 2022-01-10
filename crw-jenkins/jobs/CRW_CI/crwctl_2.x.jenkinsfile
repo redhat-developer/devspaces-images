@@ -39,12 +39,15 @@ timeout(90) {
           }
 
           currentBuild.description="Building ..."
-          sh('''#!/bin/bash -xe
+          sh('''#!/bin/bash -e
+. ~/crw_env ''' + CRW_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
-
 cd ${WORKSPACE}/codeready-workspaces-chectl
-. ~/crw_env ''' + CRW_VERSION + '''
+set -x
 ./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/crw-images ''' +
   (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") +

@@ -78,6 +78,7 @@ timeout(600) {
                     }
 
                     if (PHASE_LIST.contains("3")) {
+                        // 14 jobs
                         def jobsList = [
                             "backup",                   // @since 2.12
                             "configbump",
