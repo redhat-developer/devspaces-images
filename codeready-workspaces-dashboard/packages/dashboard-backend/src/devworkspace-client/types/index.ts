@@ -92,6 +92,13 @@ export interface IServerConfigApi {
   getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]>;
 }
 
+export interface IKubeConfigApi {
+  /**
+   * Inject the kubeconfig into all containers with the given devworkspaceId in a namespace
+   */
+  injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void>;
+}
+
 export type IDevWorkspaceCallbacks = {
   onModified: (workspace: V1alpha2DevWorkspace) => void;
   onDeleted: (workspaceId: string) => void;
@@ -104,6 +111,7 @@ export interface IDevWorkspaceClient {
   templateApi: IDevWorkspaceTemplateApi;
   dockerConfigApi: IDockerConfigApi;
   serverConfigApi: IServerConfigApi;
+  kubeConfigApi: IKubeConfigApi;
   isDevWorkspaceApiEnabled(): Promise<boolean>;
 }
 

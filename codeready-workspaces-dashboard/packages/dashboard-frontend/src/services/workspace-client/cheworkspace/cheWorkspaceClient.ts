@@ -107,22 +107,4 @@ export class CheWorkspaceClient extends WorkspaceClient {
   get failingWebSockets(): string[] {
     return Array.from(this._failingWebSockets);
   }
-
-  async getDefaultNamespace(): Promise<string> {
-    if (this.defaultNamespace) {
-      return this.defaultNamespace;
-    }
-    const namespaces = await this.restApiClient.getKubernetesNamespace();
-    if (namespaces.length === 1) {
-      return namespaces[0].name;
-    }
-    const defaultNamespace = namespaces.filter(
-      kubernetesNamespace => kubernetesNamespace.attributes.default === 'true',
-    );
-    if (defaultNamespace.length === 0) {
-      throw new Error('Default namespace is not found');
-    }
-    this.defaultNamespace = defaultNamespace[0].name;
-    return this.defaultNamespace;
-  }
 }

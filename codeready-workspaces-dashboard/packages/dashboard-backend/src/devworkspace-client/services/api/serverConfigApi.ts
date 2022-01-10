@@ -21,8 +21,8 @@ const GROUP = 'org.eclipse.che';
 const VERSION = 'v1';
 const PLURAL = 'checlusters';
 
-const NAME = process.env.CHE_CRD_OBJECT_NAME;
-const NAMESPACE = process.env.CHE_NAMESPACE;
+const NAME = process.env.CHECLUSTER_CR_NAME;
+const NAMESPACE = process.env.CHECLUSTER_CR_NAMESPACE;
 
 export class ServerConfigApi implements IServerConfigApi {
   private readonly customObjectAPI: k8s.CustomObjectsApi;
@@ -36,7 +36,7 @@ export class ServerConfigApi implements IServerConfigApi {
       throw createError(
         undefined,
         CUSTOM_RECOURSE_DEFINITIONS_API_ERROR_LABEL,
-        'Mandatory environment variables are not defined: $CHE_NAMESPACE, $CHE_CRD_OBJECT_NAME',
+        'Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE, $CHECLUSTER_CR_NAME',
       );
     }
 

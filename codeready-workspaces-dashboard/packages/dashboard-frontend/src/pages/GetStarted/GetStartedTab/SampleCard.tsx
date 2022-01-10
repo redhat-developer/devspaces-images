@@ -11,7 +11,15 @@
  */
 
 import React from 'react';
-import { Brand, Card, CardBody, CardHeader, CardHeaderMain } from '@patternfly/react-core';
+import {
+  Brand,
+  Card,
+  CardBody,
+  CardHeader,
+  CardHeaderMain,
+  Badge,
+  CardActions,
+} from '@patternfly/react-core';
 import './SampleCard.styl';
 
 type SampleCardProps = {
@@ -19,11 +27,37 @@ type SampleCardProps = {
   onClick: (metadata: che.DevfileMetaData) => void;
 };
 
+const VISIBLE_TAGS = ['community', 'tech-preview'];
+
 export class SampleCard extends React.PureComponent<SampleCardProps> {
+  private getTags(): JSX.Element[] {
+    const {
+      metadata: { tags },
+    } = this.props;
+
+    const createTag = (text: string, key: number): React.ReactElement => {
+      return (
+        <Badge
+          isRead
+          style={{ whiteSpace: 'nowrap' }}
+          key={`badge_${key}`}
+          data-testid="card-badge"
+        >
+          {text.trim()}
+        </Badge>
+      );
+    };
+
+    return tags
+      .filter(tag => VISIBLE_TAGS.indexOf(tag) !== -1)
+      .map((item: string, index: number) => createTag(item, index));
+  }
+
   render(): React.ReactElement {
     const metadata = this.props.metadata;
     const devfileIcon = this.buildIcon(metadata);
     const onClickHandler = (): void => this.props.onClick(metadata);
+    const tags = this.getTags();
 
     return (
       <Card
@@ -37,6 +71,7 @@ export class SampleCard extends React.PureComponent<SampleCardProps> {
       >
         <CardHeader>
           <CardHeaderMain>{devfileIcon}</CardHeaderMain>
+          <CardActions style={{ marginTop: '4px' }}>{tags}</CardActions>
         </CardHeader>
         <CardHeader>{metadata.displayName}</CardHeader>
         <CardBody>{metadata.description}</CardBody>

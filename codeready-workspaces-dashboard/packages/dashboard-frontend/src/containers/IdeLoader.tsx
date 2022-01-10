@@ -54,6 +54,7 @@ type State = {
   preselectedTabKey?: IdeLoaderTab;
   ideUrl?: string;
   hasError: boolean;
+  hasStarted: boolean;
   isWaitingForRestart: boolean;
   isDevWorkspace: boolean;
   status?: string;
@@ -101,6 +102,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       hasError: workspace?.hasError === true,
       preselectedTabKey: this.preselectedTabKey,
       isWaitingForRestart: false,
+      hasStarted: false,
     };
 
     this.debounce.subscribe(async onStart => {
@@ -263,6 +265,9 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       this.setState({
         status: workspace.status,
       });
+      if (!this.state.hasStarted && workspace.isStarting) {
+        this.setState({ hasStarted: true });
+      }
     }
     if (this.state.isWaitingForRestart) {
       return;
@@ -282,12 +287,14 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
           workspaceName: this.workspaceName,
           currentStep: LoadIdeSteps.START_WORKSPACE,
           workspaceId: workspace.id,
+          hasStarted: false,
         });
         this.showErrorAlert(workspace);
       }
       if (workspace.hasError && !this.state.hasError) {
         this.setState({
           hasError: workspace.hasError,
+          hasStarted: false,
         });
       }
     } else if (prevState.workspaceName !== this.workspaceName) {
@@ -310,9 +317,13 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       this.setState({
         currentStep: LoadIdeSteps.START_WORKSPACE,
       });
-    } else if (workspace?.isStopped && this.state.currentStep !== LoadIdeSteps.INITIALIZING) {
+    } else if (
+      this.state.hasStarted &&
+      workspace?.isStopped &&
+      this.state.currentStep !== LoadIdeSteps.INITIALIZING
+    ) {
       this.showAlert({
-        title: `Workspace "${this.workspaceName}" is failed to start.`,
+        title: `Workspace "${this.workspaceName}" has failed to start.`,
         alertVariant: AlertVariant.danger,
       });
     }
@@ -433,6 +444,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
         ideUrl: '',
         namespace: params.namespace,
         workspaceName: this.workspaceName,
+        hasStarted: false,
       });
       return;
     } else if (this.state.currentStep === LoadIdeSteps.OPEN_IDE) {

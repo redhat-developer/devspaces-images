@@ -154,7 +154,14 @@ declare namespace che {
     globalMemoryLimit?: string;
     registry?: string;
     icon: string;
-    links: any;
+    links: {
+      v2?: string;
+      devWorkspaces?: {
+        [editorId: string]: string;
+      };
+      self: string;
+      [key: string]: any;
+    };
     tags: Array<string>;
   }
 

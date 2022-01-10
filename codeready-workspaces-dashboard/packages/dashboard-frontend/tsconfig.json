@@ -18,7 +18,7 @@
       "@eclipse-che/common": ["../common/src"]
     },
     "outDir": "lib",
-    "rootDir": "src",
+    "rootDir": "src"
   },
   "include": [
     "src"
@@ -26,9 +26,9 @@
   "exclude": [
     "node_modules",
     "lib",
-    "**/__tests__/*",
+    "**/__tests__/*"
   ],
   "references": [
-    { "path": "../common" },
+    { "path": "../common" }
   ]
 }

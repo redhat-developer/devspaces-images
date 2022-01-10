@@ -60,7 +60,7 @@ describe('DevWorkspace client, create', () => {
       .mockResolvedValueOnce(testWorkspace);
     jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
 
-    await client.create(testDevfile, namespace, [], undefined, undefined, {});
+    await client.createFromDevfile(testDevfile, namespace, [], undefined, undefined, {});
 
     expect(spyCreateWorkspace).toBeCalledWith(
       expect.objectContaining({

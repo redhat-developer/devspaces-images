@@ -17,11 +17,16 @@ import devfileApi from '../../../services/devfileApi';
 import { AppThunk } from '../..';
 import { fetchDevfile, fetchData } from '../../../services/registry/devfiles';
 import { createObject } from '../../helpers';
+import * as ServerConfigApi from '../../../services/dashboard-backend-client/serverConfigApi';
 
 export interface PluginDefinition {
   plugin?: devfileApi.Devfile;
   url: string;
   error?: string;
+}
+
+export interface WorkspacesDefaultPlugins {
+  [editorName: string]: string[];
 }
 
 export interface State {
@@ -32,6 +37,7 @@ export interface State {
   editors: {
     [editorName: string]: PluginDefinition;
   };
+  defaultPlugins: WorkspacesDefaultPlugins;
   defaultEditorName?: string;
   defaultEditorError?: string;
 }
@@ -88,6 +94,15 @@ export interface ReceiveDwDefaultEditorErrorAction {
   error: string;
 }
 
+export interface RequestDwDefaultPluginsAction {
+  type: 'REQUEST_DW_DEFAULT_PLUGINS';
+}
+
+export interface ReceiveDwDefaultPluginsAction {
+  type: 'RECEIVE_DW_DEFAULT_PLUGINS';
+  defaultPlugins: WorkspacesDefaultPlugins;
+}
+
 export type KnownAction =
   | RequestDwPluginAction
   | ReceiveDwPluginAction
@@ -97,11 +112,14 @@ export type KnownAction =
   | ReceiveDwDefaultEditorErrorAction
   | RequestDwEditorAction
   | ReceiveDwEditorAction
-  | RequestDwEditorErrorAction;
+  | RequestDwEditorErrorAction
+  | RequestDwDefaultPluginsAction
+  | ReceiveDwDefaultPluginsAction;
 
 export type ActionCreators = {
   requestDwDevfile: (url: string) => AppThunk<KnownAction, Promise<void>>;
   requestDwDefaultEditor: (settings: che.WorkspaceSettings) => AppThunk<KnownAction, Promise<void>>;
+  requestDwDefaultPlugins: () => AppThunk<KnownAction, Promise<void>>;
   requestDwEditor: (
     settings: che.WorkspaceSettings,
     editorName: string,
@@ -218,12 +236,35 @@ export const actionCreators: ActionCreators = {
         url: defaultEditorUrl,
       });
     },
+
+  requestDwDefaultPlugins:
+    (): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({
+        type: 'REQUEST_DW_DEFAULT_PLUGINS',
+      });
+
+      const defaultPlugins = {};
+      const defaults = await ServerConfigApi.getDefaultPlugins();
+      defaults.forEach(item => {
+        if (!defaultPlugins[item.editor]) {
+          defaultPlugins[item.editor] = [];
+        }
+        defaultPlugins[item.editor].push(...item.plugins);
+      });
+
+      dispatch({
+        type: 'RECEIVE_DW_DEFAULT_PLUGINS',
+        defaultPlugins,
+      });
+    },
 };
 
 const unloadedState: State = {
   isLoading: false,
   plugins: {},
   editors: {},
+  defaultPlugins: {},
   defaultEditorName: undefined,
 };
 
@@ -316,6 +357,15 @@ export const reducer: Reducer<State> = (
       return createObject(state, {
         isLoading: false,
         defaultEditorName: action.defaultEditorName,
+      });
+    case 'REQUEST_DW_DEFAULT_PLUGINS':
+      return createObject(state, {
+        isLoading: true,
+      });
+    case 'RECEIVE_DW_DEFAULT_PLUGINS':
+      return createObject(state, {
+        isLoading: false,
+        defaultPlugins: action.defaultPlugins,
       });
     default:
       return state;

@@ -141,6 +141,7 @@ function renderComponent(
         hasError={hasError}
         resolvedDevfileMessage={resolvedDevfileMessage}
         isDevWorkspace
+        createFromDevfile={true}
       />
     </Provider>,
   );

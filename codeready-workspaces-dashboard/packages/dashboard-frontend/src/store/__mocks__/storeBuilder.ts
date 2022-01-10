@@ -96,6 +96,7 @@ export class FakeStoreBuilder {
       isLoading: false,
       editors: {},
       plugins: {},
+      defaultPlugins: {},
     },
     dwDockerConfig: {
       isLoading: false,

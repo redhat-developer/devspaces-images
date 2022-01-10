@@ -98,3 +98,13 @@ export async function putDockerConfig(
     throw `Failed to put dockerconfig. ${helpers.errors.getMessage(e)}`;
   }
 }
+
+export async function injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void> {
+  try {
+    await axios.post(
+      `${prefix}/namespace/${namespace}/devworkspaceId/${devworkspaceId}/kubeconfig`,
+    );
+  } catch (e) {
+    throw `Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`;
+  }
+}

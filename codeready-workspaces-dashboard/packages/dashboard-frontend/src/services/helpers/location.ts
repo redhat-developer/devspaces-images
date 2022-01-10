@@ -52,6 +52,9 @@ export function buildFactoryLoaderLocation(url?: string): Location {
       devfilePath = extractUrlParam(fullUrl, 'df');
     }
 
+    // look for prebuilt devworkspace, remove it from URL
+    const devWorkspace = extractUrlParam(fullUrl, 'devWorkspace');
+
     // creation policy
     const newWorkspace = extractUrlParam(fullUrl, 'new');
     const encodedUrl = encodeURIComponent(fullUrl.toString());
@@ -66,6 +69,9 @@ export function buildFactoryLoaderLocation(url?: string): Location {
     }
     if (newWorkspace) {
       pathAndQuery = `${pathAndQuery}&policies.create=perclick`;
+    }
+    if (devWorkspace) {
+      pathAndQuery = `${pathAndQuery}&devWorkspace=${encodeURIComponent(devWorkspace)}`;
     }
   }
   return _buildLocationObject(pathAndQuery);

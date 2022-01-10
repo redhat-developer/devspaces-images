@@ -26,6 +26,7 @@ import { registerClusterInfo } from './api/clusterInfo';
 import { CLUSTER_CONSOLE_URL } from './devworkspace-client/services/cluster-info';
 import { registerDockerConfigApi } from './api/dockerConfigApi';
 import { registerServerConfigApi } from './api/serverConfigApi';
+import { registerKubeConfigApi } from './api/kubeConfigAPI';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 
@@ -69,6 +70,8 @@ registerTemplateApi(server);
 registerDockerConfigApi(server);
 
 registerServerConfigApi(server);
+
+registerKubeConfigApi(server);
 
 if (CLUSTER_CONSOLE_URL) {
   registerClusterInfo(server);

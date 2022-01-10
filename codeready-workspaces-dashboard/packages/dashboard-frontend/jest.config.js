@@ -21,13 +21,14 @@ module.exports = {
     '\\.(css|less|sass|scss|styl)$': '<rootDir>/__mocks__/styleMock.js',
     '\\.(gif|ttf|eot|svg)$': '<rootDir>/__mocks__/fileMock.js',
     'monaco-editor-core': 'monaco-editor-core/esm/vs/editor/editor.main',
-      'vscode-languageserver-protocol/lib/utils/is': 'vscode-languageserver-protocol/lib/common/utils/is',
+    'vscode-languageserver-protocol/lib/utils/is':
+      'vscode-languageserver-protocol/lib/common/utils/is',
     'vscode-languageserver-protocol/lib/main': 'vscode-languageserver-protocol/lib/node/main',
   },
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.test.json',
-    }
+    },
   },
   setupFilesAfterEnv: ['./jest.setup.ts'],
   setupFiles: ['./src/inversify.config.ts'],
@@ -47,6 +48,6 @@ module.exports = {
       branches: 36,
       functions: 50,
       lines: 50,
-    }
+    },
   },
-}
+};

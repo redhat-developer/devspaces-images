@@ -35,6 +35,7 @@ import { selectMetadataFiltered } from '../../../store/DevfileRegistries/selecto
 import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
 import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
+import { selectDefaultEditor } from '../../../store/Plugins/devWorkspacePlugins/selectors';
 
 type Props = MappedProps & {
   onCardClick: (
@@ -50,6 +51,16 @@ type State = {
 };
 
 export class SamplesListGallery extends React.PureComponent<Props, State> {
+  private static sortByDisplayName(a: che.DevfileMetaData, b: che.DevfileMetaData): number {
+    if (a.displayName < b.displayName) {
+      return -1;
+    }
+    if (a.displayName > b.displayName) {
+      return 1;
+    }
+    return 0;
+  }
+
   private isLoading: boolean;
 
   constructor(props: Props) {
@@ -97,20 +108,24 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
     this.isLoading = true;
     try {
       const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
-      let devfileContent;
-      let optionalFilesContent;
       if (cheDevworkspaceEnabled) {
         const link = meta.links.v2;
+        let devWorkspace = '';
+        if (this.props.defaultEditor) {
+          const prebuiltDevWorkspace = meta.links.devWorkspaces?.[this.props.defaultEditor];
+          devWorkspace = prebuiltDevWorkspace
+            ? `?devWorkspace=${encodeURIComponent(prebuiltDevWorkspace)}`
+            : '';
+        }
         // use factory workflow to load the getting started samples
-        const factoryUrl = `${window.location.origin}/#${link}`;
+        const factoryUrl = `${window.location.origin}/#${link}${devWorkspace}`;
         // open a new page to handle that
         window.open(factoryUrl, '_blank');
         this.isLoading = false;
         return;
-      } else {
-        devfileContent = (await this.props.requestDevfile(meta.links.self)) as string;
       }
-      this.props.onCardClick(devfileContent, meta.displayName, optionalFilesContent);
+      const devfileContent = (await this.props.requestDevfile(meta.links.self)) as string;
+      this.props.onCardClick(devfileContent, meta.displayName);
     } catch (e) {
       console.warn('Failed to load devfile.', e);
 
@@ -128,13 +143,15 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
   }
 
   private buildCardsList(metadata: che.DevfileMetaData[] = []): React.ReactElement[] {
-    return metadata.map(meta => (
-      <SampleCard
-        key={meta.links.self}
-        metadata={meta}
-        onClick={(): Promise<void> => this.fetchDevfile(meta)}
-      />
-    ));
+    return metadata
+      .sort(SamplesListGallery.sortByDisplayName)
+      .map(meta => (
+        <SampleCard
+          key={meta.links.self}
+          metadata={meta}
+          onClick={(): Promise<void> => this.fetchDevfile(meta)}
+        />
+      ));
   }
 
   private buildEmptyState(): React.ReactElement {
@@ -159,6 +176,7 @@ const mapStateToProps = (state: AppState) => ({
   metadataFiltered: selectMetadataFiltered(state),
   workspacesSettings: selectWorkspacesSettings(state),
   factoryResolver: state.factoryResolver,
+  defaultEditor: selectDefaultEditor(state),
 });
 
 const connector = connect(mapStateToProps, {

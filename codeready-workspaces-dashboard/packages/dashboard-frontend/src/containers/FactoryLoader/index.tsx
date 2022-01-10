@@ -11,6 +11,7 @@
  */
 
 import { AlertActionLink, AlertVariant } from '@patternfly/react-core';
+import axios from 'axios';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { History } from 'history';
@@ -18,7 +19,8 @@ import common from '@eclipse-che/common';
 import { delay } from '../../services/helpers/delay';
 import { AppState } from '../../store';
 import * as FactoryResolverStore from '../../store/FactoryResolver';
-import * as WorkspaceStore from '../../store/Workspaces';
+import * as WorkspacesStore from '../../store/Workspaces';
+import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import FactoryLoader from '../../pages/FactoryLoader';
 import {
   selectAllWorkspaces,
@@ -41,7 +43,7 @@ import {
   selectDefaultNamespace,
   selectInfrastructureNamespaces,
 } from '../../store/InfrastructureNamespaces/selectors';
-import { safeLoad } from 'js-yaml';
+import { safeLoad, safeLoadAll } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import devfileApi from '../../services/devfileApi';
@@ -53,6 +55,7 @@ const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'workspaceDeploymentAnnotations',
   'policies.create',
   'che-editor',
+  'devWorkspace',
 ];
 
 export type CreatePolicy = 'perclick' | 'peruser';
@@ -81,6 +84,7 @@ type State = {
   hasError: boolean;
   createPolicy: CreatePolicy;
   cheDevworkspaceEnabled: boolean;
+  createFromDevfile: boolean; // indicates that a devfile is used to create a workspace
 };
 
 export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
@@ -105,6 +109,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       createPolicy,
       search,
       cheDevworkspaceEnabled,
+      createFromDevfile: false,
     };
   }
 
@@ -405,8 +410,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
           const annotations = workspace.ref.metadata.annotations;
           const source = annotations ? annotations[DEVWORKSPACE_DEVFILE_SOURCE] : undefined;
           if (source) {
-            const sourseObj = safeLoad(source) as FactorySource;
-            return sourseObj?.factory?.params === attrs.factoryParams;
+            const sourceObj = safeLoad(source) as FactorySource;
+            return sourceObj?.factory?.params === attrs.factoryParams;
           }
           // ignore createPolicy for dev workspaces
           return false;
@@ -455,6 +460,67 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       });
     }
 
+    return workspace;
+  }
+
+  private async createDevWorkspaceFromResources(
+    devWorkspacePrebuiltResources: string,
+    factoryParams: string,
+  ): Promise<Workspace | undefined> {
+    let workspace: Workspace | undefined;
+
+    // creation policy is `peruser`
+    workspace = this.props.allWorkspaces.find(workspace => {
+      if (isCheWorkspace(workspace.ref)) {
+        return false;
+      } else {
+        const annotations = workspace.ref.metadata.annotations;
+        const source = annotations ? annotations[DEVWORKSPACE_DEVFILE_SOURCE] : undefined;
+        if (source) {
+          const sourceObj = safeLoad(source) as FactorySource;
+          return sourceObj?.factory?.params === factoryParams;
+        }
+        return false;
+      }
+    });
+
+    if (!workspace) {
+      try {
+        let yamlContent: string;
+        try {
+          const response = await axios.get(devWorkspacePrebuiltResources);
+          yamlContent = response.data;
+        } catch (e) {
+          const errorMessage = common.helpers.errors.getMessage(e);
+          console.error(
+            `Failed to fetch prebuilt resources from ${devWorkspacePrebuiltResources}. ${errorMessage}`,
+          );
+          this.showAlert(`Failed to fetch prebuilt resources. ${errorMessage}`);
+          return;
+        }
+
+        const resources = safeLoadAll(yamlContent);
+        const devworkspace = resources.find(
+          resource => resource.kind === 'DevWorkspace',
+        ) as devfileApi.DevWorkspace;
+        const devworkspaceTemplate = resources.find(
+          resource => resource.kind === 'DevWorkspaceTemplate',
+        ) as devfileApi.DevWorkspaceTemplate;
+
+        await this.props.createWorkspaceFromResources(devworkspace, devworkspaceTemplate);
+
+        const namespace = this.props.defaultNamespace?.name;
+        this.props.setWorkspaceQualifiedName(namespace, devworkspace.metadata.name as string);
+        workspace = this.props.activeWorkspace;
+      } catch (e) {
+        this.showAlert(`Failed to create a workspace. ${e}`);
+        return;
+      }
+    }
+    if (!workspace) {
+      this.showAlert('Failed to create a workspace.');
+      return;
+    }
     return workspace;
   }
 
@@ -552,18 +618,32 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
     await delay();
 
-    let devfile = await this.resolveDevfile(location);
+    let workspace: Workspace | undefined;
+    if (this.props.cheDevworkspaceEnabled && attrs.devWorkspace) {
+      // create workspace using prebuilt resources
+      workspace = await this.createDevWorkspaceFromResources(
+        attrs.devWorkspace,
+        attrs.factoryParams,
+      );
+    } else {
+      // create workspace using a devfile
+      this.setState({
+        createFromDevfile: true,
+      });
 
-    if (!devfile) {
-      return;
+      let devfile = await this.resolveDevfile(location);
+
+      if (!devfile) {
+        return;
+      }
+
+      devfile = updateDevfileMetadata(devfile, attrs.factoryParams, createPolicy);
+      this.setState({ currentStep: LoadFactorySteps.APPLYING_DEVFILE });
+
+      await delay();
+
+      workspace = await this.resolveWorkspace(devfile, attrs);
     }
-
-    devfile = updateDevfileMetadata(devfile, attrs.factoryParams, createPolicy);
-    this.setState({ currentStep: LoadFactorySteps.APPLYING_DEVFILE });
-
-    await delay();
-
-    const workspace = await this.resolveWorkspace(devfile, attrs);
 
     if (!workspace) {
       return;
@@ -578,7 +658,13 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { workspace } = this.props;
-    const { currentStep, resolvedDevfileMessage, hasError, cheDevworkspaceEnabled } = this.state;
+    const {
+      currentStep,
+      resolvedDevfileMessage,
+      hasError,
+      cheDevworkspaceEnabled,
+      createFromDevfile,
+    } = this.state;
     const workspaceName = workspace ? workspace.name : '';
     const workspaceId = workspace ? workspace.id : '';
 
@@ -589,6 +675,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         resolvedDevfileMessage={resolvedDevfileMessage}
         workspaceId={workspaceId}
         workspaceName={workspaceName}
+        createFromDevfile={createFromDevfile}
         isDevWorkspace={cheDevworkspaceEnabled}
         callbacks={this.factoryLoaderCallbacks}
       />
@@ -610,7 +697,8 @@ const mapStateToProps = (state: AppState) => ({
 
 const connector = connect(mapStateToProps, {
   ...FactoryResolverStore.actionCreators,
-  ...WorkspaceStore.actionCreators,
+  ...WorkspacesStore.actionCreators,
+  createWorkspaceFromResources: DevWorkspacesStore.actionCreators.createWorkspaceFromResources,
 });
 
 type MappedProps = ConnectedProps<typeof connector>;

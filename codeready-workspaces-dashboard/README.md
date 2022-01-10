@@ -102,6 +102,12 @@ If Che is behind Native Auth, local backend is prerequisite for Dev Server and t
 yarn frontend:start --env.server=http://localhost:8080/
 ```
 
+To avoid memory issues and the process being killed, more memory is possible through the following command in the frontend package directory:
+```sh
+$ NODE_OPTIONS="--max_old_space_size=6500" && yarn start --env.server=http://localhost:8080
+```
+
+
 ### Dependencies IP
 
 To make sure all the dependencies satisfy Eclipse [Intellectual Property](https://www.eclipse.org/projects/handbook/#ip),

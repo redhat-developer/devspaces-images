@@ -17,6 +17,9 @@ describe('devfile links', () => {
 
   it('should update links that are not absolute', () => {
     const metadata = {
+      displayName: 'nodejs-react',
+      icon: '/icon.png',
+      tags: [],
       links: {
         v2: 'https://github.com/che-samples/nodejs-react-redux/tree/devfilev2',
         self: '/devfiles/nodejs-react/devfile.yaml',

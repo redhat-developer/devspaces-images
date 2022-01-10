@@ -22,7 +22,7 @@
     "start": "${PWD}/local-start.sh $@",
     "license:check": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next --check",
     "license:generate": "docker run --rm -t -v ${PWD}/:/workspace/project quay.io/che-incubator/dash-licenses:next",
-    "test": "lerna run test --stream -- $@",
+    "test": "lerna run test --stream -- --no-cache $@",
     "pretest": "yarn run prebuild",
     "test:coverage": "yarn run test -- --runInBand --coverage",
     "format:check": "yarn workspaces run format:check",

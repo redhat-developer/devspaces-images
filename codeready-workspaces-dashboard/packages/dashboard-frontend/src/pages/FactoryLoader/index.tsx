@@ -55,6 +55,7 @@ type Props = {
   workspaceId: string;
   isDevWorkspace: boolean;
   resolvedDevfileMessage?: string;
+  createFromDevfile: boolean;
   callbacks?: {
     showAlert?: (options: AlertOptions) => void;
   };
@@ -170,49 +171,60 @@ class FactoryLoader extends React.PureComponent<Props, State> {
       );
     };
 
-    return [
-      {
-        id: LoadFactorySteps.INITIALIZING,
-        name: getTitle(LoadFactorySteps.INITIALIZING, 'Initializing', 'wizard-icon'),
-        canJumpTo: currentStep >= LoadFactorySteps.INITIALIZING,
-      },
-      {
-        name: getTitle(LoadFactorySteps.CREATE_WORKSPACE, 'Creating a workspace', 'wizard-icon'),
-        steps: [
-          {
-            id: LoadFactorySteps.LOOKING_FOR_DEVFILE,
-            name: getTitle(
-              LoadFactorySteps.LOOKING_FOR_DEVFILE,
-              currentStep <= LoadFactorySteps.LOOKING_FOR_DEVFILE
-                ? 'Looking for devfile'
-                : resolvedDevfileMessage
-                ? `${resolvedDevfileMessage}`
-                : 'Devfile could not be found',
-            ),
-            canJumpTo: currentStep >= LoadFactorySteps.LOOKING_FOR_DEVFILE,
-          },
-          {
-            id: LoadFactorySteps.APPLYING_DEVFILE,
-            name: getTitle(LoadFactorySteps.APPLYING_DEVFILE, 'Applying devfile'),
-            canJumpTo: currentStep >= LoadFactorySteps.APPLYING_DEVFILE,
-          },
-        ],
-      },
-      {
-        id: LoadFactorySteps.START_WORKSPACE,
-        name: getTitle(
-          LoadFactorySteps.START_WORKSPACE,
-          'Waiting for workspace to start',
-          'wizard-icon',
-        ),
-        canJumpTo: currentStep >= LoadFactorySteps.START_WORKSPACE,
-      },
-      {
-        id: LoadFactorySteps.OPEN_IDE,
-        name: getTitle(LoadFactorySteps.OPEN_IDE, 'Open IDE', 'wizard-icon'),
-        canJumpTo: currentStep >= LoadFactorySteps.OPEN_IDE,
-      },
+    const initializingStep: WizardStep = {
+      id: LoadFactorySteps.INITIALIZING,
+      name: getTitle(LoadFactorySteps.INITIALIZING, 'Initializing', 'wizard-icon'),
+      canJumpTo: currentStep >= LoadFactorySteps.INITIALIZING,
+    };
+    const createWorkspaceStep: WizardStep = {
+      name: getTitle(LoadFactorySteps.CREATE_WORKSPACE, 'Creating a workspace', 'wizard-icon'),
+      canJumpTo: currentStep >= LoadFactorySteps.CREATE_WORKSPACE,
+    };
+    const startWorkspaceStep: WizardStep = {
+      id: LoadFactorySteps.START_WORKSPACE,
+      name: getTitle(
+        LoadFactorySteps.START_WORKSPACE,
+        'Waiting for workspace to start',
+        'wizard-icon',
+      ),
+      canJumpTo: currentStep >= LoadFactorySteps.START_WORKSPACE,
+    };
+    const openIdeStep: WizardStep = {
+      id: LoadFactorySteps.OPEN_IDE,
+      name: getTitle(LoadFactorySteps.OPEN_IDE, 'Open IDE', 'wizard-icon'),
+      canJumpTo: currentStep >= LoadFactorySteps.OPEN_IDE,
+    };
+    const steps: WizardStep[] = [
+      initializingStep,
+      createWorkspaceStep,
+      startWorkspaceStep,
+      openIdeStep,
     ];
+
+    if (this.props.createFromDevfile) {
+      createWorkspaceStep.id = LoadFactorySteps.CREATE_WORKSPACE;
+      createWorkspaceStep.steps = [
+        {
+          id: LoadFactorySteps.LOOKING_FOR_DEVFILE,
+          name: getTitle(
+            LoadFactorySteps.LOOKING_FOR_DEVFILE,
+            currentStep <= LoadFactorySteps.LOOKING_FOR_DEVFILE
+              ? 'Looking for devfile'
+              : resolvedDevfileMessage
+              ? `${resolvedDevfileMessage}`
+              : 'Devfile could not be found',
+          ),
+          canJumpTo: currentStep >= LoadFactorySteps.LOOKING_FOR_DEVFILE,
+        },
+        {
+          id: LoadFactorySteps.APPLYING_DEVFILE,
+          name: getTitle(LoadFactorySteps.APPLYING_DEVFILE, 'Applying devfile'),
+          canJumpTo: currentStep >= LoadFactorySteps.APPLYING_DEVFILE,
+        },
+      ];
+    }
+
+    return steps;
   }
 
   public render(): React.ReactElement {

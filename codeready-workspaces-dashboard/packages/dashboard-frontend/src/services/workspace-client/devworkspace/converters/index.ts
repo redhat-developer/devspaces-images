@@ -11,6 +11,7 @@
  */
 
 import devfileApi from '../../../devfileApi';
+import { DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
 
 export const devworkspaceVersion = 'v1alpha2';
 export const devWorkspaceApiGroup = 'workspace.devfile.io';
@@ -22,7 +23,7 @@ export function devfileToDevWorkspace(
   started: boolean,
 ): devfileApi.DevWorkspace {
   const devfileAttributes = devfile.metadata.attributes || {};
-  const devWorkspaceAnnotations = devfileAttributes['dw.metadata.annotations'] || {};
+  const devWorkspaceAnnotations = devfileAttributes[DEVWORKSPACE_METADATA_ANNOTATION] || {};
   const template: devfileApi.DevWorkspace = {
     apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
     kind: 'DevWorkspace',

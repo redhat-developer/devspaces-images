@@ -40,6 +40,8 @@ import {
 } from '@devfile/api';
 import { isEqual } from 'lodash';
 import { fetchData } from '../../registry/devfiles';
+import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
+import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
 
 export interface IStatusUpdate {
   status: string;
@@ -104,6 +106,8 @@ export const DEVWORKSPACE_DEBUG_START_ANNOTATION = 'controller.devfile.io/debug-
 
 export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
 
+export const DEVWORKSPACE_CHE_EDITOR = 'che.eclipse.org/che-editor';
+
 export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
 
 export interface ICheEditorOverrideContainer extends V220DevfileComponentsItemsContainer {
@@ -135,10 +139,13 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly webSocketEventName: string;
   private readonly _failingWebSockets: string[];
   private readonly showAlert: (alert: AlertItem) => void;
+  private readonly defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler;
 
   constructor(
     @inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService,
     @inject(AppAlerts) appAlerts: AppAlerts,
+    @inject(DevWorkspaceDefaultPluginsHandler)
+    defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler,
     @multiInject(IDevWorkspaceEditorProcess) private editorProcesses: IDevWorkspaceEditorProcess[],
   ) {
     super(keycloakSetupService);
@@ -150,6 +157,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     this.webSocketEventEmitter = new EventEmitter();
     this.webSocketEventName = 'websocketClose';
     this._failingWebSockets = [];
+    this.defaultPluginsHandler = defaultPluginsHandler;
 
     this.showAlert = (alert: AlertItem) => appAlerts.showAlert(alert);
 
@@ -239,7 +247,28 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return workspace;
   }
 
-  async create(
+  async createFromResources(
+    defaultNamespace: string,
+    devworkspace: devfileApi.DevWorkspace,
+    devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+  ): Promise<any> {
+    // create DWT
+    devworkspaceTemplate.metadata.namespace = defaultNamespace;
+    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
+
+    // create DW
+    devworkspace.spec.routingClass = 'che';
+    devworkspace.metadata.namespace = defaultNamespace;
+    if (devworkspace.metadata.annotations === undefined) {
+      devworkspace.metadata.annotations = {};
+    }
+    devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
+      new Date().toISOString();
+
+    return DwApi.createWorkspace(devworkspace);
+  }
+
+  async createFromDevfile(
     devfile: devfileApi.Devfile,
     defaultNamespace: string,
     dwEditorsPlugins: { devfile: devfileApi.Devfile; url: string }[],
@@ -466,6 +495,22 @@ export class DevWorkspaceClient extends WorkspaceClient {
         ' and templates updated to',
         context.devWorkspaceTemplates,
       );
+    }
+  }
+
+  /**
+   * Called when a DevWorkspace has started.
+   *
+   * @param workspace The DevWorkspace that was started
+   * @param editorId The editor id of the DevWorkspace that was started
+   */
+  async onStart(
+    workspace: devfileApi.DevWorkspace,
+    defaultPlugins: WorkspacesDefaultPlugins,
+    editorId?: string,
+  ) {
+    if (editorId) {
+      await this.defaultPluginsHandler.handle(workspace, editorId, defaultPlugins);
     }
   }
 

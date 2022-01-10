@@ -39,4 +39,13 @@ describe('Location test', () => {
       '?url=https%3A%2F%2Fgithub.com%2Fche-samples%2Fjava-spring-petclinic%2Ftree%2Fdevfilev2&override.devfileFilename=devfilev2.yaml',
     );
   });
+
+  test('devWorkspace parameter', () => {
+    const result = buildFactoryLoaderLocation(
+      'https://github.com/che-samples/java-spring-petclinic/tree/devfilev2?devWorkspace=/devfiles/devworkspace-che-theia-latest.yaml',
+    );
+    expect(result.search).toBe(
+      '?url=https%3A%2F%2Fgithub.com%2Fche-samples%2Fjava-spring-petclinic%2Ftree%2Fdevfilev2&devWorkspace=%2Fdevfiles%2Fdevworkspace-che-theia-latest.yaml',
+    );
+  });
 });

@@ -14,6 +14,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { AlertVariant } from '@patternfly/react-core';
 import { RenderResult, render, screen, waitFor } from '@testing-library/react';
+import mockAxios from 'axios';
 import { ROUTE } from '../../route.enum';
 import { getMockRouterProps } from '../../services/__mocks__/router';
 import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
@@ -41,6 +42,18 @@ const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
 const setWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
 const clearWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
+
+const createWorkspaceFromResourcesMock = jest.fn().mockReturnValue(undefined);
+jest.mock('../../store/Workspaces/devWorkspaces/index', () => {
+  return {
+    actionCreators: {
+      createWorkspaceFromResources:
+        (devworkspace: string, devworkspaceTemplate: string) => async (): Promise<void> => {
+          createWorkspaceFromResourcesMock(devworkspace, devworkspaceTemplate);
+        },
+    },
+  };
+});
 
 jest.mock('../../store/Workspaces');
 (workspacesActionCreators.requestWorkspace as jest.Mock).mockImplementation(
@@ -164,6 +177,42 @@ describe('Factory Loader container', () => {
         },
       });
       expect(instance.state.createPolicy).toBe('peruser');
+    });
+  });
+
+  describe('with prebuilt resources', () => {
+    it('should start creating a devworkspace using pre-generated resources', async () => {
+      const store = new FakeStoreBuilder()
+        .withWorkspacesSettings({
+          'che.devworkspaces.enabled': 'true',
+        } as che.WorkspaceSettings)
+        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
+        .build();
+
+      const location = 'http://test-location';
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, {
+        url: location,
+      });
+      props.location.search += '&devWorkspace=devWorkspace.yaml';
+
+      const yamlContent = `apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspaceTemplate
+metadata:
+  name: theia-ide-project
+---
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  name: project`;
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce(yamlContent);
+
+      render(
+        <Provider store={store}>
+          <FactoryLoaderContainer {...props} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(createWorkspaceFromResourcesMock).toHaveBeenCalled());
     });
   });
 

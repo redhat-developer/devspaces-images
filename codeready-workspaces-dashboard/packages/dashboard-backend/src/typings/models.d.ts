@@ -31,6 +31,10 @@ declare namespace restParams {
     templateName: string;
   }
 
+  export interface INamespacedPodParam extends INamespacedParam {
+    devworkspaceId: string;
+  }
+
   export interface IStatusUpdate {
     error?: string;
     message?: string;

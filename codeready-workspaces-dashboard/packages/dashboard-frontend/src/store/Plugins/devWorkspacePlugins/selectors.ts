@@ -28,7 +28,7 @@ export const selectDwPluginsList = createSelector(
       .filter(plugin => plugin) as devfileApi.Devfile[],
 );
 
-export const selectDwEditorsPluginsList = EDITOR_NAME =>
+export const selectDwEditorsPluginsList = (EDITOR_NAME?: string) =>
   createSelector(
     selectState,
     state =>
@@ -43,6 +43,8 @@ export const selectDwEditorsPluginsList = EDITOR_NAME =>
         url: string;
       }[],
   );
+
+export const selectDefaultEditor = createSelector(selectState, state => state.defaultEditorName);
 
 export const selectDwDefaultEditorError = createSelector(
   selectState,

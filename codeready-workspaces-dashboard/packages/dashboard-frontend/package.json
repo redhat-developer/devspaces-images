@@ -75,7 +75,7 @@
     "reselect": "^4.0.0",
     "sanitize-html": "2.3.2",
     "sockjs-client": "^1.4.0",
-    "umd-compat-loader": "2.1.1",
+    "umd-compat-loader": "2.1.2",
     "vscode-languageserver-protocol": "^3.15.3",
     "yaml-language-server": "^0.13.0"
   },

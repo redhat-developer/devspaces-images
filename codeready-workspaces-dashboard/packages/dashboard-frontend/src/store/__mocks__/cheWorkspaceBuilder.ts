@@ -51,7 +51,7 @@ export class CheWorkspaceBuilder {
     } as che.WorkspaceAttributes,
     status: WorkspaceStatus.STOPPED,
     namespace: 'admin',
-    devfile: CHE_DEVFILE_STUB,
+    devfile: cloneDeep(CHE_DEVFILE_STUB),
   };
 
   withId(id: string): CheWorkspaceBuilder {

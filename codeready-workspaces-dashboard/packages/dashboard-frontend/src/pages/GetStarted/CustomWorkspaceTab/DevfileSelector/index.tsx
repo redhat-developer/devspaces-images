@@ -85,7 +85,7 @@ export class DevfileSelectorFormGroup extends React.PureComponent<Props, State> 
     let devfile: api.che.workspace.devfile.Devfile;
     try {
       if (cheDevworkspaceEnabled) {
-        await this.props.requestFactoryResolver(meta.links.v2);
+        await this.props.requestFactoryResolver(meta.links.v2 as string);
         // at this point the resolver object is defined
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const resolvedDevfile = this.props.factoryResolver.resolver!.devfile;

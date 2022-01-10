@@ -18,13 +18,13 @@ import { RenderResult, render, screen, waitFor } from '@testing-library/react';
 import { ROUTE } from '../../route.enum';
 import { getMockRouterProps } from '../../services/__mocks__/router';
 import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
-import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../services/helpers/types';
 import IdeLoaderContainer, { LoadIdeSteps } from '../IdeLoader';
 import { AlertOptions } from '../../pages/IdeLoader';
 import { AppThunk } from '../../store';
 import { ActionCreators } from '../../store/Workspaces';
 import { Workspace } from '../../services/workspace-adapter';
+import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
 
 const showAlertMock = jest.fn();
 const hideAlertMock = jest.fn();
@@ -114,22 +114,33 @@ describe('IDE Loader container', () => {
     activeEnv: 'default',
   };
 
+  const workspace_1 = new CheWorkspaceBuilder()
+    .withId('id-wksp-1')
+    .withName('name-wksp-1')
+    .withNamespace('admin1')
+    .build();
+
+  const workspace_2 = new CheWorkspaceBuilder()
+    .withId('id-wksp-2')
+    .withName('name-wksp-2')
+    .withNamespace('admin2')
+    .withRuntime(runtime)
+    .withStatus(WorkspaceStatus.RUNNING)
+    .build();
+
+  const workspace_3 = new CheWorkspaceBuilder()
+    .withId('id-wksp-3')
+    .withName('name-wksp-3')
+    .withNamespace('admin3')
+    .withStatus(WorkspaceStatus.ERROR)
+    .build();
+
   const store = new FakeStoreBuilder()
     .withWorkspaces({
       workspaceId: 'id-wksp-1',
     })
     .withCheWorkspaces({
-      workspaces: [
-        createFakeCheWorkspace('id-wksp-1', 'name-wksp-1', 'admin1'),
-        createFakeCheWorkspace(
-          'id-wksp-2',
-          'name-wksp-2',
-          'admin2',
-          WorkspaceStatus.RUNNING,
-          runtime,
-        ),
-        createFakeCheWorkspace('id-wksp-3', 'name-wksp-3', 'admin3', WorkspaceStatus.ERROR),
-      ],
+      workspaces: [workspace_1, workspace_2, workspace_3],
     })
     .build();
 

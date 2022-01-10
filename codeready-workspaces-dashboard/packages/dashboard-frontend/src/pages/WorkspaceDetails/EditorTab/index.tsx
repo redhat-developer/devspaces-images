@@ -31,7 +31,6 @@ import DevfileEditor, { DevfileEditor as Editor } from '../../../components/Devf
 import EditorTools from './EditorTools';
 import { convertWorkspace, isCheWorkspace, Workspace } from '../../../services/workspace-adapter';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../../../services/devfileApi';
-import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,

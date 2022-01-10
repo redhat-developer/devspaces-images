@@ -5,12 +5,12 @@
 | [`@babel/runtime@7.15.4`](https://github.com/babel/babel.git) | MIT | clearlydefined |
 | [`@devfile/api@2.2.0-alpha-1633545768`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | `@eclipse-che/api@7.36.0` | EPL-2.0 | clearlydefined |
-| [`@eclipse-che/che-code-devworkspace-handler@1.63.0-dev-2c23dcf`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | N/A |
-| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1637592995`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/che-code-devworkspace-handler@1.63.0-dev-2c23dcf`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1639587602`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/common@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-backend@7.37.0-SNAPSHOT`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
 | [`@eclipse-che/dashboard-frontend@7.37.0-SNAPSHOT`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
-| [`@eclipse-che/devfile-converter@0.0.1-ba9d381`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | clearlydefined |
+| [`@eclipse-che/devfile-converter@0.0.1-437a239`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | clearlydefined |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@kubernetes/client-node@0.14.3`](https://github.com/kubernetes-client/javascript.git) | Apache-2.0 | clearlydefined |
@@ -49,7 +49,7 @@
 | [`ansi-regex@2.1.1`](https://github.com/chalk/ansi-regex.git) | MIT | clearlydefined |
 | [`ansi-styles@3.2.1`](https://github.com/chalk/ansi-styles.git) | MIT | clearlydefined |
 | [`archy@1.0.0`](http://github.com/substack/node-archy.git) | MIT | clearlydefined |
-| [`argparse@1.0.10`](https://github.com/nodeca/argparse.git) | MIT | clearlydefined |
+| [`argparse@2.0.1`](https://github.com/nodeca/argparse.git) | Python-2.0 | [CQ22954](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22954) |
 | [`args@5.0.1`](https://github.com/leo/args.git) | MIT | clearlydefined |
 | [`asn1@0.2.4`](git://github.com/joyent/node-asn1.git) | MIT | clearlydefined |
 | [`assert-plus@1.0.0`](https://github.com/mcavage/node-assert-plus.git) | MIT | clearlydefined |
@@ -136,7 +136,7 @@
 | [`eventsource@1.1.0`](git://github.com/EventSource/eventsource.git) | MIT | clearlydefined |
 | [`execa@1.0.0`](https://github.com/sindresorhus/execa.git) | MIT | clearlydefined |
 | [`extend@3.0.2`](https://github.com/justmoon/node-extend.git) | MIT | clearlydefined |
-| [`extsprintf@1.3.0`](git://github.com/davepacheco/node-extsprintf.git) | MIT | #128 |
+| [`extsprintf@1.3.0`](git://github.com/davepacheco/node-extsprintf.git) | MIT | #1813 |
 | [`fast-decode-uri-component@1.0.1`](git+https://github.com/delvedor/fast-decode-uri-component.git) | MIT | clearlydefined |
 | [`fast-deep-equal@3.1.3`](git+https://github.com/epoberezkin/fast-deep-equal.git) | MIT | clearlydefined |
 | [`fast-json-stable-stringify@2.1.0`](git://github.com/epoberezkin/fast-json-stable-stringify.git) | MIT | clearlydefined |
@@ -216,7 +216,7 @@
 | [`jose@2.0.5`](https://github.com/panva/jose.git) | MIT | clearlydefined |
 | [`jquery@3.6.0`](https://github.com/jquery/jquery.git) | MIT | clearlydefined |
 | [`js-tokens@4.0.0`](https://github.com/lydell/js-tokens.git) | MIT | clearlydefined |
-| [`js-yaml@3.14.1`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
+| [`js-yaml@4.1.0`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT | clearlydefined |
 | [`jsesc@1.3.0`](https://github.com/mathiasbynens/jsesc.git) | MIT | clearlydefined |
 | [`json-buffer@3.0.1`](git://github.com/dominictarr/json-buffer.git) | MIT | clearlydefined |
@@ -383,13 +383,13 @@
 | [`toidentifier@1.0.0`](https://github.com/component/toidentifier.git) | MIT | clearlydefined |
 | [`tough-cookie@2.5.0`](git://github.com/salesforce/tough-cookie.git) | BSD-3-Clause | clearlydefined |
 | [`trim-right@1.0.1`](https://github.com/sindresorhus/trim-right.git) | MIT | clearlydefined |
-| [`tslib@2.3.1`](https://github.com/Microsoft/tslib.git) | 0BSD |  |
+| [`tslib@2.3.1`](https://github.com/Microsoft/tslib.git) | 0BSD | clearlydefined |
 | [`tunnel-agent@0.6.0`](https://github.com/mikeal/tunnel-agent) | Apache-2.0 | clearlydefined |
 | [`tunnel@0.0.6`](https://github.com/koichik/node-tunnel.git) | MIT | clearlydefined |
 | [`tweetnacl@0.14.5`](https://github.com/dchest/tweetnacl-js.git) | Unlicense | #1035 |
 | [`type-fest@0.8.1`](https://github.com/sindresorhus/type-fest.git) | (MIT OR CC0-1.0) | clearlydefined |
 | [`typedarray-to-buffer@3.1.5`](git://github.com/feross/typedarray-to-buffer.git) | MIT | clearlydefined |
-| [`umd-compat-loader@2.1.1`](http://github.com/matt-gadd/umd-compat-loader.git) | BSD |  |
+| [`umd-compat-loader@2.1.2`](http://github.com/matt-gadd/umd-compat-loader.git) | Apache-2.0 | clearlydefined |
 | [`underscore@1.13.1`](git://github.com/jashkenas/underscore.git) | MIT | clearlydefined |
 | [`undici@3.3.6`](git+https://github.com/nodejs/undici.git) | MIT | clearlydefined |
 | [`universalify@2.0.0`](git+https://github.com/RyanZim/universalify.git) | MIT | clearlydefined |

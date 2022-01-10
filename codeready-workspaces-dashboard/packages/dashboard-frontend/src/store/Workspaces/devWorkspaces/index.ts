@@ -19,10 +19,11 @@ import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
 import {
   DevWorkspaceClient,
+  DEVWORKSPACE_CHE_EDITOR,
+  DEVWORKSPACE_METADATA_ANNOTATION,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
   IStatusUpdate,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
@@ -32,7 +33,8 @@ import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../../services/devfileApi/devWorkspace/metadata';
 import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
-const cheWorkspaceClient = container.get(CheWorkspaceClient);
+import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
+import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
 const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
@@ -138,10 +140,13 @@ export type ActionCreators = {
     pluginRegistryInternalUrl: string | undefined,
     attributes: { [key: string]: string },
   ) => AppThunk<KnownAction, Promise<void>>;
+  createWorkspaceFromResources: (
+    devworkspace: devfileApi.DevWorkspace,
+    devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+  ) => AppThunk<KnownAction, Promise<void>>;
 
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
 };
-
 export const actionCreators: ActionCreators = {
   updateAddedDevWorkspaces:
     (workspaces: devfileApi.DevWorkspace[]): AppThunk<KnownAction, void> =>
@@ -177,7 +182,8 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
 
       try {
-        const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
+        const defaultKubernetesNamespace = selectDefaultNamespace(getState());
+        const defaultNamespace = defaultKubernetesNamespace.name;
         const { workspaces, resourceVersion } = await devWorkspaceClient.getAllWorkspaces(
           defaultNamespace,
         );
@@ -273,6 +279,11 @@ export const actionCreators: ActionCreators = {
         } else {
           updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true, true);
         }
+        const editor = updatedWorkspace.metadata.annotations
+          ? updatedWorkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
+          : undefined;
+        const defaultPlugins = getState().dwPlugins.defaultPlugins;
+        await devWorkspaceClient.onStart(updatedWorkspace, defaultPlugins, editor);
         dispatch({
           type: 'UPDATE_DEVWORKSPACE',
           workspace: updatedWorkspace,
@@ -284,6 +295,21 @@ export const actionCreators: ActionCreators = {
             workspaceId,
           });
         }
+        const toDispose = new DisposableCollection();
+        const onStatusChangeCallback = async status => {
+          if (status === DevWorkspaceStatus.RUNNING) {
+            toDispose.dispose();
+            const workspaceId = workspace.status?.devworkspaceId;
+            if (workspaceId) {
+              injectKubeConfig(workspace.metadata.namespace, workspaceId);
+            }
+          }
+        };
+        const adapterWorkspaceId = WorkspaceAdapter.getId(workspace);
+        onStatusChangeCallbacks.set(adapterWorkspaceId, onStatusChangeCallback);
+        toDispose.push({
+          dispose: () => onStatusChangeCallbacks.delete(adapterWorkspaceId),
+        });
         devWorkspaceClient.checkForDevWorkspaceError(updatedWorkspace);
       } catch (e) {
         const errorMessage =
@@ -411,6 +437,37 @@ export const actionCreators: ActionCreators = {
       }
     },
 
+  createWorkspaceFromResources:
+    (
+      devworkspace: devfileApi.DevWorkspace,
+      devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+    ): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch, getState): Promise<void> => {
+      const defaultKubernetesNamespace = selectDefaultNamespace(getState());
+      const defaultNamespace = defaultKubernetesNamespace.name;
+      try {
+        const workspace = await devWorkspaceClient.createFromResources(
+          defaultNamespace,
+          devworkspace,
+          devworkspaceTemplate,
+        );
+
+        dispatch({
+          type: 'ADD_DEVWORKSPACE',
+          workspace,
+        });
+      } catch (e) {
+        const errorMessage =
+          'Failed to create a new workspace from the devfile, reason: ' +
+          common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
+
   createWorkspaceFromDevfile:
     (
       devfile: devfileApi.Devfile,
@@ -455,17 +512,27 @@ export const actionCreators: ActionCreators = {
       try {
         // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
-        const defaultNamespace = await cheWorkspaceClient.getDefaultNamespace();
+        const defaultNamespace = selectDefaultNamespace(state);
         const dwEditorsList = selectDwEditorsPluginsList(cheEditor)(state);
-        const workspace = await devWorkspaceClient.create(
+
+        if (!devWorkspaceDevfile.metadata.attributes) {
+          devWorkspaceDevfile.metadata.attributes = {};
+        }
+        devWorkspaceDevfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {
+          [DEVWORKSPACE_CHE_EDITOR]: cheEditor,
+        };
+
+        const workspace = await devWorkspaceClient.createFromDevfile(
           devWorkspaceDevfile,
-          defaultNamespace,
+          defaultNamespace.name,
           dwEditorsList,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
           optionalFilesContent,
         );
 
+        const defaultPlugins = getState().dwPlugins.defaultPlugins;
+        await devWorkspaceClient.onStart(workspace, defaultPlugins, cheEditor as string);
         dispatch({
           type: 'ADD_DEVWORKSPACE',
           workspace,
@@ -473,6 +540,22 @@ export const actionCreators: ActionCreators = {
 
         // this will set updating timestamp to annotations and update the workspace
         await actionCreators.updateWorkspace(workspace)(dispatch, getState, undefined);
+
+        const toDispose = new DisposableCollection();
+        const onStatusChangeCallback = async status => {
+          if (status === DevWorkspaceStatus.RUNNING) {
+            toDispose.dispose();
+            const workspaceId = workspace.status?.devworkspaceId;
+            if (workspaceId) {
+              injectKubeConfig(workspace.metadata.namespace, workspaceId);
+            }
+          }
+        };
+        const adapterWorkspaceId = WorkspaceAdapter.getId(workspace);
+        onStatusChangeCallbacks.set(adapterWorkspaceId, onStatusChangeCallback);
+        toDispose.push({
+          dispose: () => onStatusChangeCallbacks.delete(adapterWorkspaceId),
+        });
       } catch (e) {
         const errorMessage =
           'Failed to create a new workspace from the devfile, reason: ' +

@@ -32,7 +32,7 @@ const plugin = {
 
 describe('dwPlugins store', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('actions', () => {
@@ -260,7 +260,7 @@ describe('dwPlugins store', () => {
       expect(mockAxios.get).not.toHaveBeenCalled();
     });
 
-    it('should create REQUEST_DW_EDITOR and RECEIVE_DW__EDITOR_ERROR when missing plugin registry URL to fetch the editor', async () => {
+    it('should create REQUEST_DW_EDITOR and RECEIVE_DW_EDITOR_ERROR when missing plugin registry URL to fetch the editor', async () => {
       (mockAxios.get as jest.Mock).mockRejectedValueOnce({
         isAxiosError: true,
         code: '500',
@@ -295,6 +295,37 @@ describe('dwPlugins store', () => {
       ];
       expect(actions).toEqual(expectedActions);
     });
+
+    it('should create REQUEST_DW_DEFAULT_EDITOR and RECEIVE_DW_DEFAULT_EDITOR when fetching default plugins', async () => {
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce({
+        data: [{ editor: 'eclipse/theia/next', plugins: ['https://test.com/devfile.yaml'] }],
+      });
+
+      const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
+        AppState,
+        ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
+      >;
+
+      const settings = {
+        'che.devworkspaces.enabled': 'true',
+      } as che.WorkspaceSettings;
+      await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultPlugins());
+
+      const actions = store.getActions();
+
+      const expectedActions: dwPluginsStore.KnownAction[] = [
+        {
+          type: 'REQUEST_DW_DEFAULT_PLUGINS',
+        },
+        {
+          type: 'RECEIVE_DW_DEFAULT_PLUGINS',
+          defaultPlugins: {
+            'eclipse/theia/next': ['https://test.com/devfile.yaml'],
+          },
+        },
+      ];
+      expect(actions).toEqual(expectedActions);
+    });
   });
 
   describe('reducers', () => {
@@ -309,6 +340,7 @@ describe('dwPlugins store', () => {
         isLoading: false,
         plugins: {},
         editors: {},
+        defaultPlugins: {},
       };
 
       expect(initialState).toEqual(expectedState);
@@ -319,6 +351,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       } as dwPluginsStore.State;
       const incomingAction = {
         type: 'OTHER_ACTION',
@@ -329,6 +362,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         plugins: {},
         editors: {},
+        defaultPlugins: {},
       };
       expect(newState).toEqual(expectedState);
     });
@@ -343,6 +377,7 @@ describe('dwPlugins store', () => {
             url: 'devfile-location',
           },
         },
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.RequestDwPluginAction = {
         type: 'REQUEST_DW_PLUGIN',
@@ -359,6 +394,7 @@ describe('dwPlugins store', () => {
             url: 'devfile-location',
           },
         },
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -374,6 +410,7 @@ describe('dwPlugins store', () => {
           },
         },
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.RequestDwEditorAction = {
         type: 'REQUEST_DW_EDITOR',
@@ -392,6 +429,7 @@ describe('dwPlugins store', () => {
           },
         },
         plugins: {},
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -402,6 +440,7 @@ describe('dwPlugins store', () => {
         isLoading: false,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
         defaultEditorError: 'unexpected error',
       };
       const incomingAction: dwPluginsStore.RequestDwDefaultEditorAction = {
@@ -414,6 +453,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -424,6 +464,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwPluginAction = {
         type: 'RECEIVE_DW_PLUGIN',
@@ -442,6 +483,7 @@ describe('dwPlugins store', () => {
             plugin,
           },
         },
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -452,6 +494,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwEditorAction = {
         type: 'RECEIVE_DW_EDITOR',
@@ -471,6 +514,7 @@ describe('dwPlugins store', () => {
           },
         },
         plugins: {},
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -481,6 +525,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwPluginErrorAction = {
         type: 'RECEIVE_DW_PLUGIN_ERROR',
@@ -499,6 +544,7 @@ describe('dwPlugins store', () => {
             error: 'unexpected error',
           },
         },
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -509,6 +555,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.RequestDwEditorErrorAction = {
         type: 'RECEIVE_DW_EDITOR_ERROR',
@@ -528,6 +575,7 @@ describe('dwPlugins store', () => {
           },
         },
         plugins: {},
+        defaultPlugins: {},
       };
 
       expect(newState).toEqual(expectedState);
@@ -538,6 +586,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwDefaultEditorErrorAction = {
         type: 'RECEIVE_DW_DEFAULT_EDITOR_ERROR',
@@ -550,6 +599,7 @@ describe('dwPlugins store', () => {
         isLoading: false,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
         defaultEditorError: 'unexpected error',
       };
 
@@ -561,6 +611,7 @@ describe('dwPlugins store', () => {
         isLoading: true,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
       };
       const incomingAction: dwPluginsStore.ReceiveDwDefaultEditorAction = {
         type: 'RECEIVE_DW_DEFAULT_EDITOR',
@@ -574,9 +625,59 @@ describe('dwPlugins store', () => {
         isLoading: false,
         editors: {},
         plugins: {},
+        defaultPlugins: {},
         defaultEditorName: 'hello',
       };
 
+      expect(newState).toEqual(expectedState);
+    });
+
+    it('should handle REQUEST_DW_DEFAULT_PLUGINS', () => {
+      const initialState: dwPluginsStore.State = {
+        isLoading: false,
+        editors: {},
+        plugins: {},
+        defaultPlugins: {},
+      };
+      const incomingAction: dwPluginsStore.RequestDwDefaultPluginsAction = {
+        type: 'REQUEST_DW_DEFAULT_PLUGINS',
+      };
+
+      const newState = dwPluginsStore.reducer(initialState, incomingAction);
+
+      const expectedState: dwPluginsStore.State = {
+        isLoading: true,
+        editors: {},
+        plugins: {},
+        defaultPlugins: {},
+      };
+
+      expect(newState).toEqual(expectedState);
+    });
+
+    it('should handle RECEIVE_DW_DEFAULT_PLUGINS', () => {
+      const initialState: dwPluginsStore.State = {
+        isLoading: true,
+        editors: {},
+        plugins: {},
+        defaultPlugins: {},
+      };
+
+      const defaultPlugins = { 'eclipse/theia/next': ['https://test.com/devfile.yaml'] };
+
+      const incomingAction: dwPluginsStore.ReceiveDwDefaultPluginsAction = {
+        type: 'RECEIVE_DW_DEFAULT_PLUGINS',
+        defaultPlugins,
+      };
+
+      const newState = dwPluginsStore.reducer(initialState, incomingAction);
+
+      const expectedState: dwPluginsStore.State = {
+        isLoading: false,
+        editors: {},
+        plugins: {},
+        defaultPlugins,
+      };
       expect(newState).toEqual(expectedState);
     });
   });
