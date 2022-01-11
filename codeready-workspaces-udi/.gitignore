@@ -1,0 +1,16 @@
+Dockerfile.local
+/helm
+/kubectl
+/kamel
+/asset-*
+/odo
+/oc
+/assets-odo.tgz
+apache-maven/
+/maven.tgz
+gradle/
+/gradle.tgz
+/gradle-6.1-bin.zip
+graalvm/
+/apache-maven-3.6.3-bin.tar.gz
+/lombok-1.18.22.jar
