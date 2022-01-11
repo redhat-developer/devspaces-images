@@ -1,0 +1,15 @@
+Dockerfile.local
+/helm
+/kubectl
+/kamel
+/asset-*
+/odo
+/oc
+apache-maven/
+/maven.tgz
+gradle/
+/gradle.tgz
+/gradle-*-bin.zip
+graalvm/
+/apache-maven-*-bin.tar.gz
+/lombok-*.jar
