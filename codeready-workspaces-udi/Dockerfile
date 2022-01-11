@@ -53,23 +53,9 @@ COPY . /tmp/assets
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-# For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
-# must hard code a version because otherwise we fail with
-## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8 \
-    java-1.8.0-openjdk \
-    java-1.8.0-openjdk-devel \
-    java-1.8.0-openjdk-headless \
-    java-11-openjdk \
-    java-11-openjdk-devel \
-    java-11-openjdk-src \
-    java-11-openjdk-headless && \
+RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf sudo git procps-ng bzip2 \
+    java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
+    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
     dnf module reset -y nodejs && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     dnf -y -q module reset nodejs && \
@@ -84,7 +70,16 @@ RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf open
     dnf -y -q module enable python38:${PYTHON_VERSION} && \
     dnf y -q install python38 python38-devel python38-setuptools python38-pip && \
     # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    dnf install -y buildah npm helm-3.6.2-5.el8 && \
+    # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
+    # must hard code a version because otherwise we fail with
+    ## Failed component comparison for components: openshift-clients
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.ppc64le.rpm
+    dnf install -y buildah npm helm-3.6.2-5.el8 openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8 && \
     dnf -y -q update && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     cat /etc/passwd | \
