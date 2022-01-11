@@ -3,22 +3,12 @@ platforms:
   # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
 
   only:
-  - x86_64   # can be a list (as here) or a string (as below)
-  - s390x
-  - ppc64le
+  - x86_64
 
 compose:
   inherit: false
   pulp_repos: true
   signing_intent: release
-  packages:
-  - java-1.8.0-openjdk
-  - java-1.8.0-openjdk-devel
-  - java-1.8.0-openjdk-headless
-  - java-11-openjdk
-  - java-11-openjdk-headless
-  - java-11-openjdk-devel
-  - java-11-openjdk-src
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder

@@ -23,12 +23,12 @@ if ! grep -Fq "${USER_ID}" /etc/passwd; then
     cat ${HOME}/passwd.template | \
     sed "s/\${USER_ID}/${USER_ID}/g" | \
     sed "s/\${GROUP_ID}/${GROUP_ID}/g" | \
-    sed "s/\${HOME}/\/home\/theia/g" > /etc/passwd
+    sed "s/\${HOME}/\/home\/user/g" > /etc/passwd
 
     cat ${HOME}/group.template | \
     sed "s/\${USER_ID}/${USER_ID}/g" | \
     sed "s/\${GROUP_ID}/${GROUP_ID}/g" | \
-    sed "s/\${HOME}/\/home\/theia/g" > /etc/group
+    sed "s/\${HOME}/\/home\/user/g" > /etc/group
 fi
 
 # Grant access to projects volume in case of non root user with sudo rights
@@ -42,6 +42,9 @@ if [ ! -f "${HOME}"/.venv/bin/activate ]; then
   echo "${HOME}"/.venv is empty, moving files from "${HOME}"/.venv-tmp/
   mv "${HOME}"/.venv-tmp/* "${HOME}"/.venv
 fi
+
+# shellcheck source=/dev/null
+source "${HOME}"/.venv/bin/activate
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}

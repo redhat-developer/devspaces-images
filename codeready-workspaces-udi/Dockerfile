@@ -43,7 +43,7 @@ RUN mkdir -p /home/user /projects && \
         chmod -R g+rwX ${f}; \
     done
 
-COPY assets-odo.tgz /tmp/
+COPY asset-odo.tgz /tmp/
 COPY etc/docker.sh /usr/local/bin/docker
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
 COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
@@ -97,8 +97,8 @@ RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf open
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
     if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/assets-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && chmod 755 /usr/local/bin/* && \
-    rm -fr /tmp/assets-odo.tgz /tmp/assets && \
+    tar xzf /tmp/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && chmod 755 /usr/local/bin/* && \
+    rm -fr /tmp/asset-odo.tgz /tmp/assets && \
     # unpack gradle into /opt/gradle/,
     mkdir -p /opt; unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
     mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
