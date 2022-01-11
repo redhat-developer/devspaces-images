@@ -106,7 +106,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.15
-    createdAt: "2022-01-05T14:44:11+00:00"
+    createdAt: "2022-01-11T10:44:10+00:00"
     description: 'Technical Preview, OCP 4.8+: Devfile v2 development solution, 1
       instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -379,36 +379,23 @@ spec:
         version: v1
   description: |
     A collaborative Kubernetes-native development solution that delivers OpenShift workspaces and in-browser IDE for rapid cloud application development.
-    This operator installs PostgreSQL, Red Hat SSO, Plugin registry, Devfile registry and the CodeReady Workspaces server, as well as configures all three services.
+    This operator installs PostgreSQL, Plugin and Devfile registries, Dashboard, Gateway and the CodeReady Workspaces server, as well as configures all these services.
+    OpenShift OAuth is used directly for authentication. TLS mode is on.
 
     ## How to Install
     Press the **Install** button, choose the channel and the upgrade strategy, and wait for the **Installed** Operator status.
-    When the operator is installed, create a new CR of Kind CheCluster (click the **Create New** button).
-    The CR spec contains all defaults (see below).
-    You can start using CodeReady Workspaces when the CR status is set to **Available**, and you see a URL to CodeReady Workspaces.
+    When the operator is installed, create a new Custom Resource (CR) of Kind CheCluster (click the **Create New** button).
+    The CR spec contains all defaults. You can start using CodeReady Workspaces when the CR status is set to **Available**, and you see a URL to CodeReady Workspaces.
 
     ## Defaults
     By default, the operator deploys CodeReady Workspaces with:
-    * Bundled PostgreSQL and Red Hat SSO
-    * Common PVC strategy
+    * 10Gi storage
     * Auto-generated passwords
-    * TLS mode (secure routes)
-    * Communicate between components using internal cluster SVC names
-    * Regular login extended with OpenShift OAuth authentication
+    * Bundled PostgreSQL
+    * Bundled Plugin and Devfile registries
 
-    ## Installation Options
-    CodeReady Workspaces operator installation options include:
-    * Connection to external database and Red Hat SSO
-    * Configuration of default passwords and object names
-    * PVC strategy (once shared PVC for all workspaces, PVC per workspace, or PVC per volume)
-    * Authentication options
-
-    Use `oc edit checluster/eclipse-che -n eclipse-che` to update CodeReady Workspaces configuration.
-    See more configuration options in the [Installation guide](https://www.eclipse.org/che/docs/che-7/installation-guide/configuring-the-che-installation/).
-
-    ### External Database and Red Hat SSO
-    Follow the guides to configure external [Red Hat SSO](https://www.eclipse.org/che/docs/che-7/administration-guide/configuring-authorization/#configuring-che-to-use-external-keycloak_che)
-    and [Database](https://www.eclipse.org/che/docs/che-7/administration-guide/external-database-setup/) setup.
+    Use `oc edit checluster/eclipse-che -n eclipse-che` to update CodeReady Workspaces default installation options.
+    See more in the [Installation guide](https://www.eclipse.org/che/docs/che-7/installation-guide/configuring-the-che-installation/).
 
     ### Certificates
     Operator uses a default router certificate to secure CodeReady Workspaces routes.
