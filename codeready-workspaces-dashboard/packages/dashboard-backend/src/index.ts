@@ -27,6 +27,13 @@ import { CLUSTER_CONSOLE_URL } from './devworkspace-client/services/cluster-info
 import { registerDockerConfigApi } from './api/dockerConfigApi';
 import { registerServerConfigApi } from './api/serverConfigApi';
 import { registerKubeConfigApi } from './api/kubeConfigAPI';
+import fastifyWebsocket from 'fastify-websocket';
+import {
+  addDexProxy,
+  registerDexCallback,
+  registerOauth,
+  addAuthorizationHooks,
+} from './local-run/dexHelper';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 
@@ -57,6 +64,17 @@ server.addContentTypeParser(
   },
 );
 
+server.register(fastifyWebsocket);
+
+if (isLocalRun) {
+  addDexProxy(server);
+  registerDexCallback(server);
+  registerOauth(server);
+  addAuthorizationHooks(server);
+  const CHE_HOST_ORIGIN = process.env.CHE_HOST_ORIGIN as string;
+  registerLocalServers(server, CHE_HOST_ORIGIN);
+}
+
 registerStaticServer(publicFolder, server);
 
 registerSwagger(server);
@@ -78,9 +96,6 @@ if (CLUSTER_CONSOLE_URL) {
 }
 
 registerCors(isLocalRun, server);
-if (isLocalRun) {
-  registerLocalServers(server, CHE_HOST);
-}
 
 server.listen(8080, '0.0.0.0', (err: Error, address: string) => {
   if (err) {
@@ -97,5 +112,11 @@ server.listen(8080, '0.0.0.0', (err: Error, address: string) => {
 });
 
 server.ready(() => {
-  console.log(server.printRoutes());
+  console.log(
+    server.printRoutes({
+      includeMeta: false,
+      commonPrefix: false,
+      includeHooks: false,
+    }),
+  );
 });

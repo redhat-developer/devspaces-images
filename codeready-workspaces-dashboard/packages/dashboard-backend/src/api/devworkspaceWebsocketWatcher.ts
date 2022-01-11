@@ -11,7 +11,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, RouteShorthandOptions } from 'fastify';
-import fastifyWebsocket, { SocketStream } from 'fastify-websocket';
+import { SocketStream } from 'fastify-websocket';
 import { baseApiPath } from '../constants/config';
 import SubscribeManager from '../services/SubscriptionManager';
 import { getToken } from './helper';
@@ -47,6 +47,5 @@ async function handler(connection: SocketStream, request: FastifyRequest) {
 }
 
 export function registerDevworkspaceWebsocketWatcher(server: FastifyInstance) {
-  server.register(fastifyWebsocket);
   server.get(`${baseApiPath}/websocket`, options, handler as any);
 }

@@ -3,8 +3,8 @@
 set -e
 set -u
 
-usage () {
-cat << EOF
+usage() {
+  cat <<EOF
 This scripts helps to build and run locally dashboard backend
 with frontend included against remote Che Cluster.
 
@@ -27,9 +27,19 @@ EOF
 parse_args() {
   while [[ "$#" -gt 0 ]]; do
     case $1 in
-      '-f'|'--force-build') FORCE_BUILD="true"; shift 0;;
-      '--help') usage; exit 0;;
-      *) echo "[ERROR] Unknown parameter is used: $1."; usage; exit 1;;
+    '-f' | '--force-build')
+      FORCE_BUILD="true"
+      shift 0
+      ;;
+    '--help')
+      usage
+      exit 0
+      ;;
+    *)
+      echo "[ERROR] Unknown parameter is used: $1."
+      usage
+      exit 1
+      ;;
     esac
     shift 1
   done
@@ -53,46 +63,56 @@ DASHBOARD_BACKEND=packages/dashboard-backend
 
 parse_args "$@"
 
-if [ "$FORCE_BUILD" == "true" ] || \
-    [ ! -d $DASHBOARD_COMMON/lib ] || [ -z "$(ls -A $DASHBOARD_COMMON/lib)" ]; then
+if [ "$FORCE_BUILD" == "true" ] ||
+  [ ! -d $DASHBOARD_COMMON/lib ] || [ -z "$(ls -A $DASHBOARD_COMMON/lib)" ]; then
   echo "[INFO] Compiling common package"
   yarn --cwd $DASHBOARD_COMMON build
 fi
 
-if [ "$FORCE_BUILD" == "true" ] || \
-    [ ! -d $DASHBOARD_FRONTEND/lib ] || [ -z "$(ls -A $DASHBOARD_FRONTEND/lib)" ]; then
+if [ "$FORCE_BUILD" == "true" ] ||
+  [ ! -d $DASHBOARD_FRONTEND/lib ] || [ -z "$(ls -A $DASHBOARD_FRONTEND/lib)" ]; then
   echo "[INFO] Compiling frontend package"
   yarn --cwd $DASHBOARD_FRONTEND build:dev
 fi
 
-if [ "$FORCE_BUILD" == "true" ] || \
-    [ ! -d $DASHBOARD_BACKEND/lib ] || [ -z "$(ls -A $DASHBOARD_BACKEND/lib)" ]; then
+if [ "$FORCE_BUILD" == "true" ] ||
+  [ ! -d $DASHBOARD_BACKEND/lib ] || [ -z "$(ls -A $DASHBOARD_BACKEND/lib)" ]; then
   echo "[INFO] Compiling backend package"
   yarn --cwd $DASHBOARD_BACKEND build:dev
 fi
 
+# consider renaming it to CHE_API_URL since it's not just host
+export CHE_HOST=http://localhost:8080
+export CHE_HOST_ORIGIN=$(oc get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+
 # do nothing
 PRERUN_COMMAND="echo"
+
 GATEWAY=$(kubectl get deployments.apps che-gateway -o=json --ignore-not-found -n $CHE_NAMESPACE)
-if [[ ! -z "$GATEWAY" && \
-    $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
+if [[ ! -z "$GATEWAY" &&
+  $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
   echo "Detected gateway and oauth-proxy inside. Running in native auth mode."
   export NATIVE_AUTH="true"
   export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
+  if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
+    echo 'Cluster access token not found.'
+    export DEX_INGRESS=$(kubectl get ingress dex -n dex -o jsonpath='{.spec.rules[0].host}')
+    if [[ ! -z "$DEX_INGRESS" ]]; then
+      echo 'Evaluated Dex ingress'
 
+      echo 'Looking for staticClientID and  staticClientSecret...'
+      export CLIENT_ID=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].id" -)
+      export CLIENT_SECRET=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].secret" -)
+      echo 'Done.'
+    fi
+  fi
   # when native auth we go though port forward to avoid dealing with OpenShift OAuth Cookies
   CHE_FORWARDED_PORT=8081
   export CHE_API_PROXY_UPSTREAM="http://localhost:${CHE_FORWARDED_PORT}"
   PRERUN_COMMAND="kubectl port-forward service/che-host ${CHE_FORWARDED_PORT}:8080 -n $CHE_NAMESPACE"
-else
-  echo "Gateway with oauth-proxy inside is not detected. Running in keycloak mode."
-  # when keycloak, we proxy requests directly against remote cluster
-  export CHE_API_PROXY_UPSTREAM=$(oc get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
 fi
-
-# consider renaming it to CHE_API_URL since it's not just host
-export CHE_HOST=http://localhost:8080
 
 # relative path from backend package
 FRONTEND_RESOURCES=../../../../$DASHBOARD_FRONTEND/lib
-$PRERUN_COMMAND & yarn --cwd $DASHBOARD_BACKEND start:debug --publicFolder $FRONTEND_RESOURCES
+$PRERUN_COMMAND &
+yarn --cwd $DASHBOARD_BACKEND start:debug --publicFolder $FRONTEND_RESOURCES

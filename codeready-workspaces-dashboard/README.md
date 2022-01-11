@@ -34,8 +34,12 @@ Then you can proceed to the following steps:
 ```sh
 # 1. Install all dependencies:
 yarn
-# 2. Run server locally
+# 2. Patch cluster to enable local development flow:
+yarn start:prepare
+# 3. Run server locally:
 yarn start
+# 4. (optional) Patch cluster to revert it to initial state:
+yarn start:revert
 # If you want to make sure the latest bits are used, add flag to recompile
 # yarn start --force-build
 # Optionally you may need to set CHE_NAMESPACE where CheCluster CR live
