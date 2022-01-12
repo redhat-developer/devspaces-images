@@ -3,7 +3,8 @@ platforms:
   # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
 
   only:
-  - x86_64
+  - s390x
+  - ppc64le
 
 compose:
   inherit: false

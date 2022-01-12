@@ -54,8 +54,8 @@ COPY . /tmp/assets
 # COPY content_set*.repo /etc/yum.repos.d/
 
 RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf sudo git procps-ng bzip2 \
-    java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
-    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
+    ibm-semeru-open-8-jdk \
+    ibm-semeru-open-11-jdk && \
     dnf module reset -y nodejs && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     dnf -y -q module reset nodejs && \
