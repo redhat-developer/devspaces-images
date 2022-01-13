@@ -1,1 +1,0 @@
-As of 2.15, there will be no operator-metadata images. See operator-bundle for the latest.
