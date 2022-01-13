@@ -13,7 +13,7 @@
 apiVersion: v1
 description: A Helm chart for deploying Eclipse Che on a Kubernetes
 name: eclipse-che
-version: 7.40.1
+version: 7.41.2
 annotations:
   artifacthub.io/license: EPL-2.0
   artifacthub.io/links: |
@@ -29,8 +29,6 @@ annotations:
   artifacthub.io/maintainers: |
     - name: Anatolii Bazko
       email: abazko@redhat.com
-    - name: Mykola Morhun
-      email: mmorhun@redhat.com
     - name: Oleksandr Andriienko
       email: oandriie@redhat.com
   artifacthub.io/operator: "true"
