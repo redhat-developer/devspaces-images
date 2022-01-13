@@ -18,9 +18,10 @@ set -e
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 DWO_TAG=0.9
-SSO_TAG=7.5
+SSO_TAG=7.4
 UBI_TAG=8.4
 POSTGRES_TAG=1
+POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
 OPENSHIFT_TAG="v4.8"
 
 usage () {
@@ -32,6 +33,7 @@ usage () {
 	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
+	--postgres13-tag ${POSTGRES13_TAG}
 	--openshift-tag ${OPENSHIFT_TAG}
 	"
 	exit
@@ -52,7 +54,8 @@ while [[ "$#" -gt 0 ]]; do
 	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
-	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for both deprecated 9.6 and 13 (@since CRW 2.13)
+	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
+	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
 	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
   esac
   shift 1
@@ -77,8 +80,8 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
-POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES_TAG}"
-SSO_IMAGE="registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8 too
+POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES13_TAG}"
+SSO_IMAGE="registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8 too
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
