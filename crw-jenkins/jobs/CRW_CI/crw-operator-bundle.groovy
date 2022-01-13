@@ -47,7 +47,7 @@ Artifact builder + sync job; triggers brew after syncing
 <p>There are three operator-related sync jobs:<br/>
 1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
 2. <a href=../crw-operator-bundle_''' + JOB_BRANCH + '''>crw-operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV [@since 2.12, OCP 4.8+]</p>
-<!-- TODO remove crw-operator-metadata after 2.14 -->
+<!-- TODO remove crw-operator-metadata after 2.15 -->
 3. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV [deprecated, OCP 4.6, last release 2.14]</p>
 
 <ul>

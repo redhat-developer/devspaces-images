@@ -38,8 +38,8 @@ Images to copy to quay:
   <li> <a href=https://quay.io/repository/crw/configbump-rhel8?tab=tags>configbump</a> </li>
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator?tab=tags>operator</a> 
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-bundle?tab=tags>operator-bundle</a> @since 2.12
-  <!-- TODO remove crw-operator-metadata after 2.14 -->
-  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a> @deprecated 2.12, last release 2.14</li>
+  <!-- TODO remove crw-operator-metadata after 2.15 -->
+  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a> @deprecated 2.12, last release 2.15</li>
   <li> <a href=https://quay.io/repository/crw/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
 
   </td><td>
@@ -125,7 +125,7 @@ Images to copy to quay:
             } */
 
             parameters{ 
-            // TODO remove crw-operator-metadata after 2.14
+            // TODO remove crw-operator-metadata after 2.15
                 if (JB.equals("2.14")) {
                     textParam("CONTAINERS", '''\
 operator-metadata backup configbump operator operator-bundle dashboard devfileregistry \

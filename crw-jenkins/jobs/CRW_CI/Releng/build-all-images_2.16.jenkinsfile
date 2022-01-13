@@ -156,12 +156,10 @@ timeout(600) {
                     }
 
                     if (PHASE_LIST.contains("4")) {
-                        currentQuayImageMetadata = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-metadata", "quay")
-                        println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
                         currentQuayImageBundle = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-bundle", "quay")
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
-                        // trigger update-digests job (to rebuild bundle/metadata images)
+                        // trigger update-digests job (to rebuild bundle image)
                         currentJob="update-digests-in-metadata_" + JOB_BRANCH
                         def int lastBuildId4 = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId4}>update-digests#${lastBuildId4}</a> triggered"

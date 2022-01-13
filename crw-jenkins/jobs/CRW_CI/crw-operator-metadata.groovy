@@ -21,7 +21,8 @@ for (JB in JOB_BRANCHES) {
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
-            if (JB.equals("2.x")){ // @deprecated since 2.14; no metadata builds as of 2.15
+            // TODO fix this after we start 2.16 builds in 2.x branch
+            if (JB.equals("2.16")){ // @deprecated since 2.14; no metadata builds as of 2.16
                 disabled(true)
             } else {
                 disabled(config."Management-Jobs"."operator-metadata"[JB].disabled) // on reload of job, disable to avoid churn
@@ -51,7 +52,7 @@ Artifact builder + sync job; triggers brew after syncing
 <p>There are three operator-related sync jobs:<br/>
 1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
 2. <a href=../crw-operator-bundle_''' + JOB_BRANCH + '''>crw-operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV [@since 2.12, OCP 4.8+]</p>
-<!-- TODO remove crw-operator-metadata after 2.14 -->
+<!-- TODO remove crw-operator-metadata after 2.15 -->
 3. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV [deprecated, OCP 4.6, last release 2.14]</p>
 
 <ul>

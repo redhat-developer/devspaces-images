@@ -31,7 +31,7 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
   Results:
   <ul>
     <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-bundle?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-bundle</a> [@since 2.12, OCP 4.8+]</li>
-    <!-- TODO remove crw-operator-metadata after 2.14 -->
+    <!-- TODO remove crw-operator-metadata after 2.15 -->
     <li><a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tag=latest&tab=tags>quay.io/crw/crw-2-rhel8-operator-metadata</a> [deprecated, OCP 4.6, last release 2.14]</li>
 </ul>
 
