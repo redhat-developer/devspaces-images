@@ -14,7 +14,7 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 
-def String nodeLabelAnyArch = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabelAnyArch = 'x86_64-rhel8||ppc64le-rhel8' // NB 2022-01-14 remove s390x-rhel8 as it can be flaky with ssh connections
 def String nodeLabelXArch='x86_64-rhel8' 
 
 currentBuild.description=""

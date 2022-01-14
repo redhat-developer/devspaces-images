@@ -64,12 +64,45 @@ Artifact builder + sync job; triggers brew after syncing
 
                 pipelineTriggers {
                     triggers{
-                        pollSCM{
-                            scmpoll_spec("H H/2 * * *") // every 2hrs
+                        genericTrigger {
+                            genericVariables {
+                                genericVariable {
+                                    key("ref")
+                                    value('\$.ref')
+                                    expressionType("JSONPath")
+                                    regexpFilter("")
+                                    defaultValue("")
+                                }
+                                genericVariable {
+                                    key("name")
+                                    value('\$.repository.full_name')
+                                    expressionType("JSONPath")
+                                    regexpFilter("")
+                                    defaultValue("")
+                                }
+                                genericVariable {
+                                    key("files")
+                                    value('\$.commits[*].[\'modified\',\'added\',\'removed\'][*]')
+                                    expressionType("JSONPath")
+                                    regexpFilter("")
+                                    defaultValue("")
+                                }
+                            }
+                            token('')
+                            tokenCredentialId('')
+                            printContributedVariables(true)
+                            printPostContent(true)
+                            causeString("Generic Webhook Trigger for changes to https://github.com/" + SOURCE_REPO)
+                            // instead of running once per hour, run in 5s
+                            overrideQuietPeriod(true)
+                            quietPeriod(5)
+                            silentResponse(false)
+                            regexpFilterText('$ref $files $name')
+                            regexpFilterExpression('refs/heads/' + SOURCE_BRANCH + ' .*"dependencies/' + UPSTM_NAME + '/[^"]+?".* redhat-developer/codeready-workspaces')
                         }
                     }
                 }
-            
+
                 disableResumeJobProperty()
             }
 
@@ -90,9 +123,6 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
 
             definition {
                 cps{
