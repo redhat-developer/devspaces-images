@@ -106,7 +106,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:3ac1c7a715a446baf0b6e4e623001f6458a98d89ee082adc458309c7b0e96800
-    createdAt: "2022-01-13T16:45:59+00:00"
+    createdAt: "2022-01-14T12:44:10+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -898,13 +898,6 @@ spec:
           - list
           - watch
         - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - localsubjectaccessreviews
-          - subjectaccessreviews
-          verbs:
-          - create
-        - apiGroups:
           - batch
           resources:
           - jobs
@@ -916,14 +909,6 @@ spec:
           - patch
           - update
           - watch
-        - apiGroups:
-          - config.openshift.io
-          resourceNames:
-          - cluster
-          resources:
-          - proxies
-          verbs:
-          - get
         - apiGroups:
           - controller.devfile.io
           resources:
@@ -952,14 +937,6 @@ spec:
           - create
           - get
           - update
-        - apiGroups:
-          - metrics.k8s.io
-          resources:
-          - pods
-          verbs:
-          - get
-          - list
-          - watch
         - apiGroups:
           - monitoring.coreos.com
           resources:
@@ -1017,24 +994,10 @@ spec:
           - '*'
           verbs:
           - '*'
-        - apiGroups:
-          - workspace.devfile.io
-          resources:
-          - devworkspaces
-          - devworkspacetemplates
+        - nonResourceURLs:
+          - /metrics
           verbs:
           - get
-          - list
-          - watch
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings
-          - components
-          verbs:
-          - get
-          - list
-          - watch
         serviceAccountName: codeready-operator
       deployments:
       - name: codeready-operator
