@@ -24,4 +24,9 @@
 
 .openIdeCell {
   text-align: right;
+  width: 80px !important;
+  max-width: 80px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
 }

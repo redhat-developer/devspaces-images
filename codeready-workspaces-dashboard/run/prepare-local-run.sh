@@ -71,7 +71,8 @@ if [[ ! -z "$GATEWAY" &&
     if kubectl get deployment/che-operator -n $CHE_NAMESPACE -o jsonpath="{.spec.replicas}" | grep 1; then
       echo 'Turn off Che-operator deployment...'
       oc patch deployment/che-operator --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
-      sleep 3
+      echo 'Waiting 10 seconds to operator shut down...'
+      sleep 10
       echo 'Done.'
     fi
 
