@@ -35,8 +35,8 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
             }
 
             logRotator {
-                daysToKeep(15)
-                numToKeep(40)
+                daysToKeep(45)
+                numToKeep(90)
                 artifactDaysToKeep(2)
                 artifactNumToKeep(1)
             }

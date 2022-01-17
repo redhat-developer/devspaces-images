@@ -51,8 +51,8 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
             quietPeriod(120) // limit builds to 1 every 2 mins (in sec)
 
             logRotator {
-                daysToKeep(14)
-                numToKeep(25)
+                daysToKeep(45)
+                numToKeep(90)
                 artifactDaysToKeep(2)
                 artifactNumToKeep(1)
             }

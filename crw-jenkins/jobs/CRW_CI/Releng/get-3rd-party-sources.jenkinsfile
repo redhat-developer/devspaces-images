@@ -5,7 +5,7 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH
 
-def buildNode = "rhel83"
+def buildNode = "x86_64-rhel8-dyn"
 timeout(120) {
   node("${buildNode}"){
     stage("Collect 3rd party sources") {
@@ -55,9 +55,25 @@ ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw; OLD_VERS=\\$(ls -1 | 
 
 # copy files to rcm-guest
 ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw && mkdir -p CRW-''' + CSV_VERSION + '''/sources/containers CRW-''' + CSV_VERSION + '''/sources/vscode && ls -la . "
+'''
+            for (int i in 1..10) {
+              try {
+                println "#############################################################"
+                println "Rsync attempt ${i} of 10..."
+                sh '''#!/bin/bash -xe
 rsync -zrlt --rsh=ssh --protocol=28 ${WORKSPACE}/manifest-srcs.txt  ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/sources/
 rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/containers/* ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/sources/containers/
 rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/vscode/*     ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/sources/vscode/
+'''
+                println "#############################################################"
+                break;
+              } catch(err) {
+                println "Failed attempt ${i} of 10: " + err.toString() 
+                println "#############################################################"
+              }
+            }
+
+            sh '''#!/bin/bash -xe
 ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw/CRW-''' + CSV_VERSION + '''/ && tree"
 ssh "''' + DESTHOST + '''" "/mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release CRW-''' + CSV_VERSION + ''' || true"
 '''

@@ -109,8 +109,8 @@ Images to copy to quay:
             quietPeriod(120) // limit builds to 1 every 2 mins (in sec)
 
             logRotator {
-                daysToKeep(10)
-                numToKeep(10)
+                daysToKeep(45)
+                numToKeep(90)
                 artifactDaysToKeep(2)
                 artifactNumToKeep(1)
             }

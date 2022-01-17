@@ -64,8 +64,8 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
             quietPeriod(14400) // limit builds to 1 every 4 hrs (in sec)
 
             logRotator {
-                daysToKeep(5)
-                numToKeep(5)
+                daysToKeep(45)
+                numToKeep(90)
                 artifactDaysToKeep(5)
                 artifactNumToKeep(5)
             }
