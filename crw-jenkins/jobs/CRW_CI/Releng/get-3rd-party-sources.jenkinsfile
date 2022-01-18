@@ -12,24 +12,17 @@ timeout(120) {
       wrap([$class: 'TimestamperBuildWrapper']) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-          def util = load "${WORKSPACE}/util.groovy"
-          currentBuild.description="Set up environment ..."
-
+          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+          def util = load "${WORKSPACE}/util2.groovy"
           cleanWs()
-          util.installSkopeoFromContainer("")
-          util.installRhpkg()
-          util.installYq()
-          // need fuse-sshfs for mounting drive to copy to rcm-guest
-          util.installRPMs("fuse-sshfs", true)
-
+          currentBuild.description=""
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           println "CRW_VERSION = '" + CRW_VERSION + "'"
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           println "CSV_VERSION = '" + CSV_VERSION + "'"
 
           currentBuild.description="Collecting sources for " + CSV_VERSION + " ..."
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
           sh '''#!/bin/bash -xe
 # generate source files
@@ -39,8 +32,6 @@ cd ${WORKSPACE}/crw/product/manifest/ && ./get-3rd-party-sources.sh --clean -b '
 
           // Upload the artifacts and sources to RCM_GUEST server
           if (PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
-            // make sure we have a valid kerberos ticket for crw-build user
-            util.kinit(true)
             // ssh mount the rcm-guest drive
             DESTHOST=util.sshMountRcmGuest()
             sh '''#!/bin/bash -xe
@@ -52,28 +43,40 @@ export KRB5CCNAME=/var/tmp/crw-build_ccache
 # delete old releases before pushing latest one, to keep disk usage low
 ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw; OLD_VERS=\\$(ls -1 | grep -v "''' + CSV_VERSION +
   '''"); if [[ \\$OLD_VERS ]]; then echo 'Delete '\\$OLD_VERS; rm -fr \\$OLD_VERS; else echo 'Nothing to delete'; fi"
-
-# copy files to rcm-guest
-ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw && mkdir -p CRW-''' + CSV_VERSION + '''/sources/containers CRW-''' + CSV_VERSION + '''/sources/vscode && ls -la . "
 '''
-            for (int i in 1..10) {
+            for (int i = 1; i <= 10; i++) {
               try {
                 println "#############################################################"
                 println "Rsync attempt ${i} of 10..."
+
                 sh '''#!/bin/bash -xe
-rsync -zrlt --rsh=ssh --protocol=28 ${WORKSPACE}/manifest-srcs.txt  ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/sources/
-rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/containers/* ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/sources/containers/
-rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/vscode/*     ${WORKSPACE}/${mnt}-ssh/CRW-''' + CSV_VERSION + '''/sources/vscode/
+cd ${WORKSPACE}/crw/product/manifest/
+
+# TODO CRW-1919 remove this when we no longer need it 
+export KRB5CCNAME=/var/tmp/crw-build_ccache
+
+# copy files to rcm-guest
+ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw && mkdir -p CRW-''' + CSV_VERSION + '''/sources/containers CRW-''' + CSV_VERSION + '''/sources/vscode && ls -la . "
+
+rsync -zrlt --rsh=ssh --protocol=28 ${WORKSPACE}/manifest-srcs.txt  ${WORKSPACE}/RCMG-ssh/CRW-''' + CSV_VERSION + '''/sources/
+rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/containers/* ${WORKSPACE}/RCMG-ssh/CRW-''' + CSV_VERSION + '''/sources/containers/
+rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/vscode/*     ${WORKSPACE}/RCMG-ssh/CRW-''' + CSV_VERSION + '''/sources/vscode/
 '''
                 println "#############################################################"
                 break;
               } catch(err) {
                 println "Failed attempt ${i} of 10: " + err.toString() 
                 println "#############################################################"
+                // re-mount the rcm-guest drive
+                DESTHOST=util.sshMountRcmGuest()
               }
             }
 
+            // display resulting files
             sh '''#!/bin/bash -xe
+# TODO CRW-1919 remove this when we no longer need it 
+export KRB5CCNAME=/var/tmp/crw-build_ccache
+
 ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw/CRW-''' + CSV_VERSION + '''/ && tree"
 ssh "''' + DESTHOST + '''" "/mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release CRW-''' + CSV_VERSION + ''' || true"
 '''
