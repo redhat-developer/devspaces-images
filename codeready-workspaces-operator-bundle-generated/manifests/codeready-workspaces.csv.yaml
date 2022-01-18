@@ -106,7 +106,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:3ac1c7a715a446baf0b6e4e623001f6458a98d89ee082adc458309c7b0e96800
-    createdAt: "2022-01-14T12:44:10+00:00"
+    createdAt: "2022-01-18T20:44:15+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1063,7 +1063,7 @@ spec:
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
                   value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:ab12b0eea600e2e3edf8f7822f4f831b48fe235414aeaa43f81d2a0d8642d25f
                 - name: RELATED_IMAGE_codeready_workspaces_idea_plugin_registry_image_GIXDCNIK
-                  value: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:f7a7c12ae0a26096a7da310cf3831164bd8ea242c148010fc5ecad8a00e4fb6c
+                  value: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:902e569cf003ebc9c35621b6887715d1023962692c4eb657e6d0d413dd61d194
                 - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCNIK
                   value: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:62ef0c18b0dfb09a70d8ae4ec887d579beb089ada5895fdfe11d7f2c5f450d75
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCNIK
@@ -1448,7 +1448,7 @@ spec:
   provider:
     name: Red Hat
   version: 2.15.100
-  replaces: crwoperatorallnamespaces.v2.13.101-0.1639666401.p
+  replaces: crwoperatorallnamespaces.v2.14.100
   relatedImages:
   - name: crw-2-rhel8-operator-3ac1c7a715a446baf0b6e4e623001f6458a98d89ee082adc458309c7b0e96800-annotation
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:3ac1c7a715a446baf0b6e4e623001f6458a98d89ee082adc458309c7b0e96800
@@ -1463,7 +1463,7 @@ spec:
   - name: che_workspace_plugin_broker_metadata
     image: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:ab12b0eea600e2e3edf8f7822f4f831b48fe235414aeaa43f81d2a0d8642d25f
   - name: codeready_workspaces_idea_plugin_registry_image_gixdcnik
-    image: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:f7a7c12ae0a26096a7da310cf3831164bd8ea242c148010fc5ecad8a00e4fb6c
+    image: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:902e569cf003ebc9c35621b6887715d1023962692c4eb657e6d0d413dd61d194
   - name: codeready_workspaces_machineexec_plugin_registry_image_gixdcnik
     image: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:62ef0c18b0dfb09a70d8ae4ec887d579beb089ada5895fdfe11d7f2c5f450d75
   - name: codeready_workspaces_plugin_java11_devfile_registry_image_gixdcnik
