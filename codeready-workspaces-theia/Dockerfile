@@ -141,7 +141,7 @@ RUN rm -fr /home/theia-dev/theia-source-code/node_modules/*/electron /home/theia
 # This is needed for some tools which use this variable and will fail with 401 Unauthorized error if it is invalid.
 # For example, vscode ripgrep downloading is an example of such case.
 RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
-    yarn why lerna && yarn ${YARN_FLAGS} && yarn build
+    yarn ${YARN_FLAGS} && yarn build
 
 # Run into production mode
 # revert offline mode (put back previous DNS resolution)
