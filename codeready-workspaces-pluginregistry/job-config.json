@@ -266,8 +266,8 @@
       },
       "2.x": {
         "upstream_branch": [
-          "main",
-          "main"
+          "7.42.x",
+          "7.41.x"
         ],
         "disabled": false
       }
@@ -296,8 +296,8 @@
       },
       "2.x": {
         "upstream_branch": [
-          "main",
-          "main"
+          "7.42.x",
+          "7.41.x"
         ],
         "disabled": false
       }
@@ -326,8 +326,8 @@
       },
       "2.x": {
         "upstream_branch": [
-          "main",
-          "main"
+          "7.42.x",
+          "7.41.x"
         ],
         "disabled": false
       }
@@ -1029,11 +1029,11 @@
       },
       "2.15": {
         "CSV_VERSION": "2.15.100",
-        "CSV_VERSION_PREV": "2.13.101-0.1639666401.p"
+        "CSV_VERSION_PREV": "2.14.100"
       },
       "2.x": {
         "CSV_VERSION": "2.15.100",
-        "CSV_VERSION_PREV": "2.13.101-0.1639666401.p"
+        "CSV_VERSION_PREV": "2.14.100"
       }
     },
     "operator-metadata": {
@@ -1047,11 +1047,11 @@
       },
       "2.15": {
         "CSV_VERSION": "2.15.0",
-        "CSV_VERSION_PREV": "2.13.1-0.1639666398.p"
+        "CSV_VERSION_PREV": "2.14.0"
       },
       "2.x": {
         "CSV_VERSION": "2.15.0",
-        "CSV_VERSION_PREV": "2.13.1-0.1639666398.p"
+        "CSV_VERSION_PREV": "2.14.0"
       }
     }
   },
@@ -1089,7 +1089,7 @@
     "@eclipse-che/plugin-registry-generator": {
       "2.13": "7.38.2",
       "2.14": "7.40.2",
-      "2.15": "next",
+      "2.15": "7.42.0",
       "2.x": "next"
     },
     "THEIA_BUILD_PARAMS": {
