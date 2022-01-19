@@ -13,12 +13,12 @@
 FROM rhel8/go-toolset:1.16.12-2 as builder
 ENV GOPATH=/go/
 ENV RESTIC_TAG=v0.12.0
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.9.0"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.11.0"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 ARG TESTS="true"
 USER root
 
-COPY asset-* /tmp
+COPY asset-* /tmp/
 RUN mkdir -p $GOPATH/restic && tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic
 
 WORKDIR /che-operator

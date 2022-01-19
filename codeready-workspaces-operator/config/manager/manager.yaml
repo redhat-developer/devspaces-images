@@ -48,7 +48,7 @@ spec:
               name: metrics
           env:
             - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
-              value: "false"
+              value: 'false'
             - name: CHE_FLAVOR
               value: codeready
             - name: CHE_IDENTITY_POSTGRES_SECRET
@@ -70,7 +70,7 @@ spec:
             - name: CONSOLE_LINK_SECTION
               value: Red Hat Applications
             - name: MAX_CONCURRENT_RECONCILES
-              value: "1"
+              value: '1'
             - name: OPERATOR_NAME
               value: codeready-operator
             - name: POD_NAME
@@ -98,11 +98,11 @@ spec:
             - name: RELATED_IMAGE_internal_rest_backup_server
               value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.15
             - name: RELATED_IMAGE_keycloak
-              value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:7.5
+              value: registry.redhat.io/rh-sso-7/sso74-openshift-rhel8:7.4
             - name: RELATED_IMAGE_keycloak_ppc64le
-              value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8:7.5
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
             - name: RELATED_IMAGE_keycloak_s390x
-              value: registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8:7.5
+              value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8:7.4
             - name: RELATED_IMAGE_plugin_registry
               value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.15
             - name: RELATED_IMAGE_postgres
@@ -146,7 +146,7 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 5Gi
+              memory: 256Mi
             requests:
               cpu: 100m
               memory: 64Mi

@@ -114,7 +114,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: codeready-workspaces-preview-openshift.v7.42.0-404.next
+  name: codeready-workspaces-preview-openshift.v7.43.0-408.next
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -375,36 +375,23 @@ spec:
         version: v1
   description: |
     A collaborative Kubernetes-native development solution that delivers OpenShift workspaces and in-browser IDE for rapid cloud application development.
-    This operator installs PostgreSQL, Keycloak, Plugin registry, Devfile registry and the CodeReady Workspaces server, as well as configures all three services.
+    This operator installs PostgreSQL, Plugin and Devfile registries, Dashboard, Gateway and the CodeReady Workspaces server, as well as configures all these services.
+    OpenShift OAuth is used directly for authentication. TLS mode is on.
 
     ## How to Install
     Press the **Install** button, choose the channel and the upgrade strategy, and wait for the **Installed** Operator status.
-    When the operator is installed, create a new CR of Kind CheCluster (click the **Create New** button).
-    The CR spec contains all defaults (see below).
-    You can start using CodeReady Workspaces when the CR status is set to **Available**, and you see a URL to CodeReady Workspaces.
+    When the operator is installed, create a new Custom Resource (CR) of Kind CheCluster (click the **Create New** button).
+    The CR spec contains all defaults. You can start using CodeReady Workspaces when the CR status is set to **Available**, and you see a URL to CodeReady Workspaces.
 
     ## Defaults
     By default, the operator deploys CodeReady Workspaces with:
-    * Bundled PostgreSQL and Keycloak
-    * Common PVC strategy
+    * 10Gi storage
     * Auto-generated passwords
-    * TLS mode (secure routes)
-    * Communicate between components using internal cluster SVC names
-    * Regular login extended with OpenShift OAuth authentication
+    * Bundled PostgreSQL
+    * Bundled Plugin and Devfile registries
 
-    ## Installation Options
-    CodeReady Workspaces operator installation options include:
-    * Connection to external database and Keycloak
-    * Configuration of default passwords and object names
-    * PVC strategy (once shared PVC for all workspaces, PVC per workspace, or PVC per volume)
-    * Authentication options
-
-    Use `oc edit checluster/eclipse-che -n eclipse-che` to update CodeReady Workspaces configuration.
-    See more configuration options in the [Installation guide](https://www.eclipse.org/che/docs/che-7/installation-guide/configuring-the-che-installation/).
-
-    ### External Database and Keycloak
-    Follow the guides to configure external [Keycloak](https://www.eclipse.org/che/docs/che-7/administration-guide/configuring-authorization/#configuring-che-to-use-external-keycloak_che)
-    and [Database](https://www.eclipse.org/che/docs/che-7/administration-guide/external-database-setup/) setup.
+    Use `oc edit checluster/eclipse-che -n eclipse-che` to update CodeReady Workspaces default installation options.
+    See more in the [Installation guide](https://www.eclipse.org/che/docs/che-7/installation-guide/configuring-the-che-installation/).
 
     ### Certificates
     Operator uses a default router certificate to secure CodeReady Workspaces routes.
@@ -940,13 +927,6 @@ spec:
                 - list
                 - watch
             - apiGroups:
-                - authorization.k8s.io
-              resources:
-                - localsubjectaccessreviews
-                - subjectaccessreviews
-              verbs:
-                - create
-            - apiGroups:
                 - batch
               resources:
                 - jobs
@@ -958,14 +938,6 @@ spec:
                 - patch
                 - update
                 - watch
-            - apiGroups:
-                - config.openshift.io
-              resourceNames:
-                - cluster
-              resources:
-                - proxies
-              verbs:
-                - get
             - apiGroups:
                 - controller.devfile.io
               resources:
@@ -994,14 +966,6 @@ spec:
                 - create
                 - get
                 - update
-            - apiGroups:
-                - metrics.k8s.io
-              resources:
-                - pods
-              verbs:
-                - get
-                - list
-                - watch
             - apiGroups:
                 - monitoring.coreos.com
               resources:
@@ -1059,24 +1023,10 @@ spec:
                 - '*'
               verbs:
                 - '*'
-            - apiGroups:
-                - workspace.devfile.io
-              resources:
-                - devworkspaces
-                - devworkspacetemplates
+            - nonResourceURLs:
+                - /metrics
               verbs:
                 - get
-                - list
-                - watch
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings
-                - components
-              verbs:
-                - get
-                - list
-                - watch
           serviceAccountName: codeready-operator
       deployments:
         - name: codeready-operator
@@ -1142,7 +1092,7 @@ spec:
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                         value: quay.io/che-incubator/configbump:0.1.4
                       - name: RELATED_IMAGE_devworkspace_controller
-                        value: quay.io/devfile/devworkspace-controller:v0.9.0
+                        value: quay.io/devfile/devworkspace-controller:v0.11.0
                       - name: RELATED_IMAGE_internal_rest_backup_server
                         value: quay.io/eclipse/che-backup-server-rest:b6cc165
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1204,7 +1154,7 @@ spec:
                     resources:
                       limits:
                         cpu: 500m
-                        memory: 5Gi
+                        memory: 256Mi
                       requests:
                         cpu: 100m
                         memory: 64Mi
@@ -1456,4 +1406,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.42.0-404.next
+  version: 7.43.0-408.next
