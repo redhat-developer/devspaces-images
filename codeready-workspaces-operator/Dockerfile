@@ -18,7 +18,7 @@ ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 ARG TESTS="true"
 USER root
 
-COPY asset-* /tmp
+COPY asset-* /tmp/
 RUN mkdir -p $GOPATH/restic && tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic
 
 WORKDIR /che-operator
