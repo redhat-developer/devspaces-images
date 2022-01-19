@@ -22,7 +22,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
   SYNC_REPOi="${SYNC_REPOS[i]}"
   def Map tasks = [failFast: true]
   if (SYNC_REPOi?.trim()) { // filter out nullstring values
-    if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
+    if (REPOS.contains("-udi") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
       currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
       def String nodeLabelString = ""
       timeout(120) {
@@ -143,10 +143,10 @@ timeout(600) {
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
 
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION); }
+            if (REPOS.contains("-udi") || REPOS.contains("-stacks-")) { util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION); }
 
             // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
-            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.8"); }
+            if (REPOS.contains("-udi")) { util.updateHelmRpms("4.8"); }
 
             currentBuild.description=""
             def QUAY_REPO_PATH=""

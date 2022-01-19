@@ -43,27 +43,19 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
 
             parameters{
                 // remove codeready-workspaces-plugin-intellij as it can't currently be built this way
-                textParam("REPOS", '''codeready-workspaces-plugin-java11-openj9, 
-codeready-workspaces-plugin-java11, 
-codeready-workspaces-plugin-java8-openj9, 
-codeready-workspaces-plugin-java8, 
-codeready-workspaces-plugin-kubernetes, 
-codeready-workspaces-plugin-openshift, 
-codeready-workspaces-stacks-cpp, 
+                textParam("REPOS", '''codeready-workspaces-stacks-cpp, 
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
-codeready-workspaces-stacks-php''', '''Comma separated list of repos to sync from github to pkgs.devel  
+codeready-workspaces-stacks-php,
+codeready-workspaces-udi-openj9, 
+codeready-workspaces-udi''', '''Comma separated list of repos to sync from github to pkgs.devel  
 ::
-codeready-workspaces-plugin-java11-openj9, 
-codeready-workspaces-plugin-java11,  
-codeready-workspaces-plugin-java8-openj9, 
-codeready-workspaces-plugin-java8, 
-codeready-workspaces-plugin-kubernetes, 
-codeready-workspaces-plugin-openshift, 
 codeready-workspaces-stacks-cpp, 
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
-codeready-workspaces-stacks-php''')
+codeready-workspaces-stacks-php,
+codeready-workspaces-udi-openj9, 
+codeready-workspaces-udi''')
                 stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
                 stringParam("OPENSHIFT_CONTENT_SET_VERSION", config.Other.OPENSHIFT_CONTENT_SET_VERSION[JB])
                 stringParam("nodeVersion", "", "Leave blank if not needed")
