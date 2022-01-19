@@ -120,7 +120,7 @@ sed_in_place -r \
     -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
     -e "/.+upstream.+/d" \
-    -e "s@# downstream.+@COPY asset-* /tmp@g" \
+    -e "s@# downstream.+@COPY asset-* /tmp/@g" \
     -e "/.+curl.+restic\/restic\/tarball.+/d" \
     -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
     -e "/.+go mod vendor.+/d" \
