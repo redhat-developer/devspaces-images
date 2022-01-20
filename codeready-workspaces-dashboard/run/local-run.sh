@@ -48,10 +48,10 @@ parse_args() {
 FORCE_BUILD="false"
 # Init Che Namespace with the default value if it's not set
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
-CHECLUSTER_CR_NAMESPACE="${CHE_NAMESPACE}"
+export CHECLUSTER_CR_NAMESPACE="${CHE_NAMESPACE}"
 
 # Init Che CRD object name with the default value if it's not set
-CHECLUSTER_CR_NAME="${CHECLUSTER_CR_NAME:-eclipse-che}"
+export CHECLUSTER_CR_NAME="${CHECLUSTER_CR_NAME:-eclipse-che}"
 
 # guide backend to use the current cluster from kubeconfig
 export LOCAL_RUN="true"

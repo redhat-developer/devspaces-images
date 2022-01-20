@@ -31,10 +31,6 @@ export class DevWorkspaceDefaultPluginsHandler {
     editorId: string,
     defaultPlugins: WorkspacesDefaultPlugins,
   ): Promise<void> {
-    if (!defaultPlugins[editorId]) {
-      return;
-    }
-
     const componentsUpdated = this.handleUriPlugins(workspace, defaultPlugins[editorId]);
     if (componentsUpdated) {
       this.patchWorkspaceComponents(workspace);
@@ -47,7 +43,10 @@ export class DevWorkspaceDefaultPluginsHandler {
    * @param defaultPlugins The set of current default plugins uris
    * @returns true if the devworkspace's spec.template.components has been updated
    */
-  private handleUriPlugins(workspace: devfileApi.DevWorkspace, defaultPlugins: string[]): boolean {
+  private handleUriPlugins(
+    workspace: devfileApi.DevWorkspace,
+    defaultPlugins: string[] = [],
+  ): boolean {
     const defaultUriPlugins = new Set(
       defaultPlugins.filter(plugin => {
         if (this.isUri(plugin)) {
@@ -58,7 +57,7 @@ export class DevWorkspaceDefaultPluginsHandler {
       }),
     );
 
-    let componentsUpdated = this.removeOldDefaultUriPlugins(workspace, defaultUriPlugins);
+    let componentsUpdated = this.removeDefaultUriPlugins(workspace, defaultUriPlugins);
     defaultUriPlugins.forEach(plugin => {
       const hash = createHash('MD5').update(plugin).digest('hex').substring(0, 20).toLowerCase();
       const added = this.addDefaultPluginByUri(workspace, 'default-' + hash, plugin);
@@ -78,16 +77,15 @@ export class DevWorkspaceDefaultPluginsHandler {
   }
 
   /**
-   * Checks if there are default plugins in the workspace that are not
-   * specified in defaultUriPlugins. If such plugins are found, this function
-   * removes them.
+   * Removes all default uri plugins in the workspace except for plugins with
+   * uris specified in the allowlist.
    * @param workspace A devworkspace to remove old default plugins for
-   * @param defaultUriPlugins The set of current default plugins
-   * @returns true if a plugin has been removed, false otherwise
+   * @param allowlist The set of uris to not remove
+   * @returns true if a default plugin has been removed, false otherwise
    */
-  private removeOldDefaultUriPlugins(
+  private removeDefaultUriPlugins(
     workspace: devfileApi.DevWorkspace,
-    defaultUriPlugins: Set<string>,
+    allowlist: Set<string> = new Set(),
   ): boolean {
     if (!workspace.spec.template.components) {
       return false;
@@ -98,7 +96,7 @@ export class DevWorkspaceDefaultPluginsHandler {
         // component is not a default uri plugin, keep component.
         return true;
       }
-      return defaultUriPlugins.has(component.plugin.uri);
+      return allowlist.has(component.plugin.uri);
     });
 
     const removed = workspace.spec.template.components.length !== components.length;

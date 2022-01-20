@@ -60,7 +60,7 @@ describe('DevWorkspace client, create', () => {
       .mockResolvedValueOnce(testWorkspace);
     jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
 
-    await client.createFromDevfile(testDevfile, namespace, [], undefined, undefined, {});
+    await client.createFromDevfile(testDevfile, namespace, [], undefined, undefined, undefined, {});
 
     expect(spyCreateWorkspace).toBeCalledWith(
       expect.objectContaining({
@@ -68,6 +68,42 @@ describe('DevWorkspace client, create', () => {
           annotations: {
             'che.eclipse.org/last-updated-timestamp': timestampNew,
           },
+        }),
+      }),
+    );
+  });
+
+  it('should add editor annotation', async () => {
+    const namespace = 'che';
+    const name = 'wksp-test';
+    const testDevfile: devfileApi.Devfile = {
+      schemaVersion: '2.1.0',
+      metadata: {
+        namespace,
+        name,
+      },
+    };
+    const testWorkspace = new DevWorkspaceBuilder()
+      .withMetadata({
+        name,
+        namespace,
+      })
+      .build();
+
+    const spyCreateWorkspace = jest
+      .spyOn(DwApi, 'createWorkspace')
+      .mockResolvedValueOnce(testWorkspace);
+    jest.spyOn(DwApi, 'patchWorkspace').mockResolvedValueOnce(testWorkspace);
+
+    const editorId = 'eclipse/theia/next';
+    await client.createFromDevfile(testDevfile, namespace, [], undefined, undefined, editorId, {});
+
+    expect(spyCreateWorkspace).toBeCalledWith(
+      expect.objectContaining({
+        metadata: expect.objectContaining({
+          annotations: expect.objectContaining({
+            'che.eclipse.org/che-editor': editorId,
+          }),
         }),
       }),
     );

@@ -52,7 +52,7 @@ bump_version () {
     git pull origin "${BUMP_BRANCH}"
 
     PUSH_TRY="$(git push origin "${BUMP_BRANCH}" || true)"
-    if [[ $PUSH_TRY == *"protected branch hook declined"* ]]; then
+    if [[ $PUSH_TRY == *"protected branch hook declined"* ]] || [[ $PUSH_TRY == *"Protected branch update failed"* ]]; then
       set -e
       PR_BRANCH=pr-${BUMP_BRANCH}-to-${NEXT_VERSION}
       # create pull request for main branch, as branch is restricted
@@ -132,14 +132,14 @@ if [[ $TAG_RELEASE -eq 1 ]]; then
   git push origin "${VERSION}"
 fi
 
-# now update ${BASEBRANCH} to the new snapshot version
+# now update ${BASEBRANCH} to the new version
 git checkout "${BASEBRANCH}"
 
 # change VERSION file + commit change into ${BASEBRANCH} branch
 if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
   # bump the y digit, if it is a major release
   [[ $BRANCH =~ ^([0-9]+)\.([0-9]+)\.x ]] && BASE=${BASH_REMATCH[1]}; NEXT=${BASH_REMATCH[2]}; (( NEXT=NEXT+1 )) # for BRANCH=7.10.x, get BASE=7, NEXT=11
-  NEXT_VERSION_Y="${BASE}.${NEXT}.0-SNAPSHOT"
+  NEXT_VERSION_Y="${BASE}.${NEXT}.0-next"
   bump_version "${NEXT_VERSION_Y}" "${BASEBRANCH}"
 fi
 # bump the z digit

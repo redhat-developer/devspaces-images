@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.37.0-SNAPSHOT",
+  "version": "7.43.0-next",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
@@ -36,7 +36,7 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@eclipse-che/che-code-devworkspace-handler": "1.63.0-dev-2c23dcf",
+    "@eclipse-che/che-code-devworkspace-handler": "1.64.0-dev-7ba5d3e",
     "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1639587602",
     "@eclipse-che/devfile-converter": "0.0.1-437a239",
     "@eclipse-che/workspace-client": "0.0.1-1632305737",

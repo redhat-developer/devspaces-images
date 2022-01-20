@@ -466,6 +466,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private async createDevWorkspaceFromResources(
     devWorkspacePrebuiltResources: string,
     factoryParams: string,
+    editorId?: string,
   ): Promise<Workspace | undefined> {
     let workspace: Workspace | undefined;
 
@@ -507,7 +508,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
           resource => resource.kind === 'DevWorkspaceTemplate',
         ) as devfileApi.DevWorkspaceTemplate;
 
-        await this.props.createWorkspaceFromResources(devworkspace, devworkspaceTemplate);
+        await this.props.createWorkspaceFromResources(devworkspace, devworkspaceTemplate, editorId);
 
         const namespace = this.props.defaultNamespace?.name;
         this.props.setWorkspaceQualifiedName(namespace, devworkspace.metadata.name as string);
@@ -624,6 +625,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       workspace = await this.createDevWorkspaceFromResources(
         attrs.devWorkspace,
         attrs.factoryParams,
+        attrs['che-editor'],
       );
     } else {
       // create workspace using a devfile
