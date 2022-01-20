@@ -149,13 +149,16 @@ cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-crw,}.c
 # process product.json template to apply CRW branding
 SHA_CHE=$(cd ${SOURCEDIR}; git rev-parse --short=4 HEAD)
 VER_CHE=$(jq -r .version package.json)
-if [[ $VER_CHE =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-SNAPSHOT ]]; then # reduce the z digit, remove the snapshot suffix
+if [[ $VER_CHE =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-(SNAPSHOT|next) ]]; then # reduce the z digit, remove the snapshot suffix
   XX=${BASH_REMATCH[1]}
   YY=${BASH_REMATCH[2]}
   ZZ=${BASH_REMATCH[3]}; (( ZZ=ZZ-1 )); if [[ ZZ -lt 0 ]]; then ZZ=0; fi
   VER_CHE="${XX}.${YY}.${ZZ}"
 fi
 echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
+
+# update version in package.json
+jq --arg VER_CHE "${VER_CHE}" '.version="$VER_CHE"' package.json > package.json1; mv package.json1 package.json
 
 SHA_CRW=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
 echo "Using: CRW_VERSION = $CRW_VERSION (SHA_CRW = $SHA_CRW)"
