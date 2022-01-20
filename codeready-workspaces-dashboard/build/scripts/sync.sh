@@ -158,7 +158,7 @@ fi
 echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
 
 # update version in package.json
-jq --arg VER_CHE "${VER_CHE}" '.version="$VER_CHE"' package.json > package.json1; mv package.json1 package.json
+jq --arg VER_CHE "${VER_CHE}" '.version=$VER_CHE' package.json > package.json1; mv package.json1 package.json
 
 SHA_CRW=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
 echo "Using: CRW_VERSION = $CRW_VERSION (SHA_CRW = $SHA_CRW)"
