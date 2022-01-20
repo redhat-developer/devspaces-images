@@ -15,7 +15,6 @@ GRADLE_VERSION="6.1"
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.22"
 ODO_VERSION="v2.4.2"
-KAMEL_VERSION="1.7.0"
 ASSET_NAME="udi"
 
 while [[ "$#" -gt 0 ]]; do
@@ -60,6 +59,9 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//crw-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
+
+KAMEL_VERSION="$(curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/$(git rev-parse --abbrev-ref HEAD)/codeready-workspaces-udi/build/build_kamel.sh | grep KAMEL_VERSION=)"
+echo "Using KAMEL_VERSION = ${KAMEL_VERSION}"
 
 # update Dockerfile to record versions we expect
 sed Dockerfile \
