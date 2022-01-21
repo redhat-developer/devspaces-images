@@ -43,9 +43,6 @@ Sync CRW_CI jobs in gitlab repo to github.
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH,"branch of https://github.com/redhat-developer/codeready-workspaces-images to which to sync")
         }
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
-
         definition {
             cps{
                 sandbox(true)

@@ -74,9 +74,6 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             }
 
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
             definition {
                 cps{
                     sandbox(true)

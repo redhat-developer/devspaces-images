@@ -4,27 +4,17 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH
 
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8||x86_64-rhel8'
-// String yarnVersion = "1.21.1"
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 
 currentBuild.description="Experimental build " + BUILD_DISPLAY_NAME
-
-// Example usage: globalVar({myVar})
-def globalVar(varNameExpr) {
-    try {
-        varNameExpr()
-    } catch (exc) {
-        ""
-    }
-}
 
 timeout(120) {
     node(nodeLabel) { 
         stage ("Build on ${nodeLabel}") {
             currentBuild.description+="; running on " + NODE_NAME + " (" + NODE_LABELS + ")"
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                def util = load "${WORKSPACE}/util.groovy"
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
                 withCredentials([
                     string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
                     string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
@@ -32,25 +22,17 @@ timeout(120) {
                     usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
                 ]) {
                     cleanWs()
-                    if (globalVar({nodeVersion})?.trim() && globalVar({yarnVersion})?.trim()) { 
-                        print "install because params or properties"
-                        util.installNPM(globalVar({nodeVersion}), globalVar({yarnVersion})) 
-                    } else {
-                        println "Got no nodeVersion = " + globalVar({nodeVersion})
-                        println "Got no yarnVersion = " + globalVar({yarnVersion})
-                    }
-
-                    SOURCE_REPO="redhat-developer/codeready-workspaces"
-                    SOURCE_BRANCH=MIDSTM_BRANCH
-                    util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, false)
-                    sh('''
-                    cd ${WORKSPACE}/sources
-                    echo "" >> README.adoc
-                    git commit -sm "no-op change" README.adoc
-                    git pull
-                    git remote -v
-                    git push
-                    ''')
+                    // SOURCE_REPO="redhat-developer/codeready-workspaces"
+                    // SOURCE_BRANCH=MIDSTM_BRANCH
+                    // util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", SOURCE_BRANCH, false)
+                    // sh('''
+                    // cd ${WORKSPACE}/sources
+                    // echo "" >> README.adoc
+                    // git commit -sm "no-op change" README.adoc
+                    // git pull
+                    // git remote -v
+                    // git push
+                    // ''')
 
 //                     util.installSkopeoFromContainer("")
 //                     util.installYq()

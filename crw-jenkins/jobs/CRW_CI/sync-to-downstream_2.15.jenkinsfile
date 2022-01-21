@@ -14,65 +14,165 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 
-// NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabelAnyArch = 'x86_64-rhel8||ppc64le-rhel8' // NB 2022-01-14 remove s390x-rhel8 as it can be flaky with ssh connections
+def String nodeLabelXArch='x86_64-rhel8' 
 
-timeout(600) {
-  node(nodeLabel) {
-    stage ("Sync repos on ${nodeLabel}") {
-      wrap([$class: 'TimestamperBuildWrapper']) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-        def util = load "${WORKSPACE}/util.groovy"
-        cleanWs()
-        currentBuild.description="${REPOS}<br/>Install skopeo, rhpkg, "
-        util.installSkopeoFromContainer("")
-        util.installRhpkg()
-        // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
-        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
-          if (REPOS.contains("-theia-dev") || REPOS.contains("-dashboard")) { // need make, c++ for node-gyp
-            currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
-            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
-          } else {
-            currentBuild.description+="node, yarn;<br/> "
-            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
-          }
+currentBuild.description=""
+for (int i=0; i < SYNC_REPOS.size(); i++) {
+  SYNC_REPOi="${SYNC_REPOS[i]}"
+  def Map tasks = [failFast: true]
+  if (SYNC_REPOi?.trim()) { // filter out nullstring values
+    if (REPOS.contains("-udi") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
+      currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
+      def String nodeLabelString = ""
+      timeout(120) {
+        node(nodeLabelAnyArch){
+          // prestage #0 - get arches on which to build
+          stage("Get arches + delete old assets"){
+            withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
+              cleanWs()
+              // might be already defined by the referring job
+              CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+              println("[INFO] Using CSV version = " + CSV_VERSION)
+              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+              nodeLabelString = sh( 
+                script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
+                ''', returnStdout: true).trim()
+              currentBuild.description+="arches = " + nodeLabelString + "; "
+              // prestage #1 for building lang servers - delete previous GitHub release if present
+              sh('''#!/bin/bash -xe
+pushd sources/''' + SYNC_REPOi + '''
+if [[ -f get-sources.sh ]]; then 
+  ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
+else 
+  echo "[ERROR] Could not run get-sources.sh --delete-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+fi
+popd
+              ''')
+              currentBuild.description+="deleted old " + SYNC_REPOi + " assets; "
+            } // with
+          } // stage
+        }//node
+      }//timeout
+      def List nodeLabels = nodeLabelString.tokenize("\n")
+      def String nodeLabel = nodeLabelXArch // by default assume we're on x64
+      for (int j=0; j < nodeLabels.size(); j++) {
+        switch(nodeLabels[j]) {
+          case "s390x":
+            nodeLabel = "s390x-rhel8"
+            break
+          case "ppc64le":
+            nodeLabel = "ppc64le-rhel8"
+            break
         }
+        print "[" + (i+1) + "/" + SYNC_REPOS.size() + "] [" + (j+1) + "/" + nodeLabels.size() + "] " + 
+          "Create task to build assets: " + SYNC_REPOi + " " + nodeLabel
+        def String thisArch=nodeLabel
+        // prestage #2 for building lang servers - create assets and publish to GH releases
+        tasks[SYNC_REPOi + " " + thisArch] = { ->
+          timeout(120) {
+            node(thisArch){
+              stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  def util = load "${WORKSPACE}/util2.groovy"
+                  cleanWs()
+                  // might be already defined by the referring job
+                  CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+                  println("[INFO] Using CSV version = " + CSV_VERSION)
+                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+                  sh('''#!/bin/bash -xe
+                    pushd sources/''' + SYNC_REPOi + '''
+                    if [[ -f get-sources.sh ]]; then
+                      ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
+                    else
+                      echo "[ERROR] Could not run get-sources.sh --publish-assets (for ''' + SYNC_REPOi + ''')"; exit 1
+                    fi
+                    popd
+                  ''')
+                  currentBuild.description+="${thisArch} built; "
+                }//creds
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: false,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
+              }//stage
+            }//node
+          }//timeout
+        }// tasks
+      }// for
 
-          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+      stage("Asset builds") {
+        println "########################################################################################################"
+        println "##  Build assets for " + SYNC_REPOi
+        println "########################################################################################################"
+        parallel(tasks)
+      }
+    }//if
+  }//if not null
+}//for
+
+
+// NOTE: Yarn 2 + s390x = fail, so if build requires Yarn 2, don't run on s390x boxes, eg., REPOS.contains("-my-yarn2-project") ...
+timeout(600) {
+  node(nodeLabelAnyArch) {
+    stage ("Sync repos on ${nodeLabelAnyArch}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        cleanWs()
+
+          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
-            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
             // ensure static Dockerfiles have the correct version encoded in them
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
+
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION); }
-            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.8"); }
+            if (REPOS.contains("-udi") || REPOS.contains("-stacks-")) { util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION); }
+
+            // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
+            if (REPOS.contains("-udi")) { util.updateHelmRpms("4.8"); }
 
             currentBuild.description=""
             def QUAY_REPO_PATH=""
             for (int i=0; i < SYNC_REPOS.size(); i++) {
               if (SYNC_REPOS[i]?.trim()) { 
-                currentBuild.description+="${SYNC_REPOS[i]}"
+                if (currentBuild.description?.trim()) { currentBuild.description+="<br/>" }
+                currentBuild.description+="Build container: ${SYNC_REPOS[i]}"
+
+                // might be already defined by the referring job
+                CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+                println("[INFO] Using CSV version = " + CSV_VERSION)
 
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
                 // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
-                util.updateBaseImages("${WORKSPACE}/sources/" + SYNC_REPOS[i], MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+                util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
                 SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
                 println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
                 println "########################################################################################################"
-                println "##  Sync [${SYNC_REPOS[i]}] to pkgs.devel"
+                println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
                 sh('''
-SOURCEDIR="${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/"
-TARGETDIR="${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''"
+SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"
+TARGETDIR="${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''"
 echo ".github/
 .git/
 .gitattributes
@@ -88,7 +188,7 @@ rm -f /tmp/rsync-excludes
 
                 // push to dist-git
                 sh('''#!/bin/bash -xe
-                  cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
+                  cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
                   git update-index --refresh || true # ignore timestamp updates
                   if [[ \$(git diff-index HEAD --) ]]; then # file changed
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
@@ -100,13 +200,11 @@ rm -f /tmp/rsync-excludes
                 // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
                 sh('''#!/bin/bash -xe
                   export KRB5CCNAME=/var/tmp/crw-build_ccache
-                  cd ${WORKSPACE}/targetdwn/''' + SYNC_REPOS[i] + '''
-                  if [[ -f get-sources.sh ]]; then 
-                    ./get-sources.sh -n -p ''' + JOB_BRANCH + '''
-                  elif [[ -f get-sources-jenkins.sh ]]; then # old name
-                    ./get-sources-jenkins.sh -n -p ''' + JOB_BRANCH + '''
+                  cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+                  if [[ -f get-sources.sh ]]; then
+                    ./get-sources.sh --pull-assets --nobuild -v ''' + CSV_VERSION + '''
                   else 
-                    echo "[ERROR] Could not run get-sources.sh or get-sources-jenkins.sh!"; exit 1
+                    echo "[ERROR] Could not run get-sources.sh!"; exit 1
                   fi
                   COMMIT_SHA="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%H)"
                   COMMIT_MSG="$(git log origin/''' + MIDSTM_BRANCH + '''..''' + MIDSTM_BRANCH + ''' --pretty=format:%B)"
@@ -115,15 +213,15 @@ rm -f /tmp/rsync-excludes
                       # check if the file/folder to copy has a valid parent
                       if [[ "${f}" != "${f%/*}" ]] && [[ -n "${f%/*}" ]]; then 
                         # create destination dir in midstream before copying files from downstream into there
-                        mkdir -p ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/${f%/*}
+                        mkdir -p ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/${f%/*}
                       fi
-                      cp ${f} ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''/${f}
+                      cp ${f} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/${f}
                     done
                     git pull origin ''' + MIDSTM_BRANCH + ''' || true
                     git push origin ''' + MIDSTM_BRANCH + ''' || true
 
                     # update source repo with updates from running get-sources
-                    cd ${WORKSPACE}/sources/''' + SYNC_REPOS[i] + '''
+                    cd ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''
                     git add . -A -f
                     git commit -m "$COMMIT_MSG" || true
                     git pull origin ''' + MIDSTM_BRANCH + ''' || true
@@ -134,6 +232,7 @@ rm -f /tmp/rsync-excludes
                 NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
                 println "Got NEW_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + NEW_SHA
 
+                currentBuild.description+=" synced; "
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
                   if ("${SYNC_REPOS[i]}".contains("-operator-")) {
@@ -146,6 +245,7 @@ rm -f /tmp/rsync-excludes
                     job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
                     wait: true,
                     propagate: true,
+                    quietPeriod: 0,
                     parameters: [
                       [
                         $class: 'StringParameterValue',
@@ -204,25 +304,35 @@ rm -f /tmp/rsync-excludes
                       ]
                     ]
                   )
-                  currentBuild.description+=" (brew trigger);<br/> "
+                  currentBuild.description+=" brew triggered; "
                 } else {
                   println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
-                  currentBuild.description+=" (no changes);<br/> "
+                  currentBuild.description+=" no changes; "
                 }
               } // if SYNC_REPO[i] is non-null
             } // for
           } // withCredentials
+          cleanWs(
+              cleanWhenSuccess: true,
+              cleanWhenUnstable: true,
+              cleanWhenNotBuilt: false,
+              cleanWhenFailure: false,
+              cleanWhenAborted: true,
+              deleteDirs: true,
+              disableDeferredWipeout: true,
+              notFailBuild: true
+          )
       } // wrap
     } // stage
   } // node
 } // timeout
 
 // kick off crwctl_2.y job if operator or metadata were synced above 
-node(nodeLabel){ 
-  stage ("Build crwctl on ${nodeLabel}") {
+node(nodeLabelAnyArch){ 
+  stage ("Build crwctl on ${nodeLabelAnyArch}") {
     if (REPOS.contains("-operator-")) { 
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-      def util = load "${WORKSPACE}/util.groovy"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      def util = load "${WORKSPACE}/util2.groovy"
       JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
       println "########################################################################################################"
       println "##  Build crwctl ${JOB_BRANCH}"
@@ -234,6 +344,7 @@ node(nodeLabel){
                 job: 'crwctl_' + JOB_BRANCH,
                 wait: false,
                 propagate: false,
+                quietPeriod: 0,
                 parameters: [
                   [
                     $class: 'StringParameterValue',
@@ -267,6 +378,16 @@ node(nodeLabel){
       } else {
         util.notifyBuildFailed()
       } // if
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
     } // if operator
   } // stage
 } //node

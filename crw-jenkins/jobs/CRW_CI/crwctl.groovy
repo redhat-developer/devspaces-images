@@ -49,10 +49,6 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 
 Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases>chectl/releases</a>
 <p>
-@since 2.13: NOTE that <a href=lastSuccessfulBuild/artifact/crwctl/dist/channels/>
-Jenkins-hosted assets</a> are <b>deprecated and will be removed soon</b>.
-
-<p>
 To retrieve assets from github:
 <ul>
 <pre>
@@ -76,13 +72,7 @@ $➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+''
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                pipelineTriggers {
-                    triggers{
-                        pollSCM{
-                            scmpoll_spec("H H/6 * * *") // every 6hrs
-                        }
-                    }
-                }
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 
 
                 disableResumeJobProperty()
             }
@@ -111,15 +101,11 @@ if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
 :: for all other suffixes, use server and operator tags = ''' + JOB_BRANCH + '''<br/>
 :: NOTE: yarn will fail for version = x.y.z.a but works with x.y.z-a<br/>
 <br/>
-@since 2.13:<br/>
 * push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
 * for GA suffix, push to RCM automatically (and copy to Github)
 ''')
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
+            
             definition {
                 cps{
                     sandbox(true)

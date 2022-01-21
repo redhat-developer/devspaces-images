@@ -42,7 +42,7 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
             }
 
             parameters{
-                // remove codeready-workspaces-plugin-intellij as it can't currently be built this way
+                // TODO: if we have to build CRW 2.14.1, this list needs to include plugin-* entries again
                 textParam("REPOS", '''codeready-workspaces-stacks-cpp, 
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
@@ -65,9 +65,6 @@ codeready-workspaces-udi''')
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
 
             definition {
                 cps{

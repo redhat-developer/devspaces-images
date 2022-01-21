@@ -43,9 +43,6 @@ https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/produ
             stringParam("FUTURE_BRANCH",FUTURE_BRANCH,"branch to create")
         }
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
-
         definition {
             cps{
                 sandbox(true)

@@ -10,61 +10,49 @@ import groovy.transform.Field
 // PUBLISH_ARTIFACTS_TO_RCM - no longer used as of 2.13
 
 def installP7zip = true // p7zip install and use that to build crwctl
-def nodeLabel = "rhel83"
+def nodeLabel = "x86_64-rhel8-dyn"
 
 timeout(90) {
   node("${nodeLabel}"){ 
     stage ("Build crwctl") {
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-        string(credentialsId:'segment-write-key', variable: 'SEGMENT_WRITE_KEY'),
-        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-        def util = load "${WORKSPACE}/util.groovy"
+        string(credentialsId:'segment-write-key', variable: 'SEGMENT_WRITE_KEY')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
         try {
           cleanWs()
           currentBuild.description="Check out code ..."
-          util.cloneRepoWithBootstrap("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-chectl.git", "${WORKSPACE}/codeready-workspaces-chectl", MIDSTM_BRANCH, true)
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-chectl.git", "${WORKSPACE}/codeready-workspaces-chectl", MIDSTM_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
 
           currentBuild.description="Set up environment ..."
-
-          util.installHub() // for publishing asset files to GH releases
-          util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"), installP7zip)
-          // perl-Digest provides shasum for oclif-dev
-          // need fuse-sshfs for mounting drive to copy to rcm-guest
-          util.installRPMs("fuse-sshfs perl-Digest-SHA", true)
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
 
           // for push to rcm-guest, set DESTHOST
           DESTHOST=""
           if (versionSuffix.equals("GA")) {
-            util.installPodman2()
-            currentBuild.description+=" Authenticate with reg.stage.r.io ..."
-            util.loginToStageRegistry()
-            // make sure we have a valid kerberos ticket for crw-build user
-            util.kinit(true)
+            currentBuild.description+=" ssh mount Rcm Guest ..."
             // ssh mount the rcm-guest drive
             DESTHOST=util.sshMountRcmGuest()
           }
 
           currentBuild.description="Building ..."
-          sh '''#!/bin/bash -xe
+          sh('''#!/bin/bash -e
+. ~/crw_env ''' + CRW_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
-
-# TODO CRW-1919 remove this when we no longer need it in build.sh
-# export KRB5CCNAME=/var/tmp/crw-build_ccache
 cd ${WORKSPACE}/codeready-workspaces-chectl
-./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH + 
+set -x
+./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/crw-images ''' +
-  (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") + 
+  (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") +
   (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
-
-          currentBuild.description="Builds done; archiving artifacts (deprecated) ..."
-          // TODO remove this when QE has migrated to GH releases
-          archiveArtifacts fingerprint: false, artifacts:"**/*.log, **/*logs/**, **/dist/**/*.tar.gz, **/dist/*.json, **/dist/linux-x64, **/dist/win32-x64, **/dist/darwin-x64, **/*sources.tar.gz"
+          )
 
           if (versionSuffix.equals("GA")){
             currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + 
@@ -87,6 +75,16 @@ cd ${WORKSPACE}/codeready-workspaces-chectl
         } finally {
           // nothing to do here
         }
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: false,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
       } // with
     } // stage
   } // node

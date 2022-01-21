@@ -81,9 +81,6 @@ See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH +
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
             definition {
                 cps{
                     sandbox(true)

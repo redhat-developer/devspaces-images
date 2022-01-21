@@ -74,14 +74,6 @@ Artifact builder + sync job; triggers brew after syncing
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                pipelineTriggers {
-                    triggers{
-                        pollSCM{
-                            scmpoll_spec("H H/2 * * *") // every 2hrs
-                        }
-                    }
-                }
-
                 disableResumeJobProperty()
                 disableConcurrentBuildsJobProperty()
             }
@@ -105,9 +97,6 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("CSV_VERSION_PREV", config.CSVs."operator-bundle"[JB].CSV_VERSION_PREV)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
 
             definition {
                 cps{

@@ -16,8 +16,8 @@ timeout(120) {
     node("${buildNode}"){
         stage("Create branches") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                def util = load "${WORKSPACE}/util.groovy"
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/tagRelease.sh && chmod +x tagRelease.sh')
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh && chmod +x containerExtract.sh')

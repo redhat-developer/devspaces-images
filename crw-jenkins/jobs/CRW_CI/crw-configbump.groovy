@@ -11,11 +11,7 @@ for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
     try {
-        if (JOB_BRANCH.equals("2.13")) {
-            fileCheck = readFileFromWorkspace('jobs/CRW_CI/crw-configbump_'+JB+'.jenkinsfile')
-        } else {
-            fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
-        }
+        fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
         FILE_CHECK = true
     }
     catch(err) {
@@ -74,14 +70,7 @@ Artifact builder + sync job; triggers brew after syncing
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                // disabled because no changes in the branch / run this manually 
-                // pipelineTriggers {
-                //     triggers{
-                //         pollSCM{
-                //             scmpoll_spec("H H * * *") // every 24hrs
-                //         }
-                //     }
-                // }
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 
 
                 disableResumeJobProperty()
             }
@@ -102,17 +91,10 @@ Artifact builder + sync job; triggers brew after syncing
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
             definition {
                 cps{
                     sandbox(true)
-                    if (JOB_BRANCH.equals("2.13")) {
-                        script(readFileFromWorkspace('jobs/CRW_CI/crw-configbump_'+JOB_BRANCH+'.jenkinsfile'))
-                    } else {
-                        script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
-                    }
+                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
                 }
             }
         }

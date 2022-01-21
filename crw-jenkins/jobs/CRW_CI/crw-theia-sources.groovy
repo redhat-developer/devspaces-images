@@ -86,15 +86,8 @@ Results:
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                pipelineTriggers {
-                    triggers{
-                        pollSCM{
-                            // 2.x: Tues/Thurs; 2.yy: Thurs only
-                            scmpoll_spec(JOB_BRANCH.equals("2.x") ? "H H * * 2,4" : "H H * * 4") 
-                        }
-                    }
-                }
-
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 
+                
                 disableResumeJobProperty()
                 disableConcurrentBuildsJobProperty()
             }

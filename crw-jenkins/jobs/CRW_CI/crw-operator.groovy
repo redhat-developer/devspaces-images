@@ -1,5 +1,4 @@
 import groovy.json.JsonSlurper
-
 def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
@@ -75,8 +74,38 @@ Artifact builder + sync job; triggers brew after syncing
 
                 pipelineTriggers {
                     triggers{
-                        pollSCM{
-                            scmpoll_spec("H H/4 * * *") // every 4hrs
+                        genericTrigger {
+                            genericVariables {
+                                genericVariable {
+                                    key("ref")
+                                    value('\$.ref')
+                                    expressionType("JSONPath")
+                                    regexpFilter("")
+                                    defaultValue("")
+                                }
+                                genericVariable {
+                                    key("name")
+                                    value('\$.repository.full_name')
+                                    expressionType("JSONPath")
+                                    regexpFilter("")
+                                    defaultValue("")
+                                }
+                                genericVariable {
+                                    key("files")
+                                    value('\$.commits[*].[\'modified\',\'added\',\'removed\'][*]')
+                                    expressionType("JSONPath")
+                                    regexpFilter("")
+                                    defaultValue("")
+                                }
+                            }
+                            token('')
+                            tokenCredentialId('')
+                            printContributedVariables(true)
+                            printPostContent(true)
+                            causeString("Generic Webhook Trigger for changes to https://github.com/" + SOURCE_REPO)
+                            silentResponse(false)
+                            regexpFilterText('$ref $files $name')
+                            regexpFilterExpression('refs/heads/' + SOURCE_BRANCH + 'refs/heads/main .*"(?!(olm|\\.github|hack)).*/[^"]+?".* ' + SOURCE_REPO)
                         }
                     }
                 }
@@ -99,9 +128,6 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
 
             definition {
                 cps{

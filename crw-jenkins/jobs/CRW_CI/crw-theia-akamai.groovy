@@ -49,9 +49,6 @@ for (JB in JOB_BRANCHES) {
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
             }
 
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
             definition {
                 cps{
                     sandbox(true)

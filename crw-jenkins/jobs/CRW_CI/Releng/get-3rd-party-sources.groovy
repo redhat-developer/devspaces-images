@@ -46,9 +46,6 @@ Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can
             booleanParam("PUBLISH_ARTIFACTS_TO_RCM", false, "default false; check box to upload sources + binaries to RCM for a GA release ONLY")
         }
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
-
         definition {
             cps{
                 sandbox(true)

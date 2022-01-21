@@ -16,17 +16,19 @@ timeout(120) {
       wrap([$class: 'TimestamperBuildWrapper']) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-          def util = load "${WORKSPACE}/util.groovy"
+          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+          def util = load "${WORKSPACE}/util2.groovy"
           cleanWs()
-          util.installSkopeoFromContainer("")
-          util.installYq()
-          util.installRhpkg()
-          util.installNPM(util.getTheiaBuildParam("nodeVersion"), util.getTheiaBuildParam("yarnVersion"))
-          util.installRPMs("tree golang php-devel php-json python3-six python3-pip python3-virtualenv")
-          JAVA_VERSION="11"; util.installRPMs("java-"+JAVA_VERSION+"-openjdk java-"+JAVA_VERSION+"-openjdk-devel java-"+JAVA_VERSION+"-openjdk-headless")
-          util.installMaven("3.6.3", JAVA_VERSION)
+          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           sh '''#!/bin/bash -xe
+
+# TODO this should move into a dockerfile so we can run the manifest collection w/o installing anything locally
+sudo dnf -y install tree php-devel php-json || sudo dnf -y update tree php-devel php-json
+
+. ~/crw_env ''' + CRW_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
 jq --version; echo "-----"
 yq --version; echo "-----"
 go version; echo "-----"
@@ -36,12 +38,10 @@ mvn --version; echo "-----"
 php --version; echo "-----"
 python3 --version; echo "-----"
 '''
-
-          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           println "CRW_VERSION = '" + CRW_VERSION + "'"
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           println "CSV_VERSION = '" + CSV_VERSION + "'"
-          util.cloneRepoWithBootstrap("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
           if (TAG_RELEASE.equals("true")) {
             currentBuild.description="Tagging " + CSV_VERSION + "..."
@@ -57,6 +57,8 @@ cd ${WORKSPACE}/crw/product/ && ./tagRelease.sh -t ''' + CRW_VERSION + ''' -v ''
           sh '''#!/bin/bash -xe
 CSV_VERSION="''' + CSV_VERSION + '''"
 echo CSV_VERSION = ${CSV_VERSION}
+
+. ~/crw_env ''' + CRW_VERSION + '''
 
 # generate source files
 cd ${WORKSPACE}/crw/product/manifest/

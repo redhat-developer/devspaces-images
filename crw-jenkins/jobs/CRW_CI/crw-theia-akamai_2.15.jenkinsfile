@@ -7,21 +7,13 @@ import groovy.transform.Field
 
 // https://issues.redhat.com/browse/CRW-1011 job to set up cdn / akamai stuff for the theia-rhel8 image
 
-def String nodeLabel = 'rhel83||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(30) {
     node(nodeLabel) {
         stage("Copy from OSBS to Quay") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                def util = load "${WORKSPACE}/util.groovy"
                 cleanWs()
-                CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-                println "CRW_VERSION = '" + CRW_VERSION + "'"
-                util.installBrewKoji()
-
-                withCredentials([file(credentialsId:'che_akamai-properties', variable: 'AKAMAI_CHE_AUTH'),
-                    file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-                    util.bootstrap(CRW_KEYTAB)
+                withCredentials([file(credentialsId:'che_akamai-properties', variable: 'AKAMAI_CHE_AUTH')]) {
 
                     sh (
                         script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
@@ -75,7 +67,17 @@ fi
 docker rm "theia-container" >/dev/null
                     ''')
                     currentBuild.description="CDN support added for " + latestTheiaImageTag
-                    } // with
+                } // with
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: false,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
             } // wrap
         } // stage
     } // node

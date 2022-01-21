@@ -40,9 +40,6 @@ job-config.json, VERSION file and registries, then committing changes.
             stringParam("CRW_VERSION",JOB_BRANCH,"future version of CRW to use when updating job-config.json, VERSION file and registry tags")
         }
 
-        // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-        authenticationToken('CI_BUILD')
-
         definition {
             cps{
                 sandbox(true)

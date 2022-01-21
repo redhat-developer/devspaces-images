@@ -62,10 +62,10 @@ for global CVE updates.
 
             parameters{
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
-                // TODO remove this after 2.13 is live
                 stringParam("PHASES", "1 2 3 4", '''
 Phases:
 <ol>
+    <!-- TODO in 2.15 or 2.16, switch to UDI -->
     <li> build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)</li>
     <li> build theia images (3 images)</li>
     <li> build internals (14 images): 
@@ -79,9 +79,6 @@ Phases:
 </ol>
                     ''')
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
 
             definition {
                 cps{

@@ -93,20 +93,15 @@ Artifact builder + sync job; triggers brew after syncing
                             printContributedVariables(true)
                             printPostContent(true)
                             causeString("Generic Webhook Trigger for changes to https://github.com/" + SOURCE_REPO)
-                            // instead of running once per hour, run in 5s
-                            overrideQuietPeriod(true)
-                            quietPeriod(5)
                             silentResponse(false)
                             regexpFilterText('$ref $files $name')
-                            regexpFilterExpression('refs/heads/' + SOURCE_BRANCH + ' .*"dependencies/' + UPSTM_NAME + '/[^"]+?".* redhat-developer/codeready-workspaces')
+                            regexpFilterExpression('refs/heads/' + SOURCE_BRANCH + ' .*"dependencies/' + UPSTM_NAME + '/[^"]+?".* '+ SOURCE_REPO)
                         }
                     }
                 }
 
                 disableResumeJobProperty()
             }
-
-            quietPeriod(3600) // limit builds to 1 every 1h (in sec)
 
             logRotator {
                 daysToKeep(5)

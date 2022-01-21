@@ -90,9 +90,6 @@ Results: <a href=http://quay.io/crw/machinexec-rhel8>quay.io/crw/machinexec-rhel
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
 
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
             definition {
                 cps{
                     sandbox(true)

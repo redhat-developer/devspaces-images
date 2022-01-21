@@ -153,9 +153,6 @@ theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
                 stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
             }
 
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
-
             // TODO: enable naginator plugin to re-trigger if job fails
 
             // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.

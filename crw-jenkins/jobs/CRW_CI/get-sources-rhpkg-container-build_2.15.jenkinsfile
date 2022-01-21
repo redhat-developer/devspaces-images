@@ -12,37 +12,21 @@ import groovy.json.JsonSlurper
 // FORCE_BUILD
 
 @Field String NEW_TAG = ""
-// NOTE: if rpm kerberos/kinit/rhpkg problems reoccur on s390x, see CRW-1933; if rpm install in docker build problems reoccur, see CRW-1958
-// kinit problem on rhel83 - see https://issues.redhat.com/browse/CRW-1919 
-def String nodeLabel = 'rhel8||s390x-rhel8||ppc64le-rhel8'
+// NOTE: if rpm install in docker build problems reoccur, see CRW-1958
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Building " + QUAY_REPO_PATHs + "... "
 timeout(240) {
   node(nodeLabel) { 
     stage ("Build on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
         currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "... "
-        withCredentials([
-            string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-            string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
-            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
-            usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
-        ]) {
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-            def util = load "${WORKSPACE}/util.groovy"
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+            def util = load "${WORKSPACE}/util2.groovy"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)            
             cleanWs()
-            // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
-            if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
-              if (QUAY_REPO_PATHs.contains("theia-dev") || QUAY_REPO_PATHs.contains("dashboard")) { // need make, c++ for node-gyp
-                currentBuild.description+="install node, yarn, make, c++, node-gyp;<br/> "
-                util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
-              } else {
-                currentBuild.description+="install node, yarn;<br/> "
-                util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
-              }
-            }
-
-            util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+            util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
             try {
               util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
@@ -50,7 +34,12 @@ timeout(240) {
               sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
               echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
               retry(2) {
-                sh('''#!/bin/bash -xe
+                sh('''#!/bin/bash -e
+. ~/crw_env ''' + CRW_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
+set -x
 ./rhpkg-container-build.sh ''' + JOB_BRANCH + ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
                 ''')
               }
@@ -76,17 +65,9 @@ timeout(240) {
               if (!currentBuild.result.equals("ABORTED") && 
                   !currentBuild.result.equals("FAILURE") && 
                   !currentBuild.result.equals("UNSTABLE")) {
-                withCredentials([string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN')]) {
-                  sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
-                  CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-                  CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
-                  sh(script: '''#!/bin/bash -xe
-QUAY_REGISTRY="quay.io/crw/"
-QUAY_USER="crw+crwci"
-
-echo "[INFO]: Log into quay.io..."
-echo "${QUAY_TOKEN}" | docker login -u="${QUAY_USER}" --password-stdin ${QUAY_REGISTRY}
-
+                sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
+                CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+                sh(script: '''#!/bin/bash -xe
 echo " ########################################### "
 echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
 echo " ########################################### "
@@ -100,7 +81,6 @@ for c in ''' + CONTAINERS.trim() + '''; do
 done
 wait
                       ''', returnStatus: true)
-                  }
                 }
             } catch (e) {
               currentBuild.result = "FAILURE"
@@ -114,8 +94,8 @@ wait
       println "########################################################################################################"
       println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
       println "########################################################################################################"
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-      def util = load "${WORKSPACE}/util.groovy"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      def util = load "${WORKSPACE}/util2.groovy"
       echo "currentBuild.result = " + currentBuild.result
       if (!currentBuild.result.equals("ABORTED") && 
           !currentBuild.result.equals("FAILURE") && 
@@ -128,6 +108,7 @@ wait
           // TODO should these be set to wait and propagate: true?
           wait: false,
           propagate: false,
+          quietPeriod: 0,
           parameters: [
             [
               $class: 'StringParameterValue',
@@ -157,6 +138,16 @@ wait
         currentBuild.description+="; no quay copy"
         currentBuild.result = 'UNSTABLE'
       } // if
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: false,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
     } // stage
   } //node
 } // timeout

@@ -64,13 +64,8 @@ Artifact builder + sync job; triggers brew after syncing
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                pipelineTriggers {
-                    triggers{
-                        pollSCM{
-                            scmpoll_spec("H H/4 * * *") // every 4hrs
-                        }
-                    }
-                }
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 
+
                 disableResumeJobProperty()
             }
 
@@ -89,9 +84,6 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
             }
-
-            // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD
-            authenticationToken('CI_BUILD')
 
             definition {
                 cps{

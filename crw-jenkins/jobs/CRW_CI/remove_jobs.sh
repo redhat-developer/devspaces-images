@@ -53,7 +53,6 @@ if [[ -f /tmp/token ]]; then
         crw-backup\
         crw-configbump\
         crw-dashboard\
-        crw-deprecated\
         crw-devfileregistry\
         crw-idea\
         crw-imagepuller\
