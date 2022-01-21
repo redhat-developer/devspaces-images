@@ -254,24 +254,50 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
     editorId: string | undefined,
   ): Promise<any> {
-    // create DWT
-    devworkspaceTemplate.metadata.namespace = defaultNamespace;
-    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
-
     // create DW
     devworkspace.spec.routingClass = 'che';
     devworkspace.metadata.namespace = defaultNamespace;
-    if (devworkspace.metadata.annotations === undefined) {
+    if (!devworkspace.metadata.annotations) {
       devworkspace.metadata.annotations = {};
     }
     devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
       new Date().toISOString();
+    // remove components which is not created yet
+    const components = devworkspace.spec.template.components;
+    devworkspace.spec.template.components = [];
 
     if (editorId) {
       devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
     }
 
-    return DwApi.createWorkspace(devworkspace);
+    const createdWorkspace = await DwApi.createWorkspace(devworkspace);
+
+    // create DWT
+    devworkspaceTemplate.metadata.namespace = defaultNamespace;
+    // update owner reference (to allow automatic cleanup)
+    devworkspaceTemplate.metadata.ownerReferences = [
+      {
+        apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
+        kind: devworkspaceSingularSubresource,
+        name: createdWorkspace.metadata.name,
+        uid: createdWorkspace.metadata.uid,
+      },
+    ];
+
+    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
+
+    // update DW
+    return DwApi.patchWorkspace(
+      createdWorkspace.metadata.namespace,
+      createdWorkspace.metadata.name,
+      [
+        {
+          op: 'replace',
+          path: '/spec/template/components',
+          value: components,
+        },
+      ],
+    );
   }
 
   async createFromDevfile(

@@ -52,7 +52,7 @@ if [[ ! -z "$GATEWAY" &&
     echo 'Found the staticClient for localStart'
   else
     echo 'Patching dex config map...'
-    UPDATED_CONFIG_YAML=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].redirectURIs = .staticClients[0].redirectURIs + \"$CHE_HOST/oauth/callback\"" -)
+    UPDATED_CONFIG_YAML=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].redirectURIs[0] = \"$CHE_HOST/oauth/callback\"" -)
     dq_mid=\\\"
     yaml_esc="${UPDATED_CONFIG_YAML//\"/$dq_mid}"
     kubectl get configMaps/dex -n dex -o json | jq ".data[\"config.yaml\"] |= \"${yaml_esc}\"" | kubectl replace -f -
