@@ -33,7 +33,6 @@ var (
 		syncDwMetricService,
 		syncDwServiceAccount,
 		syncDwClusterRole,
-		syncDwMetricsClusterRole,
 		syncDwProxyClusterRole,
 		syncDwEditWorkspacesClusterRole,
 		syncDwViewWorkspacesClusterRole,
@@ -46,7 +45,7 @@ var (
 		syncDwCRD,
 		syncDwTemplatesCRD,
 		syncDwWorkspaceRoutingCRD,
-		syncDwConfigCRD,
+		syncDwConfigMap,
 		syncDwDeployment,
 	}
 
@@ -55,31 +54,24 @@ var (
 	OpenshiftDevWorkspaceTemplatesPath  = "/tmp/devworkspace-operator/templates/deployment/openshift/objects"
 	KubernetesDevWorkspaceTemplatesPath = "/tmp/devworkspace-operator/templates/deployment/kubernetes/objects"
 
-	DevWorkspaceServiceAccountFile = DevWorkspaceTemplates + "/devworkspace-controller-serviceaccount.ServiceAccount.yaml"
-
-	DevWorkspaceRoleFile        = DevWorkspaceTemplates + "/devworkspace-controller-leader-election-role.Role.yaml"
-	DevWorkspaceRoleBindingFile = DevWorkspaceTemplates + "/devworkspace-controller-leader-election-rolebinding.RoleBinding.yaml"
-
+	DevWorkspaceServiceAccountFile            = DevWorkspaceTemplates + "/devworkspace-controller-serviceaccount.ServiceAccount.yaml"
+	DevWorkspaceRoleFile                      = DevWorkspaceTemplates + "/devworkspace-controller-leader-election-role.Role.yaml"
 	DevWorkspaceClusterRoleFile               = DevWorkspaceTemplates + "/devworkspace-controller-role.ClusterRole.yaml"
 	DevWorkspaceProxyClusterRoleFile          = DevWorkspaceTemplates + "/devworkspace-controller-proxy-role.ClusterRole.yaml"
-	DevWorkspaceMetricsReaderClusterRoleFile  = DevWorkspaceTemplates + "/devworkspace-controller-metrics-reader.ClusterRole.yaml"
 	DevWorkspaceViewWorkspacesClusterRoleFile = DevWorkspaceTemplates + "/devworkspace-controller-view-workspaces.ClusterRole.yaml"
 	DevWorkspaceEditWorkspacesClusterRoleFile = DevWorkspaceTemplates + "/devworkspace-controller-edit-workspaces.ClusterRole.yaml"
-
-	DevWorkspaceClusterRoleBindingFile      = DevWorkspaceTemplates + "/devworkspace-controller-rolebinding.ClusterRoleBinding.yaml"
-	DevWorkspaceProxyClusterRoleBindingFile = DevWorkspaceTemplates + "/devworkspace-controller-proxy-rolebinding.ClusterRoleBinding.yaml"
-
-	DevWorkspaceWorkspaceRoutingCRDFile = DevWorkspaceTemplates + "/devworkspaceroutings.controller.devfile.io.CustomResourceDefinition.yaml"
-	DevWorkspaceTemplatesCRDFile        = DevWorkspaceTemplates + "/devworkspacetemplates.workspace.devfile.io.CustomResourceDefinition.yaml"
-	DevWorkspaceCRDFile                 = DevWorkspaceTemplates + "/devworkspaces.workspace.devfile.io.CustomResourceDefinition.yaml"
-	DevWorkspaceOperatorConfigCRDFile   = DevWorkspaceTemplates + "/devworkspaceoperatorconfigs.controller.devfile.io.CustomResourceDefinition.yaml"
-
-	DevWorkspaceServiceFile        = DevWorkspaceTemplates + "/devworkspace-controller-manager-service.Service.yaml"
-	DevWorkspaceMetricsServiceFile = DevWorkspaceTemplates + "/devworkspace-controller-metrics.Service.yaml"
-	DevWorkspaceDeploymentFile     = DevWorkspaceTemplates + "/devworkspace-controller-manager.Deployment.yaml"
-
-	DevWorkspaceIssuerFile      = DevWorkspaceTemplates + "/devworkspace-controller-selfsigned-issuer.Issuer.yaml"
-	DevWorkspaceCertificateFile = DevWorkspaceTemplates + "/devworkspace-controller-serving-cert.Certificate.yaml"
+	DevWorkspaceRoleBindingFile               = DevWorkspaceTemplates + "/devworkspace-controller-leader-election-rolebinding.RoleBinding.yaml"
+	DevWorkspaceClusterRoleBindingFile        = DevWorkspaceTemplates + "/devworkspace-controller-rolebinding.ClusterRoleBinding.yaml"
+	DevWorkspaceProxyClusterRoleBindingFile   = DevWorkspaceTemplates + "/devworkspace-controller-proxy-rolebinding.ClusterRoleBinding.yaml"
+	DevWorkspaceWorkspaceRoutingCRDFile       = DevWorkspaceTemplates + "/devworkspaceroutings.controller.devfile.io.CustomResourceDefinition.yaml"
+	DevWorkspaceTemplatesCRDFile              = DevWorkspaceTemplates + "/devworkspacetemplates.workspace.devfile.io.CustomResourceDefinition.yaml"
+	DevWorkspaceCRDFile                       = DevWorkspaceTemplates + "/devworkspaces.workspace.devfile.io.CustomResourceDefinition.yaml"
+	DevWorkspaceConfigMapFile                 = DevWorkspaceTemplates + "/devworkspace-controller-configmap.ConfigMap.yaml"
+	DevWorkspaceServiceFile                   = DevWorkspaceTemplates + "/devworkspace-controller-manager-service.Service.yaml"
+	DevWorkspaceMetricsServiceFile            = DevWorkspaceTemplates + "/devworkspace-controller-metrics.Service.yaml"
+	DevWorkspaceDeploymentFile                = DevWorkspaceTemplates + "/devworkspace-controller-manager.Deployment.yaml"
+	DevWorkspaceIssuerFile                    = DevWorkspaceTemplates + "/devworkspace-controller-selfsigned-issuer.Issuer.yaml"
+	DevWorkspaceCertificateFile               = DevWorkspaceTemplates + "/devworkspace-controller-serving-cert.Certificate.yaml"
 )
 
 func syncDwServiceAccount(deployContext *deploy.DeployContext) (bool, error) {
@@ -114,10 +106,6 @@ func syncDwClusterRole(deployContext *deploy.DeployContext) (bool, error) {
 	return readAndSyncObject(deployContext, DevWorkspaceClusterRoleFile, &rbacv1.ClusterRole{}, "")
 }
 
-func syncDwMetricsClusterRole(deployContext *deploy.DeployContext) (bool, error) {
-	return readAndSyncObject(deployContext, DevWorkspaceMetricsReaderClusterRoleFile, &rbacv1.ClusterRole{}, "")
-}
-
 func syncDwProxyClusterRole(deployContext *deploy.DeployContext) (bool, error) {
 	return readAndSyncObject(deployContext, DevWorkspaceProxyClusterRoleFile, &rbacv1.ClusterRole{}, "")
 }
@@ -140,10 +128,6 @@ func syncDwTemplatesCRD(deployContext *deploy.DeployContext) (bool, error) {
 
 func syncDwCRD(deployContext *deploy.DeployContext) (bool, error) {
 	return readAndSyncObject(deployContext, DevWorkspaceCRDFile, &apiextensionsv1.CustomResourceDefinition{}, "")
-}
-
-func syncDwConfigCRD(deployContext *deploy.DeployContext) (bool, error) {
-	return readAndSyncObject(deployContext, DevWorkspaceOperatorConfigCRDFile, &apiextensionsv1.CustomResourceDefinition{}, "")
 }
 
 func syncDwIssuer(deployContext *deploy.DeployContext) (bool, error) {
@@ -170,6 +154,15 @@ func syncDwCertificate(deployContext *deploy.DeployContext) (bool, error) {
 		return readAndSyncUnstructured(deployContext, DevWorkspaceCertificateFile)
 	}
 	return true, nil
+}
+
+func syncDwConfigMap(deployContext *deploy.DeployContext) (bool, error) {
+	configMap := &corev1.ConfigMap{}
+	err := readK8SObject(DevWorkspaceConfigMapFile, configMap)
+	if err != nil {
+		return false, err
+	}
+	return syncObject(deployContext, configMap, DevWorkspaceNamespace)
 }
 
 func syncDwDeployment(deployContext *deploy.DeployContext) (bool, error) {
