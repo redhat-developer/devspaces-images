@@ -16,6 +16,7 @@ export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
 export KAMEL_VERSION="1.7.0"
 export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.16.12-2"
+export KUBECTL_VERSION="1.23.0"
 
 usage () {
     echo "
@@ -60,6 +61,7 @@ tarball="${WORKSPACE}/asset-kamel-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE} sh -c "
     cd /tmp
+    microdnf install -y bash tar gzip which dnf openshift-clients
     curl -sSLo- https://github.com/apache/camel-k/archive/v${KAMEL_VERSION}.tar.gz | tar xz || true
     ls -1 camel*
     cd camel-k-${KAMEL_VERSION}

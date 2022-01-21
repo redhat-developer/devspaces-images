@@ -60,10 +60,9 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-# see https://github.com/redhat-developer/codeready-workspaces-deprecated/blob/crw-2-rhel-8/kamel/build.sh#L16 or https://github.com/apache/camel-k/releases
-KAMEL_BUILDSH="https://github.com/redhat-developer/codeready-workspaces-deprecated/raw/$(git rev-parse --abbrev-ref HEAD)/kamel/build.sh"
-KAMEL_VERSION="$(curl -sSLo- ${KAMEL_BUILDSH} | grep "export KAMEL_VERSION" | sed -r -e 's#.+KAMEL_VERSION="(.+)"#\1#')"
-echo "Using KAMEL_VERSION = ${KAMEL_VERSION} from ${KAMEL_BUILDSH}"
+# see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/codeready-workspaces-udi-openj9/build/build_kamel.sh#L17 or https://github.com/apache/camel-k/releases
+$(curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/$(git rev-parse --abbrev-ref HEAD)/codeready-workspaces-udi-openj9/build/build_kamel.sh | grep KAMEL_VERSION=)
+echo "Using KAMEL_VERSION = ${KAMEL_VERSION}"
 
 # update Dockerfile to record versions we expect
 sed Dockerfile \
