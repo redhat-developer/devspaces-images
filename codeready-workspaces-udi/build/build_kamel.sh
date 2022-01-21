@@ -15,8 +15,8 @@
 export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 
 export KAMEL_VERSION="1.7.0"
+# get latest tag from https://catalog.redhat.com/software/containers/ubi8/go-toolset/5ce8713aac3db925c03774d1
 export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.16.12-2"
-export KUBECTL_VERSION="1.23.0"
 
 usage () {
     echo "
