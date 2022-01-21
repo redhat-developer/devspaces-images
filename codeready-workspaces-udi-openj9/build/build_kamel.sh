@@ -61,7 +61,7 @@ tarball="${WORKSPACE}/asset-kamel-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE} sh -c "
     cd /tmp
-    microdnf install -y bash tar gzip which dnf openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8
+    microdnf install -y bash tar gzip which dnf openshift-clients
     curl -sSLo- https://github.com/apache/camel-k/archive/v${KAMEL_VERSION}.tar.gz | tar xz || true
     ls -1 camel*
     cd camel-k-${KAMEL_VERSION}
