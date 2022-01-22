@@ -45,6 +45,8 @@ echo "CodeReady Workspaces :: Kamel"
 echo ""
 
 mkdir -p target/kamel
+# include content set so we can resolve openshift-clients
+cp ${SCRIPT_DIR}/../content_set*.repo target/kamel/ # ls -1 target/kamel/content_set*.repo
 
 PODMAN=$(command -v podman || true)
 if [[ ! -x $PODMAN ]]; then
@@ -61,13 +63,17 @@ tarball="${WORKSPACE}/asset-kamel-${ARCH}.tar.gz"
 
 ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE} sh -c "
     cd /tmp
-    microdnf install -y bash tar gzip which dnf openshift-clients
+    cp /kamel/content_set*.repo /etc/yum.repos.d/
+    yum install -y bash tar gzip which dnf openshift-clients
     curl -sSLo- https://github.com/apache/camel-k/archive/v${KAMEL_VERSION}.tar.gz | tar xz || true
     ls -1 camel*
     cd camel-k-${KAMEL_VERSION}
     make build-kamel
     cp  /tmp/camel-k-${KAMEL_VERSION}/kamel /kamel/kamel
     "
+
+# exclude content set from tarball
+rm -f target/kamel/content_set*.repo
 tar -czf "${tarball}" -C target/kamel .
 
 # upload the binary to GH
