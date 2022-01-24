@@ -32,10 +32,7 @@ import { AppAlerts } from '../../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
 import { WorkspaceAdapter } from '../../workspace-adapter';
 import { safeLoad } from 'js-yaml';
-import {
-  DEVWORKSPACE_CHE_EDITOR,
-  DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
-} from '../../devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/devWorkspace/metadata';
 import { AxiosInstance } from 'axios';
 import {
   V1alpha2DevWorkspaceTemplateSpec,
@@ -108,6 +105,8 @@ export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cf
 export const DEVWORKSPACE_DEBUG_START_ANNOTATION = 'controller.devfile.io/debug-start';
 
 export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
+
+export const DEVWORKSPACE_CHE_EDITOR = 'che.eclipse.org/che-editor';
 
 export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
 
@@ -252,52 +251,21 @@ export class DevWorkspaceClient extends WorkspaceClient {
     defaultNamespace: string,
     devworkspace: devfileApi.DevWorkspace,
     devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
-    editorId: string | undefined,
   ): Promise<any> {
+    // create DWT
+    devworkspaceTemplate.metadata.namespace = defaultNamespace;
+    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
+
     // create DW
     devworkspace.spec.routingClass = 'che';
     devworkspace.metadata.namespace = defaultNamespace;
-    if (!devworkspace.metadata.annotations) {
+    if (devworkspace.metadata.annotations === undefined) {
       devworkspace.metadata.annotations = {};
     }
     devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
       new Date().toISOString();
-    // remove components which is not created yet
-    const components = devworkspace.spec.template.components;
-    devworkspace.spec.template.components = [];
 
-    if (editorId) {
-      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
-    }
-
-    const createdWorkspace = await DwApi.createWorkspace(devworkspace);
-
-    // create DWT
-    devworkspaceTemplate.metadata.namespace = defaultNamespace;
-    // update owner reference (to allow automatic cleanup)
-    devworkspaceTemplate.metadata.ownerReferences = [
-      {
-        apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
-        kind: devworkspaceSingularSubresource,
-        name: createdWorkspace.metadata.name,
-        uid: createdWorkspace.metadata.uid,
-      },
-    ];
-
-    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
-
-    // update DW
-    return DwApi.patchWorkspace(
-      createdWorkspace.metadata.namespace,
-      createdWorkspace.metadata.name,
-      [
-        {
-          op: 'replace',
-          path: '/spec/template/components',
-          value: components,
-        },
-      ],
-    );
+    return DwApi.createWorkspace(devworkspace);
   }
 
   async createFromDevfile(
@@ -306,7 +274,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     dwEditorsPlugins: { devfile: devfileApi.Devfile; url: string }[],
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
-    editorId: string | undefined,
     optionalFilesContent: { [fileName: string]: string },
   ): Promise<devfileApi.DevWorkspace> {
     if (!devfile.components) {
@@ -324,10 +291,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
     devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
       new Date().toISOString();
-
-    if (editorId) {
-      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
-    }
 
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
     const namespace = createdWorkspace.metadata.namespace;

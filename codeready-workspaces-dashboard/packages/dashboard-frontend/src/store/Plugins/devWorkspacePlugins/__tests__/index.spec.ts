@@ -306,6 +306,9 @@ describe('dwPlugins store', () => {
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
+      const settings = {
+        'che.devworkspaces.enabled': 'true',
+      } as che.WorkspaceSettings;
       await store.dispatch(dwPluginsStore.actionCreators.requestDwDefaultPlugins());
 
       const actions = store.getActions();

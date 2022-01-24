@@ -13,7 +13,6 @@
 import * as k8s from '@kubernetes/client-node';
 import { IKubeConfigApi } from '../../types';
 import { StdStream } from '../helpers/stream';
-import { helpers } from '@eclipse-che/common';
 
 export class KubeConfigAPI implements IKubeConfigApi {
   private readonly execAPI: k8s.Exec;
@@ -36,35 +35,31 @@ export class KubeConfigAPI implements IKubeConfigApi {
     const podName = currentPod.metadata?.name || '';
     const currentPodContainers = currentPod.spec?.containers || [];
 
-    try {
-      for (const container of currentPodContainers) {
-        const containerName = container.name;
+    for (const container of currentPodContainers) {
+      const containerName = container.name;
 
-        // find the directory where we should create the kubeconfig
-        const kubeConfigDirectory = await this.resolveDirectory(podName, namespace, containerName);
-        if (kubeConfigDirectory === '') {
-          console.log(
-            `Could not find appropriate kubeconfig directory for ${namespace}/${podName}/${containerName}`,
-          );
-          continue;
-        }
-
-        // then create the directory if it doesn't exist
-        await this.exec(podName, namespace, containerName, [
-          'sh',
-          '-c',
-          `mkdir -p ${kubeConfigDirectory}`,
-        ]);
-
-        // if -f ${kubeConfigDirectory}/config is not found then sync kubeconfig to the container
-        await this.exec(podName, namespace, containerName, [
-          'sh',
-          '-c',
-          `[ -f ${kubeConfigDirectory}/config ] || echo '${this.kubeConfig}' > ${kubeConfigDirectory}/config`,
-        ]);
+      // find the directory where we should create the kubeconfig
+      const kubeConfigDirectory = await this.resolveDirectory(podName, namespace, containerName);
+      if (kubeConfigDirectory === '') {
+        console.log(
+          `Could not find appropriate kubeconfig directory for ${namespace}/${podName}/${containerName}`,
+        );
+        continue;
       }
-    } catch (e) {
-      throw `Failed to inject kubeconfig. ${helpers.errors.getMessage(e)}`;
+
+      // then create the directory if it doesn't exist
+      await this.exec(podName, namespace, containerName, [
+        'sh',
+        '-c',
+        `mkdir -p ${kubeConfigDirectory}`,
+      ]);
+
+      // if -f ${kubeConfigDirectory}/config is not found then sync kubeconfig to the container
+      await this.exec(podName, namespace, containerName, [
+        'sh',
+        '-c',
+        `[ -f ${kubeConfigDirectory}/config ] || echo '${this.kubeConfig}' > ${kubeConfigDirectory}/config`,
+      ]);
     }
   }
 
@@ -94,9 +89,7 @@ export class KubeConfigAPI implements IKubeConfigApi {
       }
       return resp.body.items[0];
     } catch (e: any) {
-      throw new Error(
-        `Error occurred when attempting to retrieve pod. ${helpers.errors.getMessage(e)}`,
-      );
+      throw new Error(`Error occured when attempting to retrieve pod. ${e.message}`);
     }
   }
 
@@ -113,41 +106,30 @@ export class KubeConfigAPI implements IKubeConfigApi {
     namespace: string,
     containerName: string,
   ): Promise<string> {
-    try {
-      // attempt to resolve the kubeconfig env variable
-      const kubeConfigEnvResolver = await this.exec(name, namespace, containerName, [
-        'sh',
-        '-c',
-        'echo $KUBECONFIG',
-      ]);
+    // attempt to resolve the kubeconfig env variable
+    const kubeConfigEnvResolver = await this.exec(name, namespace, containerName, [
+      'sh',
+      '-c',
+      'echo $KUBECONFIG',
+    ]);
 
-      if (kubeConfigEnvResolver.stdOut) {
-        return kubeConfigEnvResolver.stdOut.replace(new RegExp('/config$'), '');
-      }
-    } catch (e) {
-      console.log(
-        `Could not resolve the kubeconfig env variable in ${namespace}/${name}/${containerName}`,
-      );
+    if (kubeConfigEnvResolver.stdOut !== '') {
+      return kubeConfigEnvResolver.stdOut.replace(new RegExp('/config$'), '');
     }
 
-    try {
-      // attempt to resolve the home directory
-      const homeEnvResolution = await this.exec(name, namespace, containerName, [
-        'sh',
-        '-c',
-        'echo $HOME',
-      ]);
+    // attempt to resolve the home directory
+    const homeEnvResolution = await this.exec(name, namespace, containerName, [
+      'sh',
+      '-c',
+      'echo $HOME',
+    ]);
 
-      if (homeEnvResolution.stdOut) {
-        if (homeEnvResolution.stdOut.substr(-1) === '/') {
-          return homeEnvResolution.stdOut + '.kube';
-        } else {
-          return homeEnvResolution.stdOut + '/.kube';
-        }
+    if (homeEnvResolution.stdOut !== '' && homeEnvResolution.stdOut !== '/') {
+      if (homeEnvResolution.stdOut.substr(-1) === '/') {
+        return homeEnvResolution.stdOut + '.kube';
+      } else {
+        return homeEnvResolution.stdOut + '/.kube';
       }
-    } catch (e) {
-      const message = helpers.errors.getMessage(e);
-      throw `Failed to run command 'echo $HOME' in '${namespace}/${name}/${containerName}' with message: '${message}'`;
     }
     return '';
   }
@@ -167,35 +149,44 @@ export class KubeConfigAPI implements IKubeConfigApi {
     containerName: string,
     command: string[],
   ): Promise<{ stdOut: string }> {
-    const stdOutStream = new StdStream();
+    try {
+      const stdOutStream = new StdStream();
 
-    // Wait until the exec request is done and reject if the final status is a failure, otherwise
-    // everything went OK and stdOutStream contains the response
-    await new Promise((resolve, reject) => {
-      const promise = this.execAPI.exec(
-        namespace,
-        name,
-        containerName,
-        command,
-        stdOutStream,
-        null,
-        null,
-        true,
-        (status: k8s.V1Status) => {
-          if (status.status === 'Failure') {
-            reject(status);
-          } else {
-            resolve(status);
-          }
-        },
-      );
-      promise.catch(error => {
-        reject(error);
+      // Wait until the exec request is done and reject if the final status is a failure, otherwise
+      // everything went OK and stdOutStream contains the response
+      await new Promise((resolve, reject) => {
+        this.execAPI.exec(
+          namespace,
+          name,
+          containerName,
+          command,
+          stdOutStream,
+          null,
+          null,
+          true,
+          status => {
+            if (status.status === 'Failure') {
+              reject(status);
+            } else {
+              resolve(status);
+            }
+          },
+        );
       });
-    });
-
-    return {
-      stdOut: stdOutStream.chunks,
-    };
+      return {
+        stdOut: stdOutStream.chunks,
+      };
+    } catch (e: any) {
+      // swallow this error message and log it out instead because not all containers have a shell that you can use to inject
+      // and will fail by default
+      console.log(
+        `Failed trying to run command: ${command.join(
+          ' ',
+        )} in ${namespace}/${name}/${containerName} with message: ${e.message}`,
+      );
+      return {
+        stdOut: '',
+      };
+    }
   }
 }

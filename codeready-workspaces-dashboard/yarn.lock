@@ -357,14 +357,13 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.39.2.tgz#a49d8a56345cbb52da7829652ffcad612e5f0391"
   integrity sha512-13zSFY4+YjYBQOzQTXE71fAX37HMQm/3rkMHN8c7Ejg1UF8ILXwC3Z28xzlMv4kSxtecn0/frqbwoZN8wRjc/g==
 
-"@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-7ba5d3e":
-  version "1.64.0-dev-7ba5d3e"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.64.0-dev-7ba5d3e.tgz#f247e7959a7db2b0539238bcfbe5cb1cb6c59542"
-  integrity sha512-EQq/db7+MQsZm4D+XLnskQOkZjzyXWx/rTaNLTOHG51zE26GkJWgsDu9NrUADxuqZ3CMqO8GIlk9j91UfNL73Q==
+"@eclipse-che/che-code-devworkspace-handler@1.63.0-dev-2c23dcf":
+  version "1.63.0-dev-2c23dcf"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.63.0-dev-2c23dcf.tgz#83ff92a57a4913b79b509d25c84537e79b80e54a"
+  integrity sha512-r2iUfk780cpE9km5hMMqaCfIkE99LxEBDGPEcHYeJy8zHSMCnU/yr6DPGQcjFZCJui9VYDEb9HTpu7PqECGjxA==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
-    fs-extra "^10.0.0"
     inversify "^5.0.1"
     js-yaml "^4.0.0"
     jsonc-parser "^3.0.0"
@@ -6363,15 +6362,6 @@ fs-extra@9.1.0, fs-extra@^9.1.0:
   integrity sha512-hcg3ZmepS30/7BSFqRvoo3DOMQu7IjqxO5nCDt+zM9XWjb33Wg7ziNT+Qvqbuc3+gWpzO02JubVyk2G4Zvo1OQ==
   dependencies:
     at-least-node "^1.0.0"
-    graceful-fs "^4.2.0"
-    jsonfile "^6.0.1"
-    universalify "^2.0.0"
-
-fs-extra@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.0.tgz#9ff61b655dde53fb34a82df84bb214ce802e17c1"
-  integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
-  dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"
     universalify "^2.0.0"

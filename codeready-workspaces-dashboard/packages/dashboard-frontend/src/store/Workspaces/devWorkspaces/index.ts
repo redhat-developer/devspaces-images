@@ -19,6 +19,8 @@ import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
 import {
   DevWorkspaceClient,
+  DEVWORKSPACE_CHE_EDITOR,
+  DEVWORKSPACE_METADATA_ANNOTATION,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
   IStatusUpdate,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
@@ -29,10 +31,7 @@ import { DisposableCollection } from '../../../services/helpers/disposable';
 import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
 import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
 import { WorkspaceAdapter } from '../../../services/workspace-adapter';
-import {
-  DEVWORKSPACE_CHE_EDITOR,
-  DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
-} from '../../../services/devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../../services/devfileApi/devWorkspace/metadata';
 import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
 import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
@@ -144,7 +143,6 @@ export type ActionCreators = {
   createWorkspaceFromResources: (
     devworkspace: devfileApi.DevWorkspace,
     devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
-    editor?: string,
   ) => AppThunk<KnownAction, Promise<void>>;
 
   deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
@@ -443,27 +441,17 @@ export const actionCreators: ActionCreators = {
     (
       devworkspace: devfileApi.DevWorkspace,
       devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
-      editorId?: string,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       const defaultKubernetesNamespace = selectDefaultNamespace(getState());
       const defaultNamespace = defaultKubernetesNamespace.name;
       try {
-        const cheEditor = editorId ? editorId : getState().dwPlugins.defaultEditorName;
         const workspace = await devWorkspaceClient.createFromResources(
           defaultNamespace,
           devworkspace,
           devworkspaceTemplate,
-          cheEditor,
         );
 
-        if (workspace.spec.started) {
-          const editor = workspace.metadata.annotations
-            ? workspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
-            : undefined;
-          const defaultPlugins = getState().dwPlugins.defaultPlugins;
-          await devWorkspaceClient.onStart(workspace, defaultPlugins, editor);
-        }
         dispatch({
           type: 'ADD_DEVWORKSPACE',
           workspace,
@@ -526,20 +514,25 @@ export const actionCreators: ActionCreators = {
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
         const defaultNamespace = selectDefaultNamespace(state);
         const dwEditorsList = selectDwEditorsPluginsList(cheEditor)(state);
+
+        if (!devWorkspaceDevfile.metadata.attributes) {
+          devWorkspaceDevfile.metadata.attributes = {};
+        }
+        devWorkspaceDevfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {
+          [DEVWORKSPACE_CHE_EDITOR]: cheEditor,
+        };
+
         const workspace = await devWorkspaceClient.createFromDevfile(
           devWorkspaceDevfile,
           defaultNamespace.name,
           dwEditorsList,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
-          cheEditor,
           optionalFilesContent,
         );
 
-        if (workspace.spec.started) {
-          const defaultPlugins = getState().dwPlugins.defaultPlugins;
-          await devWorkspaceClient.onStart(workspace, defaultPlugins, cheEditor as string);
-        }
+        const defaultPlugins = getState().dwPlugins.defaultPlugins;
+        await devWorkspaceClient.onStart(workspace, defaultPlugins, cheEditor as string);
         dispatch({
           type: 'ADD_DEVWORKSPACE',
           workspace,

@@ -22,19 +22,6 @@ export const authenticationHeaderSchema: JSONSchema7 = {
   },
 };
 
-export const namespacedKubeConfigSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-    devworkspaceId: {
-      type: 'string',
-    },
-  },
-  required: ['namespace', 'devworkspaceId'],
-};
-
 export const namespacedDockerConfigSchema: JSONSchema7 = {
   type: 'object',
   properties: {

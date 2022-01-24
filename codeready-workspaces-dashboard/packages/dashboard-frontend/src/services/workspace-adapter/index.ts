@@ -157,7 +157,7 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     } else {
       if (this.workspace.metadata.annotations?.[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]) {
         return new Date(
-          this.workspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]!,
+          this.workspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION],
         ).getTime();
       }
     }

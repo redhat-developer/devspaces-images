@@ -27,7 +27,6 @@ import { CLUSTER_CONSOLE_URL } from './devworkspace-client/services/cluster-info
 import { registerDockerConfigApi } from './api/dockerConfigApi';
 import { registerServerConfigApi } from './api/serverConfigApi';
 import { registerKubeConfigApi } from './api/kubeConfigAPI';
-import { authorizeInfo } from './api/authorizeInfo';
 import fastifyWebsocket from 'fastify-websocket';
 import {
   addDexProxy,
@@ -79,10 +78,6 @@ if (isLocalRun) {
 registerStaticServer(publicFolder, server);
 
 registerSwagger(server);
-
-if (isLocalRun) {
-  authorizeInfo(server);
-}
 
 registerDevworkspaceApi(server);
 

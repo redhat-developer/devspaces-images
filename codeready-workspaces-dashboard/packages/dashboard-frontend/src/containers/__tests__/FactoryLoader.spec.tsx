@@ -181,78 +181,6 @@ describe('Factory Loader container', () => {
   });
 
   describe('with prebuilt resources', () => {
-    it('should not try to create a new workspace and show an error if prebuilt resources are empty', async () => {
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({ 'che.devworkspaces.enabled': 'true' } as che.WorkspaceSettings)
-        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-        .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: 'http://test-location' });
-      props.location.search += '&devWorkspace=devWorkspace.yaml';
-
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({ data: '' });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      const elementHasError = screen.getByTestId('factory-loader-has-error');
-      await waitFor(() => expect(elementHasError.innerHTML).toEqual('true'));
-      expect(createWorkspaceFromResourcesMock).not.toHaveBeenCalled();
-    });
-
-    it('should not try to create a new workspace and show an error if prebuilt resources does not include a Template', async () => {
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({ 'che.devworkspaces.enabled': 'true' } as che.WorkspaceSettings)
-        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-        .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: 'http://test-location' });
-      props.location.search += '&devWorkspace=devWorkspace.yaml';
-
-      const yamlContent = `apiVersion: workspace.devfile.io/v1alpha2
-kind: DevWorkspace
-metadata:
-  name: project
-  namespace: test-dev`;
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({ data: yamlContent });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      const elementHasError = screen.getByTestId('factory-loader-has-error');
-      await waitFor(() => expect(elementHasError.innerHTML).toEqual('true'));
-      expect(createWorkspaceFromResourcesMock).not.toHaveBeenCalled();
-    });
-
-    it('should not try to create a new workspace and show an error if prebuilt resources does not include a DevWorkspace', async () => {
-      const store = new FakeStoreBuilder()
-        .withWorkspacesSettings({ 'che.devworkspaces.enabled': 'true' } as che.WorkspaceSettings)
-        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-        .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: 'http://test-location' });
-      props.location.search += '&devWorkspace=devWorkspace.yaml';
-
-      const yamlContent = `apiVersion: workspace.devfile.io/v1alpha2
-kind: DevWorkspaceTemplate
-metadata:
-  name: theia-ide-project`;
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({ data: yamlContent });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      const elementHasError = screen.getByTestId('factory-loader-has-error');
-      await waitFor(() => expect(elementHasError.innerHTML).toEqual('true'));
-      expect(createWorkspaceFromResourcesMock).not.toHaveBeenCalled();
-    });
-
     it('should start creating a devworkspace using pre-generated resources', async () => {
       const store = new FakeStoreBuilder()
         .withWorkspacesSettings({
@@ -275,9 +203,8 @@ metadata:
 apiVersion: workspace.devfile.io/v1alpha2
 kind: DevWorkspace
 metadata:
-  name: project
-  namespace: test-dev`;
-      (mockAxios.get as jest.Mock).mockResolvedValueOnce({ data: yamlContent });
+  name: project`;
+      (mockAxios.get as jest.Mock).mockResolvedValueOnce(yamlContent);
 
       render(
         <Provider store={store}>
@@ -285,30 +212,7 @@ metadata:
         </Provider>,
       );
 
-      await waitFor(() =>
-        expect(createWorkspaceFromResourcesMock).toHaveBeenCalledWith(
-          {
-            apiVersion: 'workspace.devfile.io/v1alpha2',
-            kind: 'DevWorkspace',
-            metadata: {
-              name: 'project',
-              namespace: 'test-dev',
-              annotations: {
-                'che.eclipse.org/devfile-source': `factory:
-  params: 'url=http://test-location&devWorkspace=devWorkspace.yaml'
-`,
-              },
-            },
-          },
-          {
-            apiVersion: 'workspace.devfile.io/v1alpha2',
-            kind: 'DevWorkspaceTemplate',
-            metadata: {
-              name: 'theia-ide-project',
-            },
-          },
-        ),
-      );
+      await waitFor(() => expect(createWorkspaceFromResourcesMock).toHaveBeenCalled());
     });
   });
 

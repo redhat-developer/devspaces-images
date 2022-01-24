@@ -43,7 +43,7 @@ import {
   selectDefaultNamespace,
   selectInfrastructureNamespaces,
 } from '../../store/InfrastructureNamespaces/selectors';
-import { safeDump, safeLoad, safeLoadAll } from 'js-yaml';
+import { safeLoad, safeLoadAll } from 'js-yaml';
 import updateDevfileMetadata, { FactorySource } from './updateDevfileMetadata';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import devfileApi from '../../services/devfileApi';
@@ -466,7 +466,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private async createDevWorkspaceFromResources(
     devWorkspacePrebuiltResources: string,
     factoryParams: string,
-    editorId?: string,
   ): Promise<Workspace | undefined> {
     let workspace: Workspace | undefined;
 
@@ -500,42 +499,15 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
           return;
         }
 
-        let resources: Array<devfileApi.DevWorkspace | devfileApi.DevWorkspaceTemplate>;
-        try {
-          if (!yamlContent) {
-            throw new Error('Yaml is empty.');
-          }
-          resources = safeLoadAll(yamlContent);
-        } catch (e) {
-          const message = `Failed to parse Yaml content. ${common.helpers.errors.getMessage(e)}`;
-          this.showAlert(message);
-          return;
-        }
-
+        const resources = safeLoadAll(yamlContent);
         const devworkspace = resources.find(
           resource => resource.kind === 'DevWorkspace',
         ) as devfileApi.DevWorkspace;
-        if (!devworkspace) {
-          this.showAlert('Failed to find a devworkspace from prebuilt resources.');
-          return;
-        }
         const devworkspaceTemplate = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
         ) as devfileApi.DevWorkspaceTemplate;
-        if (!devworkspaceTemplate) {
-          this.showAlert('Failed to find a devworkspaceTemplate from prebuilt resources.');
-          return;
-        }
-        // add devworkspace source info
-        const { metadata } = devworkspace;
-        if (!metadata.annotations) {
-          metadata.annotations = {};
-        }
-        metadata.annotations[DEVWORKSPACE_DEVFILE_SOURCE] = safeDump({
-          factory: { params: factoryParams },
-        });
 
-        await this.props.createWorkspaceFromResources(devworkspace, devworkspaceTemplate, editorId);
+        await this.props.createWorkspaceFromResources(devworkspace, devworkspaceTemplate);
 
         const namespace = this.props.defaultNamespace?.name;
         this.props.setWorkspaceQualifiedName(namespace, devworkspace.metadata.name as string);
@@ -652,7 +624,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       workspace = await this.createDevWorkspaceFromResources(
         attrs.devWorkspace,
         attrs.factoryParams,
-        attrs['che-editor'],
       );
     } else {
       // create workspace using a devfile

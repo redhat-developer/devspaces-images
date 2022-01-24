@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/common",
-  "version": "7.43.0-next",
+  "version": "7.42.1-SNAPSHOT",
   "repository": "https://github.com/eclipse-che/che-dashboard",
   "license": "EPL-2.0",
   "private": true,
