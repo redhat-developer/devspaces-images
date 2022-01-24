@@ -10,7 +10,7 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
         pipelineTriggers {
             triggers {
                 cron {
-                    spec ('0 23 * * 2') // every week on Tuesday "night"
+                    spec ('0 23 * * 4') // every week on Thurs "night"
                 }
             }
         }
