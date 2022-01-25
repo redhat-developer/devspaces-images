@@ -22,3 +22,8 @@ baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/rh
 enabled=1
 gpgcheck=0
 
+[openj9-1-for-rhel-8-rpms]
+name=openj9-1-for-rhel-8-rpms
+baseurl=http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/$basearch/openj9/1/os/
+enabled=1
+gpgcheck=0
