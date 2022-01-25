@@ -80,8 +80,11 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
     log "[INFO] Download ${CSV_VERSION} ${ASSET_NAME} assets:"
 	REPO_PATH=""
 	if [[ -d ${WORKSPACE}/sources/ ]]; then REPO_PATH="--repo-path ${WORKSPACE}/sources"; fi
+
+	# pull asset-*.tar.gz files
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 
+	# pull odo for all arches
 	mkdir -p x86_64 s390x ppc64le
 	curl -sSLo x86_64/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo
 	# s390x
@@ -91,11 +94,12 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	tar czf asset-odo.tgz s390x x86_64 ppc64le
 	rm -Rf s390x x86_64 ppc64le
 
-	#pull maven
+	# pull gradle, lombok, and maven (noarch)
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 
-    outputFiles="$(ls asset-*.tar.gz) asset-odo.tgz gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz lombok-${LOMBOK_VERSION}.jar"
+    outputFiles="$(ls asset-*.tar.gz) asset-odo.tgz gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz "
 
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
