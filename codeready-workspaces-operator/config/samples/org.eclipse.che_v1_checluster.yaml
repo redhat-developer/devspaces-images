@@ -14,23 +14,28 @@ metadata:
   name: codeready-workspaces
 spec:
   server:
+    cheFlavor: codeready
     cheClusterRoles: ''
     cheWorkspaceClusterRole: ''
+    serverTrustStoreConfigMapName: ''
     gitSelfSignedCert: false
     tlsSupport: true
     proxyURL: ''
     proxyPort: ''
-    proxySecret: ''
+    proxyUser: ''
+    proxyPassword: ''
     nonProxyHosts: ''
     workspaceNamespaceDefault: <username>-codeready
+    allowUserDefinedWorkspaceNamespaces: false
+    serverExposureStrategy: ''
     devfileRegistryImage: ''
     pluginRegistryImage: ''
-    cheFlavor: codeready
   database:
     externalDb: false
     chePostgresHostName: ''
     chePostgresPort: ''
-    chePostgresSecret: ''
+    chePostgresUser: ''
+    chePostgresPassword: ''
     chePostgresDb: ''
   storage:
     pvcStrategy: common
@@ -39,12 +44,17 @@ spec:
     postgresPVCStorageClassName: ''
     workspacePVCStorageClassName: ''
   auth:
+    initialOpenShiftOAuthUser: true
+    externalIdentityProvider: false
     identityProviderURL: ''
+    identityProviderAdminUserName: admin
+    identityProviderPassword: admin
+    identityProviderRealm: ''
+    identityProviderClientId: ''
     oAuthClientName: ''
     oAuthSecret: ''
-    identityProviderAdminUserName: admin
     identityProviderImage: ''
   metrics:
     enable: true
   devWorkspace:
-    enable: true
+    enable: false
