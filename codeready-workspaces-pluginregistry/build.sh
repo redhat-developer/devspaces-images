@@ -101,6 +101,13 @@ REGISTRY_VERSION=$(jq -r '.Version' "${versionjson}");
 REGISTRY_GENERATOR_VERSION=$(jq -r --arg REGISTRY_VERSION "${REGISTRY_VERSION}" '.Other["@eclipse-che/plugin-registry-generator"][$REGISTRY_VERSION]' "${versionjson}");
 # echo "REGISTRY_VERSION=${REGISTRY_VERSION}; REGISTRY_GENERATOR_VERSION=${REGISTRY_GENERATOR_VERSION}"
 
+# Initialize fake git repo to avoid problems with simple-git executor, see CRW-2672
+git init .
+git add che-theia-plugins.yaml
+git config --global user.email "fake@example.com"
+git config --global user.name "Fake Name"
+git commit -m "fake commit"
+
 echo "Generate artifacts"
 # do not generate digests as they'll be added at runtime from the operator (see CRW-1157)
 npx @eclipse-che/plugin-registry-generator@"${REGISTRY_GENERATOR_VERSION}" --root-folder:"$(pwd)" --output-folder:"$(pwd)/output" "${BUILD_FLAGS_ARRAY[@]}" --skip-digest-generation:true
