@@ -32,7 +32,6 @@ ENV \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/opt/apache-maven"
-    
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
@@ -158,7 +157,7 @@ CMD tail -f /dev/null
 ENV SUMMARY="Red Hat CodeReady Workspaces - Universal Developer Image container" \
     DESCRIPTION="Red Hat CodeReady Workspaces - Universal Developer Image container" \
     PRODNAME="codeready-workspaces" \
-    COMPNAME="udi"
+    COMPNAME="udi-rhel8"
 
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
