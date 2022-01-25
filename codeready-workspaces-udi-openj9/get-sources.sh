@@ -15,7 +15,7 @@ GRADLE_VERSION="6.1"
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.22"
 ODO_VERSION="v2.4.2"
-ASSET_NAME="udi"
+ASSET_NAME="udi-openj9"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
