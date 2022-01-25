@@ -135,7 +135,7 @@ README.md
 RELEASE.md
 REQUIREMENTS
 sources
-templates/
+helmcharts/
 tests/basic-test.yaml
 tools.go
 vendor/
@@ -214,7 +214,7 @@ echo "Generated Dockerfile"
 "${TARGETDIR}"/build/scripts/sync-che-olm-to-crw-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 
 pushd "${TARGETDIR}"/ >/dev/null || exit
-rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vendor/ version/ go.* *.go
+rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ vendor/ version/ go.* *.go
 
 CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
 # transform into Brew-friendly version of CSV
