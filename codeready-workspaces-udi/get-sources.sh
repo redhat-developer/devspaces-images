@@ -99,12 +99,12 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 
-    outputFiles="$(ls asset-*.tar.gz) asset-odo.tgz gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz "
+    outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz"
 
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
-	COMMIT_MSG="ci: GH ${ASSET_NAME} assets :: ${outputFiles} :: odo ${ODO_VERSION}"
+	COMMIT_MSG="ci: GH ${ASSET_NAME} assets :: ${outputFiles} ${ODO_VERSION}"
 
 	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
