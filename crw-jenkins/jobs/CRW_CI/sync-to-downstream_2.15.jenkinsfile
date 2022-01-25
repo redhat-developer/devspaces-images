@@ -1,5 +1,6 @@
 #!/usr/bin/env groovy
 import groovy.transform.Field
+import groovy.json.JsonSlurper
 
 // PARAMETERS for this pipeline:
 //   REPOS
@@ -143,10 +144,18 @@ timeout(600) {
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
 
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-udi") || REPOS.contains("-stacks-")) { util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION); }
-
-            // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
-            if (REPOS.contains("-udi")) { util.updateHelmRpms("4.8"); }
+            if (REPOS.contains("-udi") || REPOS.contains("-stacks-")) { 
+              def jsonSlurper = new groovy.json.JsonSlurper();
+              def config = jsonSlurper.parseText("https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text);
+              def OPENSHIFT_CONTENT_SET_VERSION=config.Other.OPENSHIFT_CONTENT_SET_VERSION[CRW_VERSION]
+              if (OPENSHIFT_CONTENT_SET_VERSION?.trim()) {
+                util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
+                // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
+                if (REPOS.contains("-udi")) { util.updateHelmRpms("4.8"); }
+              } else {
+                println("[WARN] Could not update OC or Helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION not defined for CRW_VERSION = " + CRW_VERSION)
+              }
+            }
 
             currentBuild.description=""
             def QUAY_REPO_PATH=""

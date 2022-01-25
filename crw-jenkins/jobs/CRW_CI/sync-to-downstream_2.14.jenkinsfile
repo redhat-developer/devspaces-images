@@ -175,9 +175,7 @@ timeout(600) {
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
 
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION); }
-
-            // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
+            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.9"); }
             if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.8"); }
 
             currentBuild.description=""

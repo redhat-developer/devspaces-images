@@ -66,7 +66,7 @@ for global CVE updates.
 Phases:
 <ol>
     <!-- TODO in 2.15 or 2.16, switch to UDI -->
-    <li> build plugin and stack sidecar images (6 plugin, 4 stack sidecar images)</li>
+    <li> build udi and stack sidecar images (2 universal developer images, 4 stack sidecar images)</li>
     <li> build theia images (3 images)</li>
     <li> build internals (14 images): 
         <ul>

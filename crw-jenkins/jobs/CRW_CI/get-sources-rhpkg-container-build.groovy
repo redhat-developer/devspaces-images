@@ -65,12 +65,12 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
 update sources, and run rhpkg container-build: <br/>
 * containers/codeready-workspaces, <br/>
 * containers/codeready-workspaces-operator, <br/>
-* containers/codeready-workspaces-plugin-java11, etc.<br/>
+* containers/codeready-workspaces-udi, etc.<br/>
 ''')
                 stringParam("QUAY_REPO_PATHs", "", '''If blank, do not push to Quay.<br/>
 If set, push to quay.io path, <br/>
 eg., one or more of these (space-separated values): <br/>
-* server-rhel8, crw-2-rhel8-operator, crw-2-rhel8-operator-bundle, stacks-*-rhel8, plugin-*-rhel8, etc.<br/>
+* crw-2-rhel8-operator, crw-2-rhel8-operator-bundle, stacks-*-rhel8, udi-rhel8, udi-openj9-rhel8, etc.<br/>
 ---<br/>
 See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''>push-latest-container-to-quay</a>''')
                 stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
