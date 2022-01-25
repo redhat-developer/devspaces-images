@@ -1,0 +1,12 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = https://github.com/redhat-developer/codeready-workspaces-images.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "crw-2-rhel-8"]
+	remote = origin
+	merge = refs/heads/crw-2-rhel-8
+
