@@ -94,9 +94,9 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	tar czf asset-odo.tgz s390x x86_64 ppc64le
 	rm -Rf s390x x86_64 ppc64le
 
-	# pull gradle, lombok, and maven (noarch)
+	# pull gradle, lombok, and maven
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar
+	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 
     outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz"

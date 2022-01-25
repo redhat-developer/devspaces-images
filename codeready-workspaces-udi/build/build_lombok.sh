@@ -20,7 +20,7 @@ export LOMBOK_VERSION=1.18.22
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
-Example: $0 -v 2.y.0 -n noarch
+Example: $0 -v 2.y.0 -n udi   # or -n udi-openj9
 "
     exit
 }
@@ -50,8 +50,8 @@ echo "CodeReady Workspaces :: java plugin library :: lombok"
 echo ""
 
 # if version we want already exists we're done
-if [[ ! $(curl -sSI https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar | grep 404) ]]; then
-  echo "Asset already exists: https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-noarch-assets/lombok-${LOMBOK_VERSION}.jar"
+if [[ ! $(curl -sSI https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar | grep 404) ]]; then
+  echo "Asset already exists: https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar"
   echo "Nothing to do!"
   exit 0
 fi
@@ -89,7 +89,6 @@ cp target/lombok/dist/lombok-${LOMBOK_VERSION}.jar "${jarfile}"
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
 ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}"
 
 ${PODMAN} rmi -f ${OPENJDK11_IMAGE}
