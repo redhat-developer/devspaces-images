@@ -115,6 +115,9 @@ if [[ ! $ARCHSTEPS ]] || [[ ! $NOARCHSTEPS ]]; then
   fi
 fi
 
+# create target dir in case it doesn't already exist
+mkdir -p $TARGETDIR
+
 getContainerExtract() {
   pushd /tmp >/dev/null || exit
   if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
