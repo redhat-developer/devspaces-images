@@ -11,18 +11,16 @@
 # You should have one top level item for each architecture being built. Most
 # likely this will be x86_64 and ppc64le initially.
 ---
-x86_64:
-- rhel-8-for-x86_64-baseos-rpms
-- rhel-8-for-x86_64-appstream-rpms
-- ocp-tools-4.8-for-rhel-8-x86_64-rpms
-- rhocp-4.9-for-rhel-8-x86_64-rpms
+# for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-udi/?h=crw-2-rhel-8
 s390x:
 - rhel-8-for-s390x-baseos-rpms
 - rhel-8-for-s390x-appstream-rpms
 - ocp-tools-4.8-for-rhel-8-s390x-rpms
 - rhocp-4.9-for-rhel-8-s390x-rpms
+- openj9-1-for-rhel-8-s390x-rpms
 ppc64le:
 - rhel-8-for-ppc64le-baseos-rpms
 - rhel-8-for-ppc64le-appstream-rpms
 - ocp-tools-4.8-for-rhel-8-ppc64le-rpms
 - rhocp-4.9-for-rhel-8-ppc64le-rpms
+- openj9-1-for-rhel-8-ppc64le-rpms 
