@@ -17,7 +17,6 @@ spec:
     cheClusterRoles: ''
     cheWorkspaceClusterRole: ''
     gitSelfSignedCert: false
-    tlsSupport: true
     proxyURL: ''
     proxyPort: ''
     proxySecret: ''

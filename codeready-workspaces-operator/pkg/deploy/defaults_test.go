@@ -32,7 +32,6 @@ func TestDefaultFromEnv(t *testing.T) {
 	pvcJobsImageTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_pvc_jobs"))
 	postgresImageTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_postgres"))
 	postgres13ImageTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_postgres_13_3"))
-	keycloakImageTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_keycloak"))
 	brokerMetadataTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_metadata"))
 	brokerArtifactsTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_artifacts"))
 	jwtProxyTest := os.Getenv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"))
@@ -75,10 +74,6 @@ func TestDefaultFromEnv(t *testing.T) {
 		t.Errorf("Expected %s but was %s", postgres13ImageTest, DefaultPostgres13Image(cheCluster))
 	}
 
-	if DefaultKeycloakImage(cheCluster) != keycloakImageTest {
-		t.Errorf("Expected %s but was %s", keycloakImageTest, DefaultKeycloakImage(cheCluster))
-	}
-
 	if DefaultCheWorkspacePluginBrokerMetadataImage(cheCluster) != brokerMetadataTest {
 		t.Errorf("Expected '%s', but was %s", brokerMetadataTest, DefaultCheWorkspacePluginBrokerMetadataImage(cheCluster))
 	}
@@ -96,7 +91,7 @@ func TestCorrectImageName(t *testing.T) {
 	testCases := map[string]string{
 		"registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:latest":  "crw-2-rhel8-operator:latest",
 		"registry.redhat.io/codeready-workspaces/server-operator-rhel8:2.0": "server-operator-rhel8:2.0",
-		"registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.15":  "crw-2-rhel8-operator:2.15",
+		"registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.16":  "crw-2-rhel8-operator:2.16",
 	}
 	for k, v := range testCases {
 		t.Run(k, func(*testing.T) {
@@ -122,7 +117,6 @@ func TestCorrectAirGapPatchedImage(t *testing.T) {
 		expectedAirGapPostgresUpstreamImageOnlyOrgChanged        = makeAirGapImagePath(getHostnameFromImage(defaultPostgresImage), airGapRegistryOrganization, getImageNameFromFullImage(defaultPostgresImage))
 		expectedAirGapCRWPluginRegistryOnlyOrgChanged            = makeAirGapImagePath(getHostnameFromImage(defaultPluginRegistryImage), airGapRegistryOrganization, getImageNameFromFullImage(defaultPluginRegistryImage))
 		expectedAirGapCRWPostgresImage                           = makeAirGapImagePath(airGapRegistryHostname, airGapRegistryOrganization, getImageNameFromFullImage(defaultPostgresImage))
-		expectedAirGapKeyCloakImageOnlyHostnameChanged           = makeAirGapImagePath(airGapRegistryHostname, getOrganizationFromImage(defaultKeycloakImage), getImageNameFromFullImage(defaultKeycloakImage))
 		expectedAirGapCRWDevfileRegistryImageOnlyHostnameChanged = makeAirGapImagePath(airGapRegistryHostname, getOrganizationFromImage(defaultDevfileRegistryImage), getImageNameFromFullImage(defaultDevfileRegistryImage))
 	)
 
@@ -162,13 +156,6 @@ func TestCorrectAirGapPatchedImage(t *testing.T) {
 			},
 		},
 	}
-	upstreamOnlyHostname := &orgv1.CheCluster{
-		Spec: orgv1.CheClusterSpec{
-			Server: orgv1.CheClusterSpecServer{
-				AirGapContainerRegistryHostname: airGapRegistryHostname,
-			},
-		},
-	}
 	crwOnlyOrg := &orgv1.CheCluster{
 		Spec: orgv1.CheClusterSpec{
 			Server: orgv1.CheClusterSpecServer{
@@ -193,7 +180,6 @@ func TestCorrectAirGapPatchedImage(t *testing.T) {
 		"codeready plugin registry with only the org changed": {image: defaultPluginRegistryImage, expected: expectedAirGapCRWPluginRegistryOnlyOrgChanged, cr: crwOnlyOrg},
 		"CRW postgres":                          {image: defaultPostgresImage, expected: defaultPostgresImage, cr: crw},
 		"CRW airgap postgres":                   {image: defaultPostgresImage, expected: expectedAirGapCRWPostgresImage, cr: airGapCRW},
-		"airgap with only hostname defined":     {image: defaultKeycloakImage, expected: expectedAirGapKeyCloakImageOnlyHostnameChanged, cr: upstreamOnlyHostname},
 		"crw airgap with only hostname defined": {image: defaultDevfileRegistryImage, expected: expectedAirGapCRWDevfileRegistryImageOnlyHostnameChanged, cr: crwOnlyHostname},
 	}
 	for name, tc := range testCases {
