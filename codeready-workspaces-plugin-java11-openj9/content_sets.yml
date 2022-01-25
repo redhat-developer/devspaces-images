@@ -11,7 +11,7 @@
 # You should have one top level item for each architecture being built. Most
 # likely this will be x86_64 and ppc64le initially.
 ---
-# for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11/?h=crw-2.4-rhel-8
+# for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11/?h=crw-2-rhel-8
 s390x:
 - rhel-8-for-s390x-baseos-rpms
 - rhel-8-for-s390x-appstream-rpms
