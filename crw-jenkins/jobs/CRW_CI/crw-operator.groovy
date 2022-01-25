@@ -42,11 +42,13 @@ for (JB in JOB_BRANCHES) {
             description('''
 Artifact builder + sync job; triggers brew after syncing
 
-<p>There are three operator-related sync jobs:<br/>
+<p>Operator-related sync jobs:<br/>
 1. <a href=../crw-operator_''' + JOB_BRANCH + '''>crw-operator_''' + JOB_BRANCH + '''</a>: go code<br/>
 2. <a href=../crw-operator-bundle_''' + JOB_BRANCH + '''>crw-operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV [@since 2.12, OCP 4.8+]</p>
-<!-- TODO remove crw-operator-metadata after 2.15 -->
-3. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV [deprecated, OCP 4.6, last release 2.14]</p>
+
+<!-- TODO remove this if block once 2.16 is live -->
+''' + (JB.equals("2.14") || JB.equals("2.15") ? '''3. <a href=../crw-operator-metadata_''' + JOB_BRANCH + '''>crw-operator-metadata_''' + JOB_BRANCH + '''</a>: CRD, CSV [deprecated, OCP 4.6, last release 2.14]</p>''' : ''' ''') + '''
+<!-- TODO remove this if block once 2.16 is live -->
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>

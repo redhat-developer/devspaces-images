@@ -11,8 +11,8 @@ import groovy.transform.Field
 // CONTAINERS
 // PLATFORMS
 
-// Nodes to run artifact build on ex. ['rhel83||x86_64-rhel8', 's390x-rhel8', 'ppc64le-rhel8']
-def List nodeLabels = ['x86_64-rhel8-perm', 's390x-rhel8-perm', 'ppc64le-rhel8-perm']
+// Nodes to run artifact build
+def List nodeLabels = ['x86_64-rhel8-dyn', 's390x-rhel8-perm', 'ppc64le-rhel8-perm']
 def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
 def List platforms = []
 def Map tasks = [failFast: false]

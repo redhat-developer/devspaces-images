@@ -13,7 +13,8 @@ import groovy.json.JsonSlurper
 
 @Field String NEW_TAG = ""
 // NOTE: if rpm install in docker build problems reoccur, see CRW-1958
-def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+// CRW-2656 if a theia build, ONLY use dynamic rhel85 boxes so there's maximum disk space available
+def String nodeLabel = GIT_PATHs.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Building " + QUAY_REPO_PATHs + "... "
 timeout(240) {
   node(nodeLabel) { 
