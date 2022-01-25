@@ -117,7 +117,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:65cd4dbb4d0b5c2cbb7eb40134e3ebd138a7773926a8cb6e33d16a2f3e0bfd95
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:947070475c14b6ddbc37c145d3d59c80f10ab389e2e0cf159bb82f2279dbb51a
     createdAt: "2022-01-25T09:04:55+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1182,7 +1182,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:046d86f43fe0d22531505f3a7cf3050baa5967e6443ac226d5a8402d589fab13
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:9ef52246cc30dd47f1d969ebd537eeb5d9fba7723dd0632bae2895134b84cae9
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:3a620894f225b919e461599b42af4cb9806a3b2fb76c96dbeda1d2cc5ec91335
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1199,7 +1199,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:65cd4dbb4d0b5c2cbb7eb40134e3ebd138a7773926a8cb6e33d16a2f3e0bfd95
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:947070475c14b6ddbc37c145d3d59c80f10ab389e2e0cf159bb82f2279dbb51a
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1481,10 +1481,10 @@ spec:
   version: 2.15.100
   replaces: crwoperatorallnamespaces.v2.14.100
   relatedImages:
-  - name: crw-2-rhel8-operator-65cd4dbb4d0b5c2cbb7eb40134e3ebd138a7773926a8cb6e33d16a2f3e0bfd95-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:65cd4dbb4d0b5c2cbb7eb40134e3ebd138a7773926a8cb6e33d16a2f3e0bfd95
+  - name: crw-2-rhel8-operator-947070475c14b6ddbc37c145d3d59c80f10ab389e2e0cf159bb82f2279dbb51a-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:947070475c14b6ddbc37c145d3d59c80f10ab389e2e0cf159bb82f2279dbb51a
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:65cd4dbb4d0b5c2cbb7eb40134e3ebd138a7773926a8cb6e33d16a2f3e0bfd95
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:947070475c14b6ddbc37c145d3d59c80f10ab389e2e0cf159bb82f2279dbb51a
   - name: che_server
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:2f9a6b62e074c47d098bc3b4d7207453c7c1d54bba590e07dc726fff5c89f664
   - name: che_server_secure_exposer_jwt_proxy_image
@@ -1582,7 +1582,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:046d86f43fe0d22531505f3a7cf3050baa5967e6443ac226d5a8402d589fab13
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:9ef52246cc30dd47f1d969ebd537eeb5d9fba7723dd0632bae2895134b84cae9
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:3a620894f225b919e461599b42af4cb9806a3b2fb76c96dbeda1d2cc5ec91335
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
