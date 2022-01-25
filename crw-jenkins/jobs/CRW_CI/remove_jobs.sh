@@ -11,7 +11,7 @@
 # script to remove previous release's jobs from Jenkins
 
 # defaults
-JENKINSURL="https://main-jenkins-csb-crwqe.apps.ocp4.prod.psi.redhat.com"
+JENKINSURL="https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com"
 
 usage() {
   echo "
