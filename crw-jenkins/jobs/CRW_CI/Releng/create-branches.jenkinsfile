@@ -3,6 +3,7 @@
 // PARAMETERS for this pipeline:
 // def MIDSTM_BRANCH = "crw-2-rhel-8" // redhat-developer/codeready-workspaces branch to use as source of the new branches
 // def FUTURE_BRANCH = "crw-2.y-rhel-8" // branch to create
+// CLEAN_ON_FAILURE = "true"
 
 def List GH_REPOS = [
     'codeready-workspaces',
@@ -38,7 +39,7 @@ timeout(120) {
                 cleanWhenSuccess: true,
                 cleanWhenUnstable: true,
                 cleanWhenNotBuilt: false,
-                cleanWhenFailure: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
                 cleanWhenAborted: true,
                 deleteDirs: true,
                 disableDeferredWipeout: true,

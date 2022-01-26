@@ -79,6 +79,7 @@ See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH +
                 stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
                 booleanParam("SCRATCH", true, "By default make a scratch build. Set to false to NOT do a scratch build.")
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
             definition {

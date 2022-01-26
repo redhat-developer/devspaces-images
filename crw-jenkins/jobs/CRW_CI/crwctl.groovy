@@ -104,6 +104,7 @@ if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
 * push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
 * for GA suffix, push to RCM automatically (and copy to Github)
 ''')
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
             
             definition {

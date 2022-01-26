@@ -76,6 +76,7 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 stringParam("MIDSTM_NAME", MIDSTM_NAME)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
             definition {

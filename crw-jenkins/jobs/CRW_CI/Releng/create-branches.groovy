@@ -41,6 +41,7 @@ https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/produ
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use as source of the new branches")
             stringParam("FUTURE_BRANCH",FUTURE_BRANCH,"branch to create")
+            booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
         }
 
         definition {

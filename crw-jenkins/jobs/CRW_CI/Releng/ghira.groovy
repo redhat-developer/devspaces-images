@@ -35,6 +35,7 @@ pipelineJob("${FOLDER_PATH}/${ITEM_NAME}"){
     parameters{
         booleanParam("DRY_RUN", false, "check box for dry run only (no issues will be created)")
         stringParam("NUM_WEEKS", "2", "look at issues closed in last n weeks; default 2")
+        booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
     }
 
     definition {

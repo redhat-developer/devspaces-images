@@ -122,6 +122,7 @@ Results:
 * include one, some, or all as needed<br/>
 * default: x86_64, s390x, ppc64le''')
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
             // Trigger builds remotely (e.g., from scripts), using Authentication Token = CI_BUILD

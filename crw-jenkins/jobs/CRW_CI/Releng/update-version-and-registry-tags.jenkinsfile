@@ -2,6 +2,7 @@
 
 // PARAMETERS for this pipeline:
 //   CRW_VERSION
+//   CLEAN_ON_FAILURE = "true"
 
 def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
 def MIDSTM_BRANCH = "crw-2-rhel-8"
@@ -42,7 +43,7 @@ done
                 cleanWhenSuccess: true,
                 cleanWhenUnstable: true,
                 cleanWhenNotBuilt: false,
-                cleanWhenFailure: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
                 cleanWhenAborted: true,
                 deleteDirs: true,
                 disableDeferredWipeout: true,

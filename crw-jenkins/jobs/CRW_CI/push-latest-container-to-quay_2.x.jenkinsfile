@@ -6,6 +6,7 @@ import groovy.transform.Field
 //   CONTAINERS
 //   MIDSTM_BRANCH
 //   FLOATING_QUAY_TAGS
+//   CLEAN_ON_FAILURE = "true"
 
 def checkFailure(arrayLines,serverName,errorOccurred)
 {
@@ -121,7 +122,7 @@ Brew NVRs:
                         cleanWhenSuccess: true,
                         cleanWhenUnstable: true,
                         cleanWhenNotBuilt: false,
-                        cleanWhenFailure: false,
+                        cleanWhenFailure: CLEAN_ON_FAILURE,
                         cleanWhenAborted: true,
                         deleteDirs: true,
                         disableDeferredWipeout: true,
@@ -169,14 +170,19 @@ node(nodeLabel){
                 quietPeriod: 0,
                 parameters: [
                     [
-                    $class: 'StringParameterValue',
-                    name: 'token',
-                    value: "CI_BUILD"
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
                     ],
                     [
-                    $class: 'StringParameterValue',
-                    name: 'cause',
-                    value: "push-latest-containers-to-quay+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "push-latest-containers-to-quay+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                    ],
+                    [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
                     ]
                 ]
             )
@@ -238,7 +244,7 @@ fi
         cleanWhenSuccess: true,
         cleanWhenUnstable: true,
         cleanWhenNotBuilt: false,
-        cleanWhenFailure: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
         cleanWhenAborted: true,
         deleteDirs: true,
         disableDeferredWipeout: true,
@@ -268,14 +274,19 @@ node(nodeLabel){
                 quietPeriod: 0,
                 parameters: [
                     [
-                    $class: 'StringParameterValue',
-                    name: 'token',
-                    value: "CI_BUILD"
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
                     ],
                     [
-                    $class: 'StringParameterValue',
-                    name: 'cause',
-                    value: "crw-theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "crw-theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                    ],
+                    [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
                     ]
                 ]
             )
@@ -286,7 +297,7 @@ node(nodeLabel){
         cleanWhenSuccess: true,
         cleanWhenUnstable: true,
         cleanWhenNotBuilt: false,
-        cleanWhenFailure: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
         cleanWhenAborted: true,
         deleteDirs: true,
         disableDeferredWipeout: true,

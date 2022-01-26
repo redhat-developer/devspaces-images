@@ -41,6 +41,7 @@ Sync CRW_CI jobs in gitlab repo to github.
             // gitlab repo uses master: do not change. Only sync to main branch crw-2, not the 2.y sub-branches
             stringParam("GITLAB_BRANCH", "master", "branch of https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins from which to sync")
             stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH,"branch of https://github.com/redhat-developer/codeready-workspaces-images to which to sync")
+            booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
         }
 
         definition {

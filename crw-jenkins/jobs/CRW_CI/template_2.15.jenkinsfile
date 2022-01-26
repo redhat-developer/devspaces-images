@@ -10,6 +10,7 @@ import groovy.transform.Field
 // MIDSTM_NAME
 // UPDATE_BASE_IMAGES_FLAGS = "" or "--tag \"1\\\\.13|8\\\\.[0-9]-\" " (if project is locked on golang 1.13 instead of latest)
 // FORCE_BUILD = "false"
+// CLEAN_ON_FAILURE = "true"
 
 def SYNC_REPO = MIDSTM_NAME
 
@@ -159,6 +160,11 @@ fi
                   $class: 'BooleanParameterValue',
                   name: 'SCRATCH',
                   value: false
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'CLEAN_ON_FAILURE',
+                  value: CLEAN_ON_FAILURE
                 ]
               ]
             )
@@ -173,7 +179,7 @@ fi
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,
           cleanWhenNotBuilt: false,
-          cleanWhenFailure: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
           cleanWhenAborted: true,
           deleteDirs: true,
           disableDeferredWipeout: true,

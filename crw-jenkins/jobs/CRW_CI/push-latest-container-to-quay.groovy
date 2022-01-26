@@ -142,6 +142,7 @@ theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
                 }
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
                 stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
             // TODO: enable naginator plugin to re-trigger if job fails

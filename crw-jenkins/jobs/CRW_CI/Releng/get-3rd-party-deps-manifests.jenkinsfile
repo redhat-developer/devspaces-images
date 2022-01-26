@@ -5,6 +5,7 @@ import groovy.transform.Field
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH="crw-2.y-rhel-8"
 // TAG_RELEASE = true/false. If true, tag the repos; if false, proceed w/o tagging
+// CLEAN_ON_FAILURE = "true"
 
 def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
@@ -90,7 +91,7 @@ git push origin ''' + MIDSTM_BRANCHNEXT + '''
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,
           cleanWhenNotBuilt: false,
-          cleanWhenFailure: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
           cleanWhenAborted: true,
           deleteDirs: true,
           disableDeferredWipeout: true,

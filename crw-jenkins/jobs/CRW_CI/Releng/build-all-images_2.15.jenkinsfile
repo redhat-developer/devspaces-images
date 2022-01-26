@@ -3,6 +3,7 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
+//   CLEAN_ON_FAILURE = "true"
 
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(600) {
@@ -28,12 +29,8 @@ timeout(600) {
 
                         def List sidecarsList = [
                             // TODO in 2.15 or 2.16, switch to UDI
-                            "plugin-java11-openj9", 
-                            "plugin-java11", 
-                            "plugin-java8-openj9", 
-                            "plugin-java8", 
-                            "plugin-kubernetes", 
-                            "plugin-openshift", 
+                            "udi-openj9", 
+                            "udi", 
 
                             "stacks-cpp", 
                             "stacks-dotnet", 
@@ -174,7 +171,7 @@ timeout(600) {
                 cleanWhenSuccess: true,
                 cleanWhenUnstable: true,
                 cleanWhenNotBuilt: false,
-                cleanWhenFailure: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
                 cleanWhenAborted: true,
                 deleteDirs: true,
                 disableDeferredWipeout: true,

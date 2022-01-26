@@ -4,6 +4,7 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
+//   CLEAN_ON_FAILURE = "true"
 
 // https://issues.redhat.com/browse/CRW-1011 job to set up cdn / akamai stuff for the theia-rhel8 image
 
@@ -72,7 +73,7 @@ docker rm "theia-container" >/dev/null
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
                     cleanWhenNotBuilt: false,
-                    cleanWhenFailure: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
                     cleanWhenAborted: true,
                     deleteDirs: true,
                     disableDeferredWipeout: true,

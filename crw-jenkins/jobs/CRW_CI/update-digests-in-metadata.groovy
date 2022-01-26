@@ -72,6 +72,7 @@ if any new images are found in <a href=https://quay.io/crw/>quay.io/crw/</a> usi
 
             parameters{
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
             definition {

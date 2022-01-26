@@ -100,6 +100,7 @@ Artifact builder + sync job; triggers brew after syncing
                 stringParam("CSV_VERSION", config.CSVs."operator-metadata"[JB].CSV_VERSION)
                 stringParam("CSV_VERSION_PREV", config.CSVs."operator-metadata"[JB].CSV_VERSION_PREV)
                 booleanParam("FORCE_BUILD", false, "If true, trigger a rebuild even if no changes were pushed to pkgs.devel")
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
 
             definition {

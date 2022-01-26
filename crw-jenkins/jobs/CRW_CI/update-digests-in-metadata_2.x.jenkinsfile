@@ -4,6 +4,7 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
     // MIDSTM_BRANCH
+    // CLEAN_ON_FAILURE = "true"
 
 def errorOccurred = false
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
@@ -141,7 +142,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle"
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
                     cleanWhenNotBuilt: false,
-                    cleanWhenFailure: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
                     cleanWhenAborted: true,
                     deleteDirs: true,
                     disableDeferredWipeout: true,

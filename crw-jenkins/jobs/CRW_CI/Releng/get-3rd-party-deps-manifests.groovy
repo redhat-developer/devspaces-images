@@ -47,6 +47,7 @@ Collect sources from pkgs.devel and vsix files and push GH as part of a GA relea
         parameters{
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
             booleanParam("TAG_RELEASE", false, "if true, tag the repos before collecting manifests")
+            booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so if can be used for debugging.")
         }
 
         definition {

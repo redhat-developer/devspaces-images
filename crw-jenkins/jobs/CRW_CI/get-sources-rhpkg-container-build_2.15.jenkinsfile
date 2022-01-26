@@ -10,6 +10,7 @@ import groovy.json.JsonSlurper
 // FLOATING_QUAY_TAGS
 // SCRATCH
 // FORCE_BUILD
+// CLEAN_ON_FAILURE = "true"
 
 @Field String NEW_TAG = ""
 // NOTE: if rpm install in docker build problems reoccur, see CRW-1958
@@ -130,6 +131,11 @@ wait
               $class: 'StringParameterValue',
               name: 'FLOATING_QUAY_TAGS',
               value: FLOATING_QUAY_TAGS
+            ],
+            [
+              $class: 'BooleanParameterValue',
+              name: 'CLEAN_ON_FAILURE',
+              value: CLEAN_ON_FAILURE
             ]
           ]
         )
@@ -143,7 +149,7 @@ wait
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,
           cleanWhenNotBuilt: false,
-          cleanWhenFailure: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
           cleanWhenAborted: true,
           deleteDirs: true,
           disableDeferredWipeout: true,

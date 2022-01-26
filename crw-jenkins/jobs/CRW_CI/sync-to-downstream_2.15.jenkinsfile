@@ -7,6 +7,7 @@ import groovy.json.JsonSlurper
 //   UPDATE_BASE_IMAGES_FLAGS
 //   MIDSTM_BRANCH
 //   FORCE_BUILD
+//   CLEAN_ON_FAILURE = "true"
 
 def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
 def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // source repo from which to find commits
@@ -101,7 +102,7 @@ popd
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
                     cleanWhenNotBuilt: false,
-                    cleanWhenFailure: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
                     cleanWhenAborted: true,
                     deleteDirs: true,
                     disableDeferredWipeout: true,
@@ -311,6 +312,11 @@ rm -f /tmp/rsync-excludes
                         $class: 'BooleanParameterValue',
                         name: 'SCRATCH',
                         value: false
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
                       ]
                     ]
                   )
@@ -326,7 +332,7 @@ rm -f /tmp/rsync-excludes
               cleanWhenSuccess: true,
               cleanWhenUnstable: true,
               cleanWhenNotBuilt: false,
-              cleanWhenFailure: false,
+              cleanWhenFailure: CLEAN_ON_FAILURE,
               cleanWhenAborted: true,
               deleteDirs: true,
               disableDeferredWipeout: true,
@@ -376,6 +382,11 @@ node(nodeLabelAnyArch){
                     $class: 'StringParameterValue',
                     name: 'versionSuffix',
                     value: "CI"
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'CLEAN_ON_FAILURE',
+                    value: CLEAN_ON_FAILURE
                   ]
                 ]
           )
@@ -392,7 +403,7 @@ node(nodeLabelAnyArch){
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,
           cleanWhenNotBuilt: false,
-          cleanWhenFailure: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
           cleanWhenAborted: true,
           deleteDirs: true,
           disableDeferredWipeout: true,

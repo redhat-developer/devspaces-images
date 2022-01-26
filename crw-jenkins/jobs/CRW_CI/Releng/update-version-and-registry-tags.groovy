@@ -38,6 +38,7 @@ job-config.json, VERSION file and registries, then committing changes.
 
         parameters{
             stringParam("CRW_VERSION",JOB_BRANCH,"future version of CRW to use when updating job-config.json, VERSION file and registry tags")
+            booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
         }
 
         definition {

@@ -10,6 +10,7 @@ import groovy.transform.Field
 // THEIA_COMMIT_SHA
 // CONTAINERS
 // PLATFORMS
+// CLEAN_ON_FAILURE = "true"
 
 // Nodes to run artifact build
 def List nodeLabels = ['x86_64-rhel8-dyn', 's390x-rhel8-perm', 'ppc64le-rhel8-perm']
@@ -102,7 +103,7 @@ popd >/dev/null
             cleanWhenSuccess: true,
             cleanWhenUnstable: true,
             cleanWhenNotBuilt: false,
-            cleanWhenFailure: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
             cleanWhenAborted: false, // don't clean workspace on abort (in case of timeout, and want persistent tea leaves)
             deleteDirs: true,
             disableDeferredWipeout: true,
@@ -194,7 +195,7 @@ popd >/dev/null
                   cleanWhenSuccess: true,
                   cleanWhenUnstable: true,
                   cleanWhenNotBuilt: false,
-                  cleanWhenFailure: false,
+                  cleanWhenFailure: CLEAN_ON_FAILURE,
                   cleanWhenAborted: true,
                   deleteDirs: true,
                   disableDeferredWipeout: true,
@@ -288,6 +289,11 @@ node(nodeLabel) {
                   $class: 'BooleanParameterValue',
                   name: 'SCRATCH',
                   value: false
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'CLEAN_ON_FAILURE',
+                  value: CLEAN_ON_FAILURE
                 ]
               ]
             )
@@ -297,7 +303,7 @@ node(nodeLabel) {
             cleanWhenSuccess: true,
             cleanWhenUnstable: true,
             cleanWhenNotBuilt: false,
-            cleanWhenFailure: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
             cleanWhenAborted: true,
             deleteDirs: true,
             disableDeferredWipeout: true,
