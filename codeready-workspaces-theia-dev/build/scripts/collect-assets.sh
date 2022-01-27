@@ -115,6 +115,9 @@ if [[ ! $ARCHSTEPS ]] || [[ ! $NOARCHSTEPS ]]; then
   fi
 fi
 
+# create target dir in case it doesn't already exist
+mkdir -p $TARGETDIR
+
 getContainerExtract() {
   pushd /tmp >/dev/null || exit
   if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
@@ -251,6 +254,11 @@ collect_arch_assets_crw_theia_dev() {
     home/theia-dev/.yarn-global \
     opt/app-root/src/.npm-global" "${TARGETDIR}"/asset-yarn-"${UNAME}".tgz "./" "clean"
   listAssets "${TARGETDIR}" du
+
+  if [[ ${DELETE_TMP_IMAGES} -eq 1 ]]; then
+    # cleanup unneeded containers from podman cache
+    $BUILDER rmi -f "${TMP_THEIA_DEV_BUILDER_IMAGE}" || true
+  fi
 }
 
 collect_noarch_assets_crw_theia_dev() {
@@ -324,6 +332,12 @@ collect_noarch_assets_crw_theia() {
   # Save sshpass sources
   time extractContainerFile "${TMP_THEIA_RUNTIME_IMAGE}" opt/app-root/src/sshpass.tar.gz "${TARGETDIR}"/asset-sshpass-sources.tar.gz
 
+  if [[ ${DELETE_TMP_IMAGES} -eq 1 ]]; then
+    # cleanup unneeded containers from podman cache
+    $BUILDER rmi -f "${TMP_THEIA_BUILDER_IMAGE}" || true
+    $BUILDER rmi -f "${TMP_THEIA_RUNTIME_IMAGE}" || true
+  fi
+
   # create asset-branding.tar.gz from branding folder contents
   if [[ -d branding ]]; then
     tar -pcvzf "${TARGETDIR}"/asset-branding.tar.gz branding/*
@@ -371,6 +385,11 @@ collect_arch_assets_crw_theia_endpoint_runtime_binary() {
   time extractContainerTgz "${TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE}" 'tmp/nexe' "${TARGETDIR}"/asset-theia-endpoint-runtime-pre-assembly-nexe-"${UNAME}".tar.gz "tmp/"
 
   listAssets "${TARGETDIR}" du
+
+  if [[ ${DELETE_TMP_IMAGES} -eq 1 ]]; then
+    # cleanup unneeded containers from podman cache
+    $BUILDER rmi -f "${TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE}" || true
+  fi
 }
 
 collect_noarch_assets_crw_theia_endpoint_runtime_binary() {

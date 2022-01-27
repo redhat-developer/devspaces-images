@@ -10,7 +10,7 @@
 ###
 # Builder Image
 #
-FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-dev-rhel8:2.15 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-dev-rhel8:2.16 as builder
 
 WORKDIR ${HOME}
 
@@ -83,7 +83,7 @@ RUN rm -rf ${HOME}/theia-source-code/examples/browser && \
     # ovewrite upstream's lerna 4.0.0 as Che-Theia is not adapted to it
     sed -i -r -e "s/\"lerna\": \"..*\"/\"lerna\": \"2.11.0\"/" ${HOME}/theia-source-code/package.json && \
     # Allow the usage of ELECTRON_SKIP_BINARY_DOWNLOAD=1 by using a more recent version of electron \
-    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n    "**/keytar": "7.6.0", \n    "**/node-addon-api": "3.1.0",\n    "**/vscode-ripgrep": "1.12.0",|' ${HOME}/theia-source-code/package.json && \
+    sed -i 's|  "resolutions": {|  "resolutions": {\n    "**/electron": "7.0.0",\n    "**/vscode-ripgrep": "1.12.0",|' ${HOME}/theia-source-code/package.json && \
     # remove all electron-browser module to not compile them
     find . -name "electron-browser"  | xargs rm -rf {} && \
     find . -name "*-electron-module.ts"  | xargs rm -rf {} && \
@@ -171,6 +171,9 @@ RUN find /che-theia-build -exec sh -c "chgrp 0 {}; chmod g+rwX {}" \; 2>log.txt 
     # Add missing permissions on shell scripts of plug-ins
     find /che-theia-build/plugins -name "*.sh" | xargs chmod +x
 
+# to copy the plug-ins folder into a runtime image more easily
+RUN mv /che-theia-build/plugins /default-theia-plugins
+
 ###
 # Runtime Image
 #
@@ -221,7 +224,7 @@ LABEL summary="$SUMMARY" \
 
 EXPOSE 3100 3130
 
-COPY --from=build-result /che-theia-build/plugins /default-theia-plugins
+COPY --from=build-result /default-theia-plugins /default-theia-plugins
 
 # need root user
 USER root
