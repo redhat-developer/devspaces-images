@@ -14,7 +14,7 @@ GRADLE_VERSION="6.1"
 # maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.22"
-ODO_VERSION="v2.4.2"
+ODO_VERSION="v2.5.0"
 ASSET_NAME="udi"
 
 while [[ "$#" -gt 0 ]]; do
@@ -86,11 +86,11 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 
 	# pull odo for all arches
 	mkdir -p x86_64 s390x ppc64le
-	curl -sSLo x86_64/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo
+	curl -sSLo x86_64/odo https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo
 	# s390x
-	curl -sSLo s390x/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-s390x && chmod +x s390x/odo
+	curl -sSLo s390x/odo https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-s390x && chmod +x s390x/odo
 	# ppc64le
-	curl -sSLo ppc64le/odo https://mirror.openshift.com/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-ppc64le && chmod +x ppc64le/odo
+	curl -sSLo ppc64le/odo https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-ppc64le && chmod +x ppc64le/odo
 	tar czf asset-odo.tgz s390x x86_64 ppc64le
 	rm -Rf s390x x86_64 ppc64le
 
