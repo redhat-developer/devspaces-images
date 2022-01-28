@@ -19,7 +19,7 @@ USER root
 ENV \
     HOME=/home/user \
     KAMEL_VERSION="" \
-    ODO_VERSION="v2.4.2" \
+    ODO_VERSION="v2.5.0" \
     NODEJS_VERSION=12 \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
