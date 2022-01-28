@@ -6,3 +6,5 @@ results:
     email:
       - nboldt@redhat.com
       - rhopp@redhat.com
+cluster_version:
+  - v4.x

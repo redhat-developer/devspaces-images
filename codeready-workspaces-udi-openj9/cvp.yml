@@ -8,3 +8,5 @@ results:
       - rhopp@redhat.com
       - sdawley@redhat.com
       - iokhrime@redhat.com
+cluster_version:
+  - v4.x

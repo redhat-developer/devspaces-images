@@ -11,3 +11,5 @@ results:
       - nboldt@redhat.com
       - rhopp@redhat.com
       - iokhrime@redhat.com
+cluster_version:
+  - v4.x
