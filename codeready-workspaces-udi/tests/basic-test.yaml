@@ -48,8 +48,8 @@
         - debug:
             msg: "{{ oc_cmd_run.stdout }}"
         # CRW-492: for odo tests, must run entrypoint.sh first or else fail in CVP with 'unknown userid 1001690000'
-        - name: Make sure odo is present in the container and in the path; send "n" to disable telemtry request
-          shell: oc exec {{ pod_name.stdout }} -- echo "n" | odo version
+        - name: Make sure odo is present in the container and in the path
+          shell: oc exec {{ pod_name.stdout }} -- odo version
           register: odo_cmd_run
         - debug:
             msg: "{{ odo_cmd_run.stdout }}"
