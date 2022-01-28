@@ -1156,7 +1156,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:bad438b27879c0dbaec17e0ade516a0ec0e3f28f73fa2e568b8c9f7492a60208
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:e7278f40e4ab9999c3af8e516b4aafb568cd01b3b8d07e388f4aad6542893395
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:2a24fee5aa8c0e5e57e22265887b41f0056d13fc5ef59b463fbd4939bec4a1b0
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1182,7 +1182,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:9235606c19ec798b098bb79390a0fb7acc0369fb09c9cf4e906348814e9abcfe
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:3a620894f225b919e461599b42af4cb9806a3b2fb76c96dbeda1d2cc5ec91335
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:f11837112478809998c68121942c852ea4acea687462335b70670f7645d412f5
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1556,7 +1556,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:bad438b27879c0dbaec17e0ade516a0ec0e3f28f73fa2e568b8c9f7492a60208
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:e7278f40e4ab9999c3af8e516b4aafb568cd01b3b8d07e388f4aad6542893395
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:2a24fee5aa8c0e5e57e22265887b41f0056d13fc5ef59b463fbd4939bec4a1b0
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:e68ec2fe7ac27e59641bdfc7794ae99fdfaa60e5b6d0cc0e3f20ab3f7a31bc11
   - name: gateway_authentication_sidecar
@@ -1582,7 +1582,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:9235606c19ec798b098bb79390a0fb7acc0369fb09c9cf4e906348814e9abcfe
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:3a620894f225b919e461599b42af4cb9806a3b2fb76c96dbeda1d2cc5ec91335
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:f11837112478809998c68121942c852ea4acea687462335b70670f7645d412f5
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
