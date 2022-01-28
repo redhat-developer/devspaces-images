@@ -137,7 +137,7 @@
 | [`@octokit/openapi-types@10.1.1`](https://github.com/octokit/openapi-types.ts.git) | MIT | clearlydefined |
 | [`@octokit/plugin-enterprise-rest@6.0.1`](https://github.com/octokit/plugin-enterprise-rest.js.git) | MIT | clearlydefined |
 | [`@octokit/plugin-paginate-rest@2.16.0`](https://github.com/octokit/plugin-paginate-rest.js.git) | MIT | #1193 |
-| [`@octokit/plugin-request-log@1.0.4`](https://github.com/octokit/plugin-request-log.js.git) | MIT | clearlydefined |
+| [`@octokit/plugin-request-log@1.0.4`](https://github.com/octokit/plugin-request-log.js.git) | MIT | #1837 |
 | [`@octokit/plugin-rest-endpoint-methods@5.10.1`](https://github.com/octokit/plugin-rest-endpoint-methods.js.git) | MIT | #1365 |
 | [`@octokit/request-error@2.1.0`](https://github.com/octokit/request-error.js.git) | MIT | clearlydefined |
 | [`@octokit/request@5.6.1`](https://github.com/octokit/request.js.git) | MIT | clearlydefined |
@@ -531,7 +531,7 @@
 | [`fragment-cache@0.2.1`](https://github.com/jonschlinkert/fragment-cache.git) | MIT | clearlydefined |
 | [`from2@2.3.0`](git://github.com/hughsk/from2) | MIT | clearlydefined |
 | [`fs-write-stream-atomic@1.0.10`](https://github.com/npm/fs-write-stream-atomic) | ISC | clearlydefined |
-| `fsevents@2.3.2` |  | clearlydefined |
+| `fsevents@2.3.2` |  | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fsevents/2.3.2) |
 | [`functional-red-black-tree@1.0.1`](git://github.com/mikolalysenko/functional-red-black-tree.git) | MIT | clearlydefined |
 | [`gauge@2.7.4`](https://github.com/iarna/gauge) | ISC | #988 |
 | [`gensync@1.0.0-beta.2`](https://github.com/loganfsmyth/gensync.git) | MIT | clearlydefined |
@@ -699,7 +699,7 @@
 | [`jest@26.6.3`](https://github.com/facebook/jest) | MIT | clearlydefined |
 | [`js-sha256@0.9.0`](https://github.com/emn178/js-sha256.git) | MIT | clearlydefined |
 | [`js-yaml@3.14.1`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
-| [`jsdom@16.7.0`](https://github.com/jsdom/jsdom.git) | MIT | clearlydefined |
+| [`jsdom@16.7.0`](https://github.com/jsdom/jsdom.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsdom/16.7.0) |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
 | [`json-parse-even-better-errors@2.3.1`](https://github.com/npm/json-parse-even-better-errors) | MIT | clearlydefined |
 | [`json-schema@0.3.0`](http://github.com/kriszyp/json-schema) | (AFL-2.1 OR BSD-3-Clause) | clearlydefined |
@@ -707,7 +707,7 @@
 | [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | clearlydefined |
 | [`jsonparse@1.3.1`](http://github.com/creationix/jsonparse.git) | MIT | clearlydefined |
 | [`jsx-ast-utils@3.2.0`](https://github.com/evcohen/jsx-ast-utils) | MIT | clearlydefined |
-| [`keycloak-js@10.0.2`](https://github.com/keycloak/keycloak) | Apache-2.0 | clearlydefined |
+| [`keycloak-js@10.0.2`](https://github.com/keycloak/keycloak) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/keycloak-js/10.0.2) |
 | [`killable@1.0.1`](https://github.com/marten-de-vries/killable.git) | ISC | clearlydefined |
 | [`kind-of@6.0.3`](https://github.com/jonschlinkert/kind-of.git) | MIT | clearlydefined |
 | [`kleur@3.0.3`](https://github.com/lukeed/kleur.git) | MIT | clearlydefined |
@@ -795,7 +795,7 @@
 | [`node-int64@0.4.0`](https://github.com/broofa/node-int64) | MIT | clearlydefined |
 | [`node-libs-browser@2.2.1`](git+https://github.com/webpack/node-libs-browser.git) | MIT | clearlydefined |
 | [`node-modules-regexp@1.0.0`](https://github.com/jamestalmage/node-modules-regexp.git) | MIT | clearlydefined |
-| [`node-notifier@8.0.2`](git+ssh://git@github.com/mikaelbr/node-notifier.git) | MIT | clearlydefined |
+| [`node-notifier@8.0.2`](git+ssh://git@github.com/mikaelbr/node-notifier.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/node-notifier/8.0.2) |
 | [`node-object-hash@1.4.2`](git@github.com:SkeLLLa/node-object-hash.git) | ISC | clearlydefined |
 | [`node-releases@1.1.75`](git+https://github.com/chicoxyzzy/node-releases.git) | MIT | clearlydefined |
 | [`nodemon@2.0.12`](https://github.com/remy/nodemon.git) | MIT | clearlydefined |
@@ -1110,7 +1110,6 @@
 | [`unist-util-visit-parents@2.1.2`](https://github.com/syntax-tree/unist-util-visit-parents.git) | MIT | clearlydefined |
 | [`unist-util-visit@1.4.1`](https://github.com/syntax-tree/unist-util-visit.git) | MIT | clearlydefined |
 | [`universal-user-agent@6.0.0`](https://github.com/gr2m/universal-user-agent.git) | ISC | clearlydefined |
-| [`universalify@0.1.2`](git+https://github.com/RyanZim/universalify.git) | MIT | clearlydefined |
 | [`unpipe@1.0.0`](https://github.com/stream-utils/unpipe.git) | MIT | clearlydefined |
 | [`unset-value@1.0.0`](https://github.com/jonschlinkert/unset-value.git) | MIT | clearlydefined |
 | [`upath@1.2.0`](git://github.com/anodynos/upath) | MIT | clearlydefined |

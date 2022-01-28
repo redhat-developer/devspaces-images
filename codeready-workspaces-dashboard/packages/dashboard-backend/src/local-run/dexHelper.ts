@@ -23,7 +23,6 @@ declare module 'fastify' {
 const CHE_HOST = process.env.CHE_HOST as string;
 const CLIENT_ID = process.env.CLIENT_ID as string;
 const CLIENT_SECRET = process.env.CLIENT_SECRET as string;
-const DEX_INGRESS = process.env.DEX_INGRESS as string;
 
 export function registerOauth(server: FastifyInstance) {
   server.register(oauthPlugin, {
@@ -61,14 +60,7 @@ export function registerDexCallback(server: FastifyInstance) {
   });
 }
 
-export function addDexProxy(server: FastifyInstance) {
-  if (!DEX_INGRESS) {
-    console.error('DEX_INGRESS environment variable is not set. Cannot register OAuth plugin.');
-    process.exit(1);
-  }
-
-  const dexIngress = `https://${DEX_INGRESS}`;
-
+export function addDexProxy(server: FastifyInstance, dexIngress: string) {
   server.register(fastifyHttpProxy, {
     upstream: dexIngress,
     prefix: '/approval',

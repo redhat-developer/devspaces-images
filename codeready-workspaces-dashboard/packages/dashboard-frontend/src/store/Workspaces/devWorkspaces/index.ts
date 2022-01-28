@@ -446,15 +446,22 @@ export const actionCreators: ActionCreators = {
       editorId?: string,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      const defaultKubernetesNamespace = selectDefaultNamespace(getState());
+      const state = getState();
+      const defaultKubernetesNamespace = selectDefaultNamespace(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
       try {
-        const cheEditor = editorId ? editorId : getState().dwPlugins.defaultEditorName;
+        const cheEditor = editorId ? editorId : state.dwPlugins.defaultEditorName;
+        const pluginRegistryUrl =
+          state.workspacesSettings.settings['cheWorkspacePluginRegistryUrl'];
+        const pluginRegistryInternalUrl =
+          state.workspacesSettings.settings['cheWorkspacePluginRegistryInternalUrl'];
         const workspace = await devWorkspaceClient.createFromResources(
           defaultNamespace,
           devworkspace,
           devworkspaceTemplate,
           cheEditor,
+          pluginRegistryUrl,
+          pluginRegistryInternalUrl,
         );
 
         if (workspace.spec.started) {

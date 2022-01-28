@@ -49,37 +49,6 @@ yarn start:revert
 
 The development server serves the dashboard-frontend and dashboard-backend on [http://localhost:8080](http://localhost:8080).
 
-Depending on your Che Cluster's routing, it may need additional configuration. See below:
-- **Keycloak**: Keycloak has allow-list for URLs which can receive token.
-  Localhost is not there by default, so you will need to configure it in the following way:
-  ```bash
-  # Note: eclipse-che is the default target namespace but if you have custom - change it below
-  CHE_NAMESPACE="eclipse-che"
-  cat <<EOF | kubectl apply -f -
-  apiVersion: v1
-  kind: ConfigMap
-  metadata:
-    name: keycloak-custom-config
-    namespace: $CHE_NAMESPACE
-    labels:
-      app.kubernetes.io/part-of: che.eclipse.org
-      app.kubernetes.io/component: keycloak-configmap
-    annotations:
-      che.eclipse.org/mount-as: env
-      che.eclipse.org/ADDITIONAL_REDIRECT_URIS_env-name: ADDITIONAL_REDIRECT_URIS
-      che.eclipse.org/ADDITIONAL_WEBORIGINS_env-name: ADDITIONAL_WEBORIGINS
-  data:
-    ADDITIONAL_WEBORIGINS: '"http://localhost:8080", "http://localhost:3000"'
-    ADDITIONAL_REDIRECT_URIS: '"http://localhost:8080/*", "http://localhost:3000/*"'
-  EOF
-  # Note that if configmap is update but not created, you also need to rollout keycloak deployment
-  # oc patch deployment/keycloak --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
-  # oc patch deployment/keycloak --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
-
-  # Due temporary limitation we need to rollout che operator to apply changes
-  kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
-  ```
-
 - **Native Auth**:
   With Native Auth, routes are secured with OpenShift OAuth which we can't deal with easily.
   So, instead when you do `yarn start` we bypass OpenShift OAuth proxy while requesting Che Server by doing `kubectl port-forward`. So, no additional configuration is needed but note that your Dashboard will be authentication with the user from the current KUBECONFIG.

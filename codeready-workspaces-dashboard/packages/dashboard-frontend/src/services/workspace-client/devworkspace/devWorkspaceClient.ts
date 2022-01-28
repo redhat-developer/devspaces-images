@@ -253,6 +253,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devworkspace: devfileApi.DevWorkspace,
     devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
     editorId: string | undefined,
+    pluginRegistryUrl = '',
+    pluginRegistryInternalUrl = '',
   ): Promise<any> {
     // create DW
     devworkspace.spec.routingClass = 'che';
@@ -274,7 +276,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
     // create DWT
     devworkspaceTemplate.metadata.namespace = defaultNamespace;
-    // update owner reference (to allow automatic cleanup)
+    // add owner reference (to allow automatic cleanup)
     devworkspaceTemplate.metadata.ownerReferences = [
       {
         apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
@@ -283,6 +285,30 @@ export class DevWorkspaceClient extends WorkspaceClient {
         uid: createdWorkspace.metadata.uid,
       },
     ];
+    // add pluginRegistry and dashboard URLs as environment variables
+    const templateComponents = devworkspaceTemplate.spec?.components || [];
+    for (const templateComponent of templateComponents) {
+      const container = templateComponent.container;
+      if (container) {
+        if (!container.env) {
+          container.env = [];
+        }
+        container.env.push(
+          {
+            name: this.dashboardUrlEnvName,
+            value: window.location.origin,
+          },
+          {
+            name: this.pluginRegistryUrlEnvName,
+            value: pluginRegistryUrl,
+          },
+          {
+            name: this.pluginRegistryInternalUrlEnvName,
+            value: pluginRegistryInternalUrl,
+          },
+        );
+      }
+    }
 
     await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
 
