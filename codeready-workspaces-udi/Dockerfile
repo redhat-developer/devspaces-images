@@ -73,10 +73,10 @@ RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf sudo
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8.ppc64le.rpm
-    dnf -y -q install buildah npm helm-3.6.2-5.el8 openshift-clients-4.9.0-202109101042.p0.git.96e95ce.assembly.stream.el8 && \
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
+    dnf -y -q install buildah npm helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
     dnf -y -q update && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     cat /etc/passwd | \
