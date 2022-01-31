@@ -104,6 +104,10 @@ if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
 * push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
 * for GA suffix, push to RCM automatically (and copy to Github)
 ''')
+                // TODO remove if constraint after 2.16 is live or if we switch theia, dashboard AND crwctl to the same node version
+                if (!JB.equals("2.14") && !JB.equals("2.15")) {
+                    stringParam("nodeVersion", config."Management-Jobs".crwctl[JB].node_version, "Node version required to build crwctl")
+                }
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
             

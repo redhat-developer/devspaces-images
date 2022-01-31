@@ -37,9 +37,12 @@ timeout(90) {
             DESTHOST=util.sshMountRcmGuest()
           }
 
-          currentBuild.description="Building ..."
+          currentBuild.description="Building with Node " + nodeVersion + "..."
           sh('''#!/bin/bash -e
-. ~/crw_env ''' + CRW_VERSION + '''
+# default node version
+. ~/crw_env ''' + CRW_VERSION + ''' 
+# special node version for crwctl only
+nvm install ''' + nodeVersion + '''; . $HOME/.nvm/nvm.sh; nvm use ''' + nodeVersion + '''
 echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
