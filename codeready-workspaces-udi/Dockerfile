@@ -50,7 +50,7 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-RUN microdnf install -y bash tar gzip which shadow-utils findutils wget dnf sudo git procps-ng bzip2 \
+RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget dnf sudo git procps-ng bzip2 \
     java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
     java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
     dnf module reset -y nodejs && \
