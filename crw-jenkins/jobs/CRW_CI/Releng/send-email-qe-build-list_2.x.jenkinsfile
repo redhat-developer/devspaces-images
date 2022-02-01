@@ -213,8 +213,8 @@ CRW_VERSION_NEXT="$(curl -sSLo- https://raw.githubusercontent.com/''' + MIDSTM_R
 cd ${WORKSPACE}/crw-next
 ./product/updateVersionAndRegistryTags.sh -t ${CRW_VERSION_NEXT} --disable-jobs ${CRW_VERSION} --disable-management-jobs ${CRW_VERSION}
 
-# wait 2 mins for the remote https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/job-config.json to be refreshed
-sleep 120s
+# wait 5 mins for the remote https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/dependencies/job-config.json to be refreshed
+sleep 5m
 '''
                         // trigger respin of job-configurator
                         final jobResult = build(
