@@ -1094,7 +1094,7 @@ spec:
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
                   value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:de8ede01ce5d3b06ae8b1866bb482bb937f020f7dee5dfb20b041f02c1e63f68
                 - name: RELATED_IMAGE_codeready_workspaces_idea_plugin_registry_image_GIXDCNIK
-                  value: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:e5a1db7d04d0a036ee271453b0e9b1d3672e7de7025769ffbf04401f2a515d9e
+                  value: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:eff6db1da4c9743ff77b91acf08378bce6a652826b3b252512e63f767de07785
                 - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCNIK
                   value: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:dc0e082c9522158cb12345b1d184c3803d8a4a63a7189940e853e51557e43acf
                 - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCNIK
@@ -1494,7 +1494,7 @@ spec:
   - name: che_workspace_plugin_broker_metadata
     image: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8@sha256:de8ede01ce5d3b06ae8b1866bb482bb937f020f7dee5dfb20b041f02c1e63f68
   - name: codeready_workspaces_idea_plugin_registry_image_gixdcnik
-    image: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:e5a1db7d04d0a036ee271453b0e9b1d3672e7de7025769ffbf04401f2a515d9e
+    image: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:eff6db1da4c9743ff77b91acf08378bce6a652826b3b252512e63f767de07785
   - name: codeready_workspaces_machineexec_plugin_registry_image_gixdcnik
     image: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:dc0e082c9522158cb12345b1d184c3803d8a4a63a7189940e853e51557e43acf
   - name: codeready_workspaces_plugin_java11_devfile_registry_image_gixdcnik
