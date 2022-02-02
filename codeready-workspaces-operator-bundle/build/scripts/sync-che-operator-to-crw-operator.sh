@@ -17,9 +17,10 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-DWO_TAG=0.9
+# TODO https://issues.redhat.com/browse/CRW-2538 switch to 0.12 when https://errata.engineering.redhat.com/advisory/87506 is live
+DWO_TAG=0.11
 SSO_TAG=7.4
-UBI_TAG=8.4
+UBI_TAG=8.5
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
 OPENSHIFT_TAG="v4.8"
