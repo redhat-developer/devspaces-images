@@ -30,6 +30,9 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 # avoid any linter/formater/unit test
 ENV SKIP_LINT=true SKIP_FORMAT=true SKIP_TEST=true
 
+# if true - then unpack che-theia plugins at building image step
+ARG UNPACK_CHE_THEIA_PLUGINS="true"
+
 
 # Clone theia
 COPY asset-theia-source-code.tar.gz /tmp/asset-theia-source-code.tar.gz
@@ -158,6 +161,8 @@ RUN if [ -z $GITHUB_TOKEN ]; then unset GITHUB_TOKEN; fi && \
 # Add yeoman generator & vscode git plug-ins
 COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/production/plugins/theia_yeoman_plugin.theia
 
+# unpack che-theia plugins at building image step to avoid unpacking the plugins at starting IDE step and reduce Che-Theia start time
+RUN if [ "$UNPACK_CHE_THEIA_PLUGINS" = "true" ]; then cd plugins && ./unpack_che-theia_plugins; fi
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
@@ -180,7 +185,7 @@ RUN mv /che-theia-build/plugins /default-theia-plugins
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-104 as runtime
+FROM ubi8/nodejs-12:1-107 as runtime
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
