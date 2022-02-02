@@ -2,7 +2,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/eclipse-che/che-machine-exec)](https://github.com/eclipse-che/che-machine-exec/)
 # Che machine exec
 
-A Golang server that creates machine-execs for Eclipse Che workspaces. It is used to spawn terminals or command processes. Che machine exec uses the JSON-RPC protocol to communicate with the client.
+A Golang server that creates machine-execs for Eclipse Che workspaces. It is used to spawn terminals or command processes. Che machine exec uses the JSON-RPC protocol to communicate with the client. 
 
 ## Building a container image
 
