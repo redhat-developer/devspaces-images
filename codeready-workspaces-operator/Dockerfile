@@ -10,16 +10,14 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.16.12-2 as builder
+FROM rhel8/go-toolset:1.16.12-4 as builder
 ENV GOPATH=/go/
-ENV RESTIC_TAG=v0.12.0
 ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.11.0"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 ARG TESTS="true"
 USER root
 
 COPY asset-* /tmp/
-RUN mkdir -p $GOPATH/restic && tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic
 
 WORKDIR /che-operator
 
@@ -30,11 +28,6 @@ RUN unzip /tmp/asset-devworkspace-operator.zip */deploy/deployment/* -d /tmp && 
 RUN unzip /tmp/asset-header-rewrite-traefik-plugin.zip -d /tmp && \
     mkdir -p /tmp/header-rewrite-traefik-plugin && \
     mv /tmp/*-header-rewrite-traefik-plugin-*/headerRewrite.go /tmp/*-header-rewrite-traefik-plugin-*/.traefik.yml /tmp/header-rewrite-traefik-plugin
-
-# Build restic. Needed for backup / restore capabilities
-RUN cd $GOPATH/restic && \
-    export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
-    GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/restic/restic ./cmd/restic
 
 # Copy the Go Modules manifests
 COPY go.mod go.mod
@@ -55,7 +48,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5-218
+FROM ubi8-minimal:8.5-230
 
 # install httpd-tools for /usr/bin/htpasswd
 RUN microdnf install -y httpd-tools && microdnf -y update && microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
@@ -63,8 +56,6 @@ RUN microdnf install -y httpd-tools && microdnf -y update && microdnf -y clean a
 
 COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
-COPY --from=builder /tmp/restic/restic /usr/local/bin/restic
-COPY --from=builder /go/restic/LICENSE /usr/local/bin/restic-LICENSE.txt
 COPY --from=builder /che-operator/che-operator /manager
 
 WORKDIR /
