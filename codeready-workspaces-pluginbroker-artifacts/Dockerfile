@@ -11,7 +11,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.16.7-5 as builder
+FROM rhel8/go-toolset:1.16.12-4 as builder
 USER root
 WORKDIR /build/che-plugin-broker/brokers/artifacts/cmd/
 COPY . /build/che-plugin-broker/
