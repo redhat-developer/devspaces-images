@@ -17,7 +17,7 @@ import { NavigationItemObject } from '.';
 import { ROUTE } from '../../route.enum';
 import { AppState } from '../../store';
 import { connect, ConnectedProps } from 'react-redux';
-import { selectAllWorkspacesNumber } from '../../store/Workspaces/selectors';
+import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 
 type Props = MappedProps & {
   activePath: string;
@@ -25,7 +25,14 @@ type Props = MappedProps & {
 
 export class NavigationMainList extends React.PureComponent<Props> {
   private get items(): NavigationItemObject[] {
-    const { allWorkspacesNumber } = this.props;
+    const { allWorkspaces } = this.props;
+
+    const allWorkspacesNumber = allWorkspaces.filter(workspace => {
+      if (workspace.isDevWorkspace) {
+        return true;
+      }
+      return (workspace.ref as che.Workspace).attributes?.converted === undefined;
+    }).length;
 
     return [
       { to: ROUTE.GET_STARTED, label: 'Create Workspace' },
@@ -45,7 +52,7 @@ export class NavigationMainList extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  allWorkspacesNumber: selectAllWorkspacesNumber(state),
+  allWorkspaces: selectAllWorkspaces(state),
 });
 
 const connector = connect(mapStateToProps);

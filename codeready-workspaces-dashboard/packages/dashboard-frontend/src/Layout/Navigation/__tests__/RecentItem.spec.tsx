@@ -30,7 +30,7 @@ jest.mock('../../../components/Workspace/Indicator', () => {
 
 describe('Navigation Item', () => {
   const item: NavigationRecentItemObject = {
-    status: '',
+    status: WorkspaceStatus.STOPPED,
     label: 'workspace',
     to: '/namespace/workspace',
     isDevWorkspace: false,

@@ -23,7 +23,7 @@ type State = {
   progressVal: number;
 };
 
-class CheProgress extends React.PureComponent<Props, State> {
+class ProgressIndicator extends React.PureComponent<Props, State> {
   private intervalId: any;
   private readonly onProgressInc: () => void;
 
@@ -78,10 +78,11 @@ class CheProgress extends React.PureComponent<Props, State> {
       <span className={styles.progressLine}>
         {this.props.isLoading || this.state.progressVal !== 0 ? (
           <Progress
-            id="che-progress-ind"
+            id="progress-indicator"
             value={progressVal}
             size={ProgressSize.sm}
             measureLocation={ProgressMeasureLocation.none}
+            aria-label="Action is in progress"
           />
         ) : (
           ''
@@ -91,4 +92,4 @@ class CheProgress extends React.PureComponent<Props, State> {
   }
 }
 
-export default CheProgress;
+export default ProgressIndicator;

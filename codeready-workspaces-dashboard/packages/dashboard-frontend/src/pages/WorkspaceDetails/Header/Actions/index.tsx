@@ -20,6 +20,7 @@ import {
   WorkspaceAction,
   WorkspaceStatus,
   DevWorkspaceStatus,
+  DeprecatedWorkspaceStatus,
 } from '../../../../services/helpers/types';
 import {
   ActionContextType,
@@ -29,12 +30,12 @@ import { lazyInject } from '../../../../inversify.config';
 import { AppAlerts } from '../../../../services/alerts/appAlerts';
 import getRandomString from '../../../../services/helpers/random';
 
-import './Actions.styl';
+import styles from './index.module.css';
 
 type Props = {
   workspaceId: string;
   workspaceName: string;
-  status: string | undefined;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   history: History;
 };
 
@@ -63,7 +64,7 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
     this.setState({ isExpanded });
   }
 
-  private async handleSelect(
+  private async handleSelectedAction(
     selectedAction: WorkspaceAction,
     context: ActionContextType,
   ): Promise<void> {
@@ -85,11 +86,8 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
       this.props.history.push(nextPath);
     } catch (e) {
       const errorMessage = common.helpers.errors.getMessage(e);
-      const message =
-        `Unable to ${selectedAction.toLocaleLowerCase()} ${this.props.workspaceName}. ` +
-        errorMessage.replace('Error: ', '');
-      this.showAlert(message);
-      console.warn(message);
+      this.showAlert(errorMessage);
+      console.warn(errorMessage);
     }
   }
 
@@ -104,39 +102,55 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
   private getDropdownItems(context: ActionContextType): React.ReactNode[] {
     const { status } = this.props;
 
+    if (status === 'Deprecated') {
+      return [
+        <DropdownItem
+          key={`action-${WorkspaceAction.DELETE_WORKSPACE}`}
+          isDisabled={false}
+          onClick={async () => this.handleSelectedAction(WorkspaceAction.DELETE_WORKSPACE, context)}
+        >
+          <div>{WorkspaceAction.DELETE_WORKSPACE}</div>
+        </DropdownItem>,
+      ];
+    }
+
     return [
       <DropdownItem
         key={`action-${WorkspaceAction.OPEN_IDE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING}
-        onClick={async () => this.handleSelect(WorkspaceAction.OPEN_IDE, context)}
+        onClick={async () => this.handleSelectedAction(WorkspaceAction.OPEN_IDE, context)}
       >
         <div>{WorkspaceAction.OPEN_IDE}</div>
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.START_DEBUG_AND_OPEN_LOGS}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status !== WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, context)}
+        onClick={async () =>
+          this.handleSelectedAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, context)
+        }
       >
         <div>{WorkspaceAction.START_DEBUG_AND_OPEN_LOGS}</div>
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.START_IN_BACKGROUND}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status !== WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.START_IN_BACKGROUND, context)}
+        onClick={async () =>
+          this.handleSelectedAction(WorkspaceAction.START_IN_BACKGROUND, context)
+        }
       >
         <div>{WorkspaceAction.START_IN_BACKGROUND}</div>
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.RESTART_WORKSPACE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.RESTART_WORKSPACE, context)}
+        onClick={async () => this.handleSelectedAction(WorkspaceAction.RESTART_WORKSPACE, context)}
       >
         <div>{WorkspaceAction.RESTART_WORKSPACE}</div>
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.STOP_WORKSPACE}`}
         isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
-        onClick={async () => this.handleSelect(WorkspaceAction.STOP_WORKSPACE, context)}
+        onClick={async () => this.handleSelectedAction(WorkspaceAction.STOP_WORKSPACE, context)}
       >
         <div>{WorkspaceAction.STOP_WORKSPACE}</div>
       </DropdownItem>,
@@ -147,7 +161,7 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
           status === WorkspaceStatus.STARTING ||
           status === WorkspaceStatus.STOPPING
         }
-        onClick={async () => this.handleSelect(WorkspaceAction.DELETE_WORKSPACE, context)}
+        onClick={async () => this.handleSelectedAction(WorkspaceAction.DELETE_WORKSPACE, context)}
       >
         <div>{WorkspaceAction.DELETE_WORKSPACE}</div>
       </DropdownItem>,
@@ -163,7 +177,7 @@ export class HeaderActionSelect extends React.PureComponent<Props, State> {
         <WorkspaceActionsConsumer>
           {context => (
             <Dropdown
-              className="workspace-action-selector"
+              className={styles.workspaceActionSelector}
               toggle={
                 <DropdownToggle
                   data-testid={`${workspaceId}-action-dropdown`}

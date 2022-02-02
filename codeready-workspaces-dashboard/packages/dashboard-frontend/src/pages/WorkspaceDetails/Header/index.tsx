@@ -26,10 +26,15 @@ import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 import WorkspaceStatusLabel from '../../../components/WorkspaceStatusLabel';
 
 import styles from './index.module.css';
+import {
+  DeprecatedWorkspaceStatus,
+  DevWorkspaceStatus,
+  WorkspaceStatus,
+} from '../../../services/helpers/types';
 
 type Props = {
   workspacesLink: string;
-  status: string | undefined;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   workspaceName: string;
 };
 
@@ -56,7 +61,9 @@ class Header extends React.PureComponent<Props> {
               <FlexItem>
                 <WorkspaceStatusLabel status={status} />
               </FlexItem>
-              <FlexItem align={{ default: 'alignRight' }}>{children}</FlexItem>
+              <FlexItem className={styles.actionButtons} align={{ default: 'alignRight' }}>
+                {children}
+              </FlexItem>
             </Flex>
           </StackItem>
         </Stack>

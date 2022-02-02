@@ -30,7 +30,12 @@ import Header from '../../components/Header';
 import WorkspaceLogs from '../../components/LogsTab';
 import { LoadIdeSteps } from '../../containers/IdeLoader';
 import { delay } from '../../services/helpers/delay';
-import { WorkspaceStatus, DevWorkspaceStatus, IdeLoaderTab } from '../../services/helpers/types';
+import {
+  WorkspaceStatus,
+  DevWorkspaceStatus,
+  IdeLoaderTab,
+  DeprecatedWorkspaceStatus,
+} from '../../services/helpers/types';
 
 import workspaceStatusLabelStyles from '../../components/WorkspaceStatusLabel/index.module.css';
 import './IdeLoader.styl';
@@ -42,7 +47,7 @@ type Props = {
   hasError: boolean;
   ideUrl?: string;
   preselectedTabKey?: IdeLoaderTab;
-  status: string | undefined;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   workspaceId: string;
   workspaceName: string;
   isDevWorkspace: boolean;

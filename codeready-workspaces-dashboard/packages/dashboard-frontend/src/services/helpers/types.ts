@@ -44,6 +44,8 @@ export type DevfileV2ProjectSource = {
   };
 };
 
+export type DeprecatedWorkspaceStatus = 'Deprecated';
+
 export enum WorkspaceStatus {
   RUNNING = 'RUNNING',
   STOPPING = 'STOPPING',

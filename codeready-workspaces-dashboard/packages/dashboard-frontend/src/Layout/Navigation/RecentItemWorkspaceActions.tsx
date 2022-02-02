@@ -98,11 +98,7 @@ class NavigationItemWorkspaceActions extends React.PureComponent<Props, State> {
         createAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS),
         createAction(WorkspaceAction.START_IN_BACKGROUND),
       );
-    } else if (
-      status !== WorkspaceStatus.STOPPING &&
-      status !== DevWorkspaceStatus.TERMINATING &&
-      status !== DevWorkspaceStatus.FAILED
-    ) {
+    } else if (status !== WorkspaceStatus.STOPPING && status !== DevWorkspaceStatus.TERMINATING) {
       dropdownItems.push(createAction(WorkspaceAction.STOP_WORKSPACE));
     }
     if (

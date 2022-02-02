@@ -27,6 +27,11 @@ import {
   buildWorkspacesLocation,
   sanitizeLocation,
 } from '../../services/helpers/location';
+import {
+  DeprecatedWorkspaceStatus,
+  DevWorkspaceStatus,
+  WorkspaceStatus,
+} from '../../services/helpers/types';
 
 export interface NavigationItemObject {
   to: string;
@@ -36,7 +41,7 @@ export interface NavigationItemObject {
 export interface NavigationRecentItemObject {
   to: string;
   label: string;
-  status: string;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   workspaceId: string;
   isDevWorkspace: boolean;
 }
@@ -111,8 +116,6 @@ export class Navigation extends React.PureComponent<Props, State> {
     const { theme, recentWorkspaces, history } = this.props;
     const { activeLocation } = this.state;
 
-    const recent = recentWorkspaces || [];
-
     return (
       <Nav
         aria-label="Navigation"
@@ -121,7 +124,7 @@ export class Navigation extends React.PureComponent<Props, State> {
       >
         <NavigationMainList activePath={activeLocation.pathname} />
         <NavigationRecentList
-          workspaces={recent}
+          workspaces={recentWorkspaces}
           activePath={activeLocation.pathname}
           history={history}
         />

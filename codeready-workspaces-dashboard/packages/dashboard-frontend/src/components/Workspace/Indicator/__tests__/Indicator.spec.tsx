@@ -23,7 +23,7 @@ jest.mock('react-tooltip', () => {
 
 describe('Workspace indicator component', () => {
   it('should render default status correctly', () => {
-    const element = <WorkspaceIndicator status={'undefined'} />;
+    const element = <WorkspaceIndicator status={WorkspaceStatus.STOPPING} />;
     expect(renderer.create(element).toJSON()).toMatchSnapshot();
   });
 
@@ -72,6 +72,13 @@ describe('Workspace indicator component', () => {
 
     it('should render FAILING status correctly', () => {
       const element = <WorkspaceIndicator status={DevWorkspaceStatus.FAILING} />;
+      expect(getComponentSnapshot(element)).toMatchSnapshot();
+    });
+  });
+
+  describe('Deprecated workspaces', () => {
+    it('should render "Deprecated" status correctly', () => {
+      const element = <WorkspaceIndicator status={'Deprecated'} />;
       expect(getComponentSnapshot(element)).toMatchSnapshot();
     });
   });

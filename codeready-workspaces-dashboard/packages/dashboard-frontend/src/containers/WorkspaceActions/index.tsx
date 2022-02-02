@@ -70,12 +70,41 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
   /**
    * open the action in a new tab for DevWorkspaces
    */
-  async handleLocation(location: Location, workspace: Workspace): Promise<Location | void> {
+  private async handleLocation(location: Location, workspace: Workspace): Promise<Location | void> {
     if (workspace.isDevWorkspace) {
       const link = toHref(this.props.history, location);
       window.open(link, workspace.id);
     } else {
       return location;
+    }
+  }
+
+  private async deleteWorkspace(
+    action: WorkspaceAction,
+    workspace: Workspace,
+  ): Promise<Location | void> {
+    if (isCheWorkspace(workspace.ref) && !(workspace.isStopped || workspace.hasError)) {
+      throw new Error('Only STOPPED workspaces can be deleted.');
+    }
+
+    this.deleting.add(workspace.id);
+    this.setState({
+      toDelete: Array.from(this.deleting),
+    });
+
+    try {
+      await this.props.deleteWorkspace(workspace);
+      this.deleting.delete(workspace.id);
+      this.setState({
+        toDelete: Array.from(this.deleting),
+      });
+      return buildWorkspacesLocation();
+    } catch (e) {
+      this.deleting.delete(workspace.id);
+      this.setState({
+        toDelete: Array.from(this.deleting),
+      });
+      console.error(`Action "${action}" failed with workspace "${workspace.name}". ${e}`);
     }
   }
 
@@ -126,29 +155,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
         return buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
       case WorkspaceAction.DELETE_WORKSPACE:
         {
-          if (isCheWorkspace(workspace.ref) && !(workspace.isStopped || workspace.hasError)) {
-            throw new Error('Only STOPPED workspaces can be deleted.');
-          }
-
-          this.deleting.add(id);
-          this.setState({
-            toDelete: Array.from(this.deleting),
-          });
-
-          try {
-            await this.props.deleteWorkspace(workspace);
-            this.deleting.delete(id);
-            this.setState({
-              toDelete: Array.from(this.deleting),
-            });
-            return buildWorkspacesLocation();
-          } catch (e) {
-            this.deleting.delete(id);
-            this.setState({
-              toDelete: Array.from(this.deleting),
-            });
-            console.error(`Action failed: "${action}", ID: "${id}", e: ${e}.`);
-          }
+          await this.deleteWorkspace(action, workspace);
         }
         break;
       case WorkspaceAction.RESTART_WORKSPACE:

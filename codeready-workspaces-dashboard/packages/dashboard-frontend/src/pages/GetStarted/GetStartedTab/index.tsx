@@ -14,7 +14,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { Flex, FlexItem, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { AppState } from '../../../store';
-import CheProgress from '../../../components/Progress';
+import ProgressIndicator from '../../../components/Progress';
 import { SamplesListHeader } from './SamplesListHeader';
 import SamplesListToolbar from './SamplesListToolbar';
 import SamplesListGallery from './SamplesListGallery';
@@ -115,7 +115,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <CheProgress isLoading={isLoading} />
+        <ProgressIndicator isLoading={isLoading} />
         <PageSection variant={PageSectionVariants.default} style={{ background: '#f0f0f0' }}>
           <PageSection variant={PageSectionVariants.light}>
             <ImportFromGit

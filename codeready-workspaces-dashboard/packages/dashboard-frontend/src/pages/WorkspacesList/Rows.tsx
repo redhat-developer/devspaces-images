@@ -11,18 +11,16 @@
  */
 
 import React from 'react';
-import { History } from 'history';
+import { Link } from 'react-router-dom';
+import { Location } from 'history';
 import { IRow, SortByDirection } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core';
 import WorkspaceIndicator from '../../components/Workspace/Indicator';
 import { formatDate, formatRelativeDate } from '../../services/helpers/date';
-import {
-  buildDetailsLocation,
-  toHref,
-  buildIdeLoaderLocation,
-} from '../../services/helpers/location';
+import { buildDetailsLocation, buildIdeLoaderLocation } from '../../services/helpers/location';
 import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import devfileApi from '../../services/devfileApi';
-import { DevWorkspaceStatus } from '../../services/helpers/types';
+import { DevWorkspaceStatus, WorkspaceDetailsTab } from '../../services/helpers/types';
 
 export interface RowData extends IRow {
   props: {
@@ -31,7 +29,6 @@ export interface RowData extends IRow {
 }
 
 export function buildRows(
-  history: History,
   workspaces: Workspace[],
   toDelete: string[],
   filtered: string[],
@@ -59,11 +56,10 @@ export function buildRows(
       const isSelected = selected.includes(workspace.id);
       const isDeleted = toDelete.includes(workspace.id);
 
-      const locationToDetails = buildDetailsLocation(workspace);
-      const linkToDetails = toHref(history, locationToDetails);
+      const overviewPageLocation = buildDetailsLocation(workspace);
+      const devfilePageLocation = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
 
-      const locationToIde = buildIdeLoaderLocation(workspace);
-      const linkToIde = toHref(history, locationToIde);
+      const ideLoaderLocation = buildIdeLoaderLocation(workspace);
 
       try {
         rows.push(
@@ -71,9 +67,9 @@ export function buildRows(
             workspace,
             isSelected,
             isDeleted,
-            linkToDetails,
-            linkToIde,
-            workspace.isDevWorkspace,
+            overviewPageLocation,
+            devfilePageLocation,
+            ideLoaderLocation,
           ),
         );
       } catch (e) {
@@ -96,9 +92,9 @@ export function buildRow(
   workspace: Workspace,
   isSelected: boolean,
   isDeleted: boolean,
-  linkToDetails: string,
-  linkToIde: string,
-  isDevWorkspace: boolean,
+  overviewPageLocation: Location,
+  devfilePageLocation: Location,
+  ideLoaderLocation: Location,
 ): RowData {
   if (!workspace.name) {
     throw new Error('Empty workspace name.');
@@ -113,7 +109,9 @@ export function buildRow(
   const details = (
     <span>
       {statusIndicator}
-      <a href={linkToDetails}>{workspace.name}</a>
+      <Button variant="link" component={props => <Link {...props} to={overviewPageLocation} />}>
+        {workspace.name}
+      </Button>
     </span>
   );
 
@@ -149,19 +147,45 @@ export function buildRow(
   }
   const projectsList = projects.join(', \n') || '-';
 
-  /* Open IDE link */
-  let open: React.ReactElement | string;
-  if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
-    open = 'deleting...';
+  let action: React.ReactElement | string;
+  if (workspace.isDeprecated) {
+    action = (
+      <Button
+        variant="link"
+        isInline
+        isSmall
+        component={props => <Link {...props} to={devfilePageLocation} />}
+      >
+        Convert
+      </Button>
+    );
+  } else if (isDeleted || workspace.status === DevWorkspaceStatus.TERMINATING) {
+    action = 'deleting...';
   } else {
-    if (isDevWorkspace) {
-      open = (
-        <a href={linkToIde} target={workspace.id} rel="noreferrer">
+    if (workspace.isDevWorkspace) {
+      action = (
+        <Button
+          variant="link"
+          isInline
+          isSmall
+          component={props => (
+            <Link {...props} to={ideLoaderLocation} rel="noreferrer" target={workspace.id} />
+          )}
+        >
           Open
-        </a>
+        </Button>
       );
     } else {
-      open = <a href={linkToIde}>Open</a>;
+      action = (
+        <Button
+          variant="link"
+          isInline
+          isSmall
+          component={props => <Link {...props} to={ideLoaderLocation} />}
+        >
+          Open
+        </Button>
+      );
     }
   }
 
@@ -181,12 +205,12 @@ export function buildRow(
       },
       {
         // Cell is visible only on Sm
-        title: open,
+        title: action,
         key: 'open-ide-visible-sm',
       },
       {
         // Cell is hidden only on Sm
-        title: open,
+        title: action,
         key: 'open-ide-hidden-sm',
       },
     ],

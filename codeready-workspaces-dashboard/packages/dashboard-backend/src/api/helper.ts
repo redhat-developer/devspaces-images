@@ -14,16 +14,17 @@ import { FastifyRequest } from 'fastify';
 import { DwClientProvider } from '../services/kubeclient/dwClientProvider';
 import { DevWorkspaceClient } from '../devworkspace-client';
 import { createFastifyError } from '../services/helpers';
+import { existsSync, readFileSync } from 'fs';
+import { isLocalRun } from '../local-run';
 
+const SERVICE_ACCOUNT_TOKEN_PATH = '/run/secrets/kubernetes.io/serviceaccount/token';
 const AUTHORIZATION_BEARER_PREFIX = /^Bearer /;
 const dwClientProvider = new DwClientProvider();
 
 /**
  * Creates DevWorkspace Client depending on the context for the specified request.
  */
-export function getDevWorkspaceClient(request: FastifyRequest): Promise<DevWorkspaceClient> {
-  const token = getToken(request);
-
+export function getDevWorkspaceClient(token: string): Promise<DevWorkspaceClient> {
   return dwClientProvider.getDWClient(token);
 }
 
@@ -33,4 +34,15 @@ export function getToken(request: FastifyRequest): string {
     throw createFastifyError('FST_UNAUTHORIZED', 'Bearer Token Authorization is required', 401);
   }
   return authorization.replace(AUTHORIZATION_BEARER_PREFIX, '').trim();
+}
+
+export function getServiceAccountToken(): string {
+  if (isLocalRun) {
+    return process.env.SERVICE_ACCOUNT_TOKEN as string;
+  }
+  if (!existsSync(SERVICE_ACCOUNT_TOKEN_PATH)) {
+    console.error('SERVICE_ACCOUNT_TOKEN is required');
+    process.exit(1);
+  }
+  return readFileSync(SERVICE_ACCOUNT_TOKEN_PATH).toString();
 }

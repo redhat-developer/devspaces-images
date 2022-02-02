@@ -13,12 +13,12 @@
 import { V1alpha2DevWorkspaceMetadata } from '@devfile/api';
 
 export const DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION = 'che.eclipse.org/last-updated-timestamp';
-
 export const DEVWORKSPACE_CHE_EDITOR = 'che.eclipse.org/che-editor';
-
+export const ORIGINAL_WORKSPACE_ID_ANNOTATION = 'che.eclipse.org/original-workspace-id';
 type DevWorkspaceMetadataAnnotation = {
   [DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]?: string;
   [DEVWORKSPACE_CHE_EDITOR]?: string;
+  [ORIGINAL_WORKSPACE_ID_ANNOTATION]?: string;
 };
 
 export type DevWorkspaceMetadata = V1alpha2DevWorkspaceMetadata &

@@ -12,7 +12,7 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { baseApiPath } from '../constants/config';
-import { getDevWorkspaceClient } from './helper';
+import { getDevWorkspaceClient, getToken } from './helper';
 import { getSchema } from '../services/helpers';
 import { restParams } from '../typings/models';
 import { namespacedKubeConfigSchema } from '../constants/schemas';
@@ -24,7 +24,8 @@ export function registerKubeConfigApi(server: FastifyInstance) {
     `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/kubeconfig`,
     getSchema({ tags, params: namespacedKubeConfigSchema }),
     async function (request: FastifyRequest, reply: FastifyReply) {
-      const { kubeConfigApi } = await getDevWorkspaceClient(request);
+      const token = getToken(request);
+      const { kubeConfigApi } = await getDevWorkspaceClient(token);
       const { namespace, devworkspaceId } = request.params as restParams.INamespacedPodParam;
       await kubeConfigApi.injectKubeConfig(namespace, devworkspaceId);
       reply.code(204);

@@ -18,7 +18,7 @@ import {
   dwTemplatePatchSchema,
   templateStartedSchema,
 } from '../constants/schemas';
-import { getDevWorkspaceClient } from './helper';
+import { getDevWorkspaceClient, getToken } from './helper';
 import { getSchema } from '../services/helpers';
 import { restParams } from '../typings/models';
 
@@ -39,7 +39,8 @@ export function registerTemplateApi(server: FastifyInstance) {
         template.metadata = {};
       }
       template.metadata.namespace = namespace;
-      const { templateApi } = await getDevWorkspaceClient(request);
+      const token = getToken(request);
+      const { templateApi } = await getDevWorkspaceClient(token);
       return templateApi.create(template);
     },
   );
@@ -52,7 +53,8 @@ export function registerTemplateApi(server: FastifyInstance) {
     }),
     async function (request: FastifyRequest) {
       const { namespace } = request.params as restParams.INamespacedParam;
-      const { templateApi } = await getDevWorkspaceClient(request);
+      const token = getToken(request);
+      const { templateApi } = await getDevWorkspaceClient(token);
       return templateApi.listInNamespace(namespace);
     },
   );
@@ -63,7 +65,8 @@ export function registerTemplateApi(server: FastifyInstance) {
     async function (request: FastifyRequest) {
       const { namespace, templateName } = request.params as restParams.INamespacedTemplateParam;
       const patch = request.body as { op: string; path: string; value?: any }[];
-      const { templateApi } = await getDevWorkspaceClient(request);
+      const token = getToken(request);
+      const { templateApi } = await getDevWorkspaceClient(token);
       return templateApi.patch(namespace, templateName, patch);
     },
   );

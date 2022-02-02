@@ -357,10 +357,10 @@
   resolved "https://registry.yarnpkg.com/@eclipse-che/api/-/api-7.39.2.tgz#a49d8a56345cbb52da7829652ffcad612e5f0391"
   integrity sha512-13zSFY4+YjYBQOzQTXE71fAX37HMQm/3rkMHN8c7Ejg1UF8ILXwC3Z28xzlMv4kSxtecn0/frqbwoZN8wRjc/g==
 
-"@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-7ba5d3e":
-  version "1.64.0-dev-7ba5d3e"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.64.0-dev-7ba5d3e.tgz#f247e7959a7db2b0539238bcfbe5cb1cb6c59542"
-  integrity sha512-EQq/db7+MQsZm4D+XLnskQOkZjzyXWx/rTaNLTOHG51zE26GkJWgsDu9NrUADxuqZ3CMqO8GIlk9j91UfNL73Q==
+"@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722":
+  version "1.64.0-dev-210b722"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.64.0-dev-210b722.tgz#185625439849bb733e97eb2e34e1f415e0dcd0ed"
+  integrity sha512-QGDwuXZwxgt68dStE0JTMGB/GBnp6Q7EsDLuUZMR3yTswc44ZxAafvBS3K3pWtenErGManCwNJ+6FM8yP0Q7/A==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
@@ -370,10 +370,10 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1639587602":
-  version "0.0.1-1639587602"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1639587602.tgz#ce26a00b7c668a3e2aa03a298c716354329ec4f9"
-  integrity sha512-vCzirEnaul87XaXXRGtr+wCJjJSM0M1BO4rdN7EazzdOLiucIF8kjvIk9Qjzbty2Pfx2ntveXI0wjnWFJ4l4UA==
+"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698":
+  version "0.0.1-1642670698"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1642670698.tgz#c64f57b66b40b5e1f211eba7855609d71182a290"
+  integrity sha512-nRS7n/X+PV7S6o/KjPbI/OH35eUArQ4MBiBX7+SvlwEqyVk/8Fac+/zg1h/A3mT23DN6X47ooBT+eYNLGNSitg==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"

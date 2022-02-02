@@ -16,7 +16,7 @@ import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import IdeLoaderTabs from '..';
 import { LoadIdeSteps } from '../../../containers/IdeLoader';
-import { WorkspaceStatus } from '../../../services/helpers/types';
+import { DeprecatedWorkspaceStatus, WorkspaceStatus } from '../../../services/helpers/types';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 
@@ -53,7 +53,7 @@ describe('The Ide Loader page  component', () => {
       workspaceName,
       workspaceId,
       hasError,
-      workspace.status,
+      workspace.status as WorkspaceStatus,
     );
 
     expect(component.toJSON()).toMatchSnapshot();
@@ -80,7 +80,7 @@ describe('The Ide Loader page  component', () => {
       workspaceName,
       workspaceId,
       hasError,
-      workspace.status,
+      workspace.status as WorkspaceStatus,
     );
 
     expect(component.toJSON()).toMatchSnapshot();
@@ -107,7 +107,7 @@ describe('The Ide Loader page  component', () => {
       workspaceName,
       workspaceId,
       false,
-      workspace.status,
+      workspace.status as WorkspaceStatus,
     );
 
     expect(component.toJSON()).toMatchSnapshot();
@@ -162,7 +162,7 @@ describe('The Ide Loader page  component', () => {
       workspaceName,
       workspaceId,
       false,
-      workspace.status,
+      workspace.status as WorkspaceStatus,
     );
 
     expect(component.toJSON()).toMatchSnapshot();
@@ -216,7 +216,7 @@ describe('The Ide Loader page  component', () => {
       workspaceName,
       workspaceId,
       false,
-      workspace.status,
+      workspace.status as WorkspaceStatus,
       ideUrl,
     );
 
@@ -230,7 +230,7 @@ function renderComponent(
   workspaceName: string,
   workspaceId: string,
   hasError: boolean,
-  workspaceStatus: string | undefined,
+  workspaceStatus: WorkspaceStatus | DeprecatedWorkspaceStatus,
   ideUrl?: string,
 ): ReactTestRenderer {
   return renderer.create(

@@ -112,6 +112,11 @@ if [[ ! -z "$GATEWAY" &&
   PRERUN_COMMAND="kubectl port-forward service/che-host ${CHE_FORWARDED_PORT}:8080 -n $CHE_NAMESPACE"
 fi
 
+DASHBOARD_POD_NAME=$(kubectl get pods -n $CHE_NAMESPACE -o=custom-columns=:metadata.name | grep che-dashboard)
+export SERVICE_ACCOUNT_TOKEN=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- cat /run/secrets/kubernetes.io/serviceaccount/token)
+export CHECLUSTER_CR_NAMESPACE=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAMESPACE)
+export CHECLUSTER_CR_NAME=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAME)
+
 # relative path from backend package
 FRONTEND_RESOURCES=../../../../$DASHBOARD_FRONTEND/lib
 $PRERUN_COMMAND &

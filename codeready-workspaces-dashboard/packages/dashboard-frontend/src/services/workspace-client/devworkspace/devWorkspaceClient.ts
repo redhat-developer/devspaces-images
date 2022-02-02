@@ -334,6 +334,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     pluginRegistryInternalUrl: string | undefined,
     editorId: string | undefined,
     optionalFilesContent: { [fileName: string]: string },
+    start = true,
   ): Promise<devfileApi.DevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
@@ -526,7 +527,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }),
     );
 
-    createdWorkspace.spec.started = true;
+    createdWorkspace.spec.started = start;
     const patch = [
       {
         op: 'replace',
@@ -662,6 +663,15 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
 
     return DwApi.patchWorkspace(namespace, name, patch);
+  }
+
+  async updateAnnotation(workspace: devfileApi.DevWorkspace): Promise<devfileApi.DevWorkspace> {
+    const patch: api.IPatch = {
+      op: 'replace',
+      path: '/metadata/annotations',
+      value: workspace.metadata.annotations || {},
+    };
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, [patch]);
   }
 
   private escape(key: string): string {

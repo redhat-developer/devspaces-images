@@ -18,7 +18,7 @@ import React from 'react';
 import GetStarted from '..';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { convertWorkspace, Devfile, Workspace } from '../../../services/workspace-adapter';
+import { constructWorkspace, Devfile, Workspace } from '../../../services/workspace-adapter';
 import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
 
 const setWorkspaceQualifiedName = jest.fn();
@@ -45,7 +45,7 @@ jest.mock('../../../store/Workspaces/index', () => {
         (devfile, namespace, infrastructureNamespace, attributes) =>
         async (): Promise<Workspace> => {
           createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
-          return convertWorkspace({
+          return constructWorkspace({
             id: 'id-wksp-test',
             attributes,
             namespace,

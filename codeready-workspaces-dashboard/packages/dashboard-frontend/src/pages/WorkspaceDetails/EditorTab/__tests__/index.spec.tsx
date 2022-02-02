@@ -19,7 +19,7 @@ import userEvent from '@testing-library/user-event';
 import { dump } from 'js-yaml';
 import devfileApi from '../../../../services/devfileApi';
 import EditorTab from '..';
-import { Workspace, convertWorkspace } from '../../../../services/workspace-adapter';
+import { Workspace, constructWorkspace } from '../../../../services/workspace-adapter';
 import { CheWorkspaceBuilder } from '../../../../store/__mocks__/cheWorkspaceBuilder';
 import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
@@ -66,7 +66,7 @@ describe('Editor Tab', () => {
           workspaces: [cheWorkspace],
         })
         .build();
-      workspace = convertWorkspace(cheWorkspace);
+      workspace = constructWorkspace(cheWorkspace);
       component = getComponent(store, workspace);
     });
 
@@ -141,7 +141,7 @@ describe('Editor Tab', () => {
           workspaces: [devWorkspace],
         })
         .build();
-      workspace = convertWorkspace(devWorkspace);
+      workspace = constructWorkspace(devWorkspace);
       component = getComponent(store, workspace);
     });
 

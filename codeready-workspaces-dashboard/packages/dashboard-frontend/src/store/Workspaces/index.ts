@@ -116,6 +116,7 @@ export type ActionCreators = {
     optionalFilesContent?: {
       [fileName: string]: string;
     },
+    start?: boolean,
   ) => AppThunk<KnownAction, Promise<void>>;
 
   setWorkspaceQualifiedName: (
@@ -136,14 +137,12 @@ export const actionCreators: ActionCreators = {
       try {
         const state = getState();
         const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
-        let requestWorkspaces: Promise<any>;
+        let requestWorkspaces: Promise<any> = Promise.resolve();
 
-        // Hide devfile v1 workspaces if the DevWorkspace engine is enabled - https://github.com/eclipse/che/issues/20900
         if (cheDevworkspaceEnabled) {
           requestWorkspaces = dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces());
-        } else {
-          requestWorkspaces = dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces());
         }
+        requestWorkspaces = dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces());
 
         await requestWorkspaces;
 
@@ -294,6 +293,7 @@ export const actionCreators: ActionCreators = {
       optionalFilesContent?: {
         [fileName: string]: string;
       },
+      start = true,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_WORKSPACES' });
@@ -313,6 +313,7 @@ export const actionCreators: ActionCreators = {
               pluginRegistryUrl,
               pluginRegistryInternalUrl,
               attributes,
+              start,
             ),
           );
           dispatch({ type: 'ADD_WORKSPACE' });

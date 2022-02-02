@@ -12,10 +12,10 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
-  Alert,
-  AlertActionCloseButton,
   AlertVariant,
+  Button,
   PageSection,
   PageSectionVariants,
   Tab,
@@ -24,7 +24,7 @@ import {
 import Head from '../../components/Head';
 import { WorkspaceDetailsTab, WorkspaceStatus } from '../../services/helpers/types';
 import Header from './Header';
-import CheProgress from '../../components/Progress';
+import ProgressIndicator from '../../components/Progress';
 import { AppState } from '../../store';
 import { HeaderActionSelect } from './Header/Actions';
 import { lazyInject } from '../../inversify.config';
@@ -32,16 +32,19 @@ import { AppAlerts } from '../../services/alerts/appAlerts';
 import OverviewTab, { OverviewTab as Overview } from './OverviewTab';
 import EditorTab, { EditorTab as Editor } from './EditorTab';
 import { selectIsLoading, selectWorkspaceById } from '../../store/Workspaces/selectors';
-import { History, UnregisterCallback } from 'history';
-
-import './WorkspaceDetails.styl';
+import { History, UnregisterCallback, Location } from 'history';
 import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import UnsavedChangesModal from '../../components/UnsavedChangesModal';
+import WorkspaceConversionButton from './ConversionButton';
+import { WorkspaceInlineAlerts } from './InlineAlerts';
+
+import './WorkspaceDetails.styl';
 
 export const SECTION_THEME = PageSectionVariants.light;
 
 type Props = {
   workspacesLink: string;
+  oldWorkspacePath?: Location;
   onSave: (workspace: Workspace, activeTab: WorkspaceDetailsTab | undefined) => Promise<void>;
   history: History;
 } & MappedProps;
@@ -49,7 +52,8 @@ type Props = {
 type State = {
   activeTabKey: WorkspaceDetailsTab;
   clickedTabIndex?: WorkspaceDetailsTab;
-  hasWarningMessage?: boolean;
+  inlineAlertConversionError?: string;
+  showInlineAlertRestartWarning: boolean;
 };
 
 export class WorkspaceDetails extends React.PureComponent<Props, State> {
@@ -76,7 +80,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
     this.state = {
       activeTabKey: this.getActiveTabKey(this.props.history.location.search),
-      hasWarningMessage: false,
+      showInlineAlertRestartWarning: false,
     };
 
     // Toggle currently active tab
@@ -103,6 +107,30 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
       ).slice(-4)}`;
       this.appAlerts.showAlert({ key, title, variant });
     };
+  }
+
+  private handleConversionAlert(errorMessage: string): void {
+    this.setState({
+      inlineAlertConversionError: errorMessage,
+    });
+  }
+
+  private handleCloseConversionAlert(): void {
+    this.setState({
+      inlineAlertConversionError: undefined,
+    });
+  }
+
+  private handleRestartWarning(): void {
+    this.setState({
+      showInlineAlertRestartWarning: true,
+    });
+  }
+
+  private handleCloseRestartWarning(): void {
+    this.setState({
+      showInlineAlertRestartWarning: false,
+    });
   }
 
   private getActiveTabKey(search: History.Search): WorkspaceDetailsTab {
@@ -132,7 +160,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
 
   public componentDidUpdate(): void {
     if (this.props.workspace && this.props.workspace?.isStopped) {
-      this.setState({ hasWarningMessage: false });
+      this.handleCloseRestartWarning();
     }
   }
 
@@ -167,13 +195,14 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { workspace, workspacesLink, history } = this.props;
+    const { workspace, workspacesLink, history, oldWorkspacePath } = this.props;
 
     if (!workspace) {
       return <div>Workspace not found.</div>;
     }
 
     const workspaceName = workspace.name;
+    const { inlineAlertConversionError, showInlineAlertRestartWarning } = this.state;
 
     return (
       <React.Fragment>
@@ -183,6 +212,19 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
           workspaceName={workspaceName}
           status={workspace.status}
         >
+          {oldWorkspacePath && (
+            <Button variant="link" component={props => <Link {...props} to={oldWorkspacePath} />}>
+              Show Original Devfile
+            </Button>
+          )}
+          {workspace.isDeprecated && (
+            <WorkspaceConversionButton
+              history={history}
+              oldWorkspace={workspace}
+              cleanupError={() => this.handleCloseConversionAlert()}
+              onError={errorMessage => this.handleConversionAlert(errorMessage)}
+            />
+          )}
           <HeaderActionSelect
             workspaceId={workspace.id}
             workspaceName={workspaceName}
@@ -191,25 +233,16 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
           />
         </Header>
         <PageSection variant={SECTION_THEME} className="workspace-details-tabs">
-          {this.state.hasWarningMessage && (
-            <Alert
-              variant={AlertVariant.warning}
-              isInline
-              title={
-                <React.Fragment>
-                  The workspace <em>{workspaceName}&nbsp;</em> should be restarted to apply changes.
-                </React.Fragment>
-              }
-              actionClose={
-                <AlertActionCloseButton
-                  onClose={() => this.setState({ hasWarningMessage: false })}
-                />
-              }
-            />
-          )}
+          <WorkspaceInlineAlerts
+            workspace={workspace}
+            conversionError={inlineAlertConversionError}
+            showRestartWarning={showInlineAlertRestartWarning}
+            onCloseConversionAlert={() => this.handleCloseConversionAlert()}
+            onCloseRestartAlert={() => this.handleCloseRestartWarning()}
+          />
           <Tabs activeKey={this.state.activeTabKey} onSelect={this.handleTabClick}>
             <Tab eventKey={WorkspaceDetailsTab.OVERVIEW} title={WorkspaceDetailsTab.OVERVIEW}>
-              <CheProgress isLoading={this.props.isLoading} />
+              <ProgressIndicator isLoading={this.props.isLoading} />
               <OverviewTab
                 ref={this.overviewTabPageRef}
                 workspace={workspace}
@@ -217,12 +250,12 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
               />
             </Tab>
             <Tab eventKey={WorkspaceDetailsTab.DEVFILE} title={WorkspaceDetailsTab.DEVFILE}>
-              <CheProgress isLoading={this.props.isLoading} />
+              <ProgressIndicator isLoading={this.props.isLoading} />
               <EditorTab
                 ref={this.editorTabPageRef}
                 workspace={workspace}
                 onSave={workspace => this.onSave(workspace)}
-                onDevWorkspaceWarning={() => this.setState({ hasWarningMessage: true })}
+                onDevWorkspaceWarning={() => this.handleRestartWarning()}
               />
             </Tab>
             {/* <Tab eventKey={WorkspaceDetailsTabs.Logs} title={WorkspaceDetailsTabs[WorkspaceDetailsTabs.Logs]}>*/}
@@ -245,7 +278,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
       isCheWorkspace((this.props.workspace as Workspace).ref) &&
       this.props.workspace.status !== WorkspaceStatus.STOPPED
     ) {
-      this.setState({ hasWarningMessage: true });
+      this.handleRestartWarning();
     }
     await this.props.onSave(workspace, this.state.activeTabKey);
     this.editorTabPageRef.current?.cancelChanges();

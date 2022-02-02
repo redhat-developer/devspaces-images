@@ -11,7 +11,7 @@
  */
 
 import { cloneDeep } from 'lodash';
-import { convertWorkspace } from '..';
+import { constructWorkspace } from '..';
 import {
   CheWorkspaceBuilder,
   CHE_DEVFILE_STUB,
@@ -40,14 +40,14 @@ describe('Workspace adapter', () => {
     it('should not throw when convert Che workspace', () => {
       const cheWorkspace = new CheWorkspaceBuilder().build();
       expect(() => {
-        convertWorkspace(cheWorkspace);
+        constructWorkspace(cheWorkspace);
       }).not.toThrow();
     });
 
     it('should not throw when convert Dev workspace', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
       expect(() => {
-        convertWorkspace(devWorkspace);
+        constructWorkspace(devWorkspace);
       }).not.toThrow();
     });
 
@@ -58,7 +58,7 @@ describe('Workspace adapter', () => {
         field: 'value',
       } as any;
       expect(() => {
-        convertWorkspace(obj);
+        constructWorkspace(obj);
       }).toThrow();
     });
   });
@@ -66,28 +66,28 @@ describe('Workspace adapter', () => {
   describe('for Che workspace', () => {
     it('should return reference to the workspace', () => {
       const cheWorkspace = new CheWorkspaceBuilder().build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.ref).toMatchObject(cheWorkspace);
     });
 
     it('should return ID', () => {
       const id = 'workspace1234asdf';
       const cheWorkspace = new CheWorkspaceBuilder().withId(id).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.id).toEqual(id);
     });
 
     it('should return name', () => {
       const name = 'wksp-1234';
       const cheWorkspace = new CheWorkspaceBuilder().withName(name).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.name).toEqual(name);
     });
 
     it('should return namespace', () => {
       const namespace = 'test-namespace';
       const cheWorkspace = new CheWorkspaceBuilder().withNamespace(namespace).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.namespace).toEqual(namespace);
     });
 
@@ -98,7 +98,7 @@ describe('Workspace adapter', () => {
           infrastructureNamespace,
         } as che.WorkspaceAttributes)
         .build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.infrastructureNamespace).toEqual(infrastructureNamespace);
     });
 
@@ -109,7 +109,7 @@ describe('Workspace adapter', () => {
           created,
         } as che.WorkspaceAttributes)
         .build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.created.toString()).toEqual(created);
     });
 
@@ -120,14 +120,14 @@ describe('Workspace adapter', () => {
           updated,
         } as che.WorkspaceAttributes)
         .build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.updated.toString()).toEqual(updated);
     });
 
     it('should return status', () => {
       const status = 'STARTING';
       const cheWorkspace = new CheWorkspaceBuilder().withStatus(status).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.status).toEqual(status);
     });
 
@@ -136,7 +136,7 @@ describe('Workspace adapter', () => {
       const runtime = CHE_RUNTIME_STUB;
       runtime.machines['theia-ide'].servers.theia.url = ideUrl;
       const cheWorkspace = new CheWorkspaceBuilder().withRuntime(runtime).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.ideUrl).toEqual(ideUrl);
     });
 
@@ -146,7 +146,7 @@ describe('Workspace adapter', () => {
         asyncPersist: 'false',
       };
       const cheWorkspace = new CheWorkspaceBuilder().withDevfile(cheDevfile).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.storageType).toEqual(StorageTypeTitle.ephemeral.toLowerCase());
     });
 
@@ -156,7 +156,7 @@ describe('Workspace adapter', () => {
         asyncPersist: 'false',
       };
       const cheWorkspace = new CheWorkspaceBuilder().withDevfile(cheDevfile).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.devfile).toMatchObject(cheDevfile);
     });
 
@@ -178,13 +178,13 @@ describe('Workspace adapter', () => {
         },
       ];
       const cheWorkspace = new CheWorkspaceBuilder().withProjects(projects).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
       expect(workspace.projects).toEqual([projects[0].name, projects[1].name]);
     });
 
     it('should set "ephemeral" storage type', () => {
       const cheWorkspace = new CheWorkspaceBuilder().withDevfile(cheDevfile).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
 
       expect(workspace.storageType).toEqual('persistent');
       expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual(undefined);
@@ -199,7 +199,7 @@ describe('Workspace adapter', () => {
 
     it('should set "async" storage type', () => {
       const cheWorkspace = new CheWorkspaceBuilder().withDevfile(cheDevfile).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
 
       expect(workspace.storageType).toEqual('persistent');
       expect((workspace.devfile as che.WorkspaceDevfile).attributes).toEqual(undefined);
@@ -218,7 +218,7 @@ describe('Workspace adapter', () => {
         persistVolumes: 'false',
       };
       const cheWorkspace = new CheWorkspaceBuilder().withDevfile(cheDevfile).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
 
       expect(workspace.storageType).toEqual('ephemeral');
 
@@ -235,7 +235,7 @@ describe('Workspace adapter', () => {
         asyncPersist: 'true',
       };
       const cheWorkspace = new CheWorkspaceBuilder().withDevfile(cheDevfile).build();
-      const workspace = convertWorkspace(cheWorkspace);
+      const workspace = constructWorkspace(cheWorkspace);
 
       expect(workspace.storageType).toEqual('async');
 
@@ -251,35 +251,35 @@ describe('Workspace adapter', () => {
   describe('for Dev workspace', () => {
     it('should return reference to the workspace', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.ref).toMatchObject(devWorkspace);
     });
 
     it('should return ID', () => {
       const id = '1234asdf';
       const devWorkspace = new DevWorkspaceBuilder().withId(id).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.id).toEqual(id);
     });
 
     it('should return name', () => {
       const name = 'wksp-1234';
       const devWorkspace = new DevWorkspaceBuilder().withName(name).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.name).toEqual(name);
     });
 
     it('should return namespace', () => {
       const namespace = 'test-namespace';
       const devWorkspace = new DevWorkspaceBuilder().withNamespace(namespace).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.namespace).toEqual(namespace);
     });
 
     it('should return infrastructure namespace', () => {
       const infrastructureNamespace = 'infrastructure-namespace';
       const devWorkspace = new DevWorkspaceBuilder().withNamespace(infrastructureNamespace).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.infrastructureNamespace).toEqual(infrastructureNamespace);
     });
 
@@ -288,7 +288,7 @@ describe('Workspace adapter', () => {
       const created = new Date(timestamp);
       const devWorkspace = new DevWorkspaceBuilder().build();
       devWorkspace.metadata.creationTimestamp = created;
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.created).toEqual(timestamp);
     });
 
@@ -299,27 +299,27 @@ describe('Workspace adapter', () => {
       devWorkspace.metadata.annotations = {
         [DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]: updated,
       };
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.updated).toEqual(timestamp);
     });
 
     it('should return status', () => {
       const status = 'STARTING';
       const devWorkspace = new DevWorkspaceBuilder().withStatus({ phase: status }).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.status).toEqual(DevWorkspaceStatus[status]);
     });
 
     it('should return ideUrl', () => {
       const ideUrl = 'my/ide/url';
       const devWorkspace = new DevWorkspaceBuilder().withIdeUrl(ideUrl).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.ideUrl).toEqual(ideUrl);
     });
 
     it('should return storage type', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.storageType).toEqual(StorageTypeTitle.persistent.toLowerCase());
     });
 
@@ -335,7 +335,7 @@ describe('Workspace adapter', () => {
         .withName('my-wksp')
         .withNamespace('my-namespace')
         .build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.devfile).toMatchObject(devfile);
     });
 
@@ -359,7 +359,7 @@ describe('Workspace adapter', () => {
         },
       ];
       const devWorkspace = new DevWorkspaceBuilder().withProjects(projects).build();
-      const workspace = convertWorkspace(devWorkspace);
+      const workspace = constructWorkspace(devWorkspace);
       expect(workspace.projects).toEqual([projects[0].name, projects[1].name]);
     });
   });

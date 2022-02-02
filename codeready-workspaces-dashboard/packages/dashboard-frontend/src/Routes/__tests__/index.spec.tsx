@@ -27,7 +27,7 @@ import {
   buildWorkspacesLocation,
 } from '../../services/helpers/location';
 import { IdeLoaderTab, WorkspaceDetailsTab } from '../../services/helpers/types';
-import { convertWorkspace, Workspace } from '../../services/workspace-adapter';
+import { constructWorkspace, Workspace } from '../../services/workspace-adapter';
 import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
 
 jest.mock('../../pages/GetStarted', () => {
@@ -140,7 +140,7 @@ describe('Routes', () => {
     let workspace: Workspace;
 
     beforeEach(() => {
-      workspace = convertWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
+      workspace = constructWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
     });
 
     it('should handle "/workspace/namespace/name"', async () => {
@@ -184,7 +184,7 @@ describe('Routes', () => {
     let workspace: Workspace;
 
     beforeEach(() => {
-      workspace = convertWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
+      workspace = constructWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
     });
 
     it('should handle "/ide/namespace/name"', async () => {

@@ -10,14 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-.breadcrumb li:first-child {
-  margin-right: 0;
+.workspaceActionSelector button {
+  border-radius: 3px;
 }
 
-.breadcrumb li:first-child a {
-  margin-right: 8px;
-}
-
-.actionButtons > * {
-  margin-left: 10px;
+.workspaceActionSelector ul {
+  padding: 0;
 }

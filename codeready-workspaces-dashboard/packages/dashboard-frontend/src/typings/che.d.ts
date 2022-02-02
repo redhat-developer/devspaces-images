@@ -64,6 +64,7 @@ declare namespace che {
     stackName?: string;
     errorMessage?: string;
     infrastructureNamespace: string;
+    converted?: string;
 
     [propName: string]: string | number | undefined;
   }

@@ -14,16 +14,21 @@ import {
   ExclamationCircleIcon,
   InProgressIcon,
   ResourcesFullIcon,
+  ExclamationTriangleIcon,
 } from '@patternfly/react-icons/dist/js/icons';
 import React from 'react';
-import { DevWorkspaceStatus, WorkspaceStatus } from '../../../services/helpers/types';
+import ReactTooltip from 'react-tooltip';
+import {
+  DevWorkspaceStatus,
+  WorkspaceStatus,
+  DeprecatedWorkspaceStatus,
+} from '../../../services/helpers/types';
 import { ColorType, StoppedIcon } from '../../WorkspaceStatusLabel';
 
 import styles from './index.module.css';
-import ReactTooltip from 'react-tooltip';
 
 type Props = {
-  status: string;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
 };
 
 class WorkspaceIndicator extends React.PureComponent<Props> {
@@ -57,21 +62,31 @@ class WorkspaceIndicator extends React.PureComponent<Props> {
         color = '#0e6fe0';
         icon = <InProgressIcon className={styles.rotate} color={color} />;
         break;
+      case 'Deprecated':
+        icon = <ExclamationTriangleIcon color="var(--pf-global--warning-color--100)" />;
+        break;
       default:
         color = 'grey';
         icon = <InProgressIcon className={styles.rotate} color={color} />;
     }
 
+    const tooltip = status === 'Deprecated' ? 'Deprecated workspace' : status.toLocaleUpperCase();
+
     return (
       <>
         <span
-          data-tip={status.toUpperCase()}
+          data-tip={tooltip}
           className={styles.statusIndicator}
           data-testid="workspace-status-indicator"
         >
           {icon}
         </span>
-        <ReactTooltip backgroundColor="black" textColor="white" effect="solid" />
+        <ReactTooltip
+          backgroundColor="black"
+          textColor="white"
+          effect="solid"
+          offset={{ right: 20 }}
+        />
       </>
     );
   }

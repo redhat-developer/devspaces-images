@@ -21,11 +21,16 @@ import {
   TextVariants,
 } from '@patternfly/react-core';
 import WorkspaceStatusLabel from '../WorkspaceStatusLabel';
+import {
+  DeprecatedWorkspaceStatus,
+  DevWorkspaceStatus,
+  WorkspaceStatus,
+} from '../../services/helpers/types';
 
 const SECTION_THEME = PageSectionVariants.light;
 
 type Props = {
-  status?: string;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   title: string;
 };
 
@@ -41,11 +46,9 @@ class Header extends React.PureComponent<Props> {
               <Text component={TextVariants.h1}>{title}</Text>
             </TextContent>
           </FlexItem>
-          {status && (
-            <FlexItem>
-              <WorkspaceStatusLabel status={status} />
-            </FlexItem>
-          )}
+          <FlexItem>
+            <WorkspaceStatusLabel status={status} />
+          </FlexItem>
         </Flex>
       </PageSection>
     );

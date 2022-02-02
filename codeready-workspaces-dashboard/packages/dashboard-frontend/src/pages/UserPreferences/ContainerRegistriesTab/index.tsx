@@ -24,7 +24,7 @@ import { Table, TableBody, TableHeader } from '@patternfly/react-table';
 import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import CheProgress from '../../../components/Progress';
+import ProgressIndicator from '../../../components/Progress';
 import { lazyInject } from '../../../inversify.config';
 import { AppAlerts } from '../../../services/alerts/appAlerts';
 import { AlertItem } from '../../../services/helpers/types';
@@ -297,7 +297,7 @@ export class ContainerRegistriesTab extends React.PureComponent<Props, State> {
 
     return (
       <React.Fragment>
-        <CheProgress isLoading={isLoading} />
+        <ProgressIndicator isLoading={isLoading} />
         <EditRegistryModal
           onCancel={() => this.setEditModalStatus(false)}
           onChange={_registry => this.handleRegistryChange(_registry)}

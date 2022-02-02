@@ -20,7 +20,12 @@ import { lazyInject } from '../inversify.config';
 import IdeLoader, { AlertOptions } from '../pages/IdeLoader';
 import { Debounce } from '../services/helpers/debounce';
 import { delay } from '../services/helpers/delay';
-import { IdeLoaderTab } from '../services/helpers/types';
+import {
+  DeprecatedWorkspaceStatus,
+  DevWorkspaceStatus,
+  IdeLoaderTab,
+  WorkspaceStatus,
+} from '../services/helpers/types';
 import { AppState } from '../store';
 import { getEnvironment, isDevEnvironment } from '../services/helpers/environment';
 import * as WorkspaceStore from '../store/Workspaces';
@@ -57,7 +62,7 @@ type State = {
   hasStarted: boolean;
   isWaitingForRestart: boolean;
   isDevWorkspace: boolean;
-  status?: string;
+  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
 };
 
 class IdeLoaderContainer extends React.PureComponent<Props, State> {
@@ -94,6 +99,9 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       workspace =>
         workspace.namespace === params.namespace && workspace.name === this.workspaceName,
     );
+    const status =
+      workspace?.status ||
+      (this.props.devworkspacesEnabled ? DevWorkspaceStatus.STOPPED : WorkspaceStatus.STOPPED);
     this.state = {
       currentStep: LoadIdeSteps.INITIALIZING,
       namespace,
@@ -103,6 +111,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       preselectedTabKey: this.preselectedTabKey,
       isWaitingForRestart: false,
       hasStarted: false,
+      status,
     };
 
     this.debounce.subscribe(async onStart => {

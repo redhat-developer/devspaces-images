@@ -142,10 +142,10 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private buildRows(): RowData[] {
-    const { history, toDelete, workspaces } = this.props;
+    const { toDelete, workspaces } = this.props;
     const { filtered, selected, sortBy } = this.state;
 
-    return buildRows(history, workspaces, toDelete, filtered, selected, sortBy);
+    return buildRows(workspaces, toDelete, filtered, selected, sortBy);
   }
 
   private actionResolver(rowData: IRowData): IAction[] {
@@ -155,6 +155,17 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
     if (!workspace) {
       console.warn('Unable to build list of actions: Workspace not found.');
       return [];
+    }
+
+    if (workspace.isDeprecated) {
+      return [
+        {
+          title: 'Delete Workspace',
+          onClick: (event, rowId, rowData) =>
+            this.handleAction(WorkspaceAction.DELETE_WORKSPACE, rowData),
+          isDisabled: false === this.isEnabledAction(WorkspaceAction.DELETE_WORKSPACE, workspace),
+        },
+      ];
     }
 
     return [
@@ -231,14 +242,9 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       }
       this.props.history.push(nextPath);
     } catch (e) {
-      const workspace = this.props.workspaces.find(workspace => id === workspace.id);
-      const workspaceName = workspace?.name ? ` "${workspace?.name}"` : '';
       const errorMessage = common.helpers.errors.getMessage(e);
-      const message =
-        `Unable to ${action.toLocaleLowerCase()}${workspaceName}. ` +
-        errorMessage.replace('Error: ', '');
-      this.showAlert(message);
-      console.warn(message);
+      this.showAlert(errorMessage);
+      console.warn(errorMessage);
     }
   }
 

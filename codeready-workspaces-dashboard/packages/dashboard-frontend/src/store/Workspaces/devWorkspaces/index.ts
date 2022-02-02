@@ -131,6 +131,9 @@ export type ActionCreators = {
   restartWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   stopWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   terminateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
+  updateWorkspaceAnnotation: (
+    workspace: devfileApi.DevWorkspace,
+  ) => AppThunk<KnownAction, Promise<void>>;
   updateWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromDevfile: (
     devfile: devfileApi.Devfile,
@@ -140,6 +143,7 @@ export type ActionCreators = {
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     attributes: { [key: string]: string },
+    start?: boolean,
   ) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromResources: (
     devworkspace: devfileApi.DevWorkspace,
@@ -416,6 +420,29 @@ export const actionCreators: ActionCreators = {
       }
     },
 
+  updateWorkspaceAnnotation:
+    (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+
+      try {
+        const updated = await devWorkspaceClient.updateAnnotation(workspace);
+        dispatch({
+          type: 'UPDATE_DEVWORKSPACE',
+          workspace: updated,
+        });
+      } catch (e) {
+        const errorMessage =
+          `Failed to update the workspace ${workspace.metadata.name}, reason: ` +
+          common.helpers.errors.getMessage(e);
+        dispatch({
+          type: 'RECEIVE_DEVWORKSPACE_ERROR',
+          error: errorMessage,
+        });
+        throw errorMessage;
+      }
+    },
+
   updateWorkspace:
     (workspace: devfileApi.DevWorkspace): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
@@ -496,6 +523,7 @@ export const actionCreators: ActionCreators = {
       pluginRegistryUrl: string | undefined,
       pluginRegistryInternalUrl: string | undefined,
       attributes: { [key: string]: string },
+      start = true,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       let state = getState();
@@ -541,6 +569,7 @@ export const actionCreators: ActionCreators = {
           pluginRegistryInternalUrl,
           cheEditor,
           optionalFilesContent,
+          start,
         );
 
         if (workspace.spec.started) {

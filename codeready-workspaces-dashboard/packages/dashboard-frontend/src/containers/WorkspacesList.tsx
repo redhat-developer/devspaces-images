@@ -28,6 +28,7 @@ import { lazyInject } from '../inversify.config';
 import { AppAlerts } from '../services/alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
 import { selectBranding } from '../store/Branding/selectors';
+import { isDevWorkspace } from '../services/devfileApi';
 
 type Props = MappedProps & { history: History };
 
@@ -62,6 +63,16 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
       return Fallback;
     }
 
+    const filteredWorkspaces = allWorkspaces.filter(workspace => {
+      if (workspace.isDeprecated === false) {
+        return true;
+      }
+      if (isDevWorkspace(workspace.ref)) {
+        return true;
+      }
+      return workspace.ref.attributes?.converted === undefined;
+    });
+
     return (
       <WorkspaceActionsProvider history={history}>
         <WorkspaceActionsConsumer>
@@ -69,7 +80,7 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
             <WorkspacesList
               branding={branding}
               history={history}
-              workspaces={allWorkspaces}
+              workspaces={filteredWorkspaces}
               onAction={(action, id) => context.handleAction(action, id)}
               showConfirmation={wantDelete => context.showConfirmation(wantDelete)}
               toDelete={context.toDelete}

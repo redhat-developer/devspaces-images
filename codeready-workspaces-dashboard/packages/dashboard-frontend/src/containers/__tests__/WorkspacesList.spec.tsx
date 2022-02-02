@@ -20,12 +20,9 @@ import { Action, Store } from 'redux';
 import { ActionCreators } from '../../store/Workspaces';
 import WorkspacesList from '../WorkspacesList';
 import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
-import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
-
-let isLoadingResult = false;
-let workspaces = [0, 1, 2, 3, 4].map(i =>
-  createFakeCheWorkspace('workspace-' + i, 'workspace-' + i),
-);
+import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
+import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
+import { Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
 
 jest.mock('../../store/Workspaces/index', () => {
   return {
@@ -36,15 +33,20 @@ jest.mock('../../store/Workspaces/index', () => {
     } as ActionCreators,
   };
 });
-jest.mock('../../store/Workspaces/selectors.ts', () => {
-  return {
-    selectIsLoading: jest.fn(() => isLoadingResult),
-    selectAllWorkspaces: () => workspaces,
-    selectWorkspacesError: () => undefined,
-  };
-});
 jest.mock('../../pages/WorkspacesList', () => {
-  const FakeWorkspacesList = () => <div>Workspaces List Page</div>;
+  const FakeWorkspacesList = (props: { workspaces: Workspace[] }): React.ReactElement => {
+    const ids = props.workspaces.map(wksp => (
+      <span data-testid="workspace" key={wksp.id}>
+        {wksp.name}
+      </span>
+    ));
+    return (
+      <div>
+        Workspaces List Page
+        <div data-testid="workspaces-list">{ids}</div>
+      </div>
+    );
+  };
   FakeWorkspacesList.displayName = 'WorkspacesList';
   return FakeWorkspacesList;
 });
@@ -52,12 +54,22 @@ jest.mock('../../components/Fallback', () => <div>Fallback Spinner</div>);
 
 describe('Workspaces List Container', () => {
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('workspaces are fetched', () => {
     it('should show the workspaces list', () => {
-      renderComponent(workspaces);
+      const workspaces = [0, 1, 2].map(i =>
+        new DevWorkspaceBuilder()
+          .withId('workspace-' + i)
+          .withName('workspace-' + i)
+          .build(),
+      );
+      const store = new FakeStoreBuilder()
+        .withDevWorkspaces({ workspaces }, false)
+        .withWorkspaces({}, false)
+        .build();
+      renderComponent(store);
 
       expect(screen.queryByText('Workspaces List Page')).toBeTruthy();
     });
@@ -65,29 +77,91 @@ describe('Workspaces List Container', () => {
 
   describe('while fetching workspaces', () => {
     it('should show the fallback', () => {
-      isLoadingResult = true;
-      workspaces = [];
-      renderComponent(workspaces);
+      const store = new FakeStoreBuilder()
+        .withDevWorkspaces({ workspaces: [] }, true)
+        .withWorkspaces({}, true)
+        .build();
+      renderComponent(store);
 
       expect(screen.queryByText('Fallback Spinner')).toBeTruthy();
     });
   });
+
+  describe('workspaces filter', () => {
+    describe('in che-server mode', () => {
+      it('should pass all che-server based workspaces', () => {
+        const cheWorkspaces = [
+          new CheWorkspaceBuilder()
+            .withId('che-wksp-0')
+            .withName('che-wksp-0')
+            .withAttributes({
+              created: new Date().toISOString(),
+              converted: new Date().toISOString(),
+              infrastructureNamespace: 'user',
+            })
+            .build(),
+          new CheWorkspaceBuilder().withId('che-wksp-1').withName('che-wksp-1').build(),
+          new CheWorkspaceBuilder().withId('che-wksp-2').withName('che-wksp-2').build(),
+        ];
+        const store = new FakeStoreBuilder()
+          .withCheWorkspaces({ workspaces: cheWorkspaces })
+          .withWorkspaces({})
+          .withWorkspacesSettings({
+            'che.devworkspaces.enabled': 'false',
+          })
+          .build();
+        renderComponent(store);
+
+        const workspaces = screen.getAllByTestId('workspace');
+        expect(workspaces.length).toEqual(3);
+      });
+    });
+
+    describe('in devworkspace mode', () => {
+      it('should pass workspaces but not converted che-server based workspaces', () => {
+        const deprecatedId = 'che-wksp-0';
+        WorkspaceAdapter.setDeprecatedIds([deprecatedId]);
+        const cheWorkspaces = [
+          new CheWorkspaceBuilder()
+            .withId(deprecatedId)
+            .withName('che-wksp-0')
+            .withAttributes({
+              created: new Date().toISOString(),
+              converted: new Date().toISOString(),
+              infrastructureNamespace: 'user',
+            })
+            .build(),
+          new CheWorkspaceBuilder().withId('che-wksp-1').withName('che-wksp-1').build(),
+          new CheWorkspaceBuilder().withId('che-wksp-2').withName('che-wksp-2').build(),
+        ];
+        const devWorkspaces = [0, 1, 2, 4].map(i =>
+          new DevWorkspaceBuilder()
+            .withId('dev-wksp-' + i)
+            .withName('dev-wksp-' + i)
+            .build(),
+        );
+        const store = new FakeStoreBuilder()
+          .withCheWorkspaces({ workspaces: cheWorkspaces })
+          .withDevWorkspaces({ workspaces: devWorkspaces })
+          .withWorkspaces({})
+          .withWorkspacesSettings({
+            'che.devworkspaces.enabled': 'true',
+          })
+          .build();
+        renderComponent(store);
+
+        const workspaces = screen.getAllByTestId('workspace');
+        expect(workspaces.length).toEqual(6);
+      });
+    });
+  });
 });
 
-function renderComponent(workspaces: che.Workspace[]): RenderResult {
-  const store = createFakeStore(workspaces);
+function renderComponent(store: Store): RenderResult {
   const history = createHashHistory();
   return render(
     <Provider store={store}>
       <WorkspacesList history={history}></WorkspacesList>
     </Provider>,
   );
-}
-
-function createFakeStore(workspaces: che.Workspace[]): Store {
-  return new FakeStoreBuilder()
-    .withCheWorkspaces({
-      workspaces,
-    })
-    .build();
 }

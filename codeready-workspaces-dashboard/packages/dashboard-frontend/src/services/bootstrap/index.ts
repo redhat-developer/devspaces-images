@@ -36,6 +36,8 @@ import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlug
 import devfileApi from '../devfileApi';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import { selectDevWorkspacesResourceVersion } from '../../store/Workspaces/devWorkspaces/selectors';
+import { WorkspaceAdapter } from '../workspace-adapter';
+import { selectDeprecatedWorkspacesIds } from '../../store/Workspaces/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -144,6 +146,8 @@ export default class Bootstrap {
   private async fetchWorkspaces(): Promise<void> {
     const { requestWorkspaces } = WorkspacesStore.actionCreators;
     await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
+    const deprecatedIds = selectDeprecatedWorkspacesIds(this.store.getState());
+    WorkspaceAdapter.setDeprecatedIds(deprecatedIds);
   }
 
   private async fetchPlugins(settings: che.WorkspaceSettings): Promise<void> {

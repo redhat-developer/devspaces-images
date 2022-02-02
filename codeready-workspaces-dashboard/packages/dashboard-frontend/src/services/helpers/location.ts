@@ -107,16 +107,34 @@ export function buildGettingStartedLocation(tab?: CreateWorkspaceTab): Location 
   return _buildLocationObject(pathAndQuery);
 }
 
-export function buildDetailsLocation(workspace: Workspace, tab?: WorkspaceDetailsTab): Location {
+export function buildDetailsLocation(
+  ...args:
+    | [namespace: string, workspaceName: string, pageTab?: WorkspaceDetailsTab]
+    | [workspace: Workspace, pageTab?: WorkspaceDetailsTab]
+): Location {
+  let workspaceName: string;
+  let namespace: string;
+  let tab: WorkspaceDetailsTab | undefined;
+  if (typeof args[0] === 'string') {
+    namespace = args[0];
+    workspaceName = args[1] as string;
+    tab = args[2];
+  } else {
+    const workspace = args[0];
+    namespace = workspace.namespace;
+    workspaceName = workspace.name;
+    tab = args[1] as WorkspaceDetailsTab | undefined;
+  }
+
   let pathAndQuery: string;
   if (!tab) {
-    pathAndQuery = ROUTE.WORKSPACE_DETAILS.replace(':namespace', workspace.namespace).replace(
+    pathAndQuery = ROUTE.WORKSPACE_DETAILS.replace(':namespace', namespace).replace(
       ':workspaceName',
-      workspace.name,
+      workspaceName,
     );
   } else {
-    pathAndQuery = ROUTE.WORKSPACE_DETAILS_TAB.replace(':namespace', workspace.namespace)
-      .replace(':workspaceName', workspace.name)
+    pathAndQuery = ROUTE.WORKSPACE_DETAILS_TAB.replace(':namespace', namespace)
+      .replace(':workspaceName', workspaceName)
       .replace(':tabId', tab);
   }
   return _buildLocationObject(pathAndQuery);

@@ -17,7 +17,7 @@ import { render, screen, RenderResult, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import WorkspacesListToolbar from '..';
 import { createFakeCheWorkspace } from '../../../../store/__mocks__/workspace';
-import { convertWorkspace, Workspace } from '../../../../services/workspace-adapter';
+import { constructWorkspace, Workspace } from '../../../../services/workspace-adapter';
 
 let workspaces: Workspace[];
 let isSelectedAll: boolean;
@@ -45,7 +45,7 @@ describe('Workspaces List Toolbar', () => {
   beforeEach(() => {
     workspaces = [0, 1, 2, 3, 4]
       .map(i => createFakeCheWorkspace('workspace-' + i, 'workspace-' + i))
-      .map(workspace => convertWorkspace(workspace));
+      .map(workspace => constructWorkspace(workspace));
     isSelectedAll = false;
     isEnabledDelete = false;
   });

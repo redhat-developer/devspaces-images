@@ -22,7 +22,7 @@ import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../services/helpers/types';
 import FactoryLoaderContainer, { LoadFactorySteps } from '../FactoryLoader';
 import { AlertOptions } from '../../pages/IdeLoader';
-import { convertWorkspace, Devfile, WorkspaceAdapter } from '../../services/workspace-adapter';
+import { constructWorkspace, Devfile, WorkspaceAdapter } from '../../services/workspace-adapter';
 import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
 import devfileApi from '../../services/devfileApi';
 import { safeDump } from 'js-yaml';
@@ -71,7 +71,7 @@ jest.mock('../../store/Workspaces');
     ) =>
     async () => {
       createWorkspaceFromDevfileMock(devfile, namespace, infrastructureNamespace, attributes);
-      return convertWorkspace({
+      return constructWorkspace({
         id: 'id-wksp-test',
         attributes: attributes as che.WorkspaceAttributes,
         namespace,
@@ -319,7 +319,7 @@ metadata:
         .withId('wrksp-test-id')
         .withName('wrksp-test-name')
         .build();
-      const workspaceAdapter = convertWorkspace(workspace);
+      const workspaceAdapter = constructWorkspace(workspace);
 
       renderComponentV1(location, workspace);
 
@@ -361,7 +361,7 @@ metadata:
     it('should resolve the factory, create a new workspace and open IDE', async () => {
       const location = 'http://test-location';
       const workspace = createFakeWorkspaceWithRuntimeV1('id-wksp-test');
-      const workspaceAdapter = convertWorkspace(workspace);
+      const workspaceAdapter = constructWorkspace(workspace);
 
       renderComponentV1(location, workspace);
 
@@ -494,7 +494,7 @@ metadata:
         'id-wksp-test',
         'http://test-location/?policies.create=peruser',
       );
-      const workspaceAdapter = convertWorkspace(workspace);
+      const workspaceAdapter = constructWorkspace(workspace);
 
       renderComponentV1(location, workspace);
 
@@ -1035,7 +1035,7 @@ metadata:
 });
 
 function renderComponentV2(url: string, workspace: devfileApi.DevWorkspace): RenderResult {
-  const wrks = convertWorkspace(workspace);
+  const wrks = constructWorkspace(workspace);
   (wrks.ref as devfileApi.DevWorkspace).metadata.annotations = {
     'che.eclipse.org/devfile-source': safeDump({
       factory: { params: 'url=http://test-location&policies.create=peruser' },
@@ -1057,7 +1057,7 @@ function renderComponentV2(url: string, workspace: devfileApi.DevWorkspace): Ren
       {
         v: '4.0',
         source: 'devfile.yaml',
-        devfile: convertWorkspace(workspace).devfile,
+        devfile: constructWorkspace(workspace).devfile,
         location: url.split('&')[0],
         scm_info: {
           clone_url: 'http://github.com/clone-url',

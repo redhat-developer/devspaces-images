@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WorkspaceConversionButton render 1`] = `
+<button
+  aria-disabled={false}
+  aria-label={null}
+  className="pf-c-button pf-m-warning"
+  data-ouia-component-id="OUIA-Generated-Button-warning-1"
+  data-ouia-component-type="PF4/Button"
+  data-ouia-safe={true}
+  disabled={false}
+  onClick={[Function]}
+  role={null}
+  type="button"
+>
+  Convert
+</button>
+`;

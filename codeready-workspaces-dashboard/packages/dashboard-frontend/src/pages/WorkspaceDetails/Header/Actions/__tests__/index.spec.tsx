@@ -15,11 +15,17 @@ import { createHashHistory, History } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HeaderActionSelect } from '..';
-import { WorkspaceAction, WorkspaceStatus } from '../../../../../services/helpers/types';
+import {
+  WorkspaceAction,
+  WorkspaceStatus,
+  DeprecatedWorkspaceStatus,
+} from '../../../../../services/helpers/types';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { AppThunk } from '../../../../../store';
 import { ActionCreators, ResourceQueryParams } from '../../../../../store/Workspaces';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
+import { CheWorkspaceBuilder } from '../../../../../store/__mocks__/cheWorkspaceBuilder';
+import { Store } from 'redux';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 jest.mock('../../../../../store/Workspaces/index', () => {
@@ -43,36 +49,68 @@ jest.mock('../../../../../store/Workspaces/index', () => {
 const namespace = 'che';
 const workspaceName = 'test-workspace-name';
 const workspaceId = 'test-workspace-id';
-const workspaceStoppedStatus = WorkspaceStatus.STOPPED;
-const store = new FakeStoreBuilder()
-  .withWorkspaces({
-    workspaceId,
-    workspaceName,
-  })
-  .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
-  .withCheWorkspaces({
-    workspaces: [
-      {
-        id: workspaceId,
-        namespace,
-        status: WorkspaceStatus[workspaceStoppedStatus],
-        devfile: {
-          apiVersion: 'v1',
-          components: [],
-          metadata: {
-            name: workspaceName,
-          },
-        },
-      },
-    ],
-  })
-  .build();
+
+let cheWorkspace: che.Workspace;
+let store: Store;
 
 describe('Workspace WorkspaceAction widget', () => {
+  beforeEach(() => {
+    cheWorkspace = new CheWorkspaceBuilder()
+      .withId(workspaceId)
+      .withName(workspaceName)
+      .withNamespace(namespace)
+      .withStatus(WorkspaceStatus.STOPPED)
+      .withDevfile({
+        apiVersion: 'v1',
+        components: [],
+        metadata: {
+          name: workspaceName,
+        },
+      })
+      .build();
+    store = new FakeStoreBuilder()
+      .withWorkspaces({
+        workspaceId,
+        workspaceName,
+      })
+      .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
+      .withCheWorkspaces({
+        workspaces: [cheWorkspace],
+      })
+      .build();
+  });
+
+  it('should provide correct number of actions for a regular workspace', () => {
+    const history = createHashHistory();
+    const component = createComponent(history);
+
+    renderComponent(component);
+
+    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    actionDropdown.click();
+
+    const menuitems = screen.getAllByRole('menuitem');
+    expect(menuitems.length).toEqual(6);
+  });
+
+  it('should provide correct number of actions for a deprecated workspace', () => {
+    const history = createHashHistory();
+    const component = createComponent(history, 'Deprecated');
+
+    renderComponent(component);
+
+    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    actionDropdown.click();
+
+    const menuitems = screen.getAllByRole('menuitem');
+    expect(menuitems.length).toEqual(1);
+    expect(menuitems[0]).toHaveTextContent('Delete Workspace');
+  });
+
   it('should call the callback with OPEN action', async () => {
     const action = WorkspaceAction.OPEN_IDE;
     const history = createHashHistory();
-    const component = createComponent(workspaceStoppedStatus, workspaceName, workspaceId, history);
+    const component = createComponent(history);
 
     renderComponent(component);
 
@@ -92,7 +130,7 @@ describe('Workspace WorkspaceAction widget', () => {
   it('should call the callback with OPEN_IN_VERBOSE_MODE action', async () => {
     const action = WorkspaceAction.START_DEBUG_AND_OPEN_LOGS;
     const history = createHashHistory();
-    const component = createComponent(workspaceStoppedStatus, workspaceName, workspaceId, history);
+    const component = createComponent(history);
 
     renderComponent(component);
 
@@ -112,7 +150,7 @@ describe('Workspace WorkspaceAction widget', () => {
   it('should call the callback with START_IN_BACKGROUND action', () => {
     const action = WorkspaceAction.START_IN_BACKGROUND;
     const history = createHashHistory();
-    const component = createComponent(workspaceStoppedStatus, workspaceName, workspaceId, history);
+    const component = createComponent(history);
 
     renderComponent(component);
 
@@ -130,7 +168,7 @@ describe('Workspace WorkspaceAction widget', () => {
   it('should not call the callback with STOP_WORKSPACE action if disabled', () => {
     const action = WorkspaceAction.STOP_WORKSPACE;
     const history = createHashHistory();
-    renderComponent(createComponent(workspaceStoppedStatus, workspaceName, workspaceId, history));
+    renderComponent(createComponent(history));
 
     const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
     actionDropdown.click();
@@ -145,10 +183,9 @@ describe('Workspace WorkspaceAction widget', () => {
 
   it('should call the callback with STOP_WORKSPACE action', () => {
     const action = WorkspaceAction.STOP_WORKSPACE;
-    const workspaceStatus = WorkspaceStatus.RUNNING;
     const history = createHashHistory();
 
-    renderComponent(createComponent(workspaceStatus, workspaceName, workspaceId, history));
+    renderComponent(createComponent(history, WorkspaceStatus.RUNNING));
 
     const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
     actionDropdown.click();
@@ -163,17 +200,15 @@ describe('Workspace WorkspaceAction widget', () => {
 });
 
 function createComponent(
-  workspaceStatus: WorkspaceStatus,
-  workspaceName: string,
-  workspaceId: string,
   history: History,
+  status: WorkspaceStatus | DeprecatedWorkspaceStatus = WorkspaceStatus.STOPPED,
 ): React.ReactElement {
   return (
     <HeaderActionSelect
       workspaceId={workspaceId}
       workspaceName={workspaceName}
       history={history}
-      status={workspaceStatus}
+      status={status}
     />
   );
 }

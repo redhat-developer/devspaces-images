@@ -4,12 +4,12 @@ exports[`Progress component should render progress with loading correctly 1`] = 
 <span>
   <div
     className="pf-c-progress pf-m-sm pf-m-singleline"
-    id="che-progress-ind"
+    id="progress-indicator"
   >
     <div
       aria-hidden="true"
       className="pf-c-progress__description"
-      id="che-progress-ind-description"
+      id="progress-indicator-description"
       onMouseEnter={null}
     >
       
@@ -19,6 +19,7 @@ exports[`Progress component should render progress with loading correctly 1`] = 
       className="pf-c-progress__status"
     />
     <div
+      aria-label="Action is in progress"
       aria-valuemax={100}
       aria-valuemin={0}
       aria-valuenow={0}
