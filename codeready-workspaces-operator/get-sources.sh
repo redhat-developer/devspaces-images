@@ -14,7 +14,6 @@ SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 
 DEV_WORKSPACE_CONTROLLER_VERSION="" # main or 0.y.x
 DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
-RESTIC_VERSION=$(sed -n 's|.*RESTIC_TAG=\(.*\)|\1|p' Dockerfile)
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -66,22 +65,22 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	# step 2 - get traefik zip, but do not repack -- need everything
 	curl -sSLo asset-header-rewrite-traefik-plugin.zip 	https://api.github.com/repos/che-incubator/header-rewrite-traefik-plugin/zipball/${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}
 
-	# step 3 - build the builder image to get restic sources
-	BUILDER=$(command -v podman || true)
-	if [[ ! -x $BUILDER ]]; then
-		# echo "[WARNING] podman is not installed, trying with docker"
-		BUILDER=$(command -v docker || true)
-		if [[ ! -x $BUILDER ]]; then
-				echo "[ERROR] must install docker or podman. Abort!"; exit 1
-		fi
-	fi
-	DOCKERFILELOCAL=bootstrap.Dockerfile
-	tag=$(pwd);tag=${tag##*/}
-	${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t "${tag}:bootstrap" --no-cache
-	${BUILDER} run --rm --entrypoint sh "${tag}:bootstrap" -c 'tar -pzcf - /go/restic' > "asset-restic.tgz"
-	${BUILDER} rmi "${tag}:bootstrap"
+	# # step 3 - build the builder image to get sources
+	# BUILDER=$(command -v podman || true)
+	# if [[ ! -x $BUILDER ]]; then
+	# 	# echo "[WARNING] podman is not installed, trying with docker"
+	# 	BUILDER=$(command -v docker || true)
+	# 	if [[ ! -x $BUILDER ]]; then
+	# 			echo "[ERROR] must install docker or podman. Abort!"; exit 1
+	# 	fi
+	# fi
+	# DOCKERFILELOCAL=bootstrap.Dockerfile
+	# tag=$(pwd);tag=${tag##*/}
+	# ${BUILDER} build . -f ${DOCKERFILELOCAL} --target builder -t "${tag}:bootstrap" --no-cache
+	# # if needed we can build the bootstrap image to collect a tarball (was needed in <= 2.15)
+	# ${BUILDER} run --rm --entrypoint sh "${tag}:bootstrap" -c 'tar -pzcf - /go/path/something' > "asset-path-something.tgz"
+	# ${BUILDER} rmi "${tag}:bootstrap"
 	set +x
-
 else
 	cp Dockerfile Dockerfile.2
 fi
@@ -92,10 +91,10 @@ if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b 
 
 	git add bootstrap.Dockerfile || true
 	
-	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} and restic ${RESTIC_VERSION} w/ vendor folder"
-	rhpkg new-sources asset-devworkspace-operator.zip asset-header-rewrite-traefik-plugin.zip asset-restic.tgz
+	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
+	rhpkg new-sources asset-devworkspace-operator.zip asset-header-rewrite-traefik-plugin.zip
 	log "[INFO] Commit new source zips"
-	COMMIT_MSG="ci: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}, restic ${RESTIC_VERSION}"
+	COMMIT_MSG="ci: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 	if [[ $(git commit -s -m "${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

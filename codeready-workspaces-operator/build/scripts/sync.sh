@@ -101,7 +101,7 @@ else echo "Error: can't find util.sh in ${SCRIPT_DIR} or ${TARGETDIR}"; exit 1; 
 updateDockerfileArgs "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
 
 cp "${TARGETDIR}"/bootstrap.Dockerfile "${TARGETDIR}"/Dockerfile
-# CRW-1956 when bootstrapping, get vendor sources for restic; then stop builder stage steps as we have all we need (and will fetch zips separately)
+# CRW-1956 when bootstrapping, get vendor sources (if applicable); then stop builder stage steps as we have all we need (and will fetch zips separately)
 #shellcheck disable=SC2016
 sed_in_place -r \
     -e "/.+upstream.+/d" \
@@ -124,10 +124,8 @@ sed_in_place -r \
     `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
     -e "/.+upstream.+/d" \
     -e "s@# downstream.+@COPY asset-* /tmp/@g" \
-    -e "/.+curl.+restic\/restic\/tarball.+/d" \
     -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
     -e "/.+go mod vendor.+/d" \
-    -e 's@(RUN mkdir -p \$GOPATH/restic \&\&) \\@\1 tar -xzf /tmp/asset-restic.tgz --strip-components=2 -C $GOPATH/restic@' \
     `# make go builds multiarch` \
     -e 's@GOARCH=amd64@GOARCH=\${ARCH}@g' \
     "${TARGETDIR}"/Dockerfile
