@@ -51,6 +51,7 @@ bump_version () {
     git commit -asm "${COMMIT_MSG}"
     git pull origin "${BUMP_BRANCH}"
 
+    set +e
     PUSH_TRY="$(git push origin "${BUMP_BRANCH}" || true)"
     if [[ $PUSH_TRY == *"protected branch hook declined"* ]] || [[ $PUSH_TRY == *"Protected branch update failed"* ]]; then
       set -e
@@ -144,5 +145,5 @@ if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
 fi
 # bump the z digit
 [[ $VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+) ]] && BASE="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"; NEXT="${BASH_REMATCH[3]}"; (( NEXT=NEXT+1 )) # for VERSION=7.7.1, get BASE=7.7, NEXT=2
-NEXT_VERSION_Z="${BASE}.${NEXT}-SNAPSHOT"
+NEXT_VERSION_Z="${BASE}.${NEXT}-next"
 bump_version "${NEXT_VERSION_Z}" "${BRANCH}"
