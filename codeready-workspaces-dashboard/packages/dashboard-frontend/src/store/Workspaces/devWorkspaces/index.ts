@@ -581,9 +581,6 @@ export const actionCreators: ActionCreators = {
           workspace,
         });
 
-        // this will set updating timestamp to annotations and update the workspace
-        await actionCreators.updateWorkspace(workspace)(dispatch, getState, undefined);
-
         const toDispose = new DisposableCollection();
         const onStatusChangeCallback = async status => {
           if (status === DevWorkspaceStatus.RUNNING) {

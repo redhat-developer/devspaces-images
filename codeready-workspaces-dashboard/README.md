@@ -39,7 +39,7 @@ yarn start:prepare
 # 3. Run server locally:
 yarn start
 # 4. (optional) Patch cluster to revert it to initial state:
-yarn start:revert
+yarn start:cleanup
 # If you want to make sure the latest bits are used, add flag to recompile
 # yarn start --force-build
 # Optionally you may need to set CHE_NAMESPACE where CheCluster CR live

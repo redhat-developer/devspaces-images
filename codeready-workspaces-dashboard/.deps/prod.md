@@ -169,7 +169,7 @@
 | [`find-my-way@4.3.3`](git+https://github.com/delvedor/find-my-way.git) | MIT | clearlydefined |
 | [`flatstr@1.0.12`](git+https://github.com/davidmarkclements/flatstr.git) | MIT | clearlydefined |
 | [`focus-trap@6.2.2`](git+https://github.com/focus-trap/focus-trap.git) | MIT | clearlydefined |
-| [`follow-redirects@1.14.3`](git@github.com:follow-redirects/follow-redirects.git) | MIT | clearlydefined |
+| [`follow-redirects@1.14.7`](git@github.com:follow-redirects/follow-redirects.git) | MIT | clearlydefined |
 | [`forever-agent@0.6.1`](https://github.com/mikeal/forever-agent) | Apache-2.0 | clearlydefined |
 | [`form-data@2.5.1`](git://github.com/form-data/form-data.git) | MIT | clearlydefined |
 | [`forwarded@0.2.0`](https://github.com/jshttp/forwarded.git) | MIT | clearlydefined |
@@ -232,7 +232,7 @@
 | [`json-buffer@3.0.1`](git://github.com/dominictarr/json-buffer.git) | MIT | clearlydefined |
 | [`json-schema-resolver@1.3.0`](git+https://github.com/Eomm/json-schema-resolver.git) | MIT | clearlydefined |
 | [`json-schema-traverse@0.4.1`](git+https://github.com/epoberezkin/json-schema-traverse.git) | MIT | clearlydefined |
-| [`json-schema@0.2.3`](http://github.com/kriszyp/json-schema) | BSD* | #1046 |
+| [`json-schema@0.4.0`](http://github.com/kriszyp/json-schema) | (AFL-2.1 OR BSD-3-Clause) | clearlydefined |
 | [`json-stringify-safe@5.0.1`](git://github.com/isaacs/json-stringify-safe) | ISC | clearlydefined |
 | [`json3@3.3.3`](git://github.com/bestiejs/json3.git) | MIT | clearlydefined |
 | [`json5@0.5.1`](https://github.com/aseemk/json5.git) | MIT | #1040 |
@@ -268,7 +268,7 @@
 | [`mri@1.1.4`](https://github.com/lukeed/mri.git) | MIT | clearlydefined |
 | [`ms@2.0.0`](https://github.com/zeit/ms.git) | MIT | clearlydefined |
 | [`nan@2.15.0`](git://github.com/nodejs/nan.git) | MIT | #986 |
-| [`nanoid@3.1.25`](https://github.com/ai/nanoid.git) | MIT | clearlydefined |
+| [`nanoid@3.2.0`](https://github.com/ai/nanoid.git) | MIT | clearlydefined |
 | [`nice-try@1.0.5`](https://github.com/electerious/nice-try.git) | MIT | clearlydefined |
 | [`normalize-url@6.1.0`](https://github.com/sindresorhus/normalize-url.git) | MIT | clearlydefined |
 | [`npm-run-path@2.0.2`](https://github.com/sindresorhus/npm-run-path.git) | MIT | clearlydefined |
@@ -362,7 +362,7 @@
 | [`setprototypeof@1.1.1`](https://github.com/wesleytodd/setprototypeof.git) | ISC | clearlydefined |
 | [`shebang-command@1.2.0`](https://github.com/kevva/shebang-command.git) | MIT | clearlydefined |
 | [`shebang-regex@1.0.0`](https://github.com/sindresorhus/shebang-regex.git) | MIT | clearlydefined |
-| [`shelljs@0.8.4`](git://github.com/shelljs/shelljs.git) | BSD-3-Clause | #1126 |
+| [`shelljs@0.8.5`](git://github.com/shelljs/shelljs.git) | BSD-3-Clause | #1126 |
 | [`side-channel@1.0.4`](git+https://github.com/ljharb/side-channel.git) | MIT | clearlydefined |
 | [`signal-exit@3.0.3`](https://github.com/tapjs/signal-exit.git) | ISC | clearlydefined |
 | [`simple-oauth2@3.4.0`](https://github.com/lelylan/simple-oauth2) | Apache-2.0 | clearlydefined |
