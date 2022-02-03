@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.16
-    createdAt: "2022-02-02T16:15:08+00:00"
+    createdAt: "2022-02-03T21:54:05+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance
       per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1034,7 +1034,7 @@ spec:
                       - name: RELATED_IMAGE_devfile_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-devfileregistry-rhel8:2.16
                       - name: RELATED_IMAGE_devworkspace_controller
-                        value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.11
+                        value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.12
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
                         value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
@@ -1345,4 +1345,4 @@ spec:
   provider:
     name: Red Hat
   version: 2.16.0
-  replaces: crwoperatorallnamespaces.v2.14.100
+  replaces: crwoperatorallnamespaces.v2.14.100-0.1643720183.p
