@@ -24,8 +24,13 @@ COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
 COPY ./build/scripts ./arbitrary-users-patch/base_images /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
 COPY ./devfiles /build/devfiles
 WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
 
 RUN ./check_mandatory_fields.sh devfiles
 # Cache projects in CRW 
