@@ -21,9 +21,7 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
-
-# TODO https://issues.redhat.com/browse/CRW-2538 switch to 0.12 when https://errata.engineering.redhat.com/advisory/87506 is live
-DWO_TAG=0.11
+DWO_TAG=0.12
 SSO_TAG=7.4
 UBI_TAG=8.5
 POSTGRES_TAG=1
