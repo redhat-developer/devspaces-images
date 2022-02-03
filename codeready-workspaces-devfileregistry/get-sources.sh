@@ -48,6 +48,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	#
 
 	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
+	jq -r '.CRW_VERSION' ../VERSION.json > VERSION
 	sed bootstrap.Dockerfile -i --regexp-extended \
 		`# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
 		-e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1-\2:\3#" \
@@ -61,6 +62,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
 		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
+	rm VERSION
 	# update tarballs - step 2 - check old sources' tarballs
 	TARGZs="root-local.tgz resources.tgz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
