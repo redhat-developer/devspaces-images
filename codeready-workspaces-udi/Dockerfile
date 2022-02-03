@@ -25,6 +25,8 @@ ENV \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
+    DOTNET_RPM_VERSION=3.1 \
+    DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA_HOME=/usr/lib/jvm/java-11-openjdk \
     PATH="$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/usr/lib/jvm/java-11-openjdk:/usr/lib/jvm/java-1.8.0-openjdk:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
@@ -32,7 +34,12 @@ ENV \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/opt/apache-maven"
-
+    PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
+    PYTHONPATH="/usr/lib/python3.6/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
+    CPATH="/usr/include${CPATH:+:${CPATH}}" \
+    LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
+    GOPATH=/projects/.che/gopath \
+    
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
 RUN mkdir -p /home/user /projects && \
@@ -50,10 +57,19 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget dnf sudo git procps-ng bzip2 \
+RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl dnf sudo git procps-ng bzip2 \
+    llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ \
+    openshift-clients php golang \
+    # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
+    glibc-devel zlib-devel libstdc++ libstdc++-devel nss_wrapper \
+    # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
+    # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
     java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
-    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
-    dnf module reset -y nodejs && \
+    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
+    dotnet dotnet-host \
+    dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION} \
+    #php
+    php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     dnf -y -q module reset nodejs && \
     dnf -y -q module enable nodejs:$NODEJS_VERSION && \
@@ -76,7 +92,7 @@ RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget dn
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
-    dnf -y -q install buildah npm helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
+    dnf -y -q install buildah npm helm-3.6.2-5.el8 && \
     dnf -y -q update && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     cat /etc/passwd | \
@@ -106,6 +122,28 @@ RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget dn
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
     for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done
+    #cpp stuff
+    mkdir -p /projects ${HOME}/che/ls-clangd && \
+    echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
+    chmod +x ${HOME}/che/ls-clangd/launch.sh && \
+    #golang
+    mkdir -p /projects/.che/gopath /.cache && \
+    echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
+    > ${HOME}/gopath.sh && \
+    chmod +x ${HOME}/gopath.sh && \
+    mkdir -p ${HOME}/go && \
+    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
+    #php
+    tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / && \ 
+    sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
+    sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
+    sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
+    sed -i 's/ErrorLog \"|\/usr\/bin\/cat\"/ErrorLog \"\/var\/log\/httpd\/error_log\"/' /etc/httpd/conf/httpd.conf && \
+    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ && \
+    mkdir -p ${HOME}/che/ls-php/php-language-server && \
+    tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
+    cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer && \
+    rm -fr /tmp/assets/
 RUN \
     # additional python stuff
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
