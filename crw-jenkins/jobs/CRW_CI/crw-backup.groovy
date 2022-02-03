@@ -1,5 +1,7 @@
 import groovy.json.JsonSlurper
 
+// TODO delete this once CRW 2.16 is live.
+
 def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
@@ -41,6 +43,8 @@ for (JB in JOB_BRANCHES) {
             }
 
             description('''
+Deprecated @since 2.15; no longer included in CRW 2.16.
+<p>
 Artifact builder + sync job; triggers brew after syncing
 
 <ul>

@@ -23,53 +23,59 @@ timeout(240) {
       wrap([$class: 'TimestamperBuildWrapper']) {
         currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "... "
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-            def util = load "${WORKSPACE}/util2.groovy"
-            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-            CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)            
-            cleanWs()
-            util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
-            currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
-            try {
-              util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+          def util = load "${WORKSPACE}/util2.groovy"
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)            
+          cleanWs()
+          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+          currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
+          try {
+            util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
-              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
-              echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
-              retry(2) {
-                sh('''#!/bin/bash -e
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
+            echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
+            retry(2) {
+              sh('''#!/bin/bash -e
 . ~/crw_env ''' + CRW_VERSION + '''
 echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
 set -x
 ./rhpkg-container-build.sh ''' + JOB_BRANCH + ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
-                ''')
-              }
+''')
+            }
 
-              // compute BUILD_RESULT from output of rhpkg-container-build.sh, after BUILD_RESULT=
-              BUILD_RESULT=sh(returnStdout:true,script:'''sed -n '/BUILD_RESULT=/{:loop;n;p;b loop;}' ${WORKSPACE}/rhpkg-container-build.txt''').trim()
-              // compute the new tag (eg., 2.y-zz)
-              NEW_TAG=sh(returnStdout:true,script:'''grep 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
-              // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
-              TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
-              BUILD_DESC=sh(returnStdout:true,script:'''grep 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
+            // compute BUILD_RESULT from output of rhpkg-container-build.sh, after BUILD_RESULT=
+            BUILD_RESULT=sh(returnStdout:true,script:'''sed -n '/BUILD_RESULT=/{:loop;n;p;b loop;}' ${WORKSPACE}/rhpkg-container-build.txt''').trim()
+            // compute the new tag (eg., 2.y-zz)
+            NEW_TAG=sh(returnStdout:true,script:'''grep 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
+            // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
+            TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
+            BUILD_DESC=sh(returnStdout:true,script:'''grep 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
 
-              if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
-                currentBuild.result = "UNSTABLE"
-              }
-              if (BUILD_RESULT.indexOf("ERROR")>=0 || BUILD_RESULT.indexOf("FAILURE")>=0 || !TASK_URL?.trim()) {
-                currentBuild.result = "FAILURE"
-              }
+            if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
+              currentBuild.result = "UNSTABLE"
+            }
+            if (BUILD_RESULT.indexOf("ERROR")>=0 || BUILD_RESULT.indexOf("FAILURE")>=0 || !TASK_URL?.trim()) {
+              currentBuild.result = "FAILURE"
+            }
+            currentBuild.description+=" :: " + BUILD_DESC + " </br/> " + BUILD_RESULT
+          } catch (e) {
+            currentBuild.result = "FAILURE"
+            util.notifyBuildFailed()
+            throw e
+          } // try to build containers
 
-              currentBuild.description+=" :: " + BUILD_DESC + " </br/> " + BUILD_RESULT
-
-              // if build has passed, trigger a copy to quay 
-              if (!currentBuild.result.equals("ABORTED") && 
-                  !currentBuild.result.equals("FAILURE") && 
-                  !currentBuild.result.equals("UNSTABLE")) {
-                sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
-                CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
-                sh(script: '''#!/bin/bash -xe
+          // trigger simple copy to quay / UNSTABLE if fails
+          try {
+            // if build has passed, trigger a copy to quay 
+            if (!currentBuild.result.equals("ABORTED") && 
+                !currentBuild.result.equals("FAILURE") && 
+                !currentBuild.result.equals("UNSTABLE")) {
+              sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
+              CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+              sh(script: '''#!/bin/bash -xe
 echo " ########################################### "
 echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
 echo " ########################################### "
@@ -82,69 +88,70 @@ for c in ''' + CONTAINERS.trim() + '''; do
     ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
-                      ''', returnStatus: true)
-                }
-            } catch (e) {
-              currentBuild.result = "FAILURE"
-              util.notifyBuildFailed()
-              throw e
-          }
-        } // with
+''', returnStatus: true)
+            }
+            currentBuild.description+="; copied to quay" 
+          } catch (e) {
+            currentBuild.result = "UNSTABLE"
+            currentBuild.description+="; <b style='color:red'>failed to copy to quay with getLatestImageTags.sh --pushtoquay</b>"
+          } // try
+        } // withCreds
       } // wrap
 
-      CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
-      println "########################################################################################################"
-      println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
-      println "########################################################################################################"
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-      def util = load "${WORKSPACE}/util2.groovy"
-      echo "currentBuild.result = " + currentBuild.result
-      if (!currentBuild.result.equals("ABORTED") && 
-          !currentBuild.result.equals("FAILURE") && 
-          !currentBuild.result.equals("UNSTABLE") && 
-          !SCRATCH.equals("true") && SCRATCH!=true && 
-          QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-        build(
-          job: 'push-latest-container-to-quay_' + JOB_BRANCH,
-          // TODO should these be set to wait and propagate: true?
-          wait: false,
-          propagate: false,
-          quietPeriod: 0,
-          parameters: [
-            [
-              $class: 'StringParameterValue',
-              name: 'token',
-              value: "CI_BUILD"
-            ],
-            [
-              $class: 'StringParameterValue',
-              name: 'cause',
-              value: "push+latest+${CONTAINERS}+to+quay"
-            ],
-            [
-              $class: 'StringParameterValue',
-              name: 'CONTAINERS',
-              value: CONTAINERS
-            ],
-            [
-              $class: 'StringParameterValue',
-              name: 'FLOATING_QUAY_TAGS',
-              value: FLOATING_QUAY_TAGS
-            ],
-            [
-              $class: 'BooleanParameterValue',
-              name: 'CLEAN_ON_FAILURE',
-              value: CLEAN_ON_FAILURE
+      // trigger push-latest-container-to-quay job (does more than just copy to quay)
+      try {
+        CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
+        println "########################################################################################################"
+        println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
+        println "########################################################################################################"
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        echo "currentBuild.result = " + currentBuild.result
+        if (!currentBuild.result.equals("ABORTED") && 
+            !currentBuild.result.equals("FAILURE") && 
+            !SCRATCH.equals("true") && SCRATCH!=true && 
+            QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          build(
+            job: 'push-latest-container-to-quay_' + JOB_BRANCH,
+            wait: true,
+            propagate: true,
+            quietPeriod: 0,
+            parameters: [
+              [
+                $class: 'StringParameterValue',
+                name: 'token',
+                value: "CI_BUILD"
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'cause',
+                value: "push+latest+${CONTAINERS}+to+quay"
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'CONTAINERS',
+                value: CONTAINERS
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'FLOATING_QUAY_TAGS',
+                value: FLOATING_QUAY_TAGS
+              ],
+              [
+                $class: 'BooleanParameterValue',
+                name: 'CLEAN_ON_FAILURE',
+                value: CLEAN_ON_FAILURE
+              ]
             ]
-          ]
-        )
-        currentBuild.description+="; copied to quay"
-      } else {
-        println "No changes upstream, nothing to copy to quay!"
-        currentBuild.description+="; no quay copy"
-        currentBuild.result = 'UNSTABLE'
-      } // if
+          )
+          currentBuild.description+="; push-latest job started" 
+        }
+      } catch (e) {
+        currentBuild.result = "UNSTABLE"
+        currentBuild.description+="; <b style='color:red'>failed to start push-latest-container-to-quay</b>"
+      } // try push-latest-container-to-quay job trigger
+
       cleanWs(
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,

@@ -48,7 +48,8 @@ if [[ ! ${CRW_VERSION} ]]; then usage; fi
 
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
-    # TODO remove crw-operator-metadata after 2.15
+    # TODO remove crw-operator-metadata after 2.15 is live
+    # TODO remove crw-backup after 2.16 is live
     for d in \
         crw-backup\
         crw-configbump\

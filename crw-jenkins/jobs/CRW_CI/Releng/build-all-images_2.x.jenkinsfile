@@ -28,10 +28,9 @@ timeout(600) {
                     if (PHASE_LIST.contains("1")) {
 
                         def List sidecarsList = [
-                            // TODO in 2.15 or 2.16, switch to UDI
                             "udi-openj9", 
                             "udi", 
-
+                            // TODO in 2.16, switch to UDI (remove these 4 images)
                             "stacks-cpp", 
                             "stacks-dotnet", 
                             "stacks-golang", 
@@ -79,7 +78,6 @@ timeout(600) {
                     if (PHASE_LIST.contains("3")) {
                         // 14 jobs
                         def jobsList = [
-                            "backup",                   // @since 2.12
                             "configbump",
                             "operator", // special case: "crw-2-rhel8-operator"
                             "dashboard",

@@ -65,14 +65,14 @@ for global CVE updates.
                 stringParam("PHASES", "1 2 3 4", '''
 Phases:
 <ol>
-    <!-- TODO in 2.15 or 2.16, switch to UDI -->
-    <li> build udi and stack sidecar images (2 universal developer images, 4 stack sidecar images)</li>
+    <!-- TODO in 2.16, switch to UDI / remove sidecars -->
+    <li> build udi (2) and stack sidecar images (4, deprecated @since 2.15)</li>
     <li> build theia images (3 images)</li>
-    <li> build internals (14 images): 
+    <li> build internals (13 images): 
         <ul>
-            <li> backup (@since 2.12), configbump, operator, dashboard, </li>
-            <li> devfileregistry, idea (@since 2.11), imagepuller, jwtproxy, machineexec, </li>
-            <li> pluginbroker-artifacts, pluginbroker-metadata, pluginregistry, server, traefik</li>
+            <li> configbump, operator, dashboard, devfileregistry, idea (@since 2.11), </li>
+            <li> imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, pluginbroker-metadata, </li>
+            <li> pluginregistry, server, traefik</li>
         </ul>
     </li>
     <li> build bundle + metadata images + IIBs</li>

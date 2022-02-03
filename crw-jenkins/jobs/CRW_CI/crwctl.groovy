@@ -93,7 +93,7 @@ $➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+''
                 stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
-                stringParam("versionSuffix", "", '''
+                stringParam("versionSuffix", "CI", '''
 if set, use as version suffix before commitSHA: RC-''' + MMdd + ''' --> ''' + JOB_BRANCH + '''.0-RC-''' + MMdd + '''-commitSHA;<br/>
 if unset, version is CRW_VERSION-YYYYmmdd-commitSHA<br/>
 :: if suffix = GA, use server and operator tags from RHEC stage<br/>
