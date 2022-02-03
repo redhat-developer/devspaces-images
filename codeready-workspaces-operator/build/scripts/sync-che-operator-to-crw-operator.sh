@@ -17,8 +17,7 @@ set -e
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-# TODO https://issues.redhat.com/browse/CRW-2538 switch to 0.12 when https://errata.engineering.redhat.com/advisory/87506 is live
-DWO_TAG=0.11
+DWO_TAG=0.12
 SSO_TAG=7.4
 UBI_TAG=8.5
 POSTGRES_TAG=1
