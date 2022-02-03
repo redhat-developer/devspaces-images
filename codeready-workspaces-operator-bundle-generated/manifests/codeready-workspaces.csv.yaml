@@ -66,8 +66,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ceb0d92e466cb8cc6af31baa6d6befde76c14f21184339af8ee327ad375524c6
-    createdAt: "2022-02-02T16:15:08+00:00"
+    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ea42bbe520d2035d890e4859da1752eee33af5fb22dcd017c0f1b2a818e6e162
+    createdAt: "2022-02-03T21:54:05+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1010,7 +1010,7 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:0c224e7d259d3f862240b07f5ac3e161af05ca872099de5a2c45b90a3ac0a814
                 - name: RELATED_IMAGE_devworkspace_controller
-                  value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:14bb0f103013870f54d415b29350709650fa38ebc4111f2906def5434d50ce1e
+                  value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:3f96fb70c3f56dea3384ea31b9252a5c6aca8e0f33dc53be590f134912244078
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
                   value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:e1b5992cefdf4c476c44933f5040cf8faeffe2a2958f450f79a7f98baa591696
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
@@ -1049,7 +1049,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ceb0d92e466cb8cc6af31baa6d6befde76c14f21184339af8ee327ad375524c6
+                image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ea42bbe520d2035d890e4859da1752eee33af5fb22dcd017c0f1b2a818e6e162
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1321,12 +1321,12 @@ spec:
   provider:
     name: Red Hat
   version: 2.16.0
-  replaces: crwoperatorallnamespaces.v2.14.100
+  replaces: crwoperatorallnamespaces.v2.14.100-0.1643720183.p
   relatedImages:
-  - name: crw-2-rhel8-operator-ceb0d92e466cb8cc6af31baa6d6befde76c14f21184339af8ee327ad375524c6-annotation
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ceb0d92e466cb8cc6af31baa6d6befde76c14f21184339af8ee327ad375524c6
+  - name: crw-2-rhel8-operator-ea42bbe520d2035d890e4859da1752eee33af5fb22dcd017c0f1b2a818e6e162-annotation
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ea42bbe520d2035d890e4859da1752eee33af5fb22dcd017c0f1b2a818e6e162
   - name: codeready-operator
-    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ceb0d92e466cb8cc6af31baa6d6befde76c14f21184339af8ee327ad375524c6
+    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:ea42bbe520d2035d890e4859da1752eee33af5fb22dcd017c0f1b2a818e6e162
   - name: che_server
     image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:e06c3746b1f4173119c3f1279f0589f54bac00213aea568a3b9a9e3426821d87
   - name: che_server_secure_exposer_jwt_proxy_image
@@ -1380,7 +1380,7 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:0c224e7d259d3f862240b07f5ac3e161af05ca872099de5a2c45b90a3ac0a814
   - name: devworkspace_controller
-    image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:14bb0f103013870f54d415b29350709650fa38ebc4111f2906def5434d50ce1e
+    image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:3f96fb70c3f56dea3384ea31b9252a5c6aca8e0f33dc53be590f134912244078
   - name: gateway_authentication_sidecar
     image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:e1b5992cefdf4c476c44933f5040cf8faeffe2a2958f450f79a7f98baa591696
   - name: gateway_authorization_sidecar
