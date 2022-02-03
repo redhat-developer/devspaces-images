@@ -968,7 +968,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_idea_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:022b670a9a6108cbdd2db2cf3f1e44982cada95155a641ba0f210a003b3f7b88
                 - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:c727fcecdb5e95b4ed210a218cfbe678fed42988c3b67bcf5a56ded8955032f5
+                  value: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:2aa3a3d791c5cb0065d88984fb3d5d6dba79dd1aa512029951ecd7a109d1e66d
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/stacks-cpp-rhel8@sha256:a5df04686f3daa30ccb18b7615609d231dec01bcb35d173d829ec6beabc8d45f
                 - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCNQK
@@ -1338,7 +1338,7 @@ spec:
   - name: codeready_workspaces_idea_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/idea-rhel8@sha256:022b670a9a6108cbdd2db2cf3f1e44982cada95155a641ba0f210a003b3f7b88
   - name: codeready_workspaces_machineexec_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:c727fcecdb5e95b4ed210a218cfbe678fed42988c3b67bcf5a56ded8955032f5
+    image: registry.redhat.io/codeready-workspaces/machineexec-rhel8@sha256:2aa3a3d791c5cb0065d88984fb3d5d6dba79dd1aa512029951ecd7a109d1e66d
   - name: codeready_workspaces_stacks_cpp_devfile_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/stacks-cpp-rhel8@sha256:a5df04686f3daa30ccb18b7615609d231dec01bcb35d173d829ec6beabc8d45f
   - name: codeready_workspaces_stacks_cpp_plugin_registry_image_gixdcnqk
