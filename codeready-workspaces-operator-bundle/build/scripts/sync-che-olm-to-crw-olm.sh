@@ -261,7 +261,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "${CSVFILE}"
 	yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "${CSVFILE}"
 
-	# Enable by default devWorkspace engine in `tech-preview-latest-all-namespaces`
+	# Enable by default devWorkspace engine in `stable`
 	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations[\"alm-examples\"] | \
 			fromjson | \
 			( .[] | select(.kind == \"CheCluster\") | .spec.devWorkspace.enable) |= true" ${CSVFILE} |  sed -r 's/"/\\"/g')
