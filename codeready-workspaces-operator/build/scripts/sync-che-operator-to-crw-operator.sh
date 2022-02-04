@@ -150,7 +150,7 @@ replaceField()
   echo "    ${0##*/} rF :: * ${updateName}: ${updateVal}"
   # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
   if [[ $updateVal == "DELETEME" ]]; then
-	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})' "${theFile}")
+	changed=$(yq -Y --arg updateName "${updateName}" 'del('${updateName}')' "${theFile}")
   else
 	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
   fi
