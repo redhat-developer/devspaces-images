@@ -23,7 +23,7 @@ COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
-COPY ./build/scripts ./arbitrary-users-patch/base_images /build/
+COPY ./build/scripts ./arbitrary-users-patch/base_images ./versions.json /build/
 COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
 COPY ./VERSION /
 COPY ./devfiles /build/devfiles
