@@ -186,8 +186,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	NOW="$(date -u +%FT%T+00:00)"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
-		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
-		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
+		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-images/|g" \
+		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/codeready-workspaces-images/|g" \
 		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces|g" \
 		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/codeready-workspaces/overview/|g" \
 		\
@@ -196,7 +196,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperatorallnamespaces.v${CSV_VERSION}|g" \
+		-e "s|name: .+preview-openshift.v.+|name: crwoperatorstable.v${CSV_VERSION}|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -332,7 +332,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION_PREV}"
+		[".spec.replaces"]="crwoperatorstable.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 		# CRW-2571 relabel operatorhub tile title to clarify which operator is supported and which is tech preview
 		['.spec.displayName']="Red Hat CodeReady Workspaces - Technical Preview"

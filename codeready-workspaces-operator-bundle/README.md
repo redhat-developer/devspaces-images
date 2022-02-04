@@ -1,6 +1,6 @@
-## Che/CodeReady Workspaces Operator Metadata
+## CodeReady Workspaces Operator Bundle
 
-This repo contains necessary metadata for a new channel which will initially be available as a Technical Preview. In future, it will replace the 'latest' channel from the codeready-workspaces-operator-metadata container and become the new default.
+This repo contains the necessary metadata for the DevWorkspace enabled, all-namespace configured channel that replace the old Che Server based 'latest' channel. 
 
 For the golang application that is the CRW Operator, see 
 
