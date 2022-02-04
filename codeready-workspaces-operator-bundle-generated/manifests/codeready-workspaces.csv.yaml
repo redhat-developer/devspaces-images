@@ -988,7 +988,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b44e2c06f71148b0c6db783cb762b263b5653ecccbce92f3146006ef2ad50479
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:b5fd640bdd198758f173d70a9aad38bc018b7ac4378d31e069fb8edfe554578d
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
                 - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:d9c49cf979ae0cda9a085c5b8cc208d93557de212b5dd6dcd2cc77c574519808
                 - name: RELATED_IMAGE_codeready_workspaces_udi_openj9_devfile_registry_image_GIXDCNQK
@@ -1357,7 +1357,7 @@ spec:
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:b44e2c06f71148b0c6db783cb762b263b5653ecccbce92f3146006ef2ad50479
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:b5fd640bdd198758f173d70a9aad38bc018b7ac4378d31e069fb8edfe554578d
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
   - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:d9c49cf979ae0cda9a085c5b8cc208d93557de212b5dd6dcd2cc77c574519808
   - name: codeready_workspaces_udi_openj9_devfile_registry_image_gixdcnqk
