@@ -332,12 +332,12 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="crwoperatorstable.v${CSV_VERSION_PREV}"
+		# TODO CRW-2725 when CRW 2.16 is live, re-enable the replaces directive instead of this deletion
+		[".spec.replaces"]="DELETEME"
+		# [".spec.replaces"]="crwoperatorstable.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
-		# CRW-2571 relabel operatorhub tile title to clarify which operator is supported and which is tech preview
-		['.spec.displayName']="Red Hat CodeReady Workspaces - Technical Preview"
-		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
-		['.metadata.annotations.description']="Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
+		['.spec.displayName']="Red Hat CodeReady Workspaces"
+		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
