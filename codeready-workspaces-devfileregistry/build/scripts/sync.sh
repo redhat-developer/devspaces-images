@@ -99,6 +99,8 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
+    `# CRW-2500 the folder is packed to resources.tgz` \
+    -e 's|COPY ./resources /build/resources|# COPY ./resources /build/resources|' \
     `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
     -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
     -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
@@ -118,7 +120,6 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|^ *FROM registry AS offline-registry|# &|' \
     -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
     -e 's|^[^#]*--from=offline-builder.*|# &|' \
-    -e '/COPY --from=builder/a COPY --from=builder /build/resources /var/www/html/resources' \
     `# Enable cache_projects.sh` \
     -e '\|swap_images.sh|i # Cache projects in CRW \
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \
