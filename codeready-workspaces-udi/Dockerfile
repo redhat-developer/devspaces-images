@@ -35,7 +35,6 @@ ENV \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
     M2_HOME="/opt/apache-maven"
     PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
-    PYTHONPATH="/usr/lib/python3.6/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     GOPATH=/projects/.che/gopath \
@@ -59,7 +58,8 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 
 RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl dnf sudo git procps-ng bzip2 \
     llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ \
-    openshift-clients php golang \
+    openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 \
+    php golang \
     # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
     glibc-devel zlib-devel libstdc++ libstdc++-devel nss_wrapper \
     # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
