@@ -7,7 +7,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.16.12-2 as builder
+FROM rhel8/go-toolset:1.16.12-4 as builder
 ENV GOPATH=/tmp/go/
 
 ENV REST_SERVER_TAG=v0.10.0
