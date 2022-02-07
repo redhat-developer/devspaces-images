@@ -15,24 +15,25 @@ import { Provider } from 'react-redux';
 import { AlertVariant } from '@patternfly/react-core';
 import { RenderResult, render, screen, waitFor } from '@testing-library/react';
 import mockAxios from 'axios';
-import { ROUTE } from '../../route.enum';
-import { getMockRouterProps } from '../../services/__mocks__/router';
-import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
-import { createFakeCheWorkspace } from '../../store/__mocks__/workspace';
-import { WorkspaceStatus } from '../../services/helpers/types';
-import FactoryLoaderContainer, { LoadFactorySteps } from '../FactoryLoader';
-import { AlertOptions } from '../../pages/IdeLoader';
-import { constructWorkspace, Devfile, WorkspaceAdapter } from '../../services/workspace-adapter';
-import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
-import devfileApi from '../../services/devfileApi';
+import { ROUTE } from '../../../route.enum';
+import { getMockRouterProps } from '../../../services/__mocks__/router';
+import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
+import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
+import { WorkspaceStatus } from '../../../services/helpers/types';
+import FactoryLoaderContainer, { LoadFactorySteps } from '../../FactoryLoader';
+import { AlertOptions } from '../../../pages/IdeLoader';
+import { constructWorkspace, Devfile, WorkspaceAdapter } from '../../../services/workspace-adapter';
+import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
+import devfileApi from '../../../services/devfileApi';
 import { safeDump } from 'js-yaml';
-import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
-import { ConvertedState, ResolverState } from '../../store/FactoryResolver';
-import { actionCreators as workspacesActionCreators } from '../../store/Workspaces';
+import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
+import { ConvertedState, ResolverState } from '../../../store/FactoryResolver';
+import { actionCreators as workspacesActionCreators } from '../../../store/Workspaces';
 import {
   actionCreators as factoryResolverActionCreators,
   isOAuthResponse,
-} from '../../store/FactoryResolver';
+} from '../../../store/FactoryResolver';
+import SessionStorageService, { SessionStorageKey } from '../../../services/session-storage';
 
 const showAlertMock = jest.fn();
 const setWorkspaceQualifiedName = jest.fn();
@@ -44,7 +45,7 @@ const setWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
 const clearWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
 
 const createWorkspaceFromResourcesMock = jest.fn().mockReturnValue(undefined);
-jest.mock('../../store/Workspaces/devWorkspaces/index', () => {
+jest.mock('../../../store/Workspaces/devWorkspaces/index', () => {
   return {
     actionCreators: {
       createWorkspaceFromResources:
@@ -55,7 +56,7 @@ jest.mock('../../store/Workspaces/devWorkspaces/index', () => {
   };
 });
 
-jest.mock('../../store/Workspaces');
+jest.mock('../../../store/Workspaces');
 (workspacesActionCreators.requestWorkspace as jest.Mock).mockImplementation(
   (id: string) => async () => requestWorkspaceMock(id),
 );
@@ -92,8 +93,8 @@ jest.mock('../../store/Workspaces');
     setWorkspaceQualifiedName(namespace, workspaceName),
 );
 
-jest.mock('../../store/FactoryResolver');
-const actualModule = jest.requireActual('../../store/FactoryResolver');
+jest.mock('../../../store/FactoryResolver');
+const actualModule = jest.requireActual('../../../store/FactoryResolver');
 (isOAuthResponse as unknown as jest.Mock).mockImplementation(actualModule.isOAuthResponse);
 (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
   (
@@ -111,7 +112,7 @@ const actualModule = jest.requireActual('../../store/FactoryResolver');
     },
 );
 
-jest.mock('../../pages/FactoryLoader', () => {
+jest.mock('../../../pages/FactoryLoader', () => {
   return function DummyWizard(props: {
     hasError: boolean;
     currentStep: LoadFactorySteps;
@@ -950,74 +951,41 @@ metadata:
         `Devfile version 1 found, converting it to devfile version 1.`,
       );
     });
-  });
 
-  describe('Resolving a private repository devfile', () => {
-    it('should handle the the namespace absence', async () => {
-      const location = 'private-repository-location';
+    it('should not store number of reloads', async () => {
+      const location = 'https://my-repository-location';
 
       (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
         () => async () => {
-          throw {
-            attributes: {
-              oauth_provider: 'oauth_provider',
-              oauth_authentication_url: 'oauth_authentication_url',
-            },
-          };
+          requestFactoryResolverMock();
         },
       );
 
-      const store = new FakeStoreBuilder().build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
-
-      render(
-        <Provider store={store}>
-          <FactoryLoaderContainer {...props} />
-        </Provider>,
-      );
-
-      await waitFor(() =>
-        expect(showAlertMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            title: expect.stringMatching('The infrastructure namespace is required to be created.'),
-          }),
-        ),
-      );
-    });
-
-    it('should redirect to login page', async () => {
-      const privateRepoUrl = 'https://my-private.repo';
-      const oauthAuthenticationUrl = 'https://oauth_authentication_url';
-      const host = 'che-host';
-      const protocol = 'http://';
-      delete (window as any).location;
-      (window.location as any) = {
-        host,
-        protocol,
-      };
-      Object.defineProperty(window.location, 'href', {
-        set: () => {
-          // no-op
+      const devfile = {
+        schemaVersion: '2.3.4',
+        metadata: {
+          name: 'my-project',
         },
-        configurable: true,
-      });
-      const spy = jest.spyOn(window.location, 'href', 'set');
-
-      (factoryResolverActionCreators.requestFactoryResolver as jest.Mock).mockImplementation(
-        () => async () => {
-          throw {
-            attributes: {
-              oauth_provider: 'oauth_provider',
-              oauth_authentication_url: oauthAuthenticationUrl,
-            },
-          };
-        },
-      );
+      } as devfileApi.Devfile;
 
       const store = new FakeStoreBuilder()
-        .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+        .withFactoryResolver(
+          {
+            devfile,
+            location,
+          } as ResolverState,
+          {
+            isConverted: false,
+          } as ConvertedState,
+        )
+        .withWorkspacesSettings({
+          'che.devworkspaces.enabled': 'true',
+        })
         .build();
-      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: privateRepoUrl });
+      const props = getMockRouterProps(ROUTE.LOAD_FACTORY_URL, { url: location });
+
+      const spyStorageGet = jest.spyOn(SessionStorageService, 'get');
+      const spyStorageUpdate = jest.spyOn(SessionStorageService, 'update');
 
       render(
         <Provider store={store}>
@@ -1025,11 +993,14 @@ metadata:
         </Provider>,
       );
 
-      const expectedRedirectUrl = `${oauthAuthenticationUrl}/&redirect_after_login=${protocol}${host}/f?url=${encodeURIComponent(
-        privateRepoUrl,
-      )}`;
+      await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalled());
 
-      await waitFor(() => expect(spy).toHaveBeenCalledWith(expectedRedirectUrl));
+      expect(spyStorageGet).not.toHaveBeenCalled();
+      expect(spyStorageUpdate).toHaveBeenCalledTimes(1);
+      expect(spyStorageUpdate).toHaveBeenCalledWith(
+        SessionStorageKey.PRIVATE_FACTORY_RELOADS,
+        '{}',
+      );
     });
   });
 });

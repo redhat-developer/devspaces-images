@@ -49,6 +49,7 @@ import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../services/workspace-client/dev
 import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
+import SessionStorageService, { SessionStorageKey } from '../../services/session-storage';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'workspaceDeploymentLabels',
@@ -73,6 +74,11 @@ export enum LoadFactorySteps {
   START_WORKSPACE,
   OPEN_IDE,
 }
+
+const RELOADS_LIMIT = 2;
+type ReloadsInfo = {
+  [url: string]: number;
+};
 
 type Props = MappedProps & { history: History };
 
@@ -289,8 +295,16 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       : undefined;
     try {
       await this.props.requestFactoryResolver(location, override);
+      this.clearNumberOfTries();
     } catch (e) {
       if (isOAuthResponse(e)) {
+        const isOk = this.checkNumberOfTries(location);
+        if (isOk) {
+          this.increaseNumberOfTries(location);
+        } else {
+          return;
+        }
+
         this.resolvePrivateDevfile(e.attributes.oauth_authentication_url, location);
         return;
       }
@@ -342,17 +356,75 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
     return devfile;
   }
 
-  private resolvePrivateDevfile(oauthUrl: string, location: string): void {
-    try {
-      // looking for a pre-created infrastructure namespace
-      const namespaces = this.props.infrastructureNamespaces;
-      if (namespaces.length === 0 || (namespaces.length === 1 && !namespaces[0].attributes.phase)) {
-        this.showAlert(
-          'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
-        );
-        return;
-      }
+  private getNumberOfTries(location: string): number {
+    const reloads = this.getReloadsInfo();
+    return reloads[location] || 0;
+  }
 
+  private increaseNumberOfTries(location: string): void {
+    const reloads = this.getReloadsInfo();
+    if (!reloads[location]) {
+      reloads[location] = 0;
+    }
+    reloads[location]++;
+    this.setReloadsInfo(reloads);
+  }
+
+  private clearNumberOfTries(): void {
+    const reloads = {};
+    this.setReloadsInfo(reloads);
+  }
+
+  private getReloadsInfo(): ReloadsInfo {
+    const strReloads = SessionStorageService.get(SessionStorageKey.PRIVATE_FACTORY_RELOADS);
+    if (!strReloads) {
+      return {};
+    }
+    try {
+      return JSON.parse(strReloads);
+    } catch (e) {
+      return {};
+    }
+  }
+
+  private setReloadsInfo(reloads: ReloadsInfo): void {
+    const strReloads = JSON.stringify(reloads);
+    SessionStorageService.update(SessionStorageKey.PRIVATE_FACTORY_RELOADS, strReloads);
+  }
+
+  /**
+   * Checks if page reloads number for given private repo URL is less than the limit.
+   * @param location
+   * @returns `true` if reloads limit is not reached yet. Otherwise, returns `false` and shows an alert notification.
+   */
+  private checkNumberOfTries(location: string): boolean {
+    // check how many times this factory was tried to be resolved.
+    // if the number of tries is too high that may be the infinite reloading loop. Show alert notification and ask user to take an action.
+    const reloadsNumber = this.getNumberOfTries(location);
+    if (reloadsNumber < RELOADS_LIMIT) {
+      return true;
+    }
+
+    this.showAlert({
+      alertActionLinks: this.errorActionLinks(),
+      title:
+        'The Dashboard reached a limit of reloads while trying to resolve a devfile in a private repo. Please contact admin to check if OAuth is configured correctly.',
+      alertVariant: AlertVariant.danger,
+    });
+    return false;
+  }
+
+  private resolvePrivateDevfile(oauthUrl: string, location: string): void {
+    // looking for a pre-created infrastructure namespace
+    const namespaces = this.props.infrastructureNamespaces;
+    if (namespaces.length === 0 || (namespaces.length === 1 && !namespaces[0].attributes.phase)) {
+      this.showAlert(
+        'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
+      );
+      return;
+    }
+
+    try {
       const env = getEnvironment();
       // build redirect URL
       let redirectHost = window.location.protocol + '//' + window.location.host;
@@ -368,12 +440,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       }
       const fullOauthUrl =
         oauthUrlTmp.toString() + '&redirect_after_login=' + redirectUrl.toString();
-
-      if (isDevEnvironment(env)) {
-        window.open(fullOauthUrl);
-      } else {
-        window.location.href = fullOauthUrl;
-      }
+      window.location.href = fullOauthUrl;
     } catch (e) {
       this.showAlert('Failed to open authentication page.');
       throw e;
