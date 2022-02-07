@@ -42,21 +42,6 @@
           register: kubectl_cmd_run
         - debug:
             msg: "{{ kubectl_cmd_run.stdout }}"
-        - name: Make sure 'clangd' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- clangd -help
-          register: clangd_cmd_run
-        - debug:
-            msg: "{{ clangd_cmd_run.stdout }}"
-        - name: Make sure 'Go' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- go version
-          register: go_cmd_run
-        - debug:
-            msg: "{{ go_cmd_run.stdout }}"
-        - name: Make sure 'php' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- php --version
-          register: php_cmd_run
-        - debug:
-            msg: "{{ php_cmd_run.stdout }}"
         - name: Make sure oc is present in the container and in the path
           shell: oc exec {{ pod_name.stdout }} -- oc version
           register: oc_cmd_run
@@ -78,6 +63,21 @@
           register: node_cmd_run
         - debug:
             msg: "{{ node_cmd_run.stdout }}"
+        - name: Make sure 'clangd' command is available in the container
+          shell: oc exec {{ pod_name.stdout }} -- clangd -help
+          register: clangd_cmd_run
+        - debug:
+            msg: "{{ clangd_cmd_run.stdout }}"
+        - name: Make sure 'Go' command is available in the container
+          shell: oc exec {{ pod_name.stdout }} -- go version
+          register: go_cmd_run
+        - debug:
+            msg: "{{ go_cmd_run.stdout }}"
+        - name: Make sure 'php' command is available in the container
+          shell: oc exec {{ pod_name.stdout }} -- php --version
+          register: php_cmd_run
+        - debug:
+            msg: "{{ php_cmd_run.stdout }}"
         - name: Make sure 'python' command is available in the container
           shell: oc exec {{ pod_name.stdout }} -- python -V
           register: py_cmd_run
