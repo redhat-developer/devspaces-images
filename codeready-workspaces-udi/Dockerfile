@@ -57,7 +57,7 @@ COPY bin.tgz /tmp/
     # Common Installations and Configuration
     ########################################################################
 RUN \
-    microdnf install -y yum bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git \
+    microdnf install -y yum bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng \
     # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
@@ -88,8 +88,7 @@ RUN \
     ########################################################################
 RUN \
     dnf -y -q install java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
-    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
-    nss_wrapper procps-ng && \
+    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     dnf -y -q module reset nodejs && \
     dnf -y -q module enable nodejs:$NODEJS_VERSION && \
