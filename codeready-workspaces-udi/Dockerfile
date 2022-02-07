@@ -30,7 +30,7 @@ ENV \
     DOTNET_RPM_VERSION=3.1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA_HOME=/usr/lib/jvm/java-11-openjdk \
-    PATH="$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/usr/lib/jvm/java-11-openjdk:/usr/lib/jvm/java-1.8.0-openjdk:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    PATH="/usr/lib/jvm/java-11-openjdk:/usr/lib/jvm/java-1.8.0-openjdk:$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -69,8 +69,6 @@ RUN \
     buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
     # CVE updates
     mkdir -p /opt && \
-    mkdir -p /projects/.che/gopath /.cache && \
-    mkdir -p ${HOME}/go && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
@@ -166,6 +164,8 @@ RUN \
     ########################################################################
 RUN \
     dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
+    mkdir -p /projects/.che/gopath /.cache && \
+    mkdir -p ${HOME}/go && \
     echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
     > ${HOME}/gopath.sh && \
     chmod +x ${HOME}/gopath.sh
@@ -197,6 +197,7 @@ RUN \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     rm -fr /tmp/assets/ /tmp/go && \
     chmod 755 /usr/local/bin/* && \
+    chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     echo "========" && \
     echo -n "java:  "; java -version; \

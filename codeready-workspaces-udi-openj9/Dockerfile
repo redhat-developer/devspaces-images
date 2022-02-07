@@ -66,8 +66,6 @@ RUN \
     buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
     # CVE updates
     mkdir -p /opt && \
-    mkdir -p /projects/.che/gopath /.cache && \
-    mkdir -p ${HOME}/go && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
@@ -159,6 +157,8 @@ RUN \
     ########################################################################
 RUN \
     dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
+    mkdir -p /projects/.che/gopath /.cache && \
+    mkdir -p ${HOME}/go && \
     echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
     > ${HOME}/gopath.sh && \
     chmod +x ${HOME}/gopath.sh
@@ -190,6 +190,7 @@ RUN \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     rm -fr /tmp/assets/ /tmp/go && \
     chmod 755 /usr/local/bin/* && \
+    chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     echo "========" && \
     echo -n "java:  "; java -version; \
