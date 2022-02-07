@@ -67,7 +67,6 @@ RUN \
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
     buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
-    # CVE updates
     mkdir -p /opt && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
@@ -81,7 +80,7 @@ RUN \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template && \
-    # Final updates
+    # fetch CVE updates
     dnf -y -q update
     ########################################################################
     # Java 8 & 11
