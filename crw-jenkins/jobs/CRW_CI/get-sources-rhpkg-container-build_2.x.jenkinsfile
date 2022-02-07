@@ -54,11 +54,15 @@ set -x
             TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
             BUILD_DESC=sh(returnStdout:true,script:'''grep 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
 
-            if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
-              currentBuild.result = "UNSTABLE"
-            }
-            if (BUILD_RESULT.indexOf("ERROR")>=0 || BUILD_RESULT.indexOf("FAILURE")>=0 || !TASK_URL?.trim()) {
-              currentBuild.result = "FAILURE"
+            if (util.hasSuccessfullyBuiltAllArches("${WORKSPACE}/sources/container.yaml", "${WORKSPACE}/rhpkg-container-build.txt")) {
+              currentBuild.result = "SUCCESS"
+            } else {
+              if (BUILD_DESC.indexOf("UNKNOWN")>=0) {
+                currentBuild.result = "UNSTABLE"
+              }
+              if (BUILD_RESULT.indexOf("ERROR")>=0 || BUILD_RESULT.indexOf("FAILURE")>=0 || !TASK_URL?.trim()) {
+                currentBuild.result = "FAILURE"
+              }
             }
             currentBuild.description+=" :: " + BUILD_DESC + " </br/> " + BUILD_RESULT
           } catch (e) {
@@ -69,7 +73,7 @@ set -x
 
           // trigger simple copy to quay / UNSTABLE if fails
           try {
-            // if build has passed, trigger a copy to quay 
+            // if build has passed, trigger a copy to quay
             if (!currentBuild.result.equals("ABORTED") && 
                 !currentBuild.result.equals("FAILURE") && 
                 !currentBuild.result.equals("UNSTABLE")) {
