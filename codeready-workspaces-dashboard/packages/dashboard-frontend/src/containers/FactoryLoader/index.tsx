@@ -423,11 +423,11 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       if (isCheDevfile(devfile)) {
         attrs.stackName = stackName;
         delete attrs.factoryParams;
-        if (!devfile.metadata.name && devfile.metadata.generateName) {
-          const name = devfile.metadata.generateName + getRandomString(4).toLowerCase();
-          delete devfile.metadata.generateName;
-          devfile.metadata.name = name;
-        }
+      }
+      if (!devfile.metadata.name && devfile.metadata.generateName) {
+        const name = devfile.metadata.generateName + getRandomString(4).toLowerCase();
+        delete devfile.metadata.generateName;
+        devfile.metadata.name = name;
       }
       const namespace = this.props.defaultNamespace?.name;
       try {

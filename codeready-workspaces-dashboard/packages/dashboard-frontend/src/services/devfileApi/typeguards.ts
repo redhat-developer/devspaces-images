@@ -24,7 +24,11 @@ export function isDevfileV2(devfile: unknown): devfile is devfileApi.Devfile {
 }
 
 export function isDevfileV2Metadata(metadata: unknown): metadata is devfileApi.DevfileMetadata {
-  return metadata !== undefined && (metadata as devfileApi.DevfileMetadata).name !== undefined;
+  return (
+    metadata !== undefined &&
+    ((metadata as devfileApi.DevfileMetadata).name !== undefined ||
+      (metadata as devfileApi.DevfileMetadata).generateName !== undefined)
+  );
 }
 
 export function isDevWorkspaceLike(workspace: unknown): workspace is devfileApi.DevWorkspaceLike {
