@@ -25,77 +25,83 @@ ENV \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
+    LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-11-jdk \
     PATH="/usr/lib/jvm/ibm-semeru-open-11-jdk:/usr/lib/jvm/ibm-semeru-open-8-jdk:$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
-    M2_HOME="/opt/apache-maven"
+    M2_HOME="/opt/apache-maven" \
+    PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
+    GOPATH=/projects/.che/gopath
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
 RUN mkdir -p /home/user /projects && \
-    # Change permissions to let any arbitrary user
-    for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
-        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
-    done
 
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
 COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
+COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
+COPY bin.tgz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget dnf sudo git procps-ng bzip2 \
-    ibm-semeru-open-8-jdk \
-    ibm-semeru-open-11-jdk && \
-    dnf module reset -y nodejs && \
-    # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
-    dnf -y -q module reset nodejs && \
-    dnf -y -q module enable nodejs:$NODEJS_VERSION && \
-    INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-    dnf -y -q remove $INSTALL_PKGS && \
-    dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && rpm -V $INSTALL_PKGS && \
-    dnf -y -q clean all --enablerepo='*' && \
-    # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
-    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    dnf -y -q module reset python38 && \
-    dnf -y -q module enable python38:${PYTHON_VERSION} && \
-    dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
-    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+    ########################################################################
+    # Common Installations and Configuration
+    ########################################################################
+RUN \
+    microdnf install -y yum bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng \
     # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
-    # must hard code a version because otherwise we fail with
-    ## Failed component comparison for components: openshift-clients
+    # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
-    dnf -y -q install buildah npm helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
-    dnf -y -q update && \
-    dnf -y -q clean all && rm -rf /var/cache/yum && \
+    buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
+    mkdir -p /opt && \
+    # Change permissions to let any arbitrary user
+    for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
+        echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done && \
+    # Generate passwd.template \
     cat /etc/passwd | \
     sed s#user:x.*#user:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
     > ${HOME}/passwd.template && \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template && \
-    #kamel and odo stuff
-    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/ && rm -f /tmp/assets/asset-kamel-$(uname -m).tar.gz; fi; \
-    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/assets/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && chmod 755 /usr/local/bin/* && \
-    rm -fr /tmp/assets/asset-odo.tgz && \
-    # unpack gradle into /opt/gradle/,
-    mkdir -p /opt; unzip -d /opt /tmp/assets/gradle-${GRADLE_VERSION}-bin.zip && \
-    mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/assets/gradle-${GRADLE_VERSION}-bin.zip && \
-    # maven stuff \
-    mkdir -p /opt; \
+    # fetch CVE updates
+    dnf -y -q update
+    ########################################################################
+    # Java 8 & 11
+    ########################################################################
+RUN \
+    # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
+    # and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/ibm-semeru-open-8-jdk/1.8.0.302.b08_0.27.1/1.el8j9/$(uname -m)/ibm-semeru-open-8-jdk-1.8.0.302.b08_0.27.1-1.el8j9.$(uname -m).rpm
+    dnf -y -q install ibm-semeru-open-8-jdk \
+    ibm-semeru-open-11-jdk && \
+    # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+    dnf -y -q module reset nodejs && \
+    dnf -y -q module enable nodejs:$NODEJS_VERSION && \
+    INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
+    dnf -y -q remove $INSTALL_PKGS && \
+    dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && rpm -V $INSTALL_PKGS && \
+    # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+    dnf -y -q module reset python38 && \
+    dnf -y -q module enable python38:${PYTHON_VERSION} && \
+    dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
+    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+    # unpack gradle into /opt/gradle/, and maven into /opt/apache-maven/
+    mkdir -p /opt; unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
+    mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
     tar xzf /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
     rm -f /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
@@ -106,7 +112,6 @@ RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget dn
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
     for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done
-RUN \
     # additional python stuff
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
@@ -119,35 +124,104 @@ RUN \
         cp -R /tmp/py-unpack/lib64/* /usr/lib64 && \
         cp -R /tmp/py-unpack/.venv "${HOME}/.venv-tmp" && \
         chgrp -R 0 "${HOME}/.venv-tmp" && chmod -R g+rwX "${HOME}/.venv-tmp" && \
-        rm -fr /tmp/py-unpack /tmp/assets/asset-python-ls-$(uname -m).tar.gz \
+        rm -fr /tmp/py-unpack \
     else \
         echo "[WARNING] Python lang server dependency tarball not found. Python support may be more limited on $(uname -m)"; \
     fi
+    ########################################################################
+    # Kubernetes
+    ########################################################################
 RUN \
-    # cleanup and summaries
-    rm -fr /tmp/assets/ && \
+    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
+    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
+    ########################################################################
+    # Openshift
+    ########################################################################
+RUN \
+    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
+    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz && \
+    ########################################################################
+    # CPP
+    ########################################################################
+RUN \
+    dnf -y -q llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
+    # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
+    # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
+    mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
+    echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
+    chmod +x ${HOME}/che/ls-clangd/launch.sh && \
+    ########################################################################
+    # Golang
+    ########################################################################
+RUN \
+    dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
+    mkdir -p /projects/.che/gopath /.cache && \
+    mkdir -p ${HOME}/go && \
+    echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
+    > ${HOME}/gopath.sh && \
+    chmod +x ${HOME}/gopath.sh
+    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
+    for f in "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
+        chgrp -R 0 ${f} && \
+        chmod -R g+rwX ${f}; \
+    done && \
+    ########################################################################
+    # PHP
+    ########################################################################
+RUN \
+    dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
+    tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / 
+    dnf -y remove kernel-headers && \
+    sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
+    sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
+    sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
+    sed -i 's/ErrorLog \"|\/usr\/bin\/cat\"/ErrorLog \"\/var\/log\/httpd\/error_log\"/' /etc/httpd/conf/httpd.conf && \
+    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/
+    mkdir -p ${HOME}/che/ls-php/php-language-server && \
+    tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
+    cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer && \
+    ########################################################################
+    # Cleanup and Summaries
+    ########################################################################
+RUN \
+    dnf -y -q clean all --enablerepo='*' && \
+    dnf -y -q clean all && rm -rf /var/cache/yum && \
+    rm -fr /tmp/assets/ /tmp/go && \
+    chmod 755 /usr/local/bin/* && \
+    chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
+    echo "========" && \
+    echo -n "java:  "; java -version; \
+    echo -n "mvn:   "; mvn -version; \
+    echo -n "gradle:    "; gradle -v; \
+    echo "========" && \
+    echo -n "node:  "; node --version; \
+    echo -n "npm:   "; npm --version; \
+    echo "========" && \
+    echo -n "python:    "; python -V; \
+    echo -n "pip:   "; pip -V; \
+    echo -n "pylint:    "; pylint --version; \
     echo "========" && \
     echo -n "oc:    "; oc version; \
     echo -n "odo:    "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
     echo -n "kubectl: "; kubectl version --short --client=true; \
     if [[ -f /usr/local/bin/kamel ]]; then \
-      echo -n "kamel:   "; kamel version \
+      echo -n "kamel:   "; kamel version; \
     else \
       echo "kamel: not available on $(uname -m)"; \
     fi; \
-    echo -n "java:  "; java -version; \
-    echo -n "mvn:   "; mvn -version; \
-    echo -n "node:  "; node --version; \
-    echo -n "npm:   "; npm --version; \
-    echo -n "python:    "; python -V; \
-    echo -n "pip:   "; pip -V; \
-    echo -n "pylint:    "; pylint --version; \
-    echo -n "gradle:    "; gradle -v; \
+    echo "========" && \
+    echo -n "clangd:    "; clangd -help; \
+    if [[ -f /usr/bin/dotnet ]]; then \
+      echo -n "dotnet:    "; dotnet --version; \
+    else \
+      echo "dotnet: not available on $(uname -m)"; \
+    fi; \
+    echo -n "go:    "; go version; \
+    echo -n "php:    "; php -v; \
     echo "========"
 
-# ODO doesn't work without fixing user id
 ADD etc/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
