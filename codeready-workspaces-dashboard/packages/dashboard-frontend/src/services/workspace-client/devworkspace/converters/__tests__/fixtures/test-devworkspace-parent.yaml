@@ -1,0 +1,17 @@
+apiVersion: workspace.devfile.io/v1alpha2
+kind: DevWorkspace
+metadata:
+  labels: {}
+  name: nodejs-stack
+  namespace: dwclient-test
+  annotations:
+    any.custom.settings: 'true'
+  uid: ''
+spec:
+  routingClass: che
+  started: true
+  template:
+    parent:
+      id: nodejs
+      registryUrl: "https://registry.devfile.io"
+    components: []

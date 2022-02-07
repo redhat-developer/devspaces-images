@@ -26,6 +26,7 @@ describe('testing sample conversions', () => {
       expect(devfileToDevWorkspace(input, 'che', true)).toStrictEqual(output);
     });
   });
+
   describe('devworkspace to devfile', () => {
     test('the sample-devworkspace fixture should convert into sample-devfile fixture', () => {
       const input: any = yaml.load(
@@ -33,6 +34,28 @@ describe('testing sample conversions', () => {
       );
       const output = yaml.load(
         fs.readFileSync(__dirname + '/fixtures/sample-devfile.yaml', 'utf-8'),
+      );
+      delete (output as any).metadata.attributes;
+      expect(devWorkspaceToDevfile(input)).toStrictEqual(output);
+    });
+  });
+  describe('parent section', () => {
+    test('the test-devfile-parent fixture should convert into test-devworkspace-parent fixture', () => {
+      const input: any = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devfile-parent.yaml', 'utf-8'),
+      );
+      const output = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devworkspace-parent.yaml', 'utf-8'),
+      );
+      expect(devfileToDevWorkspace(input, 'che', true)).toStrictEqual(output);
+    });
+
+    test('the test-devworkspace-parent fixture should convert into test-devfile-parent fixture', () => {
+      const input: any = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devworkspace-parent.yaml', 'utf-8'),
+      );
+      const output = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devfile-parent.yaml', 'utf-8'),
       );
       delete (output as any).metadata.attributes;
       expect(devWorkspaceToDevfile(input)).toStrictEqual(output);
