@@ -25,15 +25,16 @@ ENV \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
+    LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     JAVA_HOME=/usr/lib/jvm/ibm-semeru-open-11-jdk \
     PATH="/usr/lib/jvm/ibm-semeru-open-11-jdk:/usr/lib/jvm/ibm-semeru-open-8-jdk:$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
-    M2_HOME="/opt/apache-maven"
+    M2_HOME="/opt/apache-maven" \
     PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}" \
-    GOPATH=/projects/.che/gopath \
+    GOPATH=/projects/.che/gopath
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
@@ -49,28 +50,22 @@ COPY bin.tgz /tmp/
 # enable rhel 8 content sets (from Brew) to resolve buildah
 # COPY content_set*.repo /etc/yum.repos.d/
 
-# For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
-# must hard code a version because otherwise we fail with
-## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
-# For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
-# and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/ibm-semeru-open-8-jdk/1.8.0.302.b08_0.27.1/1.el8j9/$(uname -m)/ibm-semeru-open-8-jdk-1.8.0.302.b08_0.27.1-1.el8j9.$(uname -m).rpm
-
     ########################################################################
     # Common Installations and Configuration
     ########################################################################
 RUN \
-    microdnf install -y yum dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git \
-    openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
+    microdnf install -y yum bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git \
+    # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
+    # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
+    buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 && \
     # CVE updates
     mkdir -p /opt && \
-    mkdir -p ${HOME}/che && \
-    mkdir -p ${HOME}/che/ls-clangd && \
     mkdir -p /projects/.che/gopath /.cache && \
     mkdir -p ${HOME}/go && \
     # Change permissions to let any arbitrary user
@@ -86,11 +81,13 @@ RUN \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template && \
     # Final updates
-    dnf -y -q update && \
+    dnf -y -q update
     ########################################################################
     # Java 8 & 11
     ########################################################################
 RUN \
+    # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
+    # and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/ibm-semeru-open-8-jdk/1.8.0.302.b08_0.27.1/1.el8j9/$(uname -m)/ibm-semeru-open-8-jdk-1.8.0.302.b08_0.27.1-1.el8j9.$(uname -m).rpm
     dnf -y -q install ibm-semeru-open-8-jdk \
     ibm-semeru-open-11-jdk \
     nss_wrapper procps-ng && \
@@ -106,10 +103,9 @@ RUN \
     dnf -y -q module enable python38:${PYTHON_VERSION} && \
     dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
     # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    # unpack gradle into /opt/gradle/
-    unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
+    # unpack gradle into /opt/gradle/, and maven into /opt/apache-maven/
+    mkdir -p /opt; unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
     mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
-    # unpack maven \
     tar xzf /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
     rm -f /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
@@ -140,7 +136,6 @@ RUN \
     # Kubernetes
     ########################################################################
 RUN \
-    dnf -y -q install buildah npm helm-3.6.2-5.el8
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
     if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
     ########################################################################
@@ -156,11 +151,12 @@ RUN \
     dnf -y -q llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
     # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
+    mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh && \
     ########################################################################
     # Golang
-    #######################################################################
+    ########################################################################
 RUN \
     dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
     echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
@@ -192,12 +188,13 @@ RUN \
 RUN \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
-    chmod 755 /usr/local/bin/*
-    rm -fr /tmp/assets/ tmp/go && \
+    rm -fr /tmp/assets/ /tmp/go && \
+    chmod 755 /usr/local/bin/* && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     echo "========" && \
     echo -n "java:  "; java -version; \
     echo -n "mvn:   "; mvn -version; \
+    echo -n "gradle:    "; gradle -v; \
     echo "========" && \
     echo -n "node:  "; node --version; \
     echo -n "npm:   "; npm --version; \
@@ -206,18 +203,24 @@ RUN \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \
-    echo -n "gradle:    "; gradle -v; \
-    echo "========" && \
     echo -n "oc:    "; oc version; \
     echo -n "odo:    "; odo version; \
-    echo -n "kubectl: "; kubectl version --short --client=true; \
-    echo "========" && \
     echo -n "helm:    "; helm version --short --client; \
+    echo -n "kubectl: "; kubectl version --short --client=true; \
     if [[ -f /usr/local/bin/kamel ]]; then \
-      echo -n "kamel:   "; kamel version \
+      echo -n "kamel:   "; kamel version; \
     else \
       echo "kamel: not available on $(uname -m)"; \
     fi; \
+    echo "========" && \
+    echo -n "clangd:    "; clangd -help; \
+    if [[ -f /usr/bin/dotnet ]]; then \
+      echo -n "dotnet:    "; dotnet --version; \
+    else \
+      echo "dotnet: not available on $(uname -m)"; \
+    fi; \
+    echo -n "go:    "; go version; \
+    echo -n "php:    "; php -v; \
     echo "========"
 
 ADD etc/entrypoint.sh /entrypoint.sh
