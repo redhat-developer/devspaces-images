@@ -42,6 +42,9 @@ export function devfileToDevWorkspace(
       },
     },
   };
+  if (devfile.parent) {
+    template.spec.template.parent = devfile.parent;
+  }
   if (devfile.projects) {
     template.spec.template.projects = devfile.projects;
   }
@@ -66,6 +69,9 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
     },
     components: [],
   } as devfileApi.Devfile;
+  if (devworkspace.spec.template.parent) {
+    template.parent = devworkspace.spec.template.parent;
+  }
   if (devworkspace.spec.template.projects) {
     template.projects = devworkspace.spec.template.projects;
   }

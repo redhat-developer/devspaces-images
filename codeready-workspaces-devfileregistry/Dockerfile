@@ -51,7 +51,7 @@ RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 COPY ./build/scripts ./arbitrary-users-patch/base_images /build/
 COPY ./versions.json /build/
 COPY ./devfiles /build/devfiles
-COPY ./resources /build/resources
+# COPY ./resources /build/resources
 WORKDIR /build/
 
 # Registry, organization, and tag to use for base images in dockerfiles. Devfiles
@@ -116,8 +116,6 @@ WORKDIR /var/www/html
 RUN mkdir -m 777 /var/www/html/devfiles
 COPY README.md .htaccess /var/www/html/
 COPY --from=builder /build/devfiles /var/www/html/devfiles
-COPY --from=builder /build/resources /var/www/html/resources
-COPY --from=builder /build/resources /var/www/html/resources
 COPY --from=builder /build/resources /var/www/html/resources
 COPY ./images /var/www/html/images
 COPY ./build/dockerfiles/rhel.entrypoint.sh ./build/dockerfiles/entrypoint.sh /usr/local/bin/

@@ -134,7 +134,7 @@ replaceField()
   echo "    ${0##*/} rF :: * ${updateName}: ${updateVal}"
   # shellcheck disable=SC2016 disable=SC2002 disable=SC2086
   if [[ $updateVal == "DELETEME" ]]; then
-	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" 'del(${updateName})' "${theFile}")
+	changed=$(yq -Y --arg updateName "${updateName}" 'del('${updateName}')' "${theFile}")
   else
 	changed=$(yq -Y --arg updateName "${updateName}" --arg updateVal "${updateVal}" ${updateName}' = $updateVal' "${theFile}")
   fi
@@ -186,8 +186,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	NOW="$(date -u +%FT%T+00:00)"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
-		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
-		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/codeready-workspaces-operator/|g" \
+		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-images/|g" \
+		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/codeready-workspaces-images/|g" \
 		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces|g" \
 		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/codeready-workspaces/overview/|g" \
 		\
@@ -196,7 +196,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperatorallnamespaces.v${CSV_VERSION}|g" \
+		-e "s|name: .+preview-openshift.v.+|name: crwoperatorstable.v${CSV_VERSION}|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -261,7 +261,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "${CSVFILE}"
 	yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "${CSVFILE}"
 
-	# Enable by default devWorkspace engine in `tech-preview-latest-all-namespaces`
+	# Enable by default devWorkspace engine in `stable`
 	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations[\"alm-examples\"] | \
 			fromjson | \
 			( .[] | select(.kind == \"CheCluster\") | .spec.devWorkspace.enable) |= true" ${CSVFILE} |  sed -r 's/"/\\"/g')
@@ -332,12 +332,12 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="crwoperatorallnamespaces.v${CSV_VERSION_PREV}"
+		# TODO CRW-2725 when CRW 2.16 is live, re-enable the replaces directive instead of this deletion
+		[".spec.replaces"]="DELETEME"
+		# [".spec.replaces"]="crwoperatorstable.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
-		# CRW-2571 relabel operatorhub tile title to clarify which operator is supported and which is tech preview
-		['.spec.displayName']="Red Hat CodeReady Workspaces - Technical Preview"
-		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
-		['.metadata.annotations.description']="Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
+		['.spec.displayName']="Red Hat CodeReady Workspaces"
+		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"

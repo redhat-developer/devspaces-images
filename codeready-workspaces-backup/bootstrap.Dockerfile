@@ -7,7 +7,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.16.12-4 as builder
+FROM registry.access.redhat.com/ubi8/go-toolset:1.16.12-2 as builder
 ENV GOPATH=/tmp/go/
 
 ENV REST_SERVER_TAG=v0.10.0
@@ -22,7 +22,7 @@ RUN export ARCH="$(uname -m)" && \
     GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o rest-server ./cmd/rest-server
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/ubi-micro
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.5-744
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.5-596
 
 COPY --from=builder /tmp/go/rest-server/rest-server /usr/local/bin/rest-server
 COPY --from=builder /tmp/go/rest-server/LICENSE /usr/local/bin/rest-server-LICENSE.txt

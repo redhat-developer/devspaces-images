@@ -118,24 +118,25 @@ Images to copy to quay:
             } */
 
             parameters{ 
-            // TODO remove crw-operator-metadata after 2.15
-                if (JB.equals("2.14")) {
+                if (JB.equals("2.14") || JB.equals("2.15")) {
                     textParam("CONTAINERS", '''\
-operator-metadata backup configbump operator operator-bundle dashboard devfileregistry \
-idea imagepuller jwtproxy machineexec \
-pluginbroker-metadata pluginbroker-artifacts udi-openj9 udi pluginregistry server \
-stacks-cpp stacks-dotnet stacks-golang stacks-php theia \
-theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
+backup configbump operator operator-bundle operator-metadata \
+dashboard devfileregistry idea imagepuller jwtproxy \
+machineexec pluginbroker-metadata pluginbroker-artifacts plugin-java8 plugin-java8-openj9 \
+plugin-java11 plugin-java11-openj9 plugin-openshift plugin-kubernetes pluginregistry \
+server stacks-cpp stacks-dotnet stacks-golang stacks-php \
+theia theia-dev theia-endpoint traefik''', '''list of 29 containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
-                } else {
+                } else { 
+                    // 2.16: TODO remove stacks and reduce image count to 19
                     textParam("CONTAINERS", '''\
-backup configbump operator operator-bundle dashboard devfileregistry \
-idea imagepuller jwtproxy machineexec \
-pluginbroker-metadata pluginbroker-artifacts udi-openj9 udi pluginregistry server \
+configbump operator operator-bundle dashboard devfileregistry \
+idea imagepuller jwtproxy machineexec pluginbroker-metadata \
+pluginbroker-artifacts udi-openj9 udi pluginregistry server \
 stacks-cpp stacks-dotnet stacks-golang stacks-php theia \
-theia-dev theia-endpoint traefik''', '''list of containers to copy:<br/>
+theia-dev theia-endpoint traefik''', '''list of 23 containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
