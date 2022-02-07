@@ -958,7 +958,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:8c4d936a605bcc00a92c8fb44be0639b003e3e2b0983d9680246503978c609ac
+                  value: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:4f29dbf647e0ed8e6fb29b3130909d85b2cb2ebaadf99a34a6a104d5027a1125
                 - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
                   value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:5a70fdd78ad241c59a3b10b5646ed1e646c71eb6f1dc6f92460356fb266aa612
                 - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
@@ -1327,7 +1327,7 @@ spec:
   - name: codeready-operator
     image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:7314449345f94e409096e91307a8161672acaaef51638b93db54fe2a4af341a3
   - name: che_server
-    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:8c4d936a605bcc00a92c8fb44be0639b003e3e2b0983d9680246503978c609ac
+    image: registry.redhat.io/codeready-workspaces/server-rhel8@sha256:4f29dbf647e0ed8e6fb29b3130909d85b2cb2ebaadf99a34a6a104d5027a1125
   - name: che_server_secure_exposer_jwt_proxy_image
     image: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8@sha256:5a70fdd78ad241c59a3b10b5646ed1e646c71eb6f1dc6f92460356fb266aa612
   - name: che_workspace_plugin_broker_artifacts
