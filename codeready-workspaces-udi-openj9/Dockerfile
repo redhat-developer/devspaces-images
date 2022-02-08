@@ -44,7 +44,7 @@ COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
 COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
-COPY bin.tgz /tmp/
+COPY asset-odo.tgz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
