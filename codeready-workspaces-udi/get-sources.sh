@@ -101,6 +101,9 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 
     outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz"
 
+	# cleanup
+	rm -f Dockerfile.2 uploadAssetsToGHRelease.sh
+
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
@@ -125,6 +128,8 @@ $ERRORS
 "; exit 1; fi
 	fi
 else
+	# cleanup
+	rm -f Dockerfile.2 uploadAssetsToGHRelease.sh
 	if [[ ${forceBuild} -eq 1 ]]; then
 		echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
@@ -140,6 +145,3 @@ $ERRORS
 		log "[INFO] No new sources, so nothing to build."
 	fi
 fi
-
-# cleanup
-rm -f Dockerfile.2
