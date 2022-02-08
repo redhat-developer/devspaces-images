@@ -73,6 +73,8 @@ RUN \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done && \
+    # add user and configure it
+    useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
     # Generate passwd.template \
     cat /etc/passwd | \
     sed s#user:x.*#user:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
