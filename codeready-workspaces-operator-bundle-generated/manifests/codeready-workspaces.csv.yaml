@@ -990,13 +990,13 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
                 - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:0e111998854e651a5107d4ec53907c7a532531193221696e0f91e67fff4ab262
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:b2b2cd3196c15b72395b726e5e7c5b6139428b2c43df3209d973bb6e5b70289a
                 - name: RELATED_IMAGE_codeready_workspaces_udi_openj9_devfile_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
                 - name: RELATED_IMAGE_codeready_workspaces_udi_openj9_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
                 - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:0e111998854e651a5107d4ec53907c7a532531193221696e0f91e67fff4ab262
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:b2b2cd3196c15b72395b726e5e7c5b6139428b2c43df3209d973bb6e5b70289a
                 - name: RELATED_IMAGE_codeready_workspaces_udi_ppc64le_devfile_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
                 - name: RELATED_IMAGE_codeready_workspaces_udi_ppc64le_plugin_registry_image_GIXDCNQK
@@ -1006,9 +1006,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_udi_s390x_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:ab55abe446aa8e23a7f2f8294181cf4f93a3764c8d5b8d722c1eba1bdfb32f70
+                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:5eed6810937325ec1a70bd32c55ce25f7de53f1fa7dd2561bbe9fb4151ac8822
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:660db773c96830dd6547ab877878147efb62a2ed2951e35acda1ebfae3bc9cfa
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:853a45a700bb90a1bba92563b5ecf1379b19a106a43a814f21d184eaa61af2a3
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:3f96fb70c3f56dea3384ea31b9252a5c6aca8e0f33dc53be590f134912244078
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1359,13 +1359,13 @@ spec:
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
   - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:0e111998854e651a5107d4ec53907c7a532531193221696e0f91e67fff4ab262
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:b2b2cd3196c15b72395b726e5e7c5b6139428b2c43df3209d973bb6e5b70289a
   - name: codeready_workspaces_udi_openj9_devfile_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
   - name: codeready_workspaces_udi_openj9_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
   - name: codeready_workspaces_udi_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:0e111998854e651a5107d4ec53907c7a532531193221696e0f91e67fff4ab262
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:b2b2cd3196c15b72395b726e5e7c5b6139428b2c43df3209d973bb6e5b70289a
   - name: codeready_workspaces_udi_ppc64le_devfile_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
   - name: codeready_workspaces_udi_ppc64le_plugin_registry_image_gixdcnqk
@@ -1375,9 +1375,9 @@ spec:
   - name: codeready_workspaces_udi_s390x_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/udi-openj9-rhel8@sha256:eadd17f2624f90fe63ef3e081fb8de266b28ff4c050dcf81dc9612b3b2d67ab7
   - name: dashboard
-    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:ab55abe446aa8e23a7f2f8294181cf4f93a3764c8d5b8d722c1eba1bdfb32f70
+    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:5eed6810937325ec1a70bd32c55ce25f7de53f1fa7dd2561bbe9fb4151ac8822
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:660db773c96830dd6547ab877878147efb62a2ed2951e35acda1ebfae3bc9cfa
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:853a45a700bb90a1bba92563b5ecf1379b19a106a43a814f21d184eaa61af2a3
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:3f96fb70c3f56dea3384ea31b9252a5c6aca8e0f33dc53be590f134912244078
   - name: gateway_authentication_sidecar
