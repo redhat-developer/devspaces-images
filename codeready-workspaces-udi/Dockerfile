@@ -47,7 +47,7 @@ COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
 COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
-COPY bin.tgz /tmp/
+COPY asset-odo.tgz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -142,7 +142,7 @@ RUN \
     ########################################################################
 RUN \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz
+    tar xzf /tmp/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/asset-odo.tgz
     ########################################################################
     # CPP
     ########################################################################
