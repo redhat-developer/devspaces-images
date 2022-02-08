@@ -41,7 +41,7 @@ ENV \
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
-RUN mkdir -p /home/user /projects && \
+RUN mkdir -p /home/user /projects
 
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
@@ -134,13 +134,13 @@ RUN \
     ########################################################################
 RUN \
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
+    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; 
     ########################################################################
     # Openshift
     ########################################################################
 RUN \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz && \
+    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz
     ########################################################################
     # CPP
     ########################################################################
@@ -150,13 +150,13 @@ RUN \
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
-    chmod +x ${HOME}/che/ls-clangd/launch.sh && \
+    chmod +x ${HOME}/che/ls-clangd/launch.sh
     ########################################################################
     # Dotnet
     ########################################################################
 RUN \
     dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host \
-    dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION} && \
+    dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
     ########################################################################
     # Golang
     ########################################################################
@@ -171,7 +171,7 @@ RUN \
     for f in "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
-    done && \
+    done 
     ########################################################################
     # PHP
     ########################################################################
@@ -186,7 +186,7 @@ RUN \
     chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/
     mkdir -p ${HOME}/che/ls-php/php-language-server && \
     tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
-    cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer && \
+    cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
     ########################################################################
     # Cleanup and Summaries
     ########################################################################
