@@ -139,7 +139,7 @@ RUN \
     ########################################################################
 RUN \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/bin.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/bin.tgz
+    tar xzf /tmp/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/asset-odo.tgz
     ########################################################################
     # CPP
     ########################################################################
