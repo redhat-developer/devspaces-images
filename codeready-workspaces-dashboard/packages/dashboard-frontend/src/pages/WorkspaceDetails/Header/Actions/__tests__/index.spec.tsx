@@ -99,12 +99,8 @@ describe('Workspace WorkspaceAction widget', () => {
 
     renderComponent(component);
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
-    actionDropdown.click();
-
-    const menuitems = screen.getAllByRole('menuitem');
-    expect(menuitems.length).toEqual(1);
-    expect(menuitems[0]).toHaveTextContent('Delete Workspace');
+    const actionButton = screen.queryByRole('button', { name: /delete/i });
+    expect(actionButton).toBeTruthy();
   });
 
   it('should call the callback with OPEN action', async () => {
