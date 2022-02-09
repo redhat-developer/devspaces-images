@@ -8,8 +8,6 @@ See also:
 
 * https://github.com/redhat-developer/codeready-workspaces-productization/blob/master/devdoc/building/osbs-container-builds.adoc
 
-For other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-udi-openj9/?h=crw-2-rhel-8
-
 For odo check required versions at https://github.com/redhat-developer/vscode-openshift-tools/releases
  and https://github.com/redhat-developer/vscode-openshift-tools/blob/master/src/tools.json
  note: as of 0.1.5 win/lin/mac binaries are included in the vsix (no plan to include s390x and ppc64le)

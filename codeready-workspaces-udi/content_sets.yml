@@ -8,10 +8,7 @@
 # See https://mojo.redhat.com/docs/DOC-1023066 for more information on
 # maintaining this file and the format and examples
 #
-# You should have one top level item for each architecture being built. Most
-# likely this will be x86_64 and ppc64le initially.
 ---
-# for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-udi-openj9/?h=crw-2-rhel-8
 x86_64:
 - rhel-8-for-x86_64-baseos-rpms
 - rhel-8-for-x86_64-appstream-rpms
