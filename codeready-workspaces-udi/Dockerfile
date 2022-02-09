@@ -157,9 +157,8 @@ RUN \
     # Dotnet
     ########################################################################
 RUN \
-    if [[ "$(uname -m)" == 'x86_64' ]]; then
-        dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host \
-        dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
+    if [[ "$(uname -m)" == 'x86_64' ]]; then \
+        dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}; \
     fi
     ########################################################################
     # Golang
