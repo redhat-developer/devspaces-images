@@ -147,7 +147,7 @@ RUN \
     # CPP
     ########################################################################
 RUN \
-    dnf -y -q llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
+    dnf -y -q install llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
     # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
@@ -157,8 +157,10 @@ RUN \
     # Dotnet
     ########################################################################
 RUN \
-    dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host \
-    dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
+    if [[ "$(uname -m)" == 'x86_64' ]]; then
+        dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host \
+        dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
+    fi
     ########################################################################
     # Golang
     ########################################################################
