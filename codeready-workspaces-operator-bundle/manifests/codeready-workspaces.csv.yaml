@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.16
-    createdAt: "2022-02-04T16:54:22+00:00"
+    createdAt: "2022-02-09T23:06:17+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1015,17 +1015,11 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.16
                       - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_udi_openj9_devfile_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-openj9-rhel8:2.16
                       - name: RELATED_IMAGE_codeready_workspaces_udi_openj9_plugin_registry_image_GIXDCNQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-openj9-rhel8:2.16
                       - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_udi_ppc64le_devfile_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-openj9-rhel8:2.16
                       - name: RELATED_IMAGE_codeready_workspaces_udi_ppc64le_plugin_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-openj9-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_udi_s390x_devfile_registry_image_GIXDCNQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-openj9-rhel8:2.16
                       - name: RELATED_IMAGE_codeready_workspaces_udi_s390x_plugin_registry_image_GIXDCNQK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-udi-openj9-rhel8:2.16
