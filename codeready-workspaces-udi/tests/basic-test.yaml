@@ -68,11 +68,6 @@
           register: clangd_cmd_run
         - debug:
             msg: "{{ clangd_cmd_run.stdout }}"
-        - name: Make sure 'dotnet' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- dotnet --version
-          register: dotnet_cmd_run
-        - debug:
-            msg: "{{ dotnet_cmd_run.stdout }}"
         - name: Make sure 'Go' command is available in the container
           shell: oc exec {{ pod_name.stdout }} -- go version
           register: go_cmd_run
