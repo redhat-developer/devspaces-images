@@ -1,3 +1,9 @@
+This folder is *DEPRECATED* and will be removed.
+
+For UDI content for s390x (Z) and ppc64le (Power), see https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/codeready-workspaces-udi[codeready-workspaces-udi].
+
+===================
+
 To build this locally, run this script to fetch the latest tarball and trigger an OSBS build in Brew:
 
 ```
