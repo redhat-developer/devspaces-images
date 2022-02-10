@@ -30,7 +30,7 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
    
 <p>
   
-Images to copy to quay:
+Images to copy to quay (18):
 <table>
 <tr><td>
 
@@ -38,8 +38,6 @@ Images to copy to quay:
   <li> <a href=https://quay.io/repository/crw/configbump-rhel8?tab=tags>configbump</a> </li>
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator?tab=tags>operator</a> 
   <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-bundle?tab=tags>operator-bundle</a> @since 2.12
-  <!-- TODO remove crw-operator-metadata after 2.15 -->
-  <li> <a href=https://quay.io/repository/crw/crw-2-rhel8-operator-metadata?tab=tags>operator-metadata</a> @deprecated 2.12, last release 2.15</li>
   <li> <a href=https://quay.io/repository/crw/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
 
   </td><td>
@@ -54,30 +52,22 @@ Images to copy to quay:
 
   <li> <a href=https://quay.io/repository/crw/pluginbroker-artifacts-rhel8?tab=tags>pluginbroker-artifacts</a> </li>
   <li> <a href=https://quay.io/repository/crw/pluginbroker-metadata-rhel8?tab=tags>pluginbroker-metadata</a></li>
-  <li> <a href=https://quay.io/repository/crw/udi-openj9-rhel8?tab=tags>udi-openj9</a></li>
-  <li> <a href=https://quay.io/repository/crw/udi-rhel8?tab=tags>udi</a></li>
   <li> <a href=https://quay.io/repository/crw/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
-
-  </td><td>
- 
   <li> <a href=https://quay.io/repository/crw/server-rhel8?tab=tags>server</a> </li>
-  <li> <a href=https://quay.io/repository/crw/stacks-cpp-rhel8?tab=tags>stacks-cpp</a> </li>
-  <li> <a href=https://quay.io/repository/crw/stacks-dotnet-rhel8?tab=tags>stacks-dotnet</a> </li>
-  <li> <a href=https://quay.io/repository/crw/stacks-golang-rhel8?tab=tags>stacks-golang</a> </li>
-  <li> <a href=https://quay.io/repository/crw/stacks-php-rhel8?tab=tags>stacks-php</a> </li>
+  <li> <a href=https://quay.io/repository/crw/theia-rhel8?tab=tags>theia</a> </li>
 
   </td><td>
 
-  <li> <a href=https://quay.io/repository/crw/theia-rhel8?tab=tags>theia</a> </li>
   <li> <a href=https://quay.io/repository/crw/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
   <li> <a href=https://quay.io/repository/crw/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
   <li> <a href=https://quay.io/repository/crw/traefik-rhel8?tab=tags>traefik</a> </li>
+  <li> <a href=https://quay.io/repository/crw/udi-rhel8?tab=tags>udi</a></li>
   </td></tr>
   </table>
 </ul>
             <p>NOTE:  If no nodes are available, run: <br/>
     <b><a href=https://github.com/redhat-developer/codeready-workspaces/blob/crw-2-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
-    -c "codeready-workspaces-udi-rhel8 codeready-workspaces-udi-openj9-rhel8" --osbs --pushtoquay="''' + 
+    -c "codeready-workspaces-udi-rhel8 codeready-workspaces-dashboard-rhel8" --osbs --pushtoquay="''' + 
     (JOB_BRANCH.equals("2.x") ? '''2.y next''' : JOB_BRANCH+''' latest''') + 
     '''"</b>
   
@@ -134,9 +124,8 @@ theia theia-dev theia-endpoint traefik''', '''list of 29 containers to copy:<br/
                     textParam("CONTAINERS", '''\
 configbump operator operator-bundle dashboard devfileregistry \
 idea imagepuller jwtproxy machineexec pluginbroker-metadata \
-pluginbroker-artifacts udi-openj9 udi pluginregistry server \
-stacks-cpp stacks-dotnet stacks-golang stacks-php theia \
-theia-dev theia-endpoint traefik''', '''list of 23 containers to copy:<br/>
+pluginbroker-artifacts pluginregistry server theia \
+theia-dev theia-endpoint traefik udi''', '''list of 18 containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')

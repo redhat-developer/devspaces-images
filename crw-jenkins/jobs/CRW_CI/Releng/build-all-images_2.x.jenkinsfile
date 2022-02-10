@@ -28,13 +28,7 @@ timeout(600) {
                     if (PHASE_LIST.contains("1")) {
 
                         def List sidecarsList = [
-                            "udi-openj9", 
-                            "udi", 
-                            // TODO in 2.16, switch to UDI (remove these 4 images)
-                            "stacks-cpp", 
-                            "stacks-dotnet", 
-                            "stacks-golang", 
-                            "stacks-php"
+                            "udi"
                         ]
 
                         def Map sidecarstasks = [failFast: false]

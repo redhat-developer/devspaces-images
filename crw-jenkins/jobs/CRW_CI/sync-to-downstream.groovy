@@ -42,20 +42,33 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
             }
 
             parameters{
-                // TODO: if we have to build CRW 2.14.1, this list needs to include plugin-* entries again
-                textParam("REPOS", '''codeready-workspaces-stacks-cpp, 
-codeready-workspaces-stacks-dotnet, 
-codeready-workspaces-stacks-golang, 
-codeready-workspaces-stacks-php,
-codeready-workspaces-udi-openj9, 
-codeready-workspaces-udi''', '''Comma separated list of repos to sync from github to pkgs.devel  
-::
+                // remove after 2.16 is live; keep simpler else block
+                if (JB.equals("2.14") || JB.equals("2.15")) {
+                    textParam("REPOS", '''codeready-workspaces-plugin-java11-openj9, 
+codeready-workspaces-plugin-java11, 
+codeready-workspaces-plugin-java8-openj9, 
+codeready-workspaces-plugin-java8, 
+codeready-workspaces-plugin-kubernetes, 
+codeready-workspaces-plugin-openshift, 
 codeready-workspaces-stacks-cpp, 
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
-codeready-workspaces-stacks-php,
-codeready-workspaces-udi-openj9, 
-codeready-workspaces-udi''')
+codeready-workspaces-stacks-php''', '''Comma separated list of repos to sync from github to pkgs.devel  
+::
+codeready-workspaces-plugin-java11-openj9, 
+codeready-workspaces-plugin-java11, 
+codeready-workspaces-plugin-java8-openj9, 
+codeready-workspaces-plugin-java8, 
+codeready-workspaces-plugin-kubernetes, 
+codeready-workspaces-plugin-openshift, 
+codeready-workspaces-stacks-cpp, 
+codeready-workspaces-stacks-dotnet, 
+codeready-workspaces-stacks-golang, 
+codeready-workspaces-stacks-php''')
+                } else {
+                    textParam("REPOS", '''codeready-workspaces-udi''', '''Comma separated list of repos to sync from github to pkgs.devel :: codeready-workspaces-udi''')
+                }
+                // remove after 2.15 is live
                 if (JB.equals("2.14")) {
                     stringParam("nodeVersion", "", "Leave blank if not needed")
                     stringParam("yarnVersion", "", "Leave blank if not needed")
