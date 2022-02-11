@@ -54,10 +54,10 @@ export class WorkspaceInlineAlerts extends React.PureComponent<Props, State> {
       <Alert
         variant={AlertVariant.warning}
         isInline
-        title="This workspace is deprecated. Please refer the document below to see next steps."
+        title="This workspace is deprecated. Use the 'Convert' button for making it devfile v2 compatible."
       >
         <a href={migratingDocs} rel="noreferrer" target="_blank">
-          Migrating to devfile v2
+          FAQ / Known Issues
         </a>
       </Alert>
     );
