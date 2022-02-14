@@ -78,7 +78,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/codeready-workspaces-images/
     support: Red Hat
-  name: crwoperatorstable.v2.16.0
+  name: devspacesoperator.v2.16.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}

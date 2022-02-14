@@ -196,7 +196,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|Eclipse Che|CodeReady Workspaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: crwoperatorstable.v${CSV_VERSION}|g" \
+		-e "s|name: .+preview-openshift.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
 		\
 		-e 's|Keycloak|Red Hat SSO|g' \
 		-e 's|my-keycloak|my-rhsso|' \
@@ -334,7 +334,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	declare -A spec_insertions=(
 		# TODO CRW-2725 when CRW 2.16 is live, re-enable the replaces directive instead of this deletion
 		[".spec.replaces"]="DELETEME"
-		# [".spec.replaces"]="crwoperatorstable.v${CSV_VERSION_PREV}"
+		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat CodeReady Workspaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
