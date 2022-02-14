@@ -24,7 +24,7 @@ ENV SUMMARY="Red Hat CodeReady Workspaces operator-bundle container" \
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \
       operators.operatorframework.io.bundle.metadata.v1=metadata/ \
-      operators.operatorframework.io.bundle.package.v1=codeready-workspaces \
+      operators.operatorframework.io.bundle.package.v1=devspaces \
       operators.operatorframework.io.bundle.channels.v1=stable \
       operators.operatorframework.io.bundle.channel.default.v1=stable \
       com.redhat.delivery.operator.bundle="true" \
@@ -43,5 +43,5 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       io.openshift.expose-services="" \
       usage=""
 
-ADD codeready-workspaces-operator-bundle-container-2.16-39.json /root/buildinfo/content_manifests/codeready-workspaces-operator-bundle-container-2.16-39.json
-LABEL "release"="39" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-02-09T23:32:51.852511" "architecture"="s390x" "vcs-type"="git" "vcs-ref"="9d7732e02bca500ecd667c92a88bd0445611d022" "com.redhat.build-host"="s390-c1-vm-05.prod.osbs.eng.bos.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-bundle/images/2.16-39"
+ADD codeready-workspaces-operator-bundle-container-2.16-40.json /root/buildinfo/content_manifests/codeready-workspaces-operator-bundle-container-2.16-40.json
+LABEL "release"="40" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-02-14T22:48:55.021711" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="5a1f3d3eaa39c726602f5d5383ed4e5f6532425c" "com.redhat.build-host"="cpt-1003.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/codeready-workspaces/operator-bundle/images/2.16-40"
