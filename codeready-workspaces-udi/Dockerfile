@@ -20,7 +20,7 @@ ENV \
     HOME=/home/user \
     KAMEL_VERSION="" \
     ODO_VERSION="v2.5.0" \
-    NODEJS_VERSION=12 \
+    NODEJS_VERSION="16" \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.22" \
