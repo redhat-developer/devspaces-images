@@ -28,16 +28,16 @@ Branding is currently in two places.
 
 ### Dashboard
 
-To reskin link:https://github.com/eclipse-che/che-dashboard/tree/main/assets/branding[Che Dashboard], edit the following files:
+To reskin link:https://github.com/eclipse-che/che-dashboard/tree/main/packages/dashboard-frontend/assets/branding[Che Dashboard], edit the following files:
 
-* link:assets/branding/branding-crw.css[assets/branding/branding-crw.css] - replacement for link:https://github.com/eclipse-che/che-dashboard/tree/main/assets/branding/branding.css[Che default css], copied via link:https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/codeready-workspaces-dashboard/build/scripts/sync.sh#L114[build/scripts/sync.sh].
-* link:assets/branding/product.json.template[assets/branding/product.json.template] - includes variable links to CRW docs
-* link:assets/branding/favicon.ico[assets/branding/favicon.ico] - browser tab favicon
-* link:assets/branding/che-logo-text.svg[assets/branding/che-logo-text.svg] - top left wordmark
-* link:assets/branding/che-logo.svg[assets/branding/che-logo.svg] - bottom left icon
-* link:assets/branding/loader.svg[assets/branding/loader.svg] - dashboard loading animation
+* link:packages/dashboard-frontend/assets/branding/branding-crw.css[packages/dashboard-frontend/assets/branding/branding-crw.css] - replacement for link:https://github.com/eclipse-che/che-dashboard/tree/main/packages/dashboard-frontend/assets/branding/branding.css[Che default css], copied via link:https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/codeready-workspaces-dashboard/build/scripts/sync.sh#L114[build/scripts/sync.sh].
+* link:packages/dashboard-frontend/assets/branding/product.json.template[packages/dashboard-frontend/assets/branding/product.json.template] - includes variable links to CRW docs
+* link:packages/dashboard-frontend/assets/branding/favicon.ico[packages/dashboard-frontend/assets/branding/favicon.ico] - browser tab favicon
+* link:packages/dashboard-frontend/assets/branding/che-logo-text.svg[packages/dashboard-frontend/assets/branding/che-logo-text.svg] - top left wordmark
+* link:packages/dashboard-frontend/assets/branding/che-logo.svg[packages/dashboard-frontend/assets/branding/che-logo.svg] - bottom left icon
+* link:packages/dashboard-frontend/assets/branding/loader.svg[packages/dashboard-frontend/assets/branding/loader.svg] - dashboard loading animation
 
-See also SVG assets in link:assets/branding/[assets/branding/] folder.
+See also SVG assets in link:packages/dashboard-frontend/assets/branding/[packages/dashboard-frontend/assets/branding/] folder.
 
 ### Theia
 
