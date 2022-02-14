@@ -54,11 +54,15 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
 
     # collect containers referred to by devfiles
     DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
+
+    # TODO CRW-2729 when swap_images.sh is dead, remove these two lines
     pushd crw/dependencies/che-devfile-registry >/dev/null; ./build/scripts/swap_images.sh devfiles/ -f; popd >/dev/null # include openj9 images too
     DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
     # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
     PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
+
+    # TODO CRW-2729 when swap_images.sh is dead, remove these two lines
     pushd crw/dependencies/che-plugin-registry >/dev/null;  ./build/scripts/swap_images.sh ./ -f; popd >/dev/null # include openj9 images too
     PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
 popd >/dev/null
@@ -126,7 +130,10 @@ sed -r -i $CSVFILE \
   -e "s@registry.access.redhat.com/ubi8-minimal@registry.redhat.io/ubi8-minimal@g" \
   -e "s@registry.access.redhat.com/ubi8/ubi-minimal@registry.redhat.io/ubi8/ubi-minimal@g" \
   `# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
-  -e "s@/ubi8-minimal@/ubi8/ubi-minimal@g"
+  -e "s@/ubi8-minimal@/ubi8/ubi-minimal@g" \
+  `# TODO CRW-2729 remove this temp fix for replacing udi-openj9 with udi (once swap_images.sh is gone)` \
+  -e "s@udi-openj9@udi@g"
 
 # echo list of RELATED_IMAGE_ entries after adding them above
 # cat $CSVFILE | grep RELATED_IMAGE_ -A1
+
