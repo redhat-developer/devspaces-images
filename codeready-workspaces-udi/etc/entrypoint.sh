@@ -38,13 +38,18 @@ fi
 
 # Setup .venv in the 'venv' volume that should be mounted in HOME/.venv
 mkdir -p "${HOME}"/.venv
+
 if [ ! -f "${HOME}"/.venv/bin/activate ]; then
   echo "${HOME}"/.venv is empty, moving files from "${HOME}"/.venv-tmp/
-  mv "${HOME}"/.venv-tmp/* "${HOME}"/.venv
+  if [ -d "${HOME}"/.venv-tmp ]; then
+    mv "${HOME}"/.venv-tmp/* "${HOME}"/.venv
+  fi
 fi
 
 # shellcheck source=/dev/null
-source "${HOME}"/.venv/bin/activate
+if [ -f "${HOME}"/.venv/bin/activate ]; then
+  source "${HOME}"/.venv/bin/activate
+fi
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
