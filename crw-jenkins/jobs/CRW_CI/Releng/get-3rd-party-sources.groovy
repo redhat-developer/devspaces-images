@@ -26,6 +26,19 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
 
         description('''
 Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can be published as part of a GA release. 
+<br/><br/>
+If the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
+<p>
+<blockquote>
+<pre>
+kinit kinit -k -t /path/to/crw-build.keytab crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@REDHAT.COM
+ssh crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@rcm-guest.app.eng.bos.redhat.com
+
+[crw-build@rcm-guest ~]$ /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release CRW-2.15.0
+Staged CRW-2.yy.z in 0:04:30.158899
+</pre>
+</blockquote>
+</p>
         ''')
 
         properties {

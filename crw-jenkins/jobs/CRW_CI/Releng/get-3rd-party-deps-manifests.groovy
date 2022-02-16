@@ -26,7 +26,10 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
         description('''
-Collect sources from pkgs.devel and vsix files and push GH as part of a GA release. 
+Collect product security manifests container builds, and push to <a href=https://github.com/redhat-developer/codeready-workspaces/tree/crw-2-rhel-8/product/manifest/>
+https://github.com/redhat-developer/codeready-workspaces/tree/crw-2-rhel-8/product/manifest/</a>
+
+as part of a GA release. 
 
 <p>NOTE! Tags for the current release must exist first, but can be optionally created as part of this job.
         ''')
