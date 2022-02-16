@@ -39,10 +39,10 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8.ppc64le.rpm
-RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.9.0-202201211735.p0.g3f16530.assembly.stream.el8 \
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202080146.p0.g52a2fd9.assembly.stream.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202080146.p0.g52a2fd9.assembly.stream.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202080146.p0.g52a2fd9.assembly.stream.el8.ppc64le.rpm
+RUN microdnf install -y bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.9.0-202202080146.p0.g52a2fd9.assembly.stream.el8 \
     java-11-openjdk \
     java-11-openjdk-devel \
     java-11-openjdk-src \
