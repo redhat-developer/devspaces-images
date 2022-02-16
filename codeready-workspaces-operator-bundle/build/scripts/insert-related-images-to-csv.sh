@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -126,7 +126,10 @@ sed -r -i $CSVFILE \
   -e "s@registry.access.redhat.com/ubi8-minimal@registry.redhat.io/ubi8-minimal@g" \
   -e "s@registry.access.redhat.com/ubi8/ubi-minimal@registry.redhat.io/ubi8/ubi-minimal@g" \
   `# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
-  -e "s@/ubi8-minimal@/ubi8/ubi-minimal@g"
+  -e "s@/ubi8-minimal@/ubi8/ubi-minimal@g" \
+  `# TODO CRW-2750 CRW-2729 remove this temp fix for replacing plugin-java*-openj9 with plugin-java* (once swap_images.sh is gone)` \
+  -e "s@plugin-java8-openj9@plugin-java8@g" -e "s@plugin-java11-openj9@plugin-java11@g"
 
 # echo list of RELATED_IMAGE_ entries after adding them above
 # cat $CSVFILE | grep RELATED_IMAGE_ -A1
+
