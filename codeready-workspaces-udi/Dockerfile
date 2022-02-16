@@ -47,7 +47,6 @@ COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
 COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
-COPY asset-odo.tgz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -75,7 +74,7 @@ RUN \
     done && \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
-    # Generate passwd.template \
+    # Generate passwd.template
     cat /etc/passwd | \
     sed s#user:x.*#user:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
     > ${HOME}/passwd.template && \
@@ -108,13 +107,12 @@ RUN \
     tar xzf /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
     mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
     rm -f /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
-    # fix permissions in bin/* files \
+    # fix permissions in bin/* files
     for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
-    \
-    # additional node stuff \
+    # additional node stuff
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
-    for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done
+    for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done && \
     # additional python stuff
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
@@ -132,19 +130,15 @@ RUN \
         echo "[WARNING] Python lang server dependency tarball not found. Python support may be more limited on $(uname -m)"; \
     fi
     ########################################################################
-    # Kubernetes
+    # Kamel, ODO
     ########################################################################
 RUN \
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; 
-    ########################################################################
-    # Openshift
-    ########################################################################
-RUN \
+    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
     if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/asset-odo.tgz
+    tar xzf /tmp/assets/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/assets/asset-odo.tgz
     ########################################################################
-    # CPP
+    # C/C++ (Tech Preview)
     ########################################################################
 RUN \
     dnf -y -q install llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
@@ -154,39 +148,38 @@ RUN \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh
     ########################################################################
-    # Dotnet
+    # Dotnet (x64 only) (Tech Preview)
     ########################################################################
 RUN \
     if [[ "$(uname -m)" == 'x86_64' ]]; then \
         dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}; \
     fi
     ########################################################################
-    # Golang
+    # Golang (Tech Preview)
     ########################################################################
 RUN \
     dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
     mkdir -p /projects/.che/gopath /.cache && \
     mkdir -p ${HOME}/go && \
-    echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
-    > ${HOME}/gopath.sh && \
-    chmod +x ${HOME}/gopath.sh
+    echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" > ${HOME}/gopath.sh && \
+    chmod +x ${HOME}/gopath.sh && \
     tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
     for f in "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done 
     ########################################################################
-    # PHP
+    # PHP (Tech Preview)
     ########################################################################
 RUN \
     dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
-    tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / 
+    tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / && \
     dnf -y remove kernel-headers && \
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/ErrorLog \"|\/usr\/bin\/cat\"/ErrorLog \"\/var\/log\/httpd\/error_log\"/' /etc/httpd/conf/httpd.conf && \
-    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/
+    chmod -R 777 /var/run/httpd /var/log/httpd/ /etc/pki/ /etc/httpd/logs/ && \
     mkdir -p ${HOME}/che/ls-php/php-language-server && \
     tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
     cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
