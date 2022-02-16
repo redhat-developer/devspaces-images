@@ -1,3 +1,5 @@
+## DEPRECATED - see https://issues.redhat.com/browse/CRW-2750
+
 To build this locally, run this script to fetch the latest tarball and trigger an OSBS build in Brew:
 
 ```
@@ -8,6 +10,3 @@ See also:
 
 * https://github.com/redhat-developer/codeready-workspaces-productization/blob/master/devdoc/building/osbs-container-builds.adoc
 
-For other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11/?h=crw-2.4-rhel-8
-
- 

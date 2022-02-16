@@ -3,8 +3,9 @@ platforms:
   # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
 
   only:
-  # for other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11-openj9/?h=crw-2.4-rhel-8
   - x86_64 
+  - s390x
+  - ppc64le
 
 compose:
   inherit: false

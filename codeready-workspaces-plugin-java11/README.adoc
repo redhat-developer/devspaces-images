@@ -8,5 +8,3 @@ See also:
 
 * https://github.com/redhat-developer/codeready-workspaces-productization/blob/master/devdoc/building/osbs-container-builds.adoc
 
-For other arches, see http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-plugin-java11-openj9/?h=crw-2.4-rhel-8
-

@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -29,5 +29,4 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift 1
 done
-
-./../codeready-workspaces-plugin-java8/build/build_lombok.sh -v ${CSV_VERSION} -n "${ASSET_NAME}"
+./../codeready-workspaces-plugin-java8/build/build_lombok.sh -v ${CSV_VERSION} -n "noarch"
