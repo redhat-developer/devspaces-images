@@ -458,10 +458,16 @@ export class DevWorkspaceClient extends WorkspaceClient {
         },
         spec: pluginDevfile,
       };
+
+      const unmanagedEditors = ['che-code', 'idea', 'pycharm'];
       dwEditorsPlugins.forEach(plugin => {
         if (plugin.devfile === pluginDevfile && editorDWT.metadata) {
+          const isUnmanaged = unmanagedEditors.some(e =>
+            editorDWT.metadata?.name?.toLowerCase().includes(e),
+          );
+
           editorDWT.metadata.annotations = {
-            [COMPONENT_UPDATE_POLICY]: 'managed',
+            [COMPONENT_UPDATE_POLICY]: isUnmanaged ? 'unmanaged' : 'managed',
             [REGISTRY_URL]: plugin.url,
           };
         }
