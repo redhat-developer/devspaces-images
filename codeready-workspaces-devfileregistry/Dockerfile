@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -69,7 +69,7 @@ COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
 
 RUN ./swap_yamlfiles.sh devfiles
-# TODO when we have eap-xp3-openjdk11-openshift-rhel8 for Z and P, remove swap_images.sh entirely
+# TODO CRW-2750 CRW-2729 when we have eap-xp3-openjdk11-openshift-rhel8 for Z and P, remove swap_images.sh entirely
 # Cache projects in CRW 
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
