@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM ubi8/python-38:1-77 as builder
+FROM ubi8/python-38:1-80 as builder
 USER 0
 
 ARG BOOTSTRAP=false
@@ -53,14 +53,13 @@ WORKDIR /build/
 
 RUN tar -xvf resources.tgz -C ./
 RUN rm -rf ./output/v3/che-theia-plugins.yaml ./output/v3/che-editors.yaml ./output/v3/che-plugins.yaml
-RUN ./swap_images.sh ./output/v3 --use-generated-content
 RUN ./swap_plugins_memory.sh ./output/v3
 RUN ./list_referenced_images.sh ./output/v3 --use-generated-content > /build/output/v3/external_images.txt && cat /build/output/v3/external_images.txt
 RUN chmod -R g+rwX /build
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-FROM rhel8/httpd-24:1-163 AS registry
+FROM rhel8/httpd-24:1-166 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
