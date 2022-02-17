@@ -974,9 +974,9 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
                 - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:c88b3247011c6b20c011aac4584e93d2861b4a8e67392bd911daf0ed5f871d8b
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:8c60ea525da41565dff2ed30b0a627c67efc1e8ac704b2fdbd2cc378c9727ab3
                 - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:c88b3247011c6b20c011aac4584e93d2861b4a8e67392bd911daf0ed5f871d8b
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:8c60ea525da41565dff2ed30b0a627c67efc1e8ac704b2fdbd2cc378c9727ab3
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:0e68a94777c0539461fc249c1f96c995614d957712eeb9d69024dc037b50fe0f
                 - name: RELATED_IMAGE_devfile_registry
@@ -1004,7 +1004,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:979169e039c58aac766a473ca78675f33b06d29d1ba29c74204fe2f7e5279f19
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:e39ec82fa60d3d01e1e121ab49f89dc5deb983cd9c316b3caf220fc511021ec8
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:bd9087f1731f1f4c3fee8ec5ef6d19da8b83eaee7625d92303939eb247952208
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1315,9 +1315,9 @@ spec:
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
   - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:c88b3247011c6b20c011aac4584e93d2861b4a8e67392bd911daf0ed5f871d8b
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:8c60ea525da41565dff2ed30b0a627c67efc1e8ac704b2fdbd2cc378c9727ab3
   - name: codeready_workspaces_udi_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:c88b3247011c6b20c011aac4584e93d2861b4a8e67392bd911daf0ed5f871d8b
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:8c60ea525da41565dff2ed30b0a627c67efc1e8ac704b2fdbd2cc378c9727ab3
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:0e68a94777c0539461fc249c1f96c995614d957712eeb9d69024dc037b50fe0f
   - name: devfile_registry
@@ -1345,7 +1345,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:979169e039c58aac766a473ca78675f33b06d29d1ba29c74204fe2f7e5279f19
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:e39ec82fa60d3d01e1e121ab49f89dc5deb983cd9c316b3caf220fc511021ec8
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:bd9087f1731f1f4c3fee8ec5ef6d19da8b83eaee7625d92303939eb247952208
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
