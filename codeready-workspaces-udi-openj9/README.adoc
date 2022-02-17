@@ -1,4 +1,6 @@
-This folder is *DEPRECATED* and will be removed.
+DEPRECATED - see https://issues.redhat.com/browse/CRW-2463, https://issues.redhat.com/browse/CRW-2464, and https://issues.redhat.com/browse/CRW-2729
+
+This container has been replaced by codeready-workspaces-udi.
 
 For UDI content for s390x (Z) and ppc64le (Power), see https://github.com/redhat-developer/codeready-workspaces-images/tree/crw-2-rhel-8/codeready-workspaces-udi[codeready-workspaces-udi].
 
