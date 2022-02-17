@@ -23,7 +23,7 @@ for (JB in JOB_BRANCHES) {
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."sync-to-downstream"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
-Sync job between midstream repo https://github.com/redhat-developer/codeready-workspaces-images and pkgs.devel to provide sources for the plugin- and stack- images.
+Sync job between midstream repo https://github.com/redhat-developer/codeready-workspaces-images and pkgs.devel.
 
 <p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.
             ''')
