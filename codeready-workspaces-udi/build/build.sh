@@ -29,8 +29,8 @@ while [[ "$#" -gt 0 ]]; do
   esac
   shift 1
 done
-./../codeready-workspaces-udi/build/build_python.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
-./../codeready-workspaces-udi/build/build_lombok.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
-./../codeready-workspaces-udi/build/build_kamel.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
-./../codeready-workspaces-udi/build/build_php.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
-./../codeready-workspaces-udi/build/build_golang.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./build/build_python.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./build/build_kamel.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./build/build_php.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./build/build_golang.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
+./build/build_lombok.sh -v ${CSV_VERSION} -n ${ASSET_NAME}

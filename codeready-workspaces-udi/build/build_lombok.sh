@@ -89,6 +89,9 @@ cp target/lombok/dist/lombok-${LOMBOK_VERSION}.jar "${jarfile}"
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}"
+result="$(./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}" || true)"
+if [[ "$result" == *"Duplicate value for "* ]]; then
+  echo "[WARNING] ${jarfile} already present at https://github.com/redhat-developer/codeready-workspaces-images/releases/tag/${CSV_VERSION}-${ASSET_NAME}-assets "
+fi
 
 ${PODMAN} rmi -f ${OPENJDK11_IMAGE}
