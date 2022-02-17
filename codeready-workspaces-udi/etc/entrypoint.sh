@@ -36,15 +36,14 @@ if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && sudo -n true > /de
     sudo chown "${USER_ID}:${GROUP_ID}" /projects
 fi
 
-# Setup .venv in the 'venv' volume that should be mounted in HOME/.venv
-mkdir -p "${HOME}"/.venv
-if [ ! -f "${HOME}"/.venv/bin/activate ]; then
-  echo "${HOME}"/.venv is empty, moving files from "${HOME}"/.venv-tmp/
-  mv "${HOME}"/.venv-tmp/* "${HOME}"/.venv
+if [ -f "${HOME}"/.venv/bin/activate ]; then
+  source "${HOME}"/.venv/bin/activate
 fi
 
-# shellcheck source=/dev/null
-source "${HOME}"/.venv/bin/activate
+# Setup $PS1 for a consistent and reasonable prompt
+if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
+  echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc
+fi
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
