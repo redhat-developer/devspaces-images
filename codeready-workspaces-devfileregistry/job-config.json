@@ -155,7 +155,7 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "upstream_branch": [
@@ -240,7 +240,7 @@
           "crw-2.15-rhel-8",
           "crw-2.15-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       },
       "2.16": {
         "upstream_branch": [
@@ -263,7 +263,7 @@
           "crw-2.15-rhel-8",
           "crw-2.15-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       },
       "2.16": {
         "upstream_branch": [
@@ -280,25 +280,7 @@
         "disabled": false
       }
     },
-    "plugin-java11-openj9": {
-      "2.15": {
-        "upstream_branch": [
-          "crw-2.15-rhel-8",
-          "crw-2.15-rhel-8"
-        ],
-        "disabled": true
-      }
-    },
     "plugin-java11": {
-      "2.15": {
-        "upstream_branch": [
-          "crw-2.15-rhel-8",
-          "crw-2.15-rhel-8"
-        ],
-        "disabled": false
-      }
-    },
-    "plugin-java8-openj9": {
       "2.15": {
         "upstream_branch": [
           "crw-2.15-rhel-8",
@@ -313,7 +295,7 @@
           "crw-2.15-rhel-8",
           "crw-2.15-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       }
     },
     "plugin-kubernetes": {
@@ -534,7 +516,7 @@
           "7.41.x"
         ],
         "node_version": "12.22.5",
-        "disabled": false
+        "disabled": true
       },
       "2.16": {
         "upstream_branch": [
@@ -559,7 +541,7 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "upstream_branch": [
@@ -575,12 +557,12 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": false
+        "disabled": true
       }
     },
     "get-sources-rhpkg-container-build": {
       "2.15": {
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "disabled": false
@@ -588,7 +570,7 @@
     },
     "push-latest-container-to-quay": {
       "2.15": {
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "disabled": false
@@ -596,7 +578,7 @@
     },
     "sync-to-downstream": {
       "2.15": {
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "disabled": false
@@ -604,7 +586,7 @@
     },
     "update-digests-in-metadata": {
       "2.15": {
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "disabled": false
@@ -612,7 +594,7 @@
     },
     "send-email-qe-build-list": {
       "2.15": {
-        "disabled": false
+        "disabled": true
       },
       "2.x": {
         "disabled": true
