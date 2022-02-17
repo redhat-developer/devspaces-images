@@ -54,12 +54,12 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
 
     # collect containers referred to by devfiles
     DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
+
+    # TODO CRW-2750 remove this when SSO 7.5.1 is updated to be triple-arch
     pushd crw/dependencies/che-devfile-registry >/dev/null; ./build/scripts/swap_images.sh devfiles/ -f; popd >/dev/null # include openj9 images too
     DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
     # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
-    PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
-    pushd crw/dependencies/che-plugin-registry >/dev/null;  ./build/scripts/swap_images.sh ./ -f; popd >/dev/null # include openj9 images too
     PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
 popd >/dev/null
 rm -fr $tmpdir
