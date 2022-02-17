@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:7314449345f94e409096e91307a8161672acaaef51638b93db54fe2a4af341a3
-    createdAt: "2022-02-14T22:21:50+00:00"
+    createdAt: "2022-02-17T01:43:15+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -990,19 +990,13 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
                 - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
-                - name: RELATED_IMAGE_codeready_workspaces_udi_openj9_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:f05b3b7738206cafbfba4d5c125a30bdce61a7569041e374e2e9b655b32b2148
                 - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
-                - name: RELATED_IMAGE_codeready_workspaces_udi_ppc64le_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
-                - name: RELATED_IMAGE_codeready_workspaces_udi_s390x_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:f05b3b7738206cafbfba4d5c125a30bdce61a7569041e374e2e9b655b32b2148
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2f8774143650c08883eae9b3d52810d2792895f747a5c784e5f0c667b4ff6059
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:1cb629b611bf983b8e57a44d2d68dbc5ce72d7c7557079b74543d014c5ca5588
+                  value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:9a09f3b71c28f320784b52c02ae65ed15a7163e4e0b2337d0f21510f837159d7
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:3f96fb70c3f56dea3384ea31b9252a5c6aca8e0f33dc53be590f134912244078
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1026,7 +1020,7 @@ spec:
                 - name: RELATED_IMAGE_keycloak_s390x
                   value: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:979169e039c58aac766a473ca78675f33b06d29d1ba29c74204fe2f7e5279f19
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:6211fc6de7f80e15088755586efa3e4d1ff01d6f7ddff0f070295088b76f0cef
+                  value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:e39ec82fa60d3d01e1e121ab49f89dc5deb983cd9c316b3caf220fc511021ec8
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1353,19 +1347,13 @@ spec:
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
   - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
-  - name: codeready_workspaces_udi_openj9_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:f05b3b7738206cafbfba4d5c125a30bdce61a7569041e374e2e9b655b32b2148
   - name: codeready_workspaces_udi_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
-  - name: codeready_workspaces_udi_ppc64le_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
-  - name: codeready_workspaces_udi_s390x_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:6d9e636760cf29e7f212be10113eb50df78515822bb2a00b157047d08233a0c4
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:f05b3b7738206cafbfba4d5c125a30bdce61a7569041e374e2e9b655b32b2148
   - name: dashboard
     image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:2f8774143650c08883eae9b3d52810d2792895f747a5c784e5f0c667b4ff6059
   - name: devfile_registry
-    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:1cb629b611bf983b8e57a44d2d68dbc5ce72d7c7557079b74543d014c5ca5588
+    image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:9a09f3b71c28f320784b52c02ae65ed15a7163e4e0b2337d0f21510f837159d7
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:3f96fb70c3f56dea3384ea31b9252a5c6aca8e0f33dc53be590f134912244078
   - name: gateway_authentication_sidecar
@@ -1389,7 +1377,7 @@ spec:
   - name: keycloak_s390x
     image: registry.redhat.io/rh-sso-7/sso74-openj9-openshift-rhel8@sha256:979169e039c58aac766a473ca78675f33b06d29d1ba29c74204fe2f7e5279f19
   - name: plugin_registry
-    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:6211fc6de7f80e15088755586efa3e4d1ff01d6f7ddff0f070295088b76f0cef
+    image: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8@sha256:e39ec82fa60d3d01e1e121ab49f89dc5deb983cd9c316b3caf220fc511021ec8
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
