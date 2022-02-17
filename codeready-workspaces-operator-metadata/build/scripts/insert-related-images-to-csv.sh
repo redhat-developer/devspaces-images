@@ -55,7 +55,7 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # collect containers referred to by devfiles
     DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
-    # TODO CRW-2750 remove this when SSO 7.5.1 is updated to be triple-arch
+    # TODO CRW-2750 remove these two lines when SSO 7.5.1 is updated to be triple-arch and we don't need swap_images.sh anymore
     pushd crw/dependencies/che-devfile-registry >/dev/null; ./build/scripts/swap_images.sh devfiles/ -f; popd >/dev/null # include openj9 images too
     DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
