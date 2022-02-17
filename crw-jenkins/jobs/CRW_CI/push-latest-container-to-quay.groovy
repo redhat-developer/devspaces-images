@@ -112,8 +112,8 @@ Images to copy to quay (18):
                     textParam("CONTAINERS", '''\
 backup configbump operator operator-bundle operator-metadata \
 dashboard devfileregistry idea imagepuller jwtproxy \
-machineexec pluginbroker-metadata pluginbroker-artifacts plugin-java8 plugin-java8-openj9 \
-plugin-java11 plugin-java11-openj9 plugin-openshift plugin-kubernetes pluginregistry \
+machineexec pluginbroker-metadata pluginbroker-artifacts plugin-java8 \
+plugin-java11 plugin-openshift plugin-kubernetes pluginregistry \
 server stacks-cpp stacks-dotnet stacks-golang stacks-php \
 theia theia-dev theia-endpoint traefik''', '''list of 29 containers to copy:<br/>
 * no 'crw/' or 'codeready-workspaces-' prefix><br/>

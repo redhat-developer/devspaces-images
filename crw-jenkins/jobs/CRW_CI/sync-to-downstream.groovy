@@ -44,9 +44,7 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
             parameters{
                 // remove after 2.16 is live; keep simpler else block
                 if (JB.equals("2.14") || JB.equals("2.15")) {
-                    textParam("REPOS", '''codeready-workspaces-plugin-java11-openj9, 
-codeready-workspaces-plugin-java11, 
-codeready-workspaces-plugin-java8-openj9, 
+                    textParam("REPOS", '''codeready-workspaces-plugin-java11, 
 codeready-workspaces-plugin-java8, 
 codeready-workspaces-plugin-kubernetes, 
 codeready-workspaces-plugin-openshift, 
@@ -55,9 +53,7 @@ codeready-workspaces-stacks-dotnet,
 codeready-workspaces-stacks-golang, 
 codeready-workspaces-stacks-php''', '''Comma separated list of repos to sync from github to pkgs.devel  
 ::
-codeready-workspaces-plugin-java11-openj9, 
 codeready-workspaces-plugin-java11, 
-codeready-workspaces-plugin-java8-openj9, 
 codeready-workspaces-plugin-java8, 
 codeready-workspaces-plugin-kubernetes, 
 codeready-workspaces-plugin-openshift, 

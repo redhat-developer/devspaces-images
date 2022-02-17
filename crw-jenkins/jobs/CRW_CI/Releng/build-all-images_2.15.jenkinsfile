@@ -28,9 +28,7 @@ timeout(600) {
                     if (PHASE_LIST.contains("1")) {
 
                         def List sidecarsList = [
-                            "plugin-java11-openj9", 
                             "plugin-java11", 
-                            "plugin-java8-openj9", 
                             "plugin-java8", 
                             "plugin-kubernetes", 
                             "plugin-openshift", 
