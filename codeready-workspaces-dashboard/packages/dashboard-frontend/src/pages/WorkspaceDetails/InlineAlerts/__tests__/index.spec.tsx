@@ -225,14 +225,17 @@ describe('Inline alerts', () => {
 
 function renderComponent(options: {
   workspace: Workspace;
+  canConvert?: boolean;
   conversionError?: string;
   restartWarning?: boolean;
 }): RenderResult {
+  options.canConvert = !!options.canConvert;
   options.restartWarning = !!options.restartWarning;
 
   return render(
     <WorkspaceInlineAlerts
       workspace={options.workspace}
+      canConvert={options.canConvert}
       conversionError={options.conversionError}
       showRestartWarning={options.restartWarning}
       onCloseConversionAlert={mockOnCloseConversionError}
@@ -243,16 +246,19 @@ function renderComponent(options: {
 function reRenderComponent(
   options: {
     workspace: Workspace;
+    canConvert?: boolean;
     conversionError?: string;
     restartWarning?: boolean;
   },
   rerender: (ui: React.ReactElement) => void,
 ): void {
+  options.canConvert = !!options.canConvert;
   options.restartWarning = !!options.restartWarning;
 
   rerender(
     <WorkspaceInlineAlerts
       workspace={options.workspace}
+      canConvert={options.canConvert}
       conversionError={options.conversionError}
       showRestartWarning={options.restartWarning}
       onCloseConversionAlert={mockOnCloseConversionError}

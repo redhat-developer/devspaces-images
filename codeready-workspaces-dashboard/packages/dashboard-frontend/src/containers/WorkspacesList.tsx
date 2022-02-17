@@ -63,6 +63,7 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
       return Fallback;
     }
 
+    const ids = allWorkspaces.map(workspace => workspace.id);
     const filteredWorkspaces = allWorkspaces.filter(workspace => {
       if (workspace.isDeprecated === false) {
         return true;
@@ -70,7 +71,10 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
       if (isDevWorkspace(workspace.ref)) {
         return true;
       }
-      return workspace.ref.attributes?.converted === undefined;
+      if (workspace.ref.attributes?.convertedId === undefined) {
+        return true;
+      }
+      return ids.indexOf(workspace.ref.attributes?.convertedId) === -1;
     });
 
     return (

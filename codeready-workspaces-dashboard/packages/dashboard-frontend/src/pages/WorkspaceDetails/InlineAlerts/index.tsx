@@ -30,6 +30,7 @@ const migratingDocs =
 
 type Props = {
   workspace: Workspace;
+  canConvert: boolean;
   conversionError: string | undefined;
   onCloseConversionAlert: () => void;
   showRestartWarning: boolean;
@@ -50,12 +51,11 @@ export class WorkspaceInlineAlerts extends React.PureComponent<Props, State> {
   }
 
   private buildDeprecationAlert(): React.ReactElement {
+    const title = this.props.canConvert
+      ? "This workspace is deprecated. Use the 'Convert' button for making it devfile v2 compatible."
+      : 'This workspace is deprecated.';
     return (
-      <Alert
-        variant={AlertVariant.warning}
-        isInline
-        title="This workspace is deprecated. Use the 'Convert' button for making it devfile v2 compatible."
-      >
+      <Alert variant={AlertVariant.warning} isInline title={title}>
         <a href={migratingDocs} rel="noreferrer" target="_blank">
           FAQ / Known Issues
         </a>

@@ -21,6 +21,7 @@ import { Provider } from 'react-redux';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import { Store } from 'redux';
 import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
+import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 
 describe('Navigation Main List', () => {
   it('should have correct number of main navigation items', () => {
@@ -67,22 +68,22 @@ describe('Navigation Main List', () => {
 
   describe('with deprecated workspaces', () => {
     it('should count all workspaces but converted', () => {
-      const cheworkspaces = [
-        new CheWorkspaceBuilder().withId('wksp-1').withName('wksp-1').build(),
-        new CheWorkspaceBuilder()
-          .withId('wksp-2')
-          .withName('wksp-2')
-          .withAttributes({
-            converted: new Date().toISOString(),
-          } as che.WorkspaceAttributes)
-          .build(),
-      ];
       const devworkspaces = [0, 1].map(i =>
         new DevWorkspaceBuilder()
           .withId('devwksp-' + i)
           .withName('wksp-' + i)
           .build(),
       );
+      const cheworkspaces = [
+        new CheWorkspaceBuilder().withId('wksp-1').withName('wksp-1').build(),
+        new CheWorkspaceBuilder()
+          .withId('wksp-2')
+          .withName('wksp-2')
+          .withAttributes({
+            convertedId: WorkspaceAdapter.getId(devworkspaces[0]),
+          } as che.WorkspaceAttributes)
+          .build(),
+      ];
       const store = new FakeStoreBuilder()
         .withCheWorkspaces({ workspaces: cheworkspaces })
         .withDevWorkspaces({ workspaces: devworkspaces })

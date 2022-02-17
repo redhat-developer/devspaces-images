@@ -39,13 +39,13 @@ import { container } from '../../../inversify.config';
 
 import styles from './index.module.css';
 
-type Props = {
+export type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
   workspace: Workspace;
   onDevWorkspaceWarning: () => void;
 };
 
-type State = {
+export type State = {
   devfile: che.WorkspaceDevfile | devfileApi.Devfile;
   hasChanges: boolean;
   hasRequestErrors: boolean;

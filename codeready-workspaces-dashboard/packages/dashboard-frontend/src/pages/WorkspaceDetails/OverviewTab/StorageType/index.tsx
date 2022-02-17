@@ -36,12 +36,12 @@ import { selectBranding } from '../../../../store/Branding/selectors';
 import overviewStyles from '../index.module.css';
 import styles from './index.module.css';
 
-type Props = MappedProps & {
+export type Props = MappedProps & {
   readonly: boolean;
   storageType?: che.WorkspaceStorageType;
   onSave?: (storageType: che.WorkspaceStorageType) => void;
 };
-type State = {
+export type State = {
   isSelectorOpen?: boolean;
   selected?: che.WorkspaceStorageType;
   isInfoOpen?: boolean;

@@ -89,21 +89,29 @@ describe('Workspaces List Container', () => {
 
   describe('workspaces filter', () => {
     describe('in che-server mode', () => {
-      it('should pass all che-server based workspaces', () => {
+      it('should pass all workspaces', () => {
+        const devWorkspaceId = 'dev-wksp-0';
+        const devWorkspaces = [
+          new DevWorkspaceBuilder()
+            .withId(devWorkspaceId)
+            .withName('dev-wksp-0')
+            .withNamespace('user-dev')
+            .build(),
+        ];
         const cheWorkspaces = [
           new CheWorkspaceBuilder()
             .withId('che-wksp-0')
             .withName('che-wksp-0')
             .withAttributes({
               created: new Date().toISOString(),
-              converted: new Date().toISOString(),
+              convertedId: devWorkspaceId,
               infrastructureNamespace: 'user',
             })
             .build(),
           new CheWorkspaceBuilder().withId('che-wksp-1').withName('che-wksp-1').build(),
-          new CheWorkspaceBuilder().withId('che-wksp-2').withName('che-wksp-2').build(),
         ];
         const store = new FakeStoreBuilder()
+          .withDevWorkspaces({ workspaces: devWorkspaces })
           .withCheWorkspaces({ workspaces: cheWorkspaces })
           .withWorkspaces({})
           .withWorkspacesSettings({
@@ -119,20 +127,28 @@ describe('Workspaces List Container', () => {
 
     describe('in devworkspace mode', () => {
       it('should pass workspaces but not converted che-server based workspaces', () => {
-        const deprecatedId = 'che-wksp-0';
-        WorkspaceAdapter.setDeprecatedIds([deprecatedId]);
+        const deprecated = ['che-wksp-0', 'che-wksp-1', 'che-wksp-2'];
+        WorkspaceAdapter.setDeprecatedIds(deprecated);
         const cheWorkspaces = [
           new CheWorkspaceBuilder()
-            .withId(deprecatedId)
-            .withName('che-wksp-0')
+            .withId(deprecated[0])
+            .withName(deprecated[0])
             .withAttributes({
               created: new Date().toISOString(),
-              converted: new Date().toISOString(),
+              convertedId: 'dev-wksp-0',
               infrastructureNamespace: 'user',
             })
             .build(),
-          new CheWorkspaceBuilder().withId('che-wksp-1').withName('che-wksp-1').build(),
-          new CheWorkspaceBuilder().withId('che-wksp-2').withName('che-wksp-2').build(),
+          new CheWorkspaceBuilder()
+            .withId(deprecated[0])
+            .withName(deprecated[0])
+            .withAttributes({
+              created: new Date().toISOString(),
+              convertedId: 'deleted-wksp-id',
+              infrastructureNamespace: 'user',
+            })
+            .build(),
+          new CheWorkspaceBuilder().withId(deprecated[2]).withName(deprecated[2]).build(),
         ];
         const devWorkspaces = [0, 1, 2, 4].map(i =>
           new DevWorkspaceBuilder()
