@@ -25,6 +25,7 @@ ENV \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
+    PHP_VERSION="7.3" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_RPM_VERSION=3.1 \
@@ -56,7 +57,7 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /
     # Common Installations and Configuration
     ########################################################################
 RUN \
-    microdnf install -y yum bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng \
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng \
     # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
@@ -80,9 +81,7 @@ RUN \
     > ${HOME}/passwd.template && \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
-    > ${HOME}/group.template && \
-    # fetch CVE updates
-    dnf -y -q update
+    > ${HOME}/group.template
     ########################################################################
     # Java 8 & 11
     ########################################################################
@@ -142,7 +141,7 @@ RUN \
     ########################################################################
 RUN \
     dnf -y -q install llvm-toolset clang clang-libs clang-tools-extra git-clang-format gdb make cmake gcc gcc-c++ && \
-    # to see what requires kernel-headers, use in line above: yum install --exclude=kernel*
+    # to see what requires kernel-headers, use in line above: dnf install --exclude=kernel*
     # or query: rpm -q --whatrequires kernel-headers && rpm -q --whatrequires glibc-headers && rpm -q --whatrequires glibc-devel && rpm -q --whatrequires gcc
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
@@ -152,7 +151,7 @@ RUN \
     ########################################################################
 RUN \
     if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        dnf -y -q -y --setopt=tsflags=nodocs install dotnet dotnet-host dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}; \
+        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-host dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}; \
     fi
     ########################################################################
     # Golang (Tech Preview)
@@ -169,9 +168,10 @@ RUN \
         chmod -R g+rwX ${f}; \
     done 
     ########################################################################
-    # PHP (Tech Preview)
+    # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
     ########################################################################
 RUN \
+    dnf -y -q module enable php:$PHP_VERSION && \
     dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
     tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / && \
     dnf -y remove kernel-headers && \
@@ -187,6 +187,8 @@ RUN \
     # Cleanup and Summaries
     ########################################################################
 RUN \
+    # fetch CVE updates
+    dnf -y -q update && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     rm -fr /tmp/assets/ /tmp/go && \
