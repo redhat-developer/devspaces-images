@@ -38,7 +38,7 @@
   "dependencies": {
     "@eclipse-che/che-code-devworkspace-handler": "1.64.0-dev-210b722",
     "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1642670698",
-    "@eclipse-che/devfile-converter": "0.0.1-14c62ee",
+    "@eclipse-che/devfile-converter": "0.0.1-ca41630",
     "@eclipse-che/workspace-client": "0.0.1-1632305737",
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",
