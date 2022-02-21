@@ -22,17 +22,12 @@ import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilde
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { constructWorkspace } from '../../../services/workspace-adapter';
 import devfileApi from '../../../services/devfileApi';
-import { container } from '../../../inversify.config';
-import { AppAlerts } from '../../../services/alerts/appAlerts';
 
 const mockOnConvert = jest.fn();
 const mockOnSave = jest.fn();
 
 jest.mock('../EditorTab');
 jest.mock('../OverviewTab/StorageType');
-
-const appAlerts = container.get(AppAlerts);
-const spyShowAlert = jest.spyOn(appAlerts, 'showAlert');
 
 let history: History;
 

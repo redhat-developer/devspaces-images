@@ -216,6 +216,9 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
     const workspaceName = workspace.name;
     const { inlineAlertConversionError, showInlineAlertRestartWarning } = this.state;
 
+    // show the Delete button for a deprecated workspace until it's converted
+    const canDelete = showConvertButton;
+
     return (
       <React.Fragment>
         <Head pageName={workspaceName} />
@@ -238,6 +241,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
           <HeaderActionSelect
             workspaceId={workspace.id}
             workspaceName={workspaceName}
+            canDelete={canDelete}
             status={workspace.status}
             history={this.props.history}
           />

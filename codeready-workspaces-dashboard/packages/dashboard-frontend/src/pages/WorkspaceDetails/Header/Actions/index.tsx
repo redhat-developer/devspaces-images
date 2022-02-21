@@ -34,6 +34,7 @@ import ButtonAction from './Button';
 type Props = {
   workspaceId: string;
   workspaceName: string;
+  canDelete: boolean;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   history: History;
 };
@@ -79,19 +80,23 @@ export class HeaderActionSelect extends React.PureComponent<Props> {
   }
 
   render(): React.ReactNode {
-    const { history, status } = this.props;
+    const { canDelete, history, status } = this.props;
 
     return (
       <WorkspaceActionsProvider history={history}>
         <WorkspaceActionsConsumer>
           {context => {
             if (status === 'Deprecated') {
-              return (
-                <ButtonAction
-                  context={context}
-                  onAction={(action, context) => this.handleSelectedAction(action, context)}
-                />
-              );
+              if (canDelete) {
+                return (
+                  <ButtonAction
+                    context={context}
+                    onAction={(action, context) => this.handleSelectedAction(action, context)}
+                  />
+                );
+              } else {
+                return <></>;
+              }
             }
             const { ...props } = this.props;
             return (

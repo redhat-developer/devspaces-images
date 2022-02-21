@@ -71,10 +71,11 @@ export class WorkspacesListContainer extends React.PureComponent<Props> {
       if (isDevWorkspace(workspace.ref)) {
         return true;
       }
-      if (workspace.ref.attributes?.convertedId === undefined) {
+      const convertedId = workspace.ref.attributes?.convertedId;
+      if (convertedId === undefined) {
         return true;
       }
-      return ids.indexOf(workspace.ref.attributes?.convertedId) === -1;
+      return ids.includes(convertedId) === false;
     });
 
     return (

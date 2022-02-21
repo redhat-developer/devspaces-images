@@ -27,6 +27,7 @@ import * as WorkspacesStore from '../../store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading } from '../../store/Workspaces/selectors';
 import { isDevWorkspace } from '../../services/devfileApi';
 import { ORIGINAL_WORKSPACE_ID_ANNOTATION } from '../../services/devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../services/devfileApi/devWorkspace/metadata';
 import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import { DEVWORKSPACE_METADATA_ANNOTATION } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
@@ -173,6 +174,9 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     }
     devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][
       ORIGINAL_WORKSPACE_ID_ANNOTATION
+    ] = oldWorkspace.id;
+    devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][
+      DEVWORKSPACE_ID_OVERRIDE_ANNOTATION
     ] = oldWorkspace.id;
     const defaultNamespace = this.props.defaultNamespace.name;
     // create a new workspace
