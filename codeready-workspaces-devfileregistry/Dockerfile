@@ -62,18 +62,6 @@ WORKDIR /build/
 #     REGISTRY=${PATCHED_IMAGES_REG} \
 #     ./update_devfile_patched_image_tags.sh
 RUN ./check_mandatory_fields.sh devfiles
-# Cache projects in CRW 
-COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
-
-RUN ./swap_yamlfiles.sh devfiles
-# TODO CRW-2750 CRW-2729 when we have eap-xp3-openjdk11-openshift-rhel8 for Z and P, remove swap_images.sh entirely
-# Cache projects in CRW 
-COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
-
-RUN ./swap_yamlfiles.sh devfiles
-RUN ./swap_images.sh devfiles
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
