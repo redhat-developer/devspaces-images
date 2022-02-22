@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM ubi8/python-38:1-63.1626843762 as builder
+FROM ubi8/python-38:1-80 as builder
 USER 0
 
 ################# 
@@ -80,7 +80,7 @@ RUN chmod -R g+rwX /build/devfiles
 
 # Build registry, copying meta.yamls and index.json from builder
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/httpd-24
-FROM rhel8/httpd-24:1-143.1626836617 AS registry
+FROM rhel8/httpd-24:1-166 AS registry
 USER 0
 
 # latest httpd container doesn't include ssl cert, so generate one
@@ -115,6 +115,8 @@ WORKDIR /var/www/html
 RUN mkdir -m 777 /var/www/html/devfiles
 COPY README.md .htaccess /var/www/html/
 COPY --from=builder /build/devfiles /var/www/html/devfiles
+COPY --from=builder /build/resources /var/www/html/resources
+COPY --from=builder /build/resources /var/www/html/resources
 COPY --from=builder /build/resources /var/www/html/resources
 COPY ./images /var/www/html/images
 COPY ./build/dockerfiles/rhel.entrypoint.sh ./build/dockerfiles/entrypoint.sh /usr/local/bin/
