@@ -313,19 +313,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	done
 	echo "Converted (yq #2) ${CSVFILE}"
 
-	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-	# insert keycloak image references for s390x and ppc64le
-	# TODO CRW-2750 remove this conversion when we have openjdk sso images for Z&P
-	declare -A operator_insertions=(
-		["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-		["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-	)
-	for updateName in "${!operator_insertions[@]}"; do
-		updateVal="${operator_insertions[$updateName]}"
-		replaceEnvVar "${CSVFILE}" "" '.spec.install.spec.deployments[].spec.template.spec.containers[0].env'
-	done
-	echo "Converted (yq #3) ${CSVFILE}"
-
 	# insert replaces: field
 	declare -A spec_insertions=(
 		[".spec.replaces"]="crwoperator.v${CSV_VERSION_PREV}"
@@ -339,7 +326,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		updateVal="${spec_insertions[$updateName]}"
 		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
-	echo "Converted (yq #4) ${CSVFILE}"
+	echo "Converted (yq #3) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --crw-branch "${MIDSTM_BRANCH}"
@@ -369,7 +356,7 @@ yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProv
 yq  -y 'del(.spec.k8s)')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
 if [[ $(diff -u "$CR_YAML" "${TARGETDIR}/${CR_YAML}") ]]; then
-	echo "Converted (yq #3) ${TARGETDIR}/${CR_YAML}"
+	echo "Converted (yq #4) ${TARGETDIR}/${CR_YAML}"
 fi
 
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"

@@ -241,26 +241,12 @@ for updateName in "${!operator_replacements[@]}"; do
 done
 echo "Converted (yq #1) ${OPERATOR_DEPLOYMENT_YAML}"
 
-# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# insert keycloak image references for s390x and ppc64le
-# TODO CRW-2750 remove this conversion when we have openjdk sso images for Z&P
-declare -A operator_insertions=(
-	["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-	["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
-)
-for updateName in "${!operator_insertions[@]}"; do
-	updateVal="${operator_insertions[$updateName]}"
-	# apply same transforms in operator deployment yaml
-	replaceEnvVarOperatorYaml "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" "${COPYRIGHT}" '.spec.template.spec.containers[0].env'
-done
-echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
-
 # CRW-1579 set correct crw-2-rhel8-operator image and tag in operator deployment yaml
 oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")
 if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
 fi
-echo "Converted (yq #3) ${OPERATOR_DEPLOYMENT_YAML}"
+echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # yq changes - transform env vars from Che to CRW values
@@ -274,14 +260,14 @@ yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProv
 yq  -y 'del(.spec.k8s)')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
 if [[ $(diff -u "${CR_YAML}" "${TARGETDIR}/${CR_YAML}") ]]; then
-	echo "Converted (yq #4) ${TARGETDIR}/${CR_YAML}"
+	echo "Converted (yq #3) ${TARGETDIR}/${CR_YAML}"
 fi
 
 # if sort the file, we'll lose all the comments
 yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
 echo "${COPYRIGHT}$(cat "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2")" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}"
 rm -f "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
-echo "Converted (yq #5) ${OPERATOR_DEPLOYMENT_YAML}"
+echo "Converted (yq #4) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # delete unneeded files
 rm -rf "${TARGETDIR}/deploy"
