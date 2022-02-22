@@ -81,7 +81,7 @@ CSVFILE=${TARGETDIR}/manifests/codeready-workspaces.csv.yaml
 
 # The updated name should be like:
 # RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCMQK
-# RELATED_IMAGE_codeready_workspaces_plugin_java11_openj9_devfile_registry_image_GIXDCMQK
+# RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK
 # RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7_devfile_registry_image_G4XDGLRWBI______
 updateRelatedImageName() {
   imageType="$1"
@@ -97,20 +97,6 @@ updateRelatedImageName() {
     encodedTag=$(echo "${tagOrDigest}" | base32 -w 0 | tr "=" "_")
     updateName=$(echo "${updateVal}" | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2_${imageType}_${encodedTag}#g" -e "s@-rhel8@@g" | tr "-" "_")
     insertEnvVar
-    # now handle special cases for j9 images - see build/scripts/swap_images.sh in plugin and devfile registry for specially-named images
-    if [[ ${updateName} == *"_openj9"* ]]; then # ends with _openj9, so rename to _s390x and _ppc64le
-      for arch in s390x ppc64le; do
-        updateName=$(echo "${updateVal}" | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2_${imageType}_${encodedTag}#g" -e "s@-rhel8@@g" | tr "-" "_")
-        updateName=${updateName/_openj9/_${arch}}
-        insertEnvVar
-      done
-    elif [[ ${updateName} == *"openj9_11_openshift"* ]]; then # ends with openj9_11_openshift, so rename to openjdk11_openshift_s390x and openjdk11_openshift_ppc64le
-      for arch in s390x ppc64le; do
-        updateName=$(echo "${updateVal}" | sed -r -e "s#[^/]+/([^/]+)/([^/]+):([0-9.-]+)#RELATED_IMAGE_\1_\2_${imageType}_${encodedTag}#g" -e "s@-rhel8@@g" | tr "-" "_")
-        updateName=${updateName/openj9_11_openshift/openjdk11_openshift_${arch}}
-        insertEnvVar
-      done
-    fi
   done
 }
 
