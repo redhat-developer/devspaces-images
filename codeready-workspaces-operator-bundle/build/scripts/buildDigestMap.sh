@@ -109,11 +109,7 @@ for image in ${REGISTRY_IMAGES_ALL}; do
       else
         if [[ ! "${QUIET}" ]]; then echo "[INFO] ${0##*/} :: - Get digest for ${image}"; fi
         image="${orig_image}"
-        ARCH_OVERRIDE="" # optional override so that an image without amd64 won't return a failure when searching on amd64 arch machines
-        if [[ ${image} == *"-openj9"* ]]; then
-          ARCH_OVERRIDE="--override-arch s390x"
-        fi
-        digest="$(skopeo ${ARCH_OVERRIDE} inspect --tls-verify=false docker://${image} 2>/dev/null | jq -r '.Digest')"
+        digest="$(skopeo inspect --tls-verify=false docker://${image} 2>/dev/null | jq -r '.Digest')"
         if [[ ! "${QUIET}" ]]; then echo -n "[INFO] ${0##*/} :: = Got digest "; fi
         echo "    $digest # ${orig_image}"
         if [[ ! ${digest} ]]; then
