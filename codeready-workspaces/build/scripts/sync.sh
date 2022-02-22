@@ -86,7 +86,7 @@ rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
 # TODO move upstream Dockerfile into standard path build/dockerfiles/rhel.Dockerfile (instead of dockerfiles/che/rhel.Dockerfile) ?
-sed ${SOURCEDIR}/dockerfiles/che/rhel.Dockerfile -r \
+sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
