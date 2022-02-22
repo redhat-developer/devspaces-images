@@ -974,11 +974,11 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
                 - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:835c8b8e88ca88f8717d0e654697974bcef673d544499c2a25947ab8c1ab9aa6
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:1c47983da20a393ea35d5a2be576bf1777ece053e36b9156eb375ed046adae82
                 - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:835c8b8e88ca88f8717d0e654697974bcef673d544499c2a25947ab8c1ab9aa6
+                  value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:1c47983da20a393ea35d5a2be576bf1777ece053e36b9156eb375ed046adae82
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8108946d22688f0089ad9f986539aed014d9f2db09f96a615c088e8c831022c2
+                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8062c165a88f1c0aa561e3d5c12f91910544ba3d95c454f5aae22166a93883f8
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:656e51dc970df49bbf311c7622b7df763a4b2483372fdad354d1b62c18d59b21
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1315,11 +1315,11 @@ spec:
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:2e86483751d3f9a1917ac3dbd6e6acea78c3fba76a3753daabc916fbe06c786b
   - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:835c8b8e88ca88f8717d0e654697974bcef673d544499c2a25947ab8c1ab9aa6
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:1c47983da20a393ea35d5a2be576bf1777ece053e36b9156eb375ed046adae82
   - name: codeready_workspaces_udi_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:835c8b8e88ca88f8717d0e654697974bcef673d544499c2a25947ab8c1ab9aa6
+    image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:1c47983da20a393ea35d5a2be576bf1777ece053e36b9156eb375ed046adae82
   - name: dashboard
-    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8108946d22688f0089ad9f986539aed014d9f2db09f96a615c088e8c831022c2
+    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:8062c165a88f1c0aa561e3d5c12f91910544ba3d95c454f5aae22166a93883f8
   - name: devfile_registry
     image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:656e51dc970df49bbf311c7622b7df763a4b2483372fdad354d1b62c18d59b21
   - name: devworkspace_controller
