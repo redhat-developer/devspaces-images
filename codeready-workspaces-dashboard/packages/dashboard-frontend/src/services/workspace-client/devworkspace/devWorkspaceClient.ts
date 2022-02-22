@@ -251,21 +251,76 @@ export class DevWorkspaceClient extends WorkspaceClient {
     defaultNamespace: string,
     devworkspace: devfileApi.DevWorkspace,
     devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
+    editorId: string | undefined,
+    pluginRegistryUrl = '',
+    pluginRegistryInternalUrl = '',
   ): Promise<any> {
-    // create DWT
-    devworkspaceTemplate.metadata.namespace = defaultNamespace;
-    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
-
     // create DW
     devworkspace.spec.routingClass = 'che';
     devworkspace.metadata.namespace = defaultNamespace;
-    if (devworkspace.metadata.annotations === undefined) {
+    if (!devworkspace.metadata.annotations) {
       devworkspace.metadata.annotations = {};
     }
     devworkspace.metadata.annotations[DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION] =
       new Date().toISOString();
+    // remove components which is not created yet
+    const components = devworkspace.spec.template.components;
+    devworkspace.spec.template.components = [];
+    if (editorId) {
+      devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
+    }
+    const createdWorkspace = await DwApi.createWorkspace(devworkspace);
 
-    return DwApi.createWorkspace(devworkspace);
+    // create DWT
+    devworkspaceTemplate.metadata.namespace = defaultNamespace;
+    // add owner reference (to allow automatic cleanup)
+    devworkspaceTemplate.metadata.ownerReferences = [
+      {
+        apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
+        kind: devworkspaceSingularSubresource,
+        name: createdWorkspace.metadata.name,
+        uid: createdWorkspace.metadata.uid,
+      },
+    ];
+    // add pluginRegistry and dashboard URLs as environment variables
+    const templateComponents = devworkspaceTemplate.spec?.components || [];
+    for (const templateComponent of templateComponents) {
+      const container = templateComponent.container;
+      if (container) {
+        if (!container.env) {
+          container.env = [];
+        }
+        container.env.push(
+          {
+            name: this.dashboardUrlEnvName,
+            value: window.location.origin,
+          },
+          {
+            name: this.pluginRegistryUrlEnvName,
+            value: pluginRegistryUrl,
+          },
+          {
+            name: this.pluginRegistryInternalUrlEnvName,
+            value: pluginRegistryInternalUrl,
+          },
+        );
+      }
+    }
+
+    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
+
+    // update DW
+    return DwApi.patchWorkspace(
+      createdWorkspace.metadata.namespace,
+      createdWorkspace.metadata.name,
+      [
+        {
+          op: 'replace',
+          path: '/spec/template/components',
+          value: components,
+        },
+      ],
+    );
   }
 
   async createFromDevfile(
