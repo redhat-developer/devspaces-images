@@ -95,7 +95,7 @@ UDI image builder (including assets); triggers brew
                             causeString("Generic Webhook Trigger for changes to https://github.com/" + SOURCE_REPO)
                             silentResponse(false)
                             regexpFilterText('$ref $files $name')
-                            regexpFilterExpression('refs/heads/' + MIDSTM_BRANCH + ' .*"' + "codeready-workspaces-" + MIDSTM_NAME + '/[^"]+?".* ' + SOURCE_REPO)
+                            regexpFilterExpression('refs/heads/' + MIDSTM_BRANCH + ' .*"(?!codeready-workspaces-' + MIDSTM_NAME + '/sources)' + "codeready-workspaces-" + MIDSTM_NAME + '/[^"]+?".* ' + SOURCE_REPO)
                         }
                     }
                 }
