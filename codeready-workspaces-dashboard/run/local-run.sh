@@ -48,10 +48,6 @@ parse_args() {
 FORCE_BUILD="false"
 # Init Che Namespace with the default value if it's not set
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
-export CHECLUSTER_CR_NAMESPACE="${CHE_NAMESPACE}"
-
-# Init Che CRD object name with the default value if it's not set
-export CHECLUSTER_CR_NAME="${CHECLUSTER_CR_NAME:-eclipse-che}"
 
 # guide backend to use the current cluster from kubeconfig
 export LOCAL_RUN="true"
@@ -81,9 +77,23 @@ if [ "$FORCE_BUILD" == "true" ] ||
   yarn --cwd $DASHBOARD_BACKEND build:dev
 fi
 
+export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
+if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
+  echo 'Cluster access token not found.'
+  export DEX_INGRESS=$(kubectl get ingress dex -n dex -o jsonpath='{.spec.rules[0].host}')
+  if [[ ! -z "$DEX_INGRESS" ]]; then
+    echo 'Evaluated Dex ingress'
+
+    echo 'Looking for staticClientID and  staticClientSecret...'
+    export CLIENT_ID=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].id" -)
+    export CLIENT_SECRET=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].secret" -)
+    echo 'Done.'
+  fi
+fi
+
 # consider renaming it to CHE_API_URL since it's not just host
 export CHE_HOST=http://localhost:8080
-export CHE_HOST_ORIGIN=$(oc get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+export CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
 
 # do nothing
 PRERUN_COMMAND="echo"
@@ -93,19 +103,6 @@ if [[ ! -z "$GATEWAY" &&
   $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
   echo "Detected gateway and oauth-proxy inside. Running in native auth mode."
   export NATIVE_AUTH="true"
-  export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
-  if [[ -z "$CLUSTER_ACCESS_TOKEN" ]]; then
-    echo 'Cluster access token not found.'
-    export DEX_INGRESS=$(kubectl get ingress dex -n dex -o jsonpath='{.spec.rules[0].host}')
-    if [[ ! -z "$DEX_INGRESS" ]]; then
-      echo 'Evaluated Dex ingress'
-
-      echo 'Looking for staticClientID and  staticClientSecret...'
-      export CLIENT_ID=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].id" -)
-      export CLIENT_SECRET=$(kubectl get -n dex configMaps/dex -o jsonpath="{.data['config\.yaml']}" | yq e ".staticClients[0].secret" -)
-      echo 'Done.'
-    fi
-  fi
   # when native auth we go though port forward to avoid dealing with OpenShift OAuth Cookies
   CHE_FORWARDED_PORT=8081
   export CHE_API_PROXY_UPSTREAM="http://localhost:${CHE_FORWARDED_PORT}"

@@ -37,7 +37,13 @@ fi
 
 CHE_HOST=http://localhost:8080
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
-CHE_HOST_ORIGIN=$(oc get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+
+if [[ -z "$CHE_HOST_ORIGIN=" ]]; then
+  echo '[ERROR] Cannot find cheURL.'
+  exit 1
+fi
+
 GATEWAY=$(kubectl get deployments.apps che-gateway -o=json --ignore-not-found -n $CHE_NAMESPACE)
 
 if [[ -z "$GATEWAY" ||
@@ -57,8 +63,10 @@ if kubectl get configMaps che-gateway-config-oauth-proxy -o jsonpath="{.data}" -
 
   # rollout che-server deployment
   echo 'Rolling out che-gateway deployment...'
-  oc patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
-  oc patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
+  kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
+  echo 'Waiting 5 seconds to operator shut down...'
+  sleep 5
+  kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
   echo 'Done.'
 fi
 
@@ -71,13 +79,15 @@ if kubectl get configMaps/dex -o jsonpath="{.data['config\.yaml']}" -n dex | yq 
 
   # rollout Dex deployment
   echo 'Rolling out Dex deployment...'
-  oc patch deployment/dex --patch "{\"spec\":{\"replicas\":0}}" -n dex
-  oc patch deployment/dex --patch "{\"spec\":{\"replicas\":1}}" -n dex
+  kubectl patch deployment/dex --patch "{\"spec\":{\"replicas\":0}}" -n dex
+  echo 'Waiting 5 seconds to dex shut down...'
+  sleep 5
+  kubectl patch deployment/dex --patch "{\"spec\":{\"replicas\":1}}" -n dex
   echo 'Done.'
 fi
 
 if kubectl get deployment/che-operator -n $CHE_NAMESPACE -o jsonpath="{.spec.replicas}" | grep 0; then
   echo 'Turning on Che-operator deployment...'
-  oc patch deployment/che-operator --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
+  kubectl patch deployment/che-operator --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
   echo 'Done.'
 fi

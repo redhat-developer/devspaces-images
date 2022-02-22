@@ -38,7 +38,7 @@ import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors
 import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
-const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
+export const onStatusChangeCallbacks = new Map<string, (status: string) => void>();
 
 export interface State {
   isLoading: boolean;
@@ -264,6 +264,7 @@ export const actionCreators: ActionCreators = {
       try {
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
+        await addKubeConfigInjection(workspace);
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
           const storedDevWorkspace = JSON.parse(
             workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
@@ -301,21 +302,6 @@ export const actionCreators: ActionCreators = {
             workspaceId,
           });
         }
-        const toDispose = new DisposableCollection();
-        const onStatusChangeCallback = async status => {
-          if (status === DevWorkspaceStatus.RUNNING) {
-            toDispose.dispose();
-            const workspaceId = workspace.status?.devworkspaceId;
-            if (workspaceId) {
-              injectKubeConfig(workspace.metadata.namespace, workspaceId);
-            }
-          }
-        };
-        const adapterWorkspaceId = WorkspaceAdapter.getId(workspace);
-        onStatusChangeCallbacks.set(adapterWorkspaceId, onStatusChangeCallback);
-        toDispose.push({
-          dispose: () => onStatusChangeCallbacks.delete(adapterWorkspaceId),
-        });
         devWorkspaceClient.checkForDevWorkspaceError(updatedWorkspace);
       } catch (e) {
         const errorMessage =
@@ -490,6 +476,7 @@ export const actionCreators: ActionCreators = {
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
         );
+        await addKubeConfigInjection(workspace);
 
         if (workspace.spec.started) {
           const editor = workspace.metadata.annotations
@@ -571,6 +558,7 @@ export const actionCreators: ActionCreators = {
           optionalFilesContent,
           start,
         );
+        await addKubeConfigInjection(workspace);
 
         if (workspace.spec.started) {
           const defaultPlugins = getState().dwPlugins.defaultPlugins;
@@ -579,22 +567,6 @@ export const actionCreators: ActionCreators = {
         dispatch({
           type: 'ADD_DEVWORKSPACE',
           workspace,
-        });
-
-        const toDispose = new DisposableCollection();
-        const onStatusChangeCallback = async status => {
-          if (status === DevWorkspaceStatus.RUNNING) {
-            toDispose.dispose();
-            const workspaceId = workspace.status?.devworkspaceId;
-            if (workspaceId) {
-              injectKubeConfig(workspace.metadata.namespace, workspaceId);
-            }
-          }
-        };
-        const adapterWorkspaceId = WorkspaceAdapter.getId(workspace);
-        onStatusChangeCallbacks.set(adapterWorkspaceId, onStatusChangeCallback);
-        toDispose.push({
-          dispose: () => onStatusChangeCallbacks.delete(adapterWorkspaceId),
         });
       } catch (e) {
         const errorMessage =
@@ -748,4 +720,24 @@ async function onStatusUpdateReceived(
       });
     }
   }
+}
+
+export async function addKubeConfigInjection(workspace: devfileApi.DevWorkspace): Promise<void> {
+  const toDispose = new DisposableCollection();
+  const onStatusChangeCallback = async status => {
+    if (status === DevWorkspaceStatus.RUNNING) {
+      const workspaceId = WorkspaceAdapter.getId(workspace);
+      try {
+        await injectKubeConfig(workspace.metadata.namespace, workspaceId);
+      } catch (e) {
+        console.error(e);
+      }
+      toDispose.dispose();
+    }
+  };
+  const adapterWorkspaceId = WorkspaceAdapter.getId(workspace);
+  onStatusChangeCallbacks.set(adapterWorkspaceId, onStatusChangeCallback);
+  toDispose.push({
+    dispose: () => onStatusChangeCallbacks.delete(adapterWorkspaceId),
+  });
 }

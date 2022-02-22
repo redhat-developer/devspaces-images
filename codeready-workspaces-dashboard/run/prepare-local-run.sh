@@ -29,20 +29,25 @@ parse_args() {
 
 parse_args "$@"
 
+if [[ ! -z "$(oc whoami -t)" ]]; then
+  echo 'Cluster access token found. Nothing needs to be patched.'
+  echo 'Done.'
+  exit 0
+fi
+
 CHE_HOST=http://localhost:8080
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
-CHE_HOST_ORIGIN=$(oc get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')
+
+if [[ -z "$CHE_HOST_ORIGIN=" ]]; then
+  echo '[ERROR] Cannot find cheURL.'
+  exit 1
+fi
 
 GATEWAY=$(kubectl get deployments.apps che-gateway -o=json --ignore-not-found -n $CHE_NAMESPACE)
 if [[ ! -z "$GATEWAY" &&
   $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
   echo 'Detected gateway and oauth-proxy inside. Running in native auth mode.'
-
-  if [[ ! -z "$(oc whoami -t)" ]]; then
-    echo 'Cluster access token found. Nothing needs to be patched.'
-    echo 'Done.'
-    exit 0
-  fi
 
   echo 'Cluster access token not found.'
   echo 'Looking for staticClient for local start'
@@ -57,8 +62,10 @@ if [[ ! -z "$GATEWAY" &&
 
     # rollout Dex deployment
     echo 'Rolling out Dex deployment...'
-    oc patch deployment/dex --patch "{\"spec\":{\"replicas\":0}}" -n dex
-    oc patch deployment/dex --patch "{\"spec\":{\"replicas\":1}}" -n dex
+    kubectl patch deployment/dex --patch "{\"spec\":{\"replicas\":0}}" -n dex
+    echo 'Waiting 5 seconds to dex shut down...'
+    sleep 5
+    kubectl patch deployment/dex --patch "{\"spec\":{\"replicas\":1}}" -n dex
     echo 'Done.'
   fi
 
@@ -68,7 +75,7 @@ if [[ ! -z "$GATEWAY" &&
   else
     if kubectl get deployment/che-operator -n $CHE_NAMESPACE -o jsonpath="{.spec.replicas}" | grep 1; then
       echo 'Turn off Che-operator deployment...'
-      oc patch deployment/che-operator --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
+      kubectl patch deployment/che-operator --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
       echo 'Waiting 10 seconds to operator shut down...'
       sleep 10
       echo 'Done.'
@@ -82,8 +89,8 @@ if [[ ! -z "$GATEWAY" &&
 
     # rollout che-server deployment
     echo 'Rolling out che-gateway deployment...'
-    oc patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
-    oc patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
+    kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
+    kubectl patch deployment/che-gateway --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
     echo 'Done.'
   fi
 fi
