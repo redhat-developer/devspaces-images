@@ -88,7 +88,7 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES13_TAG}"
-SSO_IMAGE="registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8 too
+SSO_IMAGE="registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:${SSO_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
@@ -249,6 +249,7 @@ echo "Converted (yq #1) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # insert keycloak image references for s390x and ppc64le
+# TODO CRW-2750 remove this conversion when we have openjdk sso images for Z&P
 declare -A operator_insertions=(
 	["RELATED_IMAGE_keycloak_s390x"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
 	["RELATED_IMAGE_keycloak_ppc64le"]="${SSO_IMAGE/-openshift-/-openj9-openshift-}"
