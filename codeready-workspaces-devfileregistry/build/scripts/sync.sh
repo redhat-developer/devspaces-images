@@ -120,13 +120,11 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|^ *FROM registry AS offline-registry|# &|' \
     -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
     -e 's|^[^#]*--from=offline-builder.*|# &|' \
-    `# Enable cache_projects.sh` \
-    -e '\|swap_images.sh|i # Cache projects in CRW \
+    `# Enable cache_projects.sh + swap_yamlfiles.sh` \
+    -e '\|# Cache projects in CRW|i \
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz \
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles \
 ' \
-    `# Enable swap in arch specific devfiles` \
-    -e '\|swap_images.sh|i RUN ./swap_yamlfiles.sh devfiles' \
   > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
