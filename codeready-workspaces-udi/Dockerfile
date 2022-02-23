@@ -30,8 +30,9 @@ ENV \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_RPM_VERSION=3.1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
-    JAVA_HOME=/usr/lib/jvm/java-11-openjdk \
-    PATH="/usr/lib/jvm/java-11-openjdk:/usr/lib/jvm/java-1.8.0-openjdk:$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA11_HOME=/usr/lib/jvm/java-11-openjdk \
+    JAVA8_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
+    PATH="$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \

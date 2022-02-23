@@ -31,7 +31,9 @@ if ! grep -Fq "${USER_ID}" /etc/passwd; then
     sed "s/\${HOME}/\/home\/user/g" > /etc/group
 fi
 
+#############################################################################
 # Grant access to projects volume in case of non root user with sudo rights
+#############################################################################
 if [ "$(id -u)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && sudo -n true > /dev/null 2>&1; then
     sudo chown "${USER_ID}:${GROUP_ID}" /projects
 fi
@@ -40,10 +42,30 @@ if [ -f "${HOME}"/.venv/bin/activate ]; then
   source "${HOME}"/.venv/bin/activate
 fi
 
+#############################################################################
 # Setup $PS1 for a consistent and reasonable prompt
+#############################################################################
 if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
   echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc
 fi
+
+#############################################################################
+# Use java 8 if USE_JAVA8 is set to 'true'
+#############################################################################
+if [ "${USE_JAVA8}" == "true" ] && [ ! -z "${JAVA8_HOME}" ]; then
+  export JAVA_HOME=${JAVA8_HOME}
+  export PATH="${JAVA8_HOME}/bin:${PATH}"
+else
+  if [ ! -z "${JAVA11_HOME}" ]; then
+    export JAVA_HOME=${JAVA11_HOME}
+    export PATH="${JAVA11_HOME}/bin:${PATH}"
+  else
+    echo "Java environment is not configured"
+  fi
+fi
+
+unset JAVA8_HOME
+unset JAVA11_HOME
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
