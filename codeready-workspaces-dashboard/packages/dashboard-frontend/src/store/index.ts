@@ -14,7 +14,8 @@ import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import * as BannerAlertStore from './BannerAlert';
 import * as BrandingStore from './Branding';
-import * as ExternalApplications from './ExternalApplications';
+import * as ClusterInfo from './ClusterInfo';
+import * as ClusterConfig from './ClusterConfig';
 import * as DevfileRegistriesStore from './DevfileRegistries';
 import * as FactoryResolverStore from './FactoryResolver';
 import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
@@ -34,7 +35,8 @@ import * as DwDockerConfigStore from './DockerConfig/dw';
 export interface AppState {
   bannerAlert: BannerAlertStore.State;
   branding: BrandingStore.State;
-  externalApplications: ExternalApplications.State;
+  clusterInfo: ClusterInfo.State;
+  clusterConfig: ClusterConfig.State;
   devfileRegistries: DevfileRegistriesStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
   user: UserStore.State;
@@ -58,7 +60,8 @@ export const reducers = {
   devWorkspaces: DevWorkspacesStore.reducer,
   devfileRegistries: DevfileRegistriesStore.reducer,
   branding: BrandingStore.reducer,
-  externalApplications: ExternalApplications.reducer,
+  clusterInfo: ClusterInfo.reducer,
+  clusterConfig: ClusterConfig.reducer,
   user: UserStore.reducer,
   userProfile: UserProfileStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,

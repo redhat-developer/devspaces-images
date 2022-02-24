@@ -13,8 +13,11 @@
 import { createSelector } from 'reselect';
 import { AppState } from '..';
 
-const selectState = (state: AppState) => state.externalApplications;
+const selectState = (state: AppState) => state.clusterInfo;
 
-export const selectApplications = createSelector(selectState, state => state.applications);
+export const selectApplications = createSelector(
+  selectState,
+  state => state.clusterInfo.applications || [],
+);
 
-export const selectApplicationsError = createSelector(selectState, state => state.error);
+export const selectClusterInfoError = createSelector(selectState, state => state.error);

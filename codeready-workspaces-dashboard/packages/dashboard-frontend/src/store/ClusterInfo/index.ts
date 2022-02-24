@@ -11,38 +11,41 @@
  */
 
 import { Action, Reducer } from 'redux';
-import common, { ApplicationInfo } from '@eclipse-che/common';
+import common, { ClusterInfo } from '@eclipse-che/common';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
 import { fetchClusterInfo } from '../../services/dashboard-backend-client/clusterInfo';
 
 export interface State {
   isLoading: boolean;
-  applications: ApplicationInfo[];
+  clusterInfo: ClusterInfo;
   error?: string;
 }
 
 export enum Type {
-  REQUEST_APP_INFO = 'REQUEST_APP_INFO',
-  RECEIVE_APP_INFO = 'RECEIVE_APP_INFO',
-  RECEIVE_APP_INFO_ERROR = 'RECEIVE_APP_INFO_ERROR',
+  REQUEST_CLUSTER_INFO = 'REQUEST_CLUSTER_INFO',
+  RECEIVE_CLUSTER_INFO = 'RECEIVE_CLUSTER_INFO',
+  RECEIVE_CLUSTER_INFO_ERROR = 'RECEIVE_CLUSTER_INFO_ERROR',
 }
 
-export interface RequestAppInfoAction {
-  type: Type.REQUEST_APP_INFO;
+export interface RequestClusterInfoAction {
+  type: Type.REQUEST_CLUSTER_INFO;
 }
 
-export interface ReceiveAppInfoAction {
-  type: Type.RECEIVE_APP_INFO;
-  appInfo: ApplicationInfo;
+export interface ReceiveClusterInfoAction {
+  type: Type.RECEIVE_CLUSTER_INFO;
+  clusterInfo: ClusterInfo;
 }
 
-export interface ReceivedAppInfoErrorAction {
-  type: Type.RECEIVE_APP_INFO_ERROR;
+export interface ReceivedClusterInfoErrorAction {
+  type: Type.RECEIVE_CLUSTER_INFO_ERROR;
   error: string;
 }
 
-export type KnownAction = RequestAppInfoAction | ReceiveAppInfoAction | ReceivedAppInfoErrorAction;
+export type KnownAction =
+  | RequestClusterInfoAction
+  | ReceiveClusterInfoAction
+  | ReceivedClusterInfoErrorAction;
 
 export type ActionCreators = {
   requestClusterInfo: () => AppThunk<KnownAction, Promise<void>>;
@@ -53,20 +56,20 @@ export const actionCreators: ActionCreators = {
     (): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       dispatch({
-        type: Type.REQUEST_APP_INFO,
+        type: Type.REQUEST_CLUSTER_INFO,
       });
 
       try {
-        const appInfo = await fetchClusterInfo();
+        const clusterInfo = await fetchClusterInfo();
         dispatch({
-          type: Type.RECEIVE_APP_INFO,
-          appInfo,
+          type: Type.RECEIVE_CLUSTER_INFO,
+          clusterInfo,
         });
       } catch (e) {
         const errorMessage =
           'Failed to fetch cluster properties, reason: ' + common.helpers.errors.getMessage(e);
         dispatch({
-          type: Type.RECEIVE_APP_INFO_ERROR,
+          type: Type.RECEIVE_CLUSTER_INFO_ERROR,
           error: errorMessage,
         });
         throw errorMessage;
@@ -76,7 +79,9 @@ export const actionCreators: ActionCreators = {
 
 const unloadedState: State = {
   isLoading: false,
-  applications: [],
+  clusterInfo: {
+    applications: [],
+  },
 };
 
 export const reducer: Reducer<State> = (
@@ -89,19 +94,17 @@ export const reducer: Reducer<State> = (
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case Type.REQUEST_APP_INFO:
+    case Type.REQUEST_CLUSTER_INFO:
       return createObject(state, {
         isLoading: true,
         error: undefined,
       });
-    case Type.RECEIVE_APP_INFO:
+    case Type.RECEIVE_CLUSTER_INFO:
       return createObject(state, {
         isLoading: false,
-        applications: state.applications
-          .filter(appInfo => appInfo.title !== action.appInfo.title)
-          .concat([action.appInfo]),
+        clusterInfo: action.clusterInfo,
       });
-    case Type.RECEIVE_APP_INFO_ERROR:
+    case Type.RECEIVE_CLUSTER_INFO_ERROR:
       return createObject(state, {
         isLoading: false,
         error: action.error,

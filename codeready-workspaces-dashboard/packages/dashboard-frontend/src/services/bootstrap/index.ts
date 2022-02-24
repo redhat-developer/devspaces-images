@@ -17,7 +17,8 @@ import { KeycloakSetupService } from '../keycloak/setup';
 import { AppState } from '../../store';
 import * as BannerAlertStore from '../../store/BannerAlert';
 import * as BrandingStore from '../../store/Branding';
-import * as ExternalApplicationsStore from '../../store/ExternalApplications';
+import * as ClusterConfigStore from '../../store/ClusterConfig';
+import * as ClusterInfoStore from '../../store/ClusterInfo';
 import * as DevfileRegistriesStore from '../../store/DevfileRegistries';
 import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamespaces';
 import * as PluginsStore from '../../store/Plugins/chePlugins';
@@ -81,7 +82,8 @@ export default class Bootstrap {
       this.watchNamespaces(),
       this.updateDevWorkspaceTemplates(settings),
       this.fetchWorkspaces(),
-      this.fetchApplications(),
+      this.fetchClusterInfo(),
+      this.fetchClusterConfig(),
     ]);
     const errors = results
       .filter(result => result.status === 'rejected')
@@ -91,8 +93,19 @@ export default class Bootstrap {
     }
   }
 
-  private async fetchApplications(): Promise<void> {
-    const { requestClusterInfo } = ExternalApplicationsStore.actionCreators;
+  private async fetchClusterConfig(): Promise<void> {
+    const { requestClusterConfig } = ClusterConfigStore.actionCreators;
+    try {
+      await requestClusterConfig()(this.store.dispatch, this.store.getState, undefined);
+    } catch (e) {
+      console.warn(
+        'Unable to fetch cluster configuration. This is expected behavior unless backend is configured to provide this information.',
+      );
+    }
+  }
+
+  private async fetchClusterInfo(): Promise<void> {
+    const { requestClusterInfo } = ClusterInfoStore.actionCreators;
     try {
       await requestClusterInfo()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {

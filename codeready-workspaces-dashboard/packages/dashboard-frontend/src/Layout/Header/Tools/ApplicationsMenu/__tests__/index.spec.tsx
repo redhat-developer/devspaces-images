@@ -17,7 +17,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Store } from 'redux';
 import { ApplicationsMenu } from '..';
 import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
-import { selectApplications } from '../../../../../store/ExternalApplications/selectors';
+import { selectApplications } from '../../../../../store/ClusterInfo/selectors';
 
 describe('About Menu', () => {
   global.open = jest.fn();
@@ -91,25 +91,27 @@ describe('About Menu', () => {
 
 function createStore(): Store {
   return new FakeStoreBuilder()
-    .withApplications([
-      {
-        title: 'External App #1',
-        url: 'http://example.com/ext/app/1',
-        icon: 'http://example.com/ext/app/1/assets/logo.png',
-        group: 'Group 1',
-      },
-      {
-        title: 'External App #2',
-        url: 'http://example.com/ext/app/2',
-        icon: 'http://example.com/ext/app/2/assets/logo.png',
-        group: 'Group 1',
-      },
-      {
-        title: 'External App #3',
-        url: 'http://example.com/ext/app/3',
-        icon: 'http://example.com/ext/app/3/assets/logo.png',
-        group: 'Group 2',
-      },
-    ])
+    .withClusterInfo({
+      applications: [
+        {
+          title: 'External App #1',
+          url: 'http://example.com/ext/app/1',
+          icon: 'http://example.com/ext/app/1/assets/logo.png',
+          group: 'Group 1',
+        },
+        {
+          title: 'External App #2',
+          url: 'http://example.com/ext/app/2',
+          icon: 'http://example.com/ext/app/2/assets/logo.png',
+          group: 'Group 1',
+        },
+        {
+          title: 'External App #3',
+          url: 'http://example.com/ext/app/3',
+          icon: 'http://example.com/ext/app/3/assets/logo.png',
+          group: 'Group 2',
+        },
+      ],
+    })
     .build();
 }

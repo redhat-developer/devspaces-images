@@ -23,7 +23,7 @@ import { registerSwagger } from './swagger';
 import { helpers } from '@eclipse-che/common';
 import { isLocalRun } from './local-run';
 import { registerClusterInfo } from './api/clusterInfo';
-import { CLUSTER_CONSOLE_URL } from './devworkspace-client/services/cluster-info';
+import { registerClusterConfig } from './api/clusterConfig';
 import { registerDockerConfigApi } from './api/dockerConfigApi';
 import { registerServerConfigApi } from './api/serverConfigApi';
 import { registerKubeConfigApi } from './api/kubeConfigAPI';
@@ -99,9 +99,9 @@ registerServerConfigApi(server);
 
 registerKubeConfigApi(server);
 
-if (CLUSTER_CONSOLE_URL) {
-  registerClusterInfo(server);
-}
+registerClusterInfo(server);
+
+registerClusterConfig(server);
 
 registerCors(isLocalRun, server);
 
