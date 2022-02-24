@@ -268,6 +268,7 @@ collect_noarch_assets_crw_theia_dev() {
   pushd "$cheTheiaSourcesDir" >/dev/null || exit 1
     git clone https://github.com/eclipse-che/che-theia
     cd che-theia && git checkout $SOURCE_BRANCH
+    sed -i 's|Eclipse Che|CodeReady Workspaces|g' ./generator/src/templates/assembly-package.mst.json
     cd generator && yarn && yarn pack --filename "${TARGETDIR}"/asset-eclipse-che-theia-generator.tgz
   popd >/dev/null || exit 1
   rm -fr "${cheTheiaSourcesDir}"
