@@ -77,14 +77,16 @@ fi
                         // ignore theia-dev 
                         def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle" | \
+sed -r -e "s@quay.io/crw/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || true
                         ''', returnStdout: true).trim()
 
                         // check diff including operator bundle, in case we forgot to update
                         // ignore theia-dev
                         def DIFF_LATEST_IMAGES_BUNDLE_ONLY = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle" | \
+sed -r -e "s@quay.io/crw/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || true
                         ''', returnStdout: true).trim()
 
                         // define what to do when we are ready to push changes
@@ -120,9 +122,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle"
                             echo currentBuild.description
                             currentBuild.result='UNSTABLE'
                         } else {
-                            currentBuild.description="Detected new images: rebuild operator-bundle"
-                            listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
-                            for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
+                            currentBuild.description="Detected new images: rebuild operator-bundle<br/>* " + DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE.replaceAll('\n',"<br/>* ")
                             echo currentBuild.description
                             echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE
 

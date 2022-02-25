@@ -78,14 +78,16 @@ fi
                         // ignore theia-dev 
                         def DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle|operator-metadata" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev|operator-bundle|operator-metadata" | \
+sed -r -e "s@quay.io/crw/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || true
                         ''', returnStdout: true).trim()
 
                         // check diff including operator bundle or metadata, in case we forgot to update metadata
                         // ignore theia-dev
                         def DIFF_LATEST_IMAGES_METADATA_ONLY = sh (script: '''
 diff -u0 ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.{prev,new} | \
-grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|operator-metadata" || true
+grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|operator-metadata" | \
+sed -r -e "s@quay.io/crw/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || true
                         ''', returnStdout: true).trim()
 
                         // define what to do when we are ready to push changes
@@ -121,9 +123,7 @@ grep -E -v "@@|dependencies/LATEST_IMAGES|theia-dev" | grep -E "operator-bundle|
                             echo currentBuild.description
                             currentBuild.result='UNSTABLE'
                         } else {
-                            currentBuild.description="Detected new images: rebuild operator-bundle and operator-metadata"
-                            listChangedImages=(DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA).replaceAll("quay.io/crw/|:.+|-rhel8|crw-2|\n|\r|^(-|\\+)","").replaceAll("\\+",",").tokenize(',').unique()
-                            for (String imgChanged : listChangedImages) { currentBuild.description += "<br/>* " + imgChanged }
+                            currentBuild.description="Detected new images: rebuild operator-bundle and operator-metadata<br/>* " + DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA.replaceAll('\n',"<br/>* ")
                             echo currentBuild.description
                             echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE_OR_METADATA
 
