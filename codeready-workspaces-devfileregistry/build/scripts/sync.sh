@@ -95,10 +95,7 @@ find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
 # transform Dockerfile
 # shellcheck disable=SC1004
-sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
+sed "${TARGETDIR}/local.Dockerfile" --regexp-extended \
     `# CRW-2500 the folder is packed to resources.tgz` \
     -e 's|COPY ./resources /build/resources|# COPY ./resources /build/resources|' \
     `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
@@ -125,9 +122,9 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles \
 ' \
-  > "${TARGETDIR}/Dockerfile"
+  > "${TARGETDIR}/local.Dockerfile"
 
-cat << EOT >> "${TARGETDIR}/Dockerfile"
+cat << EOT >> "${TARGETDIR}/local.Dockerfile"
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
@@ -145,6 +142,12 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+sed "${TARGETDIR}/local.Dockerfile" --regexp-extended \
+    `# Strip registry from image references` \
+    -e 's|FROM registry.access.redhat.com/|FROM |' \
+    -e 's|FROM registry.redhat.io/|FROM |' \
+  > "${TARGETDIR}/Dockerfile"
 echo "Converted Dockerfile"
 
 # header to reattach to yaml files after yq transform removes it

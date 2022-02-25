@@ -86,12 +86,10 @@ sed_in_place() {
   fi
 }
 
-sed_in_place -r \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+sed -r "${TARGETDIR}"/Dockerfile \
   `# Remove unused Python packages (support for PyCharm not included in CRW)` \
   -e "/# Python support/d" -e "/python2 python39 \\\\/d" \
-  "${TARGETDIR}"/Dockerfile
+  > "${TARGETDIR}/local.Dockerfile"
 
 # Overwrite default configuration
 cat << EOT > "${TARGETDIR}"/compatible-ide.json
@@ -111,7 +109,7 @@ cat << EOT > "${TARGETDIR}"/compatible-ide.json
 ]
 EOT
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}/local.Dockerfile"
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
@@ -131,4 +129,12 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+cp ${TARGETDIR}/local.Dockerfile ${TARGETDIR}/Dockerfile
+
+sed_in_place -r \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  "${TARGETDIR}"/Dockerfile
+
 echo "Converted Dockerfile"

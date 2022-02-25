@@ -45,6 +45,13 @@ There is a Makefile included in the repo to make building and testing the code e
 
 For more information, view the targets in the Makefile.
 
+### Building codeready-workspaces-pluginbroker-metadata locally
+
+Build the local.Dockerfile using docker or podman
+```
+$ docker build . -f local.Dockerfile
+```
+
 ### CentOS CI
 The following [CentOS CI jobs](https://ci.centos.org/) are associated with the repository:
 

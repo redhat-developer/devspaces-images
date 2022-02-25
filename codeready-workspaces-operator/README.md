@@ -35,6 +35,17 @@ This comment-annotations displays clickable link on the Openshift ui with a text
 
 It is mandatory to update the OLM bundle after modification of the CR sample to deploy Eclipse Che using OLM.
 
+## Build codeready-workspaces-operator Locally
+
+1. Get or build assets for the latest CSV VERSION using `get-sources.sh`
+```
+$ ./get-sources.sh -p -v 2.16.0
+```
+2. Build `local.Dockerfile` using Docker or Podman
+```
+$ docker build . -f local.Dockerfile
+```
+
 ## Build and push custom Che operator image
 
 1. Export globally environment variables:

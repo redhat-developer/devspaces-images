@@ -338,6 +338,10 @@ or
 ```
 docker build -t jwtproxy -f build/dockerfiles/rhel.Dockerfile .
 ```
+or
+```
+docker build . -f local.Dockerfile
+```
 
 Then you'll be able to run it with:
 ```

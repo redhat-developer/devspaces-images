@@ -59,6 +59,7 @@ tests/basic-test.yaml
 sources
 /Dockerfile
 RELEASE.md
+README.md
 make-release.sh
 .dockerignore
 " > /tmp/rsync-excludes
@@ -69,14 +70,9 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile -r \
-  `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-> ${TARGETDIR}/Dockerfile
+cp ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile ${TARGETDIR}/local.Dockerfile
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/local.Dockerfile
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
@@ -95,4 +91,12 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+sed ${TARGETDIR}/local.Dockerfile -r \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+> ${TARGETDIR}/Dockerfile
+
 echo "Converted Dockerfile"

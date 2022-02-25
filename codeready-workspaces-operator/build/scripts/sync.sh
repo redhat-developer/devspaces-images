@@ -100,7 +100,7 @@ elif [[ -x "${TARGETDIR}"/build/scripts/util.sh ]]; then source "${TARGETDIR}"/b
 else echo "Error: can't find util.sh in ${SCRIPT_DIR} or ${TARGETDIR}"; exit 1; fi
 updateDockerfileArgs "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
 
-cp "${TARGETDIR}"/bootstrap.Dockerfile "${TARGETDIR}"/Dockerfile
+cp "${TARGETDIR}"/bootstrap.Dockerfile "${TARGETDIR}"/local.Dockerfile
 # CRW-1956 when bootstrapping, get vendor sources (if applicable); then stop builder stage steps as we have all we need (and will fetch zips separately)
 #shellcheck disable=SC2016
 sed_in_place -r \
@@ -117,10 +117,6 @@ sed_in_place -r \
 
 # shellcheck disable=SC2086 disable=SC2016
 sed_in_place -r \
-    `# Replace ubi8 with rhel8 version` \
-    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-    `# Remove registry so build works in Brew` \
-    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
     -e "/.+upstream.+/d" \
     -e "s@# downstream.+@COPY asset-* /tmp/@g" \
@@ -128,9 +124,9 @@ sed_in_place -r \
     -e "/.+go mod vendor.+/d" \
     `# make go builds multiarch` \
     -e 's@GOARCH=amd64@GOARCH=\${ARCH}@g' \
-    "${TARGETDIR}"/Dockerfile
+    "${TARGETDIR}"/local.Dockerfile
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/local.Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
@@ -149,6 +145,16 @@ LABEL com.redhat.delivery.appregistry="false" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+cp "${TARGETDIR}"/local.Dockerfile "${TARGETDIR}"/Dockerfile
+
+sed_in_place -r \
+    `# Replace ubi8 with rhel8 version` \
+    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+    `# Remove registry so build works in Brew` \
+    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+    "${TARGETDIR}"/Dockerfile
+
 echo "Converted Dockerfile"
 
 # shellcheck disable=SC2086

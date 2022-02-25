@@ -103,14 +103,6 @@ popd >/dev/null || exit
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
-    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
-    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
-    -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
-    `# trim off version so we get the latest from internal registry` \
-    -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
     `# Set arg options: disable BOOTSTRAP; update CRW_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG CRW_BRANCH=.*|ARG CRW_BRANCH=${CRW_BRANCH}|" \
@@ -118,9 +110,9 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
     -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
-  > "${TARGETDIR}/Dockerfile"
+  > "${TARGETDIR}/local.Dockerfile"
 
-cat << EOT >> "${TARGETDIR}/Dockerfile"
+cat << EOT >> "${TARGETDIR}/local.Dockerfile"
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
@@ -138,6 +130,18 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+sed "${TARGETDIR}/local.Dockerfile" --regexp-extended \
+    `# Strip registry from image references` \
+    -e 's|FROM registry.access.redhat.com/|FROM |' \
+    -e 's|FROM registry.redhat.io/|FROM |' \
+    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
+    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
+    -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
+    `# trim off version so we get the latest from internal registry` \
+    -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
+  > "${TARGETDIR}/Dockerfile"
+
 echo "Converted Dockerfile"
 
 # header to reattach to yaml files after yq transform removes it

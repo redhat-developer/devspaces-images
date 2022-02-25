@@ -73,6 +73,7 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
+#Create Brew Dockerfile
 sed -r \
   `# Remove registry so build works in Brew` \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
@@ -98,3 +99,11 @@ LABEL summary="\$SUMMARY" \\
       usage=""
 EOT
 echo "Converted Dockerfile"
+
+#create local.Dockerfile
+sed -r \
+  `# Remove registry so build works in Brew` \
+  -e "s/ubi8-minimal/registry.access.redhat.com\\/ubi8\\/ubi-minimal/g" \
+  "${TARGETDIR}"/Dockerfile > "${TARGETDIR}"/local.Dockerfile
+
+echo "Created local.Dockerfile"

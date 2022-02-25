@@ -97,12 +97,9 @@ sed_in_place -r \
   -e "s#ARG TRAEFIK_SHA=\".*\"#ARG TRAEFIK_SHA=\"${SOURCE_SHA}\"#g" \
   "${TARGETDIR}"/build/rhel.binary.Dockerfile
 
-sed -r \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  "${TARGETDIR}"/build/rhel.container.Dockerfile > "${TARGETDIR}"/Dockerfile
+cp "${TARGETDIR}"/build/rhel.binary.Dockerfile "${TARGETDIR}/local.Dockerfile"
 
-cat << EOT >> "${TARGETDIR}"/Dockerfile
+cat << EOT >> "${TARGETDIR}"/local.Dockerfile
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
@@ -123,4 +120,10 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+sed -r \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  "${TARGETDIR}"/local.Dockerfile > "${TARGETDIR}"/Dockerfile
+
 echo "Converted Dockerfile"

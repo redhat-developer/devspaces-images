@@ -65,6 +65,7 @@ yarn.lock
 /README.adoc
 /make-release.sh
 /RELEASE.md
+/README.md
 .cico
 .circleci
 *.orig
@@ -76,14 +77,9 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-# transform build/*/Dockerfile -> Dockerfile
-sed ${SOURCEDIR}/build/${UPSTM_BROKER}/Dockerfile -r \
-  `# Replace ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-  -e "s#FROM registry.redhat.io/#FROM #g" \
-  -e "s#FROM registry.access.redhat.com/#FROM #g" \
-> ${TARGETDIR}/Dockerfile
-cat << EOT >> ${TARGETDIR}/Dockerfile
+# transform build/*/Dockerfile -> local.Dockerfile
+cp ${SOURCEDIR}/build/${UPSTM_BROKER}/Dockerfile ${TARGETDIR}/local.Dockerfile
+cat << EOT >> ${TARGETDIR}/local.Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     PRODNAME="codeready-workspaces" \\
@@ -101,5 +97,13 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+sed ${TARGETDIR}/local.Dockerfile -r \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  -e "s#FROM registry.redhat.io/#FROM #g" \
+  -e "s#FROM registry.access.redhat.com/#FROM #g" \
+> ${TARGETDIR}/Dockerfile
+
 echo "Converted Dockerfile"
 

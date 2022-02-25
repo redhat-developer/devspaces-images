@@ -92,11 +92,8 @@ mkdir -p "${YARN_TARGET_DIR}"
 curl -sSL "https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-${YARN_VERSION}.js" -o "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
 chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
 
-# transform rhel.Dockerfile -> Dockerfile
+# transform rhel.Dockerfile -> local.Dockerfile
 sed -r \
-    `# Strip registry from image references` \
-    -e 's|FROM registry.access.redhat.com/|FROM |' \
-    -e 's|FROM registry.redhat.io/|FROM |' \
     `# CRW-2012 don't install unbound-libs` \
     -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
     `# copy yarn binary` \
@@ -108,8 +105,8 @@ COPY .yarn/releases /dashboard/.yarn/releases/' \
 COPY asset-node-modules-cache.tgz /tmp/\
 RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz' \
     -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
-${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
-cat << EOT >> ${TARGETDIR}/Dockerfile
+${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/local.Dockerfile
+cat << EOT >> ${TARGETDIR}/local.Dockerfile
 ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces dashboard container" \\
     PRODNAME="codeready-workspaces" \\
@@ -127,6 +124,13 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+#Create Dockerfile from local.Dockerfile
+sed -r \
+    `# Strip registry from image references` \
+    -e 's|FROM registry.access.redhat.com/|FROM |' \
+    -e 's|FROM registry.redhat.io/|FROM |' \
+${TARGETDIR}/local.Dockerfile > ${TARGETDIR}/Dockerfile
 
 # Patch rhel.Dockerfile
 sed -r -i \

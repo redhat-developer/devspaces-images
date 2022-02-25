@@ -76,15 +76,11 @@ find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 cp ${SOURCEDIR}/docker/Dockerfile ${TARGETDIR}/bootstrap.Dockerfile
 # transform Dockerfile
 sed -r "${SOURCEDIR}/docker/Dockerfile" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  `# Replace go-toolset ubi8 with rhel8 version` \
-  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
   -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
   -e 's|^# *(COPY resources.tgz .+)|\1|' \
-  > "${TARGETDIR}/Dockerfile"
+  > "${TARGETDIR}/local.Dockerfile"
 
-cat << EOT >> "${TARGETDIR}/Dockerfile"
+cat << EOT >> "${TARGETDIR}/local.Dockerfile"
 
 ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
     DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
@@ -103,4 +99,13 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
+
+#create Dockerfile from local.Dockerfile
+sed -r "${TARGETDIR}/local.Dockerfile" \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  `# Replace go-toolset ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  > "${TARGETDIR}/Dockerfile"
+
 echo "Converted Dockerfile"

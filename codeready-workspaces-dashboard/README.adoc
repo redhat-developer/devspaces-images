@@ -15,6 +15,12 @@ For the latest stable release, see the **crw-2.y-rhel-8** branch with the larges
 
 2. Build the Dashboard image using `build/dockerfiles/rhel.Dockerfile`.
 
+OR
+
+1. Pull built assets using get-sources.sh -p
+
+2. Build the local image using local.Dockerfile
+
 ## How to build in Brew
 
 1. To build in Brew, see the `get-sources*.sh` script, which will:

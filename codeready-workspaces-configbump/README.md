@@ -38,6 +38,11 @@ Options:
   --version              display version and exit
 ```
 
+## Building Locally
+
+  1. Run `./get-sources.sh -p -v 2.16.0`  to get the requred assets (alternatively run `./build/rhel.binary.build.sh -v 2.16.0` using the current CSV version to build assets locally)
+  2. Use podman or docker to build local.Dockerfile, `docker build . -f local.Dockerfile`
+
 ## Examples
 
 An example of using Traefik with configbump as a sidecar in a single pod to enable configbump dynamically downloading configuration files to a directory that Traefik watches for configuration changes can be found in deploy_example.yaml file.
