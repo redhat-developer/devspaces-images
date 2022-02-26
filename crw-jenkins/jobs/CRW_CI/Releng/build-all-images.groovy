@@ -62,20 +62,18 @@ for global CVE updates.
 
             parameters{
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
-                stringParam("PHASES", "1 2 3 4", '''
+                stringParam("PHASES", "1 2 3", '''
 Phases:
 <ol>
-    <!-- TODO in 2.16, switch to UDI / remove sidecars -->
-    <li> build udi (2) and stack sidecar images (4, deprecated @since 2.15)</li>
-    <li> build theia images (3 images)</li>
-    <li> build internals (13 images): 
+    <li> build theia images sequentially (3 images)</li>
+    <li> build internals in parallel (14 images): 
         <ul>
             <li> configbump, operator, dashboard, devfileregistry, idea (@since 2.11), </li>
             <li> imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, pluginbroker-metadata, </li>
-            <li> pluginregistry, server, traefik</li>
+            <li> pluginregistry, server, traefik, udi (@since 2.16)</li>
         </ul>
     </li>
-    <li> build bundle + metadata images + IIBs</li>
+    <li> build bundle image + IIBs</li>
 </ol>
                     ''')
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")

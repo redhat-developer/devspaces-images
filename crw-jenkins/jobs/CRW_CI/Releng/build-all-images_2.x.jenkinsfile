@@ -25,39 +25,10 @@ timeout(600) {
 
                     def List PHASE_LIST = PHASES.tokenize(" ").collect { it.trim() }
 
-                    if (PHASE_LIST.contains("1")) {
-
-                        def List sidecarsList = [
-                            "udi"
-                        ]
-
-                        def Map sidecarstasks = [failFast: false]
-                        // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
-                        for (sidecar in sidecarsList) {
-                            def val="${sidecar}"
-                            def REPOS="codeready-workspaces-" + val
-                            def sidecarJobLoc="sync-to-downstream_" + JOB_BRANCH
-                            def sidecarQuayImageLoc = util.getLatestImageAndTag("crw/" + val + "-rhel8", "quay")
-                            sidecarstasks[val] = { ->
-                                println ("Got sidecarQuayImageLoc (" + val + ") = " + sidecarQuayImageLoc)
-                                def lastSidecarBuildIdLoc = " <- util.runJobSyncToDownstream("+jenkinsPath + sidecarJobLoc+", " +REPOS+", true)"
-                                lastSidecarBuildIdLoc = util.runJobSyncToDownstream(jenkinsPath + sidecarJobLoc, REPOS, true) // DO wait for these to finish
-                                println ("Started job for " + val + ": " + jenkinsURL + sidecarJobLoc + "/" + lastSidecarBuildIdLoc)
-                                if (!util.waitForNewQuayImage("crw/" + val + "-rhel8", sidecarQuayImageLoc)) {
-                                    currentBuild.result = 'FAILED'
-                                    util.notifyBuildFailed()
-                                }
-                                currentBuild.description+="<br/>* <a href=${jenkinsPath}${sidecarJobLoc}/${lastSidecarBuildIdLoc}>${sidecarJobLoc}[${val}]#${lastSidecarBuildIdLoc}</a>"
-                            }
-                        }
-                        // wait in parallel
-                        parallel(sidecarstasks)                        
-                    }
-
                     currentQuayImageTheiaDev=""
                     currentQuayImageTheia=""
                     currentQuayImageTheiaEndpoint=""
-                    if (PHASE_LIST.contains("2")) {
+                    if (PHASE_LIST.contains("1")) {
                         // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
                         currentJob="crw-theia-sources_" + JOB_BRANCH
                         currentQuayImageTheiaDev = util.getLatestImageAndTag("crw/theia-dev-rhel8", "quay")
@@ -69,11 +40,11 @@ timeout(600) {
                         util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                     }
 
-                    if (PHASE_LIST.contains("3")) {
+                    if (PHASE_LIST.contains("2")) {
                         // 14 jobs
                         def jobsList = [
                             "configbump",
-                            "operator", // special case: "crw-2-rhel8-operator"
+                            "operator",                 // special case: "crw-2-rhel8-operator"
                             "dashboard",
                             "devfileregistry",
                             "idea",                     // @since 2.11
@@ -84,7 +55,8 @@ timeout(600) {
                             "pluginbroker-metadata",
                             "pluginregistry",
                             "server",
-                            "traefik"
+                            "traefik",
+                            "udi"                       // @since 2.16
                         ]
 
                         def Map tasks = [failFast: false]
@@ -115,7 +87,7 @@ timeout(600) {
                         parallel(tasks)
                     }
 
-                    if (PHASE_LIST.contains("2")) {
+                    if (PHASE_LIST.contains("1")) {
                         // TODO add sleep time before starting checks?
 
                         // wait until theia is rebuilt - check every 10 mins for 10 hrs
@@ -146,7 +118,7 @@ timeout(600) {
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>crw-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
                     }
 
-                    if (PHASE_LIST.contains("4")) {
+                    if (PHASE_LIST.contains("3")) {
                         currentQuayImageBundle = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-bundle", "quay")
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
