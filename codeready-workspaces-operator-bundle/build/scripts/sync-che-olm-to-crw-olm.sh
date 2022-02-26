@@ -22,7 +22,6 @@ CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
 DWO_TAG=0.12
-SSO_TAG=7.4
 UBI_TAG=8.5
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
@@ -48,7 +47,6 @@ usage () {
 	echo "Options:
 	--crw-tag ${CRW_VERSION}
 	--dwo-tag ${DWO_TAG}
-	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
 	--postgres13-tag ${POSTGRES13_TAG}
@@ -74,7 +72,6 @@ while [[ "$#" -gt 0 ]]; do
 	# optional tag overrides
 	'--crw-tag') CRW_VERSION="$2"; shift 1;;
 	'--dwo-tag') DWO_TAG="$2"; shift 1;;
-	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
 	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
@@ -108,7 +105,6 @@ CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES13_TAG}"
-SSO_IMAGE="registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:${SSO_TAG}" # and registry.redhat.io/rh-sso-7/sso75-openj9-openshift-rhel8 too
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
@@ -198,8 +194,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		\
 		-e "s|name: .+preview-openshift.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
 		\
-		-e 's|Keycloak|Red Hat SSO|g' \
-		-e 's|my-keycloak|my-rhsso|' \
 		\
 		-e "s|    - base64data: .+|${ICON}|" \
 		-e "s|createdAt:.+|createdAt: \"${NOW}\"|" \
@@ -233,7 +227,6 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		\
 		-e "s|centos/postgresql-96-centos7:9.6|${POSTGRES_IMAGE}|" \
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
-		-e "s|quay.io/eclipse/che-keycloak:.+|${SSO_IMAGE}|" \
 		\
 		`# use internal image for operator, as codeready-workspaces-crw-2-rhel8-operator only exists in RHEC and Quay repos` \
 		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:${CRW_VERSION}#" \
@@ -300,8 +293,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
 		["RELATED_IMAGE_postgres_13_3"]="${POSTGRES13_IMAGE}" # CRW-2180 - new @since 2.13
-		["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
-
+	
 		# CRW-2303 - @since 2.12 DWO only (but needs to be available even on non-DWO installs)
 		["RELATED_IMAGE_gateway_authentication_sidecar"]="${OAUTH_PROXY_IMAGE}"
 		["RELATED_IMAGE_gateway_authorization_sidecar"]="${RBAC_PROXY_IMAGE}"

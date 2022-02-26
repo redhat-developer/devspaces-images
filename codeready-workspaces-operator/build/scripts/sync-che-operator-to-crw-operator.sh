@@ -18,7 +18,6 @@ set -e
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 DWO_TAG=0.12
-SSO_TAG=7.4
 UBI_TAG=8.5
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
@@ -30,7 +29,6 @@ usage () {
 	echo "Options:
 	--crw-tag ${CRW_VERSION}
 	--dwo-tag ${DWO_TAG}
-	--sso-tag ${SSO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
 	--postgres13-tag ${POSTGRES13_TAG}
@@ -52,7 +50,6 @@ while [[ "$#" -gt 0 ]]; do
 	# optional tag overrides
 	'--crw-tag') CRW_VERSION="$2"; shift 1;;
 	'--dwo-tag') DWO_TAG="$2"; shift 1;;
-	'--sso-tag') SSO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
 	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
@@ -81,7 +78,6 @@ CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
 POSTGRES13_IMAGE="registry.redhat.io/rhel8/postgresql-13:${POSTGRES13_TAG}"
-SSO_IMAGE="registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:${SSO_TAG}"
 RBAC_PROXY_IMAGE="registry.redhat.io/openshift4/ose-kube-rbac-proxy:${OPENSHIFT_TAG}"
 OAUTH_PROXY_IMAGE="registry.redhat.io/openshift4/ose-oauth-proxy:${OPENSHIFT_TAG}"
 
@@ -220,7 +216,6 @@ declare -A operator_replacements=(
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
 	["RELATED_IMAGE_postgres_13_3"]="${POSTGRES13_IMAGE}" # CRW-2180 - new @since 2.13
-	["RELATED_IMAGE_keycloak"]="${SSO_IMAGE}"
 
 	# CRW-2303 - @since 2.12 DWO only (but needs to be available even on non-DWO installs)
 	["RELATED_IMAGE_gateway_authentication_sidecar"]="${OAUTH_PROXY_IMAGE}"
