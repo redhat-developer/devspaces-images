@@ -96,6 +96,10 @@ RUN \
     dnf -y -q remove $INSTALL_PKGS && \
     dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && rpm -V $INSTALL_PKGS && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+    # remove python 3.6
+    dnf -y -q module reset python36 && \
+    dnf -y -q module enable python36:3.6 && \
+    dnf -y -q install python36 python36-devel python36-setuptools python36-pip && \
     # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     dnf -y -q module reset python38 && \
     dnf -y -q module enable python38:${PYTHON_VERSION} && \
@@ -114,7 +118,12 @@ RUN \
     ln -s /usr/bin/node /usr/bin/nodejs && \
     for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done && \
     # additional python stuff
+    if [[ -L /usr/bin/python ]]; then rm -f /usr/bin/python; fi && \
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
+    # TODO: https://issues.redhat.com/browse/CRW-2630 update to latest pip (in a Brew friendly way)
+    # /usr/bin/python -m pip install -q --upgrade pip && \
+    # TODO replace symlink with wrapper binary for 'python3 -m pip' as symlink will stop working eventually (deprecated in pip 22)
+    if [[ -L /usr/bin/pip ]]; then rm -f /usr/bin/pip; fi && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
     if [[ -f /tmp/assets/asset-python-ls-$(uname -m).tar.gz ]]; then \
         mkdir -p /tmp/py-unpack && \
