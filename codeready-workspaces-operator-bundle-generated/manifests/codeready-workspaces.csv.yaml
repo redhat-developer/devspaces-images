@@ -966,7 +966,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:4d9e1e81fcfb297817ecf71e74b6707a462f21f9f493c43605f09cca09a3be7f
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
-                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:8efb9eafd18a01b70c37860631df7667a56936c34b8944419c63d36b5cf96d17
+                  value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:a8b1ad25462b5e222f321e254a8298a4c2fd65904ee0f7ac21aafdac8154c0ad
                 - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
                   value: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:17a7caa84c96713ee43bc46b1b165ce118a02fa8e9a452084139426b8e7680b7
                 - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
@@ -992,7 +992,7 @@ spec:
                 - name: RELATED_IMAGE_postgres_13_3
                   value: registry.redhat.io/rhel8/postgresql-13@sha256:2fe852e4b3799392877f53f70fd2af63bd4cb392a8cf6feb877174318a745929
                 - name: RELATED_IMAGE_pvc_jobs
-                  value: registry.redhat.io/ubi8/ubi-minimal@sha256:45b495856f6911192d93220bb773a881f51d52c0375c2a90574853c963d7a455
+                  value: registry.redhat.io/ubi8/ubi-minimal@sha256:2e4bbb2be6e7aff711ddc93f0b07e49c93d41e4c2ffc8ea75f804ad6fe25564e
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
@@ -1295,7 +1295,7 @@ spec:
   - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8@sha256:4d9e1e81fcfb297817ecf71e74b6707a462f21f9f493c43605f09cca09a3be7f
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
-    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:8efb9eafd18a01b70c37860631df7667a56936c34b8944419c63d36b5cf96d17
+    image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:a8b1ad25462b5e222f321e254a8298a4c2fd65904ee0f7ac21aafdac8154c0ad
   - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
     image: registry.redhat.io/codeready-workspaces/udi-rhel8@sha256:17a7caa84c96713ee43bc46b1b165ce118a02fa8e9a452084139426b8e7680b7
   - name: codeready_workspaces_udi_plugin_registry_image_gixdcnqk
@@ -1321,7 +1321,7 @@ spec:
   - name: postgres_13_3
     image: registry.redhat.io/rhel8/postgresql-13@sha256:2fe852e4b3799392877f53f70fd2af63bd4cb392a8cf6feb877174318a745929
   - name: pvc_jobs
-    image: registry.redhat.io/ubi8/ubi-minimal@sha256:45b495856f6911192d93220bb773a881f51d52c0375c2a90574853c963d7a455
+    image: registry.redhat.io/ubi8/ubi-minimal@sha256:2e4bbb2be6e7aff711ddc93f0b07e49c93d41e4c2ffc8ea75f804ad6fe25564e
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
