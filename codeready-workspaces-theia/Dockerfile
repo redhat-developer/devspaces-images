@@ -185,7 +185,7 @@ RUN mv /che-theia-build/plugins /default-theia-plugins
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-107 as runtime
+FROM ubi8/nodejs-12:1-107.1645821200 as runtime
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
