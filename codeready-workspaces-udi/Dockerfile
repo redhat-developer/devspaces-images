@@ -8,9 +8,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# This Dockerfile and folder contents are manually synced from 
-# https://github.com/eclipse/che-theia/tree/v7.3.2/dockerfiles/remote-plugin-openshift-connector-0.1.0
-
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.5-230
 
@@ -58,7 +55,7 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /
     # Common Installations and Configuration
     ########################################################################
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng \
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo \
     # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
