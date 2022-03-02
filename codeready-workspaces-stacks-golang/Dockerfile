@@ -44,15 +44,15 @@ COPY . /tmp/assets/
 # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202140924.p0.g340e212.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202140924.p0.g340e212.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202140924.p0.g340e212.assembly.stream.el8.ppc64le.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8.ppc64le.rpm
 RUN useradd -u 1000 -G wheel,root -d /home/jboss --shell /bin/bash -m jboss && \
     yum remove -y nodejs && \
     yum install -y \
     # next line are c/c++ compiler stuff which we apparently need for new golangci-lint
     make cmake gcc gcc-c++ glibc-devel zlib-devel libstdc++ libstdc++-devel \
-    sudo git wget curl nss_wrapper bzip2 openshift-clients-4.9.0-202202140924.p0.g340e212.assembly.stream.el8 && \
+    sudo git wget curl nss_wrapper bzip2 openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8 && \
     yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     mkdir -p /projects/.che/gopath /.cache && \
