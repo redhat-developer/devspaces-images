@@ -127,11 +127,9 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                     }
 
                     mailBody = mailBody + '''
-Latest crwctl builds:
+Latest crwctl binaries:
 
-''' + JENKINS_URL + '''job/CRW_CI/job/crwctl_''' + JOB_BRANCH + '''/lastSuccessfulBuild/artifact/codeready-workspaces-chectl/dist/channels/
-- or -
-https://github.com/redhat-developer/codeready-workspaces-chectl/releases (if copied there)
+https://github.com/redhat-developer/codeready-workspaces-chectl/releases/tag/''' + CSV_VERSION + '''-crwctl-CI-assets
 
 Quay Images:
 ''' + NEW_QUAY_L
