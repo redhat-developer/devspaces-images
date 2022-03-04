@@ -327,6 +327,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		['.spec.displayName']="Red Hat CodeReady Workspaces - Technical Preview"
 		# CRW-2297 relabel operatorhub tiles to clarify which operator is supported and which is tech preview
 		['.metadata.annotations.description']="Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
+		# CRW-2798 skip Freshmaker builds that went out before 2.15.1 / 2.15.101 GA release
+		['.metadata.annotations.skipRange']='>=2.15.100 <2.15.102'
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
