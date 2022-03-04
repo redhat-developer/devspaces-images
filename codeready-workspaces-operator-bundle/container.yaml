@@ -32,6 +32,7 @@ operator_manifests:
         codeready-workspaces-operator-container: codeready-workspaces/crw-2-rhel8-operator
         codeready-workspaces-rhel8-operator-container: codeready-workspaces/crw-2-rhel8-operator
         devworkspace-operator-container: devworkspace/devworkspace-rhel8-operator
+        devworkspace-operator-bundle-container: devworkspace/devworkspace-operator-bundle
         jboss-eap-xp3-openj9-11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openj9-11-openshift-rhel8
         jboss-eap-xp3-openjdk11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
         jboss-eap-7-xp3-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
