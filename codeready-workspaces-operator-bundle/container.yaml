@@ -33,6 +33,8 @@ operator_manifests:
         codeready-workspaces-rhel8-operator-container: codeready-workspaces/crw-2-rhel8-operator
         devworkspace-operator-container: devworkspace/devworkspace-rhel8-operator
         devworkspace-operator-bundle-container: devworkspace/devworkspace-operator-bundle
+        devworkspace-operator-bundle-package: devworkspace/devworkspace-operator-bundle
+        devworkspace-operator-package: devworkspace/devworkspace-operator-bundle
         # 00_java11-maven-microprofile-xp3/devfile.yaml
         jboss-eap-xp3-openjdk11-builder-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
         jboss-eap-7-xp3-openjdk11-openshift-rhel8-container: jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8
