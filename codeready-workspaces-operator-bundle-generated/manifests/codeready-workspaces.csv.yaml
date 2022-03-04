@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:4e043b42499547b0a96cad37f1e1fe807de949b2b4a53e9052576a4b6676032f
-    createdAt: "2022-02-26T14:38:44+00:00"
+    createdAt: "2022-03-04T19:47:22+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -126,6 +126,9 @@ spec:
         path: auth.gatewayHeaderRewriteSidecarImage
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:hidden
+      - description: Configuration settings related to the User Dashboard used by the Che installation.
+        displayName: User Dashboard
+        path: dashboard
       - description: Configuration settings related to the database used by the Che installation.
         displayName: Database
         path: database
