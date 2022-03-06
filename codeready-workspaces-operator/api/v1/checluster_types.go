@@ -15,10 +15,7 @@ package v1
 // Important: You must regenerate some generated code after modifying this file. At the root of the project:
 // Run `make generate`. It will perform required changes:
 // - update `api/v1/zz_generatedxxx` files;
-// - update `config/crd/bases/org_v1_checluster_crd.yaml` and `config/crd/bases/org_v1_che_crd-v1beta1.yaml` files;
-// - In the updated `config/crd/bases/org_v1_checluster_crd.yaml`: Delete all the `required:` openAPI rules in the CRD OpenApi schema;
-// - Rename the new `config/crd/bases/org_v1_checluster_crd.yaml` to `config/crd/bases/org_v1_che_crd.yaml` to override it.
-// IMPORTANT These 2 last steps are important to ensure backward compatibility with already existing `CheCluster` CRs that were created when no schema was provided.
+// - update `config/crd/bases/org_v1_checluster_crd.yaml` file;
 
 import (
 	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/api/v1alpha1"
@@ -51,6 +48,10 @@ type CheClusterSpec struct {
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Persistent storage"
 	Storage CheClusterSpecStorage `json:"storage"`
+	// Configuration settings related to the User Dashboard used by the Che installation.
+	// +optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="User Dashboard"
+	Dashboard CheClusterSpecDashboard `json:"dashboard"`
 	// Configuration settings related to the metrics collection used by the Che installation.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Metrics"
@@ -594,6 +595,14 @@ type Resources struct {
 	// CPU, in cores. (500m = .5 cores)
 	// +optional
 	Cpu string `json:"cpu,omitempty"`
+}
+
+// +k8s:openapi-gen=true
+// Configuration settings related to the User Dashboard used by the Che installation.
+type CheClusterSpecDashboard struct {
+	// Warning message that will be displayed on the User Dashboard
+	// +optional
+	Warning string `json:"warning,omitempty"`
 }
 
 // +k8s:openapi-gen=true
