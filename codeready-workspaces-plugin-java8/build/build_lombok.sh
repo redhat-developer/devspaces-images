@@ -90,6 +90,8 @@ if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 ./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -n ${ASSET_NAME}
+# in case API is running slow, sleep for a bit before trying to push files into the freshly created release
+sleep 10s
 ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}"
 
 ${PODMAN} rmi -f ${OPENJDK11_IMAGE}
