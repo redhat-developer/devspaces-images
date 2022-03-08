@@ -6,8 +6,8 @@ import groovy.transform.Field
 //   CLEAN_ON_FAILURE = "true"
 
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
-timeout(600) {
-    node(nodeLabel) {
+timeout(TIMEOUT?.trim() ? TIMEOUT : 600) {
+        node(nodeLabel) {
         stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
@@ -73,7 +73,8 @@ timeout(600) {
                                 tasks[currentJobLoc] = { ->
                                     println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
                                     def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
-                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
+                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("crw/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
