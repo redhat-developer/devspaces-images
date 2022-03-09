@@ -162,6 +162,11 @@ fi
                   value: false
                 ],
                 [
+                  $class: 'StringParameterValue',
+                  name: 'TIMEOUT',
+                  value: env.TIMEOUT?.trim() ? env.TIMEOUT + "" : ""
+                ],
+                [
                   $class: 'BooleanParameterValue',
                   name: 'CLEAN_ON_FAILURE',
                   value: CLEAN_ON_FAILURE
