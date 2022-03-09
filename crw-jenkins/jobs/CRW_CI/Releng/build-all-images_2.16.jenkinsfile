@@ -3,25 +3,21 @@ import groovy.transform.Field
 
 // PARAMETERS for this pipeline:
 //   MIDSTM_BRANCH
+//   CLEAN_ON_FAILURE = "true"
 
-def String nodeLabel = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
-timeout(600) {
-    node(nodeLabel) {
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
+        node(nodeLabel) {
         stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-                def util = load "${WORKSPACE}/util.groovy"
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
-                util.installSkopeoFromContainer("")
-                util.installYq()
-                util.installRhpkg()
-                util.installBrewKoji()
                 CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                 println "CRW_VERSION = '" + CRW_VERSION + "'"
                 JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
                 currentBuild.description="Jobs run:"
-                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                        file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                     def currentJob="" // name of job
                     def currentQuayImage="" // last successful quay tag
                     def jenkinsPath="/job/CRW_CI/job/"
@@ -29,48 +25,10 @@ timeout(600) {
 
                     def List PHASE_LIST = PHASES.tokenize(" ").collect { it.trim() }
 
-                    if (PHASE_LIST.contains("1")) {
-
-                        def List sidecarsList = [
-                            "plugin-java11-openj9", 
-                            "plugin-java11", 
-                            "plugin-java8-openj9", 
-                            "plugin-java8", 
-                            "plugin-kubernetes", 
-                            "plugin-openshift", 
-                            "stacks-cpp", 
-                            "stacks-dotnet", 
-                            "stacks-golang", 
-                            "stacks-php"
-                        ]
-
-                        def Map sidecarstasks = [failFast: false]
-                        // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
-                        for (sidecar in sidecarsList) {
-                            def val="${sidecar}"
-                            def REPOS="codeready-workspaces-" + val
-                            def sidecarJobLoc="sync-to-downstream_" + JOB_BRANCH
-                            def sidecarQuayImageLoc = util.getLatestImageAndTag("crw/" + val + "-rhel8", "quay")
-                            sidecarstasks[val] = { ->
-                                println ("Got sidecarQuayImageLoc (" + val + ") = " + sidecarQuayImageLoc)
-                                def lastSidecarBuildIdLoc = " <- util.runJobSyncToDownstream("+jenkinsPath + sidecarJobLoc+", " +REPOS+", true)"
-                                lastSidecarBuildIdLoc = util.runJobSyncToDownstream(jenkinsPath + sidecarJobLoc, REPOS, true) // DO wait for these to finish
-                                println ("Started job for " + val + ": " + jenkinsURL + sidecarJobLoc + "/" + lastSidecarBuildIdLoc)
-                                if (!util.waitForNewQuayImage("crw/" + val + "-rhel8", sidecarQuayImageLoc)) {
-                                    currentBuild.result = 'FAILED'
-                                    util.notifyBuildFailed()
-                                }
-                                currentBuild.description+="<br/>* <a href=${jenkinsPath}${sidecarJobLoc}/${lastSidecarBuildIdLoc}>${sidecarJobLoc}[${val}]#${lastSidecarBuildIdLoc}</a>"
-                            }
-                        }
-                        // wait in parallel
-                        parallel(sidecarstasks)                        
-                    }
-
                     currentQuayImageTheiaDev=""
                     currentQuayImageTheia=""
                     currentQuayImageTheiaEndpoint=""
-                    if (PHASE_LIST.contains("2")) {
+                    if (PHASE_LIST.contains("1")) {
                         // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
                         currentJob="crw-theia-sources_" + JOB_BRANCH
                         currentQuayImageTheiaDev = util.getLatestImageAndTag("crw/theia-dev-rhel8", "quay")
@@ -82,11 +40,11 @@ timeout(600) {
                         util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                     }
 
-                    if (PHASE_LIST.contains("3")) {
+                    if (PHASE_LIST.contains("2")) {
+                        // 14 jobs
                         def jobsList = [
-                            "backup",                   // @since 2.12
                             "configbump",
-                            "operator", // special case: "crw-2-rhel8-operator"
+                            "operator",                 // special case: "crw-2-rhel8-operator"
                             "dashboard",
                             "devfileregistry",
                             "idea",                     // @since 2.11
@@ -97,7 +55,8 @@ timeout(600) {
                             "pluginbroker-metadata",
                             "pluginregistry",
                             "server",
-                            "traefik"
+                            "traefik",
+                            "udi"                       // @since 2.16
                         ]
 
                         def Map tasks = [failFast: false]
@@ -114,7 +73,8 @@ timeout(600) {
                                 tasks[currentJobLoc] = { ->
                                     println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
                                     def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
-                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true) // DO wait for these to finish
+                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
+                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
                                     if (!util.waitForNewQuayImage("crw/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
@@ -128,7 +88,7 @@ timeout(600) {
                         parallel(tasks)
                     }
 
-                    if (PHASE_LIST.contains("2")) {
+                    if (PHASE_LIST.contains("1")) {
                         // TODO add sleep time before starting checks?
 
                         // wait until theia is rebuilt - check every 10 mins for 10 hrs
@@ -159,13 +119,11 @@ timeout(600) {
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>crw-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
                     }
 
-                    if (PHASE_LIST.contains("4")) {
-                        currentQuayImageMetadata = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-metadata", "quay")
-                        println ("Got currentQuayImageMetadata = " + currentQuayImageMetadata)
+                    if (PHASE_LIST.contains("3")) {
                         currentQuayImageBundle = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-bundle", "quay")
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
-                        // trigger update-digests job (to rebuild bundle/metadata images)
+                        // trigger update-digests job (to rebuild bundle image)
                         currentJob="update-digests-in-metadata_" + JOB_BRANCH
                         def int lastBuildId4 = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId4}>update-digests#${lastBuildId4}</a> triggered"
@@ -176,7 +134,7 @@ timeout(600) {
                 cleanWhenSuccess: true,
                 cleanWhenUnstable: true,
                 cleanWhenNotBuilt: false,
-                cleanWhenFailure: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
                 cleanWhenAborted: true,
                 deleteDirs: true,
                 disableDeferredWipeout: true,

@@ -28,11 +28,13 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
     if (SYNC_REPOi.contains("-udi") || SYNC_REPOi.contains("-stacks-") || SYNC_REPOi.contains("-traefik") || SYNC_REPOi.contains("-configbump")) {
       currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
       def String nodeLabelString = ""
-      timeout(TIMEOUT?.trim() ? TIMEOUT : 120) {
+      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
         node(nodeLabelAnyArch){
           // prestage #0 - get arches on which to build
           stage("Get arches + delete old assets"){
             withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
               cleanWs()
               // might be already defined by the referring job
               CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
@@ -48,6 +50,9 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspa
 pushd sources/''' + SYNC_REPOi + '''
 if [[ -f get-sources.sh ]]; then 
   ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
+
+  # in case API is running slow, sleep for a bit before trying to push files into the freshly created release
+  sleep 10s
 else 
   echo "[ERROR] Could not run get-sources.sh --delete-assets (for ''' + SYNC_REPOi + ''')"; exit 1
 fi
@@ -74,7 +79,7 @@ popd
         def String thisArch=nodeLabel
         // prestage #2 for building lang servers - create assets and publish to GH releases
         tasks[SYNC_REPOi + " " + thisArch] = { ->
-          timeout(TIMEOUT?.trim() ? TIMEOUT : 120) {
+          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {

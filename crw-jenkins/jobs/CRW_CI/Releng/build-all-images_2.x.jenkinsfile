@@ -6,7 +6,7 @@ import groovy.transform.Field
 //   CLEAN_ON_FAILURE = "true"
 
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
-timeout(TIMEOUT?.trim() ? TIMEOUT : 600) {
+timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
         node(nodeLabel) {
         stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {

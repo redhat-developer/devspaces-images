@@ -1,11 +1,13 @@
 #!/usr/bin/env groovy
 import groovy.transform.Field
+import groovy.json.JsonSlurper
 
 // PARAMETERS for this pipeline:
 //   REPOS
 //   UPDATE_BASE_IMAGES_FLAGS
 //   MIDSTM_BRANCH
 //   FORCE_BUILD
+//   CLEAN_ON_FAILURE = "true"
 
 def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
 def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // source repo from which to find commits
@@ -14,31 +16,30 @@ def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
 
-def String nodeLabelAnyArch = 'rhel83||x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
-def String nodeLabelXArch='rhel83||x86_64-rhel8' 
+// CRW-2656 if a theia build, ONLY use dynamic rhel85 boxes so there's maximum disk space available
+def String nodeLabelAnyArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8||ppc64le-rhel8' // NB 2022-01-14 remove s390x-rhel8 as it can be flaky with ssh connections
+def String nodeLabelXArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8' 
 
 currentBuild.description=""
 for (int i=0; i < SYNC_REPOS.size(); i++) {
   SYNC_REPOi="${SYNC_REPOS[i]}"
   def Map tasks = [failFast: true]
   if (SYNC_REPOi?.trim()) { // filter out nullstring values
-    if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-") || REPOS.contains("-traefik") || REPOS.contains("-configbump")) {
+    if (SYNC_REPOi.contains("-udi") || SYNC_REPOi.contains("-stacks-") || SYNC_REPOi.contains("-traefik") || SYNC_REPOi.contains("-configbump")) {
       currentBuild.description+="<br/>Build assets: ${SYNC_REPOi} - "
       def String nodeLabelString = ""
-      timeout(120) {
+      timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
         node(nodeLabelAnyArch){
           // prestage #0 - get arches on which to build
           stage("Get arches + delete old assets"){
             withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
-              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-              def util = load "${WORKSPACE}/util.groovy"
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
               cleanWs()
-              util.installYq()
-              util.installHub("2.14.2", GOLANG_VERSION)
               // might be already defined by the referring job
               CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
               println("[INFO] Using CSV version = " + CSV_VERSION)
-              util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
               nodeLabelString = sh( 
                 script: '''
 curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
@@ -49,6 +50,9 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspa
 pushd sources/''' + SYNC_REPOi + '''
 if [[ -f get-sources.sh ]]; then 
   ./get-sources.sh --delete-assets --nobuild -v ''' + CSV_VERSION + '''
+
+  # in case API is running slow, sleep for a bit before trying to push files into the freshly created release
+  sleep 10s
 else 
   echo "[ERROR] Could not run get-sources.sh --delete-assets (for ''' + SYNC_REPOi + ''')"; exit 1
 fi
@@ -75,30 +79,22 @@ popd
         def String thisArch=nodeLabel
         // prestage #2 for building lang servers - create assets and publish to GH releases
         tasks[SYNC_REPOi + " " + thisArch] = { ->
-          timeout(120) {
+          timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
-                withCredentials([
-                  string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                  string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
-                  usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD'),
-                  file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')
-                ]) {
-                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-                  def util = load "${WORKSPACE}/util.groovy"
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  def util = load "${WORKSPACE}/util2.groovy"
                   cleanWs()
-                  util.installHub("2.14.2", GOLANG_VERSION)
                   // might be already defined by the referring job
                   CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
-                  util.loginToRegistries() // force log in to registries
-                  util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
                     pushd sources/''' + SYNC_REPOi + '''
-                    if [[ -f get-sources.sh ]]; then 
-                      sudo setenforce 0 || true # disable selinux for podman builds
+                    if [[ -f get-sources.sh ]]; then
                       ./get-sources.sh --publish-assets --nobuild -v ''' + CSV_VERSION + '''
-                    else 
+                    else
                       echo "[ERROR] Could not run get-sources.sh --publish-assets (for ''' + SYNC_REPOi + ''')"; exit 1
                     fi
                     popd
@@ -109,7 +105,7 @@ popd
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
                     cleanWhenNotBuilt: false,
-                    cleanWhenFailure: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
                     cleanWhenAborted: true,
                     deleteDirs: true,
                     disableDeferredWipeout: true,
@@ -137,37 +133,15 @@ timeout(600) {
   node(nodeLabelAnyArch) {
     stage ("Sync repos on ${nodeLabelAnyArch}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util.groovy')
-        def util = load "${WORKSPACE}/util.groovy"
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
         cleanWs()
-        if (currentBuild.description?.trim()) {
-          currentBuild.description+="<br/>"
-        } else {
-          currentBuild.description=""
-        }
-        currentBuild.description+="Install skopeo, rhpkg, "
-        util.installSkopeoFromContainer("")
-        util.installRhpkg()
-        util.installHub("2.14.2", GOLANG_VERSION) // for get-sources.sh -> uploadAssetsToGHRelease.sh
-        // install node and yarn if versions defined (eg., for theia-dev's generator tgz)
-        if (util.globalVar({nodeVersion})?.trim() && util.globalVar({yarnVersion})?.trim()) {
-          if (REPOS.contains("-theia-dev") || REPOS.contains("-dashboard")) { // need make, c++ for node-gyp
-            currentBuild.description+="node, yarn, make, c++, node-gyp;<br/> "
-            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, true)
-          } else {
-            currentBuild.description+="node, yarn;"
-            util.installNPM(util.globalVar({nodeVersion}), util.globalVar({yarnVersion}), false, false)
-          }
-        }
 
-          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-              file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
-            util.bootstrap(CRW_KEYTAB, true) // force bootstrapping again on each node, in case we haven't logged in to registries
-            util.cloneRepoWithBootstrap("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
-
+            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
@@ -175,8 +149,19 @@ timeout(600) {
             util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, CRW_VERSION)
 
             // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-plugin-") || REPOS.contains("-stacks-")) { util.updateOCRpms("4.9"); }
-            if (REPOS.contains("plugin-kubernetes")) { util.updateHelmRpms("4.8"); }
+            if (REPOS.contains("-udi") || REPOS.contains("-stacks-")) { 
+              def OPENSHIFT_CONTENT_SET_VERSION = sh( 
+                script: '''
+curl -sSLo- https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + CRW_VERSION + '''"]' 
+                ''', returnStdout: true).trim()
+              if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null")) {
+                util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
+                // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
+                if (REPOS.contains("-udi")) { util.updateHelmRpms("4.8"); }
+              } else {
+                println("[WARN] Could not update OC or Helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION not defined for CRW_VERSION = " + CRW_VERSION)
+              }
+            }
 
             currentBuild.description=""
             def QUAY_REPO_PATH=""
@@ -198,7 +183,7 @@ timeout(600) {
                 println "########################################################################################################"
                 println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepoWithBootstrap("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
                 sh('''
 SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"
@@ -266,7 +251,7 @@ rm -f /tmp/rsync-excludes
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getCRWShortName("${SYNC_REPOS[i]}") + "-rhel8"
                   if ("${SYNC_REPOS[i]}".contains("-operator-")) {
-                    // SPECIAL CASE FOR operator (and operator-bundle, and operator-metadata)
+                    // SPECIAL CASE FOR operator (and operator-bundle)
                     QUAY_REPO_PATH="crw-2-rhel8-" + util.getCRWShortName("${SYNC_REPOS[i]}")
                   }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
@@ -331,6 +316,11 @@ rm -f /tmp/rsync-excludes
                         $class: 'BooleanParameterValue',
                         name: 'SCRATCH',
                         value: false
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
                       ]
                     ]
                   )
@@ -346,7 +336,7 @@ rm -f /tmp/rsync-excludes
               cleanWhenSuccess: true,
               cleanWhenUnstable: true,
               cleanWhenNotBuilt: false,
-              cleanWhenFailure: false,
+              cleanWhenFailure: CLEAN_ON_FAILURE,
               cleanWhenAborted: true,
               deleteDirs: true,
               disableDeferredWipeout: true,
@@ -361,8 +351,8 @@ rm -f /tmp/rsync-excludes
 node(nodeLabelAnyArch){ 
   stage ("Build crwctl on ${nodeLabelAnyArch}") {
     if (REPOS.contains("-operator-")) { 
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util.groovy')
-      def util = load "${WORKSPACE}/util.groovy"
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      def util = load "${WORKSPACE}/util2.groovy"
       JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
       println "########################################################################################################"
       println "##  Build crwctl ${JOB_BRANCH}"
@@ -387,22 +377,25 @@ node(nodeLabelAnyArch){
                     value: (
                         REPOS.contains("-operator-bundle") ? 
                           "build+crwctl+for+operator-bundle+sync+from+${BUILD_TAG}" : 
-                            (REPOS.contains("-operator-metadata") ? 
-                            "build+crwctl+for+operator-metadata+sync+from+${BUILD_TAG}" : 
-                            "build+crwctl+for+operator+sync+from+${BUILD_TAG}")
+                          "build+crwctl+for+operator+sync+from+${BUILD_TAG}"
                     )
                   ],
                   [
                     $class: 'StringParameterValue',
                     name: 'versionSuffix',
                     value: "CI"
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'CLEAN_ON_FAILURE',
+                    value: CLEAN_ON_FAILURE
                   ]
                 ]
           )
-          currentBuild.description+="; crwctl build triggered"
+          currentBuild.description+=" crwctl build triggered"
         } else {
           println "No changes upstream, nothing to rebuild in crwctl!"
-          currentBuild.description+="; no crwctl build"
+          currentBuild.description+=" no crwctl build"
           currentBuild.result = 'UNSTABLE'
         }
       } else {
@@ -412,7 +405,7 @@ node(nodeLabelAnyArch){
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,
           cleanWhenNotBuilt: false,
-          cleanWhenFailure: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
           cleanWhenAborted: true,
           deleteDirs: true,
           disableDeferredWipeout: true,
