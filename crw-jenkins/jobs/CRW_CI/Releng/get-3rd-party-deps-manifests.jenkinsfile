@@ -11,7 +11,7 @@ def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
 def buildNode = "rhel83||s390x-rhel8||ppc64le-rhel8"
-timeout(120) {
+timeout(240) {
   node("${buildNode}"){
     stage("Collect 3rd party sources") {
       wrap([$class: 'TimestamperBuildWrapper']) {
