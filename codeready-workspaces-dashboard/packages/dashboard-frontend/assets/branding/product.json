@@ -1,7 +1,7 @@
 {
   "title": "CodeReady Workspaces ",
   "name": "CodeReady Workspaces",
-  "productVersion": "2.16 @ 4aa9c #160 :: Eclipse Che Dashboard 7.43.-1 @ 8143",
+  "productVersion": "2.16 @ 60068d4 #161 :: Eclipse Che Dashboard 7.43.-1 @ 6c2a",
   "logoFile": "che-logo.svg",
   "logoTextFile": "che-logo-text.svg",
   "links": [

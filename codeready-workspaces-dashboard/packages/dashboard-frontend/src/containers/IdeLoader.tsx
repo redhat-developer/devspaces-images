@@ -202,6 +202,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
 
   private async restartWorkspace(workspace: Workspace): Promise<void> {
     this.setState({ isWaitingForRestart: true });
+    this.ideLoaderCallbacks?.hideAlert?.();
     try {
       await this.props.restartWorkspace(workspace);
       this.setState({ isWaitingForRestart: false });
@@ -228,7 +229,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       },
     });
 
-    const { isLoading, requestWorkspaces, allWorkspaces } = this.props;
+    const { isLoading, requestWorkspaces, updateWorkspace, allWorkspaces } = this.props;
     let workspace = allWorkspaces.find(
       workspace =>
         workspace.namespace === this.state.namespace && workspace.name === this.state.workspaceName,
@@ -244,6 +245,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     if (workspace && workspace.ideUrl && workspace.isRunning) {
       return await this.updateIdeUrl(workspace.ideUrl);
     } else if (workspace && workspace.hasError) {
+      await updateWorkspace(workspace);
       this.showErrorAlert(workspace);
     }
     await this.applyIdeLoadingStep();
@@ -480,7 +482,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     if (this.state.currentStep === LoadIdeSteps.INITIALIZING) {
       this.setState({ currentStep: LoadIdeSteps.START_WORKSPACE });
       await this.props.requestWorkspace(workspace);
-      if (this.props.workspace?.isStopped) {
+      if (workspace?.isStopped) {
         try {
           await this.props.startWorkspace(workspace);
         } catch (e) {

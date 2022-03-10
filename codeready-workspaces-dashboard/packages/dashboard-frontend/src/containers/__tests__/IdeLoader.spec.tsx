@@ -55,6 +55,11 @@ jest.mock('../../store/Workspaces/index', () => {
         (): void =>
           setWorkspaceIdMock(),
       clearWorkspaceId: (): AppThunk<Action, void> => (): void => clearWorkspaceIdMock(),
+      updateWorkspace:
+        (workspace: Workspace): AppThunk<Action, Promise<void>> =>
+        async (): Promise<void> => {
+          return Promise.resolve();
+        },
     } as ActionCreators,
   };
   /* eslint-enable @typescript-eslint/no-unused-vars */
@@ -185,13 +190,16 @@ describe('IDE Loader container', () => {
     expect(LoadIdeSteps[elementCurrentStep]).toEqual(LoadIdeSteps[LoadIdeSteps.INITIALIZING]);
   });
 
-  it('error links are passed to alert when workspace start error is found', () => {
+  it('error links are passed to alert when workspace start error is found', async () => {
     const namespace = 'admin3';
     const workspaceName = 'name-wksp-3';
 
     renderComponent(namespace, workspaceName);
 
-    expect(requestWorkspaceMock).toBeCalled();
+    await waitFor(() => {
+      expect(requestWorkspaceMock).toBeCalled();
+    });
+    // TODO: This does not work as expected as startWorkspaceMock is called asynchronously
     expect(startWorkspaceMock).not.toBeCalled();
 
     expect(showAlertMock).toBeCalled();

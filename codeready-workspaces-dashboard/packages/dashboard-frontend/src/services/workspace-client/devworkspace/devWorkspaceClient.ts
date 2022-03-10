@@ -769,7 +769,13 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (!skipErrorCheck) {
       this.checkForDevWorkspaceError(changedWorkspace);
     }
-    return changedWorkspace;
+    // Need to request DevWorkspace again to get updated Status -- we've patched spec.started
+    // but status still may contain an earlier error until DevWorkspace Operator updates it.
+    const clusterWorkspace = await DwApi.getWorkspaceByName(
+      changedWorkspace.metadata.namespace,
+      changedWorkspace.metadata.name,
+    );
+    return clusterWorkspace;
   }
 
   /**

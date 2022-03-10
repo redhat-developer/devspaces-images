@@ -34,7 +34,7 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
     window.Date = dateConstructor;
   });
 
@@ -50,6 +50,8 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
     const spyPatchWorkspace = jest
       .spyOn(DwApi, 'patchWorkspace')
       .mockResolvedValueOnce(testWorkspace);
+
+    jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
 
     await client.changeWorkspaceStatus(testWorkspace, true);
 
@@ -84,6 +86,8 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
       .spyOn(DwApi, 'patchWorkspace')
       .mockResolvedValueOnce(testWorkspace);
 
+    jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
+
     await client.changeWorkspaceStatus(testWorkspace, true);
 
     expect(spyPatchWorkspace).toBeCalledWith(
@@ -111,6 +115,8 @@ describe('DevWorkspace client, changeWorkspaceStatus', () => {
     const spyPatchWorkspace = jest
       .spyOn(DwApi, 'patchWorkspace')
       .mockResolvedValueOnce(testWorkspace);
+
+    jest.spyOn(DwApi, 'getWorkspaceByName').mockResolvedValueOnce(testWorkspace);
 
     await client.changeWorkspaceStatus(testWorkspace, false);
 
