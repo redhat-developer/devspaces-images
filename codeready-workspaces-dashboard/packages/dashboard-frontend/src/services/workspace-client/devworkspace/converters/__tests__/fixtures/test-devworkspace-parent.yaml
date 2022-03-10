@@ -13,5 +13,5 @@ spec:
   template:
     parent:
       id: nodejs
-      registryUrl: "https://registry.devfile.io"
+      registryUrl: 'https://registry.devfile.io'
     components: []

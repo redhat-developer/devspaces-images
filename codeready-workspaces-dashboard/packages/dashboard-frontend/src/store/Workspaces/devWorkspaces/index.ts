@@ -262,6 +262,13 @@ export const actionCreators: ActionCreators = {
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
       try {
+        const { workspaces } = await devWorkspaceClient.getAllWorkspaces(
+          workspace.metadata.namespace,
+        );
+        const runningWorkspaces = workspaces.filter(workspace => workspace.spec.started === true);
+        if (runningWorkspaces.length > 0) {
+          throw new Error('You are not allowed to start more workspaces.');
+        }
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
         await addKubeConfigInjection(workspace);

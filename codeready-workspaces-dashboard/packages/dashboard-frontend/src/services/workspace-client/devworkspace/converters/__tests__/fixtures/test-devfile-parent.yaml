@@ -8,5 +8,5 @@ metadata:
       any.custom.settings: 'true'
 parent:
   id: nodejs
-  registryUrl: "https://registry.devfile.io"
+  registryUrl: 'https://registry.devfile.io'
 components: []
