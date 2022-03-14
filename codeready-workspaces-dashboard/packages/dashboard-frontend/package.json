@@ -33,6 +33,7 @@
     "stylelint:fix": "stylelint */**/*.css --fix",
     "test": "jest",
     "test:coverage": "yarn test --coverage",
+    "test:no-cache": "yarn test --watch --no-cache",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
