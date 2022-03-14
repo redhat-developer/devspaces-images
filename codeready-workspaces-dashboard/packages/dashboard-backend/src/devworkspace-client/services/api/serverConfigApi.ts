@@ -47,7 +47,7 @@ export class ServerConfigApi implements IServerConfigApi {
         item.metadata?.name === NAME && item.metadata?.namespace === NAMESPACE,
     );
 
-    if (!cheCustomResource?.spec?.server) {
+    if (!cheCustomResource) {
       throw createError(
         undefined,
         CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
@@ -57,50 +57,15 @@ export class ServerConfigApi implements IServerConfigApi {
     return cheCustomResource;
   }
 
-  async getDefaultPlugins(cheCustomResource?: {
-    [key: string]: any;
-  }): Promise<api.IWorkspacesDefaultPlugins[]> {
-    try {
-      if (!cheCustomResource) {
-        cheCustomResource = await this.getCheCustomResource();
-      }
-      return cheCustomResource.spec.server.workspacesDefaultPlugins || [];
-    } catch (e) {
-      throw createError(
-        e,
-        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
-        'Unable to fetch listClusterCustomObject',
-      );
-    }
+  getDefaultPlugins(cheCustomResource: { [key: string]: any }): api.IWorkspacesDefaultPlugins[] {
+    return cheCustomResource.spec.server.workspacesDefaultPlugins || [];
   }
 
-  async getDashboardWarning(cheCustomResource?: { [key: string]: any }): Promise<string> {
-    try {
-      if (!cheCustomResource) {
-        cheCustomResource = await this.getCheCustomResource();
-      }
-      return cheCustomResource.spec.dashboard?.warning;
-    } catch (e) {
-      throw createError(
-        e,
-        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
-        'Unable to fetch listClusterCustomObject',
-      );
-    }
+  getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined {
+    return cheCustomResource.spec.dashboard?.warning;
   }
 
-  async getRunningWorkspacesLimit(cheCustomResource?: { [key: string]: any }): Promise<number> {
-    try {
-      if (!cheCustomResource) {
-        cheCustomResource = await this.getCheCustomResource();
-      }
-      return cheCustomResource.spec.devWorkspace.runningLimit || 1;
-    } catch (e) {
-      throw createError(
-        e,
-        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
-        'Unable to fetch listClusterCustomObject',
-      );
-    }
+  getRunningWorkspacesLimit(cheCustomResource: { [key: string]: any }): number {
+    return cheCustomResource.spec.devWorkspace.runningLimit || 1;
   }
 }
