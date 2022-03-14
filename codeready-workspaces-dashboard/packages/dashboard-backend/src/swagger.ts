@@ -27,15 +27,6 @@ export function registerSwagger(server: FastifyInstance): void {
         version: '0.1.0',
       },
       'x-express-openapi-validation-strict': false,
-      components: {
-        securitySchemes: {
-          Authorization: {
-            type: 'apiKey',
-            name: 'Authorization',
-            in: 'header',
-          },
-        },
-      },
     },
     uiConfig: {
       tryItOutEnabled: true,

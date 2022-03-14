@@ -87,14 +87,25 @@ export interface IDevWorkspaceTemplateApi {
 
 export interface IServerConfigApi {
   /**
+   * Returns custom resource
+   */
+  getCheCustomResource(): Promise<{ [key: string]: any }>;
+  /**
    * Returns default plugins
    */
-  getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]>;
+  getDefaultPlugins(cheCustomResource?: {
+    [key: string]: any;
+  }): Promise<api.IWorkspacesDefaultPlugins[]>;
 
   /**
    * Returns a maintenance warning
    */
-  getDashboardWarning(): Promise<string>;
+  getDashboardWarning(cheCustomResource?: { [key: string]: any }): Promise<string>;
+
+  /**
+   * Returns limit of running workspaces per user
+   */
+  getRunningWorkspacesLimit(cheCustomResource?: { [key: string]: any }): Promise<number>;
 }
 
 export interface IKubeConfigApi {

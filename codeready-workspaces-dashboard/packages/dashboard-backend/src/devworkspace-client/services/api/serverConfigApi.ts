@@ -31,7 +31,15 @@ export class ServerConfigApi implements IServerConfigApi {
     this.customObjectAPI = kc.makeApiClient(k8s.CustomObjectsApi);
   }
 
-  private async getCheCustomResource(): Promise<{ [key: string]: any }> {
+  async getCheCustomResource(): Promise<{ [key: string]: any }> {
+    if (!NAME || !NAMESPACE) {
+      throw createError(
+        undefined,
+        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
+        'Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE, $CHECLUSTER_CR_NAME',
+      );
+    }
+
     const resp = await this.customObjectAPI.listClusterCustomObject(GROUP, VERSION, PLURAL);
 
     const cheCustomResource = (resp.body as any).items.find(
@@ -49,29 +57,12 @@ export class ServerConfigApi implements IServerConfigApi {
     return cheCustomResource;
   }
 
-  async getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]> {
-    if (!NAME || !NAMESPACE) {
-      throw createError(
-        undefined,
-        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
-        'Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE, $CHECLUSTER_CR_NAME',
-      );
-    }
-
+  async getDefaultPlugins(cheCustomResource?: {
+    [key: string]: any;
+  }): Promise<api.IWorkspacesDefaultPlugins[]> {
     try {
-      const resp = await this.customObjectAPI.listClusterCustomObject(GROUP, VERSION, PLURAL);
-
-      const cheCustomResource = (resp.body as any).items.find(
-        (item: k8s.V1CustomResourceDefinition) =>
-          item.metadata?.name === NAME && item.metadata?.namespace === NAMESPACE,
-      );
-
       if (!cheCustomResource) {
-        throw createError(
-          undefined,
-          CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
-          'Unable to find CheCustomResource',
-        );
+        cheCustomResource = await this.getCheCustomResource();
       }
       return cheCustomResource.spec.server.workspacesDefaultPlugins || [];
     } catch (e) {
@@ -83,10 +74,27 @@ export class ServerConfigApi implements IServerConfigApi {
     }
   }
 
-  async getDashboardWarning(): Promise<string> {
+  async getDashboardWarning(cheCustomResource?: { [key: string]: any }): Promise<string> {
     try {
-      const cheCustomResource = await this.getCheCustomResource();
+      if (!cheCustomResource) {
+        cheCustomResource = await this.getCheCustomResource();
+      }
       return cheCustomResource.spec.dashboard?.warning;
+    } catch (e) {
+      throw createError(
+        e,
+        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
+        'Unable to fetch listClusterCustomObject',
+      );
+    }
+  }
+
+  async getRunningWorkspacesLimit(cheCustomResource?: { [key: string]: any }): Promise<number> {
+    try {
+      if (!cheCustomResource) {
+        cheCustomResource = await this.getCheCustomResource();
+      }
+      return cheCustomResource.spec.devWorkspace.runningLimit || 1;
     } catch (e) {
       throw createError(
         e,

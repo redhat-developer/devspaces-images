@@ -33,7 +33,7 @@ export class DevWorkspaceDefaultPluginsHandler {
   ): Promise<void> {
     const componentsUpdated = this.handleUriPlugins(workspace, defaultPlugins[editorId]);
     if (componentsUpdated) {
-      this.patchWorkspaceComponents(workspace);
+      await this.patchWorkspaceComponents(workspace);
     }
   }
 

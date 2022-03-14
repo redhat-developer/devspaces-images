@@ -28,7 +28,9 @@ async function buildClusterConfig(): Promise<ClusterConfig> {
   const token = getServiceAccountToken();
   const { serverConfigApi } = await getDevWorkspaceClient(token);
 
-  return {
-    dashboardWarning: await serverConfigApi.getDashboardWarning(),
-  };
+  const cheCustomResource = await serverConfigApi.getCheCustomResource();
+  const dashboardWarning = await serverConfigApi.getDashboardWarning(cheCustomResource);
+  const runningWorkspacesLimit = await serverConfigApi.getRunningWorkspacesLimit(cheCustomResource);
+
+  return { dashboardWarning, runningWorkspacesLimit };
 }
