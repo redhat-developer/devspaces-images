@@ -17,7 +17,7 @@ timeout(120) {
                 def util = load "${WORKSPACE}/util2.groovy"
                 withCredentials([
                     string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
-                    string(credentialsId: 'quay.io-crw-crwci_user_token', variable: 'QUAY_TOKEN'),
+                    string(credentialsId: 'quay.io-devspaces-devspacesci_user_token', variable: 'QUAY_TOKEN'),
                     file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB'),
                     usernamePassword(credentialsId: 'registry.redhat.io_crw_bot', usernameVariable: 'CRW_BOT_USERNAME', passwordVariable: 'CRW_BOT_PASSWORD')
                 ]) {
