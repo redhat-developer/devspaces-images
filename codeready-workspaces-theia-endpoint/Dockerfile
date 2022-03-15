@@ -39,7 +39,7 @@ RUN tar zxf /tmp/asset-theia-endpoint-runtime-pre-assembly-nexe-$(uname -m).tar.
 WORKDIR /home/theia
 
 RUN /tmp/nexe/index.js -v && \
-    # Build remote binary with node runtime 12.x and che-theia node dependencies. nexe icludes to the binary only
+    # Build remote binary with node runtime 14.x and che-theia node dependencies. nexe icludes to the binary only
     # necessary dependencies.
     eval /tmp/nexe/index.js -i node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js ${NEXE_FLAGS} -o ${HOME}/plugin-remote-endpoint
 
