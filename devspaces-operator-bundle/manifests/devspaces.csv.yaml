@@ -66,7 +66,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:2.16
+    containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.0
     createdAt: "2022-03-04T19:47:22+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
@@ -78,7 +78,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/devspaces-images/
     support: Red Hat
-  name: devspacesoperator.v2.16.0
+  name: devspacesoperator.v3.0.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -961,7 +961,7 @@ spec:
                       - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                         value: ca-certs
                       - name: CHE_VERSION
-                        value: 2.16.0
+                        value: 3.0.0
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: Red Hat OpenShift Dev Spaces
                       - name: CONSOLE_LINK_IMAGE
@@ -979,29 +979,29 @@ spec:
                           fieldRef:
                             fieldPath: metadata.name
                       - name: RELATED_IMAGE_che_server
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-server-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-server-rhel8:3.0
                       - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-jwtproxy-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-jwtproxy-rhel8:3.0
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginbroker-artifacts-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginbroker-artifacts-rhel8:3.0
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginbroker-metadata-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_idea_plugin_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_udi_devfile_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:2.16
-                      - name: RELATED_IMAGE_codeready_workspaces_udi_plugin_registry_image_GIXDCNQK
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginbroker-metadata-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GIXDCNQK
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GIXDCNQK
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GIXDCNQK
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GIXDCNQK
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GIXDCNQK
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GIXDCNQK
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.0
                       - name: RELATED_IMAGE_dashboard
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.0
                       - name: RELATED_IMAGE_devfile_registry
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.0
                       - name: RELATED_IMAGE_devworkspace_controller
                         value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.12
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1013,7 +1013,7 @@ spec:
                       - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
                         value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
                       - name: RELATED_IMAGE_plugin_registry
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:3.0
                       - name: RELATED_IMAGE_postgres
                         value: registry.redhat.io/rhel8/postgresql-96:1
                       - name: RELATED_IMAGE_postgres_13_3
@@ -1023,14 +1023,14 @@ spec:
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                         value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                       - name: RELATED_IMAGE_single_host_gateway
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.0
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-configbump-rhel8:2.16
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-configbump-rhel8:3.0
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
-                    image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:2.16
+                    image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.0
                     imagePullPolicy: Always
                     livenessProbe:
                       failureThreshold: 10
@@ -1292,7 +1292,7 @@ spec:
     - name: Product Page
       url: https://developers.redhat.com/products/devspaces/overview/
     - name: Documentation
-      url: https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces
+      url: https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces
     - name: Operator GitHub Repo
       url: https://github.com/redhat-developer/devspaces-images/
   maintainers:
@@ -1301,4 +1301,4 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.16.0
+  version: 3.0.0

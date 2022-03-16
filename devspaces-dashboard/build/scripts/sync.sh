@@ -165,7 +165,7 @@ SHA_CRW=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
 echo "Using: CRW_VERSION = $CRW_VERSION (SHA_CRW = $SHA_CRW)"
 
 CRW_SHAs="${CRW_VERSION} @ ${SHA_CRW} #${BUILD_NUMBER} :: Eclipse Che Dashboard ${VER_CHE} @ ${SHA_CHE}"
-CRW_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/${CRW_VERSION}"
+CRW_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${CRW_VERSION}"
 sed -r \
     -e "s|@@crw.version@@|${CRW_SHAs}|g" \
     -e "s#@@crw.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \

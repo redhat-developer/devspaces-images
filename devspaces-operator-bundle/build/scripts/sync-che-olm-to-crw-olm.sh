@@ -184,7 +184,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e 's|certified: "false"|certified: "true"|g' \
 		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
 		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
-		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces|g" \
+		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces|g" \
 		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/devspaces/overview/|g" \
 		\
 		-e 's|"eclipse-che"|"devspaces"|g' \
@@ -312,7 +312,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		# TODO CRW-2725 when CRW 2.16 is live, re-enable the replaces directive instead of this deletion
+		# TODO CRW-2725 when CRW 3.0 is live, re-enable the replaces directive instead of this deletion
 		[".spec.replaces"]="DELETEME"
 		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"

@@ -15,13 +15,13 @@
     },
     {
       "text": "Support",
-      "href": "https://access.redhat.com/products/red-hat-devspaces/"
+      "href": "https://access.redhat.com/products/red-hat-openshift-dev-spaces/"
     }
   ],
   "docs": {
     "devfile" : "@@crw.docs.baseurl@@/html-single/end-user_guide/index#configuring-a-workspace-with-dashboard_crw",
     "workspace" : "@@crw.docs.baseurl@@/html-single/end-user_guide/index#developer-workspaces_crw",
-    "converting": "https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces/2.0/html-single/end-user_guide/index#converting-a-devspaces-1.2-workspace-to-a-devspaces-2.0-devfile",
+    "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
     "certificate": "@@crw.docs.baseurl@@/html-single/end-user_guide/index#importing-certificates-to-browsers_crw",
     "general": "@@crw.docs.baseurl@@/",
     "storageTypes": "@@crw.docs.baseurl@@/html-single/installation_guide/index#configuring-storage-types_crw",
