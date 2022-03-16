@@ -463,22 +463,22 @@ func TestEnvVars(t *testing.T) {
 			name: "detect machine exec image",
 			env: map[string]string{
 				"RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJ":                  "quay.io/eclipse/che-machine-exec",
-				"RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/machineexec-rhel8",
+				"RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/machineexec-rhel8",
 			},
 			expected: []ImageAndName{
 				{Name: "che_machine_exec_plugin_registry_image_IBZWQYJ", Image: "quay.io/eclipse/che-machine-exec"},
-				{Name: "codeready_workspaces_machineexec_plugin_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/machineexec-rhel8"},
+				{Name: "devspaces_machineexec_plugin_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/machineexec-rhel8"},
 			},
 		},
 		{
 			name: "detect plugin registry images",
 			env: map[string]string{
 				"RELATED_IMAGE_che_openshift_plugin_registry_image_IBZWQYJ":                          "index.docker.io/dirigiblelabs/dirigible-openshift",
-				"RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/plugin-openshift-rhel8",
+				"RELATED_IMAGE_devspaces_udi_plugin_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/plugin-openshift-rhel8",
 			},
 			expected: []ImageAndName{
 				{Name: "che_openshift_plugin_registry_image_IBZWQYJ", Image: "index.docker.io/dirigiblelabs/dirigible-openshift"},
-				{Name: "codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/plugin-openshift-rhel8"},
+				{Name: "devspaces_udi_plugin_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/plugin-openshift-rhel8"},
 			},
 		},
 		{
@@ -491,12 +491,7 @@ func TestEnvVars(t *testing.T) {
 				"RELATED_IMAGE_che_php_7_devfile_registry_image_G4XDGNR":                           "quay.io/eclipse/che-php-7",
 				"RELATED_IMAGE_che_java11_maven_devfile_registry_image_G4XDGNR":                    "quay.io/eclipse/che-java11-maven",
 				"RELATED_IMAGE_che_java8_maven_devfile_registry_image_G4XDGNR":                     "quay.io/eclipse/che-java8-maven",
-				"RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMQK":    "registry.redhat.io/devspaces/stacks-cpp-rhel8",
-				"RELATED_IMAGE_codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/stacks-dotnet-rhel8",
-				"RELATED_IMAGE_codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/stacks-golang-rhel8",
-				"RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMQK":    "registry.redhat.io/devspaces/stacks-php-rhel8",
-				"RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK": "registry.redhat.io/devspaces/plugin-java11-rhel8",
-				"RELATED_IMAGE_codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMQK":  "registry.redhat.io/devspaces/plugin-java8-rhel8",
+				"RELATED_IMAGE_devspaces_udi_devfile_registry_image_GIXDCMQK":                      "registry.redhat.io/devspaces/udi-rhel8",
 			},
 			expected: []ImageAndName{
 				{Name: "che_cpp_rhel7_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-cpp-rhel7"},
@@ -506,12 +501,7 @@ func TestEnvVars(t *testing.T) {
 				{Name: "che_php_7_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-php-7"},
 				{Name: "che_java11_maven_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-java11-maven"},
 				{Name: "che_java8_maven_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-java8-maven"},
-				{Name: "codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/stacks-cpp-rhel8"},
-				{Name: "codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/stacks-dotnet-rhel8"},
-				{Name: "codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/stacks-golang-rhel8"},
-				{Name: "codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/stacks-php-rhel8"},
-				{Name: "codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/plugin-java11-rhel8"},
-				{Name: "codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/plugin-java8-rhel8"},
+				{Name: "devspaces_udi_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/devspaces/udi-rhel8"},
 			},
 		},
 	}

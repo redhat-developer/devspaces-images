@@ -80,8 +80,8 @@ insertEnvVar()
 CSVFILE=${TARGETDIR}/manifests/devspaces.csv.yaml
 
 # The updated name should be like:
-# RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCMQK
-# RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK
+# RELATED_IMAGE_devspaces_udi_plugin_registry_image_GIXDCMQK
+# RELATED_IMAGE_devspaces_udi_devfile_registry_image_GIXDCMQK
 # RELATED_IMAGE_jboss_eap_7_eap73_openjdk8_openshift_rhel7_devfile_registry_image_G4XDGLRWBI______
 updateRelatedImageName() {
   imageType="$1"
