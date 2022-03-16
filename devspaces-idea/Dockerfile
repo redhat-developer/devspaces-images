@@ -31,7 +31,7 @@
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5-230.1645809059 as projectorAssembly
+FROM ubi8-minimal:8.5-240 as projectorAssembly
 ENV PROJECTOR_DIR /projector
 COPY asset-ide-packaging.tar.gz /tmp/ide-unpacked/
 COPY asset-projector-server-assembly.zip $PROJECTOR_DIR/
@@ -62,7 +62,7 @@ RUN set -ex \
 # Stage 2. Build the main image with necessary environment for running Projector
 #   Doesn't require to be a desktop environment. Projector runs in headless mode.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5-230.1645809059
+FROM ubi8-minimal:8.5-240
 ENV PROJECTOR_USER_NAME projector-user
 ENV PROJECTOR_DIR /projector
 ENV HOME /home/$PROJECTOR_USER_NAME
@@ -95,9 +95,9 @@ WORKDIR /projects
 EXPOSE 8887
 CMD $PROJECTOR_DIR/entrypoint.sh
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces idea container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces idea container" \
-    PRODNAME="devspaces" \
+ENV SUMMARY="Red Hat CodeReady Workspaces idea container" \
+    DESCRIPTION="Red Hat CodeReady Workspaces idea container" \
+    PRODNAME="codeready-workspaces" \
     COMPNAME="idea-rhel8"
 
 LABEL summary="$SUMMARY" \
