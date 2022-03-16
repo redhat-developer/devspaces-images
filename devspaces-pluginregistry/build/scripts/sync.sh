@@ -50,7 +50,7 @@ done
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
 # try to compute branches from currently checked out branch; else fall back to hard coded value for where to find 
-# https://github.com/redhat-developer/devspaces-images/blob/${CRW_BRANCH}/devspaces-operator-metadata-generated/manifests/devspaces.csv.yaml
+# https://github.com/redhat-developer/devspaces-images/blob/${CRW_BRANCH}/devspaces-operator-bundle-generated/manifests/devspaces.csv.yaml
 if [[ -z ${CRW_BRANCH} ]]; then 
   CRW_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
   if [[ $CRW_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
