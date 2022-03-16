@@ -20,7 +20,7 @@ CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 CSV_VERSION_PREV=2.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/master/bundle
+OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
 DWO_TAG=0.12
 UBI_TAG=8.5
 POSTGRES_TAG=1
@@ -59,7 +59,7 @@ if [[ $# -lt 8 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/master/bundle
+	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/main/bundle
     '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
 	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
 	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
