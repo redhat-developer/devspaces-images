@@ -554,7 +554,7 @@ spec:
             - apiGroups:
                 - apps
               resourceNames:
-                - codeready-operator
+                - devspaces-operator
               resources:
                 - deployments/finalizers
               verbs:
@@ -925,21 +925,21 @@ spec:
                 - /metrics
               verbs:
                 - get
-          serviceAccountName: codeready-operator
+          serviceAccountName: devspaces-operator
       deployments:
-        - name: codeready-operator
+        - name: devspaces-operator
           spec:
             replicas: 1
             selector:
               matchLabels:
-                app: codeready-operator
+                app: devspaces-operator
             strategy:
               type: RollingUpdate
             template:
               metadata:
                 labels:
-                  app: codeready-operator
-                  app.kubernetes.io/component: codeready-operator
+                  app: devspaces-operator
+                  app.kubernetes.io/component: devspaces-operator
                   app.kubernetes.io/instance: che
                   app.kubernetes.io/managed-by: olm
                   app.kubernetes.io/name: che
@@ -960,7 +960,7 @@ spec:
                           fieldRef:
                             fieldPath: metadata.name
                       - name: OPERATOR_NAME
-                        value: codeready-operator
+                        value: devspaces-operator
                       - name: CHE_VERSION
                         value: next
                       - name: RELATED_IMAGE_che_server
@@ -1026,7 +1026,7 @@ spec:
                       periodSeconds: 10
                       successThreshold: 1
                       timeoutSeconds: 5
-                    name: codeready-operator
+                    name: devspaces-operator
                     ports:
                       - containerPort: 60000
                         name: metrics
@@ -1058,7 +1058,7 @@ spec:
                 hostNetwork: false
                 hostPID: false
                 restartPolicy: Always
-                serviceAccountName: codeready-operator
+                serviceAccountName: devspaces-operator
                 terminationGracePeriodSeconds: 20
       permissions:
         - rules:
@@ -1186,7 +1186,7 @@ spec:
             - apiGroups:
                 - apps
               resourceNames:
-                - codeready-operator
+                - devspaces-operator
               resources:
                 - deployments/finalizers
               verbs:
@@ -1255,7 +1255,7 @@ spec:
               verbs:
                 - create
                 - patch
-          serviceAccountName: codeready-operator
+          serviceAccountName: devspaces-operator
     strategy: deployment
   installModes:
     - supported: false

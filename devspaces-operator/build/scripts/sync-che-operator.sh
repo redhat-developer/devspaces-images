@@ -96,15 +96,15 @@ while IFS= read -r -d '' d; do
 			-e "s|identityProviderPassword: ''|identityProviderPassword: 'admin'|g" \
 			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
 			-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
-			-e 's|(DefaultCheFlavor.*=) "che"|\1 "codeready"|' \
+			-e 's|(DefaultCheFlavor.*=) "che"|\1 "devspaces"|' \
 			-e 's|che/operator|codeready/operator|' \
-			-e 's|che-operator|codeready-operator|' \
+			-e 's|che-operator|devspaces-operator|' \
 			-e 's|name: eclipse-che|name: devspaces|' \
 			-e "s|cheImageTag: 'nightly'|cheImageTag: ''|" \
-			-e 's|/bin/codeready-operator|/bin/che-operator|' \
-			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse/che-operator#g' \
-			-e 's#(githubusercontent|github).com/eclipse-che/codeready-operator#\1.com/eclipse-che/che-operator#g' \
-			-e 's|devworkspace-codeready-operator|devworkspace-che-operator|'
+			-e 's|/bin/devspaces-operator|/bin/che-operator|' \
+			-e 's#(githubusercontent|github).com/eclipse/devspaces-operator#\1.com/eclipse/che-operator#g' \
+			-e 's#(githubusercontent|github).com/eclipse-che/devspaces-operator#\1.com/eclipse-che/che-operator#g' \
+			-e 's|devworkspace-devspaces-operator|devworkspace-che-operator|'
 		if [[ $(diff -u "${SOURCEDIR}/${d}" "${TARGETDIR}/${d}") ]]; then
 			echo "    ${0##*/} :: Converted (sed) ${d}"
 		fi
@@ -196,7 +196,7 @@ ${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal)
 # yq changes - transform env vars from Che to CRW values
 declare -A operator_replacements=(
 	["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
-	["CHE_FLAVOR"]="codeready"
+	["CHE_FLAVOR"]="devspaces"
 	["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
 	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
@@ -248,8 +248,8 @@ CR_YAML="config/samples/org.eclipse.che_v1_checluster.yaml"
 #shellcheck disable=2002
 changed="$(cat "${TARGETDIR}/${CR_YAML}" | \
 yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
-yq  -y '.spec.server.cheFlavor="codeready"' | \
-yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
+yq  -y '.spec.server.cheFlavor="devspaces"' | \
+yq  -y '.spec.server.workspaceNamespaceDefault="<username>-devspaces"' | \
 yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
 yq  -y 'del(.spec.k8s)')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"

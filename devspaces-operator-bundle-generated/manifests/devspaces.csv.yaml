@@ -51,7 +51,7 @@ metadata:
               "proxyPort": "",
               "proxySecret": "",
               "proxyURL": "",
-              "workspaceNamespaceDefault": "<username>-codeready"
+              "workspaceNamespaceDefault": "<username>-devspaces"
             },
             "storage": {
               "postgresPVCStorageClassName": "",
@@ -533,7 +533,7 @@ spec:
         - apiGroups:
           - apps
           resourceNames:
-          - codeready-operator
+          - devspaces-operator
           resources:
           - deployments/finalizers
           verbs:
@@ -904,21 +904,21 @@ spec:
           - /metrics
           verbs:
           - get
-        serviceAccountName: codeready-operator
+        serviceAccountName: devspaces-operator
       deployments:
-      - name: codeready-operator
+      - name: devspaces-operator
         spec:
           replicas: 1
           selector:
             matchLabels:
-              app: codeready-operator
+              app: devspaces-operator
           strategy:
             type: RollingUpdate
           template:
             metadata:
               labels:
-                app: codeready-operator
-                app.kubernetes.io/component: codeready-operator
+                app: devspaces-operator
+                app.kubernetes.io/component: devspaces-operator
                 app.kubernetes.io/instance: che
                 app.kubernetes.io/managed-by: olm
                 app.kubernetes.io/name: che
@@ -933,7 +933,7 @@ spec:
                 - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
                   value: "false"
                 - name: CHE_FLAVOR
-                  value: codeready
+                  value: devspaces
                 - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                   value: ca-certs
                 - name: CHE_VERSION
@@ -949,7 +949,7 @@ spec:
                 - name: MAX_CONCURRENT_RECONCILES
                   value: "1"
                 - name: OPERATOR_NAME
-                  value: codeready-operator
+                  value: devspaces-operator
                 - name: POD_NAME
                   valueFrom:
                     fieldRef:
@@ -1017,7 +1017,7 @@ spec:
                   periodSeconds: 10
                   successThreshold: 1
                   timeoutSeconds: 5
-                name: codeready-operator
+                name: devspaces-operator
                 ports:
                 - containerPort: 60000
                   name: metrics
@@ -1049,7 +1049,7 @@ spec:
               hostNetwork: false
               hostPID: false
               restartPolicy: Always
-              serviceAccountName: codeready-operator
+              serviceAccountName: devspaces-operator
               terminationGracePeriodSeconds: 20
       permissions:
       - rules:
@@ -1177,7 +1177,7 @@ spec:
         - apiGroups:
           - apps
           resourceNames:
-          - codeready-operator
+          - devspaces-operator
           resources:
           - deployments/finalizers
           verbs:
@@ -1246,7 +1246,7 @@ spec:
           verbs:
           - create
           - patch
-        serviceAccountName: codeready-operator
+        serviceAccountName: devspaces-operator
     strategy: deployment
   installModes:
   - supported: false
@@ -1281,7 +1281,7 @@ spec:
   relatedImages:
   - name: devspaces-rhel8-operator-3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d-annotation
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
-  - name: codeready-operator
+  - name: devspaces-operator
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:b04507e69a0d76bf1228bb4cdaa5d47ed51b2b215ef83d8ca619df6cc1a9d24f
@@ -1291,17 +1291,17 @@ spec:
     image: registry.redhat.io/devspaces/pluginbroker-artifacts-rhel8@sha256:455a5d8e0604c9d314b5ec8c42aa1c30139e59435b6696f03a79c02dedec8acf
   - name: che_workspace_plugin_broker_metadata
     image: registry.redhat.io/devspaces/pluginbroker-metadata-rhel8@sha256:f5daf32bd2d7042b9ba45543b26fed14cd9cc1419cb0e5c981649e56f903aaf0
-  - name: codeready_workspaces_idea_plugin_registry_image_gixdcnqk
+  - name: devspaces_idea_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:05c0920ed8ad3319b92c5828a26ef39131f7256b708d5c8233fce9da85bd5c6d
-  - name: codeready_workspaces_machineexec_plugin_registry_image_gixdcnqk
+  - name: devspaces_machineexec_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:da8cb5589f3ec02e90a2b0d141cf2ba4e0ecb2df720a3f174a2cbcd70aa143b0
-  - name: codeready_workspaces_theia_endpoint_plugin_registry_image_gixdcnqk
+  - name: devspaces_theia_endpoint_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:add21d62347afe3091d9aa71c3fb5e0b4e0d0f36406d7ea62a94539b3a80d661
-  - name: codeready_workspaces_theia_plugin_registry_image_gixdcnqk
+  - name: devspaces_theia_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:5072a597e44bf7eee156726c9fe132ad84b4bfd4b5a587d1f36b7e0abc42d058
-  - name: codeready_workspaces_udi_devfile_registry_image_gixdcnqk
+  - name: devspaces_udi_devfile_registry_image_gixdcnqk
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:06b8d99c1fc50c365d5cf6f87b319c902e152ddf1fe1daad9e6ea844ce89dbed
-  - name: codeready_workspaces_udi_plugin_registry_image_gixdcnqk
+  - name: devspaces_udi_plugin_registry_image_gixdcnqk
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:06b8d99c1fc50c365d5cf6f87b319c902e152ddf1fe1daad9e6ea844ce89dbed
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:82e51fd96f36c594f7e05d160b80323ecab2996f2258976c4b12d7917eabf914

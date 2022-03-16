@@ -13,12 +13,12 @@
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: codeready-operator
+  name: devspaces-operator
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: codeready-operator
+    app.kubernetes.io/component: devspaces-operator
 rules:
   ### CHE-OPERATOR ROLES ONLY: BEGIN
   - apiGroups:
@@ -297,7 +297,7 @@ rules:
   - apiGroups:
     - apps
     resourceNames:
-    - codeready-operator
+    - devspaces-operator
     resources:
     - deployments/finalizers
     verbs:

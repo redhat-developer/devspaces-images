@@ -24,7 +24,7 @@ spec:
     workspaceNamespaceDefault: <username>-codeready
     devfileRegistryImage: ''
     pluginRegistryImage: ''
-    cheFlavor: codeready
+    cheFlavor: devspaces
   database:
     externalDb: false
     chePostgresHostName: ''

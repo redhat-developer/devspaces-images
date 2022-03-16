@@ -48,7 +48,7 @@ var (
 	}
 
 	// If this looks weirdly out of place to you from all other labels, then you're completely right!
-	// These labels are the default ones used by codeready-operator and Che7. Let's keep the defaults
+	// These labels are the default ones used by devspaces-operator and Che7. Let's keep the defaults
 	// the same for the ease of translation...
 	defaultGatewayConfigLabels = map[string]string{
 		"app":       "che",
