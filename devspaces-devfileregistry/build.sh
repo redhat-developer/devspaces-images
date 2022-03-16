@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,7 +11,7 @@
 set -e
 
 REGISTRY="quay.io"
-ORGANIZATION="crw"
+ORGANIZATION="devspaces"
 CONTAINERNAME="devfileregistry-rhel8"
 TAG="next"
 TARGET="registry" # or offline-registry
@@ -27,7 +27,7 @@ Options:
     --registry, -r [REGISTRY]
         Docker registry to be used for image; default 'quay.io'
     --organization, -o [ORGANIZATION]
-        Docker image organization to be used for image; default: 'crw'
+        Docker image organization to be used for image; default: 'devspaces'
     --offline
         Build offline version of registry, with all artifacts included
         cached in the registry; disabled by default.

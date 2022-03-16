@@ -19,7 +19,7 @@ function updateDockerfileArgs()
 		if [[ $MIDSTM_BRANCH == "devspaces-3-rhel-8" ]]; then
 			CRW_VERSION="$(echo "$configjson" | jq -r '.Version')"
 		else 
-			CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
+			CRW_VERSION=${MIDSTM_BRANCH/devspaces-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
 		fi
 		if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
 	        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Other["DEV_WORKSPACE_CONTROLLER_VERSION"]["'${CRW_VERSION}'"]')"

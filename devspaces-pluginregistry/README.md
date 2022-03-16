@@ -24,18 +24,13 @@ All contributions to the CRW plugin registry should land in this repository. Fro
 
 Executables and language server dependencies needed in plugin sidecar containers can be built from this repo:
 
-* [redhat-developer/devspaces-deprecated](https://github.com/redhat-developer/devspaces-deprecated/blob/devspaces-3-rhel-8/)
+* [devspaces-udi build](https://github.com/redhat-developer/devspaces-images/blob/devspaces-3-rhel-8/devspaces-udi/build) 
 
-For example, [kamel](https://github.com/redhat-developer/devspaces-deprecated/blob/devspaces-3-rhel-8/kamel/build.sh) binaries are used in the kubernetes sidecar:
+Sidecar image sources are then synced to a dist-git repo at Red Hat, and from built in Brew:
 
-* [devspaces/plugin-kubernetes-rhel8](https://catalog.redhat.com/software/containers/devspaces/plugin-kubernetes-rhel8/5dae28895a13461646def87a)
-* [crw/plugin-kubernetes-rhel8](https://quay.io/repository/crw/plugin-kubernetes-rhel8?tag=latest&tab=tags)
+* [containers/devspaces-udi](http://pkgs.devel.redhat.com/cgit/containers/devspaces-udi/tree/sources?h=devspaces-3-rhel-8)
 
-Sidecar image sources are then synced from the [devspaces-images](https://github.com/redhat-developer/devspaces-images) repo to a dist-git repo at Red Hat, and from built in Brew. For example, the kubernetes sidecar:
-
-* [devspaces-images/devspaces-plugin-kubernetes](https://github.com/redhat-developer/devspaces-images/tree/devspaces-3-rhel-8/devspaces-plugin-kubernetes)
-* [containers/devspaces-plugin-kubernetes](http://pkgs.devel.redhat.com/cgit/containers/devspaces-plugin-kubernetes/tree/sources?h=devspaces-3-rhel-8)
-
+* [udi-rhel8](https://quay.io/repository/devspaces/udi-rhel8?tag=latest&tab=tags)
 
 ## License
 

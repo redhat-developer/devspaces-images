@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2019-2021 Red Hat, Inc.
+# Copyright (c) 2019-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -15,9 +15,9 @@ set -e +x
 
 if [[ ! $1 ]]; then
   echo "Usage: $0 CONTAINER [tar-extraction-flags]"
-  echo "Usage: $0 quay.io/crw/operator-bundle:latest"
-  echo "Usage: $0 quay.io/crw/devfileregistry-rhel8:latest var/www/html/*/external_images.txt"
-  echo "Usage: $0 quay.io/crw/pluginregistry-rhel8:latest var/www/html/*/external_images.txt"
+  echo "Usage: $0 quay.io/devspaces/devspaces-operator-bundle:latest"
+  echo "Usage: $0 quay.io/devspaces/devfileregistry-rhel8:latest var/www/html/*/external_images.txt"
+  echo "Usage: $0 quay.io/devspaces/pluginregistry-rhel8:latest var/www/html/*/external_images.txt"
   exit
 fi
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-22 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# SPECIAL CASE: convert registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (devspaces-images repo) using yq, sed
+# SPECIAL CASE: convert registry upper-midstream (devspaces repo, forked from upstream w/ different plugins) to lower-midstream (devspaces-images repo) using yq, sed
 # https://github.com/redhat-developer/devspaces/tree/devspaces-3-rhel-8/dependencies to https://github.com/redhat-developer/devspaces-images
 
 set -e
