@@ -26,11 +26,11 @@ operator_manifests:
   repo_replacements:
     - registry: registry-proxy.engineering.redhat.com
       package_mappings:
-        devspaces-3-rhel8-operator-package: rh-osbs/devspaces-operator
+        devspaces-rhel8-operator-package: rh-osbs/devspaces-operator
     - registry: registry.redhat.io
       package_mappings:
-        devspaces-operator-container: devspaces/devspaces-3-rhel8-operator
-        devspaces-rhel8-operator-container: devspaces/devspaces-3-rhel8-operator
+        devspaces-operator-container: devspaces/devspaces-rhel8-operator
+        devspaces-rhel8-operator-container: devspaces/devspaces-rhel8-operator
         devworkspace-operator-container: devworkspace/devworkspace-rhel8-operator
         devworkspace-operator-bundle-container: devworkspace/devworkspace-operator-bundle
         devworkspace-operator-bundle-package: devworkspace/devworkspace-operator-bundle

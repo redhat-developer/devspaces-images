@@ -18,7 +18,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "false"
-    containerImage: registry.redhat.io/devspaces/devspaces-3-rhel8-operator:latest
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator:latest
     createdAt: "2021-05-11T18:38:31Z"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces.

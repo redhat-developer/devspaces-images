@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: codeready-operator
-          image: registry.redhat.io/devspaces/devspaces-3-rhel8-operator:2.16
+          image: registry.redhat.io/devspaces/devspaces-rhel8-operator:2.16
           command:
             - /manager
           args:

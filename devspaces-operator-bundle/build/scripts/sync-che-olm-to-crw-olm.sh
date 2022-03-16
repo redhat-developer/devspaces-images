@@ -90,7 +90,7 @@ if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/devspaces"
-CRW_OPERATOR="devspaces-3-rhel8-operator"
+CRW_OPERATOR="devspaces-rhel8-operator"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
@@ -228,7 +228,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|centos/postgresql-96-centos7:9.6|${POSTGRES_IMAGE}|" \
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
 		\
-		`# use internal image for operator, as devspaces-devspaces-3-rhel8-operator only exists in RHEC and Quay repos` \
+		`# use internal image for operator, as devspaces-devspaces-rhel8-operator only exists in RHEC and Quay repos` \
 		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
