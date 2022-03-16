@@ -8,8 +8,8 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM registry.redhat.io/rhel8/go-toolset:1.16.12-4 as builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
+FROM registry.access.redhat.com/ubi8/go-toolset:1.16.12-7 as builder
 ENV GOPATH=/go/ \
     GO111MODULE=on
 
@@ -37,7 +37,7 @@ RUN adduser appuser && \
     make build 
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry.redhat.io/ubi8-minimal:8.5-230.1645809059
+FROM registry.access.redhat.com/ubi8-minimal:8.5-240
 USER root
 RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 # CRW-528 copy actual cert
@@ -54,20 +54,3 @@ COPY --from=builder /kubernetes-image-puller/bin/sleep /bin/sleep
 CMD ["/kubernetes-image-puller"]
 
 # append Brew metadata here
-
-ENV SUMMARY="Red Hat OpenShift Dev Spaces imagepuller container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces imagepuller container" \
-    PRODNAME="devspaces" \
-    COMPNAME="imagepuller-rhel8"
-LABEL summary="$SUMMARY" \
-      description="$DESCRIPTION" \
-      io.k8s.description="$DESCRIPTION" \
-      io.k8s.display-name="$DESCRIPTION" \
-      io.openshift.tags="$PRODNAME,$COMPNAME" \
-      com.redhat.component="$PRODNAME-$COMPNAME-container" \
-      name="$PRODNAME/$COMPNAME" \
-      version="3.0" \
-      license="EPLv2" \
-      maintainer="Ilya Buziuk <ibuziuk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
-      io.openshift.expose-services="" \
-      usage=""
