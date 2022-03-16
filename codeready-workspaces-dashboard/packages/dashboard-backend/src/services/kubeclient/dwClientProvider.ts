@@ -66,6 +66,7 @@ export class DwClientProvider {
         contextKc = this.kubeconfigProvider.getKubeConfig(token);
       }
     }
+
     return new DevWorkspaceClient(contextKc);
   }
 }

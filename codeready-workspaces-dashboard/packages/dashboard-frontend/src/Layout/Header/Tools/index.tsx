@@ -26,7 +26,7 @@ import { selectUserProfile } from '../../../store/UserProfile/selectors';
 import { AboutMenu } from './AboutMenu';
 import UserMenu from './UserMenu';
 import { ApplicationsMenu } from './ApplicationsMenu';
-import { selectApplications } from '../../../store/ExternalApplications/selectors';
+import { selectApplications } from '../../../store/ClusterInfo/selectors';
 
 type Props = MappedProps & {
   history: History;
@@ -79,7 +79,6 @@ const mapStateToProps = (state: AppState) => ({
   userProfile: selectUserProfile(state),
   branding: selectBranding(state),
   applications: selectApplications(state),
-  extApps: state.externalApplications,
 });
 
 const connector = connect(mapStateToProps);

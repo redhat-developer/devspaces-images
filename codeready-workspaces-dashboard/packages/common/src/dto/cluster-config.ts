@@ -10,16 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import helpers from './helpers';
-import * as api from './dto/api';
-
-export * from './dto/cluster-info';
-export * from './dto/cluster-config';
-
-export { helpers, api };
-
-const common = {
-  helpers,
-  api,
-};
-export default common;
+export interface ClusterConfig {
+  dashboardWarning?: string;
+}

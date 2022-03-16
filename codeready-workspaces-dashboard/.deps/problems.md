@@ -2,12 +2,8 @@
 
 ## UNRESOLVED Production dependencies
 
-1. `tslib@2.3.1`
-2. `umd-compat-loader@2.1.1`
+1. `fastify-swagger@4.11.0`
 
 ## UNRESOLVED Development dependencies
 
-1. `fsevents@2.3.2`
-2. `jsdom@16.7.0`
-3. `node-notifier@8.0.2`
-4. `tslint@5.9.1`
+1. `keycloak-js@10.0.2`

@@ -38,9 +38,7 @@ if [[ ! -z "$GATEWAY" &&
   $(echo "$GATEWAY" | jq -e '.spec.template.spec.containers|any(.name == "oauth-proxy")') == "true" ]]; then
   echo 'Detected gateway and oauth-proxy inside. Running in native auth mode.'
 
-  export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)
-  echo "$CLUSTER_ACCESS_TOKEN"
-  if [[ ! -z "$CLUSTER_ACCESS_TOKEN" ]]; then
+  if [[ ! -z "$(oc whoami -t)" ]]; then
     echo 'Cluster access token found. Nothing needs to be patched.'
     echo 'Done.'
     exit 0
@@ -71,7 +69,8 @@ if [[ ! -z "$GATEWAY" &&
     if kubectl get deployment/che-operator -n $CHE_NAMESPACE -o jsonpath="{.spec.replicas}" | grep 1; then
       echo 'Turn off Che-operator deployment...'
       oc patch deployment/che-operator --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
-      sleep 3
+      echo 'Waiting 10 seconds to operator shut down...'
+      sleep 10
       echo 'Done.'
     fi
 

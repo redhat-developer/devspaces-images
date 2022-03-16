@@ -3,6 +3,10 @@
   opacity: 0.8;
 }
 
+.statusIndicator svg {
+  overflow: visible;
+}
+
 .rotate {
   animation-name: spinnerRotate;
   animation-duration: 1s;

@@ -11,14 +11,14 @@
  */
 
 import axios from 'axios';
-import common, { ClusterInfo } from '@eclipse-che/common';
+import common, { ClusterConfig } from '@eclipse-che/common';
 import { prefix } from './const';
 
-export async function fetchClusterInfo(): Promise<ClusterInfo> {
+export async function fetchClusterConfig(): Promise<ClusterConfig> {
   try {
-    const response = await axios.get(`${prefix}/cluster-info`);
+    const response = await axios.get(`${prefix}/cluster-config`);
     return response.data;
   } catch (e) {
-    throw `Failed to fetch cluster information. ${common.helpers.errors.getMessage(e)}`;
+    throw `Failed to fetch cluster configuration. ${common.helpers.errors.getMessage(e)}`;
   }
 }

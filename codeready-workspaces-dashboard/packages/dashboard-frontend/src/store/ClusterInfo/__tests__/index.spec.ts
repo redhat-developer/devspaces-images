@@ -14,16 +14,20 @@ import mockAxios, { AxiosError } from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { AnyAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { ClusterInfo } from '@eclipse-che/common';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import { AppState } from '../..';
 import * as testStore from '..';
-import { ApplicationInfo } from '@eclipse-che/common';
 
-describe('externalApplications store', () => {
-  const clusterInfo: ApplicationInfo = {
-    url: 'web/console/url',
-    title: 'Web Console',
-    icon: 'web/console/icon.png',
+describe('clusterInfo store', () => {
+  const clusterInfo: ClusterInfo = {
+    applications: [
+      {
+        url: 'web/console/url',
+        title: 'Web Console',
+        icon: 'web/console/icon.png',
+      },
+    ],
   };
 
   afterEach(() => {
@@ -43,7 +47,7 @@ describe('externalApplications store', () => {
       >;
     });
 
-    it('should create REQUEST_APP_INFO and RECEIVE_APP_INFO when fetching cluster info', async () => {
+    it('should create REQUEST_CLUSTER_INFO and RECEIVE_CLUSTER_INFO when fetching cluster info', async () => {
       (mockAxios.get as jest.Mock).mockResolvedValueOnce({
         data: clusterInfo,
       });
@@ -54,18 +58,18 @@ describe('externalApplications store', () => {
 
       const expectedActions: testStore.KnownAction[] = [
         {
-          type: testStore.Type.REQUEST_APP_INFO,
+          type: testStore.Type.REQUEST_CLUSTER_INFO,
         },
         {
-          type: testStore.Type.RECEIVE_APP_INFO,
-          appInfo: clusterInfo,
+          type: testStore.Type.RECEIVE_CLUSTER_INFO,
+          clusterInfo: clusterInfo,
         },
       ];
 
       expect(actions).toEqual(expectedActions);
     });
 
-    it('should create REQUEST_APP_INFO and RECEIVE_APP_INFO_ERROR when fails to fetch cluster info', async () => {
+    it('should create REQUEST_CLUSTER_INFO and RECEIVE_CLUSTER_INFO_ERROR when fails to fetch cluster info', async () => {
       (mockAxios.get as jest.Mock).mockRejectedValueOnce({
         isAxiosError: true,
         code: '500',
@@ -82,10 +86,10 @@ describe('externalApplications store', () => {
 
       const expectedActions: testStore.KnownAction[] = [
         {
-          type: testStore.Type.REQUEST_APP_INFO,
+          type: testStore.Type.REQUEST_CLUSTER_INFO,
         },
         {
-          type: testStore.Type.RECEIVE_APP_INFO_ERROR,
+          type: testStore.Type.RECEIVE_CLUSTER_INFO_ERROR,
           error: expect.stringContaining('Something unexpected happened.'),
         },
       ];
@@ -96,14 +100,16 @@ describe('externalApplications store', () => {
 
   describe('reducers', () => {
     it('should return initial state', () => {
-      const incomingAction: testStore.RequestAppInfoAction = {
-        type: testStore.Type.REQUEST_APP_INFO,
+      const incomingAction: testStore.RequestClusterInfoAction = {
+        type: testStore.Type.REQUEST_CLUSTER_INFO,
       };
       const initialState = testStore.reducer(undefined, incomingAction);
 
       const expectedState: testStore.State = {
         isLoading: false,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
       };
 
       expect(initialState).toEqual(expectedState);
@@ -112,7 +118,9 @@ describe('externalApplications store', () => {
     it('should return state if action type is not matched', () => {
       const initialState: testStore.State = {
         isLoading: true,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
       };
       const incomingAction = {
         type: 'OTHER_ACTION',
@@ -121,64 +129,76 @@ describe('externalApplications store', () => {
 
       const expectedState: testStore.State = {
         isLoading: true,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
       };
       expect(newState).toEqual(expectedState);
     });
 
-    it('should handle REQUEST_APP_INFO', () => {
+    it('should handle REQUEST_CLUSTER_INFO', () => {
       const initialState: testStore.State = {
         isLoading: false,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
         error: 'unexpected error',
       };
-      const incomingAction: testStore.RequestAppInfoAction = {
-        type: testStore.Type.REQUEST_APP_INFO,
+      const incomingAction: testStore.RequestClusterInfoAction = {
+        type: testStore.Type.REQUEST_CLUSTER_INFO,
       };
 
       const newState = testStore.reducer(initialState, incomingAction);
 
       const expectedState: testStore.State = {
         isLoading: true,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
       };
 
       expect(newState).toEqual(expectedState);
     });
 
-    it('should handle RECEIVE_APP_INFO', () => {
+    it('should handle RECEIVE_CLUSTER_INFO', () => {
       const initialState: testStore.State = {
         isLoading: true,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
       };
-      const incomingAction: testStore.ReceiveAppInfoAction = {
-        type: testStore.Type.RECEIVE_APP_INFO,
-        appInfo: clusterInfo,
+      const incomingAction: testStore.ReceiveClusterInfoAction = {
+        type: testStore.Type.RECEIVE_CLUSTER_INFO,
+        clusterInfo,
       };
 
       const newState = testStore.reducer(initialState, incomingAction);
 
       const expectedState: testStore.State = {
         isLoading: false,
-        applications: [
-          {
-            url: 'web/console/url',
-            title: 'Web Console',
-            icon: 'web/console/icon.png',
-          },
-        ],
+        clusterInfo: {
+          applications: [
+            {
+              url: 'web/console/url',
+              title: 'Web Console',
+              icon: 'web/console/icon.png',
+            },
+          ],
+        },
       };
 
       expect(newState).toEqual(expectedState);
     });
 
-    it('should handle RECEIVE_APP_INFO_ERROR', () => {
+    it('should handle RECEIVE_CLUSTER_INFO_ERROR', () => {
       const initialState: testStore.State = {
         isLoading: true,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
       };
-      const incomingAction: testStore.ReceivedAppInfoErrorAction = {
-        type: testStore.Type.RECEIVE_APP_INFO_ERROR,
+      const incomingAction: testStore.ReceivedClusterInfoErrorAction = {
+        type: testStore.Type.RECEIVE_CLUSTER_INFO_ERROR,
         error: 'unexpected error',
       };
 
@@ -186,7 +206,9 @@ describe('externalApplications store', () => {
 
       const expectedState: testStore.State = {
         isLoading: false,
-        applications: [],
+        clusterInfo: {
+          applications: [],
+        },
         error: 'unexpected error',
       };
 

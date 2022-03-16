@@ -1,5 +1,5 @@
 [![CI](https://github.com/eclipse/che-dashboard/workflows/CI/badge.svg)](https://github.com/eclipse/che-dashboard/actions/workflows/ci.yaml)
-[![Codecov](https://img.shields.io/codecov/c/github/eclipse/che-dashboard)](https://app.codecov.io/gh/eclipse/che-dashboard)
+[![codecov](https://codecov.io/gh/eclipse-che/che-dashboard/branch/main/graph/badge.svg?token=ao9sqdlXeT)](https://codecov.io/gh/eclipse-che/che-dashboard)
 
 ## About Eclipse Che
 
@@ -75,7 +75,6 @@ Depending on your Che Cluster's routing, it may need additional configuration. S
   # Note that if configmap is update but not created, you also need to rollout keycloak deployment
   # oc patch deployment/keycloak --patch "{\"spec\":{\"replicas\":0}}" -n $CHE_NAMESPACE
   # oc patch deployment/keycloak --patch "{\"spec\":{\"replicas\":1}}" -n $CHE_NAMESPACE
-
   # Due temporary limitation we need to rollout che operator to apply changes
   kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
   ```

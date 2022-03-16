@@ -18,12 +18,12 @@ export interface State {
   messages: string[];
 }
 
-interface AddBannerAction {
+export interface AddBannerAction {
   type: 'ADD_BANNER';
   message: string;
 }
 
-interface RemoveBannerAction {
+export interface RemoveBannerAction {
   type: 'REMOVE_BANNER';
   message: string;
 }

@@ -15,7 +15,7 @@ import { IServerConfigApi } from '../../types';
 import { createError } from '../helpers';
 import { api } from '@eclipse-che/common';
 
-const CUSTOM_RECOURSE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURSE_DEFINITIONS_API_ERROR';
+const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 
 const GROUP = 'org.eclipse.che';
 const VERSION = 'v1';
@@ -31,11 +31,29 @@ export class ServerConfigApi implements IServerConfigApi {
     this.customObjectAPI = kc.makeApiClient(k8s.CustomObjectsApi);
   }
 
+  private async getCheCustomResource(): Promise<{ [key: string]: any }> {
+    const resp = await this.customObjectAPI.listClusterCustomObject(GROUP, VERSION, PLURAL);
+
+    const cheCustomResource = (resp.body as any).items.find(
+      (item: k8s.V1CustomResourceDefinition) =>
+        item.metadata?.name === NAME && item.metadata?.namespace === NAMESPACE,
+    );
+
+    if (!cheCustomResource?.spec?.server) {
+      throw createError(
+        undefined,
+        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
+        'Unable to find CheCustomResource',
+      );
+    }
+    return cheCustomResource;
+  }
+
   async getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]> {
     if (!NAME || !NAMESPACE) {
       throw createError(
         undefined,
-        CUSTOM_RECOURSE_DEFINITIONS_API_ERROR_LABEL,
+        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
         'Mandatory environment variables are not defined: $CHECLUSTER_CR_NAMESPACE, $CHECLUSTER_CR_NAME',
       );
     }
@@ -51,7 +69,7 @@ export class ServerConfigApi implements IServerConfigApi {
       if (!cheCustomResource) {
         throw createError(
           undefined,
-          CUSTOM_RECOURSE_DEFINITIONS_API_ERROR_LABEL,
+          CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
           'Unable to find CheCustomResource',
         );
       }
@@ -59,7 +77,20 @@ export class ServerConfigApi implements IServerConfigApi {
     } catch (e) {
       throw createError(
         e,
-        CUSTOM_RECOURSE_DEFINITIONS_API_ERROR_LABEL,
+        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
+        'Unable to fetch listClusterCustomObject',
+      );
+    }
+  }
+
+  async getDashboardWarning(): Promise<string> {
+    try {
+      const cheCustomResource = await this.getCheCustomResource();
+      return cheCustomResource.spec.dashboard?.warning;
+    } catch (e) {
+      throw createError(
+        e,
+        CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL,
         'Unable to fetch listClusterCustomObject',
       );
     }

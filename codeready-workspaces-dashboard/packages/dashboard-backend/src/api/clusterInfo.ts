@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ApplicationInfo } from '@eclipse-che/common';
 import { FastifyInstance } from 'fastify';
+import { ApplicationInfo, ClusterInfo } from '@eclipse-che/common';
 import { baseApiPath } from '../constants/config';
 import {
   CLUSTER_CONSOLE_GROUP,
@@ -24,15 +24,20 @@ import { getSchema } from '../services/helpers';
 const tags = ['clusterInfo'];
 
 export function registerClusterInfo(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/cluster-info`,
-    getSchema({ tags }),
-    async () =>
-      ({
-        icon: CLUSTER_CONSOLE_ICON,
-        title: CLUSTER_CONSOLE_TITLE,
-        url: CLUSTER_CONSOLE_URL,
-        group: CLUSTER_CONSOLE_GROUP,
-      } as ApplicationInfo),
+  server.get(`${baseApiPath}/cluster-info`, getSchema({ tags }), async () =>
+    buildApplicationInfo(),
   );
+}
+
+function buildApplicationInfo(): ClusterInfo {
+  const applications: ApplicationInfo[] = [];
+  if (CLUSTER_CONSOLE_URL) {
+    applications.push({
+      icon: CLUSTER_CONSOLE_ICON,
+      title: CLUSTER_CONSOLE_TITLE,
+      url: CLUSTER_CONSOLE_URL,
+      group: CLUSTER_CONSOLE_GROUP,
+    });
+  }
+  return { applications };
 }

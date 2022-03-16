@@ -23,10 +23,11 @@ import { registerSwagger } from './swagger';
 import { helpers } from '@eclipse-che/common';
 import { isLocalRun } from './local-run';
 import { registerClusterInfo } from './api/clusterInfo';
-import { CLUSTER_CONSOLE_URL } from './devworkspace-client/services/cluster-info';
+import { registerClusterConfig } from './api/clusterConfig';
 import { registerDockerConfigApi } from './api/dockerConfigApi';
 import { registerServerConfigApi } from './api/serverConfigApi';
 import { registerKubeConfigApi } from './api/kubeConfigAPI';
+import { authorizeInfo } from './api/authorizeInfo';
 import fastifyWebsocket from 'fastify-websocket';
 import {
   addDexProxy,
@@ -67,8 +68,11 @@ server.addContentTypeParser(
 server.register(fastifyWebsocket);
 
 if (isLocalRun) {
-  addDexProxy(server);
-  registerDexCallback(server);
+  const DEX_INGRESS = process.env.DEX_INGRESS as string;
+  if (DEX_INGRESS) {
+    addDexProxy(server, `https://${DEX_INGRESS}`);
+    registerDexCallback(server);
+  }
   registerOauth(server);
   addAuthorizationHooks(server);
   const CHE_HOST_ORIGIN = process.env.CHE_HOST_ORIGIN as string;
@@ -78,6 +82,10 @@ if (isLocalRun) {
 registerStaticServer(publicFolder, server);
 
 registerSwagger(server);
+
+if (isLocalRun) {
+  authorizeInfo(server);
+}
 
 registerDevworkspaceApi(server);
 
@@ -91,9 +99,9 @@ registerServerConfigApi(server);
 
 registerKubeConfigApi(server);
 
-if (CLUSTER_CONSOLE_URL) {
-  registerClusterInfo(server);
-}
+registerClusterInfo(server);
+
+registerClusterConfig(server);
 
 registerCors(isLocalRun, server);
 

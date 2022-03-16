@@ -12,6 +12,7 @@
 
 import { ApisApi, Context, KubeConfig, User } from '@kubernetes/client-node';
 import * as helper from './helpers';
+import { isLocalRun } from '../../local-run';
 
 export class KubeConfigProvider {
   private isOpenShift: Promise<boolean>;
@@ -34,11 +35,18 @@ export class KubeConfigProvider {
       throw 'base kubeconfig is not a valid: no cluster exists specified in the current context';
     }
 
+    let name: string;
+    try {
+      const tokenPayload = token.split('.')[1];
+      const decodedTokenPayload = Buffer.from(tokenPayload, 'base64').toString();
+      const parsedTokenPayload = JSON.parse(decodedTokenPayload);
+      name = parsedTokenPayload.name;
+    } catch (error) {
+      name = 'developer';
+    }
+
     const user: User = {
-      // Note: potential improvement with native authentication
-      // it's possible to figure out the real username (dedicated header)
-      // but that's not exposed anywhere, so leave developer for time being
-      name: 'developer',
+      name,
       token: token,
     };
     const context: Context = {
@@ -56,7 +64,7 @@ export class KubeConfigProvider {
   }
 
   getSAKubeConfig(): KubeConfig {
-    if (process.env['LOCAL_RUN'] === 'true') {
+    if (isLocalRun) {
       const kc = new KubeConfig();
       let kubeConfigFile = process.env['KUBECONFIG'];
       if (!kubeConfigFile) {

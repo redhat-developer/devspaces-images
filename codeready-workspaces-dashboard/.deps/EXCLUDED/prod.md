@@ -6,7 +6,7 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | `@eclipse-che/common@7.42.1-SNAPSHOT` | N/A |
 | `@eclipse-che/dashboard-backend@7.42.1-SNAPSHOT` | N/A |
 | `@eclipse-che/dashboard-frontend@7.42.1-SNAPSHOT` | N/A |
+| `fastify-swagger@4.11.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify-swagger/4.11.0) |
 | `fsevents@2.3.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fsevents/2.3.2) |
 | `jsdom@16.7.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsdom/16.7.0) |
 | `node-notifier@8.0.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/node-notifier/8.0.2) |
-| `tslib@2.3.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/tslib/2.3.1) |

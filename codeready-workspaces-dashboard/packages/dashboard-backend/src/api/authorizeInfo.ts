@@ -12,20 +12,14 @@
 
 import { FastifyInstance } from 'fastify';
 import { baseApiPath } from '../constants/config';
-import { getDevWorkspaceClient, getServiceAccountToken } from './helper';
 import { getSchema } from '../services/helpers';
 
-const tags = ['serverconfig'];
+const tags = ['authorize'];
 
-export function registerServerConfigApi(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/server-config/default-plugins`,
-    getSchema({ tags }),
-    async function () {
-      const token = getServiceAccountToken();
-      const { serverConfigApi } = await getDevWorkspaceClient(token);
-
-      return serverConfigApi.getDefaultPlugins();
-    },
-  );
+export function authorizeInfo(server: FastifyInstance) {
+  server.get(`${baseApiPath}/token`, getSchema({ tags }), async () => {
+    const clusterAccessToken = process.env.CLUSTER_ACCESS_TOKEN as string;
+    const authorization = clusterAccessToken ? 'Bearer ' + clusterAccessToken : undefined;
+    return { authorization };
+  });
 }

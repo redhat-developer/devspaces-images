@@ -87,9 +87,14 @@ export interface IDevWorkspaceTemplateApi {
 
 export interface IServerConfigApi {
   /**
-   * Get server config from custom resources
+   * Returns default plugins
    */
   getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]>;
+
+  /**
+   * Returns a maintenance warning
+   */
+  getDashboardWarning(): Promise<string>;
 }
 
 export interface IKubeConfigApi {

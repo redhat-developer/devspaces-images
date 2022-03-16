@@ -25,16 +25,22 @@ import { State as UserState } from '../User';
 import { State as UserProfileState } from '../UserProfile';
 import mockThunk from './thunk';
 import devfileApi from '../../services/devfileApi';
-import { ApplicationInfo } from '@eclipse-che/common';
+import { ClusterConfig, ClusterInfo } from '@eclipse-che/common';
 
 export class FakeStoreBuilder {
   private state: AppState = {
     bannerAlert: {
       messages: [],
     },
-    externalApplications: {
+    clusterConfig: {
       isLoading: false,
-      applications: [],
+      clusterConfig: {},
+    },
+    clusterInfo: {
+      isLoading: false,
+      clusterInfo: {
+        applications: [],
+      },
     },
     factoryResolver: {
       isLoading: false,
@@ -146,14 +152,25 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public withApplications(
-    applications: ApplicationInfo[],
+  public withClusterConfig(
+    clusterConfig: Partial<ClusterConfig>,
     isLoading = false,
     error?: string,
   ): FakeStoreBuilder {
-    this.state.externalApplications.applications = Object.assign([], applications);
-    this.state.externalApplications.isLoading = isLoading;
-    this.state.externalApplications.error = error;
+    this.state.clusterConfig.clusterConfig = Object.assign({}, clusterConfig as ClusterConfig);
+    this.state.clusterConfig.isLoading = isLoading;
+    this.state.clusterConfig.error = error;
+    return this;
+  }
+
+  public withClusterInfo(
+    clusterInfo: Partial<ClusterInfo>,
+    isLoading = false,
+    error?: string,
+  ): FakeStoreBuilder {
+    this.state.clusterInfo.clusterInfo = Object.assign({}, clusterInfo as ClusterInfo);
+    this.state.clusterInfo.isLoading = isLoading;
+    this.state.clusterInfo.error = error;
     return this;
   }
 

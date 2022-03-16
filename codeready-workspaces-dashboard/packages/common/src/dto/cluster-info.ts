@@ -10,6 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+export interface ClusterInfo {
+  applications: ApplicationInfo[];
+}
+
 export interface ApplicationInfo {
   url: string;
   title: string;

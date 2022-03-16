@@ -17,6 +17,8 @@ import sanitizeHtml from 'sanitize-html';
 import { AppState } from '../../../store';
 import { selectBannerAlertMessages } from '../../../store/BannerAlert/selectors';
 
+import styles from './index.module.css';
+
 type Props = MappedProps;
 
 class BannerAlertCustomWarning extends React.PureComponent<Props> {
@@ -37,7 +39,7 @@ class BannerAlertCustomWarning extends React.PureComponent<Props> {
     );
 
     const banners = sanitizedMessages.map(message => (
-      <Banner key={message} className="pf-u-text-align-center" variant="warning">
+      <Banner key={message} className={styles.customBanner} variant="warning">
         <div dangerouslySetInnerHTML={{ __html: message }}></div>
       </Banner>
     ));
