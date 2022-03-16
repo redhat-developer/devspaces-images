@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.15
-    createdAt: "2022-03-04T13:49:53+00:00"
+    createdAt: "2022-03-16T20:17:24+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance
       per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -130,7 +130,7 @@ metadata:
     repository: https://github.com/redhat-developer/codeready-workspaces-images/
     support: Red Hat
     skipRange: '>=2.15.100 <2.15.102'
-  name: crwoperatorallnamespaces.v2.15.102
+  name: crwoperatorallnamespaces.v2.15.103
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -183,6 +183,10 @@ spec:
             path: auth.gatewayHeaderRewriteSidecarImage
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:hidden
+          - description: Configuration settings related to the User Dashboard used
+              by the Che installation.
+            displayName: User Dashboard
+            path: dashboard
           - description: Configuration settings related to the database used by the
               Che installation.
             displayName: Database
@@ -1102,7 +1106,7 @@ spec:
                       - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                         value: ca-certs
                       - name: CHE_VERSION
-                        value: 2.15.102
+                        value: 2.15.103
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: CodeReady Workspaces
                       - name: CONSOLE_LINK_IMAGE
@@ -1478,5 +1482,5 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.15.102
-  replaces: crwoperatorallnamespaces.v2.15.100
+  version: 2.15.103
+  replaces: crwoperatorallnamespaces.v2.15.102-0.1647377059.p
