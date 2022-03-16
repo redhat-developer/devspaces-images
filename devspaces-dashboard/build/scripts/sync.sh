@@ -144,7 +144,7 @@ echo "/asset-node-modules-cache.tgz" >> ${TARGETDIR}/.gitignore
 echo "Adjusted .gitignore"
 
 # apply CRW branding styles
-cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-crw,}.css
+cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-devspaces,}.css
 
 # process product.json template to apply CRW branding
 SHA_CHE=$(cd ${SOURCEDIR}; git rev-parse --short=4 HEAD)
@@ -167,8 +167,8 @@ echo "Using: CRW_VERSION = $CRW_VERSION (SHA_CRW = $SHA_CRW)"
 CRW_SHAs="${CRW_VERSION} @ ${SHA_CRW} #${BUILD_NUMBER} :: Eclipse Che Dashboard ${VER_CHE} @ ${SHA_CHE}"
 CRW_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${CRW_VERSION}"
 sed -r \
-    -e "s|@@crw.version@@|${CRW_SHAs}|g" \
-    -e "s#@@crw.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
+    -e "s|@@devspaces.version@@|${CRW_SHAs}|g" \
+    -e "s#@@devspaces.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
 ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json.template > ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json
 
 # ensure shell scripts are executable

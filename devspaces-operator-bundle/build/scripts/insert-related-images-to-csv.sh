@@ -22,7 +22,7 @@ MIDSTM_BRANCH=devspaces-3.y-rhel8
 
 # TODO handle cmdline input
 usage () {
-	echo "Usage:   $0 -v [CRW CSV_VERSION] -t [/path/to/generated] --crw-branch ${MIDSTM_BRANCH}"
+	echo "Usage:   $0 -v [Dev Spaces CSV_VERSION] -t [/path/to/generated] --crw-branch ${MIDSTM_BRANCH}"
 	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch devspaces-3.y-rhel8"
   exit
 }
@@ -45,18 +45,18 @@ if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 PLUGIN_REGISTRY_CONTAINERS=""
 DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
-    # check out crw sources
-    echo "    ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/devspaces/dependencies/"
-    rm -fr crw && git clone -q https://github.com/redhat-developer/devspaces crw
-    cd crw/
+    # check out devspaces sources
+    echo "    ${0##*/} :: Check out Dev Spaces registry sources from https://github.com/redhat-developer/devspaces/dependencies/"
+    rm -fr devspaces && git clone -q https://github.com/redhat-developer/devspaces devspaces
+    cd devspaces/
     git checkout ${MIDSTM_BRANCH} || true
     cd ..
 
     # collect containers referred to by devfiles
-    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
+    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
 
     # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
-    PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd crw/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
+    PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
 popd >/dev/null
 rm -fr $tmpdir
 
@@ -68,7 +68,7 @@ CONTAINERS_UNIQ=()
 for c in $PLUGIN_REGISTRY_CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
 IFS=$'\n' PLUGIN_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
 
-# same method used in both insert-related-images-to-csv.sh and sync-che-olm-to-devspaces-olm.sh
+# same method used in both insert-related-images-to-csv.sh and sync-che-olm.sh
 insertEnvVar()
 {
   echo "    ${0##*/} :: * ${updateName}: ${updateVal}"
@@ -103,7 +103,7 @@ updateRelatedImageName() {
 updateRelatedImageName "plugin_registry_image" "${PLUGIN_REGISTRY_CONTAINERS[@]}"
 updateRelatedImageName "devfile_registry_image" "${DEVFILE_REGISTRY_CONTAINERS[@]}"
 
-# replace external crw refs with internal ones
+# replace external devspaces refs with internal ones
 sed -r -i $CSVFILE \
   -e "s@registry.access.redhat.com/ubi8-minimal@registry.redhat.io/ubi8-minimal@g" \
   -e "s@registry.access.redhat.com/ubi8/ubi-minimal@registry.redhat.io/ubi8/ubi-minimal@g" \

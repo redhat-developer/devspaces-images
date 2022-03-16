@@ -15,12 +15,12 @@ Options:
     --registry, -r [REGISTRY]
         Docker registry to be used for image; default 'quay.io'
     --organization, -o [ORGANIZATION]
-        Docker image organization to be used for image; default: 'crw'
+        Docker image organization to be used for image; default: 'devspaces'
     --offline
         Build offline version of registry, with all artifacts included
         cached in the registry; disabled by default.
 ```
-By default, the built registry will be tagged `quay.io/crw/devfileregistry-rhel8:next`, and will be built with offline mode disabled.
+By default, the built registry will be tagged `quay.io/devspaces/devfileregistry-rhel8:next`, and will be built with offline mode disabled.
 
 This script listens to the `BUILDER` variable, and will use the tool specified there to build the image. For example:
 ```sh
@@ -54,8 +54,8 @@ When deploying this offline registry, it is necessary to set the environment var
 You can deploy the registry to Openshift as follows:
 
 ```bash
-  oc new-app -f deploy/openshift/che-devfile-registry.yaml \
-             -p IMAGE="quay.io/crw/devfileregistry-rhel8" \
+  oc new-app -f deploy/openshift/*devfile-registry.yaml \
+             -p IMAGE="quay.io/devspaces/devfileregistry-rhel8" \
              -p IMAGE_TAG="next" \
              -p PULL_POLICY="Always"
 ```
@@ -63,7 +63,7 @@ You can deploy the registry to Openshift as follows:
 ## Run the registry
 
 ```bash
-docker run -it --rm -p 8080:8080 quay.io/crw/devfileregistry-rhel8:next
+docker run -it --rm -p 8080:8080 quay.io/devspaces/devfileregistry-rhel8:next
 ```
 
 ### License

@@ -41,9 +41,9 @@ checkVersion() {
 checkVersion 1.1 "$(skopeo --version | sed -e "s/skopeo version //")" skopeo
 
 usage () {
-	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] -p [CRW CSV_VERSION_PREV] -s [/path/to/sources] -t [/path/to/generated] [-b crw-repo-branch]"
+	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] -p [CRW CSV_VERSION_PREV] -s [/path/to/sources] -t [/path/to/generated] [-b devspaces-repo-branch]"
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) -b ${MIDSTM_BRANCH}"
-	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from devspaces/crw-branch/pom.xml]"
+	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from devspaces/devspaces-branch/pom.xml]"
 	echo "Options:
 	--crw-tag ${CRW_VERSION}
 	--dwo-tag ${DWO_TAG}
@@ -175,7 +175,7 @@ pushd "${SOURCEDIR}" >/dev/null || exit
 
 SOURCE_CSVFILE="${SOURCEDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
 
-ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-devspaces-olm.icon.txt")"
+ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm.icon.txt")"
 for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	cp "${SOURCE_CSVFILE}" "${CSVFILE}"
 	# transform resulting file

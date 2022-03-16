@@ -1,19 +1,19 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-22 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-# use this script to update the deploy/openshift/crw-*-registry.yaml file
-# script is shared with both CRW devfile and plugin registries
+# use this script to update the deploy/openshift/*-registry.yaml file
+# script is shared with both Dev Spaces devfile and plugin registries
 
 unset SOURCE_TEMPLATE
 unset CRW_VERSION
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-CRW_VERSION=${MIDSTM_BRANCH#crw-}; CRW_VERSION=${CRW_VERSION%-rhel*} # devspaces-3.y-rhel-8 ==> 2.y
+CRW_VERSION=${MIDSTM_BRANCH#devspaces-}; CRW_VERSION=${CRW_VERSION%-rhel*} # devspaces-3.y-rhel-8 ==> 2.y
 DOCKER_IMAGE="registry.redhat.io/devspaces/REG_NAMEregistry-rhel8"
 
 while [[ "$#" -gt 0 ]]; do
@@ -33,9 +33,9 @@ fi
 
 usage () {
 	echo
-    echo "Usage:     ${0##*/} -rn REG_NAME -s /path/to/crw-REG_NAME-registry.yaml -i DOCKER_IMAGE -t 2.y"
-    echo "Example:   ${0##*/} -rn devfile -s /path/to/deploy/openshift/devspaces-devfile-registry.yaml"
-    echo "Example:   ${0##*/} -rn plugin -s /path/to/deploy/openshift/devspaces-plugin-registry.yaml"
+    echo "Usage:     ${0##*/} -rn REG_NAME -s /path/to/ds-REG_NAME-registry.yaml -i DOCKER_IMAGE -t 2.y"
+    echo "Example:   ${0##*/} -rn devfile -s /path/to/deploy/openshift/devfile-registry.yaml"
+    echo "Example:   ${0##*/} -rn plugin -s /path/to/deploy/openshift/plugin-registry.yaml"
     echo "Options:
     -rn Red Hat OpenShift Dev Spaces registry name (plugin or devfile); must be set
     -t Red Hat OpenShift Dev Spaces ${REG_NAME} registry image tag (compute from MIDSTM_BRANCH if not set)

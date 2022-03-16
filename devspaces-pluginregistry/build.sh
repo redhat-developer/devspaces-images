@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -13,7 +13,7 @@ set -e
 base_dir=$(cd "$(dirname "$0")"; pwd)
 
 REGISTRY="quay.io"
-ORGANIZATION="crw"
+ORGANIZATION="devspaces"
 TAG="next"
 DOCKERFILE="./build/dockerfiles/Dockerfile"
 SKIP_OCI_IMAGE="false"

@@ -66,6 +66,7 @@ RUN if [ -d "${HOME}/patches/${THEIA_VERSION}" ]; then \
 
 
 # Generate che-theia
+# TODO move this to new devspaces folder?
 ARG CDN_PREFIX="https://static.developers.redhat.com/che/crw_theia_artifacts/"
 ARG MONACO_CDN_PREFIX="https://cdn.jsdelivr.net/npm/"
 WORKDIR ${HOME}/theia-source-code

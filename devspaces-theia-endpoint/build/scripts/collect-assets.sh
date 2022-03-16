@@ -120,8 +120,8 @@ mkdir -p $TARGETDIR
 
 getContainerExtract() {
   pushd /tmp >/dev/null || exit
-  if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
-    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh
+  if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-${CRW_VERSION}-rhel-8/product/containerExtract.sh
   elif [[ ${MIDSTM_BRANCH} ]] && [[ ! $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
     curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh
   else

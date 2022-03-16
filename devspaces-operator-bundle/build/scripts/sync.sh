@@ -26,7 +26,7 @@ CSV_VERSION_PREV=""
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [-p CRW CSV_VERSION_PREV]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/crw-${MIDSTM_NAME} -p 2.y-1.0"
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} -p 2.y-1.0"
     exit
 }
 
@@ -64,7 +64,7 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     if [[ $MIDSTM_BRANCH == "devspaces-3-rhel-8" ]]; then
         CRW_VERSION="$(echo "$configjson" | jq -r '.Version')"
     else 
-        CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
+        CRW_VERSION=${MIDSTM_BRANCH/devspaces-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
     fi
     
     if [[ -z "${CSV_VERSION_PREV}" ]]; then
@@ -210,8 +210,8 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
 EOT
 echo "Generated Dockerfile"
 
-"${TARGETDIR}"/build/scripts/sync-che-operator-to-devspaces-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
-"${TARGETDIR}"/build/scripts/sync-che-olm-to-devspaces-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+"${TARGETDIR}"/build/scripts/sync-che-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+"${TARGETDIR}"/build/scripts/sync-che-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 
 pushd "${TARGETDIR}"/ >/dev/null || exit
 rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ vendor/ version/ go.* *.go
