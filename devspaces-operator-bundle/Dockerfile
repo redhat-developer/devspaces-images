@@ -17,9 +17,9 @@ COPY manifests /manifests/
 COPY metadata /metadata/
 
 # append Brew metadata here 
-ENV SUMMARY="Red Hat CodeReady Workspaces operator-bundle container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces operator-bundle container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces operator-bundle container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces operator-bundle container" \
+    PRODNAME="devspaces" \
     COMPNAME="operator-bundle"
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \

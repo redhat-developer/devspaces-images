@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert upstream che repo to midstream crw-images repo using yq, sed
+# convert upstream che repo to midstream devspaces-images repo using yq, sed
 
 set -e
 
@@ -131,9 +131,9 @@ sed_in_place -r \
     "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
-ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}"
 LABEL com.redhat.delivery.appregistry="false" \\
       summary="\$SUMMARY" \\
@@ -157,4 +157,4 @@ sed_in_place -r \
   "${TARGETDIR}"/get-sources.sh
 echo "Updated get-sources.sh"
 
-"${TARGETDIR}"/build/scripts/sync-che-operator-to-crw-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+"${TARGETDIR}"/build/scripts/sync-che-operator-to-devspaces-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"

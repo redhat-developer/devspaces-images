@@ -1,4 +1,4 @@
-# CodeReady Workspaces devfile registry
+# Red Hat OpenShift Dev Spaces devfile registry
 
 This repository holds ready-to-use Devfiles for different languages and technologies.
 
@@ -37,7 +37,7 @@ Note that the Dockerfiles in this repository utilize multi-stage builds, so Dock
 The Jenkinsfile in this repo has moved. See:
 
 * https://gitlab.cee.redhat.com/codeready-workspaces/crw-jenkins/-/tree/master/jobs/CRW_CI
-* https://github.com/redhat-developer/codeready-workspaces-images#jenkins-jobs
+* https://github.com/redhat-developer/devspaces-images#jenkins-jobs
 
 
 ### Offline and airgapped registry images
@@ -68,4 +68,4 @@ docker run -it --rm -p 8080:8080 quay.io/crw/devfileregistry-rhel8:next
 
 ### License
 
-CodeReady Workspaces is open sourced under the Eclipse Public License 2.0.
+Red Hat OpenShift Dev Spaces is open sourced under the Eclipse Public License 2.0.

@@ -41,7 +41,7 @@ cd "${SCRIPT_DIR}"
 [[ -e target ]] && rm -Rf target
 
 echo ""
-echo "CodeReady Workspaces :: Stacks :: Language Servers :: Golang Dependencies"
+echo "Red Hat OpenShift Dev Spaces :: Stacks :: Language Servers :: Golang Dependencies"
 echo ""
 
 mkdir -p target/go
@@ -91,7 +91,7 @@ tar -czf "${tarball}" -C target go
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
 

@@ -1,9 +1,9 @@
 {
-    "name": "Red Hat CodeReady Workspaces",
-    "icon": "codeready-workspaces-icon.png",
+    "name": "Red Hat OpenShift Dev Spaces",
+    "icon": "devspaces-icon.png",
     "logo": {
-        "dark": "codeready-workspaces-logo-light.png",
-        "light": "codeready-workspaces-logo-dark.png"
+        "dark": "devspaces-logo-light.png",
+        "light": "devspaces-logo-dark.png"
     },
     "welcome": {
         "title": "Welcome to Your Workspace",
@@ -11,8 +11,8 @@
     },
     "links": {
         "website": {
-            "name": "Discover CodeReady Workspaces",
-            "url": "https://developers.redhat.com/products/codeready-workspaces/overview"
+            "name": "Discover Red Hat OpenShift Dev Spaces",
+            "url": "https://developers.redhat.com/products/devspaces/overview"
         },
         "documentation": {
             "name": "Browse Documentation",

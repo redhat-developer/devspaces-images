@@ -15,4 +15,4 @@ kind: Namespace
 metadata:
   labels:
     app: codeready-operator
-  name: codeready-workspaces
+  name: devspaces

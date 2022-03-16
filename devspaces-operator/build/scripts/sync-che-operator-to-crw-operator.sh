@@ -25,7 +25,7 @@ OPENSHIFT_TAG="v4.8"
 
 usage () {
 	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
-	echo "Example: ${0##*/} -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/crw-operator"
+	echo "Example: ${0##*/} -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/devspaces-operator"
 	echo "Options:
 	--crw-tag ${CRW_VERSION}
 	--dwo-tag ${DWO_TAG}
@@ -61,8 +61,8 @@ done
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-CRW_RRIO="registry.redhat.io/codeready-workspaces"
-CRW_OPERATOR="crw-2-rhel8-operator"
+CRW_RRIO="registry.redhat.io/devspaces"
+CRW_OPERATOR="devspaces-3-rhel8-operator"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
@@ -95,11 +95,11 @@ while IFS= read -r -d '' d; do
 		sed -i "${TARGETDIR}/${d}" -r \
 			-e "s|identityProviderPassword: ''|identityProviderPassword: 'admin'|g" \
 			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
-			-e "s|Eclipse Che|CodeReady Workspaces|g" \
+			-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 			-e 's|(DefaultCheFlavor.*=) "che"|\1 "codeready"|' \
 			-e 's|che/operator|codeready/operator|' \
 			-e 's|che-operator|codeready-operator|' \
-			-e 's|name: eclipse-che|name: codeready-workspaces|' \
+			-e 's|name: eclipse-che|name: devspaces|' \
 			-e "s|cheImageTag: 'nightly'|cheImageTag: ''|" \
 			-e 's|/bin/codeready-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/codeready-operator#\1.com/eclipse/che-operator#g' \
@@ -235,7 +235,7 @@ for updateName in "${!operator_replacements[@]}"; do
 done
 echo "Converted (yq #1) ${OPERATOR_DEPLOYMENT_YAML}"
 
-# CRW-1579 set correct crw-2-rhel8-operator image and tag in operator deployment yaml
+# CRW-1579 set correct devspaces-3-rhel8-operator image and tag in operator deployment yaml
 oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")
 if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"

@@ -15,16 +15,16 @@ ASSET_NAME="configbump"
 
 # compute project name from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
-projectName=${SCRIPT_DIR##*/}; projectName=${projectName/codeready-workspaces-/}; 
+projectName=${SCRIPT_DIR##*/}; projectName=${projectName/devspaces-/}; 
 if [[ $projectName == "sources" ]]; then # compute a new string
-	projectName=$(git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)#\1#p' | sed -e "s#codeready-workspaces-##" -e "s#\.git##")
+	projectName=$(git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)#\1#p' | sed -e "s#devspaces-##" -e "s#\.git##")
 fi
 # echo $projectName
 
 # compute CSV_VERSION from MIDSTM_BRANCH
-MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
-if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
-CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/${MIDSTM_BRANCH}/codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml" | yq -r .spec.version)
+MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator-bundle/manifests/devspaces.csv.yaml" | yq -r .spec.version)
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -48,7 +48,7 @@ function log()
 }
 
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then

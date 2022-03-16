@@ -55,9 +55,9 @@ CMD ["/kubernetes-image-puller"]
 
 # append Brew metadata here
 
-ENV SUMMARY="Red Hat CodeReady Workspaces imagepuller container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces imagepuller container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces imagepuller container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces imagepuller container" \
+    PRODNAME="devspaces" \
     COMPNAME="imagepuller-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

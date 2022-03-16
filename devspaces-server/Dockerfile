@@ -38,9 +38,9 @@ RUN mkdir /logs /data && \
 USER user
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces server container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces server container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces server container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces server container" \
+    PRODNAME="devspaces" \
     COMPNAME="server-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

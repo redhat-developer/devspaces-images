@@ -43,7 +43,7 @@ checkVersion 1.1 "$(skopeo --version | sed -e "s/skopeo version //")" skopeo
 usage () {
 	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] -p [CRW CSV_VERSION_PREV] -s [/path/to/sources] -t [/path/to/generated] [-b crw-repo-branch]"
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) -b ${MIDSTM_BRANCH}"
-	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from codeready-workspaces/crw-branch/pom.xml]"
+	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from devspaces/crw-branch/pom.xml]"
 	echo "Options:
 	--crw-tag ${CRW_VERSION}
 	--dwo-tag ${DWO_TAG}
@@ -60,7 +60,7 @@ if [[ $# -lt 8 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/master/bundle
-    '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/codeready-workspaces from which to load plugin and devfile reg container refs
+    '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
 	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
 	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
 	# previous version to set in CSV
@@ -89,8 +89,8 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-CRW_RRIO="registry.redhat.io/codeready-workspaces"
-CRW_OPERATOR="crw-2-rhel8-operator"
+CRW_RRIO="registry.redhat.io/devspaces"
+CRW_OPERATOR="devspaces-3-rhel8-operator"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
@@ -175,21 +175,21 @@ pushd "${SOURCEDIR}" >/dev/null || exit
 
 SOURCE_CSVFILE="${SOURCEDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
 
-ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-crw-olm.icon.txt")"
-for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
+ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm-to-devspaces-olm.icon.txt")"
+for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	cp "${SOURCE_CSVFILE}" "${CSVFILE}"
 	# transform resulting file
 	NOW="$(date -u +%FT%T+00:00)"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
-		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/codeready-workspaces-images/|g" \
-		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/codeready-workspaces-images/|g" \
+		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
+		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
 		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_codeready_workspaces|g" \
-		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/codeready-workspaces/overview/|g" \
+		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/devspaces/overview/|g" \
 		\
-		-e 's|"eclipse-che"|"codeready-workspaces"|g' \
+		-e 's|"eclipse-che"|"devspaces"|g' \
 		-e 's|che-operator|codeready-operator|g' \
-		-e "s|Eclipse Che|CodeReady Workspaces|g" \
+		-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
 		-e "s|name: .+preview-openshift.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
@@ -211,14 +211,14 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e 's|"identityProviderImage":.".+"|"identityProviderImage": ""|' \
 		-e 's|"workspaceNamespaceDefault":.".*"|"workspaceNamespaceDefault": "<username>-codeready"|' \
 		\
-		-e "s|quay.io/eclipse/codeready-operator:.+|registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
-		-e "s|(registry.redhat.io/codeready-workspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
-		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/codeready-workspaces/server-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-devfile-registry:.+|registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-plugin-metadata-broker:.+|registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-plugin-artifacts-broker:.+|registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-jwtproxy:.+|registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/codeready-operator:.+|registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
+		-e "s|(registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
+		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/devspaces/server-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/devspaces/pluginregistry-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/che-devfile-registry:.+|registry.redhat.io/devspaces/devfileregistry-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/che-plugin-metadata-broker:.+|registry.redhat.io/devspaces/pluginbroker-metadata-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/che-plugin-artifacts-broker:.+|registry.redhat.io/devspaces/pluginbroker-artifacts-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/che-jwtproxy:.+|registry.redhat.io/devspaces/jwtproxy-rhel8:${CRW_VERSION}|" \
 		\
 		`# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
 		-e "s|/ubi8-minimal|/ubi8/ubi-minimal|g" \
@@ -228,8 +228,8 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e "s|centos/postgresql-96-centos7:9.6|${POSTGRES_IMAGE}|" \
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
 		\
-		`# use internal image for operator, as codeready-workspaces-crw-2-rhel8-operator only exists in RHEC and Quay repos` \
-		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:${CRW_VERSION}#" \
+		`# use internal image for operator, as devspaces-devspaces-3-rhel8-operator only exists in RHEC and Quay repos` \
+		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
 		` # CRW-927 set suggested namespace, append cluster-monitoring = true (removed from upstream as not supported in community operators)` \
@@ -261,7 +261,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 	yq -riY ".metadata.annotations[\"alm-examples\"] = \"${CSV_CR_SAMPLES}\"" ${CSVFILE}
 
 	# yq changes - transform env vars from Che to CRW values
-	changed="$(yq  -Y '.spec.displayName="Red Hat CodeReady Workspaces"' "${CSVFILE}")" && \
+	changed="$(yq  -Y '.spec.displayName="Red Hat OpenShift Dev Spaces"' "${CSVFILE}")" && \
 		echo "${changed}" > "${CSVFILE}"
 	if [[ $(diff -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "    ${0##*/} :: Converted (yq #1) ${CSVFILE}:"
@@ -316,7 +316,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		[".spec.replaces"]="DELETEME"
 		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
-		['.spec.displayName']="Red Hat CodeReady Workspaces"
+		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
 	)
 	for updateName in "${!spec_insertions[@]}"; do
@@ -356,6 +356,6 @@ if [[ $(diff -u "$CR_YAML" "${TARGETDIR}/${CR_YAML}") ]]; then
 	echo "Converted (yq #4) ${TARGETDIR}/${CR_YAML}"
 fi
 
-cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/codeready-workspaces.crd.yaml"
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
 
 popd >/dev/null || exit

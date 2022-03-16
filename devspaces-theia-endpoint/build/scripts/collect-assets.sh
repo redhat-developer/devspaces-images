@@ -22,23 +22,23 @@ if [[ -r ./BUILD_PARAMS ]]; then source ./BUILD_PARAMS; fi
 # try to compute a value for MIDSTM_BRANCH based on current dir
 if [[ ! ${MIDSTM_BRANCH} ]]; then 
   MIDSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-  if [[ $MIDSTM_BRANCH != "crw-2."*"-rhel-8" ]] && [[ $MIDSTM_BRANCH != "crw-2-rhel-8" ]]; then
+  if [[ $MIDSTM_BRANCH != "devspaces-3."*"-rhel-8" ]] && [[ $MIDSTM_BRANCH != "devspaces-3-rhel-8" ]]; then
     MIDSTM_BRANCH="" # invalid branch, so reset
   fi
 fi
 
-if [[ ${MIDSTM_BRANCH} ]]; then usage_branch="${MIDSTM_BRANCH}"; else usage_branch="crw-2-rhel-8"; fi
+if [[ ${MIDSTM_BRANCH} ]]; then usage_branch="${MIDSTM_BRANCH}"; else usage_branch="devspaces-3-rhel-8"; fi
 usage () {
   echo "Run this script from the destination folder where you want asset files created, eg., where you have 
-pkgs.devel codeready-workspaces-theia-dev checked out. Repeat for theia and theia-endpoint pkgs.devel repos.
+pkgs.devel devspaces-theia-dev checked out. Repeat for theia and theia-endpoint pkgs.devel repos.
 
 Usage:
-  $0 --cb MIDSTM_BRANCH --target /path/to/pkgs.devel/crw-theia-dev/ [options]
+  $0 --cb MIDSTM_BRANCH --target /path/to/pkgs.devel/devspaces-theia-dev/ [options]
 
 Examples:
-  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/crw-theia-dev/      -d --rmi:tmp --ci --commit
-  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/crw-theia/          -t --rmi:tmp --ci --commit
-  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/crw-theia-endpoint/ -e --rmi:tmp --ci --commit
+  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/devspaces-theia-dev/      -d --rmi:tmp --ci --commit
+  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/devspaces-theia/          -t --rmi:tmp --ci --commit
+  $0 --cb ${usage_branch} --target /path/to/pkgs.devel/devspaces-theia-endpoint/ -e --rmi:tmp --ci --commit
 
 Directory flags:
   --target     | instead of writing assets into current dir $(pwd)/, target a different place
@@ -52,8 +52,8 @@ Architecture flags:
   --platforms \"${PLATFORMS}\" | architectures for which to collect assets
 
 Optional flags:
-  --cb             | CRW_BRANCH from which to compute version of CRW to put in Dockerfiles, eg., crw-2.y-rhel-8 or ${MIDSTM_BRANCH}
-  --cv             | rather than pull from CRW_BRANCH version of redhat-developer/codeready-workspaces/dependencies/VERSION file, 
+  --cb             | CRW_BRANCH from which to compute version of CRW to put in Dockerfiles, eg., devspaces-3.y-rhel-8 or ${MIDSTM_BRANCH}
+  --cv             | rather than pull from CRW_BRANCH version of redhat-developer/devspaces/dependencies/VERSION file, 
                    | just set CRW_VERSION; default: ${CRW_VERSION}
   --nv             | node version to use; default: ${nodeVersion}
   --pr             | if building based on a GH pull request, use 'pr' in tag names instead of 'tmp'
@@ -92,10 +92,10 @@ for key in "$@"; do
 done
 
 if [[ ! ${CRW_VERSION} ]] && [[ ${MIDSTM_BRANCH} ]]; then
-  CRW_VERSION=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/VERSION)
+  CRW_VERSION=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/VERSION)
 fi
 if [[ ! ${CRW_VERSION} ]]; then 
-  echo "[ERROR] Must set either --cb crw-2.y-rhel-8 or --cv 2.y to define the version of CRW Theia for which to collect assets."; echo
+  echo "[ERROR] Must set either --cb devspaces-3.y-rhel-8 or --cv 2.y to define the version of CRW Theia for which to collect assets."; echo
   usage
 fi
 echo "[INFO] Using MIDSTM_BRANCH = ${MIDSTM_BRANCH} and CRW_VERSION = ${CRW_VERSION}"
@@ -120,12 +120,12 @@ mkdir -p $TARGETDIR
 
 getContainerExtract() {
   pushd /tmp >/dev/null || exit
-  if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
-    curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh
-  elif [[ ${MIDSTM_BRANCH} ]] && [[ ! $(curl -sSI https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
-    curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh
+  if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/crw-${CRW_VERSION}-rhel-8/product/containerExtract.sh
+  elif [[ ${MIDSTM_BRANCH} ]] && [[ ! $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh
   else
-    curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/product/containerExtract.sh
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/product/containerExtract.sh
   fi
   chmod +x /tmp/containerExtract.sh
   popd >/dev/null || exit
@@ -268,7 +268,7 @@ collect_noarch_assets_crw_theia_dev() {
   pushd "$cheTheiaSourcesDir" >/dev/null || exit 1
     git clone https://github.com/eclipse-che/che-theia
     cd che-theia && git checkout $SOURCE_BRANCH
-    sed -i 's|Eclipse Che|CodeReady Workspaces|g' ./generator/src/templates/assembly-package.mst.json
+    sed -i 's|Eclipse Che|Red Hat OpenShift Dev Spaces|g' ./generator/src/templates/assembly-package.mst.json
     cd generator && yarn && yarn pack --filename "${TARGETDIR}"/asset-eclipse-che-theia-generator.tgz
   popd >/dev/null || exit 1
   rm -fr "${cheTheiaSourcesDir}"

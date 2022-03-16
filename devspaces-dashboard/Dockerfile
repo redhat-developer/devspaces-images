@@ -54,9 +54,9 @@ COPY build/dockerfiles/rhel.entrypoint.sh /usr/local/bin
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 
 ## Append Brew metadata
-ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces dashboard container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \
+    PRODNAME="devspaces" \
     COMPNAME="dashboard-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

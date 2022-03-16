@@ -6,7 +6,7 @@ To build this locally, run this script to fetch the latest tarball and trigger a
 
 See also:
 
-* https://github.com/redhat-developer/codeready-workspaces-productization/blob/master/devdoc/building/osbs-container-builds.adoc
+* https://github.com/redhat-developer/devspaces-productization/blob/master/devdoc/building/osbs-container-builds.adoc
 
 For odo check required versions at https://github.com/redhat-developer/vscode-openshift-tools/releases
  and https://github.com/redhat-developer/vscode-openshift-tools/blob/master/src/tools.json

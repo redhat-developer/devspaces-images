@@ -24,9 +24,9 @@ USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /build/che-plugin-broker/brokers/artifacts/cmd/artifacts-broker /
 ENTRYPOINT ["/artifacts-broker"]
-ENV SUMMARY="Red Hat CodeReady Workspaces pluginbroker-artifacts container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces pluginbroker-artifacts container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces pluginbroker-artifacts container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces pluginbroker-artifacts container" \
+    PRODNAME="devspaces" \
     COMPNAME="pluginbroker-artifacts-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

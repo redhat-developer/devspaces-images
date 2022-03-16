@@ -10,8 +10,8 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# SPECIAL CASE: convert registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (crw-images repo) using yq, sed
-# https://github.com/redhat-developer/codeready-workspaces/tree/crw-2-rhel-8/dependencies to https://github.com/redhat-developer/codeready-workspaces-images
+# SPECIAL CASE: convert registry upper-midstream (crw repo, forked from upstream w/ different plugins) to lower-midstream (devspaces-images repo) using yq, sed
+# https://github.com/redhat-developer/devspaces/tree/devspaces-3-rhel-8/dependencies to https://github.com/redhat-developer/devspaces-images
 
 set -e
 
@@ -25,7 +25,7 @@ MIDSTM_NAME="devfileregistry"
 usage () {
     echo "
 Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b CRW_BRANCH]
-Example: $0 -v 2.y.0 -s ${HOME}/codeready-workspaces -t /tmp/codeready-workspaces-images/codeready-workspaces-${MIDSTM_NAME} -b crw-2.y-rhel-8
+Example: $0 -v 2.y.0 -s ${HOME}/devspaces -t /tmp/devspaces-images/devspaces-${MIDSTM_NAME} -b devspaces-3.y-rhel-8
 "
     exit
 }
@@ -50,11 +50,11 @@ done
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
 # try to compute branches from currently checked out branch; else fall back to hard coded value for where to find 
-# https://github.com/redhat-developer/codeready-workspaces-images/blob/${CRW_BRANCH}/codeready-workspaces-operator-metadata-generated/manifests/codeready-workspaces.csv.yaml
+# https://github.com/redhat-developer/devspaces-images/blob/${CRW_BRANCH}/devspaces-operator-metadata-generated/manifests/devspaces.csv.yaml
 if [[ -z ${CRW_BRANCH} ]]; then 
   CRW_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-  if [[ $CRW_BRANCH != "crw-2."*"-rhel-8" ]]; then
-    CRW_BRANCH="crw-2-rhel-8"
+  if [[ $CRW_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
+    CRW_BRANCH="devspaces-3-rhel-8"
   fi
 fi
 
@@ -128,9 +128,9 @@ RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /t
   > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
-ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\

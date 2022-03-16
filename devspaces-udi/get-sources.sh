@@ -39,7 +39,7 @@ function log()
 }
 
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 
 if [[ ${DELETE_ASSETS} -eq 1 ]]; then
@@ -60,8 +60,8 @@ if [[ ! ${JOB_BRANCH} ]]; then
 	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
 fi
 
-# see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/codeready-workspaces-udi/build/build_kamel.sh#L17 or https://github.com/apache/camel-k/releases
-$(curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/$(git rev-parse --abbrev-ref HEAD)/codeready-workspaces-udi/build/build_kamel.sh | grep KAMEL_VERSION=)
+# see https://github.com/redhat-developer/devspaces-images/blob/devspaces-3-rhel-8/devspaces-udi/build/build_kamel.sh#L17 or https://github.com/apache/camel-k/releases
+$(curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-images/$(git rev-parse --abbrev-ref HEAD)/devspaces-udi/build/build_kamel.sh | grep KAMEL_VERSION=)
 echo "Using KAMEL_VERSION = ${KAMEL_VERSION}"
 
 # update Dockerfile to record versions we expect
@@ -96,7 +96,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 
 	# pull gradle, lombok, and maven
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-	curl -sSL -O https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar
+	curl -sSL -O https://github.com/redhat-developer/devspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 
     outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz"

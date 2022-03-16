@@ -38,20 +38,20 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ ! $MIDSTM_BRANCH ]]; then 
-  MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
-  if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
+  MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+  if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
 fi
 
 cd "$SCRIPT_DIR"
 [[ -e target ]] && rm -Rf target
 
 echo ""
-echo "CodeReady Workspaces :: java plugin library :: lombok"
+echo "Red Hat OpenShift Dev Spaces :: java plugin library :: lombok"
 echo ""
 
 # if version we want already exists we're done
-if [[ ! $(curl -sSI https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar | grep 404) ]]; then
-  echo "Asset already exists: https://github.com/redhat-developer/codeready-workspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar"
+if [[ ! $(curl -sSI https://github.com/redhat-developer/devspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar | grep 404) ]]; then
+  echo "Asset already exists: https://github.com/redhat-developer/devspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar"
   echo "Nothing to do!"
   exit 0
 fi
@@ -87,11 +87,11 @@ cp target/lombok/dist/lombok-${LOMBOK_VERSION}.jar "${jarfile}"
 
 # upload the binary to GH
 if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+    curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 fi
 result="$(./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}" || true)"
 if [[ "$result" == *"Duplicate value for "* ]]; then
-  echo "[WARNING] ${jarfile} already present at https://github.com/redhat-developer/codeready-workspaces-images/releases/tag/${CSV_VERSION}-${ASSET_NAME}-assets "
+  echo "[WARNING] ${jarfile} already present at https://github.com/redhat-developer/devspaces-images/releases/tag/${CSV_VERSION}-${ASSET_NAME}-assets "
 fi
 
 ${PODMAN} rmi -f ${OPENJDK11_IMAGE}

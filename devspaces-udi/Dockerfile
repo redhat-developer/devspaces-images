@@ -231,9 +231,9 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null
 
-ENV SUMMARY="Red Hat CodeReady Workspaces - Universal Developer Image container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces - Universal Developer Image container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - Universal Developer Image container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - Universal Developer Image container" \
+    PRODNAME="devspaces" \
     COMPNAME="udi-rhel8"
 
 LABEL summary="$SUMMARY" \

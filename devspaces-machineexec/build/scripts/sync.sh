@@ -78,9 +78,9 @@ sed ${SOURCEDIR}/build/dockerfiles/rhel.Dockerfile -r \
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
 
-ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\

@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert upstream che repo to midstream crw-images repo using yq, sed
+# convert upstream che repo to midstream devspaces-images repo using yq, sed
 
 set -e
 
@@ -49,19 +49,19 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # if not set via commandline, compute CSV_VERSION_PREV
-# from https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json
+# from https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json
 # shellcheck disable=SC2086
 if [[ -z "${CSV_VERSION_PREV}" ]]; then
     
-    MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
-    if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
-    configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/job-config.json")"
+    MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+    if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+    configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json")"
     if [[ $configjson == *"404"* ]] || [[ $configjson == *"Not Found"* ]]; then 
-        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/dependencies/job-config.json"
+        echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json"
         echo "[ERROR] Please use -p flag to set CSV_VERSION_PREV"
         exit 1
     fi
-    if [[ $MIDSTM_BRANCH == "crw-2-rhel-8" ]]; then
+    if [[ $MIDSTM_BRANCH == "devspaces-3-rhel-8" ]]; then
         CRW_VERSION="$(echo "$configjson" | jq -r '.Version')"
     else 
         CRW_VERSION=${MIDSTM_BRANCH/crw-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
@@ -74,19 +74,19 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
         echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$CRW_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}"
         
         # check if image exists for that tag (doesn't work with CVE respins, only manual releases)
-        if [[ ! $(skopeo inspect docker://registry.redhat.io/codeready-workspaces/crw-2-rhel8-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
+        if [[ ! $(skopeo inspect docker://registry.redhat.io/devspaces/devspaces-3-rhel8-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
             # else get from latest released image
-            curl -sSL https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
+            curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
             if [[ $(cat /tmp/containerExtract.sh) == *"404"* ]] || [[ $(cat /tmp/containerExtract.sh) == *"Not Found"* ]]; then
-                echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/containerExtract.sh"
+                echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh"
                 exit 1
             fi
             chmod +x /tmp/containerExtract.sh
             # NOTE: for CVE respins, container tag != CSV version, so we have to extract the container to get the CSV version, then replace + with -
-            /tmp/containerExtract.sh registry.redhat.io/codeready-workspaces/crw-2-rhel8-${MIDSTM_NAME}:latest
-            CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-${MIDSTM_NAME}-latest-*/manifests/codeready-workspaces.csv.yaml | tr "+" "-")"
-            echo "[INFO] registry.redhat.io/codeready-workspaces/crw-2-rhel8-${MIDSTM_NAME}:latest#.spec.version = ${CSV_VERSION_PREV}"
-            rm -fr /tmp/registry.redhat.io-codeready-workspaces-crw-2-rhel8-${MIDSTM_NAME}-latest-*
+            /tmp/containerExtract.sh registry.redhat.io/devspaces/devspaces-3-rhel8-${MIDSTM_NAME}:latest
+            CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-devspaces-devspaces-3-rhel8-${MIDSTM_NAME}-latest-*/manifests/devspaces.csv.yaml | tr "+" "-")"
+            echo "[INFO] registry.redhat.io/devspaces/devspaces-3-rhel8-${MIDSTM_NAME}:latest#.spec.version = ${CSV_VERSION_PREV}"
+            rm -fr /tmp/registry.redhat.io-devspaces-devspaces-3-rhel8-${MIDSTM_NAME}-latest-*
             rm -fr /tmp/containerExtract.sh
             if [[ ${CSV_VERSION_PREV} == "null" ]]; then CSV_VERSION_PREV="main"; fi
         fi
@@ -182,9 +182,9 @@ COPY manifests /manifests/
 COPY metadata /metadata/
 
 # append Brew metadata here 
-ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}"
 LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
       operators.operatorframework.io.bundle.manifests.v1=manifests/ \\
@@ -210,17 +210,17 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
 EOT
 echo "Generated Dockerfile"
 
-"${TARGETDIR}"/build/scripts/sync-che-operator-to-crw-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
-"${TARGETDIR}"/build/scripts/sync-che-olm-to-crw-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+"${TARGETDIR}"/build/scripts/sync-che-operator-to-devspaces-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
+"${TARGETDIR}"/build/scripts/sync-che-olm-to-devspaces-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 
 pushd "${TARGETDIR}"/ >/dev/null || exit
 rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ vendor/ version/ go.* *.go
 
-CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
+CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
 # transform into Brew-friendly version of CSV
 sed -r -i "${CSVFILE}" \
-  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
-  -e "s@crw-2-rhel8-operator@operator@g" \
+  -e "s@registry.redhat.io/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
+  -e "s@devspaces-3-rhel8-operator@operator@g" \
   -e "s@:latest@:${CRW_VERSION}@g"
 
 # date in CSV will be updated only if there were any changes in CSV

@@ -27,7 +27,7 @@ command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1
 usage () {
 	echo "Usage:   ${0##*/} [-w WORKDIR] -s [SOURCE_PATH] -n [csv name] -v [VERSION] -t [TAG]"
 	echo "Example: ${0##*/} -w $(pwd) -s eclipse-che-preview-openshift/deploy/olm-catalog/eclipse-che-preview-openshift -n eclipse-che-preview-openshift -v 7.9.0"
-	echo "Example: ${0##*/} -w $(pwd) -s manifests -n codeready-workspaces -v 2.y.0 -t 2.y"
+	echo "Example: ${0##*/} -w $(pwd) -s manifests -n devspaces -v 2.y.0 -t 2.y"
 }
 
 if [[ $# -lt 1 ]]; then usage; exit; fi

@@ -38,7 +38,7 @@ checkVersion 1.1 "$(skopeo --version | sed -e "s/skopeo version //")" skopeo
 usage () {
 	echo "Usage:   ${0##*/} [-w WORKDIR] -c [/path/to/csv.yaml] "
 	echo "Example: ${0##*/} -w $(pwd) -c  $(pwd)/generated/eclipse-che-preview-openshift/7.9.0/eclipse-che-preview-openshift.v7.9.0.clusterserviceversion.yaml -t 7.9.0"
-	echo "Example: ${0##*/} -w $(pwd) -c  $(pwd)/generated/codeready-workspaces/v2.1.1/codeready-workspaces.csv.yaml -t 2.1"
+	echo "Example: ${0##*/} -w $(pwd) -c  $(pwd)/generated/devspaces/v2.1.1/devspaces.csv.yaml -t 2.1"
 }
 
 if [[ $# -lt 1 ]]; then usage; exit; fi
@@ -79,7 +79,7 @@ for registry in ${REGISTRY_LIST}; do
   registry="${registry/\@sha256:*/:${TAG}}" # remove possible existing @sha256:... and use current tag instead
   getExternalImagesFromRegistry $registry
   if [[ ! ${REGISTRY_IMAGES} ]]; then
-    registryalt=$(echo $registry | sed -r -e "s#registry.redhat.io/codeready-workspaces/#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#g")
+    registryalt=$(echo $registry | sed -r -e "s#registry.redhat.io/devspaces/#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-#g")
     getExternalImagesFromRegistry $registryalt
   fi
   echo "[INFO] ${0##*/} :: Found $(echo "${REGISTRY_IMAGES}" grep -v "Not found" | wc -l) images in registry"

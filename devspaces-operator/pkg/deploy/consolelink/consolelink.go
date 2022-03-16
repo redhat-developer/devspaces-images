@@ -73,7 +73,7 @@ func (c *ConsoleLinkReconciler) createConsoleLink(ctx *deploy.DeployContext) (bo
 		return false, err
 	}
 
-	// consolelink is for this specific instance of CodeReady Workspaces
+	// consolelink is for this specific instance of Red Hat OpenShift Dev Spaces
 	if strings.Index(consoleLink.Spec.Link.Href, ctx.CheCluster.Spec.Server.CheHost) != -1 {
 		err = deploy.AppendFinalizer(ctx, ConsoleLinkFinalizerName)
 		return err == nil, err

@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert upstream che repo to midstream crw-images repo using yq, sed
+# convert upstream che repo to midstream devspaces-images repo using yq, sed
 
 set -e
 
@@ -86,9 +86,9 @@ sed -r "${SOURCEDIR}/docker/Dockerfile" \
 
 cat << EOT >> "${TARGETDIR}/Dockerfile"
 
-ENV SUMMARY="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces ${MIDSTM_NAME} container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\

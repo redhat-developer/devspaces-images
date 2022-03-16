@@ -37,7 +37,7 @@
           register: java_cmd_run
         - debug:
             msg: "{{ java_cmd_run.stdout }}"
-        - name: Make sure CodeReady binaries are present
+        - name: Make sure Red Hat OpenShift Dev Spaces binaries are present
           shell: oc exec {{ pod_name.stdout }} -- ls -la /home/user/codeready/tomcat
           register: ls_cmd_run
         - debug:

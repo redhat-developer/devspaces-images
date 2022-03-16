@@ -396,7 +396,7 @@ spec:
                     pvcClaimSize:
                       description: Size of the persistent volume claim for database.
                         Defaults to `1Gi`. To update pvc storageclass that provisions
-                        it must support resize when CodeReady Workspaces has been already deployed.
+                        it must support resize when Red Hat OpenShift Dev Spaces has been already deployed.
                       type: string
                   type: object
                 devWorkspace:
@@ -543,7 +543,7 @@ spec:
                         registry to pull images from. This value overrides the container
                         registry organization defined in all the default container
                         images involved in a Che deployment. This is particularly
-                        useful to install CodeReady Workspaces in a restricted environment.
+                        useful to install Red Hat OpenShift Dev Spaces in a restricted environment.
                       type: string
                     allowUserDefinedWorkspaceNamespaces:
                       description: Deprecated. The value of this flag is ignored.
@@ -565,8 +565,7 @@ spec:
                     cheFlavor:
                       description: Deprecated. The value of this flag is ignored.
                         Specifies a variation of the installation. The options are
-                        `che` for upstream Che installations, or `codeready` for link:https://developers.redhat.com/products/codeready-workspaces/overview[CodeReady
-                        Workspaces] installation. Override the default value only
+                        `che` for upstream Che installations, or `codeready` for link:https://developers.redhat.com/products/devspaces/overview[Red Hat OpenShift Dev Spaces] installation. Override the default value only
                         on necessary occasions.
                       type: string
                     cheHost:

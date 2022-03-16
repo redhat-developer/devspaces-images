@@ -10,7 +10,7 @@
 ###
 # Builder Image
 #
-FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-dev-rhel8:2.16 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-dev-rhel8:2.16 as builder
 
 WORKDIR ${HOME}
 
@@ -208,9 +208,9 @@ COPY --from=builder /tmp/branding ${HOME}/branding
 
 ENV YARN_FLAGS="--offline"
 
-ENV SUMMARY="Red Hat CodeReady Workspaces - theia container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces - theia container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - theia container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - theia container" \
+    PRODNAME="devspaces" \
     COMPNAME="theia-rhel8" \
     PRODUCT_JSON=${HOME}/branding/product.json
 

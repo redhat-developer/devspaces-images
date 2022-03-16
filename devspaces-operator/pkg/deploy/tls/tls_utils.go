@@ -394,7 +394,7 @@ func K8sHandleCheTLSSecrets(ctx *deploy.DeployContext) (reconcile.Result, error)
 	if jobExists {
 		// The job object is present
 		if job.Status.Succeeded > 0 {
-			logrus.Infof("Import public part of CodeReady Workspaces self-signed CA certificate from \"%s\" secret into your browser.", deploy.CheTLSSelfSignedCertificateSecretName)
+			logrus.Infof("Import public part of Red Hat OpenShift Dev Spaces self-signed CA certificate from \"%s\" secret into your browser.", deploy.CheTLSSelfSignedCertificateSecretName)
 			deleteJob(ctx, job)
 		} else if job.Status.Failed > 0 {
 			// The job failed, but the certificate is present, shouldn't happen

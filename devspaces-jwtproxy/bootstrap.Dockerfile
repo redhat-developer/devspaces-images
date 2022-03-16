@@ -40,9 +40,9 @@ ENTRYPOINT [ "/usr/local/bin/jwtproxy" ]
 # CMD ["-config", "/che-jwtproxy-config/config.yaml"]
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces jwtproxy container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces jwtproxy container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces jwtproxy container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces jwtproxy container" \
+    PRODNAME="devspaces" \
     COMPNAME="jwtproxy-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

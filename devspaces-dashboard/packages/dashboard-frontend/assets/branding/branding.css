@@ -11,15 +11,15 @@
  */
 /*
 
-This file contains the branding changes needed for CodeReady Workspaces Dashboard.
+This file contains the branding changes needed for Red Hat OpenShift Dev Spaces Dashboard.
 It should override settings in default Che.
 
 Copy this file to https://github.com/eclipse/che-dashboard/blob/master/assets/branding/branding.css
 before building Che, apply these changes to the dashboard war.
 
-Then use that reskinned dashboard war when building CodeReady Workspaces.
+Then use that reskinned dashboard war when building Red Hat OpenShift Dev Spaces.
 
-See also https://github.com/redhat-developer/codeready-workspaces/blob/master/Jenkinsfile
+See also https://github.com/redhat-developer/devspaces/blob/master/Jenkinsfile
 
 */
 

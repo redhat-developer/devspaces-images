@@ -46,9 +46,9 @@ ENV HOME=/home/theia-dev \
 # setup extra stuff
 ENV YARN_FLAGS="--offline"
 
-ENV SUMMARY="Red Hat CodeReady Workspaces - theia-dev container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces - theia-dev container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - theia-dev container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - theia-dev container" \
+    PRODNAME="devspaces" \
     COMPNAME="theia-dev-rhel8" 
 
 LABEL summary="$SUMMARY" \

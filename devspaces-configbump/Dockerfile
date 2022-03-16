@@ -29,9 +29,9 @@ ENTRYPOINT ["/usr/local/bin/configbump"]
 
 # append Brew metadata here
 
-ENV SUMMARY="Red Hat CodeReady Workspaces configbump container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces configbump container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces configbump container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces configbump container" \
+    PRODNAME="devspaces" \
     COMPNAME="configbump-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

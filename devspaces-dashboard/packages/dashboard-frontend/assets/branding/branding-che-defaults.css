@@ -12,7 +12,7 @@
 /* 
 
 This file contains the default branding in Eclipse Che Dashboard.
-See branding-crw.css for the overrides to be applied for CodeReady Workspaces.
+See branding-crw.css for the overrides to be applied for Red Hat OpenShift Dev Spaces.
 
 Copy this file to https://github.com/eclipse/che-dashboard/blob/master/assets/branding/branding.css
 before building Che, apply these changes to the dashboard war.
