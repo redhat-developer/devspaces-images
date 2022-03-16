@@ -197,7 +197,7 @@ func (r *CheClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	var changed bool
 	var host string
 
-	// We are no longer in charge of the gateway, leaving the responsibility for managing it on the codeready-operator.
+	// We are no longer in charge of the gateway, leaving the responsibility for managing it on the devspaces-operator.
 	// But we need to detect the hostname on which the gateway is exposed so that the rest of our subsystems work.
 	host, err = r.detectCheHost(ctx, currentV1)
 	if err != nil {

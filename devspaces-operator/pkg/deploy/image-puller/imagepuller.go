@@ -131,7 +131,7 @@ func ReconcileImagePuller(ctx *deploy.DeployContext) (reconcile.Result, bool, er
 
 					// If the image puller spec is empty, set default values, update the CheCluster CR and requeue
 					// These assignments are needed because the image puller operator updates the CR with a default configmap and deployment name
-					// if none are given.  Without these, codeready-operator will be stuck in an update loop
+					// if none are given.  Without these, devspaces-operator will be stuck in an update loop
 					if ctx.CheCluster.IsImagePullerSpecEmpty() {
 						logrus.Infof("Updating CheCluster to set KubernetesImagePuller default values")
 						_, err := UpdateImagePullerSpecIfEmpty(ctx)

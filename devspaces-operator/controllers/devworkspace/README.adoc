@@ -2,7 +2,7 @@
 
 This is an import of originally standalone Devworkspace Che operator.
 As such many things, that could be shared or reused with/from the rest
-of the codeready-operator codebase, aren't. 
+of the devspaces-operator codebase, aren't. 
 
 This situation will hopefully improve over time as we integrate the two
 codebases more and more.

@@ -153,7 +153,7 @@ func (s *CheServerReconciler) updateAvailabilityStatus(ctx *deploy.DeployContext
 			if ctx.CheCluster.Status.CheClusterRunning != AvailableStatus {
 				cheFlavor := deploy.DefaultCheFlavor(ctx.CheCluster)
 				name := "Red Hat OpenShift Dev Spaces"
-				if cheFlavor == "codeready" {
+				if cheFlavor == "devspaces" {
 					name = "Red Hat OpenShift Dev Spaces"
 				}
 

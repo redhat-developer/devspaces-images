@@ -11,32 +11,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: codeready-operator
+  name: devspaces-operator
   namespace: eclipse-che
   labels:
-    app: codeready-operator
+    app: devspaces-operator
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: codeready-operator
+    app.kubernetes.io/component: devspaces-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: codeready-operator
+      app: devspaces-operator
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: codeready-operator
+        app: devspaces-operator
         app.kubernetes.io/name: che
         app.kubernetes.io/instance: che
         app.kubernetes.io/part-of: che.eclipse.org
-        app.kubernetes.io/component: codeready-operator
+        app.kubernetes.io/component: devspaces-operator
     spec:
       containers:
-        - name: codeready-operator
+        - name: devspaces-operator
           image: registry.redhat.io/devspaces/devspaces-rhel8-operator:3.0
           command:
             - /manager
@@ -50,7 +50,7 @@ spec:
             - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
               value: "false"
             - name: CHE_FLAVOR
-              value: codeready
+              value: devspaces
             - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
               value: ca-certs
             - name: CHE_VERSION
@@ -66,7 +66,7 @@ spec:
             - name: MAX_CONCURRENT_RECONCILES
               value: "1"
             - name: OPERATOR_NAME
-              value: codeready-operator
+              value: devspaces-operator
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -142,5 +142,5 @@ spec:
       hostNetwork: false
       hostPID: false
       restartPolicy: Always
-      serviceAccountName: codeready-operator
+      serviceAccountName: devspaces-operator
       terminationGracePeriodSeconds: 20

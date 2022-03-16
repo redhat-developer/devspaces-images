@@ -35,7 +35,7 @@ func TestReconcileWorkspacePermissions(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:        "codeready-operator should delegate permission for workspaces in differ namespace than Che. WorkspaceNamespaceDefault = 'some-test-namespace'",
+			name:        "devspaces-operator should delegate permission for workspaces in differ namespace than Che. WorkspaceNamespaceDefault = 'some-test-namespace'",
 			initObjects: []runtime.Object{},
 			checluster: &orgv1.CheCluster{
 				ObjectMeta: v1.ObjectMeta{
@@ -50,7 +50,7 @@ func TestReconcileWorkspacePermissions(t *testing.T) {
 			},
 		},
 		{
-			name:        "codeready-operator should delegate permission for workspaces in differ namespace than Che. Property CHE_INFRA_KUBERNETES_NAMESPACE_DEFAULT = 'some-test-namespace'",
+			name:        "devspaces-operator should delegate permission for workspaces in differ namespace than Che. Property CHE_INFRA_KUBERNETES_NAMESPACE_DEFAULT = 'some-test-namespace'",
 			initObjects: []runtime.Object{},
 			checluster: &orgv1.CheCluster{
 				ObjectMeta: v1.ObjectMeta{

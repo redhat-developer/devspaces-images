@@ -20,5 +20,5 @@ roleRef:
   name: leader-election-role
 subjects:
 - kind: ServiceAccount
-  name: codeready-operator
+  name: devspaces-operator
   namespace: system

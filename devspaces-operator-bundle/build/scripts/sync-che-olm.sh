@@ -188,7 +188,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/devspaces/overview/|g" \
 		\
 		-e 's|"eclipse-che"|"devspaces"|g' \
-		-e 's|che-operator|codeready-operator|g' \
+		-e 's|che-operator|devspaces-operator|g' \
 		-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
@@ -202,16 +202,16 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e 's|name: David Festal|name: Nick Boldt|' \
 		-e 's@((name|support): Red Hat), Inc.@\1@g' \
 		\
-		-e 's|/usr/local/bin/codeready-operator|/usr/local/bin/che-operator|' \
+		-e 's|/usr/local/bin/devspaces-operator|/usr/local/bin/che-operator|' \
 		-e 's|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|' \
 		\
 		-e 's|"cheImageTag": "next"|"cheImageTag": ""|' \
 		-e 's|"devfileRegistryImage":.".+"|"devfileRegistryImage": ""|' \
 		-e 's|"pluginRegistryImage":.".+"|"pluginRegistryImage": ""|' \
 		-e 's|"identityProviderImage":.".+"|"identityProviderImage": ""|' \
-		-e 's|"workspaceNamespaceDefault":.".*"|"workspaceNamespaceDefault": "<username>-codeready"|' \
+		-e 's|"workspaceNamespaceDefault":.".*"|"workspaceNamespaceDefault": "<username>-devspaces"|' \
 		\
-		-e "s|quay.io/eclipse/codeready-operator:.+|registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/devspaces-operator:.+|registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
 		-e "s|(registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
 		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/devspaces/server-rhel8:${CRW_VERSION}|" \
 		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/devspaces/pluginregistry-rhel8:${CRW_VERSION}|" \
@@ -229,7 +229,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
 		\
 		`# use internal image for operator, as devspaces-devspaces-rhel8-operator only exists in RHEC and Quay repos` \
-		-e "s#quay.io/eclipse/codeready-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
+		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
 		` # CRW-927 set suggested namespace, append cluster-monitoring = true (removed from upstream as not supported in community operators)` \
@@ -237,12 +237,12 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e 's|operatorframework.io/suggested-namespace: .+|operatorframework.io/suggested-namespace: openshift-operators|' \
 		-e '/operatorframework.io\/suggested-namespace/a \ \ \ \ operatorframework.io/cluster-monitoring: "true"' \
 		-e '/annotations\:/i \ \ labels:\n    operatorframework.io/arch.amd64\: supported\n    operatorframework.io/arch.ppc64le\: supported\n    operatorframework.io/arch.s390x\: supported' \
-		-e 's|devworkspace-codeready-operator|devworkspace-che-operator|' \
+		-e 's|devworkspace-devspaces-operator|devworkspace-che-operator|' \
 		-i "${CSVFILE}"
 	# insert missing cheFlavor annotation
 	# shellcheck disable=SC2143
-	if [[ ! $(grep -E '"cheFlavor": "codeready",' "${CSVFILE}") ]]; then
-		sed 's|"cheFlavor":.*|"cheFlavor": "codeready",|' -i "${CSVFILE}"
+	if [[ ! $(grep -E '"cheFlavor": "devspaces",' "${CSVFILE}") ]]; then
+		sed 's|"cheFlavor":.*|"cheFlavor": "devspaces",|' -i "${CSVFILE}"
 	fi
 	if [[ $(diff -u "${SOURCE_CSVFILE}" "${CSVFILE}") ]]; then
 		echo "    ${0##*/} :: Converted (sed) ${CSVFILE}"
@@ -273,7 +273,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	# yq changes - transform env vars from Che to CRW values
 	declare -A operator_replacements=(
 		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
-		["CHE_FLAVOR"]="codeready"
+		["CHE_FLAVOR"]="devspaces"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
 		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
@@ -347,8 +347,8 @@ done
 CR_YAML="config/samples/org.eclipse.che_v1_checluster.yaml"
 changed="$(
 yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' "${TARGETDIR}/${CR_YAML}" | \
-yq  -y '.spec.server.cheFlavor="codeready"' | \
-yq  -y '.spec.server.workspaceNamespaceDefault="<username>-codeready"' | \
+yq  -y '.spec.server.cheFlavor="devspaces"' | \
+yq  -y '.spec.server.workspaceNamespaceDefault="<username>-devspaces"' | \
 yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
 yq  -y 'del(.spec.k8s)')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"

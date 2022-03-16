@@ -160,7 +160,7 @@ func TestCorrectAirGapPatchedImage(t *testing.T) {
 		Spec: orgv1.CheClusterSpec{
 			Server: orgv1.CheClusterSpecServer{
 				AirGapContainerRegistryOrganization: airGapRegistryOrganization,
-				CheFlavor:                           "codeready",
+				CheFlavor:                           "devspaces",
 			},
 		},
 	}
@@ -168,7 +168,7 @@ func TestCorrectAirGapPatchedImage(t *testing.T) {
 		Spec: orgv1.CheClusterSpec{
 			Server: orgv1.CheClusterSpecServer{
 				AirGapContainerRegistryHostname: airGapRegistryHostname,
-				CheFlavor:                       "codeready",
+				CheFlavor:                       "devspaces",
 			},
 		},
 	}
@@ -177,7 +177,7 @@ func TestCorrectAirGapPatchedImage(t *testing.T) {
 		"default postgres":          {image: defaultPostgresImage, expected: defaultPostgresImage, cr: upstream},
 		"airgap postgres":           {image: defaultPostgresImage, expected: expectedAirGapPostgresUpstreamImage, cr: airGapUpstream},
 		"with only the org changed": {image: defaultPostgresImage, expected: expectedAirGapPostgresUpstreamImageOnlyOrgChanged, cr: upstreamOnlyOrg},
-		"codeready plugin registry with only the org changed": {image: defaultPluginRegistryImage, expected: expectedAirGapDevspacesPluginRegistryOnlyOrgChanged, cr: devspacesOnlyOrg},
+		"devspaces plugin registry with only the org changed": {image: defaultPluginRegistryImage, expected: expectedAirGapDevspacesPluginRegistryOnlyOrgChanged, cr: devspacesOnlyOrg},
 		"Devspaces postgres":                          {image: defaultPostgresImage, expected: defaultPostgresImage, cr: devspaces},
 		"Devspaces airgap postgres":                   {image: defaultPostgresImage, expected: expectedAirGapDevspacesPostgresImage, cr: airGapDevspaces},
 		"devspaces airgap with only hostname defined": {image: defaultDevfileRegistryImage, expected: expectedAirGapDevspacesDevfileRegistryImageOnlyHostnameChanged, cr: devspacesOnlyHostname},

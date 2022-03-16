@@ -11,11 +11,11 @@
 #
 
 # This patch inject a sidecar container which is a HTTP proxy for the
-# controller codeready-operator, it performs RBAC authorization against the Kubernetes API using SubjectAccessReviews.
+# controller devspaces-operator, it performs RBAC authorization against the Kubernetes API using SubjectAccessReviews.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: codeready-operator
+  name: devspaces-operator
   namespace: system
 spec:
   template:
@@ -32,7 +32,7 @@ spec:
         ports:
         - containerPort: 8443
           name: https
-      - name: codeready-operator
+      - name: devspaces-operator
         args:
         - "--health-probe-bind-address=:6789"
         - "--metrics-bind-address=127.0.0.1:60000"
