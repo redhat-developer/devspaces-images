@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: codeready-operator
-          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.16
+          image: quay.io/crw/crw-2-rhel8-operator:next
           command:
             - /manager
           args:
@@ -72,17 +72,17 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.16
+              value: quay.io/crw/server-rhel8:next
             - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.16
+              value: quay.io/crw/jwtproxy-rhel8:next
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.16
+              value: quay.io/crw/pluginbroker-artifacts-rhel8:next
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.16
+              value: quay.io/crw/pluginbroker-metadata-rhel8:next
             - name: RELATED_IMAGE_dashboard
-              value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.16
+              value: quay.io/crw/dashboard-rhel8:next
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.16
+              value: quay.io/crw/devfileregistry-rhel8:next
             - name: RELATED_IMAGE_devworkspace_controller
               value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.12
             - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -90,9 +90,9 @@ spec:
             - name: RELATED_IMAGE_gateway_authorization_sidecar
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
             - name: RELATED_IMAGE_internal_rest_backup_server
-              value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.16
+              value: quay.io/crw/backup-rhel8:next
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.16
+              value: quay.io/crw/pluginregistry-rhel8:next
             - name: RELATED_IMAGE_postgres
               value: registry.redhat.io/rhel8/postgresql-96:1
             - name: RELATED_IMAGE_postgres_13_3
@@ -100,9 +100,9 @@ spec:
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.5
             - name: RELATED_IMAGE_single_host_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.16
+              value: quay.io/crw/traefik-rhel8:next
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.16
+              value: quay.io/crw/configbump-rhel8:next
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
