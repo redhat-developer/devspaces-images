@@ -31,9 +31,9 @@ ENTRYPOINT ["/go/bin/che-machine-exec"]
 
 # append Brew metadata here
 
-ENV SUMMARY="Red Hat CodeReady Workspaces machineexec container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces machineexec container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces machineexec container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces machineexec container" \
+    PRODNAME="devspaces" \
     COMPNAME="machineexec-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

@@ -18,12 +18,12 @@ set -e
 # defaults
 CSV_VERSION=2.y.0
 CRW_VERSION=${CSV_VERSION%.*}
-MIDSTM_BRANCH=crw-2.y-rhel8
+MIDSTM_BRANCH=devspaces-3.y-rhel8
 
 # TODO handle cmdline input
 usage () {
 	echo "Usage:   $0 -v [CRW CSV_VERSION] -t [/path/to/generated] --crw-branch ${MIDSTM_BRANCH}"
-	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch crw-2.y-rhel8"
+	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch devspaces-3.y-rhel8"
   exit
 }
 
@@ -34,7 +34,7 @@ while [[ "$#" -gt 0 ]]; do
   # for CSV_VERSION = 2.y.0, get CRW_VERSION = 2.y
   '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
   '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-  '--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/codeready-workspaces/ - check registries' referenced images
+  '--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces/ - check registries' referenced images
 	'--help'|'-h') usage;;
   esac
   shift 1
@@ -46,8 +46,8 @@ PLUGIN_REGISTRY_CONTAINERS=""
 DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # check out crw sources
-    echo "    ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/codeready-workspaces/dependencies/"
-    rm -fr crw && git clone -q https://github.com/redhat-developer/codeready-workspaces crw
+    echo "    ${0##*/} :: Check out CRW registry sources from https://github.com/redhat-developer/devspaces/dependencies/"
+    rm -fr crw && git clone -q https://github.com/redhat-developer/devspaces crw
     cd crw/
     git checkout ${MIDSTM_BRANCH} || true
     cd ..
@@ -68,7 +68,7 @@ CONTAINERS_UNIQ=()
 for c in $PLUGIN_REGISTRY_CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
 IFS=$'\n' PLUGIN_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
 
-# same method used in both insert-related-images-to-csv.sh and sync-che-olm-to-crw-olm.sh
+# same method used in both insert-related-images-to-csv.sh and sync-che-olm-to-devspaces-olm.sh
 insertEnvVar()
 {
   echo "    ${0##*/} :: * ${updateName}: ${updateVal}"
@@ -77,7 +77,7 @@ insertEnvVar()
     > ${CSVFILE}.2; mv ${CSVFILE}.2 ${CSVFILE}
 }
 
-CSVFILE=${TARGETDIR}/manifests/codeready-workspaces.csv.yaml
+CSVFILE=${TARGETDIR}/manifests/devspaces.csv.yaml
 
 # The updated name should be like:
 # RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCMQK

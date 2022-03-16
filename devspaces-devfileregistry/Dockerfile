@@ -105,7 +105,7 @@ RUN sed -i /etc/httpd/conf/httpd.conf \
     chmod a+rwX /etc/httpd/conf /run/httpd /etc/httpd/logs/
 STOPSIGNAL SIGWINCH
 
-ARG CRW_BRANCH=crw-2-rhel-8
+ARG CRW_BRANCH=devspaces-3-rhel-8
 ENV CRW_BRANCH=${CRW_BRANCH}
 
 WORKDIR /var/www/html
@@ -132,9 +132,9 @@ CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 # COPY --from=offline-builder /build/resources /var/www/html/resources
 
 # append Brew metadata here
-ENV SUMMARY="Red Hat CodeReady Workspaces devfileregistry container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces devfileregistry container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces devfileregistry container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces devfileregistry container" \
+    PRODNAME="devspaces" \
     COMPNAME="devfileregistry-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

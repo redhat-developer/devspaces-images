@@ -96,9 +96,9 @@ sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
     -e 's@chmod g\\+w /home/user/cacerts@chmod 777 /home/user/cacerts@g' \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
-ENV SUMMARY="Red Hat CodeReady Workspaces server container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces server container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces server container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces server container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="server-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\

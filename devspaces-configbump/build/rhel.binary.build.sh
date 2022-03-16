@@ -18,8 +18,8 @@ set -e
 CSV_VERSION=2.y.0 # csv 2.y.0
 UPLOAD_TO_GH=1
 
-MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
-if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
+MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
 
 usage () {
     echo "
@@ -51,7 +51,7 @@ tarball="${WORKSPACE}/asset-${ASSET_NAME}-${ARCH}.tar.gz"
 if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
   # upload the binary to GH
   if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-      curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+      curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
   fi
   # delete existing release & tag & assets -- this will remove everything for each push for each arch, so can't be done here
   # ./uploadAssetsToGHRelease.sh --delete-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --asset-name "${SYNC_REPO}"

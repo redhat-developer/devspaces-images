@@ -15,11 +15,11 @@ EXPOSE 80
 VOLUME ["/tmp"]
 ENTRYPOINT ["/traefik"]
 
-ENV SUMMARY="Red Hat CodeReady Workspaces traefik container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces traefik container" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces traefik container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces traefik container" \
     TRAEFIK_VERSION="v2.5.0" \
     GOLANG_VERSION="1.16.2" \
-    PRODNAME="codeready-workspaces" \
+    PRODNAME="devspaces" \
     COMPNAME="traefik-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \

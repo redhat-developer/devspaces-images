@@ -15,10 +15,10 @@
 tmpfile=$(mktemp)
 echo ${image} | sed -r \
     `# for plugin & devfile registries, use internal Brew versions` \
-    -e "s|registry.redhat.io/codeready-workspaces/(pluginregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\1|g" \
-    -e "s|registry.redhat.io/codeready-workspaces/(devfileregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-\1|g" \
+    -e "s|registry.redhat.io/devspaces/(pluginregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/devspaces-\1|g" \
+    -e "s|registry.redhat.io/devspaces/(devfileregistry-rhel8:.+)|registry-proxy.engineering.redhat.com/rh-osbs/devspaces-\1|g" \
     `# in all other cases (including operator) use published quay images to compute digests` \
-    -e "s|registry.redhat.io/codeready-workspaces/(.+)|quay.io/crw/\\1|g" \
+    -e "s|registry.redhat.io/devspaces/(.+)|quay.io/crw/\\1|g" \
     > ${tmpfile}
 alt_image=$(cat ${tmpfile})
 rm -f ${tmpfile}

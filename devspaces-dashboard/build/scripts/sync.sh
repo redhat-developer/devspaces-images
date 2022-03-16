@@ -10,7 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-# convert che-dashboard upstream to crw-dashboard downstream using yq, sed, and deleting files
+# convert che-dashboard upstream to devspaces-dashboard downstream using yq, sed, and deleting files
 
 set -e
 
@@ -82,8 +82,8 @@ rm -f /tmp/rsync-excludes
 
 # get job-config.json
 SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-if [[ $SCRIPTS_BRANCH != "crw-2."*"-rhel-8" ]]; then SCRIPTS_BRANCH="crw-2-rhel-8"; fi
-configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
+if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
+configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
 # get yarn version
 YARN_VERSION=$(echo "${configjson}" | jq -r --arg CRW_VERSION "${CRW_VERSION}" '.Other["YARN_VERSION"][$CRW_VERSION]');
 YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
@@ -110,9 +110,9 @@ RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-c
     -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
 ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
-ENV SUMMARY="Red Hat CodeReady Workspaces dashboard container" \\
-    DESCRIPTION="Red Hat CodeReady Workspaces dashboard container" \\
-    PRODNAME="codeready-workspaces" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \\
+    PRODNAME="devspaces" \\
     COMPNAME="dashboard-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\

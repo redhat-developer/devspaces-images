@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-theia-rhel8:2.16 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:2.16 as builder
 ARG NEXE_SHA1=0f0869b292f1d7b68ba6e170d628de68a10c009f
 
 WORKDIR /home/theia
@@ -54,9 +54,9 @@ RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && 
 # copy previously cached yq dependency wheels for offline install
 COPY *.whl /tmp
 
-ENV SUMMARY="Red Hat CodeReady Workspaces - theia-endpoint container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces - theia-endpoint container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - theia-endpoint container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - theia-endpoint container" \
+    PRODNAME="devspaces" \
     COMPNAME="theia-endpoint-rhel8" 
 
 LABEL summary="$SUMMARY" \

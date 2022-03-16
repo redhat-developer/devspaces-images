@@ -1,12 +1,12 @@
 Links marked with this icon :door: are _internal to Red Hat_. This includes Jenkins servers, job configs in gitlab, and container sources in dist-git. 
 
-Because these services are internal, in the interest of making all things open, we've copied as much as possible into the link:https://github.com/redhat-developer/codeready-workspaces-images[codeready-workspaces-images] repo.
+Because these services are internal, in the interest of making all things open, we've copied as much as possible into the link:https://github.com/redhat-developer/devspaces-images[devspaces-images] repo.
 
 ## What's inside?
 
-NOTE: The so-called master branch is deprecated and is no longer kept up to date. Instead, the latest nightly sources are in **crw-2-rhel-8 branch**, synced to upstream projects' main (or master) branches.
+NOTE: The so-called master branch is deprecated and is no longer kept up to date. Instead, the latest nightly sources are in **devspaces-3-rhel-8 branch**, synced to upstream projects' main (or master) branches.
 
-For the latest stable release, see the **crw-2.y-rhel-8** branch with the largest y value.
+For the latest stable release, see the **devspaces-3.y-rhel-8** branch with the largest y value.
 
 
 ## How to build locally
@@ -30,7 +30,7 @@ Branding is currently in two places.
 
 To reskin link:https://github.com/eclipse-che/che-dashboard/tree/main/packages/dashboard-frontend/assets/branding[Che Dashboard], edit the following files:
 
-* link:packages/dashboard-frontend/assets/branding/branding-crw.css[packages/dashboard-frontend/assets/branding/branding-crw.css] - replacement for link:https://github.com/eclipse-che/che-dashboard/tree/main/packages/dashboard-frontend/assets/branding/branding.css[Che default css], copied via link:https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/codeready-workspaces-dashboard/build/scripts/sync.sh#L114[build/scripts/sync.sh].
+* link:packages/dashboard-frontend/assets/branding/branding-crw.css[packages/dashboard-frontend/assets/branding/branding-crw.css] - replacement for link:https://github.com/eclipse-che/che-dashboard/tree/main/packages/dashboard-frontend/assets/branding/branding.css[Che default css], copied via link:https://github.com/redhat-developer/devspaces-images/blob/devspaces-3-rhel-8/devspaces-dashboard/build/scripts/sync.sh#L114[build/scripts/sync.sh].
 * link:packages/dashboard-frontend/assets/branding/product.json.template[packages/dashboard-frontend/assets/branding/product.json.template] - includes variable links to CRW docs
 * link:packages/dashboard-frontend/assets/branding/favicon.ico[packages/dashboard-frontend/assets/branding/favicon.ico] - browser tab favicon
 * link:packages/dashboard-frontend/assets/branding/che-logo-text.svg[packages/dashboard-frontend/assets/branding/che-logo-text.svg] - top left wordmark
@@ -41,7 +41,7 @@ See also SVG assets in link:packages/dashboard-frontend/assets/branding/[package
 
 ### Theia
 
-To reskin link:https://github.com/eclipse-che/che-theia[Che Theia], see link:https://github.com/redhat-developer/codeready-workspaces-theia/tree/crw-2-rhel-8/conf/theia/branding[codeready-workspaces-theia/conf/theia/branding]. 
+To reskin link:https://github.com/eclipse-che/che-theia[Che Theia], see link:https://github.com/redhat-developer/devspaces-theia/tree/devspaces-3-rhel-8/conf/theia/branding[devspaces-theia/conf/theia/branding]. 
 
 ### A note about SVG files 
 

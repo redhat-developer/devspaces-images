@@ -14,16 +14,16 @@ DELETE_ASSETS=0
 
 # compute ASSET_NAME from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
-ASSET_NAME=${SCRIPT_DIR##*/}; projectName=${projectName/codeready-workspaces-/}; 
+ASSET_NAME=${SCRIPT_DIR##*/}; projectName=${projectName/devspaces-/}; 
 if [[ $ASSET_NAME == "sources" ]]; then # compute a new string
-	ASSET_NAME=$(git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)#\1#p' | sed -e "s#codeready-workspaces-##" -e "s#\.git##")
+	ASSET_NAME=$(git config --local remote.origin.url|sed -n 's#.*/\([^.]*\)#\1#p' | sed -e "s#devspaces-##" -e "s#\.git##")
 fi
 # echo $ASSET_NAME
 
 # compute CSV_VERSION from MIDSTM_BRANCH
-MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "crw-2-rhel-8")
-if [[ ${MIDSTM_BRANCH} != "crw-"*"-rhel-"* ]]; then MIDSTM_BRANCH="crw-2-rhel-8"; fi
-CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/${MIDSTM_BRANCH}/codeready-workspaces-operator-metadata/manifests/codeready-workspaces.csv.yaml" | yq -r .spec.version)
+MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator-metadata/manifests/devspaces.csv.yaml" | yq -r .spec.version)
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -48,7 +48,7 @@ function log()
 
 # TODO enable this when we have a way to use GH releases for Theia asset files
 # if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
-#     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+#     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
 # fi
 
 # if [[ ${DELETE_ASSETS} -eq 1 ]]; then

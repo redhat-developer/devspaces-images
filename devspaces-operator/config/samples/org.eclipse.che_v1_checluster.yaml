@@ -11,7 +11,7 @@
 apiVersion: org.eclipse.che/v1
 kind: CheCluster
 metadata:
-  name: codeready-workspaces
+  name: devspaces
 spec:
   server:
     cheClusterRoles: ''

@@ -38,7 +38,7 @@ components:
       id: redhat/dependency-analytics/latest
   - name: maven-tooling
     container:
-      image: registry.redhat.io/codeready-workspaces/stacks-java-rhel8:2.1
+      image: registry.redhat.io/devspaces/stacks-java-rhel8:2.1
       mountSources: true
       memoryLimit: 768Mi
       env:

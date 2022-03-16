@@ -63,10 +63,10 @@ USER 65532:65532
 
 ENTRYPOINT ["/manager"]
 
-# append Brew metadata here - see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-operator_2.x.jenkinsfile
-ENV SUMMARY="Red Hat CodeReady Workspaces operator container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces operator container" \
-    PRODNAME="codeready-workspaces" \
+# append Brew metadata here
+ENV SUMMARY="Red Hat OpenShift Dev Spaces operator container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces operator container" \
+    PRODNAME="devspaces" \
     COMPNAME="operator"
 LABEL com.redhat.delivery.appregistry="false" \
       summary="$SUMMARY" \

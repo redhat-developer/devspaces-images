@@ -18,4 +18,4 @@ patchesJson6902:
     group: operators.coreos.com
     version: v1alpha1
     kind: ClusterServiceVersion
-    name: codeready-workspaces-preview-openshift.v0.0.0
+    name: devspaces-preview-openshift.v0.0.0

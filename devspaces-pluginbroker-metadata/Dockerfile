@@ -24,9 +24,9 @@ USER appuser
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /build/che-plugin-broker/brokers/metadata/cmd/metadata-broker /
 ENTRYPOINT ["/metadata-broker"]
-ENV SUMMARY="Red Hat CodeReady Workspaces pluginbroker-metadata container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces pluginbroker-metadata container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces pluginbroker-metadata container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces pluginbroker-metadata container" \
+    PRODNAME="devspaces" \
     COMPNAME="pluginbroker-metadata-rhel8"
 LABEL summary="$SUMMARY" \
       description="$DESCRIPTION" \
