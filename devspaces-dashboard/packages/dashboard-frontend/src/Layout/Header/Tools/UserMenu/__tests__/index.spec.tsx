@@ -43,7 +43,7 @@ describe('User Menu', () => {
   const mockLogout = jest.fn();
   global.open = jest.fn();
 
-  const productCli = 'dsc';
+  const productCli = 'crwctl';
   const email = 'johndoe@example.com';
   const name = 'John Doe';
   const store = createStore(productCli, name, email);
@@ -114,7 +114,7 @@ describe('User Menu', () => {
     fireEvent.click(copyLoginCommandButton);
 
     await waitFor(() =>
-      expect(mockClipboardWriteText).toHaveBeenCalledWith('dsc auth:login localhost'),
+      expect(mockClipboardWriteText).toHaveBeenCalledWith('crwctl auth:login localhost'),
     );
   });
 });

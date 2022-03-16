@@ -20,4 +20,9 @@ export const selectDashboardWarning = createSelector(
   state => state.clusterConfig.dashboardWarning || [],
 );
 
+export const selectRunningWorkspacesLimit = createSelector(
+  selectState,
+  state => state.clusterConfig.runningWorkspacesLimit,
+);
+
 export const selectClusterConfigError = createSelector(selectState, state => state.error);

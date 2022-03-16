@@ -10,7 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export interface ClusterConfig {
-  dashboardWarning?: string;
-  runningWorkspacesLimit: number;
+// see https://github.com/facebook/jest/issues/2157#issuecomment-279171856
+async function flushPromises(): Promise<void> {
+  return new Promise(res => setImmediate(res));
+}
+
+export async function advanceTimersByTime(time: number): Promise<void> {
+  jest.advanceTimersByTime(time);
+  await flushPromises();
 }
