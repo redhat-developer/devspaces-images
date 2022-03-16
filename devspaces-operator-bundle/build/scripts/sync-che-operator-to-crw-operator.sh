@@ -69,7 +69,7 @@ fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/devspaces"
-CRW_OPERATOR="devspaces-3-rhel8-operator"
+CRW_OPERATOR="devspaces-rhel8-operator"
 CRW_BROKER_METADATA_IMAGE="${CRW_RRIO}/pluginbroker-metadata-rhel8:${CRW_VERSION}"
 CRW_BROKER_ARTIFACTS_IMAGE="${CRW_RRIO}/pluginbroker-artifacts-rhel8:${CRW_VERSION}"
 CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
@@ -242,7 +242,7 @@ for updateName in "${!operator_replacements[@]}"; do
 done
 echo "Converted (yq #1) ${OPERATOR_DEPLOYMENT_YAML}"
 
-# CRW-1579 set correct devspaces-3-rhel8-operator image and tag in operator deployment yaml
+# CRW-1579 set correct devspaces-rhel8-operator image and tag in operator deployment yaml
 oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")
 if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"

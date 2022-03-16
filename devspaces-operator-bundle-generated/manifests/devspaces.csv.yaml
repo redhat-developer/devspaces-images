@@ -66,7 +66,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-3-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
     createdAt: "2022-03-04T19:47:22+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1006,7 +1006,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-3-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1279,10 +1279,10 @@ spec:
     name: Red Hat
   version: 2.16.0
   relatedImages:
-  - name: devspaces-3-rhel8-operator-3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d-annotation
-    image: registry.redhat.io/devspaces/devspaces-3-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
+  - name: devspaces-rhel8-operator-3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
   - name: codeready-operator
-    image: registry.redhat.io/devspaces/devspaces-3-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a99d9cb71400fe3ad57ba8566144826b3880435cd10162ec189d6e076564f8d
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:b04507e69a0d76bf1228bb4cdaa5d47ed51b2b215ef83d8ca619df6cc1a9d24f
   - name: che_server_secure_exposer_jwt_proxy_image

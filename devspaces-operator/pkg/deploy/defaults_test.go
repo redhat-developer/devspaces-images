@@ -89,9 +89,9 @@ func TestDefaultFromEnv(t *testing.T) {
 
 func TestCorrectImageName(t *testing.T) {
 	testCases := map[string]string{
-		"registry.redhat.io/devspaces/devspaces-3-rhel8-operator:latest":  "devspaces-3-rhel8-operator:latest",
+		"registry.redhat.io/devspaces/devspaces-rhel8-operator:latest":  "devspaces-rhel8-operator:latest",
 		"registry.redhat.io/devspaces/server-operator-rhel8:2.0": "server-operator-rhel8:2.0",
-		"registry.redhat.io/devspaces/devspaces-3-rhel8-operator:2.16":  "devspaces-3-rhel8-operator:2.16",
+		"registry.redhat.io/devspaces/devspaces-rhel8-operator:3.0":  "devspaces-rhel8-operator:3.0",
 	}
 	for k, v := range testCases {
 		t.Run(k, func(*testing.T) {

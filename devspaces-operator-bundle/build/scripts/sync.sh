@@ -220,7 +220,7 @@ CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
 # transform into Brew-friendly version of CSV
 sed -r -i "${CSVFILE}" \
   -e "s@registry.redhat.io/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
-  -e "s@devspaces-3-rhel8-operator@operator@g" \
+  -e "s@devspaces-rhel8-operator@operator@g" \
   -e "s@:latest@:${CRW_VERSION}@g"
 
 # date in CSV will be updated only if there were any changes in CSV
