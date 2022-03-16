@@ -8,19 +8,19 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 # use this script to update the deploy/openshift/*-registry.yaml file
-# script is shared with both Dev Spaces devfile and plugin registries
+# script is shared with both CRW devfile and plugin registries
 
 unset SOURCE_TEMPLATE
 unset CRW_VERSION
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
-CRW_VERSION=${MIDSTM_BRANCH#devspaces-}; CRW_VERSION=${CRW_VERSION%-rhel*} # devspaces-3.y-rhel-8 ==> 2.y
+CRW_VERSION=${MIDSTM_BRANCH#devspaces-}; CRW_VERSION=${CRW_VERSION%-rhel*} # devspaces-3.y-rhel-8 ==> 3.y
 DOCKER_IMAGE="registry.redhat.io/devspaces/REG_NAMEregistry-rhel8"
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-rn') REG_NAME="$2"; shift 1;;
     '-s') SOURCE_TEMPLATE="$2"; shift 1;;
-    '-t') CRW_VERSION="$2"; shift 1;; # 2.y
+    '-t') CRW_VERSION="$2"; shift 1;; # 3.y
     '-i') DOCKER_IMAGE="$2"; shift 1;; # registry.redhat.io/devspaces/*registry-rhel8
     '--help'|'-h') usage; shift 1;;
   esac
@@ -33,9 +33,9 @@ fi
 
 usage () {
 	echo
-    echo "Usage:     ${0##*/} -rn REG_NAME -s /path/to/ds-REG_NAME-registry.yaml -i DOCKER_IMAGE -t 2.y"
-    echo "Example:   ${0##*/} -rn devfile -s /path/to/deploy/openshift/devfile-registry.yaml"
-    echo "Example:   ${0##*/} -rn plugin -s /path/to/deploy/openshift/plugin-registry.yaml"
+    echo "Usage:     ${0##*/} -rn REG_NAME -s /path/to/devspaces-REG_NAME-registry.yaml -i DOCKER_IMAGE -t 3.y"
+    echo "Example:   ${0##*/} -rn devfile -s /path/to/deploy/openshift/devspaces-devfile-registry.yaml"
+    echo "Example:   ${0##*/} -rn plugin -s /path/to/deploy/openshift/devspaces-plugin-registry.yaml"
     echo "Options:
     -rn Red Hat OpenShift Dev Spaces registry name (plugin or devfile); must be set
     -t Red Hat OpenShift Dev Spaces ${REG_NAME} registry image tag (compute from MIDSTM_BRANCH if not set)
@@ -75,8 +75,8 @@ set -e
 sed -i \
     -e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
     -e "s|CHE_|CRW_|g" \
-    -e "s|che|codeready|g" \
-    -e "s|Che|Red Hat OpenShift Dev Spaces|g" \
+    -e "s|che|devspaces|g" \
+    -e "s|Che|Dev Spaces|g" \
     ${SOURCE_TEMPLATE}
 
 yq -ryiY "(.parameters[] | select(.name == \"IMAGE\") | .value ) = \"${DOCKER_IMAGE}\"" ${SOURCE_TEMPLATE}

@@ -1,4 +1,4 @@
-# Red Hat OpenShift Dev Spaces devfile registry
+# Red Hat OpenShift Dev Spaces (formerly CodeReady Workspaces) devfile registry
 
 This repository holds ready-to-use Devfiles for different languages and technologies.
 
@@ -54,7 +54,7 @@ When deploying this offline registry, it is necessary to set the environment var
 You can deploy the registry to Openshift as follows:
 
 ```bash
-  oc new-app -f deploy/openshift/*devfile-registry.yaml \
+  oc new-app -f deploy/openshift/che-devfile-registry.yaml \
              -p IMAGE="quay.io/devspaces/devfileregistry-rhel8" \
              -p IMAGE_TAG="next" \
              -p PULL_POLICY="Always"
@@ -68,4 +68,4 @@ docker run -it --rm -p 8080:8080 quay.io/devspaces/devfileregistry-rhel8:next
 
 ### License
 
-Red Hat OpenShift Dev Spaces is open sourced under the Eclipse Public License 2.0.
+CodeReady Workspaces is open sourced under the Eclipse Public License 2.0.
