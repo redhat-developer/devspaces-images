@@ -7,7 +7,7 @@ This repo is used to house identical copies of the code used to build the **Red 
 
 * Downstream code can be found in repos _internal to Red Hat_ at http://pkgs.devel.redhat.com/cgit/?q=devspaces :door:
     - select the `devspaces-3-rhel-8` branch for the latest `2.x` synced from upstream main branches, or 
-    - select a branch like `devspaces-3.8-rhel-8` for a specific release, synced to a stable branch like `7.28.x`.
+    - select a branch like `devspaces-3.1-rhel-8` for a specific release, synced to a stable branch like `7.46.x`.
 
 ## Generated code
 
