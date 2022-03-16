@@ -10,10 +10,10 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM rhel8/go-toolset:1.16.12-4 as builder
+FROM rhel8/go-toolset:1.16.12-7 as builder
 ENV GOPATH=/go/
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.11.0"
-ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
+ARG DEV_WORKSPACE_CONTROLLER_VERSION="main"
+ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 ARG TESTS="true"
 USER root
 
@@ -48,7 +48,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5-230.1645809059
+FROM ubi8-minimal:8.5-240
 
 # install httpd-tools for /usr/bin/htpasswd
 RUN microdnf install -y httpd-tools && microdnf -y update && microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
@@ -63,7 +63,7 @@ USER 65532:65532
 
 ENTRYPOINT ["/manager"]
 
-# append Brew metadata here
+# append Brew metadata here - see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-operator_2.x.jenkinsfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces operator container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces operator container" \
     PRODNAME="devspaces" \
@@ -76,7 +76,7 @@ LABEL com.redhat.delivery.appregistry="false" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-rhel8-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="3.0" \
+      version="3" \
       license="EPLv2" \
       maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \

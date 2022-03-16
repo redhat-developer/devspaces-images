@@ -97,7 +97,7 @@ type CheClusterSpecServer struct {
 	// +optional
 	CheImagePullPolicy corev1.PullPolicy `json:"cheImagePullPolicy,omitempty"`
 	// Deprecated. The value of this flag is ignored.
-	// Specifies a variation of the installation. The options are `che` for upstream Che installations, or `codeready` for link:https://developers.redhat.com/products/devspaces/overview[Red Hat OpenShift Dev Spaces] installation.
+	// Specifies a variation of the installation. The options are `che` for upstream Che installations, or `codeready` for link:https://developers.redhat.com/products/codeready-workspaces/overview[CodeReady Workspaces] installation.
 	// Override the default value only on necessary occasions.
 	// +optional
 	CheFlavor string `json:"cheFlavor,omitempty"`
@@ -390,7 +390,7 @@ type CheClusterSpecDB struct {
 	// When the secret is defined, the `chePostgresUser` and `chePostgresPassword` are ignored.
 	// When the value is omitted or left blank, the one of following scenarios applies:
 	// 1. `chePostgresUser` and `chePostgresPassword` are defined, then they will be used to connect to the DB.
-	// 2. `chePostgresUser` or `chePostgresPassword` are not defined, then a new secret with the name `che-postgres-secret`
+	// 2. `chePostgresUser` or `chePostgresPassword` are not defined, then a new secret with the name `postgres-credentials`
 	// will be created with default value of `pgche` for `user` and with an auto-generated value for `password`.
 	// The secret must have `app.kubernetes.io/part-of=che.eclipse.org` label.
 	// +optional
@@ -704,6 +704,9 @@ type CheClusterSpecDevWorkspace struct {
 	// This includes the image tag. Omit it or leave it empty to use the default container image provided by the Operator.
 	// +optional
 	ControllerImage string `json:"controllerImage,omitempty"`
+	// Maximum number of the running workspaces per user.
+	// +optional
+	RunningLimit string `json:"runningLimit,omitempty"`
 }
 
 // +k8s:openapi-gen=true

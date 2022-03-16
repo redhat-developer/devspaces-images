@@ -21,7 +21,7 @@ spec:
     proxyPort: ''
     proxySecret: ''
     nonProxyHosts: ''
-    workspaceNamespaceDefault: <username>-codeready
+    workspaceNamespaceDefault: <username>-devspaces
     devfileRegistryImage: ''
     pluginRegistryImage: ''
     cheFlavor: devspaces

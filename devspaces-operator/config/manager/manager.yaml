@@ -51,8 +51,6 @@ spec:
               value: "false"
             - name: CHE_FLAVOR
               value: devspaces
-            - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
-              value: ca-certs
             - name: CHE_VERSION
               value: 3.0.0
             - name: CONSOLE_LINK_DISPLAY_NAME
