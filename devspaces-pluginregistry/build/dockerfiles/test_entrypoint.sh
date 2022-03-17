@@ -731,7 +731,7 @@ metadata:
     - Snippets
   icon: /images/redhat-java-icon.png
 sidecar:
-  image: 'registry.redhat.io/devspaces/udi-rhel8:3.0'
+  image: 'registry.redhat.io/devspaces/udi-rhel8:2.16'
   name: vscode-java
   memoryLimit: 1500Mi
   cpuLimit: 500m
@@ -780,7 +780,7 @@ initTest "Should replace image references in external_images.txt with RELATED_IM
 
 externalImagesTxt=$(cat <<-END
 registry.redhat.io/devspaces/machineexec-rhel8:2.11
-registry.redhat.io/devspaces/udi-rhel8:3.0
+registry.redhat.io/devspaces/udi-rhel8:2.16
 END
 )
 expected_externalImagesTxt=$(cat <<-END

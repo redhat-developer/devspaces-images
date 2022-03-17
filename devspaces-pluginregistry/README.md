@@ -1,4 +1,4 @@
-# Red Hat OpenShift Dev Spaces Plugin Registry
+# CodeReady Workspaces Plugin Registry
 
 This repository holds ready-to-use plugins for different languages and technologies. 
 
@@ -16,7 +16,7 @@ A local build works just like upstream -- use the `build.sh` script. The only di
 
 ### CRW Plugin Registry Build/Publish
 All contributions to the CRW plugin registry should land in this repository. From there on, the following things happen:
-1. Code in this repository is synchronized from this repo to the [plugin registry directory in the devspaces-images repository](https://github.com/redhat-developer/devspaces-images/tree/devspaces-3-rhel-8/devspaces-pluginregistry) by a [Jenkins job](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/CRW_CI/job/devspaces-pluginregistry_2.x).
+1. Code in this repository is synchronized from this repo to the [plugin registry directory in the devspaces-images repository](https://github.com/redhat-developer/devspaces-images/tree/devspaces-3-rhel-8/devspaces-pluginregistry) by a [Jenkins job](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/CRW_CI/job/crw-pluginregistry_2.x).
 2. The job from step `1.` kicks off a subsequent [Jenkins job](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/CRW_CI/job/sync-to-downstream_2.x) that then runs the bootstrap build, which uses the sync'd code in [devspaces-images repository](https://github.com/redhat-developer/devspaces-images/tree/devspaces-3-rhel-8/devspaces-pluginregistry). The boostrap build builds the plugin registry in offline mode, using tagged image references. The resulting binaries and meta.yaml files are placed in a .tar.gz archive and the archive is committed to rhpkg for later usage in Brew.
 3. If step `2.` is successful then a Brew build is kicked off. The Brew build copies the generated content in the .tar.gz archive from step `2.` into the [Dockerfile](https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/che-plugin-registry/build/dockerfiles/Dockerfile) and completes the last stages of the plugin registry build.
 
@@ -24,13 +24,14 @@ All contributions to the CRW plugin registry should land in this repository. Fro
 
 Executables and language server dependencies needed in plugin sidecar containers can be built from this repo:
 
-* [devspaces-udi build](https://github.com/redhat-developer/devspaces-images/blob/devspaces-3-rhel-8/devspaces-udi/build) 
+https://github.com/redhat-developer/devspaces-images
 
-Sidecar image sources are then synced to a dist-git repo at Red Hat, and from built in Brew:
+Sidecar image sources are then synced from the [devspaces-images](https://github.com/redhat-developer/devspaces-images) repo to a dist-git repo at Red Hat, and from built in Brew. 
 
+For example, the udi sidecar:
+
+* [devspaces-images/devspaces-udi](https://github.com/redhat-developer/devspaces-images/tree/devspaces-3-rhel-8/devspacesudi)
 * [containers/devspaces-udi](http://pkgs.devel.redhat.com/cgit/containers/devspaces-udi/tree/sources?h=devspaces-3-rhel-8)
-
-* [udi-rhel8](https://quay.io/repository/devspaces/udi-rhel8?tag=latest&tab=tags)
 
 ## License
 
