@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@sha256:f5ab722c076e691be46de3e0b7406871c2a567b1835a51ce21cad22e88eefbb3
-    createdAt: "2022-03-16T20:17:24+00:00"
+    createdAt: "2022-03-17T19:10:50+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1134,7 +1134,7 @@ spec:
                 - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNIK
                   value: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:6000d00ef1029583642c01fec588f92addb95f16d56d0c23991a8f19314b0f06
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:a9de079a95d5562a7fa2842f3c1e6597517e925b5156738a01e74b909aa63a8a
+                  value: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:fd68529bd88ab6e482fafc509496850a1f31e919eca8fc1787676f6c61e2da31
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:fdcd72766757f08486a6e4dbf3a24bf084aefdb2e86971c440048aec0315d7e8
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1500,7 +1500,7 @@ spec:
   - name: codeready_workspaces_theia_plugin_registry_image_gixdcnik
     image: registry.redhat.io/codeready-workspaces/theia-rhel8@sha256:6000d00ef1029583642c01fec588f92addb95f16d56d0c23991a8f19314b0f06
   - name: dashboard
-    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:a9de079a95d5562a7fa2842f3c1e6597517e925b5156738a01e74b909aa63a8a
+    image: registry.redhat.io/codeready-workspaces/dashboard-rhel8@sha256:fd68529bd88ab6e482fafc509496850a1f31e919eca8fc1787676f6c61e2da31
   - name: devfile_registry
     image: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8@sha256:fdcd72766757f08486a6e4dbf3a24bf084aefdb2e86971c440048aec0315d7e8
   - name: devworkspace_controller
