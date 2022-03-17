@@ -10,7 +10,7 @@ import groovy.json.JsonSlurper
 //   CLEAN_ON_FAILURE = "true"
 
 def List SYNC_REPOS = REPOS.tokenize(",").collect { it.trim() }
-def String SOURCE_REPO = "redhat-developer/codeready-workspaces-images" // source repo from which to find commits
+def String SOURCE_REPO = "redhat-developer/devspaces-images" // source repo from which to find commits
 
 def OLD_SHA=""
 def NEW_SHA=""
@@ -33,7 +33,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
           // prestage #0 - get arches on which to build
           stage("Get arches + delete old assets"){
             withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
-              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
               def util = load "${WORKSPACE}/util2.groovy"
               cleanWs()
               // might be already defined by the referring job
@@ -42,7 +42,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
               util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
               nodeLabelString = sh( 
                 script: '''
-curl -sSLo- https://raw.githubusercontent.com/redhat-developer/codeready-workspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
                 ''', returnStdout: true).trim()
               currentBuild.description+="arches = " + nodeLabelString + "; "
               // prestage #1 for building lang servers - delete previous GitHub release if present
@@ -83,7 +83,7 @@ popd
             node(thisArch){
               stage("Build assets: " + SYNC_REPOi + " " + thisArch) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                  sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                   def util = load "${WORKSPACE}/util2.groovy"
                   cleanWs()
                   // might be already defined by the referring job
@@ -133,7 +133,7 @@ timeout(600) {
   node(nodeLabelAnyArch) {
     stage ("Sync repos on ${nodeLabelAnyArch}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
         cleanWs()
 
@@ -152,7 +152,7 @@ timeout(600) {
             if (REPOS.contains("-udi") || REPOS.contains("-stacks-")) { 
               def OPENSHIFT_CONTENT_SET_VERSION = sh( 
                 script: '''
-curl -sSLo- https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + CRW_VERSION + '''"]' 
+curl -sSLo- https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + CRW_VERSION + '''"]' 
                 ''', returnStdout: true).trim()
               if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null")) {
                 util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
@@ -351,7 +351,7 @@ rm -f /tmp/rsync-excludes
 node(nodeLabelAnyArch){ 
   stage ("Build crwctl on ${nodeLabelAnyArch}") {
     if (REPOS.contains("-operator-")) { 
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
       def util = load "${WORKSPACE}/util2.groovy"
       JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
       println "########################################################################################################"

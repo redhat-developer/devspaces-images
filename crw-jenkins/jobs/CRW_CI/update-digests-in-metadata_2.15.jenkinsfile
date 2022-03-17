@@ -14,13 +14,13 @@ timeout(120) {
             stage ("Check for updated images") {
                 wrap([$class: 'TimestamperBuildWrapper']) {
                     withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                         def util = load "${WORKSPACE}/util2.groovy"
                         cleanWs()
                         CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                         println "CRW_VERSION = '" + CRW_VERSION + "'"
                         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
+                        util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "${WORKSPACE}/crw", MIDSTM_BRANCH, false)
 
                         def NEW_IMAGES = sh (
                             script: "cd ${WORKSPACE}/crw/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/crw/dependencies/LATEST_IMAGES.new",

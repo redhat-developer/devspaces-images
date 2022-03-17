@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -25,7 +25,7 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="traefik"
             MIDSTM_NAME="traefik"
             SOURCE_REPO="traefik/" + UPSTM_NAME
-            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            MIDSTM_REPO="redhat-developer/devspaces-images"
 
             //No check since traefik uses a tag instead of a branch
             SOURCE_BRANCH="master"
@@ -36,7 +36,7 @@ Artifact builder + sync job; triggers brew after syncing
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/redhat-developer/codeready-workspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
+<li>Midstream: <a href=https://github.com/redhat-developer/devspaces/tree/''' + MIDSTM_BRANCH + '''/dependencies/>dependencies</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
@@ -46,9 +46,9 @@ Artifact builder + sync job; triggers brew after syncing
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 <p>Results:
     <ul>
-        <li><a href=https://github.com/redhat-developer/codeready-workspaces-images/releases?q=%22assets+for+the+'''+
+        <li><a href=https://github.com/redhat-developer/devspaces-images/releases?q=%22assets+for+the+'''+
 (config.CSVs."operator-bundle"[JB].CSV_VERSION)+
-'''+'''+MIDSTM_NAME+'''+release%22&expanded=true>redhat-developer/codeready-workspaces-images/releases</a></li>
+'''+'''+MIDSTM_NAME+'''+release%22&expanded=true>redhat-developer/devspaces-images/releases</a></li>
         <li><a href=https://quay.io/crw/'''+MIDSTM_NAME+'''-rhel8>quay.io/crw/'''+MIDSTM_NAME+'''-rhel8</a></li>
     </ul>
 </p>

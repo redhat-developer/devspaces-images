@@ -1,0 +1,307 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   CONTAINERS
+//   MIDSTM_BRANCH
+//   FLOATING_QUAY_TAGS
+//   CLEAN_ON_FAILURE = "true"
+
+def checkFailure(arrayLines,serverName,errorOccurred)
+{
+    arrayLines.each  { 
+        line -> if (line?.toString().indexOf("No tags matching")>-1 || line?.toString().indexOf("ERROR")>-1) { 
+            errorOccurred = errorOccurred + line + '\n'; 
+            currentBuild.result = 'FAILURE'
+        }
+    }
+    return errorOccurred
+}
+
+def errorOccurred = ""
+@Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
+
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+currentBuild.description="Copying " + CONTAINERS + "..."
+timeout(90) {
+    node(nodeLabel) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        try { 
+            stage("Copy from OSBS to Quay") {
+                currentBuild.description="Copying: " + CONTAINERS.trim().replaceAll(" ",", ")
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    cleanWs()
+                    CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+                    println "CRW_VERSION = '" + CRW_VERSION + "'"
+                    sh (
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
+                        returnStdout: true).trim().split( '\n' )
+
+                    def NEW_NVR = ""
+                    parallel copy_to_quay: {
+                        def statusCode = sh(script: '''#!/bin/bash -xe
+echo " ########################################### "
+echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
+echo " ########################################### "
+for c in ''' + CONTAINERS.trim() + '''; do
+    d=devspaces-${c}-rhel8
+    # special case for operator; all other images follow the pattern
+    if [[ $c == "operator" ]] || [[ $c == "operator-bundle" ]]; then 
+        d=devspaces-${c}
+    fi 
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --hide --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+done
+wait
+                        ''', returnStatus: true)
+                        if (statusCode > 0) {
+                            errorOccurred = errorOccurred + 'error pushing to quay\n'; 
+                            currentBuild.description+="; error pushing to quay!"
+                            currentBuild.result = 'FAILURE'
+                        }
+                    }, 
+                    nvr_check: {
+                        NEW_NVR = sh (
+                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                            returnStdout: true).trim().split( '\n' )
+                    }, 
+                    get_latest_images: {
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/dependencies/LATEST_IMAGES')
+                    }
+
+                    def NEW_QUAY = ""
+                    NEW_QUAY = sh (
+                        script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                        returnStdout: true).trim().split( '\n' )
+                        errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
+
+                    sh (
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
+                        returnStdout: true).trim().split( '\n' )
+
+                    // diff quay tag list vs. nvr tag list
+                    sh(script: '''#!/bin/bash -xe
+${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.quay) -s > ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly
+${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
+                    ''', returnStdout: true)
+                    def DIFF_LATEST_IMAGES_QUAY_V_NVR = sh (
+                        script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,nvr}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
+                        returnStdout: true
+                    ).trim()
+
+                    currentBuild.description="Copied: " + CONTAINERS.trim().replaceAll(" ",", ")
+                    if (!DIFF_LATEST_IMAGES_QUAY_V_NVR.equals("")) {
+                        // error! quay and nvr versions do not match
+                        errorOccurred = errorOccurred + 'Error: Quay & Brew image versions not aligned:\n' + 
+                        "=================== QUAY v NVR ===================\n" + 
+                        DIFF_LATEST_IMAGES_QUAY_V_NVR + '\n' + 
+                        ' Failure!\n'
+                        currentBuild.description+="; Quay/Brew version mismatch"
+                        currentBuild.result = 'UNSTABLE'
+                        sh(script: '''#!/bin/bash -xe
+./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide --pushtoquay="''' + CRW_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''"
+                        ''', returnStatus: true)
+                        currentBuild.description+="; all Quay images updated"
+                    }
+
+                    DIFF_LATEST_IMAGES_QUAY_V_STORED = sh (
+                        script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES{,.quay} | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
+                        returnStdout: true
+                    ).trim()
+
+                    def NEW_QUAY_L=""; NEW_QUAY.each { line -> if (line?.trim()) { NEW_QUAY_L=NEW_QUAY_L+"  ${line}\n" } }
+                    def NEW_NVR_L="";  NEW_NVR.each  { line -> if (line?.trim()) { NEW_NVR_L=NEW_NVR_L + "  ${line}\n" } } 
+                    echo '''
+Quay Images:
+''' + NEW_QUAY_L + '''
+
+Brew NVRs:
+''' + NEW_NVR_L
+                    cleanWs(
+                        cleanWhenSuccess: true,
+                        cleanWhenUnstable: true,
+                        cleanWhenNotBuilt: false,
+                        cleanWhenFailure: CLEAN_ON_FAILURE,
+                        cleanWhenAborted: true,
+                        deleteDirs: true,
+                        disableDeferredWipeout: true,
+                        notFailBuild: true
+                    )
+                } // wrap 
+            } // stage
+            if (!errorOccurred.equals("")) {
+                echo errorOccurred
+            }
+        } catch (e) {
+            if (!errorOccurred.equals("")) {
+                echo errorOccurred
+                util.notifyBuildFailed()
+                return
+            }
+            throw e
+        } // try
+    } // node
+} // timeout
+
+// trigger update_digests job if we have pushed new images that appear in the registry or metadata
+node(nodeLabel){ 
+  stage ("Update registries and metadata") {
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    def util = load "${WORKSPACE}/util2.groovy"
+    echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+        CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+        println "CRW_VERSION = '" + CRW_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+        // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
+        // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
+        if (CONTAINERS.trim().equals("operator-bundle")) {
+            println "NOTE: Skip scheduling update-digests-in-metadata for this update, as we have just updated operator-bundle."
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
+        } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
+            println "Scheduling update-digests-in-metadata for this update:"
+            println DIFF_LATEST_IMAGES_QUAY_V_STORED
+            build(
+                job: 'update-digests-in-metadata_' + JOB_BRANCH,
+                wait: false,
+                propagate: false,
+                quietPeriod: 0,
+                parameters: [
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "push-latest-containers-to-quay+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                    ],
+                    [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
+                    ]
+                ]
+            )
+            currentBuild.description+="; update-digests-in-metadata triggered"
+        } else {
+            println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-metadata_" + CRW_VERSION
+            currentBuild.result = 'UNSTABLE'
+            currentBuild.description+="; update-digests-in-metadata NOT triggered"
+        }
+
+        // CRW-2095 publish operator-bundle-generated too
+        if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*")) {
+            // https://issues.redhat.com/browse/CRW-1564 if an update to operator-bundle, push new csv content into devspaces-images repo, 
+            // in devspaces-operator-bundle-generated folder (outside where we sync from up->mid->down, as this should NOT
+            // be synced to downstream or overwritten by upstream)
+            SOURCE_REPO="redhat-developer/devspaces-images"
+            println "####################################################################################################################"
+            println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
+            println "####################################################################################################################"
+            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+
+                whichBundle="operator-bundle"
+                sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
+chmod +x updateGeneratedOperatorMetadata.sh
+./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + CRW_VERSION + ''' \
+    -s ${WORKSPACE}/sources -d devspaces-''' + whichBundle + '''-generated -c quay.io/devspaces/devspaces-3-rhel8-''' + whichBundle + '''
+''')
+            }
+            currentBuild.description+="; " + whichBundle + "-generated updated"
+
+            println "####################################################################################################################"
+            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest " + whichBundle + " ${CRW_VERSION}"
+            println "####################################################################################################################"
+            def statusCode = sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh
+chmod +x getLatestImageTags.sh
+NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + CRW_VERSION + '''-)
+
+# registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:2.12-17	registry-proxy.engineering.redhat.com/rh-osbs/iib:69346	v4.8
+FOUND=$(curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=devspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] \
+    | @tsv" -r | sort -uV | grep "${NEW_OSBS_IMAGE}")
+if [[ $FOUND ]]; then
+  echo "$FOUND"
+else
+  echo "[ERROR] Could not find ${NEW_OSBS_IMAGE} in registry-proxy.engineering.redhat.com/rh-osbs/iib !"
+  echo '  curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=99&contains=devspaces" | jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | grep '${NEW_OSBS_IMAGE}
+  exit 1
+fi
+''', returnStatus: true)
+            if (statusCode > 0) {
+                currentBuild.result = 'FAILURE'
+                currentBuild.description+="; ERROR: rh-osbs/iib NOT updated!"
+            }
+        } // if metadata or bundle
+    } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  } // stage
+} //node
+
+// https://issues.redhat.com/browse/CRW-1011 trigger theia-akamai job 
+node(nodeLabel){ 
+  stage ("Enable Akamai CDN support for CRW Theia image") {
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    def util = load "${WORKSPACE}/util2.groovy"
+    echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+        // if CONTAINERS contains theia
+        println "Containers: " + CONTAINERS.trim()
+        if (CONTAINERS.trim().equals("theia") || CONTAINERS.trim().matches(".*theia .*")) {
+            CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+            println "CRW_VERSION = '" + CRW_VERSION + "'"
+            println "Scheduling theia-akamai"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+            build(
+                job: 'theia-akamai_' + JOB_BRANCH,
+                wait: false,
+                propagate: false,
+                quietPeriod: 0,
+                parameters: [
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                    ],
+                    [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
+                    ]
+                ]
+            )
+            currentBuild.description+="; theia-akamai triggered"
+        } // if 2
+    } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  } // stage
+} //node

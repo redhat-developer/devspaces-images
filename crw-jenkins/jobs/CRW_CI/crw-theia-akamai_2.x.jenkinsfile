@@ -17,10 +17,10 @@ timeout(30) {
                 withCredentials([file(credentialsId:'che_akamai-properties', variable: 'AKAMAI_CHE_AUTH')]) {
 
                     sh (
-                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
                         returnStdout: true).trim().split( '\n' )
                     sh (
-                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
                         returnStdout: true).trim().split( '\n' )
 
                     def latestTheiaImageTag = sh (

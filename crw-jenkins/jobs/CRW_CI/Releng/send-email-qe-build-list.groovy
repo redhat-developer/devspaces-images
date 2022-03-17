@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -18,7 +18,10 @@ for (JB in JOB_BRANCHES) {
     }
     if (FILE_CHECK) {
         JOB_BRANCH=""+JB
-        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        if (JB.equals("2.15") || JB.equals("2.16") || JB.equals("2.x")) {
+            MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        }
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
         pipelineJob(jobPath){
@@ -64,7 +67,7 @@ Send an email to QE announcing an ER or RC build, including a list of images.
                 }
                 // # RECIPIENTS - comma and space separated list of recipient email addresses
                 stringParam("RECIPIENTS","codeready-workspaces-qa@redhat.com, che-prod@redhat.com",'''send mail to recipient(s) listed (comma and space separated)''')
-                stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
+                stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
             }
 
             definition {

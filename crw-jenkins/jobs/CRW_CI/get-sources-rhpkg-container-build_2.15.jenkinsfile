@@ -23,7 +23,7 @@ timeout(240) {
       wrap([$class: 'TimestamperBuildWrapper']) {
         currentBuild.description=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim() + "... "
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
             def util = load "${WORKSPACE}/util2.groovy"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
             CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)            
@@ -33,7 +33,7 @@ timeout(240) {
             try {
               util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
 
-              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/rhpkg-container-build.sh && chmod +x rhpkg-container-build.sh')
               echo "[INFO] Attempt to run rhpkg-container-build.sh, with up to 2 retries"
               retry(2) {
                 sh('''#!/bin/bash -e
@@ -67,7 +67,7 @@ set -x
               if (!currentBuild.result.equals("ABORTED") && 
                   !currentBuild.result.equals("FAILURE") && 
                   !currentBuild.result.equals("UNSTABLE")) {
-                sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
+                sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
                 CONTAINERS=QUAY_REPO_PATHs.replaceAll("crw-2-rhel8-","").replaceAll("-rhel8","").trim()
                 sh(script: '''#!/bin/bash -xe
 echo " ########################################### "
@@ -96,7 +96,7 @@ wait
       println "########################################################################################################"
       println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
       println "########################################################################################################"
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
       def util = load "${WORKSPACE}/util2.groovy"
       echo "currentBuild.result = " + currentBuild.result
       if (!currentBuild.result.equals("ABORTED") && 

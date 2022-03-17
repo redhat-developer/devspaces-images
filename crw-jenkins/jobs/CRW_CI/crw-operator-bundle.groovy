@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -26,7 +26,7 @@ for (JB in JOB_BRANCHES) {
             MIDSTM_NAME="operator-bundle"
             SOURCE_REPO="eclipse/" + UPSTM_NAME
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
-            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            MIDSTM_REPO="redhat-developer/devspaces-images"
 
             def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs"."operator-bundle"[JB].upstream_branch[0]
             def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config."Management-Jobs"."operator-bundle"[JB].upstream_branch[1]
@@ -54,7 +54,7 @@ Artifact builder + sync job; triggers brew after syncing
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
@@ -64,7 +64,7 @@ Artifact builder + sync job; triggers brew after syncing
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
-<a href=https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/codeready-workspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
+<a href=https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
 
 <p>Results:<ul><li><a href=https://quay.io/crw/crw-2-rhel8-'''+MIDSTM_NAME+'''>quay.io/crw/crw-2-rhel8-'''+MIDSTM_NAME+'''</a></li></ul></p>
             ''')

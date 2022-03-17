@@ -26,7 +26,7 @@ def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(90) {
     node(nodeLabel) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
         try { 
             stage("Copy from OSBS to Quay") {
@@ -36,7 +36,7 @@ timeout(90) {
                     CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
                     println "CRW_VERSION = '" + CRW_VERSION + "'"
                     sh (
-                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh',
                         returnStdout: true).trim().split( '\n' )
 
                     def NEW_NVR = ""
@@ -67,7 +67,7 @@ wait
                             returnStdout: true).trim().split( '\n' )
                     }, 
                     get_latest_images: {
-                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/dependencies/LATEST_IMAGES')
+                        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/dependencies/LATEST_IMAGES')
                     }
 
                     def NEW_QUAY = ""
@@ -77,7 +77,7 @@ wait
                         errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
 
                     sh (
-                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
+                        script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
                         returnStdout: true).trim().split( '\n' )
 
                     // diff quay tag list vs. nvr tag list
@@ -147,7 +147,7 @@ Brew NVRs:
 // trigger update_digests job if we have pushed new images that appear in the registry or metadata
 node(nodeLabel){ 
   stage ("Update registries and metadata") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
@@ -203,7 +203,7 @@ node(nodeLabel){
             // https://issues.redhat.com/browse/CRW-1564 if an update to operator-bundle, push new csv content into crw-images repo, 
             // in codeready-workspaces-operator-bundle-generated folder (outside where we sync from up->mid->down, as this should NOT
             // be synced to downstream or overwritten by upstream)
-            SOURCE_REPO="redhat-developer/codeready-workspaces-images"
+            SOURCE_REPO="redhat-developer/devspaces-images"
             println "####################################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
             println "####################################################################################################################"
@@ -217,7 +217,7 @@ node(nodeLabel){
                 }
 
                 sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
 ./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + CRW_VERSION + ''' \
     -s ${WORKSPACE}/sources -d codeready-workspaces-''' + whichBundle + '''-generated -c quay.io/crw/crw-2-rhel8-''' + whichBundle + '''
@@ -229,7 +229,7 @@ chmod +x updateGeneratedOperatorMetadata.sh
             println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest " + whichBundle + " ${CRW_VERSION}"
             println "####################################################################################################################"
             def statusCode = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh
 chmod +x getLatestImageTags.sh
 NEW_OSBS_IMAGE=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c codeready-workspaces-''' + whichBundle + ''' --tag ''' + CRW_VERSION + '''-)
 
@@ -267,7 +267,7 @@ fi
 // https://issues.redhat.com/browse/CRW-1011 trigger crw-theia-akamai job 
 node(nodeLabel){ 
   stage ("Enable Akamai CDN support for CRW Theia image") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {

@@ -16,14 +16,14 @@ timeout(90) {
     stage ("Build crwctl") {
       withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
         string(credentialsId:'segment-write-key', variable: 'SEGMENT_WRITE_KEY')]) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
         try {
           cleanWs()
           currentBuild.description="Check out code ..."
           util.cloneRepo("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-chectl.git", "${WORKSPACE}/codeready-workspaces-chectl", MIDSTM_BRANCH, true)
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-chectl.git", "${WORKSPACE}/devspaces-chectl", MIDSTM_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "${WORKSPACE}/crw-images", MIDSTM_BRANCH, false)
 
           currentBuild.description="Set up environment ..."
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
@@ -48,7 +48,7 @@ echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
 export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
-cd ${WORKSPACE}/codeready-workspaces-chectl
+cd ${WORKSPACE}/devspaces-chectl
 set -x
 ./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/crw-images ''' +
@@ -57,13 +57,13 @@ set -x
           )
 
           if (versionSuffix.equals("GA")){
-            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + 
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + 
               "assets>" + CSV_VERSION + " GA</a>"
           } else if (!versionSuffix.equals("")) {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + versionSuffix + 
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + versionSuffix + 
               "-assets>" + CSV_VERSION + " " + versionSuffix + "</a>"
           } else {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + "CI" + 
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-crwctl-" + "CI" + 
               "-assets>" + CSV_VERSION + " CI</a>"
           }
           if (versionSuffix.equals("GA")) {

@@ -8,9 +8,9 @@ import groovy.transform.Field
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
         node(nodeLabel) {
-        stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
+        stage ("Trigger builds for whole Dev Spaces stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                 def util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
                 CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
@@ -30,12 +30,12 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     currentQuayImageTheiaEndpoint=""
                     if (PHASE_LIST.contains("1")) {
                         // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
-                        currentJob="crw-theia-sources_" + JOB_BRANCH
-                        currentQuayImageTheiaDev = util.getLatestImageAndTag("crw/theia-dev-rhel8", "quay")
+                        currentJob="theia-sources_" + JOB_BRANCH
+                        currentQuayImageTheiaDev = util.getLatestImageAndTag("devspaces/theia-dev-rhel8", "quay")
                         println ("Got currentQuayImageDev = " + currentQuayImageTheiaDev)
-                        currentQuayImageTheia = util.getLatestImageAndTag("crw/theia-rhel8", "quay")
+                        currentQuayImageTheia = util.getLatestImageAndTag("devspaces/theia-rhel8", "quay")
                         println ("Got currentQuayImageTheia = " + currentQuayImageTheia)
-                        currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("crw/theia-endpoint-rhel8", "quay")
+                        currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("devspaces/theia-endpoint-rhel8", "quay")
                         println ("Got currentQuayImageTheiaEndpoint = " + currentQuayImageTheiaEndpoint)
                         util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                     }
@@ -44,7 +44,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         // 14 jobs
                         def jobsList = [
                             "configbump",
-                            "operator",                 // special case: "crw-2-rhel8-operator"
+                            "operator",                 // special case: "devspaces-rhel8-operator"
                             "dashboard",
                             "devfileregistry",
                             "idea",                     // @since 2.11
@@ -63,20 +63,20 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
                         for (job in jobsList) {
                             def job_name="${job}"// job name
-                            def image_name=job.toString().trim().equals("operator") ? "crw-2-rhel8-operator" : "${job_name}-rhel8" // image name
-                            def currentJobLoc="crw-" + job_name + "_" + JOB_BRANCH
+                            def image_name=job.toString().trim().equals("operator") ? "devspaces-rhel8-operator" : "${job_name}-rhel8" // image name
+                            def currentJobLoc=job_name + "_" + JOB_BRANCH
                             if (!util.checkURL(jenkinsURL + currentJobLoc)) { 
                                 println("[WARNING] No such job " + jenkinsURL + currentJobLoc + " : skip!"); 
                                     currentBuild.description+="<br/>* SKIP: <a href=${jenkinsPath}${currentJobLoc}>${currentJobLoc}</a>"
                             } else {
-                                def currentQuayImageLoc = util.getLatestImageAndTag("crw/" + image_name, "quay")
+                                def currentQuayImageLoc = util.getLatestImageAndTag("devspaces/" + image_name, "quay")
                                 tasks[currentJobLoc] = { ->
                                     println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
                                     def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
                                     lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
                                         util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
                                     println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
-                                    if (!util.waitForNewQuayImage("crw/" + image_name, currentQuayImageLoc)) {
+                                    if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
                                         currentBuild.result = 'FAILED'
                                         util.notifyBuildFailed()
                                     }
@@ -92,35 +92,35 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         // TODO add sleep time before starting checks?
 
                         // wait until theia is rebuilt - check every 10 mins for 10 hrs
-                        if (!util.waitForNewQuayImage("crw/theia-dev-rhel8", currentQuayImageTheiaDev, 600, 36000)) {
+                        if (!util.waitForNewQuayImage("devspaces/theia-dev-rhel8", currentQuayImageTheiaDev, 600, 36000)) {
                             currentBuild.result = 'FAILED'
                             currentBuild.description+="<br/>* TIMEOUT: theia-dev"
                             util.notifyBuildFailed()
                         }
-                        def int lastBuildId2td=getLastBuildResult(jenkinsURL+"crw-theia-dev-rhel8_"+JOB_BRANCH)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-dev-rhel8_${JOB_BRANCH}/${lastBuildId2td}>crw-theia-dev-rhel8_${JOB_BRANCH}#${lastBuildId2td}</a>"
+                        def int lastBuildId2td=getLastBuildResult(jenkinsURL+"devspaces-theia-dev-rhel8_"+JOB_BRANCH)
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-dev-rhel8_${JOB_BRANCH}/${lastBuildId2td}>devspaces-theia-dev-rhel8_${JOB_BRANCH}#${lastBuildId2td}</a>"
 
                         // wait until theia is rebuilt - check every 5 mins for 10 hrs
-                        if (!util.waitForNewQuayImage("crw/theia-rhel8", currentQuayImageTheia, 300, 36000)) {
+                        if (!util.waitForNewQuayImage("devspaces/theia-rhel8", currentQuayImageTheia, 300, 36000)) {
                             currentBuild.result = 'FAILED'
                             currentBuild.description+="<br/>* TIMEOUT: theia"
                             util.notifyBuildFailed()
                         }
-                        def int lastBuildId2th=getLastBuildResult(jenkinsURL+"crw-theia-rhel8_"+JOB_BRANCH)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-rhel8_${JOB_BRANCH}/${lastBuildId2th}>crw-theia-rhel8_${JOB_BRANCH}#${lastBuildId2th}</a>"
+                        def int lastBuildId2th=getLastBuildResult(jenkinsURL+"devspaces-theia-rhel8_"+JOB_BRANCH)
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-rhel8_${JOB_BRANCH}/${lastBuildId2th}>devspaces-theia-rhel8_${JOB_BRANCH}#${lastBuildId2th}</a>"
 
                         // wait until theia-endpoint is rebuilt - check every 5 mins for 10 hrs
-                        if (!util.waitForNewQuayImage("crw/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint, 300, 36000)) {
+                        if (!util.waitForNewQuayImage("devspaces/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint, 300, 36000)) {
                             currentBuild.result = 'FAILED'
                             currentBuild.description+="<br/>* TIMEOUT: theia-endpoint"
                             util.notifyBuildFailed()
                         }
-                        def int lastBuildId2te=getLastBuildResult(jenkinsURL+"crw-theia-endpoint-rhel8_"+JOB_BRANCH)
-                        currentBuild.description+="<br/>* <a href=${jenkinsPath}crw-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>crw-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
+                        def int lastBuildId2te=getLastBuildResult(jenkinsURL+"devspaces-theia-endpoint-rhel8_"+JOB_BRANCH)
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>devspaces-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
                     }
 
                     if (PHASE_LIST.contains("3")) {
-                        currentQuayImageBundle = util.getLatestImageAndTag("crw/crw-2-rhel8-operator-bundle", "quay")
+                        currentQuayImageBundle = util.getLatestImageAndTag("devspaces/devspaces-operator-bundle", "quay")
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
                         // trigger update-digests job (to rebuild bundle image)

@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -18,7 +18,10 @@ for (JB in JOB_BRANCHES) {
     }
     if (FILE_CHECK) {
         JOB_BRANCH=""+JB
-        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        if (JB.equals("2.15") || JB.equals("2.16") || JB.equals("2.x")) {
+            MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        }
         FLOATING_QUAY_TAGS="" + config.Other."FLOATING_QUAY_TAGS"[JB]
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
@@ -61,18 +64,34 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
 
             parameters{
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
-                stringParam("GIT_PATHs", "containers/codeready-workspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
+                if (JB.equals("2.15") || JB.equals("2.16") || JB.equals("2.x")) {
+                    stringParam("GIT_PATHs", "containers/devspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
 update sources, and run rhpkg container-build: <br/>
 * containers/codeready-workspaces, <br/>
 * containers/codeready-workspaces-operator, <br/>
 * containers/codeready-workspaces-udi, etc.<br/>
 ''')
-                stringParam("QUAY_REPO_PATHs", "", '''If blank, do not push to Quay.<br/>
+                    stringParam("QUAY_REPO_PATHs", "", '''If blank, do not push to Quay.<br/>
 If set, push to quay.io path, <br/>
 eg., one or more of these (space-separated values): <br/>
 * crw-2-rhel8-operator, crw-2-rhel8-operator-bundle, udi-rhel8, etc.<br/>
 ---<br/>
 See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''>push-latest-container-to-quay</a>''')
+                } else {
+                    stringParam("GIT_PATHs", "containers/devspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
+update sources, and run rhpkg container-build: <br/>
+* containers/devspaces-server, <br/>
+* containers/devspaces-operator, <br/>
+* containers/devspaces-udi, etc.<br/>
+''')
+                    stringParam("QUAY_REPO_PATHs", "", '''If blank, do not push to Quay.<br/>
+If set, push to quay.io path, <br/>
+eg., one or more of these (space-separated values): <br/>
+* devspaces-rhel8-operator, devspaces-operator-bundle, udi-rhel8, etc.<br/>
+---<br/>
+See complete list at <a href=../push-latest-container-to-quay_''' + JOB_BRANCH + '''>push-latest-container-to-quay</a>''')
+                }
+                
                 stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")
                 stringParam("nodeVersion", "", "Leave blank if not needed")
                 stringParam("yarnVersion", "", "Leave blank if not needed")

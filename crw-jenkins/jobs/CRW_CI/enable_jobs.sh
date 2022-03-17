@@ -50,26 +50,24 @@ if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
     # TODO remove crw-operator-metadata after 2.15 release
     for d in \
-        crw-configbump\
-        crw-dashboard\
-        crw-deprecated\
-        crw-devfileregistry\
-        crw-devworkspace-controller\
-        crw-devworkspace\
-        crw-imagepuller\
-        crw-jwtproxy\
-        crw-machineexec\
-        crw-operator-bundle\
-        crw-operator-metadata\
-        crw-operator\
-        crw-pluginbroker-artifacts\
-        crw-pluginbroker-metadata\
-        crw-pluginregistry\
-        crw-server\
-        crw-theia-akamai\
-        crw-theia-sources\
-        crw-traefik\
-        crwctl\
+        configbump\
+        dashboard\
+        devfileregistry\
+        imagepuller\
+        jwtproxy\
+        machineexec\
+        operator-bundle\
+        operator-metadata\
+        operator\
+        pluginbroker-artifacts\
+        pluginbroker-metadata\
+        pluginregistry\
+        server\
+        theia-akamai\
+        theia-sources\
+        traefik\
+        dsc\
+        udi\
         get-sources-rhpkg-container-build\
         push-latest-container-to-quay\
         sync-to-downstream\

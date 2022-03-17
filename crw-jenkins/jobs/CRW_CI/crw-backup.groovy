@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 
 // TODO delete this once CRW 2.16 is live.
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -27,7 +27,7 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="che-backup-server-rest"
             MIDSTM_NAME="backup"
             SOURCE_REPO="che-dockerfiles/" + UPSTM_NAME
-            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            MIDSTM_REPO="redhat-developer/devspaces-images"
 
             def CMD_EVEN="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.backup[JB].upstream_branch[0]
             def CMD_ODD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + config.Jobs.backup[JB].upstream_branch[1]
@@ -49,7 +49,7 @@ Artifact builder + sync job; triggers brew after syncing
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 

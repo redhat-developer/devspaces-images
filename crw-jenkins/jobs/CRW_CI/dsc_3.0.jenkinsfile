@@ -1,0 +1,93 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
+// versionSuffix
+// CLEAN_ON_FAILURE = "true"
+
+def installP7zip = true // p7zip install and use that to build dsc
+def nodeLabel = "x86_64-rhel8-dyn"
+
+timeout(90) {
+  node("${nodeLabel}"){ 
+    stage ("Build dsc") {
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+        string(credentialsId:'segment-write-key', variable: 'SEGMENT_WRITE_KEY')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        try {
+          cleanWs()
+          currentBuild.description="Check out code ..."
+          util.cloneRepo("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-chectl.git", "${WORKSPACE}/devspaces-chectl", MIDSTM_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "${WORKSPACE}/devspaces-images", MIDSTM_BRANCH, false)
+
+          currentBuild.description="Set up environment ..."
+          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
+          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+
+          // for push to rcm-guest, set DESTHOST
+          DESTHOST=""
+          if (versionSuffix.equals("GA")) {
+            currentBuild.description+=" ssh mount Rcm Guest ..."
+            // ssh mount the rcm-guest drive
+            DESTHOST=util.sshMountRcmGuest()
+          }
+
+          currentBuild.description="Building with Node " + nodeVersion + "..."
+          sh('''#!/bin/bash -e
+# default node version
+. ~/crw_env ''' + CRW_VERSION + ''' 
+# special node version for dsc only
+nvm install ''' + nodeVersion + '''; . $HOME/.nvm/nvm.sh; nvm use ''' + nodeVersion + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
+export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
+export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
+cd ${WORKSPACE}/devspaces-chectl
+set -x
+./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + CRW_VERSION + ''' -b ''' + MIDSTM_BRANCH +
+  ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/devspaces-images ''' +
+  (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") +
+  (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
+          )
+
+          if (versionSuffix.equals("GA")){
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-dsc-" + 
+              "assets>" + CSV_VERSION + " GA</a>"
+          } else if (!versionSuffix.equals("")) {
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-dsc-" + versionSuffix + 
+              "-assets>" + CSV_VERSION + " " + versionSuffix + "</a>"
+          } else {
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-dsc-" + "CI" + 
+              "-assets>" + CSV_VERSION + " CI</a>"
+          }
+          if (versionSuffix.equals("GA")) {
+            currentBuild.description += "; published to RCM"
+          }
+        } catch (e) {
+          // If there was an exception thrown, the build failed
+          currentBuild.result = "FAILED"
+          util.notifyBuildFailed()
+          throw e
+        } finally {
+          // nothing to do here
+        }
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
+      } // with
+    } // stage
+  } // node
+} // timeout

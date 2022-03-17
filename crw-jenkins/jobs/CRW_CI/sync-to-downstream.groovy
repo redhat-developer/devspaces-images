@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -18,12 +18,15 @@ for (JB in JOB_BRANCHES) {
     }
     if (FILE_CHECK) {
         JOB_BRANCH=""+JB
-        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        if (JB.equals("2.15") || JB.equals("2.16") || JB.equals("2.x")) {
+            MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        }
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."sync-to-downstream"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
-Sync job between midstream repo https://github.com/redhat-developer/codeready-workspaces-images and pkgs.devel.
+Sync job between midstream repo https://github.com/redhat-developer/devspaces-images and pkgs.devel.
 
 <p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.
             ''')
@@ -43,7 +46,7 @@ Sync job between midstream repo https://github.com/redhat-developer/codeready-wo
 
             parameters{
                 // remove after 2.16 is live; keep simpler else block
-                if (JB.equals("2.14") || JB.equals("2.15")) {
+                if (JB.equals("2.15")) {
                     textParam("REPOS", '''codeready-workspaces-plugin-java11, 
 codeready-workspaces-plugin-java8, 
 codeready-workspaces-plugin-kubernetes, 
@@ -61,16 +64,12 @@ codeready-workspaces-stacks-cpp,
 codeready-workspaces-stacks-dotnet, 
 codeready-workspaces-stacks-golang, 
 codeready-workspaces-stacks-php''')
-                } else {
+                } else if (JB.equals("2.16")) {
                     textParam("REPOS", '''codeready-workspaces-udi''', '''Comma separated list of repos to sync from github to pkgs.devel :: codeready-workspaces-udi''')
+                } else {
+                    textParam("REPOS", '''devspaces-udi''', '''Comma separated list of repos to sync from github to pkgs.devel :: devspaces-udi''')
                 }
-                // remove after 2.15 is live
-                if (JB.equals("2.14")) {
-                    stringParam("nodeVersion", "", "Leave blank if not needed")
-                    stringParam("yarnVersion", "", "Leave blank if not needed")
-                    stringParam("GOLANG_VERSION", config.Other.GOLANG_VERSION[JB], "for hub install")
-                    stringParam("CSV_VERSION", "", "Leave blank to compute from job-config.json")
-                }
+    
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 // currently not used
                 // stringParam("UPDATE_BASE_IMAGES_FLAGS", "", "Pass additional flags to updateBaseImages, eg., '--tag 1.13'")

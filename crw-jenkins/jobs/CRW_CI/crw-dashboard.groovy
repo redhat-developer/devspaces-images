@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -25,7 +25,7 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="che-dashboard"
             MIDSTM_NAME="dashboard"
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
-            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            MIDSTM_REPO="redhat-developer/devspaces-images"
             NODE_VERSION="" + config.Other.NODE_VERSION[JB]
             YARN_VERSION="" + config.Other.YARN_VERSION[JB]
         
@@ -47,7 +47,7 @@ Artifact builder + sync job; triggers brew after syncing
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 

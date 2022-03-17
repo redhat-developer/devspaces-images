@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -18,7 +18,10 @@ for (JB in JOB_BRANCHES) {
     }
     if (FILE_CHECK) {
         JOB_BRANCH=""+JB
-        MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        if (JB.equals("2.15") || JB.equals("2.16") || JB.equals("2.x")) {
+            MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
+        }
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
             // keep job disabled until we explicitly need it
@@ -26,7 +29,7 @@ for (JB in JOB_BRANCHES) {
 
             description('''
 <p>Since this build depends on multiple upstream repos (eclipse theia, che-theia), this build is configured 
-to trigger weekly on ''' + (JOB_BRANCH.equals("2.x") ? "Sundays" : "Saturdays") + '''.
+to trigger weekly on ''' + (JOB_BRANCH.equals("3.x") ? "Sundays" : "Saturdays") + '''.
 <p>
 This job is meant to be used to orchestrate rebuilding everything in CRW after a major branch update (7.yy.x -> 7.yy+1.x) or 
 for global CVE updates.
@@ -41,8 +44,8 @@ for global CVE updates.
                 pipelineTriggers {
                     triggers{
                         cron {
-                            // 2.x: Sun at 23:HH; 2.yy: Sat
-                            spec(JOB_BRANCH.equals("2.x") ? "H H * * 0" : "H H * * 6") 
+                            // 3.x: Sun at 23:HH; 3.yy: Sat
+                            spec(JOB_BRANCH.equals("3.x") ? "H H * * 0" : "H H * * 6") 
                         }
                     }
                 }

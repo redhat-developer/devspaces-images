@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -44,16 +44,16 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
-<li>Downstream: <a href=https://github.com/redhat-developer/codeready-workspaces-chectl/tree/''' + MIDSTM_BRANCH + '''>crwctl</a></li>
+<li>Downstream: <a href=https://github.com/redhat-developer/devspaces-chectl/tree/''' + MIDSTM_BRANCH + '''>crwctl</a></li>
 </ul>
 
-Results:  <a href=https://github.com/redhat-developer/codeready-workspaces-chectl/releases>chectl/releases</a>
+Results:  <a href=https://github.com/redhat-developer/devspaces-chectl/releases>chectl/releases</a>
 <p>
 To retrieve assets from github:
 <ul>
 <pre>
 cd /tmp
-git clone git@github.com:redhat-developer/codeready-workspaces-chectl.git --depth=1 crwctl && cd crwctl
+git clone git@github.com:redhat-developer/devspaces-chectl.git --depth=1 crwctl && cd crwctl
 
 export GITHUB_TOKEN="github-token-here"
 

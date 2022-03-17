@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -25,7 +25,7 @@ for (JB in JOB_BRANCHES) {
             UPSTM_NAME="che-theia"
             MIDSTM_NAME="theia" // do we need three midstreams here? or three jobs?
             SOURCE_REPO="eclipse-che/" + UPSTM_NAME
-            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            MIDSTM_REPO="redhat-developer/devspaces-images"
             THEIA_BRANCH="" + config.Other.THEIA_BUILD_PARAMS[JB].THEIA_BRANCH
             THEIA_GITHUB_REPO="" + config.Other.THEIA_BUILD_PARAMS[JB].THEIA_GITHUB_REPO
             THEIA_COMMIT_SHA="" + config.Other.THEIA_BUILD_PARAMS[JB].THEIA_COMMIT_SHA
@@ -54,9 +54,9 @@ to only poll scm weekly on ''' + (JOB_BRANCH.equals("2.x") ? "Tues/Thurs" : "Thu
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
 
 <li>Midstream: <ul>
-    <li><a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''-dev/>crw-''' + MIDSTM_NAME + '''-dev</a></li>
-    <li><a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
-    <li><a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''-endpoint/>crw-''' + MIDSTM_NAME + '''-endpoint</a></li>
+    <li><a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''-dev/>crw-''' + MIDSTM_NAME + '''-dev</a></li>
+    <li><a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+    <li><a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''-endpoint/>crw-''' + MIDSTM_NAME + '''-endpoint</a></li>
 </ul></li>
 
 <li>Downstream: <ul>

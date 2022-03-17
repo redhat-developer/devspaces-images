@@ -10,7 +10,7 @@ timeout(600) {
     node(nodeLabel) {
         stage ("Trigger builds for whole CRW stack on ${nodeLabel}") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                 def util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
                 CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)

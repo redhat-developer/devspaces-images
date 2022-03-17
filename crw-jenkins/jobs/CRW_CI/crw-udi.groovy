@@ -1,5 +1,5 @@
 import groovy.json.JsonSlurper
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/crw-2-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -26,8 +26,8 @@ for (JB in JOB_BRANCHES) {
             MIDSTM_NAME="udi"
             // TODO when we can sync from Che UDI, change this
             // see https://github.com/eclipse/che/issues/20858 + https://github.com/eclipse/che/issues/20862
-            SOURCE_REPO="redhat-developer/codeready-workspaces-images"
-            MIDSTM_REPO="redhat-developer/codeready-workspaces-images"
+            SOURCE_REPO="redhat-developer/devspaces-images"
+            MIDSTM_REPO="redhat-developer/devspaces-images"
 
             SOURCE_BRANCH=""+config.Jobs.udi[JB].upstream_branch[0];
             def CMD="git ls-remote --heads https://github.com/" + SOURCE_REPO + ".git " + SOURCE_BRANCH
@@ -44,7 +44,7 @@ UDI image builder (including assets); triggers brew
 
 <ul>
 <!-- TODO include upstream when we can sync from Che UDI <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li> -->
-<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/codeready-workspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
+<li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''/>crw-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/codeready-workspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
 </ul>
 
