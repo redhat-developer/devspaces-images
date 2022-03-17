@@ -161,8 +161,9 @@ echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
 # update version in package.json
 jq --arg VER_CHE "${VER_CHE}" '.version=$VER_CHE' package.json > package.json1; mv package.json1 package.json
 
-# temporary: hard code warning about migration; should be removed in next version
-WARNING_MESSAGE='The next release uses a new DevWorkspace engine, and existing workspaces will need to be converted to the new format. <a href="https://todo">Click here to learn how to update and migrate</a>'
+# https://issues.redhat.com/browse/CRW-2823 - add warning about migration to 3.y in 2.15.z
+LANDING_PAGE="https://developers.redhat.com/articles/2022/03/17/red-hat-openshift-dev-spaces-formerly-red-hat-codeready-workspaces-next-major"
+WARNING_MESSAGE='The next release uses a new DevWorkspace engine, and existing workspaces will need to be converted to the new format. <a href="'${LANDING_PAGE}'">Click here to learn how to update and migrate</a>'
 sed -i "/if (clusterConfig.dashboardWarning)/i \ \ \ \ \ \ \ \ clusterConfig.dashboardWarning =\n          '$MESSAGE';"\
   ${TARGETDIR}/packages/dashboard-frontend/src/store/ClusterConfig/index.ts
 
