@@ -63,7 +63,7 @@ USER 65532:65532
 
 ENTRYPOINT ["/manager"]
 
-# append Brew metadata here - see https://github.com/redhat-developer/codeready-workspaces-images/blob/crw-2-rhel-8/crw-jenkins/jobs/CRW_CI/crw-operator_2.x.jenkinsfile
+# append Brew metadata here
 ENV SUMMARY="Red Hat OpenShift Dev Spaces operator container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces operator container" \
     PRODNAME="devspaces" \
@@ -76,7 +76,7 @@ LABEL com.redhat.delivery.appregistry="false" \
       io.openshift.tags="$PRODNAME,$COMPNAME" \
       com.redhat.component="$PRODNAME-rhel8-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
-      version="3.0" \
+      version="3" \
       license="EPLv2" \
       maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \

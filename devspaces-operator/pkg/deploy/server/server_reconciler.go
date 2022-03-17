@@ -58,11 +58,6 @@ func (s *CheServerReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Re
 		return reconcile.Result{}, false, err
 	}
 
-	done, err = s.updateCheURL(ctx)
-	if !done {
-		return reconcile.Result{}, false, err
-	}
-
 	done, err = s.updateAvailabilityStatus(ctx)
 	if !done {
 		return reconcile.Result{}, false, err
@@ -78,17 +73,6 @@ func (s *CheServerReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Re
 
 func (s *CheServerReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	return true
-}
-
-func (s CheServerReconciler) updateCheURL(ctx *deploy.DeployContext) (bool, error) {
-	var cheUrl = "https://" + ctx.CheHost
-	if ctx.CheCluster.Status.CheURL != cheUrl {
-		ctx.CheCluster.Status.CheURL = cheUrl
-		err := deploy.UpdateCheCRStatus(ctx, getComponentName(ctx)+" server URL", cheUrl)
-		return err == nil, err
-	}
-
-	return true, nil
 }
 
 func (s *CheServerReconciler) syncCheConfigMap(ctx *deploy.DeployContext) (bool, error) {
@@ -152,8 +136,8 @@ func (s *CheServerReconciler) updateAvailabilityStatus(ctx *deploy.DeployContext
 			if ctx.CheCluster.Status.CheClusterRunning != AvailableStatus {
 				cheFlavor := deploy.DefaultCheFlavor(ctx.CheCluster)
 				name := "Red Hat OpenShift Dev Spaces"
-				if cheFlavor == "codeready" {
-					name = "CodeReady Workspaces"
+				if cheFlavor == "devspaces" {
+					name = "Red Hat OpenShift Dev Spaces"
 				}
 
 				logrus.Infof(name+" is now available at: %s", ctx.CheCluster.Status.CheURL)

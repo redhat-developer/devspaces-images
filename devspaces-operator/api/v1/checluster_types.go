@@ -18,6 +18,8 @@ package v1
 // - update `config/crd/bases/org_v1_checluster_crd.yaml` file;
 
 import (
+	"strings"
+
 	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/api/v1alpha1"
 	v2alpha1 "github.com/eclipse-che/che-operator/api/v2alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -97,7 +99,7 @@ type CheClusterSpecServer struct {
 	// +optional
 	CheImagePullPolicy corev1.PullPolicy `json:"cheImagePullPolicy,omitempty"`
 	// Deprecated. The value of this flag is ignored.
-	// Specifies a variation of the installation. The options are `che` for upstream Che installations, or `codeready` for link:https://developers.redhat.com/products/codeready-workspaces/overview[CodeReady Workspaces] installation.
+	// Specifies a variation of the installation. The options are `che` for upstream Che installations, or `devspaces` for link:https://developers.redhat.com/products/codeready-workspaces/overview[Red Hat OpenShift Dev Spaces] installation.
 	// Override the default value only on necessary occasions.
 	// +optional
 	CheFlavor string `json:"cheFlavor,omitempty"`
@@ -842,4 +844,8 @@ func (c *CheCluster) IsImagePullerSpecEmpty() bool {
 
 func (c *CheCluster) IsImagePullerImagesEmpty() bool {
 	return len(c.Spec.ImagePuller.Spec.Images) == 0
+}
+
+func (c *CheCluster) GetCheHost() string {
+	return strings.TrimPrefix(c.Status.CheURL, "https://")
 }
