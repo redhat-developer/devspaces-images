@@ -218,12 +218,15 @@ rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vend
 
 CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
 # transform into Brew-friendly version of CSV
+# CRW-2823 only do transformation for images we're rebuilding in 2.15.3
 sed -r -i "${CSVFILE}" \
-  -e "s@:latest@:${CRW_VERSION}@g"
+  -e "s@registry.redhat.io/codeready-workspaces/dashboard@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-dashboard@g" \
+  -e "s@registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator@g"
 
-# CRW-2829 don't do this transformation so that we can hardcode some images as latest from reg.rh.io, and others to use reg-proxy unreleased images
+# CRW-2829 don't do this transformation across the board so that we can hardcode some images as latest from reg.rh.io, and others to use reg-proxy unreleased images
 #  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
 #  -e "s@crw-2-rhel8-operator@operator@g" \
+#  -e "s@:latest@:${CRW_VERSION}@g"
 
 # date in CSV will be updated only if there were any changes in CSV
 pushd ${CSVFILE%/*} >/dev/null || exit # targetdir/manifests/
