@@ -1,5 +1,0 @@
-id: test-plugin
-type: VS Code extension
-spec:
-  extensions:
-  - "https://my-extension.url"
