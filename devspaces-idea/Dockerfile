@@ -95,9 +95,9 @@ WORKDIR /projects
 EXPOSE 8887
 CMD $PROJECTOR_DIR/entrypoint.sh
 
-ENV SUMMARY="Red Hat CodeReady Workspaces idea container" \
-    DESCRIPTION="Red Hat CodeReady Workspaces idea container" \
-    PRODNAME="codeready-workspaces" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces idea container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces idea container" \
+    PRODNAME="devspaces" \
     COMPNAME="idea-rhel8"
 
 LABEL summary="$SUMMARY" \
