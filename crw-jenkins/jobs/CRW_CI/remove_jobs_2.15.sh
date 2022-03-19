@@ -8,24 +8,24 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-# script to enable jobs in Jenkins
+# script to remove previous release's jobs from Jenkins
 
 # defaults
 JENKINSURL="https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com"
 
 usage() {
   echo "
-Enable Jenkins jobs for a given release.
+Remove Jenkins job associated with previous release.
 
 Usage: $0 [-t 2.y] 
-Example: $0 -t 2.y
+Example: $0 -t 2.previous-release
 "
   exit
 }
 
 usageToken()
 {
-  echo "To enable jobs, you must:
+  echo "To delete jobs, you must:
   1. open ${JENKINSURL}/me/configure
   2. create an API token
   3. store your kerberos username and token in file /tmp/token, in format:
@@ -48,22 +48,26 @@ if [[ ! ${CRW_VERSION} ]]; then usage; fi
 
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
-    # TODO remove crw-operator-metadata after 2.15 release
     for d in \
-        configbump\
-        dashboard\
-        devfileregistry\
-        imagepuller\
-        machineexec\
-        operator-bundle\
-        operator\
-        pluginregistry\
-        server\
-        theia-akamai\
-        theia-sources\
-        traefik\
-        dsc\
-        udi\
+        crw-backup\
+        crw-configbump\
+        crw-dashboard\
+        crw-devfileregistry\
+        crw-idea\
+        crw-imagepuller\
+        crw-jwtproxy\
+        crw-machineexec\
+        crw-operator-bundle\
+        crw-operator-metadata\
+        crw-operator\
+        crw-pluginbroker-artifacts\
+        crw-pluginbroker-metadata\
+        crw-pluginregistry\
+        crw-server\
+        crw-theia-akamai\
+        crw-theia-sources\
+        crw-traefik\
+        crwctl\
         get-sources-rhpkg-container-build\
         push-latest-container-to-quay\
         sync-to-downstream\
@@ -71,14 +75,14 @@ if [[ -f /tmp/token ]]; then
         Releng/job/build-all-images\
         Releng/job/send-email-qe-build-list\
         ; do 
-        result=$(curl -sSL -X POST "${JENKINSURL}/job/CRW_CI/job/${d}_${CRW_VERSION}/enable" --user "${USERTOKEN}" | grep -E "Unauthorized|Authentization|401|URI")
+        result=$(curl -sSL -X DELETE "${JENKINSURL}/job/CRW_CI/job/${d}_${CRW_VERSION}/" --user "${USERTOKEN}" | grep -E "Unauthorized|Authentization|401|URI")
         if [[ $result ]]; then
             echo "ERROR!"
             echo "$result"
             echo
             #usageToken
         else
-            echo "Enabled: ${JENKINSURL}/job/CRW_CI/job/${d}_${CRW_VERSION}/"
+            echo "Deleted: ${JENKINSURL}/job/CRW_CI/job/${d}_${CRW_VERSION}/"
         fi
     done
 else

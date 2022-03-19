@@ -69,11 +69,10 @@ for global CVE updates.
 Phases:
 <ol>
     <li> build theia images sequentially (3 images)</li>
-    <li> build internals in parallel (14 images): 
+    <li> build internals in parallel (11 images): 
         <ul>
             <li> configbump, operator, dashboard, devfileregistry, idea (@since 2.11), </li>
-            <li> imagepuller, jwtproxy, machineexec, pluginbroker-artifacts, pluginbroker-metadata, </li>
-            <li> pluginregistry, server, traefik, udi (@since 2.16)</li>
+            <li> imagepuller, machineexec, pluginregistry, server, traefik, udi (@since 2.16)</li>
         </ul>
     </li>
     <li> build bundle image + IIBs</li>

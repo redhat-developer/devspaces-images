@@ -48,28 +48,21 @@ if [[ ! ${CRW_VERSION} ]]; then usage; fi
 
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
-    # TODO remove crw-operator-metadata after 2.15 is live
-    # TODO remove crw-backup after 2.16 is live
     for d in \
-        crw-backup\
-        crw-configbump\
-        crw-dashboard\
-        crw-devfileregistry\
-        crw-idea\
-        crw-imagepuller\
-        crw-jwtproxy\
-        crw-machineexec\
-        crw-operator-bundle\
-        crw-operator-metadata\
-        crw-operator\
-        crw-pluginbroker-artifacts\
-        crw-pluginbroker-metadata\
-        crw-pluginregistry\
-        crw-server\
-        crw-theia-akamai\
-        crw-theia-sources\
-        crw-traefik\
-        crwctl\
+        configbump\
+        dashboard\
+        devfileregistry\
+        idea\
+        imagepuller\
+        machineexec\
+        operator-bundle\
+        operator\
+        pluginregistry\
+        server\
+        theia-akamai\
+        theia-sources\
+        traefik\
+        dsc\
         get-sources-rhpkg-container-build\
         push-latest-container-to-quay\
         sync-to-downstream\

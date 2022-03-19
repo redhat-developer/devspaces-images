@@ -49,10 +49,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                             "devfileregistry",
                             "idea",                     // @since 2.11
                             "imagepuller",
-                            "jwtproxy",
                             "machineexec",
-                            "pluginbroker-artifacts",
-                            "pluginbroker-metadata",
                             "pluginregistry",
                             "server",
                             "traefik",

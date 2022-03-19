@@ -20,7 +20,7 @@ for (JB in JOB_BRANCHES) {
     if (FILE_CHECK) {
         JOB_BRANCH=""+JB
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-        if (JB.equals("2.15") || JB.equals("2.16") || JB.equals("2.x")) {
+        if (JB.equals("2.15")) {
             MIDSTM_BRANCH="crw-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         }
         FLOATING_QUAY_TAGS="" + config.Other."FLOATING_QUAY_TAGS"[JB]
@@ -37,30 +37,23 @@ Images to copy to quay (18):
 <table>
 <tr><td>
 
-  <li> <a href=https://quay.io/repository/devspaces/backup-rhel8?tab=tags>backup</a> @since 2.12</li>
   <li> <a href=https://quay.io/repository/devspaces/configbump-rhel8?tab=tags>configbump</a> </li>
   <li> <a href=https://quay.io/repository/devspaces/devspaces-rhel8-operator?tab=tags>operator</a> 
   <li> <a href=https://quay.io/repository/devspaces/devspaces-operator-bundle?tab=tags>operator-bundle</a> @since 2.12
   <li> <a href=https://quay.io/repository/devspaces/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
+  <li> <a href=https://quay.io/repository/devspaces/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
 
   </td><td>
 
-  <li> <a href=https://quay.io/repository/devspaces/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
   <li> <a href=https://quay.io/repository/devspaces/idea-rhel8?tab=tags>idea</a> @since 2.11</li>
   <li> <a href=https://quay.io/repository/devspaces/imagepuller-rhel8?tab=tags>imagepuller</a></li>
-  <li> <a href=https://quay.io/repository/devspaces/jwtproxy-rhel8?tab=tags>jwtproxy</a> </li>
   <li> <a href=https://quay.io/repository/devspaces/machineexec-rhel8?tab=tags>machineexec</a> </li>
-
-  </td><td>
-
-  <li> <a href=https://quay.io/repository/devspaces/pluginbroker-artifacts-rhel8?tab=tags>pluginbroker-artifacts</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/pluginbroker-metadata-rhel8?tab=tags>pluginbroker-metadata</a></li>
   <li> <a href=https://quay.io/repository/devspaces/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
   <li> <a href=https://quay.io/repository/devspaces/server-rhel8?tab=tags>server</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> </li>
 
   </td><td>
 
+  <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> </li>
   <li> <a href=https://quay.io/repository/devspaces/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
   <li> <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
   <li> <a href=https://quay.io/repository/devspaces/traefik-rhel8?tab=tags>traefik</a> </li>
@@ -111,7 +104,7 @@ Images to copy to quay (18):
             } */
 
             parameters{ 
-                if (JB.equals("2.14") || JB.equals("2.15")) {
+                if (JB.equals("2.15")) {
                     textParam("CONTAINERS", '''\
 backup configbump operator operator-bundle operator-metadata \
 dashboard devfileregistry idea imagepuller jwtproxy \
@@ -123,13 +116,11 @@ theia theia-dev theia-endpoint traefik''', '''list of 29 containers to copy:<br/
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
                 } else { 
-                    // 2.16: TODO remove stacks and reduce image count to 19
                     textParam("CONTAINERS", '''\
 configbump operator operator-bundle dashboard devfileregistry \
-idea imagepuller jwtproxy machineexec pluginbroker-metadata \
-pluginbroker-artifacts pluginregistry server theia \
-theia-dev theia-endpoint traefik udi''', '''list of 18 containers to copy:<br/>
-* no 'crw/' or 'codeready-workspaces-' prefix><br/>
+idea imagepuller machineexec pluginregistry server theia \
+theia-dev theia-endpoint traefik udi''', '''list of 15 containers to copy:<br/>
+* no 'devspaces/' or 'devspaces-' prefix><br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
                 }
