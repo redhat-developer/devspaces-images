@@ -90,9 +90,9 @@ sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
     `# Strip registry from image references` \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    -e 's@/home/user/eclipse-che@/home/user/codeready@g' \
+    -e 's@/home/user/eclipse-che@/home/user/devspaces@g' \
 	`# insert logic to unpack asset-*.tgz` \
-    -e 's@ADD eclipse-che .+@# NOTE: To build in Brew, use get-source*.sh to build new server.tgz\nCOPY asset-server.tgz /tmp/asset-server.tgz\nRUN tar xzf /tmp/asset-server.tgz --strip-components=1 -C /home/user/codeready; rm -f /tmp/asset-server.tgz\n@g' \
+    -e 's@ADD eclipse-che .+@# NOTE: To build in Brew, use get-source*.sh to build new server.tgz\nCOPY asset-server.tgz /tmp/asset-server.tgz\nRUN tar xzf /tmp/asset-server.tgz --strip-components=1 -C /home/user/devspaces; rm -f /tmp/asset-server.tgz\n@g' \
     -e 's@chmod g\\+w /home/user/cacerts@chmod 777 /home/user/cacerts@g' \
 > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
