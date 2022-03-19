@@ -69,6 +69,8 @@ export const actionCreators: ActionCreators = {
           clusterConfig,
         });
 
+        clusterConfig.dashboardWarning =
+          '';
         if (clusterConfig.dashboardWarning) {
           dispatch(BannerAlertStore.actionCreators.addBanner(clusterConfig.dashboardWarning));
         }
