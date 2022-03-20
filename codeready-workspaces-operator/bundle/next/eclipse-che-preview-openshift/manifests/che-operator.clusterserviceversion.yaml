@@ -75,7 +75,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: codeready-workspaces-preview-openshift.v7.45.0-433.next
+  name: codeready-workspaces-preview-openshift.v7.46.0-439.next
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -972,23 +972,17 @@ spec:
                       - name: RELATED_IMAGE_devfile_registry
                         value: quay.io/eclipse/che-devfile-registry:next
                       - name: RELATED_IMAGE_pvc_jobs
-                        value: registry.access.redhat.com/ubi8-minimal:8.5-230.1645809059
+                        value: registry.access.redhat.com/ubi8-minimal:8.5-240
                       - name: RELATED_IMAGE_postgres
                         value: quay.io/eclipse/che--centos--postgresql-96-centos7:9.6-b681d78125361519180a6ac05242c296f8906c11eab7e207b5ca9a89b6344392
                       - name: RELATED_IMAGE_postgres_13_3
                         value: quay.io/eclipse/che--centos--postgresql-13-centos7:1-71b24684d64da46f960682cc4216222a7e4ed8b1a31dd5a865b3e71afdea20d2
-                      - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-                        value: quay.io/eclipse/che-plugin-metadata-broker:v3.4.0
-                      - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-                        value: quay.io/eclipse/che-plugin-artifacts-broker:v3.4.0
-                      - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-                        value: quay.io/eclipse/che-jwtproxy:0.10.0
                       - name: RELATED_IMAGE_single_host_gateway
                         value: quay.io/eclipse/che--traefik:v2.5.0-eb30f9f09a65cee1fab5ef9c64cb4ec91b800dc3fdd738d62a9d4334f0114683
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                         value: quay.io/che-incubator/configbump:0.1.4
                       - name: RELATED_IMAGE_devworkspace_controller
-                        value: quay.io/devfile/devworkspace-controller:v0.12.3
+                        value: quay.io/devfile/devworkspace-controller:v0.13.0
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
                         value: quay.io/openshift/origin-oauth-proxy:4.7
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
@@ -1009,8 +1003,6 @@ spec:
                         value: Red Hat Applications
                       - name: CONSOLE_LINK_IMAGE
                         value: /dashboard/assets/branding/loader.svg
-                      - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
-                        value: ca-certs
                       - name: MAX_CONCURRENT_RECONCILES
                         value: "1"
                       - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
@@ -1286,4 +1278,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.45.0-433.next
+  version: 7.46.0-439.next

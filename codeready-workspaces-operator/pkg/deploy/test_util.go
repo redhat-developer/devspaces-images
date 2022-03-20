@@ -43,6 +43,9 @@ func GetTestDeployContext(cheCluster *orgv1.CheCluster, initObjs []runtime.Objec
 				APIVersion: "org.eclipse.che/v1",
 				Kind:       "CheCluster",
 			},
+			Status: orgv1.CheClusterStatus{
+				CheURL: "che-host",
+			},
 		}
 	}
 

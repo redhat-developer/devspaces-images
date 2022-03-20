@@ -15,7 +15,6 @@ import (
 	"context"
 
 	"github.com/eclipse-che/che-operator/pkg/deploy"
-	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -64,11 +63,6 @@ func (s *CheServerReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Re
 		return reconcile.Result{}, false, err
 	}
 
-	done, err = s.updateCheURL(ctx)
-	if !done {
-		return reconcile.Result{}, false, err
-	}
-
 	done, err = s.updateCheVersion(ctx)
 	if !done {
 		return reconcile.Result{}, false, err
@@ -79,17 +73,6 @@ func (s *CheServerReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Re
 
 func (s *CheServerReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	return true
-}
-
-func (s CheServerReconciler) updateCheURL(ctx *deploy.DeployContext) (bool, error) {
-	var cheUrl = util.GetCheURL(ctx.CheCluster)
-	if ctx.CheCluster.Status.CheURL != cheUrl {
-		ctx.CheCluster.Status.CheURL = cheUrl
-		err := deploy.UpdateCheCRStatus(ctx, getComponentName(ctx)+" server URL", cheUrl)
-		return err == nil, err
-	}
-
-	return true, nil
 }
 
 func (s *CheServerReconciler) syncCheConfigMap(ctx *deploy.DeployContext) (bool, error) {
@@ -153,11 +136,11 @@ func (s *CheServerReconciler) updateAvailabilityStatus(ctx *deploy.DeployContext
 			if ctx.CheCluster.Status.CheClusterRunning != AvailableStatus {
 				cheFlavor := deploy.DefaultCheFlavor(ctx.CheCluster)
 				name := "CodeReady Workspaces"
-				if cheFlavor == "codeready" {
-					name = "CodeReady Workspaces"
+				if cheFlavor == "devspaces" {
+					name = "Red Hat OpenShift Dev Spaces"
 				}
 
-				logrus.Infof(name+" is now available at: %s", util.GetCheURL(ctx.CheCluster))
+				logrus.Infof(name+" is now available at: %s", ctx.CheCluster.Status.CheURL)
 				ctx.CheCluster.Status.CheClusterRunning = AvailableStatus
 				err := deploy.UpdateCheCRStatus(ctx, "status: Che API", AvailableStatus)
 				return err == nil, err

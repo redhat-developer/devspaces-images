@@ -53,13 +53,14 @@ var (
 )
 
 const (
-	DefaultChePostgresUser     = "pgche"
-	DefaultChePostgresHostName = "postgres"
-	DefaultChePostgresPort     = "5432"
-	DefaultChePostgresDb       = "dbche"
-	DefaultPvcStrategy         = "common"
-	DefaultPvcClaimSize        = "10Gi"
-	DefaultIngressClass        = "nginx"
+	DefaultChePostgresUser              = "pgche"
+	DefaultChePostgresHostName          = "postgres"
+	DefaultChePostgresPort              = "5432"
+	DefaultChePostgresDb                = "dbche"
+	DefaultPvcStrategy                  = "common"
+	DefaultPvcClaimSize                 = "10Gi"
+	DefaultIngressClass                 = "nginx"
+	DefaultChePostgresCredentialsSecret = "postgres-credentials"
 
 	DefaultCheLogLevel             = "INFO"
 	DefaultCheDebug                = "false"
@@ -159,7 +160,8 @@ const (
 	GitLabOAuthConfigClientIdFileName     = "id"
 	GitLabOAuthConfigClientSecretFileName = "secret"
 
-	InstallOrUpdateFailed = "InstallOrUpdateFailed"
+	InstallOrUpdateFailed                = "InstallOrUpdateFailed"
+	DefaultServerTrustStoreConfigMapName = "ca-certs"
 )
 
 func InitDefaults(defaultsPath string) {
@@ -186,9 +188,6 @@ func InitDefaultsFromFile(defaultsPath string) {
 	defaultSingleHostGatewayConfigSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_single_host_gateway_config_sidecar"))
 	defaultGatewayAuthenticationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
 	defaultGatewayAuthorizationSidecarImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
-	defaultCheWorkspacePluginBrokerMetadataImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_metadata"))
-	defaultCheWorkspacePluginBrokerArtifactsImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_artifacts"))
-	defaultCheServerSecureExposerJwtProxyImage = util.GetDeploymentEnv(operatorDeployment, util.GetArchitectureDependentEnv("RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"))
 
 	// Don't get some k8s specific env
 	if !util.IsOpenShift {
@@ -230,10 +229,6 @@ func getDefaultFromEnv(envName string) string {
 
 func IsComponentReadinessInitContainersConfigured(cr *orgv1.CheCluster) bool {
 	return os.Getenv("ADD_COMPONENT_READINESS_INIT_CONTAINERS") == "true"
-}
-
-func DefaultServerTrustStoreConfigMapName() string {
-	return getDefaultFromEnv("CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME")
 }
 
 func DefaultCheFlavor(cr *orgv1.CheCluster) string {
@@ -440,13 +435,6 @@ func InitDefaultsFromEnv() {
 	defaultGatewayAuthenticationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authentication_sidecar"))
 	defaultGatewayAuthorizationSidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_authorization_sidecar"))
 	// defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_gateway_header_sidecar"))
-
-	// CRW images for that are mentioned in the Che server che.properties
-	// For CRW these should be synced by hand with images stored in RH registries
-	// instead of being synced by script with the content of the upstream `che.properties` file
-	defaultCheWorkspacePluginBrokerMetadataImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_metadata"))
-	defaultCheWorkspacePluginBrokerArtifactsImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_workspace_plugin_broker_artifacts"))
-	defaultCheServerSecureExposerJwtProxyImage = getDefaultFromEnv(util.GetArchitectureDependentEnv("RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image"))
 
 	// Don't get some k8s specific env
 	if !util.IsOpenShift {
