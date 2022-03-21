@@ -39,7 +39,7 @@ done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
-if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 
 SOURCE_SHA=$(cd "$SOURCEDIR"; git rev-parse --short=4 HEAD)
 
@@ -58,12 +58,12 @@ bootstrap.Dockerfile
 asset-*
 " > /tmp/rsync-excludes
 
-sync_branding_to_crwimages() {
+sync_branding_to_dsimages() {
   echo "Rsync ${SOURCEDIR}/branding to ${TARGETDIR}/devspaces-theia"
   rsync -azrlt --checksum --delete "${SOURCEDIR}/conf/theia/branding" "${TARGETDIR}/devspaces-theia"
 }
 
-sync_build_scripts_to_crwimages() {
+sync_build_scripts_to_dsimages() {
   for targDir in theia-dev theia theia-endpoint; do
     echo "Rsync ${SOURCEDIR}/build, get-sources.sh and BUILD_* to ${TARGETDIR}/devspaces-${targDir}"
     rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes \
@@ -72,7 +72,7 @@ sync_build_scripts_to_crwimages() {
   done
 }
 
-sync_crwtheia_to_crwimages() {
+sync_dstheia_to_dsimages() {
   for targDir in theia-dev theia theia-endpoint; do
     sourceDir=${targDir};
     # TODO can we rename this in build.sh?
@@ -88,9 +88,9 @@ sync_crwtheia_to_crwimages() {
 }
 
 # sync build scripts, then dockerfiles/* folders
-sync_branding_to_crwimages
-sync_build_scripts_to_crwimages
-sync_crwtheia_to_crwimages
+sync_branding_to_dsimages
+sync_build_scripts_to_dsimages
+sync_dstheia_to_dsimages
 
 pushd "${TARGETDIR}" >/dev/null || exit 1
   # commit changed files to this repo
