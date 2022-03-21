@@ -13,7 +13,7 @@
 
 # Builder: check meta.yamls and create index.json
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM ubi8/python-38:1-86 as builder
+FROM ubi8/python-38:1-86.1647529309 as builder
 USER 0
 
 ARG BOOTSTRAP=false
@@ -86,7 +86,7 @@ RUN sed -i /etc/httpd/conf/httpd.conf \
     chmod a+rwX /etc/httpd/conf /run/httpd /etc/httpd/logs/
 STOPSIGNAL SIGWINCH
 
-ARG CRW_BRANCH=devspaces-3-rhel-8
+ARG CRW_BRANCH=devspaces-3.0-rhel-8
 ENV CRW_BRANCH=${CRW_BRANCH}
 
 WORKDIR /var/www/html
