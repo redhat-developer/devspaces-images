@@ -22,6 +22,7 @@ import (
 
 type CheHostReconciler struct {
 	deploy.Reconcilable
+	defaultCheHost string
 }
 
 func NewCheHostReconciler() *CheHostReconciler {
@@ -29,17 +30,20 @@ func NewCheHostReconciler() *CheHostReconciler {
 }
 
 func (s *CheHostReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
+	if util.IsOpenShift && s.defaultCheHost == "" {
+		done, defaultCheHost, err := s.getDefaultCheHost(ctx)
+		if !done {
+			return reconcile.Result{}, false, err
+		}
+		s.defaultCheHost = defaultCheHost
+	}
+
 	done, err := s.syncCheService(ctx)
 	if !done {
 		return reconcile.Result{}, false, err
 	}
 
-	cheHost, done, err := s.exposeCheEndpoint(ctx)
-	if !done {
-		return reconcile.Result{}, false, err
-	}
-
-	done, err = s.updateCheURL(cheHost, ctx)
+	done, err = s.exposeCheEndpoint(ctx)
 	if !done {
 		return reconcile.Result{}, false, err
 	}
@@ -51,6 +55,29 @@ func (s *CheHostReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	return true
 }
 
+func (s *CheHostReconciler) getDefaultCheHost(ctx *deploy.DeployContext) (bool, string, error) {
+	done, err := deploy.SyncRouteToCluster(
+		ctx,
+		getComponentName(ctx),
+		"",
+		"/",
+		gateway.GatewayServiceName,
+		8080,
+		ctx.CheCluster.Spec.Server.CheServerRoute,
+		getComponentName(ctx))
+	if !done {
+		return false, "", err
+	}
+
+	route := &routev1.Route{}
+	exists, err := deploy.GetNamespacedObject(ctx, getComponentName(ctx), route)
+	if !exists {
+		return false, "", err
+	}
+
+	return true, route.Spec.Host, nil
+}
+
 func (s *CheHostReconciler) syncCheService(ctx *deploy.DeployContext) (bool, error) {
 	portName := []string{"http"}
 	portNumber := []int32{8080}
@@ -60,8 +87,7 @@ func (s *CheHostReconciler) syncCheService(ctx *deploy.DeployContext) (bool, err
 		portNumber = append(portNumber, deploy.DefaultCheMetricsPort)
 	}
 
-	cheDebug := util.GetValue(ctx.CheCluster.Spec.Server.CheDebug, deploy.DefaultCheDebug)
-	if cheDebug == "true" {
+	if ctx.CheCluster.Spec.Server.CheDebug == "true" {
 		portName = append(portName, "debug")
 		portNumber = append(portNumber, deploy.DefaultCheDebugPort)
 	}
@@ -70,7 +96,9 @@ func (s *CheHostReconciler) syncCheService(ctx *deploy.DeployContext) (bool, err
 	return deploy.Sync(ctx, spec, deploy.ServiceDefaultDiffOpts)
 }
 
-func (s CheHostReconciler) exposeCheEndpoint(ctx *deploy.DeployContext) (string, bool, error) {
+func (s CheHostReconciler) exposeCheEndpoint(ctx *deploy.DeployContext) (bool, error) {
+	cheHost := ""
+
 	if !util.IsOpenShift {
 		_, done, err := deploy.SyncIngressToCluster(
 			ctx,
@@ -82,45 +110,51 @@ func (s CheHostReconciler) exposeCheEndpoint(ctx *deploy.DeployContext) (string,
 			ctx.CheCluster.Spec.Server.CheServerIngress,
 			getComponentName(ctx))
 		if !done {
-			return "", false, err
+			return false, err
 		}
 
 		ingress := &networking.Ingress{}
 		exists, err := deploy.GetNamespacedObject(ctx, getComponentName(ctx), ingress)
 		if !exists {
-			return "", false, err
+			return false, err
 		}
 
-		return ingress.Spec.Rules[0].Host, true, nil
+		cheHost = ingress.Spec.Rules[0].Host
+	} else {
+		customHost := ctx.CheCluster.Spec.Server.CheHost
+		if s.defaultCheHost == customHost {
+			// let OpenShift set a hostname by itself since it requires a routes/custom-host permissions
+			customHost = ""
+		}
+
+		done, err := deploy.SyncRouteToCluster(
+			ctx,
+			getComponentName(ctx),
+			customHost,
+			"/",
+			gateway.GatewayServiceName,
+			8080,
+			ctx.CheCluster.Spec.Server.CheServerRoute,
+			getComponentName(ctx))
+		if !done {
+			return false, err
+		}
+
+		route := &routev1.Route{}
+		exists, err := deploy.GetNamespacedObject(ctx, getComponentName(ctx), route)
+		if !exists {
+			return false, err
+		}
+
+		if customHost == "" {
+			s.defaultCheHost = route.Spec.Host
+		}
+		cheHost = route.Spec.Host
 	}
 
-	done, err := deploy.SyncRouteToCluster(
-		ctx,
-		getComponentName(ctx),
-		ctx.CheCluster.Spec.Server.CheHost,
-		"/",
-		gateway.GatewayServiceName,
-		8080,
-		ctx.CheCluster.Spec.Server.CheServerRoute,
-		getComponentName(ctx))
-	if !done {
-		return "", false, err
-	}
-
-	route := &routev1.Route{}
-	exists, err := deploy.GetNamespacedObject(ctx, getComponentName(ctx), route)
-	if !exists {
-		return "", false, err
-	}
-
-	return route.Spec.Host, true, nil
-}
-
-func (s CheHostReconciler) updateCheURL(cheHost string, ctx *deploy.DeployContext) (bool, error) {
-	var cheUrl = "https://" + cheHost
-	if ctx.CheCluster.Status.CheURL != cheUrl {
-		ctx.CheCluster.Status.CheURL = cheUrl
-		err := deploy.UpdateCheCRStatus(ctx, getComponentName(ctx)+" server URL", cheUrl)
+	if ctx.CheCluster.Spec.Server.CheHost != cheHost {
+		ctx.CheCluster.Spec.Server.CheHost = cheHost
+		err := deploy.UpdateCheCRSpec(ctx, "CheHost URL", cheHost)
 		return err == nil, err
 	}
 

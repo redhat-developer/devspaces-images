@@ -69,11 +69,8 @@ func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
 						ExternalDevfileRegistry: false,
 					},
 				},
-				Status: orgv1.CheClusterStatus{
-					CheURL: "https://che-host",
-				},
 			},
-			expectedDevfileRegistryURL: "https://che-host/devfile-registry",
+			expectedDevfileRegistryURL: "https:///devfile-registry",
 		},
 		{
 			name: "Test Status.DevfileRegistryURL #2",
@@ -95,11 +92,8 @@ func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
 						},
 					},
 				},
-				Status: orgv1.CheClusterStatus{
-					CheURL: "https://che-host",
-				},
 			},
-			expectedDevfileRegistryURL: "https://che-host/devfile-registry",
+			expectedDevfileRegistryURL: "https:///devfile-registry",
 		},
 		{
 			name: "Test Status.DevfileRegistryURL #2",
@@ -120,9 +114,6 @@ func TestShouldSetUpCorrectlyDevfileRegistryURL(t *testing.T) {
 							{Url: "https://devfile-registry.external.2"},
 						},
 					},
-				},
-				Status: orgv1.CheClusterStatus{
-					CheURL: "https://che-host",
 				},
 			},
 			expectedDevfileRegistryURL: "",

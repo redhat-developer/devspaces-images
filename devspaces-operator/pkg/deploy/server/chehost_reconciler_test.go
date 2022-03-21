@@ -96,7 +96,7 @@ func TestConfiguringLabelsForRoutes(t *testing.T) {
 	ctx := deploy.GetTestDeployContext(cheCluster, []runtime.Object{})
 
 	server := NewCheHostReconciler()
-	_, done, err := server.exposeCheEndpoint(ctx)
+	done, err := server.exposeCheEndpoint(ctx)
 	assert.True(t, done)
 	assert.Nil(t, err)
 
@@ -104,24 +104,4 @@ func TestConfiguringLabelsForRoutes(t *testing.T) {
 	err = ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Name: getComponentName(ctx), Namespace: "eclipse-che"}, route)
 	assert.Nil(t, err)
 	assert.Equal(t, route.ObjectMeta.Labels["route"], "one")
-}
-
-func TestCheHostReconciler(t *testing.T) {
-	util.IsOpenShift = true
-
-	cheCluster := &orgv1.CheCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "eclipse-che",
-			Name:      "eclipse-che",
-		},
-	}
-	ctx := deploy.GetTestDeployContext(cheCluster, []runtime.Object{})
-
-	cheHostReconciler := NewCheHostReconciler()
-	_, done, err := cheHostReconciler.Reconcile(ctx)
-	assert.True(t, done)
-	assert.Nil(t, err)
-	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: getComponentName(ctx), Namespace: "eclipse-che"}, &routev1.Route{}))
-	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: deploy.CheServiceName, Namespace: "eclipse-che"}, &corev1.Service{}))
-	assert.NotEmpty(t, cheCluster.Status.CheURL)
 }

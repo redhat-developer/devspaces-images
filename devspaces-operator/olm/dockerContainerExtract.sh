@@ -41,7 +41,7 @@ ${PODMAN} pull $container 2>&1
 # create local container
 ${PODMAN} rm -f "${tmpcontainer}" 2>&1 >/dev/null || true
 # use sh for regular containers or ls for scratch containers
-${PODMAN} create --name="${tmpcontainer}" $container sh 2>&1 >/dev/null || ${PODMAN} create --name="${tmpcontainer}" $container ls 2>&1 >/dev/null 
+${PODMAN} create --name="${tmpcontainer}" $container sh 2>&1 >/dev/null || ${PODMAN} create --name="${tmpcontainer}" $container ls 2>&1 >/dev/null
 
 # export and unpack
 ${PODMAN} export "${tmpcontainer}" > /tmp/${tmpcontainer}.tar

@@ -18,8 +18,6 @@ package v1
 // - update `config/crd/bases/org_v1_checluster_crd.yaml` file;
 
 import (
-	"strings"
-
 	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/api/v1alpha1"
 	v2alpha1 "github.com/eclipse-che/che-operator/api/v2alpha1"
 	corev1 "k8s.io/api/core/v1"
@@ -50,10 +48,6 @@ type CheClusterSpec struct {
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Persistent storage"
 	Storage CheClusterSpecStorage `json:"storage"`
-	// Configuration settings related to the User Dashboard used by the Che installation.
-	// +optional
-	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="User Dashboard"
-	Dashboard CheClusterSpecDashboard `json:"dashboard"`
 	// Configuration settings related to the metrics collection used by the Che installation.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Metrics"
@@ -392,7 +386,7 @@ type CheClusterSpecDB struct {
 	// When the secret is defined, the `chePostgresUser` and `chePostgresPassword` are ignored.
 	// When the value is omitted or left blank, the one of following scenarios applies:
 	// 1. `chePostgresUser` and `chePostgresPassword` are defined, then they will be used to connect to the DB.
-	// 2. `chePostgresUser` or `chePostgresPassword` are not defined, then a new secret with the name `postgres-credentials`
+	// 2. `chePostgresUser` or `chePostgresPassword` are not defined, then a new secret with the name `che-postgres-secret`
 	// will be created with default value of `pgche` for `user` and with an auto-generated value for `password`.
 	// The secret must have `app.kubernetes.io/part-of=che.eclipse.org` label.
 	// +optional
@@ -600,14 +594,6 @@ type Resources struct {
 }
 
 // +k8s:openapi-gen=true
-// Configuration settings related to the User Dashboard used by the Che installation.
-type CheClusterSpecDashboard struct {
-	// Warning message that will be displayed on the User Dashboard
-	// +optional
-	Warning string `json:"warning,omitempty"`
-}
-
-// +k8s:openapi-gen=true
 // Configuration settings related to the persistent storage used by the Che installation.
 type CheClusterSpecStorage struct {
 	// Persistent volume claim strategy for the Che server. This Can be:`common` (all workspaces PVCs in one volume),
@@ -706,9 +692,6 @@ type CheClusterSpecDevWorkspace struct {
 	// This includes the image tag. Omit it or leave it empty to use the default container image provided by the Operator.
 	// +optional
 	ControllerImage string `json:"controllerImage,omitempty"`
-	// Maximum number of the running workspaces per user.
-	// +optional
-	RunningLimit string `json:"runningLimit,omitempty"`
 }
 
 // +k8s:openapi-gen=true
@@ -844,8 +827,4 @@ func (c *CheCluster) IsImagePullerSpecEmpty() bool {
 
 func (c *CheCluster) IsImagePullerImagesEmpty() bool {
 	return len(c.Spec.ImagePuller.Spec.Images) == 0
-}
-
-func (c *CheCluster) GetCheHost() string {
-	return strings.TrimPrefix(c.Status.CheURL, "https://")
 }

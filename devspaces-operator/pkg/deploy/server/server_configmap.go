@@ -91,6 +91,7 @@ type CheConfigMap struct {
 // GetCheConfigMapData gets env values from CR spec and returns a map with key:value
 // which is used in CheCluster ConfigMap to configure CheCluster master behavior
 func (s *CheServerReconciler) getCheConfigMapData(ctx *deploy.DeployContext) (cheEnv map[string]string, err error) {
+	cheHost := ctx.CheCluster.Spec.Server.CheHost
 	identityProviderURL := ctx.CheCluster.Spec.Auth.IdentityProviderURL
 
 	infra := "kubernetes"
@@ -161,7 +162,7 @@ func (s *CheServerReconciler) getCheConfigMapData(ctx *deploy.DeployContext) (ch
 	singleHostGatewayConfigMapLabels := labels.FormatLabels(util.GetMapValue(ctx.CheCluster.Spec.Server.SingleHostGatewayConfigMapLabels, deploy.DefaultSingleHostGatewayConfigMapLabels))
 	workspaceNamespaceDefault := deploy.GetWorkspaceNamespaceDefault(ctx.CheCluster)
 
-	cheAPI := ctx.CheCluster.Status.CheURL + "/api"
+	cheAPI := "https://" + cheHost + "/api"
 	var pluginRegistryInternalURL, devfileRegistryInternalURL string
 
 	// If there is a devfile registry deployed by operator
@@ -175,13 +176,13 @@ func (s *CheServerReconciler) getCheConfigMapData(ctx *deploy.DeployContext) (ch
 
 	cheInternalAPI := fmt.Sprintf("http://%s.%s.svc:8080/api", deploy.CheServiceName, ctx.CheCluster.Namespace)
 	webSocketInternalEndpoint := fmt.Sprintf("ws://%s.%s.svc:8080/api/websocket", deploy.CheServiceName, ctx.CheCluster.Namespace)
-	webSocketEndpoint := "wss://" + ctx.CheCluster.GetCheHost() + "/api/websocket"
+	webSocketEndpoint := "wss://" + cheHost + "/api/websocket"
 	cheWorkspaceServiceAccount := "NULL"
 	cheUserClusterRoleNames := fmt.Sprintf("%s-cheworkspaces-clusterrole, %s-cheworkspaces-devworkspace-clusterrole", ctx.CheCluster.Namespace, ctx.CheCluster.Namespace)
 
 	data := &CheConfigMap{
 		CheMultiUser:                           "true",
-		CheHost:                                ctx.CheCluster.GetCheHost(),
+		CheHost:                                cheHost,
 		ChePort:                                "8080",
 		CheApi:                                 cheAPI,
 		CheApiInternal:                         cheInternalAPI,
@@ -231,6 +232,10 @@ func (s *CheServerReconciler) getCheConfigMapData(ctx *deploy.DeployContext) (ch
 
 	data.IdentityProviderUrl = identityProviderURL
 	data.DatabaseURL = "jdbc:postgresql://" + chePostgresHostName + ":" + chePostgresPort + "/" + chePostgresDb
+	if len(ctx.CheCluster.Spec.Database.ChePostgresSecret) < 1 {
+		data.DbUserName = ctx.CheCluster.Spec.Database.ChePostgresUser
+		data.DbPassword = ctx.CheCluster.Spec.Database.ChePostgresPassword
+	}
 
 	out, err := json.Marshal(data)
 	if err != nil {

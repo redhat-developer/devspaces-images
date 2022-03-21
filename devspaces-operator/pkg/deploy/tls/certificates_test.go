@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-func TestSyncGivenTrustStoreConfigMapToCluster(t *testing.T) {
+func TestSyncTrustStoreConfigMapToCluster(t *testing.T) {
 	checluster := &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "eclipse-che",
@@ -40,7 +40,7 @@ func TestSyncGivenTrustStoreConfigMapToCluster(t *testing.T) {
 	ctx := deploy.GetTestDeployContext(checluster, []runtime.Object{})
 
 	certificates := NewCertificatesReconciler()
-	done, err := certificates.syncTrustStoreConfigMapToCluster(ctx)
+	_, done, err := certificates.syncTrustStoreConfigMapToCluster(ctx)
 	assert.Nil(t, err)
 	assert.True(t, done)
 
@@ -50,30 +50,10 @@ func TestSyncGivenTrustStoreConfigMapToCluster(t *testing.T) {
 	assert.Equal(t, trustStoreConfigMap.ObjectMeta.Labels[injector], "true")
 }
 
-func TestSyncDefaultTrustStoreConfigMapToCluster(t *testing.T) {
-	checluster := &orgv1.CheCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: "eclipse-che",
-			Name:      "eclipse-che",
-		},
-	}
-	ctx := deploy.GetTestDeployContext(checluster, []runtime.Object{})
-
-	certificates := NewCertificatesReconciler()
-	done, err := certificates.syncTrustStoreConfigMapToCluster(ctx)
-	assert.Nil(t, err)
-	assert.True(t, done)
-
-	trustStoreConfigMap := &corev1.ConfigMap{}
-	err = ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Name: "ca-certs", Namespace: "eclipse-che"}, trustStoreConfigMap)
-	assert.Nil(t, err)
-	assert.Equal(t, trustStoreConfigMap.ObjectMeta.Labels[injector], "true")
-}
-
 func TestSyncExistedTrustStoreConfigMapToCluster(t *testing.T) {
 	trustStoreConfigMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "ca-certs",
+			Name:      "trust",
 			Namespace: "eclipse-che",
 			Labels:    map[string]string{"a": "b"},
 		},
@@ -84,15 +64,20 @@ func TestSyncExistedTrustStoreConfigMapToCluster(t *testing.T) {
 			Namespace: "eclipse-che",
 			Name:      "eclipse-che",
 		},
+		Spec: orgv1.CheClusterSpec{
+			Server: orgv1.CheClusterSpecServer{
+				ServerTrustStoreConfigMapName: "trust",
+			},
+		},
 	}
 	ctx := deploy.GetTestDeployContext(checluster, []runtime.Object{trustStoreConfigMap})
 
 	certificates := NewCertificatesReconciler()
-	done, err := certificates.syncTrustStoreConfigMapToCluster(ctx)
+	_, done, err := certificates.syncTrustStoreConfigMapToCluster(ctx)
 	assert.Nil(t, err)
 	assert.True(t, done)
 
-	err = ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Name: "ca-certs", Namespace: "eclipse-che"}, trustStoreConfigMap)
+	err = ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Name: "trust", Namespace: "eclipse-che"}, trustStoreConfigMap)
 	assert.Nil(t, err)
 	assert.Equal(t, trustStoreConfigMap.ObjectMeta.Labels[injector], "true")
 	assert.Equal(t, trustStoreConfigMap.ObjectMeta.Labels["a"], "b")
@@ -127,7 +112,7 @@ func TestSyncAdditionalCACertsConfigMapToCluster(t *testing.T) {
 	ctx := deploy.GetTestDeployContext(nil, []runtime.Object{cert1})
 
 	certificates := NewCertificatesReconciler()
-	done, err := certificates.syncAdditionalCACertsConfigMapToCluster(ctx)
+	_, done, err := certificates.syncAdditionalCACertsConfigMapToCluster(ctx)
 	assert.Nil(t, err)
 	assert.True(t, done)
 
@@ -141,11 +126,11 @@ func TestSyncAdditionalCACertsConfigMapToCluster(t *testing.T) {
 	assert.Nil(t, err)
 
 	// check ca-cert-merged
-	done, err = certificates.syncAdditionalCACertsConfigMapToCluster(ctx)
+	_, done, err = certificates.syncAdditionalCACertsConfigMapToCluster(ctx)
 	assert.Nil(t, err)
 	assert.False(t, done)
 
-	done, err = certificates.syncAdditionalCACertsConfigMapToCluster(ctx)
+	_, done, err = certificates.syncAdditionalCACertsConfigMapToCluster(ctx)
 	assert.Nil(t, err)
 	assert.True(t, done)
 

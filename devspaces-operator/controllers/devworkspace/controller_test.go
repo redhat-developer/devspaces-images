@@ -567,9 +567,7 @@ func TestExternalGatewayDetection(t *testing.T) {
 }
 
 func asV1(v2Obj *v2alpha1.CheCluster) *v1.CheCluster {
-	v1 := checluster.AsV1(v2Obj)
-	v1.Status.CheURL = "https://" + v1.Spec.Server.CheHost
-	return v1
+	return checluster.AsV1(v2Obj)
 }
 
 func onKubernetes(f func()) {

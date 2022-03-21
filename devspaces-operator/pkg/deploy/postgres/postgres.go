@@ -19,7 +19,6 @@ import (
 	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
-	corev1 "k8s.io/api/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -36,12 +35,7 @@ func (p *PostgresReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Res
 		return reconcile.Result{}, true, nil
 	}
 
-	done, err := p.syncCredentials(ctx)
-	if !done {
-		return reconcile.Result{}, false, err
-	}
-
-	done, err = p.syncService(ctx)
+	done, err := p.syncService(ctx)
 	if !done {
 		return reconcile.Result{}, false, err
 	}
@@ -124,23 +118,6 @@ func (p *PostgresReconciler) setDbVersion(ctx *deploy.DeployContext) (bool, erro
 	err = deploy.UpdateCheCRSpec(ctx, "database.postgresVersion", postgresVersion)
 	if err != nil {
 		return false, err
-	}
-
-	return true, nil
-}
-
-// Create secret with PostgreSQL credentials.
-func (p *PostgresReconciler) syncCredentials(ctx *deploy.DeployContext) (bool, error) {
-	postgresCredentialsSecretRef := util.GetValue(ctx.CheCluster.Spec.Database.ChePostgresSecret, deploy.DefaultChePostgresCredentialsSecret)
-	exists, err := deploy.GetNamespacedObject(ctx, postgresCredentialsSecretRef, &corev1.Secret{})
-	if err != nil {
-		return false, err
-	}
-
-	if !exists {
-		postgresUser := util.GetValue(ctx.CheCluster.Spec.Database.ChePostgresUser, deploy.DefaultChePostgresUser)
-		postgresPassword := util.GetValue(ctx.CheCluster.Spec.Database.ChePostgresPassword, util.GeneratePasswd(12))
-		return deploy.SyncSecretToCluster(ctx, postgresCredentialsSecretRef, ctx.CheCluster.Namespace, map[string][]byte{"user": []byte(postgresUser), "password": []byte(postgresPassword)})
 	}
 
 	return true, nil

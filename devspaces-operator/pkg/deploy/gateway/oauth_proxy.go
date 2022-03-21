@@ -25,14 +25,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func getGatewayOauthProxyConfigSpec(ctx *deploy.DeployContext, cookieSecret string) corev1.ConfigMap {
-	instance := ctx.CheCluster
-
+func getGatewayOauthProxyConfigSpec(instance *orgv1.CheCluster, cookieSecret string) corev1.ConfigMap {
 	var config string
 	if util.IsOpenShift {
-		config = openshiftOauthProxyConfig(ctx, cookieSecret)
+		config = openshiftOauthProxyConfig(instance, cookieSecret)
 	} else {
-		config = kubernetesOauthProxyconfig(ctx, cookieSecret)
+		config = kubernetesOauthProxyconfig(instance, cookieSecret)
 	}
 	return corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
@@ -50,7 +48,7 @@ func getGatewayOauthProxyConfigSpec(ctx *deploy.DeployContext, cookieSecret stri
 	}
 }
 
-func openshiftOauthProxyConfig(ctx *deploy.DeployContext, cookieSecret string) string {
+func openshiftOauthProxyConfig(instance *orgv1.CheCluster, cookieSecret string) string {
 	return fmt.Sprintf(`
 http_address = ":%d"
 https_address = ""
@@ -71,15 +69,15 @@ pass_access_token = true
 skip_provider_button = true
 %s
 `, GatewayServicePort,
-		ctx.CheCluster.GetCheHost(),
-		ctx.CheCluster.Spec.Auth.OAuthClientName,
-		ctx.CheCluster.Spec.Auth.OAuthSecret,
+		instance.Spec.Server.CheHost,
+		instance.Spec.Auth.OAuthClientName,
+		instance.Spec.Auth.OAuthSecret,
 		GatewayServiceName,
 		cookieSecret,
-		skipAuthConfig(ctx.CheCluster))
+		skipAuthConfig(instance))
 }
 
-func kubernetesOauthProxyconfig(ctx *deploy.DeployContext, cookieSecret string) string {
+func kubernetesOauthProxyconfig(instance *orgv1.CheCluster, cookieSecret string) string {
 	return fmt.Sprintf(`
 proxy_prefix = "/oauth"
 http_address = ":%d"
@@ -102,12 +100,12 @@ pass_authorization_header = true
 skip_provider_button = true
 %s
 `, GatewayServicePort,
-		ctx.CheCluster.GetCheHost(),
-		ctx.CheCluster.Spec.Auth.IdentityProviderURL,
-		ctx.CheCluster.Spec.Auth.OAuthClientName,
-		ctx.CheCluster.Spec.Auth.OAuthSecret,
+		instance.Spec.Server.CheHost,
+		instance.Spec.Auth.IdentityProviderURL,
+		instance.Spec.Auth.OAuthClientName,
+		instance.Spec.Auth.OAuthSecret,
 		cookieSecret,
-		skipAuthConfig(ctx.CheCluster))
+		skipAuthConfig(instance))
 }
 
 func skipAuthConfig(instance *orgv1.CheCluster) string {

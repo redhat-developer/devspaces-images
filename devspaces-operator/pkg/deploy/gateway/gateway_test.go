@@ -142,16 +142,12 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	util.IsOpenShift4 = true
 
 	t.Run("no skip auth", func(t *testing.T) {
-		ctx := &deploy.DeployContext{
-			CheCluster: &orgv1.CheCluster{
-				Spec: orgv1.CheClusterSpec{
-					Server: orgv1.CheClusterSpecServer{
-						ExternalDevfileRegistry: true,
-						ExternalPluginRegistry:  true,
-					}}},
-		}
-
-		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
+		configmap := getGatewayOauthProxyConfigSpec(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: true,
+					ExternalPluginRegistry:  true,
+				}}}, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
 		if !strings.Contains(config, "skip_auth_regex = \"/healthz$\"") {
 			t.Errorf("oauth config shold not contain any skip auth when both registries are external")
@@ -159,16 +155,13 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("no devfile-registry auth", func(t *testing.T) {
-		ctx := &deploy.DeployContext{
-			CheCluster: &orgv1.CheCluster{
-				Spec: orgv1.CheClusterSpec{
-					Server: orgv1.CheClusterSpecServer{
-						ExternalDevfileRegistry: false,
-						ExternalPluginRegistry:  true,
-					}}},
-		}
-
-		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
+		util.IsOpenShift = true
+		configmap := getGatewayOauthProxyConfigSpec(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: false,
+					ExternalPluginRegistry:  true,
+				}}}, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
 		if !strings.Contains(config, "skip_auth_regex = \"^/devfile-registry|/healthz$\"") {
 			t.Error("oauth config should skip auth for devfile registry", config)
@@ -176,16 +169,12 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("skip plugin-registry auth", func(t *testing.T) {
-		ctx := &deploy.DeployContext{
-			CheCluster: &orgv1.CheCluster{
-				Spec: orgv1.CheClusterSpec{
-					Server: orgv1.CheClusterSpecServer{
-						ExternalDevfileRegistry: true,
-						ExternalPluginRegistry:  false,
-					}}},
-		}
-
-		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
+		configmap := getGatewayOauthProxyConfigSpec(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: true,
+					ExternalPluginRegistry:  false,
+				}}}, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
 		if !strings.Contains(config, "skip_auth_regex = \"^/plugin-registry|/healthz$\"") {
 			t.Error("oauth config should skip auth for plugin registry", config)
@@ -193,16 +182,12 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("skip both registries auth", func(t *testing.T) {
-		ctx := &deploy.DeployContext{
-			CheCluster: &orgv1.CheCluster{
-				Spec: orgv1.CheClusterSpec{
-					Server: orgv1.CheClusterSpecServer{
-						ExternalDevfileRegistry: false,
-						ExternalPluginRegistry:  false,
-					}}},
-		}
-
-		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
+		configmap := getGatewayOauthProxyConfigSpec(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: false,
+					ExternalPluginRegistry:  false,
+				}}}, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
 		if !strings.Contains(config, "skip_auth_regex = \"^/plugin-registry|^/devfile-registry|/healthz$\"") {
 			t.Error("oauth config should skip auth for plugin and devfile registry.", config)
@@ -210,12 +195,8 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("skip '/healthz' path", func(t *testing.T) {
-		ctx := &deploy.DeployContext{
-			CheCluster: &orgv1.CheCluster{
-				Spec: orgv1.CheClusterSpec{}},
-		}
-
-		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
+		configmap := getGatewayOauthProxyConfigSpec(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{}}, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
 		assert.Contains(t, config, "/healthz$")
 	})

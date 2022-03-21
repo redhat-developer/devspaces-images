@@ -74,7 +74,7 @@ func (c *ConsoleLinkReconciler) createConsoleLink(ctx *deploy.DeployContext) (bo
 	}
 
 	// consolelink is for this specific instance of Red Hat OpenShift Dev Spaces
-	if strings.Index(consoleLink.Spec.Link.Href, ctx.CheCluster.GetCheHost()) != -1 {
+	if strings.Index(consoleLink.Spec.Link.Href, ctx.CheCluster.Spec.Server.CheHost) != -1 {
 		err = deploy.AppendFinalizer(ctx, ConsoleLinkFinalizerName)
 		return err == nil, err
 	}
@@ -83,6 +83,7 @@ func (c *ConsoleLinkReconciler) createConsoleLink(ctx *deploy.DeployContext) (bo
 }
 
 func (c *ConsoleLinkReconciler) getConsoleLinkSpec(ctx *deploy.DeployContext) *consolev1.ConsoleLink {
+	cheHost := ctx.CheCluster.Spec.Server.CheHost
 	consoleLink := &consolev1.ConsoleLink{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConsoleLink",
@@ -96,12 +97,12 @@ func (c *ConsoleLinkReconciler) getConsoleLinkSpec(ctx *deploy.DeployContext) *c
 		},
 		Spec: consolev1.ConsoleLinkSpec{
 			Link: consolev1.Link{
-				Href: ctx.CheCluster.Status.CheURL,
+				Href: "https://" + cheHost,
 				Text: deploy.DefaultConsoleLinkDisplayName()},
 			Location: consolev1.ApplicationMenu,
 			ApplicationMenu: &consolev1.ApplicationMenuSpec{
 				Section:  deploy.DefaultConsoleLinkSection(),
-				ImageURL: fmt.Sprintf("https://%s%s", ctx.CheCluster.GetCheHost(), deploy.DefaultConsoleLinkImage()),
+				ImageURL: fmt.Sprintf("https://%s%s", cheHost, deploy.DefaultConsoleLinkImage()),
 			},
 		},
 	}
