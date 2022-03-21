@@ -1,6 +1,6 @@
 {
   "Purpose": "To set configurations of jenkins jobs including upstream branches, dependencies and disabled status",
-  "Version": 3.1,
+  "Version": "3.0",
   "Jobs": {
     "backup": {
       "2.15": {
@@ -26,13 +26,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "main",
@@ -47,7 +40,7 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "upstream_branch": [
@@ -55,13 +48,6 @@
           "7.43.x"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -86,13 +72,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "main",
@@ -108,6 +87,20 @@
           "7.41.x"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "7.44.x",
+          "7.43.x"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "main",
+          "main"
+        ],
+        "disabled": false
       }
     },
     "machineexec": {
@@ -125,13 +118,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "main",
@@ -146,7 +132,7 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "upstream_branch": [
@@ -154,13 +140,6 @@
           "7.43.x"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -185,13 +164,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "main",
@@ -214,13 +186,6 @@
           "7.43.x"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -245,13 +210,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "main",
@@ -274,13 +232,6 @@
           "7.43.x"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -305,13 +256,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "devspaces-3.1-rhel-8",
-          "devspaces-3.1-rhel-8"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "devspaces-3-rhel-8",
@@ -334,13 +278,6 @@
           "devspaces-3.0-rhel-8"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "devspaces-3.1-rhel-8",
-          "devspaces-3.1-rhel-8"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -393,6 +330,20 @@
           "crw-2.15-rhel-8"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "devspaces-3.0-rhel-8",
+          "devspaces-3.0-rhel-8"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "devspaces-3-rhel-8",
+          "devspaces-3-rhel-8"
+        ],
+        "disabled": false
       }
     },
     "stacks-dotnet": {
@@ -402,6 +353,20 @@
           "crw-2.15-rhel-8"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "devspaces-3.0-rhel-8",
+          "devspaces-3.0-rhel-8"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "devspaces-3-rhel-8",
+          "devspaces-3-rhel-8"
+        ],
+        "disabled": false
       }
     },
     "stacks-golang": {
@@ -411,6 +376,20 @@
           "crw-2.15-rhel-8"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "devspaces-3.0-rhel-8",
+          "devspaces-3.0-rhel-8"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "devspaces-3-rhel-8",
+          "devspaces-3-rhel-8"
+        ],
+        "disabled": false
       }
     },
     "stacks-php": {
@@ -420,6 +399,20 @@
           "crw-2.15-rhel-8"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "devspaces-3.0-rhel-8",
+          "devspaces-3.0-rhel-8"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "devspaces-3-rhel-8",
+          "devspaces-3-rhel-8"
+        ],
+        "disabled": false
       }
     },
     "pluginbroker-artifacts": {
@@ -429,6 +422,20 @@
           "v3.4.x"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "v3.4.x",
+          "v3.4.x"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "v3.4.x",
+          "v3.4.x"
+        ],
+        "disabled": false
       }
     },
     "pluginbroker-metadata": {
@@ -438,6 +445,20 @@
           "v3.4.x"
         ],
         "disabled": true
+      },
+      "3.0": {
+        "upstream_branch": [
+          "v3.4.x",
+          "v3.4.x"
+        ],
+        "disabled": false
+      },
+      "3.x": {
+        "upstream_branch": [
+          "v3.4.x",
+          "v3.4.x"
+        ],
+        "disabled": false
       }
     },
     "idea": {
@@ -454,13 +475,6 @@
           "20210728"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "20210728",
-          "20210728"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -485,13 +499,6 @@
         ],
         "disabled": false
       },
-      "3.1": {
-        "upstream_branch": [
-          "v2.5.0",
-          "v2.5.0"
-        ],
-        "disabled": true
-      },
       "3.x": {
         "upstream_branch": [
           "v2.5.0",
@@ -507,9 +514,6 @@
       "3.0": {
         "disabled": false
       },
-      "3.1": {
-        "disabled": true
-      },
       "3.x": {
         "disabled": false
       }
@@ -520,9 +524,6 @@
       },
       "3.0": {
         "disabled": false
-      },
-      "3.1": {
-        "disabled": true
       },
       "3.x": {
         "disabled": false
@@ -535,13 +536,6 @@
           "devspaces-3.0-rhel-8"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "devspaces-3.1-rhel-8",
-          "devspaces-3.1-rhel-8"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -560,7 +554,7 @@
           "7.41.x"
         ],
         "node_version": "12.22.5",
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "upstream_branch": [
@@ -569,14 +563,6 @@
         ],
         "node_version": "16.13.2",
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "node_version": "16.13.2",
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -593,7 +579,7 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "upstream_branch": [
@@ -601,13 +587,6 @@
           "7.43.x"
         ],
         "disabled": false
-      },
-      "3.1": {
-        "upstream_branch": [
-          "7.46.x",
-          "7.45.x"
-        ],
-        "disabled": true
       },
       "3.x": {
         "upstream_branch": [
@@ -623,18 +602,15 @@
           "7.42.x",
           "7.41.x"
         ],
-        "disabled": true
+        "disabled": false
       }
     },
     "get-sources-rhpkg-container-build": {
       "2.15": {
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "disabled": false
-      },
-      "3.1": {
-        "disabled": true
       },
       "3.x": {
         "disabled": false
@@ -642,13 +618,10 @@
     },
     "push-latest-container-to-quay": {
       "2.15": {
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "disabled": false
-      },
-      "3.1": {
-        "disabled": true
       },
       "3.x": {
         "disabled": false
@@ -656,13 +629,10 @@
     },
     "sync-to-downstream": {
       "2.15": {
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "disabled": false
-      },
-      "3.1": {
-        "disabled": true
       },
       "3.x": {
         "disabled": false
@@ -670,13 +640,10 @@
     },
     "update-digests-in-metadata": {
       "2.15": {
-        "disabled": true
+        "disabled": false
       },
       "3.0": {
         "disabled": false
-      },
-      "3.1": {
-        "disabled": true
       },
       "3.x": {
         "disabled": false
@@ -688,9 +655,6 @@
       },
       "3.0": {
         "disabled": false
-      },
-      "3.1": {
-        "disabled": true
       },
       "3.x": {
         "disabled": true
@@ -707,12 +671,8 @@
         "CSV_VERSION": "3.0.0",
         "CSV_VERSION_PREV": ""
       },
-      "3.1": {
-        "CSV_VERSION": "3.1.0",
-        "CSV_VERSION_PREV": ""
-      },
       "3.x": {
-        "CSV_VERSION": "3.1.0",
+        "CSV_VERSION": "3.0.0",
         "CSV_VERSION_PREV": ""
       }
     },
@@ -727,37 +687,31 @@
     "Errata": {
       "2.15": "88663",
       "3.0": "89695",
-      "3.1": "",
-      "3.x": "n/a"
+      "3.x": ""
     },
     "Epic": {
       "2.15": "CRW-2766",
       "3.0": "CRW-2475",
-      "3.1": "CRW-2746",
-      "3.x": "n/a"
+      "3.x": ""
     },
     "FLOATING_QUAY_TAGS": {
-      "2.15": "2.15",
-      "3.0": "latest",
-      "3.1": "next",
+      "2.15": "latest",
+      "3.0": "next",
       "3.x": "next"
     },
     "DEV_WORKSPACE_CONTROLLER_VERSION": {
       "2.15": "v0.11.0",
       "3.0": "v0.12.0",
-      "3.1": "v0.12.0",
       "3.x": "v0.12.0"
     },
     "DEV_HEADER_REWRITE_TRAEFIK_PLUGIN": {
       "2.15": "v0.1.2",
       "3.0": "v0.1.2",
-      "3.1": "v0.1.2",
       "3.x": "v0.1.2"
     },
     "@eclipse-che/plugin-registry-generator": {
       "2.15": "7.42.0",
-      "3.0": "latest",
-      "3.1": "next",
+      "3.0": "next",
       "3.x": "next"
     },
     "THEIA_BUILD_PARAMS": {
@@ -771,11 +725,6 @@
         "THEIA_GITHUB_REPO": "eclipse-theia/theia",
         "THEIA_COMMIT_SHA": ""
       },
-      "3.1": {
-        "THEIA_BRANCH": "master",
-        "THEIA_GITHUB_REPO": "eclipse-theia/theia",
-        "THEIA_COMMIT_SHA": ""
-      },
       "3.x": {
         "THEIA_BRANCH": "master",
         "THEIA_GITHUB_REPO": "eclipse-theia/theia",
@@ -785,26 +734,22 @@
     "OPENSHIFT_CONTENT_SET_VERSION": {
       "2.15": "4.9",
       "3.0": "4.9",
-      "3.1": "4.9",
       "3.x": "4.9"
     },
     "GOLANG_VERSION": {
       "2.15": "1.16.2",
       "3.0": "1.16.2",
-      "3.1": "1.16.2",
       "3.x": "1.16.2"
     },
     "NODE_VERSION": {
       "2.15": "12.22.5",
       "3.0": "12.22.5",
-      "3.1": "14.18.2",
-      "3.x": "14.18.2"
+      "3.x": "12.22.5"
     },
     "YARN_VERSION": {
       "2.15": "1.22.17",
       "3.0": "1.22.17",
-      "3.1": "1.22.18",
-      "3.x": "1.22.18"
+      "3.x": "1.22.17"
     }
   },
   "Copyright": [
