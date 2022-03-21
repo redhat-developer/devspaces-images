@@ -69,8 +69,10 @@ export const actionCreators: ActionCreators = {
           clusterConfig,
         });
 
-        clusterConfig.dashboardWarning =
-          '';
+        if (!clusterConfig.dashboardWarning) {
+          clusterConfig.dashboardWarning =
+            'The next release uses a new DevWorkspace engine, and existing workspaces will need to be converted to the new format. <a href="https://developers.redhat.com/articles/2022/03/17/red-hat-openshift-dev-spaces-formerly-red-hat-codeready-workspaces-next-major">Click here to learn how to update and migrate</a>';
+        }
         if (clusterConfig.dashboardWarning) {
           dispatch(BannerAlertStore.actionCreators.addBanner(clusterConfig.dashboardWarning));
         }
