@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.43.0-next",
+  "version": "7.44.1-next",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
@@ -33,7 +33,6 @@
     "stylelint:fix": "stylelint */**/*.css --fix",
     "test": "jest",
     "test:coverage": "yarn test --coverage",
-    "test:no-cache": "yarn test --watch --no-cache",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {

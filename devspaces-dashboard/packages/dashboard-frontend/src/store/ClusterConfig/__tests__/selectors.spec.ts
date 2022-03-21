@@ -15,16 +15,13 @@ import { ThunkDispatch } from 'redux-thunk';
 import { AppState } from '../..';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
 import * as store from '..';
-import {
-  selectClusterConfigError,
-  selectDashboardWarning,
-  selectRunningWorkspacesLimit,
-} from '../selectors';
+import { selectClusterConfigError, selectDashboardWarning } from '../selectors';
 
+const dashboardWarning = 'A warning message';
 describe('ClusterConfig', () => {
   it('should return an error', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withClusterConfig(undefined, false, 'Something unexpected')
+      .withClusterConfig({ dashboardWarning }, false, 'Something unexpected')
       .build() as MockStoreEnhanced<
       AppState,
       ThunkDispatch<AppState, undefined, store.KnownAction>
@@ -37,7 +34,7 @@ describe('ClusterConfig', () => {
 
   it('should return a dashboard warning', () => {
     const fakeStore = new FakeStoreBuilder()
-      .withClusterConfig({ dashboardWarning: 'A warning message' }, false, 'Something unexpected')
+      .withClusterConfig({ dashboardWarning }, false, 'Something unexpected')
       .build() as MockStoreEnhanced<
       AppState,
       ThunkDispatch<AppState, undefined, store.KnownAction>
@@ -45,32 +42,6 @@ describe('ClusterConfig', () => {
     const state = fakeStore.getState();
 
     const selectedInfo = selectDashboardWarning(state);
-    expect(selectedInfo).toEqual('A warning message');
-  });
-
-  it('should return the default value for running workspaces limit', () => {
-    const fakeStore = new FakeStoreBuilder()
-      .withClusterConfig(undefined, false, 'Something unexpected')
-      .build() as MockStoreEnhanced<
-      AppState,
-      ThunkDispatch<AppState, undefined, store.KnownAction>
-    >;
-    const state = fakeStore.getState();
-
-    const runningLimit = selectRunningWorkspacesLimit(state);
-    expect(runningLimit).toEqual(1);
-  });
-
-  it('should return a running workspaces limit', () => {
-    const fakeStore = new FakeStoreBuilder()
-      .withClusterConfig({ runningWorkspacesLimit: 2 }, false, 'Something unexpected')
-      .build() as MockStoreEnhanced<
-      AppState,
-      ThunkDispatch<AppState, undefined, store.KnownAction>
-    >;
-    const state = fakeStore.getState();
-
-    const runningLimit = selectRunningWorkspacesLimit(state);
-    expect(runningLimit).toEqual(2);
+    expect(selectedInfo).toEqual(dashboardWarning);
   });
 });

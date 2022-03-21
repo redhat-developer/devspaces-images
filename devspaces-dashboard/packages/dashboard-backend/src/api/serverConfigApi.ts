@@ -24,9 +24,8 @@ export function registerServerConfigApi(server: FastifyInstance) {
     async function () {
       const token = getServiceAccountToken();
       const { serverConfigApi } = await getDevWorkspaceClient(token);
-      const cheCustomResource = await serverConfigApi.getCheCustomResource();
 
-      return serverConfigApi.getDefaultPlugins(cheCustomResource);
+      return serverConfigApi.getDefaultPlugins();
     },
   );
 }

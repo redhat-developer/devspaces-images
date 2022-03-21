@@ -15,19 +15,17 @@ import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBui
 import { DevWorkspaceClient } from '../devWorkspaceClient';
 import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
 import * as ServerConfigApi from '../../../dashboard-backend-client/serverConfigApi';
-import mockAxios from 'axios';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 describe('DevWorkspace client, start', () => {
   let client: DevWorkspaceClient;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    const mockPatch = mockAxios.patch as jest.Mock;
-    mockPatch.mockResolvedValue({ data: undefined });
-
     client = container.get(DevWorkspaceClient);
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it('should add default plugin uri', async () => {
@@ -44,10 +42,8 @@ describe('DevWorkspace client, start', () => {
 
     const defaults = { 'eclipse/theia/next': [defaultPluginUri] };
     const editor = 'eclipse/theia/next';
-
     await client.onStart(testWorkspace, defaults, editor);
-
-    expect(testWorkspace.spec.template.components?.length).toBe(1);
+    expect(testWorkspace.spec.template.components!.length).toBe(1);
     expect(testWorkspace.spec.template.components![0].plugin!.uri!).toBe(defaultPluginUri);
     expect(
       (testWorkspace.spec.template.components![0].attributes as any)[
@@ -71,7 +67,6 @@ describe('DevWorkspace client, start', () => {
 
     const defaults = { 'eclipse/theia/next': [defaultPluginUri] };
     const editor = undefined;
-
     await client.onStart(testWorkspace, defaults, editor);
 
     // expect that no plug-in has been added
@@ -95,7 +90,6 @@ describe('DevWorkspace client, start', () => {
 
     // different editor
     const editor = 'eclipse/theia/latest';
-
     await client.onStart(testWorkspace, defaults, editor);
 
     // expect that no plug-in has been added
@@ -125,10 +119,8 @@ describe('DevWorkspace client, start', () => {
     const patchWorkspace = jest.spyOn(DwApi, 'patchWorkspace');
     const defaults = { 'eclipse/theia/next': [] };
     const editor = 'eclipse/theia/next';
-
     await client.onStart(testWorkspace, defaults, editor);
-
-    expect(testWorkspace.spec.template.components?.length).toBe(0);
+    expect(testWorkspace.spec.template.components!.length).toBe(0);
     expect(patchWorkspace).toHaveBeenCalled();
   });
 
@@ -154,10 +146,8 @@ describe('DevWorkspace client, start', () => {
     const patchWorkspace = jest.spyOn(DwApi, 'patchWorkspace');
     const defaults = {};
     const editor = 'eclipse/theia/next';
-
     await client.onStart(testWorkspace, defaults, editor);
-
-    expect(testWorkspace.spec.template.components?.length).toBe(0);
+    expect(testWorkspace.spec.template.components!.length).toBe(0);
     expect(patchWorkspace).toHaveBeenCalled();
   });
 
@@ -183,10 +173,8 @@ describe('DevWorkspace client, start', () => {
     const patchWorkspace = jest.spyOn(DwApi, 'patchWorkspace');
     const defaults = { 'eclipse/theia/next': [] };
     const editor = 'eclipse/theia/next';
-
     await client.onStart(testWorkspace, defaults, editor);
-
-    expect(testWorkspace.spec.template.components?.length).toBe(1);
+    expect(testWorkspace.spec.template.components!.length).toBe(1);
     expect(testWorkspace.spec.template.components![0].plugin!.uri!).toBe(uri);
     expect(testWorkspace.spec.template.components![0].attributes).toBeUndefined();
     expect(patchWorkspace).toHaveBeenCalledTimes(0);
@@ -215,10 +203,8 @@ describe('DevWorkspace client, start', () => {
     const patchWorkspace = jest.spyOn(DwApi, 'patchWorkspace');
     const defaults = { 'eclipse/theia/next': [] };
     const editor = 'eclipse/theia/next';
-
     await client.onStart(testWorkspace, defaults, editor);
-
-    expect(testWorkspace.spec.template.components?.length).toBe(1);
+    expect(testWorkspace.spec.template.components!.length).toBe(1);
     expect(testWorkspace.spec.template.components![0].plugin!.uri!).toBe(uri);
     expect(patchWorkspace).toHaveBeenCalledTimes(0);
   });
@@ -236,9 +222,7 @@ describe('DevWorkspace client, start', () => {
     const getDefaultPlugins = jest.spyOn(ServerConfigApi, 'getDefaultPlugins');
     const defaults = {};
     const editor = 'eclipse/theia/next';
-
     await client.onStart(testWorkspace, defaults, editor);
-
     expect(getDefaultPlugins).toHaveBeenCalledTimes(0);
   });
 });

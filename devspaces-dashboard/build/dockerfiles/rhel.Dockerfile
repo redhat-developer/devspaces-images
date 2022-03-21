@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM registry.access.redhat.com/ubi8/nodejs-12:1-110 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-12:1-107 as builder
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
@@ -35,7 +35,7 @@ COPY packages/ /dashboard/packages
 RUN /dashboard/.yarn/releases/yarn-*.*js build
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM registry.access.redhat.com/ubi8/nodejs-12:1-110
+FROM registry.access.redhat.com/ubi8/nodejs-12:1-107
 USER 0
 
 RUN \
