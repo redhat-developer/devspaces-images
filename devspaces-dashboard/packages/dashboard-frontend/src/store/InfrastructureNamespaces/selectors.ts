@@ -19,7 +19,8 @@ export const selectDefaultNamespace = createSelector(
   selectState,
   state =>
     state.namespaces.find(namespace => namespace.attributes.default === 'true') ||
-    state.namespaces[0],
+    state.namespaces[0] ||
+    ({} as che.KubernetesNamespace),
 );
 
 export const selectInfrastructureNamespaces = createSelector(
