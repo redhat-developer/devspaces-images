@@ -1,9 +1,9 @@
 {
     "name": "Red Hat OpenShift Dev Spaces",
-    "icon": "devspaces-icon.png",
+    "icon": "codeready-workspaces-icon.png",
     "logo": {
-        "dark": "devspaces-logo-light.png",
-        "light": "devspaces-logo-dark.png"
+        "dark": "codeready-workspaces-logo-light.png",
+        "light": "codeready-workspaces-logo-dark.png"
     },
     "welcome": {
         "title": "Welcome to Your Workspace",
