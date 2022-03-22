@@ -207,7 +207,7 @@ extractContainerTgz() {
   unpackdir="$(ls -1d "/tmp/${tmpcontainer}"* 2>/dev/null | sort -Vr | head -1 || true)"
   if [[ ! ${unpackdir} ]]; then
     echo "[ERROR] Problem extracting ${container} to /tmp !"
-    la -la /tmp/ | grep -E "${tmpcontainer}|${container}"
+    ls -la /tmp/ | grep -E "${tmpcontainer}|${container}"
     debugData; exit 1
   else
     echo "[INFO] Collect $filesToCollect from $unpackdir into ${targetTarball} ..."
