@@ -37,6 +37,8 @@ import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlug
 import devfileApi from '../devfileApi';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import { selectDevWorkspacesResourceVersion } from '../../store/Workspaces/devWorkspaces/selectors';
+import { AppAlerts } from '../alerts/appAlerts';
+import { AlertVariant } from '@patternfly/react-core';
 
 /**
  * This class executes a few initial instructions
@@ -54,6 +56,9 @@ export default class Bootstrap {
 
   @lazyInject(DevWorkspaceClient)
   private readonly devWorkspaceClient: DevWorkspaceClient;
+
+  @lazyInject(AppAlerts)
+  private readonly appAlerts: AppAlerts;
 
   private store: Store<AppState>;
 
@@ -222,7 +227,15 @@ export default class Bootstrap {
 
   private async fetchInfrastructureNamespaces(): Promise<void> {
     const { requestNamespaces } = InfrastructureNamespacesStore.actionCreators;
-    await requestNamespaces()(this.store.dispatch, this.store.getState, undefined);
+    try {
+      await requestNamespaces()(this.store.dispatch, this.store.getState, undefined);
+    } catch (e) {
+      this.appAlerts.showAlert({
+        key: 'bootstrap-request-namespaces',
+        title: common.helpers.errors.getMessage(e),
+        variant: AlertVariant.danger,
+      });
+    }
   }
 
   private async fetchWorkspaceSettings(): Promise<che.WorkspaceSettings> {

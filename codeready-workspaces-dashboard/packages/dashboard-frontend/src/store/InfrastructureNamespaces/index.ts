@@ -51,8 +51,9 @@ export const actionCreators: ActionCreators = {
     async (dispatch): Promise<Array<che.KubernetesNamespace>> => {
       dispatch({ type: 'REQUEST_NAMESPACES' });
 
+      await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
+
       try {
-        await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
         const namespaces = await WorkspaceClient.restApiClient.getKubernetesNamespace<
           Array<che.KubernetesNamespace>
         >();

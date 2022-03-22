@@ -46,7 +46,9 @@ export function getMessage(error: unknown): string {
 
   if (includesAxiosResponse(error)) {
     const response = error.response;
-    if (response.data.message) {
+    if (typeof response.data === 'string') {
+      return response.data;
+    } else if (response.data.message) {
       return response.data.message;
     } else if (response.config.url) {
       return `"${response.status} ${response.statusText}" returned by "${response.config.url}".`;
