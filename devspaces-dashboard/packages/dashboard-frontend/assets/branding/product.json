@@ -1,7 +1,7 @@
 {
   "title": "Red Hat OpenShift Dev Spaces ",
   "name": "Red Hat OpenShift Dev Spaces",
-  "productVersion": "3.0 @ beda #7 :: Eclipse Che Dashboard 7.43.-1 @ 63851",
+  "productVersion": "3.1 @ 51323 #8 :: Eclipse Che Dashboard 7.43.-1 @ b179",
   "logoFile": "che-logo.svg",
   "logoTextFile": "che-logo-text.svg",
   "links": [
@@ -11,7 +11,7 @@
     },
     {
       "text": "Documentation",
-      "href": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/"
+      "href": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/"
     },
     {
       "text": "Support",
@@ -19,13 +19,13 @@
     }
   ],
   "docs": {
-    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/html-single/end-user_guide/index#configuring-a-workspace-with-dashboard_devspaces",
-    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/html-single/end-user_guide/index#developer-workspaces_devspaces",
+    "devfile" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/html-single/end-user_guide/index#configuring-a-workspace-with-dashboard_devspaces",
+    "workspace" : "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/html-single/end-user_guide/index#developer-workspaces_devspaces",
     "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
-    "certificate": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/html-single/end-user_guide/index#importing-certificates-to-browsers_devspaces",
-    "general": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/",
-    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/html-single/installation_guide/index#configuring-storage-types_devspaces",
-    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.0/html-single/end-user_guide/index#troubleshooting-network-problems_devspaces"
+    "certificate": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/html-single/end-user_guide/index#importing-certificates-to-browsers_devspaces",
+    "general": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/",
+    "storageTypes": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/html-single/installation_guide/index#configuring-storage-types_devspaces",
+    "webSocketTroubleshooting": "https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.1/html-single/end-user_guide/index#troubleshooting-network-problems_devspaces"
   },
   "configuration": {
     "cheCliTool": "dsc"

@@ -286,5 +286,25 @@ describe('Errors helper', () => {
       };
       expect(getMessage(error)).toEqual(expectedMessage);
     });
+
+    it('should return response message if `error.response.data` is present', () => {
+      const expectedMessage =
+        'Creating the namespace "user-che" is not allowed, yet it was not found.';
+      const error = {
+        name: 'Error',
+        config: {},
+        request: {},
+        response: {
+          data: expectedMessage,
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {},
+          config: {},
+          request: {},
+        },
+        message: '"500" returned by "/kubernetes/namespace/provision".',
+      };
+      expect(getMessage(error)).toEqual(expectedMessage);
+    });
   });
 });
