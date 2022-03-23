@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM docker.io/node:12.20.1-alpine3.12 as builder
+FROM docker.io/node:16.14.0-alpine3.15 as builder
 
 RUN if ! [ type "yarn" &> /dev/null ]; then \
         apk add yarn --no-cache; \
@@ -33,7 +33,7 @@ RUN yarn install --network-timeout 1000000
 COPY packages/ /dashboard/packages
 RUN yarn build
 
-FROM docker.io/node:12.20.1-alpine3.12
+FROM docker.io/node:16.14.0-alpine3.15
 
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib

@@ -6,7 +6,8 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | `@eclipse-che/dashboard-backend@7.43.0-next` | N/A |
 | `@eclipse-che/dashboard-frontend@7.43.0-next` | N/A |
 | `@eclipse-che/devfile-converter@0.0.1-ca41630` | N/A |
-| `fastify-swagger@4.11.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify-swagger/4.11.0) |
-| `fsevents@2.3.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fsevents/2.3.2) |
-| `jsdom@16.7.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsdom/16.7.0) |
-| `node-notifier@8.0.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/node-notifier/8.0.2) |
+| `@patternfly/react-icons@4.49.19` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
+| `@patternfly/react-table@4.67.19` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
+| `fastify-swagger@4.17.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify-swagger/4.17.1) |
+| `fastify@3.27.4` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
+| `http-parser-js@0.5.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/http-parser-js/0.5.6) |

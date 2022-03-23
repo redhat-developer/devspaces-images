@@ -36,6 +36,7 @@ type Props = {
   workspacesLink: string;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   workspaceName: string;
+  children: React.ReactNode;
 };
 
 class Header extends React.PureComponent<Props> {

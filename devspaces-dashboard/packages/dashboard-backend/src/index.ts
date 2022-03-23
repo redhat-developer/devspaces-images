@@ -105,7 +105,7 @@ registerClusterConfig(server);
 
 registerCors(isLocalRun, server);
 
-server.listen(8080, '0.0.0.0', (err: Error, address: string) => {
+server.listen(8080, '0.0.0.0', (err: Error | null, address: string) => {
   if (err) {
     console.error(err);
     process.exit(1);
