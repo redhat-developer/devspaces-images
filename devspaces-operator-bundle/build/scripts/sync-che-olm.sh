@@ -177,6 +177,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	cp "${SOURCE_CSVFILE}" "${CSVFILE}"
 	# transform resulting file
 	NOW="$(date -u +%FT%T+00:00)"
+	# add subscription metadata https://issues.redhat.com/browse/CRW-2841
+	subscriptions="operators.openshift.io/valid-subscription: '[\"OpenShift Container Platform\", \"OpenShift Platform Plus\"]'"
 	sed -r \
 		-e 's|certified: "false"|certified: "true"|g' \
 		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
@@ -230,7 +232,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e '/operatorframework.io\/cluster-monitoring:/d' \
 		-e 's|operatorframework.io/suggested-namespace: .+|operatorframework.io/suggested-namespace: openshift-operators|' \
 		-e '/operatorframework.io\/suggested-namespace/a \ \ \ \ operatorframework.io/cluster-monitoring: "true"' \
-		-e '/annotations\:/i \ \ labels:\n    operatorframework.io/arch.amd64\: supported\n    operatorframework.io/arch.ppc64le\: supported\n    operatorframework.io/arch.s390x\: supported' \
+		-e '/annotations\:/i \ \ '"$subscriptions"'\n  \ \ labels:\n    operatorframework.io/arch.amd64\: supported\n    operatorframework.io/arch.ppc64le\: supported\n    operatorframework.io/arch.s390x\: supported' \
 		-e 's|devworkspace-devspaces-operator|devworkspace-che-operator|' \
 		-i "${CSVFILE}"
 	# insert missing cheFlavor annotation
