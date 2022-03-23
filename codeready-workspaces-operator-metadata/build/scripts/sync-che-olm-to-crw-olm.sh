@@ -247,7 +247,7 @@ for CSVFILE in ${TARGETDIR}/manifests/codeready-workspaces.csv.yaml; do
 		-e 's|operatorframework.io/suggested-namespace: .+|operatorframework.io/suggested-namespace: openshift-workspaces|' \
 		-e '/operatorframework.io\/suggested-namespace/a \ \ \ \ operatorframework.io/cluster-monitoring: "true"\n'"$subscriptions" \
 		-e '/annotations\:/i \ \ labels:\n    operatorframework.io/arch.amd64\: supported\n    operatorframework.io/arch.ppc64le\: supported\n    operatorframework.io/arch.s390x\: supported' \
-    	-e 's|devworkspace-codeready-operator|devworkspace-che-operator|' \
+		-e 's|devworkspace-codeready-operator|devworkspace-che-operator|' \
 		-i "${CSVFILE}"
 	# insert missing cheFlavor annotation
 	# shellcheck disable=SC2143
