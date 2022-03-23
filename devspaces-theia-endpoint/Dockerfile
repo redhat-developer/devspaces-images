@@ -19,7 +19,7 @@ ENV PATH=${HOME}/.yarn/bin:${PATH}
 # setup extra stuff
 USER root
 ENV YARN_FLAGS="--offline"
-ENV NEXE_FLAGS="--target 'alpine-x64-12' --temp /tmp/nexe-cache"
+ENV NEXE_FLAGS="--target 'alpine-x64-14' --temp /tmp/nexe-cache"
 COPY asset-theia-endpoint-runtime-pre-assembly-nexe-cache-*.tar.gz asset-theia-endpoint-runtime-binary-yarn-*.tar.gz asset-node-src.tar.gz /tmp/
 RUN tar xzf /tmp/asset-theia-endpoint-runtime-binary-yarn-$(uname -m).tar.gz -C / && rm -f /tmp/asset-theia-endpoint-runtime-binary-yarn-*.tar.gz && \
     export NODE_VERSION=$(node --version | sed -s 's/v//') && mkdir -p "/home/theia/.nexe/${NODE_VERSION}" && \
