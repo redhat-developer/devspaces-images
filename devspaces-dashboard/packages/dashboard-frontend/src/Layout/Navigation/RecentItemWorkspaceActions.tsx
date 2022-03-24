@@ -59,7 +59,7 @@ class NavigationItemWorkspaceActions extends React.PureComponent<Props, State> {
       isExpanded: false,
     });
     try {
-      const nextPath = await context.handleAction(selected, this.props.item.workspaceId);
+      const nextPath = await context.handleAction(selected, this.props.item.workspaceUID);
       if (!nextPath) {
         return;
       }

@@ -24,7 +24,7 @@ import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import FactoryLoader from '../../pages/FactoryLoader';
 import {
   selectAllWorkspaces,
-  selectWorkspaceById,
+  selectWorkspaceByUID,
   selectWorkspaceByQualifiedName,
 } from '../../store/Workspaces/selectors';
 import {
@@ -225,7 +225,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
   private clearOldData(): void {
     if (this.props.workspace) {
-      this.props.clearWorkspaceId();
+      this.props.clearWorkspaceUID();
     }
     this.resetOverrideParams();
     this.setState({ hasError: false });
@@ -745,7 +745,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       return;
     }
 
-    this.props.setWorkspaceId(workspace.id);
+    this.props.setWorkspaceUID(workspace.uid);
 
     await this.startWorkspace();
 
@@ -762,14 +762,14 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       createFromDevfile,
     } = this.state;
     const workspaceName = workspace ? workspace.name : '';
-    const workspaceId = workspace ? workspace.id : '';
+    const workspaceUID = workspace ? workspace.uid : '';
 
     return (
       <FactoryLoader
         currentStep={currentStep}
         hasError={hasError}
         resolvedDevfileMessage={resolvedDevfileMessage}
-        workspaceId={workspaceId}
+        workspaceUID={workspaceUID}
         workspaceName={workspaceName}
         createFromDevfile={createFromDevfile}
         isDevWorkspace={cheDevworkspaceEnabled}
@@ -781,7 +781,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   factoryResolver: state.factoryResolver,
-  workspace: selectWorkspaceById(state),
+  workspace: selectWorkspaceByUID(state),
   allWorkspaces: selectAllWorkspaces(state),
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
   preferredStorageType: selectPreferredStorageType(state),

@@ -228,7 +228,7 @@ function renderComponent(
   store: Store,
   currentStep: LoadIdeSteps,
   workspaceName: string,
-  workspaceId: string,
+  workspaceUID: string,
   hasError: boolean,
   workspaceStatus: WorkspaceStatus | DeprecatedWorkspaceStatus,
   ideUrl?: string,
@@ -238,7 +238,7 @@ function renderComponent(
       <IdeLoaderTabs
         currentStep={currentStep}
         workspaceName={workspaceName}
-        workspaceId={workspaceId}
+        workspaceUID={workspaceUID}
         hasError={hasError}
         status={workspaceStatus}
         ideUrl={ideUrl}

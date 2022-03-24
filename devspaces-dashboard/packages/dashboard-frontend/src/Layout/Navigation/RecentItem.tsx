@@ -33,7 +33,12 @@ function NavigationRecentItem(props: {
       className={styles.navItem}
       preventDefault={true}
       onClick={() =>
-        handleClick(props.history, props.item.to, props.item.workspaceId, props.item.isDevWorkspace)
+        handleClick(
+          props.history,
+          props.item.to,
+          props.item.workspaceUID,
+          props.item.isDevWorkspace,
+        )
       }
     >
       <span data-testid="recent-workspace-item">
@@ -55,12 +60,12 @@ function NavigationRecentItem(props: {
 function handleClick(
   history: History,
   location: string,
-  workspaceId: string,
+  workspaceUID: string,
   isDevWorkspace: boolean,
 ) {
   if (isDevWorkspace) {
     const link = `#${location}`;
-    window.open(link, workspaceId);
+    window.open(link, workspaceUID);
   } else {
     history.push(location);
   }

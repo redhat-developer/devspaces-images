@@ -32,7 +32,7 @@ import DropdownActions from './Dropdown';
 import ButtonAction from './Button';
 
 type Props = {
-  workspaceId: string;
+  workspaceUID: string;
   workspaceName: string;
   canDelete: boolean;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
@@ -59,7 +59,7 @@ export class HeaderActionSelect extends React.PureComponent<Props> {
           return;
         }
       }
-      const nextPath = await context.handleAction(selectedAction, this.props.workspaceId);
+      const nextPath = await context.handleAction(selectedAction, this.props.workspaceUID);
       if (!nextPath) {
         return;
       }

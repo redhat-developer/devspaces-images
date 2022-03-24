@@ -26,8 +26,8 @@ jest.mock('react-tooltip', () => {
 });
 
 const workspaceName = 'wksp-test';
-const workspaceId = 'testWorkspaceId';
-const workspace = createFakeCheWorkspace(workspaceId, workspaceName);
+const workspaceUID = 'testWorkspaceId';
+const workspace = createFakeCheWorkspace(workspaceUID, workspaceName);
 const store = new FakeStoreBuilder()
   .withCheWorkspaces({
     workspaces: [workspace],
@@ -38,7 +38,7 @@ describe('The Factory Loader page  component', () => {
   it('should render INITIALIZING step correctly', () => {
     const currentStep = LoadFactorySteps.INITIALIZING;
     const hasError = false;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -46,7 +46,7 @@ describe('The Factory Loader page  component', () => {
   it('should render INITIALIZING step with an error correctly', () => {
     const currentStep = LoadFactorySteps.INITIALIZING;
     const hasError = true;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -59,7 +59,7 @@ describe('The Factory Loader page  component', () => {
       store,
       currentStep,
       workspaceName,
-      workspaceId,
+      workspaceUID,
       hasError,
       resolvedDevfileMessage,
     );
@@ -70,7 +70,7 @@ describe('The Factory Loader page  component', () => {
   it('should render LOOKING_FOR_DEVFILE step without devfile location correctly', () => {
     const currentStep = LoadFactorySteps.LOOKING_FOR_DEVFILE;
     const hasError = false;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -78,7 +78,7 @@ describe('The Factory Loader page  component', () => {
   it('should render LOOKING_FOR_DEVFILE step with an error correctly', () => {
     const currentStep = LoadFactorySteps.LOOKING_FOR_DEVFILE;
     const hasError = true;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -86,7 +86,7 @@ describe('The Factory Loader page  component', () => {
   it('should render APPLYING_DEVFILE step correctly', () => {
     const currentStep = LoadFactorySteps.APPLYING_DEVFILE;
     const hasError = false;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -94,7 +94,7 @@ describe('The Factory Loader page  component', () => {
   it('should render APPLYING_DEVFILE step with an error correctly', () => {
     const currentStep = LoadFactorySteps.APPLYING_DEVFILE;
     const hasError = true;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -102,7 +102,7 @@ describe('The Factory Loader page  component', () => {
   it('should render START_WORKSPACE step correctly', () => {
     const currentStep = LoadFactorySteps.START_WORKSPACE;
     const hasError = false;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -110,7 +110,7 @@ describe('The Factory Loader page  component', () => {
   it('should render START_WORKSPACE step with an error correctly', () => {
     const currentStep = LoadFactorySteps.START_WORKSPACE;
     const hasError = true;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -118,7 +118,7 @@ describe('The Factory Loader page  component', () => {
   it('should render OPEN_IDE step correctly', () => {
     const currentStep = LoadFactorySteps.OPEN_IDE;
     const hasError = false;
-    const component = renderComponent(store, currentStep, workspaceName, workspaceId, hasError);
+    const component = renderComponent(store, currentStep, workspaceName, workspaceUID, hasError);
 
     expect(component.toJSON()).toMatchSnapshot();
   });
@@ -128,7 +128,7 @@ function renderComponent(
   store: Store,
   currentStep: LoadFactorySteps,
   workspaceName: string,
-  workspaceId: string,
+  workspaceUID: string,
   hasError: boolean,
   resolvedDevfileMessage?: string,
 ): ReactTestRenderer {
@@ -137,7 +137,7 @@ function renderComponent(
       <FactoryLoaderTabs
         currentStep={currentStep}
         workspaceName={workspaceName}
-        workspaceId={workspaceId}
+        workspaceUID={workspaceUID}
         hasError={hasError}
         resolvedDevfileMessage={resolvedDevfileMessage}
         isDevWorkspace

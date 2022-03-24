@@ -35,14 +35,6 @@ declare namespace restParams {
     devworkspaceId: string;
   }
 
-  export interface IStatusUpdate {
-    error?: string;
-    message?: string;
-    status?: string;
-    prevStatus?: string;
-    workspaceId: string;
-  }
-
   export interface ISchemaParams {
     [key: string]: any;
   }

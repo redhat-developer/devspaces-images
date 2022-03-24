@@ -34,7 +34,7 @@ describe('Navigation Item', () => {
     label: 'workspace',
     to: '/namespace/workspace',
     isDevWorkspace: false,
-    workspaceId: 'test-wrks-id',
+    workspaceUID: 'test-wrks-id',
   };
 
   afterEach(() => {

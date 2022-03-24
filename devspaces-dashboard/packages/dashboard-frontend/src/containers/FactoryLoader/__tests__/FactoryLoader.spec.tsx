@@ -21,7 +21,6 @@ import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { createFakeCheWorkspace } from '../../../store/__mocks__/workspace';
 import { WorkspaceStatus } from '../../../services/helpers/types';
 import FactoryLoaderContainer, { LoadFactorySteps } from '../../FactoryLoader';
-import { AlertOptions } from '../../../pages/IdeLoader';
 import { constructWorkspace, Devfile, WorkspaceAdapter } from '../../../services/workspace-adapter';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import devfileApi from '../../../services/devfileApi';
@@ -34,6 +33,7 @@ import {
   isOAuthResponse,
 } from '../../../store/FactoryResolver';
 import SessionStorageService, { SessionStorageKey } from '../../../services/session-storage';
+import { Props } from '../../../pages/FactoryLoader';
 
 const showAlertMock = jest.fn();
 const setWorkspaceQualifiedName = jest.fn();
@@ -41,8 +41,8 @@ const createWorkspaceFromDevfileMock = jest.fn().mockResolvedValue(undefined);
 const requestWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
-const setWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
-const clearWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
+const setWorkspaceUIDMock = jest.fn().mockResolvedValue(undefined);
+const clearWorkspaceUIDMock = jest.fn().mockResolvedValue(undefined);
 
 const createWorkspaceFromResourcesMock = jest.fn().mockReturnValue(undefined);
 jest.mock('../../../store/Workspaces/devWorkspaces/index', () => {
@@ -82,11 +82,11 @@ jest.mock('../../../store/Workspaces');
       });
     },
 );
-(workspacesActionCreators.setWorkspaceId as jest.Mock).mockImplementation(
-  (id: string) => async () => setWorkspaceIdMock(id),
+(workspacesActionCreators.setWorkspaceUID as jest.Mock).mockImplementation(
+  (uid: string) => async () => setWorkspaceUIDMock(uid),
 );
-(workspacesActionCreators.clearWorkspaceId as jest.Mock).mockImplementation(
-  () => async () => clearWorkspaceIdMock(),
+(workspacesActionCreators.clearWorkspaceUID as jest.Mock).mockImplementation(
+  () => async () => clearWorkspaceUIDMock(),
 );
 (workspacesActionCreators.setWorkspaceQualifiedName as jest.Mock).mockImplementation(
   (namespace: string, workspaceName: string) => async () =>
@@ -113,16 +113,7 @@ const actualModule = jest.requireActual('../../../store/FactoryResolver');
 );
 
 jest.mock('../../../pages/FactoryLoader', () => {
-  return function DummyWizard(props: {
-    hasError: boolean;
-    currentStep: LoadFactorySteps;
-    workspaceName: string;
-    workspaceId: string;
-    resolvedDevfileMessage?: string;
-    callbacks?: {
-      showAlert?: (alertOptions: AlertOptions) => void;
-    };
-  }): React.ReactElement {
+  return function DummyWizard(props: Props): React.ReactElement {
     if (props.callbacks) {
       props.callbacks.showAlert = showAlertMock;
     }
@@ -132,7 +123,7 @@ jest.mock('../../../pages/FactoryLoader', () => {
         <div data-testid="factory-loader-has-error">{props.hasError.toString()}</div>
         <div data-testid="factory-loader-current-step">{props.currentStep}</div>
         <div data-testid="factory-loader-workspace-name">{props.workspaceName}</div>
-        <div data-testid="factory-loader-workspace-id">{props.workspaceId}</div>
+        <div data-testid="factory-loader-workspace-uid">{props.workspaceUID}</div>
         <div data-testid="factory-loader-devfile-location-info">{props.resolvedDevfileMessage}</div>
       </div>
     );
@@ -325,15 +316,17 @@ metadata:
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
 
-      await waitFor(() => expect(clearWorkspaceIdMock).toHaveBeenCalled());
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      await waitFor(() => expect(clearWorkspaceUIDMock).toHaveBeenCalled());
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -354,7 +347,8 @@ metadata:
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
       await waitFor(() => expect(startWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.START_WORKSPACE],
       );
     });
@@ -367,15 +361,17 @@ metadata:
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
 
-      await waitFor(() => expect(clearWorkspaceIdMock).toHaveBeenCalled());
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      await waitFor(() => expect(clearWorkspaceUIDMock).toHaveBeenCalled());
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestFactoryResolverMock).toHaveBeenCalledWith(location));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -400,15 +396,14 @@ metadata:
           "You're starting an ephemeral workspace. All changes to the source code will be lost " +
           'when the workspace is stopped unless they are pushed to a remote code repository.',
       });
-      expect(setWorkspaceIdMock).toHaveBeenCalledWith(workspace.id);
+      expect(setWorkspaceUIDMock).toHaveBeenCalledWith(workspace.id);
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
       await waitFor(() => expect(startWorkspaceMock).not.toHaveBeenCalled());
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.OPEN_IDE],
-      );
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(LoadFactorySteps[LoadFactorySteps.OPEN_IDE]);
     });
 
     it('should resolve the factory, create a new workspace with param overriding', async () => {
@@ -417,7 +412,9 @@ metadata:
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
@@ -427,7 +424,8 @@ metadata:
           'override.metadata.generateName': 'testPrefix',
         }),
       );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -455,7 +453,9 @@ metadata:
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      const currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.INITIALIZING],
       );
 
@@ -476,7 +476,9 @@ metadata:
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      const currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.INITIALIZING],
       );
 
@@ -500,7 +502,9 @@ metadata:
       renderComponentV1(location, workspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
@@ -508,7 +512,8 @@ metadata:
       await waitFor(() =>
         expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
       );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -517,9 +522,8 @@ metadata:
 
       jest.runOnlyPendingTimers();
       await waitFor(() => expect(requestWorkspaceMock).toHaveBeenCalledWith(workspaceAdapter));
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
-        LoadFactorySteps[LoadFactorySteps.OPEN_IDE],
-      );
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(LoadFactorySteps[LoadFactorySteps.OPEN_IDE]);
     });
 
     it('should show an error if something wrong with Repository/Devfile URL', async () => {
@@ -539,7 +543,8 @@ metadata:
       expect(elementHasError.innerHTML).toEqual('true');
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      const currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.CREATE_WORKSPACE],
       );
     });
@@ -557,7 +562,8 @@ metadata:
       renderComponentV2(location, devWorkspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
@@ -565,7 +571,8 @@ metadata:
       await waitFor(() =>
         expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
       );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -585,7 +592,9 @@ metadata:
       renderComponentV2(location, devWorkspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
@@ -593,7 +602,8 @@ metadata:
       await waitFor(() =>
         expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
       );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -636,7 +646,9 @@ metadata:
       renderComponentV2(location, devWorkspace);
 
       const elementCurrentStep = screen.getByTestId('factory-loader-current-step');
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      let currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.LOOKING_FOR_DEVFILE],
       );
 
@@ -644,7 +656,8 @@ metadata:
       await waitFor(() =>
         expect(requestFactoryResolverMock).toHaveBeenCalledWith(location.split('&')[0]),
       );
-      expect(LoadFactorySteps[elementCurrentStep.innerHTML]).toEqual(
+      currentStep = parseInt(elementCurrentStep.textContent || '', 10);
+      expect(LoadFactorySteps[currentStep]).toEqual(
         LoadFactorySteps[LoadFactorySteps.APPLYING_DEVFILE],
       );
 
@@ -1017,7 +1030,7 @@ function renderComponentV2(url: string, workspace: devfileApi.DevWorkspace): Ren
       workspaces: [workspace],
     })
     .withWorkspaces({
-      workspaceId: WorkspaceAdapter.getId(workspace),
+      workspaceUID: WorkspaceAdapter.getId(workspace),
       namespace: namespace,
       workspaceName: workspace.metadata.name,
     })
@@ -1063,7 +1076,7 @@ function renderComponentV1(
       workspaces: [workspace],
     })
     .withWorkspaces({
-      workspaceId: workspace.id,
+      workspaceUID: workspace.id,
       namespace: namespace,
       workspaceName: workspace.devfile.metadata.name,
     })

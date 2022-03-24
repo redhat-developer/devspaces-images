@@ -13,14 +13,11 @@
 import { V1alpha2DevWorkspaceMetadata } from '@devfile/api';
 
 export const DEVWORKSPACE_CHE_EDITOR = 'che.eclipse.org/che-editor';
-// used by UD to get the original Che7 workspace ID
-export const ORIGINAL_WORKSPACE_ID_ANNOTATION = 'che.eclipse.org/original-workspace-id';
 // used by devworkspace-controller to allow to mount the corresponding Che7 workspace folder
 export const DEVWORKSPACE_ID_OVERRIDE_ANNOTATION = 'controller.devfile.io/devworkspace_id_override';
 export const DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION = 'che.eclipse.org/last-updated-timestamp';
 type DevWorkspaceMetadataAnnotation = {
   [DEVWORKSPACE_CHE_EDITOR]?: string;
-  [ORIGINAL_WORKSPACE_ID_ANNOTATION]?: string;
   [DEVWORKSPACE_ID_OVERRIDE_ANNOTATION]?: string;
   [DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION]?: string;
 };

@@ -42,7 +42,7 @@ export interface NavigationRecentItemObject {
   to: string;
   label: string;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
-  workspaceId: string;
+  workspaceUID: string;
   isDevWorkspace: boolean;
 }
 

@@ -72,7 +72,7 @@ interface UpdateWorkspaceAction extends Action {
 
 interface UpdateWorkspaceStatusAction extends Action {
   type: 'UPDATE_DEVWORKSPACE_STATUS';
-  workspaceId: string;
+  workspaceUID: string;
   status: string;
   message: string;
 }
@@ -84,17 +84,17 @@ interface UpdateWorkspacesLogsAction extends Action {
 
 interface DeleteWorkspaceLogsAction extends Action {
   type: 'DELETE_DEVWORKSPACE_LOGS';
-  workspaceId: string;
+  workspaceUID: string;
 }
 
 interface DeleteWorkspaceAction extends Action {
   type: 'DELETE_DEVWORKSPACE';
-  workspaceId: string;
+  workspaceUID: string;
 }
 
 interface TerminateWorkspaceAction extends Action {
   type: 'TERMINATE_DEVWORKSPACE';
-  workspaceId: string;
+  workspaceUID: string;
   message: string;
 }
 
@@ -152,7 +152,7 @@ export type ActionCreators = {
     editor?: string,
   ) => AppThunk<KnownAction, Promise<void>>;
 
-  deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
+  deleteWorkspaceLogs: (workspaceUID: string) => AppThunk<DeleteWorkspaceLogsAction, void>;
 };
 export const actionCreators: ActionCreators = {
   updateAddedDevWorkspaces:
@@ -169,10 +169,10 @@ export const actionCreators: ActionCreators = {
   updateDeletedDevWorkspaces:
     (deletedWorkspacesIds: string[]): AppThunk<KnownAction, void> =>
     (dispatch): void => {
-      deletedWorkspacesIds.forEach(workspaceId => {
+      deletedWorkspacesIds.forEach(workspaceUID => {
         dispatch({
           type: 'DELETE_DEVWORKSPACE',
-          workspaceId,
+          workspaceUID,
         });
       });
     },
@@ -304,13 +304,11 @@ export const actionCreators: ActionCreators = {
           type: 'UPDATE_DEVWORKSPACE',
           workspace: updatedWorkspace,
         });
-        const workspaceId = workspace.status?.devworkspaceId;
-        if (workspaceId) {
-          dispatch({
-            type: 'DELETE_DEVWORKSPACE_LOGS',
-            workspaceId,
-          });
-        }
+        const workspaceUID = workspace.metadata.uid;
+        dispatch({
+          type: 'DELETE_DEVWORKSPACE_LOGS',
+          workspaceUID,
+        });
         devWorkspaceClient.checkForDevWorkspaceError(updatedWorkspace);
       } catch (e) {
         const errorMessage =
@@ -346,10 +344,10 @@ export const actionCreators: ActionCreators = {
       ) {
         await onStatusChangeCallback(workspace.status.phase);
       } else {
-        const workspaceId = WorkspaceAdapter.getId(workspace);
-        onStatusChangeCallbacks.set(workspaceId, onStatusChangeCallback);
+        const workspaceUID = WorkspaceAdapter.getUID(workspace);
+        onStatusChangeCallbacks.set(workspaceUID, onStatusChangeCallback);
         toDispose.push({
-          dispose: () => onStatusChangeCallbacks.delete(workspaceId),
+          dispose: () => onStatusChangeCallbacks.delete(workspaceUID),
         });
         if (
           workspace.status?.phase === DevWorkspaceStatus.RUNNING ||
@@ -374,7 +372,7 @@ export const actionCreators: ActionCreators = {
         await devWorkspaceClient.changeWorkspaceStatus(workspace, false);
         dispatch({
           type: 'DELETE_DEVWORKSPACE_LOGS',
-          workspaceId: WorkspaceAdapter.getId(workspace),
+          workspaceUID: WorkspaceAdapter.getId(workspace),
         });
       } catch (e) {
         const errorMessage =
@@ -395,13 +393,13 @@ export const actionCreators: ActionCreators = {
         const namespace = workspace.metadata.namespace;
         const name = workspace.metadata.name;
         await devWorkspaceClient.delete(namespace, name);
-        const workspaceId = WorkspaceAdapter.getId(workspace);
+        const workspaceUID = WorkspaceAdapter.getUID(workspace);
         dispatch({
           type: 'TERMINATE_DEVWORKSPACE',
-          workspaceId,
+          workspaceUID,
           message: workspace.status?.message || 'Cleaning up resources for deletion',
         });
-        dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId });
+        dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceUID });
       } catch (e) {
         const resMessage =
           `Failed to delete the workspace ${workspace.metadata.name}, reason: ` +
@@ -590,9 +588,9 @@ export const actionCreators: ActionCreators = {
     },
 
   deleteWorkspaceLogs:
-    (workspaceId: string): AppThunk<DeleteWorkspaceLogsAction, void> =>
+    (workspaceUID: string): AppThunk<DeleteWorkspaceLogsAction, void> =>
     (dispatch): void => {
-      dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceId });
+      dispatch({ type: 'DELETE_DEVWORKSPACE_LOGS', workspaceUID });
     },
 };
 
@@ -637,7 +635,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'UPDATE_DEVWORKSPACE_STATUS':
       return createObject(state, {
         workspaces: state.workspaces.map(workspace => {
-          if (WorkspaceAdapter.getId(workspace) === action.workspaceId) {
+          if (WorkspaceAdapter.getId(workspace) === action.workspaceUID) {
             if (!workspace.status) {
               workspace.status = {} as devfileApi.DevWorkspaceStatus;
             }
@@ -660,7 +658,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
       return createObject(state, {
         isLoading: false,
         workspaces: state.workspaces.map(workspace => {
-          if (WorkspaceAdapter.getId(workspace) === action.workspaceId) {
+          if (WorkspaceAdapter.getId(workspace) === action.workspaceUID) {
             const targetWorkspace = Object.assign({}, workspace);
             if (!targetWorkspace.status) {
               targetWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
@@ -675,7 +673,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'DELETE_DEVWORKSPACE':
       return createObject(state, {
         workspaces: state.workspaces.filter(
-          workspace => WorkspaceAdapter.getId(workspace) !== action.workspaceId,
+          workspace => WorkspaceAdapter.getUID(workspace) !== action.workspaceUID,
         ),
       });
     case 'UPDATE_DEVWORKSPACE_LOGS':
@@ -684,7 +682,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
       });
     case 'DELETE_DEVWORKSPACE_LOGS':
       return createObject(state, {
-        workspacesLogs: deleteLogs(state.workspacesLogs, action.workspaceId),
+        workspacesLogs: deleteLogs(state.workspacesLogs, action.workspaceUID),
       });
     default:
       return state;
@@ -700,13 +698,13 @@ async function onStatusUpdateReceived(
   if (status !== statusUpdate.prevStatus) {
     dispatch({
       type: 'UPDATE_DEVWORKSPACE_STATUS',
-      workspaceId: statusUpdate.workspaceId,
+      workspaceUID: statusUpdate.workspaceUID,
       message: statusUpdate.message,
       status,
     });
   }
 
-  const callback = onStatusChangeCallbacks.get(statusUpdate.workspaceId);
+  const callback = onStatusChangeCallbacks.get(statusUpdate.workspaceUID);
 
   if (callback && status) {
     callback(status);
@@ -722,7 +720,7 @@ async function onStatusUpdateReceived(
       ) {
         message = `1 error occurred: ${message}`;
       }
-      workspacesLogs.set(statusUpdate.workspaceId, [message]);
+      workspacesLogs.set(statusUpdate.workspaceUID, [message]);
       dispatch({
         type: 'UPDATE_DEVWORKSPACE_LOGS',
         workspacesLogs,
@@ -733,7 +731,7 @@ async function onStatusUpdateReceived(
 
 export async function addKubeConfigInjection(workspace: devfileApi.DevWorkspace): Promise<void> {
   const toDispose = new DisposableCollection();
-  const onStatusChangeCallback = async status => {
+  const onStatusChangeCallback = async (status: string) => {
     if (status === DevWorkspaceStatus.RUNNING) {
       const workspaceId = WorkspaceAdapter.getId(workspace);
       try {
@@ -744,9 +742,9 @@ export async function addKubeConfigInjection(workspace: devfileApi.DevWorkspace)
       toDispose.dispose();
     }
   };
-  const adapterWorkspaceId = WorkspaceAdapter.getId(workspace);
-  onStatusChangeCallbacks.set(adapterWorkspaceId, onStatusChangeCallback);
+  const workspaceUID = WorkspaceAdapter.getUID(workspace);
+  onStatusChangeCallbacks.set(workspaceUID, onStatusChangeCallback);
   toDispose.push({
-    dispose: () => onStatusChangeCallbacks.delete(adapterWorkspaceId),
+    dispose: () => onStatusChangeCallbacks.delete(workspaceUID),
   });
 }

@@ -48,11 +48,11 @@ export type AlertOptions = {
   alertVariant: AlertVariant;
 };
 
-type Props = {
+export type Props = {
   hasError: boolean;
   currentStep: LoadFactorySteps;
   workspaceName: string;
-  workspaceId: string;
+  workspaceUID: string;
   isDevWorkspace: boolean;
   resolvedDevfileMessage?: string;
   createFromDevfile: boolean;
@@ -228,7 +228,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { workspaceName, workspaceId, hasError, currentStep, isDevWorkspace } = this.props;
+    const { workspaceName, workspaceUID, hasError, currentStep, isDevWorkspace } = this.props;
     const { isPopupAlertVisible, currentRequestError, currentAlertVariant, alertActionLinks } =
       this.state;
 
@@ -286,7 +286,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
               title={LoadFactoryTabs[LoadFactoryTabs.Logs]}
               id="factory-loader-page-logs-tab"
             >
-              <WorkspaceLogs workspaceId={workspaceId} isDevWorkspace={isDevWorkspace} />
+              <WorkspaceLogs workspaceUID={workspaceUID} isDevWorkspace={isDevWorkspace} />
             </Tab>
           </Tabs>
         </PageSection>

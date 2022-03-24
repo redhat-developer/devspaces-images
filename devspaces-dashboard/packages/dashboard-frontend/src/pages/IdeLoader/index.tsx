@@ -42,13 +42,13 @@ import './IdeLoader.styl';
 
 export const SECTION_THEME = PageSectionVariants.light;
 
-type Props = {
+export type Props = {
   currentStep: LoadIdeSteps;
   hasError: boolean;
   ideUrl?: string;
   preselectedTabKey?: IdeLoaderTab;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
-  workspaceId: string;
+  workspaceUID: string;
   workspaceName: string;
   isDevWorkspace: boolean;
   callbacks?: {
@@ -59,7 +59,7 @@ type Props = {
 
 type State = {
   ideUrl?: string;
-  workspaceId: string;
+  workspaceUID: string;
   isPopupAlertVisible: boolean;
   activeTabKey: IdeLoaderTab;
   currentRequestError: string;
@@ -94,7 +94,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
       isPopupAlertVisible: false,
       currentRequestError: '',
       isDevWorkspace: this.props.isDevWorkspace,
-      workspaceId: this.props.workspaceId,
+      workspaceUID: this.props.workspaceUID,
       activeTabKey: this.props.preselectedTabKey
         ? this.props.preselectedTabKey
         : IdeLoaderTab.Progress,
@@ -153,14 +153,14 @@ class IdeLoader extends React.PureComponent<Props, State> {
     if (this.props.ideUrl) {
       this.setState({ ideUrl: this.props.ideUrl });
     }
-    if (this.props.workspaceId) {
-      this.setState({ workspaceId: this.props.workspaceId });
+    if (this.props.workspaceUID) {
+      this.setState({ workspaceUID: this.props.workspaceUID });
     }
   }
 
   public async componentDidUpdate(): Promise<void> {
     this.showOnlyContentIfDevWorkspace();
-    const { currentStep, hasError, ideUrl, workspaceId } = this.props;
+    const { currentStep, hasError, ideUrl, workspaceUID } = this.props;
 
     const current = this.wizardRef.current;
     if (current && current.state && current.state.currentStep !== currentStep && !hasError) {
@@ -171,9 +171,9 @@ class IdeLoader extends React.PureComponent<Props, State> {
       this.setState({ currentRequestError: '' });
     }
 
-    if (this.state.workspaceId !== workspaceId) {
+    if (this.state.workspaceUID !== workspaceUID) {
       this.setState({
-        workspaceId,
+        workspaceUID,
         isPopupAlertVisible: false,
       });
     }
@@ -276,7 +276,7 @@ class IdeLoader extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { workspaceName, workspaceId, ideUrl, status, currentStep } = this.props;
+    const { workspaceName, workspaceUID, ideUrl, status, currentStep } = this.props;
     const { isPopupAlertVisible, currentAlertVariant, currentRequestError, alertActionLinks } =
       this.state;
 
@@ -347,7 +347,10 @@ class IdeLoader extends React.PureComponent<Props, State> {
               title={IdeLoaderTab[IdeLoaderTab.Logs]}
               id="ide-loader-page-logs-tab"
             >
-              <WorkspaceLogs workspaceId={workspaceId} isDevWorkspace={this.props.isDevWorkspace} />
+              <WorkspaceLogs
+                workspaceUID={workspaceUID}
+                isDevWorkspace={this.props.isDevWorkspace}
+              />
             </Tab>
           </Tabs>
         </PageSection>

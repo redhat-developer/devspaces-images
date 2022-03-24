@@ -36,7 +36,7 @@ jest.mock('../../store/Workspaces/index', () => {
 jest.mock('../../pages/WorkspacesList', () => {
   const FakeWorkspacesList = (props: { workspaces: Workspace[] }): React.ReactElement => {
     const ids = props.workspaces.map(wksp => (
-      <span data-testid="workspace" key={wksp.id}>
+      <span data-testid="workspace" key={wksp.uid}>
         {wksp.name}
       </span>
     ));
@@ -128,14 +128,20 @@ describe('Workspaces List Container', () => {
     describe('in devworkspace mode', () => {
       it('should pass workspaces but not converted che-server based workspaces', () => {
         const deprecated = ['che-wksp-0', 'che-wksp-1', 'che-wksp-2'];
-        WorkspaceAdapter.setDeprecatedIds(deprecated);
+        WorkspaceAdapter.setDeprecatedUIDs(deprecated);
+        const devWorkspaces = [0, 1, 2, 4].map(i =>
+          new DevWorkspaceBuilder()
+            .withId('dev-wksp-' + i)
+            .withName('dev-wksp-' + i)
+            .build(),
+        );
         const cheWorkspaces = [
           new CheWorkspaceBuilder()
             .withId(deprecated[0])
             .withName(deprecated[0])
             .withAttributes({
               created: new Date().toISOString(),
-              convertedId: 'dev-wksp-0',
+              convertedId: WorkspaceAdapter.getUID(devWorkspaces[0]),
               infrastructureNamespace: 'user',
             })
             .build(),
@@ -150,12 +156,6 @@ describe('Workspaces List Container', () => {
             .build(),
           new CheWorkspaceBuilder().withId(deprecated[2]).withName(deprecated[2]).build(),
         ];
-        const devWorkspaces = [0, 1, 2, 4].map(i =>
-          new DevWorkspaceBuilder()
-            .withId('dev-wksp-' + i)
-            .withName('dev-wksp-' + i)
-            .build(),
-        );
         const store = new FakeStoreBuilder()
           .withCheWorkspaces({ workspaces: cheWorkspaces })
           .withDevWorkspaces({ workspaces: devWorkspaces })

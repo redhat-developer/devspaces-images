@@ -42,7 +42,7 @@ describe('Inline alerts', () => {
 
   it('should render the deprecation warning', () => {
     const deprecatedId = 'wksp-id';
-    WorkspaceAdapter.setDeprecatedIds([deprecatedId]);
+    WorkspaceAdapter.setDeprecatedUIDs([deprecatedId]);
     const workspace = constructWorkspace(
       new CheWorkspaceBuilder().withId(deprecatedId).withName('wksp').withNamespace('user').build(),
     );
@@ -56,7 +56,7 @@ describe('Inline alerts', () => {
 
   it('should render the conversion error', () => {
     const deprecatedId = 'wksp-id';
-    WorkspaceAdapter.setDeprecatedIds([deprecatedId]);
+    WorkspaceAdapter.setDeprecatedUIDs([deprecatedId]);
     const workspace = constructWorkspace(
       new CheWorkspaceBuilder().withId(deprecatedId).withName('wksp').withNamespace('user').build(),
     );

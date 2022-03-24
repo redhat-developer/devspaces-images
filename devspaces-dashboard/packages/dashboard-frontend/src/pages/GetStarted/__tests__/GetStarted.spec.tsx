@@ -149,7 +149,7 @@ function createFakeStore(): Store {
       workspaces: [workspace],
     })
     .withWorkspaces({
-      workspaceId: workspace.id,
+      workspaceUID: workspace.id,
       namespace: namespace,
       workspaceName: workspace.devfile.metadata.name,
     })

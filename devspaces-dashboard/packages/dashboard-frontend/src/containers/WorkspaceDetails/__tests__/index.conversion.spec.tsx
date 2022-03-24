@@ -24,10 +24,7 @@ import {
 } from '../../../store/Workspaces';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import { CheWorkspaceBuilder } from '../../../store/__mocks__/cheWorkspaceBuilder';
-import {
-  DEVWORKSPACE_ID_OVERRIDE_ANNOTATION,
-  ORIGINAL_WORKSPACE_ID_ANNOTATION,
-} from '../../../services/devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../../services/devfileApi/devWorkspace/metadata';
 import userEvent from '@testing-library/user-event';
 import devfileApi from '../../../services/devfileApi';
 import { DEVWORKSPACE_METADATA_ANNOTATION } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
@@ -61,7 +58,8 @@ describe('Workspace Details container', () => {
   describe('devfile v1->v2 conversion', () => {
     const workspaceName = 'wksp';
     const cheWorkspaceId = 'che-wksp-id';
-    const devWorkspaceId = 'dev-wksp-id';
+    const devWorkspaceId = 'che-wksp-id';
+    const devWorkspaceUID = 'uid-1234';
     const cheNamespace = 'user-che';
     const devNamespace = 'user-dev';
 
@@ -81,6 +79,7 @@ describe('Workspace Details container', () => {
         .withNamespace(cheNamespace);
       devWorkspaceBuilder = new DevWorkspaceBuilder()
         .withId(devWorkspaceId)
+        .withUID(devWorkspaceUID)
         .withName(workspaceName)
         .withNamespace(devNamespace);
       fakeStoreBuilder = new FakeStoreBuilder()
@@ -141,7 +140,7 @@ describe('Workspace Details container', () => {
         const devWorkspace = devWorkspaceBuilder
           .withMetadata({
             annotations: {
-              [ORIGINAL_WORKSPACE_ID_ANNOTATION]: cheWorkspaceId,
+              [DEVWORKSPACE_ID_OVERRIDE_ANNOTATION]: cheWorkspaceId,
             },
           })
           .build();
@@ -166,7 +165,7 @@ describe('Workspace Details container', () => {
         const devWorkspace = devWorkspaceBuilder
           .withMetadata({
             annotations: {
-              [ORIGINAL_WORKSPACE_ID_ANNOTATION]: cheWorkspaceId,
+              [DEVWORKSPACE_ID_OVERRIDE_ANNOTATION]: cheWorkspaceId,
             },
           })
           .build();
@@ -250,7 +249,7 @@ describe('Workspace Details container', () => {
       it('should show the Convert button - with attribute', async () => {
         const cheWorkspace = cheWorkspaceBuilder
           .withAttributes({
-            convertedId: devWorkspaceId,
+            convertedId: devWorkspaceUID,
           } as che.WorkspaceAttributes)
           .build();
         const store = new FakeStoreBuilder()
@@ -272,7 +271,7 @@ describe('Workspace Details container', () => {
         const devWorkspace = devWorkspaceBuilder
           .withMetadata({
             annotations: {
-              [ORIGINAL_WORKSPACE_ID_ANNOTATION]: cheWorkspaceId,
+              [DEVWORKSPACE_ID_OVERRIDE_ANNOTATION]: cheWorkspaceId,
             },
           })
           .build();
@@ -305,7 +304,6 @@ describe('Workspace Details container', () => {
             metadata: expect.objectContaining({
               attributes: expect.objectContaining({
                 [DEVWORKSPACE_METADATA_ANNOTATION]: {
-                  [ORIGINAL_WORKSPACE_ID_ANNOTATION]: cheWorkspaceId,
                   [DEVWORKSPACE_ID_OVERRIDE_ANNOTATION]: cheWorkspaceId,
                 },
               }),
@@ -324,7 +322,7 @@ describe('Workspace Details container', () => {
           expect.objectContaining({
             ref: expect.objectContaining({
               attributes: expect.objectContaining({
-                convertedId: devWorkspaceId,
+                convertedId: devWorkspaceUID,
               }),
             }),
           }),

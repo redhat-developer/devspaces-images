@@ -77,6 +77,13 @@ describe('Workspace adapter', () => {
       expect(workspace.id).toEqual(id);
     });
 
+    it('should return UID', () => {
+      const id = 'workspace1234asdf';
+      const cheWorkspace = new CheWorkspaceBuilder().withId(id).build();
+      const workspace = constructWorkspace(cheWorkspace);
+      expect(workspace.uid).toEqual(id);
+    });
+
     it('should return name', () => {
       const name = 'wksp-1234';
       const cheWorkspace = new CheWorkspaceBuilder().withName(name).build();
@@ -260,6 +267,14 @@ describe('Workspace adapter', () => {
       const devWorkspace = new DevWorkspaceBuilder().withId(id).build();
       const workspace = constructWorkspace(devWorkspace);
       expect(workspace.id).toEqual(id);
+    });
+
+    it('should return UID', () => {
+      const id = '1234asdf';
+      const devWorkspace = new DevWorkspaceBuilder().withId(id).build();
+      const workspace = constructWorkspace(devWorkspace);
+      expect(workspace.uid).not.toEqual(id);
+      expect(workspace.uid).toMatch(/^uid-/);
     });
 
     it('should return name', () => {

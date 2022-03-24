@@ -56,12 +56,12 @@ type Props = {
   history: History;
   workspaces: Workspace[];
   toDelete: string[];
-  onAction: (action: WorkspaceAction, id: string) => Promise<Location | void>;
+  onAction: (action: WorkspaceAction, uid: string) => Promise<Location | void>;
   showConfirmation: (wantDelete: string[]) => Promise<void>;
 };
 type State = {
-  filtered: string[]; // IDs of filtered workspaces
-  selected: string[]; // IDs of selected workspaces
+  filtered: string[]; // UIDs of filtered workspaces
+  selected: string[]; // UIDs of selected workspaces
   isSelectedAll: boolean;
   rows: RowData[];
   sortBy: {
@@ -120,7 +120,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       },
     ];
 
-    const filtered = this.props.workspaces.map(workspace => workspace.id);
+    const filtered = this.props.workspaces.map(workspace => workspace.uid);
     this.state = {
       filtered,
       selected: [],
@@ -149,8 +149,8 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private actionResolver(rowData: IRowData): IAction[] {
-    const id = (rowData as RowData).props.workspaceId;
-    const workspace = this.props.workspaces.find(workspace => id === workspace.id);
+    const uid = (rowData as RowData).props.workspaceUID;
+    const workspace = this.props.workspaces.find(workspace => uid === workspace.uid);
 
     if (!workspace) {
       console.warn('Unable to build list of actions: Workspace not found.');
@@ -223,12 +223,12 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private async handleAction(action: WorkspaceAction, rowData: IRowData): Promise<void> {
-    const id = (rowData as RowData).props.workspaceId;
+    const uid = (rowData as RowData).props.workspaceUID;
     try {
       if (action === WorkspaceAction.DELETE_WORKSPACE) {
         // show confirmation window
-        const workspace = this.props.workspaces.find(workspace => id === workspace.id);
-        const workspaceName = workspace?.name || id;
+        const workspace = this.props.workspaces.find(workspace => uid === workspace.uid);
+        const workspaceName = workspace?.name || uid;
         try {
           await this.props.showConfirmation([workspaceName]);
         } catch (e) {
@@ -236,7 +236,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
         }
       }
 
-      const nextPath = await this.props.onAction(action, id);
+      const nextPath = await this.props.onAction(action, uid);
       if (!nextPath) {
         return;
       }
@@ -255,24 +255,24 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
     // show confirmation window
     try {
-      const wantDelete = selected.map(id => {
-        const workspace = workspaces.find(workspace => id === workspace.id);
+      const wantDelete = selected.map(uid => {
+        const workspace = workspaces.find(workspace => uid === workspace.uid);
         if (!hasCheWorkspaces && workspace) {
           hasCheWorkspaces = isCheWorkspace(workspace.ref);
         }
-        return workspace?.name || id;
+        return workspace?.name || uid;
       });
       await this.props.showConfirmation(wantDelete);
     } catch (e) {
       return;
     }
 
-    const promises = selected.map(async id => {
+    const promises = selected.map(async uid => {
       try {
-        await this.props.onAction(WorkspaceAction.DELETE_WORKSPACE, id);
-        return id;
+        await this.props.onAction(WorkspaceAction.DELETE_WORKSPACE, uid);
+        return uid;
       } catch (e) {
-        const workspace = this.props.workspaces.find(workspace => id === workspace.id);
+        const workspace = this.props.workspaces.find(workspace => uid === workspace.uid);
         const action = workspace && isCheWorkspace(workspace.ref) ? 'delete' : 'terminate';
         const workspaceName = workspace?.name ? `workspace "${workspace.name}"` : 'workspace';
         const message =
@@ -336,11 +336,11 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
 
   private handleFilter(filtered: Workspace[]): void {
     const selected = filtered
-      .map(workspace => workspace.id)
-      .filter(id => this.state.selected.includes(id));
+      .map(workspace => workspace.uid)
+      .filter(uid => this.state.selected.includes(uid));
     const isSelectedAll = selected.length !== 0 && selected.length === filtered.length;
     this.setState({
-      filtered: filtered.map(workspace => workspace.id),
+      filtered: filtered.map(workspace => workspace.uid),
       selected,
       isSelectedAll,
     });
@@ -361,7 +361,7 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
     if (rowIndex === -1) {
       /* (un)select all */
       const isSelectedAll = isSelected;
-      const selected = isSelectedAll === false ? [] : workspaces.map(workspace => workspace.id);
+      const selected = isSelectedAll === false ? [] : workspaces.map(workspace => workspace.uid);
       this.setState({
         selected,
         isSelectedAll,
@@ -370,12 +370,12 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
     }
 
     /* (un)select specified row */
-    const id = (rowData as RowData).props.workspaceId;
+    const uid = (rowData as RowData).props.workspaceUID;
     const selected = [...this.state.selected];
-    const idx = selected.indexOf(id);
+    const idx = selected.indexOf(uid);
     if (idx === -1) {
       if (isSelected) {
-        selected.push(id);
+        selected.push(uid);
       }
     } else {
       if (!isSelected) {
@@ -390,8 +390,8 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
   }
 
   private areActionsDisabled(rowData: IRowData): boolean {
-    const id = (rowData as RowData).props.workspaceId;
-    return this.props.toDelete.includes(id);
+    const uid = (rowData as RowData).props.workspaceUID;
+    return this.props.toDelete.includes(uid);
   }
 
   private handleAddWorkspace(): void {
@@ -413,10 +413,10 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
       const selected: string[] = [];
       const filtered: string[] = [];
       this.props.workspaces.forEach(workspace => {
-        if (this.state.selected.indexOf(workspace.id) !== -1) {
-          selected.push(workspace.id);
+        if (this.state.selected.indexOf(workspace.uid) !== -1) {
+          selected.push(workspace.uid);
         }
-        filtered.push(workspace.id);
+        filtered.push(workspace.uid);
       });
       const isSelectedAll =
         selected.length !== 0 && selected.length === this.props.workspaces.length;
@@ -428,7 +428,9 @@ export default class WorkspacesList extends React.PureComponent<Props, State> {
     }
     /* Update checkboxes states if workspaces are deleting */
     if (prevProps.toDelete.length !== this.props.toDelete.length) {
-      const selected = this.state.selected.filter(id => false === this.props.toDelete.includes(id));
+      const selected = this.state.selected.filter(
+        uid => false === this.props.toDelete.includes(uid),
+      );
       this.setState({
         selected,
       });

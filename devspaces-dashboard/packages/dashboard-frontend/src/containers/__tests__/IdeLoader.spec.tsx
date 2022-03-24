@@ -21,7 +21,7 @@ import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
 import { WorkspaceStatus } from '../../services/helpers/types';
 import { advanceTimersByTime } from '../../services/helpers/jestUtils';
 import IdeLoaderContainer, { LoadIdeSteps } from '../IdeLoader';
-import { AlertOptions } from '../../pages/IdeLoader';
+import { Props } from '../../pages/IdeLoader';
 import { AppThunk } from '../../store';
 import { ActionCreators } from '../../store/Workspaces';
 import { Workspace } from '../../services/workspace-adapter';
@@ -32,7 +32,7 @@ const hideAlertMock = jest.fn();
 const requestWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const setWorkspaceIdMock = jest.fn();
-const clearWorkspaceIdMock = jest.fn();
+const clearWorkspaceUIDMock = jest.fn();
 
 jest.mock('../../store/Workspaces/index', () => {
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -51,11 +51,11 @@ jest.mock('../../store/Workspaces/index', () => {
       requestWorkspaces: (): AppThunk<Action, Promise<void>> => async (): Promise<void> => {
         return Promise.resolve();
       },
-      setWorkspaceId:
+      setWorkspaceUID:
         (id: string): AppThunk<Action, void> =>
         (): void =>
           setWorkspaceIdMock(),
-      clearWorkspaceId: (): AppThunk<Action, void> => (): void => clearWorkspaceIdMock(),
+      clearWorkspaceUID: (): AppThunk<Action, void> => (): void => clearWorkspaceUIDMock(),
       updateWorkspace:
         (workspace: Workspace): AppThunk<Action, Promise<void>> =>
         async (): Promise<void> => {
@@ -67,18 +67,7 @@ jest.mock('../../store/Workspaces/index', () => {
 });
 
 jest.mock('../../pages/IdeLoader', () => {
-  return function DummyWizard(props: {
-    hasError: boolean;
-    status: string | undefined;
-    currentStep: LoadIdeSteps;
-    workspaceName: string;
-    workspaceId: string;
-    ideUrl?: string;
-    callbacks?: {
-      showAlert?: (alertOptions: AlertOptions) => void;
-      hideAlert?: () => void;
-    };
-  }): React.ReactElement {
+  return function DummyWizard(props: Props): React.ReactElement {
     if (props.callbacks) {
       props.callbacks.showAlert = showAlertMock;
       props.callbacks.hideAlert = hideAlertMock;
@@ -89,7 +78,7 @@ jest.mock('../../pages/IdeLoader', () => {
         <div data-testid="ide-loader-has-error">{props.hasError.toString()}</div>
         <div data-testid="ide-loader-current-step">{props.currentStep}</div>
         <div data-testid="ide-loader-workspace-name">{props.workspaceName}</div>
-        <div data-testid="ide-loader-workspace-id">{props.workspaceId}</div>
+        <div data-testid="ide-loader-workspace-uid">{props.workspaceUID}</div>
         <div data-testid="ide-loader-workspace-ide-url">{props.ideUrl}</div>
         <div data-testid="ide-loader-workspace-status">{props.status}</div>
       </div>
@@ -143,7 +132,7 @@ describe('IDE Loader container', () => {
 
   const store = new FakeStoreBuilder()
     .withWorkspaces({
-      workspaceId: 'id-wksp-1',
+      workspaceUID: 'id-wksp-1',
     })
     .withCheWorkspaces({
       workspaces: [workspace_1, workspace_2, workspace_3],
@@ -245,8 +234,8 @@ describe('IDE Loader container', () => {
 
     expect(startWorkspaceMock).toHaveBeenCalledTimes(1);
 
-    const elementWorkspaceId = screen.getByTestId('ide-loader-workspace-id');
-    expect(elementWorkspaceId.innerHTML).toEqual(workspaceId);
+    const elementWorkspaceUID = screen.getByTestId('ide-loader-workspace-uid');
+    expect(elementWorkspaceUID.innerHTML).toEqual(workspaceId);
 
     const elementWorkspaceName = screen.getByTestId('ide-loader-workspace-name');
     expect(elementWorkspaceName.innerHTML).toEqual(workspaceName);
@@ -285,8 +274,8 @@ describe('IDE Loader container', () => {
     );
     expect(LoadIdeSteps[elementCurrentStep]).toEqual(LoadIdeSteps[LoadIdeSteps.OPEN_IDE]);
 
-    const elementWorkspaceId = screen.getByTestId('ide-loader-workspace-id');
-    expect(elementWorkspaceId.innerHTML).toEqual('');
+    const elementWorkspaceUID = screen.getByTestId('ide-loader-workspace-uid');
+    expect(elementWorkspaceUID.innerHTML).toEqual('');
 
     const elementIdeUrl = screen.getByTestId('ide-loader-workspace-ide-url');
     expect(elementIdeUrl.innerHTML).toEqual(ideUrl);
