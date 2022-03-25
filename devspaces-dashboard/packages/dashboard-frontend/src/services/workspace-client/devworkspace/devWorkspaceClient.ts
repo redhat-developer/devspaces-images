@@ -50,7 +50,7 @@ export interface IStatusUpdate {
   status: string;
   message: string;
   prevStatus: string | undefined;
-  workspaceId: string;
+  workspaceUID: string;
 }
 
 export type Subscriber = {
@@ -873,7 +873,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
    */
   private createStatusUpdate(devworkspace: devfileApi.DevWorkspace): IStatusUpdate | undefined {
     const namespace = devworkspace.metadata.namespace;
-    const workspaceId = WorkspaceAdapter.getId(devworkspace);
+    const workspaceUID = WorkspaceAdapter.getUID(devworkspace);
     const status = devworkspace?.status?.phase || DevWorkspaceStatus.STARTING;
     const message = devworkspace?.status?.message || '';
 
@@ -883,15 +883,15 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
 
     const previousItem = this.previousItems.get(namespace);
-    const prevStatusUpdate = previousItem?.get(workspaceId);
-    const statusUpdate = {
+    const prevStatusUpdate = previousItem?.get(workspaceUID);
+    const statusUpdate: IStatusUpdate = {
       status,
       message,
-      workspaceId,
+      workspaceUID,
       prevStatus: prevStatusUpdate?.status,
     };
 
-    previousItem?.set(workspaceId, statusUpdate);
+    previousItem?.set(workspaceUID, statusUpdate);
 
     if (status === prevStatusUpdate?.status && message === prevStatusUpdate?.message) {
       return undefined;

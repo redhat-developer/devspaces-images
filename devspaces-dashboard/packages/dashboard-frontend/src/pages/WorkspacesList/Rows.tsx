@@ -24,7 +24,7 @@ import { DevWorkspaceStatus, WorkspaceDetailsTab } from '../../services/helpers/
 
 export interface RowData extends IRow {
   props: {
-    workspaceId: string;
+    workspaceUID: string;
   };
 }
 
@@ -38,7 +38,7 @@ export function buildRows(
   const rows: RowData[] = [];
   workspaces
     // skip workspaces that are not match a filter
-    .filter(workspace => filtered.includes(workspace.id))
+    .filter(workspace => filtered.includes(workspace.uid))
     .sort((workspaceA, workspaceB) => {
       if (sortBy.index === 1) {
         const nameA = workspaceA.name || '';
@@ -53,8 +53,8 @@ export function buildRows(
       return 0;
     })
     .forEach(workspace => {
-      const isSelected = selected.includes(workspace.id);
-      const isDeleted = toDelete.includes(workspace.id);
+      const isSelected = selected.includes(workspace.uid);
+      const isDeleted = toDelete.includes(workspace.uid);
 
       const overviewPageLocation = buildDetailsLocation(workspace);
       const devfilePageLocation = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
@@ -169,7 +169,7 @@ export function buildRow(
           isInline
           isSmall
           component={props => (
-            <Link {...props} to={ideLoaderLocation} rel="noreferrer" target={workspace.id} />
+            <Link {...props} to={ideLoaderLocation} rel="noreferrer" target={workspace.uid} />
           )}
         >
           Open
@@ -215,7 +215,7 @@ export function buildRow(
       },
     ],
     props: {
-      workspaceId: workspace.id,
+      workspaceUID: workspace.uid,
     },
     selected: isSelected || isDeleted,
     disableSelection: isDeleted,

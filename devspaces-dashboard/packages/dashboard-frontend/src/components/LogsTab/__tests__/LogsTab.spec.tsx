@@ -102,7 +102,7 @@ describe('The LogsTab component', () => {
 function renderComponent(store: Store, workspaceId: string): ReactTestRenderer {
   return renderer.create(
     <Provider store={store}>
-      <LogsTab workspaceId={workspaceId} isDevWorkspace />
+      <LogsTab workspaceUID={workspaceId} isDevWorkspace />
     </Provider>,
   );
 }

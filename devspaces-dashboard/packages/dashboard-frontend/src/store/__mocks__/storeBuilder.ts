@@ -54,7 +54,7 @@ export class FakeStoreBuilder {
       isLoading: false,
       namespace: '',
       workspaceName: '',
-      workspaceId: '',
+      workspaceUID: '',
       recentNumber: 5,
     } as WorkspacesState,
     cheWorkspaces: {
@@ -296,7 +296,7 @@ export class FakeStoreBuilder {
     options: {
       namespace?: string;
       workspaceName?: string;
-      workspaceId?: string;
+      workspaceUID?: string;
       recentNumber?: number;
     },
     isLoading = false,
@@ -307,8 +307,8 @@ export class FakeStoreBuilder {
     if (options.workspaceName) {
       this.state.workspaces.workspaceName = options.workspaceName;
     }
-    if (options.workspaceId) {
-      this.state.workspaces.workspaceId = options.workspaceId;
+    if (options.workspaceUID) {
+      this.state.workspaces.workspaceUID = options.workspaceUID;
     }
     if (options.recentNumber) {
       this.state.workspaces.recentNumber = options.recentNumber;

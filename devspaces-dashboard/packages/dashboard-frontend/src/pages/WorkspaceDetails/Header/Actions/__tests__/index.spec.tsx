@@ -48,7 +48,7 @@ jest.mock('../../../../../store/Workspaces/index', () => {
 
 const namespace = 'che';
 const workspaceName = 'test-workspace-name';
-const workspaceId = 'test-workspace-id';
+const workspaceUID = 'test-workspace-id';
 
 let cheWorkspace: che.Workspace;
 let store: Store;
@@ -56,7 +56,7 @@ let store: Store;
 describe('Workspace WorkspaceAction widget', () => {
   beforeEach(() => {
     cheWorkspace = new CheWorkspaceBuilder()
-      .withId(workspaceId)
+      .withId(workspaceUID)
       .withName(workspaceName)
       .withNamespace(namespace)
       .withStatus(WorkspaceStatus.STOPPED)
@@ -70,7 +70,7 @@ describe('Workspace WorkspaceAction widget', () => {
       .build();
     store = new FakeStoreBuilder()
       .withWorkspaces({
-        workspaceId,
+        workspaceUID,
         workspaceName,
       })
       .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
@@ -86,7 +86,7 @@ describe('Workspace WorkspaceAction widget', () => {
 
     renderComponent(component);
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.getByTestId(`${workspaceUID}-action-dropdown`);
     actionDropdown.click();
 
     const menuitems = screen.getAllByRole('menuitem');
@@ -112,7 +112,7 @@ describe('Workspace WorkspaceAction widget', () => {
     const actionButton = screen.queryByRole('button', { name: /delete/i });
     expect(actionButton).toBe(null);
 
-    const actionDropdown = screen.queryByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.queryByTestId(`${workspaceUID}-action-dropdown`);
     expect(actionDropdown).toBe(null);
   });
 
@@ -123,7 +123,7 @@ describe('Workspace WorkspaceAction widget', () => {
 
     renderComponent(component);
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.getByTestId(`${workspaceUID}-action-dropdown`);
     actionDropdown.click();
 
     expect(history.location.pathname).toBe('/');
@@ -143,7 +143,7 @@ describe('Workspace WorkspaceAction widget', () => {
 
     renderComponent(component);
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.getByTestId(`${workspaceUID}-action-dropdown`);
     actionDropdown.click();
 
     expect(history.location.pathname).toBe('/');
@@ -163,7 +163,7 @@ describe('Workspace WorkspaceAction widget', () => {
 
     renderComponent(component);
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.getByTestId(`${workspaceUID}-action-dropdown`);
     actionDropdown.click();
 
     expect(history.location.pathname).toBe('/');
@@ -179,7 +179,7 @@ describe('Workspace WorkspaceAction widget', () => {
     const history = createHashHistory();
     renderComponent(createComponent(history));
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.getByTestId(`${workspaceUID}-action-dropdown`);
     actionDropdown.click();
 
     expect(history.location.pathname).toBe('/');
@@ -196,7 +196,7 @@ describe('Workspace WorkspaceAction widget', () => {
 
     renderComponent(createComponent(history, WorkspaceStatus.RUNNING));
 
-    const actionDropdown = screen.getByTestId(`${workspaceId}-action-dropdown`);
+    const actionDropdown = screen.getByTestId(`${workspaceUID}-action-dropdown`);
     actionDropdown.click();
 
     expect(history.location.pathname).toBe('/');
@@ -215,7 +215,7 @@ function createComponent(
 ): React.ReactElement {
   return (
     <HeaderActionSelect
-      workspaceId={workspaceId}
+      workspaceUID={workspaceUID}
       workspaceName={workspaceName}
       canDelete={canDelete}
       history={history}

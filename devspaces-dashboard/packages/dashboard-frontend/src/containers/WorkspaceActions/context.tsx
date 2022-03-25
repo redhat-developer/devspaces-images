@@ -15,7 +15,7 @@ import { Location } from 'history';
 import { WorkspaceAction } from '../../services/helpers/types';
 
 export type ActionContextType = {
-  handleAction: (action: WorkspaceAction, id: string) => Promise<Location | void>;
+  handleAction: (action: WorkspaceAction, uid: string) => Promise<Location | void>;
   showConfirmation: (wantDelete: string[]) => Promise<void>;
   toDelete: string[];
 };

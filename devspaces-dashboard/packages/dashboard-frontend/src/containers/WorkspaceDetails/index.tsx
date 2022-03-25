@@ -26,7 +26,6 @@ import { AppState } from '../../store';
 import * as WorkspacesStore from '../../store/Workspaces';
 import { selectAllWorkspaces, selectIsLoading } from '../../store/Workspaces/selectors';
 import { isDevWorkspace } from '../../services/devfileApi';
-import { ORIGINAL_WORKSPACE_ID_ANNOTATION } from '../../services/devfileApi/devWorkspace/metadata';
 import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../services/devfileApi/devWorkspace/metadata';
 import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import { DEVWORKSPACE_METADATA_ANNOTATION } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
@@ -86,18 +85,20 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     if (!workspace || !isDevWorkspace(workspace.ref)) {
       return;
     }
-    const oldWorkspaceId = workspace.ref.metadata.annotations?.[ORIGINAL_WORKSPACE_ID_ANNOTATION];
-    if (!oldWorkspaceId) {
+
+    const che7WorkspaceId =
+      workspace.ref.metadata.annotations?.[DEVWORKSPACE_ID_OVERRIDE_ANNOTATION];
+    if (!che7WorkspaceId) {
       return;
     }
     // check if the old workspace is still available
-    const oldWorkspace = this.props.allWorkspaces.find(
-      workspace => workspace.id === oldWorkspaceId,
+    const che7Workspace = this.props.allWorkspaces.find(
+      workspace => workspace.uid === che7WorkspaceId,
     );
-    if (!oldWorkspace) {
+    if (!che7Workspace) {
       return;
     }
-    return buildDetailsLocation(oldWorkspace, WorkspaceDetailsTab.DEVFILE);
+    return buildDetailsLocation(che7Workspace, WorkspaceDetailsTab.DEVFILE);
   }
 
   private getShowConvertButton(workspace?: Workspace): boolean {
@@ -108,8 +109,8 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     if (!cheWorkspace.attributes?.convertedId) {
       return true;
     } else {
-      const id = cheWorkspace.attributes.convertedId;
-      return this.props.allWorkspaces.every(workspace => workspace.id !== id);
+      const devWorkspaceUID = cheWorkspace.attributes.convertedId;
+      return this.props.allWorkspaces.every(workspace => workspace.uid !== devWorkspaceUID);
     }
   }
 
@@ -120,7 +121,7 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
   public shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     return (
       nextProps.isLoading === false &&
-      (this.state.workspace?.id !== nextState.workspace?.id ||
+      (this.state.workspace?.uid !== nextState.workspace?.uid ||
         this.props.location.pathname !== nextProps.location.pathname)
     );
   }
@@ -173,11 +174,8 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
       devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
     }
     devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][
-      ORIGINAL_WORKSPACE_ID_ANNOTATION
-    ] = oldWorkspace.id;
-    devfileV2.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][
       DEVWORKSPACE_ID_OVERRIDE_ANNOTATION
-    ] = oldWorkspace.id;
+    ] = oldWorkspace.uid;
     const defaultNamespace = this.props.defaultNamespace.name;
     // create a new workspace
     await this.props.createWorkspaceFromDevfile(
@@ -192,7 +190,8 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     const newWorkspace = this.props.allWorkspaces.find(workspace => {
       if (isDevWorkspace(workspace.ref)) {
         return (
-          workspace.ref.metadata.annotations?.[ORIGINAL_WORKSPACE_ID_ANNOTATION] === oldWorkspace.id
+          workspace.ref.metadata.annotations?.[DEVWORKSPACE_ID_OVERRIDE_ANNOTATION] ===
+          oldWorkspace.uid
         );
       }
       return false;
@@ -205,7 +204,7 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     // add 'converted' attribute to the old workspace
     // to be able to hide it on the Workspaces page
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    oldWorkspace.ref.attributes!.convertedId = newWorkspace.id;
+    oldWorkspace.ref.attributes!.convertedId = newWorkspace.uid;
     await this.props.updateWorkspace(oldWorkspace);
 
     // return the new workspace page location

@@ -28,7 +28,7 @@ type Props = {
   context: ActionContextType;
   history: History;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
-  workspaceId: string;
+  workspaceUID: string;
   workspaceName: string;
   onAction: (action: WorkspaceAction, context: ActionContextType) => void;
 };
@@ -106,7 +106,7 @@ export default class DropdownActions extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactElement {
-    const { workspaceId } = this.props;
+    const { workspaceUID } = this.props;
     const { isExpanded } = this.state;
 
     const dropdownItems = this.getDropdownItems();
@@ -116,7 +116,7 @@ export default class DropdownActions extends React.PureComponent<Props, State> {
         className={styles.workspaceActionSelector}
         toggle={
           <DropdownToggle
-            data-testid={`${workspaceId}-action-dropdown`}
+            data-testid={`${workspaceUID}-action-dropdown`}
             onToggle={isExpanded => this.handleToggle(isExpanded)}
             toggleIndicator={CaretDownIcon}
             isPrimary

@@ -16,8 +16,7 @@ import { render, waitFor } from '@testing-library/react';
 import { ROUTE } from '../../../route.enum';
 import { getMockRouterProps } from '../../../services/__mocks__/router';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
-import FactoryLoaderContainer, { LoadFactorySteps } from '..';
-import { AlertOptions } from '../../../pages/IdeLoader';
+import FactoryLoaderContainer from '..';
 import { constructWorkspace, Devfile } from '../../../services/workspace-adapter';
 import { actionCreators as workspacesActionCreators } from '../../../store/Workspaces';
 import {
@@ -27,6 +26,7 @@ import {
 import SessionStorageService, { SessionStorageKey } from '../../../services/session-storage';
 import { RouterProps } from 'react-router';
 import { Store } from 'redux';
+import { Props } from '../../../pages/FactoryLoader';
 
 const showAlertMock = jest.fn();
 const setWorkspaceQualifiedName = jest.fn();
@@ -34,8 +34,8 @@ const createWorkspaceFromDevfileMock = jest.fn().mockResolvedValue(undefined);
 const requestWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const startWorkspaceMock = jest.fn().mockResolvedValue(undefined);
 const requestFactoryResolverMock = jest.fn().mockResolvedValue(undefined);
-const setWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
-const clearWorkspaceIdMock = jest.fn().mockResolvedValue(undefined);
+const setWorkspaceUIDMock = jest.fn().mockResolvedValue(undefined);
+const clearWorkspaceUIDMock = jest.fn().mockResolvedValue(undefined);
 
 const createWorkspaceFromResourcesMock = jest.fn().mockReturnValue(undefined);
 jest.mock('../../../store/Workspaces/devWorkspaces/index', () => {
@@ -75,11 +75,11 @@ jest.mock('../../../store/Workspaces');
       });
     },
 );
-(workspacesActionCreators.setWorkspaceId as jest.Mock).mockImplementation(
-  (id: string) => async () => setWorkspaceIdMock(id),
+(workspacesActionCreators.setWorkspaceUID as jest.Mock).mockImplementation(
+  (uid: string) => async () => setWorkspaceUIDMock(uid),
 );
-(workspacesActionCreators.clearWorkspaceId as jest.Mock).mockImplementation(
-  () => async () => clearWorkspaceIdMock(),
+(workspacesActionCreators.clearWorkspaceUID as jest.Mock).mockImplementation(
+  () => async () => clearWorkspaceUIDMock(),
 );
 (workspacesActionCreators.setWorkspaceQualifiedName as jest.Mock).mockImplementation(
   (namespace: string, workspaceName: string) => async () =>
@@ -106,16 +106,7 @@ const actualModule = jest.requireActual('../../../store/FactoryResolver');
 );
 
 jest.mock('../../../pages/FactoryLoader', () => {
-  return function DummyWizard(props: {
-    hasError: boolean;
-    currentStep: LoadFactorySteps;
-    workspaceName: string;
-    workspaceId: string;
-    resolvedDevfileMessage?: string;
-    callbacks?: {
-      showAlert?: (alertOptions: AlertOptions) => void;
-    };
-  }): React.ReactElement {
+  return function DummyWizard(props: Props): React.ReactElement {
     if (props.callbacks) {
       props.callbacks.showAlert = showAlertMock;
     }
@@ -125,7 +116,7 @@ jest.mock('../../../pages/FactoryLoader', () => {
         <div data-testid="factory-loader-has-error">{props.hasError.toString()}</div>
         <div data-testid="factory-loader-current-step">{props.currentStep}</div>
         <div data-testid="factory-loader-workspace-name">{props.workspaceName}</div>
-        <div data-testid="factory-loader-workspace-id">{props.workspaceId}</div>
+        <div data-testid="factory-loader-workspace-uid">{props.workspaceUID}</div>
         <div data-testid="factory-loader-devfile-location-info">{props.resolvedDevfileMessage}</div>
       </div>
     );

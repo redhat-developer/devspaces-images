@@ -27,6 +27,7 @@ export interface Workspace {
   readonly ref: che.Workspace | devfileApi.DevWorkspace;
 
   readonly id: string;
+  readonly uid: string;
   name: string;
   readonly namespace: string;
   readonly infrastructureNamespace: string;
@@ -49,7 +50,7 @@ export interface Workspace {
 export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
   implements Workspace
 {
-  private static deprecatedIds: string[] = [];
+  private static deprecatedUIDs: string[] = [];
   private workspace: T;
 
   constructor(workspace: T) {
@@ -61,14 +62,21 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     }
   }
 
-  static setDeprecatedIds(ids: string[]) {
-    WorkspaceAdapter.deprecatedIds = ids;
+  static setDeprecatedUIDs(UIDs: string[]) {
+    WorkspaceAdapter.deprecatedUIDs = UIDs;
   }
 
   static isDeprecated(workspace: che.Workspace | devfileApi.DevWorkspace): boolean {
-    return WorkspaceAdapter.deprecatedIds.indexOf(WorkspaceAdapter.getId(workspace)) !== -1;
+    if (isDevWorkspace(workspace)) {
+      return false;
+    }
+    return WorkspaceAdapter.deprecatedUIDs.indexOf(WorkspaceAdapter.getId(workspace)) !== -1;
   }
 
+  /**
+   * Returns a workspace ID.
+   * Note that IDs may intersect for Che7 workspaces and DevWorkspaces.
+   */
   static getId(workspace: che.Workspace | devfileApi.DevWorkspace): string {
     if (isCheWorkspace(workspace)) {
       return workspace.id;
@@ -77,6 +85,17 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         return workspace.status.devworkspaceId;
       }
       return 'workspace' + workspace.metadata.uid.split('-').splice(0, 3).join('');
+    }
+  }
+
+  /**
+   * Returns a unique workspace ID.
+   */
+  static getUID(workspace: che.Workspace | devfileApi.DevWorkspace): string {
+    if (isCheWorkspace(workspace)) {
+      return workspace.id;
+    } else {
+      return workspace.metadata.uid;
     }
   }
 
@@ -103,6 +122,10 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
 
   get id(): string {
     return WorkspaceAdapter.getId(this.workspace);
+  }
+
+  get uid(): string {
+    return WorkspaceAdapter.getUID(this.workspace);
   }
 
   get name(): string {

@@ -35,7 +35,7 @@ function buildRecentWorkspacesItems(
       to: navigateTo,
       label: workspaceName,
       status: workspace.status,
-      workspaceId: workspace.id,
+      workspaceUID: workspace.uid,
       isDevWorkspace: workspace.isDevWorkspace,
     };
     return (

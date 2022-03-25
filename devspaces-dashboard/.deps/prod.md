@@ -7,9 +7,9 @@
 | `@eclipse-che/api@7.36.0` | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | clearlydefined |
 | [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | clearlydefined |
-| [`@eclipse-che/common@7.43.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
-| [`@eclipse-che/dashboard-backend@7.43.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
-| [`@eclipse-che/dashboard-frontend@7.43.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
+| [`@eclipse-che/common@7.44.1-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
+| [`@eclipse-che/dashboard-backend@7.44.1-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | N/A |
+| [`@eclipse-che/dashboard-frontend@7.44.1-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | N/A |
 | [`@eclipse-che/devfile-converter@0.0.1-b6a30cc`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | N/A |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | clearlydefined |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
@@ -247,7 +247,7 @@
 | [`light-my-request@4.4.4`](https://github.com/fastify/light-my-request.git) | BSD-3-Clause | clearlydefined |
 | [`loader-utils@1.4.0`](https://github.com/webpack/loader-utils.git) | MIT | clearlydefined |
 | [`lodash.isequalwith@4.4.0`](https://github.com/lodash/lodash.git) | MIT | clearlydefined |
-| [`lodash@4.17.21`](https://github.com/lodash/lodash.git) | MIT | clearlydefined |
+| [`lodash@4.17.21`](https://github.com/lodash/lodash.git) | MIT | #2096 |
 | [`loose-envify@1.4.0`](git://github.com/zertosh/loose-envify.git) | MIT | clearlydefined |
 | [`lowercase-keys@2.0.0`](https://github.com/sindresorhus/lowercase-keys.git) | MIT | clearlydefined |
 | [`lru-cache@6.0.0`](git://github.com/isaacs/node-lru-cache.git) | ISC | clearlydefined |

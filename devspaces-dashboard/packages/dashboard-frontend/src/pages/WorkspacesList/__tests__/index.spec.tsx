@@ -168,15 +168,15 @@ describe('Workspaces List Page', () => {
 
         expect(mockOnAction).toHaveBeenCalledWith(
           WorkspaceAction.DELETE_WORKSPACE,
-          workspaces[0].id,
+          workspaces[0].uid,
         );
         expect(mockOnAction).toHaveBeenCalledWith(
           WorkspaceAction.DELETE_WORKSPACE,
-          workspaces[1].id,
+          workspaces[1].uid,
         );
         expect(mockOnAction).toHaveBeenCalledWith(
           WorkspaceAction.DELETE_WORKSPACE,
-          workspaces[2].id,
+          workspaces[2].uid,
         );
       });
 
@@ -274,7 +274,7 @@ describe('Workspaces List Page', () => {
       const checkboxes = screen.getAllByRole('checkbox', { name: /select row/i });
       expect(checkboxes[0]).not.toBeChecked();
 
-      isDeleted = [workspaces[0].id];
+      isDeleted = [workspaces[0].uid];
       rerender(getComponent());
 
       expect(checkboxes[0]).toBeChecked();
@@ -315,7 +315,7 @@ describe('Workspaces List Page', () => {
 
     it('should not open the kebab menu while workspace is being deleted', () => {
       // deleting first workspace
-      isDeleted = [workspaces[0].id];
+      isDeleted = [workspaces[0].uid];
       renderComponent();
 
       const actionButtons = screen.getAllByRole('button', { name: /actions/i });
@@ -336,7 +336,7 @@ describe('Workspaces List Page', () => {
 
       expect(mockOnAction).toHaveBeenCalledWith(
         WorkspaceAction.START_DEBUG_AND_OPEN_LOGS,
-        workspaces[0].id,
+        workspaces[0].uid,
       );
     });
 
@@ -352,7 +352,7 @@ describe('Workspaces List Page', () => {
 
       expect(mockOnAction).toHaveBeenCalledWith(
         WorkspaceAction.START_IN_BACKGROUND,
-        workspaces[0].id,
+        workspaces[0].uid,
       );
     });
 
@@ -380,7 +380,7 @@ describe('Workspaces List Page', () => {
       const stopAction = screen.getByRole('button', { name: /stop workspace/i });
       userEvent.click(stopAction);
 
-      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.STOP_WORKSPACE, workspaces[0].id);
+      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.STOP_WORKSPACE, workspaces[0].uid);
     });
 
     it('should handle "Delete Workspace" action', async () => {
@@ -395,13 +395,16 @@ describe('Workspaces List Page', () => {
 
       await waitFor(() => expect(mockOnAction).toHaveBeenCalled());
 
-      expect(mockOnAction).toHaveBeenCalledWith(WorkspaceAction.DELETE_WORKSPACE, workspaces[0].id);
+      expect(mockOnAction).toHaveBeenCalledWith(
+        WorkspaceAction.DELETE_WORKSPACE,
+        workspaces[0].uid,
+      );
     });
 
     describe('with deprecated workspaces', () => {
       test('actions', () => {
         const deprecatedWorkspaceId = 'deprecated-workspace-id';
-        WorkspaceAdapter.setDeprecatedIds([deprecatedWorkspaceId]);
+        WorkspaceAdapter.setDeprecatedUIDs([deprecatedWorkspaceId]);
         const workspaces: Workspace[] = [
           new CheWorkspaceBuilder()
             .withId(deprecatedWorkspaceId)
@@ -431,7 +434,7 @@ describe('Workspaces List Page', () => {
       test('status icon', () => {
         const deprecatedWorkspaceId = 'deprecated-workspace-id';
         // mark the workspace as deprecated
-        WorkspaceAdapter.setDeprecatedIds([deprecatedWorkspaceId]);
+        WorkspaceAdapter.setDeprecatedUIDs([deprecatedWorkspaceId]);
         const workspaces: Workspace[] = [
           new CheWorkspaceBuilder()
             .withId(deprecatedWorkspaceId)
@@ -451,7 +454,7 @@ describe('Workspaces List Page', () => {
       test('Convert action link should redirect to the workspace page', () => {
         const deprecatedWorkspaceId = 'deprecated-workspace-id';
         // mark the workspace as deprecated
-        WorkspaceAdapter.setDeprecatedIds([deprecatedWorkspaceId]);
+        WorkspaceAdapter.setDeprecatedUIDs([deprecatedWorkspaceId]);
         const workspaces: Workspace[] = [
           new CheWorkspaceBuilder()
             .withId(deprecatedWorkspaceId)

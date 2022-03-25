@@ -46,8 +46,8 @@ type Props = MappedProps & { history: History } & {
 };
 
 type State = {
-  toDelete: string[];
-  wantDelete: string[];
+  toDelete: string[]; // UIDs
+  wantDelete: string[]; // UIDs
   isOpen: boolean;
   isConfirmed: boolean;
   deferred?: Deferred;
@@ -73,7 +73,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
   private async handleLocation(location: Location, workspace: Workspace): Promise<Location | void> {
     if (workspace.isDevWorkspace) {
       const link = toHref(this.props.history, location);
-      window.open(link, workspace.id);
+      window.open(link, workspace.uid);
     } else {
       return location;
     }
@@ -87,20 +87,20 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
       throw new Error('Only STOPPED workspaces can be deleted.');
     }
 
-    this.deleting.add(workspace.id);
+    this.deleting.add(workspace.uid);
     this.setState({
       toDelete: Array.from(this.deleting),
     });
 
     try {
       await this.props.deleteWorkspace(workspace);
-      this.deleting.delete(workspace.id);
+      this.deleting.delete(workspace.uid);
       this.setState({
         toDelete: Array.from(this.deleting),
       });
       return buildWorkspacesLocation();
     } catch (e) {
-      this.deleting.delete(workspace.id);
+      this.deleting.delete(workspace.uid);
       this.setState({
         toDelete: Array.from(this.deleting),
       });
@@ -111,15 +111,15 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
   /**
    * Performs an action on the given workspace
    */
-  private async handleAction(action: WorkspaceAction, id: string): Promise<Location | void> {
-    const workspace = this.props.allWorkspaces.find(workspace => id === workspace.id);
+  private async handleAction(action: WorkspaceAction, uid: string): Promise<Location | void> {
+    const workspace = this.props.allWorkspaces.find(workspace => uid === workspace.uid);
 
     if (!workspace) {
-      console.warn(`Workspace not found, ID: ${id}.`);
+      console.warn(`Workspace not found, UID: ${uid}.`);
       return;
     }
 
-    if (this.deleting.has(id)) {
+    if (this.deleting.has(uid)) {
       console.warn(`Workspace "${workspace.name}" is being deleted.`);
       return;
     }
@@ -283,7 +283,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
     return (
       <WorkspaceActionsContext.Provider
         value={{
-          handleAction: (action, id) => this.handleAction(action, id),
+          handleAction: (action, uid) => this.handleAction(action, uid),
           showConfirmation: (wantDelete: string[]) => this.showConfirmation(wantDelete),
           toDelete,
         }}

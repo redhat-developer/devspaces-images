@@ -239,7 +239,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
             <WorkspaceConversionButton onConvert={() => this.handleConversion(workspace)} />
           )}
           <HeaderActionSelect
-            workspaceId={workspace.id}
+            workspaceUID={workspace.uid}
             workspaceName={workspaceName}
             canDelete={canDelete}
             status={workspace.status}
@@ -273,9 +273,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
                 onDevWorkspaceWarning={() => this.handleRestartWarning()}
               />
             </Tab>
-            {/* <Tab eventKey={WorkspaceDetailsTabs.Logs} title={WorkspaceDetailsTabs[WorkspaceDetailsTabs.Logs]}>*/}
-            {/*  <LogsTab workspaceId={workspace.id} />*/}
-            {/* </Tab>*/}
           </Tabs>
           <UnsavedChangesModal
             hasUnsavedChanges={() => this.hasUnsavedChanges()}

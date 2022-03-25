@@ -12,7 +12,7 @@
 
 import { createSelector } from 'reselect';
 import { AppState } from '..';
-import { constructWorkspace, Workspace } from '../../services/workspace-adapter';
+import { constructWorkspace, Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
 import { selectCheWorkspacesError } from './cheWorkspaces/selectors';
 import { selectDevWorkspacesError } from './devWorkspaces/selectors';
 import { selectDevworkspacesEnabled } from './Settings/selectors';
@@ -32,16 +32,16 @@ export const selectLogs = createSelector(
 );
 
 /**
- * Returns array of IDs of deprecated workspaces
+ * Returns array of UIDs of deprecated workspaces
  */
-export const selectDeprecatedWorkspacesIds = createSelector(
+export const selectDeprecatedWorkspacesUIDs = createSelector(
   selectCheWorkspacesState,
   selectDevworkspacesEnabled,
   (cheWorkspacesState, devworkspacesEnabled) => {
     if (devworkspacesEnabled === false) {
       return [];
     }
-    return cheWorkspacesState.workspaces.map(workspace => workspace.id);
+    return cheWorkspacesState.workspaces.map(workspace => WorkspaceAdapter.getUID(workspace));
   },
 );
 
@@ -67,11 +67,11 @@ export const selectWorkspaceByQualifiedName = createSelector(
   },
 );
 
-export const selectWorkspaceById = createSelector(
+export const selectWorkspaceByUID = createSelector(
   selectState,
   selectAllWorkspaces,
   (state, allWorkspaces) => {
-    return allWorkspaces.find(workspace => workspace.id === state.workspaceId);
+    return allWorkspaces.find(workspace => workspace.uid === state.workspaceUID);
   },
 );
 
@@ -119,10 +119,10 @@ const selectRecentNumber = createSelector(selectState, state => state.recentNumb
 export const selectRecentWorkspaces = createSelector(
   selectRecentNumber,
   selectAllWorkspaces,
-  selectDeprecatedWorkspacesIds,
-  (recentNumber, allWorkspaces, deprecatedWorkspacesIds) =>
+  selectDeprecatedWorkspacesUIDs,
+  (recentNumber, allWorkspaces, deprecatedWorkspacesUIDs) =>
     allWorkspaces
-      .filter(workspace => deprecatedWorkspacesIds.indexOf(workspace.id) === -1)
+      .filter(workspace => deprecatedWorkspacesUIDs.indexOf(workspace.uid) === -1)
       .sort(sortByUpdatedTimeFn)
       .slice(0, recentNumber),
 );

@@ -31,7 +31,7 @@ import styles from './index.module.css';
 const maxLogLength = 200;
 
 type Props = {
-  workspaceId: string;
+  workspaceUID: string;
   isDevWorkspace: boolean;
 } & MappedProps;
 
@@ -67,14 +67,14 @@ export class LogsTab extends React.PureComponent<Props, State> {
   }
 
   private updateLogsData() {
-    const { workspaceId, workspacesLogs, allWorkspaces } = this.props;
+    const { workspaceUID, workspacesLogs, allWorkspaces } = this.props;
     if (allWorkspaces && allWorkspaces.length > 0) {
-      const workspace = allWorkspaces.find(workspace => workspace.id === workspaceId);
+      const workspace = allWorkspaces.find(workspace => workspace.uid === workspaceUID);
       if (!workspace) {
         return;
       }
 
-      const logs = workspacesLogs.get(workspaceId);
+      const logs = workspacesLogs.get(workspaceUID);
       const isStopped = workspace.isStopped;
       if (this.state.isStopped !== isStopped || !isEqual(this.state.logs, logs)) {
         this.setState({

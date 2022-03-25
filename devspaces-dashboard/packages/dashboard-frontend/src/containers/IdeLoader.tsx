@@ -33,7 +33,7 @@ import {
   selectAllWorkspaces,
   selectIsLoading,
   selectLogs,
-  selectWorkspaceById,
+  selectWorkspaceByUID,
 } from '../store/Workspaces/selectors';
 import { buildWorkspacesLocation } from '../services/helpers/location';
 import { DisposableCollection } from '../services/helpers/disposable';
@@ -54,7 +54,7 @@ export enum LoadIdeSteps {
 type State = {
   namespace: string;
   workspaceName: string;
-  workspaceId?: string;
+  workspaceUID?: string;
   currentStep: LoadIdeSteps;
   preselectedTabKey?: IdeLoaderTab;
   ideUrl?: string;
@@ -297,7 +297,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
         this.setState({
           workspaceName: this.workspaceName,
           currentStep: LoadIdeSteps.START_WORKSPACE,
-          workspaceId: workspace.id,
+          workspaceUID: workspace.uid,
           hasStarted: false,
         });
         this.showErrorAlert(workspace);
@@ -342,7 +342,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
 
   private findErrorLogs(workspace: Workspace): string {
     const errorRe = workspace.isDevWorkspace ? /^[1-9]{0,5} error occurred:/i : /^Error: /i;
-    const wsLogs = this.props.workspacesLogs.get(workspace.id) || [];
+    const wsLogs = this.props.workspacesLogs.get(workspace.uid) || [];
 
     const errorLogs: string[] = [];
     wsLogs.forEach(e => {
@@ -376,7 +376,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   private async handleRestart(workspace: Workspace): Promise<void> {
-    this.props.deleteWorkspaceLogs(workspace.id);
+    this.props.deleteWorkspaceLogs(workspace);
 
     try {
       await this.restartWorkspace(workspace);
@@ -390,7 +390,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
 
     try {
       await this.props.startWorkspace(workspace, { 'debug-workspace-start': true });
-      this.props.deleteWorkspaceLogs(workspace.id);
+      this.props.deleteWorkspaceLogs(workspace);
       this.setState({
         currentStep: LoadIdeSteps.INITIALIZING,
         hasError: false,
@@ -423,17 +423,17 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
     this.setState({ currentStep: LoadIdeSteps.OPEN_IDE, ideUrl });
   }
 
-  private async openIDE(cheWorkspace: Workspace): Promise<void> {
+  private async openIDE(workspace: Workspace): Promise<void> {
     this.setState({ currentStep: LoadIdeSteps.OPEN_IDE });
     try {
-      await this.props.requestWorkspace(cheWorkspace);
+      await this.props.requestWorkspace(workspace);
     } catch (e) {
       this.showAlert(`Getting workspace detail data failed. ${e}`);
       return;
     }
-    const workspace = this.props.allWorkspaces.find(workspace => workspace.id === cheWorkspace.id);
-    if (workspace && workspace.ideUrl) {
-      await this.updateIdeUrl(workspace.ideUrl);
+    const updatedWorkspace = this.props.allWorkspaces.find(wksp => wksp.uid === workspace.uid);
+    if (updatedWorkspace && updatedWorkspace.ideUrl) {
+      await this.updateIdeUrl(updatedWorkspace.ideUrl);
     }
   }
 
@@ -462,9 +462,9 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       return;
     }
     if (workspace) {
-      if (this.state.workspaceId !== workspace.id) {
-        this.props.setWorkspaceId(workspace.id);
-        this.setState({ workspaceId: workspace.id });
+      if (this.state.workspaceUID !== workspace.uid) {
+        this.props.setWorkspaceUID(workspace.uid);
+        this.setState({ workspaceUID: workspace.uid });
       }
       if (
         (workspace.ideUrl || this.state.currentStep === LoadIdeSteps.START_WORKSPACE) &&
@@ -474,7 +474,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       }
     } else {
       if (this.props.workspace) {
-        this.props.clearWorkspaceId();
+        this.props.clearWorkspaceUID();
       }
       this.showAlert('Failed to find the target workspace.');
       return;
@@ -498,7 +498,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       currentStep,
       hasError,
       ideUrl,
-      workspaceId,
+      workspaceUID,
       workspaceName,
       preselectedTabKey,
       isDevWorkspace,
@@ -508,7 +508,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
       <IdeLoader
         currentStep={currentStep}
         isDevWorkspace={isDevWorkspace}
-        workspaceId={workspaceId || ''}
+        workspaceUID={workspaceUID || ''}
         preselectedTabKey={preselectedTabKey}
         ideUrl={ideUrl}
         hasError={hasError}
@@ -521,7 +521,7 @@ class IdeLoaderContainer extends React.PureComponent<Props, State> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  workspace: selectWorkspaceById(state),
+  workspace: selectWorkspaceByUID(state),
   allWorkspaces: selectAllWorkspaces(state),
   isLoading: selectIsLoading(state),
   workspacesLogs: selectLogs(state),

@@ -50,6 +50,11 @@ export class DevWorkspaceBuilder {
     return this;
   }
 
+  withUID(uid: string): DevWorkspaceBuilder {
+    this.workspace.metadata.uid = uid;
+    return this;
+  }
+
   withName(name: string): DevWorkspaceBuilder {
     this.workspace.metadata.name = name;
     return this;

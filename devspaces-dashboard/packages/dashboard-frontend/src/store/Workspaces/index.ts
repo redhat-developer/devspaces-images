@@ -26,7 +26,7 @@ export interface State {
   // current workspace qualified name
   namespace: string;
   workspaceName: string;
-  workspaceId: string;
+  workspaceUID: string;
   // number of recent workspaces
   recentNumber: number;
 }
@@ -49,12 +49,11 @@ interface UpdateWorkspaceAction {
 
 interface DeleteWorkspaceLogsAction {
   type: 'DELETE_WORKSPACE_LOGS';
-  workspaceId: string;
+  workspace: Workspace;
 }
 
 interface DeleteWorkspaceAction {
   type: 'DELETE_WORKSPACE';
-  workspaceId: string;
 }
 
 interface AddWorkspaceAction {
@@ -71,13 +70,13 @@ interface ClearWorkspaceQualifiedName {
   type: 'CLEAR_WORKSPACE_NAME';
 }
 
-interface SetWorkspaceId {
-  type: 'SET_WORKSPACE_ID';
-  workspaceId: string;
+interface SetWorkspaceUID {
+  type: 'SET_WORKSPACE_UID';
+  workspaceUID: string;
 }
 
-interface ClearWorkspaceId {
-  type: 'CLEAR_WORKSPACE_ID';
+interface ClearWorkspaceUID {
+  type: 'CLEAR_WORKSPACE_UID';
 }
 
 type KnownAction =
@@ -89,8 +88,8 @@ type KnownAction =
   | AddWorkspaceAction
   | SetWorkspaceQualifiedName
   | ClearWorkspaceQualifiedName
-  | SetWorkspaceId
-  | ClearWorkspaceId
+  | SetWorkspaceUID
+  | ClearWorkspaceUID
   | DeleteWorkspaceLogsAction;
 
 export type ResourceQueryParams = {
@@ -124,9 +123,9 @@ export type ActionCreators = {
     workspaceName: string,
   ) => AppThunk<SetWorkspaceQualifiedName>;
   clearWorkspaceQualifiedName: () => AppThunk<ClearWorkspaceQualifiedName>;
-  setWorkspaceId: (workspaceId: string) => AppThunk<SetWorkspaceId>;
-  clearWorkspaceId: () => AppThunk<ClearWorkspaceId>;
-  deleteWorkspaceLogs: (workspaceId: string) => AppThunk<DeleteWorkspaceLogsAction>;
+  setWorkspaceUID: (workspaceUID: string) => AppThunk<SetWorkspaceUID>;
+  clearWorkspaceUID: () => AppThunk<ClearWorkspaceUID>;
+  deleteWorkspaceLogs: (workspace: Workspace) => AppThunk<DeleteWorkspaceLogsAction>;
 };
 
 export const actionCreators: ActionCreators = {
@@ -137,14 +136,14 @@ export const actionCreators: ActionCreators = {
       try {
         const state = getState();
         const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
-        let requestWorkspaces: Promise<any> = Promise.resolve();
 
+        const promises: Promise<unknown>[] = [];
         if (cheDevworkspaceEnabled) {
-          requestWorkspaces = dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces());
+          promises.push(dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces()));
         }
-        requestWorkspaces = dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces());
+        promises.push(dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces()));
 
-        await requestWorkspaces;
+        await Promise.allSettled(promises);
 
         dispatch({ type: 'RECEIVE_WORKSPACES' });
       } catch (e) {
@@ -234,7 +233,6 @@ export const actionCreators: ActionCreators = {
           await dispatch(
             CheWorkspacesStore.actionCreators.stopWorkspace(workspace.ref as che.Workspace),
           );
-          // cheWorkspaceClient.restApiClient.stop(workspace.id);
         }
       } catch (e) {
         dispatch({ type: 'RECEIVE_ERROR' });
@@ -350,29 +348,29 @@ export const actionCreators: ActionCreators = {
     dispatch({ type: 'CLEAR_WORKSPACE_NAME' });
   },
 
-  setWorkspaceId:
-    (workspaceId: string): AppThunk<SetWorkspaceId> =>
+  setWorkspaceUID:
+    (workspaceUID: string): AppThunk<SetWorkspaceUID> =>
     dispatch => {
       dispatch({
-        type: 'SET_WORKSPACE_ID',
-        workspaceId,
+        type: 'SET_WORKSPACE_UID',
+        workspaceUID,
       });
     },
 
-  clearWorkspaceId: (): AppThunk<ClearWorkspaceId> => dispatch => {
-    dispatch({ type: 'CLEAR_WORKSPACE_ID' });
+  clearWorkspaceUID: (): AppThunk<ClearWorkspaceUID> => dispatch => {
+    dispatch({ type: 'CLEAR_WORKSPACE_UID' });
   },
 
   deleteWorkspaceLogs:
-    (workspaceId: string): AppThunk<KnownAction> =>
+    (workspace: Workspace): AppThunk<KnownAction> =>
     (_dispatch, getState): void => {
       const state = getState();
       const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled) {
-        DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspaceId);
+        DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid);
       }
 
-      CheWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspaceId);
+      CheWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid);
     },
 };
 
@@ -381,7 +379,7 @@ const unloadedState: State = {
 
   namespace: '',
   workspaceName: '',
-  workspaceId: '',
+  workspaceUID: '',
 
   recentNumber: 5,
 };
@@ -426,13 +424,13 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
         namespace: '',
         workspaceName: '',
       });
-    case 'SET_WORKSPACE_ID':
+    case 'SET_WORKSPACE_UID':
       return createObject(state, {
-        workspaceId: action.workspaceId,
+        workspaceUID: action.workspaceUID,
       });
-    case 'CLEAR_WORKSPACE_ID':
+    case 'CLEAR_WORKSPACE_UID':
       return createObject(state, {
-        workspaceId: '',
+        workspaceUID: '',
       });
     default:
       return state;

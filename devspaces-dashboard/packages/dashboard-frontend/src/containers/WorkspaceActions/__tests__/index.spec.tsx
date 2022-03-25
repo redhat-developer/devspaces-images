@@ -46,8 +46,8 @@ describe('Workspace Actions', () => {
   const defaultWorkspaceId = 'workspace-0';
   const nonExistingWorkspaceId = 'non-existing-workspace';
 
-  const mockOnAction = jest.fn((ctx: ActionContextType, action: WorkspaceAction, id: string) =>
-    ctx.handleAction(action, id),
+  const mockOnAction = jest.fn((ctx: ActionContextType, action: WorkspaceAction, uid: string) =>
+    ctx.handleAction(action, uid),
   );
   const mockOnCancel = jest.fn();
 
