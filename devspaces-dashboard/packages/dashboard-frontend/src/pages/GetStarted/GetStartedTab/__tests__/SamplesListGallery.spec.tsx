@@ -61,7 +61,7 @@ describe('Samples List Gallery', () => {
   ): RenderResult {
     return render(
       <Provider store={store}>
-        <SamplesListGallery onCardClick={onCardClicked} />
+        <SamplesListGallery onCardClick={onCardClicked} storageType={'persistent'} />
       </Provider>,
     );
   }
@@ -124,7 +124,10 @@ describe('Samples List Gallery', () => {
     const cardHeader = screen.getByText('Java with Spring Boot and MySQL');
     fireEvent.click(cardHeader);
     jest.runOnlyPendingTimers();
-    expect(windowSpy).toBeCalledWith('http://localhost/#http://my-fake-repository.com/', '_blank');
+    expect(windowSpy).toBeCalledWith(
+      'http://localhost/#/load-factory?url=http%3A%2F%2Fmy-fake-repository.com%2F',
+      '_blank',
+    );
   });
 
   it('should render empty state', () => {

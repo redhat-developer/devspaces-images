@@ -10,19 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { updateDevfileStorageType } from '../../services/storageTypes';
+import { DevfileAdapter } from '../../services/devfile/adapter';
 
 export default function normalizeDevfileV1(
   devfile: che.WorkspaceDevfile,
   preferredStorageType: che.WorkspaceStorageType,
 ): che.WorkspaceDevfile {
-  if (
-    devfile?.attributes?.persistVolumes === undefined &&
-    devfile?.attributes?.asyncPersist === undefined &&
-    preferredStorageType
-  ) {
-    devfile = updateDevfileStorageType(devfile, preferredStorageType) as che.WorkspaceDevfile;
-  }
+  const devfileAdapter = new DevfileAdapter(devfile);
+  devfileAdapter.storageType = preferredStorageType;
 
-  return devfile;
+  return devfileAdapter.devfile as che.WorkspaceDevfile;
 }

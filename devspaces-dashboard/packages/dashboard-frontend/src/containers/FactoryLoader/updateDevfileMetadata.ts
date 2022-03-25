@@ -18,6 +18,7 @@ import {
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { CreatePolicy } from './index';
 import getRandomString from '../../services/helpers/random';
+import { DEVWORKSPACE_STORAGE_TYPE } from '../../services/devfileApi/devWorkspace/spec';
 
 export type FactorySource = { factory?: { params: string } };
 
@@ -25,6 +26,7 @@ export default function updateDevfileMetadata(
   devfile: api.che.workspace.devfile.Devfile,
   factoryParams: string,
   createPolicy: CreatePolicy,
+  storageType?: che.WorkspaceStorageType,
 ): api.che.workspace.devfile.Devfile {
   if (isDevfileV2(devfile)) {
     const metadata = devfile.metadata;
@@ -49,6 +51,19 @@ export default function updateDevfileMetadata(
     if (createPolicy !== 'peruser' && metadata.name) {
       metadata.name = `${metadata.name}-${getRandomString(4).toLowerCase()}`;
     }
+
+    if (storageType === 'ephemeral') {
+      if (devfile.schemaVersion === '2.0.0') {
+        metadata.attributes[DEVWORKSPACE_STORAGE_TYPE] = 'ephemeral';
+      } else {
+        // for devfiles version 2.1.0 and above
+        if (!devfile.attributes) {
+          devfile.attributes = {};
+        }
+        devfile.attributes[DEVWORKSPACE_STORAGE_TYPE] = 'ephemeral';
+      }
+    }
+
     return Object.assign({}, devfile, { metadata });
   }
 

@@ -24,11 +24,11 @@ import {
   selectWorkspacesSettings,
 } from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
-import { updateDevfileStorageType } from '../../../services/storageTypes';
 import stringify from '../../../services/helpers/editor';
 import ImportFromGit from './ImportFromGit';
 import { ResolverState } from '../../../store/FactoryResolver';
 import { Devfile } from '../../../services/workspace-adapter';
+import { DevfileAdapter } from '../../../services/devfile/adapter';
 
 // At runtime, Redux will merge together...
 type Props = {
@@ -66,6 +66,16 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     this.setState({ temporary });
   }
 
+  private getStorageType(): che.WorkspaceStorageType {
+    if (this.state.temporary === undefined) {
+      return this.props.preferredStorageType;
+    }
+    if (this.props.preferredStorageType === 'async') {
+      return this.state.temporary ? 'ephemeral' : this.props.preferredStorageType;
+    }
+    return this.state.temporary ? 'ephemeral' : 'persistent';
+  }
+
   private async handleSampleCardClick(
     devfileContent: string,
     stackName: string,
@@ -74,24 +84,15 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
     if (this.isLoading) {
       return;
     }
-    let devfile = load(devfileContent);
-
-    if (this.state.temporary === undefined) {
-      devfile = updateDevfileStorageType(devfile, this.props.preferredStorageType);
-    } else if (this.props.preferredStorageType === 'async') {
-      devfile = updateDevfileStorageType(
-        devfile,
-        this.state.temporary ? 'ephemeral' : this.props.preferredStorageType,
-      );
-    } else {
-      devfile = updateDevfileStorageType(
-        devfile,
-        this.state.temporary ? 'ephemeral' : 'persistent',
-      );
-    }
+    const devfileAdapter = new DevfileAdapter(load(devfileContent));
+    devfileAdapter.storageType = this.getStorageType();
     this.isLoading = true;
     try {
-      await this.props.onDevfile(stringify(devfile), stackName, optionalFilesContent);
+      await this.props.onDevfile(
+        stringify(devfileAdapter.devfile),
+        stackName,
+        optionalFilesContent,
+      );
     } catch (e) {
       console.warn(e);
     }
@@ -99,9 +100,9 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
   }
 
   private handleDevfileResolver(resolverState: ResolverState, stackName: string): Promise<void> {
-    const devfile: Devfile = resolverState.devfile;
-    const updatedDevfile = updateDevfileStorageType(devfile, this.props.preferredStorageType);
-    const devfileContent = stringify(updatedDevfile);
+    const devfileAdapter = new DevfileAdapter(resolverState.devfile);
+    devfileAdapter.storageType = this.props.preferredStorageType;
+    const devfileContent = stringify(devfileAdapter.devfile);
 
     return this.props.onDevfile(
       devfileContent,
@@ -112,6 +113,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 
   public render(): React.ReactElement {
     const isLoading = this.props.isLoading;
+    const storageType = this.getStorageType();
 
     return (
       <>
@@ -145,6 +147,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
               onCardClick={(devfileContent, stackName, optionalFilesContent) =>
                 this.handleSampleCardClick(devfileContent, stackName, optionalFilesContent)
               }
+              storageType={storageType}
             />
           </PageSection>
         </PageSection>

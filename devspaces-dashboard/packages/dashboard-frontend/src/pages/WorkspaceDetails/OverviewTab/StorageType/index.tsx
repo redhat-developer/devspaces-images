@@ -61,6 +61,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     };
 
     const availableTypes = this.props.availableStorageTypes;
+
     if (Array.isArray(availableTypes)) {
       this.storageTypes = availableTypes;
       this.storageTypes.forEach(type => this.options.push(storageTypeService.toTitle(type)));

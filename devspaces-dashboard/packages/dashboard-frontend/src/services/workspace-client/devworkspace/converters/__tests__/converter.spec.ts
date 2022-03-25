@@ -61,4 +61,26 @@ describe('testing sample conversions', () => {
       expect(devWorkspaceToDevfile(input)).toStrictEqual(output);
     });
   });
+  describe('storage-type section', () => {
+    test('the test-devfile-ephemeral fixture should convert into test-devworkspace-ephemeral fixture', () => {
+      const input: any = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devfile-ephemeral.yaml', 'utf-8'),
+      );
+      const output = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devworkspace-ephemeral.yaml', 'utf-8'),
+      );
+      expect(devfileToDevWorkspace(input, 'che', true)).toStrictEqual(output);
+    });
+
+    test('the test-devworkspace-ephemeral fixture should convert into test-devfile-ephemeral fixture', () => {
+      const input: any = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devworkspace-ephemeral.yaml', 'utf-8'),
+      );
+      const output = yaml.load(
+        fs.readFileSync(__dirname + '/fixtures/test-devfile-ephemeral.yaml', 'utf-8'),
+      );
+      delete (output as any).metadata.attributes;
+      expect(devWorkspaceToDevfile(input)).toStrictEqual(output);
+    });
+  });
 });

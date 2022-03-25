@@ -76,7 +76,8 @@ export class OverviewTab extends React.Component<Props, State> {
     const workspaceName = this.props.workspace.name;
     const namespace = this.state.infrastructureNamespace;
     const projects = this.props.workspace.projects;
-    const readonly = this.props.workspace.isDeprecated || this.props.workspace.isDevWorkspace;
+    const isDeprecated = this.props.workspace.isDeprecated;
+    const readonly = isDeprecated || this.props.workspace.isDevWorkspace;
 
     return (
       <React.Fragment>
@@ -93,7 +94,7 @@ export class OverviewTab extends React.Component<Props, State> {
             />
             <InfrastructureNamespaceFormGroup namespace={namespace} />
             <StorageTypeFormGroup
-              readonly={readonly}
+              readonly={isDeprecated}
               storageType={storageType}
               onSave={_storageType => this.handleStorageSave(_storageType)}
             />

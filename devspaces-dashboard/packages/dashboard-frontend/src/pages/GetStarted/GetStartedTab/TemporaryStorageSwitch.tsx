@@ -26,7 +26,7 @@ type State = {
 };
 
 export class TemporaryStorageSwitch extends React.PureComponent<Props, State> {
-  private handleChange: (checked: boolean, event: FormEvent<HTMLInputElement>) => void;
+  private readonly handleChange: (checked: boolean, event: FormEvent<HTMLInputElement>) => void;
 
   constructor(props: Props) {
     super(props);
