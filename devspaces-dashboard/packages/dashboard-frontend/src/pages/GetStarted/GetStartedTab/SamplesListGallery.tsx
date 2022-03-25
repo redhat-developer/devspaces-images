@@ -45,6 +45,7 @@ type Props = MappedProps & {
       [fileName: string]: string;
     },
   ) => void;
+  storageType: che.WorkspaceStorageType;
 };
 type State = {
   alerts: AlertItem[];
@@ -108,17 +109,18 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
     this.isLoading = true;
     try {
       const cheDevworkspaceEnabled = isDevworkspacesEnabled(this.props.workspacesSettings);
-      if (cheDevworkspaceEnabled) {
-        const link = meta.links.v2;
+      if (cheDevworkspaceEnabled && meta.links.v2) {
+        const link = encodeURIComponent(meta.links.v2);
         let devWorkspace = '';
         if (this.props.defaultEditor) {
           const prebuiltDevWorkspace = meta.links.devWorkspaces?.[this.props.defaultEditor];
+          const storageType = this.props.storageType;
           devWorkspace = prebuiltDevWorkspace
-            ? `?devWorkspace=${encodeURIComponent(prebuiltDevWorkspace)}`
-            : '';
+            ? `&devWorkspace=${encodeURIComponent(prebuiltDevWorkspace)}&storageType=${storageType}`
+            : `&storageType=${storageType}`;
         }
         // use factory workflow to load the getting started samples
-        const factoryUrl = `${window.location.origin}/#${link}${devWorkspace}`;
+        const factoryUrl = `${window.location.origin}/#/load-factory?url=${link}${devWorkspace}`;
         // open a new page to handle that
         window.open(factoryUrl, '_blank');
         this.isLoading = false;

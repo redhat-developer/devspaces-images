@@ -50,6 +50,7 @@ import devfileApi from '../../services/devfileApi';
 import getRandomString from '../../services/helpers/random';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import SessionStorageService, { SessionStorageKey } from '../../services/session-storage';
+import { DEVWORKSPACE_STORAGE_TYPE } from '../../services/devfileApi/devWorkspace/spec';
 
 const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'workspaceDeploymentLabels',
@@ -57,6 +58,7 @@ const WS_ATTRIBUTES_TO_SAVE: string[] = [
   'policies.create',
   'che-editor',
   'devWorkspace',
+  'storageType',
 ];
 
 export type CreatePolicy = 'perclick' | 'peruser';
@@ -533,7 +535,8 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private async createDevWorkspaceFromResources(
     devWorkspacePrebuiltResources: string,
     factoryParams: string,
-    editorId?: string,
+    editorId: string,
+    storageType: che.WorkspaceStorageType,
   ): Promise<Workspace | undefined> {
     let workspace: Workspace | undefined;
 
@@ -601,7 +604,14 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         metadata.annotations[DEVWORKSPACE_DEVFILE_SOURCE] = safeDump({
           factory: { params: factoryParams },
         });
-
+        if (storageType === 'ephemeral') {
+          if (!devworkspace.spec.template.attributes) {
+            devworkspace.spec.template.attributes = {};
+          }
+          devworkspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE] = storageType;
+        } else if (devworkspace.spec?.template?.attributes?.[DEVWORKSPACE_STORAGE_TYPE]) {
+          delete devworkspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE];
+        }
         await this.props.createWorkspaceFromResources(devworkspace, devworkspaceTemplate, editorId);
 
         const namespace = this.props.defaultNamespace?.name;
@@ -720,6 +730,7 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         attrs.devWorkspace,
         attrs.factoryParams,
         attrs['che-editor'],
+        attrs.storageType as che.WorkspaceStorageType,
       );
     } else {
       // create workspace using a devfile
@@ -733,7 +744,12 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
         return;
       }
 
-      devfile = updateDevfileMetadata(devfile, attrs.factoryParams, createPolicy);
+      devfile = updateDevfileMetadata(
+        devfile,
+        attrs.factoryParams,
+        createPolicy,
+        attrs.storageType as che.WorkspaceStorageType,
+      );
       this.setState({ currentStep: LoadFactorySteps.APPLYING_DEVFILE });
 
       await delay();

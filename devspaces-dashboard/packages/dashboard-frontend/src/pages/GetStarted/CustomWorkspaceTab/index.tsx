@@ -30,12 +30,13 @@ import {
   selectPreferredStorageType,
   selectWorkspacesSettings,
 } from '../../../store/Workspaces/Settings/selectors';
-import { attributesToType, updateDevfileStorageType } from '../../../services/storageTypes';
+import { attributesToType } from '../../../services/storageTypes';
 import { safeLoad } from 'js-yaml';
 import { updateDevfileMetadata } from '../updateDevfileMetadata';
 import { Devfile, isCheDevfile } from '../../../services/workspace-adapter';
 import { isDevfileV2Like } from '../../../services/devfileApi';
 import getDefaultDevfile from '../../../services/helpers/getDefaultDevfile';
+import { DevfileAdapter } from '../../../services/devfile/adapter';
 
 type Props = MappedProps & {
   onDevfile: (
@@ -107,46 +108,45 @@ export class CustomWorkspaceTab extends React.PureComponent<Props, State> {
     storageType: che.WorkspaceStorageType,
     workspaceDevfile?: Devfile,
   ): void {
-    const devfile = workspaceDevfile ? workspaceDevfile : this.state.devfile;
-    if (!devfile) {
+    const devfileAdapter = new DevfileAdapter(
+      workspaceDevfile ? workspaceDevfile : this.state.devfile,
+    );
+    if (!devfileAdapter.devfile) {
       return;
     }
-
-    const newDevfile = updateDevfileStorageType(devfile, storageType);
-
+    devfileAdapter.storageType = storageType;
     this.setState({
       storageType,
-      devfile: newDevfile,
+      devfile: devfileAdapter.devfile,
     });
-    this.updateEditor(newDevfile);
+    this.updateEditor(devfileAdapter.devfile);
   }
 
   private handleNewDevfile(devfileContent?: Devfile): void {
-    let devfile: Devfile;
-    if (!devfileContent) {
-      devfile = this.buildInitialDevfile();
-    } else if (
+    const devfileAdapter = new DevfileAdapter(
+      devfileContent ? devfileContent : this.buildInitialDevfile(),
+    );
+    if (
+      devfileContent &&
       isCheDevfile(devfileContent) &&
       devfileContent?.attributes?.persistVolumes === undefined &&
       devfileContent?.attributes?.asyncPersist === undefined &&
       this.props.preferredStorageType
     ) {
-      devfile = updateDevfileStorageType(devfileContent, this.props.preferredStorageType);
-    } else {
-      devfile = devfileContent;
+      devfileAdapter.storageType = this.props.preferredStorageType;
     }
     const { storageType, workspaceName } = this.state;
 
     if (workspaceName) {
-      this.handleWorkspaceNameChange(workspaceName, devfile);
+      this.handleWorkspaceNameChange(workspaceName, devfileAdapter.devfile);
     }
     if (storageType) {
-      this.handleStorageChange(storageType, devfile);
+      this.handleStorageChange(storageType, devfileAdapter.devfile);
     }
 
     if (!workspaceName && !storageType) {
-      this.setState({ devfile });
-      this.updateEditor(devfile);
+      this.setState({ devfile: devfileAdapter.devfile });
+      this.updateEditor(devfileAdapter.devfile);
     }
   }
 

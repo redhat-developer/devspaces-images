@@ -18,8 +18,8 @@ import { api } from '@eclipse-che/common';
 import {
   devfileToDevWorkspace,
   devWorkspaceApiGroup,
-  devworkspaceSingularSubresource,
-  devworkspaceVersion,
+  devWorkspaceSingularSubresource,
+  devWorkspaceVersion,
 } from './converters';
 import { AlertItem, DevWorkspaceStatus } from '../../helpers/types';
 import { KeycloakSetupService } from '../../keycloak/setup';
@@ -45,6 +45,11 @@ import { isEqual } from 'lodash';
 import { fetchData } from '../../registry/devfiles';
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
+import {
+  DEVWORKSPACE_DEPLOYMENT_ANNOTATION,
+  DEVWORKSPACE_DEPLOYMENT_LABEL,
+  DEVWORKSPACE_STORAGE_TYPE,
+} from '../../devfileApi/devWorkspace/spec';
 
 export interface IStatusUpdate {
   status: string;
@@ -102,6 +107,12 @@ export interface IDevWorkspaceEditorProcess {
    */
   apply(context: IDevWorkspaceEditorProcessingContext): Promise<void>;
 }
+
+export const STORED_ATTRIBUTES = [
+  DEVWORKSPACE_STORAGE_TYPE,
+  DEVWORKSPACE_DEPLOYMENT_LABEL,
+  DEVWORKSPACE_DEPLOYMENT_ANNOTATION,
+];
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
@@ -279,8 +290,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
     // add owner reference (to allow automatic cleanup)
     devworkspaceTemplate.metadata.ownerReferences = [
       {
-        apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
-        kind: devworkspaceSingularSubresource,
+        apiVersion: `${devWorkspaceApiGroup}/${devWorkspaceVersion}`,
+        kind: devWorkspaceSingularSubresource,
         name: createdWorkspace.metadata.name,
         uid: createdWorkspace.metadata.uid,
       },
@@ -365,7 +376,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     const inlineEditorYaml = devfile?.attributes?.['che-editor.yaml']
       ? (safeLoad(devfile.attributes['che-editor.yaml']) as devfileApi.Devfile)
       : undefined;
-    const devfileGroupVersion = `${devWorkspaceApiGroup}/${devworkspaceVersion}`;
+    const devfileGroupVersion = `${devWorkspaceApiGroup}/${devWorkspaceVersion}`;
     const devWorkspaceTemplates: devfileApi.DevWorkspaceTemplateLike[] = [];
     // do we have a custom editor specified in the repository ?
     const cheEditorYaml = optionalFilesContent['.che/che-editor.yaml']
@@ -497,7 +508,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         template.metadata.ownerReferences = [
           {
             apiVersion: devfileGroupVersion,
-            kind: devworkspaceSingularSubresource,
+            kind: devWorkspaceSingularSubresource,
             name: createdWorkspace.metadata.name,
             uid: createdWorkspace.metadata.uid,
           },

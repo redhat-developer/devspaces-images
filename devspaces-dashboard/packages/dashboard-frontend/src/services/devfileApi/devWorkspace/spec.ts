@@ -12,5 +12,17 @@
 
 import { V1alpha2DevWorkspaceSpec } from '@devfile/api';
 
+export const DEVWORKSPACE_STORAGE_TYPE = 'controller.devfile.io/storage-type';
+export const DEVWORKSPACE_DEPLOYMENT_LABEL = 'controller.devfile.io/deployment-labels';
+export const DEVWORKSPACE_DEPLOYMENT_ANNOTATION = 'controller.devfile.io/deployment-annotations';
+
+type DevWorkspaceSpecTemplateAttribute = {
+  [DEVWORKSPACE_STORAGE_TYPE]?: string;
+  [DEVWORKSPACE_DEPLOYMENT_LABEL]?: string;
+  [DEVWORKSPACE_DEPLOYMENT_ANNOTATION]?: string;
+};
+
 export type DevWorkspaceSpec = V1alpha2DevWorkspaceSpec &
-  Required<Pick<V1alpha2DevWorkspaceSpec, 'template'>>;
+  Required<Pick<V1alpha2DevWorkspaceSpec, 'template'>> & {
+    attributes?: DevWorkspaceSpecTemplateAttribute;
+  };

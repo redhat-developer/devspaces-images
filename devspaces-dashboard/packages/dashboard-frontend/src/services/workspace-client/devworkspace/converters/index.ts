@@ -11,11 +11,11 @@
  */
 
 import devfileApi from '../../../devfileApi';
-import { DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
+import { DEVWORKSPACE_METADATA_ANNOTATION, STORED_ATTRIBUTES } from '../devWorkspaceClient';
 
-export const devworkspaceVersion = 'v1alpha2';
+export const devWorkspaceVersion = 'v1alpha2';
 export const devWorkspaceApiGroup = 'workspace.devfile.io';
-export const devworkspaceSingularSubresource = 'devworkspace';
+export const devWorkspaceSingularSubresource = 'devworkspace';
 
 export function devfileToDevWorkspace(
   devfile: devfileApi.Devfile,
@@ -23,9 +23,20 @@ export function devfileToDevWorkspace(
   started: boolean,
 ): devfileApi.DevWorkspace {
   const devfileAttributes = devfile.metadata.attributes || {};
+  if (devfile.attributes) {
+    Object.assign(devfileAttributes, devfile.attributes);
+  }
   const devWorkspaceAnnotations = devfileAttributes[DEVWORKSPACE_METADATA_ANNOTATION] || {};
+
+  const devWorkspaceAttributes: { [key: string]: any } = {};
+  Object.keys(devfileAttributes).forEach(key => {
+    if (STORED_ATTRIBUTES.indexOf(key) !== -1) {
+      devWorkspaceAttributes[key] = devfileAttributes[key];
+    }
+  });
+
   const template: devfileApi.DevWorkspace = {
-    apiVersion: `${devWorkspaceApiGroup}/${devworkspaceVersion}`,
+    apiVersion: `${devWorkspaceApiGroup}/${devWorkspaceVersion}`,
     kind: 'DevWorkspace',
     metadata: {
       name: devfile.metadata.name,
@@ -42,6 +53,9 @@ export function devfileToDevWorkspace(
       },
     },
   };
+  if (Object.keys(devWorkspaceAttributes).length > 0) {
+    template.spec.template.attributes = devWorkspaceAttributes;
+  }
   if (devfile.parent) {
     template.spec.template.parent = devfile.parent;
   }
@@ -83,6 +97,17 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
   }
   if (devworkspace.spec.template.events) {
     template.events = devworkspace.spec.template.events;
+  }
+  if (devworkspace.spec.template.attributes) {
+    const devWorkspaceAttributes: { [key: string]: any } = {};
+    Object.keys(devworkspace.spec.template.attributes).forEach(key => {
+      if (STORED_ATTRIBUTES.indexOf(key) !== -1) {
+        devWorkspaceAttributes[key] = devworkspace.spec.template.attributes?.[key];
+      }
+    });
+    if (Object.keys(devWorkspaceAttributes).length > 0) {
+      template.attributes = devWorkspaceAttributes;
+    }
   }
   return template;
 }

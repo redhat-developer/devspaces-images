@@ -10,9 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isDevfileV2 } from './devfileApi';
 import { getEnvironment, isDevEnvironment } from './helpers/environment';
-import { Devfile } from './workspace-adapter';
+import { isDevworkspacesEnabled } from './helpers/devworkspace';
 
 export enum StorageTypeTitle {
   async = 'Asynchronous',
@@ -41,7 +40,10 @@ export function fromTitle(title: string): che.WorkspaceStorageType {
 }
 
 export function getAvailable(settings: che.WorkspaceSettings): che.WorkspaceStorageType[] {
-  if (!settings || !settings['che.workspace.storage.available_types']) {
+  if (isDevworkspacesEnabled(settings)) {
+    return ['persistent', 'ephemeral'];
+  }
+  if (!settings['che.workspace.storage.available_types']) {
     const env = getEnvironment();
     if (isDevEnvironment(env)) {
       // running Dashboard in Che in dev mode needs for storage types to be stubbed
@@ -85,48 +87,4 @@ export function attributesToType(
     return 'ephemeral';
   }
   return 'persistent';
-}
-
-export function updateDevfileStorageType(
-  devfile: Devfile,
-  storageType: che.WorkspaceStorageType,
-): Devfile {
-  if (isDevfileV2(devfile)) {
-    return devfile;
-  }
-
-  const newDevfile = Object.assign({}, devfile);
-  const attributes = newDevfile.attributes;
-  switch (storageType) {
-    case 'persistent':
-      if (attributes) {
-        delete attributes.persistVolumes;
-        delete attributes.asyncPersist;
-        if (Object.keys(attributes).length === 0) {
-          delete newDevfile.attributes;
-        }
-      }
-      break;
-    case 'ephemeral':
-      if (!attributes) {
-        newDevfile.attributes = { persistVolumes: 'false' };
-      } else {
-        attributes.persistVolumes = 'false';
-        delete attributes.asyncPersist;
-      }
-      break;
-    case 'async':
-      if (!attributes) {
-        newDevfile.attributes = {
-          persistVolumes: 'false',
-          asyncPersist: 'true',
-        };
-      } else {
-        attributes.persistVolumes = 'false';
-        attributes.asyncPersist = 'true';
-      }
-      break;
-  }
-
-  return newDevfile;
 }

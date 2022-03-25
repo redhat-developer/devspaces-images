@@ -20,6 +20,7 @@ import { DEVWORKSPACE_NEXT_START_ANNOTATION } from '../workspace-client/devworks
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../devfileApi';
 import { devWorkspaceKind } from '../devfileApi/devWorkspace';
 import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_STORAGE_TYPE } from '../devfileApi/devWorkspace/spec';
 
 export type Devfile = che.WorkspaceDevfile | devfileApi.Devfile;
 
@@ -288,8 +289,11 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     if (isCheWorkspace(this.workspace)) {
       return attributesToType(this.workspace.devfile.attributes);
     } else {
-      console.error('Not implemented: get storage type of the devworkspace.');
-      return attributesToType(undefined);
+      const type = this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
+      if (type === 'ephemeral') {
+        return type;
+      }
+      return 'persistent';
     }
   }
 
@@ -309,7 +313,19 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         delete this.workspace.devfile.attributes;
       }
     } else {
-      console.error('Not implemented: set storage type of the devworkspace.');
+      if (type === 'ephemeral') {
+        if (!this.workspace.spec.template.attributes) {
+          this.workspace.spec.template.attributes = {};
+        }
+        this.workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE] = type;
+      } else {
+        if (this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE]) {
+          delete this.workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE];
+          if (Object.keys(this.workspace.spec.template.attributes).length === 0) {
+            delete this.workspace.spec.template.attributes;
+          }
+        }
+      }
     }
   }
 
