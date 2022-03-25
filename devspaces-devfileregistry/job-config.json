@@ -561,7 +561,9 @@
         ],
         "node_version": "12.22.5",
         "disabled": false
-      },
+      }
+    },
+    "dsc": {
       "3.0": {
         "upstream_branch": [
           "7.44.x",
@@ -744,9 +746,9 @@
     },
     "DEV_WORKSPACE_CONTROLLER_VERSION": {
       "2.15": "v0.11.0",
-      "3.0": "v0.12.0",
-      "3.1": "v0.12.0",
-      "3.x": "v0.12.0"
+      "3.0": "v0.13.0",
+      "3.1": "v0.13.0",
+      "3.x": "v0.13.0"
     },
     "DEV_HEADER_REWRITE_TRAEFIK_PLUGIN": {
       "2.15": "v0.1.2",
