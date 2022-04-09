@@ -17,7 +17,7 @@ import { WorkspaceNameFormGroup } from './WorkspaceName';
 import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
 import ProjectsFormGroup from './Projects';
 import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
-import devfileApi from '../../../services/devfileApi';
+import { cloneDeep } from 'lodash';
 
 type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
@@ -26,27 +26,37 @@ type Props = {
 
 export type State = {
   storageType: che.WorkspaceStorageType;
-  infrastructureNamespace: string;
   workspaceName: string;
 };
 
 export class OverviewTab extends React.Component<Props, State> {
-  private isWorkspaceNameChanged = false;
-  private workspaceNameCallbacks: { cancelChanges?: () => void } = {};
+  private readonly workspaceNameCallbacks: { cancelChanges?: () => void };
+  private isWorkspaceNameChanged: boolean;
 
   constructor(props: Props) {
     super(props);
 
     const { workspace } = this.props;
-    const storageType = workspace.storageType;
-    const workspaceName = workspace.name;
-    const infrastructureNamespace = workspace.namespace;
 
     this.state = {
-      storageType,
-      workspaceName,
-      infrastructureNamespace,
+      storageType: workspace.storageType,
+      workspaceName: workspace.name,
     };
+
+    this.isWorkspaceNameChanged = false;
+    this.workspaceNameCallbacks = {};
+  }
+
+  public componentDidUpdate(): void {
+    const { storageType, workspaceName } = this.state;
+    const workspace = this.props.workspace;
+
+    if (storageType !== workspace.storageType || workspaceName !== workspace.name) {
+      this.setState({
+        storageType: workspace.storageType,
+        workspaceName: workspace.name,
+      });
+    }
   }
 
   public get hasChanges() {
@@ -60,24 +70,29 @@ export class OverviewTab extends React.Component<Props, State> {
   }
 
   private async handleWorkspaceNameSave(workspaceName: string): Promise<void> {
+    if (this.props.workspace.isDevWorkspace) {
+      return;
+    }
+    const workspaceClone = constructWorkspace(cloneDeep(this.props.workspace.ref));
+    workspaceClone.name = workspaceName;
+    await this.props.onSave(workspaceClone);
     this.setState({ workspaceName });
-    this.props.workspace.name = workspaceName;
-    await this.onSave(this.props.workspace.devfile);
   }
 
   private async handleStorageSave(storageType: che.WorkspaceStorageType): Promise<void> {
+    const workspaceClone = constructWorkspace(cloneDeep(this.props.workspace.ref));
+    workspaceClone.storageType = storageType;
+    await this.props.onSave(workspaceClone);
     this.setState({ storageType });
-    this.props.workspace.storageType = storageType;
-    await this.onSave(this.props.workspace.devfile);
   }
 
   public render(): React.ReactElement {
-    const storageType = this.props.workspace.storageType;
-    const workspaceName = this.props.workspace.name;
-    const namespace = this.state.infrastructureNamespace;
-    const projects = this.props.workspace.projects;
-    const isDeprecated = this.props.workspace.isDeprecated;
-    const readonly = isDeprecated || this.props.workspace.isDevWorkspace;
+    const { workspaceName, storageType } = this.state;
+    const { workspace } = this.props;
+    const namespace = workspace.namespace;
+    const projects = workspace.projects;
+    const isDeprecated = workspace.isDeprecated;
+    const readonly = isDeprecated || workspace.isDevWorkspace;
 
     return (
       <React.Fragment>
@@ -103,12 +118,6 @@ export class OverviewTab extends React.Component<Props, State> {
         </PageSection>
       </React.Fragment>
     );
-  }
-
-  private async onSave(devfile: che.WorkspaceDevfile | devfileApi.Devfile): Promise<void> {
-    const workspaceCopy = constructWorkspace(this.props.workspace.ref);
-    workspaceCopy.devfile = devfile;
-    await this.props.onSave(workspaceCopy);
   }
 }
 

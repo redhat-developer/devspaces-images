@@ -23,6 +23,8 @@ import { KeycloakAuthService } from '../../../services/keycloak/auth';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { DisposableCollection } from '../../../services/helpers/disposable';
+import { WorkspaceAdapter } from '../../../services/workspace-adapter';
+import { selectDevworkspacesEnabled } from '../Settings/selectors';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
 const keycloakAuthService = container.get(KeycloakAuthService);
@@ -204,11 +206,20 @@ function subscribeToEnvironmentOutput(
 export const actionCreators: ActionCreators = {
   requestWorkspaces:
     (): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
+    async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'CHE_REQUEST_WORKSPACES' });
+      const state = getState();
 
       try {
         const workspaces = await cheWorkspaceClient.restApiClient.getAll<che.Workspace>();
+
+        if (selectDevworkspacesEnabled(state)) {
+          // deprecate Che7 workspaces
+          const deprecated = new Set<string>();
+          state.cheWorkspaces.workspaces.forEach(w => deprecated.add(WorkspaceAdapter.getUID(w)));
+          workspaces.forEach(w => deprecated.add(WorkspaceAdapter.getUID(w)));
+          WorkspaceAdapter.setDeprecatedUIDs(Array.from(deprecated));
+        }
 
         dispatch({
           type: 'CHE_RECEIVE_WORKSPACES',

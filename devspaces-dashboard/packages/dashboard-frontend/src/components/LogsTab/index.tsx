@@ -28,7 +28,8 @@ import { isEqual } from 'lodash';
 
 import styles from './index.module.css';
 
-const maxLogLength = 200;
+const MAX_LOG_LENGTH = 500;
+const OUTPUT_LOG_ID = 'output-logs';
 
 type Props = {
   workspaceUID: string;
@@ -59,11 +60,25 @@ export class LogsTab extends React.PureComponent<Props, State> {
   }
 
   public componentDidMount(): void {
+    window.addEventListener('resize', this.updateScrollTop, false);
     this.updateLogsData();
+    this.updateScrollTop();
   }
 
   public componentDidUpdate(): void {
     this.updateLogsData();
+    this.updateScrollTop();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateScrollTop);
+  }
+
+  updateScrollTop() {
+    const objLog = document.getElementById(OUTPUT_LOG_ID);
+    if (objLog && document.activeElement?.id !== OUTPUT_LOG_ID) {
+      objLog.scrollTop = objLog.scrollHeight;
+    }
   }
 
   private updateLogsData() {
@@ -86,9 +101,9 @@ export class LogsTab extends React.PureComponent<Props, State> {
   }
 
   private getLines(): JSX.Element[] {
-    const logs = this.state.logs || [];
-    if (logs.length > maxLogLength) {
-      logs.splice(0, logs.length - maxLogLength);
+    let logs = this.state.logs || [];
+    if (logs.length > MAX_LOG_LENGTH) {
+      logs = logs.slice(logs.length - MAX_LOG_LENGTH);
     }
 
     const createLine = (text: string, key: number, isError = false): React.ReactElement => {
@@ -114,7 +129,9 @@ export class LogsTab extends React.PureComponent<Props, State> {
     return (
       <div className={styles.consoleOutput}>
         <div>{lines.length} lines</div>
-        <pre>{lines}</pre>
+        <pre id={OUTPUT_LOG_ID} tabIndex={0}>
+          {lines}
+        </pre>
       </div>
     );
   }

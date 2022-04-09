@@ -434,7 +434,7 @@
 | [`dedent@0.7.0`](git://github.com/dmnd/dedent.git) | MIT | clearlydefined |
 | [`deep-equal@1.1.1`](http://github.com/substack/node-deep-equal.git) | MIT | clearlydefined |
 | [`deep-extend@0.6.0`](git://github.com/unclechu/node-deep-extend.git) | MIT | clearlydefined |
-| [`deep-is@0.1.4`](http://github.com/thlorenz/deep-is.git) | MIT | clearlydefined |
+| [`deep-is@0.1.4`](http://github.com/thlorenz/deep-is.git) | MIT | #2130 |
 | [`default-gateway@4.2.0`](https://github.com/silverwind/default-gateway.git) | BSD-2-Clause | #146 |
 | [`defaults@1.0.3`](git://github.com/tmpvar/defaults.git) | MIT | clearlydefined |
 | [`define-properties@1.1.3`](git://github.com/ljharb/define-properties.git) | MIT | clearlydefined |
@@ -702,7 +702,7 @@
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
 | [`json-parse-even-better-errors@2.3.1`](https://github.com/npm/json-parse-even-better-errors) | MIT | clearlydefined |
 | [`json-stable-stringify-without-jsonify@1.0.1`](git://github.com/samn/json-stable-stringify.git) | MIT | clearlydefined |
-| [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | clearlydefined |
+| [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | #2126 |
 | [`jsonparse@1.3.1`](http://github.com/creationix/jsonparse.git) | MIT | clearlydefined |
 | [`jsx-ast-utils@3.2.0`](https://github.com/evcohen/jsx-ast-utils) | MIT | clearlydefined |
 | [`keycloak-js@10.0.2`](https://github.com/keycloak/keycloak) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/keycloak-js/10.0.2) |

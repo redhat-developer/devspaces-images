@@ -52,6 +52,8 @@ export default class DropdownActions extends React.PureComponent<Props, State> {
 
   private getDropdownItems(): React.ReactNode[] {
     const { context, status } = this.props;
+    const isWorkspaceStopped =
+      status === WorkspaceStatus.STOPPED || status === DevWorkspaceStatus.STOPPED;
 
     return [
       <DropdownItem
@@ -63,7 +65,7 @@ export default class DropdownActions extends React.PureComponent<Props, State> {
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.START_DEBUG_AND_OPEN_LOGS}`}
-        isDisabled={status === DevWorkspaceStatus.TERMINATING || status !== WorkspaceStatus.STOPPED}
+        isDisabled={status === DevWorkspaceStatus.TERMINATING || !isWorkspaceStopped}
         onClick={async () =>
           this.props.onAction(WorkspaceAction.START_DEBUG_AND_OPEN_LOGS, context)
         }
@@ -72,21 +74,21 @@ export default class DropdownActions extends React.PureComponent<Props, State> {
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.START_IN_BACKGROUND}`}
-        isDisabled={status === DevWorkspaceStatus.TERMINATING || status !== WorkspaceStatus.STOPPED}
+        isDisabled={status === DevWorkspaceStatus.TERMINATING || !isWorkspaceStopped}
         onClick={async () => this.props.onAction(WorkspaceAction.START_IN_BACKGROUND, context)}
       >
         <div>{WorkspaceAction.START_IN_BACKGROUND}</div>
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.RESTART_WORKSPACE}`}
-        isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
+        isDisabled={status === DevWorkspaceStatus.TERMINATING || isWorkspaceStopped}
         onClick={async () => this.props.onAction(WorkspaceAction.RESTART_WORKSPACE, context)}
       >
         <div>{WorkspaceAction.RESTART_WORKSPACE}</div>
       </DropdownItem>,
       <DropdownItem
         key={`action-${WorkspaceAction.STOP_WORKSPACE}`}
-        isDisabled={status === DevWorkspaceStatus.TERMINATING || status === WorkspaceStatus.STOPPED}
+        isDisabled={status === DevWorkspaceStatus.TERMINATING || isWorkspaceStopped}
         onClick={async () => this.props.onAction(WorkspaceAction.STOP_WORKSPACE, context)}
       >
         <div>{WorkspaceAction.STOP_WORKSPACE}</div>

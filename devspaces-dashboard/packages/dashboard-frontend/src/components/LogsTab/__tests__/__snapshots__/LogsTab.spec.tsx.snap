@@ -130,7 +130,10 @@ exports[`The LogsTab component should render workspace-logs widget with logs ins
         4
          lines
       </div>
-      <pre>
+      <pre
+        id="output-logs"
+        tabIndex={0}
+      >
         <p
           className=""
         >
@@ -242,7 +245,10 @@ exports[`The LogsTab component should render workspace-logs widget without logs 
         0
          lines
       </div>
-      <pre />
+      <pre
+        id="output-logs"
+        tabIndex={0}
+      />
     </div>
   </div>
 </section>

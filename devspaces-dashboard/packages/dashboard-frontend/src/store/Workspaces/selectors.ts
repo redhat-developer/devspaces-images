@@ -21,7 +21,13 @@ const selectState = (state: AppState) => state.workspaces;
 const selectCheWorkspacesState = (state: AppState) => state.cheWorkspaces;
 const selectDevWorkspacesState = (state: AppState) => state.devWorkspaces;
 
-export const selectIsLoading = createSelector(selectState, state => state.isLoading);
+export const selectIsLoading = createSelector(
+  selectCheWorkspacesState,
+  selectDevWorkspacesState,
+  (cheWorkspacesState, devWorkspacesState) => {
+    return cheWorkspacesState.isLoading || devWorkspacesState.isLoading;
+  },
+);
 
 export const selectLogs = createSelector(
   selectCheWorkspacesState,

@@ -27,7 +27,6 @@ import { load } from 'js-yaml';
 import stringify from '../../../services/helpers/editor';
 import ImportFromGit from './ImportFromGit';
 import { ResolverState } from '../../../store/FactoryResolver';
-import { Devfile } from '../../../services/workspace-adapter';
 import { DevfileAdapter } from '../../../services/devfile/adapter';
 
 // At runtime, Redux will merge together...
