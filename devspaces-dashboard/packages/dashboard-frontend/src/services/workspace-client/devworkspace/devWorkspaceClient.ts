@@ -21,7 +21,7 @@ import {
   devWorkspaceSingularSubresource,
   devWorkspaceVersion,
 } from './converters';
-import { AlertItem, DevWorkspaceStatus } from '../../helpers/types';
+import { AlertItem, DevWorkspaceStatus, isDevWorkspaceStatus } from '../../helpers/types';
 import { KeycloakSetupService } from '../../keycloak/setup';
 import { delay } from '../../helpers/delay';
 import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
@@ -52,7 +52,7 @@ import {
 } from '../../devfileApi/devWorkspace/spec';
 
 export interface IStatusUpdate {
-  status: string;
+  status: DevWorkspaceStatus;
   message: string;
   prevStatus: string | undefined;
   workspaceUID: string;
@@ -240,21 +240,20 @@ export class DevWorkspaceClient extends WorkspaceClient {
   ): Promise<devfileApi.DevWorkspace> {
     let workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
     let attempted = 0;
-    while (
-      (!workspace.status?.phase || !workspace.status.mainUrl) &&
-      attempted < this.maxStatusAttempts
-    ) {
+    while (!workspace.status?.phase && attempted < this.maxStatusAttempts) {
+      if (attempted > 0) {
+        await delay();
+      }
       workspace = await DwApi.getWorkspaceByName(namespace, workspaceName);
-      attempted += 1;
-      await delay();
+      attempted++;
     }
     const workspaceStatus = workspace?.status;
     if (!workspaceStatus || !workspaceStatus.phase) {
-      throw new Error(
+      console.warn(
         `Could not retrieve devworkspace status information from ${workspaceName} in namespace ${namespace}`,
       );
     } else if (workspaceStatus.phase === DevWorkspaceStatus.RUNNING && !workspaceStatus?.mainUrl) {
-      throw new Error('Could not retrieve mainUrl for the running workspace');
+      console.warn('Could not retrieve mainUrl for the running workspace');
     }
     return workspace;
   }
@@ -356,7 +355,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
 
     const routingClass = 'che';
-    const devworkspace = devfileToDevWorkspace(devfile, routingClass, true);
+    const devworkspace = devfileToDevWorkspace(devfile, routingClass, start);
 
     if (devworkspace.metadata.annotations === undefined) {
       devworkspace.metadata.annotations = {};
@@ -873,8 +872,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
         this.showAlert({ key, variant: AlertVariant.warning, title });
         return;
       }
-      const workspaceId = maybeWorkspaceId as string;
-      callbacks.updateDeletedDevWorkspaces([workspaceId]);
+      const devworkspaceId = maybeWorkspaceId as string;
+      callbacks.updateDeletedDevWorkspaces([devworkspaceId]);
     });
   }
 
@@ -886,8 +885,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private createStatusUpdate(devworkspace: devfileApi.DevWorkspace): IStatusUpdate | undefined {
     const namespace = devworkspace.metadata.namespace;
     const workspaceUID = WorkspaceAdapter.getUID(devworkspace);
-    const status = devworkspace?.status?.phase || DevWorkspaceStatus.STARTING;
-    const message = devworkspace?.status?.message || '';
+    const phase = devworkspace.status?.phase;
+    const status = isDevWorkspaceStatus(phase) ? phase : DevWorkspaceStatus.STARTING;
+    const message = devworkspace.status?.message || '';
 
     if (!this.previousItems.has(namespace)) {
       const defaultItem = new Map<string, IStatusUpdate>();

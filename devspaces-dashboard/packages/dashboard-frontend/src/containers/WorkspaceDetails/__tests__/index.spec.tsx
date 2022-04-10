@@ -11,7 +11,7 @@
  */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
@@ -206,5 +206,58 @@ describe('Workspace Details container', () => {
     expect(mockUpdateWorkspace).toHaveBeenCalledWith<Parameters<ActionCreators['updateWorkspace']>>(
       constructWorkspace(workspace),
     );
+  });
+
+  describe('workspace actions', () => {
+    it('should open the workspaces list after deleting the workspace', async () => {
+      const workspace1 = new DevWorkspaceBuilder()
+        .withId('wksp-id-1')
+        .withName('wksp-1')
+        .withNamespace(namespace)
+        .build();
+      const workspace2 = new DevWorkspaceBuilder()
+        .withId('wksp-id-2')
+        .withName('wksp-2')
+        .withNamespace(namespace)
+        .build();
+
+      const prevStore = new FakeStoreBuilder()
+        .withWorkspacesSettings({ 'che.devworkspaces.enabled': 'true' } as che.WorkspaceSettings)
+        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
+        .withDevWorkspaces({ workspaces: [workspace1, workspace2] })
+        .build();
+      const prevRouteProps = getMockRouterProps(ROUTE.WORKSPACE_DETAILS, {
+        namespace,
+        workspaceName: prevWorkspaceName,
+      });
+
+      // render an existing workspace page
+      const { rerender } = render(
+        <Provider store={prevStore}>
+          <WorkspaceDetailsContainer {...prevRouteProps} />
+        </Provider>,
+      );
+
+      // remove workspace1 from store
+      const nextStore = new FakeStoreBuilder()
+        .withWorkspacesSettings({ 'che.devworkspaces.enabled': 'true' } as che.WorkspaceSettings)
+        .withInfrastructureNamespace([{ name: namespace, attributes: { phase: 'Active' } }], false)
+        .withDevWorkspaces({ workspaces: [workspace2] })
+        .build();
+      const nextRouteProps = getMockRouterProps(ROUTE.WORKSPACE_DETAILS, {
+        namespace,
+        workspaceName: prevWorkspaceName,
+      });
+
+      const spyHistoryPush = jest.spyOn(nextRouteProps.history, 'push');
+
+      rerender(
+        <Provider store={nextStore}>
+          <WorkspaceDetailsContainer {...nextRouteProps} />
+        </Provider>,
+      );
+
+      await waitFor(() => expect(spyHistoryPush).toHaveBeenCalled());
+    });
   });
 });

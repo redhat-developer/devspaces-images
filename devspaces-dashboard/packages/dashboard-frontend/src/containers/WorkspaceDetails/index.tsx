@@ -30,18 +30,19 @@ import { DEVWORKSPACE_ID_OVERRIDE_ANNOTATION } from '../../services/devfileApi/d
 import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import { DEVWORKSPACE_METADATA_ANNOTATION } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
+import { isEqual } from 'lodash';
 
 type Props = MappedProps & { history: History } & RouteComponentProps<{
     namespace: string;
     workspaceName: string;
-  }>; // incoming parameters
+  }>;
 
 type State = {
   workspace?: Workspace;
 };
 
 class WorkspaceDetailsContainer extends React.Component<Props, State> {
-  private workspacesLink: string;
+  private readonly workspacesLink: string;
 
   constructor(props: Props) {
     super(props);
@@ -118,22 +119,21 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     this.init();
   }
 
-  public shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
-    return (
-      nextProps.isLoading === false &&
-      (this.state.workspace?.uid !== nextState.workspace?.uid ||
-        this.props.location.pathname !== nextProps.location.pathname)
-    );
-  }
-
-  public componentDidUpdate(): void {
+  public componentDidUpdate(prevProps: Props): void {
     const namespace = this.props.match.params.namespace;
     const workspaceName = this.props.match.params.workspaceName;
-
     const workspace = this.props.allWorkspaces.find(
       workspace => workspace.namespace === namespace && workspace.name === workspaceName,
     );
-    this.setState({ workspace });
+    if (!workspace) {
+      const workspacesListLocation = buildWorkspacesLocation();
+      this.props.history.push(workspacesListLocation);
+    } else if (
+      this.props.location.pathname !== prevProps.location.pathname ||
+      !isEqual(workspace, this.state.workspace)
+    ) {
+      this.setState({ workspace });
+    }
   }
 
   render() {

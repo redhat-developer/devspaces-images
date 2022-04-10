@@ -37,9 +37,6 @@ export default class WorkspaceConversionButton extends React.PureComponent<Props
 
     try {
       await this.props.onConvert();
-      this.setState({
-        isDisabled: false,
-      });
     } catch (e) {
       this.setState({
         isDisabled: false,

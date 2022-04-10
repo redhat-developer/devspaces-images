@@ -37,8 +37,6 @@ import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlug
 import devfileApi from '../devfileApi';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import { selectDevWorkspacesResourceVersion } from '../../store/Workspaces/devWorkspaces/selectors';
-import { WorkspaceAdapter } from '../workspace-adapter';
-import { selectDeprecatedWorkspacesUIDs } from '../../store/Workspaces/selectors';
 import { AppAlerts } from '../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
 
@@ -164,8 +162,6 @@ export default class Bootstrap {
   private async fetchWorkspaces(): Promise<void> {
     const { requestWorkspaces } = WorkspacesStore.actionCreators;
     await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
-    const deprecatedUIDs = selectDeprecatedWorkspacesUIDs(this.store.getState());
-    WorkspaceAdapter.setDeprecatedUIDs(deprecatedUIDs);
   }
 
   private async fetchPlugins(settings: che.WorkspaceSettings): Promise<void> {

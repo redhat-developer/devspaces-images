@@ -861,7 +861,10 @@ Array [
               0
                lines
             </div>
-            <pre />
+            <pre
+              id="output-logs"
+              tabIndex={0}
+            />
           </div>
         </div>
       </section>
@@ -1352,7 +1355,10 @@ Array [
               0
                lines
             </div>
-            <pre />
+            <pre
+              id="output-logs"
+              tabIndex={0}
+            />
           </div>
         </div>
       </section>
@@ -2282,7 +2288,10 @@ Array [
               0
                lines
             </div>
-            <pre />
+            <pre
+              id="output-logs"
+              tabIndex={0}
+            />
           </div>
         </div>
       </section>
