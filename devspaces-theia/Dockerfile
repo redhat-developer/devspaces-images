@@ -165,8 +165,8 @@ COPY asset-untagged-theia_yeoman_plugin.theia /home/theia-dev/theia-source-code/
 RUN if [ "$UNPACK_CHE_THEIA_PLUGINS" = "true" ]; then cd plugins && ./unpack_che-theia_plugins; fi
 
 # Use node image
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-110.1647529271 as build-result
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-14
+FROM ubi8/nodejs-14:1-63 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build

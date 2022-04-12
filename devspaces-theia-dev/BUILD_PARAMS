@@ -1,5 +1,5 @@
-nodeVersion=12.22.5
-yarnVersion=1.22.17
+nodeVersion=14.18.2
+yarnVersion=1.22.18
 CRW_VERSION=3.0
 SOURCE_BRANCH=7.44.x
 THEIA_BRANCH=master

@@ -1,4 +1,4 @@
-# Copyright (c) 2019-21 Red Hat, Inc.
+# Copyright (c) 2019-22 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -39,13 +39,13 @@ RUN tar zxf /tmp/asset-theia-endpoint-runtime-pre-assembly-nexe-$(uname -m).tar.
 WORKDIR /home/theia
 
 RUN /tmp/nexe/index.js -v && \
-    # Build remote binary with node runtime 12.x and che-theia node dependencies. nexe icludes to the binary only
+    # Build remote binary with node runtime 14.x and che-theia node dependencies. nexe icludes to the binary only
     # necessary dependencies.
     eval /tmp/nexe/index.js -i node_modules/@eclipse-che/theia-remote/lib/node/plugin-remote.js ${NEXE_FLAGS} -o ${HOME}/plugin-remote-endpoint
 
 # Light image without node. We include remote binary to this image.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5-240.1648458092 as runtime
+FROM ubi8-minimal:8.5-230.1645809059 as runtime
 USER 0
 RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && \
     yum -y -q update && \
