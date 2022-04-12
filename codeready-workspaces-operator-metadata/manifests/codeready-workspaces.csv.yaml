@@ -1126,7 +1126,7 @@ spec:
                           fieldRef:
                             fieldPath: metadata.name
                       - name: RELATED_IMAGE_che_server
-                        value: registry.redhat.io/codeready-workspaces/server-rhel8:2.15
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-server-rhel8:2.15
                       - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
                         value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.15
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts

@@ -218,8 +218,9 @@ rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vend
 
 CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
 # transform into Brew-friendly version of CSV
-# CRW-2823 only do transformation for images we're rebuilding in 2.15.3
+# CRW-2823 CRW-2866 only do transformation for images we're rebuilding in 2.15.3: server, dashboard, operator
 sed -r -i "${CSVFILE}" \
+  -e "s@registry.redhat.io/codeready-workspaces/server@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-server@g" \
   -e "s@registry.redhat.io/codeready-workspaces/dashboard@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-dashboard@g" \
   -e "s@registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator@g"
 
