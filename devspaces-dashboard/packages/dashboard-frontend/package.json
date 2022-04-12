@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.44.1-next",
+  "version": "7.46.1-next",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
@@ -14,10 +14,6 @@
     }
   ],
   "license": "EPL-2.0",
-  "engines": {
-    "yarn": ">=1.20.0",
-    "node": ">=12"
-  },
   "scripts": {
     "build": "webpack --config webpack.config.prod.js",
     "build:dev": "webpack --progress --color --config webpack.config.dev.js",
@@ -33,6 +29,7 @@
     "stylelint:fix": "stylelint */**/*.css --fix",
     "test": "jest",
     "test:coverage": "yarn test --coverage",
+    "test:no-cache": "yarn test --watch --no-cache",
     "test:watch": "yarn test --watch"
   },
   "dependencies": {

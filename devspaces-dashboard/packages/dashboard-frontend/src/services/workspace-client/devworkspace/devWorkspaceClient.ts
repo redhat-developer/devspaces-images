@@ -297,8 +297,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     ];
     // add pluginRegistry and dashboard URLs as environment variables
     const templateComponents = devworkspaceTemplate.spec?.components || [];
-    for (const templateComponent of templateComponents) {
-      const container = templateComponent.container;
+    const allComponents = [...templateComponents, ...(components || [])];
+    for (const component of allComponents) {
+      const container = component.container;
       if (container) {
         if (!container.env) {
           container.env = [];

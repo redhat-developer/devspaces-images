@@ -36,6 +36,7 @@ import {
 import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
 import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
 export const onStatusChangeCallbacks = new Map<string, (status: DevWorkspaceStatus) => void>();
@@ -266,7 +267,8 @@ export const actionCreators: ActionCreators = {
           workspace.metadata.namespace,
         );
         const runningWorkspaces = workspaces.filter(workspace => workspace.spec.started === true);
-        if (runningWorkspaces.length > 0) {
+        const runningLimit = selectRunningWorkspacesLimit(getState());
+        if (runningWorkspaces.length >= runningLimit) {
           throw new Error('You are not allowed to start more workspaces.');
         }
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);

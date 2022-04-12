@@ -1,14 +1,10 @@
 {
   "name": "@eclipse-che/common",
-  "version": "7.44.1-next",
+  "version": "7.46.1-next",
   "repository": "https://github.com/eclipse-che/che-dashboard",
   "license": "EPL-2.0",
   "private": true,
   "main": "lib/index.js",
-  "engines": {
-    "yarn": ">=1.20.0",
-    "node": ">=12"
-  },
   "scripts": {
     "build": "yarn clean && tsc -b",
     "watch": "yarn build && tsc -w",

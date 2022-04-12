@@ -14,11 +14,12 @@ import React from 'react';
 import { Action } from 'redux';
 import { Provider } from 'react-redux';
 import { AlertActionLink } from '@patternfly/react-core';
-import { RenderResult, render, screen, waitFor } from '@testing-library/react';
+import { RenderResult, render, screen } from '@testing-library/react';
 import { ROUTE } from '../../route.enum';
 import { getMockRouterProps } from '../../services/__mocks__/router';
 import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
 import { WorkspaceStatus } from '../../services/helpers/types';
+import { advanceTimersByTime } from '../../services/helpers/jestUtils';
 import IdeLoaderContainer, { LoadIdeSteps } from '../IdeLoader';
 import { Props } from '../../pages/IdeLoader';
 import { AppThunk } from '../../store';
@@ -147,8 +148,13 @@ describe('IDE Loader container', () => {
     );
   };
 
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
   afterEach(() => {
     jest.resetAllMocks();
+    jest.useRealTimers();
   });
 
   it('should show an error if something wrong', async () => {
@@ -157,16 +163,16 @@ describe('IDE Loader container', () => {
 
     renderComponent(namespace, workspaceName);
 
+    await advanceTimersByTime(10000);
+
     expect(startWorkspaceMock).not.toBeCalled();
     expect(requestWorkspaceMock).not.toBeCalled();
 
-    await waitFor(() =>
-      expect(showAlertMock).toBeCalledWith(
-        expect.objectContaining({
-          alertVariant: 'danger',
-          title: 'Failed to find the target workspace.',
-        }),
-      ),
+    expect(showAlertMock).toBeCalledWith(
+      expect.objectContaining({
+        alertVariant: 'danger',
+        title: 'Failed to find the target workspace.',
+      }),
     );
 
     const elementHasError = screen.getByTestId('ide-loader-has-error');
@@ -185,10 +191,9 @@ describe('IDE Loader container', () => {
 
     renderComponent(namespace, workspaceName);
 
-    await waitFor(() => {
-      expect(requestWorkspaceMock).toBeCalled();
-    });
-    // TODO: This does not work as expected as startWorkspaceMock is called asynchronously
+    await advanceTimersByTime(10000);
+
+    expect(requestWorkspaceMock).toBeCalled();
     expect(startWorkspaceMock).not.toBeCalled();
 
     expect(showAlertMock).toBeCalled();
@@ -223,11 +228,11 @@ describe('IDE Loader container', () => {
 
     renderComponent(namespace, workspaceName);
 
+    await advanceTimersByTime(10000);
+
     expect(requestWorkspaceMock).toBeCalled();
 
-    await waitFor(() => {
-      expect(startWorkspaceMock).toHaveBeenCalledTimes(1);
-    });
+    expect(startWorkspaceMock).toHaveBeenCalledTimes(1);
 
     const elementWorkspaceUID = screen.getByTestId('ide-loader-workspace-uid');
     expect(elementWorkspaceUID.innerHTML).toEqual(workspaceId);
@@ -245,12 +250,14 @@ describe('IDE Loader container', () => {
     expect(elementIdeUrl.innerHTML).toEqual('');
   });
 
-  it('should have correct OPEN_IDE', () => {
+  it('should have correct OPEN_IDE', async () => {
     const ideUrl = 'https://server-test-4402.192.168.99.100.nip.io';
     const namespace = 'admin2';
     const workspaceName = 'name-wksp-2';
 
     renderComponent(namespace, workspaceName);
+
+    await advanceTimersByTime(10000);
 
     expect(startWorkspaceMock).not.toBeCalled();
     expect(requestWorkspaceMock).not.toBeCalled();

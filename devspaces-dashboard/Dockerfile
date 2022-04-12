@@ -8,8 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-110.1647529271 as builder
+FROM ubi8/nodejs-16:1-18 as builder
 USER 0
 RUN yum -y -q update --exclude=unbound-libs && \
     yum -y -q clean all && rm -rf /var/cache/yum
@@ -35,8 +34,7 @@ RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-c
 COPY packages/ /dashboard/packages
 RUN /dashboard/.yarn/releases/yarn-*.*js build
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-110.1647529271
+FROM ubi8/nodejs-16:1-18
 USER 0
 
 RUN \

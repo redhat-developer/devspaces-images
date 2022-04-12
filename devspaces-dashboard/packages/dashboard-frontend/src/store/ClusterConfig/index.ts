@@ -86,7 +86,9 @@ export const actionCreators: ActionCreators = {
 
 const unloadedState: State = {
   isLoading: false,
-  clusterConfig: {},
+  clusterConfig: {
+    runningWorkspacesLimit: 1,
+  },
 };
 
 export const reducer: Reducer<State> = (

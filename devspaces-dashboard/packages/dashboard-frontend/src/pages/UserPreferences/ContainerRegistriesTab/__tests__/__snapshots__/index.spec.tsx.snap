@@ -123,13 +123,15 @@ Array [
             onMouseEnter={[Function]}
             scope={null}
           >
-            <input
-              aria-label="Select all rows"
-              checked={false}
-              name="check-all"
-              onChange={[Function]}
-              type="checkbox"
-            />
+            <label>
+              <input
+                aria-label="Select all rows"
+                checked={false}
+                name="check-all"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
             
           </td>
           <th
@@ -171,7 +173,8 @@ Array [
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
-          onMouseDown={[Function]}
+          onClick={[Function]}
+          onKeyDown={[Function]}
         >
           <td
             className="pf-c-table__check"
@@ -179,13 +182,15 @@ Array [
             data-label={null}
             onMouseEnter={[Function]}
           >
-            <input
-              aria-label="Select row 0"
-              checked={false}
-              name="checkrow0"
-              onChange={[Function]}
-              type="checkbox"
-            />
+            <label>
+              <input
+                aria-label="Select row 0"
+                checked={false}
+                name="checkrow0"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
           </td>
           <td
             className=""
@@ -215,7 +220,6 @@ Array [
             style={
               Object {
                 "paddingRight": 0,
-                "width": "auto",
               }
             }
           >
@@ -264,7 +268,8 @@ Array [
           data-ouia-component-type="PF4/TableRow"
           data-ouia-safe={true}
           hidden={false}
-          onMouseDown={[Function]}
+          onClick={[Function]}
+          onKeyDown={[Function]}
         >
           <td
             className="pf-c-table__check"
@@ -272,13 +277,15 @@ Array [
             data-label={null}
             onMouseEnter={[Function]}
           >
-            <input
-              aria-label="Select row 1"
-              checked={false}
-              name="checkrow1"
-              onChange={[Function]}
-              type="checkbox"
-            />
+            <label>
+              <input
+                aria-label="Select row 1"
+                checked={false}
+                name="checkrow1"
+                onChange={[Function]}
+                type="checkbox"
+              />
+            </label>
           </td>
           <td
             className=""
@@ -308,7 +315,6 @@ Array [
             style={
               Object {
                 "paddingRight": 0,
-                "width": "auto",
               }
             }
           >

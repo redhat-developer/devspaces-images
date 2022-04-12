@@ -34,7 +34,9 @@ export class FakeStoreBuilder {
     },
     clusterConfig: {
       isLoading: false,
-      clusterConfig: {},
+      clusterConfig: {
+        runningWorkspacesLimit: 1,
+      },
     },
     clusterInfo: {
       isLoading: false,
@@ -153,11 +155,13 @@ export class FakeStoreBuilder {
   }
 
   public withClusterConfig(
-    clusterConfig: Partial<ClusterConfig>,
+    clusterConfig: Partial<ClusterConfig> | undefined,
     isLoading = false,
     error?: string,
   ): FakeStoreBuilder {
-    this.state.clusterConfig.clusterConfig = Object.assign({}, clusterConfig as ClusterConfig);
+    if (clusterConfig) {
+      this.state.clusterConfig.clusterConfig = Object.assign({}, clusterConfig as ClusterConfig);
+    }
     this.state.clusterConfig.isLoading = isLoading;
     this.state.clusterConfig.error = error;
     return this;
