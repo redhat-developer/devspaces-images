@@ -166,7 +166,7 @@ RUN if [ "$UNPACK_CHE_THEIA_PLUGINS" = "true" ]; then cd plugins && ./unpack_che
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-14
-FROM ubi8/nodejs-14:1-63 as build-result
+FROM ubi8/nodejs-14:1-63.1647451870 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
@@ -184,8 +184,8 @@ RUN mv /che-theia-build/plugins /default-theia-plugins
 #
 
 # Use node image
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-12
-FROM ubi8/nodejs-12:1-110.1647529271 as runtime
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-14
+FROM ubi8/nodejs-14:1-63.1647451870 as runtime
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum && \
