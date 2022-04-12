@@ -150,17 +150,6 @@ func TestImagePullerConfiguration(t *testing.T) {
 			expectedImagePuller: InitImagePuller(ImagePullerOptions{SpecImages: "image=image_url", ObjectMetaResourceVersion: "1"}),
 		},
 		{
-			name:   "image puller enabled, one default image set, subscription exists, should update KubernetesImagePuller default image",
-			initCR: InitCheCRWithImagePullerEnabledAndImagesSet(""),
-			initObjects: []runtime.Object{
-				getPackageManifest(),
-				getOperatorGroup(),
-				getSubscription(),
-				InitImagePuller(ImagePullerOptions{SpecImages: "", ObjectMetaResourceVersion: "1"}),
-			},
-			expectedImagePuller: InitImagePuller(ImagePullerOptions{SpecImages: "", ObjectMetaResourceVersion: "1"}),
-		},
-		{
 			name:   "image puller enabled, latest default images set, subscription exists, should not update KubernetesImagePuller default images",
 			initCR: InitCheCRWithImagePullerEnabledAndImagesSet(defaultImagePullerImages),
 			initObjects: []runtime.Object{

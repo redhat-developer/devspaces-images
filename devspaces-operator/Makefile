@@ -59,7 +59,7 @@ ECLIPSE_CHE_CRD_V1="$(CRD_FOLDER)/org_v1_che_crd.yaml"
 # default crd names used operator-sdk from the box
 ECLIPSE_CHE_CRD="$(CRD_FOLDER)/org.eclipse.che_checlusters.yaml"
 
-DEV_WORKSPACE_CONTROLLER_VERSION="v0.12.3"
+DEV_WORKSPACE_CONTROLLER_VERSION="v0.13.0"
 DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -693,7 +693,7 @@ update-resource-images:
 	# Update operator deployment images.
 	$(MAKE) update-deployment-yaml-images \
 	UBI8_MINIMAL_IMAGE="$${UBI8_MINIMAL_IMAGE}" \
-	
+
 	# Update che-operator Dockerfile
 	$(MAKE) update-dockerfile-image UBI8_MINIMAL_IMAGE="$${UBI8_MINIMAL_IMAGE}"
 
