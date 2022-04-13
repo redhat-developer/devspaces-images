@@ -26,7 +26,8 @@ operator_manifests:
   repo_replacements:
     - registry: registry-proxy.engineering.redhat.com
       package_mappings:
-        devspaces-rhel8-operator-package: rh-osbs/devspaces-operator
+        devspaces-operator-container: rh-osbs/devspaces-operator
+        devspaces-rhel8-operator-container: rh-osbs/devspaces-operator
     - registry: registry.redhat.io
       package_mappings:
         devspaces-operator-container: devspaces/devspaces-rhel8-operator
@@ -47,16 +48,15 @@ operator_manifests:
         ubi8-micro-container: registry.redhat.io/ubi8/ubi-micro
         kube-rbac-proxy-container: openshift4/ose-kube-rbac-proxy
         golang-github-openshift-oauth-proxy-container: openshift4/ose-oauth-proxy
-        devspaces-backup-rhel8-container: devspaces/backup-rhel8
         devspaces-configbump-rhel8-container: devspaces/configbump-rhel8
         devspaces-dashboard-rhel8-container: devspaces/dashboard-rhel8
         devspaces-devfileregistry-rhel8-container: devspaces/devfileregistry-rhel8
-        devspaces-jwtproxy-rhel8-container: devspaces/jwtproxy-rhel8
+        devspaces-idea-rhel8-container: devspaces/idea-rhel8
+        devspaces-imagepuller-rhel8-container: devspaces/imagepuller-rhel8
         devspaces-machineexec-rhel8-container: devspaces/machineexec-rhel8
-        devspaces-pluginbroker-artifacts-rhel8-container: devspaces/pluginbroker-artifacts-rhel8
-        devspaces-pluginbroker-metadata-rhel8-container: devspaces/pluginbroker-metadata-rhel8
         devspaces-pluginregistry-rhel8-container: devspaces/pluginregistry-rhel8
         devspaces-server-rhel8-container: devspaces/server-rhel8
         devspaces-theia-endpoint-rhel8-container: devspaces/theia-endpoint-rhel8
         devspaces-theia-rhel8-container: devspaces/theia-rhel8
         devspaces-traefik-rhel8-container: devspaces/traefik-rhel8
+        devspaces-udi-rhel8-container: devspaces/udi-rhel8
