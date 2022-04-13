@@ -10,11 +10,18 @@ import groovy.transform.Field
 
 def checkFailure(arrayLines,serverName,errorOccurred)
 {
+    int numGoodLines=0
     arrayLines.each  { 
         line -> if (line?.toString().indexOf("No tags matching")>-1 || line?.toString().indexOf("ERROR")>-1) { 
             errorOccurred = errorOccurred + line + '\n'; 
             currentBuild.result = 'FAILURE'
+        } else if (line?.toString().length()>=20) {
+            numGoodLines++
         }
+    }
+    if (numGoodLines<1) {
+        errorOccurred = errorOccurred + "[file is empty!]" + '\n'; 
+        currentBuild.result = 'FAILURE'
     }
     return errorOccurred
 }
@@ -75,6 +82,12 @@ wait
                         script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${CRW_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
                         returnStdout: true).trim().split( '\n' )
                         errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
+
+                    def LATEST_IMAGES_QUAY = sh (script: 'cat ${WORKSPACE}/LATEST_IMAGES.quay || true', returnStdout: true).trim()
+                    if (!LATEST_IMAGES_QUAY?.trim()) { // file is empty so throw an error
+                        currentBuild.description+="; Could not load images from Quay!"
+                        currentBuild.result = 'ABORTED'
+                    }
 
                     sh (
                         script: 'curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getTagForImage.sh && chmod +x getTagForImage.sh',
@@ -163,8 +176,9 @@ node(nodeLabel){
         } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
             println "Scheduling update-digests-in-metadata for this update:"
             println DIFF_LATEST_IMAGES_QUAY_V_STORED
-            build(
-                job: 'update-digests-in-metadata_' + JOB_BRANCH,
+            jobPath='/job/CRW_CI/job/update-digests-in-metadata_' + JOB_BRANCH
+            final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
                 wait: false,
                 propagate: false,
                 quietPeriod: 0,
@@ -186,7 +200,9 @@ node(nodeLabel){
                     ]
                 ]
             )
-            currentBuild.description+="; update-digests-in-metadata triggered"
+            println("triggered build(" + jobPath + ") [no wait]")
+            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+            currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
         } else {
             println "No changes to LATEST_IMAGES; no need to trigger update-digests-in-metadata_" + CRW_VERSION
             currentBuild.result = 'UNSTABLE'
@@ -210,7 +226,7 @@ node(nodeLabel){
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
 ./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + CRW_VERSION + ''' \
-    -s ${WORKSPACE}/sources -d devspaces-''' + whichBundle + '''-generated -c quay.io/devspaces/devspaces-3-rhel8-''' + whichBundle + '''
+    -s ${WORKSPACE}/sources -d devspaces-''' + whichBundle + '''-generated -c quay.io/devspaces/devspaces-''' + whichBundle + '''
 ''')
             }
             currentBuild.description+="; " + whichBundle + "-generated updated"
@@ -267,8 +283,9 @@ node(nodeLabel){
             println "CRW_VERSION = '" + CRW_VERSION + "'"
             println "Scheduling theia-akamai"
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-            build(
-                job: 'theia-akamai_' + JOB_BRANCH,
+            jobPath='/job/CRW_CI/job/theia-akamai_' + JOB_BRANCH
+            final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
                 wait: false,
                 propagate: false,
                 quietPeriod: 0,
@@ -290,7 +307,9 @@ node(nodeLabel){
                     ]
                 ]
             )
-            currentBuild.description+="; theia-akamai triggered"
+            println("triggered build(" + jobPath + ") [no wait]")
+            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+            currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
         } // if 2
     } // if
     cleanWs(

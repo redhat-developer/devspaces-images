@@ -126,13 +126,18 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
                             echo currentBuild.description
                             echo DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE
 
-                            build(
-                                job: 'operator-bundle_' + JOB_BRANCH,
+                            jobPath='/job/CRW_CI/job/operator-bundle_' + JOB_BRANCH
+                            final jobResult = build(
+                                job: jobPath.replaceAll("/job/","/"),
                                 wait: true,
                                 propagate: true,
                                 quietPeriod: 0,
                                 parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
                             )
+                            jobLink=jobPath + "/" +  jobResult?.number?.toString()
+                            println("waiting for build(" + jobPath + ")")
+                            println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+                            currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
 
                             while (true) 
                             {

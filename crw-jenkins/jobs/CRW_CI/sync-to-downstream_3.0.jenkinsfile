@@ -204,6 +204,7 @@ rm -f /tmp/rsync-excludes
                 // push to dist-git
                 sh('''#!/bin/bash -xe
                   cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
+                  git add Dockerfile get-sources.sh container.yaml || true
                   git update-index --refresh || true # ignore timestamp updates
                   if [[ \$(git diff-index HEAD --) ]]; then # file changed
                     export KRB5CCNAME=/var/tmp/crw-build_ccache
@@ -256,8 +257,9 @@ rm -f /tmp/rsync-excludes
                   }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
                   // kick off get-sources-rhpkg-container-build_2.y job
-                  build(
-                    job: 'get-sources-rhpkg-container-build_' + JOB_BRANCH,
+	          jobPath='/job/CRW_CI/job/get-sources-rhpkg-container-build_' + JOB_BRANCH
+	          final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
                     wait: true,
                     propagate: true,
                     quietPeriod: 0,
@@ -324,7 +326,10 @@ rm -f /tmp/rsync-excludes
                       ]
                     ]
                   )
-                  currentBuild.description+=" brew triggered; "
+                  jobLink=jobPath + "/" +  jobResult?.number?.toString()
+                  println("waiting for build(" + jobPath + ")")
+                  println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+                  currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
                 } else {
                   println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
                   currentBuild.description+=" no changes; "
@@ -360,8 +365,9 @@ node(nodeLabelAnyArch){
       echo "currentBuild.result = " + currentBuild.result
       if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
         if (!NEW_SHA.equals(OLD_SHA) || FORCE_BUILD.equals("true")) {
-          build(
-                job: 'dsc_' + JOB_BRANCH,
+          jobPath='/job/CRW_CI/job/dsc_' + JOB_BRANCH
+          final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
                 wait: false,
                 propagate: false,
                 quietPeriod: 0,
@@ -392,7 +398,9 @@ node(nodeLabelAnyArch){
                   ]
                 ]
           )
-          currentBuild.description+=" dsc build triggered"
+          println("triggered build(" + jobPath + ") [no wait]")
+          println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+          currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
         } else {
           println "No changes upstream, nothing to rebuild in dsc!"
           currentBuild.description+=" no dsc build"

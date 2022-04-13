@@ -152,7 +152,7 @@ cd devspaces-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUIL
                 ansiColor('xterm') {
                   echo "[INFO] Build images: " + CONTAINERS
                   buildStatusCode = sh script:'''#!/bin/bash -e
-. ~/crw_env ''' + CRW_VERSION + '''
+. ~/crw_env ''' + CRW_VERSION + ''' || { echo "[ERROR] Problem running on ''' + nodeLabel + ''': . ~/crw_env ''' + CRW_VERSION + '''"; exit 1; }
 echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
@@ -164,30 +164,35 @@ pushd ${WORKSPACE}/devspaces-theia >/dev/null
 popd >/dev/null
 ''', returnStatus: true
 
-                  buildLog = readFile("${WORKSPACE}/logs/devspaces-theia_buildlog.txt").trim()
-                  if (buildStatusCode != 0 || buildLog.find(/returned a non-zero code:/)?.trim())
-                  {
-                    ansiColor('xterm') {
-                      echo ""
-                      echo "=============================================================================================="
-                      echo ""
-                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
-                    }
-                    currentBuild.result = 'FAILED'
+                  BUILD_LOG_EXISTS = false
+                  buildLog=""
+                  try {
+                      buildLog = readFile("${WORKSPACE}/logs/devspaces-theia_buildlog.txt")
+                      BUILD_LOG_EXISTS = true
+                  }
+                  catch(err) {
+                      println "[WARN] No console log found in ${WORKSPACE}/logs/devspaces-theia_buildlog.txt"
                   }
 
                   def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: devspaces-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
                   echo "${descriptString}"
                   currentBuild.description="${descriptString}"
-                  echo "currentBuild.result = " + currentBuild.result
-
-                  buildLog = readFile("${WORKSPACE}/logs/devspaces-theia_buildlog.txt").trim()
-                  if (buildStatusCode != 0 || buildLog.find(/Command failed|exit code/)?.trim())
-                  {
-                      error "[ERROR] Build has failed with exit code " + buildStatusCode + "\n\n" + buildLog
-                      currentBuild.result = 'FAILED'
-                      util.notifyBuildFailed()
+                  def buildLogErrors = buildLog =~ /returned a non-zero code:* \d+|Command failed with exit code:* \d+/
+                  if (BUILD_LOG_EXISTS && (buildStatusCode != 0 || buildLogErrors.size() > 0)) {
+                    ansiColor('xterm') {
+                      echo ""
+                      echo "=============================================================================================="
+                      if (buildLogErrors.size() > 0) {
+                        println "[ERROR] Error(s) found: "
+                        for (errLine in buildLogErrors) { println "\t" + errLine }
+                        echo "=============================================================================================="
+                      }
+                      error "[ERROR] Build has failed with exit code " + buildStatusCode
+                    }
+                    currentBuild.result = 'FAILED'
+                    util.notifyBuildFailed()
                   }
+
                   echo "currentBuild.result = " + currentBuild.result
                 } // ansiColor
               } // with credentials

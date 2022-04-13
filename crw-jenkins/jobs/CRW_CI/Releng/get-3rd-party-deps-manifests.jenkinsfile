@@ -10,7 +10,7 @@ import groovy.transform.Field
 def MIDSTM_BRANCHNEXT = "crw-2-rhel-8"
 def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., crw-2.y-rhel-8
 def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
-def buildNode = "rhel83||s390x-rhel8||ppc64le-rhel8"
+def buildNode = "x86_64-rhel8||s390x-rhel8||ppc64le-rhel8"
 timeout(240) {
   node("${buildNode}"){
     stage("Collect 3rd party sources") {
@@ -21,7 +21,7 @@ timeout(240) {
           def util = load "${WORKSPACE}/util2.groovy"
           cleanWs()
           CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
-          sh '''#!/bin/bash -xe
+          sh '''#!/bin/bash
 
 # TODO this should move into a dockerfile so we can run the manifest collection w/o installing anything locally
 sudo dnf -y install tree php-devel php-json || sudo dnf -y update tree php-devel php-json
@@ -55,7 +55,7 @@ cd ${WORKSPACE}/crw/product/ && ./tagRelease.sh -t ''' + CRW_VERSION + ''' -v ''
             currentBuild.description="Collecting manifests for " + CSV_VERSION
           }
 
-          sh '''#!/bin/bash -xe
+          sh '''#!/bin/bash
 CSV_VERSION="''' + CSV_VERSION + '''"
 echo CSV_VERSION = ${CSV_VERSION}
 

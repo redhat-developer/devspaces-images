@@ -110,70 +110,74 @@ fi
         println "########################################################################################################"
         if (!OLD_MID_SHA.equals(NEW_MID_SHA) || FORCE_BUILD == "true") {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-          build(
-              job: 'sync-to-downstream_' + JOB_BRANCH,
-              wait: true,
-              propagate: true,
-              quietPeriod: 0,
-              parameters: [
-                [
-                  $class: 'StringParameterValue',
-                  name: 'token',
-                  value: "CI_BUILD"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'cause',
-                  value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'REPOS',
-                  value: util.getCRWLongName(SYNC_REPO)
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'JOB_BRANCH',
-                  value: JOB_BRANCH
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'CSV_VERSION',
-                  value: (CSV_VERSION ? CSV_VERSION : util.globalVar({CSV_VERSION}))
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'UPDATE_BASE_IMAGES_FLAGS',
-                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'MIDSTM_BRANCH',
-                  value: MIDSTM_BRANCH
-                ],
-                [
-                  $class: 'BooleanParameterValue',
-                  name: 'FORCE_BUILD',
-                  value: true
-                ],
-                [
-                  $class: 'BooleanParameterValue',
-                  name: 'SCRATCH',
-                  value: false
-                ],
-                [
-                  $class: 'StringParameterValue',
-                  name: 'TIMEOUT',
-                  value: env.TIMEOUT?.trim() ? env.TIMEOUT + "" : ""
-                ],
-                [
-                  $class: 'BooleanParameterValue',
-                  name: 'CLEAN_ON_FAILURE',
-                  value: CLEAN_ON_FAILURE
-                ]
+          jobPath='/job/CRW_CI/job/sync-to-downstream_' + JOB_BRANCH
+          final jobResult = build(
+            job: jobPath.replaceAll("/job/","/"),
+            wait: true,
+            propagate: true,
+            quietPeriod: 0,
+            parameters: [
+              [
+                $class: 'StringParameterValue',
+                name: 'token',
+                value: "CI_BUILD"
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'cause',
+                value: SYNC_REPO + "+respin+by+${BUILD_TAG}"
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'REPOS',
+                value: util.getCRWLongName(SYNC_REPO)
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'JOB_BRANCH',
+                value: JOB_BRANCH
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'CSV_VERSION',
+                value: (CSV_VERSION ? CSV_VERSION : util.globalVar({CSV_VERSION}))
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'UPDATE_BASE_IMAGES_FLAGS',
+                value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'MIDSTM_BRANCH',
+                value: MIDSTM_BRANCH
+              ],
+              [
+                $class: 'BooleanParameterValue',
+                name: 'FORCE_BUILD',
+                value: true
+              ],
+              [
+                $class: 'BooleanParameterValue',
+                name: 'SCRATCH',
+                value: false
+              ],
+              [
+                $class: 'StringParameterValue',
+                name: 'TIMEOUT',
+                value: env.TIMEOUT?.trim() ? env.TIMEOUT + "" : ""
+              ],
+              [
+                $class: 'BooleanParameterValue',
+                name: 'CLEAN_ON_FAILURE',
+                value: CLEAN_ON_FAILURE
               ]
-            )
-          currentBuild.description+="; Downstream sync job triggered"
+            ]
+          )
+          jobLink=jobPath + "/" +  jobResult?.number?.toString()
+          println("waiting for build(" + jobPath + ")")
+          println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+          currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
         } else {
           println "No changes upstream, nothing to sync / build in brew!"
           currentBuild.description+="; No sync or Brew build"

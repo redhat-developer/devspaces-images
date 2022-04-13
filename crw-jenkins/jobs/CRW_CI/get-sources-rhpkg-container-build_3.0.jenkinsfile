@@ -26,7 +26,7 @@ timeout(240) {
           sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
           def util = load "${WORKSPACE}/util2.groovy"
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)            
+          CRW_VERSION = util.getCrwVersion(MIDSTM_BRANCH)
           cleanWs()
           util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
           currentBuild.description=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
@@ -79,7 +79,11 @@ set -x
                 !currentBuild.result.equals("UNSTABLE")) {
               sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
               CONTAINERS=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim()
-              sh(script: '''#!/bin/bash -xe
+
+              withCredentials([string(credentialsId: 'quay.io-devspacesci_user_token', variable: 'QUAY_TOKEN_devspaces')]) {
+                sh(script: '''#!/bin/bash -xe
+echo "${QUAY_TOKEN_devspaces}" | podman login --authfile=~/.docker/config.json -u="devspaces+devspacesci" --password-stdin quay.io
+
 echo " ########################################### "
 echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
 echo " ########################################### "
@@ -93,6 +97,7 @@ for c in ''' + CONTAINERS.trim() + '''; do
 done
 wait
 ''', returnStatus: true)
+              }
             }
             currentBuild.description+="; copied to quay" 
           } catch (e) {
@@ -153,8 +158,8 @@ wait
           )
           jobLink=jobPath + "/" +  jobResult?.number?.toString()
           println("waiting for runJob(" + jobPath + ")")
-          println("<b style='color:green'>Job <a href=${jobLink}/console>" + (jobLink.replaceAll("/job/","/")) + "</a> completed</b>.")
-          currentBuild.description+="; <a href=${jobLink}/console>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
+          println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+          currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
         }
       } catch (e) {
         currentBuild.result = "UNSTABLE"
