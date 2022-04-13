@@ -25,8 +25,7 @@ import devfileApi from '../../../services/devfileApi';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { Workspace } from '../../../services/workspace-adapter';
 
-const migratingDocs =
-  'https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2.html';
+const migratingDocs = 'https://devfile.io/docs/devfile/2.2.0/user-guide/migrating-to-devfile-v2/';
 
 type Props = {
   workspace: Workspace;

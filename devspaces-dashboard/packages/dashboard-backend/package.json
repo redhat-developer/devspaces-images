@@ -34,7 +34,7 @@
     "fastify-http-proxy": "^5.0.0",
     "fastify-oauth2": "^4.4.0",
     "fastify-static": "~4.4.1",
-    "fastify-swagger": "^4.9.0",
+    "fastify-swagger": "^4.17.1",
     "fastify-websocket": "^3.2.0",
     "fs-extra": "9.1.0",
     "querystring": "^0.2.1",

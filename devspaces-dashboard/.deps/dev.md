@@ -271,7 +271,7 @@
 | [`anymatch@3.1.2`](https://github.com/micromatch/anymatch) | ISC | clearlydefined |
 | [`aproba@1.2.0`](https://github.com/iarna/aproba) | ISC | clearlydefined |
 | [`are-we-there-yet@1.1.7`](https://github.com/iarna/are-we-there-yet.git) | ISC | clearlydefined |
-| [`argparse@1.0.10`](https://github.com/nodeca/argparse.git) | MIT | clearlydefined |
+| [`argparse@1.0.10`](https://github.com/nodeca/argparse.git) | MIT | #2174 |
 | [`aria-query@4.2.2`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
 | [`arr-diff@4.0.0`](https://github.com/jonschlinkert/arr-diff.git) | MIT | clearlydefined |
 | [`arr-flatten@1.1.0`](https://github.com/jonschlinkert/arr-flatten.git) | MIT | clearlydefined |
@@ -435,7 +435,7 @@
 | [`dedent@0.7.0`](git://github.com/dmnd/dedent.git) | MIT | clearlydefined |
 | [`deep-equal@1.1.1`](http://github.com/substack/node-deep-equal.git) | MIT | clearlydefined |
 | [`deep-extend@0.6.0`](git://github.com/unclechu/node-deep-extend.git) | MIT | clearlydefined |
-| [`deep-is@0.1.4`](http://github.com/thlorenz/deep-is.git) | MIT | clearlydefined |
+| [`deep-is@0.1.4`](http://github.com/thlorenz/deep-is.git) | MIT | #2130 |
 | [`default-gateway@4.2.0`](https://github.com/silverwind/default-gateway.git) | BSD-2-Clause | #146 |
 | [`defaults@1.0.3`](git://github.com/tmpvar/defaults.git) | MIT | clearlydefined |
 | [`define-properties@1.1.3`](git://github.com/ljharb/define-properties.git) | MIT | clearlydefined |
@@ -705,7 +705,7 @@
 | [`json-parse-even-better-errors@2.3.1`](https://github.com/npm/json-parse-even-better-errors) | MIT | clearlydefined |
 | [`json-schema@0.3.0`](http://github.com/kriszyp/json-schema) | (AFL-2.1 OR BSD-3-Clause) | clearlydefined |
 | [`json-stable-stringify-without-jsonify@1.0.1`](git://github.com/samn/json-stable-stringify.git) | MIT | clearlydefined |
-| [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | clearlydefined |
+| [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | #2126 |
 | [`jsonparse@1.3.1`](http://github.com/creationix/jsonparse.git) | MIT | clearlydefined |
 | [`jsx-ast-utils@3.2.1`](https://github.com/jsx-eslint/jsx-ast-utils) | MIT | clearlydefined |
 | [`keycloak-js@10.0.2`](https://github.com/keycloak/keycloak) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/keycloak-js/10.0.2) |
