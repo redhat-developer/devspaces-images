@@ -16,9 +16,9 @@ set -e
 SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
-CSV_VERSION=2.y.0 # csv 2.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
-CSV_VERSION_PREV=2.x.0
+CSV_VERSION=3.y.0 # csv 3.y.0
+CRW_VERSION=${CSV_VERSION%.*} # tag 3.y
+CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
 DWO_TAG=0.13
@@ -85,8 +85,8 @@ if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
 if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 
 # if current CSV and previous CVS version not set, die
-if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
-if [[ "${CSV_VERSION_PREV}" == "2.x.0" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
+if [[ "${CSV_VERSION_PREV}" == "3.x.0" ]]; then usage; fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/devspaces"
