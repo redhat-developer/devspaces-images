@@ -18,7 +18,7 @@ index ce0551792..d3b7c362a 100644
 +  left: 0;
 +  content: "";
 +  opacity: 1;
-+  background-image: url(../icons/CodeReady_icon_loader.svg);
++  background-image: url(../icons/loader.svg);
 +  background-size: 160px 160px;
    background-repeat: no-repeat;
 -  background-attachment: fixed;
@@ -46,7 +46,7 @@ index 8521a0ded..ca5fd77ea 100644
    --theia-sprite-y-offset: 0px;
    --theia-icon-circle: url(../icons/circle-bright.svg);
 -  --theia-preloader: url(../icons/spinner.gif);
-+  --theia-preloader: url(../icons/CodeReady_icon_loader.svg);
++  --theia-preloader: url(../icons/loader.svg);
    --theia-icon-case-sensitive: url(../icons/case-sensitive.svg);
    --theia-icon-regex: url(../icons/regex.svg);
    --theia-icon-whole-word: url(../icons/whole-word.svg);
@@ -59,7 +59,7 @@ index 8d290a4ac..5a0218245 100644
    --theia-sprite-y-offset: -20px;
    --theia-icon-circle: url(../icons/circle-dark.svg);
 -  --theia-preloader: url(../icons/spinner.gif);
-+  --theia-preloader: url(../icons/CodeReady_icon_loader.svg);
++  --theia-preloader: url(../icons/loader.svg);
    --theia-icon-case-sensitive: url(../icons/case-sensitive-dark.svg);
    --theia-icon-regex: url(../icons/regex-dark.svg);
    --theia-icon-whole-word: url(../icons/whole-word-dark.svg);
