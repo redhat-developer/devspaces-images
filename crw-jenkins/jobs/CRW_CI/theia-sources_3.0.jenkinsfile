@@ -216,7 +216,6 @@ popd >/dev/null
 
 stage("Builds") {
     parallel(tasks)
-
     // verify requested platforms attempted asset build
     if (req_platforms.sort() != platforms.sort()) {
       error "[ERROR] Build failed as " + platforms + " didn't contain all platforms requested (" + req_platforms + ")"
@@ -225,7 +224,7 @@ stage("Builds") {
     }
 }
 
-nodeLabel = "${nodeLabels[0]}"
+nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
 node(nodeLabel) {
   stage ("Trigger sync to downstream job on ${nodeLabel}") {
     echo "currentBuild.result = " + currentBuild.result
