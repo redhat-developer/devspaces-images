@@ -29,7 +29,8 @@ ENV \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA11_HOME=/usr/lib/jvm/java-11-openjdk \
     JAVA8_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
-    PATH="$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA_HOME="${HOME}/.java/current" \
+    PATH="${HOME}/.java/current/bin:$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -86,6 +87,8 @@ RUN \
 RUN \
     dnf -y -q install java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
     java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
+    mkdir -p ${HOME}/.java/current && \
+    rm -f /usr/bin/java && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     dnf -y -q module reset nodejs && \
     dnf -y -q module enable nodejs:$NODEJS_VERSION && \
