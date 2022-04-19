@@ -53,13 +53,11 @@ fi
 # Use java 8 ONLY if USE_JAVA8 is set to 'true'
 #############################################################################
 if [ "${USE_JAVA8}" == "true" ] && [ ! -z "${JAVA8_HOME}" ]; then
-  echo "export JAVA_HOME=${JAVA8_HOME}" >> "${HOME}"/.bashrc
-  echo "export PATH=${JAVA8_HOME}/bin:${PATH}" >> "${HOME}"/.bashrc
+  ln -s "${JAVA8_HOME}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA8_HOME}"
 else
   if [ ! -z "${JAVA11_HOME}" ]; then
-    echo "export JAVA_HOME=${JAVA11_HOME}" >> "${HOME}"/.bashrc
-    echo "export PATH=${JAVA11_HOME}/bin:${PATH}" >> "${HOME}"/.bashrc
+    ln -s "${JAVA11_HOME}"/* "${HOME}"/.java/current
     echo "Java environment set to ${JAVA11_HOME}"
   else
     echo "Java environment is not configured"
