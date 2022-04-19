@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-22 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -61,7 +61,7 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/main/bundle
     '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
-	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
+	# for CSV_VERSION = 3.2.0, get CRW_VERSION = 3.2
 	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
 	# previous version to set in CSV
 	'-p') CSV_VERSION_PREV="$2"; shift 1;;
@@ -172,7 +172,7 @@ pushd "${SOURCEDIR}" >/dev/null || exit
 
 SOURCE_CSVFILE="${SOURCEDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
 
-ICON="$(cat "${SCRIPTS_DIR}/sync-che-olm.icon.txt")"
+ICON="    - base64data: $(base64 "${SCRIPTS_DIR}/../icon.png" | tr -d '\n\r')" # echo $ICON
 for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	cp "${SOURCE_CSVFILE}" "${CSVFILE}"
 	# transform resulting file
