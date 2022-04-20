@@ -36,7 +36,7 @@ echo "[INFO] Add CDN support for ''' + latestTheiaImage + '''"
 set -x
 set +e
 
-cdn_folder="crw_theia_artifacts"
+cdn_folder="ds_theia_artifacts"
 # debug info
 docker container ls -all
 # /home/theia/lib/cdn.json does not exist in 2.2-19 version of the container. See https://issues.redhat.com/browse/CRW-993
