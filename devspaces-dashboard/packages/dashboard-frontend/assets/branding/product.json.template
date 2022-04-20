@@ -19,13 +19,12 @@
     }
   ],
   "docs": {
-    "devfile" : "@@devspaces.docs.baseurl@@/html-single/end-user_guide/index#configuring-a-workspace-with-dashboard_devspaces",
-    "workspace" : "@@devspaces.docs.baseurl@@/html-single/end-user_guide/index#developer-workspaces_devspaces",
+    "devfile" : "@@devspaces.docs.baseurl@@/html-single/user_guide#customizing-workspaces",
+    "workspace" : "@@devspaces.docs.baseurl@@/html-single/user_guide#developer-workspaces",
     "converting": "https://devfile.io/docs/devfile/2.1.0/user-guide/migrating-to-devfile-v2/",
-    "certificate": "@@devspaces.docs.baseurl@@/html-single/end-user_guide/index#importing-certificates-to-browsers_devspaces",
     "general": "@@devspaces.docs.baseurl@@/",
-    "storageTypes": "@@devspaces.docs.baseurl@@/html-single/installation_guide/index#configuring-storage-types_devspaces",
-    "webSocketTroubleshooting": "@@devspaces.docs.baseurl@@/html-single/end-user_guide/index#troubleshooting-network-problems_devspaces"
+    "storageTypes": "@@devspaces.docs.baseurl@@/html-single/administration_guide#configuring-storage",
+    "webSocketTroubleshooting": "@@devspaces.docs.baseurl@@/html-single/user_guide#troubleshooting-network-problems"
   },
   "configuration": {
     "cheCliTool": "dsc"
