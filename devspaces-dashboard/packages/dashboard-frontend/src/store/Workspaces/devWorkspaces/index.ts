@@ -13,7 +13,7 @@
 import { Action, Reducer } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
 import common from '@eclipse-che/common';
-import { AppThunk } from '../..';
+import { AppState, AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
@@ -122,7 +122,7 @@ export type ResourceQueryParams = {
 export type ActionCreators = {
   updateAddedDevWorkspaces: (workspace: devfileApi.DevWorkspace[]) => AppThunk<KnownAction>;
   updateDeletedDevWorkspaces: (deletedWorkspacesIds: string[]) => AppThunk<KnownAction>;
-  updateDevWorkspaceStatus: (message: IStatusUpdate) => AppThunk<KnownAction>;
+  updateDevWorkspaceStatus: (message: IStatusUpdate) => AppThunk<KnownAction, Promise<void>>;
   requestWorkspaces: () => AppThunk<KnownAction, Promise<void>>;
   requestWorkspace: (workspace: devfileApi.DevWorkspace) => AppThunk<KnownAction, Promise<void>>;
   startWorkspace: (
@@ -144,7 +144,6 @@ export type ActionCreators = {
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
     attributes: { [key: string]: string },
-    start?: boolean,
   ) => AppThunk<KnownAction, Promise<void>>;
   createWorkspaceFromResources: (
     devworkspace: devfileApi.DevWorkspace,
@@ -167,7 +166,7 @@ export const actionCreators: ActionCreators = {
     },
 
   updateDeletedDevWorkspaces:
-    (deletedWorkspacesIds: string[]): AppThunk<KnownAction, void> =>
+    (deletedWorkspacesIds: string[]): AppThunk<KnownAction> =>
     (dispatch): void => {
       deletedWorkspacesIds.forEach(workspaceId => {
         dispatch({
@@ -178,9 +177,9 @@ export const actionCreators: ActionCreators = {
     },
 
   updateDevWorkspaceStatus:
-    (message: IStatusUpdate): AppThunk<KnownAction, void> =>
-    (dispatch): void => {
-      onStatusUpdateReceived(dispatch, message);
+    (message: IStatusUpdate): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      await onStatusUpdateReceived(dispatch, message);
     },
 
   requestWorkspaces:
@@ -517,7 +516,6 @@ export const actionCreators: ActionCreators = {
       pluginRegistryUrl: string | undefined,
       pluginRegistryInternalUrl: string | undefined,
       attributes: { [key: string]: string },
-      start = true,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       let state = getState();
@@ -563,7 +561,6 @@ export const actionCreators: ActionCreators = {
           pluginRegistryInternalUrl,
           cheEditor,
           optionalFilesContent,
-          start,
         );
         await addKubeConfigInjection(workspace);
 
@@ -691,7 +688,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 };
 
 async function onStatusUpdateReceived(
-  dispatch: ThunkDispatch<State, undefined, KnownAction>,
+  dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
   statusUpdate: IStatusUpdate,
 ) {
   const { status } = statusUpdate;

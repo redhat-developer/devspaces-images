@@ -42,7 +42,7 @@ jest.mock('../../../../store/InfrastructureNamespaces', () => {
 describe('Page header tools', () => {
   const mockLogout = jest.fn();
 
-  const productCli = 'dsc';
+  const productCli = 'crwctl';
   const email = 'johndoe@example.com';
   const name = 'John Doe';
   const store = createStore(productCli, name, email);
