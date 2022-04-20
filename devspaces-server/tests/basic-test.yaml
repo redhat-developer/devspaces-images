@@ -38,7 +38,7 @@
         - debug:
             msg: "{{ java_cmd_run.stdout }}"
         - name: Make sure Red Hat OpenShift Dev Spaces binaries are present
-          shell: oc exec {{ pod_name.stdout }} -- ls -la /home/user/codeready/tomcat
+          shell: oc exec {{ pod_name.stdout }} -- ls -la /home/user/devspaces/tomcat
           register: ls_cmd_run
         - debug:
             msg: "{{ ls_cmd_run.stdout }}"
