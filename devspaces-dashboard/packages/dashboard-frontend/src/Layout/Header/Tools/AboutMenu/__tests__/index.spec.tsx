@@ -47,7 +47,7 @@ jest.mock('../../../../../store/InfrastructureNamespaces', () => {
 describe('About Menu', () => {
   global.open = jest.fn();
 
-  const productCli = 'crwctl';
+  const productCli = 'dsc';
   const email = 'johndoe@example.com';
   const name = 'John Doe';
   const store = createStore(productCli, name, email);
