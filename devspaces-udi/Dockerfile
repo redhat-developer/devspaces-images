@@ -29,8 +29,8 @@ ENV \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA11_HOME=/usr/lib/jvm/java-11-openjdk \
     JAVA8_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
-    JAVA_HOME="${HOME}/.java/current" \
-    PATH="${HOME}/.java/current/bin:$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    JAVA_HOME="/home/user/.java/current" \
+    PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
