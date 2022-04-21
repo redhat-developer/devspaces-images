@@ -46,29 +46,32 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # ignore changes in these files
-echo ".github/
+echo "
 .git/
-.gitignore
-.dockerignore
+.github/
 .idea/
-build/
-devfiles/
+.DS_Store
+*.iml
+make-release.sh
+compatible-ide.json
+devfile.yaml
+README.md
+build/docker/
+build/scripts/sync.sh
 doc/
 kubernetes/
-*.iml
-ide-packaging
-projector-server-assembly
-static-assembly
-/container.yaml
-/content_sets.*
-/cvp.yml
-/cvp-owners.yml
-/patches/README.md
-README.md
+devfiles/
+container.yaml
+content_sets.*
+cvp.yml
+cvp-owners.yml
 get-source*.sh
 tests/basic-test.yaml
 sources
-make-release.sh
+asset-ide-packaging.tar.gz
+asset-che-plugin-assembly.zip
+asset-projector-server-assembly.zip
+asset-static-assembly.tar.gz
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
@@ -89,8 +92,6 @@ sed_in_place() {
 sed_in_place -r \
   `# Remove registry so build works in Brew` \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  `# Remove unused Python packages (support for PyCharm not included in CRW)` \
-  -e "/# Python support/d" -e "/python2 python39 \\\\/d" \
   "${TARGETDIR}"/Dockerfile
 
 # Overwrite default configuration
@@ -102,8 +103,8 @@ cat << EOT > "${TARGETDIR}"/compatible-ide.json
     "productCode": "IC",
     "productVersion": [
       {
-        "version": "2020.3.3",
-        "downloadUrl": "https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.3.tar.gz",
+        "version": "2020.3.4",
+        "downloadUrl": "https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.4.tar.gz",
         "latest": true
       }
     ]

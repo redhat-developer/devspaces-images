@@ -10,7 +10,7 @@ forceBuild=0
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
 
-idePackagingUrl=https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.3.tar.gz
+idePackagingUrl=https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.4.tar.gz
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -41,7 +41,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
   log "[INFO] java version:"
   java -version
 
-  ./projector.sh build --prepare --url $idePackagingUrl
+  ./projector.sh build --prepare --url $idePackagingUrl --tag idea-rhel8
 
   if [[ ! -f "asset-ide-packaging.tar.gz" ]]; then
     log "[ERROR] 'asset-ide-packaging.tar.gz' not found, so nothing to build."
@@ -58,7 +58,12 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
     exit 1;
   fi
 
-  outputFiles="asset-ide-packaging.tar.gz asset-projector-server-assembly.zip asset-static-assembly.tar.gz"
+  if [[ ! -f "asset-che-plugin-assembly.zip" ]]; then
+    log "[ERROR] 'asset-che-plugin-assembly.zip' not found, so nothing to build."
+    exit 1;
+  fi
+
+  outputFiles="asset-ide-packaging.tar.gz asset-projector-server-assembly.zip asset-static-assembly.tar.gz asset-che-plugin-assembly.zip"
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
