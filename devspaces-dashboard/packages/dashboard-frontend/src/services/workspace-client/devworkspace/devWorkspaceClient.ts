@@ -282,6 +282,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
     }
 
+    devworkspace.spec.started = false;
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
 
     // create DWT
@@ -345,7 +346,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
     pluginRegistryInternalUrl: string | undefined,
     editorId: string | undefined,
     optionalFilesContent: { [fileName: string]: string },
-    start = true,
   ): Promise<devfileApi.DevWorkspace> {
     if (!devfile.components) {
       devfile.components = [];
@@ -355,7 +355,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     }
 
     const routingClass = 'che';
-    const devworkspace = devfileToDevWorkspace(devfile, routingClass, start);
+    const devworkspace = devfileToDevWorkspace(devfile, routingClass, false);
 
     if (devworkspace.metadata.annotations === undefined) {
       devworkspace.metadata.annotations = {};
@@ -366,6 +366,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (editorId) {
       devworkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR] = editorId;
     }
+    devworkspace.spec.started = false;
 
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
     const namespace = createdWorkspace.metadata.namespace;
@@ -544,7 +545,6 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }),
     );
 
-    createdWorkspace.spec.started = start;
     const patch = [
       {
         op: 'replace',

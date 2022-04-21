@@ -313,7 +313,6 @@ describe('Workspace Details container', () => {
           devNamespace,
           {},
           {},
-          false,
         );
 
         expect(mockUpdateWorkspace).toHaveBeenCalledWith<

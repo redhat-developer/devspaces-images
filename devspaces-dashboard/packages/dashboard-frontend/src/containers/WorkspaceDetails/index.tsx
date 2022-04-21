@@ -178,14 +178,7 @@ class WorkspaceDetailsContainer extends React.Component<Props, State> {
     ] = oldWorkspace.uid;
     const defaultNamespace = this.props.defaultNamespace.name;
     // create a new workspace
-    await this.props.createWorkspaceFromDevfile(
-      devfileV2,
-      undefined,
-      defaultNamespace,
-      {},
-      {},
-      false,
-    );
+    await this.props.createWorkspaceFromDevfile(devfileV2, undefined, defaultNamespace, {}, {});
 
     const newWorkspace = this.props.allWorkspaces.find(workspace => {
       if (isDevWorkspace(workspace.ref)) {
