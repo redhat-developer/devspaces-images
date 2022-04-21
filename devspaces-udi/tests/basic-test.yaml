@@ -47,12 +47,6 @@
           register: oc_cmd_run
         - debug:
             msg: "{{ oc_cmd_run.stdout }}"
-        # CRW-492: for odo tests, must run entrypoint.sh first or else fail in CVP with 'unknown userid 1001690000'
-        - name: Make sure odo is present in the container and in the path
-          shell: oc exec {{ pod_name.stdout }} -- odo version
-          register: odo_cmd_run
-        - debug:
-            msg: "{{ odo_cmd_run.stdout }}"
         - name: Make sure 'java' command is available in the container
           shell: oc exec {{ pod_name.stdout }} -- java -version
           register: java_cmd_run
