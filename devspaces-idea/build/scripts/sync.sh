@@ -46,32 +46,24 @@ if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # ignore changes in these files
-echo "
-.git/
+echo ".git/
 .github/
-.idea/
-.DS_Store
-*.iml
-make-release.sh
-compatible-ide.json
-devfile.yaml
 README.md
 build/docker/
 build/scripts/sync.sh
-doc/
-kubernetes/
-devfiles/
+compatible-ide.json
 container.yaml
 content_sets.*
-cvp.yml
 cvp-owners.yml
+cvp.yml
+devfile.yaml
+devfiles/
+doc/
 get-source*.sh
-tests/basic-test.yaml
+kubernetes/
+make-release.sh
 sources
-asset-ide-packaging.tar.gz
-asset-che-plugin-assembly.zip
-asset-projector-server-assembly.zip
-asset-static-assembly.tar.gz
+tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
