@@ -26,8 +26,8 @@ operator_manifests:
   repo_replacements:
     - registry: registry-proxy.engineering.redhat.com
       package_mappings:
-        devspaces-operator-container: rh-osbs/devspaces-operator
-        devspaces-rhel8-operator-container: rh-osbs/devspaces-operator
+        devspaces-operator-container: rh-osbs/devspaces-rhel8-operator
+        devspaces-rhel8-operator-container: rh-osbs/devspaces-rhel8-operator
     - registry: registry.redhat.io
       package_mappings:
         devspaces-operator-container: devspaces/devspaces-rhel8-operator
