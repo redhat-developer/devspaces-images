@@ -50,18 +50,14 @@ if [ -w "${HOME}" ] && [ ! -f "${HOME}"/.bashrc ]; then
 fi
 
 #############################################################################
-# Use java 8 ONLY if USE_JAVA8 is set to 'true'
+# Use java 8 ONLY if USE_JAVA8 is set to 'true', by default it is java 11
 #############################################################################
 if [ "${USE_JAVA8}" == "true" ] && [ ! -z "${JAVA8_HOME}" ]; then
+  rm -r "${HOME}"/.java/current/*
   ln -s "${JAVA8_HOME}"/* "${HOME}"/.java/current
   echo "Java environment set to ${JAVA8_HOME}"
 else
-  if [ ! -z "${JAVA11_HOME}" ]; then
-    ln -s "${JAVA11_HOME}"/* "${HOME}"/.java/current
-    echo "Java environment set to ${JAVA11_HOME}"
-  else
-    echo "Java environment is not configured"
-  fi
+  echo "Java environment set to ${JAVA11_HOME}"
 fi
 
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
