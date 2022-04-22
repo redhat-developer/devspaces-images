@@ -32,51 +32,21 @@
         - name: Figure out a pod name for the started container
           shell: oc get pods --selector deploymentconfig=udi-cmd-test --output=jsonpath='{ .items[*].metadata.name }'
           register: pod_name
-        - name: Make sure helm is present in the container and in the path
-          shell: oc exec {{ pod_name.stdout }} -- helm version --short --client
-          register: helm_cmd_run
+        - name: Make sure helm, kubectl and oc are present in the container and in the path
+          shell: oc exec {{ pod_name.stdout }} -- bash -c "echo -n 'Helm: '; helm version --short --client; echo -n 'Kubectl: '; kubectl version --short --client=true; echo 'oc: '; oc version"
+          register: helm_kubectl_oc_cmd_run
         - debug:
-            msg: "{{ helm_cmd_run.stdout }}"
-        - name: Make sure kubectl is present in the container and in the path
-          shell: oc exec {{ pod_name.stdout }} -- kubectl version --short --client=true
-          register: kubectl_cmd_run
+            msg: "{{ helm_kubectl_oc_cmd_run.stdout }}"
+        - name: Make sure node, java, clangd commands are available in the container
+          shell: oc exec {{ pod_name.stdout }} -- bash -c "echo -n 'Node: '; node --version; echo; java -version; echo; clangd --version"
+          register: node_java_clangd_cmd_run
         - debug:
-            msg: "{{ kubectl_cmd_run.stdout }}"
-        - name: Make sure oc is present in the container and in the path
-          shell: oc exec {{ pod_name.stdout }} -- oc version
-          register: oc_cmd_run
+            msg: "{{ node_java_clangd_cmd_run.stdout }}"
+        - name: Make sure go, php, python commands are available in the container
+          shell: oc exec {{ pod_name.stdout }} -- bash -c "php --version; echo; go version; echo; python -V; pip -V; pylint --version"
+          register: go_php_python_cmd_run
         - debug:
-            msg: "{{ oc_cmd_run.stdout }}"
-        - name: Make sure 'java' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- java -version
-          register: java_cmd_run
-        - debug:
-            msg: "{{ java_cmd_run.stdout }}"
-        - name: Make sure 'node' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- node --version
-          register: node_cmd_run
-        - debug:
-            msg: "{{ node_cmd_run.stdout }}"
-        - name: Make sure 'clangd' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- clangd -help
-          register: clangd_cmd_run
-        - debug:
-            msg: "{{ clangd_cmd_run.stdout }}"
-        - name: Make sure 'Go' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- go version
-          register: go_cmd_run
-        - debug:
-            msg: "{{ go_cmd_run.stdout }}"
-        - name: Make sure 'php' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- php --version
-          register: php_cmd_run
-        - debug:
-            msg: "{{ php_cmd_run.stdout }}"
-        - name: Make sure 'python' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- python -V
-          register: py_cmd_run
-        - debug:
-            msg: "{{ py_cmd_run.stdout }}"
+            msg: "{{ go_php_python_cmd_run.stdout }}"
         # start php lang server, then kill it
         - name: 1/4 Start up PHP Language Server
           shell: oc exec {{ pod_name.stdout }} -- php /home/jboss/che/ls-php/php-language-server/bin/php-language-server.php 2>&1 &
@@ -98,7 +68,7 @@
           register: phpls_kill
         - debug:
             msg: "{{ phpls_kill.stdout }}"
-        # start lang server, then kill it
+        # start ts lang server, then kill it
         - name: 1/3 start language server
           shell: oc exec {{ pod_name.stdout }} -- /opt/app-root/src/.npm-global/bin/tsserver 2>&1 &
           register: ls_cmd_run

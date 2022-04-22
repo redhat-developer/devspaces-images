@@ -114,9 +114,10 @@ RUN \
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
     for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done && \
-    # additional python stuff
+    # python symlinks
     ln -s /usr/bin/python${PYTHON_VERSION} /usr/bin/python && \
     ln -s /usr/bin/pip${PYTHON_VERSION} /usr/bin/pip && \
+    # python lang server
     if [[ -f /tmp/assets/asset-python-ls-$(uname -m).tar.gz ]]; then \
         mkdir -p /tmp/py-unpack && \
         tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
@@ -176,7 +177,6 @@ RUN \
     dnf -y -q module enable php:$PHP_VERSION && \
     dnf -y -q install php php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
     tar xzf /tmp/assets/asset-php-xdebug-$(uname -m).tar.gz -C / && \
-    dnf -y remove kernel-headers && \
     sed -i 's/opt\/app-root\/src/projects/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/#DocumentRoot/DocumentRoot/' /etc/httpd/conf/httpd.conf && \
     sed -i 's/CustomLog \"|\/usr\/bin\/cat\"/CustomLog \"\/var\/log\/httpd\/access_log\"/' /etc/httpd/conf/httpd.conf && \
