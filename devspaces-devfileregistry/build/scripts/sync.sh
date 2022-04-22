@@ -17,14 +17,14 @@ set -e
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPSTM_NAME="che-devfile-registry"
 MIDSTM_NAME="devfileregistry"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b CRW_BRANCH]
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b DS_BRANCH]
 Example: $0 -v 2.y.0 -s ${HOME}/devspaces -t /tmp/devspaces-images/devspaces-${MIDSTM_NAME} -b devspaces-3.y-rhel-8
 "
     exit
@@ -34,9 +34,9 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-b') CRW_BRANCH="$2"; shift 1;;
-    # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
-    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    '-b') DS_BRANCH="$2"; shift 1;;
+    # for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
+    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR=${SOURCEDIR%/}/dependencies/${UPSTM_NAME};
         if [[ ! -d ${SOURCEDIR} ]]; then echo "Cannot find ${SOURCEDIR} !"; exit 1; fi;;
@@ -50,11 +50,11 @@ done
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
 # try to compute branches from currently checked out branch; else fall back to hard coded value for where to find 
-# https://github.com/redhat-developer/devspaces-images/blob/${CRW_BRANCH}/devspaces-operator-bundle-generated/manifests/devspaces.csv.yaml
-if [[ -z ${CRW_BRANCH} ]]; then 
-  CRW_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-  if [[ $CRW_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
-    CRW_BRANCH="devspaces-3-rhel-8"
+# https://github.com/redhat-developer/devspaces-images/blob/${DS_BRANCH}/devspaces-operator-bundle-generated/manifests/devspaces.csv.yaml
+if [[ -z ${DS_BRANCH} ]]; then 
+  DS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  if [[ $DS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
+    DS_BRANCH="devspaces-3-rhel-8"
   fi
 fi
 
@@ -106,9 +106,9 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
     `# trim off version so we get the latest from internal registry` \
     -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
-    `# Set arg options: disable BOOTSTRAP; update CRW_BRANCH to correct value` \
+    `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
-    -e "s|ARG CRW_BRANCH=.*|ARG CRW_BRANCH=${CRW_BRANCH}|" \
+    -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
     `# Enable offline build - copy in built binaries` \
     -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
@@ -121,7 +121,7 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e '/^ *FROM builder AS offline-builder/,+3 s|.*|# &|' \
     -e 's|^[^#]*--from=offline-builder.*|# &|' \
     `# Enable cache_projects.sh + swap_yamlfiles.sh` \
-    -e '\|# Cache projects in CRW|i \
+    -e '\|# Cache projects in DS|i \
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles \
 ' \
@@ -139,7 +139,7 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
       com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
       name="\$PRODNAME/\$COMPNAME" \\
-      version="${CRW_VERSION}" \\
+      version="${DS_VERSION}" \\
       license="EPLv2" \\
       maintainer="Eric Williams <ericwill@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
@@ -173,7 +173,7 @@ replaceField()
 
 pushd "${TARGETDIR}" >/dev/null || exit 1
 
-# TODO transform che-theia references to CRW theia references, including:
+# TODO transform che-theia references to DS theia references, including:
 # description, icon, attributes.version, attributes.title, attributes.repository
 
 popd >/dev/null || exit

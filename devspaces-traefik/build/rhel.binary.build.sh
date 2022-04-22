@@ -23,7 +23,7 @@ if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspac
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-n ASSET_NAME] [-ght GITHUB_TOKEN]
+Usage:   $0 -v [DS CSV_VERSION] [--noupload] [-n ASSET_NAME] [-ght GITHUB_TOKEN]
 Example: $0 -v 2.y.0 -n traefik --noupload
 "
     exit

@@ -17,13 +17,13 @@ set -e
 
 # defaults
 CSV_VERSION=2.y.0
-CRW_VERSION=${CSV_VERSION%.*}
+DS_VERSION=${CSV_VERSION%.*}
 MIDSTM_BRANCH=devspaces-3.y-rhel8
 
 # TODO handle cmdline input
 usage () {
-	echo "Usage:   $0 -v [Dev Spaces CSV_VERSION] -t [/path/to/generated] --crw-branch ${MIDSTM_BRANCH}"
-	echo "Example: $0 -v 2.y.0 -t $(pwd) --crw-branch devspaces-3.y-rhel8"
+	echo "Usage:   $0 -v [Dev Spaces CSV_VERSION] -t [/path/to/generated] --ds-branch ${MIDSTM_BRANCH}"
+	echo "Example: $0 -v 2.y.0 -t $(pwd) --ds-branch devspaces-3.y-rhel8"
   exit
 }
 
@@ -31,10 +31,10 @@ if [[ $# -lt 4 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-  # for CSV_VERSION = 2.y.0, get CRW_VERSION = 2.y
-  '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+  # for CSV_VERSION = 2.y.0, get DS_VERSION = 2.y
+  '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
   '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-  '--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces/ - check registries' referenced images
+  '--ds-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces/ - check registries' referenced images
 	'--help'|'-h') usage;;
   esac
   shift 1

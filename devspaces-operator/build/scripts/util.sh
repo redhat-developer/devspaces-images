@@ -17,20 +17,20 @@ function updateDockerfileArgs()
 			exit 1
 		fi
 		if [[ $MIDSTM_BRANCH == "devspaces-3-rhel-8" ]]; then
-			CRW_VERSION="$(echo "$configjson" | jq -r '.Version')"
+			DS_VERSION="$(echo "$configjson" | jq -r '.Version')"
 		else 
-			CRW_VERSION=${MIDSTM_BRANCH/devspaces-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
+			DS_VERSION=${MIDSTM_BRANCH/devspaces-/}; DS_VERSION=${DS_VERSION//-rhel-8}
 		fi
 		if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
-	        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Other["DEV_WORKSPACE_CONTROLLER_VERSION"]["'${CRW_VERSION}'"]')"
+	        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Other["DEV_WORKSPACE_CONTROLLER_VERSION"]["'${DS_VERSION}'"]')"
 			if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
 		fi
 		if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
-			DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$configjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]["'${CRW_VERSION}'"]')"
+			DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$configjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]["'${DS_VERSION}'"]')"
 			if [[ ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN} == "null" ]]; then DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"; fi
 		fi
 	fi
-	echo "[INFO] For ${CRW_VERSION} / ${MIDSTM_BRANCH}:"
+	echo "[INFO] For ${DS_VERSION} / ${MIDSTM_BRANCH}:"
 	echo "[INFO]   DEV_WORKSPACE_CONTROLLER_VERSION   = ${DEV_WORKSPACE_CONTROLLER_VERSION}"
 	echo "[INFO]   DEV_HEADER_REWRITE_TRAEFIK_PLUGIN  = ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 
