@@ -89,6 +89,7 @@ RUN \
     java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
     mkdir -p ${HOME}/.java/current && \
     rm -f /usr/bin/java && \
+    ln -s /usr/lib/jvm/java-11-openjdk/* ${HOME}/.java/current && \
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     dnf -y -q module reset nodejs && \
     dnf -y -q module enable nodejs:$NODEJS_VERSION && \
