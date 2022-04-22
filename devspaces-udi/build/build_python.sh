@@ -69,8 +69,7 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHO
     export PATH=\${PATH}:/tmp/python/bin
     ls -1 /tmp/python/bin
     # cat /tmp/python/bin/pylint
-    mkdir -p /home/jboss;
-    cd /home/jboss;
+    mkdir -p /home/user; cd /home/user
     /usr/bin/python3 -m venv .venv;
     source .venv/bin/activate;
     pip install -U pylint ipykernel jupyter;
