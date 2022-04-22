@@ -42,8 +42,8 @@
           register: node_java_clangd_cmd_run
         - debug:
             msg: "{{ node_java_clangd_cmd_run.stdout }}"
-        - name: Make sure go, php, python commands are available in the container
-          shell: oc exec {{ pod_name.stdout }} -- bash -c "php --version; echo; go version; echo; python -V; pip -V; pylint --version"
+        - name: Make sure go, php, python (venv) commands are available in the container
+          shell: oc exec {{ pod_name.stdout }} -- bash -c "php --version; echo; go version; echo; python3.8 -m venv .venv && . .venv/bin/activate; python -V; pip -V; pylint --version"
           register: go_php_python_cmd_run
         - debug:
             msg: "{{ go_php_python_cmd_run.stdout }}"
