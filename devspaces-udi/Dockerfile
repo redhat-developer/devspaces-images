@@ -101,14 +101,6 @@ RUN \
     dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && rpm -V $INSTALL_PKGS && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
     ########################################################################
-    # Python
-    ########################################################################
-    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    dnf -y -q module reset python38 && \
-    dnf -y -q module enable python38:${PYTHON_VERSION} && \
-    dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
-    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    ########################################################################
     # Gradle
     ########################################################################
     # unpack gradle into /opt/gradle/, and maven into /opt/apache-maven/
@@ -126,20 +118,21 @@ RUN \
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
     for f in "/opt/app-root/src/.npm-global"; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done && \
+    ########################################################################
+    # Python
+    ########################################################################
+    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+    dnf -y -q module reset python38 && \
+    dnf -y -q module enable python38:${PYTHON_VERSION} && \
+    dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
+    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
     # python lang server
-    if [[ -f /tmp/assets/asset-python-ls-$(uname -m).tar.gz ]]; then \
-        mkdir -p /tmp/py-unpack && \
-        tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
-        for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
-        cp -R /tmp/py-unpack/bin/* /usr/bin && \
-        cp -R /tmp/py-unpack/lib/* /usr/lib && \
-        cp -R /tmp/py-unpack/lib64/* /usr/lib64 && \
-        cp -R /tmp/py-unpack/.venv ${HOME} && \
-        chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
-        rm -fr /tmp/py-unpack \
-    else \
-        echo "[WARNING] Python lang server dependency tarball not found. Python support may be more limited on $(uname -m)"; \
-    fi && \
+    mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
+    for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
+    for d in bin lib lib64; do cp -R /tmp/py-unpack/${d}/* /usr/${d}; done; \
+    cp -R /tmp/py-unpack/.venv ${HOME} && chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
+    rm -fr /tmp/py-unpack
+RUN \
     # python/pip symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     SL=/usr/local/bin/python; if [[ ! -f $SL ]] && [[ ! -L $SL ]]; then ln -s /usr/bin/python${PYTHON_VERSION} $SL; else ls -la $SL; fi && \
