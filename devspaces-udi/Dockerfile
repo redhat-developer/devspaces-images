@@ -135,8 +135,8 @@ RUN \
 RUN \
     # python/pip symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
-    SL=/usr/local/bin/python; if [[ ! -f $SL ]] && [[ ! -L $SL ]]; then ln -s /usr/bin/python${PYTHON_VERSION} $SL; else ls -la $SL; fi && \
-    SL=/usr/local/bin/pip; if [[ ! -f $SL ]] && [[ ! -L $SL ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} $SL; else ls -la $SL; fi && \
+    SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     echo "<== Create python symlinks (or display existing ones)" && \
 RUN \
     ########################################################################

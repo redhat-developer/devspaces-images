@@ -3,7 +3,6 @@
 TARGETDIR=$(cd "$(dirname "$0")"; pwd)
 verbose=1
 scratchFlag=""
-JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
 PULL_ASSETS=0
@@ -26,7 +25,6 @@ while [[ "$#" -gt 0 ]]; do
 	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 	'-v') CSV_VERSION="$2"; shift 1;;
-    *) JOB_BRANCH="$1"; shift 0;;
 	esac
 	shift 1
 done
@@ -53,12 +51,6 @@ if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	./build/build.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 	exit 0;
 fi 
-
-# if not set, compute from current branch
-if [[ ! ${JOB_BRANCH} ]]; then 
-	JOB_BRANCH=$(git rev-parse --abbrev-ref HEAD); JOB_BRANCH=${JOB_BRANCH//devspaces-}; JOB_BRANCH=${JOB_BRANCH%%-rhel*}
-	if [[ ${JOB_BRANCH} == "2" ]]; then JOB_BRANCH="2.x"; fi
-fi
 
 # see https://github.com/redhat-developer/devspaces-images/blob/devspaces-3-rhel-8/devspaces-udi/build/build_kamel.sh#L17 or https://github.com/apache/camel-k/releases
 $(curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-images/$(git rev-parse --abbrev-ref HEAD)/devspaces-udi/build/build_kamel.sh | grep KAMEL_VERSION=)
