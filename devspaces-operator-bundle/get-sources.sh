@@ -4,20 +4,36 @@
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-# NOTE: --pull-assets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
 
+usage () {
+    echo "
+Usage:
+
+  $0 [OPTIONS]
+
+Options:
+
+  -n, --nobuild           do not build, even if there's a reason to do so
+  -f, --force-build       force a build, even if no reason to do so
+  -s, --scratch           do a scratch build
+
+  -p, --pull-assets       create asset file(s)
+"
+}
+
+if [[ "$#" -eq 0 ]]; then set +x; usage; exit 1; fi
+
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
-		'-a'|'--publish-assets') exit 0; shift 0;;
-		'-d'|'--delete-assets') exit 0; shift 0;;
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-		'-v') CSV_VERSION="$2"; shift 1;;
+		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+		'-d'|'--delete-assets') exit 0; shift 0;;
+		'-a'|'--publish-assets') exit 0; shift 0;;
 	esac
 	shift 1
 done

@@ -1,13 +1,15 @@
 #!/bin/bash -xe
-# script to build/fetch sources, then trigger rhpkg 
+# script to trigger rhpkg after fetching GH release asset files
 TARGETDIR=$(cd "$(dirname "$0")"; pwd)
 verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-PULL_ASSETS=0
+# here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
+# so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
+PULL_ASSETS=0
 # Gradle from https://services.gradle.org/distributions/
 GRADLE_VERSION="6.1"
 # maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
@@ -16,18 +18,50 @@ LOMBOK_VERSION="1.18.22"
 ODO_VERSION="v2.5.0"
 ASSET_NAME="udi"
 
+# compute CSV_VERSION from MIDSTM_BRANCH
+MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator-bundle/manifests/devspaces.csv.yaml" | yq -r .spec.version)
+
+usage () {
+    echo "
+Usage:
+
+  $0 -v CSV_VERSION -b MIDSTM_BRANCH [OPTIONS]
+
+Options:
+
+  -n, --nobuild           do not build, even if there's a reason to do so
+  -f, --force-build       force a build, even if no reason to do so
+  -s, --scratch           do a scratch build
+
+  -d, --delete-assets     delete release + asset file(s) defined by CSV_VERSION;
+                            used to prepare for creating a new GH release with fresh timestamp + assets
+
+  -a, --publish-assets    publish asset file(s) to GH release defined by CSV_VERSION
+
+  -p, --pull-assets       fetch asset file(s) from GH release defined by CSV_VERSION
+"
+}
+
+if [[ "$#" -eq 0 ]]; then set +x; usage; exit 1; fi
+
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
-	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
-	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
-	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
-	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	'-v') CSV_VERSION="$2"; shift 1;;
+		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
+		'-f'|'--force-build') forceBuild=1; shift 0;;
+		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+		'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
+		'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+		'-v') CSV_VERSION="$2"; shift 1;;
+		'-b') MIDSTM_BRANCH="$2"; shift 1;;
+		'-ght') export GITHUB_TOKEN="$2"; shift 1;;
 	esac
 	shift 1
 done
+
+if [[ ! ${CSV_VERSION} ]] || [[ ! ${MIDSTM_BRANCH} ]]; then set +x; usage; exit 1; fi
 
 function log()
 {
@@ -100,13 +134,13 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
 	COMMIT_MSG="ci: GH ${ASSET_NAME} assets :: ${outputFiles} ${ODO_VERSION}"
-
 	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then 
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		log "[INFO] Push change:"
 		git pull; git push; git status -s || true
 	fi
+
 	if [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 		echo "[INFO] #1 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 		git status || true
@@ -137,3 +171,4 @@ $ERRORS
 		log "[INFO] No new sources, so nothing to build."
 	fi
 fi
+

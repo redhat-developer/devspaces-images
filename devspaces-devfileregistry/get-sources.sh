@@ -4,7 +4,6 @@ verbose=0
 scratchFlag=""
 doRhpkgContainerBuild=1
 forceBuild=0
-# NOTE: --pull-assets (-p) flag uses opposite behaviour to some other get-sources.sh scripts;
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
@@ -12,19 +11,44 @@ PULL_ASSETS=0
 tmpContainer=devfileregistry:tmp
 filesToInclude='./devfiles ./resources'
 filesToExclude=() # nothing to exclude; if there was, use (-x rsync-pattern-to--exclude) (See pluginregistry's get-sources script)
+# compute CSV_VERSION from MIDSTM_BRANCH
+MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/devspaces-operator-bundle/manifests/devspaces.csv.yaml" | yq -r .spec.version)
+
+usage () {
+    echo "
+Usage:
+
+  $0 -v CSV_VERSION -b MIDSTM_BRANCH [OPTIONS]
+
+Options:
+
+  -n, --nobuild           do not build, even if there's a reason to do so
+  -f, --force-build       force a build, even if no reason to do so
+  -s, --scratch           do a scratch build
+
+  -p, --pull-assets       create asset file(s)
+"
+}
+
+if [[ "$#" -eq 0 ]]; then set +x; usage; exit 1; fi
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
-		'-a'|'--publish-assets') exit 0; shift 0;;
-		'-d'|'--delete-assets') exit 0; shift 0;;
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+		'-d'|'--delete-assets') exit 0; shift 0;;
+		'-a'|'--publish-assets') exit 0; shift 0;;
 		'-v') CSV_VERSION="$2"; shift 1;;
+		'-b') MIDSTM_BRANCH="$2"; shift 1;;
 	esac
 	shift 1
 done
+
+if [[ ! ${CSV_VERSION} ]] || [[ ! ${MIDSTM_BRANCH} ]]; then set +x; usage; exit 1; fi
 
 function log()
 {
@@ -34,12 +58,13 @@ function log()
 }
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then 
+	# step one - build the builder image
 	BUILDER=$(command -v podman || true)
 	if [[ ! -x $BUILDER ]]; then
 		# echo "[WARNING] podman is not installed, trying with docker"
 		BUILDER=$(command -v docker || true)
 		if [[ ! -x $BUILDER ]]; then
-			echo "[ERROR] must install docker or podman. Abort!"; exit 1
+				echo "[ERROR] must install docker or podman. Abort!"; exit 1
 		fi
 	fi
 
@@ -48,7 +73,6 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	#
 
 	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
-	MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 	curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/VERSION.json" | jq -r '.CRW_VERSION' > VERSION
 	sed bootstrap.Dockerfile -i --regexp-extended \
 		`# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \

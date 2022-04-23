@@ -12,6 +12,24 @@ PULL_ASSETS=0
 PUBLISH_ASSETS=0
 DELETE_ASSETS=0
 
+usage () {
+    echo "
+Usage:
+
+  $0 [OPTIONS]
+
+Options:
+
+  -n, --nobuild           do not build, even if there's a reason to do so
+  -f, --force-build       force a build, even if no reason to do so
+  -s, --scratch           do a scratch build
+
+  -p, --pull-assets       create asset file(s)
+"
+}
+
+if [[ "$#" -eq 0 ]]; then set +x; usage; exit 1; fi
+
 # compute ASSET_NAME from current dir
 SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd); 
 ASSET_NAME=${SCRIPT_DIR##*/}; projectName=${projectName/devspaces-/}; 
@@ -27,12 +45,12 @@ CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/de
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		'-d'|'--delete-assets') DELETE_ASSETS=1; exit 0;;  # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
-		'-a'|'--publish-assets') PUBLISH_ASSETS=1; exit 0;; # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
-		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
+		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+		'-d'|'--delete-assets') DELETE_ASSETS=1; exit 0;;  # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
+		'-a'|'--publish-assets') PUBLISH_ASSETS=1; exit 0;; # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
 		'-v') CSV_VERSION="$2"; shift 1;;
 		'-ght') GITHUB_TOKEN="$2"; shift 1;;
 	esac
