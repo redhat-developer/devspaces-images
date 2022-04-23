@@ -13,29 +13,16 @@
 import { DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fastifyStatic from 'fastify-static';
 import path from 'path';
-import { isLocalRun } from './local-run';
 
 export function registerStaticServer(publicFolder: string, server: FastifyInstance) {
   const rootPath = path.resolve(__dirname, publicFolder);
-  console.log(`Static server's serving "${rootPath}" on 0.0.0.0:8080/dashboard/`);
+  console.log(`Static server's serving "${rootPath}" on 0.0.0.0:8080/`);
 
   server.register(fastifyStatic, {
     root: rootPath,
     maxAge: 24 * 60 * 60 * 1000,
     lastModified: true,
-    prefix: '/dashboard/',
-  });
-  server.get('/', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (isLocalRun && !process.env.CLUSTER_ACCESS_TOKEN) {
-      const authorizationEndpoint = server.localStart.generateAuthorizationUri(request);
-      if (authorizationEndpoint) {
-        return reply.redirect(authorizationEndpoint);
-      }
-    }
-    return reply.redirect('/dashboard/');
-  });
-  server.get('/dashboard', async (request: FastifyRequest, reply: FastifyReply) => {
-    return reply.redirect('/dashboard/');
+    prefix: '/',
   });
 
   const doNotCache = [

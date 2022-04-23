@@ -32,7 +32,7 @@ import {
   selectPreferredStorageType,
   selectWorkspacesSettings,
 } from '../../store/Workspaces/Settings/selectors';
-import { buildIdeLoaderLocation, sanitizeLocation } from '../../services/helpers/location';
+import { buildIdeLoaderLocation } from '../../services/helpers/location';
 import { lazyInject } from '../../inversify.config';
 import { KeycloakAuthService } from '../../services/keycloak/auth';
 import { getEnvironment, isDevEnvironment } from '../../services/helpers/environment';
@@ -234,8 +234,9 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   }
 
   private getSearchParam(): string | undefined {
-    const { location: dirtyLocation } = this.props.history;
-    const { search } = sanitizeLocation(dirtyLocation);
+    const {
+      location: { search },
+    } = this.props.history;
     if (!search) {
       this.showAlert(
         `Repository/Devfile URL is missing. Please specify it via url query param: ${window.location.origin}${window.location.pathname}#/load-factory?url= .`,

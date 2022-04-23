@@ -33,66 +33,6 @@ export function buildIdeLoaderLocation(workspace: Workspace, tab?: IdeLoaderTab)
   return _buildLocationObject(pathAndQuery);
 }
 
-export function buildFactoryLoaderLocation(url?: string): Location {
-  let pathAndQuery: string;
-  if (!url) {
-    pathAndQuery = ROUTE.LOAD_FACTORY;
-  } else {
-    // try to extract some parameters before doing the relocation
-    const fullUrl = new window.URL(url.toString());
-
-    // search for an editor switch and if there is one, remove it from the URL
-    const editor = extractUrlParam(fullUrl, 'che-editor');
-
-    // search for devfile switch and if there is one, remove it from the URL
-    let devfilePath = extractUrlParam(fullUrl, 'devfilePath');
-
-    // also use short name 'df' if long name is not found
-    if (!devfilePath) {
-      devfilePath = extractUrlParam(fullUrl, 'df');
-    }
-
-    // look for prebuilt devworkspace, remove it from URL
-    const devWorkspace = extractUrlParam(fullUrl, 'devWorkspace');
-
-    // creation policy
-    const newWorkspace = extractUrlParam(fullUrl, 'new');
-    const encodedUrl = encodeURIComponent(fullUrl.toString());
-
-    // if editor specified, add it as a new parameter
-    pathAndQuery = ROUTE.LOAD_FACTORY_URL.replace(':url', encodedUrl);
-    if (editor) {
-      pathAndQuery = `${pathAndQuery}&che-editor=${editor}`;
-    }
-    if (devfilePath) {
-      pathAndQuery = `${pathAndQuery}&override.devfileFilename=${devfilePath}`;
-    }
-    if (newWorkspace) {
-      pathAndQuery = `${pathAndQuery}&policies.create=perclick`;
-    }
-    if (devWorkspace) {
-      pathAndQuery = `${pathAndQuery}&devWorkspace=${encodeURIComponent(devWorkspace)}`;
-    }
-  }
-  return _buildLocationObject(pathAndQuery);
-}
-
-// if the given param is defined in the URL, return the value and delete param from the URL
-function extractUrlParam(fullUrl: URL, paramName: string): string | undefined {
-  const param = fullUrl.searchParams.get(paramName);
-  let value;
-  if (param && typeof param === 'string') {
-    value = param.slice();
-  } else if (!param) {
-    // boolean parameter
-    if (fullUrl.searchParams.has(paramName)) {
-      value = true;
-    }
-  }
-  fullUrl.searchParams.delete(paramName);
-  return value;
-}
-
 export function buildWorkspacesLocation(): Location {
   return _buildLocationObject(ROUTE.WORKSPACES);
 }
@@ -152,27 +92,4 @@ function _buildLocationObject(pathAndQuery: string): Location {
 
 export function toHref(history: History, location: Location): string {
   return history.createHref(location);
-}
-
-const oauthParams = ['state', 'session_state', 'code'];
-/**
- * Removes oauth params.
- */
-export function sanitizeLocation(location: Location, removeParams: string[] = []): Location {
-  const toRemove = [...oauthParams, ...removeParams];
-  // clear search params
-  if (location.search) {
-    const searchParams = new window.URLSearchParams(location.search);
-    toRemove.forEach(param => searchParams.delete(param));
-    location.search = '?' + searchParams.toString();
-  }
-
-  // clear pathname
-  toRemove.forEach(param => {
-    const re = new RegExp('&' + param + '=[^&]+', 'i');
-    const newPathname = location.pathname.replace(re, '');
-    location.pathname = newPathname;
-  });
-
-  return location;
 }

@@ -293,7 +293,7 @@
 | [`astral-regex@2.0.0`](https://github.com/kevva/astral-regex.git) | MIT | clearlydefined |
 | [`async-each@1.0.3`](git://github.com/paulmillr/async-each.git) | MIT | clearlydefined |
 | [`async-limiter@1.0.1`](https://github.com/strml/async-limiter.git) | MIT | clearlydefined |
-| [`async@2.6.3`](https://github.com/caolan/async.git) | MIT | clearlydefined |
+| [`async@2.6.4`](https://github.com/caolan/async.git) | MIT | clearlydefined |
 | [`atob@2.1.2`](git://git.coolaj86.com/coolaj86/atob.js.git) | (MIT OR Apache-2.0) | #1027 |
 | [`autoprefixer@9.8.8`](https://github.com/postcss/autoprefixer.git) | MIT | clearlydefined |
 | [`axios-mock-adapter@1.20.0`](git+https://github.com/ctimmerm/axios-mock-adapter.git) | MIT | clearlydefined |

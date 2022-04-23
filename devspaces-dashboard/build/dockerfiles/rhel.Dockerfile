@@ -41,7 +41,7 @@ RUN \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
-ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib
+ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
 
 COPY --from=builder ${BACKEND_LIB} /backend

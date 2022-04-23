@@ -22,15 +22,21 @@ const config = {
   entry: {
     client: path.join(__dirname, 'src/index.tsx'),
     'service-worker': path.join(__dirname, 'src/service-worker.ts'),
-    'editor.worker': 'monaco-editor-core/esm/vs/editor/editor.worker.js'
+    'editor.worker': 'monaco-editor-core/esm/vs/editor/editor.worker.js',
+    'accept-factory-link': path.join(__dirname, 'src/preload/index.ts'),
   },
   output: {
-    path: path.join(__dirname, 'lib'),
+    path: path.join(__dirname, 'lib', 'public/dashboard'),
     publicPath: './',
-    filename: (pathData) =>
-      pathData.chunk.name === 'service-worker' || pathData.chunk.name === 'editor.worker'
-        ? "[name].js"
-        : "[name].[hash].js",
+    filename: (pathData) => {
+      if (pathData.chunk.name === 'accept-factory-link') {
+        return 'static/preload/[name].js';
+      }
+      if (pathData.chunk.name === 'service-worker' || pathData.chunk.name === 'editor.worker') {
+        return '[name].js';
+      }
+      return '[name].[hash].js';
+    },
     chunkFilename: '[name].[chunkhash].js',
     globalObject: 'this',
   },
@@ -135,12 +141,20 @@ const config = {
     module: 'empty'
   },
   plugins: [
+    new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env.DASHBOARD_VERSION': JSON.stringify(require('./package.json').version),
     }),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, './index.html'),
+      chunks : ['client', 'service-worker', 'editor.worker'],
       filename: 'index.html',
+    }),
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, './src/preload/index.html'),
+      chunks : ['accept-factory-link'],
+      filename: '../index.html',
+      publicPath: '/dashboard/',
     }),
     new CopyPlugin({
       patterns: [
@@ -153,7 +167,6 @@ const config = {
         use: [stylus_plugin()],
       },
     }),
-    new CleanWebpackPlugin(),
   ],
 };
 

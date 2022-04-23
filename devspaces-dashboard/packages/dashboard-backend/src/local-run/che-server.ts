@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, FastifyReply, FastifyRequest, RouteShorthandOptions } from 'fastify';
+import { FastifyInstance, RouteShorthandOptions } from 'fastify';
 import fastifyHttpProxy from 'fastify-http-proxy';
 
 export function registerCheApiProxy(
@@ -59,11 +59,5 @@ export function registerCheApiProxy(
       });
     }
     done();
-  });
-
-  // redirect to the Dashboard factory flow
-  server.get('/f', async (request: FastifyRequest, reply: FastifyReply) => {
-    const queryStr = request.url.replace('/f', '');
-    return reply.redirect('/dashboard/#/load-factory' + queryStr);
   });
 }
