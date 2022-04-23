@@ -20,25 +20,27 @@ URL=
 COMMAND=
 CONTAINER_TO_RUN=
 VOLUMES="$HOME/projector-user:/home/projector-user,$HOME/projector-projects:/projects"
-BUILD_DIRECTORY="$base_dir"/build
 RUN_ON_BUILD=false
 SAVE_ON_BUILD=false
-SAVE_ON_BUILD_DIRECTORY="$BUILD_DIRECTORY"/docker
-IDE_PACKAGING_DIRECTORY="$BUILD_DIRECTORY"/ide
-CURRENT_IDE_PACKAGING_SYMLINK="$base_dir"/asset-ide-packaging.tar.gz
-CURRENT_PROJECTOR_ASSEMBLY_SYMLINK="$base_dir"/asset-projector-server-assembly.zip
-CURRENT_PROJECTOR_STATIC_ASSEMBLY="$base_dir"/asset-static-assembly.tar.gz
+SAVE_ON_BUILD_DIRECTORY="$base_dir"/build/docker
+
 PROGRESS=auto
-CONFIG_JSON=compatible-ide.json
-CONFIG_JSON_PATH="$base_dir"/"$CONFIG_JSON"
-PROJECTOR_CLIENT_DIR="$BUILD_DIRECTORY"/projector-client
-PROJECTOR_SERVER_DIR="$BUILD_DIRECTORY"/projector-server
+CONFIG_JSON_PATH="$base_dir"/compatible-ide.json
 PREPARE_ASSEMBLY_ONLY=false
 
-PROJECTOR_CLIENT_GIT=https://github.com/JetBrains/projector-client.git
-PROJECTOR_SERVER_GIT=https://github.com/JetBrains/projector-server.git
-PROJECTOR_CLIENT_SHA1=d80f9952cc520102bb2de6f1aefaad6aadb49138
-PROJECTOR_SERVER_SHA1=e8ecfda9ee04b59e8b4276215e22a3cbff212083
+STATIC_ASSEMBLY_ASSET="$base_dir"/asset-static-assembly.tar.gz
+
+PLUGIN_BUILDER_IMAGE="che-plugin:latest"
+PLUGIN_ASSET_SRC=plugin/asset-che-plugin-assembly.zip
+PLUGIN_ASSET_DEST=asset-che-plugin-assembly.zip
+
+IDE_DOWNLOADER_IMAGE="ide-downloader:latest"
+IDE_ASSET_SRC=ide/asset-ide-packaging.tar.gz
+IDE_ASSET_DEST="$base_dir"/asset-ide-packaging.tar.gz
+
+PROJECTOR_SERVER_IMAGE="projector:latest"
+PROJECTOR_SERVER_ASSET_SRC=projector/asset-projector-server-assembly.zip
+PROJECTOR_SERVER_ASSET_DEST="$base_dir"/asset-projector-server-assembly.zip
 
 DOC_URL=https://github.com/che-incubator/jetbrains-editor-images/tree/main/doc
 
@@ -59,6 +61,22 @@ function .log() {
   if [ $VERBOSE_LEVEL -ge "$LEVEL" ]; then
     echo -e "[${LOG_LEVELS[$LEVEL]}]" "$@"
   fi
+}
+
+function log:emerg() {
+  .log 0 "$@"
+}
+function log:err() {
+  .log 3 "$@"
+}
+function log:warning() {
+  .log 4 "$@"
+}
+function log:info() {
+  .log 6 "$@"
+}
+function log:debug() {
+  .log 7 "$@"
 }
 
 read -r -d '' HELP_SUMMARY <<-EOM
@@ -97,7 +115,7 @@ Options:
                                 If option value is omitted, then default value is loaded.
                                 Default value: \$HOME/projector-user:/home/projector-user,\$HOME/projector-projects:/projects
   -p, --progress string         Set type of progress output ("auto"|"plain") (default "auto")
-      --config string           Specify the configuration file for predefined IDE package list (default "$CONFIG_JSON")
+      --config string           Specify the configuration file for predefined IDE package list (default "$CONFIG_JSON_PATH")
       --prepare                 Clone and build Projector only ignoring other options. Also downloads the IDE packaging
                                 by the --url option. If --url option is omitted then interactive wizard is called to choose
                                 the right packaging to prepare. Used when need to fetch Projector sources only, assembly
@@ -137,7 +155,7 @@ selectWithDefault() {
     read -r index
     [ -z "$index" ] && break
     ((index >= 1 && index <= numItems)) 2>/dev/null || {
-      .log 4 "Choose correct item" >&2
+      log:warning "Choose correct item" >&2
       continue
     }
     break
@@ -147,157 +165,109 @@ selectWithDefault() {
 }
 
 checkConfigurationFileExists() {
-  .log 7 "Check if configuration file '$CONFIG_JSON_PATH' exists"
+  log:debug "Check if configuration file '$CONFIG_JSON_PATH' exists"
   if [ ! -e "$CONFIG_JSON_PATH" ]; then
-    .log 4 "Configuration file '$CONFIG_JSON_PATH' not found"
+    log:warning "Configuration file '$CONFIG_JSON_PATH' not found"
     exit 1
   fi
-  .log 7 "Configuration file '$CONFIG_JSON_PATH' found"
+  log:debug "Configuration file '$CONFIG_JSON_PATH' found"
 }
 
 selectPackagingFromPredefinedConfig() {
-  .log 7 "Prompt user to choose IDE packaging from predefined configuration"
+  log:debug "Prompt user to choose IDE packaging from predefined configuration"
 
   IFS=$'\n' read -r -d '' -a IDEName < <(jq -c -r ".[] | .displayName" <"$CONFIG_JSON_PATH")
-  .log 6 "Select the IDE package to build (default is '${IDEName[0]}'):"
+  log:info "Select the IDE package to build (default is '${IDEName[0]}'):"
   local selectedIDEName && selectedIDEName=$(selectWithDefault "${IDEName[@]}")
   case $selectedIDEName in
   '') selectedIDEName=${IDEName[0]} ;;
   esac
-  .log 7 "Selected '$selectedIDEName' package"
+  log:debug "Selected '$selectedIDEName' package"
 
   IFS=$'\n' read -r -d '' -a IDEVersion < <(jq -c -r ".[] | {displayName, dockerImage, productCode} + (.productVersion[]) | select(.displayName == \"$selectedIDEName\") | .version" <"$CONFIG_JSON_PATH")
-  .log 6 "Select the IDE package version to build (default is '${IDEVersion[0]}'):"
+  log:info "Select the IDE package version to build (default is '${IDEVersion[0]}'):"
   local selectedIDEVersion && selectedIDEVersion=$(selectWithDefault "${IDEVersion[@]}")
   case $selectedIDEVersion in
   '') selectedIDEVersion=${IDEVersion[0]} ;;
   esac
-  .log 7 "Selected '$selectedIDEVersion' package version"
+  log:debug "Selected '$selectedIDEVersion' package version"
 
   IFS=$'\n' read -r -d '' -a dockerImageNameToSelect < <(jq -c -r ".[] | {displayName, dockerImage, productCode} + (.productVersion[]) | select(.displayName == \"$selectedIDEName\") | select(.version == \"$selectedIDEVersion\") | .dockerImage" <"$CONFIG_JSON_PATH")
   CONTAINER_TAG="${dockerImageNameToSelect[0]}:$selectedIDEVersion"
-  .log 6 "Read the container name '$CONTAINER_TAG'"
+  log:info "Read the container name '$CONTAINER_TAG'"
   IFS=$'\n' read -r -d '' -a downloadUrlToSelect < <(jq -c -r ".[] | {displayName, dockerImage, productCode} + (.productVersion[]) | select(.displayName == \"$selectedIDEName\") | select(.version == \"$selectedIDEVersion\") | .downloadUrl" <"$CONFIG_JSON_PATH")
   URL=${downloadUrlToSelect[0]}
-  .log 6 "Read the URL for IDE packaging '$URL'"
+  log:info "Read the URL for IDE packaging '$URL'"
 }
 
-checkProjectorClientSources() {
-  .log 6 "Check Projector Client source directory"
-  if [ ! -d "$PROJECTOR_CLIENT_DIR" ]; then
-    .log 4 "Projector Client source directory '$PROJECTOR_CLIENT_DIR' doesn't exist"
-    .log 6 "Cloning Projector Client sources to '$PROJECTOR_CLIENT_DIR'"
-
-    # Clone the Projector Client, stick to the particular version and apply necessary patches if needed
-    git clone --quiet "$PROJECTOR_CLIENT_GIT" "$PROJECTOR_CLIENT_DIR"
-    cd "$PROJECTOR_CLIENT_DIR" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-    .log 6 "Checkout Projector Client to SHA1 '$PROJECTOR_CLIENT_SHA1'"
-    .log 6 "$(git reset --hard $PROJECTOR_CLIENT_SHA1)"
-
-    # Apply patches for Projector Client
-    if [ -d "$base_dir/patches/projector-client" ]; then
-      .log 6 "Applying patches for Projector Client"
-      find "$base_dir"/patches/projector-client -name "*.patch" -exec printf '%7s%s\n' "" "Patching Projector Client with '{}'" \; -exec git apply {} \;
-    fi
-    cd "$base_dir" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-  else
-    .log 7 "Projector Client source directory '$PROJECTOR_CLIENT_DIR' exists"
-    cd "$PROJECTOR_CLIENT_DIR" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-
-    local projectorServerHead && projectorServerHead=$(git rev-parse HEAD)
-    if [ "$PROJECTOR_CLIENT_SHA1" == "$projectorServerHead" ]; then
-      .log 6 "Projector Client HEAD '$projectorServerHead' is the same as provided in configuration '$PROJECTOR_CLIENT_SHA1'"
-    else
-      read -r -d '' HEAD_CHECK_FAILED <<-EOM
-Projector Client HEAD '$projectorServerHead' is different than configured '$PROJECTOR_CLIENT_SHA1'.
-          In this case build of container image may be unpredictable.
-          Consider to remove '$PROJECTOR_CLIENT_DIR' directory or move it to a different place and re-run build again.
-EOM
-      .log 4 "$HEAD_CHECK_FAILED"
-      exit 1
-    fi
-
-    cd "$base_dir" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-  fi
-}
-
-checkProjectorServerSources() {
-  .log 6 "Check Projector Server source directory"
-  if [ ! -d "$PROJECTOR_SERVER_DIR" ]; then
-    .log 4 "Projector Server source directory '$PROJECTOR_SERVER_DIR' doesn't exist"
-    .log 6 "Cloning Projector Server sources to '$PROJECTOR_SERVER_DIR'"
-
-    # Clone the Projector Server, stick to the particular version and apply necessary patches if needed
-    git clone --quiet "$PROJECTOR_SERVER_GIT" "$PROJECTOR_SERVER_DIR"
-    cd "$PROJECTOR_SERVER_DIR" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-    .log 6 "Checkout Projector Client to SHA1 '$PROJECTOR_SERVER_SHA1'"
-    .log 6 "$(git reset --hard $PROJECTOR_SERVER_SHA1)"
-    echo "useLocalProjectorClient=true" >local.properties
-
-    # Apply patches for Projector Server
-    if [ -d "$base_dir/patches/projector-server" ]; then
-      .log 6 "Applying patches for Projector Server"
-      find "$base_dir"/patches/projector-server -name "*.patch" -exec printf '%7s%s\n' "" "Patching Projector Server with '{}'" \; -exec git apply {} \;
-    fi
-    cd "$base_dir" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-  else
-    .log 7 "Projector Server source directory '$PROJECTOR_SERVER_DIR' exists"
-    cd "$PROJECTOR_SERVER_DIR" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-
-    local projectorServerHead && projectorServerHead=$(git rev-parse HEAD)
-    if [ "$PROJECTOR_SERVER_SHA1" == "$projectorServerHead" ]; then
-      .log 6 "Projector Server HEAD '$projectorServerHead' is the same as provided in configuration '$PROJECTOR_SERVER_SHA1'"
-    else
-      read -r -d '' HEAD_CHECK_FAILED <<-EOM
-Projector Server HEAD '$projectorServerHead' is different than configured '$PROJECTOR_SERVER_SHA1'.
-          In this case build of container image may be unpredictable.
-          Consider to remove '$PROJECTOR_SERVER_DIR' directory or move it to a different place and re-run build again.
-EOM
-      .log 4 "$HEAD_CHECK_FAILED"
-      exit 1
-    fi
-
-    cd "$base_dir" || exit 1
-    .log 7 "Current working directory '$(pwd)'"
-  fi
-}
-
-checkProjectorSourcesExist() {
-  checkProjectorClientSources
-  checkProjectorServerSources
-}
-
-projectorBuild() {
-  .log 6 "Build Projector on localhost"
-  cd "$PROJECTOR_SERVER_DIR" || exit 1
-  .log 7 "Current working directory '$(pwd)'"
-  if [ -f "$CURRENT_PROJECTOR_ASSEMBLY_SYMLINK" ]; then
-    .log 7 "Removing symlink '$CURRENT_PROJECTOR_ASSEMBLY_SYMLINK'"
-    unlink "$CURRENT_PROJECTOR_ASSEMBLY_SYMLINK"
-  fi
-  ./gradlew --quiet --console="$PROGRESS" :projector-server:distZip
-  find projector-server/build/distributions -type f -name "projector-server-*.zip" -exec ln {} "$CURRENT_PROJECTOR_ASSEMBLY_SYMLINK" \;
-  .log 7 "Creating symlink '$CURRENT_PROJECTOR_ASSEMBLY_SYMLINK'"
+prepareProjectorServerAsset() {
   cd "$base_dir" || exit 1
-  .log 7 "Current working directory '$(pwd)'"
+  log:debug "Current working directory '$(pwd)'"
+  if [ -f "$PROJECTOR_SERVER_ASSET_DEST" ]; then
+      log:debug "Removing '$PROJECTOR_SERVER_ASSET_DEST'"
+      rm "$PROJECTOR_SERVER_ASSET_DEST"
+    fi
+
+  read -r -d '' PRE_BUILD_SUMMARY <<-EOM
+  Pre-build $PROJECTOR_SERVER_IMAGE container final summary
+          Docker build progress configuration: $PROGRESS
+          Container name: $PROJECTOR_SERVER_IMAGE
+EOM
+  log:debug "$PRE_BUILD_SUMMARY"
+  log:info "Build '$PROJECTOR_SERVER_IMAGE'"
+
+  docker build --progress="$PROGRESS" -f build/dockerfiles/projector-server-builder.Dockerfile -t "$PROJECTOR_SERVER_IMAGE" .
+  # shellcheck disable=SC2181
+  if [[ $? -eq 0 ]]; then
+    log:info "Container '$PROJECTOR_SERVER_IMAGE' successfully built"
+  else
+    log:warning "Container build failed"
+    exit 1
+  fi
+
+  extractFromContainer "$PROJECTOR_SERVER_IMAGE" "$PROJECTOR_SERVER_ASSET_SRC" "$PROJECTOR_SERVER_ASSET_DEST"
 }
 
-runBuild() {
+prepareChePluginAsset() {
+  cd "$base_dir" || exit 1
+  log:debug "Current working directory '$(pwd)'"
+  if [ -f "$PLUGIN_ASSET_DEST" ]; then
+    log:debug "Removing '$PLUGIN_ASSET_DEST'"
+    rm "$PLUGIN_ASSET_DEST"
+  fi
+
   read -r -d '' PRE_BUILD_SUMMARY <<-EOM
-Pre-build container final summary
+  Pre-build $PLUGIN_BUILDER_IMAGE container final summary
+          Docker build progress configuration: $PROGRESS
+          Container name: $PLUGIN_BUILDER_IMAGE
+EOM
+  log:debug "$PRE_BUILD_SUMMARY"
+  log:info "Build '$PLUGIN_BUILDER_IMAGE'"
+
+  docker build --progress="$PROGRESS" -f build/dockerfiles/che-plugin-builder.Dockerfile -t "$PLUGIN_BUILDER_IMAGE" .
+  # shellcheck disable=SC2181
+  if [[ $? -eq 0 ]]; then
+    log:info "Container '$PLUGIN_BUILDER_IMAGE' successfully built"
+  else
+    log:warning "Container build failed"
+    exit 1
+  fi
+
+  extractFromContainer "$PLUGIN_BUILDER_IMAGE" "$PLUGIN_ASSET_SRC" "$PLUGIN_ASSET_DEST"
+}
+
+buildAssembly() {
+  cd "$base_dir" || exit 1
+  log:debug "Current working directory '$(pwd)'"
+
+  read -r -d '' PRE_BUILD_SUMMARY <<-EOM
+Pre-build $CONTAINER_TAG final summary
         Docker build progress configuration: $PROGRESS
         Container name: $CONTAINER_TAG
         IDE package URL: $URL
 EOM
-  .log 7 "$PRE_BUILD_SUMMARY"
-  .log 6 "Build '$CONTAINER_TAG'"
+  log:debug "$PRE_BUILD_SUMMARY"
+  log:info "Build '$CONTAINER_TAG'"
 
   DOCKER_BUILDKIT=1 \
     docker build \
@@ -306,9 +276,9 @@ EOM
     -f Dockerfile .
   # shellcheck disable=SC2181
   if [[ $? -eq 0 ]]; then
-    .log 6 "Container '$CONTAINER_TAG' successfully built"
+    log:info "Container '$CONTAINER_TAG' successfully built"
   else
-    .log 4 "Container build failed"
+    log:warning "Container build failed"
     exit 1
   fi
 }
@@ -321,100 +291,95 @@ runContainerImage() {
   while IFS=',' read -ra MOUNT; do
     for i in "${MOUNT[@]}"; do
       mountOptions+=(-v "$i")
-      .log 7 "Adding volume mount '$i'"
+      log:debug "Adding volume mount '$i'"
     done
   done <<<"$mountVolumes"
 
-  .log 6 "Run container '$containerToStart'"
+  log:info "Run container '$containerToStart'"
   docker run --rm -p 8887:8887 "${mountOptions[@]}" -it "$containerToStart" 2>&1 | awk '{print "       "$0}'
 }
 
-saveOnBuild() {
+saveImageOnBuild() {
   if [ $SAVE_ON_BUILD == true ]; then
     if [ ! -e "$SAVE_ON_BUILD_DIRECTORY" ]; then
       mkdir -p "$SAVE_ON_BUILD_DIRECTORY"
     fi
     local imageOutputName && imageOutputName=$(basename "$URL")
-    .log 6 "Saving '$CONTAINER_TAG' to '$SAVE_ON_BUILD_DIRECTORY/$imageOutputName'"
+    log:info "Saving '$CONTAINER_TAG' to '$SAVE_ON_BUILD_DIRECTORY/$imageOutputName'"
     docker save "$CONTAINER_TAG" -o "$SAVE_ON_BUILD_DIRECTORY"/"$imageOutputName"
-    .log 6 "Image '$CONTAINER_TAG' saved to '$SAVE_ON_BUILD_DIRECTORY/$imageOutputName'"
+    log:info "Image '$CONTAINER_TAG' saved to '$SAVE_ON_BUILD_DIRECTORY/$imageOutputName'"
   fi
 }
 
-runOnBuild() {
-  .log 7 "Check if container should be run after built"
+runContainerOnBuild() {
+  log:debug "Check if container should be run after built"
   if [ $RUN_ON_BUILD == true ]; then
     runContainerImage "$CONTAINER_TAG" "$VOLUMES"
   fi
 }
 
-prepareStaticFiles() {
+prepareStaticAsset() {
   cd "$base_dir" || exit 1
-  .log 7 "Current working directory '$(pwd)'"
-  if [ -f "$CURRENT_PROJECTOR_STATIC_ASSEMBLY" ]; then
-    .log 7 "Removing symlink '$CURRENT_PROJECTOR_STATIC_ASSEMBLY'"
-    rm "$CURRENT_PROJECTOR_STATIC_ASSEMBLY"
+  log:debug "Current working directory '$(pwd)'"
+  if [ -f "$STATIC_ASSEMBLY_ASSET" ]; then
+    log:debug "Removing '$STATIC_ASSEMBLY_ASSET'"
+    rm "$STATIC_ASSEMBLY_ASSET"
   fi
 
-  .log 7 "Creating archive for Projector static files '$CURRENT_PROJECTOR_STATIC_ASSEMBLY'"
-  tar -czf "$CURRENT_PROJECTOR_STATIC_ASSEMBLY" static
+  log:debug "Creating archive for Projector static files '$STATIC_ASSEMBLY_ASSET'"
+  tar -czf "$STATIC_ASSEMBLY_ASSET" static
 }
 
-prepareAssembly() {
-  if [ -z "$URL" ]; then
-    .log 7 "Ignoring --tag and --url option"
+prepareIdePackagingAsset() {
+  cd "$base_dir" || exit 1
+  log:debug "Current working directory '$(pwd)'"
+  if [ -f "$IDE_ASSET_DEST" ]; then
+    log:debug "Removing '$IDE_ASSET_DEST'"
+    rm "$IDE_ASSET_DEST"
+  fi
+
+  read -r -d '' PRE_BUILD_SUMMARY <<-EOM
+  Pre-build $IDE_DOWNLOADER_IMAGE container final summary
+          Docker build progress configuration: $PROGRESS
+          Container name: $IDE_DOWNLOADER_IMAGE
+EOM
+  log:debug "$PRE_BUILD_SUMMARY"
+  log:info "Build '$IDE_DOWNLOADER_IMAGE'"
+
+  docker build --progress="$PROGRESS" -f build/dockerfiles/ide-downloader.Dockerfile --build-arg "URL=$URL" -t "$IDE_DOWNLOADER_IMAGE" .
+  # shellcheck disable=SC2181
+  if [[ $? -eq 0 ]]; then
+    log:info "Container '$IDE_DOWNLOADER_IMAGE' successfully built"
+  else
+    log:warning "Container build failed"
+    exit 1
+  fi
+
+  extractFromContainer "$IDE_DOWNLOADER_IMAGE" "$IDE_ASSET_SRC" "$IDE_ASSET_DEST"
+}
+
+prepareBuildAssets() {
+  log:info "Prepare build assets"
+  if [ -z "$CONTAINER_TAG" ] || [ -z "$URL" ]; then
+    log:debug "Ignoring --tag and --url option"
     checkConfigurationFileExists
 
     # Run interactive wizard to choose IDE packaging from predefined configuration
     selectPackagingFromPredefinedConfig
   fi
-  prepareStaticFiles
-  downloadIdePackaging
-  checkProjectorSourcesExist
-  projectorBuild
-}
 
-downloadIdePackaging() {
-  if [ ! -e "$IDE_PACKAGING_DIRECTORY" ]; then
-    mkdir -p "$IDE_PACKAGING_DIRECTORY"
-    .log 7 "Creating directory for storing downloaded IDEs '$IDE_PACKAGING_DIRECTORY'"
-  fi
-
-  local packagingOutputName && packagingOutputName=$(basename "$URL")
-  cd "$IDE_PACKAGING_DIRECTORY" || exit 1
-  .log 7 "Current working directory '$(pwd)'"
-
-  if [ -f "$CURRENT_IDE_PACKAGING_SYMLINK" ]; then
-    .log 7 "Removing symlink '$CURRENT_IDE_PACKAGING_SYMLINK'"
-    unlink "$CURRENT_IDE_PACKAGING_SYMLINK"
-  fi
-  # Use --timestamping option to allow local caching
-  # Above option doesn't work with -O parameter, so hoping, that base file name wouldn't change
-  wget --timestamping "$URL"
-  ln "$packagingOutputName" "$CURRENT_IDE_PACKAGING_SYMLINK"
-  .log 7 "Creating symlink '$CURRENT_IDE_PACKAGING_SYMLINK'"
-  cd "$base_dir" || exit 1
-  .log 7 "Current working directory '$(pwd)'"
+  prepareStaticAsset
+  prepareIdePackagingAsset
+  prepareProjectorServerAsset
+  prepareChePluginAsset
 }
 
 buildContainerImage() {
-  .log 7 "Executing build command"
-  if [ -z "$CONTAINER_TAG" ] || [ -z "$URL" ]; then
-    .log 7 "Ignoring --tag and --url option"
-    checkConfigurationFileExists
+  prepareBuildAssets
 
-    # Run interactive wizard to choose IDE packaging from predefined configuration
-    selectPackagingFromPredefinedConfig
-  fi
-
-  prepareStaticFiles
-  downloadIdePackaging
-  checkProjectorSourcesExist
-  projectorBuild
-
-  runBuild
-  saveOnBuild
-  runOnBuild
+  buildAssembly
+  saveImageOnBuild
+  runContainerOnBuild
 }
 
 printVersion() {
@@ -422,15 +387,71 @@ printVersion() {
 $0 - CLI tool for build Projector-based IDE in Eclipse Che
        Revision: $(git show -s --format='%h %s')
 EOM
-  .log 6 "$VERSION_INFO"
+  log:info "$VERSION_INFO"
+}
+
+rebaseProjectorSources() {
+  log:info "Using git $(which git) $(git --version)"
+  PROJECTOR_CLIENT_PREFIX="projector-client"
+  PROJECTOR_CLIENT_UPSTREAM_NAME="upstream-projector-client"
+  PROJECTOR_CLIENT_UPSTREAM_VERSION=$(git rev-parse upstream-projector-client/master)
+
+  PROJECTOR_SERVER_PREFIX="projector-server"
+  PROJECTOR_SERVER_UPSTREAM_NAME="upstream-projector-server"
+  PROJECTOR_SERVER_UPSTREAM_VERSION=$(git rev-parse upstream-projector-server/master)
+
+  gitSubTreePull "${PROJECTOR_CLIENT_PREFIX}" "${PROJECTOR_CLIENT_UPSTREAM_NAME}" "${PROJECTOR_CLIENT_UPSTREAM_VERSION}"
+  gitSubTreePull "${PROJECTOR_SERVER_PREFIX}" "${PROJECTOR_SERVER_UPSTREAM_NAME}" "${PROJECTOR_SERVER_UPSTREAM_VERSION}"
+}
+
+# $1 is the prefix name
+# $2 is the upstream name
+# $3 is the revision to pull
+gitSubTreePull() {
+  log:info "Perform git subtree pull for '$1' '$2' '$3'"
+  git subtree pull --prefix "$1" "$2" "$3" --squash -m "$(getCommitMessage "$3")"
+}
+
+# $1 is the revision
+getCommitMessage() {
+  echo "Rebase against the upstream ${1}"
+  echo "upstream-sha1: ${1}"
+}
+
+# $1 is the container name
+# $2 is the path to extract from the container
+# $3 is the destination path to where located extracted path
+extractFromContainer() {
+  log:info "Extract '$2' from '$1' container to '$3'"
+  tmpContainer="$(echo "$1" | tr "/:" "--")-$(date +%s)"
+
+  log:info "Using temporary container '$tmpContainer'"
+  docker create --name="$tmpContainer" "$1" sh >/dev/null 2>&1
+  docker export "$tmpContainer" > "/tmp/$tmpContainer.tar"
+
+  tmpDir="/tmp/$tmpContainer"
+  log:info "Created temporary directory '$tmpDir'"
+  rm -rf "$tmpDir" || true
+  mkdir -p "$tmpDir"
+
+  log:info "Trying to unpack container '$tmpContainer'"
+  tar -xf "/tmp/$tmpContainer.tar" -C "$tmpDir" --no-same-owner "$2" || exit 1
+
+  log:info "Moving '$tmpDir/$2' to '$3'"
+  mv "$tmpDir/$2" "$3"
+
+  log:info "Clean up the temporary container and directory"
+  docker rm -f "$tmpContainer" >/dev/null 2>&1
+  rm -rf "/tmp/$tmpContainer.tar"
+  rm -rf "$tmpDir" || true
 }
 
 # getopt necessary checks
 getopt -T &>/dev/null
 if [[ $? -ne 4 ]]; then
-  .log 4 "Found outdated version of 'getopt'."
+  log:warning "Found outdated version of 'getopt'."
   if [[ "$OSTYPE" == "darwin"* ]]; then
-    .log 4 "$GETOPT_UPDATE_NEEDED"
+    log:warning "$GETOPT_UPDATE_NEEDED"
   fi
   exit 1
 fi
@@ -438,7 +459,7 @@ fi
 OPTS=$(getopt -o 'hvt:up:l:' --longoptions 'help,version,tag:,url:,mount-volumes:,run-on-build,save-on-build,progress:,log-level:,config:,prepare' -u -n "$0" -- "$@")
 # shellcheck disable=SC2181
 if [[ $? -ne 0 ]]; then
-  .log 4 "Failed parsing options."
+  log:warning "Failed parsing options."
   exit 1
 fi
 # shellcheck disable=SC2086
@@ -533,7 +554,7 @@ while true; do
       shift 2
       ;;
     *)
-      .log 4 "Unable to parse logging level: $2"
+      log:warning "Unable to parse logging level: $2"
       exit 1
       ;;
     esac
@@ -559,18 +580,22 @@ Usage: $0 run IMAGE [OPTIONS]
 
 Start Projector-based container
 EOM
-        .log 4 "$RUN_MISSING_IMAGE_NAME_MESSAGE"
+        log:warning "$RUN_MISSING_IMAGE_NAME_MESSAGE"
         exit 1
       fi
       CONTAINER_TO_RUN=$3
       shift 2
+      ;;
+    rebase)
+      COMMAND=rebase
+      shift
       ;;
     '')
       echo "$HELP_SUMMARY"
       exit 1
       ;;
     *)
-      .log 4 "$0: '$2' is not a valid command. See '$0 --help'."
+      log:warning "$0: '$2' is not a valid command. See '$0 --help'."
       exit 1
       ;;
     esac
@@ -584,19 +609,18 @@ EOM
 done
 
 if [ "$COMMAND" == "build" ]; then
-  if [ ! -e "$BUILD_DIRECTORY" ]; then
-    mkdir "$BUILD_DIRECTORY"
-    .log 7 "Creating build directory '$BUILD_DIRECTORY'"
-  fi
   if [ $PREPARE_ASSEMBLY_ONLY == true ]; then
-    prepareAssembly
+    prepareBuildAssets
   else
     buildContainerImage
   fi
 elif [ "$COMMAND" == "run" ]; then
-  .log 7 "Executing run command"
+  log:debug "Executing run command"
   runContainerImage "$CONTAINER_TO_RUN" "$VOLUMES"
+elif [ "$COMMAND" == "rebase" ]; then
+  log:debug "Executing Projector rebase command"
+  rebaseProjectorSources
 else
-  .log 7 "Found invalid command to execute."
+  log:debug "Found invalid command to execute."
   exit 1
 fi
