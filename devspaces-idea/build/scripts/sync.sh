@@ -84,6 +84,8 @@ sed_in_place() {
 sed_in_place -r \
   `# Remove registry so build works in Brew` \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  `# Remove unused Python packages (support for PyCharm not included in CRW)` \
+  -e "/python2 python39 \\\\/d" \
   "${TARGETDIR}"/Dockerfile
 
 # Overwrite default configuration
