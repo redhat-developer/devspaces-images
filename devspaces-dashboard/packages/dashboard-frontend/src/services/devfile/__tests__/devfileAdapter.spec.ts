@@ -129,13 +129,18 @@ describe('DevfileAdapter Service', () => {
           const devfileAdapter = new DevfileAdapter(devfileV2);
 
           expect(devfileAdapter.storageType).toEqual('persistent');
-          expect(devfileAdapter.devfile.attributes).toEqual({});
+          expect(devfileAdapter.devfile.attributes).not.toEqual(
+            expect.objectContaining({ [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral' }),
+          );
 
           devfileAdapter.storageType = 'ephemeral';
 
-          expect(devfileAdapter.devfile.attributes).toEqual({
-            [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
-          });
+          expect(devfileAdapter.devfile.attributes).toEqual(
+            expect.objectContaining({
+              [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+              'che-theia.eclipse.org/sidecar-policy': 'mergeImage',
+            }),
+          );
           expect(devfileAdapter.storageType).toEqual('ephemeral');
         });
 
@@ -145,13 +150,19 @@ describe('DevfileAdapter Service', () => {
           const devfileAdapter = new DevfileAdapter(devfileV2);
 
           expect(devfileAdapter.storageType).toEqual('ephemeral');
-          expect(devfileAdapter.devfile.attributes).toEqual({
-            [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
-          });
+          expect(devfileAdapter.devfile.attributes).toEqual(
+            expect.objectContaining({
+              [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+            }),
+          );
 
           devfileAdapter.storageType = 'persistent';
 
-          expect(devfileAdapter.devfile.attributes).toBeUndefined();
+          expect(devfileAdapter.devfile.attributes).not.toEqual(
+            expect.objectContaining({
+              [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+            }),
+          );
           expect(devfileAdapter.storageType).toEqual('persistent');
         });
       });

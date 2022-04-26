@@ -35,7 +35,7 @@ RUN yarn build
 
 FROM docker.io/node:16.14.0-alpine3.15
 
-ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib
+ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
 
 COPY --from=builder ${BACKEND_LIB} /backend

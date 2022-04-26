@@ -12,17 +12,17 @@
 
 import React from 'react';
 import {
-  Button,
-  Text,
-  TextContent,
   Alert,
   AlertActionCloseButton,
-  AlertVariant,
   AlertGroup,
-  Modal,
-  ModalVariant,
+  AlertVariant,
+  Button,
   Flex,
   FlexItem,
+  Modal,
+  ModalVariant,
+  Text,
+  TextContent,
 } from '@patternfly/react-core';
 import * as lodash from 'lodash';
 import { safeLoad } from 'js-yaml';
@@ -32,12 +32,13 @@ import EditorTools from './EditorTools';
 import { constructWorkspace, isCheWorkspace, Workspace } from '../../../services/workspace-adapter';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../../../services/devfileApi';
 import {
-  DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
+  DevWorkspaceClient,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { container } from '../../../inversify.config';
 
 import styles from './index.module.css';
+import { DevWorkspaceStatus } from '../../../services/helpers/types';
 
 export type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
@@ -142,6 +143,10 @@ export class EditorTab extends React.PureComponent<Props, State> {
     const originDevfile = this.props.workspace.devfile;
     const { devfile, additionSchema } = this.state;
     const isReadonly = this.props.workspace.isDeprecated;
+    const isDisabled =
+      !this.state.hasChanges ||
+      !this.state.isDevfileValid ||
+      this.props.workspace.status === DevWorkspaceStatus.TERMINATING;
 
     return (
       <React.Fragment>
@@ -217,7 +222,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
                   onClick={() => this.onSave()}
                   variant="primary"
                   className={styles.saveButton}
-                  isDisabled={!this.state.hasChanges || !this.state.isDevfileValid}
+                  isDisabled={isDisabled}
                 >
                   Save
                 </Button>

@@ -115,6 +115,6 @@ export CHECLUSTER_CR_NAMESPACE=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESP
 export CHECLUSTER_CR_NAME=$(kubectl exec $DASHBOARD_POD_NAME -n $CHE_NAMESPACE -- printenv CHECLUSTER_CR_NAME)
 
 # relative path from backend package
-FRONTEND_RESOURCES=../../../../$DASHBOARD_FRONTEND/lib
+FRONTEND_RESOURCES=../../../../$DASHBOARD_FRONTEND/lib/public
 $PRERUN_COMMAND &
 yarn --cwd $DASHBOARD_BACKEND start:debug --publicFolder $FRONTEND_RESOURCES

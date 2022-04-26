@@ -56,7 +56,7 @@ export function registerDexCallback(server: FastifyInstance) {
     const token = await server.localStart.getAccessTokenFromAuthorizationCodeFlow(request);
     process.env.CLUSTER_ACCESS_TOKEN = token?.access_token;
     const authorizationUri = server.localStart.generateAuthorizationUri(request);
-    return reply.redirect(token ? '/dashboard' : authorizationUri);
+    return reply.redirect(token ? '/dashboard/' : authorizationUri);
   });
 }
 

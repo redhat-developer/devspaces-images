@@ -18,6 +18,7 @@ import InfrastructureNamespaceFormGroup from './InfrastructureNamespace';
 import ProjectsFormGroup from './Projects';
 import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
 import { cloneDeep } from 'lodash';
+import { DevWorkspaceStatus } from '../../../services/helpers/types';
 
 type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
@@ -92,7 +93,6 @@ export class OverviewTab extends React.Component<Props, State> {
     const namespace = workspace.namespace;
     const projects = workspace.projects;
     const isDeprecated = workspace.isDeprecated;
-    const readonly = isDeprecated || workspace.isDevWorkspace;
 
     return (
       <React.Fragment>
@@ -100,7 +100,7 @@ export class OverviewTab extends React.Component<Props, State> {
           <Form isHorizontal onSubmit={e => e.preventDefault()}>
             <WorkspaceNameFormGroup
               name={workspaceName}
-              readonly={readonly}
+              readonly={isDeprecated || workspace.isDevWorkspace}
               onSave={_workspaceName => this.handleWorkspaceNameSave(_workspaceName)}
               onChange={_workspaceName => {
                 this.isWorkspaceNameChanged = workspaceName !== _workspaceName;
@@ -109,7 +109,7 @@ export class OverviewTab extends React.Component<Props, State> {
             />
             <InfrastructureNamespaceFormGroup namespace={namespace} />
             <StorageTypeFormGroup
-              readonly={isDeprecated}
+              readonly={isDeprecated || workspace.status === DevWorkspaceStatus.TERMINATING}
               storageType={storageType}
               onSave={_storageType => this.handleStorageSave(_storageType)}
             />
