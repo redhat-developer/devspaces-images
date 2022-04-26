@@ -17,7 +17,9 @@ def NEW_SHA=""
 def SOURCE_SHA=""
 
 // CRW-2656 if a theia build, ONLY use dynamic rhel85 boxes so there's maximum disk space available
-def String nodeLabelAnyArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8||ppc64le-rhel8' // NB 2022-01-14 remove s390x-rhel8 as it can be flaky with ssh connections
+// CRW-2736 if an idea build, must run on x64 only (fails on ppc64le)
+// NB 2022-01-14 remove s390x-rhel8 as it can be flaky with ssh connections
+def String nodeLabelAnyArch = REPOS.contains("theia") || REPOS.contains("idea") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8||ppc64le-rhel8' 
 def String nodeLabelXArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8' 
 
 currentBuild.description=""
