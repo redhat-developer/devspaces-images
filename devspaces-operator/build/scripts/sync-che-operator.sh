@@ -94,7 +94,7 @@ while IFS= read -r -d '' d; do
 			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
 			-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 			-e 's|(DefaultCheFlavor.*=) "che"|\1 "devspaces"|' \
-			-e 's|che/operator|codeready/operator|' \
+			-e 's|che/operator|devspaces/operator|' \
 			-e 's|che-operator|devspaces-operator|' \
 			-e 's|name: eclipse-che|name: devspaces|' \
 			-e "s|cheImageTag: 'nightly'|cheImageTag: ''|" \
