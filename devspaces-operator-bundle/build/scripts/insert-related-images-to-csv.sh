@@ -52,8 +52,10 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     git checkout ${MIDSTM_BRANCH} || true
     cd ..
 
-    # collect containers referred to by devfiles, including generated devworkspace-che-theia-latest.yaml files that reference theia/endpoint/machineexec images (CRW-2887)
-    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-devfile-registry; ./build/scripts/generate_devworkspace_templates.sh; ./build/scripts/list_referenced_images.sh devfiles/)"
+    # collect containers referred to by devfiles
+    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
+    # include theia/endpoint/machineexec images from the editor component (CRW-2887)
+    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./)"
 
     # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
     PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
