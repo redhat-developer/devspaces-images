@@ -66,7 +66,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:858309e9d0d7a1ee6146ff3fed579ea1c8c1318c3c0f61971f836132472f4c55
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6317d1b814f90928a97f6d514fa9da1b4bd708bd5bb327f14709463794b2cf74
     createdAt: "2022-04-26T19:19:04+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -982,9 +982,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:07198fe5558f247af0d30544e61967e310ee29cb580a3d20b3a14f4b053ca6c4
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:b9f8be67f4fedbc335960a05e69430d2703f076a1840db606dc7fffd985155fc
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:94cd08d995c3a8de15a3c7e68b14ccb1cf2a9edb5878a67f509e9625bc6b2a0e
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:b84aac512df4a09499b50a1f6942c1ed68b20ffb0ee690fff3e15c5aad61c8ef
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
@@ -1007,7 +1007,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:858309e9d0d7a1ee6146ff3fed579ea1c8c1318c3c0f61971f836132472f4c55
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6317d1b814f90928a97f6d514fa9da1b4bd708bd5bb327f14709463794b2cf74
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1280,10 +1280,10 @@ spec:
     name: Red Hat
   version: 3.0.0
   relatedImages:
-  - name: devspaces-rhel8-operator-858309e9d0d7a1ee6146ff3fed579ea1c8c1318c3c0f61971f836132472f4c55-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:858309e9d0d7a1ee6146ff3fed579ea1c8c1318c3c0f61971f836132472f4c55
+  - name: devspaces-rhel8-operator-6317d1b814f90928a97f6d514fa9da1b4bd708bd5bb327f14709463794b2cf74-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6317d1b814f90928a97f6d514fa9da1b4bd708bd5bb327f14709463794b2cf74
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:858309e9d0d7a1ee6146ff3fed579ea1c8c1318c3c0f61971f836132472f4c55
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6317d1b814f90928a97f6d514fa9da1b4bd708bd5bb327f14709463794b2cf74
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:0b488a3d87c4aeb71f24a163591066054cb4a34b1375dd09d61dc68c0c80edea
   - name: dashboard
@@ -1313,9 +1313,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:07198fe5558f247af0d30544e61967e310ee29cb580a3d20b3a14f4b053ca6c4
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:b9f8be67f4fedbc335960a05e69430d2703f076a1840db606dc7fffd985155fc
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:94cd08d995c3a8de15a3c7e68b14ccb1cf2a9edb5878a67f509e9625bc6b2a0e
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:b84aac512df4a09499b50a1f6942c1ed68b20ffb0ee690fff3e15c5aad61c8ef
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
