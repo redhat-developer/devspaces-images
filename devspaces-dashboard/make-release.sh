@@ -52,17 +52,19 @@ bump_version () {
     git pull origin "${BUMP_BRANCH}"
 
     set +e
-    PUSH_TRY="$(git push origin "${BUMP_BRANCH}" || true)"
-    if [[ $PUSH_TRY == *"protected branch hook declined"* ]] || [[ $PUSH_TRY == *"Protected branch update failed"* ]]; then
-      set -e
-      PR_BRANCH=pr-${BUMP_BRANCH}-to-${NEXT_VERSION}
-      # create pull request for main branch, as branch is restricted
-      git branch "${PR_BRANCH}"
-      git checkout "${PR_BRANCH}"
-      git push origin "${PR_BRANCH}"
-      lastCommitComment="$(git log -1 --pretty=%B)"
-      hub pull-request -f -m "${lastCommitComment}" -b "${BUMP_BRANCH}" -h "${PR_BRANCH}"
+    PUSH_TRY="$(git push origin "${BUMP_BRANCH}")"
+    # shellcheck disable=SC2181
+    if [[ $? -gt 0 ]] || [[ $PUSH_TRY == *"protected branch hook declined"* ]]; then
+        # create pull request for main branch, as branch is restricted
+        PR_BRANCH=pr-${BUMP_BRANCH}-to-${NEXT_VERSION}
+        git branch "${PR_BRANCH}"
+        git checkout "${PR_BRANCH}"
+        git pull origin "${PR_BRANCH}"
+        git push origin "${PR_BRANCH}"
+        lastCommitComment="$(git log -1 --pretty=%B)"
+        hub pull-request -f -m "${lastCommitComment}" -b "${BUMP_BRANCH}" -h "${PR_BRANCH}"
     fi
+    set -e
   fi
   git checkout "${CURRENT_BRANCH}"
 }
