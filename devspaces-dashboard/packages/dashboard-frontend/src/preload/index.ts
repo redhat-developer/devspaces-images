@@ -11,6 +11,9 @@
  */
 
 (function acceptNewFactoryLink(): void {
+  if (window.location.pathname !== '/') {
+    return;
+  }
   const hash = window.location.hash.replace(/(\/?)#(\/?)/, '#');
   if (hash.startsWith('#http')) {
     let factoryUrl = hash.substring(1);

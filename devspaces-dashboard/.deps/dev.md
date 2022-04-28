@@ -489,7 +489,7 @@
 | [`eslint-plugin-react@7.29.4`](https://github.com/yannickcr/eslint-plugin-react) | MIT | clearlydefined |
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
 | [`eslint-utils@2.1.0`](git+https://github.com/mysticatea/eslint-utils.git) | MIT | clearlydefined |
-| [`eslint-visitor-keys@2.1.0`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | clearlydefined |
+| [`eslint-visitor-keys@2.1.0`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | #2433 |
 | [`eslint@7.32.0`](https://github.com/eslint/eslint.git) | MIT | clearlydefined |
 | [`espree@7.3.1`](https://github.com/eslint/espree.git) | BSD-2-Clause | #903 |
 | [`esquery@1.4.0`](https://github.com/estools/esquery.git) | BSD-3-Clause | #1100 |
@@ -511,7 +511,7 @@
 | [`extglob@2.0.4`](https://github.com/micromatch/extglob.git) | MIT | clearlydefined |
 | [`fast-diff@1.2.0`](https://github.com/jhchen/fast-diff) | Apache-2.0 | clearlydefined |
 | [`fast-glob@3.2.11`](https://github.com/mrmlnc/fast-glob.git) | MIT | clearlydefined |
-| [`fast-levenshtein@2.0.6`](https://github.com/hiddentao/fast-levenshtein.git) | MIT | clearlydefined |
+| [`fast-levenshtein@2.0.6`](https://github.com/hiddentao/fast-levenshtein.git) | MIT | #2428 |
 | [`fastest-levenshtein@1.0.12`](git+https://github.com/ka-weihe/fastest-levenshtein.git) | MIT | clearlydefined |
 | [`fb-watchman@2.0.1`](git@github.com:facebook/watchman.git) | Apache-2.0 | clearlydefined |
 | [`figgy-pudding@3.5.2`](https://github.com/npm/figgy-pudding) | ISC | #876 |
@@ -527,7 +527,7 @@
 | [`find-up@4.1.0`](https://github.com/sindresorhus/find-up.git) | MIT | clearlydefined |
 | [`findup-sync@3.0.0`](https://github.com/gulpjs/findup-sync.git) | MIT | clearlydefined |
 | [`flat-cache@3.0.4`](https://github.com/royriojas/flat-cache.git) | MIT | clearlydefined |
-| [`flatted@3.2.5`](git+https://github.com/WebReflection/flatted.git) | ISC | clearlydefined |
+| [`flatted@3.2.5`](git+https://github.com/WebReflection/flatted.git) | ISC | #2430 |
 | [`flush-write-stream@1.1.1`](https://github.com/mafintosh/flush-write-stream.git) | MIT | clearlydefined |
 | [`for-in@1.0.2`](https://github.com/jonschlinkert/for-in.git) | MIT | clearlydefined |
 | [`fragment-cache@0.2.1`](https://github.com/jonschlinkert/fragment-cache.git) | MIT | clearlydefined |
@@ -866,7 +866,7 @@
 | [`path-browserify@0.0.1`](git://github.com/substack/path-browserify.git) | MIT | clearlydefined |
 | [`path-dirname@1.0.2`](https://github.com/es128/path-dirname.git) | MIT | clearlydefined |
 | [`path-exists@3.0.0`](https://github.com/sindresorhus/path-exists.git) | MIT | clearlydefined |
-| [`path-is-inside@1.0.2`](https://github.com/domenic/path-is-inside.git) | (WTFPL OR MIT) | clearlydefined |
+| [`path-is-inside@1.0.2`](https://github.com/domenic/path-is-inside.git) | (WTFPL OR MIT) | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/path-is-inside/1.0.2) |
 | [`path-key@2.0.1`](https://github.com/sindresorhus/path-key.git) | MIT | clearlydefined |
 | [`path-type@3.0.0`](https://github.com/sindresorhus/path-type.git) | MIT | clearlydefined |
 | [`pbkdf2@3.1.2`](https://github.com/crypto-browserify/pbkdf2.git) | MIT | clearlydefined |
