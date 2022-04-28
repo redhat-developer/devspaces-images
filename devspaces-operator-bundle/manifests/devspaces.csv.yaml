@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1
-    createdAt: "2022-04-27T21:15:43+00:00"
+    createdAt: "2022-04-28T11:51:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -985,25 +985,25 @@ spec:
                       - name: RELATED_IMAGE_devfile_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/idea-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/idea-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/machineexec-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/machineexec-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/theia-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/theia-endpoint-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/theia-endpoint-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/theia-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/udi-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
-                        value: quay.io/devspaces/udi-rhel8:3.1
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
                       - name: RELATED_IMAGE_devworkspace_controller
                         value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.13
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
