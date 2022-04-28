@@ -31,7 +31,7 @@
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
-FROM ubi:8.5-214 as ubi-builder
+FROM ubi8:8.5-239 as ubi-builder
 RUN mkdir -p /mnt/rootfs
 RUN yum install unzip -y --nodocs && \
     if [[ $(uname -m) == "s390x" ]]; then LIBSECRET="\
