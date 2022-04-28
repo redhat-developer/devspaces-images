@@ -153,15 +153,6 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed_in_place() {
-    SHORT_UNAME=$(uname -s)
-  if [ "$(uname)" == "Darwin" ]; then
-    sed -i '' "$@"
-  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-    sed -i "$@"
-  fi
-}
-
 # create dockerfile
 cat << EOT > "${TARGETDIR}"/Dockerfile
 # Copyright (c) 2020-2021 Red Hat, Inc.
@@ -220,7 +211,7 @@ rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ vendor/ version
 CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
 # transform into Brew-friendly version of CSV
 sed -r -i "${CSVFILE}" \
-  -e "s@registry.redhat.io/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
+  -e "s@(registry.redhat.io|quay.io)/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
   -e "s@devspaces-rhel8-operator@operator@g" \
   -e "s@:latest@:${CRW_VERSION}@g"
 

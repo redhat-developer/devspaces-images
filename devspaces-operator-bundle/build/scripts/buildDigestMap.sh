@@ -79,7 +79,7 @@ for registry in ${REGISTRY_LIST}; do
   registry="${registry/\@sha256:*/:${TAG}}" # remove possible existing @sha256:... and use current tag instead
   getExternalImagesFromRegistry $registry
   if [[ ! ${REGISTRY_IMAGES} ]]; then
-    registryalt=$(echo $registry | sed -r -e "s#registry.redhat.io/devspaces/#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-#g")
+    registryalt=$(echo $registry | sed -r -e "s#(registry.redhat.io|quay.io)/devspaces/#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-#g")
     getExternalImagesFromRegistry $registryalt
   fi
   echo "[INFO] ${0##*/} :: Found $(echo "${REGISTRY_IMAGES}" grep -v "Not found" | wc -l) images in registry"

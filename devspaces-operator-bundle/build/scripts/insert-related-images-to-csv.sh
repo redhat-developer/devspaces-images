@@ -105,12 +105,14 @@ updateRelatedImageName() {
 updateRelatedImageName "plugin_registry_image" "${PLUGIN_REGISTRY_CONTAINERS[@]}"
 updateRelatedImageName "devfile_registry_image" "${DEVFILE_REGISTRY_CONTAINERS[@]}"
 
-# replace external devspaces refs with internal ones
+# replace external devspaces refs with internal ones, and quay refs (from v2 devfiles) with RHEC ones
 sed -r -i $CSVFILE \
   -e "s@registry.access.redhat.com/ubi8-minimal@registry.redhat.io/ubi8-minimal@g" \
   -e "s@registry.access.redhat.com/ubi8/ubi-minimal@registry.redhat.io/ubi8/ubi-minimal@g" \
   `# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
-  -e "s@/ubi8-minimal@/ubi8/ubi-minimal@g"
+  -e "s@/ubi8-minimal@/ubi8/ubi-minimal@g" \
+  `# replace quay urls with RHEC urls` \
+  -e "s|quay.io/devspaces/(.+)|registry.redhat.io/devspaces/\\1|g"
 
 # echo list of RELATED_IMAGE_ entries after adding them above
 # cat $CSVFILE | grep RELATED_IMAGE_ -A1

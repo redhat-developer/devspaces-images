@@ -224,7 +224,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|centos/postgresql-96-centos7:9.6|${POSTGRES_IMAGE}|" \
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
 		\
-		`# use internal image for operator, as devspaces-devspaces-rhel8-operator only exists in RHEC and Quay repos` \
+		`# use internal image for operator, as devspaces-operator only exists in RHEC and Quay repos` \
 		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
