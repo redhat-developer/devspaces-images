@@ -33,12 +33,12 @@
           shell: oc get pods --selector deploymentconfig=udi-cmd-test --output=jsonpath='{ .items[*].metadata.name }'
           register: pod_name
         - name: Make sure helm, kubectl and oc are present in the container and in the path
-          shell: oc exec {{ pod_name.stdout }} -- bash -c "echo -n 'Helm: '; helm version --short --client; echo -n 'Kubectl: '; kubectl version --short --client=true; echo 'oc: '; oc version"
+          shell: oc exec {{ pod_name.stdout }} -- bash -c "echo -n Helm:\ ; helm version --short --client; echo -n Kubectl:\ ; kubectl version --short --client=true; echo oc:\ ; oc version"
           register: helm_kubectl_oc_cmd_run
         - debug:
             msg: "{{ helm_kubectl_oc_cmd_run.stdout }}"
         - name: Make sure node, java, clangd commands are available in the container
-          shell: oc exec {{ pod_name.stdout }} -- bash -c "echo -n 'Node: '; node --version; echo; java -version; echo; clangd --version"
+          shell: oc exec {{ pod_name.stdout }} -- bash -c "echo -n Node:\ ; node --version; echo; java -version; echo; clangd --version"
           register: node_java_clangd_cmd_run
         - debug:
             msg: "{{ node_java_clangd_cmd_run.stdout }}"
