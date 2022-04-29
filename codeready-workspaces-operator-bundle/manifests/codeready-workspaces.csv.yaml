@@ -118,7 +118,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.15
-    createdAt: "2022-03-31T17:29:31+00:00"
+    createdAt: "2022-04-29T18:23:41+00:00"
     description: 'Technical Preview: Devfile v2 and v1 development solution, 1 instance
       per cluster, for portable, collaborative k8s workspaces.'
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1485,4 +1485,4 @@ spec:
   provider:
     name: Red Hat
   version: 2.15.103
-  replaces: crwoperatorallnamespaces.v2.15.102-0.1647862588.p
+  replaces: crwoperatorallnamespaces.v2.15.103
