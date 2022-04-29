@@ -37,13 +37,13 @@ COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
 # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
 # must hard code a version because otherwise we fail with
 ## Failed component comparison for components: openshift-clients
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8.x86_64.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8.s390x.rpm
-# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8.ppc64le.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202204072246.p0.g96abae4.assembly.stream.el8.x86_64.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202204072246.p0.g96abae4.assembly.stream.el8.s390x.rpm
+# http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202204072246.p0.g96abae4.assembly.stream.el8.ppc64le.rpm
 # For local build: find latest rpm at https://brewweb.engineering.redhat.com/brew/packageinfo?packageID=73630
 #                  and microdnf install yum && yum localinstall http://download.eng.bos.redhat.com/brewroot/vol/rhel-8/packages/ibm-semeru-open-8-jdk/1.8.0.302.b08_0.27.1/1.el8j9/$(uname -m)/ibm-semeru-open-8-jdk-1.8.0.302.b08_0.27.1-1.el8j9.$(uname -m).rpm
 RUN microdnf -y install yum && \
-    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.9.0-202202160527.p0.g5035cc3.assembly.stream.el8 \
+    yum -y -q install bash tar gzip unzip which shadow-utils findutils wget curl openshift-clients-4.9.0-202204072246.p0.g96abae4.assembly.stream.el8 \
     ibm-semeru-open-8-jdk \
     # CRW-919 java8/mvn + python/pip + node/npm: combine forces and make one all-in-one useful image
     sudo git procps-ng bzip2 && \
