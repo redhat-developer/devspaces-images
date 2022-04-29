@@ -133,10 +133,14 @@ RUN \
     cp -R /tmp/py-unpack/.venv ${HOME} && chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
     rm -fr /tmp/py-unpack
 RUN \
-    # python/pip symlinks
+    # python/pip/pylint symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint${PYTHON_VERSION} && \
+    chmod +x /usr/bin/pylint* && \
     SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     echo "<== Create python symlinks (or display existing ones)"
 RUN \
     ########################################################################
