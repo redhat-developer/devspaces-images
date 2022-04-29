@@ -59,7 +59,7 @@
         - debug:
             msg: "{{ phpls_processid.stdout }}"
         - name: 4/4 Kill PHP Language Server processid
-          shell: oc exec {{ pod_name.stdout }} -- kill -9 {{ phpls_processid.stdout }}
+          shell: oc exec {{ pod_name.stdout }} -- kill -9 {{ phpls_processid.stdout }} || true
           register: phpls_kill
         - debug:
             msg: "{{ phpls_kill.stdout }}"
