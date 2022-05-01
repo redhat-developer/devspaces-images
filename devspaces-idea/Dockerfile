@@ -31,7 +31,7 @@
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
-FROM ubi8:8.5-239 as ubi-builder
+FROM ubi8:8.5-239.1651231664 as ubi-builder
 RUN mkdir -p /mnt/rootfs
 RUN yum install unzip -y --nodocs && \
     if [[ $(uname -m) == "s390x" ]]; then LIBSECRET="\
@@ -88,7 +88,7 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/projector" "/mnt/rootfs/etc/pa
 
 # Stage 2. Copy from build environment Projector assembly to the runtime. Projector runs in headless mode.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.5-243
+FROM ubi8-minimal:8.5-243.1651231653
 ENV HOME=/home/projector
 ENV PROJECTOR_ASSEMBLY_DIR /projector
 ENV PROJECTOR_CONFIG_DIR $HOME/.jetbrains
