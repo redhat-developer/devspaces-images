@@ -320,7 +320,7 @@
 | [`react-helmet@6.1.0`](https://github.com/nfl/react-helmet) | MIT | clearlydefined |
 | [`react-is@16.13.1`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`react-pluralize@1.6.3`](https://github.com/tsmith123/react-pluralize) | MIT | clearlydefined |
-| [`react-redux@7.2.6`](https://github.com/reduxjs/react-redux.git) | MIT | clearlydefined |
+| [`react-redux@7.2.6`](https://github.com/reduxjs/react-redux.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-redux/7.2.6) |
 | [`react-router-dom@5.3.0`](https://github.com/ReactTraining/react-router.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router-dom/5.3.0) |
 | [`react-router@5.2.1`](https://github.com/ReactTraining/react-router.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router/5.2.1) |
 | [`react-side-effect@2.1.1`](https://github.com/gaearon/react-side-effect.git) | MIT | clearlydefined |

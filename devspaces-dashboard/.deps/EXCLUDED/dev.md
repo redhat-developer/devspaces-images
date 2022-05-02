@@ -19,3 +19,4 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `typescript@4.6.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/typescript/4.6.2) |
 | `webpack-merge@4.2.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/webpack-merge/4.2.2) |
 | `x-is-string@0.1.0` | [CQ22418](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22418) |
+| `path-is-inside@1.0.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/path-is-inside/1.0.2) |
