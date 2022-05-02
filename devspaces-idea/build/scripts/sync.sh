@@ -49,12 +49,12 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 echo ".git/
 .github/
 README.md
+asset-required-rpms.txt
 build/docker/
 build/scripts/sync.sh
 compatible-ide.json
 container.yaml
 content_sets.*
-cve-fixed-packages
 cvp-owners.yml
 cvp.yml
 devfile.yaml
@@ -92,7 +92,7 @@ sed_in_place -r \
   "${TARGETDIR}"/Dockerfile
 
 # Overwrite packages to be installed
-cat << EOT > "${TARGETDIR}"/cve-fixed-packages
+cat << EOT > "${TARGETDIR}"/asset-required-rpms.txt
 libsecret libsecret-devel
 EOT
 
