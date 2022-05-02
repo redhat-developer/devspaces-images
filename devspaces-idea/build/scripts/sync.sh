@@ -54,6 +54,7 @@ build/scripts/sync.sh
 compatible-ide.json
 container.yaml
 content_sets.*
+cve-fixed-packages
 cvp-owners.yml
 cvp.yml
 devfile.yaml
@@ -89,6 +90,11 @@ sed_in_place -r \
   `# Remove unused Python packages (support for PyCharm not included in CRW)` \
   -e "/python2 python39 \\\\/d" \
   "${TARGETDIR}"/Dockerfile
+
+# Overwrite packages to be installed
+cat << EOT > "${TARGETDIR}"/cve-fixed-packages
+libsecret libsecret-devel
+EOT
 
 # Overwrite default configuration
 cat << EOT > "${TARGETDIR}"/compatible-ide.json
