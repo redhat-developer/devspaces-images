@@ -151,7 +151,7 @@ const config = {
       filename: 'index.html',
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, './src/preload/index.html'),
+      template: path.resolve(__dirname, './static/loader.html'),
       chunks : ['accept-factory-link'],
       filename: '../index.html',
       publicPath: '/dashboard/',

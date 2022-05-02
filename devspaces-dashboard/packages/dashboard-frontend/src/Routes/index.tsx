@@ -14,7 +14,7 @@ import React from 'react';
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router';
 
 import { ROUTE } from '../route.enum';
-import { buildFactoryLoaderPath } from '../preload';
+import { build as buildFactoryLoaderPath } from './factoryPath';
 
 const CreateWorkspace = React.lazy(() => import('../pages/GetStarted'));
 const WorkspacesListContainer = React.lazy(() => import('../containers/WorkspacesList'));
