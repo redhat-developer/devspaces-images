@@ -49,6 +49,7 @@ if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 echo ".git/
 .github/
 README.md
+asset-required-rpms.txt
 build/docker/
 build/scripts/sync.sh
 compatible-ide.json
@@ -89,6 +90,11 @@ sed_in_place -r \
   `# Remove unused Python packages (support for PyCharm not included in CRW)` \
   -e "/python2 python39 \\\\/d" \
   "${TARGETDIR}"/Dockerfile
+
+# Overwrite packages to be installed
+cat << EOT > "${TARGETDIR}"/asset-required-rpms.txt
+libsecret libsecret-devel
+EOT
 
 # Overwrite default configuration
 cat << EOT > "${TARGETDIR}"/compatible-ide.json
