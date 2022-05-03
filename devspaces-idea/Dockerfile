@@ -74,6 +74,7 @@ RUN set -ex \
     libsecret jq \
     # Java 11 support
     java-11-openjdk-devel \
+    # Python support
     # Packages needed for AWT.
     libXext libXrender libXtst libXi libX11-xcb mesa-libgbm libdrm freetype \
     && adduser -r -u 1002 -G root -d $HOME -m -s /bin/sh $PROJECTOR_USER_NAME \
