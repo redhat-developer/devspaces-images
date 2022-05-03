@@ -1,6 +1,95 @@
 # Changelog
 This document reflects the project's changes made after each release cycle
 
+## [20220413]
+
+### News
+
+- Updated base ubi-minimal image to 8.5-240.1648458092 ([#100](https://github.com/che-incubator/jetbrains-editor-images/pull/100))
+- Updated Projector Server sources to [c3fa667](https://github.com/JetBrains/projector-server/commit/c3fa6678a4e3ce146799c20d28af963b8ddefe94) ([#101](https://github.com/che-incubator/jetbrains-editor-images/pull/101))
+- Updated Projector Client sources to [2811e60](https://github.com/JetBrains/projector-client/commit/2811e60f3e11b9109c6670a42af70124d9b6c052) ([#99](https://github.com/che-incubator/jetbrains-editor-images/pull/99))
+
+### Changed
+- Revert changes related to IDE frame expansion ([#91](https://github.com/che-incubator/jetbrains-editor-images/pull/91))
+  - Moved code that expands IDE frame to Plugin to Projector code base
+
+## [20220221]
+
+### News
+
+- Integrated Projector [server](https://github.com/JetBrains/projector-server) and [client](https://github.com/JetBrains/projector-client) source code as git subtree to the repository which can be rebased with upstream repository by calling `./projector.sh rebase` command. ([#89](https://github.com/che-incubator/jetbrains-editor-images/pull/89)) Before performing the rebase there is some git configuration should be performed by adding remotes for the Projector server and client:
+
+  ```sh
+  $ git remote add upstream-projector-server https://github.com/JetBrains/projector-server
+  $ git fetch upstream-projector-server master
+  $ git remote add upstream-projector-client https://github.com/JetBrains/projector-client
+  $ git fetch upstream-projector-client master
+  ```
+- Provided plugin for IntelliJ-Platform based IDEs that handles necessary operations with Devfile such as provision Run Configuration based on the Devfile commands ([#78](https://github.com/che-incubator/jetbrains-editor-images/pull/78))
+
+### Added
+
+- Suppress data sharing prompt for a user ([#81](https://github.com/che-incubator/jetbrains-editor-images/pull/81))
+- Persist Java preferences folder ([#82](https://github.com/che-incubator/jetbrains-editor-images/pull/82))
+- Add `PROJECTS_ROOT` to a trusted paths configuration ([#83](https://github.com/che-incubator/jetbrains-editor-images/pull/83))
+- Use `PROJECT_SOURCE` as default working directory ([#85](https://github.com/che-incubator/jetbrains-editor-images/pull/85))
+- Publish next tag for latest dev image ([#86](https://github.com/che-incubator/jetbrains-editor-images/pull/86))
+
+### Changed
+
+- Removed git patches ([#88](https://github.com/che-incubator/jetbrains-editor-images/pull/88))
+- Sync devfiles with plugin-registry ([#80](https://github.com/che-incubator/jetbrains-editor-images/pull/80))
+- Update from ubi8-minimal:8.5-218 to ubi8-minimal:8.5-230 ([#84](https://github.com/che-incubator/jetbrains-editor-images/pull/84))
+
+### Fixed
+
+- Provide user to passwd and group file ([#79](https://github.com/che-incubator/jetbrains-editor-images/pull/79))
+- Fix default volume mount for local run ([#87](https://github.com/che-incubator/jetbrains-editor-images/pull/87))
+
+## [20220117]
+
+### News
+
+- Provide sidecar-less model ([#70](https://github.com/che-incubator/jetbrains-editor-images/pull/70))
+  Introduce new model, when editor in Eclipse Che environment injected to the runtime container. 
+  This means that editor does not run in container where it was built. It left for local run, in docker environment.
+  Sidecar-less model described in the following issue: [New workspace model to run VS Code as a Che editor](https://github.com/eclipse/che/issues/20435)
+  
+- Update devfiles to version 2.1 ([#71](https://github.com/che-incubator/jetbrains-editor-images/pull/71))
+  With sidecar-less model workspace configuration now should be provided by version v2.1 instead v1 to run in Eclipse Che.
+
+### Added
+
+- Auto opening projects in Eclipse Che environment ([#75](https://github.com/che-incubator/jetbrains-editor-images/pull/75))
+
+### Changed
+
+- Update from ubi8-minimal:8.5-204 to ubi8-minimal:8.5-218 ([#67](https://github.com/che-incubator/jetbrains-editor-images/pull/67))
+- Simplify entrypoint.sh by moving necessary code to ide-projector-launcher.sh ([#69](https://github.com/che-incubator/jetbrains-editor-images/pull/69))
+- Update README.md and Developer-Guide.md to reflect latest changes ([#73](https://github.com/che-incubator/jetbrains-editor-images/pull/73))
+
+### Fixed
+
+- Update mechanism of syncing configuration ([#74](https://github.com/che-incubator/jetbrains-editor-images/pull/74))
+
+## [20211213]
+
+### News
+
+- Update Projector sources ([#59](https://github.com/che-incubator/jetbrains-editor-images/pull/59))
+  Now Projector Server points to the [JetBrains/projector-server@30f65af](https://github.com/JetBrains/projector-server/commit/30f65afc196605625f19b671e1cee1d012c8ee97) and Projector Client points to [JetBrains/projector-client@5f61189](https://github.com/JetBrains/projector-client/commit/5f6118900f2da668f0d84463025fea341da32175)
+- Add configuration for IDEA 2020.3.4 ([#60](https://github.com/che-incubator/jetbrains-editor-images/pull/60))
+- Updated UBI-minimal image to version 8.5-204 ([#61](https://github.com/che-incubator/jetbrains-editor-images/pull/61))
+
+### Added
+
+- Add per-arch support for installation of libsecret and libsecret-devel ([#50](https://github.com/che-incubator/jetbrains-editor-images/pull/50))
+
+### Changed
+
+- Add additional debug output to the prepare assembly step ([#48](https://github.com/che-incubator/jetbrains-editor-images/pull/48))
+- Reorganise logging process in projector.sh and make-release.sh script ([#56](https://github.com/che-incubator/jetbrains-editor-images/pull/56))
+
 ## [20210728]
 
 ### Changed
