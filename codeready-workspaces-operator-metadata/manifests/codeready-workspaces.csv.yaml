@@ -115,7 +115,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator:2.15
-    createdAt: "2022-04-29T18:24:24+00:00"
+    createdAt: "2022-05-05T13:30:14+00:00"
     description: Devfile v1 and v2 development solution for portable, collaborative
       k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-workspaces
@@ -129,7 +129,7 @@ metadata:
     repository: https://github.com/redhat-developer/codeready-workspaces-images/
     support: Red Hat
     skipRange: '>=2.15.0 <2.15.2'
-  name: crwoperator.v2.15.3
+  name: crwoperator.v2.15.4
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1108,7 +1108,7 @@ spec:
                       - name: CHE_SERVER_TRUST_STORE_CONFIGMAP_NAME
                         value: ca-certs
                       - name: CHE_VERSION
-                        value: 2.15.3
+                        value: 2.15.4
                       - name: CONSOLE_LINK_DISPLAY_NAME
                         value: CodeReady Workspaces
                       - name: CONSOLE_LINK_IMAGE
@@ -1484,5 +1484,5 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 2.15.3
+  version: 2.15.4
   replaces: crwoperator.v2.15.3
