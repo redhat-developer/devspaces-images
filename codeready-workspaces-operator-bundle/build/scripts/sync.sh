@@ -219,10 +219,9 @@ rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ templates/ vend
 CSVFILE="${TARGETDIR}"/manifests/codeready-workspaces.csv.yaml
 # transform into Brew-friendly version of CSV
 # CRW-2823 CRW-2866 only do transformation for images we're rebuilding in 2.15.3: server, dashboard, operator
+# CRW-2962 only do transformation for images we're rebuilding in 2.15.4: stacks-php; get the rest from RHEC (CVE fixes)
 sed -r -i "${CSVFILE}" \
-  -e "s@registry.redhat.io/codeready-workspaces/server@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-server@g" \
-  -e "s@registry.redhat.io/codeready-workspaces/dashboard@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-dashboard@g" \
-  -e "s@registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-operator@g"
+  -e "s@registry.redhat.io/codeready-workspaces/stacks-php@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php@g"
 
 # CRW-2829 don't do this transformation across the board so that we can hardcode some images as latest from reg.rh.io, and others to use reg-proxy unreleased images
 #  -e "s@registry.redhat.io/codeready-workspaces/@registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-@g" \
