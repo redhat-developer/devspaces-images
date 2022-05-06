@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.16.12-7 as builder
+FROM registry.access.redhat.com/ubi8/go-toolset:1.16.12-10 as builder
 ENV GOPATH=/go/
 USER root
 WORKDIR /che-machine-exec/
