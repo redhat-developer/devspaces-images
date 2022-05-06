@@ -964,9 +964,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:b3638e8b183a028a859a400c706940393c06a258c41c717e16943326cadfeee1
                 - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:01dec759e68b182e465d9fefaaae5de634f6ee3b5a1beae2df63aa7ab9592372
+                  value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:cf2d60665a2fe499cea09c1748e331f00bf39d772f085ae92a671a45b52c450f
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:01dec759e68b182e465d9fefaaae5de634f6ee3b5a1beae2df63aa7ab9592372
+                  value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:cf2d60665a2fe499cea09c1748e331f00bf39d772f085ae92a671a45b52c450f
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:a00bfa68186d00b8ac6459169bc518b7ee77b95a7dae59bfad3a72e83cb967c3
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
@@ -988,7 +988,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:ecd41359a929ebccd7c84af7ee0a3114c9344b7eb0b04f1ca767f97762a8c396
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:333e542da5078a9e74aea1078e98ac8a7a2eb115e87b0a398b9a53747bfd3ba2
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:6e73969bee81ff6e77f15b4dcaedcb5fa0e8a0321a11224377c885d0241e72e4
                 - name: RELATED_IMAGE_postgres
@@ -1295,9 +1295,9 @@ spec:
   - name: devspaces_idea_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:b3638e8b183a028a859a400c706940393c06a258c41c717e16943326cadfeee1
   - name: devspaces_machineexec_devfile_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:01dec759e68b182e465d9fefaaae5de634f6ee3b5a1beae2df63aa7ab9592372
+    image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:cf2d60665a2fe499cea09c1748e331f00bf39d772f085ae92a671a45b52c450f
   - name: devspaces_machineexec_plugin_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:01dec759e68b182e465d9fefaaae5de634f6ee3b5a1beae2df63aa7ab9592372
+    image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:cf2d60665a2fe499cea09c1748e331f00bf39d772f085ae92a671a45b52c450f
   - name: devspaces_theia_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:a00bfa68186d00b8ac6459169bc518b7ee77b95a7dae59bfad3a72e83cb967c3
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdccq_
@@ -1319,7 +1319,7 @@ spec:
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:ecd41359a929ebccd7c84af7ee0a3114c9344b7eb0b04f1ca767f97762a8c396
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:333e542da5078a9e74aea1078e98ac8a7a2eb115e87b0a398b9a53747bfd3ba2
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:6e73969bee81ff6e77f15b4dcaedcb5fa0e8a0321a11224377c885d0241e72e4
   - name: postgres
