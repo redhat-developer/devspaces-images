@@ -960,9 +960,9 @@ spec:
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:31bb44cb51960b8dbfe1f75f19d7849d6811af4996afd196e4cc101342d2e73e
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:459e5d0e2356a897d6bc07fff32e52394b757801c220492ff4977dcd9edcb494
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:26179637bd9152f3b2be81221f046703961dff53b6ac2425a9985f95a5759f41
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:459e5d0e2356a897d6bc07fff32e52394b757801c220492ff4977dcd9edcb494
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:26179637bd9152f3b2be81221f046703961dff53b6ac2425a9985f95a5759f41
                 - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:be793af778df3b7193e7d731512f4ce7204a15242f55ec27d31ca875682a364c
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
@@ -990,7 +990,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:333e542da5078a9e74aea1078e98ac8a7a2eb115e87b0a398b9a53747bfd3ba2
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:ff01412e68f784ab05df9c6bde84b9cb90dc4794940f0ee586e571d2dd8fe884
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:63a45afed013a7733c9ee3651ff19434bceab6650de469498315419279e63d99
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1291,9 +1291,9 @@ spec:
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:31bb44cb51960b8dbfe1f75f19d7849d6811af4996afd196e4cc101342d2e73e
   - name: devspaces_idea_devfile_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:459e5d0e2356a897d6bc07fff32e52394b757801c220492ff4977dcd9edcb494
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:26179637bd9152f3b2be81221f046703961dff53b6ac2425a9985f95a5759f41
   - name: devspaces_idea_plugin_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:459e5d0e2356a897d6bc07fff32e52394b757801c220492ff4977dcd9edcb494
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:26179637bd9152f3b2be81221f046703961dff53b6ac2425a9985f95a5759f41
   - name: devspaces_machineexec_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:be793af778df3b7193e7d731512f4ce7204a15242f55ec27d31ca875682a364c
   - name: devspaces_machineexec_plugin_registry_image_gmxdccq_
@@ -1321,7 +1321,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:333e542da5078a9e74aea1078e98ac8a7a2eb115e87b0a398b9a53747bfd3ba2
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:ff01412e68f784ab05df9c6bde84b9cb90dc4794940f0ee586e571d2dd8fe884
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:63a45afed013a7733c9ee3651ff19434bceab6650de469498315419279e63d99
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
