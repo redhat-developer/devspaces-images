@@ -216,7 +216,7 @@ RUN \
         cd -- \
         rm -rf "${TEMP_DIR}" \
     else \
-        rm /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz
+        rm /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz \
     fi
     ########################################################################
     # Cleanup and Summaries
