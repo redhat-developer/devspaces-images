@@ -23,6 +23,7 @@ ENV \
     LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
     PHP_VERSION="7.3" \
+    E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_RPM_VERSION=3.1 \
@@ -46,7 +47,7 @@ RUN mkdir -p /home/user /projects
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
 COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
-COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz /tmp/
+COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -196,6 +197,27 @@ RUN \
     mkdir -p ${HOME}/che/ls-php/php-language-server && \
     tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
     cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
+RUN \
+    ########################################################################
+    # e2fsprogs (x64 only) (Tech Preview)
+    ########################################################################
+    if [[ "$(uname -m)" == 'x86_64' ]]; then \
+        TEMP_DIR="$(mktemp -d)" \
+        cd "${TEMP_DIR}" \
+        mv /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz . \
+        tar -zxvf e2fsprogs-${E2FSPROGS_VERSION}.tar.gz \
+        cd "e2fsprogs-${E2FSPROGS_VERSION}" \
+        mkdir build \
+        cd build \
+        ../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs --disable-evms \
+        make \
+        make install \
+        make install-libs \
+        cd -- \
+        rm -rf "${TEMP_DIR}" \
+    else \
+        rm /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz
+    fi
     ########################################################################
     # Cleanup and Summaries
     ########################################################################
