@@ -14,6 +14,7 @@ GRADLE_VERSION="6.1"
 MAVEN_VERSION="3.6.3"
 LOMBOK_VERSION="1.18.22"
 ODO_VERSION="v2.5.0"
+E2FSPROGS_VERSION="1.46.5"
 ASSET_NAME="udi"
 
 while [[ "$#" -gt 0 ]]; do
@@ -90,8 +91,9 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 	curl -sSL -O https://github.com/redhat-developer/devspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
+	curl -sSL -O https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz
 
-    outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz"
+    outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
 
 	# cleanup
 	rm -f Dockerfile.2 uploadAssetsToGHRelease.sh
