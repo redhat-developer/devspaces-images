@@ -105,8 +105,8 @@ cat << EOT > "${TARGETDIR}"/compatible-ide.json
     "productCode": "IC",
     "productVersion": [
       {
-        "version": "2020.3.4",
-        "downloadUrl": "https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.4.tar.gz",
+        "version": "2022.1",
+        "downloadUrl": "https://download-cdn.jetbrains.com/idea/ideaIC-2022.1.tar.gz",
         "latest": true
       }
     ]
