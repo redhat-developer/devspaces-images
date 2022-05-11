@@ -114,7 +114,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.15
+    containerImage: quay.io/crw/crw-2-rhel8-operator:latest
     createdAt: "2022-05-06T21:21:23+00:00"
     description: Devfile v1 and v2 development solution for portable, collaborative
       k8s workspaces.
@@ -1126,53 +1126,53 @@ spec:
                           fieldRef:
                             fieldPath: metadata.name
                       - name: RELATED_IMAGE_che_server
-                        value: registry.redhat.io/codeready-workspaces/server-rhel8:2.15
+                        value: quay.io/crw/server-rhel8:latest
                       - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-                        value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.15
+                        value: quay.io/crw/jwtproxy-rhel8:latest
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-                        value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.15
+                        value: quay.io/crw/pluginbroker-artifacts-rhel8:latest
                       - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-                        value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.15
+                        value: quay.io/crw/pluginbroker-metadata-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_idea_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/idea-rhel8:2.15
+                        value: quay.io/crw/idea-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/machineexec-rhel8:2.15
+                        value: quay.io/crw/machineexec-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8:2.15
+                        value: quay.io/crw/plugin-java11-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java11_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/plugin-java11-rhel8:2.15
+                        value: quay.io/crw/plugin-java11-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.15
+                        value: quay.io/crw/plugin-java8-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_java8_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/plugin-java8-rhel8:2.15
+                        value: quay.io/crw/plugin-java8-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_kubernetes_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/plugin-kubernetes-rhel8:2.15
+                        value: quay.io/crw/plugin-kubernetes-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8:2.15
+                        value: quay.io/crw/plugin-openshift-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/stacks-cpp-rhel8:2.15
+                        value: quay.io/crw/stacks-cpp-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_cpp_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/stacks-cpp-rhel8:2.15
+                        value: quay.io/crw/stacks-cpp-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8:2.15
+                        value: quay.io/crw/stacks-dotnet-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_dotnet_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8:2.15
+                        value: quay.io/crw/stacks-dotnet-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8:2.15
+                        value: quay.io/crw/stacks-golang-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_golang_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/stacks-golang-rhel8:2.15
+                        value: quay.io/crw/stacks-golang-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCNIK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php-rhel8:2.15
                       - name: RELATED_IMAGE_codeready_workspaces_stacks_php_plugin_registry_image_GIXDCNIK
                         value: registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-stacks-php-rhel8:2.15
                       - name: RELATED_IMAGE_codeready_workspaces_theia_endpoint_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/theia-endpoint-rhel8:2.15
+                        value: quay.io/crw/theia-endpoint-rhel8:latest
                       - name: RELATED_IMAGE_codeready_workspaces_theia_plugin_registry_image_GIXDCNIK
-                        value: registry.redhat.io/codeready-workspaces/theia-rhel8:2.15
+                        value: quay.io/crw/theia-rhel8:latest
                       - name: RELATED_IMAGE_dashboard
-                        value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.15
+                        value: quay.io/crw/dashboard-rhel8:latest
                       - name: RELATED_IMAGE_devfile_registry
-                        value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.15
+                        value: quay.io/crw/devfileregistry-rhel8:latest
                       - name: RELATED_IMAGE_devworkspace_controller
                         value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.12
                       - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1180,7 +1180,7 @@ spec:
                       - name: RELATED_IMAGE_gateway_authorization_sidecar
                         value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
                       - name: RELATED_IMAGE_internal_rest_backup_server
-                        value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.15
+                        value: quay.io/crw/backup-rhel8:latest
                       - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                         value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7:7.4.0
                       - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
@@ -1188,7 +1188,7 @@ spec:
                       - name: RELATED_IMAGE_keycloak
                         value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:7.5
                       - name: RELATED_IMAGE_plugin_registry
-                        value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.15
+                        value: quay.io/crw/pluginregistry-rhel8:latest
                       - name: RELATED_IMAGE_postgres
                         value: registry.redhat.io/rhel8/postgresql-96:1
                       - name: RELATED_IMAGE_postgres_13_3
@@ -1198,14 +1198,14 @@ spec:
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                         value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                       - name: RELATED_IMAGE_single_host_gateway
-                        value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.15
+                        value: quay.io/crw/traefik-rhel8:latest
                       - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                        value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.15
+                        value: quay.io/crw/configbump-rhel8:latest
                       - name: WATCH_NAMESPACE
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
-                    image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.15
+                    image: quay.io/crw/crw-2-rhel8-operator:latest
                     imagePullPolicy: Always
                     livenessProbe:
                       failureThreshold: 10

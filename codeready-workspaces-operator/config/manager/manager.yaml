@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: codeready-operator
-          image: registry.redhat.io/codeready-workspaces/crw-2-rhel8-operator:2.15
+          image: quay.io/crw/crw-2-rhel8-operator:latest
           command:
             - /manager
           args:
@@ -180,9 +180,9 @@ spec:
             - name: RELATED_IMAGE_che_rust_1_39_devfile_registry_image_MNSTANJSGZTA____
               value: quay.io/eclipse/che-rust-1.39@sha256:4b9f381ca0cb1f6efe1f56572a2698aa4e9b62e7c0f92da9b60bcf0c5e85733d
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/codeready-workspaces/server-rhel8:2.15
+              value: quay.io/crw/server-rhel8:latest
             - name: RELATED_IMAGE_che_server_secure_exposer_jwt_proxy_image
-              value: registry.redhat.io/codeready-workspaces/jwtproxy-rhel8:2.15
+              value: quay.io/crw/jwtproxy-rhel8:latest
             - name: RELATED_IMAGE_che_sidecar_workspace_data_sync_plugin_registry_image_IBZWQYJSGU3DUOBYMQYDCMRVHAZTOZBVME2TOY3CGI2GEYRTMVSDQMLFGZQTQZRUGEYTSYJVGA2DGYRXHEZDMYTEGJRGIMBRG4YTAOBVGRRTINDGGEYA____
               value: quay.io/eclipse/che-sidecar-workspace-data-sync@sha256:88d0125837d5a57cb24bb3ed81e6a8f4119a5043b7926bd2bd01710854c44f10
             - name: RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJSGU3DUYRSHA4DAYJRHE2GMYZUHBSDEM3FMY3TOMJXGU3DGM3CMVTDCZJTHAZGCMZVMU2GEYLFHAZTCYTBGJTGGOLCGJSDIMRRGA3DAY3GMY4A____
@@ -190,15 +190,15 @@ spec:
             - name: RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJSGU3DUMDCME4WIZRTHA4TQZBYGZSDANJVGQ2DAZLEGM3GIYJTGRSTIOJYGRSDANRXHFTGENZQGE3TGYLFMNSDSNLGG4YDEMLEMQ3TKOJZG4YA____
               value: quay.io/eclipse/che-theia@sha256:0ba9df3898d86d055440ed36da34e4984d0679fb70173aecd95f7021dd759970
             - name: RELATED_IMAGE_che_workspace_plugin_broker_artifacts
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-artifacts-rhel8:2.15
+              value: quay.io/crw/pluginbroker-artifacts-rhel8:latest
             - name: RELATED_IMAGE_che_workspace_plugin_broker_metadata
-              value: registry.redhat.io/codeready-workspaces/pluginbroker-metadata-rhel8:2.15
+              value: quay.io/crw/pluginbroker-metadata-rhel8:latest
             - name: RELATED_IMAGE_code_server_plugin_registry_image_IBZWQYJSGU3DUZLGGA3TEOBRGAYDIOJQHFRGEMTDGIZDQNBSGJSGMMTFHE4WCNLCME2WKNBVGBTGGZJXGU2DMYRYMZQTCOBWHA2TEZRSGNRGMNRXGUYQ____
               value: index.docker.io/codercom/code-server@sha256:ef07281004909bb2c228422df2e99a5ba5e450fce7546b8fa186852f23bf6751
             - name: RELATED_IMAGE_dashboard
-              value: registry.redhat.io/codeready-workspaces/dashboard-rhel8:2.15
+              value: quay.io/crw/dashboard-rhel8:latest
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/codeready-workspaces/devfileregistry-rhel8:2.15
+              value: quay.io/crw/devfileregistry-rhel8:latest
             - name: RELATED_IMAGE_devworkspace_controller
               value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.12
             - name: RELATED_IMAGE_dirigible_openshift_plugin_registry_image_IBZWQYJSGU3DUMZTGY2TMMZVMQYWKMBUGAZTMOJXMRSWCMBWG42GEYTCMRRTONBZMM2GEZJSMRRDEOJYGE4GCOJTMI4GKMLFGUZWGM3DGUYTINBRGEZQ____
@@ -210,13 +210,13 @@ spec:
             - name: RELATED_IMAGE_gateway_authorization_sidecar
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
             - name: RELATED_IMAGE_internal_rest_backup_server
-              value: registry.redhat.io/codeready-workspaces/backup-rhel8:2.15
+              value: quay.io/crw/backup-rhel8:latest
             - name: RELATED_IMAGE_keycloak
               value: registry.redhat.io/rh-sso-7/sso75-openshift-rhel8:7.5
             - name: RELATED_IMAGE_mta_vscode_extension_plugin_registry_image_IBZWQYJSGU3DUNRRME4DSNZZG4ZDSOBQGQ2TQOJVGRSDKYLFGVQTKMBQGUZWCYJYMQYDKMDCGA3DKZLGMZTDMY3CMU3TIODEMFRTEYLCGIZGMNBWMJTA____
               value: quay.io/windupeng/mta-vscode-extension@sha256:61a897972980458954d5ae5a50053aa8d050b065efff6cbe748dac2ab22f46bf
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/codeready-workspaces/pluginregistry-rhel8:2.15
+              value: quay.io/crw/pluginregistry-rhel8:latest
             - name: RELATED_IMAGE_postgres
               value: registry.redhat.io/rhel8/postgresql-96:1
             - name: RELATED_IMAGE_postgres_13_3
@@ -224,9 +224,9 @@ spec:
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.5
             - name: RELATED_IMAGE_single_host_gateway
-              value: registry.redhat.io/codeready-workspaces/traefik-rhel8:2.15
+              value: quay.io/crw/traefik-rhel8:latest
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-              value: registry.redhat.io/codeready-workspaces/configbump-rhel8:2.15
+              value: quay.io/crw/configbump-rhel8:latest
             - name: RELATED_IMAGE_ubi8_minimal_devfile_registry_image_HAXDG___
               value: registry.access.redhat.com/ubi8-minimal@sha256:2f6b88c037c0503da7704bccd3fc73cb76324101af39ad28f16460e7bce98324
             - name: RELATED_IMAGE_ubi_minimal_devfile_registry_image_
