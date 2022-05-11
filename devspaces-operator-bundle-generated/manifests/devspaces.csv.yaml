@@ -968,13 +968,13 @@ spec:
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:be793af778df3b7193e7d731512f4ce7204a15242f55ec27d31ca875682a364c
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:0c969915c4a23d4decd12e21902f02a4091fc5eac488dcc7d758c2477bf84593
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:2b7611b405f308c0116f763cb35d2291e024571747961c478c365c8d83463199
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:482cb9c81482cc2660251de0c7c2d3daa6d49b5bd574d0b1a0ebf3feef09ecb4
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:482cb9c81482cc2660251de0c7c2d3daa6d49b5bd574d0b1a0ebf3feef09ecb4
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:0c969915c4a23d4decd12e21902f02a4091fc5eac488dcc7d758c2477bf84593
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:2b7611b405f308c0116f763cb35d2291e024571747961c478c365c8d83463199
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:a574bb6ea859e3a907c50e968b4fdcf447bf35833dd9d67eb5ffb7baf60dcdc7
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
@@ -994,7 +994,7 @@ spec:
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
-                  value: registry.redhat.io/rhel8/postgresql-13@sha256:31392f164558cb392a601f63672c8df2337957ebb4e95b5aca4e6d75861c5db8
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:cf0c33620cf579c7fb25e7787c1e73cc916becf3e33b7f5f52912a49a00c47a8
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:3f32ebba0cbf3849a48372d4fc3a4ce70816f248d39eb50da7ea5f15c7f9d120
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1299,13 +1299,13 @@ spec:
   - name: devspaces_machineexec_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:be793af778df3b7193e7d731512f4ce7204a15242f55ec27d31ca875682a364c
   - name: devspaces_theia_devfile_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:0c969915c4a23d4decd12e21902f02a4091fc5eac488dcc7d758c2477bf84593
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:2b7611b405f308c0116f763cb35d2291e024571747961c478c365c8d83463199
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:482cb9c81482cc2660251de0c7c2d3daa6d49b5bd574d0b1a0ebf3feef09ecb4
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:482cb9c81482cc2660251de0c7c2d3daa6d49b5bd574d0b1a0ebf3feef09ecb4
   - name: devspaces_theia_plugin_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:0c969915c4a23d4decd12e21902f02a4091fc5eac488dcc7d758c2477bf84593
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:2b7611b405f308c0116f763cb35d2291e024571747961c478c365c8d83463199
   - name: devspaces_udi_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:a574bb6ea859e3a907c50e968b4fdcf447bf35833dd9d67eb5ffb7baf60dcdc7
   - name: devspaces_udi_plugin_registry_image_gmxdccq_
@@ -1325,7 +1325,7 @@ spec:
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
-    image: registry.redhat.io/rhel8/postgresql-13@sha256:31392f164558cb392a601f63672c8df2337957ebb4e95b5aca4e6d75861c5db8
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:cf0c33620cf579c7fb25e7787c1e73cc916becf3e33b7f5f52912a49a00c47a8
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:3f32ebba0cbf3849a48372d4fc3a4ce70816f248d39eb50da7ea5f15c7f9d120
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
