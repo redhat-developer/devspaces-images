@@ -14,7 +14,7 @@
     "simple-git": "^3.7.1"
   },
   "devDependencies": {
-    "@eclipse-che/plugin-registry-generator": "^7.47.0",
+    "@eclipse-che/plugin-registry-generator": "^7.42.0",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.5.0",
     "@types/js-yaml": "^4.0.5",

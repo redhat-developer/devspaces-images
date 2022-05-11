@@ -1136,7 +1136,7 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@eclipse-che/plugin-registry-generator@^7.47.0":
+"@eclipse-che/plugin-registry-generator@^7.42.0":
   version "7.47.0"
   resolved "https://registry.yarnpkg.com/@eclipse-che/plugin-registry-generator/-/plugin-registry-generator-7.47.0.tgz#804beff84addefe98fa1ab47082d70ee32635b2b"
   integrity sha512-nYp5SlxESLaXo4T6b7QPfB6JJAspKBG+lPWmNYFYvihqJqS4A/2Kz7yECYVZhM3nJ+MnEkh1CLsYqZ32QuzD6A==
