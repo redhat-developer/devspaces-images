@@ -21,6 +21,8 @@ import * as DwtApi from '../../../dashboard-backend-client/devWorkspaceTemplateA
 describe('DevWorkspace client editor update', () => {
   const namespace = 'admin-che';
   const client = container.get(DevWorkspaceClient);
+  const pluginRegistryUrl = 'plugin-registry-url';
+  const pluginRegistryInternalUrl = 'plugin-registry-internal-url';
 
   afterEach(() => {
     jest.resetAllMocks();
@@ -39,9 +41,14 @@ describe('DevWorkspace client editor update', () => {
         'che.eclipse.org/plugin-registry-url'
       ] as string;
 
-      const patch = await client.checkForTemplatesUpdate(namespace, {
-        [url]: newTemplate.spec as devfileApi.Devfile,
-      });
+      const patch = await client.checkForTemplatesUpdate(
+        namespace,
+        {
+          [url]: newTemplate.spec as devfileApi.Devfile,
+        },
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+      );
 
       expect(mockPatch.mock.calls).toEqual([
         [`${prefix}/namespace/${namespace}/devworkspacetemplates`],
@@ -70,9 +77,14 @@ describe('DevWorkspace client editor update', () => {
         'che.eclipse.org/plugin-registry-url'
       ] as string;
 
-      const patch = await client.checkForTemplatesUpdate(namespace, {
-        [url]: newTemplate.spec as devfileApi.Devfile,
-      });
+      const patch = await client.checkForTemplatesUpdate(
+        namespace,
+        {
+          [url]: newTemplate.spec as devfileApi.Devfile,
+        },
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+      );
 
       expect(mockPatch.mock.calls).toEqual([
         [`${prefix}/namespace/${namespace}/devworkspacetemplates`],
@@ -96,7 +108,12 @@ describe('DevWorkspace client editor update', () => {
         'che.eclipse.org/plugin-registry-url'
       ] as string;
 
-      const patch = await client.checkForTemplatesUpdate(namespace);
+      const patch = await client.checkForTemplatesUpdate(
+        namespace,
+        {},
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+      );
 
       expect(mockPatch.mock.calls).toEqual([
         [`${prefix}/namespace/${namespace}/devworkspacetemplates`],
@@ -127,7 +144,12 @@ describe('DevWorkspace client editor update', () => {
         'che.eclipse.org/plugin-registry-url'
       ] as string;
 
-      const patch = await client.checkForTemplatesUpdate(namespace);
+      const patch = await client.checkForTemplatesUpdate(
+        namespace,
+        {},
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+      );
 
       expect(mockPatch.mock.calls).toEqual([
         [`${prefix}/namespace/${namespace}/devworkspacetemplates`],

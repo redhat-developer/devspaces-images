@@ -38,7 +38,9 @@ import {
 } from '../../devfileApi/devWorkspace/metadata';
 import { AxiosInstance } from 'axios';
 import {
+  V1alpha2DevWorkspaceSpecTemplateComponents,
   V1alpha2DevWorkspaceTemplateSpec,
+  V1alpha2DevWorkspaceTemplateSpecComponents,
   V220DevfileComponentsItemsContainer,
 } from '@devfile/api';
 import { isEqual } from 'lodash';
@@ -285,6 +287,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devworkspace.spec.started = false;
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
 
+    this.addEnvVarsToContainers(components, pluginRegistryUrl, pluginRegistryInternalUrl);
+
     // create DWT
     devworkspaceTemplate.metadata.namespace = defaultNamespace;
     // add owner reference (to allow automatic cleanup)
@@ -296,33 +300,13 @@ export class DevWorkspaceClient extends WorkspaceClient {
         uid: createdWorkspace.metadata.uid,
       },
     ];
-    // add pluginRegistry and dashboard URLs as environment variables
-    const templateComponents = devworkspaceTemplate.spec?.components || [];
-    const allComponents = [...templateComponents, ...(components || [])];
-    for (const component of allComponents) {
-      const container = component.container;
-      if (container) {
-        if (!container.env) {
-          container.env = [];
-        }
-        container.env.push(
-          {
-            name: this.dashboardUrlEnvName,
-            value: window.location.origin,
-          },
-          {
-            name: this.pluginRegistryUrlEnvName,
-            value: pluginRegistryUrl,
-          },
-          {
-            name: this.pluginRegistryInternalUrlEnvName,
-            value: pluginRegistryInternalUrl,
-          },
-        );
-      }
-    }
+    this.addEnvVarsToContainers(
+      devworkspaceTemplate.spec?.components,
+      pluginRegistryUrl,
+      pluginRegistryInternalUrl,
+    );
 
-    await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>devworkspaceTemplate);
+    await DwtApi.createTemplate(devworkspaceTemplate);
 
     // update DW
     return DwApi.patchWorkspace(
@@ -514,35 +498,21 @@ export class DevWorkspaceClient extends WorkspaceClient {
             uid: createdWorkspace.metadata.uid,
           },
         ];
-        // propagate the plugin registry and dashboard urls to the containers in the initial devworkspace templates
-        if (template.spec?.components) {
-          for (const component of template.spec?.components) {
-            const container = component.container;
-            if (container) {
-              if (!container.env) {
-                container.env = [];
-              }
-              container.env.push(
-                {
-                  name: this.dashboardUrlEnvName,
-                  value: window.location.origin,
-                },
-                {
-                  name: this.pluginRegistryUrlEnvName,
-                  value: pluginRegistryUrl || '',
-                },
-                {
-                  name: this.pluginRegistryInternalUrlEnvName,
-                  value: pluginRegistryInternalUrl || '',
-                },
-              );
-            }
-          }
-        }
+        this.addEnvVarsToContainers(
+          template.spec?.components,
+          pluginRegistryUrl || '',
+          pluginRegistryInternalUrl || '',
+        );
 
         const pluginDWT = await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>template);
         this.addPlugin(createdWorkspace, pluginDWT.metadata.name, pluginDWT.metadata.namespace);
       }),
+    );
+
+    this.addEnvVarsToContainers(
+      createdWorkspace.spec.template.components,
+      pluginRegistryUrl || '',
+      pluginRegistryInternalUrl || '',
     );
 
     const patch = [
@@ -553,6 +523,51 @@ export class DevWorkspaceClient extends WorkspaceClient {
       },
     ];
     return DwApi.patchWorkspace(namespace, name, patch);
+  }
+
+  /**
+   * propagate the plugin registry, plugin internal registry,
+   * and dashboard URLs into the components containers
+   */
+  private addEnvVarsToContainers(
+    components:
+      | V1alpha2DevWorkspaceSpecTemplateComponents[]
+      | V1alpha2DevWorkspaceTemplateSpecComponents[]
+      | undefined,
+    pluginRegistryUrl: string,
+    pluginRegistryInternalUrl: string,
+  ): void {
+    if (components === undefined) {
+      return;
+    }
+
+    for (const component of components) {
+      const container = component.container;
+      if (container === undefined) {
+        continue;
+      }
+      const envs = (container.env || []).filter(
+        env =>
+          env.name !== this.dashboardUrlEnvName &&
+          env.name !== this.pluginRegistryUrlEnvName &&
+          env.name !== this.pluginRegistryInternalUrlEnvName,
+      );
+      envs.push(
+        {
+          name: this.dashboardUrlEnvName,
+          value: window.location.origin,
+        },
+        {
+          name: this.pluginRegistryUrlEnvName,
+          value: pluginRegistryUrl,
+        },
+        {
+          name: this.pluginRegistryInternalUrlEnvName,
+          value: pluginRegistryInternalUrl,
+        },
+      );
+      container.env = envs;
+    }
   }
 
   // Stuff to do for some editors
@@ -930,6 +945,8 @@ export class DevWorkspaceClient extends WorkspaceClient {
   async checkForTemplatesUpdate(
     namespace: string,
     pluginsByUrl: { [url: string]: devfileApi.Devfile } = {},
+    pluginRegistryUrl = '',
+    pluginRegistryInternalUrl = '',
   ): Promise<{ [templateName: string]: api.IPatch[] }> {
     const templates = await DwtApi.getTemplates(namespace);
     const managedTemplates = templates.filter(
@@ -961,6 +978,11 @@ export class DevWorkspaceClient extends WorkspaceClient {
               }
             });
             spec.components = plugin.components;
+            this.addEnvVarsToContainers(
+              spec.components,
+              pluginRegistryUrl,
+              pluginRegistryInternalUrl,
+            );
           } else {
             spec[key] = plugin[key];
           }

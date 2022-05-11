@@ -17,7 +17,7 @@
 | [`@hapi/boom@7.4.11`](git://github.com/hapijs/boom) | BSD-3-Clause | clearlydefined |
 | [`@hapi/bourne@1.3.2`](git://github.com/hapijs/bourne) | BSD-3-Clause | clearlydefined |
 | [`@hapi/formula@1.2.0`](git://github.com/hapijs/formula) | BSD-3-Clause | clearlydefined |
-| [`@hapi/hoek@8.5.1`](git://github.com/hapijs/hoek) | BSD-3-Clause | clearlydefined |
+| [`@hapi/hoek@8.5.1`](git://github.com/hapijs/hoek) | BSD-3-Clause | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@hapi/hoek/8.5.1) |
 | [`@hapi/joi@16.1.8`](git://github.com/hapijs/joi) | BSD-3-Clause | clearlydefined |
 | [`@hapi/pinpoint@1.0.2`](git://github.com/hapijs/pinpoint) | BSD-3-Clause | clearlydefined |
 | [`@hapi/topo@3.1.6`](git://github.com/hapijs/topo) | BSD-3-Clause | clearlydefined |
@@ -217,7 +217,7 @@
 | [`is-finite@1.1.0`](https://github.com/sindresorhus/is-finite.git) | MIT | clearlydefined |
 | [`is-plain-object@5.0.0`](https://github.com/jonschlinkert/is-plain-object.git) | MIT | clearlydefined |
 | [`is-stream@2.0.1`](https://github.com/sindresorhus/is-stream.git) | MIT | clearlydefined |
-| [`is-typedarray@1.0.0`](git://github.com/hughsk/is-typedarray.git) | MIT | clearlydefined |
+| [`is-typedarray@1.0.0`](git://github.com/hughsk/is-typedarray.git) | MIT | #2531 |
 | [`isarray@0.0.1`](git://github.com/juliangruber/isarray.git) | MIT | clearlydefined |
 | [`isexe@2.0.0`](git+https://github.com/isaacs/isexe.git) | ISC | clearlydefined |
 | [`isomorphic-ws@4.0.1`](git+https://github.com/heineiuo/isomorphic-ws.git) | MIT | clearlydefined |
