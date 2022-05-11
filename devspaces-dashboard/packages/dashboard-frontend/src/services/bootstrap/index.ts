@@ -213,9 +213,13 @@ export default class Bootstrap {
       selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).forEach(dwEditor => {
         pluginsByUrl[dwEditor.url] = dwEditor.devfile;
       });
+      const pluginRegistryUrl = settings['cheWorkspacePluginRegistryUrl'];
+      const pluginRegistryInternalUrl = settings['cheWorkspacePluginRegistryInternalUrl'];
       const updates = await this.devWorkspaceClient.checkForTemplatesUpdate(
         defaultNamespace,
         pluginsByUrl,
+        pluginRegistryUrl || '',
+        pluginRegistryInternalUrl || '',
       );
       if (Object.keys(updates).length > 0) {
         await this.devWorkspaceClient.updateTemplates(defaultNamespace, updates);

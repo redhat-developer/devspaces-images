@@ -39,7 +39,20 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
             cpuLimit,
             cpuRequest: '100m',
             endpoints: [],
-            env: [],
+            env: [
+              {
+                name: 'CHE_DASHBOARD_URL',
+                value: 'http://localhost',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_URL',
+                value: 'plugin-registry-url',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
+                value: 'plugin-registry-internal-url',
+              },
+            ],
             image: 'quay.io/eclipse/che-theia:next',
             memoryLimit: '512M',
             mountSources: true,
@@ -71,7 +84,20 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
             ],
             cpuLimit: '500m',
             cpuRequest: '30m',
-            env: [],
+            env: [
+              {
+                name: 'CHE_DASHBOARD_URL',
+                value: 'http://localhost',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_URL',
+                value: 'plugin-registry-url',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
+                value: 'plugin-registry-internal-url',
+              },
+            ],
             image: 'quay.io/eclipse/che-machine-exec:next',
             memoryLimit: '128Mi',
             memoryRequest: '32Mi',
@@ -87,7 +113,20 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
           container: {
             cpuLimit: '500m',
             cpuRequest: '30m',
-            env: [],
+            env: [
+              {
+                name: 'CHE_DASHBOARD_URL',
+                value: 'http://localhost',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_URL',
+                value: 'plugin-registry-url',
+              },
+              {
+                name: 'CHE_PLUGIN_REGISTRY_INTERNAL_URL',
+                value: 'plugin-registry-internal-url',
+              },
+            ],
             image: 'quay.io/eclipse/che-theia-endpoint-runtime-binary:next',
             memoryLimit: '128Mi',
             memoryRequest: '32Mi',

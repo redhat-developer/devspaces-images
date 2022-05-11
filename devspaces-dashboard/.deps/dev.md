@@ -488,7 +488,7 @@
 | [`eslint-plugin-react-hooks@4.3.0`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`eslint-plugin-react@7.29.4`](https://github.com/yannickcr/eslint-plugin-react) | MIT | clearlydefined |
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
-| [`eslint-utils@2.1.0`](git+https://github.com/mysticatea/eslint-utils.git) | MIT | clearlydefined |
+| [`eslint-utils@2.1.0`](git+https://github.com/mysticatea/eslint-utils.git) | MIT | #2498 |
 | [`eslint-visitor-keys@2.1.0`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | #2433 |
 | [`eslint@7.32.0`](https://github.com/eslint/eslint.git) | MIT | clearlydefined |
 | [`espree@7.3.1`](https://github.com/eslint/espree.git) | BSD-2-Clause | #903 |
@@ -498,7 +498,7 @@
 | [`eventemitter3@4.0.7`](git://github.com/primus/eventemitter3.git) | MIT | clearlydefined |
 | [`events@3.3.0`](git://github.com/Gozala/events.git) | MIT | clearlydefined |
 | [`evp_bytestokey@1.0.3`](https://github.com/crypto-browserify/EVP_BytesToKey.git) | MIT | clearlydefined |
-| [`exec-sh@0.3.6`](git@github.com:tsertkov/exec-sh.git) | MIT | clearlydefined |
+| [`exec-sh@0.3.6`](git@github.com:tsertkov/exec-sh.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/exec-sh/0.3.6) |
 | [`execa@1.0.0`](https://github.com/sindresorhus/execa.git) | MIT | clearlydefined |
 | [`execall@2.0.0`](https://github.com/sindresorhus/execall.git) | MIT | clearlydefined |
 | [`exit@0.1.2`](git://github.com/cowboy/node-exit.git) | MIT | clearlydefined |
