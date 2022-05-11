@@ -10,7 +10,7 @@ forceBuild=0
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
 
-idePackagingUrl=https://download-cdn.jetbrains.com/idea/ideaIC-2020.3.4.tar.gz
+idePackagingUrl=https://download-cdn.jetbrains.com/idea/ideaIC-2022.1.tar.gz
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
