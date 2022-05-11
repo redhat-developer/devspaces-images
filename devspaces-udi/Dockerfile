@@ -202,21 +202,21 @@ RUN \
     # e2fsprogs (x64 only) (Tech Preview)
     ########################################################################
     if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        TEMP_DIR="$(mktemp -d)" \
-        cd "${TEMP_DIR}" \
-        mv /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz . \
-        tar -zxvf e2fsprogs-${E2FSPROGS_VERSION}.tar.gz \
-        cd "e2fsprogs-${E2FSPROGS_VERSION}" \
-        mkdir build \
-        cd build \
-        ../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs --disable-evms \
-        make \
-        make install \
-        make install-libs \
-        cd -- \
-        rm -rf "${TEMP_DIR}" \
+        TEMP_DIR="$(mktemp -d)" && \
+        cd "${TEMP_DIR}" && \
+        mv /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz . && \
+        tar -zxvf e2fsprogs-${E2FSPROGS_VERSION}.tar.gz && \
+        cd "e2fsprogs-${E2FSPROGS_VERSION}" && \
+        mkdir build && \
+        cd build && \
+        ../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs && \
+        make && \
+        make install && \
+        make install-libs && \
+        cd -- && \
+        rm -rf "${TEMP_DIR}"; \
     else \
-        rm /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz \
+        rm /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz; \
     fi
     ########################################################################
     # Cleanup and Summaries
