@@ -60,15 +60,6 @@ else
   echo "Java environment set to ${JAVA11_HOME}"
 fi
 
-#############################################################################
-# Setup golang lang server dependencies
-#############################################################################
-if [ ! -d "/projects/.che/gopath/src" ]; then
-  echo "Copy golang language server dependencies to /projects/.che/gopath"
-  mkdir -p /projects/.che/gopath
-  cp -R /tmp/go/* /projects/.che/gopath/
-fi
-
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
 fi

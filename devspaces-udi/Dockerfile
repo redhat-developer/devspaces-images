@@ -173,9 +173,8 @@ RUN \
     # Golang (Tech Preview)
     ########################################################################
     dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
-    mkdir -p /projects/.che/gopath /.cache && \
-    mkdir -p ${HOME}/go && \
-    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
+    mkdir -p /projects/.che/gopath /.cache ${HOME}/go && \
+    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz --strip-components=1 -C /projects/.che/gopath/ && \
     for f in "/home/user" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
@@ -224,7 +223,7 @@ RUN \
     dnf -y -q update && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
-    rm -fr /tmp/assets/ /tmp/go && \
+    rm -fr /tmp/assets/ && \
     chmod 755 /usr/local/bin/* && \
     chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
