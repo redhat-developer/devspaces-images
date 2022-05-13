@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.6-751
+FROM registry.access.redhat.com/ubi8/ubi8-minimal:8.6-751
 
 USER root
 
@@ -176,6 +176,9 @@ RUN \
     mkdir -p /projects/.che/gopath /.cache && \
     mkdir -p ${HOME}/go && \
     tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
+    echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" \
+    > ${HOME}/gopath.sh && \
+    chmod +x ${HOME}/gopath.sh
     for f in "/home/user" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
