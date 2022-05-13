@@ -175,10 +175,8 @@ RUN \
     dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
     mkdir -p /projects/.che/gopath /.cache && \
     mkdir -p ${HOME}/go && \
-    echo -e "if [ ! -d "/projects/.che/gopath/src" ]; then\necho "Copying GO LS Deps"\nmkdir -p /projects/.che/gopath\n cp -R /tmp/go/* /projects/.che/gopath\nfi" > ${HOME}/gopath.sh && \
-    chmod +x ${HOME}/gopath.sh && \
     tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz -C /tmp && \
-    for f in "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
+    for f in "/home/user" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
         chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done 
