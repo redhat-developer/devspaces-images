@@ -60,6 +60,9 @@ else
   echo "Java environment set to ${JAVA11_HOME}"
 fi
 
+# set up golang path env
+${HOME}/gopath.sh
+
 if [[ ! -z "${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}" ]]; then
   ${PLUGIN_REMOTE_ENDPOINT_EXECUTABLE}
 fi
