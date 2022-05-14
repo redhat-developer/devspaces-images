@@ -976,9 +976,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:3fcf5b8f269c76023fb06540ff168a9e7dfc10cf22935db9a6698b40de52cc51
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:f36cb8f72abd4e00cf0df9f9715c30aadab6dde560afa2416c8138885ac53eaf
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:05199454bf8b23132aa53ef81e7695461313625fa225a8fe974c1e0f3eff35dd
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDACQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:f36cb8f72abd4e00cf0df9f9715c30aadab6dde560afa2416c8138885ac53eaf
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:05199454bf8b23132aa53ef81e7695461313625fa225a8fe974c1e0f3eff35dd
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1000,9 +1000,9 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:d5c2be8d4cdc05a69fb9ba583e01425a7359ac4f7db845aec77923dd426d8c13
+                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:e2c094e2bc527ac355a03032995adcb25a6b81836002135078b5eb804e469746
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:ec1d23e51e5ae538b915fb9aee0ecd44a4b67ec501ac779964d9b2c7a7d0c5bd
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:5eac00c3da2cd5542ba655fa93e99a92a90719bf96556bb0e199eb53803fd6ca
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1307,9 +1307,9 @@ spec:
   - name: devspaces_theia_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:3fcf5b8f269c76023fb06540ff168a9e7dfc10cf22935db9a6698b40de52cc51
   - name: devspaces_udi_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:f36cb8f72abd4e00cf0df9f9715c30aadab6dde560afa2416c8138885ac53eaf
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:05199454bf8b23132aa53ef81e7695461313625fa225a8fe974c1e0f3eff35dd
   - name: devspaces_udi_plugin_registry_image_gmxdacq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:f36cb8f72abd4e00cf0df9f9715c30aadab6dde560afa2416c8138885ac53eaf
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:05199454bf8b23132aa53ef81e7695461313625fa225a8fe974c1e0f3eff35dd
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
@@ -1331,6 +1331,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:d5c2be8d4cdc05a69fb9ba583e01425a7359ac4f7db845aec77923dd426d8c13
+    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:e2c094e2bc527ac355a03032995adcb25a6b81836002135078b5eb804e469746
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:ec1d23e51e5ae538b915fb9aee0ecd44a4b67ec501ac779964d9b2c7a7d0c5bd
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:5eac00c3da2cd5542ba655fa93e99a92a90719bf96556bb0e199eb53803fd6ca
