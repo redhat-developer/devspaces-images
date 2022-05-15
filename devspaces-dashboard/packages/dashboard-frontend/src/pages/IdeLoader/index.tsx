@@ -307,7 +307,11 @@ class IdeLoader extends React.PureComponent<Props, State> {
             </Alert>
           </AlertGroup>
         )}
-        <Header title={`Starting workspace ${workspaceName}`} status={status} />
+        <Header
+          title={`Starting workspace ${workspaceName}`}
+          status={status}
+          hideBreadcrumbs={true}
+        />
         <PageSection variant={SECTION_THEME} className="ide-loader-page" isFilled={true}>
           <Tabs
             activeKey={this.state.activeTabKey}

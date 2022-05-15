@@ -12,10 +12,14 @@
 
 import React from 'react';
 import {
+  Breadcrumb,
+  BreadcrumbItem,
   Flex,
   FlexItem,
   PageSection,
   PageSectionVariants,
+  Stack,
+  StackItem,
   Text,
   TextContent,
   TextVariants,
@@ -26,30 +30,44 @@ import {
   DevWorkspaceStatus,
   WorkspaceStatus,
 } from '../../services/helpers/types';
+import styles from '../../pages/WorkspaceDetails/Header/index.module.css';
 
 const SECTION_THEME = PageSectionVariants.light;
 
 type Props = {
+  hideBreadcrumbs?: boolean;
   status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
   title: string;
 };
 
 class Header extends React.PureComponent<Props> {
   public render(): React.ReactElement {
-    const { title, status } = this.props;
+    const { title, status, hideBreadcrumbs } = this.props;
 
     return (
       <PageSection variant={SECTION_THEME}>
-        <Flex>
-          <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
-            <TextContent>
-              <Text component={TextVariants.h1}>{title}</Text>
-            </TextContent>
-          </FlexItem>
-          <FlexItem>
-            <WorkspaceStatusLabel status={status} />
-          </FlexItem>
-        </Flex>
+        <Stack hasGutter={true}>
+          {!hideBreadcrumbs && (
+            <StackItem>
+              <Breadcrumb className={styles.breadcrumb}>
+                <BreadcrumbItem to={'/dashboard/'}>Workspaces</BreadcrumbItem>
+                <BreadcrumbItem isActive>{title}</BreadcrumbItem>
+              </Breadcrumb>
+            </StackItem>
+          )}
+          <StackItem>
+            <Flex>
+              <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>
+                <TextContent>
+                  <Text component={TextVariants.h1}>{title}</Text>
+                </TextContent>
+              </FlexItem>
+              <FlexItem>
+                <WorkspaceStatusLabel status={status} />
+              </FlexItem>
+            </Flex>
+          </StackItem>
+        </Stack>
       </PageSection>
     );
   }
