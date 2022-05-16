@@ -177,33 +177,6 @@ exports[`UserAccount page should correctly render the component which contains p
             
           </div>
         </div>
-        <div
-          className="pf-c-form__group pf-m-action"
-        >
-          <div
-            className="pf-c-form__group-control"
-          >
-            <div
-              className="pf-c-form__actions"
-            >
-              <button
-                aria-disabled={true}
-                aria-label="edit account info"
-                className="pf-c-button pf-m-primary pf-m-disabled"
-                data-ouia-component-id="OUIA-Generated-Button-primary-4"
-                data-ouia-component-type="PF4/Button"
-                data-ouia-safe={true}
-                disabled={true}
-                onClick={[Function]}
-                role={null}
-                tabIndex={null}
-                type="button"
-              >
-                Edit
-              </button>
-            </div>
-          </div>
-        </div>
       </form>
     </div>
   </div>
@@ -384,33 +357,6 @@ exports[`UserAccount page should correctly render the component without profile 
               value=""
             />
             
-          </div>
-        </div>
-        <div
-          className="pf-c-form__group pf-m-action"
-        >
-          <div
-            className="pf-c-form__group-control"
-          >
-            <div
-              className="pf-c-form__actions"
-            >
-              <button
-                aria-disabled={true}
-                aria-label="edit account info"
-                className="pf-c-button pf-m-primary pf-m-disabled"
-                data-ouia-component-id="OUIA-Generated-Button-primary-2"
-                data-ouia-component-type="PF4/Button"
-                data-ouia-safe={true}
-                disabled={true}
-                onClick={[Function]}
-                role={null}
-                tabIndex={null}
-                type="button"
-              >
-                Edit
-              </button>
-            </div>
           </div>
         </div>
       </form>

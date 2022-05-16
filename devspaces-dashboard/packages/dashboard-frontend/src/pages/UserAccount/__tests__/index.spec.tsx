@@ -12,7 +12,6 @@
 
 import { createHashHistory } from 'history';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
 import { Store } from 'redux';
@@ -49,12 +48,6 @@ describe('UserAccount page', () => {
       } as BrandingData)
       .build();
     const component = getComponent(store);
-    render(component);
-
-    const editAccountButton = screen.queryByLabelText('edit account info');
-    expect(editAccountButton).toBeTruthy();
-    expect(editAccountButton).toBeDisabled();
-
     const json = renderer.create(component).toJSON();
 
     expect(json).toMatchSnapshot();
@@ -76,11 +69,6 @@ describe('UserAccount page', () => {
       })
       .build();
     const component = getComponent(store);
-    render(component);
-
-    const editAccountButton = screen.getByLabelText('edit account info');
-    expect(editAccountButton).toBeDisabled();
-
     const json = renderer.create(component).toJSON();
 
     expect(json).toMatchSnapshot();

@@ -19,7 +19,6 @@ import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { WorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
-import { KeycloakAuthService } from '../../../services/keycloak/auth';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { DisposableCollection } from '../../../services/helpers/disposable';
@@ -27,7 +26,6 @@ import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import { selectDevworkspacesEnabled } from '../Settings/selectors';
 
 const cheWorkspaceClient = container.get(CheWorkspaceClient);
-const keycloakAuthService = container.get(KeycloakAuthService);
 
 export interface State {
   isLoading: boolean;
@@ -282,7 +280,6 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
       try {
-        await keycloakAuthService.forceUpdateToken();
         const update = await cheWorkspaceClient.restApiClient.start<che.Workspace>(
           workspace.id,
           params,

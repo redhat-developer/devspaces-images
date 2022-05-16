@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { inject, injectable } from 'inversify';
+import { injectable } from 'inversify';
 import {
   default as WorkspaceClientLib,
   IWorkspaceMasterApi,
@@ -18,12 +18,8 @@ import {
 } from '@eclipse-che/workspace-client';
 import { EventEmitter } from 'events';
 import { WorkspaceClient } from '../index';
-import { KeycloakSetupService } from '../../keycloak/setup';
-import { KeycloakAuthService } from '../../keycloak/auth';
 
 export type WebSocketsFailedCallback = () => void;
-
-const VALIDITY_TIME = 5;
 
 /**
  * This class manages the api connection.
@@ -37,13 +33,12 @@ export class CheWorkspaceClient extends WorkspaceClient {
   private _failingWebSockets: string[];
   private webSocketEventEmitter: EventEmitter;
   private webSocketEventName = 'websocketChanged';
-  private defaultNamespace: string;
 
   /**
    * Default constructor that is using resource.
    */
-  constructor(@inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService) {
-    super(keycloakSetupService);
+  constructor() {
+    super();
     this.baseUrl = '/api';
     this._failingWebSockets = [];
     this.webSocketEventEmitter = new EventEmitter();
@@ -78,13 +73,9 @@ export class CheWorkspaceClient extends WorkspaceClient {
 
   async updateJsonRpcMasterApi(): Promise<void> {
     const jsonRpcApiLocation = this.originLocation.replace('http', 'ws');
-    const tokenRefresher = () => {
-      if (!KeycloakAuthService.sso) {
-        return Promise.resolve('');
-      }
-      return this.refreshToken(VALIDITY_TIME);
-    };
-    this._jsonRpcMasterApi = WorkspaceClientLib.getJsonRpcApi(jsonRpcApiLocation, tokenRefresher);
+    this._jsonRpcMasterApi = WorkspaceClientLib.getJsonRpcApi(jsonRpcApiLocation, () =>
+      Promise.resolve(''),
+    );
     this._jsonRpcMasterApi.onDidWebSocketStatusChange((websockets: string[]) => {
       this._failingWebSockets = [];
       for (const websocket of websockets) {

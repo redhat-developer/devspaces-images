@@ -26,7 +26,7 @@ enum CHANNELS {
   ERROR,
 }
 
-export class KubeConfigAPI implements IKubeConfigApi {
+export class KubeConfigApi implements IKubeConfigApi {
   private readonly corev1API: k8s.CoreV1Api;
   private readonly kubeConfig: string;
   private readonly getServerConfig: () => { opts: { [key: string]: any }; server: string };

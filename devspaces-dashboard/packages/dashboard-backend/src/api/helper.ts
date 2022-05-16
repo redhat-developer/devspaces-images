@@ -36,13 +36,19 @@ export function getToken(request: FastifyRequest): string {
   return authorization.replace(AUTHORIZATION_BEARER_PREFIX, '').trim();
 }
 
-export function getServiceAccountToken(): string {
+export async function getServiceAccountToken(request: FastifyRequest): Promise<string> {
   if (isLocalRun) {
     return process.env.SERVICE_ACCOUNT_TOKEN as string;
   }
+  await checkUserAuthorization(request);
   if (!existsSync(SERVICE_ACCOUNT_TOKEN_PATH)) {
     console.error('SERVICE_ACCOUNT_TOKEN is required');
     process.exit(1);
   }
   return readFileSync(SERVICE_ACCOUNT_TOKEN_PATH).toString();
+}
+
+export async function checkUserAuthorization(request: FastifyRequest): Promise<void> {
+  // TODO: add user authorization check
+  return Promise.resolve();
 }

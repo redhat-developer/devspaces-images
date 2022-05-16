@@ -13,13 +13,14 @@
 import { FastifyInstance } from 'fastify';
 import fastifySwagger from 'fastify-swagger';
 
-const routePrefix = 'dashboard/api/swagger';
+const ROUTE_PREFIX = 'dashboard/api/swagger';
 
 export function registerSwagger(server: FastifyInstance): void {
-  console.log(`Che Dashboard swagger is running on "${routePrefix}".`);
+  console.log(`Che Dashboard swagger is running on "${ROUTE_PREFIX}".`);
 
   server.register(fastifySwagger, {
-    routePrefix,
+    routePrefix: ROUTE_PREFIX,
+    mode: 'dynamic',
     openapi: {
       info: {
         title: 'Che Dashboard Backend Swagger',
@@ -27,6 +28,15 @@ export function registerSwagger(server: FastifyInstance): void {
         version: '0.1.0',
       },
       'x-express-openapi-validation-strict': false,
+      components: {
+        securitySchemes: {
+          Authorization: {
+            type: 'apiKey',
+            name: 'Authorization',
+            in: 'header',
+          },
+        },
+      },
     },
     uiConfig: {
       tryItOutEnabled: true,
@@ -34,7 +44,7 @@ export function registerSwagger(server: FastifyInstance): void {
     },
     hideUntagged: true,
     exposeRoute: true,
-    transform: (schema: any) => {
+    transform: (schema?: { headers?: { properties?: { authorization?: string } } }) => {
       if (schema?.headers?.properties?.authorization) {
         delete schema?.headers?.properties?.authorization;
       }

@@ -150,7 +150,7 @@
 | [`@sinonjs/fake-timers@6.0.1`](http://github.com/sinonjs/fake-timers.git) | BSD-3-Clause | #1348 |
 | [`@stylelint/postcss-css-in-js@0.37.2`](https://github.com/stylelint/postcss-css-in-js.git) | MIT | clearlydefined |
 | [`@stylelint/postcss-markdown@0.36.2`](https://github.com/stylelint/postcss-markdown.git) | MIT | clearlydefined |
-| [`@testing-library/dom@7.31.2`](https://github.com/testing-library/dom-testing-library) | MIT | clearlydefined |
+| `@testing-library/dom@7.31.0` |  | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.0) |
 | [`@testing-library/jest-dom@5.16.2`](https://github.com/testing-library/jest-dom) | MIT | clearlydefined |
 | [`@testing-library/react@10.4.9`](https://github.com/testing-library/react-testing-library) | MIT | clearlydefined |
 | [`@testing-library/user-event@12.8.3`](https://github.com/testing-library/user-event) | MIT | clearlydefined |
@@ -303,7 +303,7 @@
 | [`babel-preset-current-node-syntax@1.0.1`](https://github.com/nicolo-ribaudo/babel-preset-current-node-syntax.git) | MIT | clearlydefined |
 | [`babel-preset-jest@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`bail@1.0.5`](https://github.com/wooorm/bail.git) | MIT | clearlydefined |
-| [`base64-js@1.3.1`](git://github.com/beatgammit/base64-js.git) | MIT | clearlydefined |
+| [`base64-js@1.5.1`](git://github.com/beatgammit/base64-js.git) | MIT | clearlydefined |
 | [`base@0.11.2`](https://github.com/node-base/base.git) | MIT | clearlydefined |
 | [`batch@0.6.1`](https://github.com/visionmedia/batch.git) | MIT | clearlydefined |
 | [`before-after-hook@2.2.2`](https://github.com/gr2m/before-after-hook.git) | Apache-2.0 | clearlydefined |
@@ -698,7 +698,6 @@
 | [`jest-watcher@26.6.2`](https://github.com/facebook/jest) | MIT | clearlydefined |
 | [`jest-worker@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`jest@26.6.3`](https://github.com/facebook/jest) | MIT | clearlydefined |
-| [`js-sha256@0.9.0`](https://github.com/emn178/js-sha256.git) | MIT | clearlydefined |
 | [`js-yaml@3.14.1`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsdom@16.7.0`](https://github.com/jsdom/jsdom.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsdom/16.7.0) |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
@@ -708,7 +707,6 @@
 | [`json5@2.2.0`](git+https://github.com/json5/json5.git) | MIT | #2126 |
 | [`jsonparse@1.3.1`](http://github.com/creationix/jsonparse.git) | MIT | clearlydefined |
 | [`jsx-ast-utils@3.2.1`](https://github.com/jsx-eslint/jsx-ast-utils) | MIT | clearlydefined |
-| [`keycloak-js@10.0.2`](https://github.com/keycloak/keycloak) | Apache-2.0 | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/keycloak-js/10.0.2) |
 | [`killable@1.0.1`](https://github.com/marten-de-vries/killable.git) | ISC | clearlydefined |
 | [`kind-of@6.0.3`](https://github.com/jonschlinkert/kind-of.git) | MIT | clearlydefined |
 | [`kleur@3.0.3`](https://github.com/lukeed/kleur.git) | MIT | clearlydefined |
@@ -1120,7 +1118,7 @@
 | [`utils-merge@1.0.1`](git://github.com/jaredhanson/utils-merge.git) | MIT | clearlydefined |
 | [`v8-compile-cache@2.3.0`](https://github.com/zertosh/v8-compile-cache.git) | MIT | clearlydefined |
 | [`v8-to-istanbul@7.1.2`](https://github.com/istanbuljs/v8-to-istanbul.git) | ISC | clearlydefined |
-| [`validate-npm-package-license@3.0.4`](https://github.com/kemitchell/validate-npm-package-license.js.git) | Apache-2.0 | clearlydefined |
+| [`validate-npm-package-license@3.0.4`](https://github.com/kemitchell/validate-npm-package-license.js.git) | Apache-2.0 | #2562 |
 | [`validate-npm-package-name@3.0.0`](https://github.com/npm/validate-npm-package-name) | ISC | clearlydefined |
 | [`vfile-location@2.0.6`](https://github.com/vfile/vfile-location.git) | MIT | clearlydefined |
 | [`vfile-message@2.0.4`](https://github.com/vfile/vfile-message.git) | MIT | clearlydefined |
