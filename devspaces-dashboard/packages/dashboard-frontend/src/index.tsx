@@ -20,21 +20,12 @@ import 'monaco-editor-core/esm/vs/base/browser/ui/codiconLabel/codicon/codicon.c
 import configureStore from './store/configureStore';
 import App from './App';
 import PreloadData from './services/bootstrap';
-import { container } from './inversify.config';
-import { KeycloakSetupService } from './services/keycloak/setup';
 
 import './overrides.styl';
 
 startApp();
 
 async function startApp(): Promise<void> {
-  const keycloakSetupService = container.get(KeycloakSetupService);
-  try {
-    await keycloakSetupService.start();
-  } catch (error) {
-    console.error('Keycloak initialization failed. ', error);
-  }
-
   const history = createHashHistory();
   const store = configureStore(history);
 

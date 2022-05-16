@@ -22,7 +22,7 @@ import { getDevWorkspaceClient, getToken } from './helper';
 import { restParams } from '../typings/models';
 import { getSchema } from '../services/helpers';
 
-const tags = ['devworkspace'];
+const tags = ['Devworkspace'];
 
 export function registerDevworkspaceApi(server: FastifyInstance) {
   server.post(

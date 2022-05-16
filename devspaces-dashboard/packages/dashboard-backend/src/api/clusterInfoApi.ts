@@ -21,9 +21,9 @@ import {
 } from '../devworkspace-client/services/cluster-info';
 import { getSchema } from '../services/helpers';
 
-const tags = ['clusterInfo'];
+const tags = ['Cluster Info'];
 
-export function registerClusterInfo(server: FastifyInstance) {
+export function registerClusterInfoApi(server: FastifyInstance) {
   server.get(`${baseApiPath}/cluster-info`, getSchema({ tags }), async () =>
     buildApplicationInfo(),
   );

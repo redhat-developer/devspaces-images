@@ -128,7 +128,6 @@
     "hard-source-webpack-plugin": "^0.13.1",
     "html-webpack-plugin": "^4.3.0",
     "jest": "^26.0.1",
-    "keycloak-js": "^10.0.2",
     "null-loader": "^4.0.1",
     "poststylus": "^1.0.0",
     "prettier": "^2.4.1",

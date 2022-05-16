@@ -13,7 +13,6 @@
 import { prefix } from './const';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { getDefer } from '../helpers/deferred';
-import { KeycloakAuthService } from '../keycloak/auth';
 
 export type SubscribeMessage = {
   request: string;
@@ -129,11 +128,6 @@ export class WebsocketClient {
   async subscribe(data: SubscribeMessage): Promise<void> {
     while (this.websocketStream.readyState !== this.websocketStream.OPEN) {
       await this.sleep(1000);
-    }
-
-    const token = KeycloakAuthService?.keycloak?.token;
-    if (!data.params.token && token) {
-      data.params.token = token;
     }
 
     return this.websocketStream.send(JSON.stringify(data));

@@ -17,7 +17,7 @@ import { getSchema } from '../services/helpers';
 import { restParams } from '../typings/models';
 import { namespacedKubeConfigSchema } from '../constants/schemas';
 
-const tags = ['kubeconfig'];
+const tags = ['Kube Config'];
 
 export function registerKubeConfigApi(server: FastifyInstance) {
   server.post(

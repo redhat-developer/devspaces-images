@@ -13,7 +13,6 @@
 import { Store } from 'redux';
 import common from '@eclipse-che/common';
 import { lazyInject } from '../../inversify.config';
-import { KeycloakSetupService } from '../keycloak/setup';
 import { AppState } from '../../store';
 import * as BannerAlertStore from '../../store/BannerAlert';
 import * as BrandingStore from '../../store/Branding';
@@ -47,9 +46,6 @@ import { AlertVariant } from '@patternfly/react-core';
 export default class Bootstrap {
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
-
-  @lazyInject(KeycloakSetupService)
-  private readonly keycloakSetup: KeycloakSetupService;
 
   @lazyInject(CheWorkspaceClient)
   private readonly cheWorkspaceClient: CheWorkspaceClient;

@@ -22,12 +22,11 @@ import { registerCors } from './cors';
 import { registerSwagger } from './swagger';
 import { helpers } from '@eclipse-che/common';
 import { isLocalRun } from './local-run';
-import { registerClusterInfo } from './api/clusterInfo';
-import { registerClusterConfig } from './api/clusterConfig';
+import { registerClusterInfoApi } from './api/clusterInfoApi';
+import { registerClusterConfigApi } from './api/clusterConfigApi';
 import { registerDockerConfigApi } from './api/dockerConfigApi';
 import { registerServerConfigApi } from './api/serverConfigApi';
-import { registerKubeConfigApi } from './api/kubeConfigAPI';
-import { authorizeInfo } from './api/authorizeInfo';
+import { registerKubeConfigApi } from './api/kubeConfigApi';
 import fastifyWebsocket from 'fastify-websocket';
 import {
   addDexProxy,
@@ -80,19 +79,18 @@ if (isLocalRun) {
   registerLocalServers(server, CHE_HOST_ORIGIN);
 }
 
+registerCors(isLocalRun, server);
+
 registerStaticServer(publicFolder, server);
 
 registerFactory(server);
 
+registerDevworkspaceWebsocketWatcher(server);
+
+// swagger and API
 registerSwagger(server);
 
-if (isLocalRun) {
-  authorizeInfo(server);
-}
-
 registerDevworkspaceApi(server);
-
-registerDevworkspaceWebsocketWatcher(server);
 
 registerTemplateApi(server);
 
@@ -102,11 +100,9 @@ registerServerConfigApi(server);
 
 registerKubeConfigApi(server);
 
-registerClusterInfo(server);
+registerClusterInfoApi(server);
 
-registerClusterConfig(server);
-
-registerCors(isLocalRun, server);
+registerClusterConfigApi(server);
 
 server.listen(8080, '0.0.0.0', (err: Error | null, address: string) => {
   if (err) {

@@ -17,7 +17,7 @@ import { getDevWorkspaceClient, getToken } from './helper';
 import { restParams } from '../typings/models';
 import { getSchema } from '../services/helpers';
 
-const tags = ['dockerconfig'];
+const tags = ['Docker Config'];
 
 export function registerDockerConfigApi(server: FastifyInstance) {
   server.put(

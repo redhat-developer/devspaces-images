@@ -13,8 +13,6 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 import getDecorators from 'inversify-inject-decorators';
-import { KeycloakSetupService } from './services/keycloak/setup';
-import { KeycloakAuthService } from './services/keycloak/auth';
 import { Debounce } from './services/helpers/debounce';
 import { CheWorkspaceClient } from './services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppAlerts } from './services/alerts/appAlerts';
@@ -31,8 +29,6 @@ const container = new Container();
 const { lazyInject } = getDecorators(container);
 
 container.bind(IssuesReporterService).toSelf().inSingletonScope();
-container.bind(KeycloakSetupService).toSelf().inSingletonScope();
-container.bind(KeycloakAuthService).toSelf().inSingletonScope();
 container.bind(Debounce).toSelf();
 container.bind(CheWorkspaceClient).toSelf().inSingletonScope();
 container.bind(DevWorkspaceClient).toSelf().inSingletonScope();

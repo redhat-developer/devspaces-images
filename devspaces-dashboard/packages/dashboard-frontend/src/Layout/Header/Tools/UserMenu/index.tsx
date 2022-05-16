@@ -25,7 +25,6 @@ import { ROUTE } from '../../../../route.enum';
 import { lazyInject } from '../../../../inversify.config';
 import { AppAlerts } from '../../../../services/alerts/appAlerts';
 import { AlertItem } from '../../../../services/helpers/types';
-import { KeycloakAuthService } from '../../../../services/keycloak/auth';
 import * as InfrastructureNamespacesStore from '../../../../store/InfrastructureNamespaces';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
@@ -105,19 +104,7 @@ export class UserMenu extends React.PureComponent<Props, State> {
   }
 
   private getLoginCommand(): string {
-    const { keycloak, sso } = KeycloakAuthService;
-    let loginCommand = this.getCliTool() + ` auth:login ${this.getHost()}`;
-    if (!sso) {
-      return loginCommand;
-    }
-    if (!keycloak) {
-      throw new Error('Keycloak instance is undefined.');
-    }
-    if (!keycloak.refreshToken) {
-      throw new Error('Refresh token is empty.');
-    }
-    loginCommand += ` -t ${keycloak.refreshToken}`;
-    return loginCommand;
+    return this.getCliTool() + ` auth:login ${this.getHost()}`;
   }
 
   /**

@@ -33,8 +33,6 @@ import {
   selectWorkspacesSettings,
 } from '../../store/Workspaces/Settings/selectors';
 import { buildIdeLoaderLocation } from '../../services/helpers/location';
-import { lazyInject } from '../../inversify.config';
-import { KeycloakAuthService } from '../../services/keycloak/auth';
 import { getEnvironment, isDevEnvironment } from '../../services/helpers/environment';
 import { isOAuthResponse } from '../../store/FactoryResolver';
 import { Devfile, isCheDevfile, isCheWorkspace, Workspace } from '../../services/workspace-adapter';
@@ -101,9 +99,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
   private overrideDevfileObject: {
     [params: string]: string;
   } = {};
-
-  @lazyInject(KeycloakAuthService)
-  private readonly keycloakAuthService: KeycloakAuthService;
 
   constructor(props: Props) {
     super(props);
@@ -438,9 +433,6 @@ export class FactoryLoaderContainer extends React.PureComponent<Props, State> {
       redirectUrl.searchParams.set('url', location);
 
       const oauthUrlTmp = new window.URL(oauthUrl);
-      if (KeycloakAuthService.keycloak) {
-        oauthUrlTmp.searchParams.set('token', KeycloakAuthService.keycloak.token as string);
-      }
       const fullOauthUrl =
         oauthUrlTmp.toString() + '&redirect_after_login=' + redirectUrl.toString();
       window.location.href = fullOauthUrl;

@@ -22,7 +22,6 @@ import {
   devWorkspaceVersion,
 } from './converters';
 import { AlertItem, DevWorkspaceStatus, isDevWorkspaceStatus } from '../../helpers/types';
-import { KeycloakSetupService } from '../../keycloak/setup';
 import { delay } from '../../helpers/delay';
 import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
 import * as DwtApi from '../../dashboard-backend-client/devWorkspaceTemplateApi';
@@ -156,13 +155,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler;
 
   constructor(
-    @inject(KeycloakSetupService) keycloakSetupService: KeycloakSetupService,
     @inject(AppAlerts) appAlerts: AppAlerts,
     @inject(DevWorkspaceDefaultPluginsHandler)
     defaultPluginsHandler: DevWorkspaceDefaultPluginsHandler,
     @multiInject(IDevWorkspaceEditorProcess) private editorProcesses: IDevWorkspaceEditorProcess[],
   ) {
-    super(keycloakSetupService);
+    super();
     this.previousItems = new Map();
     this.maxStatusAttempts = 10;
     this.pluginRegistryUrlEnvName = 'CHE_PLUGIN_REGISTRY_URL';

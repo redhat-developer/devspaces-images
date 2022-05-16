@@ -22,7 +22,6 @@ import PreloadIssuesAlert from './PreloadIssuesAlert';
 import { ThemeVariant } from './themeVariant';
 import { AppState } from '../store';
 import { lazyInject } from '../inversify.config';
-import { KeycloakAuthService } from '../services/keycloak/auth';
 import { IssuesReporterService } from '../services/bootstrap/issuesReporter';
 import { ErrorReporter } from './ErrorReporter';
 import { IssueComponent } from './ErrorReporter/Issue';
@@ -50,9 +49,6 @@ export class Layout extends React.PureComponent<Props, State> {
   @lazyInject(IssuesReporterService)
   private readonly issuesReporterService: IssuesReporterService;
 
-  @lazyInject(KeycloakAuthService)
-  private readonly keycloakAuthService: KeycloakAuthService;
-
   private readonly toDispose = new DisposableCollection();
 
   constructor(props: Props) {
@@ -69,12 +65,8 @@ export class Layout extends React.PureComponent<Props, State> {
   }
 
   private logout(): void {
-    if (KeycloakAuthService.sso) {
-      this.keycloakAuthService.logout();
-    } else {
-      // assume that Che deployed with `nativeUserMode` enabled
-      window.location.href = '/oauth/sign_out';
-    }
+    // assume that Che deployed with `nativeUserMode` enabled
+    window.location.href = '/oauth/sign_out';
   }
 
   private toggleNav(): void {

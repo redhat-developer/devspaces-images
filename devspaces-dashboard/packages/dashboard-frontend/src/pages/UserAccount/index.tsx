@@ -11,17 +11,14 @@
  */
 
 import {
-  Button,
   Title,
   PageSection,
   Text,
   TextInput,
   Form,
   FormGroup,
-  ActionGroup,
   StackItem,
   Stack,
-  ButtonVariant,
   PageSectionVariants,
   TextVariants,
 } from '@patternfly/react-core';
@@ -29,8 +26,6 @@ import { History } from 'history';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import Head from '../../components/Head';
-import { lazyInject } from '../../inversify.config';
-import { KeycloakAuthService } from '../../services/keycloak/auth';
 import { AppState } from '../../store';
 import { selectBranding } from '../../store/Branding/selectors';
 import { selectUserProfile } from '../../store/UserProfile/selectors';
@@ -40,7 +35,6 @@ type Props = {
 } & MappedProps;
 
 type State = {
-  profileUrl: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -48,9 +42,6 @@ type State = {
 };
 
 export class UserAccount extends React.PureComponent<Props, State> {
-  @lazyInject(KeycloakAuthService)
-  private readonly keycloakAuth: KeycloakAuthService;
-
   constructor(props: Props) {
     super(props);
 
@@ -61,21 +52,13 @@ export class UserAccount extends React.PureComponent<Props, State> {
       userProfile && userProfile.attributes ? userProfile.attributes.preferred_username : '';
     const firstName = userProfile && userProfile.attributes ? userProfile.attributes.firstName : '';
     const lastName = userProfile && userProfile.attributes ? userProfile.attributes.lastName : '';
-    const profileUrl = KeycloakAuthService.sso ? this.keycloakAuth.getProfileUrl() : '';
 
-    this.state = { login, email, lastName, firstName, profileUrl };
-  }
-
-  private onEdit(): void {
-    const { profileUrl } = this.state;
-    if (profileUrl) {
-      window.location.href = profileUrl;
-    }
+    this.state = { login, email, lastName, firstName };
   }
 
   render(): React.ReactNode {
     const productName = this.props.branding.name;
-    const { firstName, lastName, email, login, profileUrl } = this.state;
+    const { firstName, lastName, email, login } = this.state;
 
     return (
       <React.Fragment>
@@ -102,16 +85,6 @@ export class UserAccount extends React.PureComponent<Props, State> {
                 <FormGroup label="Last Name" fieldId="form-group-last-name">
                   <TextInput aria-label="readonly last name" value={lastName} isDisabled />
                 </FormGroup>
-                <ActionGroup>
-                  <Button
-                    variant={ButtonVariant.primary}
-                    onClick={() => this.onEdit()}
-                    isDisabled={!profileUrl}
-                    aria-label="edit account info"
-                  >
-                    Edit
-                  </Button>
-                </ActionGroup>
               </Form>
             </StackItem>
           </Stack>
