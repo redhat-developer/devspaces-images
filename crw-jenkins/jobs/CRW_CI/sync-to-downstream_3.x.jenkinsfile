@@ -259,8 +259,8 @@ rm -f /tmp/rsync-excludes
                   }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
                   // kick off get-sources-rhpkg-container-build_2.y job
-	          jobPath='/job/CRW_CI/job/get-sources-rhpkg-container-build_' + JOB_BRANCH
-	          final jobResult = build(
+                  jobPath='/job/CRW_CI/job/get-sources-rhpkg-container-build_' + JOB_BRANCH
+	                final jobResult = build(
                     job: jobPath.replaceAll("/job/","/"),
                     wait: true,
                     propagate: true,
@@ -331,7 +331,7 @@ rm -f /tmp/rsync-excludes
                   jobLink=jobPath + "/" +  jobResult?.number?.toString()
                   println("waiting for build(" + jobPath + ")")
                   println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
-                  currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
+                  currentBuild.description+=" <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered; " 
                 } else {
                   println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
                   currentBuild.description+=" no changes; "
@@ -402,10 +402,10 @@ node(nodeLabelAnyArch){
           )
           println("triggered build(" + jobPath + ") [no wait]")
           println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-          currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+          currentBuild.description+=" <a href=${jobPath}/>" + jobPath + "</a> triggered; " 
         } else {
           println "No changes upstream, nothing to rebuild in dsc!"
-          currentBuild.description+=" no dsc build"
+          currentBuild.description+=" no dsc build; "
           currentBuild.result = 'UNSTABLE'
         }
       } else {
