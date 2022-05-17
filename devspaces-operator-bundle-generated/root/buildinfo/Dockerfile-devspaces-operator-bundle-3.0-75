@@ -44,4 +44,4 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       usage=""
 
 ADD devspaces-operator-bundle-container-3.0-75.json /root/buildinfo/content_manifests/devspaces-operator-bundle-container-3.0-75.json
-LABEL "release"="75" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-05-17T20:15:05.618434" "architecture"="ppc64le" "vcs-type"="git" "vcs-ref"="cf123680c908c956da65aad7d028ebd61582c900" "com.redhat.build-host"="ppc64le-c3-vm-17.osbs.prod.psi.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/devspaces/operator-bundle/images/3.0-75"
+LABEL "release"="75" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-05-17T20:09:03.981696" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="cf123680c908c956da65aad7d028ebd61582c900" "com.redhat.build-host"="cpt-1001.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/devspaces/operator-bundle/images/3.0-75"
