@@ -42,13 +42,22 @@ done
 
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
+PODMAN=$(command -v podman)
+if [[ ! -x $PODMAN ]]; then
+  echo "[WARNING] ${0##*/} :: podman is not installed."
+  PODMAN=$(command -v docker)
+  if [[ ! -x $PODMAN ]]; then
+    echo "[ERROR] ${0##*/} :: docker is not installed. Aborting."; exit 1
+  fi
+fi
+
 PLUGIN_REGISTRY_CONTAINERS=""
 DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # extract registry containers to get external_images.txt
     curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/product/containerExtract.sh && chmod +x containerExtract.sh
-    ./containerExtract.sh quay.io/devspaces/devfileregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before --delete-after &
-    ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before --delete-after &
+    ./containerExtract.sh quay.io/devspaces/devfileregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
+    ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
     wait
 
     # sort & uniquify
@@ -56,6 +65,7 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
 popd >/dev/null
 # cleanup
 rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${CRW_VERSION}*/
+$PODMAN rmi -f quay.io/devspaces/pluginregistry-rhel8:${CRW_VERSION} quay.io/devspaces/devfileregistry-rhel8:${CRW_VERSION} || true
 # convert strings to arrays
 DEVFILE_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
 PLUGIN_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
