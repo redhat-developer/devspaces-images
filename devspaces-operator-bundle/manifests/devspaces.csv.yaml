@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1
-    createdAt: "2022-05-09T14:45:42+00:00"
+    createdAt: "2022-05-19T14:57:17+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1000,8 +1000,12 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDACQ_
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.0
                       - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDACQ_
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.0
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
                       - name: RELATED_IMAGE_devworkspace_controller
@@ -1012,7 +1016,11 @@ spec:
                         value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
                       - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                         value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7:7.4.0
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_plugin_registry_image_G4XDILRQBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7:7.4.0
                       - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                         value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
                       - name: RELATED_IMAGE_plugin_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-pluginregistry-rhel8:3.1
@@ -1023,6 +1031,8 @@ spec:
                       - name: RELATED_IMAGE_pvc_jobs
                         value: registry.redhat.io/ubi8/ubi-minimal:8.5
                       - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                         value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                       - name: RELATED_IMAGE_single_host_gateway
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-traefik-rhel8:3.1
