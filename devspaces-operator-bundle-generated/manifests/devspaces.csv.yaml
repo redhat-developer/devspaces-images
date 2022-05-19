@@ -988,7 +988,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:333e542da5078a9e74aea1078e98ac8a7a2eb115e87b0a398b9a53747bfd3ba2
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:10bb25f6e4cd71a6e8f9a017e7a7bac1926487fe1cffadef2dc8027819eb2898
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:6a4bd8539c099e613a903de7afb2c203d9ff9228bb23ce0255d139062cb41779
                 - name: RELATED_IMAGE_postgres
@@ -1267,7 +1267,7 @@ spec:
   - java
   links:
   - name: Product Page
-    url: https://developers.redhat.com/products/devspaces/overview/
+    url: https://developers.redhat.com/products/openshift-dev-spaces/overview/
   - name: Documentation
     url: https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces
   - name: Operator GitHub Repo
@@ -1319,7 +1319,7 @@ spec:
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:333e542da5078a9e74aea1078e98ac8a7a2eb115e87b0a398b9a53747bfd3ba2
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:10bb25f6e4cd71a6e8f9a017e7a7bac1926487fe1cffadef2dc8027819eb2898
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:6a4bd8539c099e613a903de7afb2c203d9ff9228bb23ce0255d139062cb41779
   - name: postgres
