@@ -184,7 +184,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|https://github.com/eclipse-che/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
 		-e "s|https://github.com/eclipse/che-operator|https://github.com/redhat-developer/devspaces-images/|g" \
 		-e "s|url: https*://www.eclipse.org/che/docs|url: https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces|g" \
-		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/devspaces/overview/|g" \
+		-e "s|url: https*://www.eclipse.org/che|url: https://developers.redhat.com/products/openshift-dev-spaces/overview/|g" \
 		\
 		-e 's|"eclipse-che"|"devspaces"|g' \
 		-e 's|che-operator|devspaces-operator|g' \
