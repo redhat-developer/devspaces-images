@@ -45,30 +45,20 @@ if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 PLUGIN_REGISTRY_CONTAINERS=""
 DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
-    # check out devspaces sources
-    echo "    ${0##*/} :: Check out Dev Spaces registry sources from https://github.com/redhat-developer/devspaces/dependencies/"
-    rm -fr devspaces && git clone -q https://github.com/redhat-developer/devspaces devspaces
-    cd devspaces/
-    git checkout ${MIDSTM_BRANCH} || true
-    cd ..
+    # extract registry containers to get external_images.txt
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/product/containerExtract.sh && chmod +x containerExtract.sh
+    ./containerExtract.sh quay.io/devspaces/devfileregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before --delete-after &
+    ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before --delete-after &
+    wait
 
-    # collect containers referred to by devfiles
-    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-devfile-registry; ./build/scripts/list_referenced_images.sh devfiles/)"
-    # include theia/endpoint/machineexec images from the editor component (CRW-2887)
-    DEVFILE_REGISTRY_CONTAINERS="${DEVFILE_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./)"
-
-    # collect containers referred to by plugins, but only the latest CRW_VERSION ones (might have older variants we don't need to include)
-    PLUGIN_REGISTRY_CONTAINERS="${PLUGIN_REGISTRY_CONTAINERS} $(cd devspaces/dependencies/che-plugin-registry; ./build/scripts/list_referenced_images.sh ./ | grep ${CRW_VERSION})"
+    # sort & uniquify
+    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${CRW_VERSION}*/var/www/html/*/external_images.txt | sort -uV)
 popd >/dev/null
-rm -fr $tmpdir
-
-# add unique containers to array, then sort
-CONTAINERS_UNIQ=()
-for c in $DEVFILE_REGISTRY_CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
-IFS=$'\n' DEVFILE_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
-CONTAINERS_UNIQ=()
-for c in $PLUGIN_REGISTRY_CONTAINERS; do if [[ ! "${CONTAINERS_UNIQ[@]}" =~ "${c}" ]]; then CONTAINERS_UNIQ+=($c); fi; done
-IFS=$'\n' PLUGIN_REGISTRY_CONTAINERS=($(sort <<<"${CONTAINERS_UNIQ[*]}")); unset IFS
+# cleanup
+rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${CRW_VERSION}*/
+# convert strings to arrays
+DEVFILE_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
+PLUGIN_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
 
 # same method used in both insert-related-images-to-csv.sh and sync-che-olm.sh
 insertEnvVar()
