@@ -1302,7 +1302,7 @@ spec:
     - java
   links:
     - name: Product Page
-      url: https://developers.redhat.com/products/devspaces/overview/
+      url: https://developers.redhat.com/products/openshift-dev-spaces/overview/
     - name: Documentation
       url: https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces
     - name: Operator GitHub Repo
