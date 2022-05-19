@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1
-    createdAt: "2022-05-19T17:04:18+00:00"
+    createdAt: "2022-05-19T20:04:40+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -984,6 +984,10 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.1
                       - name: RELATED_IMAGE_devfile_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
