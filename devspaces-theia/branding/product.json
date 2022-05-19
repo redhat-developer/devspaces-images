@@ -12,7 +12,7 @@
     "links": {
         "website": {
             "name": "Discover Red Hat OpenShift Dev Spaces",
-            "url": "https://developers.redhat.com/products/devspaces/overview"
+            "url": "https://developers.redhat.com/products/openshift-dev-spaces/overview"
         },
         "documentation": {
             "name": "Browse Documentation",
