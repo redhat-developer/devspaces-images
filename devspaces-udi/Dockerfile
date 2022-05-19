@@ -94,13 +94,15 @@ RUN \
     ########################################################################
     # nodejs
     ########################################################################
-    # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
-    dnf -y -q module reset nodejs && \
+    # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
     dnf -y -q module enable nodejs:$NODEJS_VERSION && \
-    INSTALL_PKGS="nodejs npm nodejs-nodemon nss_wrapper" && ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-    dnf -y -q remove $INSTALL_PKGS && \
-    dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && rpm -V $INSTALL_PKGS && \
-    # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-12/5d3fff015a13461f5fb8635a?container-tabs=dockerfile
+    MODULE_DEPS="make gcc gcc-c++ libatomic_ops git openssl-devel" && \
+    INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" && \
+    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
+    ln -s /usr/libexec/platform-python /usr/bin/python3 && \
+    dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && \
+    rpm -V $INSTALL_PKGS && \
+    # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
     ########################################################################
     # Gradle
     ########################################################################
