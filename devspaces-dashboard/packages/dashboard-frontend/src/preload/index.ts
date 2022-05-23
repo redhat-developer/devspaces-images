@@ -11,7 +11,7 @@
  */
 
 (function acceptNewFactoryLink(): void {
-  if (window.location.pathname !== '/') {
+  if (window.location.pathname.startsWith('/dashboard/')) {
     return;
   }
   const hash = window.location.hash.replace(/(\/?)#(\/?)/, '#');
