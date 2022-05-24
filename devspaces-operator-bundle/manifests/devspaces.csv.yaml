@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1
-    createdAt: "2022-05-19T20:04:40+00:00"
+    createdAt: "2022-05-24T20:12:05+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1000,12 +1000,12 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.1
-                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDACQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.0
                       - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
-                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDACQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.0
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
+                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.1
                       - name: RELATED_IMAGE_devworkspace_controller
