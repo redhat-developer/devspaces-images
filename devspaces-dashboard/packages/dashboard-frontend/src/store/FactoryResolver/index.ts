@@ -176,14 +176,14 @@ export const actionCreators: ActionCreators = {
         const isResolvedDevfileV2 = isDevfileV2(resolvedDevfile);
         let devfileV1: che.WorkspaceDevfile;
         let devfileV2: devfileApi.Devfile;
-        if (isDevfileV2(data.devfile)) {
-          devfileV2 = normalizeDevfileV2(data.devfile, data, location);
+        if (isResolvedDevfileV2) {
+          devfileV2 = normalizeDevfileV2(resolvedDevfile, data, location);
           devfileV1 = normalizeDevfileV1(
             await convertDevfileV2toDevfileV1(devfileV2, optionalFilesContent),
             preferredStorageType,
           );
         } else {
-          devfileV1 = normalizeDevfileV1(data.devfile, preferredStorageType);
+          devfileV1 = normalizeDevfileV1(resolvedDevfile, preferredStorageType);
           devfileV2 = normalizeDevfileV2(
             await convertDevfileV1toDevfileV2(devfileV1),
             data,

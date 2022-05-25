@@ -17,7 +17,8 @@ export function getProjectName(cloneUrl: string): string {
     .split('/')
     .reverse()[0]
     .replace(/(?:\.git)$/, '');
-  name = name.replace(/([^-a-zA-Z0-9]+)/g, '-');
+  name = name.toLowerCase();
+  name = name.replace(/([^-a-z0-9]+)/g, '-');
   name = name.replace(/(^[-]+)/, '');
   name = name.replace(/([-]+$)/, '');
   if (name.length > PROJECT_NAME_MAX_LENGTH) {

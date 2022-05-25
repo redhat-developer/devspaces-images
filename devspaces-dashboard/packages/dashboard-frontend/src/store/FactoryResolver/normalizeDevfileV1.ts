@@ -11,12 +11,20 @@
  */
 
 import { DevfileAdapter } from '../../services/devfile/adapter';
+import { cloneDeep } from 'lodash';
 
 export default function normalizeDevfileV1(
   devfile: che.WorkspaceDevfile,
   preferredStorageType: che.WorkspaceStorageType,
 ): che.WorkspaceDevfile {
-  const devfileAdapter = new DevfileAdapter(devfile);
+  const newDevfile = cloneDeep(devfile);
+  if (newDevfile.metadata.generateName) {
+    newDevfile.metadata.generateName = newDevfile.metadata.generateName.toLowerCase();
+  }
+  if (newDevfile.metadata.name) {
+    newDevfile.metadata.name = newDevfile.metadata.name.toLowerCase();
+  }
+  const devfileAdapter = new DevfileAdapter(newDevfile);
   devfileAdapter.storageType = preferredStorageType;
 
   return devfileAdapter.devfile as che.WorkspaceDevfile;
