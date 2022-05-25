@@ -968,13 +968,13 @@ spec:
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:ead48c0ba119acff6ae54dd748e2b8bf89583a9f49eeb17fb33f10739c8fda35
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:9847f708975770da1e939f39d6ab39b72c1ac26c299c8d688135e8b62969b721
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:4188f37d03ed56a969c4ceb37736ca2d877bc0d0a68c0c260a710d57cf918370
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:606a9c6d9dca6f91aec7237a4cc9b000e41c7645ff8b319f1e1eaf3e207cc5a7
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:606a9c6d9dca6f91aec7237a4cc9b000e41c7645ff8b319f1e1eaf3e207cc5a7
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:9847f708975770da1e939f39d6ab39b72c1ac26c299c8d688135e8b62969b721
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:4188f37d03ed56a969c4ceb37736ca2d877bc0d0a68c0c260a710d57cf918370
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:78734781e76c5ea508e2b3bd9ba581b17eea2d596f00a39ba6f4bed9da5c0d07
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
@@ -986,9 +986,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:b9f8be67f4fedbc335960a05e69430d2703f076a1840db606dc7fffd985155fc
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:b84aac512df4a09499b50a1f6942c1ed68b20ffb0ee690fff3e15c5aad61c8ef
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_plugin_registry_image_G4XDILRQBI______
@@ -1309,13 +1309,13 @@ spec:
   - name: devspaces_machineexec_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:ead48c0ba119acff6ae54dd748e2b8bf89583a9f49eeb17fb33f10739c8fda35
   - name: devspaces_theia_devfile_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:9847f708975770da1e939f39d6ab39b72c1ac26c299c8d688135e8b62969b721
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:4188f37d03ed56a969c4ceb37736ca2d877bc0d0a68c0c260a710d57cf918370
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:606a9c6d9dca6f91aec7237a4cc9b000e41c7645ff8b319f1e1eaf3e207cc5a7
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:606a9c6d9dca6f91aec7237a4cc9b000e41c7645ff8b319f1e1eaf3e207cc5a7
   - name: devspaces_theia_plugin_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:9847f708975770da1e939f39d6ab39b72c1ac26c299c8d688135e8b62969b721
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:4188f37d03ed56a969c4ceb37736ca2d877bc0d0a68c0c260a710d57cf918370
   - name: devspaces_udi_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:78734781e76c5ea508e2b3bd9ba581b17eea2d596f00a39ba6f4bed9da5c0d07
   - name: devspaces_udi_plugin_registry_image_gmxdccq_
@@ -1323,9 +1323,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:b9f8be67f4fedbc335960a05e69430d2703f076a1840db606dc7fffd985155fc
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:b84aac512df4a09499b50a1f6942c1ed68b20ffb0ee690fff3e15c5aad61c8ef
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_plugin_registry_image_g4xdilrqbi______
