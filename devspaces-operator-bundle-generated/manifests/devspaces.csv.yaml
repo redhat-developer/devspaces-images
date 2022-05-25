@@ -958,7 +958,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:df749ed28a6083b8ae89fac4a0df3de89dd2d23a51812bc01e9d20b082f5c513
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:1311895453a8a8f855d88709b9f79836627f8dffedc5c4474ca81351bb09f114
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:0de9caea37fb30719e9bae8704dde9fb4e0982a1892e06761d99f2f4cde7afeb
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:f0e2a84f9b7a90c3738afee178e30fd4b0f8bdd81643ba612448175aa33d9747
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDACQ_
@@ -982,9 +982,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:b9f8be67f4fedbc335960a05e69430d2703f076a1840db606dc7fffd985155fc
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:b84aac512df4a09499b50a1f6942c1ed68b20ffb0ee690fff3e15c5aad61c8ef
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
@@ -1289,7 +1289,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:df749ed28a6083b8ae89fac4a0df3de89dd2d23a51812bc01e9d20b082f5c513
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:1311895453a8a8f855d88709b9f79836627f8dffedc5c4474ca81351bb09f114
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:0de9caea37fb30719e9bae8704dde9fb4e0982a1892e06761d99f2f4cde7afeb
   - name: devspaces_idea_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:f0e2a84f9b7a90c3738afee178e30fd4b0f8bdd81643ba612448175aa33d9747
   - name: devspaces_idea_plugin_registry_image_gmxdacq_
@@ -1313,9 +1313,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:b9f8be67f4fedbc335960a05e69430d2703f076a1840db606dc7fffd985155fc
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:b84aac512df4a09499b50a1f6942c1ed68b20ffb0ee690fff3e15c5aad61c8ef
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
   - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
