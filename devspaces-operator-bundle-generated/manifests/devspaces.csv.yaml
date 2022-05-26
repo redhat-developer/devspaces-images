@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:3a43163a1f1d83969fc059886411afcd5a2b4b26c8aef375bfdfe8d0e0e61ad4
-    createdAt: "2022-04-26T19:19:04+00:00"
+    createdAt: "2022-05-26T15:16:56+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -958,7 +958,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:df749ed28a6083b8ae89fac4a0df3de89dd2d23a51812bc01e9d20b082f5c513
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:0de9caea37fb30719e9bae8704dde9fb4e0982a1892e06761d99f2f4cde7afeb
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:9cf1eda1fa26ab10c76b1a0a38b33c282ee82aae7eeaef79528c8b31012d3325
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:f0e2a84f9b7a90c3738afee178e30fd4b0f8bdd81643ba612448175aa33d9747
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDACQ_
@@ -985,8 +985,8 @@ spec:
                   value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
                   value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
-                - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_G4XDILRQBI______
-                  value: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
+                - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
+                  value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:10bb25f6e4cd71a6e8f9a017e7a7bac1926487fe1cffadef2dc8027819eb2898
                 - name: RELATED_IMAGE_plugin_registry
@@ -1289,7 +1289,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:df749ed28a6083b8ae89fac4a0df3de89dd2d23a51812bc01e9d20b082f5c513
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:0de9caea37fb30719e9bae8704dde9fb4e0982a1892e06761d99f2f4cde7afeb
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:9cf1eda1fa26ab10c76b1a0a38b33c282ee82aae7eeaef79528c8b31012d3325
   - name: devspaces_idea_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:f0e2a84f9b7a90c3738afee178e30fd4b0f8bdd81643ba612448175aa33d9747
   - name: devspaces_idea_plugin_registry_image_gmxdacq_
@@ -1316,8 +1316,8 @@ spec:
     image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
   - name: gateway_authorization_sidecar
     image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
-  - name: jboss_eap_7_eap74_openjdk8_openshift_rhel7_devfile_registry_image_g4xdilrqbi______
-    image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7@sha256:b4a113c4d4972d142a3c350e2006a2b297dc883f8ddb29a88db19c892358632d
+  - name: jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_g4xdilrubi______
+    image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:10bb25f6e4cd71a6e8f9a017e7a7bac1926487fe1cffadef2dc8027819eb2898
   - name: plugin_registry
