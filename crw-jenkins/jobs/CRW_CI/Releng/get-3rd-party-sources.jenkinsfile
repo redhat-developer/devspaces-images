@@ -78,7 +78,7 @@ rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/vscode/*     
 export KRB5CCNAME=/var/tmp/crw-build_ccache
 
 ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/crw/CRW-''' + CSV_VERSION + '''/ && tree"
-ssh "''' + DESTHOST + '''" "/mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release CRW-''' + CSV_VERSION + ''' || true"
+ssh "''' + DESTHOST + '''" "kinit -k -t ~/crw_crw-build-keytab crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@REDHAT.COM; /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release CRW-''' + CSV_VERSION + '''"
 '''
           }
           currentBuild.description+="; pushed to RCM"
