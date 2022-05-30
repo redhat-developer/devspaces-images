@@ -15,6 +15,7 @@ const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
 const merge = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
+const loaderUtils = require('loader-utils');
 
 const common = require('./webpack.config.common.js');
 
@@ -31,7 +32,16 @@ const config = {
             options: {
               modules: {
                 auto: true,
-                localIdentName: '[hash:base64]',
+                localIdentName: '[local]_[hash]',
+                getLocalIdent: (context, localIdentName, localName, options) => {
+                  if (localName.startsWith('pf-')) {
+                    // preserve PatternFly class names
+                    return localName;
+                  }
+                  const hash = loaderUtils.getHashDigest(context.context, 'sha512', 'base64');
+                  return localIdentName.replace('[local]', localName).replace('[hash]', hash);
+                },
+                context: path.resolve(__dirname),
               },
             },
           },
@@ -41,7 +51,7 @@ const config = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      __isBrowser__: "true",
+      __isBrowser__: 'true',
       'process.env.ENVIRONMENT': JSON.stringify('production'),
     }),
     new webpack.ProgressPlugin(),

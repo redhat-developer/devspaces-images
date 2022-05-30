@@ -11,6 +11,7 @@
  */
 
 const merge = require('webpack-merge');
+const loaderUtils = require('loader-utils');
 const path = require('path');
 const webpack = require('webpack');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
@@ -45,6 +46,17 @@ module.exports = (env = {}) => {
                 modules: {
                   auto: true,
                   localIdentName: '[path][name]__[local]',
+                  getLocalIdent: (context, localIdentName, localName, options) => {
+                    if (localName.startsWith('pf-')) {
+                      // preserve PatternFly class names
+                      return localName;
+                    }
+                    return loaderUtils
+                      .interpolateName(context, localIdentName, options)
+                      .replace(/[<>:"/\\|?*.]/g, '-')
+                      .replace('[local]', localName);
+                  },
+                  context: path.resolve(__dirname),
                 },
               },
             },

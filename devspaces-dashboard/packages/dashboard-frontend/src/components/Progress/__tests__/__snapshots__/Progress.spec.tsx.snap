@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Progress component should render progress with loading correctly 1`] = `
-<span>
+<span
+  className="progressLine"
+>
   <div
     className="pf-c-progress pf-m-sm pf-m-singleline"
     id="progress-indicator"
@@ -44,7 +46,9 @@ exports[`Progress component should render progress with loading correctly 1`] = 
 `;
 
 exports[`Progress component should render progress without loading correctly 1`] = `
-<span>
+<span
+  className="progressLine"
+>
   
 </span>
 `;

@@ -17,7 +17,7 @@ import common from '@eclipse-che/common';
 import { AppThunk } from '../..';
 import { container } from '../../../inversify.config';
 import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
-import { WorkspaceStatus } from '../../../services/helpers/types';
+import { WorkspacesLogs, WorkspaceStatus } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
 import { deleteLogs, mergeLogs } from '../logs';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
@@ -32,7 +32,7 @@ export interface State {
   workspaces: che.Workspace[];
   error?: string;
   // runtime logs
-  workspacesLogs: Map<string, string[]>;
+  workspacesLogs: WorkspacesLogs;
 }
 
 interface RequestWorkspacesAction {
@@ -62,7 +62,7 @@ interface UpdateWorkspaceStatusAction extends Action {
 
 interface UpdateWorkspacesLogsAction extends Action {
   type: 'CHE_UPDATE_WORKSPACES_LOGS';
-  workspacesLogs: Map<string, string[]>;
+  workspacesLogs: WorkspacesLogs;
 }
 
 interface DeleteWorkspaceLogsAction {

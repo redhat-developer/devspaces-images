@@ -5,7 +5,7 @@ Array [
   <br />,
   "",
   <div
-    className="pf-c-content"
+    className="pf-c-content editorTab"
   >
     
     <div>
@@ -41,12 +41,12 @@ metadata:
       className="pf-l-flex pf-m-column"
     >
       <div
-        className="pf-m-align-right"
+        className="pf-m-align-right buttonsGroup"
       >
         <button
           aria-disabled={true}
           aria-label={null}
-          className="pf-c-button pf-m-primary pf-m-disabled"
+          className="pf-c-button pf-m-primary pf-m-disabled saveButton"
           data-ouia-component-id="OUIA-Generated-Button-primary-1"
           data-ouia-component-type="PF4/Button"
           data-ouia-safe={true}
@@ -61,7 +61,7 @@ metadata:
         <button
           aria-disabled={true}
           aria-label={null}
-          className="pf-c-button pf-m-secondary pf-m-disabled"
+          className="pf-c-button pf-m-secondary pf-m-disabled cancelButton"
           data-ouia-component-id="OUIA-Generated-Button-secondary-1"
           data-ouia-component-type="PF4/Button"
           data-ouia-safe={true}
@@ -84,7 +84,7 @@ Array [
   <br />,
   "",
   <div
-    className="pf-c-content"
+    className="pf-c-content editorTab"
   >
     
     <div>
@@ -122,12 +122,12 @@ components: []
       className="pf-l-flex pf-m-column"
     >
       <div
-        className="pf-m-align-right"
+        className="pf-m-align-right buttonsGroup"
       >
         <button
           aria-disabled={true}
           aria-label={null}
-          className="pf-c-button pf-m-primary pf-m-disabled"
+          className="pf-c-button pf-m-primary pf-m-disabled saveButton"
           data-ouia-component-id="OUIA-Generated-Button-primary-3"
           data-ouia-component-type="PF4/Button"
           data-ouia-safe={true}
@@ -142,7 +142,7 @@ components: []
         <button
           aria-disabled={true}
           aria-label={null}
-          className="pf-c-button pf-m-secondary pf-m-disabled"
+          className="pf-c-button pf-m-secondary pf-m-disabled cancelButton"
           data-ouia-component-id="OUIA-Generated-Button-secondary-3"
           data-ouia-component-type="PF4/Button"
           data-ouia-safe={true}

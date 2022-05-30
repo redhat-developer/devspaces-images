@@ -15,7 +15,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import common from '@eclipse-che/common';
 import { AppState, AppThunk } from '../..';
 import { container } from '../../../inversify.config';
-import { DevWorkspaceStatus } from '../../../services/helpers/types';
+import { DevWorkspaceStatus, WorkspacesLogs } from '../../../services/helpers/types';
 import { createObject } from '../../helpers';
 import {
   DevWorkspaceClient,
@@ -37,6 +37,9 @@ import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
 import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
 import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
 import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
+import { cloneDeep } from 'lodash';
+import { delay } from '../../../services/helpers/delay';
+
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
 export const onStatusChangeCallbacks = new Map<string, (status: DevWorkspaceStatus) => void>();
@@ -47,7 +50,7 @@ export interface State {
   resourceVersion?: string;
   error?: string;
   // runtime logs
-  workspacesLogs: Map<string, string[]>;
+  workspacesLogs: WorkspacesLogs;
 }
 
 interface RequestDevWorkspacesAction extends Action {
@@ -79,7 +82,7 @@ interface UpdateWorkspaceStatusAction extends Action {
 
 interface UpdateWorkspacesLogsAction extends Action {
   type: 'UPDATE_DEVWORKSPACE_LOGS';
-  workspacesLogs: Map<string, string[]>;
+  workspacesLogs: WorkspacesLogs;
 }
 
 interface DeleteWorkspaceLogsAction extends Action {
@@ -265,7 +268,7 @@ export const actionCreators: ActionCreators = {
         const { workspaces } = await devWorkspaceClient.getAllWorkspaces(
           workspace.metadata.namespace,
         );
-        const runningWorkspaces = workspaces.filter(workspace => workspace.spec.started === true);
+        const runningWorkspaces = workspaces.filter(w => w.spec.started === true);
         const runningLimit = selectRunningWorkspacesLimit(getState());
         if (runningWorkspaces.length >= runningLimit) {
           throw new Error('You are not allowed to start more workspaces.');
@@ -273,6 +276,13 @@ export const actionCreators: ActionCreators = {
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
         await addKubeConfigInjection(workspace);
+
+        const workspaceUID = workspace.metadata.uid;
+        dispatch({
+          type: 'DELETE_DEVWORKSPACE_LOGS',
+          workspaceUID,
+        });
+
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
           const storedDevWorkspace = JSON.parse(
             workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
@@ -294,6 +304,7 @@ export const actionCreators: ActionCreators = {
         } else {
           updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true, true);
         }
+
         const editor = updatedWorkspace.metadata.annotations
           ? updatedWorkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
           : undefined;
@@ -303,11 +314,24 @@ export const actionCreators: ActionCreators = {
           type: 'UPDATE_DEVWORKSPACE',
           workspace: updatedWorkspace,
         });
-        const workspaceUID = workspace.metadata.uid;
-        dispatch({
-          type: 'DELETE_DEVWORKSPACE_LOGS',
-          workspaceUID,
+
+        // sometimes workspace don't have enough time to change its status.
+        // wait for status to become STARTING or 10 seconds, whichever comes first
+        const defer: IDeferred<void> = getDefer();
+        const toDispose = new DisposableCollection();
+        const statusStartingHandler = async (status: DevWorkspaceStatus) => {
+          if (status === DevWorkspaceStatus.STARTING) {
+            defer.resolve();
+          }
+        };
+        onStatusChangeCallbacks.set(workspaceUID, statusStartingHandler);
+        toDispose.push({
+          dispose: () => onStatusChangeCallbacks.delete(workspaceUID),
         });
+        const startingTimeout = 10000;
+        await Promise.race([defer.promise, delay(startingTimeout)]);
+        toDispose.dispose();
+
         devWorkspaceClient.checkForDevWorkspaceError(updatedWorkspace);
       } catch (e) {
         const errorMessage =
@@ -632,14 +656,16 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
     case 'UPDATE_DEVWORKSPACE_STATUS':
       return createObject(state, {
         workspaces: state.workspaces.map(workspace => {
-          if (WorkspaceAdapter.getUID(workspace) === action.workspaceUID) {
-            if (!workspace.status) {
-              workspace.status = {} as devfileApi.DevWorkspaceStatus;
-            }
-            workspace.status.phase = action.status;
-            workspace.status.message = action.message;
+          if (WorkspaceAdapter.getUID(workspace) !== action.workspaceUID) {
+            return workspace;
           }
-          return workspace;
+          const nextWorkspace = cloneDeep(workspace);
+          if (!nextWorkspace.status) {
+            nextWorkspace.status = {} as devfileApi.DevWorkspaceStatus;
+          }
+          nextWorkspace.status.phase = action.status;
+          nextWorkspace.status.message = action.message;
+          return nextWorkspace;
         }),
       });
     case 'ADD_DEVWORKSPACE':

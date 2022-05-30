@@ -10,346 +10,113 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import {
-  Alert,
-  AlertActionCloseButton,
-  AlertGroup,
-  AlertVariant,
-  PageSection,
-  PageSectionVariants,
-  Tab,
-  Tabs,
-  Wizard,
-  WizardStep,
-} from '@patternfly/react-core';
-import { CheckCircleIcon } from '@patternfly/react-icons';
-import { ExclamationCircleIcon, InProgressIcon } from '@patternfly/react-icons/dist/js/icons';
-import React, { RefObject } from 'react';
+import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
+import React from 'react';
 import Head from '../../components/Head';
 import Header from '../../components/Header';
-import WorkspaceLogs from '../../components/LogsTab';
-import { LoadIdeSteps } from '../../containers/IdeLoader';
-import { delay } from '../../services/helpers/delay';
-import {
-  WorkspaceStatus,
-  DevWorkspaceStatus,
-  IdeLoaderTab,
-  DeprecatedWorkspaceStatus,
-} from '../../services/helpers/types';
+import { LoaderStep } from '../../components/Loader/Step';
+import { AlertItem, DevWorkspaceStatus, IdeLoaderTab } from '../../services/helpers/types';
+import { LoaderProgress } from '../../components/Loader/Progress';
+import { LoaderAlert } from '../../components/Loader/Alert';
+import WorkspaceLogs from '../../components/WorkspaceLogs';
+import { Workspace } from '../../services/workspace-adapter';
 
-import workspaceStatusLabelStyles from '../../components/WorkspaceStatusLabel/index.module.css';
-import './IdeLoader.styl';
-
-export const SECTION_THEME = PageSectionVariants.light;
+import styles from './index.module.css';
 
 export type Props = {
-  currentStep: LoadIdeSteps;
-  hasError: boolean;
-  ideUrl?: string;
-  preselectedTabKey?: IdeLoaderTab;
-  status: WorkspaceStatus | DevWorkspaceStatus | DeprecatedWorkspaceStatus;
-  workspaceUID: string;
-  workspaceName: string;
-  isDevWorkspace: boolean;
-  callbacks?: {
-    showAlert?: (alertOptions: AlertOptions) => void;
-    hideAlert?: () => void;
+  alertItem: AlertItem | undefined;
+  currentStepId: number;
+  steps: LoaderStep[];
+  tabParam: string | undefined;
+  matchParams: {
+    namespace: string;
+    workspaceName: string;
   };
+  workspace: Workspace | undefined;
+  onWorkspaceRestart: () => void;
 };
-
-type State = {
-  ideUrl?: string;
-  workspaceUID: string;
-  isPopupAlertVisible: boolean;
+export type State = {
   activeTabKey: IdeLoaderTab;
-  currentRequestError: string;
-  currentAlertVariant?: AlertVariant;
-  alertActionLinks?: React.ReactFragment;
-  alertBody?: string | undefined;
-  isDevWorkspace: boolean;
+  isPopupAlertVisible: boolean;
 };
 
-export type AlertOptions = {
-  title: string;
-  timeDelay?: number;
-  alertActionLinks?: React.ReactFragment;
-  alertVariant: AlertVariant;
-  body?: string;
-};
-
-class IdeLoader extends React.PureComponent<Props, State> {
-  private readonly hideAlert: () => void;
-  private readonly handleTabClick: (
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-    tabIndex: React.ReactText,
-  ) => void;
-  public showAlert: (options: AlertOptions) => void;
-
-  private readonly wizardRef: RefObject<any>;
-
+export class IdeLoader extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const { tabParam } = this.props;
+    const activeTabKey =
+      tabParam && IdeLoaderTab[tabParam] ? IdeLoaderTab[tabParam] : IdeLoaderTab.Progress;
+
     this.state = {
+      activeTabKey,
       isPopupAlertVisible: false,
-      currentRequestError: '',
-      isDevWorkspace: this.props.isDevWorkspace,
-      workspaceUID: this.props.workspaceUID,
-      activeTabKey: this.props.preselectedTabKey
-        ? this.props.preselectedTabKey
-        : IdeLoaderTab.Progress,
     };
-
-    this.wizardRef = React.createRef();
-
-    // Toggle currently active tab
-    this.handleTabClick = (
-      event: React.MouseEvent<HTMLElement, MouseEvent>,
-      tabIndex: React.ReactText,
-    ): void => {
-      this.setState({
-        activeTabKey: tabIndex as IdeLoaderTab,
-        isPopupAlertVisible: tabIndex === IdeLoaderTab.Logs,
-      });
-    };
-
-    this.showAlert = (alertOptions: AlertOptions): void => {
-      const { activeTabKey } = this.state;
-
-      this.setState({
-        currentRequestError: alertOptions.title,
-        currentAlertVariant: alertOptions.alertVariant,
-        alertActionLinks: alertOptions?.alertActionLinks,
-        alertBody: alertOptions?.body,
-        isPopupAlertVisible: activeTabKey === IdeLoaderTab.Logs,
-      });
-    };
-    this.hideAlert = (): void => {
-      this.setState({
-        isPopupAlertVisible: false,
-        currentRequestError: '',
-      });
-    };
-    // Prepare showAlert as a callback
-    if (this.props.callbacks) {
-      this.props.callbacks.showAlert = (alertOptions: AlertOptions) => {
-        this.showAlert(alertOptions);
-      };
-      this.props.callbacks.hideAlert = () => {
-        this.hideAlert();
-      };
-    }
   }
 
-  private showOnlyContentIfDevWorkspace(): void {
-    if (this.state.isDevWorkspace) {
-      // hide all bars
-      window.postMessage('hide-allbar', '*');
-    }
+  private handleTabClick(tabIndex: React.ReactText): void {
+    this.setState({
+      activeTabKey: tabIndex as IdeLoaderTab,
+      isPopupAlertVisible: tabIndex === IdeLoaderTab.Logs,
+    });
   }
 
-  public componentDidMount(): void {
-    this.showOnlyContentIfDevWorkspace();
-    if (this.props.ideUrl) {
-      this.setState({ ideUrl: this.props.ideUrl });
-    }
-    if (this.props.workspaceUID) {
-      this.setState({ workspaceUID: this.props.workspaceUID });
-    }
+  private handleWorkspaceRestart(verbose: boolean): void {
+    this.setState({
+      activeTabKey: verbose ? IdeLoaderTab.Logs : IdeLoaderTab.Progress,
+    });
+    this.props.onWorkspaceRestart();
   }
 
-  public async componentDidUpdate(): Promise<void> {
-    this.showOnlyContentIfDevWorkspace();
-    const { currentStep, hasError, ideUrl, workspaceUID } = this.props;
+  render(): React.ReactNode {
+    const { alertItem, currentStepId, matchParams, steps, workspace } = this.props;
+    const { activeTabKey } = this.state;
 
-    const current = this.wizardRef.current;
-    if (current && current.state && current.state.currentStep !== currentStep && !hasError) {
-      current.state.currentStep = currentStep;
-    }
-
-    if (!hasError && this.state.currentRequestError) {
-      this.setState({ currentRequestError: '' });
-    }
-
-    if (this.state.workspaceUID !== workspaceUID) {
-      this.setState({
-        workspaceUID,
-        isPopupAlertVisible: false,
-      });
-    }
-
-    if (this.state.ideUrl !== ideUrl) {
-      this.setState({ ideUrl });
-      if (ideUrl) {
-        if (this.state.isDevWorkspace) {
-          // in case of DevWorkspace, refresh the current window
-          await this.openInCurrentWindow(ideUrl);
-        } else {
-          // else, update the iFrame
-          await this.updateIdeIframe(ideUrl, 10);
-        }
-      }
-    }
-  }
-
-  // Open the link in the current window
-  private async openInCurrentWindow(url: string): Promise<void> {
-    window.location.replace(url);
-  }
-
-  private async updateIdeIframe(url: string, repeat?: number): Promise<void> {
-    const iframeElement = document.getElementById('ide-iframe');
-    if (iframeElement) {
-      iframeElement['src'] = url;
-    } else if (repeat) {
-      await delay(500);
-      return this.updateIdeIframe(url, --repeat);
-    } else {
-      const message = 'Cannot find IDE iframe element.';
-      this.showAlert({
-        alertVariant: AlertVariant.warning,
-        title: message,
-      });
-      console.error(message);
-    }
-  }
-
-  private getIcon(step: LoadIdeSteps, className = ''): React.ReactNode {
-    const { currentStep, status, isDevWorkspace } = this.props;
-    if (currentStep > step) {
-      return <CheckCircleIcon className={className} color="green" />;
-    } else if (currentStep === step) {
-      if (isDevWorkspace) {
-        if (status === DevWorkspaceStatus.FAILED || status === DevWorkspaceStatus.FAILING) {
-          return <ExclamationCircleIcon className={className} color="red" />;
-        }
-      } else if (status === WorkspaceStatus.ERROR) {
-        return <ExclamationCircleIcon className={className} color="red" />;
-      }
-      return (
-        <InProgressIcon
-          className={`${workspaceStatusLabelStyles.rotate} ${className}`}
-          color="#0e6fe0"
-        />
-      );
-    }
-    return '';
-  }
-
-  private getSteps(): WizardStep[] {
-    const { currentStep, hasError } = this.props;
-
-    const getTitle = (step: LoadIdeSteps, title: string, iconClass?: string) => {
-      let className = '';
-      if (currentStep === step) {
-        className = hasError ? 'error' : 'progress';
-      }
-      return (
-        <React.Fragment>
-          {this.getIcon(step, iconClass)}
-          <span className={className}>{title}</span>
-        </React.Fragment>
-      );
-    };
-
-    return [
-      {
-        id: LoadIdeSteps.INITIALIZING,
-        name: getTitle(LoadIdeSteps.INITIALIZING, 'Initializing', 'wizard-icon'),
-        canJumpTo: currentStep >= LoadIdeSteps.INITIALIZING,
-      },
-      {
-        id: LoadIdeSteps.START_WORKSPACE,
-        name: getTitle(
-          LoadIdeSteps.START_WORKSPACE,
-          'Waiting for workspace to start',
-          'wizard-icon',
-        ),
-        canJumpTo: currentStep >= LoadIdeSteps.START_WORKSPACE,
-      },
-      {
-        id: LoadIdeSteps.OPEN_IDE,
-        name: getTitle(LoadIdeSteps.OPEN_IDE, 'Open IDE', 'wizard-icon'),
-        canJumpTo: currentStep >= LoadIdeSteps.OPEN_IDE,
-      },
-    ];
-  }
-
-  public render(): React.ReactElement {
-    const { workspaceName, workspaceUID, ideUrl, status, currentStep } = this.props;
-    const { isPopupAlertVisible, currentAlertVariant, currentRequestError, alertActionLinks } =
-      this.state;
-
-    if (ideUrl) {
-      return (
-        <div className="ide-iframe-page">
-          <iframe
-            id="ide-iframe"
-            src="./static/loader.html"
-            allow="fullscreen *;clipboard-write *;clipboard-read *"
-          />
-        </div>
-      );
-    }
-
+    const workspaceStatus = workspace?.status || DevWorkspaceStatus.STOPPED;
+    const isToastAlert = activeTabKey === IdeLoaderTab.Logs;
+    const wizardSteps = steps.map(step => step.toWizardStep(currentStepId));
     return (
       <React.Fragment>
-        <Head pageName={`Loading ${workspaceName}`} />
-        {isPopupAlertVisible && currentRequestError && (
-          <AlertGroup isToast>
-            <Alert
-              variant={currentAlertVariant}
-              title={currentRequestError}
-              actionClose={<AlertActionCloseButton onClose={this.hideAlert} />}
-              actionLinks={alertActionLinks}
-            >
-              {this.state.alertBody}
-            </Alert>
-          </AlertGroup>
-        )}
-        <Header title={`Starting workspace ${workspaceName}`} status={status} />
-        <PageSection variant={SECTION_THEME} className="ide-loader-page" isFilled={true}>
+        <Head pageName={`Loading ${matchParams.workspaceName}`} />
+        <Header
+          title={`Starting workspace ${matchParams.workspaceName}`}
+          status={workspaceStatus}
+        />
+        <PageSection
+          variant={PageSectionVariants.light}
+          isFilled={true}
+          className={styles.ideLoaderPage}
+        >
           <Tabs
-            activeKey={this.state.activeTabKey}
-            onSelect={this.handleTabClick}
+            activeKey={activeTabKey}
+            onSelect={(_event, tabIndex) => this.handleTabClick(tabIndex)}
             inset={{ default: 'insetLg' }}
-            id="ide-loader-page-tabs"
+            data-testid="ide-loader-tabs"
           >
             <Tab
               eventKey={IdeLoaderTab.Progress}
               title={IdeLoaderTab[IdeLoaderTab.Progress]}
-              id="ide-loader-page-wizard-tab"
+              data-testid="ide-loader-progress-tab"
+              id="ide-loader-progress-tab"
             >
               <PageSection>
-                {currentRequestError && (
-                  <Alert
-                    isInline
-                    variant={currentAlertVariant}
-                    title={currentRequestError}
-                    actionClose={<AlertActionCloseButton onClose={this.hideAlert} />}
-                    actionLinks={alertActionLinks}
-                  >
-                    {this.state.alertBody}
-                  </Alert>
-                )}
-                <Wizard
-                  className="ide-loader-wizard"
-                  steps={this.getSteps()}
-                  ref={this.wizardRef}
-                  footer={<span />}
-                  height={500}
-                  startAtStep={currentStep}
+                <LoaderAlert
+                  isToast={isToastAlert}
+                  alertItem={alertItem}
+                  onRestart={verbose => this.handleWorkspaceRestart(verbose)}
                 />
+                <LoaderProgress steps={wizardSteps} currentStepId={currentStepId} />
               </PageSection>
             </Tab>
             <Tab
               eventKey={IdeLoaderTab.Logs}
               title={IdeLoaderTab[IdeLoaderTab.Logs]}
-              id="ide-loader-page-logs-tab"
+              data-testid="ide-loader-logs-tab"
+              id="ide-loader-logs-tab"
             >
               <WorkspaceLogs
-                workspaceUID={workspaceUID}
-                isDevWorkspace={this.props.isDevWorkspace}
+                workspaceUID={workspace?.uid}
+                isDevWorkspace={workspace?.isDevWorkspace}
               />
             </Tab>
           </Tabs>
@@ -358,5 +125,3 @@ class IdeLoader extends React.PureComponent<Props, State> {
     );
   }
 }
-
-export default IdeLoader;

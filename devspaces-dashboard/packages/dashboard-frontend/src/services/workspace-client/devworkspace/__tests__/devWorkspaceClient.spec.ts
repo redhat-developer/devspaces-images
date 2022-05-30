@@ -46,7 +46,7 @@ describe('DevWorkspace client', () => {
       })
       .build();
     expect(() => client.checkForDevWorkspaceError(devWorkspace2)).toThrowError(
-      new Error('Unknown error occured when trying to process the devworkspace'),
+      new Error('Unknown error occurred when trying to process the devworkspace'),
     );
 
     const devWorkspace3 = new DevWorkspaceBuilder()

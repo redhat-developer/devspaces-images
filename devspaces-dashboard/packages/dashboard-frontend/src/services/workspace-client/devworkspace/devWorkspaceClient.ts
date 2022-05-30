@@ -936,7 +936,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       if (message) {
         throw new Error(message);
       }
-      throw new Error('Unknown error occured when trying to process the devworkspace');
+      throw new Error('Unknown error occurred when trying to process the devworkspace');
     }
   }
 

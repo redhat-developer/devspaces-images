@@ -360,14 +360,14 @@ export const actionCreators: ActionCreators = {
 
   deleteWorkspaceLogs:
     (workspace: Workspace): AppThunk<KnownAction> =>
-    (_dispatch, getState): void => {
+    (dispatch, getState): void => {
       const state = getState();
       const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
       if (cheDevworkspaceEnabled) {
-        DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid);
+        dispatch(DevWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid));
+      } else {
+        dispatch(CheWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid));
       }
-
-      CheWorkspacesStore.actionCreators.deleteWorkspaceLogs(workspace.uid);
     },
 };
 
@@ -392,21 +392,9 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
         isLoading: true,
       });
     case 'RECEIVE_ERROR':
-      return createObject(state, {
-        isLoading: false,
-      });
     case 'UPDATE_WORKSPACE':
-      return createObject(state, {
-        isLoading: false,
-      });
     case 'ADD_WORKSPACE':
-      return createObject(state, {
-        isLoading: false,
-      });
     case 'DELETE_WORKSPACE':
-      return createObject(state, {
-        isLoading: false,
-      });
     case 'RECEIVE_WORKSPACES':
       return createObject(state, {
         isLoading: false,

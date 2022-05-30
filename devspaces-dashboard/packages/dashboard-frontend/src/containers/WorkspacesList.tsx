@@ -22,8 +22,8 @@ import {
 import * as WorkspacesStore from '../store/Workspaces';
 import Fallback from '../components/Fallback';
 import WorkspacesList from '../pages/WorkspacesList';
-import WorkspaceActionsProvider from './WorkspaceActions';
-import { WorkspaceActionsConsumer } from './WorkspaceActions/context';
+import WorkspaceActionsProvider from '../contexts/WorkspaceActions/Provider';
+import { WorkspaceActionsConsumer } from '../contexts/WorkspaceActions';
 import { lazyInject } from '../inversify.config';
 import { AppAlerts } from '../services/alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';

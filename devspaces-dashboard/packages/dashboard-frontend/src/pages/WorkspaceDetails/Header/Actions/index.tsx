@@ -14,17 +14,14 @@ import { AlertVariant } from '@patternfly/react-core';
 import React from 'react';
 import { History } from 'history';
 import common from '@eclipse-che/common';
-import WorkspaceActionsProvider from '../../../../containers/WorkspaceActions';
+import WorkspaceActionsProvider from '../../../../contexts/WorkspaceActions/Provider';
 import {
   WorkspaceAction,
   WorkspaceStatus,
   DevWorkspaceStatus,
   DeprecatedWorkspaceStatus,
 } from '../../../../services/helpers/types';
-import {
-  ActionContextType,
-  WorkspaceActionsConsumer,
-} from '../../../../containers/WorkspaceActions/context';
+import { ActionContextType, WorkspaceActionsConsumer } from '../../../../contexts/WorkspaceActions';
 import { lazyInject } from '../../../../inversify.config';
 import { AppAlerts } from '../../../../services/alerts/appAlerts';
 import getRandomString from '../../../../services/helpers/random';

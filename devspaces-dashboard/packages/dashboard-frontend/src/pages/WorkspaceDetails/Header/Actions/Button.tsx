@@ -13,7 +13,7 @@
 import React from 'react';
 import { Button } from '@patternfly/react-core';
 import { WorkspaceAction } from '../../../../services/helpers/types';
-import { ActionContextType } from '../../../../containers/WorkspaceActions/context';
+import { ActionContextType } from '../../../../contexts/WorkspaceActions';
 
 type Props = {
   context: ActionContextType;

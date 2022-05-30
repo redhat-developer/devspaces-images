@@ -327,6 +327,7 @@
 | [`react-tooltip@4.2.21`](https://github.com/wwayne/react-tooltip) | MIT | clearlydefined |
 | [`react@16.14.0`](git+https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`readable-stream@3.6.0`](git://github.com/nodejs/readable-stream) | MIT | [CQ22627](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22627) |
+| [`real-cancellable-promise@1.1.1`](https://github.com/srmagura/real-cancellable-promise.git) | MIT | clearlydefined |
 | [`recast@0.11.23`](git://github.com/benjamn/recast.git) | MIT | clearlydefined |
 | [`rechoir@0.6.2`](git://github.com/tkellen/node-rechoir.git) | MIT | #981 |
 | [`reconnecting-websocket@4.4.0`](git+https://github.com/pladaria/reconnecting-websocket.git) | MIT | #940 |

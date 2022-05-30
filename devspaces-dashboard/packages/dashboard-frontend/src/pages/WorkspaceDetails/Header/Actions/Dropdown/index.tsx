@@ -20,7 +20,7 @@ import {
   WorkspaceAction,
   DeprecatedWorkspaceStatus,
 } from '../../../../../services/helpers/types';
-import { ActionContextType } from '../../../../../containers/WorkspaceActions/context';
+import { ActionContextType } from '../../../../../contexts/WorkspaceActions';
 
 import styles from './index.module.css';
 

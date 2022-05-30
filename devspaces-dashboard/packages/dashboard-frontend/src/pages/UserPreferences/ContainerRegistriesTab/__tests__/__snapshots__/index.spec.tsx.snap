@@ -2,7 +2,9 @@
 
 exports[`ContainerRegistries should correctly render the component which contains two registries 1`] = `
 Array [
-  <span>
+  <span
+    className="progressLine"
+  >
     
   </span>,
   <section
@@ -365,7 +367,9 @@ Array [
 
 exports[`ContainerRegistries should correctly render the component without registries 1`] = `
 Array [
-  <span>
+  <span
+    className="progressLine"
+  >
     
   </span>,
   <section

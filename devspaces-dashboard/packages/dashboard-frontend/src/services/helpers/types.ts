@@ -94,3 +94,5 @@ export enum WorkspaceAction {
 }
 
 export type UserPreferencesTab = 'container-registries';
+
+export type WorkspacesLogs = Map<string, string[]>;

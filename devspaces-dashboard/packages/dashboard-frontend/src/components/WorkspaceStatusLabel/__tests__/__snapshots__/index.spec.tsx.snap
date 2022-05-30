@@ -3,7 +3,7 @@
 exports[`The workspace status label component Che Workspaces should render ERROR status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label pf-m-red"
+    className="pf-c-label pf-m-red statusLabel"
     data-tip=""
   >
     <span
@@ -43,7 +43,7 @@ Array [
 exports[`The workspace status label component Che Workspaces should render RUNNING status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label pf-m-green"
+    className="pf-c-label pf-m-green statusLabel"
     data-tip=""
   >
     <span
@@ -83,7 +83,7 @@ Array [
 exports[`The workspace status label component Che Workspaces should render STOPPED status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label undefined undefined"
+    className="pf-c-label statusLabel stoppedLabel"
     data-tip=""
   >
     <span
@@ -129,7 +129,7 @@ Array [
 exports[`The workspace status label component Deprecated workspaces should render "Deprecated" status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label pf-m-orange"
+    className="pf-c-label pf-m-orange statusLabel"
     data-tip=""
   >
     <span
@@ -169,7 +169,7 @@ Array [
 exports[`The workspace status label component DevWorkspaces should render FAILED status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label pf-m-red"
+    className="pf-c-label pf-m-red statusLabel"
     data-tip=""
   >
     <span
@@ -209,7 +209,7 @@ Array [
 exports[`The workspace status label component DevWorkspaces should render FAILING status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label pf-m-red"
+    className="pf-c-label pf-m-red statusLabel"
     data-tip=""
   >
     <span
@@ -221,6 +221,7 @@ Array [
         <svg
           aria-hidden={true}
           aria-labelledby={null}
+          className="rotate"
           fill="currentColor"
           height="1em"
           role="img"
@@ -249,7 +250,7 @@ Array [
 exports[`The workspace status label component DevWorkspaces should render RUNNING status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label pf-m-green"
+    className="pf-c-label pf-m-green statusLabel"
     data-tip=""
   >
     <span
@@ -289,7 +290,7 @@ Array [
 exports[`The workspace status label component DevWorkspaces should render STOPPED status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label undefined undefined"
+    className="pf-c-label statusLabel stoppedLabel"
     data-tip=""
   >
     <span
@@ -335,7 +336,7 @@ Array [
 exports[`The workspace status label component should render default status correctly 1`] = `
 Array [
   <span
-    className="pf-c-label"
+    className="pf-c-label statusLabel"
     data-tip=""
   >
     <span
@@ -347,6 +348,7 @@ Array [
         <svg
           aria-hidden={true}
           aria-labelledby={null}
+          className="rotate"
           fill="currentColor"
           height="1em"
           role="img"

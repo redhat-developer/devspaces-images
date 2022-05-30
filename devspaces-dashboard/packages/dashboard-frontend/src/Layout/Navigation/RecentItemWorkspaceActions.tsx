@@ -13,11 +13,8 @@
 import React from 'react';
 import { AlertVariant, Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core';
 import { NavigationRecentItemObject } from '.';
-import WorkspaceActionsProvider from '../../containers/WorkspaceActions';
-import {
-  ActionContextType,
-  WorkspaceActionsConsumer,
-} from '../../containers/WorkspaceActions/context';
+import WorkspaceActionsProvider from '../../contexts/WorkspaceActions/Provider';
+import { ActionContextType, WorkspaceActionsConsumer } from '../../contexts/WorkspaceActions';
 import { DevWorkspaceStatus, WorkspaceAction, WorkspaceStatus } from '../../services/helpers/types';
 import getRandomString from '../../services/helpers/random';
 import { lazyInject } from '../../inversify.config';

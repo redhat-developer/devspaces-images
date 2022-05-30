@@ -31,6 +31,7 @@ import { DisposableCollection } from '../services/helpers/disposable';
 import { ROUTE } from '../route.enum';
 import { selectUser } from '../store/User/selectors';
 import { selectBranding } from '../store/Branding/selectors';
+import { ToggleBarsContext } from '../contexts/ToggleBars';
 
 const THEME_KEY = 'theme';
 const IS_MANAGED_SIDEBAR = false;
@@ -94,6 +95,20 @@ export class Layout extends React.PureComponent<Props, State> {
     return match !== null;
   }
 
+  private hideAllBars(): void {
+    this.setState({
+      isHeaderVisible: false,
+      isSidebarVisible: false,
+    });
+  }
+
+  private showAllBars(): void {
+    this.setState({
+      isHeaderVisible: true,
+      isSidebarVisible: true,
+    });
+  }
+
   public componentDidMount(): void {
     this.listenToIframeMessages();
   }
@@ -155,34 +170,41 @@ export class Layout extends React.PureComponent<Props, State> {
     const logoUrl = this.props.branding.logoFile;
 
     return (
-      <Page
-        header={
-          <Header
-            history={history}
-            isVisible={isHeaderVisible}
-            logoUrl={logoUrl}
-            user={user}
-            logout={() => this.logout()}
-            toggleNav={() => this.toggleNav()}
-            changeTheme={theme => this.changeTheme(theme)}
-          />
-        }
-        sidebar={
-          <Sidebar
-            isManaged={IS_MANAGED_SIDEBAR}
-            isNavOpen={isSidebarVisible}
-            history={history}
-            theme={theme}
-          />
-        }
-        isManagedSidebar={IS_MANAGED_SIDEBAR}
+      <ToggleBarsContext.Provider
+        value={{
+          hideAll: () => this.hideAllBars(),
+          showAll: () => this.showAllBars(),
+        }}
       >
-        <ErrorBoundary>
-          <PreloadIssuesAlert />
-          <BannerAlert />
-          {this.props.children}
-        </ErrorBoundary>
-      </Page>
+        <Page
+          header={
+            <Header
+              history={history}
+              isVisible={isHeaderVisible}
+              logoUrl={logoUrl}
+              user={user}
+              logout={() => this.logout()}
+              toggleNav={() => this.toggleNav()}
+              changeTheme={theme => this.changeTheme(theme)}
+            />
+          }
+          sidebar={
+            <Sidebar
+              isManaged={IS_MANAGED_SIDEBAR}
+              isNavOpen={isSidebarVisible}
+              history={history}
+              theme={theme}
+            />
+          }
+          isManagedSidebar={IS_MANAGED_SIDEBAR}
+        >
+          <ErrorBoundary>
+            <PreloadIssuesAlert />
+            <BannerAlert />
+            {this.props.children}
+          </ErrorBoundary>
+        </Page>
+      </ToggleBarsContext.Provider>
     );
   }
 }

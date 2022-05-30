@@ -26,6 +26,7 @@ import { State as UserProfileState } from '../UserProfile';
 import mockThunk from './thunk';
 import devfileApi from '../../services/devfileApi';
 import { ClusterConfig, ClusterInfo } from '@eclipse-che/common';
+import { WorkspacesLogs } from '../../services/helpers/types';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -261,7 +262,7 @@ export class FakeStoreBuilder {
   public withCheWorkspaces(
     options: {
       workspaces?: che.Workspace[];
-      workspacesLogs?: Map<string, string[]>;
+      workspacesLogs?: WorkspacesLogs;
     },
     isLoading = false,
     error?: string,
@@ -280,7 +281,7 @@ export class FakeStoreBuilder {
   public withDevWorkspaces(
     options: {
       workspaces?: devfileApi.DevWorkspace[];
-      workspacesLogs?: Map<string, string[]>;
+      workspacesLogs?: WorkspacesLogs;
     },
     isLoading = false,
     error?: string,

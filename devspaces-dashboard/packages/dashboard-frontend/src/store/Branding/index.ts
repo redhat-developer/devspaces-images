@@ -17,8 +17,6 @@ import { merge } from 'lodash';
 import axios from 'axios';
 import common from '@eclipse-che/common';
 import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/branding.constant';
-import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { createObject } from '../helpers';
 import { deauthorizeCallback } from '../../services/workspace-client';
 

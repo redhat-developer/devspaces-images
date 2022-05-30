@@ -10,10 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-export function mergeLogs(
-  mapA: Map<string, string[]>,
-  mapB: Map<string, string[]>,
-): Map<string, string[]> {
+import { WorkspacesLogs } from '../../services/helpers/types';
+
+export function mergeLogs(mapA: WorkspacesLogs, mapB: WorkspacesLogs): WorkspacesLogs {
   if (!mapA.size) {
     return mapB;
   }
@@ -35,7 +34,7 @@ export function mergeLogs(
   return res;
 }
 
-export function deleteLogs(map: Map<string, string[]>, key: string): Map<string, string[]> {
+export function deleteLogs(map: WorkspacesLogs, key: string): WorkspacesLogs {
   const cloned = new Map<string, string[]>(map.entries());
   cloned.delete(key);
   return cloned;

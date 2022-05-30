@@ -29,7 +29,7 @@ import Head from '../../components/Head';
 import Header from '../../components/Header';
 import { LoadFactorySteps } from '../../containers/FactoryLoader';
 import { WorkspaceStatus } from '../../services/helpers/types';
-import WorkspaceLogs from '../../components/LogsTab';
+import WorkspaceLogs from '../../components/WorkspaceLogs';
 
 import workspaceStatusLabelStyles from '../../components/WorkspaceStatusLabel/index.module.css';
 import './FactoryLoader.styl';

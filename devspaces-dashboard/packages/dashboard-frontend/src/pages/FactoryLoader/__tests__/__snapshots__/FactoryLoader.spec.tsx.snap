@@ -13,7 +13,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-6"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -86,7 +86,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-blue"
+              className="pf-c-label pf-m-blue statusLabel"
               data-tip=""
             >
               <span
@@ -98,6 +98,7 @@ Array [
                   <svg
                     aria-hidden={true}
                     aria-labelledby={null}
+                    className="rotate"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -312,7 +313,7 @@ Array [
                 <svg
                   aria-hidden={true}
                   aria-labelledby={null}
-                  className="undefined "
+                  className="rotate "
                   fill="#0e6fe0"
                   height="1em"
                   role="img"
@@ -495,7 +496,7 @@ Array [
                           <svg
                             aria-hidden={true}
                             aria-labelledby={null}
-                            className="undefined "
+                            className="rotate "
                             fill="#0e6fe0"
                             height="1em"
                             role="img"
@@ -643,7 +644,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-7"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -716,7 +717,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-red"
+              className="pf-c-label pf-m-red statusLabel"
               data-tip=""
             >
               <span
@@ -1273,7 +1274,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-1"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -1346,7 +1347,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-blue"
+              className="pf-c-label pf-m-blue statusLabel"
               data-tip=""
             >
               <span
@@ -1358,6 +1359,7 @@ Array [
                   <svg
                     aria-hidden={true}
                     aria-labelledby={null}
+                    className="rotate"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -1525,7 +1527,7 @@ Array [
                 <svg
                   aria-hidden={true}
                   aria-labelledby={null}
-                  className="undefined wizard-icon"
+                  className="rotate wizard-icon"
                   fill="#0e6fe0"
                   height="1em"
                   role="img"
@@ -1598,7 +1600,7 @@ Array [
                       <svg
                         aria-hidden={true}
                         aria-labelledby={null}
-                        className="undefined wizard-icon"
+                        className="rotate wizard-icon"
                         fill="#0e6fe0"
                         height="1em"
                         role="img"
@@ -1802,7 +1804,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-2"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -1875,7 +1877,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-red"
+              className="pf-c-label pf-m-red statusLabel"
               data-tip=""
             >
               <span
@@ -2331,7 +2333,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-5"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -2404,7 +2406,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-red"
+              className="pf-c-label pf-m-red statusLabel"
               data-tip=""
             >
               <span
@@ -2943,7 +2945,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-3"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -3016,7 +3018,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-blue"
+              className="pf-c-label pf-m-blue statusLabel"
               data-tip=""
             >
               <span
@@ -3028,6 +3030,7 @@ Array [
                   <svg
                     aria-hidden={true}
                     aria-labelledby={null}
+                    className="rotate"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -3242,7 +3245,7 @@ Array [
                 <svg
                   aria-hidden={true}
                   aria-labelledby={null}
-                  className="undefined "
+                  className="rotate "
                   fill="#0e6fe0"
                   height="1em"
                   role="img"
@@ -3389,7 +3392,7 @@ Array [
                           <svg
                             aria-hidden={true}
                             aria-labelledby={null}
-                            className="undefined "
+                            className="rotate "
                             fill="#0e6fe0"
                             height="1em"
                             role="img"
@@ -3555,7 +3558,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-4"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -3628,7 +3631,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-blue"
+              className="pf-c-label pf-m-blue statusLabel"
               data-tip=""
             >
               <span
@@ -3640,6 +3643,7 @@ Array [
                   <svg
                     aria-hidden={true}
                     aria-labelledby={null}
+                    className="rotate"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -3854,7 +3858,7 @@ Array [
                 <svg
                   aria-hidden={true}
                   aria-labelledby={null}
-                  className="undefined "
+                  className="rotate "
                   fill="#0e6fe0"
                   height="1em"
                   role="img"
@@ -4001,7 +4005,7 @@ Array [
                           <svg
                             aria-hidden={true}
                             aria-labelledby={null}
-                            className="undefined "
+                            className="rotate "
                             fill="#0e6fe0"
                             height="1em"
                             role="img"
@@ -4167,7 +4171,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-10"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -4240,7 +4244,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-blue"
+              className="pf-c-label pf-m-blue statusLabel"
               data-tip=""
             >
               <span
@@ -4252,6 +4256,7 @@ Array [
                   <svg
                     aria-hidden={true}
                     aria-labelledby={null}
+                    className="rotate"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -4419,7 +4424,7 @@ Array [
                 <svg
                   aria-hidden={true}
                   aria-labelledby={null}
-                  className="undefined wizard-icon"
+                  className="rotate wizard-icon"
                   fill="#0e6fe0"
                   height="1em"
                   role="img"
@@ -4676,7 +4681,7 @@ Array [
                       <svg
                         aria-hidden={true}
                         aria-labelledby={null}
-                        className="undefined wizard-icon"
+                        className="rotate wizard-icon"
                         fill="#0e6fe0"
                         height="1em"
                         role="img"
@@ -4786,7 +4791,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-8"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -4859,7 +4864,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-blue"
+              className="pf-c-label pf-m-blue statusLabel"
               data-tip=""
             >
               <span
@@ -4871,6 +4876,7 @@ Array [
                   <svg
                     aria-hidden={true}
                     aria-labelledby={null}
+                    className="rotate"
                     fill="currentColor"
                     height="1em"
                     role="img"
@@ -5038,7 +5044,7 @@ Array [
                 <svg
                   aria-hidden={true}
                   aria-labelledby={null}
-                  className="undefined wizard-icon"
+                  className="rotate wizard-icon"
                   fill="#0e6fe0"
                   height="1em"
                   role="img"
@@ -5259,7 +5265,7 @@ Array [
                       <svg
                         aria-hidden={true}
                         aria-labelledby={null}
-                        className="undefined wizard-icon"
+                        className="rotate wizard-icon"
                         fill="#0e6fe0"
                         height="1em"
                         role="img"
@@ -5387,7 +5393,7 @@ Array [
       >
         <nav
           aria-label="Breadcrumb"
-          className="pf-c-breadcrumb"
+          className="pf-c-breadcrumb breadcrumb"
           data-ouia-component-id="OUIA-Generated-Breadcrumb-9"
           data-ouia-component-type="PF4/Breadcrumb"
           data-ouia-safe={true}
@@ -5460,7 +5466,7 @@ Array [
             className=""
           >
             <span
-              className="pf-c-label pf-m-red"
+              className="pf-c-label pf-m-red statusLabel"
               data-tip=""
             >
               <span

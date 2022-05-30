@@ -3,6 +3,7 @@
 exports[`Workspace indicator component Che Workspaces should render ERROR status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="ERROR"
   >
@@ -34,6 +35,7 @@ Array [
 exports[`Workspace indicator component Che Workspaces should render RUNNING status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="RUNNING"
   >
@@ -65,12 +67,14 @@ Array [
 exports[`Workspace indicator component Che Workspaces should render STARTING status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="STARTING"
   >
     <svg
       aria-hidden={true}
       aria-labelledby={null}
+      className="rotate"
       fill="#0e6fe0"
       height="1em"
       role="img"
@@ -96,6 +100,7 @@ Array [
 exports[`Workspace indicator component Che Workspaces should render STOPPED status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="STOPPED"
   >
@@ -133,12 +138,14 @@ Array [
 exports[`Workspace indicator component Che Workspaces should render STOPPING status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="STOPPING"
   >
     <svg
       aria-hidden={true}
       aria-labelledby={null}
+      className="rotate"
       fill="grey"
       height="1em"
       role="img"
@@ -164,6 +171,7 @@ Array [
 exports[`Workspace indicator component Deprecated workspaces should render "Deprecated" status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="Deprecated workspace"
   >
@@ -195,6 +203,7 @@ Array [
 exports[`Workspace indicator component DevWorkspaces should render FAILED status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="FAILED"
   >
@@ -226,12 +235,14 @@ Array [
 exports[`Workspace indicator component DevWorkspaces should render FAILING status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="FAILING"
   >
     <svg
       aria-hidden={true}
       aria-labelledby={null}
+      className="rotate"
       fill="red"
       height="1em"
       role="img"
@@ -257,6 +268,7 @@ Array [
 exports[`Workspace indicator component DevWorkspaces should render RUNNING status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="RUNNING"
   >
@@ -288,6 +300,7 @@ Array [
 exports[`Workspace indicator component DevWorkspaces should render STOPPED status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="STOPPED"
   >
@@ -325,12 +338,14 @@ Array [
 exports[`Workspace indicator component should render default status correctly 1`] = `
 Array [
   <span
+    className="statusIndicator"
     data-testid="workspace-status-indicator"
     data-tip="STOPPING"
   >
     <svg
       aria-hidden={true}
       aria-labelledby={null}
+      className="rotate"
       fill="grey"
       height="1em"
       role="img"

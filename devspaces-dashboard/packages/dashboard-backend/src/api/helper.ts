@@ -48,6 +48,7 @@ export async function getServiceAccountToken(request: FastifyRequest): Promise<s
   return readFileSync(SERVICE_ACCOUNT_TOKEN_PATH).toString();
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function checkUserAuthorization(request: FastifyRequest): Promise<void> {
   // TODO: add user authorization check
   return Promise.resolve();
