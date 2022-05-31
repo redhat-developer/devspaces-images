@@ -141,7 +141,6 @@
 | [`esprima@4.0.1`](https://github.com/jquery/esprima.git) | BSD-2-Clause | #995 |
 | [`esutils@2.0.3`](http://github.com/estools/esutils.git) | BSD-2-Clause | #120 |
 | [`etag@1.8.1`](https://github.com/jshttp/etag.git) | MIT | clearlydefined |
-| [`eventsource@1.1.0`](git://github.com/EventSource/eventsource.git) | MIT | clearlydefined |
 | [`execa@5.0.0`](https://github.com/sindresorhus/execa.git) | MIT | clearlydefined |
 | [`extend@3.0.2`](https://github.com/justmoon/node-extend.git) | MIT | clearlydefined |
 | [`extsprintf@1.3.0`](git://github.com/davepacheco/node-extsprintf.git) | MIT | #1813 |
@@ -162,7 +161,6 @@
 | [`fastify-websocket@3.2.2`](git+https://github.com/fastify/fastify-websocket.git) | MIT | clearlydefined |
 | [`fastify@3.27.4`](git+https://github.com/fastify/fastify.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
 | [`fastq@1.13.0`](git+https://github.com/mcollina/fastq.git) | ISC | clearlydefined |
-| [`faye-websocket@0.11.4`](git://github.com/faye/faye-websocket-node.git) | Apache-2.0 | clearlydefined |
 | [`file-selector@0.1.19`](https://github.com/react-dropzone/file-selector.git) | MIT | [CQ22350](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22350) |
 | [`find-my-way@4.5.1`](git+https://github.com/delvedor/find-my-way.git) | MIT | clearlydefined |
 | [`flatstr@1.0.12`](git+https://github.com/davidmarkclements/flatstr.git) | MIT | clearlydefined |
@@ -197,7 +195,6 @@
 | [`htmlparser2@6.1.0`](git://github.com/fb55/htmlparser2.git) | MIT | clearlydefined |
 | [`http-cache-semantics@4.1.0`](https://github.com/kornelski/http-cache-semantics.git) | BSD-2-Clause | clearlydefined |
 | [`http-errors@1.8.1`](https://github.com/jshttp/http-errors.git) | MIT | clearlydefined |
-| [`http-parser-js@0.5.6`](git://github.com/creationix/http-parser-js.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/http-parser-js/0.5.6) |
 | [`http-proxy-agent@2.1.0`](git://github.com/TooTallNate/node-http-proxy-agent.git) | MIT | clearlydefined |
 | [`http-signature@1.2.0`](git://github.com/joyent/node-http-signature.git) | MIT | clearlydefined |
 | [`http2-wrapper@1.0.3`](git+https://github.com/szmarczak/http2-wrapper.git) | MIT | [CQ23110](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23110) |
@@ -281,7 +278,6 @@
 | [`onetime@5.1.2`](https://github.com/sindresorhus/onetime.git) | MIT | clearlydefined |
 | [`openapi-types@10.0.0`](https://github.com/kogosoftwarellc/open-api/tree/master/packages/openapi-types) | MIT | clearlydefined |
 | [`openid-client@4.9.1`](https://github.com/panva/node-openid-client.git) | MIT | clearlydefined |
-| [`original@1.0.2`](https://github.com/unshiftio/original) | MIT | clearlydefined |
 | [`os-homedir@1.0.2`](https://github.com/sindresorhus/os-homedir.git) | MIT | clearlydefined |
 | [`os-tmpdir@1.0.2`](https://github.com/sindresorhus/os-tmpdir.git) | MIT | clearlydefined |
 | [`p-cancelable@2.1.1`](https://github.com/sindresorhus/p-cancelable.git) | MIT | clearlydefined |
@@ -308,7 +304,6 @@
 | [`punycode@2.1.1`](https://github.com/bestiejs/punycode.js.git) | MIT | clearlydefined |
 | [`qs@6.10.3`](https://github.com/ljharb/qs.git) | BSD-3-Clause | clearlydefined |
 | [`querystring@0.2.1`](git://github.com/Gozala/querystring.git) | MIT | #1054 |
-| [`querystringify@2.2.0`](https://github.com/unshiftio/querystringify) | MIT | clearlydefined |
 | [`queue-microtask@1.2.3`](git://github.com/feross/queue-microtask.git) | MIT | clearlydefined |
 | [`quick-format-unescaped@4.0.4`](git+https://github.com/davidmarkclements/quick-format.git) | MIT | clearlydefined |
 | [`quick-lru@5.1.1`](https://github.com/sindresorhus/quick-lru.git) | MIT | clearlydefined |
@@ -339,7 +334,6 @@
 | [`request-light@0.2.5`](https://github.com/microsoft/node-request-light) | MIT | clearlydefined |
 | [`request@2.88.2`](https://github.com/request/request.git) | Apache-2.0 | #997 |
 | [`require-from-string@2.0.2`](https://github.com/floatdrop/require-from-string.git) | MIT | clearlydefined |
-| [`requires-port@1.0.0`](https://github.com/unshiftio/requires-port) | MIT | clearlydefined |
 | [`reselect@4.1.5`](https://github.com/reduxjs/reselect.git) | MIT | clearlydefined |
 | [`resolve-alpn@1.2.1`](git+https://github.com/szmarczak/resolve-alpn.git) | MIT | clearlydefined |
 | [`resolve-pathname@3.0.0`](https://github.com/mjackson/resolve-pathname.git) | MIT | clearlydefined |
@@ -370,7 +364,6 @@
 | [`signal-exit@3.0.7`](https://github.com/tapjs/signal-exit.git) | ISC | clearlydefined |
 | [`simple-oauth2@3.4.0`](https://github.com/lelylan/simple-oauth2) | Apache-2.0 | clearlydefined |
 | [`slash@1.0.0`](https://github.com/sindresorhus/slash.git) | MIT | clearlydefined |
-| [`sockjs-client@1.6.0`](https://github.com/sockjs/sockjs-client.git) | MIT | clearlydefined |
 | [`sonic-boom@1.4.1`](git+https://github.com/mcollina/sonic-boom.git) | MIT | clearlydefined |
 | [`source-map-js@1.0.2`](https://github.com/7rulnik/source-map-js.git) | BSD-3-Clause | #2412 |
 | [`source-map-support@0.4.18`](https://github.com/evanw/node-source-map-support) | MIT | clearlydefined |
@@ -409,7 +402,6 @@
 | [`undici@3.3.6`](git+https://github.com/nodejs/undici.git) | MIT | clearlydefined |
 | [`universalify@2.0.0`](git+https://github.com/RyanZim/universalify.git) | MIT | clearlydefined |
 | [`uri-js@4.4.1`](http://github.com/garycourt/uri-js) | BSD-2-Clause | #1086 |
-| [`url-parse@1.5.10`](https://github.com/unshiftio/url-parse.git) | MIT | clearlydefined |
 | [`util-deprecate@1.0.2`](git://github.com/TooTallNate/util-deprecate.git) | MIT | clearlydefined |
 | [`uuid@3.4.0`](https://github.com/uuidjs/uuid.git) | MIT | clearlydefined |
 | [`value-equal@1.0.1`](https://github.com/mjackson/value-equal.git) | MIT | clearlydefined |
@@ -425,8 +417,6 @@
 | [`vscode-nls@4.1.2`](https://github.com/Microsoft/vscode-nls.git) | MIT | clearlydefined |
 | [`vscode-uri@2.1.2`](git+https://github.com/Microsoft/vscode-uri.git) | MIT | clearlydefined |
 | [`warning@4.0.3`](https://github.com/BerkeleyTrue/warning.git) | MIT | [CQ22359](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22359) |
-| [`websocket-driver@0.7.4`](git://github.com/faye/websocket-driver-node.git) | Apache-2.0 | clearlydefined |
-| [`websocket-extensions@0.1.4`](git://github.com/faye/websocket-extensions-node.git) | Apache-2.0 | [CQ23021](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23021) |
 | [`websocket@1.0.23`](https://github.com/theturtle32/WebSocket-Node.git) | Apache-2.0 | [CQ22360](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22360) |
 | [`which@2.0.2`](git://github.com/isaacs/node-which.git) | ISC | clearlydefined |
 | [`wrappy@1.0.2`](https://github.com/npm/wrappy) | ISC | clearlydefined |
