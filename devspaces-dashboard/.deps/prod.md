@@ -10,7 +10,7 @@
 | [`@eclipse-che/common@7.46.1-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-backend@7.46.1-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-frontend@7.46.1-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/devfile-converter@0.0.1-e37ee54`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/devfile-converter@0.0.1-3d5ba2a`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@hapi/address@2.1.4`](git://github.com/hapijs/address) | BSD-3-Clause | clearlydefined |

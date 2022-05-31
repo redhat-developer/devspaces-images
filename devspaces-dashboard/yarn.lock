@@ -369,10 +369,10 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/devfile-converter@0.0.1-e37ee54":
-  version "0.0.1-e37ee54"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/devfile-converter/-/devfile-converter-0.0.1-e37ee54.tgz#68072645d8093ea332525dac1f5cb386f733ffaf"
-  integrity sha512-YQ4Z6ZhvvBEre7c4ABOEPJ/SCxuuO/6gNOgRNlm3bMV8Ii/9hciWn3FvSEbIOOnNL1ljQsXC1QZQMMWTxx6kLw==
+"@eclipse-che/devfile-converter@0.0.1-3d5ba2a":
+  version "0.0.1-3d5ba2a"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/devfile-converter/-/devfile-converter-0.0.1-3d5ba2a.tgz#a9bd583373c68c292def4eda3800430d0d9308ac"
+  integrity sha512-xseASa+37GsArFhPoYGGChsvLldKAcuzGS+7KU1rTPdd/EIQ0DmbKoLMt7zFaVkBvxea3cFVkJh1hg4Mbk8fdg==
   dependencies:
     "@devfile/api" "2.2.0-alpha-1637255314"
     "@eclipse-che/api" "^7.39.2"
@@ -1756,7 +1756,7 @@
     defer-to-connect "^2.0.0"
 
 "@testing-library/dom@^7.22.3", "@testing-library/dom@^7.30.3":
-  version "7.31.0"
+  version "7.31.2"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.31.2.tgz#df361db38f5212b88555068ab8119f5d841a8c4a"
   integrity sha512-3UqjCpey6HiTZT92vODYLPxTBWlM8ZOOjr3LX5F37/VRipW2M1kX6I/Cm4VXzteZqfGfagg8yXywpcOgQBlNsQ==
   dependencies:
