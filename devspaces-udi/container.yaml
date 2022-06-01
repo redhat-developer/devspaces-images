@@ -14,3 +14,11 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: python-ls
+  remote_source:
+    repo: https://github.com/palantir/python-language-server
+    ref: 7a98c2c5f9de193a02c2a53405fb951ff7b3ae6b
+    pkg_managers:
+      - pip
