@@ -13,7 +13,7 @@
 import { Workspace } from '../workspace-adapter';
 import { WorkspacesLogs } from './types';
 
-export function filterErrorLogs(workspacesLogs: WorkspacesLogs, workspace: Workspace): string {
+export function filterErrorLogs(workspacesLogs: WorkspacesLogs, workspace: Workspace): string[] {
   const errorRe = workspace.isDevWorkspace ? /^[1-9]{0,5} error occurred:/i : /^Error: /i;
   const wsLogs = workspacesLogs.get(workspace.uid) || [];
 
@@ -24,5 +24,5 @@ export function filterErrorLogs(workspacesLogs: WorkspacesLogs, workspace: Works
       errorLogs.push(message);
     }
   });
-  return errorLogs.join('\n');
+  return errorLogs;
 }

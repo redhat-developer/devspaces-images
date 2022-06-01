@@ -191,7 +191,7 @@ class IdeLoaderContainer extends React.Component<Props, State> {
       } else if (currentStep.id === IdeLoaderSteps.START_WORKSPACE) {
         nextStepCancellable = pseudoCancellable(this.runStep2(workspace));
       } else {
-        nextStepCancellable = pseudoCancellable(this.startStep3(workspace));
+        nextStepCancellable = pseudoCancellable(this.runStep3(workspace));
       }
       this.toDispose.push({
         dispose: () => {
@@ -290,7 +290,7 @@ class IdeLoaderContainer extends React.Component<Props, State> {
       (this.state.shouldStart === false &&
         this.isWorkspaceStatus(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED))
     ) {
-      const errorLogs = filterErrorLogs(this.props.workspacesLogs, workspace);
+      const errorLogs = filterErrorLogs(this.props.workspacesLogs, workspace).pop();
       throw new Error(
         errorLogs || `The workspace status changed unexpectedly to "${workspace.status}".`,
       );
@@ -339,7 +339,7 @@ class IdeLoaderContainer extends React.Component<Props, State> {
     return true;
   }
 
-  private async startStep3(workspace: Workspace): Promise<false> {
+  private async runStep3(workspace: Workspace): Promise<false> {
     if (!workspace.isRunning) {
       throw new Error(`The workspace status changed unexpectedly to "${workspace.status}".`);
     }

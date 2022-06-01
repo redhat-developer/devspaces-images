@@ -13,6 +13,7 @@
 import { prefix } from './const';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { getDefer } from '../helpers/deferred';
+import { V1alpha2DevWorkspace } from '@devfile/api';
 
 export type SubscribeMessage = {
   request: string;
@@ -22,7 +23,7 @@ export type SubscribeMessage = {
 
 export type PublishMessage = {
   channel: string;
-  message: any;
+  message: string | V1alpha2DevWorkspace;
 };
 
 type Handler = (data: unknown) => void;
@@ -30,6 +31,7 @@ type Handler = (data: unknown) => void;
 export class WebsocketClient {
   private websocketStream: ReconnectingWebSocket;
   private handlers: { [channel: string]: Handler[] } = {};
+  private resourceVersion = 0;
   private readonly onDidWebSocketFailing: (websocketContext: string) => void;
   private readonly onDidWebSocketOpen: (websocketContext: string) => void;
   private readonly onDidWebSocketClose: (event: CloseEvent) => void;
@@ -75,6 +77,7 @@ export class WebsocketClient {
     this.websocketStream.addEventListener('message', event => {
       const { channel, message } = JSON.parse(event.data) as PublishMessage;
       if (channel && message) {
+        this.saveResourceVersion(message);
         this.callHandlers(channel, message);
       }
     });
@@ -130,6 +133,8 @@ export class WebsocketClient {
       await this.sleep(1000);
     }
 
+    data.params.resourceVersion = this.getLatestResourceVersion(data.params.resourceVersion);
+
     return this.websocketStream.send(JSON.stringify(data));
   }
 
@@ -137,5 +142,28 @@ export class WebsocketClient {
     if (this.handlers[channel] && this.handlers[channel].length > 0) {
       this.handlers[channel].forEach((handler: Handler) => handler(data));
     }
+  }
+
+  private getLatestResourceVersion(resourceVersion: string | undefined): string | undefined {
+    if (!this.resourceVersion) {
+      return resourceVersion;
+    }
+    if (!resourceVersion) {
+      return this.resourceVersion.toString();
+    }
+
+    const resourceVersionNum = parseInt(resourceVersion, 10) || 0;
+    this.resourceVersion = Math.max(resourceVersionNum, this.resourceVersion);
+    return this.resourceVersion.toString();
+  }
+
+  private saveResourceVersion(message: PublishMessage['message']): void {
+    if (typeof message === 'string') {
+      return;
+    }
+
+    const resourceVersion = message.metadata?.resourceVersion || '0';
+    const resourceVersionNum = parseInt(resourceVersion, 10) || 0;
+    this.resourceVersion = Math.max(resourceVersionNum, this.resourceVersion);
   }
 }
