@@ -63,21 +63,15 @@ yarn --cwd packages/dashboard-frontend build:watch
 
 As an alternative to build:watch for frontend, you can run Dev Server.
 
-If Che is behind Keycloak (Che Server workspace engine or K8s DevWorkspace) you are able to run Dev Server against it directly:
+Local backend is prerequisite for Dev Server and then the command to run Dev Server is
 
 ```sh
-yarn frontend:start --env.server=https://192.168.39.132.nip.io
-```
-
-If Che is behind Native Auth, local backend is prerequisite for Dev Server and then the command to run Dev Server is
-
-```sh
-yarn frontend:start --env.server=http://localhost:8080/
+yarn frontend:start
 ```
 
 To avoid memory issues and the process being killed, more memory is possible through the following command in the frontend package directory:
 ```sh
-$ NODE_OPTIONS="--max_old_space_size=6500" && yarn start --env.server=http://localhost:8080
+NODE_OPTIONS="--max_old_space_size=6500" && yarn frontend:start
 ```
 
 

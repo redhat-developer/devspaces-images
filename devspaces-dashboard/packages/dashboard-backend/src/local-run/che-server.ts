@@ -11,7 +11,7 @@
  */
 
 import { FastifyInstance, RouteShorthandOptions } from 'fastify';
-import fastifyHttpProxy from 'fastify-http-proxy';
+import fastifyHttpProxy from '@fastify/http-proxy';
 
 export function registerCheApiProxy(
   server: FastifyInstance,

@@ -81,12 +81,7 @@ class WorkspaceIndicator extends React.PureComponent<Props> {
         >
           {icon}
         </span>
-        <ReactTooltip
-          backgroundColor="black"
-          textColor="white"
-          effect="solid"
-          offset={{ right: 20 }}
-        />
+        <ReactTooltip backgroundColor="black" textColor="white" effect="solid" />
       </>
     );
   }

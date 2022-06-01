@@ -15,7 +15,6 @@ const loaderUtils = require('loader-utils');
 const path = require('path');
 const webpack = require('webpack');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
 
 const common = require('./webpack.config.common');
@@ -72,7 +71,6 @@ module.exports = (env = {}) => {
       }),
       new webpack.HotModuleReplacementPlugin(),
       new CleanTerminalPlugin(),
-      new HardSourceWebpackPlugin(),
       new StylelintPlugin({
         context: path.join(__dirname, 'src'),
         emitWarning: true,
@@ -90,6 +88,7 @@ module.exports = (env = {}) => {
       splitChunks: false,
     },
     devtool: 'eval-cheap-module-source-map',
+    watch: true,
     watchOptions: {
       aggregateTimeout: 1000,
       ignored: /node_modules/,

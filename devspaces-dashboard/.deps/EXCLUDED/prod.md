@@ -3,11 +3,14 @@ This file lists dependencies that do not need CQs or auto-detection does not wor
 | Packages | Resolved CQs |
 | --- | --- |
 | `@hapi/hoek@8.5.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@hapi/hoek/8.5.1) |
-| `@patternfly/react-icons@4.49.19` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
-| `@patternfly/react-table@4.67.19` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
+| `@patternfly/react-icons@4.49.19` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-icons/4.49.19) |
+| `@patternfly/react-table@4.67.19` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@patternfly/react-table/4.67.19) |
 | `fastify-swagger@4.17.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify-swagger/4.17.1) |
-| `fastify@3.27.4` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.27.4) |
+| `fastify@3.29.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.29.0) |
+| `hawk@3.1.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/hawk/3.1.3) |
 | `http-parser-js@0.5.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/http-parser-js/0.5.6) |
 | `react-redux@7.2.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-redux/7.2.6) |
-| `react-router-dom@5.3.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router-dom/5.3.0) |
-| `react-router@5.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router/5.2.1) |
+| `react-redux@7.2.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-redux/7.2.6) |
+| `react-router-dom@5.3.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router-dom/5.3.3) |
+| `react-router@5.3.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router/5.3.3) |
+| `sntp@1.0.9` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/sntp/1.0.9) |

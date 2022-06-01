@@ -14,6 +14,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = (env = {}) => {
   return {
@@ -61,7 +62,7 @@ module.exports = (env = {}) => {
       new CopyPlugin({
         patterns: [
           {
-            from: path.resolve('..', '..', 'node_modules', 'fastify-swagger', 'static'),
+            from: path.resolve('..', '..', 'node_modules', '@fastify/swagger', 'static'),
             to: 'static/',
             transform(content, absoluteFrom) {
               // it needs to hide the top bar(the definition URL path)
@@ -78,6 +79,11 @@ module.exports = (env = {}) => {
     node: {
       __dirname: false,
     },
+    externals: [
+      'long',
+      'pino-pretty',
+      nodeExternals()
+    ],
   };
 
 };

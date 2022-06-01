@@ -12,7 +12,7 @@
 
 import { authenticationHeaderSchema } from '../constants/schemas';
 import { restParams } from '../typings/models';
-import createError from 'fastify-error';
+import createError from '@fastify/error';
 import { FastifyError } from 'fastify';
 
 export async function delay(ms = 500): Promise<void> {

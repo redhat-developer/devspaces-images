@@ -14,61 +14,50 @@ const merge = require('webpack-merge');
 
 const devConfig = require('./webpack.config.dev');
 
-module.exports = (env = {}) => {
-  const proxyTarget = env.server;
-  if (!proxyTarget) {
-    throw new Error('Che server URL is not set. Argument "--env.server=" is mandatory in development mode.');
-  }
+module.exports = () => {
   const headers = {
-    origin: proxyTarget,
+    origin: 'http://localhost:8080/',
   };
-  if (env.token) {
-    headers['Authorization'] = `Bearer ${env.token}`;
-  }
 
-  const dashboardServer = env.dashboardServer ? env.dashboardServer : proxyTarget;
-
-  return merge(devConfig(env), {
+  return merge(devConfig(), {
     devServer: {
-      publicPath: '/',
-      clientLogLevel: 'debug',
-      disableHostCheck: true,
+      client: {
+        logging: 'info',
+      },
+      devMiddleware: {
+        publicPath: '/',
+        writeToDisk: false,
+      },
       host: 'localhost',
       hot: true,
       open: false,
       port: 3000,
-      stats: 'errors-warnings',
-      writeToDisk: true,
       proxy: {
         '/api/websocket': {
-          target: proxyTarget,
+          target: headers.origin,
           ws: true,
           secure: false,
           changeOrigin: true,
-          headers: headers
+          headers
         },
         '/dashboard/api/websocket': {
-          target: dashboardServer,
+          target: headers.origin,
           ws: true,
           secure: false,
           changeOrigin: true,
-          headers: {
-            origin: dashboardServer,
-          },
+          headers,
         },
         '/dashboard/api': {
-          target: dashboardServer,
+          target: headers.origin,
           secure: false,
           changeOrigin: true,
-          headers: {
-            origin: dashboardServer,
-          },
+          headers,
         },
         '/api': {
-          target: proxyTarget,
+          target: headers.origin,
           secure: false,
           changeOrigin: true,
-          headers: headers,
+          headers,
         }
       },
     },

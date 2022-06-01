@@ -133,14 +133,24 @@ const config = {
       'vscode-languageserver-protocol/lib/utils/is': 'vscode-languageserver-protocol/lib/common/utils/is',
       'vscode-languageserver-protocol/lib/main': 'vscode-languageserver-protocol/lib/node/main',
     },
+    fallback: {
+      "fs": false,
+      "net": false,
+      "module": false,
+      "crypto": false,
+      "path": false,
+      "os": false,
+    },
   },
   resolveLoader: {},
-  node: {
-    fs: 'empty',
-    net: 'empty',
-    module: 'empty'
-  },
+  node: false,
   plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env.DASHBOARD_VERSION': JSON.stringify(require('./package.json').version),

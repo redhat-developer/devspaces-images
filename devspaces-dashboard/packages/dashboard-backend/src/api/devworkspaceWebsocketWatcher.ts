@@ -11,7 +11,7 @@
  */
 
 import { FastifyInstance, FastifyRequest, RouteShorthandOptions } from 'fastify';
-import { SocketStream } from 'fastify-websocket';
+import { SocketStream } from '@fastify/websocket';
 import { baseApiPath } from '../constants/config';
 import SubscribeManager from '../services/SubscriptionManager';
 import { getToken } from './helper';

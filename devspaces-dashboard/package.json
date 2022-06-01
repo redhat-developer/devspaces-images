@@ -18,7 +18,7 @@
   "scripts": {
     "build": "lerna run build --scope=@eclipse-che/dashboard-*",
     "prebuild": "lerna run build --scope=@eclipse-che/common",
-    "frontend:start": "yarn workspace @eclipse-che/dashboard-frontend start $@",
+    "frontend:start": "yarn workspace @eclipse-che/dashboard-frontend start",
     "start": "${PWD}/run/local-run.sh $@",
     "start:prepare": "${PWD}/run/prepare-local-run.sh",
     "start:cleanup": "${PWD}/run/revert-local-run.sh",
@@ -33,7 +33,6 @@
     "lint:fix": "lerna run --stream lint:fix"
   },
   "devDependencies": {
-    "lerna": "^4.0.0",
-    "typescript": "^4.1.3"
+    "lerna": "^4.0.0"
   }
 }

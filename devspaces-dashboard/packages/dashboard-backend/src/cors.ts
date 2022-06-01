@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import fastifyCors from 'fastify-cors';
+import fastifyCors from '@fastify/cors';
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from 'fastify';
 
 export function registerCors(isLocalRun: boolean, server: FastifyInstance) {

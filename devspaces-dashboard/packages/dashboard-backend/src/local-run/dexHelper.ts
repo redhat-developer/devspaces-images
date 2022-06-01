@@ -11,8 +11,8 @@
  */
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import fastifyHttpProxy from 'fastify-http-proxy';
-import oauthPlugin, { OAuth2Namespace } from 'fastify-oauth2';
+import fastifyHttpProxy from '@fastify/http-proxy';
+import oauthPlugin, { OAuth2Namespace } from '@fastify/oauth2';
 
 declare module 'fastify' {
   interface FastifyInstance {

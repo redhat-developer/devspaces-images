@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, FastifyRequest } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { baseApiPath } from '../constants/config';
 import { getDevWorkspaceClient, getServiceAccountToken } from './helper';
 import { getSchema } from '../services/helpers';
@@ -21,8 +21,8 @@ export function registerServerConfigApi(server: FastifyInstance) {
   server.get(
     `${baseApiPath}/server-config/default-plugins`,
     getSchema({ tags }),
-    async function (request: FastifyRequest) {
-      const token = await getServiceAccountToken(request);
+    async function () {
+      const token = await getServiceAccountToken();
       const { serverConfigApi } = await getDevWorkspaceClient(token);
       const cheCustomResource = await serverConfigApi.getCheCustomResource();
 

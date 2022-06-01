@@ -11,7 +11,7 @@
  */
 
 import { DoneFuncWithErrOrRes, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import fastifyStatic from 'fastify-static';
+import fastifyStatic from '@fastify/static';
 import path from 'path';
 
 export function registerStaticServer(publicFolder: string, server: FastifyInstance) {
