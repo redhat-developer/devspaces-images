@@ -37,7 +37,8 @@ export type BrandingDocs = {
 };
 
 export type BrandingConfiguration = {
-  cheCliTool: string;
+  /* deprecated field */
+  cheCliTool?: string;
   prefetch?: PrefetchConfiguration;
 };
 
@@ -88,7 +89,5 @@ export const BRANDING_DEFAULT: BrandingData = {
     webSocketTroubleshooting:
       'https://www.eclipse.org/che/docs/che-7/troubleshooting-network-problems/#troubleshooting-websocket-secure-connections_troubleshooting-network-problems',
   },
-  configuration: {
-    cheCliTool: 'chectl',
-  },
+  configuration: {},
 };

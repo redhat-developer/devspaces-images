@@ -39,10 +39,8 @@ import { selectWorkspaceByQualifiedName } from '../../store/Workspaces/selectors
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
 import getRandomString from '../../services/helpers/random';
 import { selectWorkspacesSettings } from '../../store/Workspaces/Settings/selectors';
-import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 
 const SamplesListTab = React.lazy(() => import('./GetStartedTab'));
-const CustomWorkspaceTab = React.lazy(() => import('./CustomWorkspaceTab'));
 
 type Props = MappedProps & {
   history: History;
@@ -227,23 +225,10 @@ export class GetStarted extends React.PureComponent<Props, State> {
     this.appAlerts.showAlert(alert);
   }
 
-  private handleTabClick(
-    event: React.MouseEvent<HTMLElement, MouseEvent>,
-    activeTabKey: React.ReactText,
-  ): void {
-    this.props.history.push(`${ROUTE.GET_STARTED}?tab=${activeTabKey}`);
-
-    this.setState({
-      activeTabKey: activeTabKey as CreateWorkspaceTab,
-    });
-  }
-
   render(): React.ReactNode {
     const { activeTabKey } = this.state;
     const title = 'Create Workspace';
     const quickAddTab: CreateWorkspaceTab = 'quick-add';
-    const customWorkspaceTab: CreateWorkspaceTab = 'custom-workspace';
-    const isCustomWorkspaceHidden = isDevworkspacesEnabled(this.props.workspacesSettings);
 
     return (
       <React.Fragment>
@@ -259,7 +244,6 @@ export class GetStarted extends React.PureComponent<Props, State> {
           <Tabs
             style={{ paddingTop: 'var(--pf-c-page__main-section--PaddingTop)' }}
             activeKey={activeTabKey}
-            onSelect={(event, tabKey) => this.handleTabClick(event, tabKey)}
           >
             <Tab eventKey={quickAddTab} title="Quick Add">
               <Suspense fallback={Fallback}>
@@ -268,23 +252,6 @@ export class GetStarted extends React.PureComponent<Props, State> {
                     return this.handleDevfileContent(
                       devfileContent,
                       { stackName },
-                      optionalFilesContent,
-                    );
-                  }}
-                />
-              </Suspense>
-            </Tab>
-            <Tab
-              eventKey={customWorkspaceTab}
-              isHidden={isCustomWorkspaceHidden}
-              title="Custom Workspace"
-            >
-              <Suspense fallback={Fallback}>
-                <CustomWorkspaceTab
-                  onDevfile={(devfile, infrastructureNamespace, optionalFilesContent) => {
-                    return this.handleDevfile(
-                      devfile,
-                      { infrastructureNamespace },
                       optionalFilesContent,
                     );
                   }}

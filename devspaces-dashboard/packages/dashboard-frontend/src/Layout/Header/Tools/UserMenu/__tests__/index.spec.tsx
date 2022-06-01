@@ -43,10 +43,9 @@ describe('User Menu', () => {
   const mockLogout = jest.fn();
   global.open = jest.fn();
 
-  const productCli = 'crwctl';
   const email = 'johndoe@example.com';
   const name = 'John Doe';
-  const store = createStore(productCli, name, email);
+  const store = createStore(name, email);
   const history = createHashHistory();
   const user = {
     id: 'test-id',
@@ -84,7 +83,7 @@ describe('User Menu', () => {
     fireEvent.click(menuButton);
 
     const items = screen.getAllByRole('menuitem');
-    expect(items.length).toEqual(4);
+    expect(items.length).toEqual(3);
   });
 
   it('should fire the logout event', () => {
@@ -98,28 +97,9 @@ describe('User Menu', () => {
 
     expect(mockLogout).toBeCalled();
   });
-
-  it('should copy the login command to clipboard', async () => {
-    render(component);
-
-    const mockClipboardWriteText = jest.fn();
-    (window.navigator as any).clipboard = {
-      writeText: mockClipboardWriteText,
-    };
-
-    const menuButton = screen.getByRole('button', { name });
-    fireEvent.click(menuButton);
-
-    const copyLoginCommandButton = screen.getByText(`Copy ${productCli} login command`);
-    fireEvent.click(copyLoginCommandButton);
-
-    await waitFor(() =>
-      expect(mockClipboardWriteText).toHaveBeenCalledWith('crwctl auth:login localhost'),
-    );
-  });
 });
 
-function createStore(cheCliTool: string, name: string, email: string): Store {
+function createStore(name: string, email: string): Store {
   return new FakeStoreBuilder()
     .withUserProfile({
       attributes: {
@@ -128,9 +108,6 @@ function createStore(cheCliTool: string, name: string, email: string): Store {
       email,
     } as api.che.user.Profile)
     .withBranding({
-      configuration: {
-        cheCliTool,
-      },
       links: BRANDING_DEFAULT.links,
       docs: {},
     } as BrandingData)

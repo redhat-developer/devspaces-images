@@ -83,11 +83,6 @@ jest.mock('../GetStartedTab', () => {
     );
   };
 });
-jest.mock('../CustomWorkspaceTab', () => {
-  return function DummyTab(): React.ReactNode {
-    return <span>Custom Workspace Tab Content</span>;
-  };
-});
 
 describe('Quick Add page', () => {
   it('should create and start a new workspace', async () => {
@@ -117,16 +112,6 @@ describe('Quick Add page', () => {
     quickAddTabButton.click();
 
     expect(masthead.textContent?.startsWith('Getting Started with'));
-  });
-
-  it('should have correct masthead when Custom Workspace tab is active', () => {
-    renderGetStartedPage();
-    const masthead = screen.getByRole('heading');
-
-    const customWorkspaceTabButton = screen.getByRole('button', { name: 'Custom Workspace' });
-    customWorkspaceTabButton.click();
-
-    expect(masthead.textContent?.startsWith('Custom Workspace'));
   });
 });
 

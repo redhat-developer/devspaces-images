@@ -79,10 +79,6 @@ export class UserMenu extends React.PureComponent<Props, State> {
     return window.location.host;
   }
 
-  private getCliTool(): string {
-    return this.props.branding.configuration.cheCliTool;
-  }
-
   private getUsername(): string {
     const { userProfile, user } = this.props;
 
@@ -103,61 +99,6 @@ export class UserMenu extends React.PureComponent<Props, State> {
     return username;
   }
 
-  private getLoginCommand(): string {
-    return this.getCliTool() + ` auth:login ${this.getHost()}`;
-  }
-
-  /**
-   * Copies login command in clipboard.
-   */
-  private async copyLoginCommand(): Promise<void> {
-    let loginCommand = '';
-    try {
-      loginCommand = this.getLoginCommand();
-      await window.navigator.clipboard.writeText(loginCommand);
-      this.showAlert({
-        key: 'login-command-copied-to-clipboard',
-        variant: AlertVariant.success,
-        title: 'The login command copied to clipboard.',
-      });
-    } catch (e) {
-      this.showAlert({
-        key: 'login-command-copied-to-clipboard-failed',
-        variant: AlertVariant.warning,
-        title: `Failed to put login to clipboard. ${e}`,
-      });
-      if (loginCommand) {
-        this.showAlert({
-          key: 'login-command-info',
-          variant: AlertVariant.info,
-          title: 'Login command',
-          children: (
-            <React.Fragment>
-              <Button
-                variant={ButtonVariant.link}
-                isInline={true}
-                onClick={e => {
-                  const target = e.target as Element;
-                  target.classList.add(styles.refreshTokenButtonHidden);
-                }}
-              >
-                Click here
-              </Button>
-              <span> to see the login command and copy it manually.</span>
-              <pre className={styles.refreshTokenArea}>{loginCommand}</pre>
-            </React.Fragment>
-          ),
-        });
-      }
-    }
-  }
-
-  private async onCopyLoginCommand(): Promise<void> {
-    // we need this request because of the token update as a side effect
-    await this.props.requestNamespaces();
-    this.copyLoginCommand();
-  }
-
   private buildUserDropdownItems(): Array<React.ReactElement> {
     return [
       <DropdownItem
@@ -173,13 +114,6 @@ export class UserMenu extends React.PureComponent<Props, State> {
         onClick={() => this.props.history.push(ROUTE.USER_PREFERENCES)}
       >
         User Preferences
-      </DropdownItem>,
-      <DropdownItem
-        key="copy-login-command"
-        component="button"
-        onClick={async () => await this.onCopyLoginCommand()}
-      >
-        {`Copy ${this.getCliTool()} login command`}
       </DropdownItem>,
       <DropdownItem key="account_logout" component="button" onClick={() => this.props.logout()}>
         Logout

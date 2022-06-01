@@ -100,18 +100,6 @@ Default branding data for the User Dashboard is located in [branding.constant.ts
 
 ### Configurability
 
-Field `"configuration.cheCliTool"` should contain the name of a CLI tool that is recommended to be used to work with Che Server from the terminal. It's the `"chectl"` by default.
-
-Example:
-
-```json
-{
-  "configuration": {
-    "cheCliTool": "chectl"
-  }
-}
-```
-
 Field `"header.warning"` allows you to display a message at the top of the dashboard. You can use HTML to configure the field but only the '\<a>' tag and 'href', 'target' properties are accepted. It's undefined by default.
 
 Example:
