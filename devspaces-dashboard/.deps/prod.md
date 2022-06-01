@@ -10,7 +10,7 @@
 | [`@eclipse-che/common@7.48.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-backend@7.48.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/dashboard-frontend@7.48.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/devfile-converter@0.0.1-3d5ba2a`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/devfile-converter@0.0.1-d624e3e`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
 | [`@fastify/cors@7.0.0`](git+https://github.com/fastify/fastify-cors.git) | MIT | clearlydefined |
