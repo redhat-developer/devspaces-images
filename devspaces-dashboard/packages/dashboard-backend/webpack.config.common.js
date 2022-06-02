@@ -14,9 +14,8 @@ const path = require('path');
 const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const nodeExternals = require('webpack-node-externals');
 
-module.exports = (env = {}) => {
+module.exports = () => {
   return {
     entry: path.join(__dirname, 'src/index.ts'),
     output: {
@@ -82,7 +81,6 @@ module.exports = (env = {}) => {
     externals: [
       'long',
       'pino-pretty',
-      nodeExternals()
     ],
   };
 

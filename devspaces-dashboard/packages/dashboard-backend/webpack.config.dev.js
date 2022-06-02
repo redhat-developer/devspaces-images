@@ -11,15 +11,19 @@
  */
 
 const merge = require('webpack-merge');
+const nodeExternals = require('webpack-node-externals');
 
 const common = require('./webpack.config.common');
-module.exports = (env = {}) => {
-  return merge(common(env), {
+module.exports = () => {
+  return merge(common(), {
     mode: 'development',
     devtool: 'eval-source-map',
     watchOptions: {
       ignored: /node_modules/,
       poll: 1000,
     },
+    externals: [
+      nodeExternals(),
+    ],
   });
 };
