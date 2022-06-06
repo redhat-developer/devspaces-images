@@ -40,7 +40,7 @@
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",
     "@patternfly/react-table": "^4.5.7",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "buffer": "^6.0.3",
     "connected-react-router": "^6.7.0",
     "date-fns": "^2.16.1",

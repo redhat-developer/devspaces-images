@@ -192,7 +192,6 @@ export const actionCreators: ActionCreators = {
           plugin,
         });
       } catch (error) {
-        console.log(`Failed to load the content of the editor ${editorName}`, error);
         const errorMessage = `Failed to load the editor ${editorName}. Invalid devfile. Check 'che-editor' param.`;
         dispatch({
           type: 'RECEIVE_DW_EDITOR_ERROR',
@@ -200,7 +199,7 @@ export const actionCreators: ActionCreators = {
           editorName,
           error: errorMessage,
         });
-        throw errorMessage;
+        throw common.helpers.errors.getMessage(error);
       }
     },
 

@@ -201,11 +201,12 @@ describe('dwPlugins store', () => {
         ThunkDispatch<AppState, undefined, dwPluginsStore.KnownAction>
       >;
 
-      try {
-        await store.dispatch(dwPluginsStore.actionCreators.requestDwEditor(settings, editorLink));
-      } catch (e) {
-        // noop
-      }
+      await store
+        .dispatch(dwPluginsStore.actionCreators.requestDwEditor(settings, editorLink))
+        .catch(() => {
+          // noop
+        });
+
       const actions = store.getActions();
 
       const expectedActions: dwPluginsStore.KnownAction[] = [

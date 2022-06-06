@@ -13,9 +13,6 @@
 import axios from 'axios';
 import common from '@eclipse-che/common';
 
-// create new instance of `axios` to avoid adding an authorization header
-const axiosInstance = axios.create();
-
 function createURL(url: string, baseUrl: string): URL {
   // Remove it after fixing all source links https://github.com/eclipse/che/issues/19140
   if (/^\/(\w+)/.test(url)) {
@@ -57,7 +54,7 @@ export function updateObjectLinks(object: any, baseUrl): any {
 
 export async function fetchData<T>(url: string): Promise<T> {
   try {
-    const response = await axiosInstance.get<T>(url);
+    const response = await axios.get<T>(url);
     return response.data;
   } catch (e) {
     throw common.helpers.errors.getMessage(e);

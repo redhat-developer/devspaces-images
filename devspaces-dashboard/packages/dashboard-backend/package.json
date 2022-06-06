@@ -35,7 +35,7 @@
     "@fastify/websocket": "^5.0.0",
     "@kubernetes/client-node": "^0.16.3",
     "args": "^5.0.3",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "fastify": "^3.29.0",
     "fs-extra": "9.1.0",
     "querystring": "^0.2.1",
