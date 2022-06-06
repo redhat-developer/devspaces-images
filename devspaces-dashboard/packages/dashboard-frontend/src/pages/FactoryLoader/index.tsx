@@ -32,7 +32,8 @@ import { WorkspaceStatus } from '../../services/helpers/types';
 import WorkspaceLogs from '../../components/WorkspaceLogs';
 
 import workspaceStatusLabelStyles from '../../components/WorkspaceStatusLabel/index.module.css';
-import './FactoryLoader.styl';
+
+import styles from './index.module.css';
 
 const SECTION_THEME = PageSectionVariants.light;
 
@@ -249,7 +250,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
           title={`Starting workspace ${workspaceName}`}
           status={hasError ? WorkspaceStatus.ERROR : WorkspaceStatus.STARTING}
         />
-        <PageSection variant={SECTION_THEME} className="load-factory-page" isFilled={true}>
+        <PageSection variant={SECTION_THEME} className={styles.loadFactoryPage} isFilled={true}>
           <Tabs
             activeKey={this.state.activeTabKey}
             onSelect={this.handleTabClick}
@@ -272,7 +273,7 @@ class FactoryLoader extends React.PureComponent<Props, State> {
                   />
                 )}
                 <Wizard
-                  className="load-factory-wizard"
+                  className={styles.loadFactoryWizard}
                   steps={this.getSteps()}
                   ref={this.wizardRef}
                   footer={<span />}

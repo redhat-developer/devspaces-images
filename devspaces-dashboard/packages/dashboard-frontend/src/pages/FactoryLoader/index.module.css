@@ -1,0 +1,69 @@
+/*
+ * Copyright (c) 2018-2021 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+
+.loadFactoryPage {
+  padding-right: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  overflow: hidden;
+}
+
+.loadFactoryPage .pf-c-empty-state {
+  padding-bottom: calc(100vh - 385px);
+}
+
+.loadFactoryWizard .pf-c-wizard__nav {
+  width: 100%;
+  border: none;
+  pointer-events: none;
+}
+
+.loadFactoryWizard .pf-c-wizard__nav .error {
+  color: black;
+}
+
+.loadFactoryWizard .pf-c-wizard__nav .error,
+.loadFactoryWizard .pf-c-wizard__nav .progress {
+  font-weight: bold;
+}
+
+.loadFactoryWizard .pf-c-wizard__nav .progress {
+  color: #0766cc;
+}
+
+.loadFactoryWizard .pf-c-wizard__nav .pf-c-wizard__nav-link {
+  margin-left: 8px;
+}
+
+.loadFactoryWizard .pf-c-wizard__nav .pf-c-wizard__nav-link > svg {
+  margin-right: 5px;
+}
+
+.loadFactoryWizard .pf-c-wizard__nav .pf-c-wizard__nav-link .wizard-icon {
+  position: absolute;
+  top: 3px;
+  left: -56px;
+}
+
+.loadFactoryWizard .pf-c-wizard__toggle {
+  padding-left: 56px;
+}
+
+.loadFactoryWizard .pf-c-wizard__toggle .pf-c-wizard__toggle-list-item > svg {
+  margin-right: 5px;
+}
+
+.loadFactoryWizard .pf-c-wizard__toggle .pf-c-wizard__toggle-list-item .wizard-icon {
+  position: absolute;
+  top: 3px;
+  left: -56px;
+}

@@ -37,7 +37,7 @@ import WorkspaceConversionButton from './ConversionButton';
 import { WorkspaceInlineAlerts } from './InlineAlerts';
 import { buildDetailsLocation } from '../../services/helpers/location';
 
-import './WorkspaceDetails.styl';
+import styles from './index.module.css';
 
 export const SECTION_THEME = PageSectionVariants.light;
 
@@ -246,7 +246,7 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
             history={this.props.history}
           />
         </Header>
-        <PageSection variant={SECTION_THEME} className="workspace-details-tabs">
+        <PageSection variant={SECTION_THEME} className={styles.workspaceDetailsTabs}>
           <WorkspaceInlineAlerts
             workspace={workspace}
             canConvert={showConvertButton}

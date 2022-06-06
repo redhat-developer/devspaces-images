@@ -19,7 +19,7 @@ import Head from './components/Head';
 import Layout from './Layout';
 import Routes from './Routes';
 
-import './app.styl';
+import './app.css';
 
 function AppComponent(props: { history: History }): React.ReactElement {
   return (

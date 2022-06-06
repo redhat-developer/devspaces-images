@@ -2,7 +2,7 @@
 
 exports[`The DevfileEditor component should initialize the component correctly 1`] = `
 <div
-  className="devfile-editor"
+  className="devfileEditor"
 >
   <div
     className="monaco"

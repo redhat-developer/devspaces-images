@@ -10,8 +10,19 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-module.exports = {
-  extends: [
-    'stylelint-config-standard',
-  ],
+/*
+ * This file is for patternfly css specific overrides
+ */
+
+.pf-c-app-launcher__menu-item-external-icon {
+  color: var(--pf-global--icon--Color--light) !important;
+  opacity: 1 !important;
+}
+
+.pf-c-page-section-no-padding {
+  padding: 0 !important;
+}
+
+span[class*="label-required"] {
+  color: var(--pf-global--palette--red-100);
 }

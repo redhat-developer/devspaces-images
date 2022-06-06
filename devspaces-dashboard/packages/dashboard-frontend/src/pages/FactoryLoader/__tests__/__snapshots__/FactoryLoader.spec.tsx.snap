@@ -127,7 +127,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -238,7 +238,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -757,7 +757,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -868,7 +868,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -1388,7 +1388,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -1499,7 +1499,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -1917,7 +1917,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -2028,7 +2028,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -2446,7 +2446,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -2557,7 +2557,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -3059,7 +3059,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -3170,7 +3170,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -3672,7 +3672,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -3783,7 +3783,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -4285,7 +4285,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -4396,7 +4396,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -4905,7 +4905,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -5016,7 +5016,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,
@@ -5506,7 +5506,7 @@ Array [
     </div>
   </section>,
   <section
-    className="pf-c-page__main-section pf-m-light pf-m-fill load-factory-page"
+    className="pf-c-page__main-section pf-m-light pf-m-fill loadFactoryPage"
   >
     <div
       className="pf-c-tabs pf-m-inset-lg"
@@ -5617,7 +5617,7 @@ Array [
       >
         
         <div
-          className="pf-c-wizard load-factory-wizard"
+          className="pf-c-wizard loadFactoryWizard"
           style={
             Object {
               "height": 300,

@@ -21,7 +21,7 @@ import configureStore from './store/configureStore';
 import App from './App';
 import PreloadData from './services/bootstrap';
 
-import './overrides.styl';
+import './overrides.css';
 
 startApp();
 

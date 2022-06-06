@@ -10,16 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-/*
- * This file is for patternfly css specific overrides
- */
+.sample-card .blank-icon {
+  width: 64px;
+  font-size: 64px;
+  line-height: 64px;
+  text-align: center;
+  filter: grayscale(100%) opacity(50%);
+}
 
-.pf-c-app-launcher__menu-item-external-icon
-  color var(--pf-global--icon--Color--light) !important
-  opacity 1 !important
-
-.pf-c-page-section-no-padding
-  padding 0 !important
-
-span[class*="label-required"]
-  color: var(--pf-global--palette--red-100)
+.sample-card .blank-icon .codicon-symbol-method {
+  width: 100%;
+  font-size: 50px;
+}

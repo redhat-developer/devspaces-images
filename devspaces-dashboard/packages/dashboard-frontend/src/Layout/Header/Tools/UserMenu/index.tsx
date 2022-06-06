@@ -12,23 +12,13 @@
 
 import { History } from 'history';
 import React from 'react';
-import {
-  AlertVariant,
-  Button,
-  ButtonVariant,
-  Dropdown,
-  DropdownItem,
-  DropdownToggle,
-} from '@patternfly/react-core';
+import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
 import { ROUTE } from '../../../../route.enum';
 import { lazyInject } from '../../../../inversify.config';
 import { AppAlerts } from '../../../../services/alerts/appAlerts';
-import { AlertItem } from '../../../../services/helpers/types';
 import * as InfrastructureNamespacesStore from '../../../../store/InfrastructureNamespaces';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
-
-import * as styles from './index.module.css';
 
 type Props = MappedProps & {
   branding: BrandingData;
@@ -62,21 +52,6 @@ export class UserMenu extends React.PureComponent<Props, State> {
     this.setState({
       isOpened: isOpen,
     });
-  }
-
-  private showAlert(alert: AlertItem): void {
-    this.appAlerts.showAlert(alert);
-  }
-
-  private getHost(): string {
-    const { user } = this.props;
-    if (user && user.links) {
-      const targetLink = user.links.find(link => link.rel === 'current_user');
-      if (targetLink) {
-        return new URL(targetLink.href).origin;
-      }
-    }
-    return window.location.host;
   }
 
   private getUsername(): string {

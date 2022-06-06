@@ -141,12 +141,13 @@ export class EditorTab extends React.PureComponent<Props, State> {
 
   public render(): React.ReactElement {
     const originDevfile = this.props.workspace.devfile;
-    const { devfile, additionSchema } = this.state;
+    const { devfile, additionSchema, isExpanded } = this.state;
     const isReadonly = this.props.workspace.isDeprecated;
     const isDisabled =
       !this.state.hasChanges ||
       !this.state.isDevfileValid ||
       this.props.workspace.status === DevWorkspaceStatus.TERMINATING;
+    const editorTabStyle = isExpanded ? styles.editorTabExpanded : styles.editorTab;
 
     return (
       <React.Fragment>
@@ -185,9 +186,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
             </TextContent>
           </Modal>
         )}
-        <TextContent
-          className={this.state.isExpanded ? styles.editorTabExpanded : styles.editorTab}
-        >
+        <TextContent className={editorTabStyle}>
           {this.state.currentRequestError && this.state.isExpanded && (
             <AlertGroup isToast>
               <Alert

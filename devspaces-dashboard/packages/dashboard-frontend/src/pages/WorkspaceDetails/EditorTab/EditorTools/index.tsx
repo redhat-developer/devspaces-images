@@ -21,7 +21,7 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import stringify from '../../../../services/helpers/editor';
 
-import './EditorTools.styl';
+import styles from './index.module.css';
 
 type Props = {
   devfile: che.WorkspaceDevfile;
@@ -76,7 +76,7 @@ class EditorTools extends React.PureComponent<Props, State> {
     };
 
     return (
-      <div className="editor-tools">
+      <div className={styles.editorTools}>
         <Flex>
           <FlexItem>
             <CopyToClipboard text={devfileText} onCopy={() => onCopyToClipboard()}>

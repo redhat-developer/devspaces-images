@@ -223,7 +223,6 @@
 | [`isomorphic-ws@4.0.1`](git+https://github.com/heineiuo/isomorphic-ws.git) | MIT | clearlydefined |
 | [`isstream@0.1.2`](https://github.com/rvagg/isstream.git) | MIT | clearlydefined |
 | [`jose@2.0.5`](https://github.com/panva/jose.git) | MIT | clearlydefined |
-| [`jquery@3.6.0`](https://github.com/jquery/jquery.git) | MIT | clearlydefined |
 | [`js-tokens@4.0.0`](https://github.com/lydell/js-tokens.git) | MIT | #2401 |
 | [`js-yaml@4.1.0`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsbn@0.1.1`](https://github.com/andyperlitch/jsbn.git) | MIT | clearlydefined |

@@ -13,8 +13,6 @@
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const stylus_plugin = require('poststylus');
-const stylusLoader = require('stylus-loader');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -108,14 +106,6 @@ const config = {
         use: ['null-loader']
       },
       {
-        test: /\.styl$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'stylus-loader'
-        ]
-      },
-      {
         test: /\.(jpg|svg|woff|woff2|ttf|eot|ico)$/,
         use: [{
           loader: 'file-loader',
@@ -171,11 +161,6 @@ const config = {
         { from: path.join(__dirname, 'assets'), to: 'assets' },
         { from: path.join(__dirname, 'static'), to: 'static' },
       ]
-    }),
-    new stylusLoader.OptionsPlugin({
-      default: {
-        use: [stylus_plugin()],
-      },
     }),
   ],
 };

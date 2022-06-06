@@ -10,8 +10,18 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-module.exports = {
-  extends: [
-    'stylelint-config-standard',
-  ],
+.workspaceDetailsTabs .pf-c-tab-content {
+  outline: none;
+}
+
+.workspaceDetailsTabs .pf-c-tab-content .pf-c-form__label-text {
+  cursor: initial;
+}
+
+.workspaceDetailsTabs .pf-c-tab-content .pf-c-page__main-section .pf-m-spacer-lg {
+  padding-bottom: 0;
+}
+
+.workspaceDetailsTabs .pf-c-tabs {
+  padding-bottom: 0;
 }

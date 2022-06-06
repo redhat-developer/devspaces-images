@@ -27,14 +27,13 @@ import {
 } from 'yaml-language-server';
 import { initDefaultEditorTheme } from '../../services/monacoThemeRegister';
 import stringify, { language, conf } from '../../services/helpers/editor';
-import $ from 'jquery';
 import { merge, isMatch } from 'lodash';
 import devfileApi from '../../services/devfileApi';
 import { selectDevfileSchema } from '../../store/DevfileRegistries/selectors';
 import { selectPlugins } from '../../store/Plugins/chePlugins/selectors';
 import { selectBranding } from '../../store/Branding/selectors';
 
-import './DevfileEditor.styl';
+import styles from './index.module.css';
 
 const LANGUAGE_ID = 'yaml';
 const YAML_SERVICE = 'yamlService';
@@ -153,11 +152,11 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
 
   // This method is called when the component is first added to the document
   public componentDidMount(): void {
-    const element = $('.devfile-editor .monaco').get(0);
-    if (element) {
+    const element = window.document.querySelector(`.${styles.devfileEditor} .${styles.monaco}`);
+    if (element !== null) {
       const value = stringify(this.props.devfile);
       this.editor = editor.create(
-        element,
+        element as HTMLElement,
         Object.assign(
           { value },
           {
@@ -170,7 +169,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
       doc?.updateOptions({ tabSize: 2 });
 
       const handleResize = (): void => {
-        const layout = { height: element.offsetHeight, width: element.offsetWidth };
+        const layout = { height: element.clientHeight, width: element.clientWidth };
         // if the element is hidden
         if (layout.height === 0 || layout.width === 0) {
           return;
@@ -230,9 +229,9 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
     const { errorMessage } = this.state;
 
     return (
-      <div className="devfile-editor">
-        <div className="monaco">&nbsp;</div>
-        <div className="error">{errorMessage}</div>
+      <div className={styles.devfileEditor}>
+        <div className={styles.monaco}>&nbsp;</div>
+        <div className={styles.error}>{errorMessage}</div>
         <a target="_blank" rel="noopener noreferrer" href={href}>
           Devfile Documentation
         </a>
@@ -258,7 +257,7 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
           endPosition.column,
         );
         const options: editor.IModelDecorationOptions = {
-          inlineClassName: 'devfile-editor-decoration',
+          inlineClassName: styles.devfileEditorDecoration,
         };
         decorations.push({
           range,

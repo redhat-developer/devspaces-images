@@ -20,7 +20,7 @@ import {
   Badge,
   CardActions,
 } from '@patternfly/react-core';
-import './SampleCard.styl';
+import './sample-card.css';
 
 type SampleCardProps = {
   metadata: che.DevfileMetaData;
