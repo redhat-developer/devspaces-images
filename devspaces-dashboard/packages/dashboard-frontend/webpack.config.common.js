@@ -127,13 +127,14 @@ const config = {
       "fs": false,
       "net": false,
       "module": false,
-      "crypto": false,
       "path": false,
       "os": false,
+      "crypto": require.resolve("crypto-browserify"),
+      "stream": require.resolve("stream-browserify"),
     },
   },
   resolveLoader: {},
-  node: false,
+  node: { global: true },
   plugins: [
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
