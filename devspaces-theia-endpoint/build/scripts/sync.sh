@@ -79,9 +79,8 @@ sync_dstheia_to_dsimages() {
     if [[ ${targDir} == "theia-endpoint" ]]; then sourceDir="theia-endpoint-runtime-binary"; fi
     # TODO: should we use --delete?
     echo "Rsync ${SOURCEDIR}/dockerfiles/${sourceDir} to ${TARGETDIR}/devspaces-${targDir}"
-    rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}" "${TARGETDIR}/devspaces-${targDir}"
-    # don't need two copies of the Dockerfile, so move from subdir into root
-    mv -f "${TARGETDIR}/devspaces-${targDir}/${sourceDir}/Dockerfile" "${TARGETDIR}/devspaces-${targDir}/Dockerfile"
+    rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}/"* "${TARGETDIR}/devspaces-${targDir}/"
+
     # ensure shell scripts are executable
     find "${TARGETDIR}/devspaces-${targDir}" -name "*.sh" -exec chmod +x {} \;
   done
