@@ -706,7 +706,6 @@
 | [`micromatch@4.0.4`](https://github.com/micromatch/micromatch.git) | MIT | clearlydefined |
 | [`mimic-response@1.0.1`](https://github.com/sindresorhus/mimic-response.git) | MIT | clearlydefined |
 | [`min-indent@1.0.1`](https://github.com/thejameskyle/min-indent) | MIT | clearlydefined |
-| [`minimalistic-assert@1.0.1`](https://github.com/calvinmetcalf/minimalistic-assert.git) | ISC | clearlydefined |
 | [`minimist-options@4.1.0`](https://github.com/vadimdemedes/minimist-options.git) | MIT | clearlydefined |
 | `minipass-collect@1.0.2` | ISC | clearlydefined |
 | [`minipass-fetch@1.4.1`](git+https://github.com/npm/minipass-fetch.git) | MIT | clearlydefined |
@@ -843,7 +842,6 @@
 | [`q@1.5.1`](git://github.com/kriskowal/q.git) | MIT | #1020 |
 | [`query-string@6.14.1`](https://github.com/sindresorhus/query-string.git) | MIT | clearlydefined |
 | [`quick-lru@4.0.1`](https://github.com/sindresorhus/quick-lru.git) | MIT | clearlydefined |
-| [`randombytes@2.1.0`](git@github.com:crypto-browserify/randombytes.git) | MIT | clearlydefined |
 | [`raw-body@2.5.1`](https://github.com/stream-utils/raw-body.git) | MIT | clearlydefined |
 | [`rc@1.2.8`](https://github.com/dominictarr/rc.git) | (BSD-2-Clause OR MIT OR Apache-2.0) | #1023 |
 | [`react-test-renderer@16.14.0`](git+https://github.com/facebook/react.git) | MIT | clearlydefined |

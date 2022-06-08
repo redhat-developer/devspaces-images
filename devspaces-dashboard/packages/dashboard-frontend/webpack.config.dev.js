@@ -16,7 +16,6 @@ const path = require('path');
 const webpack = require('webpack');
 const CleanTerminalPlugin = require('clean-terminal-webpack-plugin');
 const StylelintPlugin = require('stylelint-webpack-plugin');
-const nodeExternals = require('webpack-node-externals');
 
 const common = require('./webpack.config.common');
 
@@ -93,8 +92,5 @@ module.exports = (env = {}) => {
       aggregateTimeout: 1000,
       ignored: /node_modules/,
     },
-    externals: [
-      nodeExternals()
-    ],
   });
 };
