@@ -77,9 +77,12 @@ sync_dstheia_to_dsimages() {
     sourceDir=${targDir};
     # TODO can we rename this in build.sh?
     if [[ ${targDir} == "theia-endpoint" ]]; then sourceDir="theia-endpoint-runtime-binary"; fi
-    # TODO: should we use --delete?
+
     echo "Rsync ${SOURCEDIR}/dockerfiles/${sourceDir} to ${TARGETDIR}/devspaces-${targDir}"
     rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}/"* "${TARGETDIR}/devspaces-${targDir}/"
+
+    # CRW-2958 remove duplicate content in theia-*/src folder
+    git rm -fr "${TARGETDIR}/devspaces-${targDir}/${sourceDir}/" || rm -fr "${TARGETDIR}/devspaces-${targDir}/${sourceDir}/"
 
     # ensure shell scripts are executable
     find "${TARGETDIR}/devspaces-${targDir}" -name "*.sh" -exec chmod +x {} \;

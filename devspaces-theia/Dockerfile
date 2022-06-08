@@ -166,7 +166,7 @@ RUN if [ "$UNPACK_CHE_THEIA_PLUGINS" = "true" ]; then cd plugins && ./unpack_che
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-14
-FROM ubi8/nodejs-14:1-75.1654147935 as build-result
+FROM ubi8/nodejs-14:1-75.1652296492 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
