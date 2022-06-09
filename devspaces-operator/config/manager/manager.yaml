@@ -37,7 +37,7 @@ spec:
     spec:
       containers:
         - name: devspaces-operator
-          image: registry.redhat.io/devspaces/devspaces-rhel8-operator:3.1
+          image: quay.io/devspaces/devspaces-rhel8-operator:latest
           command:
             - /manager
           args:
@@ -70,11 +70,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             - name: RELATED_IMAGE_che_server
-              value: registry.redhat.io/devspaces/server-rhel8:3.1
+              value: quay.io/devspaces/server-rhel8:latest
             - name: RELATED_IMAGE_dashboard
-              value: registry.redhat.io/devspaces/dashboard-rhel8:3.1
+              value: quay.io/devspaces/dashboard-rhel8:latest
             - name: RELATED_IMAGE_devfile_registry
-              value: registry.redhat.io/devspaces/devfileregistry-rhel8:3.1
+              value: quay.io/devspaces/devfileregistry-rhel8:latest
             - name: RELATED_IMAGE_devworkspace_controller
               value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.13
             - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -82,9 +82,9 @@ spec:
             - name: RELATED_IMAGE_gateway_authorization_sidecar
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
             - name: RELATED_IMAGE_internal_rest_backup_server
-              value: registry.redhat.io/devspaces/backup-rhel8:3.1
+              value: quay.io/devspaces/backup-rhel8:latest
             - name: RELATED_IMAGE_plugin_registry
-              value: registry.redhat.io/devspaces/pluginregistry-rhel8:3.1
+              value: quay.io/devspaces/pluginregistry-rhel8:latest
             - name: RELATED_IMAGE_postgres
               value: registry.redhat.io/rhel8/postgresql-96:1
             - name: RELATED_IMAGE_postgres_13_3
@@ -92,9 +92,9 @@ spec:
             - name: RELATED_IMAGE_pvc_jobs
               value: registry.redhat.io/ubi8/ubi-minimal:8.5
             - name: RELATED_IMAGE_single_host_gateway
-              value: registry.redhat.io/devspaces/traefik-rhel8:3.1
+              value: quay.io/devspaces/traefik-rhel8:latest
             - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-              value: registry.redhat.io/devspaces/configbump-rhel8:3.1
+              value: quay.io/devspaces/configbump-rhel8:latest
             - name: WATCH_NAMESPACE
               valueFrom:
                 fieldRef:
