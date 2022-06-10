@@ -74,7 +74,9 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
         echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$CRW_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}"
         
         # check if image exists for that tag (doesn't work with CVE respins, only manual releases)
-        if [[ ! $(skopeo inspect docker://registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
+        # CRW-2725 also check quay, so we can check update path from 3.y.0.RC -> 3.y+1.0.CI (need to resolve against pre-GA content, not just RHEC GA)
+        if [[ ! $(skopeo inspect docker://registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]] && \
+           [[ ! $(skopeo inspect docker://quay.io/devspaces/devspaces-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
             # else get from latest released image
             curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
             if [[ $(cat /tmp/containerExtract.sh) == *"404"* ]] || [[ $(cat /tmp/containerExtract.sh) == *"Not Found"* ]]; then
