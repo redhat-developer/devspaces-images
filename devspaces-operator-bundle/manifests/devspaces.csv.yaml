@@ -67,7 +67,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1
-    createdAt: "2022-05-25T21:54:45+00:00"
+    createdAt: "2022-06-10T19:07:14+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1310,3 +1310,4 @@ spec:
   provider:
     name: Red Hat
   version: 3.1.0
+  replaces: devspacesoperator.v3.0.0
