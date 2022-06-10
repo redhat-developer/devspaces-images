@@ -21,8 +21,7 @@ CRW_VERSION=${CSV_VERSION%.*} # tag 3.y
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator-bundle"
 
-# TODO CRW-2725 when CRW 3.0 is live, set CSV_VERSION_PREV="" to pull values from RHEC below
-CSV_VERSION_PREV="NONE"
+CSV_VERSION_PREV=""
 
 usage () {
     echo "
