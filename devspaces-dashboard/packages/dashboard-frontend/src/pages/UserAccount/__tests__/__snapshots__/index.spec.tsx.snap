@@ -281,6 +281,7 @@ exports[`UserAccount page should correctly render the component without profile 
               readOnly={false}
               required={false}
               type="text"
+              value=""
             />
             
           </div>

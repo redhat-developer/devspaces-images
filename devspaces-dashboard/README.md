@@ -24,7 +24,7 @@ Below you can find installation instructions
 docker build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:next
 ```
 
-## Running locally against remote Che Cluster
+## Running locally against remote Che Cluster (Node.js v.16)
 
 To run Dashboard against Che Cluster you need access to Kubernetes cluster where it lives.
 So, make sure kubeconfig from $KUBECONFIG (or if unset ~/.kube/config) has the target cluster as current.

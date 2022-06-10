@@ -47,11 +47,10 @@ export class UserAccount extends React.PureComponent<Props, State> {
 
     const { userProfile } = this.props;
 
-    const email = userProfile ? userProfile.email : '';
-    const login =
-      userProfile && userProfile.attributes ? userProfile.attributes.preferred_username : '';
-    const firstName = userProfile && userProfile.attributes ? userProfile.attributes.firstName : '';
-    const lastName = userProfile && userProfile.attributes ? userProfile.attributes.lastName : '';
+    const email = userProfile.email || '';
+    const login = userProfile.attributes?.preferred_username || '';
+    const firstName = userProfile.attributes?.firstName || '';
+    const lastName = userProfile.attributes?.lastName || '';
 
     this.state = { login, email, lastName, firstName };
   }
