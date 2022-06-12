@@ -31,7 +31,7 @@
 #       * asset-projector-server-assembly.zip - Projector Server assembly;
 #       * asset-static-assembly.tar.gz - archived `static/` directory.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
-FROM ubi8:8.5-239.1651231664 as ubi-builder
+FROM ubi8:8.6-754 as ubi-builder
 COPY --chown=0:0 asset-required-rpms.txt /tmp/asset-required-rpms.txt
 
 RUN mkdir -p /mnt/rootfs
