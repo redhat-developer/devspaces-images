@@ -12,7 +12,6 @@
 
 const path = require('path');
 const webpack = require('webpack');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = () => {
@@ -20,7 +19,8 @@ module.exports = () => {
     entry: path.join(__dirname, 'src/index.ts'),
     output: {
       filename: path.join('server', 'backend.js'),
-      path: path.join(__dirname, 'lib')
+      path: path.join(__dirname, 'lib'),
+      clean: true,
     },
     module: {
       rules: [
@@ -57,7 +57,6 @@ module.exports = () => {
     resolveLoader: {},
     plugins: [
       new webpack.ProgressPlugin(),
-      new CleanWebpackPlugin(),
       new CopyPlugin({
         patterns: [
           {

@@ -40,7 +40,7 @@ export class HeaderTools extends React.PureComponent<Props> {
 
   public render(): React.ReactElement {
     const { applications, userProfile } = this.props;
-    const userEmail = userProfile.email;
+    const userEmail = userProfile.email || '';
     const imageUrl = userEmail ? gravatarUrl(userEmail, { default: 'retro' }) : '';
     const isUserAuthenticated = !!userEmail;
 

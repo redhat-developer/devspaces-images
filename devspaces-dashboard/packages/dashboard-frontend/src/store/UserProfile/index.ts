@@ -18,11 +18,12 @@ import { createObject } from '../helpers';
 import { AppThunk } from '../index';
 import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import { che as cheApi } from '@eclipse-che/api';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
 export interface State {
-  profile: api.che.user.Profile | undefined;
+  profile: cheApi.user.Profile;
   error?: string;
   isLoading: boolean;
 }
@@ -60,7 +61,7 @@ export const actionCreators: ActionCreators = {
         const profile = await WorkspaceClient.restApiClient.getCurrentUserProfile();
         dispatch({
           type: 'RECEIVE_USER_PROFILE',
-          profile,
+          profile: profile ? profile : unloadedState.profile,
         });
       } catch (e) {
         const errorMessage =
@@ -75,7 +76,7 @@ export const actionCreators: ActionCreators = {
 };
 
 const unloadedState: State = {
-  profile: undefined,
+  profile: { email: '' },
   isLoading: false,
 };
 

@@ -12,7 +12,6 @@
 
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -37,6 +36,7 @@ const config = {
     },
     chunkFilename: '[name].[chunkhash].js',
     globalObject: 'this',
+    clean: true,
   },
   optimization: {
     chunkIds: 'named',
@@ -142,7 +142,6 @@ const config = {
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
-    new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env.DASHBOARD_VERSION': JSON.stringify(require('./package.json').version),
     }),

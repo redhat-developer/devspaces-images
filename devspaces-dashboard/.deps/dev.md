@@ -178,7 +178,6 @@
 | [`@types/express-serve-static-core@4.17.28`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/express@4.17.13`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/fs-extra@9.0.13`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/glob@7.2.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/graceful-fs@4.1.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/history@4.7.11`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/html-minifier-terser@5.1.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -287,7 +286,6 @@
 | [`array-ify@1.0.0`](https://github.com/stevemao/array-ify.git) | MIT | clearlydefined |
 | [`array-includes@3.1.4`](git://github.com/es-shims/array-includes.git) | MIT | clearlydefined |
 | [`array-union@2.1.0`](https://github.com/sindresorhus/array-union.git) | MIT | clearlydefined |
-| [`array-uniq@1.0.3`](https://github.com/sindresorhus/array-uniq.git) | MIT | clearlydefined |
 | [`array-unique@0.3.2`](https://github.com/jonschlinkert/array-unique.git) | MIT | clearlydefined |
 | [`array.prototype.flatmap@1.2.5`](git://github.com/es-shims/Array.prototype.flatMap.git) | MIT | clearlydefined |
 | [`arrify@2.0.1`](https://github.com/sindresorhus/arrify.git) | MIT | clearlydefined |
@@ -342,7 +340,6 @@
 | [`class-utils@0.3.6`](https://github.com/jonschlinkert/class-utils.git) | MIT | clearlydefined |
 | [`clean-css@4.2.4`](https://github.com/jakubpawlowicz/clean-css.git) | MIT | clearlydefined |
 | [`clean-terminal-webpack-plugin@3.0.0`](git+https://github.com/danillouz/clean-terminal-webpack-plugin.git) | MIT | clearlydefined |
-| [`clean-webpack-plugin@3.0.0`](https://github.com/johnagan/clean-webpack-plugin.git) | MIT | clearlydefined |
 | [`cli-boxes@2.2.1`](https://github.com/sindresorhus/cli-boxes.git) | MIT | clearlydefined |
 | [`cli-cursor@3.1.0`](https://github.com/sindresorhus/cli-cursor.git) | MIT | clearlydefined |
 | [`cli-width@3.0.0`](git@github.com:knownasilya/cli-width.git) | ISC | clearlydefined |
@@ -411,7 +408,6 @@
 | [`define-lazy-prop@2.0.0`](https://github.com/sindresorhus/define-lazy-prop.git) | MIT | clearlydefined |
 | [`define-properties@1.1.4`](git://github.com/ljharb/define-properties.git) | MIT | clearlydefined |
 | [`define-property@0.2.5`](https://github.com/jonschlinkert/define-property.git) | MIT | clearlydefined |
-| [`del@4.1.1`](https://github.com/sindresorhus/del.git) | MIT | clearlydefined |
 | [`delegates@1.0.0`](https://github.com/visionmedia/node-delegates.git) | MIT | clearlydefined |
 | [`deprecation@2.3.1`](https://github.com/gr2m/deprecation.git) | ISC | clearlydefined |
 | [`destroy@1.2.0`](https://github.com/stream-utils/destroy.git) | MIT | clearlydefined |
@@ -599,9 +595,7 @@
 | [`is-number-object@1.0.7`](git://github.com/inspect-js/is-number-object.git) | MIT | clearlydefined |
 | [`is-number@3.0.0`](https://github.com/jonschlinkert/is-number.git) | MIT | clearlydefined |
 | [`is-obj@2.0.0`](https://github.com/sindresorhus/is-obj.git) | MIT | clearlydefined |
-| [`is-path-cwd@2.2.0`](https://github.com/sindresorhus/is-path-cwd.git) | MIT | clearlydefined |
-| [`is-path-in-cwd@2.1.0`](https://github.com/sindresorhus/is-path-in-cwd.git) | MIT | clearlydefined |
-| [`is-path-inside@2.1.0`](https://github.com/sindresorhus/is-path-inside.git) | MIT | clearlydefined |
+| [`is-path-inside@3.0.3`](https://github.com/sindresorhus/is-path-inside.git) | MIT | clearlydefined |
 | [`is-plain-obj@2.1.0`](https://github.com/sindresorhus/is-plain-obj.git) | MIT | clearlydefined |
 | [`is-plain-object@2.0.4`](https://github.com/jonschlinkert/is-plain-object.git) | MIT | clearlydefined |
 | [`is-potential-custom-element-name@1.0.1`](https://github.com/mathiasbynens/is-potential-custom-element-name.git) | MIT | clearlydefined |
@@ -795,14 +789,11 @@
 | [`pascal-case@3.1.2`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
 | [`pascalcase@0.1.1`](https://github.com/jonschlinkert/pascalcase.git) | MIT | clearlydefined |
 | [`path-exists@3.0.0`](https://github.com/sindresorhus/path-exists.git) | MIT | clearlydefined |
-| [`path-is-inside@1.0.2`](https://github.com/domenic/path-is-inside.git) | (WTFPL OR MIT) | #2649 |
 | [`path-key@2.0.1`](https://github.com/sindresorhus/path-key.git) | MIT | clearlydefined |
 | [`path-type@4.0.0`](https://github.com/sindresorhus/path-type.git) | MIT | clearlydefined |
 | [`picocolors@0.2.1`](https://github.com/alexeyraspopov/picocolors.git) | ISC | clearlydefined |
 | [`picomatch@2.3.1`](https://github.com/micromatch/picomatch.git) | MIT | clearlydefined |
 | [`pify@3.0.0`](https://github.com/sindresorhus/pify.git) | MIT | clearlydefined |
-| [`pinkie-promise@2.0.1`](https://github.com/floatdrop/pinkie-promise.git) | MIT | clearlydefined |
-| [`pinkie@2.0.4`](https://github.com/floatdrop/pinkie.git) | MIT | clearlydefined |
 | [`pirates@4.0.5`](https://github.com/danez/pirates.git) | MIT | #680 |
 | [`pkg-dir@3.0.0`](https://github.com/sindresorhus/pkg-dir.git) | MIT | clearlydefined |
 | [`posix-character-classes@0.1.1`](https://github.com/jonschlinkert/posix-character-classes.git) | MIT | clearlydefined |
@@ -914,7 +905,7 @@
 | [`source-map-resolve@0.6.0`](https://github.com/lydell/source-map-resolve.git) | MIT | clearlydefined |
 | [`source-map-support@0.5.21`](https://github.com/evanw/node-source-map-support) | MIT | clearlydefined |
 | [`source-map-url@0.4.1`](https://github.com/lydell/source-map-url.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/source-map-url/0.4.1) |
-| [`source-map@0.6.1`](http://github.com/mozilla/source-map.git) | BSD-3-Clause | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/source-map/0.6.1) |
+| [`source-map@0.6.1`](http://github.com/mozilla/source-map.git) | BSD-3-Clause | #2417 |
 | [`spdx-correct@3.1.1`](https://github.com/jslicense/spdx-correct.js.git) | Apache-2.0 | #990 |
 | [`spdx-exceptions@2.3.0`](https://github.com/kemitchell/spdx-exceptions.json.git) | CC-BY-3.0 | clearlydefined |
 | [`spdx-expression-parse@3.0.1`](https://github.com/jslicense/spdx-expression-parse.js.git) | MIT | #1127 |
