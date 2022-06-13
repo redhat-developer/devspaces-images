@@ -77,7 +77,6 @@ DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG
 CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
 CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
 CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
-CRW_BACKUP_IMAGE="${CRW_RRIO}/backup-rhel8:${CRW_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -97,14 +96,12 @@ while IFS= read -r -d '' d; do
 	if [[ -d "${SOURCEDIR}/${d%/*}" ]]; then mkdir -p "${TARGETDIR}"/"${d%/*}"; fi
 	if [[ -f "${TARGETDIR}/${d}" ]]; then
 		sed -i "${TARGETDIR}/${d}" -r \
-			-e "s|identityProviderPassword: ''|identityProviderPassword: 'admin'|g" \
 			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
 			-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 			-e 's|(DefaultCheFlavor.*=) "che"|\1 "devspaces"|' \
 			-e 's|che/operator|devspaces/operator|' \
 			-e 's|che-operator|devspaces-operator|' \
 			-e 's|name: eclipse-che|name: devspaces|' \
-			-e "s|cheImageTag: 'nightly'|cheImageTag: ''|" \
 			-e 's|/bin/devspaces-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/devspaces-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/devspaces-operator#\1.com/eclipse-che/che-operator#g' \
@@ -211,7 +208,6 @@ declare -A operator_replacements=(
 
 	["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
 	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
-	["RELATED_IMAGE_internal_rest_backup_server"]="${CRW_BACKUP_IMAGE}"
 
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
@@ -244,14 +240,10 @@ echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # yq changes - transform env vars from Che to CRW values
-CR_YAML="config/samples/org.eclipse.che_v1_checluster.yaml"
+CR_YAML="config/samples/org_v2_checluster.yaml"
 #shellcheck disable=2002
 changed="$(cat "${TARGETDIR}/${CR_YAML}" | \
-yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' | \
-yq  -y '.spec.server.cheFlavor="devspaces"' | \
-yq  -y '.spec.server.workspaceNamespaceDefault="<username>-devspaces"' | \
-yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
-yq  -y 'del(.spec.k8s)')" && \
+yq  -y '.spec.devEnvironments.defaultNamespace.template="<username>-devspaces"')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
 if [[ $(diff -u "${CR_YAML}" "${TARGETDIR}/${CR_YAML}") ]]; then
 	echo "Converted (yq #3) ${TARGETDIR}/${CR_YAML}"
@@ -268,32 +260,13 @@ rm -rf "${TARGETDIR}/deploy"
 rm -rf "${TARGETDIR}/cmd"
 rm -rf "${TARGETDIR}/pkg/apis"
 rm -rf "${TARGETDIR}/pkg/controller"
-echo "Delete ${TARGETDIR}/bundle/nightly/eclipse-che-preview-kubernetes ${TARGETDIR}/bundle/stable"
-rm -rf "${TARGETDIR}/bundle/nightly/eclipse-che-preview-kubernetes"
+echo "Delete ${TARGETDIR}/bundle/stable"
 rm -rf "${TARGETDIR}/bundle/stable"
 
 # copy extra files
 cp -f "${SOURCEDIR}/main.go" "${SOURCEDIR}/go.mod" "${SOURCEDIR}/go.sum" "${TARGETDIR}"
 
-rm -rf "${TARGETDIR}/pkg/deploy/server/deployment_che.go" \
-"${TARGETDIR}/pkg/deploy/server/service.go" \
-"${TARGETDIR}/pkg/deploy/server/deployment_che_test.go" \
-"${TARGETDIR}/pkg/deploy/server/configmap_cert.go" \
-"${TARGETDIR}/pkg/deploy/server/configmap_cert_test.go" \
-"${TARGETDIR}/pkg/deploy/server/che_service_test.go" \
-"${TARGETDIR}/pkg/deploy/server/che_configmap.go" \
-"${TARGETDIR}/pkg/deploy/server/che_configmap_test.go"
-
 rm -rf "${TARGETDIR}/vendor"
 cp -rf "${SOURCEDIR}/vendor" "${TARGETDIR}/vendor"
-
-# Comment out not used images
-sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
--e 's|(\t)(defaultCheTLSSecretsCreationJobImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
--e 's|(\t)(defaultGatewayHeaderProxySidecarImage = getDefaultFromEnv\(util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
-
-sed -i "${TARGETDIR}/pkg/deploy/defaults.go" -r \
--e 's|(\t)(defaultCheTLSSecretsCreationJobImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_che_tls_secrets_creation_job"\)\))|\1// \2|' \
--e 's|(\t)(defaultGatewayHeaderProxySidecarImage = util.GetDeploymentEnv\(operatorDeployment, util.GetArchitectureDependentEnv\("RELATED_IMAGE_gateway_header_sidecar"\)\))|\1// \2|'
 
 popd >/dev/null || exit
