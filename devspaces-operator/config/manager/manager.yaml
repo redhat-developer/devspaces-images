@@ -48,7 +48,7 @@ spec:
               name: metrics
           env:
             - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
-              value: 'false'
+              value: "false"
             - name: CHE_FLAVOR
               value: devspaces
             - name: CHE_VERSION
@@ -62,7 +62,7 @@ spec:
             - name: CONSOLE_LINK_SECTION
               value: Red Hat Applications
             - name: MAX_CONCURRENT_RECONCILES
-              value: '1'
+              value: "1"
             - name: OPERATOR_NAME
               value: devspaces-operator
             - name: POD_NAME
@@ -81,8 +81,6 @@ spec:
               value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
             - name: RELATED_IMAGE_gateway_authorization_sidecar
               value: registry.redhat.io/openshift4/ose-kube-rbac-proxy:v4.8
-            - name: RELATED_IMAGE_internal_rest_backup_server
-              value: registry.redhat.io/devspaces/backup-rhel8:3.1
             - name: RELATED_IMAGE_plugin_registry
               value: registry.redhat.io/devspaces/pluginregistry-rhel8:3.1
             - name: RELATED_IMAGE_postgres
