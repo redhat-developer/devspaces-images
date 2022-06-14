@@ -221,7 +221,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
 		\
 		`# use internal image for operator, as devspaces-operator only exists in RHEC and Quay repos` \
-		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
+		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${DS_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
 		` # CRW-927 set suggested namespace, append cluster-monitoring = true (removed from upstream as not supported in community operators)` \

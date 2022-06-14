@@ -56,16 +56,16 @@ DEVFILE_REGISTRY_CONTAINERS=""
 tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     # extract registry containers to get external_images.txt
     curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/product/containerExtract.sh && chmod +x containerExtract.sh
-    ./containerExtract.sh quay.io/devspaces/devfileregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
-    ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${CRW_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
+    ./containerExtract.sh quay.io/devspaces/devfileregistry-rhel8:${DS_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
+    ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${DS_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
     wait
 
     # sort & uniquify
-    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${CRW_VERSION}*/var/www/html/*/external_images.txt | sort -uV)
+    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | sort -uV)
 popd >/dev/null
 # cleanup
-rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${CRW_VERSION}*/
-$PODMAN rmi -f quay.io/devspaces/pluginregistry-rhel8:${CRW_VERSION} quay.io/devspaces/devfileregistry-rhel8:${CRW_VERSION} || true
+rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/
+$PODMAN rmi -f quay.io/devspaces/pluginregistry-rhel8:${DS_VERSION} quay.io/devspaces/devfileregistry-rhel8:${DS_VERSION} || true
 # convert strings to arrays
 DEVFILE_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
 PLUGIN_REGISTRY_CONTAINERS=(${EXTERNAL_IMAGES})
