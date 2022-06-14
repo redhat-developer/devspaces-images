@@ -204,11 +204,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e 's|/usr/local/bin/devspaces-operator|/usr/local/bin/che-operator|' \
 		-e 's|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|' \
 		\
-		-e 's|"cheImageTag": "next"|"cheImageTag": ""|' \
-		-e 's|"devfileRegistryImage":.".+"|"devfileRegistryImage": ""|' \
-		-e 's|"pluginRegistryImage":.".+"|"pluginRegistryImage": ""|' \
-		-e 's|"identityProviderImage":.".+"|"identityProviderImage": ""|' \
-		-e 's|"workspaceNamespaceDefault":.".*"|"workspaceNamespaceDefault": "<username>-devspaces"|' \
+		-e 's|"template":.".*"|"template": "<username>-devspaces"|' \
 		\
 		-e "s|quay.io/eclipse/devspaces-operator:.+|registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
 		-e "s|(registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
@@ -250,12 +246,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	yq -Yi '.spec.installModes[] |= if .type=="MultiNamespace" then .supported |= false else . end' "${CSVFILE}"
 	yq -Yi '.spec.installModes[] |= if .type=="AllNamespaces" then .supported |= true else . end' "${CSVFILE}"
 
-	# Enable by default devWorkspace engine in `stable`
-	CSV_CR_SAMPLES=$(yq -r ".metadata.annotations[\"alm-examples\"] | \
-			fromjson | \
-			( .[] | select(.kind == \"CheCluster\") | .spec.devWorkspace.enable) |= true" ${CSVFILE} |  sed -r 's/"/\\"/g')
-	yq -riY ".metadata.annotations[\"alm-examples\"] = \"${CSV_CR_SAMPLES}\"" ${CSVFILE}
-
 	# yq changes - transform env vars from Che to CRW values
 	changed="$(yq  -Y '.spec.displayName="Red Hat OpenShift Dev Spaces"' "${CSVFILE}")" && \
 		echo "${changed}" > "${CSVFILE}"
@@ -280,7 +270,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
-		["RELATED_IMAGE_internal_rest_backup_server"]="DELETEME"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
@@ -334,18 +323,14 @@ done
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 # yq changes - transform env vars from Che to CRW values
-CR_YAML="config/samples/org.eclipse.che_v1_checluster.yaml"
+CR_YAML="config/samples/org_v2_checluster.yaml"
 changed="$(
-yq  -y '.spec.server.devfileRegistryImage=""|.spec.server.pluginRegistryImage=""' "${TARGETDIR}/${CR_YAML}" | \
-yq  -y '.spec.server.cheFlavor="devspaces"' | \
-yq  -y '.spec.server.workspaceNamespaceDefault="<username>-devspaces"' | \
-yq  -y '.spec.auth.identityProviderAdminUserName="admin"|.spec.auth.identityProviderImage=""' | \
-yq  -y 'del(.spec.k8s)')" && \
+yq  -y '.spec.devEnvironments.defaultNamespace.template="<username>-devspaces"')" && \
 echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
 if [[ $(diff -u "$CR_YAML" "${TARGETDIR}/${CR_YAML}") ]]; then
 	echo "Converted (yq #4) ${TARGETDIR}/${CR_YAML}"
 fi
 
-cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
 
 popd >/dev/null || exit
