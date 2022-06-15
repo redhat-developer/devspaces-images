@@ -248,7 +248,6 @@ rm -f "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
 echo "Converted (yq #4) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # delete unneeded files
-rm -rf "${TARGETDIR}/deploy"
 rm -rf "${TARGETDIR}/cmd"
 rm -rf "${TARGETDIR}/pkg/apis"
 rm -rf "${TARGETDIR}/pkg/controller"
