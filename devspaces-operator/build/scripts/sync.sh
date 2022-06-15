@@ -18,7 +18,7 @@ SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator"
@@ -28,7 +28,7 @@ DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] -s [/path/to/${UPSTM_NAME}] -t [/path/to/generated] [--dwob DEV_WORKSPACE_CONTROLLER_VERSION branch] [--hrtpb DEV_HEADER_REWRITE_TRAEFIK_PLUGIN branch]
+Usage:   $0 -v [DS CSV_VERSION] -s [/path/to/${UPSTM_NAME}] -t [/path/to/generated] [--dwob DEV_WORKSPACE_CONTROLLER_VERSION branch] [--hrtpb DEV_HEADER_REWRITE_TRAEFIK_PLUGIN branch]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob v0.13.0 --hrtpb v0.1.2
 Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob main  --hrtpb main"
     exit
@@ -38,7 +38,7 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
@@ -143,7 +143,7 @@ LABEL com.redhat.delivery.appregistry="false" \\
       io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
       com.redhat.component="\$PRODNAME-rhel8-\$COMPNAME-container" \\
       name="\$PRODNAME/\$COMPNAME" \\
-      version="${CRW_VERSION}" \\
+      version="${DS_VERSION}" \\
       license="EPLv2" \\
       maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \\
       io.openshift.expose-services="" \\

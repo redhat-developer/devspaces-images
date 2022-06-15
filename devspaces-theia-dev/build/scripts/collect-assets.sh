@@ -52,9 +52,9 @@ Architecture flags:
   --platforms \"${PLATFORMS}\" | architectures for which to collect assets
 
 Optional flags:
-  --cb             | CRW_BRANCH from which to compute version of CRW to put in Dockerfiles, eg., devspaces-3.y-rhel-8 or ${MIDSTM_BRANCH}
-  --cv             | rather than pull from CRW_BRANCH version of redhat-developer/devspaces/dependencies/VERSION file, 
-                   | just set CRW_VERSION; default: ${CRW_VERSION}
+  --cb             | DS_BRANCH from which to compute version of DevSpaces to put in Dockerfiles, eg., devspaces-3.y-rhel-8 or ${MIDSTM_BRANCH}
+  --cv             | rather than pull from DS_BRANCH version of redhat-developer/devspaces/dependencies/VERSION file, 
+                   | just set DS_VERSION; default: ${DS_VERSION}
   --nv             | node version to use; default: ${nodeVersion}
   --pr             | if building based on a GH pull request, use 'pr' in tag names instead of 'tmp'
   --gh             | if building in GH action, use 'gh' in tag names instead of 'tmp'
@@ -80,7 +80,7 @@ for key in "$@"; do
       '--target') TARGETDIR="$2"; shift 2;;
       '--platforms') PLATFORMS="$2"; shift 2;;
       '--cb')  MIDSTM_BRANCH="$2"; shift 2;;
-      '--cv')  CRW_VERSION="$2"; shift 2;;
+      '--cv')  DS_VERSION="$2"; shift 2;;
       '--nv') nodeVersion="$2"; shift 2;;
       '--pr') BUILD_TYPE="pr"; shift 1;;
       '--gh') BUILD_TYPE="gh"; shift 1;;
@@ -91,14 +91,14 @@ for key in "$@"; do
   esac
 done
 
-if [[ ! ${CRW_VERSION} ]] && [[ ${MIDSTM_BRANCH} ]]; then
-  CRW_VERSION=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/VERSION)
+if [[ ! ${DS_VERSION} ]] && [[ ${MIDSTM_BRANCH} ]]; then
+  DS_VERSION=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/VERSION)
 fi
-if [[ ! ${CRW_VERSION} ]]; then 
-  echo "[ERROR] Must set either --cb devspaces-3.y-rhel-8 or --cv 3.y to define the version of CRW Theia for which to collect assets."; echo
+if [[ ! ${DS_VERSION} ]]; then 
+  echo "[ERROR] Must set either --cb devspaces-3.y-rhel-8 or --cv 3.y to define the version of DevSpaces Theia for which to collect assets."; echo
   usage
 fi
-echo "[INFO] Using MIDSTM_BRANCH = ${MIDSTM_BRANCH} and CRW_VERSION = ${CRW_VERSION}"
+echo "[INFO] Using MIDSTM_BRANCH = ${MIDSTM_BRANCH} and DS_VERSION = ${DS_VERSION}"
 if [[ ! $ARCHSTEPS ]] || [[ ! $NOARCHSTEPS ]]; then 
   if [[ ${TARGETDIR} = *"theia-dev"* ]]; then 
     echo "[INFO] No step flag set, but TARGETDIR appears to be a theia-dev folder."
@@ -120,8 +120,8 @@ mkdir -p $TARGETDIR
 
 getContainerExtract() {
   pushd /tmp >/dev/null || exit
-  if [[ ${CRW_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-${CRW_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
-    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-${CRW_VERSION}-rhel-8/product/containerExtract.sh
+  if [[ ${DS_VERSION} ]] && ! [[ $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-${DS_VERSION}-rhel-8/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
+    curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-${DS_VERSION}-rhel-8/product/containerExtract.sh
   elif [[ ${MIDSTM_BRANCH} ]] && [[ ! $(curl -sSI https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh | grep HTTP | grep 404 || true) ]]; then
     curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh
   else
@@ -133,10 +133,10 @@ getContainerExtract() {
 
 setImages() {
   if [[ ! $1 ]]; then UNAME="$(uname -m)"; else UNAME=$1; fi
-  TMP_THEIA_DEV_BUILDER_IMAGE="quay.io/devspaces/theia-dev-rhel8:${CRW_VERSION}-${BUILD_TYPE}-builder-${UNAME}"
-  TMP_THEIA_BUILDER_IMAGE="quay.io/devspaces/theia-rhel8:${CRW_VERSION}-${BUILD_TYPE}-builder-${UNAME}"
-  TMP_THEIA_RUNTIME_IMAGE="quay.io/devspaces/theia-rhel8:${CRW_VERSION}-${BUILD_TYPE}-runtime-${UNAME}"
-  TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE="quay.io/devspaces/theia-endpoint-rhel8:${CRW_VERSION}-${BUILD_TYPE}-builder-${UNAME}"
+  TMP_THEIA_DEV_BUILDER_IMAGE="quay.io/devspaces/theia-dev-rhel8:${DS_VERSION}-${BUILD_TYPE}-builder-${UNAME}"
+  TMP_THEIA_BUILDER_IMAGE="quay.io/devspaces/theia-rhel8:${DS_VERSION}-${BUILD_TYPE}-builder-${UNAME}"
+  TMP_THEIA_RUNTIME_IMAGE="quay.io/devspaces/theia-rhel8:${DS_VERSION}-${BUILD_TYPE}-runtime-${UNAME}"
+  TMP_THEIA_ENDPOINT_BINARY_BUILDER_IMAGE="quay.io/devspaces/theia-endpoint-rhel8:${DS_VERSION}-${BUILD_TYPE}-builder-${UNAME}"
 }
 
 BUILDER=$(command -v podman || true)

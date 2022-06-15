@@ -18,7 +18,7 @@ export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-38:1"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
+Usage:   $0 -v [DS CSV_VERSION] -n [ASSET_NAME]
 Example: $0 -v 2.y.0 -n udi
 "
     exit

@@ -17,7 +17,7 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 3.y
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
@@ -41,11 +41,11 @@ checkVersion() {
 checkVersion 1.1 "$(skopeo --version | sed -e "s/skopeo version //")" skopeo
 
 usage () {
-	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] -p [CRW CSV_VERSION_PREV] -s [/path/to/sources] -t [/path/to/generated] [-b devspaces-repo-branch]"
+	echo "Usage:   ${0##*/} -v [DS CSV_VERSION] -p [DS CSV_VERSION_PREV] -s [/path/to/sources] -t [/path/to/generated] [-b devspaces-repo-branch]"
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) -b ${MIDSTM_BRANCH}"
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from devspaces/devspaces-branch/pom.xml]"
 	echo "Options:
-	--crw-tag ${CRW_VERSION}
+	--ds-tag ${DS_VERSION}
 	--dwo-tag ${DWO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
@@ -60,9 +60,9 @@ if [[ $# -lt 8 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/main/bundle
-    '-b'|'--crw-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
-	# for CSV_VERSION = 3.2.0, get CRW_VERSION = 3.2
-	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    '-b'|'--ds-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
+	# for CSV_VERSION = 3.2.0, get DS_VERSION = 3.2
+	'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
 	# previous version to set in CSV
 	'-p') CSV_VERSION_PREV="$2"; shift 1;;
 	# paths to use for input and ouput
@@ -70,7 +70,7 @@ while [[ "$#" -gt 0 ]]; do
 	'-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
 	'--help'|'-h') usage;;
 	# optional tag overrides
-	'--crw-tag') CRW_VERSION="$2"; shift 1;;
+	'--ds-tag') DS_VERSION="$2"; shift 1;;
 	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
@@ -89,15 +89,15 @@ if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 if [[ "${CSV_VERSION_PREV}" == "3.x.0" ]]; then usage; fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-CRW_RRIO="registry.redhat.io/devspaces"
-CRW_OPERATOR="devspaces-rhel8-operator"
-CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
-CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
+DS_RRIO="registry.redhat.io/devspaces"
+DS_OPERATOR="devspaces-rhel8-operator"
+DS_CONFIGBUMP_IMAGE="${DS_RRIO}/configbump-rhel8:${DS_VERSION}"
+DS_DASHBOARD_IMAGE="${DS_RRIO}/dashboard-rhel8:${DS_VERSION}"
+DS_DEVFILEREGISTRY_IMAGE="${DS_RRIO}/devfileregistry-rhel8:${DS_VERSION}"
 DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
-CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
-CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
-CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
+DS_PLUGINREGISTRY_IMAGE="${DS_RRIO}/pluginregistry-rhel8:${DS_VERSION}"
+DS_SERVER_IMAGE="${DS_RRIO}/server-rhel8:${DS_VERSION}"
+DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -206,11 +206,11 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		\
 		-e 's|"template":.".*"|"template": "<username>-devspaces"|' \
 		\
-		-e "s|quay.io/eclipse/devspaces-operator:.+|registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}|" \
-		-e "s|(registry.redhat.io/devspaces/${CRW_OPERATOR}:${CRW_VERSION}).+|\1|" \
-		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/devspaces/server-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/devspaces/pluginregistry-rhel8:${CRW_VERSION}|" \
-		-e "s|quay.io/eclipse/che-devfile-registry:.+|registry.redhat.io/devspaces/devfileregistry-rhel8:${CRW_VERSION}|" \
+		-e "s|quay.io/eclipse/devspaces-operator:.+|registry.redhat.io/devspaces/${DS_OPERATOR}:${DS_VERSION}|" \
+		-e "s|(registry.redhat.io/devspaces/${DS_OPERATOR}:${DS_VERSION}).+|\1|" \
+		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/devspaces/server-rhel8:${DS_VERSION}|" \
+		-e "s|quay.io/eclipse/che-plugin-registry:.+|registry.redhat.io/devspaces/pluginregistry-rhel8:${DS_VERSION}|" \
+		-e "s|quay.io/eclipse/che-devfile-registry:.+|registry.redhat.io/devspaces/devfileregistry-rhel8:${DS_VERSION}|" \
 		\
 		`# CRW-1254 use ubi8/ubi-minimal for airgap mirroring` \
 		-e "s|/ubi8-minimal|/ubi8/ubi-minimal|g" \
@@ -221,7 +221,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|quay.io/eclipse/che--centos--postgresql-96-centos7.+|${POSTGRES_IMAGE}|" \
 		\
 		`# use internal image for operator, as devspaces-operator only exists in RHEC and Quay repos` \
-		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${CRW_VERSION}#" \
+		-e "s#quay.io/eclipse/devspaces-operator:.+#registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:${DS_VERSION}#" \
 		-e 's|IMAGE_default_|RELATED_IMAGE_|' \
 		\
 		` # CRW-927 set suggested namespace, append cluster-monitoring = true (removed from upstream as not supported in community operators)` \
@@ -256,20 +256,20 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	fi
 
 	# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-	# yq changes - transform env vars from Che to CRW values
+	# yq changes - transform env vars from Che to DS values
 	declare -A operator_replacements=(
 		["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 		["CHE_FLAVOR"]="devspaces"
 		["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
-		["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
-		["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
-		["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
+		["RELATED_IMAGE_che_server"]="${DS_SERVER_IMAGE}"
+		["RELATED_IMAGE_dashboard"]="${DS_DASHBOARD_IMAGE}"
+		["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
 		["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
-		["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
+		["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
 
-		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
@@ -305,7 +305,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	echo "Converted (yq #3) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
-	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --crw-branch "${MIDSTM_BRANCH}"
+	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
 
 	# echo "    ${0##*/} :: Sort env var in ${CSVFILE}:"
 	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}2"
@@ -322,7 +322,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 done
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# yq changes - transform env vars from Che to CRW values
+# yq changes - transform env vars from Che to DS values
 CR_YAML="config/samples/org_v2_checluster.yaml"
 changed="$(
 yq  -y '.spec.devEnvironments.defaultNamespace.template="<username>-devspaces"')" && \

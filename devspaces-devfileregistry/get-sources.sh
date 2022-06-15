@@ -49,7 +49,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 
 	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
 	MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-	curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/VERSION.json" | jq -r '.CRW_VERSION' > VERSION
+	curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces-images/${MIDSTM_BRANCH}/VERSION.json" | jq -r '.DS_VERSION' > VERSION
 	sed bootstrap.Dockerfile -i --regexp-extended \
 		`# replace org/container:tag with reg-proxy/rh-osbs/org-container:tag` \
 		-e "s#^FROM ([^/:]+)/([^/:]+):([^/:]+)#FROM registry-proxy.engineering.redhat.com/rh-osbs/\1-\2:\3#" \

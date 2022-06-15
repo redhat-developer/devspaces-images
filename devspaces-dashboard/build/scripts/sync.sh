@@ -18,13 +18,13 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 UPDATE_VENDOR=0 # vendoring will be done in get-sources*.sh just before the brew build, so we can also commit the tarball
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard"
 #echo "Options:
 #    --no-vendor # don't rebuild the vendor folder"
@@ -35,8 +35,8 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
-    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    # for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
+    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
@@ -85,7 +85,7 @@ SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
 configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
 # get yarn version
-YARN_VERSION=$(echo "${configjson}" | jq -r --arg CRW_VERSION "${CRW_VERSION}" '.Other["YARN_VERSION"][$CRW_VERSION]');
+YARN_VERSION=$(echo "${configjson}" | jq -r --arg DS_VERSION "${DS_VERSION}" '.Other["YARN_VERSION"][$DS_VERSION]');
 YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
 echo "Install Yarn $YARN_VERSION into $YARN_TARGET_DIR ... "
 mkdir -p "${YARN_TARGET_DIR}"
@@ -121,7 +121,7 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
       com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
       name="\$PRODNAME/\$COMPNAME" \\
-      version="${CRW_VERSION}" \\
+      version="${DS_VERSION}" \\
       license="EPLv2" \\
       maintainer="Josh Pinkney <jpinkney@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
@@ -143,10 +143,10 @@ echo "Converted Dockerfile"
 echo "/asset-node-modules-cache.tgz" >> ${TARGETDIR}/.gitignore
 echo "Adjusted .gitignore"
 
-# apply CRW branding styles
+# apply DS branding styles
 cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-devspaces,}.css
 
-# process product.json template to apply CRW branding
+# process product.json template to apply DS branding
 SHA_CHE=$(cd ${SOURCEDIR}; git rev-parse --short=4 HEAD)
 VER_CHE=$(jq -r .version package.json)
 if [[ $VER_CHE =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-(SNAPSHOT|next) ]]; then # reduce the z digit, remove the snapshot suffix
@@ -161,14 +161,14 @@ echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
 # update version in package.json
 jq --arg VER_CHE "${VER_CHE}" '.version=$VER_CHE' package.json > package.json1; mv package.json1 package.json
 
-SHA_CRW=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
-echo "Using: CRW_VERSION = $CRW_VERSION (SHA_CRW = $SHA_CRW)"
+SHA_DS=$(cd ${TARGETDIR}; git rev-parse --short=4 HEAD)
+echo "Using: DS_VERSION = $DS_VERSION (SHA_DS = $SHA_DS)"
 
-CRW_SHAs="${CRW_VERSION} @ ${SHA_CRW} #${BUILD_NUMBER} :: Eclipse Che Dashboard ${VER_CHE} @ ${SHA_CHE}"
-CRW_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${CRW_VERSION}"
+DS_SHAs="${DS_VERSION} @ ${SHA_DS} #${BUILD_NUMBER} :: Eclipse Che Dashboard ${VER_CHE} @ ${SHA_CHE}"
+DS_DOCS_BASEURL="https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/${DS_VERSION}"
 sed -r \
-    -e "s|@@devspaces.version@@|${CRW_SHAs}|g" \
-    -e "s#@@devspaces.docs.baseurl@@#${CRW_DOCS_BASEURL}#g" \
+    -e "s|@@devspaces.version@@|${DS_SHAs}|g" \
+    -e "s#@@devspaces.docs.baseurl@@#${DS_DOCS_BASEURL}#g" \
 ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json.template > ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json
 
 # ensure shell scripts are executable

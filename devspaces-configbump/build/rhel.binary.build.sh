@@ -23,7 +23,7 @@ if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspac
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [--noupload] [-ght GITHUB_TOKEN] -n [ASSET_NAME]
+Usage:   $0 -v [DS CSV_VERSION] [--noupload] [-ght GITHUB_TOKEN] -n [ASSET_NAME]
 Example: $0 -v 2.y.0 --noupload -n configbump
 "
     exit

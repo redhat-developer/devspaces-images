@@ -16,7 +16,7 @@ set -e
 
 # defaults
 CSV_VERSION=3.y.0 # csv 3.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 3.y
+DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator-bundle"
@@ -25,7 +25,7 @@ CSV_VERSION_PREV=""
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [-p CRW CSV_VERSION_PREV]
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [-p DS CSV_VERSION_PREV]
 Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} -p 3.y-1.0"
     exit
 }
@@ -34,7 +34,7 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
@@ -62,21 +62,21 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
         exit 1
     fi
     if [[ $MIDSTM_BRANCH == "devspaces-3-rhel-8" ]]; then
-        CRW_VERSION="$(echo "$configjson" | jq -r '.Version')"
+        DS_VERSION="$(echo "$configjson" | jq -r '.Version')"
     else 
-        CRW_VERSION=${MIDSTM_BRANCH/devspaces-/}; CRW_VERSION=${CRW_VERSION//-rhel-8}
+        DS_VERSION=${MIDSTM_BRANCH/devspaces-/}; DS_VERSION=${DS_VERSION//-rhel-8}
     fi
     
     if [[ -z "${CSV_VERSION_PREV}" ]]; then
         #get from json
-        CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["'${MIDSTM_NAME}'"]."'${CRW_VERSION}'".CSV_VERSION_PREV')"
-        CRW_VERSION_PREV="${CSV_VERSION_PREV%.*}"
-        echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$CRW_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}"
+        CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["'${MIDSTM_NAME}'"]."'${DS_VERSION}'".CSV_VERSION_PREV')"
+        DS_VERSION_PREV="${CSV_VERSION_PREV%.*}"
+        echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$DS_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}"
         
         # check if image exists for that tag (doesn't work with CVE respins, only manual releases)
         # CRW-2725 also check quay, so we can check update path from 3.y.0.RC -> 3.y+1.0.CI (need to resolve against pre-GA content, not just RHEC GA)
-        if [[ ! $(skopeo inspect docker://registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]] && \
-           [[ ! $(skopeo inspect docker://quay.io/devspaces/devspaces-${MIDSTM_NAME}:${CRW_VERSION_PREV} --raw 2>/dev/null) ]]; then
+        if [[ ! $(skopeo inspect docker://registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:${DS_VERSION_PREV} --raw 2>/dev/null) ]] && \
+           [[ ! $(skopeo inspect docker://quay.io/devspaces/devspaces-${MIDSTM_NAME}:${DS_VERSION_PREV} --raw 2>/dev/null) ]]; then
             # else get from latest released image
             curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/containerExtract.sh --output /tmp/containerExtract.sh
             if [[ $(cat /tmp/containerExtract.sh) == *"404"* ]] || [[ $(cat /tmp/containerExtract.sh) == *"Not Found"* ]]; then
@@ -95,9 +95,9 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     fi
 fi
 if [[ -n ${MIDSTM_BRANCH} ]]; then 
-  echo "[INFO] For CRW VERSION = ${CRW_VERSION} / MIDSTM_BRANCH = ${MIDSTM_BRANCH}:"
+  echo "[INFO] For DS VERSION = ${DS_VERSION} / MIDSTM_BRANCH = ${MIDSTM_BRANCH}:"
 else
-  echo "[INFO] For CRW VERSION = ${CRW_VERSION}:"
+  echo "[INFO] For DS VERSION = ${DS_VERSION}:"
 fi
 echo "[INFO]     CSV_VERSION_PREV = ${CSV_VERSION_PREV}"
 
@@ -195,7 +195,7 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \\
       io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
       com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
       name="\$PRODNAME/\$COMPNAME" \\
-      version="${CRW_VERSION}" \\
+      version="${DS_VERSION}" \\
       license="EPLv2" \\
       maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \\
       io.openshift.expose-services="" \\
@@ -214,7 +214,7 @@ CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
 sed -r -i "${CSVFILE}" \
   -e "s@(registry.redhat.io|quay.io)/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
   -e "s@devspaces-rhel8-operator@operator@g" \
-  -e "s@:latest@:${CRW_VERSION}@g"
+  -e "s@:latest@:${DS_VERSION}@g"
 
 # date in CSV will be updated only if there were any changes in CSV
 pushd ${CSVFILE%/*} >/dev/null || exit # targetdir/manifests/

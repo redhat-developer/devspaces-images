@@ -18,11 +18,11 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] [-s /path/to/che-server] [-t /path/to/generated]
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/che-server] [-t /path/to/generated]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/che -t /tmp/ds-server"
     exit
 }
@@ -31,8 +31,8 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    # for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
-    '-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    # for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
+    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
@@ -107,7 +107,7 @@ LABEL summary="\$SUMMARY" \\
       io.openshift.tags="\$PRODNAME,\$COMPNAME" \\
       com.redhat.component="\$PRODNAME-\$COMPNAME-container" \\
       name="\$PRODNAME/\$COMPNAME" \\
-      version="${CRW_VERSION}" \\
+      version="${DS_VERSION}" \\
       license="EPLv2" \\
       maintainer="Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\

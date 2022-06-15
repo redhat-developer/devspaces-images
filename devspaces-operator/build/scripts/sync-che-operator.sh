@@ -16,7 +16,7 @@ set -e
 
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
-CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
+DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 DWO_TAG=0.13
 UBI_TAG=8.5
 POSTGRES_TAG=1
@@ -24,10 +24,10 @@ POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
 OPENSHIFT_TAG="v4.8"
 
 usage () {
-	echo "Usage:   ${0##*/} -v [CRW CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
+	echo "Usage:   ${0##*/} -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
 	echo "Example: ${0##*/} -v 2.y.0 -s ${HOME}/projects/che-operator -t /tmp/devspaces-operator"
 	echo "Options:
-	--crw-tag ${CRW_VERSION}
+	--ds-tag ${DS_VERSION}
 	--dwo-tag ${DWO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
@@ -41,14 +41,14 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-	# for CSV_VERSION = 2.2.0, get CRW_VERSION = 2.2
-	'-v') CSV_VERSION="$2"; CRW_VERSION="${CSV_VERSION%.*}"; shift 1;;
+	# for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
+	'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
 	# paths to use for input and ouput
 	'-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
 	'-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
 	'--help'|'-h') usage;;
 	# optional tag overrides
-	'--crw-tag') CRW_VERSION="$2"; shift 1;;
+	'--ds-tag') DS_VERSION="$2"; shift 1;;
 	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6
@@ -61,15 +61,15 @@ done
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-CRW_RRIO="registry.redhat.io/devspaces"
-CRW_OPERATOR="devspaces-rhel8-operator"
-CRW_CONFIGBUMP_IMAGE="${CRW_RRIO}/configbump-rhel8:${CRW_VERSION}"
-CRW_DASHBOARD_IMAGE="${CRW_RRIO}/dashboard-rhel8:${CRW_VERSION}"
-CRW_DEVFILEREGISTRY_IMAGE="${CRW_RRIO}/devfileregistry-rhel8:${CRW_VERSION}"
+DS_RRIO="registry.redhat.io/devspaces"
+DS_OPERATOR="devspaces-rhel8-operator"
+DS_CONFIGBUMP_IMAGE="${DS_RRIO}/configbump-rhel8:${DS_VERSION}"
+DS_DASHBOARD_IMAGE="${DS_RRIO}/dashboard-rhel8:${DS_VERSION}"
+DS_DEVFILEREGISTRY_IMAGE="${DS_RRIO}/devfileregistry-rhel8:${DS_VERSION}"
 DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
-CRW_PLUGINREGISTRY_IMAGE="${CRW_RRIO}/pluginregistry-rhel8:${CRW_VERSION}"
-CRW_SERVER_IMAGE="${CRW_RRIO}/server-rhel8:${CRW_VERSION}"
-CRW_TRAEFIK_IMAGE="${CRW_RRIO}/traefik-rhel8:${CRW_VERSION}"
+DS_PLUGINREGISTRY_IMAGE="${DS_RRIO}/pluginregistry-rhel8:${DS_VERSION}"
+DS_SERVER_IMAGE="${DS_RRIO}/server-rhel8:${DS_VERSION}"
+DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
 
 UBI_IMAGE="registry.redhat.io/ubi8/ubi-minimal:${UBI_TAG}"
 POSTGRES_IMAGE="registry.redhat.io/rhel8/postgresql-96:${POSTGRES_TAG}"
@@ -89,7 +89,7 @@ while IFS= read -r -d '' d; do
 	if [[ -d "${SOURCEDIR}/${d%/*}" ]]; then mkdir -p "${TARGETDIR}"/"${d%/*}"; fi
 	if [[ -f "${TARGETDIR}/${d}" ]]; then
 		sed -i "${TARGETDIR}/${d}" -r \
-			-e "s|quay.io/eclipse/che-operator:.+|${CRW_RRIO}/${CRW_OPERATOR}:latest|" \
+			-e "s|quay.io/eclipse/che-operator:.+|${DS_RRIO}/${DS_OPERATOR}:latest|" \
 			-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 			-e 's|che/operator|devspaces/operator|' \
 			-e 's|che-operator|devspaces-operator|' \
@@ -108,9 +108,9 @@ done <   <(find bundle config pkg/deploy api controllers -type f -not -name "def
 while IFS= read -r -d '' d; do
 	sed -r \
 		`# hardcoded test values` \
-		-e 's|"docker.io/eclipse/che-operator:latest": * "che-operator:latest"|"'${CRW_RRIO}/${CRW_OPERATOR}':latest":  "'${CRW_OPERATOR}':latest"|' \
-		-e 's|"eclipse/che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}'/server-operator-rhel8:2.0": "server-operator-rhel8:2.0"|' \
-		-e 's|"che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${CRW_RRIO}/${CRW_OPERATOR}:${CRW_VERSION}'":  "'${CRW_OPERATOR}:${CRW_VERSION}'"|' \
+		-e 's|"docker.io/eclipse/che-operator:latest": * "che-operator:latest"|"'${DS_RRIO}/${DS_OPERATOR}':latest":  "'${DS_OPERATOR}':latest"|' \
+		-e 's|"eclipse/che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${DS_RRIO}'/server-operator-rhel8:2.0": "server-operator-rhel8:2.0"|' \
+		-e 's|"che-operator:[0-9.]+": *"che-operator:[0-9.]+"|"'${DS_RRIO}/${DS_OPERATOR}:${DS_VERSION}'":  "'${DS_OPERATOR}:${DS_VERSION}'"|' \
 	"$d" > "${TARGETDIR}/${d}"
 	if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
 		echo "    ${0##*/} :: Converted (sed) ${d}"
@@ -181,25 +181,25 @@ ${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal)
 	fi
 }
 
-# yq changes - transform env vars from Che to CRW values
+# yq changes - transform env vars from Che to DS values
 
 ##### update the first container yaml
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# yq changes - transform env vars from Che to CRW values
+# yq changes - transform env vars from Che to DS values
 declare -A operator_replacements=(
 	["CHE_VERSION"]="${CSV_VERSION}" # set this to x.y.z version, matching the CSV
 	["CHE_FLAVOR"]="devspaces"
 	["CONSOLE_LINK_NAME"]="che" # use che, not workspaces - CRW-1078
 
-	["RELATED_IMAGE_che_server"]="${CRW_SERVER_IMAGE}"
-	["RELATED_IMAGE_dashboard"]="${CRW_DASHBOARD_IMAGE}"
-	["RELATED_IMAGE_devfile_registry"]="${CRW_DEVFILEREGISTRY_IMAGE}"
+	["RELATED_IMAGE_che_server"]="${DS_SERVER_IMAGE}"
+	["RELATED_IMAGE_dashboard"]="${DS_DASHBOARD_IMAGE}"
+	["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
 	["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
-	["RELATED_IMAGE_plugin_registry"]="${CRW_PLUGINREGISTRY_IMAGE}"
+	["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
 
-	["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+	["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
+	["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
 
 	["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 	["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
@@ -226,12 +226,12 @@ echo "Converted (yq #1) ${OPERATOR_DEPLOYMENT_YAML}"
 # CRW-1579 set correct devspaces-rhel8-operator image and tag in operator deployment yaml
 oldImage=$(yq -r '.spec.template.spec.containers[0].image' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}")
 if [[ $oldImage ]]; then
-	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${CRW_VERSION}" "${COPYRIGHT}"
+	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${DS_VERSION}" "${COPYRIGHT}"
 fi
 echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# yq changes - transform env vars from Che to CRW values
+# yq changes - transform env vars from Che to DS values
 CR_YAML="config/samples/org_v2_checluster.yaml"
 #shellcheck disable=2002
 changed="$(cat "${TARGETDIR}/${CR_YAML}" | \

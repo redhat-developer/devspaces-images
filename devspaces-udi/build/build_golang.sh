@@ -20,7 +20,7 @@ export GOLANG_LS_VERSION="0.1.7"
 
 usage () {
     echo "
-Usage:   $0 -v [CRW CSV_VERSION] -n [ASSET_NAME]
+Usage:   $0 -v [DS CSV_VERSION] -n [ASSET_NAME]
 Example: $0 -v 2.y.0 -n stacks-golang
 "
     exit
