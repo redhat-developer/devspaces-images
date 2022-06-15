@@ -3,7 +3,7 @@ Links marked with this icon :door: are _internal to Red Hat_. This includes Jenk
 Because these services are internal, in the interest of making all things open, we've copied as much as possible into this repo. Details below.
 
 ## Midstream code
-This repo is used to house identical copies of the code used to build the **Red Hat OpenShift Dev Spaces (formerly Red Hat CodeReady Workspaces) images** in Brew/OSBS, but made public to enable pull requests and easier contribution.
+This repo is used to house identical copies of the code used to build the **Red Hat OpenShift Dev Spaces (formerly CodeReady Workspaces) images** in Brew/OSBS, but made public to enable pull requests and easier contribution.
 
 * Downstream code can be found in repos _internal to Red Hat_ at http://pkgs.devel.redhat.com/cgit/?q=devspaces :door:
     - select the `devspaces-3-rhel-8` branch for the latest `2.x` synced from upstream main branches, or 
