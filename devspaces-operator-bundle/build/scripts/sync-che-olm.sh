@@ -268,8 +268,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 		["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
 
-		["RELATED_IMAGE_single_host_gateway"]="${CRW_TRAEFIK_IMAGE}"
-		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${CRW_CONFIGBUMP_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
+		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
 
 		["RELATED_IMAGE_pvc_jobs"]="${UBI_IMAGE}"
 		["RELATED_IMAGE_postgres"]="${POSTGRES_IMAGE}" # deprecated @since 2.13
@@ -322,7 +322,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 done
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# yq changes - transform env vars from Che to CRW values
+# yq changes - transform env vars from Che to DS values
 CR_YAML="config/samples/org_v2_checluster.yaml"
 changed="$(
 yq  -y '.spec.devEnvironments.defaultNamespace.template="<username>-devspaces"')" && \
