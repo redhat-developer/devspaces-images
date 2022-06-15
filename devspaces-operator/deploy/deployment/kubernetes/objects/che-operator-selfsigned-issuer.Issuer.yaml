@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 # Copyright (c) 2019-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
@@ -11,7 +10,15 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# Scripts to prepare OLM(operator lifecycle manager) and install che-operator package
-# with specific version using OLM.
-
-
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  labels:
+    app.kubernetes.io/component: che-operator
+    app.kubernetes.io/instance: che
+    app.kubernetes.io/name: che
+    app.kubernetes.io/part-of: che.eclipse.org
+  name: che-operator-selfsigned-issuer
+  namespace: eclipse-che
+spec:
+  selfSigned: {}
