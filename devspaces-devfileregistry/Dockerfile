@@ -63,10 +63,7 @@ WORKDIR /build/
 #     REGISTRY=${PATCHED_IMAGES_REG} \
 #     ./update_devfile_patched_image_tags.sh
 RUN ./check_mandatory_fields.sh devfiles
-COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles 
-
-# Cache projects in DS 
+# Cache projects in CRW 
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
@@ -105,8 +102,8 @@ RUN sed -i /etc/httpd/conf/httpd.conf \
     chmod a+rwX /etc/httpd/conf /run/httpd /etc/httpd/logs/
 STOPSIGNAL SIGWINCH
 
-ARG DS_BRANCH=devspaces-3-rhel-8
-ENV DS_BRANCH=${DS_BRANCH}
+ARG CRW_BRANCH=devspaces-3-rhel-8
+ENV CRW_BRANCH=${CRW_BRANCH}
 
 WORKDIR /var/www/html
 
