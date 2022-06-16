@@ -89,7 +89,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:47bf6f517e25b7d4a9383a29f809b6b30c7a816b5bcf6c92f0f1982c677078ba
-    createdAt: "2022-06-14T18:47:30+00:00"
+    createdAt: "2022-06-16T18:45:59+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -149,7 +149,7 @@ spec:
       - description: Che components configuration.
         displayName: Components
         path: components
-      - description: Networking, Che authentication and TLS configuration.
+      - description: Networking, Che authentication, and TLS configuration.
         displayName: Networking
         path: networking
       - description: Configuration of an alternative registry that stores Che images.
@@ -161,17 +161,17 @@ spec:
         path: chePhase
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: Public URL to the Che server.
+      - description: Public URL of the Che server.
         displayName: Red Hat OpenShift Dev Spaces URL
         path: cheURL
         x-descriptors:
         - urn:alm:descriptor:org.w3:link
-      - description: Current installed Che version.
+      - description: Currently installed Che version.
         displayName: 'displayName: Red Hat OpenShift Dev Spaces version'
         path: cheVersion
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: The public URL to the internal devfile registry.
+      - description: The public URL of the internal devfile registry.
         displayName: Devfile registry URL
         path: devfileRegistryURL
         x-descriptors:
@@ -181,12 +181,12 @@ spec:
         path: gatewayPhase
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: A human readable message indicating details about why the Che deployment is in current phase.
+      - description: A human readable message indicating details about why the Che deployment is in the current phase.
         displayName: Message
         path: message
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: The public URL to the internal plug-in registry.
+      - description: The public URL of the internal plug-in registry.
         displayName: Plugin registry URL
         path: pluginRegistryURL
         x-descriptors:
@@ -196,7 +196,7 @@ spec:
         path: postgresVersion
         x-descriptors:
         - urn:alm:descriptor:text
-      - description: A brief CamelCase message indicating details about why the Che deployment is in current phase.
+      - description: A brief CamelCase message indicating details about why the Che deployment is in the current phase.
         displayName: Reason
         path: reason
         x-descriptors:
@@ -1122,9 +1122,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:81cc098158678059934b72b250d514fdf9563c662814915724b5663a11743fdd
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:08a7d8c892fad69c589b81ad8fbd21d36c8fa4078530dba361cfa9a8f9f05950
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
@@ -1134,7 +1134,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:5eda06368b0f3703293c17d2e7077d3c979f5c316fdc9c17490a9ac6c73ffba8
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:06ca170458ca017d1b7f423005eb10384bbf39fd6925b8f33a1b7c7a98c93357
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:a7be69e1336e754a95b36c484ad76ed0d759fe9c9294300136ceccd50bb43127
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1454,9 +1454,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:341fc9ebbe33dbf52af02f282d851d19bf5e1c935deaff007f4e076b12e8a915
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:81cc098158678059934b72b250d514fdf9563c662814915724b5663a11743fdd
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c9d0a5a2871c24c0b1058e419f2b090429363a319856397855412fd2c0037395
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:08a7d8c892fad69c589b81ad8fbd21d36c8fa4078530dba361cfa9a8f9f05950
   - name: jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_g4xdilrubi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
   - name: jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_g4xdilrubi______
@@ -1466,7 +1466,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:5eda06368b0f3703293c17d2e7077d3c979f5c316fdc9c17490a9ac6c73ffba8
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:06ca170458ca017d1b7f423005eb10384bbf39fd6925b8f33a1b7c7a98c93357
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:a7be69e1336e754a95b36c484ad76ed0d759fe9c9294300136ceccd50bb43127
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
