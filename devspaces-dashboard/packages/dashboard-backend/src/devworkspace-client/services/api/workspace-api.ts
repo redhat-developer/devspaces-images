@@ -66,16 +66,21 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
     }
   }
 
-  async create(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace> {
+  async create(
+    devworkspace: V1alpha2DevWorkspace,
+    namespace: string,
+  ): Promise<V1alpha2DevWorkspace> {
     try {
-      if (!devworkspace.metadata?.name || !devworkspace.metadata?.namespace) {
-        throw 'DevWorkspace.metadata with name and namespace are required';
+      if (!devworkspace.metadata?.name && !devworkspace.metadata?.generateName) {
+        throw new Error(
+          'Either DevWorkspace `metadata.name` or `metadata.generateName` is required.',
+        );
       }
 
       const resp = await this.customObjectAPI.createNamespacedCustomObject(
         devworkspaceGroup,
         devworkspaceLatestVersion,
-        devworkspace.metadata.namespace,
+        namespace,
         devworkspacePlural,
         devworkspace,
       );

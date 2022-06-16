@@ -2,7 +2,7 @@
 
 exports[`Page header should correctly render the component 1`] = `
 <header
-  className="pf-c-page__header"
+  className="pf-c-page__header show-header"
   style={
     Object {
       "zIndex": "inherit",

@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { isForbidden, isUnauthorized } from '../helpers';
+import { isForbidden, isInternalServerError, isUnauthorized } from '../helpers';
 
 describe('Workspace-client helpers', () => {
   describe('checks for HTTP 401 Unauthorized response status code', () => {
@@ -109,6 +109,56 @@ describe('Workspace-client helpers', () => {
       expect(
         isForbidden({
           body: '...Status code 403...',
+        }),
+      ).toBeTruthy();
+    });
+  });
+  describe('checks for HTTP 500 Internal Server Error response status code', () => {
+    it('should return false in the case with HTTP 400 Bad Request', () => {
+      expect(isInternalServerError('...HTTP Status 400 ....')).toBeFalsy();
+      expect(
+        isInternalServerError({
+          body: '...HTTP Status 400 ....',
+        }),
+      ).toBeFalsy();
+      expect(
+        isInternalServerError({
+          statusCode: 400,
+        }),
+      ).toBeFalsy();
+      expect(
+        isInternalServerError({
+          status: 400,
+        }),
+      ).toBeFalsy();
+      expect(isInternalServerError(new Error('...Status code 400...'))).toBeFalsy();
+      expect(
+        isInternalServerError({
+          body: '...Status code 400...',
+        }),
+      ).toBeFalsy();
+    });
+    it('should return true in the case with HTTP 500 Internal Server Error', () => {
+      expect(isInternalServerError('...HTTP Status 500 ....')).toBeTruthy();
+      expect(
+        isInternalServerError({
+          body: '...HTTP Status 500 ....',
+        }),
+      ).toBeTruthy();
+      expect(
+        isInternalServerError({
+          statusCode: 500,
+        }),
+      ).toBeTruthy();
+      expect(
+        isInternalServerError({
+          status: 500,
+        }),
+      ).toBeTruthy();
+      expect(isInternalServerError(new Error('...Status code 500...'))).toBeTruthy();
+      expect(
+        isInternalServerError({
+          body: '...Status code 500...',
         }),
       ).toBeTruthy();
     });

@@ -55,7 +55,7 @@ export interface IDevWorkspaceApi {
   /**
    * Create a devworkspace based on the specified configuration.
    */
-  create(devworkspace: V1alpha2DevWorkspace): Promise<V1alpha2DevWorkspace>;
+  create(devworkspace: V1alpha2DevWorkspace, namespace: string): Promise<V1alpha2DevWorkspace>;
 
   /**
    * Updates the DevWorkspace with the given configuration

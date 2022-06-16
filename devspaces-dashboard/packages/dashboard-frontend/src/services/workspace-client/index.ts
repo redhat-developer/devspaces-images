@@ -15,7 +15,7 @@ import { AxiosInstance, AxiosResponse } from 'axios';
 import { injectable } from 'inversify';
 import { default as WorkspaceClientLib } from '@eclipse-che/workspace-client';
 import { isForbidden, isUnauthorized } from './helpers';
-export type WebSocketsFailedCallback = () => void;
+import { signIn } from '../helpers/login';
 
 /**
  * This class manages the common functions between the che workspace client and the devworkspace client
@@ -31,17 +31,17 @@ export abstract class WorkspaceClient {
     // workspaceClientLib axios interceptor
     this.axios.interceptors.response.use(
       async response => {
-        if (
-          this.checkPathPrefix(response, '/api/') &&
-          (isUnauthorized(response) || isForbidden(response))
-        ) {
-          await deauthorizeCallback();
+        const isApi = this.checkPathPrefix(response, '/api/');
+        if (isApi) {
+          if (isUnauthorized(response) || isForbidden(response)) {
+            signIn();
+          }
         }
         return response;
       },
       async error => {
-        if (isUnauthorized(error)) {
-          await deauthorizeCallback();
+        if (isUnauthorized(error) || isForbidden(error)) {
+          signIn();
         }
         return Promise.reject(error);
       },
@@ -50,14 +50,17 @@ export abstract class WorkspaceClient {
     // dashboard-backend axios interceptor
     axios.interceptors.response.use(
       async response => {
-        if (isUnauthorized(response) && this.checkPathPrefix(response, '/dashboard/api/')) {
-          await deauthorizeCallback();
+        const isApi = this.checkPathPrefix(response, '/dashboard/api/');
+        if (isApi) {
+          if (isUnauthorized(response) || isForbidden(response)) {
+            signIn();
+          }
         }
         return response;
       },
       async error => {
-        if (isUnauthorized(error)) {
-          await deauthorizeCallback();
+        if (isUnauthorized(error) || isForbidden(error)) {
+          signIn();
         }
         return Promise.reject(error);
       },
@@ -71,9 +74,4 @@ export abstract class WorkspaceClient {
     }
     return pathname.startsWith(prefix);
   }
-}
-
-export async function deauthorizeCallback(): Promise<void> {
-  await axios.get('/oauth/sign_out');
-  return Promise.resolve();
 }

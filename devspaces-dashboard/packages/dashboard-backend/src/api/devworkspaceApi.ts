@@ -40,7 +40,7 @@ export function registerDevworkspaceApi(server: FastifyInstance) {
       devworkspace.metadata.namespace = namespace;
       const token = getToken(request);
       const { devworkspaceApi } = await getDevWorkspaceClient(token);
-      return devworkspaceApi.create(devworkspace);
+      return devworkspaceApi.create(devworkspace, namespace);
     },
   );
 

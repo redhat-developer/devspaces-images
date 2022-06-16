@@ -20,10 +20,17 @@ export function isUnauthorized(response: unknown): boolean {
 }
 
 /**
- * Checks for HTTP 403 Forbidden response status code
+ * Checks for HTTP 403 Forbidden
  */
 export function isForbidden(response: unknown): boolean {
   return hasStatus(response, 403);
+}
+
+/**
+ * Checks for HTTP 500 Internal Server Error
+ */
+export function isInternalServerError(response: unknown): boolean {
+  return hasStatus(response, 500);
 }
 
 function hasStatus(response: unknown, _status: number): boolean {

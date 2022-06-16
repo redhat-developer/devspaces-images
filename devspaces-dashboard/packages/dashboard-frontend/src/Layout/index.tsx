@@ -32,6 +32,7 @@ import { ROUTE } from '../route.enum';
 import { selectUser } from '../store/User/selectors';
 import { selectBranding } from '../store/Branding/selectors';
 import { ToggleBarsContext } from '../contexts/ToggleBars';
+import { signOut } from '../services/helpers/login';
 
 const THEME_KEY = 'theme';
 const IS_MANAGED_SIDEBAR = false;
@@ -63,11 +64,6 @@ export class Layout extends React.PureComponent<Props, State> {
       isSidebarVisible: true,
       theme,
     };
-  }
-
-  private logout(): void {
-    // assume that Che deployed with `nativeUserMode` enabled
-    window.location.href = '/oauth/sign_out';
   }
 
   private toggleNav(): void {
@@ -183,7 +179,7 @@ export class Layout extends React.PureComponent<Props, State> {
               isVisible={isHeaderVisible}
               logoUrl={logoUrl}
               user={user}
-              logout={() => this.logout()}
+              logout={() => signOut()}
               toggleNav={() => this.toggleNav()}
               changeTheme={theme => this.changeTheme(theme)}
             />

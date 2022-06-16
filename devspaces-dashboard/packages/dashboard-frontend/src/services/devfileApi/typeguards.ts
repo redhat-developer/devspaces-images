@@ -16,18 +16,12 @@ export function isDevfileV2Like(devfile: unknown): devfile is devfileApi.Devfile
   return (devfile as devfileApi.DevfileLike).schemaVersion !== undefined;
 }
 
+const schemaVersionRe =
+  /^([2-9])\.([0-9]+)\.([0-9]+)(-[0-9a-z-]+(\.[0-9a-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$/;
 export function isDevfileV2(devfile: unknown): devfile is devfileApi.Devfile {
   return (
     (devfile as devfileApi.Devfile).schemaVersion !== undefined &&
-    isDevfileV2Metadata((devfile as devfileApi.Devfile).metadata)
-  );
-}
-
-export function isDevfileV2Metadata(metadata: unknown): metadata is devfileApi.DevfileMetadata {
-  return (
-    metadata !== undefined &&
-    ((metadata as devfileApi.DevfileMetadata).name !== undefined ||
-      (metadata as devfileApi.DevfileMetadata).generateName !== undefined)
+    schemaVersionRe.test((devfile as devfileApi.Devfile).schemaVersion)
   );
 }
 

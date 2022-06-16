@@ -18,8 +18,6 @@ import { User } from 'che';
 import HeaderTools from './Tools';
 import { ThemeVariant } from '../themeVariant';
 
-import * as styles from './index.module.css';
-
 type Props = {
   history: History;
   isVisible: boolean;
@@ -56,8 +54,7 @@ export default class Header extends React.PureComponent<Props, State> {
 
   public render(): React.ReactElement {
     const logo = <Brand src={this.props.logoUrl} alt="Logo" />;
-
-    const className = this.state.isVisible ? styles.headerShow : styles.headerHide;
+    const className = this.state.isVisible ? 'show-header' : 'hide-header';
 
     return (
       <PageHeader

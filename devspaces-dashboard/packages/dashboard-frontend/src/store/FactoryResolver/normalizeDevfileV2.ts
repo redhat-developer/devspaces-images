@@ -83,6 +83,9 @@ export default function normalizeDevfileV2(
   } else if (location) {
     devfileSource = safeDump({ url: { location } });
   }
+  if (!devfile.metadata) {
+    devfile.metadata = {} as devfileApi.DevfileMetadata;
+  }
   const metadata = devfile.metadata;
   if (!metadata.attributes) {
     metadata.attributes = {};
@@ -92,6 +95,9 @@ export default function normalizeDevfileV2(
   }
   metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
     devfileSource;
+  if (!metadata.name && !metadata.generateName) {
+    metadata.generateName = getProjectName(scmInfo?.clone_url || location);
+  }
   devfile = Object.assign({}, devfile, { metadata });
 
   return devfile;

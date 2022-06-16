@@ -18,7 +18,8 @@ import axios from 'axios';
 import common from '@eclipse-che/common';
 import { BRANDING_DEFAULT, BrandingData } from '../../services/bootstrap/branding.constant';
 import { createObject } from '../helpers';
-import { deauthorizeCallback } from '../../services/workspace-client';
+import { isForbidden, isInternalServerError } from '../../services/workspace-client/helpers';
+import { signIn } from '../../services/helpers/login';
 
 const ASSET_PREFIX = './assets/branding/';
 
@@ -149,11 +150,8 @@ async function getApiInfo(): Promise<{
     return data;
   } catch (e) {
     const errorMessage = common.helpers.errors.getMessage(e);
-    if (typeof e === 'object' && e !== null) {
-      const { code } = e as { [propName: string]: string | number };
-      if (code == '403' || code == '500') {
-        await deauthorizeCallback();
-      }
+    if (isInternalServerError(e) || isForbidden(e)) {
+      signIn();
     }
     throw errorMessage;
   }

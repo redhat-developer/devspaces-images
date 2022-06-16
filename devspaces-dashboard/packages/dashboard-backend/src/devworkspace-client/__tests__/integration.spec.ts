@@ -55,7 +55,7 @@ describe('DevWorkspace API integration testing against cluster', () => {
         expect(namespaceExists).toBe(true);
 
         // check that creation works
-        const newDevWorkspace = await dwClient.devworkspaceApi.create(devWorkspace);
+        const newDevWorkspace = await dwClient.devworkspaceApi.create(devWorkspace, namespace);
         expect(newDevWorkspace.metadata?.name).toBe(name);
         expect(newDevWorkspace.metadata?.namespace).toBe(namespace);
 
