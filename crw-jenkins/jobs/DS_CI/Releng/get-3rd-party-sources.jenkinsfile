@@ -1,0 +1,89 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// MIDSTM_BRANCH
+
+def buildNode = "x86_64-rhel8-dyn"
+timeout(240) {
+  node("${buildNode}"){
+    stage("Collect 3rd party sources") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+          def util = load "${WORKSPACE}/util2.groovy"
+          cleanWs()
+          currentBuild.description=""
+          DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+          println "DS_VERSION = '" + DS_VERSION + "'"
+          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+          println "CSV_VERSION = '" + CSV_VERSION + "'"
+
+          currentBuild.description="Collecting sources for " + CSV_VERSION + " ..."
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/ds", MIDSTM_BRANCH, false)
+
+          sh '''#!/bin/bash -xe
+# generate source files
+cd ${WORKSPACE}/ds/product/manifest/ && ./get-3rd-party-sources.sh --clean -b ''' + MIDSTM_BRANCH + '''
+'''
+          currentBuild.description="Sources collected for " + CSV_VERSION
+
+          // Upload the artifacts and sources to RCM_GUEST server
+          if (PUBLISH_ARTIFACTS_TO_RCM.equals("true")) {
+            // ssh mount the rcm-guest drive
+            DESTHOST=util.sshMountRcmGuest()
+            sh '''#!/bin/bash -xe
+cd ${WORKSPACE}/ds/product/manifest/
+
+# TODO CRW-1919 remove this when we no longer need it 
+export KRB5CCNAME=/var/tmp/crw-build_ccache
+
+# delete old releases before pushing latest one, to keep disk usage low
+ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/ds; OLD_VERS=\\$(ls -1 | grep -v "''' + CSV_VERSION +
+  '''"); if [[ \\$OLD_VERS ]]; then echo 'Delete '\\$OLD_VERS; rm -fr \\$OLD_VERS; else echo 'Nothing to delete'; fi"
+'''
+            for (int i = 1; i <= 10; i++) {
+              try {
+                println "#############################################################"
+                println "Rsync attempt ${i} of 10..."
+
+                sh '''#!/bin/bash -xe
+cd ${WORKSPACE}/ds/product/manifest/
+
+# TODO CRW-1919 remove this when we no longer need it 
+export KRB5CCNAME=/var/tmp/crw-build_ccache
+
+# copy files to rcm-guest
+ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/ds && mkdir -p DS-''' + CSV_VERSION + '''/sources/containers DS-''' + CSV_VERSION + '''/sources/vscode && ls -la . "
+
+rsync -zrlt --rsh=ssh --protocol=28 ${WORKSPACE}/manifest-srcs.txt  ${WORKSPACE}/RCMG-ssh/DS-''' + CSV_VERSION + '''/sources/
+rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/containers/* ${WORKSPACE}/RCMG-ssh/DS-''' + CSV_VERSION + '''/sources/containers/
+rsync -zrlt --rsh=ssh --protocol=28  --delete ${WORKSPACE}/sources/vscode/*     ${WORKSPACE}/RCMG-ssh/DS-''' + CSV_VERSION + '''/sources/vscode/
+'''
+                println "#############################################################"
+                break;
+              } catch(err) {
+                println "Failed attempt ${i} of 10: " + err.toString() 
+                println "#############################################################"
+                // re-mount the rcm-guest drive
+                DESTHOST=util.sshMountRcmGuest()
+              }
+            }
+
+            // display resulting files
+            sh '''#!/bin/bash -xe
+# TODO CRW-1919 remove this when we no longer need it 
+export KRB5CCNAME=/var/tmp/crw-build_ccache
+
+ssh "''' + DESTHOST + '''" "cd /mnt/rcm-guest/staging/ds/DS-''' + CSV_VERSION + '''/ && tree"
+ssh "''' + DESTHOST + '''" "/mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release DS-''' + CSV_VERSION + ''' || true"
+'''
+          }
+          currentBuild.description+="; pushed to RCM"
+        } // with
+      } // wrap
+    } // stage
+  } //node
+} // timeout

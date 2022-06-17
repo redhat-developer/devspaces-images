@@ -1,0 +1,54 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   GITLAB_BRANCH
+//   MIDSTM_BRANCH
+//   CLEAN_ON_FAILURE = "true"
+
+def String SOURCE_REPO = "codeready-workspaces/crw-jenkins" 
+def String MIDSTM_REPO = "redhat-developer/codeready-workspaces-images"
+
+def OLD_SHA=""
+def NEW_SHA=""
+def SOURCE_SHA=""
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+timeout(120) {
+  node(nodeLabel) {
+    stage ("Sync repos on ${nodeLabel}") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        cleanWs()
+        currentBuild.description="Sync gitlab:" + GITLAB_BRANCH + " to github:" + MIDSTM_BRANCH + "..."
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            util.cloneRepo("https://gitlab.cee.redhat.com/${SOURCE_REPO}", "${WORKSPACE}/sources", GITLAB_BRANCH, false)
+            util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
+
+            SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+            sh('''#!/bin/bash -xe
+mkdir -p ${WORKSPACE}/targetdwn/crw-jenkins/jobs/DS_CI/ && cd ${WORKSPACE}/sources/jobs/DS_CI
+rsync -avhz --checksum --delete . ${WORKSPACE}/targetdwn/crw-jenkins/jobs/DS_CI/
+cd ${WORKSPACE}/targetdwn/crw-jenkins/jobs/
+git add --all -f . || true
+git commit -s -m "chore: [jobs] Update from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''" || true
+git push origin ''' + MIDSTM_BRANCH + ''' || true
+''')
+
+            currentBuild.description="Synced jobs from " + GITLAB_BRANCH + " (" + SOURCE_SHA + ") to: " + MIDSTM_BRANCH
+
+          } // withCredentials
+      } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } // stage
+  } // node
+} // timeout

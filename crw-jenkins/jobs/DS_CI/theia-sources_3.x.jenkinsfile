@@ -1,0 +1,321 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// SOURCE_BRANCH
+// MIDSTM_BRANCH
+// THEIA_BRANCH
+// THEIA_GITHUB_REPO
+// THEIA_COMMIT_SHA
+// CONTAINERS
+// PLATFORMS
+// CLEAN_ON_FAILURE = "true"
+
+// Nodes to run artifact build
+def List nodeLabels = ['x86_64-rhel8-dyn', 's390x-rhel8-perm', 'ppc64le-rhel8-perm']
+def List req_platforms = PLATFORMS.tokenize(",").collect { it.trim() }
+def List platforms = []
+def Map tasks = [failFast: false]
+timeout(120) {
+  def String nodeLabel = "${nodeLabels[0]}" // use static x builder for better polling support 
+  node(nodeLabel) {
+    stage ("SCM Poll: Che Theia + update from.dockerfile stubs") {
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        sh "mkdir -p tmp"
+        util.cloneRepo("https://github.com/eclipse-che/che-theia.git", "tmp/che-theia", SOURCE_BRANCH, true)
+
+        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+        println "DS_VERSION = '" + DS_VERSION + "'"
+        // updateBaseImages.sh -b 7.30.x -w dockerfiles -f \*from.dockerfile -maxdepth 5
+        util.updateBaseImages("tmp/che-theia", SOURCE_BRANCH, "-w dockerfiles -f \\*from.dockerfile -maxdepth 5", MIDSTM_BRANCH)
+
+        sh "rm -fr tmp"
+      } // with
+    } // stage
+
+    stage ("Update Dev Spaces Theia base images and build params on " + nodeLabel) {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+          cleanWs()
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "${WORKSPACE}/devspaces-theia-prepare", MIDSTM_BRANCH, true)
+          DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+          println "DS_VERSION = '" + DS_VERSION + "'"
+
+          // TODO CRW-1609 implement tag deletion option (as script to delete quay images for a given DS_VERSION)
+          // if (cleanTmpImages == "true") {
+              // println "TODO: Delete tmp images from Quay"
+              // https://docs.quay.io/api/swagger/#!/tag/deleteFullTag
+              // $➔ curl -H 'Accept: application/json' -H "Authorization: Bearer token-here" -X DELETE https://quay.io/api/v1/repository/devspaces/theia-endpoint-rhel8/tag/TAG-HERE
+              // sh('curl -sSL -H "Authorization: Bearer " ...')
+          // }
+
+          // set up build command, using -ci- image tags
+          def nodeVersion = sh(script: '''curl -sSL  https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq '.Other.NODE_VERSION["''' + DS_VERSION + '''"]' ''', returnStdout: true).trim()
+          def yarnVersion = sh(script: '''curl -sSL  https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq '.Other.YARN_VERSION["''' + DS_VERSION + '''"]' ''', returnStdout: true).trim()
+          def BUILD_PARAMS="--nv ${nodeVersion} --cv ${DS_VERSION} --ctb ${SOURCE_BRANCH} --tb ${THEIA_BRANCH} --tgr ${THEIA_GITHUB_REPO} --no-cache --rm-cache --rmi:all --no-async-tests --ci"
+          // commit changes into devspaces-theia/dockerfiles/ directly, so we can more easily sync to lower-midstream (devspaces-images) and downstream (pkgs.devel)
+          BUILD_PARAMS=BUILD_PARAMS+" --commit"
+
+          // define which containers to build via flags to build.sh
+          if (CONTAINERS.trim().contains("devspaces-theia-dev")) { BUILD_PARAMS=BUILD_PARAMS+" -d" }
+          if (CONTAINERS.trim().contains("devspaces-theia,") || CONTAINERS.trim().equals("devspaces-theia")) { BUILD_PARAMS=BUILD_PARAMS+" -t" }
+          if (CONTAINERS.trim().contains("devspaces-theia-endpoint")) { BUILD_PARAMS=BUILD_PARAMS+" -e" }
+
+          if (!THEIA_COMMIT_SHA.equals("")) {
+            BUILD_PARAMS=BUILD_PARAMS+" --tcs ${THEIA_COMMIT_SHA}";
+          } else {
+            THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash -xe
+pushd /tmp >/dev/null || true
+curl -sSLO https://raw.githubusercontent.com/eclipse-che/che-theia/''' + SOURCE_BRANCH + '''/build.include
+export "$(cat build.include | egrep "^THEIA_COMMIT_SHA")" && THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA//\\"/}
+popd >/dev/null || true
+echo -n $THEIA_COMMIT_SHA
+''', returnStdout: true).trim()
+            echo "[INFO] Store Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA}"
+          }
+
+          // create BUILD_PARAMS and BUILD_COMMAND files to store latest build params
+          sh """
+. ~/crw_env ${DS_VERSION}
+pushd ${WORKSPACE}/devspaces-theia-prepare >/dev/null
+echo nodeVersion=${nodeVersion} > BUILD_PARAMS
+echo yarnVersion=${yarnVersion} >> BUILD_PARAMS
+echo DS_VERSION=${DS_VERSION} >> BUILD_PARAMS
+echo SOURCE_BRANCH=${SOURCE_BRANCH} >> BUILD_PARAMS
+echo THEIA_BRANCH=${THEIA_BRANCH} >> BUILD_PARAMS
+echo THEIA_GITHUB_REPO=${THEIA_GITHUB_REPO} >> BUILD_PARAMS
+echo THEIA_COMMIT_SHA=${THEIA_COMMIT_SHA} >> BUILD_PARAMS
+echo ./build.sh ${BUILD_PARAMS} > BUILD_COMMAND
+set +x
+git add BUILD_COMMAND BUILD_PARAMS || true
+git commit -s -m "ci: [update] BUILD_PARAMS + BUILD_COMMAND (${SOURCE_BRANCH}, ${THEIA_COMMIT_SHA})" BUILD_COMMAND BUILD_PARAMS || true
+git pull origin ${MIDSTM_BRANCH} || true
+git push origin ${MIDSTM_BRANCH} || true
+popd >/dev/null
+"""
+        } // with
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
+            cleanWhenAborted: false, // don't clean workspace on abort (in case of timeout, and want persistent tea leaves)
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
+      } // wrap
+    } // stage
+  } // node
+} // timeout
+
+
+for (int i=0; i < nodeLabels.size(); i++) {
+  def String nodeLabel = "${nodeLabels[i]}"
+  print "[" + (i+1) + "/" + nodeLabels.size() + "] Create task to run on ${nodeLabel}"
+  tasks[nodeLabels[i]] = { ->
+    timeout(600) {
+      node(nodeLabel) {
+        stage ("Build artifacts containers on " + nodeLabel + " and push to quay.io") {
+          def this_platform=sh(script: '''uname -m''', returnStdout:true).trim()
+          if (!req_platforms.contains(this_platform)) {
+            echo "[INFO] Skip platform = " + this_platform
+          } else {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+              platforms.add(this_platform)
+              echo "[INFO] Build on platform = " + this_platform
+              sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+              def util = load "${WORKSPACE}/util2.groovy"
+              cleanWs()
+              sh "docker system prune -af || true"
+              withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "${WORKSPACE}/devspaces-theia", MIDSTM_BRANCH, false)
+                DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                println "DS_VERSION = '" + DS_VERSION + "'"
+                def buildLog = ""
+
+                // updateBaseImages.sh -b devspaces-3-rhel-8 -w conf -f \*from.dockerfile -maxdepth 3
+                util.updateBaseImages("${WORKSPACE}/devspaces-theia", MIDSTM_BRANCH, "-w conf -f \\*from.dockerfile -maxdepth 3")
+
+                // parse THEIA_COMMIT_SHA from BUILD_PARAMS file
+                THEIA_COMMIT_SHA = sh(script: '''#!/bin/bash
+cd devspaces-theia && var=THEIA_COMMIT_SHA; sed -n "/${var}=/ s/${var}=//p" BUILD_PARAMS
+''', returnStdout: true).trim()
+                echo "[INFO] Using Eclipse Theia commit SHA THEIA_COMMIT_SHA = ${THEIA_COMMIT_SHA} from ${SOURCE_BRANCH} branch"
+
+                def buildStatusCode = 0
+                ansiColor('xterm') {
+                  echo "[INFO] Build images: " + CONTAINERS
+                  buildStatusCode = sh script:'''#!/bin/bash -e
+. ~/crw_env ''' + DS_VERSION + ''' || { echo "[ERROR] Problem running on ''' + nodeLabel + ''': . ~/crw_env ''' + DS_VERSION + '''"; exit 1; }
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
+export GITHUB_TOKEN="''' + GITHUB_TOKEN + '''"
+mkdir -p ${WORKSPACE}/logs/
+pushd ${WORKSPACE}/devspaces-theia >/dev/null
+  set -x
+  $(cat BUILD_COMMAND) 2>&1 | tee ${WORKSPACE}/logs/devspaces-theia_buildlog.txt
+popd >/dev/null
+''', returnStatus: true
+
+                  BUILD_LOG_EXISTS = false
+                  buildLog=""
+                  try {
+                      buildLog = readFile("${WORKSPACE}/logs/devspaces-theia_buildlog.txt")
+                      BUILD_LOG_EXISTS = true
+                  }
+                  catch(err) {
+                      println "[WARN] No console log found in ${WORKSPACE}/logs/devspaces-theia_buildlog.txt"
+                  }
+
+                  def descriptString="Build #${BUILD_NUMBER} (" + (new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")).format(new Date()) + ") <br/> :: devspaces-theia @ ${MIDSTM_BRANCH}, che-theia @ ${SOURCE_BRANCH}, theia @ ${THEIA_COMMIT_SHA} (${THEIA_BRANCH})"
+                  echo "${descriptString}"
+                  currentBuild.description="${descriptString}"
+                  def buildLogErrors = buildLog =~ /returned a non-zero code:* \d+|Command failed with exit code:* \d+/
+                  if (BUILD_LOG_EXISTS && (buildStatusCode != 0 || buildLogErrors.size() > 0)) {
+                    ansiColor('xterm') {
+                      echo ""
+                      echo "=============================================================================================="
+                      if (buildLogErrors.size() > 0) {
+                        println "[ERROR] Error(s) found: "
+                        for (errLine in buildLogErrors) { println "\t" + errLine }
+                        echo "=============================================================================================="
+                      }
+                      error "[ERROR] Build has failed with exit code " + buildStatusCode
+                    }
+                    currentBuild.result = 'FAILED'
+                    util.notifyBuildFailed()
+                  }
+
+                  echo "currentBuild.result = " + currentBuild.result
+                } // ansiColor
+              } // with credentials
+              cleanWs(
+                  cleanWhenSuccess: true,
+                  cleanWhenUnstable: true,
+                  cleanWhenNotBuilt: false,
+                  cleanWhenFailure: CLEAN_ON_FAILURE,
+                  cleanWhenAborted: true,
+                  deleteDirs: true,
+                  disableDeferredWipeout: true,
+                  notFailBuild: true
+              )
+            } // wrap
+          } // if platform
+        } // stage
+      } // node
+    } // timeout
+  } // tasks
+} // for
+
+stage("Builds") {
+    parallel(tasks)
+    // verify requested platforms attempted asset build
+    if (req_platforms.sort() != platforms.sort()) {
+      error "[ERROR] Build failed as " + platforms + " didn't contain all platforms requested (" + req_platforms + ")"
+      currentBuild.result = 'FAILED'
+      util.notifyBuildFailed()
+    }
+}
+
+nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+node(nodeLabel) {
+  stage ("Trigger sync to downstream job on ${nodeLabel}") {
+    echo "currentBuild.result = " + currentBuild.result
+    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    def util = load "${WORKSPACE}/util2.groovy"
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+      DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+      println "DS_VERSION = '" + DS_VERSION + "'"
+      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {        
+          // sync devspaces-theia to devspaces-images
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "${WORKSPACE}/devspaces-theia-sync", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "${WORKSPACE}/devspaces-images", MIDSTM_BRANCH, false)
+
+          sh """
+  pushd devspaces-theia-sync >/dev/null
+    ./build/scripts/sync.sh -s ${WORKSPACE}/devspaces-theia-sync -t ${WORKSPACE}/devspaces-images --commit
+  popd >/dev/null
+  """
+
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+          build(
+              job: 'sync-to-downstream_' + JOB_BRANCH,
+              wait: true,
+              propagate: true,
+              quietPeriod: 0,
+              parameters: [
+                [
+                  $class: 'StringParameterValue',
+                  name: 'token',
+                  value: "CI_BUILD"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'cause',
+                  value: "theia+respins+by+${BUILD_TAG}"
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'REPOS',
+                  value: CONTAINERS
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'JOB_BRANCH',
+                  value: JOB_BRANCH
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'UPDATE_BASE_IMAGES_FLAGS',
+                  value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                ],
+                [
+                  $class: 'StringParameterValue',
+                  name: 'MIDSTM_BRANCH',
+                  value: MIDSTM_BRANCH
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'FORCE_BUILD',
+                  value: FORCE_BUILD
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'SCRATCH',
+                  value: false
+                ],
+                [
+                  $class: 'BooleanParameterValue',
+                  name: 'CLEAN_ON_FAILURE',
+                  value: CLEAN_ON_FAILURE
+                ]
+              ]
+            )
+            currentBuild.description+="; Downstream sync job triggered"
+        }
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
+      } // wrap
+    } else {
+      util.notifyBuildFailed()
+    } // if
+  } // stage
+} //node

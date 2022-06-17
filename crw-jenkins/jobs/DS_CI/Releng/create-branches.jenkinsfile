@@ -1,0 +1,50 @@
+#!/usr/bin/env groovy
+
+// PARAMETERS for this pipeline:
+// def MIDSTM_BRANCH = "devspaces-3-rhel-8" // redhat-developer/devspaces branch to use as source of the new branches
+// def FUTURE_BRANCH = "devspaces-3.y-rhel-8" // branch to create
+// CLEAN_ON_FAILURE = "true"
+
+def List GH_REPOS = [
+    'devspaces',
+    'devspaces-theia',
+    'devspaces-images',
+    'devspaces-chectl'
+    ]
+
+def buildNode = "x86_64-rhel8||s390x-rhel8||ppc64le-rhel8"
+timeout(120) {
+    node("${buildNode}"){
+        stage("Create branches") {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
+                cleanWs()
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/tagRelease.sh && chmod +x tagRelease.sh')
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh && chmod +x containerExtract.sh')
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')])
+                {
+                    for (int i=0; i < GH_REPOS.size(); i++) {
+                        println "##  Clone github.com/redhat-developer/${GH_REPOS[i]}.git"
+                        util.cloneRepo("https://github.com/redhat-developer/${GH_REPOS[i]}.git", "/tmp/tmp-checkouts/projects_${GH_REPOS[i]}", MIDSTM_BRANCH, false)
+                    }
+                    currentBuild.description="Create ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} ..."
+                    sh ('''
+                    ./tagRelease.sh --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
+                    )
+                    currentBuild.description="Created ${FUTURE_BRANCH} branches"
+                } //with
+            } // wrap
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+        } // stage
+    } // node
+} // timeout

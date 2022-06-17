@@ -1,0 +1,102 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// MIDSTM_BRANCH="devspaces-3.y-rhel-8"
+// TAG_RELEASE = true/false. If true, tag the repos; if false, proceed w/o tagging
+// CLEAN_ON_FAILURE = "true"
+
+def MIDSTM_BRANCHNEXT = "devspaces-3-rhel-8"
+def DWNSTM_BRANCH = MIDSTM_BRANCH // target branch in dist-git repo, eg., devspaces-3.y-rhel-8
+def MVN_FLAGS="-Dmaven.repo.local=.repository/ -V -B -e"
+def buildNode = "x86_64-rhel8||s390x-rhel8||ppc64le-rhel8"
+timeout(240) {
+  node("${buildNode}"){
+    stage("Collect 3rd party sources") {
+      wrap([$class: 'TimestamperBuildWrapper']) {
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+            file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
+          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+          def util = load "${WORKSPACE}/util2.groovy"
+          cleanWs()
+          DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+          sh '''#!/bin/bash
+
+# TODO this should move into a dockerfile so we can run the manifest collection w/o installing anything locally
+sudo dnf -y install tree php-devel php-json || sudo dnf -y update tree php-devel php-json
+
+. ~/crw_env ''' + DS_VERSION + '''
+echo "Node: $(node --version) ( $(which node) )"
+echo "Yarn: $(yarn --version) ( $(which yarn) )"
+
+jq --version; echo "-----"
+yq --version; echo "-----"
+go version; echo "-----"
+echo -n "node "; node --version; echo "-----"
+echo -n "npm "; npm --version; echo "-----"
+mvn --version; echo "-----"
+php --version; echo "-----"
+python3 --version; echo "-----"
+'''
+          println "DS_VERSION = '" + DS_VERSION + "'"
+          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+          println "CSV_VERSION = '" + CSV_VERSION + "'"
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/ds", MIDSTM_BRANCH, false)
+
+          if (TAG_RELEASE.equals("true")) {
+            currentBuild.description="Tagging " + CSV_VERSION + "..."
+            sh '''#!/bin/bash -xe
+cd ${WORKSPACE}/ds/product/ && ./tagRelease.sh -t ''' + DS_VERSION + ''' -v ''' + CSV_VERSION + ''' \
+  -gh ''' + MIDSTM_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN + ''' -pd ''' + DWNSTM_BRANCH + ''' -pduser crw-build
+'''
+            currentBuild.description="Tagged " + CSV_VERSION + "; Collecting manifests for " + CSV_VERSION
+          } else {
+            currentBuild.description="Collecting manifests for " + CSV_VERSION
+          }
+
+          sh '''#!/bin/bash
+CSV_VERSION="''' + CSV_VERSION + '''"
+echo CSV_VERSION = ${CSV_VERSION}
+
+. ~/crw_env ''' + DS_VERSION + '''
+
+# generate source files
+cd ${WORKSPACE}/ds/product/manifest/
+export GITHUB_TOKEN=''' + GITHUB_TOKEN + ''' # echo "''' + GITHUB_TOKEN + '''"
+./get-3rd-party-deps-manifests.sh -v ${CSV_VERSION} -b ''' + MIDSTM_BRANCH + '''
+
+# copy over the dir contents
+rsync -azrlt ${WORKSPACE}/${CSV_VERSION}/* ${WORKSPACE}/ds/product/manifest/${CSV_VERSION}/
+# sync the directory and delete from target if deleted from source
+rsync -azrlt --delete ${WORKSPACE}/${CSV_VERSION}/ ${WORKSPACE}/ds/product/manifest/${CSV_VERSION}/
+tree ${WORKSPACE}/ds/product/manifest/${CSV_VERSION}
+
+git add ${CSV_VERSION}
+git commit -s -m "chore: [prodsec] Update product security manifests for ${CSV_VERSION}" ${CSV_VERSION}
+git pull origin ''' + MIDSTM_BRANCH + '''
+git push origin ''' + MIDSTM_BRANCH + '''
+
+# push manifests to MIDSTM_BRANCHNEXT branch too
+lastcommit="$(git rev-parse HEAD)"
+git fetch || true
+git checkout --track origin/''' + MIDSTM_BRANCHNEXT + '''
+git pull origin ''' + MIDSTM_BRANCHNEXT + '''
+git cherry-pick $lastcommit
+git push origin ''' + MIDSTM_BRANCHNEXT + '''
+'''
+        } // with
+      } // wrap
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: CLEAN_ON_FAILURE,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } // stage
+  } //node
+} // timeout

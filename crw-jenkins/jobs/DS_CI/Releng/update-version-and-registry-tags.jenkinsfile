@@ -1,0 +1,54 @@
+#!/usr/bin/env groovy
+
+// PARAMETERS for this pipeline:
+//   DS_VERSION
+//   CLEAN_ON_FAILURE = "true"
+
+def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
+def MIDSTM_BRANCH = "devspaces-3-rhel-8"
+
+def buildNode = "x86_64-rhel8||s390x-rhel8||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
+timeout(120) {
+    node("${buildNode}"){ 
+        stage ("update versions/tags; disable ${DS_VERSION} jobs") {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) 
+                {
+                    cleanWs()
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
+                    util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, false)
+                    DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                    currentBuild.description="Update ${MIDSTM_BRANCH} to ${DS_VERSION}; disable ${DS_VERSION} jobs ..."
+                    sh '''#!/bin/bash
+cd ${WORKSPACE}/targetmid
+DS_VERSION="''' + DS_VERSION + '''"
+if [[ $DS_VERSION =~ ^([0-9]+)\\.([0-9]+) ]]; then # reduce the y digit
+  XX=${BASH_REMATCH[1]}
+  YY2=${BASH_REMATCH[2]}; (( YY2=YY2-2 )); if [[ $YY2 -lt 0 ]]; then YY2=0; fi
+  YY3=${BASH_REMATCH[2]}; (( YY3=YY3-3 )); if [[ $YY3 -lt 0 ]]; then YY3=0; fi
+  DS_VERSION_PREV2="${XX}.${YY2}"
+  DS_VERSION_PREV3="${XX}.${YY3}"
+fi
+
+# disable previous versions (2.yy-2, 2.yy-3), then latest version 2.yy too
+for thisver in ${DS_VERSION_PREV3} ${DS_VERSION_PREV2} ${DS_VERSION}; do 
+    ./product/updateVersionAndRegistryTags.sh -t ${DS_VERSION} --disable-jobs ${thisver} --disable-management-jobs ${thisver}
+done
+'''
+                    currentBuild.description="Updated ${MIDSTM_BRANCH} to ${DS_VERSION}"
+                }
+            }
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+        } // stage
+    } // node
+} //timeout

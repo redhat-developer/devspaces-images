@@ -1,0 +1,62 @@
+#!/usr/bin/env groovy
+
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+// DRY_RUN
+// CLEAN_ON_FAILURE = "true"
+
+def MIDSTM_BRANCH = 'devspaces-3-rhel-8'
+def errorOccurred = false
+def String nodeLabel = 'x86_64-rhel8'  // ppc64le-rhel8 disabled with cffi error; s390x-rhel8 disabled as rust compilation sometimes fails
+timeout(120) {
+    node(nodeLabel){
+        try {
+            stage ("Check for updated images") {
+                wrap([$class: 'TimestamperBuildWrapper']) {
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
+                    cleanWs()
+                    withCredentials([string(credentialsId: 'jira-jiralint-token', variable: 'JIRA_TOKEN'), string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/ds", MIDSTM_BRANCH, false)
+                        GHIRA_OPTIONS = ''
+                        if (DRY_RUN.equals("true")) {
+                            GHIRA_OPTIONS += " --dryrun"
+                        }
+                        if (!NUM_WEEKS.equals("")) {
+                            GHIRA_OPTIONS += " --weeks " + NUM_WEEKS
+                        }
+                        print "Using GHIRA_OPTIONS = " + GHIRA_OPTIONS
+                        sh '''#!/bin/bash -xe
+cd ${WORKSPACE}/ds/product/ghira
+pyenv virtualenv ghira -f
+pyenv local ghira
+pip install -r requirements.txt
+export JIRA_EMAIL="jiralint-codeready@redhat.com"
+export JIRA_TOKEN="''' + "${JIRA_TOKEN}" + '''"
+export GITHUB_TOKEN="''' + "${GITHUB_TOKEN}" + '''"
+python ghira ''' + "${GHIRA_OPTIONS}" + '''
+                        '''
+                    } // with tokens
+                } // wrap
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: CLEAN_ON_FAILURE,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
+            } // stage
+        } catch (e) {
+            if (errorOccurred) {
+                util.notifyBuildFailed()
+                return
+            }
+            throw e
+        } // try-catch
+    } // node
+} // timeout
+
