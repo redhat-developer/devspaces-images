@@ -1094,7 +1094,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:f3ad084d494f4313eb32cb42f64e3d80458d28f88fc7a95efb4695f532b9c2ca
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:fbac0ac88d5a59f4a5ca55db3ea369b89dee06d50aa66b92a168120517542c68
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:bae132b6f4399e16dd1caa121601aa1cabf3ffc0d9adfcc6b0449e8b7037b4de
                 - name: RELATED_IMAGE_devfile_registry
@@ -1138,7 +1138,7 @@ spec:
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
-                  value: registry.redhat.io/rhel8/postgresql-13@sha256:4b31f3c4586d164ce75ff82d5570106f2f554b02c33390a55ff4139498fe6905
+                  value: registry.redhat.io/rhel8/postgresql-13@sha256:fd88f0893f0ee293319a2dadb8df5e41a1bad127ba1ec3ad6a7aca09b04094d8
                 - name: RELATED_IMAGE_pvc_jobs
                   value: registry.redhat.io/ubi8/ubi-minimal@sha256:3f32ebba0cbf3849a48372d4fc3a4ce70816f248d39eb50da7ea5f15c7f9d120
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
@@ -1426,7 +1426,7 @@ spec:
   - name: devspaces-operator
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:47bf6f517e25b7d4a9383a29f809b6b30c7a816b5bcf6c92f0f1982c677078ba
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:f3ad084d494f4313eb32cb42f64e3d80458d28f88fc7a95efb4695f532b9c2ca
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:fbac0ac88d5a59f4a5ca55db3ea369b89dee06d50aa66b92a168120517542c68
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:bae132b6f4399e16dd1caa121601aa1cabf3ffc0d9adfcc6b0449e8b7037b4de
   - name: devfile_registry
@@ -1470,7 +1470,7 @@ spec:
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
-    image: registry.redhat.io/rhel8/postgresql-13@sha256:4b31f3c4586d164ce75ff82d5570106f2f554b02c33390a55ff4139498fe6905
+    image: registry.redhat.io/rhel8/postgresql-13@sha256:fd88f0893f0ee293319a2dadb8df5e41a1bad127ba1ec3ad6a7aca09b04094d8
   - name: pvc_jobs
     image: registry.redhat.io/ubi8/ubi-minimal@sha256:3f32ebba0cbf3849a48372d4fc3a4ce70816f248d39eb50da7ea5f15c7f9d120
   - name: rhscl_mongodb_36_rhel7_devfile_registry_image_gewtkmak
