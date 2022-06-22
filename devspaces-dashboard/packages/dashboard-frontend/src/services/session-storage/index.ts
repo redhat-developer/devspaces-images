@@ -12,6 +12,7 @@
 
 export enum SessionStorageKey {
   PRIVATE_FACTORY_RELOADS = 'private-factory-reloads-number',
+  ORIGINAL_LOCATION_PATH = 'original-location-path',
 }
 
 export default class SessionStorageService {
@@ -21,5 +22,11 @@ export default class SessionStorageService {
 
   static get(key: SessionStorageKey): string | undefined {
     return window.sessionStorage.getItem(key) || undefined;
+  }
+
+  static remove(key: SessionStorageKey): string | undefined {
+    const value = this.get(key);
+    window.sessionStorage.removeItem(key);
+    return value;
   }
 }

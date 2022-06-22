@@ -44,6 +44,17 @@ describe('Issue component', () => {
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
 
+  it('should render the workspaceInactive error', () => {
+    const issue = {
+      type: 'workspaceInactive',
+      error: new Error('The workspace is inactive.'),
+      data: { ideLoader: '', workspaceDetails: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
   it('should render an unknown error', () => {
     const issue = {
       type: 'unknown',

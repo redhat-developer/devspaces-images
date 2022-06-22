@@ -38,6 +38,9 @@ import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/sel
 import { selectDevWorkspacesResourceVersion } from '../../store/Workspaces/devWorkspaces/selectors';
 import { AppAlerts } from '../alerts/appAlerts';
 import { AlertVariant } from '@patternfly/react-core';
+import SessionStorageService, { SessionStorageKey } from '../session-storage';
+import { buildDetailsLocation, buildIdeLoaderLocation } from '../helpers/location';
+import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -80,10 +83,11 @@ export default class Bootstrap {
       this.fetchRegistriesMetadata(settings),
       this.watchNamespaces(),
       this.updateDevWorkspaceTemplates(settings),
-      this.fetchWorkspaces(),
+      this.fetchWorkspaces().then(() => this.checkInactivityShutdown()),
       this.fetchClusterInfo(),
       this.fetchClusterConfig(),
     ]);
+
     const errors = results
       .filter(result => result.status === 'rejected')
       .map(result => (result as PromiseRejectedResult).reason.toString());
@@ -266,5 +270,35 @@ export default class Bootstrap {
   private async fetchUserProfile(): Promise<void> {
     const { requestUserProfile } = UserProfileStore.actionCreators;
     return requestUserProfile()(this.store.dispatch, this.store.getState, undefined);
+  }
+
+  private checkInactivityShutdown() {
+    const path = SessionStorageService.remove(SessionStorageKey.ORIGINAL_LOCATION_PATH);
+    if (!path) {
+      return;
+    }
+
+    const state = this.store.getState();
+
+    const workspace = selectAllWorkspaces(state).find(w => w.ideUrl?.includes(path));
+    if (!workspace) {
+      return;
+    }
+
+    if (workspace.isRunning && workspace.ideUrl) {
+      window.location.href = workspace.ideUrl;
+      return;
+    }
+
+    const ideLoader = buildIdeLoaderLocation(workspace).pathname;
+    const workspaceDetails = buildDetailsLocation(workspace).pathname;
+
+    this.issuesReporterService.registerIssue(
+      'workspaceInactive',
+      new Error(
+        'Your workspace has stopped. This could happen if your workspace shuts down due to inactivity.',
+      ),
+      { ideLoader, workspaceDetails },
+    );
   }
 }

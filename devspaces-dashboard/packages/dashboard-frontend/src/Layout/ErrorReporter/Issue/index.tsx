@@ -14,7 +14,7 @@ import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { WarningTriangleIcon } from '@patternfly/react-icons';
 import React from 'react';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { Issue } from '../../../services/bootstrap/issuesReporter';
+import { Issue, WorkspaceRoutes } from '../../../services/bootstrap/issuesReporter';
 
 import * as styles from './index.module.css';
 
@@ -32,6 +32,8 @@ export class IssueComponent extends React.PureComponent<Props> {
         return this.renderCertError();
       case 'sso':
         return this.renderSsoError(issue.error);
+      case 'workspaceInactive':
+        return this.renderWorkspaceInactiveError(issue.error, issue.data);
       default:
         return this.renderUnknownError(issue.error);
     }
@@ -88,6 +90,53 @@ export class IssueComponent extends React.PureComponent<Props> {
           Please try <kbd className={styles.keybinding}>Shift</kbd>+
           <kbd className={styles.keybinding}>Refresh</kbd>
         </Text>
+      </TextContent>
+    );
+  }
+
+  private renderWorkspaceInactiveError(
+    error: Error,
+    workspaceRoutes: WorkspaceRoutes | undefined,
+  ): React.ReactNode {
+    const linkOnClick = (hash: string) => {
+      return () => {
+        window.location.hash = hash;
+        window.location.reload();
+      };
+    };
+
+    let ideLoader: React.ReactNode;
+    let workspaceDetails: React.ReactNode;
+
+    if (workspaceRoutes) {
+      ideLoader = (
+        <Text component={TextVariants.p}>
+          <a onClick={linkOnClick(workspaceRoutes.ideLoader)}>Restart your workspace</a>
+        </Text>
+      );
+
+      workspaceDetails = (
+        <Text component={TextVariants.p}>
+          <a onClick={linkOnClick(workspaceRoutes.workspaceDetails)}>Return to the dashboard</a>
+        </Text>
+      );
+    }
+
+    const warningTextbox = !error ? undefined : (
+      <Text component={TextVariants.pre} className={styles.errorMessage}>
+        {error.message}
+      </Text>
+    );
+
+    return (
+      <TextContent>
+        <Text component={TextVariants.h1}>
+          <WarningTriangleIcon className={styles.warningIcon} />
+          Warning
+        </Text>
+        {warningTextbox}
+        {ideLoader}
+        {workspaceDetails}
       </TextContent>
     );
   }
