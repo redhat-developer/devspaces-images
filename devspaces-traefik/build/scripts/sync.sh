@@ -37,6 +37,8 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+    '-b') exit 0; shift 1;;  #In case something tries to pass in a branch
+    '--commit') exit 0; shift 1;; #In case something 
     # special params for this sync
     '--traefik-version') TRAEFIK_VERSION="$2"; shift 1;;
     '--golang-version') GOLANG_VERSION="$2"; shift 1;;

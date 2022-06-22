@@ -16,6 +16,8 @@ export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 export PYTHON_LS_VERSION=0.36.1
 export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-38:1"
 
+UPLOAD_TO_GH=1
+
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] -n [ASSET_NAME]
@@ -30,6 +32,8 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
     '-n') ASSET_NAME="$2"; shift 1;;
+    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;; #Usually ENV, there for local builds
+    '--noupload') UPLOAD_TO_GH=0;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -79,10 +83,12 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/python-ls:/tmp/python -u root ${PYTHO
     "
 tar -czf "${tarball}" -C target/python-ls .
 
-# upload the binary to GH
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
+  # upload the binary to GH
+  if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
+  fi
+  ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
 
-${PODMAN} rmi -f ${PYTHON_IMAGE}
+  ${PODMAN} rmi -f ${PYTHON_IMAGE}
+fi

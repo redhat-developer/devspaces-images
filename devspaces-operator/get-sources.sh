@@ -25,7 +25,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 		'--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
 		'--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
-		'-v') CSV_VERSION="$2"; shift 1;;
+		'-v'|'--csv-version') CSV_VERSION="$2"; shift 1;;
 	esac
 	shift 1
 done

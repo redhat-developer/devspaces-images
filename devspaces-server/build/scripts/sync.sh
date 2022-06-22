@@ -31,11 +31,12 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    # for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
     '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+    '-b') exit 0; shift 1;;  #In case something tries to pass in a branch
+    '--commit') exit 0; shift 1;; #In case something tries to pass in commit
     '--help'|'-h') usage;;
   esac
   shift 1

@@ -42,6 +42,8 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+    '-b') exit 0; shift 1;;  #In case something tries to pass in a branch
+    '--commit') exit 0; shift 1;; #In case something tries to pass in commit
     '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
     '--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
     '--help'|'-h') usage;;

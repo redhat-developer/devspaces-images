@@ -24,8 +24,8 @@ MIDSTM_NAME="pluginregistry"
 
 usage () {
     echo "
-Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b DS_BRANCH]
-Example: $0 -v 2.y.0 -s ${HOME}/devspaces -t /tmp/devspaces-images/devspaces-${MIDSTM_NAME} -b devspaces-3.y-rhel-8
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b MIDSTM_BRANCH]
+Example: $0 -v 2.y.0 -s ${HOME}/devspaces -t /tmp/ds-${MIDSTM_NAME} -b devspaces-3.y-rhel-8
 "
     exit
 }
@@ -34,28 +34,28 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-b') DS_BRANCH="$2"; shift 1;;
-    # for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
     '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
-    '-s') SOURCEDIR="$2"; SOURCEDIR=${SOURCEDIR%/}/dependencies/${UPSTM_NAME};
-        if [[ ! -d ${SOURCEDIR} ]]; then echo "Cannot find ${SOURCEDIR} !"; exit 1; fi;;
+    '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+    '-b') MIDSTM_BRANCH="$2"; shift 1;;
+    '--commit') exit 0; shift 1;; #In case something tries to pass in commit
     '--help'|'-h') usage;;
     # optional tag overrides
   esac
   shift 1
 done
 
-if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
+if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
+if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
+if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
+
 
 # try to compute branches from currently checked out branch; else fall back to hard coded value for where to find 
 # https://github.com/redhat-developer/devspaces-images/blob/${DS_BRANCH}/devspaces-operator-bundle-generated/manifests/devspaces.csv.yaml
-if [[ -z ${DS_BRANCH} ]]; then 
-  DS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-  if [[ $DS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then
-    DS_BRANCH="devspaces-3-rhel-8"
-  fi
+if [[ -z ${MIDSTM_BRANCH} ]]; then 
+  MIDSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  if [[ $MIDSTM_BRANCH != "devspaces-3."*"-rhel-8" ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
 fi
 
 # step one - build the builder image
@@ -113,7 +113,7 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
-    -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
+    -e "s|ARG MIDSTM_BRANCH=.*|ARG MIDSTM_BRANCH=${MIDSTM_BRANCH}|" \
     `# Enable offline build - copy in built binaries` \
     -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \

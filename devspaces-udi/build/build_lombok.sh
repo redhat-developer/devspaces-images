@@ -17,6 +17,8 @@ export OPENJDK11_IMAGE="registry.access.redhat.com/ubi8/openjdk-11:1.10"
 export ANT_VERSION=1.10.12
 export LOMBOK_VERSION=1.18.22
 
+UPLOAD_TO_GH=1
+
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] -n [ASSET_NAME]
@@ -32,6 +34,8 @@ while [[ "$#" -gt 0 ]]; do
     '-b') MIDSTM_BRANCH="$2"; shift 1;;
     '-v') CSV_VERSION="$2"; shift 1;;
     '-n') ASSET_NAME="$2"; shift 1;;
+    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;; #Usually ENV, there for local builds
+    '--noupload') UPLOAD_TO_GH=0;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -85,13 +89,15 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/lombok:/tmp/lombok -u root ${OPENJDK1
     "
 cp target/lombok/dist/lombok-${LOMBOK_VERSION}.jar "${jarfile}"
 
-# upload the binary to GH
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
+  # upload the binary to GH
+  if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-result="$(./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}" || true)"
-if [[ "$result" == *"Duplicate value for "* ]]; then
-  echo "[WARNING] ${jarfile} already present at https://github.com/redhat-developer/devspaces-images/releases/tag/${CSV_VERSION}-${ASSET_NAME}-assets "
-fi
+  fi
+  result="$(./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${jarfile}" || true)"
+  if [[ "$result" == *"Duplicate value for "* ]]; then
+    echo "[WARNING] ${jarfile} already present at https://github.com/redhat-developer/devspaces-images/releases/tag/${CSV_VERSION}-${ASSET_NAME}-assets "
+  fi
 
-${PODMAN} rmi -f ${OPENJDK11_IMAGE}
+  ${PODMAN} rmi -f ${OPENJDK11_IMAGE}
+fi

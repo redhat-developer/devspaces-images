@@ -24,7 +24,7 @@ MIDSTM_NAME="idea"
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/devspaces-${MIDSTM_NAME}"
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME}"
     exit
 }
 
@@ -36,6 +36,8 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+    '-b') exit 0; shift 1;;  #In case something tries to pass in a branch
+    '--commit') exit 0; shift 1;; #In case something tries to pass in commit
     '--help'|'-h') usage;;
   esac
   shift 1

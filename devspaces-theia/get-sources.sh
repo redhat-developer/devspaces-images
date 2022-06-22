@@ -27,14 +27,13 @@ CSV_VERSION=$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/de
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		'-d'|'--delete-assets') DELETE_ASSETS=1; exit 0;;  # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
-		'-a'|'--publish-assets') PUBLISH_ASSETS=1; exit 0;; # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
 		'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+		'-a'|'--publish-assets') PUBLISH_ASSETS=1; exit 0;; # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
+		'-d'|'--delete-assets') DELETE_ASSETS=1; exit 0;;  # TODO switch to shift 0 when we have a way to use GH releases for Theia asset files
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-		'-v') CSV_VERSION="$2"; shift 1;;
-		'-ght') GITHUB_TOKEN="$2"; shift 1;;
+		'-v'|'--csv-version') CSV_VERSION="$2"; shift 1;;
 	esac
 	shift 1
 done

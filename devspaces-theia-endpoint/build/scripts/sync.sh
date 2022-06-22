@@ -29,9 +29,11 @@ if [[ $# -lt 4 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
+    '-v') exit 0; shift 1;; #In case something tries to pass in a version
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 2;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 2;;
+    '-b') exit 0; shift 1;;  #In case something tries to pass in a branch
     '--commit') COMMIT_CHANGES=1; shift 1;;
     '--help'|'-h') usage;;
   esac

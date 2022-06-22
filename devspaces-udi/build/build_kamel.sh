@@ -18,6 +18,8 @@ export KAMEL_VERSION="1.7.0"
 # get latest tag from https://catalog.redhat.com/software/containers/ubi8/go-toolset/5ce8713aac3db925c03774d1
 export GOLANG_IMAGE="registry.access.redhat.com/ubi8/go-toolset:1.16.12-2"
 
+UPLOAD_TO_GH=1
+
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] -n [ASSET_NAME]
@@ -32,6 +34,8 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
     '-n') ASSET_NAME="$2"; shift 1;;
+    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;; #Usually ENV, there for local builds
+    '--noupload') UPLOAD_TO_GH=0;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -76,10 +80,12 @@ ${PODMAN} run --rm -v "${SCRIPT_DIR}"/target/kamel:/kamel -u root ${GOLANG_IMAGE
 rm -f target/kamel/content_set*.repo
 tar -czf "${tarball}" -C target/kamel .
 
-# upload the binary to GH
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
+  # upload the binary to GH
+  if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
+  fi
+  ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball}"
 
-${PODMAN} rmi -f ${GOLANG_IMAGE}
+  ${PODMAN} rmi -f ${GOLANG_IMAGE}
+fi

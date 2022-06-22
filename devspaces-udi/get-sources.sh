@@ -19,13 +19,13 @@ ASSET_NAME="udi"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
+	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
+	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
+	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
 	'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 	'-f'|'--force-build') forceBuild=1; shift 0;;
-	'-p'|'--pull-assets') PULL_ASSETS=1; shift 0;;
-	'-d'|'--delete-assets') DELETE_ASSETS=1; shift 0;;
-	'-a'|'--publish-assets') PUBLISH_ASSETS=1; shift 0;;
 	'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-	'-v') CSV_VERSION="$2"; shift 1;;
+	'-v'|'--csv-version') CSV_VERSION="$2"; shift 1;;
 	esac
 	shift 1
 done

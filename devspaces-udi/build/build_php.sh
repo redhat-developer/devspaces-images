@@ -17,6 +17,8 @@ export PHP_LS_VERSION=5.4.6
 export PHP_LS_IMAGE="php-ls:tmp"
 export PHP_XDEBUG_IMAGE="php-xdebug:tmp"
 
+UPLOAD_TO_GH=1
+
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] -n [ASSET_NAME]
@@ -31,6 +33,8 @@ while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-v') CSV_VERSION="$2"; shift 1;;
     '-n') ASSET_NAME="$2"; shift 1;;
+    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;; #Usually ENV, there for local builds
+    '--noupload') UPLOAD_TO_GH=0;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -72,23 +76,25 @@ ${PODMAN} run --rm -v "$SCRIPT_DIR"/target/php-ls:/php ${PHP_LS_IMAGE} sh -c "
     "
 tar -czf "${tarball_php}" -C target/php-ls .
 
-# upload the binary to GH
-if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+if [[ ${UPLOAD_TO_GH} -eq 1 ]]; then
+  # upload the binary to GH
+  if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
     curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
-fi
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball_php}"
+  fi
+  ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball_php}"
 
-mkdir -p target/php-xdebug
-${PODMAN} build . -t ${PHP_XDEBUG_IMAGE} -f xdebug.Dockerfile
-${PODMAN} run -v "$SCRIPT_DIR"/target/php-xdebug:/xd ${PHP_XDEBUG_IMAGE} sh -c "
+  mkdir -p target/php-xdebug
+  ${PODMAN} build . -t ${PHP_XDEBUG_IMAGE} -f xdebug.Dockerfile
+  ${PODMAN} run -v "$SCRIPT_DIR"/target/php-xdebug:/xd ${PHP_XDEBUG_IMAGE} sh -c "
     mkdir -p /xd/etc /xd/usr/share/doc/pecl/xdebug /xd/usr/lib64/php/modules/
     cp /etc/php.ini /xd/etc/php.ini
     cp -r /usr/share/doc/pecl/xdebug/* /xd/usr/share/doc/pecl/xdebug/
     cp /usr/lib64/php/modules/xdebug.so /xd/usr/lib64/php/modules/xdebug.so
     chmod -R 777 /xd
     "
-tar -czf "${tarball_php_xdebug}" -C target/php-xdebug .
+  tar -czf "${tarball_php_xdebug}" -C target/php-xdebug .
 
-./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball_php_xdebug}"
+  ./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" -n ${ASSET_NAME} "${tarball_php_xdebug}"
 
-${PODMAN} rmi -f ${PHP_LS_IMAGE} ${PHP_XDEBUG_IMAGE}
+  ${PODMAN} rmi -f ${PHP_LS_IMAGE} ${PHP_XDEBUG_IMAGE}
+fi

@@ -20,14 +20,13 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
-UPDATE_VENDOR=0 # vendoring will be done in get-sources*.sh just before the brew build, so we can also commit the tarball
+UPSTM_NAME="dashboard"
+MIDSTM_NAME="dashboard"
 
 usage () {
     echo "
-Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]
-Example: $0 -v 2.y.0 -s ${HOME}/projects/dashboard -t /tmp/dashboard"
-#echo "Options:
-#    --no-vendor # don't rebuild the vendor folder"
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated] [-b MIDSTM_BRANCH]
+Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} -b devspaces-3.y-rhel-8" 
     exit
 }
 
@@ -35,18 +34,19 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    # for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
     '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    # '--no-vendor') UPDATE_VENDOR=0;;
+    '-b') MIDSTM_BRANCH="$2"; shift 1;;
+    '--commit') exit 0; shift 1;; #In case something tries to pass in commit
     '--help'|'-h') usage;;
-    # optional tag overrides
   esac
   shift 1
 done
 
+if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi
+if [[ ! -d "${TARGETDIR}" ]]; then usage; fi
 if [ "${CSV_VERSION}" == "2.y.0" ]; then usage; fi
 
 # step one - build the builder image
@@ -81,9 +81,11 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 
 # get job-config.json
-SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
-if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
-configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
+if [[ -z ${MIDSTM_BRANCH} ]]; then 
+  MIDSTM_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+  if [[ $MIDSTM_BRANCH != "devspaces-3."*"-rhel-8" ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+fi
+configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json)
 # get yarn version
 YARN_VERSION=$(echo "${configjson}" | jq -r --arg DS_VERSION "${DS_VERSION}" '.Other["YARN_VERSION"][$DS_VERSION]');
 YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
@@ -110,10 +112,10 @@ RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-c
     -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
 ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
 cat << EOT >> ${TARGETDIR}/Dockerfile
-ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \\
-    DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
     PRODNAME="devspaces" \\
-    COMPNAME="dashboard-rhel8"
+    COMPNAME="${MIDSTM_NAME}-rhel8"
 LABEL summary="\$SUMMARY" \\
       description="\$DESCRIPTION" \\
       io.k8s.description="\$DESCRIPTION" \\

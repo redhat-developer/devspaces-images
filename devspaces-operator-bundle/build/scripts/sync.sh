@@ -25,8 +25,8 @@ CSV_VERSION_PREV=""
 
 usage () {
     echo "
-Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [-p DS CSV_VERSION_PREV]
-Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} -p 3.y-1.0"
+Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/${UPSTM_NAME}] [-t /path/to/generated] [-b MIDSTM_BRANCH] [-prev DS CSV_VERSION_PREV]
+Example: $0 -v 3.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} -b devspaces-3.y-rhel-8 -prev 3.y-1.0"
     exit
 }
 
@@ -38,7 +38,9 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    '-p') CSV_VERSION_PREV="$2"; shift 1;;
+    '-b') MIDSTM_BRANCH="$2"; shift 1;;
+    '--commit') exit 0; shift 1;; #In case something tries to pass in commit
+    '-prev') CSV_VERSION_PREV="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
   shift 1
@@ -53,8 +55,11 @@ if [[ "${CSV_VERSION}" == "3.y.0" ]]; then usage; fi
 # shellcheck disable=SC2086
 if [[ -z "${CSV_VERSION_PREV}" ]]; then
     
-    MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
-    if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+    if [[ -z ${MIDSTM_BRANCH} ]]; then 
+      MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
+      if [[ $MIDSTM_BRANCH != "devspaces-3."*"-rhel-8" ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
+    fi
+    
     configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json")"
     if [[ $configjson == *"404"* ]] || [[ $configjson == *"Not Found"* ]]; then 
         echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json"

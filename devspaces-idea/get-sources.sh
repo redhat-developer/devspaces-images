@@ -20,7 +20,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-		'-v') CSV_VERSION="$2"; shift 1;;
+		'-v'|'--csv-version') CSV_VERSION="$2"; shift 1;;
 	esac
 	shift 1
 done
