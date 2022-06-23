@@ -33,13 +33,12 @@ if [[ $# -lt 1 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') CSV_VERSION="$2"; shift 1;;
-    '-n') ASSET_NAME="$2"; shift 1;;
-    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 1;; #Usually ENV, there for local builds
-    '--noupload') UPLOAD_TO_GH=0;;
+    '-v') CSV_VERSION="$2"; shift 2;;
+    '-n') ASSET_NAME="$2"; shift 2;;
+    '-ght') GITHUB_TOKEN="$2"; export GITHUB_TOKEN="${GITHUB_TOKEN}"; shift 2;; #Usually ENV, there for local builds
+    '--noupload') UPLOAD_TO_GH=0; shift 1;;
     '--help'|'-h') usage;;
   esac
-  shift 1
 done
 
 ARCH="$(uname -m)"

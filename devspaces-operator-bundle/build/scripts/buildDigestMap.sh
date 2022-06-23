@@ -45,13 +45,12 @@ if [[ $# -lt 1 ]]; then usage; exit; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-w') BASE_DIR="$2"; shift 1;;
-    '-c') CSV="$2"; shift 1;;
-    '-t') TAG="$2"; shift 1;;
-    '-q') QUIET="-q"; shift 0;;
+    '-w') BASE_DIR="$2"; shift 2;;
+    '-c') CSV="$2"; shift 2;;
+    '-t') TAG="$2"; shift 2;;
+    '-q') QUIET="-q"; shift 1;;
     '--help'|'-h') usage; exit;;
   esac
-  shift 1
 done
 
 if [[ ! $CSV ]] || [[ ! $TAG ]]; then usage; exit 1; fi

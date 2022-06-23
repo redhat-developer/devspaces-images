@@ -38,17 +38,16 @@ if [[ $# -lt 6 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
+    '-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 2;;
     # paths to use for input and output
-    '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
-    '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+    '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 2;;
+    '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 2;;
     '-b') exit 0; shift 1;;  #In case something tries to pass in a branch
     '--commit') exit 0; shift 1;; #In case something tries to pass in commit
-    '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
-    '--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
+    '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 2;;
+    '--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 2;;
     '--help'|'-h') usage;;
   esac
-  shift 1
 done
 
 if [[ ! -d "${SOURCEDIR}" ]]; then usage; fi

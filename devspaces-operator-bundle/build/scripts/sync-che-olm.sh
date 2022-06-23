@@ -59,25 +59,24 @@ if [[ $# -lt 8 ]]; then usage; fi
 
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-	'--olm-channel') OLM_CHANNEL="$2"; shift 1;; # folder to use under https://github.com/eclipse-che/che-operator/tree/main/bundle
-    '-b'|'--ds-branch') MIDSTM_BRANCH="$2"; shift 1;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
+	'--olm-channel') OLM_CHANNEL="$2"; shift 2;; # folder to use under https://github.com/eclipse-che/che-operator/tree/main/bundle
+    '-b') MIDSTM_BRANCH="$2"; shift 2;; # branch of redhat-developer/devspaces from which to load plugin and devfile reg container refs
 	# for CSV_VERSION = 3.2.0, get DS_VERSION = 3.2
-	'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
+	'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 2;;
 	# previous version to set in CSV
-	'-p') CSV_VERSION_PREV="$2"; shift 1;;
+	'-p') CSV_VERSION_PREV="$2"; shift 2;;
 	# paths to use for input and ouput
-	'-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
-	'-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+	'-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 2;;
+	'-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 2;;
 	'--help'|'-h') usage;;
 	# optional tag overrides
-	'--ds-tag') DS_VERSION="$2"; shift 1;;
-	'--dwo-tag') DWO_TAG="$2"; shift 1;;
-	'--ubi-tag') UBI_TAG="$2"; shift 1;;
-	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
-	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
-	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
+	'--ds-tag') DS_VERSION="$2"; shift 2;;
+	'--dwo-tag') DWO_TAG="$2"; shift 2;;
+	'--ubi-tag') UBI_TAG="$2"; shift 2;;
+	'--postgres-tag') POSTGRES_TAG="$2"; shift 2;; # for deprecated 9.6 
+	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 2;; # for 13 (@since CRW 2.14)
+	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 2;;
   esac
-  shift 1
 done
 
 if [[ ! "${MIDSTM_BRANCH}" ]]; then usage; fi
@@ -305,7 +304,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	echo "Converted (yq #3) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
-	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
+	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" -b "${MIDSTM_BRANCH}"
 
 	# echo "    ${0##*/} :: Sort env var in ${CSVFILE}:"
 	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}2"

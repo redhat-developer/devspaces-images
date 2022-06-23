@@ -42,20 +42,19 @@ if [[ $# -lt 6 ]]; then usage; fi
 while [[ "$#" -gt 0 ]]; do
   case $1 in
 	# for CSV_VERSION = 2.2.0, get DS_VERSION = 2.2
-	'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
+	'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 2;;
 	# paths to use for input and ouput
-	'-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
-	'-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
+	'-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 2;;
+	'-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 2;;
 	'--help'|'-h') usage;;
 	# optional tag overrides
-	'--ds-tag') DS_VERSION="$2"; shift 1;;
-	'--dwo-tag') DWO_TAG="$2"; shift 1;;
-	'--ubi-tag') UBI_TAG="$2"; shift 1;;
-	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
-	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
-	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 1;;
+	'--ds-tag') DS_VERSION="$2"; shift 2;;
+	'--dwo-tag') DWO_TAG="$2"; shift 2;;
+	'--ubi-tag') UBI_TAG="$2"; shift 2;;
+	'--postgres-tag') POSTGRES_TAG="$2"; shift 2;; # for deprecated 9.6 
+	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 2;; # for 13 (@since CRW 2.14)
+	'--openshift-tag') OPENSHIFT_TAG="$2"; shift 2;;
   esac
-  shift 1
 done
 
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
