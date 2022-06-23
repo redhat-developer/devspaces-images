@@ -63,7 +63,12 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
     exit 1;
   fi
 
-  outputFiles="asset-ide-packaging.tar.gz asset-projector-server-assembly.zip asset-static-assembly.tar.gz asset-che-plugin-assembly.zip"
+  if [[ ! -f "asset-machine-exec" ]]; then
+    log "[ERROR] 'asset-machine-exec' not found, so nothing to build."
+    exit 1;
+  fi
+
+  outputFiles="asset-ide-packaging.tar.gz asset-projector-server-assembly.zip asset-static-assembly.tar.gz asset-che-plugin-assembly.zip asset-machine-exec"
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
