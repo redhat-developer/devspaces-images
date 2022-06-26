@@ -17,6 +17,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
+	devfile "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	chev1 "github.com/eclipse-che/che-operator/api/v1"
 	chev2 "github.com/eclipse-che/che-operator/api/v2"
@@ -111,24 +112,24 @@ func TestConvertFrom(t *testing.T) {
 				},
 				Database: chev2.Database{
 					ExternalDb: true,
-					Deployment: chev2.Deployment{
+					Deployment: &chev2.Deployment{
 						Containers: []chev2.Container{
 							{
 								Image:           "DatabaseImage",
 								ImagePullPolicy: corev1.PullAlways,
-								Resources: chev2.ResourceRequirements{
-									Requests: chev2.ResourceList{
+								Resources: &chev2.ResourceRequirements{
+									Requests: &chev2.ResourceList{
 										Memory: resource.MustParse("128Mi"),
 										Cpu:    resource.MustParse("1"),
 									},
-									Limits: chev2.ResourceList{
+									Limits: &chev2.ResourceList{
 										Memory: resource.MustParse("228Mi"),
 										Cpu:    resource.MustParse("2"),
 									},
 								},
 							},
 						},
-						SecurityContext: chev2.PodSecurityContext{
+						SecurityContext: &chev2.PodSecurityContext{
 							RunAsUser: pointer.Int64Ptr(64),
 							FsGroup:   pointer.Int64Ptr(65),
 						},
@@ -137,30 +138,30 @@ func TestConvertFrom(t *testing.T) {
 					PostgresPort:          "PostgresPort",
 					PostgresDb:            "PostgresDb",
 					CredentialsSecretName: "DatabaseCredentialsSecretName",
-					Pvc: chev2.PVC{
+					Pvc: &chev2.PVC{
 						ClaimSize:    "DatabaseClaimSize",
 						StorageClass: "DatabaseStorageClass",
 					},
 				},
 				PluginRegistry: chev2.PluginRegistry{
-					Deployment: chev2.Deployment{
+					Deployment: &chev2.Deployment{
 						Containers: []chev2.Container{
 							{
 								Image:           "PluginRegistryImage",
 								ImagePullPolicy: corev1.PullAlways,
-								Resources: chev2.ResourceRequirements{
-									Requests: chev2.ResourceList{
+								Resources: &chev2.ResourceRequirements{
+									Requests: &chev2.ResourceList{
 										Memory: resource.MustParse("128Mi"),
 										Cpu:    resource.MustParse("1"),
 									},
-									Limits: chev2.ResourceList{
+									Limits: &chev2.ResourceList{
 										Memory: resource.MustParse("228Mi"),
 										Cpu:    resource.MustParse("2"),
 									},
 								},
 							},
 						},
-						SecurityContext: chev2.PodSecurityContext{
+						SecurityContext: &chev2.PodSecurityContext{
 							RunAsUser: pointer.Int64Ptr(64),
 							FsGroup:   pointer.Int64Ptr(65),
 						},
@@ -176,24 +177,24 @@ func TestConvertFrom(t *testing.T) {
 					},
 				},
 				DevfileRegistry: chev2.DevfileRegistry{
-					Deployment: chev2.Deployment{
+					Deployment: &chev2.Deployment{
 						Containers: []chev2.Container{
 							{
 								Image:           "DevfileRegistryImage",
 								ImagePullPolicy: corev1.PullAlways,
-								Resources: chev2.ResourceRequirements{
-									Requests: chev2.ResourceList{
+								Resources: &chev2.ResourceRequirements{
+									Requests: &chev2.ResourceList{
 										Memory: resource.MustParse("128Mi"),
 										Cpu:    resource.MustParse("1"),
 									},
-									Limits: chev2.ResourceList{
+									Limits: &chev2.ResourceList{
 										Memory: resource.MustParse("228Mi"),
 										Cpu:    resource.MustParse("2"),
 									},
 								},
 							},
 						},
-						SecurityContext: chev2.PodSecurityContext{
+						SecurityContext: &chev2.PodSecurityContext{
 							RunAsUser: pointer.Int64Ptr(64),
 							FsGroup:   pointer.Int64Ptr(65),
 						},
@@ -206,29 +207,29 @@ func TestConvertFrom(t *testing.T) {
 					},
 				},
 				Dashboard: chev2.Dashboard{
-					Deployment: chev2.Deployment{
+					Deployment: &chev2.Deployment{
 						Containers: []chev2.Container{
 							{
 								Image:           "DashboardImage",
 								ImagePullPolicy: corev1.PullAlways,
-								Resources: chev2.ResourceRequirements{
-									Requests: chev2.ResourceList{
+								Resources: &chev2.ResourceRequirements{
+									Requests: &chev2.ResourceList{
 										Memory: resource.MustParse("128Mi"),
 										Cpu:    resource.MustParse("1"),
 									},
-									Limits: chev2.ResourceList{
+									Limits: &chev2.ResourceList{
 										Memory: resource.MustParse("228Mi"),
 										Cpu:    resource.MustParse("2"),
 									},
 								},
 							},
 						},
-						SecurityContext: chev2.PodSecurityContext{
+						SecurityContext: &chev2.PodSecurityContext{
 							RunAsUser: pointer.Int64Ptr(64),
 							FsGroup:   pointer.Int64Ptr(65),
 						},
 					},
-					HeaderMessage: chev2.DashboardHeaderMessage{
+					HeaderMessage: &chev2.DashboardHeaderMessage{
 						Show: true,
 						Text: "DashboardWarning",
 					},
@@ -238,24 +239,24 @@ func TestConvertFrom(t *testing.T) {
 				},
 				CheServer: chev2.CheServer{
 					ExtraProperties: map[string]string{"a": "b", "c": "d"},
-					Deployment: chev2.Deployment{
+					Deployment: &chev2.Deployment{
 						Containers: []chev2.Container{
 							{
 								Image:           "ServerImage:ServerTag",
 								ImagePullPolicy: corev1.PullAlways,
-								Resources: chev2.ResourceRequirements{
-									Requests: chev2.ResourceList{
+								Resources: &chev2.ResourceRequirements{
+									Requests: &chev2.ResourceList{
 										Memory: resource.MustParse("128Mi"),
 										Cpu:    resource.MustParse("1"),
 									},
-									Limits: chev2.ResourceList{
+									Limits: &chev2.ResourceList{
 										Memory: resource.MustParse("228Mi"),
 										Cpu:    resource.MustParse("2"),
 									},
 								},
 							},
 						},
-						SecurityContext: chev2.PodSecurityContext{
+						SecurityContext: &chev2.PodSecurityContext{
 							RunAsUser: pointer.Int64Ptr(64),
 							FsGroup:   pointer.Int64Ptr(65),
 						},
@@ -263,7 +264,7 @@ func TestConvertFrom(t *testing.T) {
 					LogLevel:     "LogLevel",
 					Debug:        pointer.BoolPtr(true),
 					ClusterRoles: []string{"ClusterRoles_1", "ClusterRoles_2"},
-					Proxy: chev2.Proxy{
+					Proxy: &chev2.Proxy{
 						Url:                   "ProxyUrl",
 						Port:                  "ProxyPort",
 						NonProxyHosts:         []string{"NonProxyHosts_1", "NonProxyHosts_2"},
@@ -271,7 +272,7 @@ func TestConvertFrom(t *testing.T) {
 					},
 				},
 				DevWorkspace: chev2.DevWorkspace{
-					Deployment: chev2.Deployment{
+					Deployment: &chev2.Deployment{
 						Containers: []chev2.Container{
 							{
 								Image: "DevWorkspaceImage",
@@ -286,8 +287,10 @@ func TestConvertFrom(t *testing.T) {
 					IdentityProviderURL: "IdentityProviderURL",
 					OAuthClientName:     "OAuthClientName",
 					OAuthSecret:         "OAuthSecret",
+					OAuthScope:          "OAuthScope",
+					IdentityToken:       "IdentityToken",
 					Gateway: chev2.Gateway{
-						Deployment: chev2.Deployment{
+						Deployment: &chev2.Deployment{
 							Containers: []chev2.Container{
 								{
 									Name:  "gateway",
@@ -315,11 +318,11 @@ func TestConvertFrom(t *testing.T) {
 				DefaultNamespace: chev2.DefaultNamespace{
 					Template: "WorkspaceNamespaceName",
 				},
-				TrustedCerts: chev2.TrustedCerts{
+				TrustedCerts: &chev2.TrustedCerts{
 					GitTrustedCertsConfigMapName: "che-git-self-signed-cert",
 				},
 				Storage: chev2.WorkspaceStorage{
-					Pvc: chev2.PVC{
+					Pvc: &chev2.PVC{
 						ClaimSize:    "StorageClaimSize",
 						StorageClass: "StorageClass",
 					},
@@ -329,6 +332,12 @@ func TestConvertFrom(t *testing.T) {
 					{
 						Editor:  "Editor",
 						Plugins: []string{"Plugins_1", "Plugins_2"},
+					},
+				},
+				DefaultEditor: "DefaultEditor",
+				DefaultComponents: []devfile.Component{
+					{
+						Name: "universal-developer-image",
 					},
 				},
 				NodeSelector: map[string]string{"a": "b", "c": "d"},
@@ -377,6 +386,8 @@ func TestConvertFrom(t *testing.T) {
 	assert.Equal(t, checlusterv1.Spec.Auth.IdentityProviderURL, "IdentityProviderURL")
 	assert.Equal(t, checlusterv1.Spec.Auth.OAuthClientName, "OAuthClientName")
 	assert.Equal(t, checlusterv1.Spec.Auth.OAuthSecret, "OAuthSecret")
+	assert.Equal(t, checlusterv1.Spec.Auth.OAuthScope, "OAuthScope")
+	assert.Equal(t, checlusterv1.Spec.Auth.IdentityToken, "IdentityToken")
 
 	assert.Equal(t, checlusterv1.Spec.Database.ChePostgresContainerResources.Limits.Cpu, "2")
 	assert.Equal(t, checlusterv1.Spec.Database.ChePostgresContainerResources.Limits.Memory, "228Mi")
@@ -445,6 +456,8 @@ func TestConvertFrom(t *testing.T) {
 	assert.Equal(t, checlusterv1.Spec.Server.SingleHostGatewayConfigSidecarImage, "ConfigSidecarImage")
 	assert.Equal(t, checlusterv1.Spec.Server.SingleHostGatewayImage, "GatewayImage")
 	assert.Equal(t, checlusterv1.Spec.Server.WorkspaceNamespaceDefault, "WorkspaceNamespaceName")
+	assert.Equal(t, checlusterv1.Spec.Server.WorkspaceDefaultEditor, "DefaultEditor")
+	assert.Equal(t, checlusterv1.Spec.Server.WorkspaceDefaultComponents, []devfile.Component{{Name: "universal-developer-image"}})
 	assert.Equal(t, checlusterv1.Spec.Server.WorkspacePodNodeSelector, map[string]string{"a": "b", "c": "d"})
 	assert.Equal(t, checlusterv1.Spec.Server.WorkspacePodTolerations, []corev1.Toleration{
 		{

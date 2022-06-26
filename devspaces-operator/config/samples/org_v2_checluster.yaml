@@ -14,20 +14,9 @@ metadata:
   name: devspaces
   namespace: eclipse-che
 spec:
+  components: {}
   devEnvironments:
     defaultNamespace:
       template: <username>-devspaces
-    storage:
-      pvcStrategy: common
-  components:
-    database:
-      externalDb: false
-    metrics:
-      enable: true
-  networking:
-    domain: ''
-    tlsSecretName: ''
-    auth:
-      identityProviderURL: ''
-      oAuthClientName: ''
-      oAuthSecret: ''
+  networking: {}
+  containerRegistry: {}

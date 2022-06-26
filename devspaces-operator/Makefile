@@ -65,7 +65,6 @@ mkfile_dir := $(dir $(mkfile_path))
 # Default Eclipse Che operator image
 IMG ?= quay.io/eclipse/che-operator:next
 
-CRD_OPTIONS ?= "crd:crdVersions=v1"
 CONFIG_MANAGER="config/manager/manager.yaml"
 
 INTERNAL_TMP_DIR=/tmp/che-operator-dev
@@ -215,6 +214,7 @@ update-helmcharts: ## Update Helm Charts
 		yq -rYi --arg examples "$${CRDS_SAMPLES}" ".annotations.\"artifacthub.io/crdsExamples\" = \$$examples" $${chartYaml}
 		rm -rf $${HELMCHARTS_TEMPLATES}/org_v2_checluster.yaml
 	else
+		yq -riY '.spec.networking = null' $${HELMCHARTS_TEMPLATES}/org_v2_checluster.yaml
 		yq -riY '.spec.networking.tlsSecretName = "che-tls"' $${HELMCHARTS_TEMPLATES}/org_v2_checluster.yaml
 		yq -riY '.spec.networking.domain = "{{ .Values.networking.domain }}"' $${HELMCHARTS_TEMPLATES}/org_v2_checluster.yaml
 		yq -riY '.spec.networking.auth.oAuthSecret = "{{ .Values.networking.auth.oAuthSecret }}"' $${HELMCHARTS_TEMPLATES}/org_v2_checluster.yaml
@@ -346,7 +346,7 @@ docker-push: ## Push Eclipse Che operator image to a registry
 	${IMAGE_TOOL} push ${IMG}
 
 manifests: download-controller-gen download-addlicense ## Generate WebhookConfiguration, ClusterRole and CustomResourceDefinition objects.
-	$(CONTROLLER_GEN) $(CRD_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:artifacts:config=config/crd/bases
+	$(CONTROLLER_GEN) crd:crdVersions=v1 rbac:roleName=manager-role paths="./..." output:crd:artifacts:config=config/crd/bases
 
 	# remove yaml delimitier, which makes OLM catalog source image broken.
 	sed -i '/---/d' "$(CHECLUSTER_CRD_PATH)"
@@ -416,7 +416,7 @@ genenerate-env: ## Generates environment files to use by bash and vscode
 
 install-certmgr: SHELL := /bin/bash
 install-certmgr: ## Install Cert Manager v1.7.1
-	oc apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
+	$(K8S_CLI) apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml
 	$(MAKE) wait-pod-running COMPONENT=controller NAMESPACE=cert-manager
 	$(MAKE) wait-pod-running COMPONENT=cainjector NAMESPACE=cert-manager
 	$(MAKE) wait-pod-running COMPONENT=webhook NAMESPACE=cert-manager
@@ -466,7 +466,7 @@ create-checluster-cr: ## Creates CheCluster Custom Resource V2
 		# Update networking.domain field with an actual value
 		if [[ $(PLATFORM) == "kubernetes" ]]; then
   			# kubectl does not have `whoami` command
-			CLUSTER_API_URL=$$(oc whoami --show-server=true) || true;
+			CLUSTER_API_URL=$$($(K8S_CLI) whoami --show-server=true) || true;
 			CLUSTER_DOMAIN=$$(echo $${CLUSTER_API_URL} | sed -E 's/https:\/\/(.*):.*/\1/g')
 			yq -riY  '.spec.networking.domain = "'$${CLUSTER_DOMAIN}'.nip.io"' $${CHECLUSTER_CR_2_APPLY}
 		fi
@@ -478,10 +478,10 @@ wait-pod-running: ## Wait until pod is up and running
 	[[ -z "$(COMPONENT)" ]] && { echo [ERROR] COMPONENT not defined; exit 1; }
 	[[ -z "$(NAMESPACE)" ]] && { echo [ERROR] NAMESPACE not defined; exit 1; }
 
-	while [ $$(oc get pod -l app.kubernetes.io/component=$(COMPONENT) -n $(NAMESPACE) -o go-template='{{len .items}}') -eq 0 ]; do
+	while [ $$($(K8S_CLI) get pod -l app.kubernetes.io/component=$(COMPONENT) -n $(NAMESPACE) -o go-template='{{len .items}}') -eq 0 ]; do
 		sleep 10s
 	done
-	oc wait --for=condition=ready pod -l app.kubernetes.io/component=$(COMPONENT) -n $(NAMESPACE) --timeout=120s
+	$(K8S_CLI) wait --for=condition=ready pod -l app.kubernetes.io/component=$(COMPONENT) -n $(NAMESPACE) --timeout=120s
 
 store_tls_cert: ## Store `che-operator-webhook-server-cert` secret locally
 	mkdir -p /tmp/k8s-webhook-server/serving-certs/
@@ -500,7 +500,7 @@ install: manifests download-kustomize _kustomize-operator-image ## Install Eclip
 
 	# Printing logs
 	echo "[INFO] Waiting for Eclipse Che"
-	oc logs $$(oc get pods -o json -n ${ECLIPSE_CHE_NAMESPACE} | jq -r '.items[] | select(.metadata.name | test("che-operator-")).metadata.name') -n ${ECLIPSE_CHE_NAMESPACE} --all-containers -f
+	$(K8S_CLI) logs $$($(K8S_CLI) get pods -o json -n ${ECLIPSE_CHE_NAMESPACE} | jq -r '.items[] | select(.metadata.name | test("che-operator-")).metadata.name') -n ${ECLIPSE_CHE_NAMESPACE} --all-containers -f
 
 uninstall: ## Uninstall Eclipse Che
 	$(K8S_CLI) patch checluster eclipse-che -n ${ECLIPSE_CHE_NAMESPACE} --type json  -p='[{"op": "remove", "path": "/metadata/finalizers"}]'
@@ -658,7 +658,7 @@ download-opm: ## Download opm tool
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 download-controller-gen: ## Download controller-gen tool
-	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.1)
+	$(call go-get-tool,$(CONTROLLER_GEN),sigs.k8s.io/controller-tools/cmd/controller-gen@v0.7.0)
 
 KUSTOMIZE = $(shell pwd)/bin/kustomize
 download-kustomize: ## Download kustomize tool

@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/api/v1alpha1"
+	devfile "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -356,6 +357,15 @@ type CheClusterSpecServer struct {
 	WorkspacePodNodeSelector map[string]string `json:"workspacePodNodeSelector,omitempty"`
 	// The pod tolerations put on the workspace pods to limit where the workspace pods can run.
 	WorkspacePodTolerations []corev1.Toleration `json:"workspacePodTolerations,omitempty"`
+	// The default editor to workspace create with. It could be a plugin ID or a URI.
+	// The plugin ID must have `publisher/plugin/version`.
+	// The URI must start from `http`.
+	// +optional
+	WorkspaceDefaultEditor string `json:"workspaceDefaultEditor,omitempty"`
+	// Default components applied to DevWorkspaces.
+	// These default components are meant to be used when a Devfile does not contain any components.
+	// +optional
+	WorkspaceDefaultComponents []devfile.Component `json:"workspaceDefaultComponents,omitempty"`
 }
 
 // +k8s:openapi-gen=true
@@ -499,6 +509,15 @@ type CheClusterSpecAuth struct {
 	// Name of the secret set in the OpenShift `OAuthClient` resource used to setup identity federation on the OpenShift side. Auto-generated when left blank. See also the `OAuthClientName` field.
 	// +optional
 	OAuthSecret string `json:"oAuthSecret,omitempty"`
+	// Access Token Scope.
+	// This field is specific to Che installations made for Kubernetes only and ignored for OpenShift.
+	// +optional
+	OAuthScope string `json:"oAuthScope,omitempty"`
+	// Identity token to be passed to upstream. There are two types of tokens supported: `id_token` and `access_token`.
+	// Default value is `id_token`.
+	// This field is specific to Che installations made for Kubernetes only and ignored for OpenShift.
+	// +optional
+	IdentityToken string `json:"identityToken,omitempty"`
 	// Deprecated. The value of this flag is ignored.
 	// Overrides the container image used in the Identity Provider, Keycloak or RH-SSO, deployment.
 	// This includes the image tag. Omit it or leave it empty to use the default container image provided by the Operator.
