@@ -11,6 +11,10 @@ spec:
   routingClass: che
   started: true
   template:
+    attributes:
+      author: Somebody
+      dw.metadata.annotations:
+        any.custom.settings: 'true'
     parent:
       id: nodejs
       registryUrl: 'https://registry.devfile.io'

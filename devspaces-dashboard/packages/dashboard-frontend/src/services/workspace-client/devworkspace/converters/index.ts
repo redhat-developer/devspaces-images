@@ -11,7 +11,7 @@
  */
 
 import devfileApi from '../../../devfileApi';
-import { DEVWORKSPACE_METADATA_ANNOTATION, STORED_ATTRIBUTES } from '../devWorkspaceClient';
+import { DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
 
 export const devWorkspaceVersion = 'v1alpha2';
 export const devWorkspaceApiGroup = 'workspace.devfile.io';
@@ -30,9 +30,7 @@ export function devfileToDevWorkspace(
 
   const devWorkspaceAttributes: { [key: string]: any } = {};
   Object.keys(devfileAttributes).forEach(key => {
-    if (STORED_ATTRIBUTES.indexOf(key) !== -1) {
-      devWorkspaceAttributes[key] = devfileAttributes[key];
-    }
+    devWorkspaceAttributes[key] = devfileAttributes[key];
   });
 
   const template: devfileApi.DevWorkspace = {
@@ -101,9 +99,7 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
   if (devworkspace.spec.template.attributes) {
     const devWorkspaceAttributes: { [key: string]: any } = {};
     Object.keys(devworkspace.spec.template.attributes).forEach(key => {
-      if (STORED_ATTRIBUTES.indexOf(key) !== -1) {
-        devWorkspaceAttributes[key] = devworkspace.spec.template.attributes?.[key];
-      }
+      devWorkspaceAttributes[key] = devworkspace.spec.template.attributes?.[key];
     });
     if (Object.keys(devWorkspaceAttributes).length > 0) {
       template.attributes = devWorkspaceAttributes;

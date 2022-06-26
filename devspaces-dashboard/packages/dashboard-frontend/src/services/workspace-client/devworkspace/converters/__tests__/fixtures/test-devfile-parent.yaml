@@ -1,11 +1,11 @@
 schemaVersion: 2.1.0
+attributes:
+  author: Somebody
+  dw.metadata.annotations:
+    any.custom.settings: 'true'
 metadata:
   name: nodejs-stack
   namespace: dwclient-test
-  attributes:
-    author: Somebody
-    dw.metadata.annotations:
-      any.custom.settings: 'true'
 parent:
   id: nodejs
   registryUrl: 'https://registry.devfile.io'

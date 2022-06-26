@@ -46,16 +46,13 @@ export default class DevfileEditor extends React.PureComponent<Props, State> {
   public componentDidMount(): void {
     const element = document.querySelector('#devfile-editor');
     if (element) {
-      const value = stringify(this.props.devfile);
+      const value = safeDump(this.props.devfile);
       this.editor = element as HTMLTextAreaElement;
       this.editor.value = value;
     }
   }
 
   public render(): React.ReactElement {
-    const { devfile } = this.props;
-    const content = safeDump(devfile);
-
     const onChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
       const newContent = event.currentTarget.value;
       this.onChange(newContent, true);
@@ -69,12 +66,7 @@ export default class DevfileEditor extends React.PureComponent<Props, State> {
     return (
       <div className="devfile-editor">
         <div className="monaco">
-          <textarea
-            id="devfile-editor"
-            onChange={onChange}
-            onPaste={onPaste}
-            value={content}
-          ></textarea>
+          <textarea id="devfile-editor" onChange={onChange} onPaste={onPaste}></textarea>
         </div>
         <div className="error"></div>
         <a target="_blank" rel="noopener noreferrer">

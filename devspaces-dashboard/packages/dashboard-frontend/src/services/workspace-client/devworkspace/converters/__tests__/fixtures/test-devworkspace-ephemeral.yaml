@@ -12,5 +12,8 @@ spec:
   started: true
   template:
     attributes:
+      author: Somebody
       controller.devfile.io/storage-type: ephemeral
+      dw.metadata.annotations:
+        any.custom.settings: 'true'
     components: []

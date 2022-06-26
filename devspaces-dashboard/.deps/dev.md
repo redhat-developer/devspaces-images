@@ -346,7 +346,7 @@
 | [`cliui@6.0.0`](http://github.com/yargs/cliui.git) | ISC | clearlydefined |
 | [`clone-deep@4.0.1`](https://github.com/jonschlinkert/clone-deep.git) | MIT | clearlydefined |
 | [`clone-regexp@2.2.0`](https://github.com/sindresorhus/clone-regexp.git) | MIT | clearlydefined |
-| [`clone@1.0.4`](git://github.com/pvorb/node-clone.git) | MIT | clearlydefined |
+| [`clone@1.0.4`](git://github.com/pvorb/node-clone.git) | MIT |  |
 | [`cmd-shim@4.1.0`](https://github.com/npm/cmd-shim.git) | ISC | clearlydefined |
 | [`co@4.6.0`](https://github.com/tj/co.git) | MIT | clearlydefined |
 | [`code-point-at@1.1.0`](https://github.com/sindresorhus/code-point-at.git) | MIT | clearlydefined |
@@ -431,7 +431,7 @@
 | [`emoji-regex@8.0.0`](https://github.com/mathiasbynens/emoji-regex.git) | MIT | clearlydefined |
 | [`encoding@0.1.13`](https://github.com/andris9/encoding.git) | MIT | #1016 |
 | [`enhanced-resolve@4.5.0`](git://github.com/webpack/enhanced-resolve.git) | MIT | clearlydefined |
-| [`enquirer@2.3.6`](https://github.com/enquirer/enquirer.git) | MIT | clearlydefined |
+| [`enquirer@2.3.6`](https://github.com/enquirer/enquirer.git) | MIT | #2727 |
 | [`env-paths@2.2.1`](https://github.com/sindresorhus/env-paths.git) | MIT | clearlydefined |
 | [`envinfo@7.8.1`](https://github.com/tabrindle/envinfo) | MIT | clearlydefined |
 | [`err-code@2.0.3`](git://github.com/IndigoUnited/js-err-code.git) | MIT | clearlydefined |
@@ -452,7 +452,7 @@
 | [`eslint-scope@5.1.1`](https://github.com/eslint/eslint-scope.git) | BSD-2-Clause | clearlydefined |
 | [`eslint-utils@2.1.0`](git+https://github.com/mysticatea/eslint-utils.git) | MIT | #2498 |
 | [`eslint-visitor-keys@2.1.0`](https://github.com/eslint/eslint-visitor-keys.git) | Apache-2.0 | #2433 |
-| [`eslint@7.32.0`](https://github.com/eslint/eslint.git) | MIT | clearlydefined |
+| [`eslint@7.32.0`](https://github.com/eslint/eslint.git) | MIT |  |
 | [`espree@7.3.1`](https://github.com/eslint/espree.git) | BSD-2-Clause | #903 |
 | [`esquery@1.4.0`](https://github.com/estools/esquery.git) | BSD-3-Clause | #1100 |
 | [`esrecurse@4.3.0`](https://github.com/estools/esrecurse.git) | BSD-2-Clause | clearlydefined |
@@ -844,7 +844,7 @@
 | [`read-pkg@3.0.0`](https://github.com/sindresorhus/read-pkg.git) | MIT | clearlydefined |
 | [`read@1.0.7`](git://github.com/isaacs/read.git) | ISC | clearlydefined |
 | [`readdir-scoped-modules@1.1.0`](https://github.com/npm/readdir-scoped-modules) | ISC | clearlydefined |
-| [`readdirp@3.6.0`](git://github.com/paulmillr/readdirp.git) | MIT | clearlydefined |
+| [`readdirp@3.6.0`](git://github.com/paulmillr/readdirp.git) | MIT |  |
 | [`rechoir@0.7.1`](https://github.com/gulpjs/rechoir.git) | MIT | clearlydefined |
 | [`redent@3.0.0`](https://github.com/sindresorhus/redent.git) | MIT | clearlydefined |
 | [`redux-mock-store@1.5.4`](git+https://github.com/arnaudbenard/redux-mock-store.git) | MIT | clearlydefined |
@@ -917,7 +917,7 @@
 | [`split-string@3.1.0`](https://github.com/jonschlinkert/split-string.git) | MIT | clearlydefined |
 | [`split2@3.2.2`](https://github.com/mcollina/split2.git) | ISC | clearlydefined |
 | [`split@1.0.1`](git://github.com/dominictarr/split.git) | MIT | clearlydefined |
-| [`ssri@8.0.1`](https://github.com/npm/ssri) | ISC | clearlydefined |
+| [`ssri@8.0.1`](https://github.com/npm/ssri) | ISC | #2730 |
 | [`stack-utils@2.0.5`](https://github.com/tapjs/stack-utils.git) | MIT | clearlydefined |
 | [`static-extend@0.1.2`](https://github.com/jonschlinkert/static-extend.git) | MIT | clearlydefined |
 | [`statuses@2.0.1`](https://github.com/jshttp/statuses.git) | MIT | clearlydefined |
@@ -995,7 +995,7 @@
 | [`unset-value@1.0.0`](https://github.com/jonschlinkert/unset-value.git) | MIT | clearlydefined |
 | [`upath@2.0.1`](git://github.com/anodynos/upath) | MIT | clearlydefined |
 | [`update-notifier@5.1.0`](https://github.com/yeoman/update-notifier.git) | BSD-2-Clause | clearlydefined |
-| [`urix@0.1.0`](https://github.com/lydell/urix.git) | MIT | clearlydefined |
+| [`urix@0.1.0`](https://github.com/lydell/urix.git) | MIT |  |
 | [`url-parse-lax@3.0.0`](https://github.com/sindresorhus/url-parse-lax.git) | MIT | clearlydefined |
 | [`use@3.1.1`](https://github.com/jonschlinkert/use.git) | MIT | clearlydefined |
 | [`util-promisify@2.1.0`](https://github.com/juliangruber/util-promisify.git) | MIT | #1141 |

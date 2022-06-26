@@ -34,6 +34,7 @@ import devfileApi, { isDevfileV2, isDevWorkspace } from '../../../services/devfi
 import {
   DEVWORKSPACE_NEXT_START_ANNOTATION,
   DevWorkspaceClient,
+  DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { container } from '../../../inversify.config';
 
@@ -59,7 +60,7 @@ export type State = {
 };
 
 export class EditorTab extends React.PureComponent<Props, State> {
-  private originDevfile: che.WorkspaceDevfile | devfileApi.Devfile;
+  private originDevfile: che.WorkspaceDevfile | devfileApi.Devfile | undefined;
   private readonly devfileEditorRef: React.RefObject<Editor>;
   private devworkspaceClient: DevWorkspaceClient;
 
@@ -84,12 +85,8 @@ export class EditorTab extends React.PureComponent<Props, State> {
     };
 
     this.cancelChanges = (): void => {
-      this.updateEditor(this.props.workspace.devfile);
-      this.setState({
-        hasChanges: false,
-        hasRequestErrors: false,
-        currentRequestError: '',
-      });
+      delete this.originDevfile;
+      this.init();
     };
 
     this.devfileEditorRef = React.createRef<Editor>();
@@ -118,6 +115,13 @@ export class EditorTab extends React.PureComponent<Props, State> {
 
   private init(): void {
     const devfile = Object.assign({}, this.props.workspace.devfile);
+
+    // do not expose this attribute
+    const attrs = devfile.attributes;
+    if (attrs?.[DEVWORKSPACE_METADATA_ANNOTATION]) {
+      delete attrs[DEVWORKSPACE_METADATA_ANNOTATION];
+    }
+
     if (devfile && (!this.originDevfile || !this.areEqual(devfile, this.originDevfile))) {
       this.originDevfile = devfile;
       this.updateEditor(devfile);
@@ -143,11 +147,12 @@ export class EditorTab extends React.PureComponent<Props, State> {
     const originDevfile = this.props.workspace.devfile;
     const { devfile, additionSchema, isExpanded } = this.state;
     const isReadonly = this.props.workspace.isDeprecated;
-    const isDisabled =
+    const saveButtonDisabled =
       !this.state.hasChanges ||
       !this.state.isDevfileValid ||
       this.props.workspace.status === DevWorkspaceStatus.TERMINATING;
     const editorTabStyle = isExpanded ? styles.editorTabExpanded : styles.editorTab;
+    const cancelButtonDisabled = !this.state.hasChanges && this.state.isDevfileValid;
 
     return (
       <React.Fragment>
@@ -221,7 +226,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
                   onClick={() => this.onSave()}
                   variant="primary"
                   className={styles.saveButton}
-                  isDisabled={isDisabled}
+                  isDisabled={saveButtonDisabled}
                 >
                   Save
                 </Button>
@@ -229,7 +234,7 @@ export class EditorTab extends React.PureComponent<Props, State> {
                   onClick={() => this.cancelChanges()}
                   variant="secondary"
                   className={styles.cancelButton}
-                  isDisabled={!this.state.hasChanges && this.state.isDevfileValid}
+                  isDisabled={cancelButtonDisabled}
                 >
                   Cancel
                 </Button>
@@ -341,6 +346,19 @@ export class EditorTab extends React.PureComponent<Props, State> {
     if (!devfile) {
       return;
     }
+
+    // restore the attribute
+    const dwMetadataAnnotation =
+      this.props.workspace.devfile.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION];
+    if (dwMetadataAnnotation) {
+      if (!devfile.attributes) {
+        devfile.attributes = {};
+      }
+      devfile.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = dwMetadataAnnotation;
+    } else if (devfile.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]) {
+      delete devfile.attributes[DEVWORKSPACE_METADATA_ANNOTATION];
+    }
+
     const workspaceCopy = constructWorkspace(this.props.workspace.ref);
     if (!devfile.metadata) {
       devfile.metadata = {};

@@ -46,11 +46,6 @@ import { isEqual } from 'lodash';
 import { fetchData } from '../../registry/devfiles';
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
-import {
-  DEVWORKSPACE_DEPLOYMENT_ANNOTATION,
-  DEVWORKSPACE_DEPLOYMENT_LABEL,
-  DEVWORKSPACE_STORAGE_TYPE,
-} from '../../devfileApi/devWorkspace/spec';
 
 export interface IStatusUpdate {
   status: DevWorkspaceStatus;
@@ -108,12 +103,6 @@ export interface IDevWorkspaceEditorProcess {
    */
   apply(context: IDevWorkspaceEditorProcessingContext): Promise<void>;
 }
-
-export const STORED_ATTRIBUTES = [
-  DEVWORKSPACE_STORAGE_TYPE,
-  DEVWORKSPACE_DEPLOYMENT_LABEL,
-  DEVWORKSPACE_DEPLOYMENT_ANNOTATION,
-];
 
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 

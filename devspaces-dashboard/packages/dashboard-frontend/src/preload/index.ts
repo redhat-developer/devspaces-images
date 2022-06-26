@@ -28,7 +28,7 @@ import SessionStorageService, { SessionStorageKey } from '../services/session-st
     window.location.href =
       window.location.origin + '/dashboard' + buildFactoryLoaderPath(factoryUrl);
   } else {
-    window.location.pathname = '/dashboard/';
+    window.location.href = window.location.origin + '/dashboard/';
   }
 })();
 

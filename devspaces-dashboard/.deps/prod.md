@@ -94,7 +94,7 @@
 | [`babylon@6.18.0`](https://github.com/babel/babylon) | MIT | #1052 |
 | [`balanced-match@1.0.2`](git://github.com/juliangruber/balanced-match.git) | MIT | clearlydefined |
 | [`base64-js@1.5.1`](git://github.com/beatgammit/base64-js.git) | MIT | clearlydefined |
-| [`bcrypt-pbkdf@1.0.2`](git://github.com/joyent/node-bcrypt-pbkdf.git) | BSD-3-Clause | clearlydefined |
+| [`bcrypt-pbkdf@1.0.2`](git://github.com/joyent/node-bcrypt-pbkdf.git) | BSD-3-Clause | #2725 |
 | [`big.js@5.2.2`](https://github.com/MikeMcl/big.js.git) | MIT | clearlydefined |
 | [`bluebird@3.7.2`](git://github.com/petkaantonov/bluebird.git) | MIT | clearlydefined |
 | [`blueimp-md5@2.19.0`](git://github.com/blueimp/JavaScript-MD5.git) | MIT | clearlydefined |
@@ -219,7 +219,7 @@
 | [`http-cache-semantics@4.1.0`](https://github.com/kornelski/http-cache-semantics.git) | BSD-2-Clause | clearlydefined |
 | [`http-errors@1.8.1`](https://github.com/jshttp/http-errors.git) | MIT | clearlydefined |
 | [`http-proxy-agent@2.1.0`](git://github.com/TooTallNate/node-http-proxy-agent.git) | MIT | clearlydefined |
-| [`http-signature@1.2.0`](git://github.com/joyent/node-http-signature.git) | MIT | clearlydefined |
+| [`http-signature@1.2.0`](git://github.com/joyent/node-http-signature.git) | MIT | #2732 |
 | [`http2-wrapper@1.0.3`](git+https://github.com/szmarczak/http2-wrapper.git) | MIT | [CQ23110](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23110) |
 | [`https-proxy-agent@2.2.4`](git://github.com/TooTallNate/node-https-proxy-agent.git) | MIT | clearlydefined |
 | [`human-signals@2.1.0`](https://github.com/ehmicky/human-signals.git) | Apache-2.0 | clearlydefined |
@@ -439,7 +439,7 @@
 | [`universalify@2.0.0`](git+https://github.com/RyanZim/universalify.git) | MIT | clearlydefined |
 | [`uri-js@4.4.1`](http://github.com/garycourt/uri-js) | BSD-2-Clause | #1086 |
 | [`util-deprecate@1.0.2`](git://github.com/TooTallNate/util-deprecate.git) | MIT | clearlydefined |
-| [`uuid@3.4.0`](https://github.com/uuidjs/uuid.git) | MIT | clearlydefined |
+| [`uuid@3.4.0`](https://github.com/uuidjs/uuid.git) | MIT | #2733 |
 | [`value-equal@1.0.1`](https://github.com/mjackson/value-equal.git) | MIT | clearlydefined |
 | [`vary@1.1.2`](https://github.com/jshttp/vary.git) | MIT | clearlydefined |
 | [`verror@1.10.0`](git://github.com/davepacheco/node-verror.git) | MIT | clearlydefined |

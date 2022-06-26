@@ -1,11 +1,10 @@
 schemaVersion: 2.1.0
 attributes:
   controller.devfile.io/storage-type: ephemeral
+  author: Somebody
+  dw.metadata.annotations:
+    any.custom.settings: 'true'
 metadata:
   name: nodejs-stack
   namespace: dwclient-test
-  attributes:
-    author: Somebody
-    dw.metadata.annotations:
-      any.custom.settings: 'true'
 components: []

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Editor Tab Che workspaces should render the component 1`] = `
+exports[`Editor Tab devworkspaces should render the component 1`] = `
 Array [
   <br />,
   "",
@@ -21,10 +21,6 @@ Array [
           id="devfile-editor"
           onChange={[Function]}
           onPaste={[Function]}
-          value="apiVersion: 1.0.0
-metadata:
-  name: test-workspace
-"
         />
       </div>
       <div
@@ -63,87 +59,6 @@ metadata:
           aria-label={null}
           className="pf-c-button pf-m-secondary pf-m-disabled cancelButton"
           data-ouia-component-id="OUIA-Generated-Button-secondary-1"
-          data-ouia-component-type="PF4/Button"
-          data-ouia-safe={true}
-          disabled={true}
-          onClick={[Function]}
-          role={null}
-          tabIndex={null}
-          type="button"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>,
-]
-`;
-
-exports[`Editor Tab devworkspaces should render the component 1`] = `
-Array [
-  <br />,
-  "",
-  <div
-    className="pf-c-content editorTab"
-  >
-    
-    <div>
-      Editor Tools
-    </div>
-    <div
-      className="devfile-editor"
-    >
-      <div
-        className="monaco"
-      >
-        <textarea
-          id="devfile-editor"
-          onChange={[Function]}
-          onPaste={[Function]}
-          value="schemaVersion: 2.1.0
-metadata:
-  name: test-workspace
-  namespace: test-ns
-components: []
-"
-        />
-      </div>
-      <div
-        className="error"
-      />
-      <a
-        rel="noopener noreferrer"
-        target="_blank"
-      >
-        Devfile Documentation
-      </a>
-    </div>
-    <div
-      className="pf-l-flex pf-m-column"
-    >
-      <div
-        className="pf-m-align-right buttonsGroup"
-      >
-        <button
-          aria-disabled={true}
-          aria-label={null}
-          className="pf-c-button pf-m-primary pf-m-disabled saveButton"
-          data-ouia-component-id="OUIA-Generated-Button-primary-3"
-          data-ouia-component-type="PF4/Button"
-          data-ouia-safe={true}
-          disabled={true}
-          onClick={[Function]}
-          role={null}
-          tabIndex={null}
-          type="button"
-        >
-          Save
-        </button>
-        <button
-          aria-disabled={true}
-          aria-label={null}
-          className="pf-c-button pf-m-secondary pf-m-disabled cancelButton"
-          data-ouia-component-id="OUIA-Generated-Button-secondary-3"
           data-ouia-component-type="PF4/Button"
           data-ouia-safe={true}
           disabled={true}
