@@ -52,7 +52,7 @@ Architecture flags:
   --platforms \"${PLATFORMS}\" | architectures for which to collect assets
 
 Optional flags:
-  --cb             | DS_BRANCH from which to compute version of DevSpaces to put in Dockerfiles, eg., devspaces-3.y-rhel-8 or ${MIDSTM_BRANCH}
+  --cb             | DS_BRANCH from which to compute version of DS to put in Dockerfiles, eg., devspaces-3.y-rhel-8 or ${MIDSTM_BRANCH}
   --cv             | rather than pull from DS_BRANCH version of redhat-developer/devspaces/dependencies/VERSION file, 
                    | just set DS_VERSION; default: ${DS_VERSION}
   --nv             | node version to use; default: ${nodeVersion}
@@ -95,7 +95,7 @@ if [[ ! ${DS_VERSION} ]] && [[ ${MIDSTM_BRANCH} ]]; then
   DS_VERSION=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/VERSION)
 fi
 if [[ ! ${DS_VERSION} ]]; then 
-  echo "[ERROR] Must set either --cb devspaces-3.y-rhel-8 or --cv 3.y to define the version of DevSpaces Theia for which to collect assets."; echo
+  echo "[ERROR] Must set either --cb devspaces-3.y-rhel-8 or --cv 3.y to define the version of DS Theia for which to collect assets."; echo
   usage
 fi
 echo "[INFO] Using MIDSTM_BRANCH = ${MIDSTM_BRANCH} and DS_VERSION = ${DS_VERSION}"
