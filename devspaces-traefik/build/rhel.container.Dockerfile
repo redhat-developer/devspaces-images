@@ -1,5 +1,5 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
-FROM registry.access.redhat.com/ubi8-minimal:8.6-751 
+FROM registry.access.redhat.com/ubi8-minimal:8.6-751.1655117800 
 
 COPY asset-*.tar.gz /tmp/assets/ 
 COPY script/ca-certificates.crt /etc/ssl/certs/
