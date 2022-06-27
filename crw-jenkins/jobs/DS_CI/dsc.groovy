@@ -93,6 +93,7 @@ $➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+''
                 stringParam("SOURCE_BRANCH", SOURCE_BRANCH)
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH)
                 MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
+                stringParam("DSC_VERSION", "", "Leave blank to compute version of dsc binary from CSV")
                 stringParam("versionSuffix", "CI", '''
 if set, use as version suffix before commitSHA: RC-''' + MMdd + ''' --> ''' + JOB_BRANCH + '''.0-RC-''' + MMdd + '''-commitSHA;<br/>
 if unset, version is DS_VERSION-YYYYmmdd-commitSHA<br/>
@@ -104,8 +105,8 @@ if unset, version is DS_VERSION-YYYYmmdd-commitSHA<br/>
 * push all CI and RC bits to Github automatically (no more artifacts in Jenkins)<br/>
 * for GA suffix, push to RCM automatically (and copy to Github)
 ''')
-                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
                 stringParam("nodeVersion", config."Management-Jobs".dsc[JB].node_version, "Node version required to build dsc")
+                booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
             
             definition {

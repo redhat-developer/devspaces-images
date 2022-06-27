@@ -27,7 +27,7 @@ timeout(90) {
 
           currentBuild.description="Set up environment ..."
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-          CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
+          DSC_VERSION = util.globalVar({DSC_VERSION})?.trim() ? util.globalVar({DSC_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
 
           // for push to rcm-guest, set DESTHOST
           DESTHOST=""
@@ -50,21 +50,21 @@ export GITHUB_TOKEN='''+GITHUB_TOKEN+'''
 export SEGMENT_WRITE_KEY='''+SEGMENT_WRITE_KEY+'''
 cd ${WORKSPACE}/devspaces-chectl
 set -x
-./build/scripts/build.sh --gh -v ''' + CSV_VERSION + ''' --crw-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
+./build/scripts/build.sh --gh -v ''' + DSC_VERSION + ''' --crw-version ''' + DS_VERSION + ''' -b ''' + MIDSTM_BRANCH +
   ''' -s ${WORKSPACE}/chectl -i ${WORKSPACE}/devspaces-images ''' +
   (versionSuffix.equals("GA")?" --rcm --desthost " + DESTHOST:"") +
   (versionSuffix.equals("")?"":" --suffix "+versionSuffix)
           )
 
           if (versionSuffix.equals("GA")){
-            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-" + "GA"          + "-dsc-" + 
-              "assets>" + CSV_VERSION + " GA</a>"
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + "GA"          + "-dsc-" + 
+              "assets>" + DSC_VERSION + " GA</a>"
           } else if (!versionSuffix.equals("")) {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-" + versionSuffix + "-dsc-" + 
-              "-assets>" + CSV_VERSION + " " + versionSuffix + "</a>"
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + versionSuffix + "-dsc-" + 
+              "-assets>" + DSC_VERSION + " " + versionSuffix + "</a>"
           } else {
-            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+CSV_VERSION+"-" + "CI"          + "-dsc-" +  
-              "-assets>" + CSV_VERSION + " CI</a>"
+            currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + "CI"          + "-dsc-" +  
+              "-assets>" + DSC_VERSION + " CI</a>"
           }
           if (versionSuffix.equals("GA")) {
             currentBuild.description += "; published to RCM"
