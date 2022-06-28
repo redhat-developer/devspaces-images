@@ -8,7 +8,8 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM registry.access.redhat.com/ubi8:8.6-754 as ubi-builder
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
+FROM ubi8:8.6-754.1655117782 as ubi-builder
 
 RUN mkdir -p /mnt/rootfs
 RUN yum install --installroot /mnt/rootfs tar gzip brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
@@ -36,7 +37,8 @@ RUN tar -xf /tmp/assets/asset-linux-libc.tar.gz -C /mnt/rootfs && \
 RUN tar -xf /tmp/assets/asset-entrypoints.tar.gz -C /mnt/rootfs && \
     chmod 755 /mnt/rootfs/entrypoint*.sh
 
-FROM registry.access.redhat.com/ubi8-minimal:8.6-751
+# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM ubi8-minimal:8.6-751.1655117800
 COPY --from=ubi-builder /mnt/rootfs/ /
 ENV HOME=/home/che
 USER 1001
