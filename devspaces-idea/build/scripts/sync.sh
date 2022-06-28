@@ -91,6 +91,11 @@ sed_in_place -r \
   -e "/python2 python39 \\\\/d" \
   "${TARGETDIR}"/Dockerfile
 
+sed_in_place -r \
+  `# Update machine-exec image version` \
+  -e "s#:next#:${DS_VERSION}#g" \
+  "${TARGETDIR}"/build/dockerfiles/machine-exec-provider.Dockerfile
+
 # Overwrite packages to be installed
 cat << EOT > "${TARGETDIR}"/asset-required-rpms.txt
 libsecret libsecret-devel
