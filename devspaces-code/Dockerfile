@@ -21,6 +21,8 @@ RUN mkdir -p /mnt/rootfs/projects && mkdir -p /mnt/rootfs/home/che && mkdir -p /
 RUN cat /mnt/rootfs/etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > /mnt/rootfs/home/che/.passwd.template \
     && cat /mnt/rootfs/etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > /mnt/rootfs/home/che/.group.template
 
+COPY asset-*.tar.gz /tmp/assets/
+
 RUN tar -xf /tmp/assets/*.tar.gz -C /mnt/rootfs && \
     mv /mnt/rootfs/che-machine-exec /mnt/rootfs/bin/machine-exec
 
@@ -28,8 +30,6 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" 
            chgrp -R 0 ${f} && \
            chmod -R g+rwX ${f}; \
        done
-
-COPY asset-*.tar.gz /tmp/assets/
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.6-751.1655117800
