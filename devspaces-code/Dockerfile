@@ -21,10 +21,8 @@ RUN mkdir -p /mnt/rootfs/projects && mkdir -p /mnt/rootfs/home/che && mkdir -p /
 RUN cat /mnt/rootfs/etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > /mnt/rootfs/home/che/.passwd.template \
     && cat /mnt/rootfs/etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > /mnt/rootfs/home/che/.group.template
 
-RUN tar -xf /tmp/assets/asset-machine-exec.tar.gz && \
-    mv che-machine-exec /mnt/rootfs/bin/machine-exec
-RUN tar -xf /tmp/assets/asset-linux-libc.tar.gz -C /mnt/rootfs
-RUN tar -xf /tmp/assets/asset-entrypoints.tar.gz -C /mnt/rootfs
+RUN tar -xf /tmp/assets/*.tar.gz -C /mnt/rootfs && \
+    mv /mnt/rootfs/che-machine-exec /mnt/rootfs/bin/machine-exec
 
 RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" "/mnt/rootfs/etc/group" "/mnt/rootfs/projects" "/mnt/rootfs/entrypoint*.sh" "/mnt/rootfs/checode-linux-libc" ; do\
            chgrp -R 0 ${f} && \
