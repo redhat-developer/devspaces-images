@@ -1109,9 +1109,9 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:5eda06368b0f3703293c17d2e7077d3c979f5c316fdc9c17490a9ac6c73ffba8
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
-                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:5eda06368b0f3703293c17d2e7077d3c979f5c316fdc9c17490a9ac6c73ffba8
+                  value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_plugin_registry
                   value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:86a195b6bbe4fb8dd2a3ba1950c20a0757bbf4dc1a4e4678ad57f25e6adec1d4
                 - name: RELATED_IMAGE_postgres
@@ -1127,7 +1127,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:09cc17aa281852ea9ebbdd3e50fa5e754f162518bec50530f4de9ee6d1359e71
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:9d1c16e1ed4e81fced86ea173b0efda9d4b75f7c4148edb5a5589f0f959c04e8
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:49ba29e4c903fcce6e3ea9756a96d15f65e8d57e3320c378b835692a18853328
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1441,9 +1441,9 @@ spec:
   - name: jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_g4xdilrubi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:5eda06368b0f3703293c17d2e7077d3c979f5c316fdc9c17490a9ac6c73ffba8
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
-    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:5eda06368b0f3703293c17d2e7077d3c979f5c316fdc9c17490a9ac6c73ffba8
+    image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: plugin_registry
     image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:86a195b6bbe4fb8dd2a3ba1950c20a0757bbf4dc1a4e4678ad57f25e6adec1d4
   - name: postgres
@@ -1459,4 +1459,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:09cc17aa281852ea9ebbdd3e50fa5e754f162518bec50530f4de9ee6d1359e71
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:9d1c16e1ed4e81fced86ea173b0efda9d4b75f7c4148edb5a5589f0f959c04e8
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:49ba29e4c903fcce6e3ea9756a96d15f65e8d57e3320c378b835692a18853328
