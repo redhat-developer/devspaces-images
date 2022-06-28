@@ -34,17 +34,17 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
   ./build/scripts/collect-assets.sh 
 
   if [[ ! -f "asset-linux-libc.tar.gz" ]]; then
-    log "[ERROR] 'asset-linux-libc.tar.gz' not found, so nothing to build."
+    log "[ERROR] 'asset-linux-libc.tar.gz' not found, so cannot proceed with build."
     exit 1;
   fi
 
   if [[ ! -f "asset-machine-exec.tar.gz" ]]; then
-    log "[ERROR] 'asset-machine-exec.tar.gz' not found, so nothing to build."
+    log "[ERROR] 'asset-machine-exec.tar.gz' not found, so cannot proceed with build."
     exit 1;
   fi
 
   if [[ ! -f "asset-entrypoints.tar.gz" ]]; then
-    log "[ERROR] 'asset-entrypoints.tar.gz' not found, so nothing to build."
+    log "[ERROR] 'asset-entrypoints.tar.gz' not found, so cannot proceed with build."
     exit 1;
   fi
 
