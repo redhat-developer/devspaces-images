@@ -76,10 +76,6 @@ sed_in_place() {
 }
 
 sed_in_place -r \
-  `# Update ubi8 image name` \
-  -e "s#ubi8/ubi:#ubi8:#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
   `# Update DevSpaces version` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
   "${TARGETDIR}"/Dockerfile
