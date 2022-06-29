@@ -32,7 +32,6 @@ import { ResourceFetcherService } from '../resource-fetcher';
 import { IssuesReporterService } from './issuesReporter';
 import { CheWorkspaceClient } from '../workspace-client/cheworkspace/cheWorkspaceClient';
 import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspaceClient';
-import { isDevworkspacesEnabled } from '../helpers/devworkspace';
 import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlugins/selectors';
 import devfileApi from '../devfileApi';
 import { selectDefaultNamespace } from '../../store/InfrastructureNamespaces/selectors';
@@ -62,28 +61,33 @@ export default class Bootstrap {
 
   private store: Store<AppState>;
 
+  private resourceFetcher: ResourceFetcherService;
+
   constructor(store: Store<AppState>) {
     this.store = store;
+    this.resourceFetcher = new ResourceFetcherService();
   }
 
   async init(): Promise<void> {
-    await this.fetchBranding();
-    await this.updateJsonRpcMasterApi();
+    this.prefetchResources();
 
-    new ResourceFetcherService().prefetchResources(this.store.getState());
-
-    const settings = await this.fetchWorkspaceSettings();
-    await this.fetchInfrastructureNamespaces();
+    await Promise.all([
+      this.fetchBranding(),
+      this.updateJsonRpcMasterApi(),
+      this.fetchInfrastructureNamespaces(),
+      this.fetchWorkspaceSettings(),
+      this.fetchServerConfig(),
+    ]);
 
     const results = await Promise.allSettled([
       this.fetchCurrentUser(),
       this.fetchUserProfile(),
-      this.fetchServerConfig().then(() => this.fetchDefaultDwPlugins(settings)),
-      this.fetchPlugins(settings).then(() => this.fetchDevfileSchema()),
-      this.fetchDwPlugins(settings),
-      this.fetchRegistriesMetadata(settings),
+      this.fetchPlugins().then(() => this.fetchDevfileSchema()),
+      this.fetchDwPlugins(),
+      this.fetchDefaultDwPlugins(),
+      this.fetchRegistriesMetadata(),
       this.watchNamespaces(),
-      this.updateDevWorkspaceTemplates(settings),
+      this.updateDevWorkspaceTemplates(),
       this.fetchWorkspaces().then(() => this.checkInactivityShutdown()),
       this.fetchClusterInfo(),
       this.fetchClusterConfig(),
@@ -95,6 +99,13 @@ export default class Bootstrap {
     if (errors.length > 0) {
       throw errors;
     }
+  }
+
+  private prefetchResources(): void {
+    const state = this.store.getState();
+    this.resourceFetcher.prefetchResources(state).catch(e => {
+      console.warn('Unable to fetch prefetch resources.', e);
+    });
   }
 
   private async fetchClusterConfig(): Promise<void> {
@@ -165,8 +176,9 @@ export default class Bootstrap {
     await requestWorkspaces()(this.store.dispatch, this.store.getState, undefined);
   }
 
-  private async fetchPlugins(settings: che.WorkspaceSettings): Promise<void> {
+  private async fetchPlugins(): Promise<void> {
     const { requestPlugins } = PluginsStore.actionCreators;
+    const settings = this.store.getState().workspacesSettings.settings;
     await requestPlugins(settings.cheWorkspacePluginRegistryUrl || '')(
       this.store.dispatch,
       this.store.getState,
@@ -174,11 +186,9 @@ export default class Bootstrap {
     );
   }
 
-  private async fetchDwPlugins(settings: che.WorkspaceSettings): Promise<void> {
-    if (!isDevworkspacesEnabled(settings)) {
-      return;
-    }
+  private async fetchDwPlugins(): Promise<void> {
     const { requestDwDefaultEditor } = DwPluginsStore.actionCreators;
+    const settings = this.store.getState().workspacesSettings.settings;
     try {
       await requestDwDefaultEditor(settings)(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
@@ -190,10 +200,7 @@ export default class Bootstrap {
     }
   }
 
-  private async fetchDefaultDwPlugins(settings: che.WorkspaceSettings): Promise<void> {
-    if (!isDevworkspacesEnabled(settings)) {
-      return;
-    }
+  private async fetchDefaultDwPlugins(): Promise<void> {
     const { requestDwDefaultPlugins } = DwPluginsStore.actionCreators;
     try {
       await requestDwDefaultPlugins()(this.store.dispatch, this.store.getState, undefined);
@@ -202,10 +209,7 @@ export default class Bootstrap {
     }
   }
 
-  private async updateDevWorkspaceTemplates(settings: che.WorkspaceSettings): Promise<void> {
-    if (!isDevworkspacesEnabled(settings)) {
-      return;
-    }
+  private async updateDevWorkspaceTemplates(): Promise<void> {
     const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
     const defaultNamespace = defaultKubernetesNamespace.name;
     try {
@@ -214,6 +218,7 @@ export default class Bootstrap {
       selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).forEach(dwEditor => {
         pluginsByUrl[dwEditor.url] = dwEditor.devfile;
       });
+      const settings = this.store.getState().workspacesSettings.settings;
       const pluginRegistryUrl = settings['cheWorkspacePluginRegistryUrl'];
       const pluginRegistryInternalUrl = settings['cheWorkspacePluginRegistryInternalUrl'];
       const updates = await this.devWorkspaceClient.checkForTemplatesUpdate(
@@ -248,7 +253,11 @@ export default class Bootstrap {
     try {
       await requestSettings()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
-      // noop
+      this.appAlerts.showAlert({
+        key: 'bootstrap-request-workspace-settings',
+        title: common.helpers.errors.getMessage(e),
+        variant: AlertVariant.danger,
+      });
     }
 
     return this.store.getState().workspacesSettings.settings;
@@ -259,12 +268,17 @@ export default class Bootstrap {
     try {
       await requestServerConfig()(this.store.dispatch, this.store.getState, undefined);
     } catch (e) {
-      console.warn('Unable to fetch server config.');
+      this.appAlerts.showAlert({
+        key: 'bootstrap-request-server-config',
+        title: common.helpers.errors.getMessage(e),
+        variant: AlertVariant.danger,
+      });
     }
   }
 
-  private async fetchRegistriesMetadata(settings: che.WorkspaceSettings): Promise<void> {
+  private async fetchRegistriesMetadata(): Promise<void> {
     const { requestRegistriesMetadata } = DevfileRegistriesStore.actionCreators;
+    const settings = this.store.getState().workspacesSettings.settings;
     await requestRegistriesMetadata(settings.cheWorkspaceDevfileRegistryUrl || '')(
       this.store.dispatch,
       this.store.getState,

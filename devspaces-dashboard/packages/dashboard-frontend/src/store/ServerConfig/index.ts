@@ -72,7 +72,7 @@ export const actionCreators: ActionCreators = {
           type: 'RECEIVE_DW_SERVER_CONFIG_ERROR',
           error,
         });
-        throw new Error(error);
+        throw new Error(`Failed to fetch workspace defaults. ${error}`);
       }
     },
 };
