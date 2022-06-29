@@ -11,13 +11,12 @@
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8
 FROM ubi8:8.6-754.1655117782 as ubi-builder
 
-RUN mkdir -p /mnt/rootfs
+RUN mkdir -p /mnt/rootfs /mnt/rootfs/projects /mnt/rootfs/home/che
 RUN yum install --installroot /mnt/rootfs tar gzip brotli libstdc++ coreutils glibc-minimal-langpack --releasever 8 --setopt install_weak_deps=false --nodocs -y && yum --installroot /mnt/rootfs clean all
 RUN rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
 
 WORKDIR /mnt/rootfs
 
-RUN mkdir -p /mnt/rootfs/projects && mkdir -p /mnt/rootfs/home/che && mkdir -p /mnt/rootfs/bin/
 RUN cat /mnt/rootfs/etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > /mnt/rootfs/home/che/.passwd.template \
     && cat /mnt/rootfs/etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > /mnt/rootfs/home/che/.group.template
 
