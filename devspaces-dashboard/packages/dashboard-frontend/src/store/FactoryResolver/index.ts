@@ -22,12 +22,10 @@ import {
   selectDevworkspacesEnabled,
   selectPreferredStorageType,
 } from '../Workspaces/Settings/selectors';
+import { selectDefaultComponents } from '../ServerConfig/selectors';
 import { Devfile } from '../../services/workspace-adapter';
 import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
-import {
-  convertDevfileV1toDevfileV2,
-  convertDevfileV2toDevfileV1,
-} from '../../services/devfile/converters';
+import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import normalizeDevfileV2 from './normalizeDevfileV2';
 import normalizeDevfileV1 from './normalizeDevfileV1';
 
@@ -60,7 +58,6 @@ export interface ResolverState extends FactoryResolver {
 
 export interface ConvertedState {
   resolvedDevfile: Devfile;
-  devfileV1: che.WorkspaceDevfile;
   devfileV2: devfileApi.Devfile;
   isConverted: boolean;
 }
@@ -174,20 +171,17 @@ export const actionCreators: ActionCreators = {
         const preferredStorageType = selectPreferredStorageType(state);
         const resolvedDevfile = data.devfile;
         const isResolvedDevfileV2 = isDevfileV2(resolvedDevfile);
-        let devfileV1: che.WorkspaceDevfile;
         let devfileV2: devfileApi.Devfile;
+        const defaultComponents = selectDefaultComponents(state);
         if (isResolvedDevfileV2) {
-          devfileV2 = normalizeDevfileV2(resolvedDevfile, data, location);
-          devfileV1 = normalizeDevfileV1(
-            await convertDevfileV2toDevfileV1(devfileV2, optionalFilesContent),
-            preferredStorageType,
-          );
+          devfileV2 = normalizeDevfileV2(resolvedDevfile, data, location, defaultComponents);
         } else {
-          devfileV1 = normalizeDevfileV1(resolvedDevfile, preferredStorageType);
+          const devfileV1 = normalizeDevfileV1(resolvedDevfile, preferredStorageType);
           devfileV2 = normalizeDevfileV2(
             await convertDevfileV1toDevfileV2(devfileV1),
             data,
             location,
+            defaultComponents,
           );
         }
         const converted: ConvertedState = {
@@ -195,18 +189,15 @@ export const actionCreators: ActionCreators = {
           isConverted:
             (isDevworkspacesEnabled && isResolvedDevfileV2 === false) ||
             (isDevworkspacesEnabled === false && isResolvedDevfileV2),
-          devfileV1,
           devfileV2,
         };
-
-        const devfile: Devfile = isDevworkspacesEnabled ? devfileV2 : devfileV1;
 
         dispatch({
           type: 'RECEIVE_FACTORY_RESOLVER',
           resolver: {
             ...data,
             location,
-            devfile,
+            devfile: devfileV2,
             optionalFilesContent,
           },
           converted,

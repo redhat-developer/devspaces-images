@@ -435,7 +435,7 @@
 | [`typedarray-to-buffer@3.1.5`](git://github.com/feross/typedarray-to-buffer.git) | MIT | clearlydefined |
 | [`umd-compat-loader@2.1.2`](http://github.com/matt-gadd/umd-compat-loader.git) | Apache-2.0 | clearlydefined |
 | [`underscore@1.13.2`](git://github.com/jashkenas/underscore.git) | MIT | clearlydefined |
-| [`undici@5.4.0`](git+https://github.com/nodejs/undici.git) | MIT | clearlydefined |
+| [`undici@5.5.1`](git+https://github.com/nodejs/undici.git) | MIT | clearlydefined |
 | [`universalify@2.0.0`](git+https://github.com/RyanZim/universalify.git) | MIT | clearlydefined |
 | [`uri-js@4.4.1`](http://github.com/garycourt/uri-js) | BSD-2-Clause | #1086 |
 | [`util-deprecate@1.0.2`](git://github.com/TooTallNate/util-deprecate.git) | MIT | clearlydefined |

@@ -18,23 +18,27 @@ import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
+import { V220DevfileComponents } from '@devfile/api';
 
 /**
  * Returns a devfile from the FactoryResolver object.
+ * @param devfile a Devfile.
  * @param data a FactoryResolver object.
  * @param location a source location.
- * @param isDevworkspacesEnabled indicates if devworkspace engine is enabled.
+ * @param defaultComponents Default components. These default components
+ * are meant to be used when a Devfile does not contain any components.
  */
 export default function normalizeDevfileV2(
   devfile: devfileApi.Devfile,
   data: FactoryResolver,
   location: string,
+  defaultComponents: V220DevfileComponents[],
 ): devfileApi.Devfile {
   const scmInfo = data['scm_info'];
 
   devfile = devfile as devfileApi.Devfile;
-  if (!devfile.components) {
-    devfile.components = [];
+  if (!devfile.components || devfile.components.length === 0) {
+    devfile.components = defaultComponents;
   }
 
   // temporary solution for fix che-server serialization bug with empty volume

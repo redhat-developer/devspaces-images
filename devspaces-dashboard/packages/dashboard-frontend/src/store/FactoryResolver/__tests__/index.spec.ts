@@ -217,8 +217,8 @@ describe('FactoryResolver store', () => {
     it('should create REQUEST_FACTORY_RESOLVER and RECEIVE_FACTORY_RESOLVER', async () => {
       const resolver = {
         devfile: {
-          apiVersion: '1.0.0',
-        } as che.WorkspaceDevfile,
+          schemaVersion: '2.0.0',
+        },
       } as factoryResolverStore.ResolverState;
 
       getFactoryResolverSpy.mockResolvedValueOnce(resolver);
@@ -244,7 +244,7 @@ describe('FactoryResolver store', () => {
         {
           type: 'RECEIVE_FACTORY_RESOLVER',
           resolver: expect.objectContaining(resolver),
-          converted: expect.objectContaining({ isConverted: false }),
+          converted: expect.objectContaining({ isConverted: true }),
         },
       ];
       expect(actions).toEqual(expectedActions);

@@ -839,34 +839,6 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@kubernetes/client-node@^0.15.1":
-  version "0.15.1"
-  resolved "https://registry.npmjs.org/@kubernetes/client-node/-/client-node-0.15.1.tgz"
-  integrity sha512-j3o5K4TWkdrX2yDndbEZcDxhgea6O2JKnesWoYCJ64WtMn2GbQXGBOnkn2i0WT2MugGbLR+qCm8Y3oHWBApaTA==
-  dependencies:
-    "@types/js-yaml" "^4.0.1"
-    "@types/node" "^10.12.0"
-    "@types/request" "^2.47.1"
-    "@types/stream-buffers" "^3.0.3"
-    "@types/tar" "^4.0.3"
-    "@types/underscore" "^1.8.9"
-    "@types/ws" "^6.0.1"
-    byline "^5.0.0"
-    execa "5.0.0"
-    isomorphic-ws "^4.0.1"
-    js-yaml "^4.1.0"
-    jsonpath-plus "^0.19.0"
-    openid-client "^4.1.1"
-    request "^2.88.0"
-    rfc4648 "^1.3.0"
-    shelljs "^0.8.4"
-    stream-buffers "^3.0.2"
-    tar "^6.0.2"
-    tmp-promise "^3.0.2"
-    tslib "^1.9.3"
-    underscore "^1.9.1"
-    ws "^7.3.1"
-
 "@kubernetes/client-node@^0.16.3":
   version "0.16.3"
   resolved "https://registry.npmjs.org/@kubernetes/client-node/-/client-node-0.16.3.tgz"
@@ -9160,10 +9132,10 @@ node-releases@^2.0.3:
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.5.tgz#280ed5bc3eba0d96ce44897d8aee478bfb3d9666"
   integrity sha512-U9h1NLROZTq9uE1SNffn6WuPDg8icmi3ns4rEl/oTfIle4iLjTliCzgTsbaIFMq/Xn078/lfY/BL0GWZ+psK4Q==
 
-nodemon@^2.0.16:
-  version "2.0.16"
-  resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-2.0.16.tgz#d71b31bfdb226c25de34afea53486c8ef225fdef"
-  integrity sha512-zsrcaOfTWRuUzBn3P44RDliLlp263Z/76FPoHFr3cFFkOz0lTPAcIw8dCzfdVIx/t3AtDYCZRCDkoCojJqaG3w==
+nodemon@^2.0.18:
+  version "2.0.18"
+  resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-2.0.18.tgz#0f5a3aa7b4587f2626e6f01369deba89cb0462a2"
+  integrity sha512-uAvrKipi2zAz8E7nkSz4qW4F4zd5fs2wNGsTx+xXlP8KXqd9ucE0vY9wankOsPboeDyuUGN9vsXGV1pLn80l/A==
   dependencies:
     chokidar "^3.5.2"
     debug "^3.2.7"
@@ -11394,7 +11366,7 @@ shebang-regex@^3.0.0:
   resolved "https://registry.npmjs.org/shebang-regex/-/shebang-regex-3.0.0.tgz"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-shelljs@^0.8.4, shelljs@^0.8.5:
+shelljs@^0.8.5:
   version "0.8.5"
   resolved "https://registry.npmjs.org/shelljs/-/shelljs-0.8.5.tgz"
   integrity sha512-TiwcRcrkhHvbrZbnRcFYMLl30Dfov3HKqzp5tO5b4pt6G/SezKcYhmDg15zXVBswHmctSAQKznqNW2LO5tTDow==
@@ -12569,9 +12541,9 @@ underscore@^1.9.1:
   integrity sha512-ekY1NhRzq0B08g4bGuX4wd2jZx5GnKz6mKSqFL4nqBlfyMGiG10gDFhDTMEfYmDL6Jy0FUIZp7wiRB+0BP7J2g==
 
 undici@^5.0.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-5.4.0.tgz#c474fae02743d4788b96118d46008a24195024d2"
-  integrity sha512-A1SRXysDg7J+mVP46jF+9cKANw0kptqSFZ8tGyL+HBiv0K1spjxPX8Z4EGu+Eu6pjClJUBdnUPlxrOafR668/g==
+  version "5.5.1"
+  resolved "https://registry.npmjs.org/undici/-/undici-5.5.1.tgz"
+  integrity sha512-MEvryPLf18HvlCbLSzCW0U00IMftKGI5udnjrQbC5D4P0Hodwffhv+iGfWuJwg16Y/TK11ZFK8i+BPVW2z/eAw==
 
 unified@^9.1.0:
   version "9.2.2"

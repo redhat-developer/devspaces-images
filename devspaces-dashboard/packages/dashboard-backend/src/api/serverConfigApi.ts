@@ -18,15 +18,21 @@ import { getSchema } from '../services/helpers';
 const tags = ['Server Config'];
 
 export function registerServerConfigApi(server: FastifyInstance) {
-  server.get(
-    `${baseApiPath}/server-config/default-plugins`,
-    getSchema({ tags }),
-    async function () {
-      const token = await getServiceAccountToken();
-      const { serverConfigApi } = await getDevWorkspaceClient(token);
-      const cheCustomResource = await serverConfigApi.getCheCustomResource();
+  server.get(`${baseApiPath}/server-config`, getSchema({ tags }), async function () {
+    const token = await getServiceAccountToken();
+    const { serverConfigApi } = await getDevWorkspaceClient(token);
+    const cheCustomResource = await serverConfigApi.getCheCustomResource();
 
-      return serverConfigApi.getDefaultPlugins(cheCustomResource);
-    },
-  );
+    const plugins = serverConfigApi.getDefaultPlugins(cheCustomResource);
+    const editor = serverConfigApi.getDefaultEditor(cheCustomResource);
+    const components = serverConfigApi.getDefaultComponents(cheCustomResource);
+
+    return {
+      defaults: {
+        editor,
+        plugins,
+        components,
+      },
+    };
+  });
 }

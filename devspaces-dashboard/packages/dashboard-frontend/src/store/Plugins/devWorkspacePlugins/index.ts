@@ -17,7 +17,6 @@ import devfileApi from '../../../services/devfileApi';
 import { AppThunk } from '../..';
 import { fetchDevfile, fetchData } from '../../../services/registry/devfiles';
 import { createObject } from '../../helpers';
-import * as ServerConfigApi from '../../../services/dashboard-backend-client/serverConfigApi';
 
 export interface PluginDefinition {
   plugin?: devfileApi.Devfile;
@@ -205,9 +204,11 @@ export const actionCreators: ActionCreators = {
 
   requestDwDefaultEditor:
     (settings: che.WorkspaceSettings): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
-      const defaultEditor = settings['che.factory.default_editor'];
-
+    async (dispatch, getState): Promise<void> => {
+      const config = getState().dwServerConfig.config;
+      const defaultEditor = config.defaults.editor
+        ? config.defaults.editor
+        : settings['che.factory.default_editor'];
       dispatch({
         type: 'REQUEST_DW_DEFAULT_EDITOR',
       });
@@ -238,14 +239,14 @@ export const actionCreators: ActionCreators = {
 
   requestDwDefaultPlugins:
     (): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch): Promise<void> => {
+    async (dispatch, getState): Promise<void> => {
       dispatch({
         type: 'REQUEST_DW_DEFAULT_PLUGINS',
       });
 
       const defaultPlugins = {};
-      const defaults = await ServerConfigApi.getDefaultPlugins();
-      defaults.forEach(item => {
+      const defaults = getState().dwServerConfig.config.defaults;
+      defaults.plugins.forEach(item => {
         if (!defaultPlugins[item.editor]) {
           defaultPlugins[item.editor] = [];
         }

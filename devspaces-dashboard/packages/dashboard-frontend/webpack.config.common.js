@@ -39,9 +39,8 @@ const config = {
     clean: true,
   },
   optimization: {
-    chunkIds: 'named',
+    chunkIds: 'deterministic',
     splitChunks: {
-      name: 'vendor',
       chunks: 'initial',
       cacheGroups: {
         default: false,
@@ -61,7 +60,7 @@ const config = {
         common: {
           name: 'common',
           minChunks: 2,
-          chunks: 'all',
+          chunks: 'async',
           priority: 10,
           reuseExistingChunk: true,
           enforce: true

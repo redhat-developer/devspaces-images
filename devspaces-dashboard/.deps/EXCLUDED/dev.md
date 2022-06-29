@@ -5,6 +5,7 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `@testing-library/dom@7.31.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@testing-library/dom/7.31.2) |
 | `css-select@4.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/css-select/4.2.1) |
 | `default-gateway@6.0.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/default-gateway/6.0.3) |
+| `eslint@7.32.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/eslint/7.32.0) |
 | `exec-sh@0.3.6` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/exec-sh/0.3.6) |
 | `fs-monkey@1.0.3` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fs-monkey/1.0.3) |
 | `fsevents@2.3.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fsevents/2.3.2) |
@@ -17,6 +18,7 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `node-notifier@8.0.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/node-notifier/8.0.2) |
 | `postcss-syntax@0.36.2` | [CQ22418](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22418) |
 | `prettier@2.5.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/prettier/2.5.1) |
+| `readdirp@3.6.0` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/readdirp/3.6.0) |
 | `resolve-url@0.2.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/resolve-url/0.2.1) |
 | `sockjs@0.3.24` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/sockjs/0.3.24) |
 | `source-map-url@0.4.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/source-map-url/0.4.1) |

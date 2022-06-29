@@ -18,6 +18,7 @@ import * as BannerAlertStore from '../../store/BannerAlert';
 import * as BrandingStore from '../../store/Branding';
 import * as ClusterConfigStore from '../../store/ClusterConfig';
 import * as ClusterInfoStore from '../../store/ClusterInfo';
+import * as ServerConfigStore from '../../store/ServerConfig';
 import * as DevfileRegistriesStore from '../../store/DevfileRegistries';
 import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamespaces';
 import * as PluginsStore from '../../store/Plugins/chePlugins';
@@ -77,9 +78,9 @@ export default class Bootstrap {
     const results = await Promise.allSettled([
       this.fetchCurrentUser(),
       this.fetchUserProfile(),
+      this.fetchServerConfig().then(() => this.fetchDefaultDwPlugins(settings)),
       this.fetchPlugins(settings).then(() => this.fetchDevfileSchema()),
       this.fetchDwPlugins(settings),
-      this.fetchDefaultDwPlugins(settings),
       this.fetchRegistriesMetadata(settings),
       this.watchNamespaces(),
       this.updateDevWorkspaceTemplates(settings),
@@ -251,6 +252,15 @@ export default class Bootstrap {
     }
 
     return this.store.getState().workspacesSettings.settings;
+  }
+
+  private async fetchServerConfig(): Promise<void> {
+    const { requestServerConfig } = ServerConfigStore.actionCreators;
+    try {
+      await requestServerConfig()(this.store.dispatch, this.store.getState, undefined);
+    } catch (e) {
+      console.warn('Unable to fetch server config.');
+    }
   }
 
   private async fetchRegistriesMetadata(settings: che.WorkspaceSettings): Promise<void> {

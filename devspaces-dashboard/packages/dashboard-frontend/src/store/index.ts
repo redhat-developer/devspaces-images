@@ -30,6 +30,7 @@ import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
 import * as WorkspacesSettingsStore from './Workspaces/Settings';
 import * as CheDockerConfigStore from './DockerConfig/che';
 import * as DwDockerConfigStore from './DockerConfig/dw';
+import * as DwServerConfigStore from './ServerConfig';
 
 // the top-level state object
 export interface AppState {
@@ -51,6 +52,7 @@ export interface AppState {
   workspacesSettings: WorkspacesSettingsStore.State;
   cheDockerConfig: CheDockerConfigStore.State;
   dwDockerConfig: DwDockerConfigStore.State;
+  dwServerConfig: DwServerConfigStore.State;
 }
 
 export const reducers = {
@@ -72,6 +74,7 @@ export const reducers = {
   workspacesSettings: WorkspacesSettingsStore.reducer,
   cheDockerConfig: CheDockerConfigStore.reducer,
   dwDockerConfig: DwDockerConfigStore.reducer,
+  dwServerConfig: DwServerConfigStore.reducer,
 };
 
 export type AppThunk<ActionType extends Action, ReturnType = void> = ThunkAction<

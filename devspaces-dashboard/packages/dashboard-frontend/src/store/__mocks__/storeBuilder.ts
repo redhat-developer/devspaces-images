@@ -27,6 +27,7 @@ import mockThunk from './thunk';
 import devfileApi from '../../services/devfileApi';
 import { ClusterConfig, ClusterInfo } from '@eclipse-che/common';
 import { WorkspacesLogs } from '../../services/helpers/types';
+import { ServerConfig } from '../ServerConfig';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -38,6 +39,16 @@ export class FakeStoreBuilder {
       clusterConfig: {
         runningWorkspacesLimit: 1,
       },
+    },
+    dwServerConfig: {
+      isLoading: false,
+      config: {
+        defaults: {
+          editor: undefined,
+          components: [],
+          plugins: [],
+        },
+      } as ServerConfig,
     },
     clusterInfo: {
       isLoading: false,
@@ -118,6 +129,14 @@ export class FakeStoreBuilder {
       error: undefined,
     },
   };
+
+  public withDwServerConfig(config: ServerConfig): FakeStoreBuilder {
+    this.state.dwServerConfig = {
+      isLoading: false,
+      config,
+    };
+    return this;
+  }
 
   public withBannerAlert(messages: string[]): FakeStoreBuilder {
     this.state.bannerAlert.messages = [...messages];

@@ -120,7 +120,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
             : `&storageType=${storageType}`;
         }
         // use factory workflow to load the getting started samples
-        const factoryUrl = `${window.location.origin}/#/load-factory?url=${link}${devWorkspace}`;
+        const factoryUrl = `${window.location.origin}${window.location.pathname}#/load-factory?url=${link}${devWorkspace}`;
         // open a new page to handle that
         window.open(factoryUrl, '_blank');
         this.isLoading = false;

@@ -14,14 +14,23 @@ import axios from 'axios';
 import common from '@eclipse-che/common';
 import { prefix } from './const';
 import { api } from '@eclipse-che/common';
+import { V220DevfileComponents } from '@devfile/api';
 
 /**
  * Returns an array of default plug-ins per editor
  *
- * @returns Promise resolving with the array of default plug-ins for the specified editor
+ * @returns Promise resolving with the object with includes
+ * default plug-ins for the specified editor,
+ * default editor and default components
  */
-export async function getDefaultPlugins(): Promise<api.IWorkspacesDefaultPlugins[]> {
-  const url = `${prefix}/server-config/default-plugins`;
+export async function getServerConfig(): Promise<{
+  defaults: {
+    plugins: api.IWorkspacesDefaultPlugins[];
+    components: V220DevfileComponents[];
+    editor: string | undefined;
+  };
+}> {
+  const url = `${prefix}/server-config`;
   try {
     const response = await axios.get(url);
     return response.data ? response.data : [];

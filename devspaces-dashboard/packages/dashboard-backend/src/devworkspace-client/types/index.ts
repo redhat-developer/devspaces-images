@@ -12,6 +12,7 @@
 
 import { V1alpha2DevWorkspace, V1alpha2DevWorkspaceTemplate } from '@devfile/api';
 import { api } from '@eclipse-che/common';
+import { V220DevfileComponents } from '@devfile/api';
 
 /**
  * Holds the methods for working with dockerconfig for devworkspace
@@ -94,7 +95,15 @@ export interface IServerConfigApi {
    * Returns default plugins
    */
   getDefaultPlugins(cheCustomResource: { [key: string]: any }): api.IWorkspacesDefaultPlugins[];
-
+  /**
+   * Returns the default editor to workspace create with. It could be a plugin ID or a URI.
+   */
+  getDefaultEditor(cheCustomResource: { [key: string]: any }): string | undefined;
+  /**
+   * Returns the default components applied to DevWorkspaces.
+   * These default components are meant to be used when a Devfile does not contain any components.
+   */
+  getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[];
   /**
    * Returns a maintenance warning
    */

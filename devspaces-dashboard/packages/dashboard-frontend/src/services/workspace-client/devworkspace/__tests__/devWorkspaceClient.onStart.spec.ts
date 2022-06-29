@@ -14,7 +14,6 @@ import { container } from '../../../../inversify.config';
 import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
 import { DevWorkspaceClient } from '../devWorkspaceClient';
 import * as DwApi from '../../../dashboard-backend-client/devWorkspaceApi';
-import * as ServerConfigApi from '../../../dashboard-backend-client/serverConfigApi';
 import mockAxios from 'axios';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -221,24 +220,5 @@ describe('DevWorkspace client, start', () => {
     expect(testWorkspace.spec.template.components?.length).toBe(1);
     expect(testWorkspace.spec.template.components![0].plugin!.uri!).toBe(uri);
     expect(patchWorkspace).toHaveBeenCalledTimes(0);
-  });
-
-  it('should not call ServerConfigApi.getDefaultPlugins', async () => {
-    const namespace = 'che';
-    const name = 'wksp-test';
-    const testWorkspace = new DevWorkspaceBuilder()
-      .withMetadata({
-        name,
-        namespace,
-      })
-      .build();
-
-    const getDefaultPlugins = jest.spyOn(ServerConfigApi, 'getDefaultPlugins');
-    const defaults = {};
-    const editor = 'eclipse/theia/next';
-
-    await client.onStart(testWorkspace, defaults, editor);
-
-    expect(getDefaultPlugins).toHaveBeenCalledTimes(0);
   });
 });

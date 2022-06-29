@@ -14,6 +14,7 @@ import * as k8s from '@kubernetes/client-node';
 import { IServerConfigApi } from '../../types';
 import { createError } from '../helpers';
 import { api } from '@eclipse-che/common';
+import { V220DevfileComponents } from '@devfile/api';
 
 const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 
@@ -59,6 +60,14 @@ export class ServerConfigApi implements IServerConfigApi {
 
   getDefaultPlugins(cheCustomResource: { [key: string]: any }): api.IWorkspacesDefaultPlugins[] {
     return cheCustomResource.spec.server.workspacesDefaultPlugins || [];
+  }
+
+  getDefaultEditor(cheCustomResource: { [key: string]: any }): string | undefined {
+    return cheCustomResource.spec.server.workspaceDefaultEditor;
+  }
+
+  getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[] {
+    return cheCustomResource.spec.server.workspaceDefaultComponents || [];
   }
 
   getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined {
