@@ -10,8 +10,10 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
+# the version is updated automatically (see sync.sh)
+DS_VERSION=3.1
 LINUX_LIBC_IMAGE=linux-libc-amd64:latest
-MACHINE_EXEC_IMAGE=quay.io/eclipse/che-machine-exec:7.39.1
+MACHINE_EXEC_IMAGE=quay.io/devspaces/machineexec-rhel8:$DS_VERSION
 
 SCRIPT_PATH="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
 BASE_DIR_PATH="${SCRIPT_PATH}/../.."
@@ -29,6 +31,8 @@ collect_linux_libc_content_assets() {
 
 #### machine-exec ####
 collect_machine_exec_assets() {
+    echo "Using ${MACHINE_EXEC_IMAGE} to prepare machine-exec asset"
+
     id="$(docker create $MACHINE_EXEC_IMAGE)"
     docker cp "$id":/go/bin/che-machine-exec - | gzip -9 > asset-machine-exec.tar.gz 
     docker rm -v $id

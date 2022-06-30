@@ -76,9 +76,14 @@ sed_in_place() {
 }
 
 sed_in_place -r \
-  `# Update DevSpaces version` \
+  `# Update DevSpaces version for Dockerfile` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
   "${TARGETDIR}"/Dockerfile
+
+sed_in_place -r \
+  `# Update DevSpaces version for collect-assets script` \
+  -e "s/DS_VERSION=.*/DS_VERSION=$DS_VERSION/" \
+  "${TARGETDIR}"/build/scripts/collect-assets.sh
 
 cat << EOT >> "${TARGETDIR}"/build/dockerfiles/linux-libc.Dockerfile
 
