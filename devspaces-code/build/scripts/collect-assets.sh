@@ -10,8 +10,19 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# the version is updated automatically (see sync.sh)
-DS_VERSION=3.1
+# commandline args
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    '-v') DS_VERSION="$2"; shift 1;;
+  esac
+  shift 1
+done
+
+if [[ ! ${DS_VERSION} ]]; then
+    log "[ERROR] DS_VERSION not defined, so cannot proceed with collecting assets."
+    exit 1;
+fi
+
 LINUX_LIBC_IMAGE=linux-libc-amd64:latest
 MACHINE_EXEC_IMAGE=quay.io/devspaces/machineexec-rhel8:$DS_VERSION
 

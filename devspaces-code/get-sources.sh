@@ -18,7 +18,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-		'-v') CSV_VERSION="$2"; shift 1;;
+		'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
 	esac
 	shift 1
 done
@@ -31,7 +31,7 @@ function log()
 }
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
-  ./build/scripts/collect-assets.sh 
+  ./build/scripts/collect-assets.sh -v $DS_VERSION 
 
   if [[ ! -f "asset-linux-libc.tar.gz" ]]; then
     log "[ERROR] 'asset-linux-libc.tar.gz' not found, so cannot proceed with build."
