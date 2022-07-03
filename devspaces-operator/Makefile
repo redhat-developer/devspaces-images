@@ -211,12 +211,15 @@ update-helmcharts: ## Update Helm Charts
 		 	CRDS_SAMPLES=$${CRDS_SAMPLES}$${CRD_SAMPLE}$$'\n'
 		done
 
+		# Update Chart.yaml
 		yq -rYi --arg examples "$${CRDS_SAMPLES}" ".annotations.\"artifacthub.io/crdsExamples\" = \$$examples" $${chartYaml}
 
 		# Set CheCluster API version to v2 (TODO: remove in a next release)
 		CRDS=$$(yq -r '.annotations."artifacthub.io/crds"' $${chartYaml} | yq -ry -w 9999 '.[0].version="v2"')
 		yq -rYi --arg crds "$${CRDS}" ".annotations.\"artifacthub.io/crds\" = \$$crds" $${chartYaml}
 		sed -i 's|org_v1_checluster|org_v2_checluster|g' $${HELM_DIR}/README.md
+
+		make license $${chartYaml}
 
 		rm -rf $${HELMCHARTS_TEMPLATES}/org_v2_checluster.yaml
 	else
@@ -677,15 +680,14 @@ download-addlicense: ## Download addlicense tool
 OPERATOR_SDK ?= $(shell pwd)/bin/operator-sdk
 download-operator-sdk: SHELL := /bin/bash
 download-operator-sdk: ## Downloads operator sdk tool
-	command -v $(OPERATOR_SDK) >/dev/null 2>&1 && exit
+	[[ -z "$(DEST)" ]] && dest=$(OPERATOR_SDK) || dest=$(DEST)/operator-sdk
+	command -v $${dest} >/dev/null 2>&1 && exit
 
 	OS=$(shell go env GOOS)
 	ARCH=$(shell go env GOARCH)
 	OPERATOR_SDK_VERSION=$$(yq -r '."operator-sdk"' $(PROJECT_DIR)/REQUIREMENTS)
 
-	[[ -z "$(DEST)" ]] && dest=$(OPERATOR_SDK) || dest=$(DEST)/$(OPERATOR_SDK)
-	echo "[INFO] Downloading operator-sdk version $$OPERATOR_SDK_VERSION into $${dest}"
-
+	echo "[INFO] Downloading operator-sdk version $${OPERATOR_SDK_VERSION} into $${dest}"
 	mkdir -p $$(dirname "$${dest}")
 	curl -sL https://github.com/operator-framework/operator-sdk/releases/download/$${OPERATOR_SDK_VERSION}/operator-sdk_$${OS}_$${ARCH} > $${dest}
 	chmod +x $${dest}

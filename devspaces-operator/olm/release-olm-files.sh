@@ -21,10 +21,10 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 
-OPERATOR_DIR=$(dirname $(dirname $(readlink -f "${BASH_SOURCE[0]}")))
+OPERATOR_REPO=$(dirname $(dirname $(readlink -f "${BASH_SOURCE[0]}")))
 source "${OPERATOR_REPO}/.github/bin/common.sh"
 
-BASE_DIR="${OPERATOR_DIR}/olm"
+BASE_DIR="${OPERATOR_REPO}/olm"
 
 export LAST_RELEASE_VERSION
 
@@ -67,7 +67,7 @@ STABLE_BUNDLE_PATH=$(getBundlePath $CHANNEL)
 RELEASE_CSV="${STABLE_BUNDLE_PATH}/manifests/che-operator.clusterserviceversion.yaml"
 RELEASE_CHE_CRD="${STABLE_BUNDLE_PATH}/manifests/org.eclipse.che_checlusters.yaml"
 
-MANAGER_YAML="${OPERATOR_DIR}/config/manager/manager.yaml"
+MANAGER_YAML="${OPERATOR_REPO}/config/manager/manager.yaml"
 
 setLatestReleasedVersion
 downloadLatestReleasedBundleCRCRD
@@ -88,6 +88,10 @@ cp -rf "${NEXT_BUNDLE_PATH}/bundle.Dockerfile" "${STABLE_BUNDLE_PATH}"
 cp -rf "${NEXT_BUNDLE_PATH}/metadata" "${STABLE_BUNDLE_PATH}"
 cp -rf "${NEXT_BUNDLE_PATH}/tests" "${STABLE_BUNDLE_PATH}"
 
+# Remove old CRD files (TODO remove in future release)
+rm "${NEXT_BUNDLE_PATH}/manifests/org_v1_che_crd.yaml"
+rm "${NEXT_BUNDLE_PATH}/manifests/org_v1_che_crd.yaml.diff"
+
 ANNOTATION_METADATA_YAML="${STABLE_BUNDLE_PATH}/metadata/annotations.yaml"
 sed \
 -e 's/operators.operatorframework.io.bundle.channels.v1: .*/operators.operatorframework.io.bundle.channels.v1: '$CHANNEL'/' \
@@ -107,10 +111,10 @@ source ${BASE_DIR}/addDigests.sh -w ${BASE_DIR} \
               -o "${MANAGER_YAML}"
 popd || exit 1
 
-pushd "${OPERATOR_DIR}" || exit 1
-make add-license-download
-make add-license "${RELEASE_CSV}"
-make add-license "${MANAGER_YAML}"
+pushd "${OPERATOR_REPO}" || exit 1
+make download-addlicense
+make license "${RELEASE_CSV}"
+make license "${MANAGER_YAML}"
 popd || exit 1
 
 if [[ -n "${PRE_RELEASE_CSV}" ]] && [[ -n "${PRE_RELEASE_CHE_CRD}" ]]; then
