@@ -52,6 +52,7 @@ README.md
 Dockerfile
 build/scripts/sync.sh
 build/scripts/collect-assets.sh
+build/dockerfiles/libc-content-provider.Dockerfile
 container.yaml
 content_sets.yml
 devfile.yaml
@@ -81,7 +82,3 @@ sed_in_place -r \
   "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/build/dockerfiles/linux-libc.Dockerfile
-
-CMD [ "bash" ]
-EOT
-echo "Converted libc dockerfile"
