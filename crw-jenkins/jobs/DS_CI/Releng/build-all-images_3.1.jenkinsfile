@@ -1,0 +1,142 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   MIDSTM_BRANCH
+//   CLEAN_ON_FAILURE = "true"
+
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
+        node(nodeLabel) {
+        stage ("Trigger builds for whole Dev Spaces stack on ${nodeLabel}") {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+                sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                def util = load "${WORKSPACE}/util2.groovy"
+                cleanWs()
+                DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                println "DS_VERSION = '" + DS_VERSION + "'"
+                JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+                currentBuild.description="Jobs run:"
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                    def currentJob="" // name of job
+                    def currentQuayImage="" // last successful quay tag
+                    def jenkinsPath="/job/DS_CI/job/"
+                    def jenkinsURL="${JENKINS_URL}${jenkinsPath}".replaceAll("//job","/job")
+
+                    def List PHASE_LIST = PHASES.tokenize(" ").collect { it.trim() }
+
+                    currentQuayImageTheiaDev=""
+                    currentQuayImageTheia=""
+                    currentQuayImageTheiaEndpoint=""
+                    if (PHASE_LIST.contains("1")) {
+                        // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
+                        currentJob="theia-sources_" + JOB_BRANCH
+                        currentQuayImageTheiaDev = util.getLatestImageAndTag("devspaces/theia-dev-rhel8", "quay")
+                        println ("Got currentQuayImageDev = " + currentQuayImageTheiaDev)
+                        currentQuayImageTheia = util.getLatestImageAndTag("devspaces/theia-rhel8", "quay")
+                        println ("Got currentQuayImageTheia = " + currentQuayImageTheia)
+                        currentQuayImageTheiaEndpoint = util.getLatestImageAndTag("devspaces/theia-endpoint-rhel8", "quay")
+                        println ("Got currentQuayImageTheiaEndpoint = " + currentQuayImageTheiaEndpoint)
+                        util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
+                    }
+
+                    if (PHASE_LIST.contains("2")) {
+                        // 14 jobs
+                        def jobsList = [
+                            "configbump",
+                            "operator",                 // special case: "devspaces-rhel8-operator"
+                            "dashboard",
+                            "devfileregistry",
+                            "idea",                     // @since 2.11
+                            "imagepuller",
+                            "machineexec",
+                            "pluginregistry",
+                            "server",
+                            "traefik",
+                            "udi"                       // @since 2.16
+                        ]
+
+                        def Map tasks = [failFast: false]
+                        // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
+                        for (job in jobsList) {
+                            def job_name="${job}"// job name
+                            def image_name=job.toString().trim().equals("operator") ? "devspaces-rhel8-operator" : "${job_name}-rhel8" // image name
+                            def currentJobLoc=job_name + "_" + JOB_BRANCH
+                            if (!util.checkURL(jenkinsURL + currentJobLoc)) { 
+                                println("[WARNING] No such job " + jenkinsURL + currentJobLoc + " : skip!"); 
+                                    currentBuild.description+="<br/>* SKIP: <a href=${jenkinsPath}${currentJobLoc}>${currentJobLoc}</a>"
+                            } else {
+                                def currentQuayImageLoc = util.getLatestImageAndTag("devspaces/" + image_name, "quay")
+                                tasks[currentJobLoc] = { ->
+                                    println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
+                                    def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
+                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
+                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
+                                    println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
+                                    if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
+                                        currentBuild.result = 'FAILED'
+                                        util.notifyBuildFailed()
+                                    }
+                                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
+                                }
+                            }
+                        }
+                        // wait in parallel
+                        parallel(tasks)
+                    }
+
+                    if (PHASE_LIST.contains("1")) {
+                        // TODO add sleep time before starting checks?
+
+                        // wait until theia is rebuilt - check every 10 mins for 10 hrs
+                        if (!util.waitForNewQuayImage("devspaces/theia-dev-rhel8", currentQuayImageTheiaDev, 600, 36000)) {
+                            currentBuild.result = 'FAILED'
+                            currentBuild.description+="<br/>* TIMEOUT: theia-dev"
+                            util.notifyBuildFailed()
+                        }
+                        def int lastBuildId2td=util.getLastBuildResult(jenkinsURL+"devspaces-theia-dev-rhel8_"+JOB_BRANCH)
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-dev-rhel8_${JOB_BRANCH}/${lastBuildId2td}>devspaces-theia-dev-rhel8_${JOB_BRANCH}#${lastBuildId2td}</a>"
+
+                        // wait until theia is rebuilt - check every 5 mins for 10 hrs
+                        if (!util.waitForNewQuayImage("devspaces/theia-rhel8", currentQuayImageTheia, 300, 36000)) {
+                            currentBuild.result = 'FAILED'
+                            currentBuild.description+="<br/>* TIMEOUT: theia"
+                            util.notifyBuildFailed()
+                        }
+                        def int lastBuildId2th=util.getLastBuildResult(jenkinsURL+"devspaces-theia-rhel8_"+JOB_BRANCH)
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-rhel8_${JOB_BRANCH}/${lastBuildId2th}>devspaces-theia-rhel8_${JOB_BRANCH}#${lastBuildId2th}</a>"
+
+                        // wait until theia-endpoint is rebuilt - check every 5 mins for 10 hrs
+                        if (!util.waitForNewQuayImage("devspaces/theia-endpoint-rhel8", currentQuayImageTheiaEndpoint, 300, 36000)) {
+                            currentBuild.result = 'FAILED'
+                            currentBuild.description+="<br/>* TIMEOUT: theia-endpoint"
+                            util.notifyBuildFailed()
+                        }
+                        def int lastBuildId2te=util.getLastBuildResult(jenkinsURL+"devspaces-theia-endpoint-rhel8_"+JOB_BRANCH)
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>devspaces-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
+                    }
+
+                    if (PHASE_LIST.contains("3")) {
+                        currentQuayImageBundle = util.getLatestImageAndTag("devspaces/devspaces-operator-bundle", "quay")
+                        println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
+
+                        // trigger update-digests job (to rebuild bundle image)
+                        currentJob="update-digests-in-metadata_" + JOB_BRANCH
+                        def int lastBuildId4 = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
+                        currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId4}>update-digests#${lastBuildId4}</a> triggered"
+                    }
+                } // withCredentials
+            } // wrap
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: CLEAN_ON_FAILURE,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+        } // stage
+    } // node
+} // timeout
