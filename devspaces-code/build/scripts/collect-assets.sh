@@ -23,6 +23,7 @@ if [[ ! ${DS_VERSION} ]]; then
     exit 1;
 fi
 
+ARCH="$(uname -m)"
 LIBC_BUILDER_IMAGE=libc-builder
 LIBC_CONTENT_IMAGE=libc-content-provider
 MACHINE_EXEC_IMAGE=quay.io/devspaces/machineexec-rhel8:$DS_VERSION
@@ -37,7 +38,7 @@ collect_linux_libc_content_assets() {
     docker build -f "${DOCKERFILES_PATH}/libc-content-provider.Dockerfile" -t $LIBC_CONTENT_IMAGE .
 
     id="$(docker create $LIBC_CONTENT_IMAGE)"
-    docker cp "$id":/checode-linux-libc - | gzip -9 > asset-linux-libc.tar.gz 
+    docker cp "$id":/checode-linux-libc - | gzip -9 > asset-libc-content-${ARCH}.tar.gz 
     docker rm -v $id
     docker rmi $(docker images $LIBC_BUILDER_IMAGE -a -q)
     docker rmi $(docker images $LIBC_CONTENT_IMAGE -a -q)

@@ -9,6 +9,7 @@ forceBuild=0
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
 # so that rhpkg build is simply a brew wrapper (using get-sources.sh -f)
 PULL_ASSETS=0
+ARCH="$(uname -m)"
 
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
@@ -33,8 +34,8 @@ function log()
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
   ./build/scripts/collect-assets.sh -t $DS_VERSION 
 
-  if [[ ! -f "asset-linux-libc.tar.gz" ]]; then
-    log "[ERROR] 'asset-linux-libc.tar.gz' not found, so cannot proceed with build."
+  if [[ ! -f "asset-libc-content-${ARCH}.tar.gz" ]]; then
+    log "[ERROR] 'asset-libc-content-${ARCH}.tar.gz' not found, so cannot proceed with build."
     exit 1;
   fi
 
@@ -48,7 +49,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
     exit 1;
   fi
 
-  outputFiles="asset-linux-libc.tar.gz asset-machine-exec.tar.gz asset-entrypoints.tar.gz"
+  outputFiles="asset-libc-content-${ARCH}.tar.gz asset-machine-exec.tar.gz asset-entrypoints.tar.gz"
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
