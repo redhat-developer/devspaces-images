@@ -22,7 +22,7 @@ RUN cat /mnt/rootfs/etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}:
 
 COPY asset-*.tar.gz /tmp/assets/
 
-RUN tar -xf /tmp/assets/*.tar.gz -C /mnt/rootfs && \
+RUN for f in /tmp/assets/*.tar.gz; do tar -xf "$f" -C /mnt/rootfs; done && \
     mv /mnt/rootfs/che-machine-exec /mnt/rootfs/bin/machine-exec
 
 RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" "/mnt/rootfs/etc/group" "/mnt/rootfs/projects" "/mnt/rootfs/entrypoint*.sh" "/mnt/rootfs/checode-linux-libc" ; do\
