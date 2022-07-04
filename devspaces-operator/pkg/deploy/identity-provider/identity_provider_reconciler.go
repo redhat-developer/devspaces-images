@@ -12,16 +12,15 @@
 package identityprovider
 
 import (
-	"strings"
-
+	"github.com/eclipse-che/che-operator/pkg/common/utils"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
+	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
-	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	oauth "github.com/openshift/api/oauth/v1"
 	"github.com/sirupsen/logrus"
-	"k8s.io/apimachinery/pkg/types"
 )
 
 const (
@@ -40,47 +39,52 @@ func NewIdentityProviderReconciler() *IdentityProviderReconciler {
 	return &IdentityProviderReconciler{}
 }
 
-func (ip *IdentityProviderReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
-	done, err := syncNativeIdentityProviderItems(ctx)
+func (ip *IdentityProviderReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
+	done, err := syncOAuthClient(ctx)
 	return reconcile.Result{Requeue: !done}, done, err
 }
 
-func (ip *IdentityProviderReconciler) Finalize(ctx *deploy.DeployContext) bool {
-	oauthClient, err := FindOAuthClient(ctx)
+func (ip *IdentityProviderReconciler) Finalize(ctx *chetypes.DeployContext) bool {
+	oauthClient, err := GetOAuthClient(ctx)
 	if err != nil {
-		logrus.Errorf("Error deleting finalizer: %v", err)
+		logrus.Errorf("Error getting OAuthClients: %v", err)
 		return false
 	}
 
 	if oauthClient != nil {
-		err = deploy.DeleteObjectWithFinalizer(ctx, types.NamespacedName{Name: oauthClient.Name}, &oauth.OAuthClient{}, OAuthFinalizerName)
-	} else {
-		err = deploy.DeleteFinalizer(ctx, OAuthFinalizerName)
+		if err := deploy.DeleteObjectWithFinalizer(ctx, types.NamespacedName{Name: oauthClient.Name}, &oauth.OAuthClient{}, OAuthFinalizerName); err != nil {
+			logrus.Errorf("Error deleting OAuthClient: %v", err)
+			return false
+		}
 	}
 
-	if err != nil {
-		logrus.Errorf("Error deleting finalizer: %v", err)
-		return false
-	}
 	return true
 }
 
-func syncNativeIdentityProviderItems(ctx *deploy.DeployContext) (bool, error) {
-	oauthSecret := util.GeneratePasswd(12)
-	oauthClientName := ctx.CheCluster.Name + "-openshift-identity-provider-" + strings.ToLower(util.GeneratePasswd(6))
+func syncOAuthClient(ctx *chetypes.DeployContext) (bool, error) {
+	var oauthClientName, oauthSecret string
 
-	oauthClient, err := FindOAuthClient(ctx)
+	oauthClient, err := GetOAuthClient(ctx)
 	if err != nil {
+		logrus.Errorf("Error getting OAuthClients: %v", err)
 		return false, err
 	}
 
 	if oauthClient != nil {
-		oauthSecret = oauthClient.Secret
 		oauthClientName = oauthClient.Name
+		oauthSecret = utils.GetValue(ctx.CheCluster.Spec.Networking.Auth.OAuthSecret, oauthClient.Secret)
+	} else {
+		oauthClientName = GetOAuthClientName(ctx)
+		oauthSecret = utils.GetValue(ctx.CheCluster.Spec.Networking.Auth.OAuthSecret, utils.GeneratePassword(12))
 	}
 
-	redirectURIs := []string{"https://" + ctx.CheCluster.GetCheHost() + "/oauth/callback"}
-	oauthClientSpec := getOAuthClientSpec(oauthClientName, oauthSecret, redirectURIs)
+	redirectURIs := []string{"https://" + ctx.CheHost + "/oauth/callback"}
+	oauthClientSpec := GetOAuthClientSpec(
+		oauthClientName,
+		oauthSecret,
+		redirectURIs,
+		ctx.CheCluster.Spec.Networking.Auth.OAuthAccessTokenInactivityTimeoutSeconds,
+		ctx.CheCluster.Spec.Networking.Auth.OAuthAccessTokenMaxAgeSeconds)
 	done, err := deploy.Sync(ctx, oauthClientSpec, oAuthClientDiffOpts)
 	if !done {
 		return false, err

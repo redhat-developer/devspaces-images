@@ -8,4 +8,15 @@
 #
 #  Contributors:
 #    Red Hat, Inc. - initial API and implementation
-
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: devspaces
+  namespace: eclipse-che
+spec:
+  components: {}
+  devEnvironments:
+    defaultNamespace:
+      template: <username>-devspaces
+  networking: {}
+  containerRegistry: {}
