@@ -31,7 +31,7 @@ function log()
 }
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
-  ./build/scripts/collect-assets.sh -v $DS_VERSION 
+  ./build/scripts/collect-assets.sh -t $DS_VERSION 
 
   if [[ ! -f "asset-linux-libc.tar.gz" ]]; then
     log "[ERROR] 'asset-linux-libc.tar.gz' not found, so cannot proceed with build."
