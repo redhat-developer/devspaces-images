@@ -15,25 +15,27 @@ package usernamespace
 import (
 	"context"
 	"encoding/json"
+	"os"
 	"sync"
 	"testing"
 
-	dwconstants "github.com/devfile/devworkspace-operator/pkg/constants"
+	"github.com/devfile/devworkspace-operator/pkg/constants"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	devworkspaceinfra "github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
+	v1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/eclipse-che/che-operator/controllers/devworkspace"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
+	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/tls"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	configv1 "github.com/openshift/api/config/v1"
 	projectv1 "github.com/openshift/api/project/v1"
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/util/workqueue"
-	"k8s.io/utils/pointer"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -42,7 +44,7 @@ import (
 
 func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme *runtime.Scheme, cheNamespaceName string, cheName string) {
 	var cheNamespace metav1.Object
-	if infrastructure.IsOpenShift() {
+	if util.IsOpenShift4 {
 		cheNamespace = &projectv1.Project{}
 	} else {
 		cheNamespace = &corev1.Namespace{}
@@ -53,15 +55,20 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 		t.Fatal(err)
 	}
 
-	cheCluster := chev2.CheCluster{
+	cheCluster := v1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cheName,
 			Namespace: cheNamespaceName,
 		},
-		Spec: chev2.CheClusterSpec{
-			DevEnvironments: chev2.CheClusterDevEnvironments{
-				NodeSelector: map[string]string{"a": "b", "c": "d"},
-				Tolerations: []corev1.Toleration{
+		Spec: v1.CheClusterSpec{
+			Server: v1.CheClusterSpecServer{
+				CheHost:           "che-host",
+				GitSelfSignedCert: true,
+				CustomCheProperties: map[string]string{
+					"CHE_INFRA_OPENSHIFT_ROUTE_HOST_DOMAIN__SUFFIX": "root-domain",
+				},
+				WorkspacePodNodeSelector: map[string]string{"a": "b", "c": "d"},
+				WorkspacePodTolerations: []corev1.Toleration{
 					{
 						Key:      "a",
 						Operator: corev1.TolerationOpEqual,
@@ -73,16 +80,13 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 						Value:    "d",
 					},
 				},
-				TrustedCerts: &chev2.TrustedCerts{
-					GitTrustedCertsConfigMapName: "che-git-self-signed-cert",
-				},
 			},
-			Networking: chev2.CheClusterSpecNetworking{
-				Domain: "root-domain",
+			DevWorkspace: v1.CheClusterSpecDevWorkspace{
+				Enable: true,
 			},
-		},
-		Status: chev2.CheClusterStatus{
-			CheURL: "https://che-host",
+			K8s: v1.CheClusterSpecK8SOnly{
+				IngressDomain: "root-domain",
+			},
 		},
 	}
 	if err := cl.Create(ctx, &cheCluster); err != nil {
@@ -92,7 +96,7 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 	// also create the self-signed-certificate secret to pretend we have TLS set up
 	cert := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.DefaultSelfSignedCertificateSecretName,
+			Name:      deploy.CheTLSSelfSignedCertificateSecretName,
 			Namespace: cheNamespaceName,
 		},
 		Data: map[string][]byte{
@@ -100,7 +104,7 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 			"other.data": []byte("should not be copied to target ns"),
 		},
 		Type:      "Opaque",
-		Immutable: pointer.BoolPtr(true),
+		Immutable: util.NewBoolPointer(true),
 	}
 	if err := cl.Create(ctx, cert); err != nil {
 		t.Fatal(err)
@@ -122,7 +126,7 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 
 	gitTlsCredentials := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "che-git-self-signed-cert",
+			Name:      deploy.GitSelfSignedCertsConfigMapName,
 			Namespace: cheNamespaceName,
 		},
 		Data: map[string]string{
@@ -131,6 +135,39 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 		},
 	}
 	if err := cl.Create(ctx, gitTlsCredentials); err != nil {
+		t.Fatal(err)
+	}
+
+	// create che route and ingress
+	ingress := &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "ingress",
+			Namespace: cheNamespaceName,
+			Labels:    deploy.GetLabels(&cheCluster, os.Getenv("CHE_FLAVOR")),
+		},
+		Spec: networkingv1.IngressSpec{
+			Rules: []networkingv1.IngressRule{
+				{
+					Host: "che-host",
+				},
+			},
+		},
+	}
+	if err := cl.Create(ctx, ingress); err != nil {
+		t.Fatal(err)
+	}
+
+	route := &routev1.Route{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "route",
+			Namespace: cheNamespaceName,
+			Labels:    deploy.GetLabels(&cheCluster, os.Getenv("CHE_FLAVOR")),
+		},
+		Spec: routev1.RouteSpec{
+			Host: "che-host",
+		},
+	}
+	if err := cl.Create(ctx, route); err != nil {
 		t.Fatal(err)
 	}
 
@@ -144,10 +181,11 @@ func setupCheCluster(t *testing.T, ctx context.Context, cl client.Client, scheme
 	}
 }
 
-func setup(infraType devworkspaceinfra.Type, objs ...runtime.Object) (*runtime.Scheme, client.Client, *CheUserNamespaceReconciler) {
-	devworkspaceinfra.InitializeForTesting(infraType)
-	devworkspace.CleanCheClusterInstancesForTest()
+func setup(infraType infrastructure.Type, objs ...runtime.Object) (*runtime.Scheme, client.Client, *CheUserNamespaceReconciler) {
 	infrastructure.InitializeForTesting(infraType)
+	devworkspace.CleanCheClusterInstancesForTest()
+	util.IsOpenShift = infraType == infrastructure.OpenShiftv4
+	util.IsOpenShift4 = infraType == infrastructure.OpenShiftv4
 
 	scheme := createTestScheme()
 
@@ -167,7 +205,7 @@ func setup(infraType devworkspaceinfra.Type, objs ...runtime.Object) (*runtime.S
 }
 
 func TestSkipsUnlabeledNamespaces(t *testing.T) {
-	test := func(t *testing.T, infraType devworkspaceinfra.Type, namespace metav1.Object) {
+	test := func(t *testing.T, infraType infrastructure.Type, namespace metav1.Object) {
 		ctx := context.TODO()
 		scheme, cl, r := setup(infraType, namespace.(runtime.Object))
 		setupCheCluster(t, ctx, cl, scheme, "che", "che")
@@ -192,7 +230,7 @@ func TestSkipsUnlabeledNamespaces(t *testing.T) {
 	}
 
 	t.Run("k8s", func(t *testing.T) {
-		test(t, devworkspaceinfra.Kubernetes, &corev1.Namespace{
+		test(t, infrastructure.Kubernetes, &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "ns",
 			},
@@ -200,7 +238,7 @@ func TestSkipsUnlabeledNamespaces(t *testing.T) {
 	})
 
 	t.Run("openshift", func(t *testing.T) {
-		test(t, devworkspaceinfra.OpenShiftv4, &projectv1.Project{
+		test(t, infrastructure.OpenShiftv4, &projectv1.Project{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "prj",
 			},
@@ -209,7 +247,7 @@ func TestSkipsUnlabeledNamespaces(t *testing.T) {
 }
 
 func TestRequiresLabelsToMatchOneOfMultipleCheCluster(t *testing.T) {
-	test := func(t *testing.T, infraType devworkspaceinfra.Type, namespace metav1.Object) {
+	test := func(t *testing.T, infraType infrastructure.Type, namespace metav1.Object) {
 		ctx := context.TODO()
 		scheme, cl, r := setup(infraType, namespace.(runtime.Object))
 		setupCheCluster(t, ctx, cl, scheme, "che1", "che")
@@ -222,7 +260,7 @@ func TestRequiresLabelsToMatchOneOfMultipleCheCluster(t *testing.T) {
 	}
 
 	t.Run("k8s", func(t *testing.T) {
-		test(t, devworkspaceinfra.Kubernetes, &corev1.Namespace{
+		test(t, infrastructure.Kubernetes, &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "ns",
 				Labels: map[string]string{
@@ -233,7 +271,7 @@ func TestRequiresLabelsToMatchOneOfMultipleCheCluster(t *testing.T) {
 	})
 
 	t.Run("openshift", func(t *testing.T) {
-		test(t, devworkspaceinfra.OpenShiftv4, &projectv1.Project{
+		test(t, infrastructure.OpenShiftv4, &projectv1.Project{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "prj",
 				Labels: map[string]string{
@@ -245,7 +283,7 @@ func TestRequiresLabelsToMatchOneOfMultipleCheCluster(t *testing.T) {
 }
 
 func TestMatchingCheClusterCanBeSelectedUsingLabels(t *testing.T) {
-	test := func(t *testing.T, infraType devworkspaceinfra.Type, namespace metav1.Object) {
+	test := func(t *testing.T, infraType infrastructure.Type, namespace metav1.Object) {
 		ctx := context.TODO()
 		scheme, cl, r := setup(infraType, namespace.(runtime.Object))
 		setupCheCluster(t, ctx, cl, scheme, "che1", "che")
@@ -258,7 +296,7 @@ func TestMatchingCheClusterCanBeSelectedUsingLabels(t *testing.T) {
 	}
 
 	t.Run("k8s", func(t *testing.T) {
-		test(t, devworkspaceinfra.Kubernetes, &corev1.Namespace{
+		test(t, infrastructure.Kubernetes, &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "ns",
 				Labels: map[string]string{
@@ -271,7 +309,7 @@ func TestMatchingCheClusterCanBeSelectedUsingLabels(t *testing.T) {
 	})
 
 	t.Run("openshift", func(t *testing.T) {
-		test(t, devworkspaceinfra.OpenShiftv4, &projectv1.Project{
+		test(t, infrastructure.OpenShiftv4, &projectv1.Project{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "prj",
 				Labels: map[string]string{
@@ -285,8 +323,6 @@ func TestMatchingCheClusterCanBeSelectedUsingLabels(t *testing.T) {
 }
 
 func TestCreatesDataInNamespace(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.Kubernetes)
-
 	expectedPodTolerations, err := json.Marshal([]corev1.Toleration{
 		{
 			Key:      "a",
@@ -301,7 +337,7 @@ func TestCreatesDataInNamespace(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	test := func(t *testing.T, infraType devworkspaceinfra.Type, namespace client.Object, objs ...runtime.Object) {
+	test := func(t *testing.T, infraType infrastructure.Type, namespace client.Object, objs ...runtime.Object) {
 		ctx := context.TODO()
 		allObjs := append(objs, namespace.(runtime.Object))
 		scheme, cl, r := setup(infraType, allObjs...)
@@ -315,10 +351,10 @@ func TestCreatesDataInNamespace(t *testing.T) {
 		proxySettings := corev1.ConfigMap{}
 		assert.NoError(t, cl.Get(ctx, client.ObjectKey{Name: "che-proxy-settings", Namespace: namespace.GetName()}, &proxySettings))
 
-		assert.Equal(t, "env", proxySettings.GetAnnotations()[dwconstants.DevWorkspaceMountAsAnnotation],
+		assert.Equal(t, "env", proxySettings.GetAnnotations()[constants.DevWorkspaceMountAsAnnotation],
 			"proxy settings should be annotated as mount as 'env'")
 
-		assert.Equal(t, "true", proxySettings.GetLabels()[dwconstants.DevWorkspaceMountLabel],
+		assert.Equal(t, "true", proxySettings.GetLabels()[constants.DevWorkspaceMountLabel],
 			"proxy settings should be labeled as mounted")
 
 		assert.Equal(t, 1, len(proxySettings.Data), "Expecting just 1 element in the default proxy settings")
@@ -328,9 +364,9 @@ func TestCreatesDataInNamespace(t *testing.T) {
 		cert := corev1.Secret{}
 		assert.NoError(t, cl.Get(ctx, client.ObjectKey{Name: "che-server-cert", Namespace: namespace.GetName()}, &cert))
 
-		assert.Equal(t, "file", cert.GetAnnotations()[dwconstants.DevWorkspaceMountAsAnnotation], "server cert should be annotated as mount as 'file'")
-		assert.Equal(t, "/tmp/che/secret/", cert.GetAnnotations()[dwconstants.DevWorkspaceMountPathAnnotation], "server cert annotated as mounted to an unexpected path")
-		assert.Equal(t, "true", cert.GetLabels()[dwconstants.DevWorkspaceMountLabel], "server cert should be labeled as mounted")
+		assert.Equal(t, "file", cert.GetAnnotations()[constants.DevWorkspaceMountAsAnnotation], "server cert should be annotated as mount as 'file'")
+		assert.Equal(t, "/tmp/che/secret/", cert.GetAnnotations()[constants.DevWorkspaceMountPathAnnotation], "server cert annotated as mounted to an unexpected path")
+		assert.Equal(t, "true", cert.GetLabels()[constants.DevWorkspaceMountLabel], "server cert should be labeled as mounted")
 		assert.Equal(t, 1, len(cert.Data), "Expecting just 1 element in the self-signed cert")
 		assert.Equal(t, "my certificate", string(cert.Data["ca.crt"]), "Unexpected self-signed certificate")
 		assert.Equal(t, corev1.SecretTypeOpaque, cert.Type, "Unexpected secret type")
@@ -338,18 +374,18 @@ func TestCreatesDataInNamespace(t *testing.T) {
 
 		caCerts := corev1.ConfigMap{}
 		assert.NoError(t, cl.Get(ctx, client.ObjectKey{Name: "che-trusted-ca-certs", Namespace: namespace.GetName()}, &caCerts))
-		assert.Equal(t, "file", caCerts.GetAnnotations()[dwconstants.DevWorkspaceMountAsAnnotation], "trusted certs should be annotated as mount as 'file'")
-		assert.Equal(t, "/public-certs", caCerts.GetAnnotations()[dwconstants.DevWorkspaceMountPathAnnotation], "trusted certs annotated as mounted to an unexpected path")
-		assert.Equal(t, "true", caCerts.GetLabels()[dwconstants.DevWorkspaceMountLabel], "trusted certs should be labeled as mounted")
+		assert.Equal(t, "file", caCerts.GetAnnotations()[constants.DevWorkspaceMountAsAnnotation], "trusted certs should be annotated as mount as 'file'")
+		assert.Equal(t, "/public-certs", caCerts.GetAnnotations()[constants.DevWorkspaceMountPathAnnotation], "trusted certs annotated as mounted to an unexpected path")
+		assert.Equal(t, "true", caCerts.GetLabels()[constants.DevWorkspaceMountLabel], "trusted certs should be labeled as mounted")
 		assert.Equal(t, 2, len(caCerts.Data), "Expecting exactly 2 data entries in the trusted cert config map")
 		assert.Equal(t, "trusted cert 1", string(caCerts.Data["trusted1"]), "Unexpected trusted cert 1 value")
 		assert.Equal(t, "trusted cert 2", string(caCerts.Data["trusted2"]), "Unexpected trusted cert 2 value")
 
 		gitTlsConfig := corev1.ConfigMap{}
 		assert.NoError(t, cl.Get(ctx, client.ObjectKey{Name: "che-git-tls-creds", Namespace: namespace.GetName()}, &gitTlsConfig))
-		assert.Equal(t, "true", gitTlsConfig.Labels[dwconstants.DevWorkspaceGitTLSLabel])
-		assert.Equal(t, "true", gitTlsConfig.Labels[dwconstants.DevWorkspaceMountLabel])
-		assert.Equal(t, "true", gitTlsConfig.Labels[dwconstants.DevWorkspaceWatchConfigMapLabel])
+		assert.Equal(t, "true", gitTlsConfig.Labels[constants.DevWorkspaceGitTLSLabel])
+		assert.Equal(t, "true", gitTlsConfig.Labels[constants.DevWorkspaceMountLabel])
+		assert.Equal(t, "true", gitTlsConfig.Labels[constants.DevWorkspaceWatchConfigMapLabel])
 		assert.Equal(t, "the.host.of.git", gitTlsConfig.Data["host"])
 		assert.Equal(t, "the public certificate of the.host.of.git", gitTlsConfig.Data["certificate"])
 
@@ -360,7 +396,7 @@ func TestCreatesDataInNamespace(t *testing.T) {
 	}
 
 	t.Run("k8s", func(t *testing.T) {
-		test(t, devworkspaceinfra.Kubernetes, &corev1.Namespace{
+		test(t, infrastructure.Kubernetes, &corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "ns",
 				Labels: map[string]string{
@@ -371,7 +407,7 @@ func TestCreatesDataInNamespace(t *testing.T) {
 	})
 
 	t.Run("openshift", func(t *testing.T) {
-		test(t, devworkspaceinfra.OpenShiftv4, &projectv1.Project{
+		test(t, infrastructure.OpenShiftv4, &projectv1.Project{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "prj",
 				Labels: map[string]string{
@@ -401,7 +437,7 @@ func TestWatchRulesForSecretsInSameNamespace(t *testing.T) {
 		},
 	}
 
-	_, _, r := setup(devworkspaceinfra.Kubernetes, &corev1.Namespace{
+	_, _, r := setup(infrastructure.Kubernetes, &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "ns",
 			Labels: map[string]string{
@@ -433,7 +469,7 @@ func TestWatchRulesForConfigMapsInSameNamespace(t *testing.T) {
 		},
 	}
 
-	_, _, r := setup(devworkspaceinfra.Kubernetes, &corev1.Namespace{
+	_, _, r := setup(infrastructure.Kubernetes, &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "ns",
 			Labels: map[string]string{
@@ -463,12 +499,12 @@ func TestWatchRulesForSecretsInOtherNamespaces(t *testing.T) {
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.DefaultSelfSignedCertificateSecretName,
+			Name:      deploy.CheTLSSelfSignedCertificateSecretName,
 			Namespace: "eclipse-che",
 		},
 	}
 
-	_, _, r := setup(devworkspaceinfra.Kubernetes,
+	_, _, r := setup(infrastructure.Kubernetes,
 		&corev1.Namespace{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Namespace",
@@ -502,7 +538,7 @@ func TestWatchRulesForSecretsInOtherNamespaces(t *testing.T) {
 				Name: "eclipse-che",
 			},
 		},
-		&chev2.CheCluster{
+		&v1.CheCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "che",
 				Namespace: "eclipse-che",
@@ -545,7 +581,7 @@ func TestWatchRulesForConfigMapsInOtherNamespaces(t *testing.T) {
 		},
 	}
 
-	_, _, r := setup(devworkspaceinfra.Kubernetes,
+	_, _, r := setup(infrastructure.Kubernetes,
 		&corev1.Namespace{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Namespace",
@@ -579,7 +615,7 @@ func TestWatchRulesForConfigMapsInOtherNamespaces(t *testing.T) {
 				Name: "eclipse-che",
 			},
 		},
-		&chev2.CheCluster{
+		&v1.CheCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "che",
 				Namespace: "eclipse-che",

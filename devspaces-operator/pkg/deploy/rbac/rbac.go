@@ -15,8 +15,6 @@ package rbac
 import (
 	"strings"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/sirupsen/logrus"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -30,20 +28,21 @@ func NewCheServerPermissionsReconciler() *CheServerPermissionsReconciler {
 	return &CheServerPermissionsReconciler{}
 }
 
-func (c *CheServerPermissionsReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
+func (c *CheServerPermissionsReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
 	// Create service account "che" for che-server component.
 	// "che" is the one which token is used to create workspace objects.
 	// Notice: Also we have on more "che-workspace" SA used by plugins like exec, terminal, metrics with limited privileges.
-	done, err := deploy.SyncServiceAccountToCluster(ctx, constants.DefaultCheServiceAccountName)
+	done, err := deploy.SyncServiceAccountToCluster(ctx, deploy.CheServiceAccountName)
 	if !done {
 		return reconcile.Result{Requeue: true}, false, err
 	}
 
-	for _, cheClusterRole := range ctx.CheCluster.Spec.Components.CheServer.ClusterRoles {
-		cheClusterRole := strings.TrimSpace(cheClusterRole)
-		if cheClusterRole != "" {
+	if len(ctx.CheCluster.Spec.Server.CheClusterRoles) > 0 {
+		cheClusterRoles := strings.Split(ctx.CheCluster.Spec.Server.CheClusterRoles, ",")
+		for _, cheClusterRole := range cheClusterRoles {
+			cheClusterRole := strings.TrimSpace(cheClusterRole)
 			cheClusterRoleBindingName := cheClusterRole
-			done, err := deploy.SyncClusterRoleBindingAndAddFinalizerToCluster(ctx, cheClusterRoleBindingName, constants.DefaultCheServiceAccountName, cheClusterRole)
+			done, err := deploy.SyncClusterRoleBindingAndAddFinalizerToCluster(ctx, cheClusterRoleBindingName, deploy.CheServiceAccountName, cheClusterRole)
 			if !done {
 				return reconcile.Result{Requeue: true}, false, err
 			}
@@ -53,12 +52,13 @@ func (c *CheServerPermissionsReconciler) Reconcile(ctx *chetypes.DeployContext) 
 	return reconcile.Result{}, true, err
 }
 
-func (c *CheServerPermissionsReconciler) Finalize(ctx *chetypes.DeployContext) bool {
+func (c *CheServerPermissionsReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	done := true
 
-	for _, cheClusterRole := range ctx.CheCluster.Spec.Components.CheServer.ClusterRoles {
-		cheClusterRole := strings.TrimSpace(cheClusterRole)
-		if cheClusterRole != "" {
+	if len(ctx.CheCluster.Spec.Server.CheClusterRoles) > 0 {
+		cheClusterRoles := strings.Split(ctx.CheCluster.Spec.Server.CheClusterRoles, ",")
+		for _, cheClusterRole := range cheClusterRoles {
+			cheClusterRole := strings.TrimSpace(cheClusterRole)
 			cheClusterRoleBindingName := cheClusterRole
 			if err := deploy.ReconcileClusterRoleBindingFinalizer(ctx, cheClusterRoleBindingName); err != nil {
 				done = false
@@ -66,7 +66,7 @@ func (c *CheServerPermissionsReconciler) Finalize(ctx *chetypes.DeployContext) b
 			}
 
 			// Removes any legacy CRB https://github.com/eclipse/che/issues/19506
-			cheClusterRoleBindingName = deploy.GetLegacyUniqueClusterRoleBindingName(ctx, constants.DefaultCheServiceAccountName, cheClusterRole)
+			cheClusterRoleBindingName = deploy.GetLegacyUniqueClusterRoleBindingName(ctx, deploy.CheServiceAccountName, cheClusterRole)
 			if err := deploy.ReconcileLegacyClusterRoleBindingFinalizer(ctx, cheClusterRoleBindingName); err != nil {
 				done = false
 				logrus.Errorf("Error deleting finalizer: %v", err)

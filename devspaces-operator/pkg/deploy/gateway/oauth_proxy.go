@@ -21,22 +21,18 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func getGatewayOauthProxyConfigSpec(ctx *chetypes.DeployContext, cookieSecret string) corev1.ConfigMap {
+func getGatewayOauthProxyConfigSpec(ctx *deploy.DeployContext, cookieSecret string) corev1.ConfigMap {
 	instance := ctx.CheCluster
 
 	var config string
-	if infrastructure.IsOpenShift() {
+	if util.IsOpenShift {
 		config = openshiftOauthProxyConfig(ctx, cookieSecret)
 	} else {
 		config = kubernetesOauthProxyConfig(ctx, cookieSecret)
@@ -49,7 +45,7 @@ func getGatewayOauthProxyConfigSpec(ctx *chetypes.DeployContext, cookieSecret st
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "che-gateway-config-oauth-proxy",
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 		Data: map[string]string{
 			"oauth-proxy.cfg": config,
@@ -57,7 +53,7 @@ func getGatewayOauthProxyConfigSpec(ctx *chetypes.DeployContext, cookieSecret st
 	}
 }
 
-func openshiftOauthProxyConfig(ctx *chetypes.DeployContext, cookieSecret string) string {
+func openshiftOauthProxyConfig(ctx *deploy.DeployContext, cookieSecret string) string {
 	oauthSecret := ""
 	oauthClientName := ""
 
@@ -68,6 +64,7 @@ func openshiftOauthProxyConfig(ctx *chetypes.DeployContext, cookieSecret string)
 		oauthSecret = oauthClient.Secret
 		oauthClientName = oauthClient.Name
 	}
+
 	return fmt.Sprintf(`
 http_address = ":%d"
 https_address = ""
@@ -88,7 +85,7 @@ pass_access_token = true
 skip_provider_button = false
 %s
 `, GatewayServicePort,
-		ctx.CheHost,
+		ctx.CheCluster.GetCheHost(),
 		oauthClientName,
 		oauthSecret,
 		GatewayServiceName,
@@ -96,7 +93,7 @@ skip_provider_button = false
 		skipAuthConfig(ctx.CheCluster))
 }
 
-func kubernetesOauthProxyConfig(ctx *chetypes.DeployContext, cookieSecret string) string {
+func kubernetesOauthProxyConfig(ctx *deploy.DeployContext, cookieSecret string) string {
 	return fmt.Sprintf(`
 proxy_prefix = "/oauth"
 http_address = ":%d"
@@ -115,39 +112,32 @@ cookie_secret = "%s"
 cookie_expire = "24h0m0s"
 email_domains = "*"
 cookie_httponly = false
+pass_authorization_header = true
 skip_provider_button = true
-whitelist_domains = "%s"
-cookie_domains = "%s"
-%s
-%s
 %s
 `, GatewayServicePort,
-		ctx.CheHost,
-		ctx.CheCluster.Spec.Networking.Auth.IdentityProviderURL,
-		ctx.CheCluster.Spec.Networking.Auth.OAuthClientName,
-		ctx.CheCluster.Spec.Networking.Auth.OAuthSecret,
+		ctx.CheCluster.GetCheHost(),
+		ctx.CheCluster.Spec.Auth.IdentityProviderURL,
+		ctx.CheCluster.Spec.Auth.OAuthClientName,
+		ctx.CheCluster.Spec.Auth.OAuthSecret,
 		cookieSecret,
-		utils.Whitelist(ctx.CheHost),
-		utils.Whitelist(ctx.CheHost),
-		skipAuthConfig(ctx.CheCluster),
-		identityTokenConfig(ctx.CheCluster),
-		oauthScopeConfig(ctx.CheCluster))
+		skipAuthConfig(ctx.CheCluster))
 }
 
-func skipAuthConfig(instance *chev2.CheCluster) string {
+func skipAuthConfig(instance *orgv1.CheCluster) string {
 	var skipAuthPaths []string
-	if !instance.Spec.Components.PluginRegistry.DisableInternalRegistry {
-		skipAuthPaths = append(skipAuthPaths, "^/"+constants.PluginRegistryName)
+	if !instance.Spec.Server.ExternalPluginRegistry {
+		skipAuthPaths = append(skipAuthPaths, "^/"+deploy.PluginRegistryName)
 	}
-	if !instance.Spec.Components.DevfileRegistry.DisableInternalRegistry {
-		skipAuthPaths = append(skipAuthPaths, "^/"+constants.DevfileRegistryName)
+	if !instance.Spec.Server.ExternalDevfileRegistry {
+		skipAuthPaths = append(skipAuthPaths, "^/"+deploy.DevfileRegistryName)
 	}
 	skipAuthPaths = append(skipAuthPaths, "^/$")
 	skipAuthPaths = append(skipAuthPaths, "/healthz$")
 	skipAuthPaths = append(skipAuthPaths, "^/dashboard/static/preload")
 	if len(skipAuthPaths) > 0 {
 		propName := "skip_auth_routes"
-		if infrastructure.IsOpenShift() {
+		if util.IsOpenShift {
 			propName = "skip_auth_regex"
 		}
 		return fmt.Sprintf("%s = \"%s\"", propName, strings.Join(skipAuthPaths, "|"))
@@ -155,33 +145,17 @@ func skipAuthConfig(instance *chev2.CheCluster) string {
 	return ""
 }
 
-func identityTokenConfig(instance *chev2.CheCluster) string {
-	if instance.IsAccessTokenConfigured() {
-		// pass OAuth access_token to upstream via X-Forwarded-Access-Token header
-		return "pass_access_token = true"
-	}
-	// pass OIDC IDToken to upstream via Authorization Bearer header
-	return "pass_authorization_header = true"
-}
-
-func oauthScopeConfig(instance *chev2.CheCluster) string {
-	scope := instance.Spec.Networking.Auth.OAuthScope
-	if len(scope) > 1 {
-		return fmt.Sprintf("scope = \"%s\"", scope)
-	}
-	return ""
-}
-
-func getOauthProxyContainerSpec(ctx *chetypes.DeployContext) corev1.Container {
+func getOauthProxyContainerSpec(ctx *deploy.DeployContext) corev1.Container {
 	// append env var with ConfigMap revision to restore pod automatically when config has been changed
 	cm := &corev1.ConfigMap{}
 	exists, _ := deploy.GetNamespacedObject(ctx, "che-gateway-config-oauth-proxy", cm)
 	configMapRevision := map[bool]string{true: cm.GetResourceVersion(), false: ""}[exists]
 
+	authnImage := util.GetValue(ctx.CheCluster.Spec.Auth.GatewayAuthenticationSidecarImage, deploy.DefaultGatewayAuthenticationSidecarImage(ctx.CheCluster))
 	return corev1.Container{
 		Name:            "oauth-proxy",
-		Image:           defaults.GetGatewayAuthenticationSidecarImage(ctx.CheCluster),
-		ImagePullPolicy: corev1.PullIfNotPresent,
+		Image:           authnImage,
+		ImagePullPolicy: corev1.PullAlways,
 		Args: []string{
 			"--config=/etc/oauth-proxy/oauth-proxy.cfg",
 		},

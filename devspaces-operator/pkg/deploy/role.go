@@ -12,8 +12,6 @@
 package deploy
 
 import (
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	rbac "k8s.io/api/rbac/v1"
@@ -26,7 +24,7 @@ var roleDiffOpts = cmp.Options{
 }
 
 func SyncRoleToCluster(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	policyRule []rbac.PolicyRule) (bool, error) {
 
@@ -34,8 +32,8 @@ func SyncRoleToCluster(
 	return Sync(deployContext, roleSpec, roleDiffOpts)
 }
 
-func getRoleSpec(deployContext *chetypes.DeployContext, name string, policyRule []rbac.PolicyRule) *rbac.Role {
-	labels := GetLabels(defaults.GetCheFlavor())
+func getRoleSpec(deployContext *DeployContext, name string, policyRule []rbac.PolicyRule) *rbac.Role {
+	labels := GetLabels(deployContext.CheCluster, DefaultCheFlavor(deployContext.CheCluster))
 	role := &rbac.Role{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Role",

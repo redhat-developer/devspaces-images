@@ -15,7 +15,6 @@ package deploy
 import (
 	"reflect"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	corev1 "k8s.io/api/core/v1"
@@ -35,7 +34,7 @@ var ServiceDefaultDiffOpts = cmp.Options{
 }
 
 func SyncServiceToCluster(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	portName []string,
 	portNumber []int32,
@@ -45,18 +44,18 @@ func SyncServiceToCluster(
 	return SyncServiceSpecToCluster(deployContext, serviceSpec)
 }
 
-func SyncServiceSpecToCluster(deployContext *chetypes.DeployContext, serviceSpec *corev1.Service) (bool, error) {
+func SyncServiceSpecToCluster(deployContext *DeployContext, serviceSpec *corev1.Service) (bool, error) {
 	return Sync(deployContext, serviceSpec, ServiceDefaultDiffOpts)
 }
 
 func GetServiceSpec(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	portName []string,
 	portNumber []int32,
 	component string) *corev1.Service {
 
-	labels := GetLabels(component)
+	labels := GetLabels(deployContext.CheCluster, component)
 	ports := []corev1.ServicePort{}
 	for i := range portName {
 		port := corev1.ServicePort{

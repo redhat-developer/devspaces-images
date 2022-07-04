@@ -14,9 +14,6 @@ package deploy
 import (
 	"strings"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	rbac "k8s.io/api/rbac/v1"
@@ -29,7 +26,7 @@ var crbDiffOpts = cmp.Options{
 }
 
 func SyncClusterRoleBindingToCluster(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	serviceAccountName string,
 	clusterRoleName string) (bool, error) {
@@ -39,7 +36,7 @@ func SyncClusterRoleBindingToCluster(
 }
 
 func SyncClusterRoleBindingAndAddFinalizerToCluster(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	serviceAccountName string,
 	clusterRoleName string) (bool, error) {
@@ -49,7 +46,7 @@ func SyncClusterRoleBindingAndAddFinalizerToCluster(
 	return SyncAndAddFinalizer(deployContext, crbSpec, crbDiffOpts, finalizer)
 }
 
-func ReconcileClusterRoleBindingFinalizer(deployContext *chetypes.DeployContext, name string) error {
+func ReconcileClusterRoleBindingFinalizer(deployContext *DeployContext, name string) error {
 	if deployContext.CheCluster.DeletionTimestamp.IsZero() {
 		return nil
 	}
@@ -58,11 +55,11 @@ func ReconcileClusterRoleBindingFinalizer(deployContext *chetypes.DeployContext,
 	return DeleteObjectWithFinalizer(deployContext, types.NamespacedName{Name: name}, &rbac.ClusterRoleBinding{}, finalizer)
 }
 
-func GetLegacyUniqueClusterRoleBindingName(deployContext *chetypes.DeployContext, serviceAccount string, clusterRole string) string {
+func GetLegacyUniqueClusterRoleBindingName(deployContext *DeployContext, serviceAccount string, clusterRole string) string {
 	return deployContext.CheCluster.Namespace + "-" + serviceAccount + "-" + clusterRole
 }
 
-func ReconcileLegacyClusterRoleBindingFinalizer(deployContext *chetypes.DeployContext, name string) error {
+func ReconcileLegacyClusterRoleBindingFinalizer(deployContext *DeployContext, name string) error {
 	if deployContext.CheCluster.DeletionTimestamp.IsZero() {
 		return nil
 	}
@@ -72,12 +69,12 @@ func ReconcileLegacyClusterRoleBindingFinalizer(deployContext *chetypes.DeployCo
 }
 
 func getClusterRoleBindingSpec(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	serviceAccountName string,
 	roleName string) *rbac.ClusterRoleBinding {
 
-	labels := GetLabels(defaults.GetCheFlavor())
+	labels := GetLabels(deployContext.CheCluster, DefaultCheFlavor(deployContext.CheCluster))
 	clusterRoleBinding := &rbac.ClusterRoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRoleBinding",
@@ -87,7 +84,7 @@ func getClusterRoleBindingSpec(
 			Name:   name,
 			Labels: labels,
 			Annotations: map[string]string{
-				constants.CheEclipseOrgNamespace: deployContext.CheCluster.Namespace,
+				CheEclipseOrgNamespace: deployContext.CheCluster.Namespace,
 			},
 		},
 		Subjects: []rbac.Subject{

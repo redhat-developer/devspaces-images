@@ -17,9 +17,11 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/eclipse-che/che-operator/pkg/util"
+
 	dwo "github.com/devfile/devworkspace-operator/apis/controller/v1alpha1"
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
+	v1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/stretchr/testify/assert"
 
 	projectv1 "github.com/openshift/api/project/v1"
@@ -47,7 +49,7 @@ func createTestScheme() *runtime.Scheme {
 	utilruntime.Must(appsv1.AddToScheme(scheme))
 	utilruntime.Must(rbac.AddToScheme(scheme))
 	utilruntime.Must(routev1.AddToScheme(scheme))
-	utilruntime.Must(chev2.AddToScheme(scheme))
+	utilruntime.Must(v1.AddToScheme(scheme))
 	utilruntime.Must(dwo.AddToScheme(scheme))
 	utilruntime.Must(projectv1.AddToScheme(scheme))
 	utilruntime.Must(configv1.AddToScheme(scheme))
@@ -59,7 +61,8 @@ func createTestScheme() *runtime.Scheme {
 
 func TestGetNamespaceInfoReadsFromCache(t *testing.T) {
 	test := func(infraType infrastructure.Type, namespace metav1.Object) {
-		infrastructure.InitializeForTesting(infraType)
+		util.IsOpenShift = infraType == infrastructure.OpenShiftv4
+		util.IsOpenShift4 = infraType == infrastructure.OpenShiftv4
 		ctx := context.TODO()
 
 		ns := namespace.GetName()
@@ -95,7 +98,8 @@ func TestExamineUpdatesCache(t *testing.T) {
 
 		nsName := namespace.GetName()
 		cl := fake.NewFakeClientWithScheme(createTestScheme(), namespace.(runtime.Object))
-		infrastructure.InitializeForTesting(infraType)
+		util.IsOpenShift = infraType == infrastructure.OpenShiftv4
+		util.IsOpenShift4 = infraType == infrastructure.OpenShiftv4
 
 		nsc := namespaceCache{
 			client:          cl,

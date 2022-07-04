@@ -12,23 +12,25 @@
 package deploy
 
 import (
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
+	"strings"
+
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 )
 
-func GetLabels(component string) map[string]string {
+func GetLabels(cheCluster *orgv1.CheCluster, component string) map[string]string {
+	cheFlavor := DefaultCheFlavor(cheCluster)
 	return map[string]string{
-		constants.KubernetesNameLabelKey:      defaults.GetCheFlavor(),
-		constants.KubernetesInstanceLabelKey:  defaults.GetCheFlavor(),
-		constants.KubernetesPartOfLabelKey:    constants.CheEclipseOrg,
-		constants.KubernetesComponentLabelKey: component,
-		constants.KubernetesManagedByLabelKey: defaults.GetCheFlavor() + "-operator",
+		KubernetesNameLabelKey:      cheFlavor,
+		KubernetesInstanceLabelKey:  cheFlavor,
+		KubernetesPartOfLabelKey:    CheEclipseOrg,
+		KubernetesComponentLabelKey: component,
+		KubernetesManagedByLabelKey: cheFlavor + "-operator",
 	}
 }
 
-func GetLabelsAndSelector(component string) (map[string]string, map[string]string) {
-	labels := GetLabels(component)
-	legacyLabels := GetLegacyLabels(component)
+func GetLabelsAndSelector(cheCluster *orgv1.CheCluster, component string) (map[string]string, map[string]string) {
+	labels := GetLabels(cheCluster, component)
+	legacyLabels := GetLegacyLabels(cheCluster, component)
 
 	// For the backward compatability
 	// We have to keep these labels for a deployment since this field is immutable
@@ -39,9 +41,18 @@ func GetLabelsAndSelector(component string) (map[string]string, map[string]strin
 	return labels, legacyLabels
 }
 
-func GetLegacyLabels(component string) map[string]string {
+func MergeLabels(labels map[string]string, additionalLabels string) {
+	for _, l := range strings.Split(additionalLabels, ",") {
+		pair := strings.SplitN(l, "=", 2)
+		if len(pair) == 2 {
+			labels[pair[0]] = pair[1]
+		}
+	}
+}
+
+func GetLegacyLabels(cheCluster *orgv1.CheCluster, component string) map[string]string {
 	return map[string]string{
-		"app":       defaults.GetCheFlavor(),
+		"app":       DefaultCheFlavor(cheCluster),
 		"component": component,
 	}
 }

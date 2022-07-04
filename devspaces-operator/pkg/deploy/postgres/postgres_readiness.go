@@ -14,17 +14,15 @@ package postgres
 import (
 	"fmt"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func GetWaitForPostgresInitContainer(deployContext *chetypes.DeployContext) (*corev1.Container, error) {
+func GetWaitForPostgresInitContainer(deployContext *deploy.DeployContext) (*corev1.Container, error) {
 	postgresDeployment := &appsv1.Deployment{}
-	exists, err := deploy.GetNamespacedObject(deployContext, constants.PostgresName, postgresDeployment)
+	exists, err := deploy.GetNamespacedObject(deployContext, deploy.PostgresName, postgresDeployment)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +33,7 @@ func GetWaitForPostgresInitContainer(deployContext *chetypes.DeployContext) (*co
 	if err != nil {
 		return nil, err
 	}
-	imagePullPolicy := corev1.PullPolicy(utils.GetPullPolicyFromDockerImage(postgresReadinessCheckerImage))
+	imagePullPolicy := corev1.PullPolicy(deploy.DefaultPullPolicyFromDockerImage(postgresReadinessCheckerImage))
 
 	return &corev1.Container{
 		Name:            "wait-for-postgres",
@@ -49,9 +47,9 @@ func GetWaitForPostgresInitContainer(deployContext *chetypes.DeployContext) (*co
 	}, nil
 }
 
-func getCheckPostgresReadinessScript(deployContext *chetypes.DeployContext) string {
-	chePostgresHostName := utils.GetValue(deployContext.CheCluster.Spec.Components.Database.PostgresHostName, constants.DefaultPostgresHostName)
-	chePostgresPort := utils.GetValue(deployContext.CheCluster.Spec.Components.Database.PostgresPort, constants.DefaultPostgresPort)
+func getCheckPostgresReadinessScript(deployContext *deploy.DeployContext) string {
+	chePostgresHostName := util.GetValue(deployContext.CheCluster.Spec.Database.ChePostgresHostName, deploy.DefaultChePostgresHostName)
+	chePostgresPort := util.GetValue(deployContext.CheCluster.Spec.Database.ChePostgresPort, deploy.DefaultChePostgresPort)
 
 	return fmt.Sprintf(
 		"until pg_isready -h %s -p %s; do echo 'waiting for Postgres'; sleep 2; done;",

@@ -15,10 +15,8 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	networking "k8s.io/api/networking/v1"
@@ -30,30 +28,23 @@ var ingressDiffOpts = cmp.Options{
 	cmpopts.IgnoreFields(networking.HTTPIngressPath{}, "PathType"),
 	cmp.Comparer(func(x, y metav1.ObjectMeta) bool {
 		return reflect.DeepEqual(x.Labels, y.Labels) &&
-			x.Annotations[constants.CheEclipseOrgManagedAnnotationsDigest] == y.Annotations[constants.CheEclipseOrgManagedAnnotationsDigest]
+			x.Annotations[CheEclipseOrgManagedAnnotationsDigest] == y.Annotations[CheEclipseOrgManagedAnnotationsDigest]
 	}),
 }
-
-var (
-	DefaultIngressAnnotations = map[string]string{
-		"kubernetes.io/ingress.class":                       "nginx",
-		"nginx.ingress.kubernetes.io/proxy-read-timeout":    "3600",
-		"nginx.ingress.kubernetes.io/proxy-connect-timeout": "3600",
-		"nginx.ingress.kubernetes.io/ssl-redirect":          "true",
-	}
-)
 
 // SyncIngressToCluster creates ingress to expose service with the set settings
 // host and path are evaluated if they are empty
 func SyncIngressToCluster(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
+	host string,
 	path string,
 	serviceName string,
 	servicePort int,
+	ingressCustomSettings orgv1.IngressCustomSettings,
 	component string) (endpointUrl string, done bool, err error) {
 
-	ingressUrl, ingressSpec := GetIngressSpec(deployContext, name, path, serviceName, servicePort, component)
+	ingressUrl, ingressSpec := GetIngressSpec(deployContext, name, host, path, serviceName, servicePort, ingressCustomSettings, component)
 	sync, err := Sync(deployContext, ingressSpec, ingressDiffOpts)
 	return ingressUrl, sync, err
 }
@@ -61,22 +52,28 @@ func SyncIngressToCluster(
 // GetIngressSpec returns expected ingress config for given parameters
 // host and path are evaluated if they are empty
 func GetIngressSpec(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
+	host string,
 	path string,
 	serviceName string,
 	servicePort int,
+	ingressCustomSettings orgv1.IngressCustomSettings,
 	component string) (ingressUrl string, i *networking.Ingress) {
 
-	ingressDomain := deployContext.CheCluster.Spec.Networking.Domain
-	tlsSecretName := deployContext.CheCluster.Spec.Networking.TlsSecretName
-	labels := GetLabels(component)
-	for k, v := range deployContext.CheCluster.Spec.Networking.Labels {
-		labels[k] = v
-	}
+	cheFlavor := DefaultCheFlavor(deployContext.CheCluster)
+	ingressDomain := deployContext.CheCluster.Spec.K8s.IngressDomain
+	tlsSecretName := deployContext.CheCluster.Spec.K8s.TlsSecretName
+	ingressClass := util.GetValue(deployContext.CheCluster.Spec.K8s.IngressClass, DefaultIngressClass)
+	labels := GetLabels(deployContext.CheCluster, component)
+	MergeLabels(labels, ingressCustomSettings.Labels)
 	pathType := networking.PathTypeImplementationSpecific
 
-	host := deployContext.CheCluster.Spec.Networking.Hostname
+	// for server and dashboard ingresses
+	if (component == cheFlavor || component == cheFlavor+"-dashboard") && deployContext.CheCluster.Spec.Server.CheHostTLSSecret != "" {
+		tlsSecretName = deployContext.CheCluster.Spec.Server.CheHostTLSSecret
+	}
+
 	if host == "" {
 		host = ingressDomain
 	}
@@ -89,19 +86,20 @@ func GetIngressSpec(
 		endpointPath = path
 	}
 
-	annotations := map[string]string{}
-	if len(deployContext.CheCluster.Spec.Networking.Annotations) > 0 {
-		for k, v := range deployContext.CheCluster.Spec.Networking.Annotations {
-			annotations[k] = v
-		}
-	} else {
-		for k, v := range DefaultIngressAnnotations {
-			annotations[k] = v
-		}
+	annotations := map[string]string{
+		"kubernetes.io/ingress.class":                       ingressClass,
+		"nginx.ingress.kubernetes.io/proxy-read-timeout":    "3600",
+		"nginx.ingress.kubernetes.io/proxy-connect-timeout": "3600",
+		"nginx.ingress.kubernetes.io/ssl-redirect":          "true",
+	}
+	if component == DevfileRegistryName || component == PluginRegistryName {
+		annotations["nginx.ingress.kubernetes.io/rewrite-target"] = "/$1"
+	}
+	// Set bigger proxy buffer size to prevent 502 auth error.
+	annotations["nginx.ingress.kubernetes.io/proxy-buffer-size"] = "16k"
 
-		// Set bigger proxy buffer size to prevent 502 auth error.
-		annotations["nginx.ingress.kubernetes.io/proxy-buffer-size"] = "16k"
-		annotations["nginx.org/websocket-services"] = serviceName
+	for k, v := range ingressCustomSettings.Annotations {
+		annotations[k] = v
 	}
 
 	// add 'che.eclipse.org/managed-annotations-digest' annotation
@@ -117,10 +115,10 @@ func GetIngressSpec(
 		for _, k := range annotationsKeys {
 			data += k + ":" + annotations[k] + ","
 		}
-		if test.IsTestMode() {
-			annotations[constants.CheEclipseOrgManagedAnnotationsDigest] = "0000"
+		if util.IsTestMode() {
+			annotations[CheEclipseOrgManagedAnnotationsDigest] = "0000"
 		} else {
-			annotations[constants.CheEclipseOrgManagedAnnotationsDigest] = utils.ComputeHash256([]byte(data))
+			annotations[CheEclipseOrgManagedAnnotationsDigest] = util.ComputeHash256([]byte(data))
 		}
 	}
 
@@ -162,6 +160,11 @@ func GetIngressSpec(
 		},
 	}
 
+	if component == cheFlavor {
+		// adds annotation, see details https://github.com/eclipse/che/issues/19434#issuecomment-810325262
+		ingress.ObjectMeta.Annotations["nginx.org/websocket-services"] = serviceName
+	}
+
 	ingress.Spec.TLS = []networking.IngressTLS{
 		{
 			Hosts:      []string{host},
@@ -176,9 +179,9 @@ func GetIngressSpec(
 // and endpoint path (one which client should use during endpoint accessing)
 func evaluatePath(component string) (endpointPath, ingressPath string) {
 	switch component {
-	case constants.DevfileRegistryName:
+	case DevfileRegistryName:
 		fallthrough
-	case constants.PluginRegistryName:
+	case PluginRegistryName:
 		endpointPath = "/" + component
 		ingressPath = endpointPath + "/(.*)"
 	default:

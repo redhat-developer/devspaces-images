@@ -13,11 +13,11 @@
 package che
 
 import (
+	"os"
 	"testing"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
+	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,7 +28,7 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 	type testCase struct {
 		name                    string
 		initObjects             []runtime.Object
-		checluster              *chev2.CheCluster
+		checluster              *orgv1.CheCluster
 		objNamespace            string
 		objLabels               map[string]string
 		watchNamespace          string
@@ -45,7 +45,7 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 			Labels: map[string]string{
 				"app.kubernetes.io/part-of":   "che.eclipse.org",
 				"app.kubernetes.io/component": "ca-bundle",
-				"app.kubernetes.io/instance":  defaults.GetCheFlavor(),
+				"app.kubernetes.io/instance":  os.Getenv("CHE_FLAVOR"),
 			},
 		},
 	}
@@ -74,6 +74,22 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 			expectedIsEclipseCheObj: false,
 		},
 		{
+			name:        "Object in 'eclipse-che' namespace, not ca-bundle component, but trusted configmap",
+			initObjects: []runtime.Object{},
+			checluster: &orgv1.CheCluster{
+				ObjectMeta: metav1.ObjectMeta{Name: "eclipse-che", Namespace: "eclipse-che"},
+				Spec: orgv1.CheClusterSpec{
+					Server: orgv1.CheClusterSpecServer{
+						ServerTrustStoreConfigMapName: "test",
+					},
+				},
+			},
+			objLabels:               map[string]string{},
+			objNamespace:            "eclipse-che",
+			watchNamespace:          "eclipse-che",
+			expectedIsEclipseCheObj: true,
+		},
+		{
 			name:                    "Object in another namespace than 'eclipse-che'",
 			initObjects:             []runtime.Object{},
 			objNamespace:            "test-eclipse-che",
@@ -84,7 +100,7 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 			name: "Object in 'eclipse-che' namespace, several checluster CR",
 			initObjects: []runtime.Object{
 				// checluster CR in `default` namespace
-				&chev2.CheCluster{ObjectMeta: metav1.ObjectMeta{Name: "eclipse-che", Namespace: "default"}},
+				&orgv1.CheCluster{ObjectMeta: metav1.ObjectMeta{Name: "eclipse-che", Namespace: "default"}},
 			},
 			objNamespace:            "eclipse-che",
 			watchNamespace:          "eclipse-che",
@@ -115,7 +131,7 @@ func TestIsTrustedBundleConfigMap(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			deployContext := test.GetDeployContext(testCase.checluster, testCase.initObjects)
+			deployContext := deploy.GetTestDeployContext(testCase.checluster, testCase.initObjects)
 
 			newTestObject := testObject.DeepCopy()
 			newTestObject.ObjectMeta.Namespace = testCase.objNamespace
@@ -152,7 +168,7 @@ func TestIsEclipseCheRelatedObj(t *testing.T) {
 			Name: "test",
 			Labels: map[string]string{
 				"app.kubernetes.io/part-of":  "che.eclipse.org",
-				"app.kubernetes.io/instance": defaults.GetCheFlavor(),
+				"app.kubernetes.io/instance": os.Getenv("CHE_FLAVOR"),
 			},
 		},
 	}
@@ -183,7 +199,7 @@ func TestIsEclipseCheRelatedObj(t *testing.T) {
 			name: "Object in 'eclipse-che' namespace, several checluster CR",
 			initObjects: []runtime.Object{
 				// checluster CR in `default` namespace
-				&chev2.CheCluster{ObjectMeta: metav1.ObjectMeta{Name: "eclipse-che", Namespace: "default"}},
+				&orgv1.CheCluster{ObjectMeta: metav1.ObjectMeta{Name: "eclipse-che", Namespace: "default"}},
 			},
 			objNamespace:            "eclipse-che",
 			watchNamespace:          "eclipse-che",
@@ -214,7 +230,7 @@ func TestIsEclipseCheRelatedObj(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			deployContext := test.GetDeployContext(nil, testCase.initObjects)
+			deployContext := deploy.GetTestDeployContext(nil, testCase.initObjects)
 
 			testObject.ObjectMeta.Namespace = testCase.objNamespace
 			isEclipseCheObj, req := IsEclipseCheRelatedObj(deployContext.ClusterAPI.NonCachingClient, testCase.watchNamespace, testObject)

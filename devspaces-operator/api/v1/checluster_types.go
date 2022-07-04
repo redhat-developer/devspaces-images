@@ -12,13 +12,16 @@
 
 package v1
 
-// Important: Don't modify this file.
+// Important: You must regenerate some generated code after modifying this file. At the root of the project:
+// Run `make generate`. It will perform required changes:
+// - update `api/v1/zz_generatedxxx` files;
+// - update `config/crd/bases/org_v1_checluster_crd.yaml` file;
 
 import (
 	"strings"
 
 	chev1alpha1 "github.com/che-incubator/kubernetes-image-puller-operator/api/v1alpha1"
-	devfile "github.com/devfile/api/v2/pkg/apis/workspaces/v1alpha2"
+	v2alpha1 "github.com/eclipse-che/che-operator/api/v2alpha1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -357,15 +360,6 @@ type CheClusterSpecServer struct {
 	WorkspacePodNodeSelector map[string]string `json:"workspacePodNodeSelector,omitempty"`
 	// The pod tolerations put on the workspace pods to limit where the workspace pods can run.
 	WorkspacePodTolerations []corev1.Toleration `json:"workspacePodTolerations,omitempty"`
-	// The default editor to workspace create with. It could be a plugin ID or a URI.
-	// The plugin ID must have `publisher/plugin/version`.
-	// The URI must start from `http`.
-	// +optional
-	WorkspaceDefaultEditor string `json:"workspaceDefaultEditor,omitempty"`
-	// Default components applied to DevWorkspaces.
-	// These default components are meant to be used when a Devfile does not contain any components.
-	// +optional
-	WorkspaceDefaultComponents []devfile.Component `json:"workspaceDefaultComponents,omitempty"`
 }
 
 // +k8s:openapi-gen=true
@@ -509,15 +503,6 @@ type CheClusterSpecAuth struct {
 	// Name of the secret set in the OpenShift `OAuthClient` resource used to setup identity federation on the OpenShift side. Auto-generated when left blank. See also the `OAuthClientName` field.
 	// +optional
 	OAuthSecret string `json:"oAuthSecret,omitempty"`
-	// Access Token Scope.
-	// This field is specific to Che installations made for Kubernetes only and ignored for OpenShift.
-	// +optional
-	OAuthScope string `json:"oAuthScope,omitempty"`
-	// Identity token to be passed to upstream. There are two types of tokens supported: `id_token` and `access_token`.
-	// Default value is `id_token`.
-	// This field is specific to Che installations made for Kubernetes only and ignored for OpenShift.
-	// +optional
-	IdentityToken string `json:"identityToken,omitempty"`
 	// Deprecated. The value of this flag is ignored.
 	// Overrides the container image used in the Identity Provider, Keycloak or RH-SSO, deployment.
 	// This includes the image tag. Omit it or leave it empty to use the default container image provided by the Operator.
@@ -734,50 +719,6 @@ type ExternalDevfileRegistries struct {
 	Url string `json:"url,omitempty"`
 }
 
-// GatewayPhase describes the different phases of the Che gateway lifecycle
-type GatewayPhase string
-
-const (
-	GatewayPhaseInitializing = "Initializing"
-	GatewayPhaseEstablished  = "Established"
-	GatewayPhaseInactive     = "Inactive"
-)
-
-// ClusterPhase describes the different phases of the Che cluster lifecycle
-type ClusterPhase string
-
-const (
-	ClusterPhaseActive          = "Active"
-	ClusterPhaseInactive        = "Inactive"
-	ClusterPhasePendingDeletion = "PendingDeletion"
-)
-
-// LegacyDevworkspaceStatus contains the status of the CheCluster object
-// +k8s:openapi-gen=true
-type LegacyDevworkspaceStatus struct {
-	// GatewayPhase specifies the phase in which the gateway deployment currently is.
-	// If the gateway is disabled, the phase is "Inactive".
-	GatewayPhase GatewayPhase `json:"gatewayPhase,omitempty"`
-
-	// GatewayHost is the resolved host of the ingress/route. This is equal to the Host in the spec
-	// on Kubernetes but contains the actual host name of the route if Host is unspecified on OpenShift.
-	GatewayHost string `json:"gatewayHost,omitempty"`
-
-	// Phase is the phase in which the Che cluster as a whole finds itself in.
-	Phase ClusterPhase `json:"phase,omitempty"`
-
-	// A brief CamelCase message indicating details about why the Che cluster is in this state.
-	Reason string `json:"reason,omitempty"`
-
-	// Message contains further human-readable info for why the Che cluster is in the phase it currently is.
-	Message string `json:"message,omitempty"`
-
-	// The resolved workspace base domain. This is either the copy of the explicitly defined property of the
-	// same name in the spec or, if it is undefined in the spec and we're running on OpenShift, the automatically
-	// resolved basedomain for routes.
-	WorkspaceBaseDomain string `json:"workspaceBaseDomain,omitempty"`
-}
-
 // CheClusterStatus defines the observed state of Che installation
 type CheClusterStatus struct {
 	// OpenShift OAuth secret in `openshift-config` namespace that contains user credentials for HTPasswd identity provider.
@@ -797,12 +738,6 @@ type CheClusterStatus struct {
 	// Indicates whether an Identity Provider instance, Keycloak or RH-SSO, has been configured to integrate with the GitHub OAuth.
 	// +optional
 	GitHubOAuthProvisioned bool `json:"gitHubOAuthProvisioned"`
-	// The ConfigMap containing certificates to propagate to the Che components and to provide particular configuration for Git.
-	// +optional
-	// +operator-sdk:csv:customresourcedefinitions:type=status
-	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="Git certificates"
-	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:text"
-	GitServerTLSCertificateConfigMapName string `json:"gitServerTLSCertificateConfigMapName"`
 	// Status of a Che installation. Can be `Available`, `Unavailable`, or `Available, Rolling Update in Progress`.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status
@@ -859,7 +794,7 @@ type CheClusterStatus struct {
 	HelpLink string `json:"helpLink,omitempty"`
 	// The status of the Devworkspace subsystem
 	// +optional
-	DevworkspaceStatus LegacyDevworkspaceStatus `json:"devworkspaceStatus,omitempty"`
+	DevworkspaceStatus v2alpha1.CheClusterStatusV2Alpha1 `json:"devworkspaceStatus,omitempty"`
 }
 
 // The `CheCluster` custom resource allows defining and managing a Che server installation
@@ -868,8 +803,9 @@ type CheClusterStatus struct {
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
 // +operator-sdk:csv:customresourcedefinitions:displayName="Red Hat OpenShift Dev Spaces instance Specification"
-// +operator-sdk:csv:customresourcedefinitions:order=1
+// +operator-sdk:csv:customresourcedefinitions:order=0
 // +operator-sdk:csv:customresourcedefinitions:resources={{Ingress,v1},{Route,v1},{ConfigMap,v1},{Service,v1},{Secret,v1},{Deployment,apps/v1},{Role,v1},{RoleBinding,v1},{ClusterRole,v1},{ClusterRoleBinding,v1}}
+// +kubebuilder:storageversion
 type CheCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

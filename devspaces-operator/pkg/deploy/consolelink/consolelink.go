@@ -13,14 +13,10 @@ package consolelink
 
 import (
 	"fmt"
+	"strings"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	consolev1 "github.com/openshift/api/console/v1"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,10 +29,6 @@ const (
 	ConsoleLinksResourceName = "consolelinks"
 )
 
-var consoleLinkDiffOpts = cmp.Options{
-	cmpopts.IgnoreFields(consolev1.ConsoleLink{}, "TypeMeta", "ObjectMeta"),
-}
-
 type ConsoleLinkReconciler struct {
 	deploy.Reconcilable
 }
@@ -45,13 +37,14 @@ func NewConsoleLinkReconciler() *ConsoleLinkReconciler {
 	return &ConsoleLinkReconciler{}
 }
 
-func (c *ConsoleLinkReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
-	if !infrastructure.IsOpenShift() || !utils.IsK8SResourceServed(ctx.ClusterAPI.DiscoveryClient, ConsoleLinksResourceName) {
-		logrus.Debug("Console link won't be created. ConsoleLinks is not supported by kubernetes cluster.")
+func (c *ConsoleLinkReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
+	if !util.IsOpenShift4 || !util.HasK8SResourceObject(ctx.ClusterAPI.DiscoveryClient, ConsoleLinksResourceName) {
+		// console link is supported only on OpenShift >= 4.2
+		logrus.Debug("Console link won't be created. Consolelinks is not supported by OpenShift cluster.")
 		return reconcile.Result{}, true, nil
 	}
 
-	done, err := c.syncConsoleLink(ctx)
+	done, err := c.createConsoleLink(ctx)
 	if !done {
 		return reconcile.Result{Requeue: true}, false, err
 	}
@@ -59,40 +52,56 @@ func (c *ConsoleLinkReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcil
 	return reconcile.Result{}, true, nil
 }
 
-func (c *ConsoleLinkReconciler) Finalize(ctx *chetypes.DeployContext) bool {
-	if err := deploy.DeleteObjectWithFinalizer(ctx, client.ObjectKey{Name: defaults.GetConsoleLinkName()}, &consolev1.ConsoleLink{}, ConsoleLinkFinalizerName); err != nil {
+func (c *ConsoleLinkReconciler) Finalize(ctx *deploy.DeployContext) bool {
+	if err := deploy.DeleteObjectWithFinalizer(ctx, client.ObjectKey{Name: deploy.DefaultConsoleLinkName()}, &consolev1.ConsoleLink{}, ConsoleLinkFinalizerName); err != nil {
 		logrus.Errorf("Error deleting finalizer: %v", err)
 		return false
 	}
 	return true
 }
 
-func (c *ConsoleLinkReconciler) syncConsoleLink(ctx *chetypes.DeployContext) (bool, error) {
-	if err := deploy.AppendFinalizer(ctx, ConsoleLinkFinalizerName); err != nil {
+func (c *ConsoleLinkReconciler) createConsoleLink(ctx *deploy.DeployContext) (bool, error) {
+	consoleLinkSpec := c.getConsoleLinkSpec(ctx)
+	_, err := deploy.CreateIfNotExists(ctx, consoleLinkSpec)
+	if err != nil {
 		return false, err
 	}
 
-	consoleLinkSpec := c.getConsoleLinkSpec(ctx)
-	return deploy.Sync(ctx, consoleLinkSpec, consoleLinkDiffOpts)
+	consoleLink := &consolev1.ConsoleLink{}
+	exists, err := deploy.Get(ctx, client.ObjectKey{Name: deploy.DefaultConsoleLinkName()}, consoleLink)
+	if !exists || err != nil {
+		return false, err
+	}
+
+	// consolelink is for this specific instance of Red Hat OpenShift Dev Spaces
+	if strings.Index(consoleLink.Spec.Link.Href, ctx.CheCluster.GetCheHost()) != -1 {
+		err = deploy.AppendFinalizer(ctx, ConsoleLinkFinalizerName)
+		return err == nil, err
+	}
+
+	return true, nil
 }
 
-func (c *ConsoleLinkReconciler) getConsoleLinkSpec(ctx *chetypes.DeployContext) *consolev1.ConsoleLink {
+func (c *ConsoleLinkReconciler) getConsoleLinkSpec(ctx *deploy.DeployContext) *consolev1.ConsoleLink {
 	consoleLink := &consolev1.ConsoleLink{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConsoleLink",
-			APIVersion: consolev1.GroupVersion.String(),
+			APIVersion: consolev1.SchemeGroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: defaults.GetConsoleLinkName(),
+			Name: deploy.DefaultConsoleLinkName(),
+			Annotations: map[string]string{
+				deploy.CheEclipseOrgNamespace: ctx.CheCluster.Namespace,
+			},
 		},
 		Spec: consolev1.ConsoleLinkSpec{
 			Link: consolev1.Link{
-				Href: "https://" + ctx.CheHost,
-				Text: defaults.GetConsoleLinkDisplayName()},
+				Href: ctx.CheCluster.Status.CheURL,
+				Text: deploy.DefaultConsoleLinkDisplayName()},
 			Location: consolev1.ApplicationMenu,
 			ApplicationMenu: &consolev1.ApplicationMenuSpec{
-				Section:  defaults.GetConsoleLinkSection(),
-				ImageURL: fmt.Sprintf("https://%s%s", ctx.CheHost, defaults.GetConsoleLinkImage()),
+				Section:  deploy.DefaultConsoleLinkSection(),
+				ImageURL: fmt.Sprintf("https://%s%s", ctx.CheCluster.GetCheHost(), deploy.DefaultConsoleLinkImage()),
 			},
 		},
 	}

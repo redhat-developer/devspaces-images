@@ -14,9 +14,8 @@ package deploy
 import (
 	"os"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -32,19 +31,19 @@ const (
 )
 
 func TestAppendFinalizer(t *testing.T) {
-	cheCluster := &chev2.CheCluster{
+	cheCluster := &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "eclipse-che",
 			Name:      "eclipse-che",
 		},
 	}
 	logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
-	chev2.SchemeBuilder.AddToScheme(scheme.Scheme)
+	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	cli := fake.NewFakeClientWithScheme(scheme.Scheme, cheCluster)
 
-	deployContext := &chetypes.DeployContext{
+	deployContext := &DeployContext{
 		CheCluster: cheCluster,
-		ClusterAPI: chetypes.ClusterAPI{
+		ClusterAPI: ClusterAPI{
 			Client: cli,
 			Scheme: scheme.Scheme,
 		},
@@ -55,7 +54,7 @@ func TestAppendFinalizer(t *testing.T) {
 		t.Fatalf("Failed to append finalizer: %v", err)
 	}
 
-	if !utils.Contains(deployContext.CheCluster.ObjectMeta.Finalizers, finalizer) {
+	if !util.ContainsString(deployContext.CheCluster.ObjectMeta.Finalizers, finalizer) {
 		t.Fatalf("Failed to append finalizer: %v", err)
 	}
 
@@ -71,7 +70,7 @@ func TestAppendFinalizer(t *testing.T) {
 }
 
 func TestDeleteFinalizer(t *testing.T) {
-	cheCluster := &chev2.CheCluster{
+	cheCluster := &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:  "eclipse-che",
 			Name:       "eclipse-che",
@@ -79,12 +78,12 @@ func TestDeleteFinalizer(t *testing.T) {
 		},
 	}
 	logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
-	chev2.SchemeBuilder.AddToScheme(scheme.Scheme)
+	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	cli := fake.NewFakeClientWithScheme(scheme.Scheme, cheCluster)
 
-	deployContext := &chetypes.DeployContext{
+	deployContext := &DeployContext{
 		CheCluster: cheCluster,
-		ClusterAPI: chetypes.ClusterAPI{
+		ClusterAPI: ClusterAPI{
 			Client: cli,
 			Scheme: scheme.Scheme,
 		},
@@ -95,7 +94,7 @@ func TestDeleteFinalizer(t *testing.T) {
 		t.Fatalf("Failed to append finalizer: %v", err)
 	}
 
-	if utils.Contains(deployContext.CheCluster.ObjectMeta.Finalizers, finalizer) {
+	if util.ContainsString(deployContext.CheCluster.ObjectMeta.Finalizers, finalizer) {
 		t.Fatalf("Failed to delete finalizer: %v", err)
 	}
 }

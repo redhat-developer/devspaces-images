@@ -13,8 +13,7 @@
 package rbac
 
 import (
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
 	"github.com/sirupsen/logrus"
@@ -35,7 +34,7 @@ func NewGatewayPermissionsReconciler() *GatewayPermissionsReconciler {
 	return &GatewayPermissionsReconciler{}
 }
 
-func (gp *GatewayPermissionsReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
+func (gp *GatewayPermissionsReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
 	name := gp.gatewayPermissionsName(ctx.CheCluster)
 	if done, err := deploy.SyncClusterRoleToCluster(ctx, name, gp.getGatewayClusterRoleRules()); !done {
 		return reconcile.Result{Requeue: true}, false, err
@@ -52,7 +51,7 @@ func (gp *GatewayPermissionsReconciler) Reconcile(ctx *chetypes.DeployContext) (
 	return reconcile.Result{}, true, nil
 }
 
-func (gp *GatewayPermissionsReconciler) Finalize(ctx *chetypes.DeployContext) bool {
+func (gp *GatewayPermissionsReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	if _, err := gp.deleteGatewayPermissions(ctx); err != nil {
 		logrus.Errorf("Error deleting finalizer: %v", err)
 		return false
@@ -60,7 +59,7 @@ func (gp *GatewayPermissionsReconciler) Finalize(ctx *chetypes.DeployContext) bo
 	return true
 }
 
-func (gp *GatewayPermissionsReconciler) deleteGatewayPermissions(deployContext *chetypes.DeployContext) (bool, error) {
+func (gp *GatewayPermissionsReconciler) deleteGatewayPermissions(deployContext *deploy.DeployContext) (bool, error) {
 	name := gp.gatewayPermissionsName(deployContext.CheCluster)
 	if done, err := deploy.Delete(deployContext, types.NamespacedName{Name: name}, &rbacv1.ClusterRoleBinding{}); !done {
 		return false, err
@@ -77,7 +76,7 @@ func (gp *GatewayPermissionsReconciler) deleteGatewayPermissions(deployContext *
 	return true, nil
 }
 
-func (gp *GatewayPermissionsReconciler) gatewayPermissionsName(instance *chev2.CheCluster) string {
+func (gp *GatewayPermissionsReconciler) gatewayPermissionsName(instance *orgv1.CheCluster) string {
 	return instance.Namespace + "-" + gateway.GatewayServiceName
 }
 

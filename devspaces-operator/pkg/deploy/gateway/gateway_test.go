@@ -17,17 +17,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
+	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -35,24 +31,23 @@ import (
 )
 
 func TestSyncAllToCluster(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
-
-	chev2.SchemeBuilder.AddToScheme(scheme.Scheme)
+	util.IsOpenShift = true
+	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	corev1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	cli := fake.NewFakeClientWithScheme(scheme.Scheme)
-	deployContext := &chetypes.DeployContext{
-		CheCluster: &chev2.CheCluster{
+	deployContext := &deploy.DeployContext{
+		CheCluster: &orgv1.CheCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "eclipse-che",
 				Name:      "eclipse-che",
 			},
 		},
-		ClusterAPI: chetypes.ClusterAPI{
+		ClusterAPI: deploy.ClusterAPI{
 			Client:           cli,
 			NonCachingClient: cli,
 			Scheme:           scheme.Scheme,
 		},
-		Proxy: &chetypes.Proxy{},
+		Proxy: &deploy.Proxy{},
 	}
 
 	err := SyncGatewayToCluster(deployContext)
@@ -80,24 +75,23 @@ func TestSyncAllToCluster(t *testing.T) {
 }
 
 func TestNativeUserGateway(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
-
-	chev2.SchemeBuilder.AddToScheme(scheme.Scheme)
+	util.IsOpenShift = true
+	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	corev1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	cli := fake.NewFakeClientWithScheme(scheme.Scheme)
-	deployContext := &chetypes.DeployContext{
-		CheCluster: &chev2.CheCluster{
+	deployContext := &deploy.DeployContext{
+		CheCluster: &orgv1.CheCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Namespace: "eclipse-che",
 				Name:      "eclipse-che",
 			},
 		},
-		ClusterAPI: chetypes.ClusterAPI{
+		ClusterAPI: deploy.ClusterAPI{
 			Client:           cli,
 			NonCachingClient: cli,
 			Scheme:           scheme.Scheme,
 		},
-		Proxy: &chetypes.Proxy{},
+		Proxy: &deploy.Proxy{},
 	}
 
 	err := SyncGatewayToCluster(deployContext)
@@ -144,21 +138,16 @@ func TestRandomCookieSecret(t *testing.T) {
 }
 
 func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
+	util.IsOpenShift = true
+	util.IsOpenShift4 = true
 
 	t.Run("no skip auth", func(t *testing.T) {
-		ctx := test.GetDeployContext(
-			&chev2.CheCluster{
-				Spec: chev2.CheClusterSpec{
-					Components: chev2.CheClusterComponents{
-						PluginRegistry: chev2.PluginRegistry{
-							DisableInternalRegistry: true,
-						},
-						DevfileRegistry: chev2.DevfileRegistry{
-							DisableInternalRegistry: true,
-						},
-					}},
-			}, nil)
+		ctx := deploy.GetTestDeployContext(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: true,
+					ExternalPluginRegistry:  true,
+				}}}, nil)
 
 		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
@@ -168,18 +157,12 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("no devfile-registry auth", func(t *testing.T) {
-		ctx := test.GetDeployContext(
-			&chev2.CheCluster{
-				Spec: chev2.CheClusterSpec{
-					Components: chev2.CheClusterComponents{
-						PluginRegistry: chev2.PluginRegistry{
-							DisableInternalRegistry: true,
-						},
-						DevfileRegistry: chev2.DevfileRegistry{
-							DisableInternalRegistry: false,
-						},
-					}},
-			}, nil)
+		ctx := deploy.GetTestDeployContext(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: false,
+					ExternalPluginRegistry:  true,
+				}}}, nil)
 
 		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
@@ -189,18 +172,12 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("skip plugin-registry auth", func(t *testing.T) {
-		ctx := test.GetDeployContext(
-			&chev2.CheCluster{
-				Spec: chev2.CheClusterSpec{
-					Components: chev2.CheClusterComponents{
-						PluginRegistry: chev2.PluginRegistry{
-							DisableInternalRegistry: false,
-						},
-						DevfileRegistry: chev2.DevfileRegistry{
-							DisableInternalRegistry: true,
-						},
-					}},
-			}, nil)
+		ctx := deploy.GetTestDeployContext(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: true,
+					ExternalPluginRegistry:  false,
+				}}}, nil)
 
 		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
@@ -210,18 +187,12 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("skip both registries auth", func(t *testing.T) {
-		ctx := test.GetDeployContext(
-			&chev2.CheCluster{
-				Spec: chev2.CheClusterSpec{
-					Components: chev2.CheClusterComponents{
-						PluginRegistry: chev2.PluginRegistry{
-							DisableInternalRegistry: false,
-						},
-						DevfileRegistry: chev2.DevfileRegistry{
-							DisableInternalRegistry: false,
-						},
-					}},
-			}, nil)
+		ctx := deploy.GetTestDeployContext(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{
+					ExternalDevfileRegistry: false,
+					ExternalPluginRegistry:  false,
+				}}}, nil)
 
 		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
@@ -231,10 +202,10 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 	})
 
 	t.Run("skip '/healthz' path", func(t *testing.T) {
-		ctx := test.GetDeployContext(
-			&chev2.CheCluster{
-				Spec: chev2.CheClusterSpec{},
-			}, nil)
+		ctx := deploy.GetTestDeployContext(&orgv1.CheCluster{
+			Spec: orgv1.CheClusterSpec{
+				Server: orgv1.CheClusterSpecServer{}}}, nil)
+
 		configmap := getGatewayOauthProxyConfigSpec(ctx, "blabol")
 		config := configmap.Data["oauth-proxy.cfg"]
 		assert.Contains(t, config, "/healthz$")
@@ -242,119 +213,40 @@ func TestOauthProxyConfigUnauthorizedPaths(t *testing.T) {
 }
 
 func TestTokenValidityCheckOnOpenShiftNativeUser(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
+	onOpenShift4(func() {
+		orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+		corev1.SchemeBuilder.AddToScheme(scheme.Scheme)
 
-	chev2.SchemeBuilder.AddToScheme(scheme.Scheme)
-	corev1.SchemeBuilder.AddToScheme(scheme.Scheme)
+		cm, err := getGatewayServerConfigSpec(&deploy.DeployContext{
+			CheCluster: &orgv1.CheCluster{},
+			ClusterAPI: deploy.ClusterAPI{
+				Scheme: scheme.Scheme,
+			},
+		})
+		assert.NoError(t, err)
 
-	cm, err := getGatewayServerConfigSpec(&chetypes.DeployContext{
-		CheCluster: &chev2.CheCluster{},
-		ClusterAPI: chetypes.ClusterAPI{
-			Scheme: scheme.Scheme,
-		},
+		cfg := &TraefikConfig{}
+
+		assert.NoError(t, yaml.Unmarshal([]byte(cm.Data["server.yml"]), cfg))
+
+		if assert.Contains(t, cfg.HTTP.Routers, "server") {
+			assert.Contains(t, cfg.HTTP.Routers["server"].Middlewares, "server-token-check")
+		}
+		if assert.Contains(t, cfg.HTTP.Middlewares, "server-token-check") && assert.NotNil(t, cfg.HTTP.Middlewares["server-token-check"].ForwardAuth) {
+			assert.Equal(t, "https://kubernetes.default.svc/apis/user.openshift.io/v1/users/~", cfg.HTTP.Middlewares["server-token-check"].ForwardAuth.Address)
+		}
 	})
-	assert.NoError(t, err)
-
-	cfg := &TraefikConfig{}
-
-	assert.NoError(t, yaml.Unmarshal([]byte(cm.Data["server.yml"]), cfg))
-
-	if assert.Contains(t, cfg.HTTP.Routers, "server") {
-		assert.Contains(t, cfg.HTTP.Routers["server"].Middlewares, "server-token-check")
-	}
-	if assert.Contains(t, cfg.HTTP.Middlewares, "server-token-check") && assert.NotNil(t, cfg.HTTP.Middlewares["server-token-check"].ForwardAuth) {
-		assert.Equal(t, "https://kubernetes.default.svc/apis/user.openshift.io/v1/users/~", cfg.HTTP.Middlewares["server-token-check"].ForwardAuth.Address)
-	}
 }
 
-func TestCustomizeGatewayDeploymentAllImages(t *testing.T) {
-	checluster := &chev2.CheCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "eclipse-che",
-			Namespace: "eclipse-che",
-		},
-		Spec: chev2.CheClusterSpec{
-			Networking: chev2.CheClusterSpecNetworking{
-				Auth: chev2.Auth{
-					Gateway: chev2.Gateway{
-						Deployment: &chev2.Deployment{
-							Containers: []chev2.Container{
-								{
-									Name:  constants.GatewayContainerName,
-									Image: "gateway-image",
-								},
-								{
-									Name:  constants.GatewayConfigSideCarContainerName,
-									Image: "gateway-sidecar-image",
-								},
-								{
-									Name:  constants.GatewayAuthenticationContainerName,
-									Image: "gateway-authentication-image",
-								},
-								{
-									Name:  constants.GatewayAuthorizationContainerName,
-									Image: "gateway-authorization-image",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	ctx := test.GetDeployContext(checluster, []runtime.Object{})
+func onOpenShift4(f func()) {
+	openshift := util.IsOpenShift
+	openshiftv4 := util.IsOpenShift4
 
-	deployment := getGatewayDeploymentSpec(ctx)
-	containers := deployment.Spec.Template.Spec.Containers
-	assert.Equal(t, constants.GatewayContainerName, containers[0].Name)
-	assert.Equal(t, "gateway-image", containers[0].Image)
+	util.IsOpenShift = true
+	util.IsOpenShift4 = true
 
-	assert.Equal(t, constants.GatewayConfigSideCarContainerName, containers[1].Name)
-	assert.Equal(t, "gateway-sidecar-image", containers[1].Image)
+	f()
 
-	assert.Equal(t, constants.GatewayAuthenticationContainerName, containers[2].Name)
-	assert.Equal(t, "gateway-authentication-image", containers[2].Image)
-
-	assert.Equal(t, constants.GatewayAuthorizationContainerName, containers[3].Name)
-	assert.Equal(t, "gateway-authorization-image", containers[3].Image)
-}
-
-func TestCustomizeGatewayDeploymentSingleImage(t *testing.T) {
-	checluster := &chev2.CheCluster{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "eclipse-che",
-			Namespace: "eclipse-che",
-		},
-		Spec: chev2.CheClusterSpec{
-			Networking: chev2.CheClusterSpecNetworking{
-				Auth: chev2.Auth{
-					Gateway: chev2.Gateway{
-						Deployment: &chev2.Deployment{
-							Containers: []chev2.Container{
-								{
-									Name:  constants.GatewayContainerName,
-									Image: "gateway-image",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	ctx := test.GetDeployContext(checluster, []runtime.Object{})
-
-	deployment := getGatewayDeploymentSpec(ctx)
-	containers := deployment.Spec.Template.Spec.Containers
-	assert.Equal(t, constants.GatewayContainerName, containers[0].Name)
-	assert.Equal(t, "gateway-image", containers[0].Image)
-
-	assert.Equal(t, constants.GatewayConfigSideCarContainerName, containers[1].Name)
-	assert.Equal(t, defaults.GetGatewayConfigSidecarImage(checluster), containers[1].Image)
-
-	assert.Equal(t, constants.GatewayAuthenticationContainerName, containers[2].Name)
-	assert.Equal(t, defaults.GetGatewayAuthenticationSidecarImage(checluster), containers[2].Image)
-
-	assert.Equal(t, constants.GatewayAuthorizationContainerName, containers[3].Name)
-	assert.Equal(t, defaults.GetGatewayAuthorizationSidecarImage(checluster), containers[3].Image)
+	util.IsOpenShift = openshift
+	util.IsOpenShift4 = openshiftv4
 }

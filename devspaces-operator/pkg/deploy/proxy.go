@@ -15,23 +15,21 @@ package deploy
 import (
 	"strings"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
-	corev1 "k8s.io/api/core/v1"
+	"github.com/eclipse-che/che-operator/pkg/util"
 
 	"golang.org/x/net/http/httpproxy"
 
 	"net/http"
 	"net/url"
 
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	configv1 "github.com/openshift/api/config/v1"
 
 	"github.com/sirupsen/logrus"
 )
 
-func ReadClusterWideProxyConfiguration(clusterProxy *configv1.Proxy) (*chetypes.Proxy, error) {
-	proxy := &chetypes.Proxy{}
+func ReadClusterWideProxyConfiguration(clusterProxy *configv1.Proxy) (*Proxy, error) {
+	proxy := &Proxy{}
 
 	// Cluster components consume the status values to configure the proxy for their component.
 	proxy.HttpProxy = clusterProxy.Status.HTTPProxy
@@ -62,12 +60,8 @@ func ReadClusterWideProxyConfiguration(clusterProxy *configv1.Proxy) (*chetypes.
 	return proxy, nil
 }
 
-func ReadCheClusterProxyConfiguration(ctx *chetypes.DeployContext) (*chetypes.Proxy, error) {
-	if ctx.CheCluster.Spec.Components.CheServer.Proxy == nil {
-		return &chetypes.Proxy{}, nil
-	}
-
-	proxyParts := strings.Split(ctx.CheCluster.Spec.Components.CheServer.Proxy.Url, "://")
+func ReadCheClusterProxyConfiguration(checluster *orgv1.CheCluster) (*Proxy, error) {
+	proxyParts := strings.Split(checluster.Spec.Server.ProxyURL, "://")
 	proxyProtocol := ""
 	proxyHost := ""
 	if len(proxyParts) == 1 {
@@ -79,21 +73,21 @@ func ReadCheClusterProxyConfiguration(ctx *chetypes.DeployContext) (*chetypes.Pr
 	}
 
 	proxyURL := proxyHost
-	if ctx.CheCluster.Spec.Components.CheServer.Proxy.Port != "" {
-		proxyURL = proxyURL + ":" + ctx.CheCluster.Spec.Components.CheServer.Proxy.Port
+	if checluster.Spec.Server.ProxyPort != "" {
+		proxyURL = proxyURL + ":" + checluster.Spec.Server.ProxyPort
 	}
 
-	proxyUser := ""
-	proxyPassword := ""
-
-	proxyCredentialsSecretName := utils.GetValue(ctx.CheCluster.Spec.Components.CheServer.Proxy.CredentialsSecretName, constants.DefaultProxyCredentialsSecret)
-	proxyCredentialsSecret := &corev1.Secret{}
-	exists, err := GetNamespacedObject(ctx, proxyCredentialsSecretName, proxyCredentialsSecret)
-	if err != nil {
-		return nil, err
-	} else if exists {
-		proxyUser = string(proxyCredentialsSecret.Data["user"])
-		proxyPassword = string(proxyCredentialsSecret.Data["password"])
+	proxyUser := checluster.Spec.Server.ProxyUser
+	proxyPassword := checluster.Spec.Server.ProxyPassword
+	proxySecret := checluster.Spec.Server.ProxySecret
+	if len(proxySecret) > 0 {
+		user, password, err := util.K8sclient.ReadSecret(proxySecret, checluster.Namespace)
+		if err == nil {
+			proxyUser = user
+			proxyPassword = password
+		} else {
+			return nil, err
+		}
 	}
 
 	if len(proxyUser) > 1 && len(proxyPassword) > 1 {
@@ -104,20 +98,20 @@ func ReadCheClusterProxyConfiguration(ctx *chetypes.DeployContext) (*chetypes.Pr
 		proxyURL = proxyProtocol + "://" + proxyURL
 	}
 
-	return &chetypes.Proxy{
+	return &Proxy{
 		HttpProxy:    proxyURL,
 		HttpUser:     proxyUser,
 		HttpHost:     proxyHost,
-		HttpPort:     ctx.CheCluster.Spec.Components.CheServer.Proxy.Port,
+		HttpPort:     checluster.Spec.Server.ProxyPort,
 		HttpPassword: proxyPassword,
 
 		HttpsProxy:    proxyURL,
 		HttpsUser:     proxyUser,
 		HttpsHost:     proxyHost,
-		HttpsPort:     ctx.CheCluster.Spec.Components.CheServer.Proxy.Port,
+		HttpsPort:     checluster.Spec.Server.ProxyPort,
 		HttpsPassword: proxyPassword,
 
-		NoProxy: strings.Join(ctx.CheCluster.Spec.Components.CheServer.Proxy.NonProxyHosts, ","),
+		NoProxy: strings.Replace(checluster.Spec.Server.NonProxyHosts, "|", ",", -1),
 	}, nil
 }
 
@@ -132,7 +126,7 @@ func MergeNonProxy(noProxy1 string, noProxy2 string) string {
 }
 
 // GenerateProxyJavaOpts converts given proxy configuration into Java format.
-func GenerateProxyJavaOpts(proxy *chetypes.Proxy, noProxy string) (javaOpts string, err error) {
+func GenerateProxyJavaOpts(proxy *Proxy, noProxy string) (javaOpts string, err error) {
 	if noProxy == "" {
 		noProxy = proxy.NoProxy
 	}
@@ -170,7 +164,7 @@ func removeProtocolPrefix(url string) string {
 }
 
 // ConfigureProxy adds existing proxy configuration into provided transport object.
-func ConfigureProxy(deployContext *chetypes.DeployContext, transport *http.Transport) {
+func ConfigureProxy(deployContext *DeployContext, transport *http.Transport) {
 	config := httpproxy.Config{
 		HTTPProxy:  deployContext.Proxy.HttpProxy,
 		HTTPSProxy: deployContext.Proxy.HttpsProxy,

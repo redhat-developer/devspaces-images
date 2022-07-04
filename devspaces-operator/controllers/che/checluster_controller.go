@@ -15,10 +15,6 @@ package che
 import (
 	"context"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/consolelink"
 	"github.com/eclipse-che/che-operator/pkg/deploy/dashboard"
@@ -34,6 +30,7 @@ import (
 	"github.com/eclipse-che/che-operator/pkg/deploy/server"
 	"github.com/eclipse-che/che-operator/pkg/deploy/tls"
 
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/sirupsen/logrus"
@@ -50,7 +47,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	networking "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 )
@@ -88,7 +85,7 @@ func NewReconciler(
 	reconcileManager := deploy.NewReconcileManager()
 
 	// order does matter
-	if !test.IsTestMode() {
+	if !util.IsTestMode() {
 		reconcileManager.RegisterReconciler(migration.NewMigrator())
 		reconcileManager.RegisterReconciler(NewCheClusterValidator())
 	}
@@ -105,7 +102,7 @@ func NewReconciler(
 	// resources since che host is used for dashboard deployment and che config map
 	reconcileManager.RegisterReconciler(server.NewCheHostReconciler())
 	reconcileManager.RegisterReconciler(postgres.NewPostgresReconciler())
-	if infrastructure.IsOpenShift() {
+	if util.IsOpenShift {
 		reconcileManager.RegisterReconciler(identityprovider.NewIdentityProviderReconciler())
 	}
 	reconcileManager.RegisterReconciler(devfileregistry.NewDevfileRegistryReconciler())
@@ -114,7 +111,7 @@ func NewReconciler(
 	reconcileManager.RegisterReconciler(gateway.NewGatewayReconciler())
 	reconcileManager.RegisterReconciler(server.NewCheServerReconciler())
 
-	if infrastructure.IsOpenShift() {
+	if util.IsOpenShift4 {
 		reconcileManager.RegisterReconciler(consolelink.NewConsoleLinkReconciler())
 	}
 
@@ -132,6 +129,8 @@ func NewReconciler(
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *CheClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
+	isOpenShift := util.IsOpenShift
+
 	onAllExceptGenericEventsPredicate := predicate.Funcs{
 		UpdateFunc: func(evt event.UpdateEvent) bool {
 			return true
@@ -165,39 +164,39 @@ func (r *CheClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 	controllerBuilder := ctrl.NewControllerManagedBy(mgr).
 		// Watch for changes to primary resource CheCluster
-		Watches(&source.Kind{Type: &chev2.CheCluster{}}, &handler.EnqueueRequestForObject{}).
+		Watches(&source.Kind{Type: &orgv1.CheCluster{}}, &handler.EnqueueRequestForObject{}).
 		// Watch for changes to secondary resources and requeue the owner CheCluster
 		Watches(&source.Kind{Type: &corev1.Service{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &corev1.Secret{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &corev1.ConfigMap{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &rbacv1.Role{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &rbacv1.RoleBinding{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &corev1.ServiceAccount{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &appsv1.Deployment{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &corev1.PersistentVolumeClaim{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		}).
 		Watches(&source.Kind{Type: &corev1.ConfigMap{}},
 			handler.EnqueueRequestsFromMapFunc(toTrustedBundleConfigMapRequestMapper),
@@ -212,24 +211,24 @@ func (r *CheClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			builder.WithPredicates(onAllExceptGenericEventsPredicate),
 		)
 
-	if infrastructure.IsOpenShift() {
+	if isOpenShift {
 		controllerBuilder = controllerBuilder.Watches(&source.Kind{Type: &routev1.Route{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		})
 	} else {
 		controllerBuilder = controllerBuilder.Watches(&source.Kind{Type: &networking.Ingress{}}, &handler.EnqueueRequestForOwner{
 			IsController: true,
-			OwnerType:    &chev2.CheCluster{},
+			OwnerType:    &orgv1.CheCluster{},
 		})
 	}
 
 	if r.namespace != "" {
-		controllerBuilder = controllerBuilder.WithEventFilter(utils.InNamespaceEventFilter(r.namespace))
+		controllerBuilder = controllerBuilder.WithEventFilter(util.InNamespaceEventFilter(r.namespace))
 	}
 
 	return controllerBuilder.
-		For(&chev2.CheCluster{}).
+		For(&orgv1.CheCluster{}).
 		Complete(r)
 }
 
@@ -241,7 +240,7 @@ func (r *CheClusterReconciler) SetupWithManager(mgr ctrl.Manager) error {
 func (r *CheClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = r.Log.WithValues("checluster", req.NamespacedName)
 
-	clusterAPI := chetypes.ClusterAPI{
+	clusterAPI := deploy.ClusterAPI{
 		Client:           r.client,
 		NonCachingClient: r.nonCachedClient,
 		DiscoveryClient:  r.discoveryClient,
@@ -263,7 +262,7 @@ func (r *CheClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{}, err
 	}
 
-	deployContext := &chetypes.DeployContext{
+	deployContext := &deploy.DeployContext{
 		ClusterAPI: clusterAPI,
 		CheCluster: checluster,
 	}
@@ -293,16 +292,13 @@ func (r *CheClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			return ctrl.Result{}, nil
 		}
 	} else {
-		deployContext.CheCluster.Status.ChePhase = chev2.ClusterPhasePendingDeletion
-		_ = deploy.UpdateCheCRStatus(deployContext, "ChePhase", chev2.ClusterPhasePendingDeletion)
-
 		done := r.reconcileManager.FinalizeAll(deployContext)
 		return ctrl.Result{Requeue: !done}, nil
 	}
 }
 
-func (r *CheClusterReconciler) GetCR(request ctrl.Request) (*chev2.CheCluster, error) {
-	checluster := &chev2.CheCluster{}
+func (r *CheClusterReconciler) GetCR(request ctrl.Request) (*orgv1.CheCluster, error) {
+	checluster := &orgv1.CheCluster{}
 	err := r.client.Get(context.TODO(), request.NamespacedName, checluster)
 	return checluster, err
 }

@@ -14,13 +14,12 @@ package deploy
 import (
 	"context"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/types"
 )
 
 // UpdateCheCRSpec - updates Che CR "spec" by field
-func UpdateCheCRSpec(deployContext *chetypes.DeployContext, field string, value string) error {
+func UpdateCheCRSpec(deployContext *DeployContext, field string, value string) error {
 	err := deployContext.ClusterAPI.Client.Update(context.TODO(), deployContext.CheCluster)
 	if err == nil {
 		logrus.Infof("Custom resource spec %s updated with %s: %s", deployContext.CheCluster.Name, field, value)
@@ -29,7 +28,7 @@ func UpdateCheCRSpec(deployContext *chetypes.DeployContext, field string, value 
 	return err
 }
 
-func UpdateCheCRStatus(deployContext *chetypes.DeployContext, field string, value string) (err error) {
+func UpdateCheCRStatus(deployContext *DeployContext, field string, value string) (err error) {
 	err = deployContext.ClusterAPI.Client.Status().Update(context.TODO(), deployContext.CheCluster)
 	if err == nil {
 		logrus.Infof("Custom resource status %s updated with %s: %s", deployContext.CheCluster.Name, field, value)
@@ -39,7 +38,7 @@ func UpdateCheCRStatus(deployContext *chetypes.DeployContext, field string, valu
 	return err
 }
 
-func SetStatusDetails(deployContext *chetypes.DeployContext, reason string, message string) (err error) {
+func SetStatusDetails(deployContext *DeployContext, reason string, message string, helpLink string) (err error) {
 	if reason != deployContext.CheCluster.Status.Reason {
 		deployContext.CheCluster.Status.Reason = reason
 		if err := UpdateCheCRStatus(deployContext, "status: Reason", reason); err != nil {
@@ -52,10 +51,16 @@ func SetStatusDetails(deployContext *chetypes.DeployContext, reason string, mess
 			return err
 		}
 	}
+	if helpLink != deployContext.CheCluster.Status.HelpLink {
+		deployContext.CheCluster.Status.HelpLink = helpLink
+		if err := UpdateCheCRStatus(deployContext, "status: HelpLink", message); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func ReloadCheClusterCR(deployContext *chetypes.DeployContext) error {
+func ReloadCheClusterCR(deployContext *DeployContext) error {
 	return deployContext.ClusterAPI.Client.Get(
 		context.TODO(),
 		types.NamespacedName{Name: deployContext.CheCluster.Name, Namespace: deployContext.CheCluster.Namespace},

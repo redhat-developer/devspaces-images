@@ -19,11 +19,8 @@ spec:
   conversion:
     strategy: Webhook
     webhook:
-      conversionReviewVersions: ["v1", "v2"]
       clientConfig:
         service:
-          namespace: eclipse-che
-          name: devspaces-operator-service
+          namespace: system
+          name: webhook-service
           path: /convert
-        # caBundle will be filled on creation
-        # caBundle: Cg==

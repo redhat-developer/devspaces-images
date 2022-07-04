@@ -14,13 +14,11 @@ package expose
 import (
 	"strings"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	routev1 "github.com/openshift/api/route/v1"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/sirupsen/logrus"
 	networking "k8s.io/api/networking/v1"
 )
@@ -31,7 +29,7 @@ const (
 
 //Expose exposes the specified component according to the configured exposure strategy rules
 func Expose(
-	deployContext *chetypes.DeployContext,
+	deployContext *deploy.DeployContext,
 	componentName string,
 	gatewayConfig *gateway.TraefikConfig) (endpointUrl string, done bool, err error) {
 	//the host and path are empty and will be evaluated for the specified component + path
@@ -42,7 +40,7 @@ func Expose(
 //Empty host or path will be evaluated according to the configured strategy rules.
 //Note: path may be prefixed according to the configured strategy rules.
 func ExposeWithHostPath(
-	deployContext *chetypes.DeployContext,
+	deployContext *deploy.DeployContext,
 	component string,
 	host string,
 	path string,
@@ -52,7 +50,7 @@ func ExposeWithHostPath(
 		path = "/" + path
 	}
 
-	if !infrastructure.IsOpenShift() {
+	if !util.IsOpenShift {
 		return exposeWithGateway(deployContext, gatewayConfig, component, path, func() {
 			if _, err = deploy.DeleteNamespacedObject(deployContext, component, &networking.Ingress{}); err != nil {
 				logrus.Error(err)
@@ -60,14 +58,14 @@ func ExposeWithHostPath(
 		})
 	} else {
 		return exposeWithGateway(deployContext, gatewayConfig, component, path, func() {
-			if _, err := deploy.DeleteNamespacedObject(deployContext, component, &routev1.Route{}); !test.IsTestMode() && err != nil {
+			if _, err := deploy.DeleteNamespacedObject(deployContext, component, &routev1.Route{}); !util.IsTestMode() && err != nil {
 				logrus.Error(err)
 			}
 		})
 	}
 }
 
-func exposeWithGateway(deployContext *chetypes.DeployContext,
+func exposeWithGateway(deployContext *deploy.DeployContext,
 	gatewayConfig *gateway.TraefikConfig,
 	component string,
 	path string,
@@ -90,5 +88,5 @@ func exposeWithGateway(deployContext *chetypes.DeployContext,
 	if path == "" {
 		path = "/" + component
 	}
-	return deployContext.CheHost + path, true, err
+	return deployContext.CheCluster.GetCheHost() + path, true, err
 }

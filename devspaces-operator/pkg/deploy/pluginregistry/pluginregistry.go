@@ -15,8 +15,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
 	"github.com/eclipse-che/che-operator/pkg/deploy/gateway"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
@@ -32,11 +30,16 @@ func NewPluginRegistryReconciler() *PluginRegistryReconciler {
 	return &PluginRegistryReconciler{}
 }
 
-func (p *PluginRegistryReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
-	if ctx.CheCluster.Spec.Components.PluginRegistry.DisableInternalRegistry {
-		ctx.CheCluster.Status.PluginRegistryURL = ""
-		err := deploy.UpdateCheCRStatus(ctx, "PluginRegistryURL", "")
-		return reconcile.Result{}, err == nil, err
+func (p *PluginRegistryReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
+	if ctx.CheCluster.Spec.Server.ExternalPluginRegistry {
+		if ctx.CheCluster.Spec.Server.PluginRegistryUrl != ctx.CheCluster.Status.PluginRegistryURL {
+			ctx.CheCluster.Status.PluginRegistryURL = ctx.CheCluster.Spec.Server.PluginRegistryUrl
+			if err := deploy.UpdateCheCRStatus(ctx, "PluginRegistryUrl", ctx.CheCluster.Spec.Server.PluginRegistryUrl); err != nil {
+				return reconcile.Result{}, false, err
+			}
+		}
+
+		return reconcile.Result{}, true, nil
 	}
 
 	done, err := p.syncService(ctx)
@@ -67,35 +70,35 @@ func (p *PluginRegistryReconciler) Reconcile(ctx *chetypes.DeployContext) (recon
 	return reconcile.Result{}, true, nil
 }
 
-func (p *PluginRegistryReconciler) Finalize(ctx *chetypes.DeployContext) bool {
+func (p *PluginRegistryReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	return true
 }
 
-func (p *PluginRegistryReconciler) syncService(ctx *chetypes.DeployContext) (bool, error) {
+func (p *PluginRegistryReconciler) syncService(ctx *deploy.DeployContext) (bool, error) {
 	return deploy.SyncServiceToCluster(
 		ctx,
-		constants.PluginRegistryName,
+		deploy.PluginRegistryName,
 		[]string{"http"},
 		[]int32{8080},
-		constants.PluginRegistryName)
+		deploy.PluginRegistryName)
 }
 
-func (p *PluginRegistryReconciler) syncConfigMap(ctx *chetypes.DeployContext) (bool, error) {
+func (p *PluginRegistryReconciler) syncConfigMap(ctx *deploy.DeployContext) (bool, error) {
 	data, err := p.getConfigMapData(ctx)
 	if err != nil {
 		return false, err
 	}
-	return deploy.SyncConfigMapDataToCluster(ctx, constants.PluginRegistryName, data, constants.PluginRegistryName)
+	return deploy.SyncConfigMapDataToCluster(ctx, deploy.PluginRegistryName, data, deploy.PluginRegistryName)
 }
 
-func (p *PluginRegistryReconciler) ExposeEndpoint(ctx *chetypes.DeployContext) (string, bool, error) {
+func (p *PluginRegistryReconciler) ExposeEndpoint(ctx *deploy.DeployContext) (string, bool, error) {
 	return expose.Expose(
 		ctx,
-		constants.PluginRegistryName,
+		deploy.PluginRegistryName,
 		p.createGatewayConfig(ctx))
 }
 
-func (p *PluginRegistryReconciler) updateStatus(endpoint string, ctx *chetypes.DeployContext) (bool, error) {
+func (p *PluginRegistryReconciler) updateStatus(endpoint string, ctx *deploy.DeployContext) (bool, error) {
 	pluginRegistryURL := "https://" + endpoint
 
 	// append the API version to plugin registry
@@ -115,18 +118,18 @@ func (p *PluginRegistryReconciler) updateStatus(endpoint string, ctx *chetypes.D
 	return true, nil
 }
 
-func (p *PluginRegistryReconciler) syncDeployment(ctx *chetypes.DeployContext) (bool, error) {
+func (p *PluginRegistryReconciler) syncDeployment(ctx *deploy.DeployContext) (bool, error) {
 	spec := p.getPluginRegistryDeploymentSpec(ctx)
 	return deploy.SyncDeploymentSpecToCluster(ctx, spec, deploy.DefaultDeploymentDiffOpts)
 }
 
-func (p *PluginRegistryReconciler) createGatewayConfig(ctx *chetypes.DeployContext) *gateway.TraefikConfig {
-	pathPrefix := "/" + constants.PluginRegistryName
+func (p *PluginRegistryReconciler) createGatewayConfig(ctx *deploy.DeployContext) *gateway.TraefikConfig {
+	pathPrefix := "/" + deploy.PluginRegistryName
 	cfg := gateway.CreateCommonTraefikConfig(
-		constants.PluginRegistryName,
+		deploy.PluginRegistryName,
 		fmt.Sprintf("PathPrefix(`%s`)", pathPrefix),
 		10,
-		"http://"+constants.PluginRegistryName+":8080",
+		"http://"+deploy.PluginRegistryName+":8080",
 		[]string{pathPrefix})
 
 	return cfg

@@ -15,20 +15,17 @@ package dashboard
 import (
 	"os"
 
-	"k8s.io/apimachinery/pkg/api/resource"
-
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	configv1 "github.com/openshift/api/config/v1"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/google/go-cmp/cmp"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
+	"github.com/eclipse-che/che-operator/pkg/util"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
+	"github.com/eclipse-che/che-operator/pkg/deploy"
+
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -39,13 +36,13 @@ import (
 )
 
 func TestDashboardDeploymentSecurityContext(t *testing.T) {
-	ctx := test.GetDeployContext(nil, []runtime.Object{})
+	ctx := deploy.GetTestDeployContext(nil, []runtime.Object{})
 
 	dashboard := NewDashboardReconciler()
 	deployment, err := dashboard.getDashboardDeploymentSpec(ctx)
 
 	assert.Nil(t, err)
-	test.ValidateSecurityContext(deployment, t)
+	util.ValidateSecurityContext(deployment, t)
 }
 
 func TestDashboardDeploymentResources(t *testing.T) {
@@ -56,18 +53,18 @@ func TestDashboardDeploymentResources(t *testing.T) {
 		memoryRequest string
 		cpuRequest    string
 		cpuLimit      string
-		cheCluster    *chev2.CheCluster
+		cheCluster    *orgv1.CheCluster
 	}
 
 	testCases := []resourcesTestCase{
 		{
 			name:          "Test default limits",
 			initObjects:   []runtime.Object{},
-			memoryLimit:   constants.DefaultDashboardMemoryLimit,
-			memoryRequest: constants.DefaultDashboardMemoryRequest,
-			cpuLimit:      constants.DefaultDashboardCpuLimit,
-			cpuRequest:    constants.DefaultDashboardCpuRequest,
-			cheCluster: &chev2.CheCluster{
+			memoryLimit:   deploy.DefaultDashboardMemoryLimit,
+			memoryRequest: deploy.DefaultDashboardMemoryRequest,
+			cpuLimit:      deploy.DefaultDashboardCpuLimit,
+			cpuRequest:    deploy.DefaultDashboardCpuRequest,
+			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
 					Name:      "eclipse-che",
@@ -81,32 +78,17 @@ func TestDashboardDeploymentResources(t *testing.T) {
 			cpuRequest:    "150m",
 			memoryLimit:   "250Mi",
 			memoryRequest: "150Mi",
-			cheCluster: &chev2.CheCluster{
+			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
 					Name:      "eclipse-che",
 				},
-				Spec: chev2.CheClusterSpec{
-					Components: chev2.CheClusterComponents{
-						Dashboard: chev2.Dashboard{
-							Deployment: &chev2.Deployment{
-								Containers: []chev2.Container{
-									{
-										Name: defaults.GetCheFlavor() + "-dashboard",
-										Resources: &chev2.ResourceRequirements{
-											Requests: &chev2.ResourceList{
-												Memory: resource.MustParse("150Mi"),
-												Cpu:    resource.MustParse("150m"),
-											},
-											Limits: &chev2.ResourceList{
-												Memory: resource.MustParse("250Mi"),
-												Cpu:    resource.MustParse("250m"),
-											},
-										},
-									},
-								},
-							},
-						},
+				Spec: orgv1.CheClusterSpec{
+					Server: orgv1.CheClusterSpecServer{
+						DashboardCpuLimit:      "250m",
+						DashboardCpuRequest:    "150m",
+						DashboardMemoryLimit:   "250Mi",
+						DashboardMemoryRequest: "150Mi",
 					},
 				},
 			},
@@ -116,13 +98,13 @@ func TestDashboardDeploymentResources(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
-			ctx := test.GetDeployContext(testCase.cheCluster, []runtime.Object{})
+			ctx := deploy.GetTestDeployContext(testCase.cheCluster, []runtime.Object{})
 
 			dashboard := NewDashboardReconciler()
 			deployment, err := dashboard.getDashboardDeploymentSpec(ctx)
 			assert.Nil(t, err)
-			test.CompareResources(deployment,
-				test.TestExpectedResources{
+			util.CompareResources(deployment,
+				util.TestExpectedResources{
 					MemoryLimit:   testCase.memoryLimit,
 					MemoryRequest: testCase.memoryRequest,
 					CpuRequest:    testCase.cpuRequest,
@@ -134,13 +116,11 @@ func TestDashboardDeploymentResources(t *testing.T) {
 }
 
 func TestDashboardDeploymentEnvVars(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
-
 	type resourcesTestCase struct {
 		name        string
 		initObjects []runtime.Object
 		envVars     []corev1.EnvVar
-		cheCluster  *chev2.CheCluster
+		cheCluster  *orgv1.CheCluster
 	}
 	testCases := []resourcesTestCase{
 		{
@@ -171,12 +151,12 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 					Name: "OPENSHIFT_CONSOLE_URL",
 				},
 			},
-			cheCluster: &chev2.CheCluster{
+			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
 					Name:      "eclipse-che",
 				},
-				Status: chev2.CheClusterStatus{
+				Status: orgv1.CheClusterStatus{
 					CheURL: "https://che-host",
 				},
 			},
@@ -220,12 +200,12 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 					Value: "https://console-openshift-console.apps.my-host/",
 				},
 			},
-			cheCluster: &chev2.CheCluster{
+			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
 					Name:      "eclipse-che",
 				},
-				Status: chev2.CheClusterStatus{
+				Status: orgv1.CheClusterStatus{
 					CheURL: "https://che-host",
 				},
 			},
@@ -235,7 +215,10 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
-			ctx := test.GetDeployContext(testCase.cheCluster, testCase.initObjects)
+			ctx := deploy.GetTestDeployContext(testCase.cheCluster, testCase.initObjects)
+
+			util.IsOpenShift = true
+			util.IsOpenShift4 = true
 
 			dashboard := NewDashboardReconciler()
 			deployment, err := dashboard.getDashboardDeploymentSpec(ctx)
@@ -248,14 +231,12 @@ func TestDashboardDeploymentEnvVars(t *testing.T) {
 }
 
 func TestDashboardDeploymentVolumes(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
-
 	type resourcesTestCase struct {
 		name         string
 		initObjects  []runtime.Object
 		volumes      []corev1.Volume
 		volumeMounts []corev1.VolumeMount
-		cheCluster   *chev2.CheCluster
+		cheCluster   *orgv1.CheCluster
 	}
 	testCases := []resourcesTestCase{
 		{
@@ -277,7 +258,7 @@ func TestDashboardDeploymentVolumes(t *testing.T) {
 			volumeMounts: []corev1.VolumeMount{
 				{Name: "che-custom-ca", MountPath: "/public-certs/custom"},
 			},
-			cheCluster: &chev2.CheCluster{
+			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
 					Name:      "eclipse-che",
@@ -289,7 +270,7 @@ func TestDashboardDeploymentVolumes(t *testing.T) {
 			initObjects: []runtime.Object{
 				&corev1.Secret{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      constants.DefaultSelfSignedCertificateSecretName,
+						Name:      deploy.CheTLSSelfSignedCertificateSecretName,
 						Namespace: "eclipse-che",
 					},
 				},
@@ -323,7 +304,7 @@ func TestDashboardDeploymentVolumes(t *testing.T) {
 				{Name: "che-custom-ca", MountPath: "/public-certs/custom"},
 				{Name: "che-self-signed-ca", MountPath: "/public-certs/che-self-signed"},
 			},
-			cheCluster: &chev2.CheCluster{
+			cheCluster: &orgv1.CheCluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Namespace: "eclipse-che",
 					Name:      "eclipse-che",
@@ -335,7 +316,7 @@ func TestDashboardDeploymentVolumes(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			logf.SetLogger(zap.New(zap.WriteTo(os.Stdout), zap.UseDevMode(true)))
-			ctx := test.GetDeployContext(testCase.cheCluster, testCase.initObjects)
+			ctx := deploy.GetTestDeployContext(testCase.cheCluster, testCase.initObjects)
 
 			dashboard := NewDashboardReconciler()
 			deployment, err := dashboard.getDashboardDeploymentSpec(ctx)

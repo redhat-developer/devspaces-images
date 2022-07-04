@@ -15,16 +15,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
@@ -35,24 +30,24 @@ const (
 )
 
 var (
-	postgresAdminPassword = utils.GeneratePassword(12)
+	postgresAdminPassword = util.GeneratePasswd(12)
 )
 
-func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deployment, ctx *chetypes.DeployContext) (*appsv1.Deployment, error) {
+func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deployment, ctx *deploy.DeployContext) (*appsv1.Deployment, error) {
 	terminationGracePeriodSeconds := int64(30)
-	labels, labelSelector := deploy.GetLabelsAndSelector(constants.PostgresName)
-	chePostgresDb := utils.GetValue(ctx.CheCluster.Spec.Components.Database.PostgresDb, constants.DefaultPostgresDb)
+	labels, labelSelector := deploy.GetLabelsAndSelector(ctx.CheCluster, deploy.PostgresName)
+	chePostgresDb := util.GetValue(ctx.CheCluster.Spec.Database.ChePostgresDb, deploy.DefaultChePostgresDb)
 	postgresImage, err := getPostgresImage(clusterDeployment, ctx.CheCluster)
 	if err != nil {
 		return nil, err
 	}
-	pullPolicy := corev1.PullPolicy(utils.GetPullPolicyFromDockerImage(postgresImage))
+	pullPolicy := corev1.PullPolicy(util.GetValue(string(ctx.CheCluster.Spec.Database.PostgresImagePullPolicy), deploy.DefaultPullPolicyFromDockerImage(postgresImage)))
 
 	if clusterDeployment != nil {
 		clusterContainer := &clusterDeployment.Spec.Template.Spec.Containers[0]
-		value := utils.GetEnv(clusterContainer.Env, "POSTGRESQL_ADMIN_PASSWORD")
-		if value != "" {
-			postgresAdminPassword = value
+		env := util.FindEnv(clusterContainer.Env, "POSTGRESQL_ADMIN_PASSWORD")
+		if env != nil {
+			postgresAdminPassword = env.Value
 		}
 	}
 
@@ -62,7 +57,7 @@ func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deploym
 			APIVersion: "apps/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      constants.PostgresName,
+			Name:      deploy.PostgresName,
 			Namespace: ctx.CheCluster.Namespace,
 			Labels:    labels,
 		},
@@ -78,39 +73,47 @@ func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deploym
 				Spec: corev1.PodSpec{
 					Volumes: []corev1.Volume{
 						{
-							Name: constants.DefaultPostgresVolumeClaimName,
+							Name: deploy.DefaultPostgresVolumeClaimName,
 							VolumeSource: corev1.VolumeSource{
 								PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
-									ClaimName: constants.DefaultPostgresVolumeClaimName,
+									ClaimName: deploy.DefaultPostgresVolumeClaimName,
 								},
 							},
 						},
 					},
 					Containers: []corev1.Container{
 						{
-							Name:            constants.PostgresName,
+							Name:            deploy.PostgresName,
 							Image:           postgresImage,
 							ImagePullPolicy: pullPolicy,
 							Ports: []corev1.ContainerPort{
 								{
-									Name:          constants.PostgresName,
+									Name:          deploy.PostgresName,
 									ContainerPort: 5432,
 									Protocol:      "TCP",
 								},
 							},
 							Resources: corev1.ResourceRequirements{
 								Requests: corev1.ResourceList{
-									corev1.ResourceMemory: resource.MustParse(constants.DefaultPostgresMemoryRequest),
-									corev1.ResourceCPU:    resource.MustParse(constants.DefaultPostgresCpuRequest),
+									corev1.ResourceMemory: util.GetResourceQuantity(
+										ctx.CheCluster.Spec.Database.ChePostgresContainerResources.Requests.Memory,
+										deploy.DefaultPostgresMemoryRequest),
+									corev1.ResourceCPU: util.GetResourceQuantity(
+										ctx.CheCluster.Spec.Database.ChePostgresContainerResources.Requests.Cpu,
+										deploy.DefaultPostgresCpuRequest),
 								},
 								Limits: corev1.ResourceList{
-									corev1.ResourceMemory: resource.MustParse(constants.DefaultPostgresMemoryLimit),
-									corev1.ResourceCPU:    resource.MustParse(constants.DefaultPostgresCpuLimit),
+									corev1.ResourceMemory: util.GetResourceQuantity(
+										ctx.CheCluster.Spec.Database.ChePostgresContainerResources.Limits.Memory,
+										deploy.DefaultPostgresMemoryLimit),
+									corev1.ResourceCPU: util.GetResourceQuantity(
+										ctx.CheCluster.Spec.Database.ChePostgresContainerResources.Limits.Cpu,
+										deploy.DefaultPostgresCpuLimit),
 								},
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{
-									Name:      constants.DefaultPostgresVolumeClaimName,
+									Name:      deploy.DefaultPostgresVolumeClaimName,
 									MountPath: "/var/lib/pgsql/data",
 								},
 							},
@@ -168,7 +171,7 @@ func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deploym
 
 	container := &deployment.Spec.Template.Spec.Containers[0]
 
-	chePostgresCredentialsSecret := utils.GetValue(ctx.CheCluster.Spec.Components.Database.CredentialsSecretName, constants.DefaultPostgresCredentialsSecret)
+	chePostgresCredentialsSecret := util.GetValue(ctx.CheCluster.Spec.Database.ChePostgresSecret, deploy.DefaultChePostgresCredentialsSecret)
 	container.Env = append(container.Env,
 		corev1.EnvVar{
 			Name: "POSTGRESQL_USER",
@@ -192,7 +195,7 @@ func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deploym
 			},
 		})
 
-	if !infrastructure.IsOpenShift() {
+	if !util.IsOpenShift {
 		var runAsUser int64 = 26
 		deployment.Spec.Template.Spec.SecurityContext = &corev1.PodSecurityContext{
 			RunAsUser: &runAsUser,
@@ -200,29 +203,26 @@ func (p *PostgresReconciler) getDeploymentSpec(clusterDeployment *appsv1.Deploym
 		}
 	}
 
-	deploy.CustomizeDeployment(deployment, ctx.CheCluster.Spec.Components.Database.Deployment, false)
 	return deployment, nil
 }
 
-func getPostgresImage(clusterDeployment *appsv1.Deployment, cheCluster *chev2.CheCluster) (string, error) {
-	if cheCluster.Spec.Components.Database.Deployment != nil &&
-		len(cheCluster.Spec.Components.Database.Deployment.Containers) > 0 &&
-		cheCluster.Spec.Components.Database.Deployment.Containers[0].Image != "" {
+func getPostgresImage(clusterDeployment *appsv1.Deployment, cheCluster *orgv1.CheCluster) (string, error) {
+	if cheCluster.Spec.Database.PostgresImage != "" {
 		// use image explicitly set in a CR
-		return cheCluster.Spec.Components.Database.Deployment.Containers[0].Image, nil
-	} else if cheCluster.Status.PostgresVersion == PostgresVersion9_6 {
-		return defaults.GetPostgresImage(cheCluster), nil
-	} else if strings.HasPrefix(cheCluster.Status.PostgresVersion, "13.") {
-		return defaults.GetPostgres13Image(cheCluster), nil
-	} else if cheCluster.Status.PostgresVersion == "" {
+		return cheCluster.Spec.Database.PostgresImage, nil
+	} else if cheCluster.Spec.Database.PostgresVersion == PostgresVersion9_6 {
+		return deploy.DefaultPostgresImage(cheCluster), nil
+	} else if strings.HasPrefix(cheCluster.Spec.Database.PostgresVersion, "13.") {
+		return deploy.DefaultPostgres13Image(cheCluster), nil
+	} else if cheCluster.Spec.Database.PostgresVersion == "" {
 		if clusterDeployment == nil {
 			// Use PostgreSQL 13.3 for a new deployment if there is so.
 			// It allows to work in downstream until a new image is ready for production.
-			postgres13Image := defaults.GetPostgres13Image(cheCluster)
+			postgres13Image := deploy.DefaultPostgres13Image(cheCluster)
 			if postgres13Image != "" {
 				return postgres13Image, nil
 			} else {
-				return defaults.GetPostgresImage(cheCluster), nil
+				return deploy.DefaultPostgresImage(cheCluster), nil
 			}
 		} else {
 			// Keep using current image
@@ -230,5 +230,5 @@ func getPostgresImage(clusterDeployment *appsv1.Deployment, cheCluster *chev2.Ch
 		}
 	}
 
-	return "", fmt.Errorf("PostgreSQL image for '%s' version not found", cheCluster.Status.PostgresVersion)
+	return "", fmt.Errorf("PostgreSQL image for '%s' version not found", cheCluster.Spec.Database.PostgresVersion)
 }

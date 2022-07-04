@@ -14,23 +14,20 @@ package server
 import (
 	"fmt"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	corev1 "k8s.io/api/core/v1"
 )
 
-func getComponentName(ctx *chetypes.DeployContext) string {
-	return defaults.GetCheFlavor()
+func getComponentName(ctx *deploy.DeployContext) string {
+	return deploy.DefaultCheFlavor(ctx.CheCluster)
 }
 
-func getOAuthConfig(ctx *chetypes.DeployContext, oauthProvider string) (*corev1.Secret, error) {
+func getOAuthConfig(ctx *deploy.DeployContext, oauthProvider string) (*corev1.Secret, error) {
 	secrets, err := deploy.GetSecrets(ctx, map[string]string{
-		constants.KubernetesPartOfLabelKey:    constants.CheEclipseOrg,
-		constants.KubernetesComponentLabelKey: constants.OAuthScmConfiguration,
+		deploy.KubernetesPartOfLabelKey:    deploy.CheEclipseOrg,
+		deploy.KubernetesComponentLabelKey: deploy.OAuthScmConfiguration,
 	}, map[string]string{
-		constants.CheEclipseOrgOAuthScmServer: oauthProvider,
+		deploy.CheEclipseOrgOAuthScmServer: oauthProvider,
 	})
 
 	if err != nil {

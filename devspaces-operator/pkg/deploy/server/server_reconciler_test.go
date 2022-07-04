@@ -13,15 +13,16 @@ package server
 
 import (
 	"context"
+	"os"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
+	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
+	routev1 "github.com/openshift/api/route/v1"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -30,47 +31,59 @@ import (
 )
 
 func TestReconcile(t *testing.T) {
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
+	cheCluster := &orgv1.CheCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "eclipse-che",
+			Name:      os.Getenv("CHE_FLAVOR"),
+		},
+	}
 
-	cheCluster := &chev2.CheCluster{
+	util.IsOpenShift = true
+	ctx := deploy.GetTestDeployContext(cheCluster, []runtime.Object{})
+
+	chehost := NewCheHostReconciler()
+	_, done, err := chehost.exposeCheEndpoint(ctx)
+	assert.True(t, done)
+	assert.Nil(t, err)
+
+	server := NewCheServerReconciler()
+	_, done, err = server.Reconcile(ctx)
+	assert.True(t, done)
+	assert.Nil(t, err)
+
+	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: getComponentName(ctx), Namespace: "eclipse-che"}, &routev1.Route{}))
+	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: CheConfigMapName, Namespace: "eclipse-che"}, &corev1.ConfigMap{}))
+	assert.True(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: getComponentName(ctx), Namespace: "eclipse-che"}, &appsv1.Deployment{}))
+	assert.NotEmpty(t, cheCluster.Status.CheClusterRunning)
+	assert.NotEmpty(t, cheCluster.Status.CheVersion)
+}
+
+func TestSyncLegacyConfigMap(t *testing.T) {
+	cheCluster := &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "eclipse-che",
 			Name:      "eclipse-che",
 		},
 	}
+	ctx := deploy.GetTestDeployContext(cheCluster, []runtime.Object{})
 
-	ctx := test.GetDeployContext(cheCluster, []runtime.Object{})
+	legacyConfigMap := deploy.GetConfigMapSpec(ctx, "custom", map[string]string{"a": "b"}, "test")
+	err := ctx.ClusterAPI.Client.Create(context.TODO(), legacyConfigMap)
+	assert.Nil(t, err)
 
 	server := NewCheServerReconciler()
-	_, done, err := server.Reconcile(ctx)
-	assert.False(t, done)
-	assert.Nil(t, err)
-
-	assert.True(t, test.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: CheConfigMapName, Namespace: "eclipse-che"}, &corev1.ConfigMap{}))
-	assert.True(t, test.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: getComponentName(ctx), Namespace: "eclipse-che"}, &appsv1.Deployment{}))
-	assert.Equal(t, ctx.CheCluster.Status.ChePhase, chev2.CheClusterPhase(chev2.ClusterPhaseInactive))
-
-	cheDeployment := &appsv1.Deployment{}
-	err = ctx.ClusterAPI.Client.Get(context.TODO(), types.NamespacedName{Name: defaults.GetCheFlavor(), Namespace: "eclipse-che"}, cheDeployment)
-	assert.Nil(t, err)
-
-	cheDeployment.Status.Replicas = 1
-	cheDeployment.Status.AvailableReplicas = 1
-	err = ctx.ClusterAPI.Client.Update(context.TODO(), cheDeployment)
-
-	_, done, err = server.Reconcile(ctx)
+	done, err := server.syncLegacyConfigMap(ctx)
 	assert.True(t, done)
 	assert.Nil(t, err)
 
-	assert.Equal(t, ctx.CheCluster.Status.ChePhase, chev2.CheClusterPhase(chev2.ClusterPhaseActive))
-	assert.NotEmpty(t, cheCluster.Status.CheVersion)
-	assert.NotEmpty(t, cheCluster.Status.CheURL)
+	assert.False(t, util.IsObjectExists(ctx.ClusterAPI.Client, types.NamespacedName{Name: "custom", Namespace: "eclipse-che"}, &corev1.ConfigMap{}))
+	assert.Equal(t, cheCluster.Spec.Server.CustomCheProperties["a"], "b")
 }
 
 func TestUpdateAvailabilityStatus(t *testing.T) {
 	cheDeployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      defaults.GetCheFlavor(),
+			Name:      os.Getenv("CHE_FLAVOR"),
 			Namespace: "eclipse-che",
 		},
 		Status: appsv1.DeploymentStatus{
@@ -78,28 +91,37 @@ func TestUpdateAvailabilityStatus(t *testing.T) {
 			Replicas:          1,
 		},
 	}
-	ctx := test.GetDeployContext(nil, []runtime.Object{})
+	cheCluster := &orgv1.CheCluster{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: "eclipse-che",
+			Name:      os.Getenv("CHE_FLAVOR"),
+		},
+		Spec:   orgv1.CheClusterSpec{},
+		Status: orgv1.CheClusterStatus{},
+	}
+
+	ctx := deploy.GetTestDeployContext(cheCluster, []runtime.Object{})
 
 	server := NewCheServerReconciler()
-	done, err := server.syncActiveChePhase(ctx)
-	assert.False(t, done)
+	done, err := server.updateAvailabilityStatus(ctx)
+	assert.True(t, done)
 	assert.Nil(t, err)
-	assert.Equal(t, ctx.CheCluster.Status.ChePhase, chev2.CheClusterPhase(chev2.ClusterPhaseInactive))
+	assert.Equal(t, cheCluster.Status.CheClusterRunning, UnavailableStatus)
 
 	err = ctx.ClusterAPI.Client.Create(context.TODO(), cheDeployment)
 	assert.Nil(t, err)
 
-	done, err = server.syncActiveChePhase(ctx)
+	done, err = server.updateAvailabilityStatus(ctx)
 	assert.True(t, done)
 	assert.Nil(t, err)
-	assert.Equal(t, ctx.CheCluster.Status.ChePhase, chev2.CheClusterPhase(chev2.ClusterPhaseActive))
+	assert.Equal(t, cheCluster.Status.CheClusterRunning, AvailableStatus)
 
 	cheDeployment.Status.Replicas = 2
 	err = ctx.ClusterAPI.Client.Update(context.TODO(), cheDeployment)
 	assert.Nil(t, err)
 
-	done, err = server.syncActiveChePhase(ctx)
-	assert.False(t, done)
+	done, err = server.updateAvailabilityStatus(ctx)
+	assert.True(t, done)
 	assert.Nil(t, err)
-	assert.Equal(t, ctx.CheCluster.Status.ChePhase, chev2.CheClusterPhase(chev2.RollingUpdate))
+	assert.Equal(t, cheCluster.Status.CheClusterRunning, RollingUpdateInProgressStatus)
 }

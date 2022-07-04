@@ -14,7 +14,7 @@ FROM registry.access.redhat.com/ubi8/go-toolset:1.17.10-4 as builder
 ENV GOPATH=/go/
 ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.13.0"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
-ARG SKIP_TESTS="false"
+ARG TESTS="true"
 USER root
 
 

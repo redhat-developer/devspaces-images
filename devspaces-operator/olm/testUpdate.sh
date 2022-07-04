@@ -19,11 +19,12 @@ if [ -z "${OPERATOR_REPO}" ]; then
   SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
   OPERATOR_REPO=$(dirname "$(dirname "$SCRIPT")")
 fi
-source "${OPERATOR_REPO}/.github/bin/common.sh"
+source "${OPERATOR_REPO}"/olm/olm.sh
+source "${OPERATOR_REPO}"/.github/bin/common.sh
 
 init() {
   NAMESPACE="eclipse-che"
-  CHANNEL="next"
+  unset CHANNEL
   unset CATALOG_IMAGE
 
   while [[ "$#" -gt 0 ]]; do
@@ -43,11 +44,11 @@ usage () {
   echo "Deploy and update Eclipse Che from a custom catalog."
   echo
 	echo "Usage:"
-	echo -e "\t$0 -i CATALOG_IMAGE [-c CHANNEL] [-n NAMESPACE]"
+	echo -e "\t$0 -i CATALOG_IMAGE -c CHANNEL [-n NAMESPACE]"
   echo
   echo "OPTIONS:"
   echo -e "\t-i,--catalog-image       Catalog image"
-  echo -e "\t-c,--channel             [default: next] Olm channel to deploy Eclipse Che from"
+  echo -e "\t-c,--channel             Olm channel to deploy Eclipse Che from"
   echo -e "\t-n,--namespace           [default: eclipse-che] Kubernetes namepsace to deploy Eclipse Che into"
   echo
 	echo "Example:"
@@ -56,12 +57,14 @@ usage () {
 }
 
 run() {
-  deployDevWorkspaceOperator "${CHANNEL}"
-
   createNamespace "${NAMESPACE}"
-  createCatalogSource "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}" "${CATALOG_IMAGE}"
 
-  local bundles=$(getCatalogSourceBundles "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}")
+  deployDevWorkspaceOperator ${CHANNEL}
+
+  local customCatalogSource=$(getCustomCatalogSourceName)
+  createCatalogSource "${customCatalogSource}" "${CATALOG_IMAGE}"
+
+  local bundles=$(getCatalogSourceBundles "${customCatalogSource}")
   fetchPreviousCSVInfo "${CHANNEL}" "${bundles}"
   fetchLatestCSVInfo "${CHANNEL}" "${bundles}"
 
@@ -74,16 +77,17 @@ run() {
   forcePullingOlmImages "${PREVIOUS_CSV_BUNDLE_IMAGE}"
   forcePullingOlmImages "${LATEST_CSV_BUNDLE_IMAGE}"
 
-  createSubscription "${ECLIPSE_CHE_SUBSCRIPTION_NAME}" "${ECLIPSE_CHE_PACKAGE_NAME}" "${CHANNEL}" "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}" "Manual" "${PREVIOUS_CSV_NAME}"
-  approveInstallPlan "${ECLIPSE_CHE_SUBSCRIPTION_NAME}"
+  local subscription=$(getSubscriptionName)
+  createSubscription "${subscription}" $(getPackageName) "${CHANNEL}" "${customCatalogSource}" "Manual" "${PREVIOUS_CSV_NAME}"
+  approveInstallPlan "${subscription}"
 
   sleep 10s
 
-  getCheClusterCRFromExistedCSV | oc apply -n "${NAMESPACE}" -f -
-  waitEclipseCheDeployed "$(getCheVersionFromExistedCSV)"
+  echo "$(getCheClusterCRFromExistedCSV)" | oc apply -n "${NAMESPACE}" -f -
+  waitEclipseCheDeployed $(getCheVersionFromExistedCSV)
 
-  approveInstallPlan "${ECLIPSE_CHE_SUBSCRIPTION_NAME}"
-  waitEclipseCheDeployed "$(getCheVersionFromExistedCSV)"
+  approveInstallPlan "${subscription}"
+  waitEclipseCheDeployed $(getCheVersionFromExistedCSV)
 }
 
 init "$@"

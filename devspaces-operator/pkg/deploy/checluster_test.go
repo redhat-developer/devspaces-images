@@ -12,8 +12,7 @@
 package deploy
 
 import (
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -22,7 +21,7 @@ import (
 )
 
 func TestReload(t *testing.T) {
-	cheCluster := &chev2.CheCluster{
+	cheCluster := &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:       "eclipse-che",
 			Name:            "eclipse-che",
@@ -30,10 +29,10 @@ func TestReload(t *testing.T) {
 		},
 	}
 
-	chev2.SchemeBuilder.AddToScheme(scheme.Scheme)
+	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	cli := fake.NewFakeClientWithScheme(scheme.Scheme, cheCluster)
 
-	cheCluster = &chev2.CheCluster{
+	cheCluster = &orgv1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:       "eclipse-che",
 			Name:            "eclipse-che",
@@ -41,9 +40,9 @@ func TestReload(t *testing.T) {
 		},
 	}
 
-	deployContext := &chetypes.DeployContext{
+	deployContext := &DeployContext{
 		CheCluster: cheCluster,
-		ClusterAPI: chetypes.ClusterAPI{
+		ClusterAPI: ClusterAPI{
 			Client:           cli,
 			NonCachingClient: cli,
 			Scheme:           scheme.Scheme,

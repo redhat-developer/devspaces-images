@@ -11,15 +11,9 @@
 //
 package deploy
 
-import (
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
-)
-
 func init() {
-	test.EnableTestMode()
-
-	infrastructure.InitializeForTesting(infrastructure.OpenShiftv4)
-	defaults.Initialize("../../config/manager/manager.yaml")
+	err := InitTestDefaultsFromDeployment("../../config/manager/manager.yaml")
+	if err != nil {
+		panic(err)
+	}
 }

@@ -15,8 +15,9 @@ package dashboard
 import (
 	"fmt"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
+	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
+
 	rbacv1 "k8s.io/api/rbac/v1"
 )
 
@@ -50,7 +51,7 @@ func GetPrivilegedPoliciesRulesForKubernetes() []rbacv1.PolicyRule {
 		},
 	}
 
-	if !infrastructure.IsOpenShift() {
+	if !util.IsOpenShift {
 		rules = append(rules,
 			// on Kubernetes, Dashboard stores user preferences in secrets with SA
 			// until native auth is not implemented there as well
@@ -64,10 +65,10 @@ func GetPrivilegedPoliciesRulesForKubernetes() []rbacv1.PolicyRule {
 	return rules
 }
 
-func (d *DashboardReconciler) getClusterRoleName(ctx *chetypes.DeployContext) string {
+func (d *DashboardReconciler) getClusterRoleName(ctx *deploy.DeployContext) string {
 	return fmt.Sprintf(DashboardSAClusterRoleTemplate, ctx.CheCluster.Namespace)
 }
 
-func (d *DashboardReconciler) getClusterRoleBindingName(ctx *chetypes.DeployContext) string {
+func (d *DashboardReconciler) getClusterRoleBindingName(ctx *deploy.DeployContext) string {
 	return fmt.Sprintf(DashboardSAClusterRoleBindingTemplate, ctx.CheCluster.Namespace)
 }

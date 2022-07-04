@@ -14,14 +14,14 @@ package identityprovider
 import (
 	"strings"
 
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	oauth "github.com/openshift/api/oauth/v1"
 	"github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const (
@@ -40,71 +40,47 @@ func NewIdentityProviderReconciler() *IdentityProviderReconciler {
 	return &IdentityProviderReconciler{}
 }
 
-func (ip *IdentityProviderReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
-	done, err := syncOAuthClient(ctx)
+func (ip *IdentityProviderReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
+	done, err := syncNativeIdentityProviderItems(ctx)
 	return reconcile.Result{Requeue: !done}, done, err
 }
 
-func (ip *IdentityProviderReconciler) Finalize(ctx *chetypes.DeployContext) bool {
-	oauthClients, err := FindAllEclipseCheOAuthClients(ctx)
+func (ip *IdentityProviderReconciler) Finalize(ctx *deploy.DeployContext) bool {
+	oauthClient, err := FindOAuthClient(ctx)
 	if err != nil {
-		logrus.Errorf("Error getting OAuthClients: %v", err)
-		return false
-	}
-
-	for _, oauthClient := range oauthClients {
-		if _, err := deploy.DeleteClusterObject(ctx, oauthClient.Name, &oauth.OAuthClient{}); err != nil {
-			logrus.Errorf("Error deleting OAuthClient: %v", err)
-			return false
-		}
-	}
-
-	if err := deploy.DeleteFinalizer(ctx, OAuthFinalizerName); err != nil {
 		logrus.Errorf("Error deleting finalizer: %v", err)
 		return false
 	}
 
+	if oauthClient != nil {
+		err = deploy.DeleteObjectWithFinalizer(ctx, types.NamespacedName{Name: oauthClient.Name}, &oauth.OAuthClient{}, OAuthFinalizerName)
+	} else {
+		err = deploy.DeleteFinalizer(ctx, OAuthFinalizerName)
+	}
+
+	if err != nil {
+		logrus.Errorf("Error deleting finalizer: %v", err)
+		return false
+	}
 	return true
 }
 
-func syncOAuthClient(ctx *chetypes.DeployContext) (bool, error) {
-	oauthClientName := ctx.CheCluster.Spec.Networking.Auth.OAuthClientName
-	oauthSecret := ctx.CheCluster.Spec.Networking.Auth.OAuthSecret
+func syncNativeIdentityProviderItems(ctx *deploy.DeployContext) (bool, error) {
+	oauthSecret := util.GeneratePasswd(12)
+	oauthClientName := ctx.CheCluster.Name + "-openshift-identity-provider-" + strings.ToLower(util.GeneratePasswd(6))
 
-	if oauthClientName == "" {
-		oauthClient, err := FindOAuthClient(ctx)
-		if err != nil {
-			logrus.Errorf("Error getting OAuthClients: %v", err)
-			return false, err
-		}
-
-		if oauthClient != nil {
-			oauthClientName = oauthClient.Name
-			if oauthSecret == "" {
-				oauthSecret = oauthClient.Secret
-			}
-		}
-	} else {
-		oauthClient := &oauth.OAuthClient{}
-		exists, _ := deploy.GetClusterObject(ctx, oauthClientName, oauthClient)
-		if exists {
-			if oauthSecret == "" {
-				oauthSecret = oauthClient.Secret
-			}
-		}
+	oauthClient, err := FindOAuthClient(ctx)
+	if err != nil {
+		return false, err
 	}
 
-	// Generate secret and name
-	oauthSecret = utils.GetValue(oauthSecret, utils.GeneratePassword(12))
-	oauthClientName = utils.GetValue(oauthClientName, ctx.CheCluster.Name+"-openshift-identity-provider-"+strings.ToLower(utils.GeneratePassword(6)))
+	if oauthClient != nil {
+		oauthSecret = oauthClient.Secret
+		oauthClientName = oauthClient.Name
+	}
 
-	redirectURIs := []string{"https://" + ctx.CheHost + "/oauth/callback"}
-	oauthClientSpec := GetOAuthClientSpec(
-		oauthClientName,
-		oauthSecret,
-		redirectURIs,
-		ctx.CheCluster.Spec.Networking.Auth.OAuthAccessTokenInactivityTimeoutSeconds,
-		ctx.CheCluster.Spec.Networking.Auth.OAuthAccessTokenMaxAgeSeconds)
+	redirectURIs := []string{"https://" + ctx.CheCluster.GetCheHost() + "/oauth/callback"}
+	oauthClientSpec := getOAuthClientSpec(oauthClientName, oauthSecret, redirectURIs)
 	done, err := deploy.Sync(ctx, oauthClientSpec, oAuthClientDiffOpts)
 	if !done {
 		return false, err

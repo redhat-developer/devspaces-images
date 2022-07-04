@@ -15,10 +15,8 @@ package rbac
 import (
 	"fmt"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/sirupsen/logrus"
 	rbacv1 "k8s.io/api/rbac/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -26,6 +24,17 @@ import (
 )
 
 const (
+	// EditClusterRoleName - default "edit" cluster role. This role is pre-created on the cluster.
+	// See more: https://kubernetes.io/blog/2017/10/using-rbac-generally-available-18/#granting-access-to-users
+	EditClusterRoleName = "edit"
+	// EditRoleBindingName - "edit" rolebinding for che-server.
+	EditRoleBindingName = "che"
+	// CheWorkspacesServiceAccount - service account created for Che workspaces.
+	CheWorkspacesServiceAccount = "che-workspace"
+	// ViewRoleBindingName - "view" role for "che-workspace" service account.
+	ViewRoleBindingName = "che-workspace-view"
+	// ExecRoleBindingName - "exec" role for "che-workspace" service account.
+	ExecRoleBindingName = "che-workspace-exec"
 	// CheNamespaceEditorClusterRoleNameTemplate - manage namespaces "cluster role" and "clusterrolebinding" template name
 	CheNamespaceEditorClusterRoleNameTemplate = "%s-cheworkspaces-namespaces-clusterrole"
 	// CheWorkspacesClusterRoleNameTemplate - manage workspaces "cluster role" and "clusterrolebinding" template name
@@ -46,7 +55,7 @@ func NewWorkspacePermissionsReconciler() *WorkspacePermissionsReconciler {
 	return &WorkspacePermissionsReconciler{}
 }
 
-func (wp *WorkspacePermissionsReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
+func (wp *WorkspacePermissionsReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
 	done, err := wp.delegateWorkspacePermissionsInTheDifferNamespaceThanChe(ctx)
 	if !done {
 		return reconcile.Result{Requeue: true}, false, err
@@ -62,10 +71,20 @@ func (wp *WorkspacePermissionsReconciler) Reconcile(ctx *chetypes.DeployContext)
 		return reconcile.Result{Requeue: true}, false, err
 	}
 
+	// If the user specified an additional cluster role to use for the Che workspace, create a role binding for it
+	// Use a role binding instead of a cluster role binding to keep the additional access scoped to the workspace's namespace
+	workspaceClusterRole := ctx.CheCluster.Spec.Server.CheWorkspaceClusterRole
+	if workspaceClusterRole != "" {
+		done, err := deploy.SyncRoleBindingToCluster(ctx, "che-workspace-custom", "view", workspaceClusterRole, "ClusterRole")
+		if !done {
+			return reconcile.Result{Requeue: true}, false, err
+		}
+	}
+
 	return reconcile.Result{}, true, nil
 }
 
-func (wp *WorkspacePermissionsReconciler) Finalize(ctx *chetypes.DeployContext) bool {
+func (wp *WorkspacePermissionsReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	done := true
 
 	if completed := wp.removeNamespaceEditorPermissions(ctx); !completed {
@@ -92,7 +111,7 @@ func (wp *WorkspacePermissionsReconciler) Finalize(ctx *chetypes.DeployContext) 
 //    workspace components.
 // Notice: After permission delegation che-server will create service account "che-workspace" ITSELF with
 //         "exec" and "view" roles for each new workspace.
-func (wp *WorkspacePermissionsReconciler) delegateWorkspacePermissionsInTheDifferNamespaceThanChe(deployContext *chetypes.DeployContext) (bool, error) {
+func (wp *WorkspacePermissionsReconciler) delegateWorkspacePermissionsInTheDifferNamespaceThanChe(deployContext *deploy.DeployContext) (bool, error) {
 	сheWorkspacesClusterRoleName := fmt.Sprintf(CheWorkspacesClusterRoleNameTemplate, deployContext.CheCluster.Namespace)
 	сheWorkspacesClusterRoleBindingName := сheWorkspacesClusterRoleName
 
@@ -102,7 +121,7 @@ func (wp *WorkspacePermissionsReconciler) delegateWorkspacePermissionsInTheDiffe
 		return false, err
 	}
 
-	done, err = deploy.SyncClusterRoleBindingToCluster(deployContext, сheWorkspacesClusterRoleBindingName, constants.DefaultCheServiceAccountName, сheWorkspacesClusterRoleName)
+	done, err = deploy.SyncClusterRoleBindingToCluster(deployContext, сheWorkspacesClusterRoleBindingName, deploy.CheServiceAccountName, сheWorkspacesClusterRoleName)
 	if !done {
 		return false, err
 	}
@@ -111,7 +130,7 @@ func (wp *WorkspacePermissionsReconciler) delegateWorkspacePermissionsInTheDiffe
 	return err == nil, err
 }
 
-func (wp *WorkspacePermissionsReconciler) removeWorkspacePermissionsInTheDifferNamespaceThanChe(deployContext *chetypes.DeployContext) bool {
+func (wp *WorkspacePermissionsReconciler) removeWorkspacePermissionsInTheDifferNamespaceThanChe(deployContext *deploy.DeployContext) bool {
 	done := true
 
 	cheWorkspacesClusterRoleName := fmt.Sprintf(CheWorkspacesClusterRoleNameTemplate, deployContext.CheCluster.Namespace)
@@ -135,7 +154,7 @@ func (wp *WorkspacePermissionsReconciler) removeWorkspacePermissionsInTheDifferN
 	return done
 }
 
-func (wp *WorkspacePermissionsReconciler) delegateNamespaceEditorPermissions(deployContext *chetypes.DeployContext) (bool, error) {
+func (wp *WorkspacePermissionsReconciler) delegateNamespaceEditorPermissions(deployContext *deploy.DeployContext) (bool, error) {
 	сheNamespaceEditorClusterRoleName := fmt.Sprintf(CheNamespaceEditorClusterRoleNameTemplate, deployContext.CheCluster.Namespace)
 	сheNamespaceEditorClusterRoleBindingName := сheNamespaceEditorClusterRoleName
 
@@ -145,7 +164,7 @@ func (wp *WorkspacePermissionsReconciler) delegateNamespaceEditorPermissions(dep
 		return false, err
 	}
 
-	done, err = deploy.SyncClusterRoleBindingToCluster(deployContext, сheNamespaceEditorClusterRoleBindingName, constants.DefaultCheServiceAccountName, сheNamespaceEditorClusterRoleName)
+	done, err = deploy.SyncClusterRoleBindingToCluster(deployContext, сheNamespaceEditorClusterRoleBindingName, deploy.CheServiceAccountName, сheNamespaceEditorClusterRoleName)
 	if !done {
 		return false, err
 	}
@@ -154,7 +173,7 @@ func (wp *WorkspacePermissionsReconciler) delegateNamespaceEditorPermissions(dep
 	return err == nil, err
 }
 
-func (wp *WorkspacePermissionsReconciler) removeNamespaceEditorPermissions(deployContext *chetypes.DeployContext) bool {
+func (wp *WorkspacePermissionsReconciler) removeNamespaceEditorPermissions(deployContext *deploy.DeployContext) bool {
 	done := true
 
 	cheNamespaceEditorClusterRoleName := fmt.Sprintf(CheNamespaceEditorClusterRoleNameTemplate, deployContext.CheCluster.Namespace)
@@ -177,7 +196,7 @@ func (wp *WorkspacePermissionsReconciler) removeNamespaceEditorPermissions(deplo
 	return done
 }
 
-func (wp *WorkspacePermissionsReconciler) delegateDevWorkspacePermissions(deployContext *chetypes.DeployContext) (bool, error) {
+func (wp *WorkspacePermissionsReconciler) delegateDevWorkspacePermissions(deployContext *deploy.DeployContext) (bool, error) {
 	devWorkspaceClusterRoleName := fmt.Sprintf(DevWorkspaceClusterRoleNameTemplate, deployContext.CheCluster.Namespace)
 	devWorkspaceClusterRoleBindingName := devWorkspaceClusterRoleName
 
@@ -186,7 +205,7 @@ func (wp *WorkspacePermissionsReconciler) delegateDevWorkspacePermissions(deploy
 		return false, err
 	}
 
-	done, err = deploy.SyncClusterRoleBindingToCluster(deployContext, devWorkspaceClusterRoleBindingName, constants.DefaultCheServiceAccountName, devWorkspaceClusterRoleName)
+	done, err = deploy.SyncClusterRoleBindingToCluster(deployContext, devWorkspaceClusterRoleBindingName, deploy.CheServiceAccountName, devWorkspaceClusterRoleName)
 	if !done {
 		return false, err
 	}
@@ -195,7 +214,7 @@ func (wp *WorkspacePermissionsReconciler) delegateDevWorkspacePermissions(deploy
 	return err == nil, err
 }
 
-func (wp *WorkspacePermissionsReconciler) removeDevWorkspacePermissions(deployContext *chetypes.DeployContext) bool {
+func (wp *WorkspacePermissionsReconciler) removeDevWorkspacePermissions(deployContext *deploy.DeployContext) bool {
 	done := true
 
 	devWorkspaceClusterRoleName := fmt.Sprintf(DevWorkspaceClusterRoleNameTemplate, deployContext.CheCluster.Namespace)
@@ -253,7 +272,7 @@ func (wp *WorkspacePermissionsReconciler) getNamespaceEditorPolicies() []rbacv1.
 		},
 	}
 
-	if infrastructure.IsOpenShift() {
+	if util.IsOpenShift {
 		return append(k8sPolicies, openshiftPolicies...)
 	}
 	return k8sPolicies
@@ -370,7 +389,7 @@ func (c *WorkspacePermissionsReconciler) getWorkspacesPolicies() []rbacv1.Policy
 		},
 	}
 
-	if infrastructure.IsOpenShift() {
+	if util.IsOpenShift {
 		return append(k8sPolicies, openshiftPolicies...)
 	}
 	return k8sPolicies

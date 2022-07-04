@@ -12,9 +12,6 @@
 package deploy
 
 import (
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	rbac "k8s.io/api/rbac/v1"
@@ -27,7 +24,7 @@ var crDiffOpts = cmp.Options{
 }
 
 func SyncClusterRoleToCluster(
-	deployContext *chetypes.DeployContext,
+	deployContext *DeployContext,
 	name string,
 	policyRule []rbac.PolicyRule) (bool, error) {
 
@@ -35,8 +32,8 @@ func SyncClusterRoleToCluster(
 	return Sync(deployContext, crSpec, crDiffOpts)
 }
 
-func getClusterRoleSpec(deployContext *chetypes.DeployContext, name string, policyRule []rbac.PolicyRule) *rbac.ClusterRole {
-	labels := GetLabels(defaults.GetCheFlavor())
+func getClusterRoleSpec(deployContext *DeployContext, name string, policyRule []rbac.PolicyRule) *rbac.ClusterRole {
+	labels := GetLabels(deployContext.CheCluster, DefaultCheFlavor(deployContext.CheCluster))
 	clusterRole := &rbac.ClusterRole{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ClusterRole",
@@ -46,7 +43,7 @@ func getClusterRoleSpec(deployContext *chetypes.DeployContext, name string, poli
 			Name:   name,
 			Labels: labels,
 			Annotations: map[string]string{
-				constants.CheEclipseOrgNamespace: deployContext.CheCluster.Namespace,
+				CheEclipseOrgNamespace: deployContext.CheCluster.Namespace,
 			},
 		},
 		Rules: policyRule,

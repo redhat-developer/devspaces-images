@@ -22,17 +22,12 @@ import (
 
 	"sigs.k8s.io/yaml"
 
-	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	"github.com/sirupsen/logrus"
 
-	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/constants"
-	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
-	"github.com/eclipse-che/che-operator/pkg/common/utils"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 
-	chev2 "github.com/eclipse-che/che-operator/api/v2"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
+	"github.com/eclipse-che/che-operator/pkg/util"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -75,7 +70,7 @@ func NewGatewayReconciler() *GatewayReconciler {
 	return &GatewayReconciler{}
 }
 
-func (p *GatewayReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Result, bool, error) {
+func (p *GatewayReconciler) Reconcile(ctx *deploy.DeployContext) (reconcile.Result, bool, error) {
 	err := SyncGatewayToCluster(ctx)
 	if err != nil {
 		return reconcile.Result{}, false, err
@@ -84,16 +79,16 @@ func (p *GatewayReconciler) Reconcile(ctx *chetypes.DeployContext) (reconcile.Re
 	return reconcile.Result{}, true, nil
 }
 
-func (p *GatewayReconciler) Finalize(ctx *chetypes.DeployContext) bool {
+func (p *GatewayReconciler) Finalize(ctx *deploy.DeployContext) bool {
 	return true
 }
 
 // SyncGatewayToCluster installs or deletes the gateway based on the custom resource configuration
-func SyncGatewayToCluster(deployContext *chetypes.DeployContext) error {
+func SyncGatewayToCluster(deployContext *deploy.DeployContext) error {
 	return syncAll(deployContext)
 }
 
-func syncAll(deployContext *chetypes.DeployContext) error {
+func syncAll(deployContext *deploy.DeployContext) error {
 	instance := deployContext.CheCluster
 	sa := getGatewayServiceAccountSpec(instance)
 	if _, err := deploy.Sync(deployContext, &sa, serviceAccountDiffOpts); err != nil {
@@ -127,7 +122,7 @@ func syncAll(deployContext *chetypes.DeployContext) error {
 		return err
 	}
 
-	if instance.IsAccessTokenConfigured() {
+	if util.IsOpenShift {
 		if headerRewritePluginConfig, err := getGatewayHeaderRewritePluginConfigSpec(instance); err == nil {
 			if _, err := deploy.Sync(deployContext, headerRewritePluginConfig, configMapDiffOpts); err != nil {
 				return err
@@ -170,7 +165,7 @@ func syncAll(deployContext *chetypes.DeployContext) error {
 	return nil
 }
 
-func getGatewaySecretSpec(deployContext *chetypes.DeployContext) (*corev1.Secret, error) {
+func getGatewaySecretSpec(deployContext *deploy.DeployContext) (*corev1.Secret, error) {
 	secret := &corev1.Secret{}
 	exists, err := deploy.GetNamespacedObject(deployContext, gatewayOauthSecretName, secret)
 	if err == nil && exists {
@@ -186,7 +181,7 @@ func getGatewaySecretSpec(deployContext *chetypes.DeployContext) (*corev1.Secret
 	}
 }
 
-func generateOauthSecretSpec(deployContext *chetypes.DeployContext) *corev1.Secret {
+func generateOauthSecretSpec(deployContext *deploy.DeployContext) *corev1.Secret {
 	return &corev1.Secret{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
@@ -195,7 +190,7 @@ func generateOauthSecretSpec(deployContext *chetypes.DeployContext) *corev1.Secr
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      gatewayOauthSecretName,
 			Namespace: deployContext.CheCluster.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(deployContext.CheCluster, GatewayServiceName),
 		},
 		Data: map[string][]byte{
 			"cookie_secret": generateRandomCookieSecret(),
@@ -203,7 +198,7 @@ func generateOauthSecretSpec(deployContext *chetypes.DeployContext) *corev1.Secr
 	}
 }
 
-func delete(clusterAPI chetypes.ClusterAPI, obj metav1.Object) error {
+func delete(clusterAPI deploy.ClusterAPI, obj metav1.Object) error {
 	key := client.ObjectKey{Name: obj.GetName(), Namespace: obj.GetNamespace()}
 	ro := obj.(client.Object)
 	if getErr := clusterAPI.Client.Get(context.TODO(), key, ro); getErr == nil {
@@ -217,7 +212,7 @@ func delete(clusterAPI chetypes.ClusterAPI, obj metav1.Object) error {
 	return nil
 }
 
-func DeleteGatewayRouteConfig(componentName string, deployContext *chetypes.DeployContext) error {
+func DeleteGatewayRouteConfig(componentName string, deployContext *deploy.DeployContext) error {
 	obj := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GatewayConfigMapNamePrefix + componentName,
@@ -230,7 +225,7 @@ func DeleteGatewayRouteConfig(componentName string, deployContext *chetypes.Depl
 
 // below functions declare the desired states of the various objects required for the gateway
 
-func getGatewayServerConfigSpec(deployContext *chetypes.DeployContext) (corev1.ConfigMap, error) {
+func getGatewayServerConfigSpec(deployContext *deploy.DeployContext) (corev1.ConfigMap, error) {
 	cfg := CreateCommonTraefikConfig(
 		serverComponentName,
 		"PathPrefix(`/api`, `/swagger`, `/_app`)",
@@ -238,21 +233,21 @@ func getGatewayServerConfigSpec(deployContext *chetypes.DeployContext) (corev1.C
 		"http://"+deploy.CheServiceName+":8080",
 		[]string{})
 
-	if deployContext.CheCluster.IsAccessTokenConfigured() {
+	if util.IsOpenShift {
 		cfg.AddAuthHeaderRewrite(serverComponentName)
-	}
-	if infrastructure.IsOpenShift() {
 		// native user mode is currently only available on OpenShift but let's be defensive here so that
 		// this doesn't break once we enable it on Kubernetes, too. Token check will have to work
 		// differently on Kuberentes.
-		cfg.AddOpenShiftTokenCheck(serverComponentName)
+		if util.IsOpenShift {
+			cfg.AddOpenShiftTokenCheck(serverComponentName)
+		}
 	}
 
 	return GetConfigmapForGatewayConfig(deployContext, serverComponentName, cfg)
 }
 
 func GetConfigmapForGatewayConfig(
-	deployContext *chetypes.DeployContext,
+	deployContext *deploy.DeployContext,
 	componentName string,
 	gatewayConfig *TraefikConfig) (corev1.ConfigMap, error) {
 
@@ -269,9 +264,9 @@ func GetConfigmapForGatewayConfig(
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GatewayConfigMapNamePrefix + componentName,
 			Namespace: deployContext.CheCluster.Namespace,
-			Labels: labels.Merge(
-				deploy.GetLabels(gatewayConfigComponentName),
-				utils.GetMap(deployContext.CheCluster.Spec.Networking.Auth.Gateway.ConfigLabels, constants.DefaultSingleHostGatewayConfigMapLabels)),
+			Labels: util.MergeMaps(
+				deploy.GetLabels(deployContext.CheCluster, gatewayConfigComponentName),
+				util.GetMapValue(deployContext.CheCluster.Spec.Server.SingleHostGatewayConfigMapLabels, deploy.DefaultSingleHostGatewayConfigMapLabels)),
 		},
 		Data: map[string]string{
 			componentName + ".yml": string(gatewayConfigContent),
@@ -283,7 +278,7 @@ func GetConfigmapForGatewayConfig(
 	return ret, nil
 }
 
-func getGatewayServiceAccountSpec(instance *chev2.CheCluster) corev1.ServiceAccount {
+func getGatewayServiceAccountSpec(instance *orgv1.CheCluster) corev1.ServiceAccount {
 	return corev1.ServiceAccount{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
@@ -292,12 +287,12 @@ func getGatewayServiceAccountSpec(instance *chev2.CheCluster) corev1.ServiceAcco
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GatewayServiceName,
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 	}
 }
 
-func getGatewayRoleSpec(instance *chev2.CheCluster) rbac.Role {
+func getGatewayRoleSpec(instance *orgv1.CheCluster) rbac.Role {
 	return rbac.Role{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: rbac.SchemeGroupVersion.String(),
@@ -306,7 +301,7 @@ func getGatewayRoleSpec(instance *chev2.CheCluster) rbac.Role {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GatewayServiceName,
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 		Rules: []rbac.PolicyRule{
 			{
@@ -318,7 +313,7 @@ func getGatewayRoleSpec(instance *chev2.CheCluster) rbac.Role {
 	}
 }
 
-func getGatewayRoleBindingSpec(instance *chev2.CheCluster) rbac.RoleBinding {
+func getGatewayRoleBindingSpec(instance *orgv1.CheCluster) rbac.RoleBinding {
 	return rbac.RoleBinding{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: rbac.SchemeGroupVersion.String(),
@@ -327,7 +322,7 @@ func getGatewayRoleBindingSpec(instance *chev2.CheCluster) rbac.RoleBinding {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GatewayServiceName,
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 		RoleRef: rbac.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
@@ -344,19 +339,19 @@ func getGatewayRoleBindingSpec(instance *chev2.CheCluster) rbac.RoleBinding {
 }
 
 func generateRandomCookieSecret() []byte {
-	return []byte(base64.StdEncoding.EncodeToString([]byte(utils.GeneratePassword(16))))
+	return []byte(base64.StdEncoding.EncodeToString([]byte(util.GeneratePasswd(16))))
 }
 
-func getGatewayHeaderRewritePluginConfigSpec(instance *chev2.CheCluster) (*corev1.ConfigMap, error) {
+func getGatewayHeaderRewritePluginConfigSpec(instance *orgv1.CheCluster) (*corev1.ConfigMap, error) {
 	headerRewrite, err := ioutil.ReadFile("/tmp/header-rewrite-traefik-plugin/headerRewrite.go")
 	if err != nil {
-		if !test.IsTestMode() {
+		if !util.IsTestMode() {
 			return nil, err
 		}
 	}
 	pluginMeta, err := ioutil.ReadFile("/tmp/header-rewrite-traefik-plugin/.traefik.yml")
 	if err != nil {
-		if !test.IsTestMode() {
+		if !util.IsTestMode() {
 			return nil, err
 		}
 	}
@@ -369,7 +364,7 @@ func getGatewayHeaderRewritePluginConfigSpec(instance *chev2.CheCluster) (*corev
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "che-gateway-config-header-rewrite-traefik-plugin",
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 		Data: map[string]string{
 			"headerRewrite.go": string(headerRewrite),
@@ -378,7 +373,7 @@ func getGatewayHeaderRewritePluginConfigSpec(instance *chev2.CheCluster) (*corev
 	}, nil
 }
 
-func getGatewayTraefikConfigSpec(instance *chev2.CheCluster) corev1.ConfigMap {
+func getGatewayTraefikConfigSpec(instance *orgv1.CheCluster) corev1.ConfigMap {
 	traefikPort := 8081
 	data := fmt.Sprintf(`
 entrypoints:
@@ -400,7 +395,7 @@ providers:
 log:
   level: "INFO"`, traefikPort)
 
-	if instance.IsAccessTokenConfigured() {
+	if util.IsOpenShift {
 		data += `
 experimental:
   localPlugins:
@@ -416,7 +411,7 @@ experimental:
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "che-gateway-config",
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 		Data: map[string]string{
 			"traefik.yml": data,
@@ -424,12 +419,12 @@ experimental:
 	}
 }
 
-func getGatewayDeploymentSpec(ctx *chetypes.DeployContext) appsv1.Deployment {
+func getGatewayDeploymentSpec(ctx *deploy.DeployContext) appsv1.Deployment {
 	terminationGracePeriodSeconds := int64(10)
 
-	deployLabels, labelsSelector := deploy.GetLabelsAndSelector(GatewayServiceName)
+	deployLabels, labelsSelector := deploy.GetLabelsAndSelector(ctx.CheCluster, GatewayServiceName)
 
-	deployment := appsv1.Deployment{
+	return appsv1.Deployment{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: appsv1.SchemeGroupVersion.String(),
 			Kind:       "Deployment",
@@ -460,22 +455,19 @@ func getGatewayDeploymentSpec(ctx *chetypes.DeployContext) appsv1.Deployment {
 			},
 		},
 	}
-
-	deploy.CustomizeDeployment(&deployment, ctx.CheCluster.Spec.Networking.Auth.Gateway.Deployment, false)
-	return deployment
 }
 
-func getContainersSpec(ctx *chetypes.DeployContext) []corev1.Container {
-	configLabelsMap := utils.GetMap(ctx.CheCluster.Spec.Networking.Auth.Gateway.ConfigLabels, constants.DefaultSingleHostGatewayConfigMapLabels)
-	gatewayImage := defaults.GetGatewayImage(ctx.CheCluster)
-	configSidecarImage := defaults.GetGatewayConfigSidecarImage(ctx.CheCluster)
+func getContainersSpec(ctx *deploy.DeployContext) []corev1.Container {
+	configLabelsMap := util.GetMapValue(ctx.CheCluster.Spec.Server.SingleHostGatewayConfigMapLabels, deploy.DefaultSingleHostGatewayConfigMapLabels)
+	gatewayImage := util.GetValue(ctx.CheCluster.Spec.Server.SingleHostGatewayImage, deploy.DefaultSingleHostGatewayImage(ctx.CheCluster))
+	configSidecarImage := util.GetValue(ctx.CheCluster.Spec.Server.SingleHostGatewayConfigSidecarImage, deploy.DefaultSingleHostGatewayConfigSidecarImage(ctx.CheCluster))
 	configLabels := labels.FormatLabels(configLabelsMap)
 
 	containers := []corev1.Container{
 		{
 			Name:            "gateway",
 			Image:           gatewayImage,
-			ImagePullPolicy: corev1.PullIfNotPresent,
+			ImagePullPolicy: corev1.PullAlways,
 			VolumeMounts:    getTraefikContainerVolumeMounts(ctx.CheCluster),
 			Resources: corev1.ResourceRequirements{
 				Limits: corev1.ResourceList{
@@ -491,7 +483,7 @@ func getContainersSpec(ctx *chetypes.DeployContext) []corev1.Container {
 		{
 			Name:            "configbump",
 			Image:           configSidecarImage,
-			ImagePullPolicy: corev1.PullIfNotPresent,
+			ImagePullPolicy: corev1.PullAlways,
 			Resources: corev1.ResourceRequirements{
 				Limits: corev1.ResourceList{
 					corev1.ResourceMemory: resource.MustParse("256Mi"),
@@ -537,7 +529,7 @@ func getContainersSpec(ctx *chetypes.DeployContext) []corev1.Container {
 	return containers
 }
 
-func getTraefikContainerVolumeMounts(instance *chev2.CheCluster) []corev1.VolumeMount {
+func getTraefikContainerVolumeMounts(instance *orgv1.CheCluster) []corev1.VolumeMount {
 	mounts := []corev1.VolumeMount{
 		{
 			Name:      "static-config",
@@ -548,7 +540,7 @@ func getTraefikContainerVolumeMounts(instance *chev2.CheCluster) []corev1.Volume
 			MountPath: "/dynamic-config",
 		},
 	}
-	if instance.IsAccessTokenConfigured() {
+	if util.IsOpenShift {
 		mounts = append(mounts, corev1.VolumeMount{
 			Name:      "header-rewrite-traefik-plugin",
 			MountPath: "/plugins-local/src/github.com/che-incubator/header-rewrite-traefik-plugin",
@@ -558,7 +550,7 @@ func getTraefikContainerVolumeMounts(instance *chev2.CheCluster) []corev1.Volume
 	return mounts
 }
 
-func getVolumesSpec(instance *chev2.CheCluster) []corev1.Volume {
+func getVolumesSpec(instance *orgv1.CheCluster) []corev1.Volume {
 	volumes := []corev1.Volume{
 		{
 			Name: "static-config",
@@ -582,7 +574,7 @@ func getVolumesSpec(instance *chev2.CheCluster) []corev1.Volume {
 		getOauthProxyConfigVolume(),
 		getKubeRbacProxyConfigVolume())
 
-	if instance.IsAccessTokenConfigured() {
+	if util.IsOpenShift {
 		volumes = append(volumes, corev1.Volume{
 			Name: "header-rewrite-traefik-plugin",
 			VolumeSource: corev1.VolumeSource{
@@ -598,7 +590,7 @@ func getVolumesSpec(instance *chev2.CheCluster) []corev1.Volume {
 	return volumes
 }
 
-func getGatewayServiceSpec(instance *chev2.CheCluster) corev1.Service {
+func getGatewayServiceSpec(instance *orgv1.CheCluster) corev1.Service {
 	return corev1.Service{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: corev1.SchemeGroupVersion.String(),
@@ -607,10 +599,10 @@ func getGatewayServiceSpec(instance *chev2.CheCluster) corev1.Service {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      GatewayServiceName,
 			Namespace: instance.Namespace,
-			Labels:    deploy.GetLabels(GatewayServiceName),
+			Labels:    deploy.GetLabels(instance, GatewayServiceName),
 		},
 		Spec: corev1.ServiceSpec{
-			Selector:        deploy.GetLabels(GatewayServiceName),
+			Selector:        deploy.GetLabels(instance, GatewayServiceName),
 			SessionAffinity: corev1.ServiceAffinityNone,
 			Type:            corev1.ServiceTypeClusterIP,
 			Ports: []corev1.ServicePort{
