@@ -68,7 +68,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4fe3ec8a0ae231c0c1d103671d040858395b6920654c262058086bda5449eb23
-    createdAt: "2022-07-04T13:43:42+00:00"
+    createdAt: "2022-07-04T20:54:41+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -512,6 +512,7 @@ spec:
           - pods/exec
           verbs:
           - create
+          - get
         - apiGroups:
           - apps
           resources:
@@ -1089,13 +1090,13 @@ spec:
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:85ef53093699128b0fcdb6806b10d39a969d48c9cd881934b08e6a0b13c83ef4
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:005d167e61624477264cc8736803385cec4453d80717f97ceeed3d8ad6c7097b
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:095a0d4187692dd886580c74814e3a66e957901db0f189222e71874a2fe8b65e
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:114c17671071d0b7d0471c1a62c659c083eeaa2b7dd98fcbeed8ae95aa8bfef2
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:85e537155414d79485feaf43fb000d60955abd44782ae44fd00577b680e892c5
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:114c17671071d0b7d0471c1a62c659c083eeaa2b7dd98fcbeed8ae95aa8bfef2
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:85e537155414d79485feaf43fb000d60955abd44782ae44fd00577b680e892c5
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:005d167e61624477264cc8736803385cec4453d80717f97ceeed3d8ad6c7097b
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:095a0d4187692dd886580c74814e3a66e957901db0f189222e71874a2fe8b65e
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:4d372520bf6392bbc3c1a6e9887f860bc4d12c3fb9b18739d8fb345bcc6b56bc
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
@@ -1115,7 +1116,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:fea858ca3326bd985f91d34367bd2ca8db351a5f80b4e140a585d26732e8a450
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:d236782022992784c7f7324fc7776601adec63b318dd72d70b8bdb9daeb90111
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1421,13 +1422,13 @@ spec:
   - name: devspaces_machineexec_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:85ef53093699128b0fcdb6806b10d39a969d48c9cd881934b08e6a0b13c83ef4
   - name: devspaces_theia_devfile_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:005d167e61624477264cc8736803385cec4453d80717f97ceeed3d8ad6c7097b
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:095a0d4187692dd886580c74814e3a66e957901db0f189222e71874a2fe8b65e
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:114c17671071d0b7d0471c1a62c659c083eeaa2b7dd98fcbeed8ae95aa8bfef2
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:85e537155414d79485feaf43fb000d60955abd44782ae44fd00577b680e892c5
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:114c17671071d0b7d0471c1a62c659c083eeaa2b7dd98fcbeed8ae95aa8bfef2
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:85e537155414d79485feaf43fb000d60955abd44782ae44fd00577b680e892c5
   - name: devspaces_theia_plugin_registry_image_gmxdccq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:005d167e61624477264cc8736803385cec4453d80717f97ceeed3d8ad6c7097b
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:095a0d4187692dd886580c74814e3a66e957901db0f189222e71874a2fe8b65e
   - name: devspaces_udi_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:4d372520bf6392bbc3c1a6e9887f860bc4d12c3fb9b18739d8fb345bcc6b56bc
   - name: devspaces_udi_plugin_registry_image_gmxdccq_
@@ -1447,7 +1448,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:fea858ca3326bd985f91d34367bd2ca8db351a5f80b4e140a585d26732e8a450
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:d236782022992784c7f7324fc7776601adec63b318dd72d70b8bdb9daeb90111
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
