@@ -25,7 +25,7 @@ RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 RUN npm install --global yarn
 
 # Copy files needed for the plugin registry build/artifact creation
-COPY ./build.sh ./*.yml ./*.yaml ./*.js ./*.json ./yarn.lock /build/
+COPY ./build.sh ./*.yml ./*.yaml ./*.js ./*.json /build/
 COPY ./build /build/build/
 
 # Run plugin registry build to generate artifacts
