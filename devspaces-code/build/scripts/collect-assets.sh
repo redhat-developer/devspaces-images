@@ -13,7 +13,7 @@
 # commandline args
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-v') DS_VERSION="$2"; shift 1;;
+    '-t') DS_VERSION="$2"; shift 1;; # get tag version (3.y), not csv version (3.y.z)
   esac
   shift 1
 done
