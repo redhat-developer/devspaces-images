@@ -81,9 +81,6 @@ sync_dstheia_to_dsimages() {
     echo "Rsync ${SOURCEDIR}/dockerfiles/${sourceDir} to ${TARGETDIR}/devspaces-${targDir}"
     rsync -azrlt --checksum --delete --exclude-from /tmp/rsync-excludes "${SOURCEDIR}/dockerfiles/${sourceDir}/"* "${TARGETDIR}/devspaces-${targDir}/"
 
-    # CRW-2958 remove duplicate content in theia-*/src folder
-    git rm -fr "${TARGETDIR}/devspaces-${targDir}/${sourceDir}/" || rm -fr "${TARGETDIR}/devspaces-${targDir}/${sourceDir}/"
-
     # ensure shell scripts are executable
     find "${TARGETDIR}/devspaces-${targDir}" -name "*.sh" -exec chmod +x {} \;
   done
