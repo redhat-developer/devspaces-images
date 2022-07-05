@@ -20,6 +20,7 @@ WORKDIR /mnt/rootfs
 RUN cat /mnt/rootfs/etc/passwd | sed s#root:x.*#root:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g > /mnt/rootfs/home/che/.passwd.template \
     && cat /mnt/rootfs/etc/group | sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g > /mnt/rootfs/home/che/.group.template
 
+COPY /build/scripts/entrypoint*.sh /mnt/rootfs/
 COPY asset-*.tar.gz /tmp/assets/
 
 RUN for f in /tmp/assets/*.tar.gz; do tar -xf "$f" -C /mnt/rootfs; done && \
