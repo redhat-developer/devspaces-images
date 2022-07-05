@@ -101,7 +101,8 @@ while IFS= read -r -d '' d; do
 			-e 's|che/operator|devspaces/operator|' \
 			-e 's|che-operator|devspaces-operator|' \
 			-e 's|name: eclipse-che|name: devspaces|' \
-			-e 's|/bin/devspaces-operator|/bin/che-operator|' \
+			-e 's|<username>-che|<username>-devspaces|' \
+      -e 's|/bin/devspaces-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/devspaces-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/devspaces-operator#\1.com/eclipse-che/che-operator#g' \
 			-e 's|devworkspace-devspaces-operator|devworkspace-che-operator|'
@@ -236,17 +237,6 @@ if [[ $oldImage ]]; then
 	replaceField "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" ".spec.template.spec.containers[0].image" "${oldImage%%:*}:${DS_VERSION}" "${COPYRIGHT}"
 fi
 echo "Converted (yq #2) ${OPERATOR_DEPLOYMENT_YAML}"
-
-# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# yq changes - transform env vars from Che to CRW values
-CR_YAML="config/samples/org_v2_checluster.yaml"
-#shellcheck disable=2002
-changed="$(cat "${TARGETDIR}/${CR_YAML}" | \
-yq  -y '.spec.devEnvironments.defaultNamespace.template="<username>-devspaces"')" && \
-echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
-if [[ $(diff -u "${CR_YAML}" "${TARGETDIR}/${CR_YAML}") ]]; then
-	echo "Converted (yq #3) ${TARGETDIR}/${CR_YAML}"
-fi
 
 # if sort the file, we'll lose all the comments
 yq -yY '.spec.template.spec.containers[0].env |= sort_by(.name)' "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}" > "${TARGETDIR}/${OPERATOR_DEPLOYMENT_YAML}2"
