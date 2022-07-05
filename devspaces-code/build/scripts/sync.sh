@@ -52,6 +52,9 @@ README.md
 Dockerfile
 build/scripts/sync.sh
 build/scripts/collect-assets.sh
+build/dockerfiles/dev.Dockerfile
+build/dockerfiles/assembly.Dockerfile
+build/dockerfiles/linux-musl.Dockerfile
 build/dockerfiles/libc-content-provider.Dockerfile
 container.yaml
 content_sets.yml
