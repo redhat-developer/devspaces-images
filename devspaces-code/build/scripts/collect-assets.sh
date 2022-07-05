@@ -55,8 +55,9 @@ collect_machine_exec_assets() {
 }
 
 ### entrypoints ###
+# TODO: do we need to tar these up if they're text files and are already in build/scripts/ ? 
 collect_entrypoints_assets() {
-    (cd $SCRIPT_PATH && tar -cvf ${BASE_DIR_PATH}/asset-entrypoints.tar.gz entrypoint*.sh)
+    (cd $SCRIPT_PATH && tar -cvzf ${BASE_DIR_PATH}/asset-entrypoints.tar.gz entrypoint*.sh)
 }
 
 collect_machine_exec_assets
