@@ -37,7 +37,7 @@ type CheClusterSpec struct {
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Development environments"
-	// +kubebuilder:default:={storage: {pvcStrategy: common}, defaultNamespace: {template: <username>-che}}
+	// +kubebuilder:default:={storage: {pvcStrategy: common}, defaultNamespace: {template: <username>-devspaces}}
 	DevEnvironments CheClusterDevEnvironments `json:"devEnvironments"`
 	// Che components configuration.
 	// +optional
@@ -76,7 +76,7 @@ type CheClusterDevEnvironments struct {
 	Tolerations []corev1.Toleration `json:"tolerations,omitempty"`
 	// User's default namespace.
 	// +optional
-	// +kubebuilder:default:={template: <username>-che}
+	// +kubebuilder:default:={template: <username>-devspaces}
 	DefaultNamespace DefaultNamespace `json:"defaultNamespace,omitempty"`
 	// Trusted certificate settings.
 	// +optional
@@ -329,7 +329,7 @@ type DefaultNamespace struct {
 	// If you don't create the user namespaces in advance, this field defines the Kubernetes namespace created when you start your first workspace.
 	// You can use `<username>` and `<userid>` placeholders, such as che-workspace-<username>.
 	// +optional
-	// +kubebuilder:default:=<username>-che
+	// +kubebuilder:default:=<username>-devspaces
 	// +kubebuilder:validation:Pattern=<username>|<userid>
 	Template string `json:"template,omitempty"`
 }

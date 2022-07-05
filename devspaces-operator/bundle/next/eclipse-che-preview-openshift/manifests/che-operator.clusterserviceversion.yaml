@@ -40,7 +40,7 @@ metadata:
               "enable": true
             },
             "server": {
-              "workspaceNamespaceDefault": "<username>-che"
+              "workspaceNamespaceDefault": "<username>-devspaces"
             },
             "storage": {
               "pvcStrategy": "common"
@@ -541,6 +541,7 @@ spec:
                 - pods/exec
               verbs:
                 - create
+                - get
             - apiGroups:
                 - apps
               resources:
