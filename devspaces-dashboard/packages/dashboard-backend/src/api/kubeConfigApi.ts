@@ -22,7 +22,16 @@ const tags = ['Kube Config'];
 export function registerKubeConfigApi(server: FastifyInstance) {
   server.post(
     `${baseApiPath}/namespace/:namespace/devworkspaceId/:devworkspaceId/kubeconfig`,
-    getSchema({ tags, params: namespacedKubeConfigSchema }),
+    getSchema({
+      tags,
+      params: namespacedKubeConfigSchema,
+      response: {
+        204: {
+          description: 'The cube config file is successfully injected',
+          type: 'null',
+        },
+      },
+    }),
     async function (request: FastifyRequest, reply: FastifyReply) {
       const token = getToken(request);
       const { kubeConfigApi } = await getDevWorkspaceClient(token);
