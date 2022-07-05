@@ -2,6 +2,10 @@ import groovy.json.JsonSlurper
 
 def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
 
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+///// @since 3.1
+///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// 
+
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
@@ -10,7 +14,7 @@ for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
     try {
-        fileCheck = readFileFromWorkspace('jobs/CRW_CI/template_'+JB+'.jenkinsfile')
+        fileCheck = readFileFromWorkspace('jobs/DS_CI/template_'+JB+'.jenkinsfile')
         FILE_CHECK = true
     }
     catch(err) {
@@ -77,7 +81,7 @@ Artifact builder + sync job; triggers brew after syncing
             definition {
                 cps{
                     sandbox(true)
-                    script(readFileFromWorkspace('jobs/CRW_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
+                    script(readFileFromWorkspace('jobs/DS_CI/template_'+JOB_BRANCH+'.jenkinsfile'))
                 }
             }
         }
