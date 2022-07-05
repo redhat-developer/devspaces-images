@@ -102,7 +102,7 @@ while IFS= read -r -d '' d; do
 			-e 's|che-operator|devspaces-operator|' \
 			-e 's|name: eclipse-che|name: devspaces|' \
 			-e 's|<username>-che|<username>-devspaces|' \
-      -e 's|/bin/devspaces-operator|/bin/che-operator|' \
+			-e 's|/bin/devspaces-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/devspaces-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/devspaces-operator#\1.com/eclipse-che/che-operator#g' \
 			-e 's|devworkspace-devspaces-operator|devworkspace-che-operator|'
