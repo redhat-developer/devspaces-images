@@ -1,3 +1,6 @@
 vscode-reh-web-*
 node_modules
 
+/asset-libc-content-ppc64le.tar.gz
+/asset-machine-exec.tar.gz
+/asset-entrypoints.tar.gz
