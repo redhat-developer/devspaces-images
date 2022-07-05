@@ -32,8 +32,8 @@ SCRIPT_PATH="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
 BASE_DIR_PATH="${SCRIPT_PATH}/../.."
 DOCKERFILES_PATH="${BASE_DIR_PATH}/build/dockerfiles"
 
-#### linux-libc-content ####
-collect_linux_libc_content_assets() {
+#### libc-content ####
+collect_libc_content_assets() {
     docker build -f "${DOCKERFILES_PATH}/linux-libc.Dockerfile" --build-arg GITHUB_TOKEN=$GITHUB_TOKEN -t $LIBC_BUILDER_IMAGE .
     docker build -f "${DOCKERFILES_PATH}/libc-content-provider.Dockerfile" -t $LIBC_CONTENT_IMAGE .
 
@@ -54,12 +54,5 @@ collect_machine_exec_assets() {
     docker rmi $(docker images $MACHINE_EXEC_IMAGE -a -q)
 }
 
-### entrypoints ###
-# TODO: do we need to tar these up if they're text files and are already in build/scripts/ ? 
-collect_entrypoints_assets() {
-    (cd $SCRIPT_PATH && tar -cvzf ${BASE_DIR_PATH}/asset-entrypoints.tar.gz entrypoint*.sh)
-}
-
 collect_machine_exec_assets
-collect_linux_libc_content_assets
-collect_entrypoints_assets
+collect_libc_content_assets
