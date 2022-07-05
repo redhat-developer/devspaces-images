@@ -34,7 +34,7 @@ DOCKERFILES_PATH="${BASE_DIR_PATH}/build/dockerfiles"
 
 #### linux-libc-content ####
 collect_linux_libc_content_assets() {
-    docker build -f "${DOCKERFILES_PATH}/linux-libc.Dockerfile" -t $LIBC_BUILDER_IMAGE .
+    docker build -f "${DOCKERFILES_PATH}/linux-libc.Dockerfile" --build-arg GITHUB_TOKEN=$GITHUB_TOKEN -t $LIBC_BUILDER_IMAGE .
     docker build -f "${DOCKERFILES_PATH}/libc-content-provider.Dockerfile" -t $LIBC_CONTENT_IMAGE .
 
     id="$(docker create $LIBC_CONTENT_IMAGE)"
