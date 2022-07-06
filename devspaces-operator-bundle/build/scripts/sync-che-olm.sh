@@ -204,8 +204,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e 's|/usr/local/bin/devspaces-operator|/usr/local/bin/che-operator|' \
 		-e 's|imagePullPolicy: IfNotPresent|imagePullPolicy: Always|' \
 		\
-		-e 's|"template":.".*"|"template": "<username>-devspaces"|' \
-		\
 		-e "s|quay.io/eclipse/devspaces-operator:.+|registry.redhat.io/devspaces/${DS_OPERATOR}:${DS_VERSION}|" \
 		-e "s|(registry.redhat.io/devspaces/${DS_OPERATOR}:${DS_VERSION}).+|\1|" \
 		-e "s|quay.io/eclipse/che-server:.+|registry.redhat.io/devspaces/server-rhel8:${DS_VERSION}|" \
@@ -320,16 +318,6 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		done
 	fi
 done
-
-# see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
-# yq changes - transform env vars from Che to DS values
-CR_YAML="config/samples/org_v2_checluster.yaml"
-changed="$(
-yq  -y '.spec.devEnvironments.defaultNamespace.template="<username>-devspaces"')" && \
-echo "${COPYRIGHT}${changed}" > "${TARGETDIR}/${CR_YAML}"
-if [[ $(diff -u "$CR_YAML" "${TARGETDIR}/${CR_YAML}") ]]; then
-	echo "Converted (yq #4) ${TARGETDIR}/${CR_YAML}"
-fi
 
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
 

@@ -101,7 +101,6 @@ while IFS= read -r -d '' d; do
 			-e 's|che/operator|devspaces/operator|' \
 			-e 's|che-operator|devspaces-operator|' \
 			-e 's|name: eclipse-che|name: devspaces|' \
-			-e 's|<username>-che|<username>-devspaces|' \
 			-e 's|/bin/devspaces-operator|/bin/che-operator|' \
 			-e 's#(githubusercontent|github).com/eclipse/devspaces-operator#\1.com/eclipse/che-operator#g' \
 			-e 's#(githubusercontent|github).com/eclipse-che/devspaces-operator#\1.com/eclipse-che/che-operator#g' \
@@ -111,6 +110,16 @@ while IFS= read -r -d '' d; do
 		fi
 	fi
 done <   <(find bundle config pkg/deploy api controllers -type f -not -name "defaults_test.go" -print0)
+
+# shellcheck disable=SC2086
+# https://issues.redhat.com/browse/CRW-3114
+while IFS= read -r -d '' d; do
+	sed -r -e 's|<username>-che|<username>-devspaces|' \
+	"$d" > "${TARGETDIR}/${d}"
+	if [[ $(diff -u "$d" "${TARGETDIR}/${d}") ]]; then
+		echo "    ${0##*/} :: Converted (sed) ${d}"
+	fi
+done <   <(find bundle config deploy api -type f -print0)
 
 # shellcheck disable=SC2086
 while IFS= read -r -d '' d; do
