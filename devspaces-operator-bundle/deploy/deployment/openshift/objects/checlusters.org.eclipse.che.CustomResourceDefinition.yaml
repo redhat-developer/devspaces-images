@@ -2387,7 +2387,7 @@ spec:
               devEnvironments:
                 default:
                   defaultNamespace:
-                    template: <username>-che
+                    template: <username>-devspaces
                   storage:
                     pvcStrategy: common
                 description: Development environment default configuration options.
@@ -3316,11 +3316,11 @@ spec:
                     type: string
                   defaultNamespace:
                     default:
-                      template: <username>-che
+                      template: <username>-devspaces
                     description: User's default namespace.
                     properties:
                       template:
-                        default: <username>-che
+                        default: <username>-devspaces
                         description: If you don't create the user namespaces in advance, this field defines the Kubernetes namespace created when you start your first workspace. You can use `<username>` and `<userid>` placeholders, such as che-workspace-<username>.
                         pattern: <username>|<userid>
                         type: string
