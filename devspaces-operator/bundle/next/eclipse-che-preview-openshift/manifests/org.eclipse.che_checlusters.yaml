@@ -28,7 +28,7 @@ spec:
     webhook:
       clientConfig:
         service:
-          name: devspaces-operator-service
+          name: che-operator-service
           namespace: eclipse-che
           path: /convert
       conversionReviewVersions:
@@ -418,7 +418,7 @@ spec:
                     pvcClaimSize:
                       description: Size of the persistent volume claim for database.
                         Defaults to `1Gi`. To update pvc storageclass that provisions
-                        it must support resize when Red Hat OpenShift Dev Spaces has been already deployed.
+                        it must support resize when Eclipse Che has been already deployed.
                       type: string
                   type: object
                 devWorkspace:
@@ -568,7 +568,7 @@ spec:
                         registry to pull images from. This value overrides the container
                         registry organization defined in all the default container
                         images involved in a Che deployment. This is particularly
-                        useful to install Red Hat OpenShift Dev Spaces in a restricted environment.
+                        useful to install Eclipse Che in a restricted environment.
                       type: string
                     allowUserDefinedWorkspaceNamespaces:
                       description: Deprecated. The value of this flag is ignored.
@@ -2766,7 +2766,7 @@ spec:
       schema:
         openAPIV3Schema:
           description: 'The `CheCluster` custom resource allows defining and managing
-            Red Hat OpenShift Dev Spaces server installation. Based on these settings, the  Operator
+            Eclipse Che server installation. Based on these settings, the  Operator
             automatically creates and maintains several ConfigMaps: `che`, `plugin-registry`,
             `devfile-registry` that will contain the appropriate environment variables
             of the various components of the installation. These generated ConfigMaps
@@ -2786,7 +2786,7 @@ spec:
             metadata:
               type: object
             spec:
-              description: Desired configuration of Red Hat OpenShift Dev Spaces installation.
+              description: Desired configuration of Eclipse Che installation.
               properties:
                 components:
                   default:
@@ -3622,13 +3622,13 @@ spec:
                         to pull images from. This value overrides the container registry
                         organization defined in all the default container images involved
                         in a Che deployment. This is particularly useful for installing
-                        Red Hat OpenShift Dev Spaces in a restricted environment.
+                        Eclipse Che in a restricted environment.
                       type: string
                   type: object
                 devEnvironments:
                   default:
                     defaultNamespace:
-                      template: <username>-che
+                      template: <username>-devspaces
                     storage:
                       pvcStrategy: common
                   description: Development environment default configuration options.
@@ -5141,11 +5141,11 @@ spec:
                       type: string
                     defaultNamespace:
                       default:
-                        template: <username>-che
+                        template: <username>-devspaces
                       description: User's default namespace.
                       properties:
                         template:
-                          default: <username>-che
+                          default: <username>-devspaces
                           description: If you don't create the user namespaces in
                             advance, this field defines the Kubernetes namespace created
                             when you start your first workspace. You can use `<username>`

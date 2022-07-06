@@ -11,33 +11,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devspaces-operator
+  name: che-operator
   namespace: eclipse-che
   labels:
-    app: devspaces-operator
+    app: che-operator
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: devspaces-operator
+    app.kubernetes.io/component: che-operator
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: devspaces-operator
+      app: che-operator
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: devspaces-operator
+        app: che-operator
         app.kubernetes.io/name: che
         app.kubernetes.io/instance: che
         app.kubernetes.io/part-of: che.eclipse.org
-        app.kubernetes.io/component: devspaces-operator
+        app.kubernetes.io/component: che-operator
     spec:
       containers:
-        - name: devspaces-operator
-          image: registry.redhat.io/devspaces/devspaces-rhel8-operator:3.2
+        - name: che-operator
+          image: quay.io/eclipse/che-operator:3.2
           command:
             - /manager
           args:
@@ -54,7 +54,7 @@ spec:
             - name: CHE_VERSION
               value: 3.2.0
             - name: CONSOLE_LINK_DISPLAY_NAME
-              value: Red Hat OpenShift Dev Spaces
+              value: Eclipse Che
             - name: CONSOLE_LINK_IMAGE
               value: /dashboard/assets/branding/loader.svg
             - name: CONSOLE_LINK_NAME
@@ -64,7 +64,7 @@ spec:
             - name: MAX_CONCURRENT_RECONCILES
               value: "1"
             - name: OPERATOR_NAME
-              value: devspaces-operator
+              value: che-operator
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -132,5 +132,5 @@ spec:
       hostNetwork: false
       hostPID: false
       restartPolicy: Always
-      serviceAccountName: devspaces-operator
+      serviceAccountName: che-operator
       terminationGracePeriodSeconds: 20

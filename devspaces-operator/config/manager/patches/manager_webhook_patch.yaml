@@ -13,13 +13,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: devspaces-operator
+  name: che-operator
   namespace: eclipse-che
 spec:
   template:
     spec:
       containers:
-      - name: devspaces-operator
+      - name: che-operator
         ports:
         - containerPort: 9443
           name: webhook-server
@@ -32,4 +32,4 @@ spec:
       - name: webhook-tls-certs
         secret:
           defaultMode: 420
-          secretName: devspaces-operator-webhook-server-cert
+          secretName: che-operator-webhook-server-cert

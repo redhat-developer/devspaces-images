@@ -20,5 +20,5 @@ roleRef:
   name: proxy-role
 subjects:
 - kind: ServiceAccount
-  name: devspaces-operator
+  name: che-operator
   namespace: system

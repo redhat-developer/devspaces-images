@@ -16,26 +16,26 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: devspaces-operator-selfsigned-issuer
+  name: che-operator-selfsigned-issuer
   namespace: eclipse-che
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: devspaces-operator
+    app.kubernetes.io/component: che-operator
 spec:
   selfSigned: {}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: devspaces-operator-serving-cert  # this name should match the one appeared in kustomizeconfig.yaml
+  name: che-operator-serving-cert  # this name should match the one appeared in kustomizeconfig.yaml
   namespace: eclipse-che
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: devspaces-operator
+    app.kubernetes.io/component: che-operator
 spec:
   # $(SERVICE_NAME) and $(SERVICE_NAMESPACE) will be substituted by kustomize
   dnsNames:
@@ -43,5 +43,5 @@ spec:
   - $(SERVICE_NAME).$(SERVICE_NAMESPACE).svc.cluster.local
   issuerRef:
     kind: Issuer
-    name: devspaces-operator-selfsigned-issuer
-  secretName: devspaces-operator-webhook-server-cert # this secret will not be prefixed, since it's not managed by kustomize
+    name: che-operator-selfsigned-issuer
+  secretName: che-operator-webhook-server-cert # this secret will not be prefixed, since it's not managed by kustomize

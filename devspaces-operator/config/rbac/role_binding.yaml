@@ -13,16 +13,16 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: devspaces-operator
+  name: che-operator
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: devspaces-operator
+    app.kubernetes.io/component: che-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: devspaces-operator
+  name: che-operator
 subjects:
 - kind: ServiceAccount
-  name: devspaces-operator
+  name: che-operator
