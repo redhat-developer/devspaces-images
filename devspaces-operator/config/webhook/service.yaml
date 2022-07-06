@@ -13,16 +13,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: devspaces-operator-service
+  name: che-operator-service
   namespace: eclipse-che
   labels:
     app.kubernetes.io/name: che
     app.kubernetes.io/instance: che
     app.kubernetes.io/part-of: che.eclipse.org
-    app.kubernetes.io/component: devspaces-operator
+    app.kubernetes.io/component: che-operator
 spec:
   ports:
     - port: 443
       targetPort: 9443
   selector:
-    app: devspaces-operator
+    app: che-operator

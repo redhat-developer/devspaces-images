@@ -94,7 +94,7 @@ func TestConfigMap(t *testing.T) {
 				Spec: chev2.CheClusterSpec{
 					DevEnvironments: chev2.CheClusterDevEnvironments{
 						DefaultNamespace: chev2.DefaultNamespace{
-							Template: "<username>-devspaces",
+							Template: "<username>-che",
 						},
 					},
 				},
@@ -125,7 +125,7 @@ func TestConfigMap(t *testing.T) {
 				Spec: chev2.CheClusterSpec{
 					DevEnvironments: chev2.CheClusterDevEnvironments{
 						DefaultNamespace: chev2.DefaultNamespace{
-							Template: "<username>-devspaces",
+							Template: "<username>-che",
 						},
 					},
 					Networking: chev2.CheClusterSpecNetworking{

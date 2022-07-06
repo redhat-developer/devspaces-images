@@ -28,7 +28,7 @@ vars:
       kind: Certificate
       group: cert-manager.io
       version: v1
-      name: devspaces-operator-serving-cert # this name should match the one in certificate.yaml
+      name: che-operator-serving-cert # this name should match the one in certificate.yaml
     fieldref:
       fieldpath: metadata.namespace
   - name: CERTIFICATE_NAME
@@ -36,16 +36,16 @@ vars:
       kind: Certificate
       group: cert-manager.io
       version: v1
-      name: devspaces-operator-serving-cert # this name should match the one in certificate.yaml
+      name: che-operator-serving-cert # this name should match the one in certificate.yaml
   - name: SERVICE_NAMESPACE # namespace of the service
     objref:
       kind: Service
       version: v1
-      name: devspaces-operator-service
+      name: che-operator-service
     fieldref:
       fieldpath: metadata.namespace
   - name: SERVICE_NAME
     objref:
       kind: Service
       version: v1
-      name: devspaces-operator-service
+      name: che-operator-service

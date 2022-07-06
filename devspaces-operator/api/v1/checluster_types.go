@@ -80,7 +80,7 @@ type CheClusterSpecServer struct {
 	AirGapContainerRegistryHostname string `json:"airGapContainerRegistryHostname,omitempty"`
 	// Optional repository name of an alternate container registry to pull images from.
 	// This value overrides the container registry organization defined in all the default container images involved in a Che deployment.
-	// This is particularly useful to install Red Hat OpenShift Dev Spaces in a restricted environment.
+	// This is particularly useful to install Eclipse Che in a restricted environment.
 	// +optional
 	AirGapContainerRegistryOrganization string `json:"airGapContainerRegistryOrganization,omitempty"`
 	// Overrides the container image used in Che deployment. This does NOT include the container image tag.
@@ -417,7 +417,7 @@ type CheClusterSpecDB struct {
 	// +optional
 	ChePostgresContainerResources ResourcesCustomSettings `json:"chePostgresContainerResources,omitempty"`
 	// Size of the persistent volume claim for database. Defaults to `1Gi`.
-	// To update pvc storageclass that provisions it must support resize when Red Hat OpenShift Dev Spaces has been already deployed.
+	// To update pvc storageclass that provisions it must support resize when Eclipse Che has been already deployed.
 	// +optional
 	PvcClaimSize string `json:"pvcClaimSize,omitempty"`
 }
@@ -812,13 +812,13 @@ type CheClusterStatus struct {
 	// Current installed Che version.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status
-	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="displayName: Red Hat OpenShift Dev Spaces version"
+	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="displayName: Eclipse Che version"
 	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:org.w3:link"
 	CheVersion string `json:"cheVersion"`
 	// Public URL to the Che server.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status
-	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="Red Hat OpenShift Dev Spaces URL"
+	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="Eclipse Che URL"
 	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:org.w3:link"
 	CheURL string `json:"cheURL"`
 	// Public URL to the Identity Provider server, Keycloak or RH-SSO,.
@@ -867,7 +867,7 @@ type CheClusterStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
-// +operator-sdk:csv:customresourcedefinitions:displayName="Red Hat OpenShift Dev Spaces instance Specification"
+// +operator-sdk:csv:customresourcedefinitions:displayName="Eclipse Che instance Specification"
 // +operator-sdk:csv:customresourcedefinitions:order=1
 // +operator-sdk:csv:customresourcedefinitions:resources={{Ingress,v1},{Route,v1},{ConfigMap,v1},{Service,v1},{Secret,v1},{Deployment,apps/v1},{Role,v1},{RoleBinding,v1},{ClusterRole,v1},{ClusterRoleBinding,v1}}
 type CheCluster struct {

@@ -23,7 +23,7 @@ spec:
       clientConfig:
         service:
           namespace: eclipse-che
-          name: devspaces-operator-service
+          name: che-operator-service
           path: /convert
         # caBundle will be filled on creation
         # caBundle: Cg==

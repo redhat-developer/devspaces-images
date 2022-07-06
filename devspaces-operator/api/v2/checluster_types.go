@@ -31,7 +31,7 @@ import (
 )
 
 // +k8s:openapi-gen=true
-// Desired configuration of Red Hat OpenShift Dev Spaces installation.
+// Desired configuration of Eclipse Che installation.
 type CheClusterSpec struct {
 	// Development environment default configuration options.
 	// +optional
@@ -168,7 +168,7 @@ type CheClusterContainerRegistry struct {
 	Hostname string `json:"hostname,omitempty"`
 	// An optional repository name of an alternative registry to pull images from.
 	// This value overrides the container registry organization defined in all the default container images involved in a Che deployment.
-	// This is particularly useful for installing Red Hat OpenShift Dev Spaces in a restricted environment.
+	// This is particularly useful for installing Eclipse Che in a restricted environment.
 	// +optional
 	Organization string `json:"organization,omitempty"`
 }
@@ -561,13 +561,13 @@ type CheClusterStatus struct {
 	// Currently installed Che version.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status
-	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="displayName: Red Hat OpenShift Dev Spaces version"
+	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="displayName: Eclipse Che version"
 	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:text"
 	CheVersion string `json:"cheVersion"`
 	// Public URL of the Che server.
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=status
-	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="Red Hat OpenShift Dev Spaces URL"
+	// +operator-sdk:csv:customresourcedefinitions:type=status,displayName="Eclipse Che URL"
 	// +operator-sdk:csv:customresourcedefinitions:type=status,xDescriptors="urn:alm:descriptor:org.w3:link"
 	CheURL string `json:"cheURL"`
 	// Specifies the current phase of the Che deployment.
@@ -616,7 +616,7 @@ type CheClusterStatus struct {
 	WorkspaceBaseDomain string `json:"workspaceBaseDomain,omitempty"`
 }
 
-// The `CheCluster` custom resource allows defining and managing Red Hat OpenShift Dev Spaces server installation.
+// The `CheCluster` custom resource allows defining and managing Eclipse Che server installation.
 // Based on these settings, the  Operator automatically creates and maintains several ConfigMaps:
 // `che`, `plugin-registry`, `devfile-registry` that will contain the appropriate environment variables
 // of the various components of the installation. These generated ConfigMaps must NOT be updated manually.
@@ -624,7 +624,7 @@ type CheClusterStatus struct {
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
 // +k8s:openapi-gen=true
-// +operator-sdk:csv:customresourcedefinitions:displayName="Red Hat OpenShift Dev Spaces instance Specification"
+// +operator-sdk:csv:customresourcedefinitions:displayName="Eclipse Che instance Specification"
 // +operator-sdk:csv:customresourcedefinitions:order=0
 // +operator-sdk:csv:customresourcedefinitions:resources={{Ingress,v1},{Route,v1},{ConfigMap,v1},{Service,v1},{Secret,v1},{Deployment,apps/v1},{Role,v1},{RoleBinding,v1},{ClusterRole,v1},{ClusterRoleBinding,v1}}
 // +kubebuilder:storageversion
@@ -632,7 +632,7 @@ type CheCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Desired configuration of Red Hat OpenShift Dev Spaces installation.
+	// Desired configuration of Eclipse Che installation.
 	Spec CheClusterSpec `json:"spec,omitempty"`
 
 	// Defines the observed state of Che installation.

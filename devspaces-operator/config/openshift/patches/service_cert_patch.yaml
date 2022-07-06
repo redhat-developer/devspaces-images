@@ -13,7 +13,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: devspaces-operator-service
+  name: che-operator-service
   namespace: eclipse-che
   annotations:
-    service.beta.openshift.io/serving-cert-secret-name: devspaces-operator-webhook-server-cert
+    service.beta.openshift.io/serving-cert-secret-name: che-operator-webhook-server-cert

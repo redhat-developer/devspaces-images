@@ -13,7 +13,7 @@
 apiVersion: org.eclipse.che/v1
 kind: CheCluster
 metadata:
-  name: devspaces
+  name: eclipse-che
   namespace: eclipse-che
 spec:
   server:
