@@ -193,6 +193,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		\
 		-e "s|name: .+preview-openshift.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
 		\
+		-e "s|<username>-che|<username>-devspaces|" \
 		\
 		-e "s|    - base64data: .+|${ICON}|" \
 		-e "s|createdAt:.+|createdAt: \"${NOW}\"|" \
