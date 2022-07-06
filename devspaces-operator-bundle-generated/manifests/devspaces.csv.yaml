@@ -67,7 +67,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8a302cc043d41b42f2614530fa773cf3395229ccbe2312c3c7f3ec2ba1cc4eb8
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1526c3fcbe1def31167a56b0471a6e8031eaa0a2100f7515ba0121f5e8f50679
     createdAt: "2022-07-04T20:54:41+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1106,7 +1106,7 @@ spec:
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
                   value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:81cc098158678059934b72b250d514fdf9563c662814915724b5663a11743fdd
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:08a7d8c892fad69c589b81ad8fbd21d36c8fa4078530dba361cfa9a8f9f05950
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:3a13919e5b2b0afe318476c71e94dd48cc52a44935d824de315f34a9b941a5ea
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
@@ -1135,7 +1135,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8a302cc043d41b42f2614530fa773cf3395229ccbe2312c3c7f3ec2ba1cc4eb8
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1526c3fcbe1def31167a56b0471a6e8031eaa0a2100f7515ba0121f5e8f50679
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1403,10 +1403,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.0.0
   relatedImages:
-  - name: devspaces-rhel8-operator-8a302cc043d41b42f2614530fa773cf3395229ccbe2312c3c7f3ec2ba1cc4eb8-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8a302cc043d41b42f2614530fa773cf3395229ccbe2312c3c7f3ec2ba1cc4eb8
+  - name: devspaces-rhel8-operator-1526c3fcbe1def31167a56b0471a6e8031eaa0a2100f7515ba0121f5e8f50679-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1526c3fcbe1def31167a56b0471a6e8031eaa0a2100f7515ba0121f5e8f50679
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8a302cc043d41b42f2614530fa773cf3395229ccbe2312c3c7f3ec2ba1cc4eb8
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1526c3fcbe1def31167a56b0471a6e8031eaa0a2100f7515ba0121f5e8f50679
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:d80b305cdbad226cd6a5456026f893273bb8de5ff1639a8ae9b3381528a514b8
   - name: dashboard
@@ -1438,7 +1438,7 @@ spec:
   - name: gateway_authentication_sidecar
     image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:81cc098158678059934b72b250d514fdf9563c662814915724b5663a11743fdd
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:08a7d8c892fad69c589b81ad8fbd21d36c8fa4078530dba361cfa9a8f9f05950
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:3a13919e5b2b0afe318476c71e94dd48cc52a44935d824de315f34a9b941a5ea
   - name: jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_g4xdilrubi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
   - name: jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_g4xdilrubi______
