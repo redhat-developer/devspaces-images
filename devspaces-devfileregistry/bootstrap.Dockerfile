@@ -33,9 +33,6 @@ RUN ./generate_devworkspace_templates.sh
 RUN chmod -R g+rwX /build/resources
 
 RUN ./check_mandatory_fields.sh devfiles
-# Cache projects in DS 
-COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
 
 # don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
 # RUN ./swap_yamlfiles.sh devfiles
