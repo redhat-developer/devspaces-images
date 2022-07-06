@@ -48,21 +48,11 @@ COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
 RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 
-COPY ./build/scripts ./arbitrary-users-patch/base_images /build/
+COPY ./build/scripts /build/
 COPY ./devfiles /build/devfiles
 # COPY ./resources /build/resources
 WORKDIR /build/
 
-# Registry, organization, and tag to use for base images in dockerfiles. Devfiles
-# will be rewritten during build to use these values for base images.
-# ARG PATCHED_IMAGES_REG="quay.io"
-# ARG PATCHED_IMAGES_ORG="eclipse"
-# ARG PATCHED_IMAGES_TAG="next"
-# RUN TAG=${PATCHED_IMAGES_TAG} \
-#     ORGANIZATION=${PATCHED_IMAGES_ORG} \
-#     REGISTRY=${PATCHED_IMAGES_REG} \
-#     ./update_devfile_patched_image_tags.sh
-RUN ./check_mandatory_fields.sh devfiles
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles 
 
@@ -123,10 +113,9 @@ CMD ["/usr/local/bin/rhel.entrypoint.sh"]
 
 # Offline build
 # FROM builder AS offline-builder
-# RUN ./cache_projects.sh devfiles resources && \
-#     ./cache_images.sh devfiles resources && \
+# RUN ./cache_images.sh devfiles resources && \
 #     chmod -R g+rwX /build
-
+# 
 # FROM registry AS offline-registry
 # COPY --from=offline-builder /build/devfiles /var/www/html/devfiles
 # COPY --from=offline-builder /build/resources /var/www/html/resources
