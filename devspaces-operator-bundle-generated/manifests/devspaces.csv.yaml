@@ -1080,7 +1080,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:5520c9add9e96389958e2ec120ed7c5688edc88f73cd472fe32ab39178db776d
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:b5e1a2c2a68e755cd5a2a26c4865e288ad1bf29b87b38fe78779e807b76dac4e
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:31f7db2af46786a61ce19885e6aa89dd31cd777401df2304c7d9586be423b913
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:02972fc2dd14f75e19a58ad534473cba21be0f87b3bee6f37baac17203524362
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
@@ -1412,7 +1412,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:5520c9add9e96389958e2ec120ed7c5688edc88f73cd472fe32ab39178db776d
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:b5e1a2c2a68e755cd5a2a26c4865e288ad1bf29b87b38fe78779e807b76dac4e
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:31f7db2af46786a61ce19885e6aa89dd31cd777401df2304c7d9586be423b913
   - name: devspaces_idea_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:02972fc2dd14f75e19a58ad534473cba21be0f87b3bee6f37baac17203524362
   - name: devspaces_idea_plugin_registry_image_gmxdccq_
