@@ -1080,7 +1080,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:acf62e228f0852279fa0e3d4911cc99362e8c2ae230ad25abbb98fbc9e07ec2d
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:24019c12db7b9f6e022440f7cd4d23cb4ebb167277f071d694645ba3b21cd6df
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:47790a6b1e26893cfb3fc0f62776b14602c30f0c5ed0f0239aa6444e7b2dc500
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:02972fc2dd14f75e19a58ad534473cba21be0f87b3bee6f37baac17203524362
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
@@ -1104,9 +1104,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:81cc098158678059934b72b250d514fdf9563c662814915724b5663a11743fdd
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4c936e3e49f977b169766e511c38a2b8f3e41a7d98aebc51cd12f6972063078c
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:08a7d8c892fad69c589b81ad8fbd21d36c8fa4078530dba361cfa9a8f9f05950
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:3a13919e5b2b0afe318476c71e94dd48cc52a44935d824de315f34a9b941a5ea
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
@@ -1412,7 +1412,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:acf62e228f0852279fa0e3d4911cc99362e8c2ae230ad25abbb98fbc9e07ec2d
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:24019c12db7b9f6e022440f7cd4d23cb4ebb167277f071d694645ba3b21cd6df
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:47790a6b1e26893cfb3fc0f62776b14602c30f0c5ed0f0239aa6444e7b2dc500
   - name: devspaces_idea_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:02972fc2dd14f75e19a58ad534473cba21be0f87b3bee6f37baac17203524362
   - name: devspaces_idea_plugin_registry_image_gmxdccq_
@@ -1436,9 +1436,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:81cc098158678059934b72b250d514fdf9563c662814915724b5663a11743fdd
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4c936e3e49f977b169766e511c38a2b8f3e41a7d98aebc51cd12f6972063078c
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:08a7d8c892fad69c589b81ad8fbd21d36c8fa4078530dba361cfa9a8f9f05950
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:3a13919e5b2b0afe318476c71e94dd48cc52a44935d824de315f34a9b941a5ea
   - name: jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_g4xdilrubi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
   - name: jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_g4xdilrubi______
