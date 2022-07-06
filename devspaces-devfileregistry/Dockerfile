@@ -53,8 +53,7 @@ COPY ./devfiles /build/devfiles
 # COPY ./resources /build/resources
 WORKDIR /build/
 
-COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles 
+RUN ./swap_yamlfiles.sh devfiles 
 
 # Cache projects in DS 
 RUN ./index.sh > /build/devfiles/index.json
