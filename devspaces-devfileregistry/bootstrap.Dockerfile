@@ -30,8 +30,6 @@ COPY ./devfiles /build/devfiles
 WORKDIR /build/
 
 RUN ./generate_devworkspace_templates.sh
-RUN chmod -R g+rwX /build/resources
-
 RUN ./check_mandatory_fields.sh devfiles
 
 # don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
