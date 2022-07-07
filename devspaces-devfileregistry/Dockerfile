@@ -53,12 +53,10 @@ COPY ./devfiles /build/devfiles
 # COPY ./resources /build/resources
 WORKDIR /build/
 
-RUN ./swap_yamlfiles.sh devfiles 
-
-# Cache projects in DS 
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
+
 ################# 
 # PHASE TWO: configure registry image
 ################# 
