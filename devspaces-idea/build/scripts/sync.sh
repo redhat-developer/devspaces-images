@@ -121,8 +121,8 @@ EOT
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
-    DESCRIPTION="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \\
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \\
     PRODNAME="devspaces" \\
     COMPNAME="${MIDSTM_NAME}-rhel8"
 

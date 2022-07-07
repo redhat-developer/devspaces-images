@@ -91,8 +91,8 @@ USER 1001
 EXPOSE 8887
 ENTRYPOINT $PROJECTOR_ASSEMBLY_DIR/entrypoint.sh
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces idea container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces idea container" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \
     PRODNAME="devspaces" \
     COMPNAME="idea-rhel8"
 
