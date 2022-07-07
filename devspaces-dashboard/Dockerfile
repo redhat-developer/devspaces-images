@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM ubi8/nodejs-16:1-18 as builder
+FROM ubi8/nodejs-16:1-42 as builder
 USER 0
 RUN yum -y -q update --exclude=unbound-libs && \
     yum -y -q clean all && rm -rf /var/cache/yum

@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM registry.access.redhat.com/ubi8/nodejs-16:1-18 as builder
+FROM registry.access.redhat.com/ubi8/nodejs-16:1-42 as builder
 USER 0
 RUN yum -y -q update && \
     yum -y -q clean all && rm -rf /var/cache/yum
