@@ -122,7 +122,8 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e 's|^[^#]*--from=offline-builder.*|# &|' \
     `# Enable cache_projects.sh + swap_yamlfiles.sh` \
     -e '\|# Cache projects in DS|i \
-RUN ./swap_yamlfiles.sh devfiles \
+COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ \
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles \
 ' \
   > "${TARGETDIR}/Dockerfile"
 
