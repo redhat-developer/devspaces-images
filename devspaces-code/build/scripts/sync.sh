@@ -56,6 +56,9 @@ build/dockerfiles/dev.Dockerfile
 build/dockerfiles/assembly.Dockerfile
 build/dockerfiles/linux-musl.Dockerfile
 build/dockerfiles/libc-content-provider.Dockerfile
+code/src/vs/code/electron-main
+code/src/vs/platform/environment/test/node/nativeModules.test.ts
+code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
 container.yaml
 content_sets.yml
 devfile.yaml
@@ -78,6 +81,8 @@ sed_in_place() {
     sed -i "$@"
   fi
 }
+
+sed_in_place -r \ '/"native-keymap":*/d' "${TARGETDIR}"/code/package.json
 
 sed_in_place -r \
   `# Update DevSpaces version for Dockerfile` \
