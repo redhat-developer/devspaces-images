@@ -26,7 +26,7 @@ ENV \
     E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
-    DOTNET_RPM_VERSIONS="6.0 3.1" \
+    DOTNET_RPM_VERSION="6.0" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA11_HOME=/usr/lib/jvm/java-11-openjdk \
     JAVA8_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
@@ -164,13 +164,10 @@ RUN \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh
     ########################################################################
-    # .NET (dotnet) (aarch64, s390x and x64 only) (Tech Preview)
+    # .NET (dotnet) 6 (s390x and x64 only) (Tech Preview)
     ########################################################################
 RUN \
-    if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet-sdk-3.1 \
-    fi \
-    if [[ "$(uname -m)" == 'aarch64' ]] || [[ "$(uname -m)" == 's390x' ]] || [[ "$(uname -m)" == 'x86_64' ]]; then \
+    if [[ "$(uname -m)" == 's390x' ]] || [[ "$(uname -m)" == 'x86_64' ]]; then \
         dnf -y -q --setopt=tsflags=nodocs install dotnet-sdk-6.0; \
     fi
 RUN \
