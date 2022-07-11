@@ -44,12 +44,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
     exit 1;
   fi
 
-  if [[ ! -f "asset-entrypoints.tar.gz" ]]; then
-    log "[ERROR] 'asset-entrypoints.tar.gz' not found, so cannot proceed with build."
-    exit 1;
-  fi
-
-  outputFiles="asset-libc-content-${ARCH}.tar.gz asset-machine-exec.tar.gz asset-entrypoints.tar.gz"
+  outputFiles="asset-libc-content-${ARCH}.tar.gz asset-machine-exec.tar.gz"
 fi
 
 if [[ $(git diff-index HEAD --) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
