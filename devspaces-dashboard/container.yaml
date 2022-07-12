@@ -14,3 +14,24 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+# can we use a branch instead of a SHA? devspaces-3-rhel-8
+remote_sources:
+- name: devspaces-images-dashboard
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 422595930aef25e574f0fa955a8e3f813497880d
+    pkg_managers: ["npm"]
+    packages: 
+      npm: 
+      - path: devspaces-dashboard
+- name: che-dashboard
+  remote_source:
+    repo: https://github.com/eclipse-che/che-dashboard.git
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 33c6de2733c14a08aa5afd59ebc8de10f5368cee
+    pkg_managers: ["npm"]
+    packages: 
+      npm: 
+      - path: che-dashboard

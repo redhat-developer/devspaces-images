@@ -10,14 +10,10 @@
 
 FROM ubi8/nodejs-16:1-42 as builder
 USER 0
-RUN yum -y -q update --exclude=unbound-libs && \
-    yum -y -q clean all && rm -rf /var/cache/yum
+RUN yum -y update --exclude=unbound-libs 
 
-COPY package.json /dashboard/
-COPY yarn.lock /dashboard/
 COPY .yarn/releases /dashboard/.yarn/releases/
-COPY lerna.json /dashboard/
-COPY tsconfig.json /dashboard/
+COPY package.json yarn.lock lerna.json tsconfig.json /dashboard/
 
 ENV COMMON=packages/common
 COPY ${COMMON}/package.json /dashboard/${COMMON}/
