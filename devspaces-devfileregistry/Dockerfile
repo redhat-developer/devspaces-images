@@ -53,15 +53,9 @@ COPY ./devfiles /build/devfiles
 # COPY ./resources /build/resources
 WORKDIR /build/
 
-RUN ./check_mandatory_fields.sh devfiles
-COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
-RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz && ./swap_yamlfiles.sh devfiles
-
-# Cache projects in DS 
 RUN ./index.sh > /build/devfiles/index.json
 RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
 RUN chmod -R g+rwX /build/devfiles
-RUN chmod -R g+rwX /build/resources
 
 ################# 
 # PHASE TWO: configure registry image
