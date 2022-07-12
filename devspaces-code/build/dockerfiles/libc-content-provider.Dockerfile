@@ -55,6 +55,8 @@ RUN yarn config set network-timeout 600000 -g
 # Grab dependencies (and force to rebuild them)
 RUN yarn install --force
 
+RUN echo "$(ulimit -a)"
+
 # Compile
 RUN NODE_ARCH=$(echo "console.log(process.arch)" | node) \
     && NODE_VERSION=$(cat /checode-compilation/remote/.yarnrc | grep target | cut -d ' ' -f 2 | tr -d '"') \
