@@ -21,17 +21,17 @@ remote_sources:
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
     # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
-    ref: 422595930aef25e574f0fa955a8e3f813497880d
-    pkg_managers: ["npm"]
+    ref: 0960a5fadaa5692f0df010018c93d167564ce4e9
+    pkg_managers: ["yarn"]
     packages: 
-      npm: 
+      yarn: 
       - path: devspaces-dashboard
 - name: che-dashboard
   remote_source:
     repo: https://github.com/eclipse-che/che-dashboard.git
     # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
     ref: 33c6de2733c14a08aa5afd59ebc8de10f5368cee
-    pkg_managers: ["npm"]
-    packages: 
-      npm: 
-      - path: che-dashboard
+    pkg_managers: ["yarn"]
+    # packages: 
+    #   npm: 
+    #   - path: che-dashboard
