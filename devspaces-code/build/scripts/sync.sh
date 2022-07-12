@@ -52,10 +52,7 @@ README.md
 Dockerfile
 build/scripts/sync.sh
 build/scripts/collect-assets.sh
-build/dockerfiles/dev.Dockerfile
-build/dockerfiles/assembly.Dockerfile
-build/dockerfiles/linux-musl.Dockerfile
-build/dockerfiles/libc-content-provider.Dockerfile
+build/dockerfiles
 code/src/vs/code/electron-main
 code/src/vs/platform/environment/test/node/nativeModules.test.ts
 code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
@@ -88,5 +85,3 @@ sed_in_place -r \
   `# Update DevSpaces version for Dockerfile` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
   "${TARGETDIR}"/Dockerfile
-
-cat << EOT >> "${TARGETDIR}"/build/dockerfiles/linux-libc.Dockerfile
