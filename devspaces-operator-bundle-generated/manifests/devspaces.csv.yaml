@@ -1080,7 +1080,7 @@ spec:
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:1c966a6debc71381b132ec4b52ed12cf52fa9d11e3a6ad8444f6fec8a0325e06
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:dc4dd1d29951e54a1536bba22514d12bf6987c3894fb8d4321c6585037a73cfb
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:3d43a236b1c378f85e5a9b5d4c857f1d97a8d76d90b2f4e12dc20a39f9c9c06b
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:542349b2f35b8fa4ef4ec07cfd8c1cd69467a38fc4945181ed909b51bcb81ae1
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
@@ -1130,7 +1130,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:a9eff1f07bcbcfc6432bf23988a1368a44a2e805b5587f1d044a0f96d37ee76e
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:24d7de5a46c1d8fe5d512e565fb9fd4437ba4f1214d04621491bcb535a0129d3
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:62b99940470d362e6f3b47837255cad280793aa758c45586e5b84d2ad472bf8c
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1412,7 +1412,7 @@ spec:
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:1c966a6debc71381b132ec4b52ed12cf52fa9d11e3a6ad8444f6fec8a0325e06
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:dc4dd1d29951e54a1536bba22514d12bf6987c3894fb8d4321c6585037a73cfb
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:3d43a236b1c378f85e5a9b5d4c857f1d97a8d76d90b2f4e12dc20a39f9c9c06b
   - name: devspaces_idea_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:542349b2f35b8fa4ef4ec07cfd8c1cd69467a38fc4945181ed909b51bcb81ae1
   - name: devspaces_idea_plugin_registry_image_gmxdccq_
@@ -1462,4 +1462,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:a9eff1f07bcbcfc6432bf23988a1368a44a2e805b5587f1d044a0f96d37ee76e
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:24d7de5a46c1d8fe5d512e565fb9fd4437ba4f1214d04621491bcb535a0129d3
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:62b99940470d362e6f3b47837255cad280793aa758c45586e5b84d2ad472bf8c
