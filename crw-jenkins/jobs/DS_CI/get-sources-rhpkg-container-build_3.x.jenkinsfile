@@ -4,6 +4,7 @@ import groovy.json.JsonSlurper
 
 // PARAMETERS for this pipeline:
 // MIDSTM_BRANCH
+// DWNSTM_BRANCH
 // GIT_PATHs
 // QUAY_REPO_PATHs
 // UPDATE_BASE_IMAGES_FLAGS
@@ -27,7 +28,7 @@ timeout(240) {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
           cleanWs()
-          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", DWNSTM_BRANCH, false)
           currentBuild.description=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
           try {
             util.updateBaseImages("${WORKSPACE}/sources", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
@@ -41,7 +42,9 @@ echo "Node: $(node --version) ( $(which node) )"
 echo "Yarn: $(yarn --version) ( $(which yarn) )"
 
 set -x
-./rhpkg-container-build.sh ''' + JOB_BRANCH + ''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
+./rhpkg-container-build.sh ''' + JOB_BRANCH + 
+  (SCRATCH.equals("true") || SCRATCH == true ? " --scratch" : "") + 
+''' -s ${WORKSPACE}/sources | tee ${WORKSPACE}/rhpkg-container-build.txt
 ''')
             }
 

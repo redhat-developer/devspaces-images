@@ -61,6 +61,7 @@ To rebuild all the containers, see <a href="../Releng/job/build-all-images_''' +
 
             parameters{
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
+                stringParam("DWNSTM_BRANCH", MIDSTM_BRANCH, "Default to same value as midstream; or, use a pkgs.devel private-username-topic branch for scratch builds")
                 stringParam("GIT_PATHs", "containers/devspaces", '''git path to clone from ssh://crw-build@pkgs.devel.redhat.com/GIT_PATHs, <br/>
 update sources, and run rhpkg container-build: <br/>
 * containers/devspaces-server, <br/>
