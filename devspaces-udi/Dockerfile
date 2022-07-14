@@ -88,8 +88,8 @@ RUN \
     # Java 8 11 17
     ########################################################################
     dnf -y -q install java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
-    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
-    microdnf install -y java-17-openjdk java-17-openjdk-devel java-17-openjdk-headless && \
+    java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless \
+    java-17-openjdk java-17-openjdk-devel java-17-openjdk-headless && \
     mkdir -p ${HOME}/.java/current && \
     rm -f /usr/bin/java && \
     ln -s /usr/lib/jvm/java-11-openjdk/* ${HOME}/.java/current && \
@@ -224,7 +224,6 @@ RUN \
     ########################################################################
 RUN \
     # fetch CVE updates
-    microdnf clean all && \
     dnf -y -q update && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
