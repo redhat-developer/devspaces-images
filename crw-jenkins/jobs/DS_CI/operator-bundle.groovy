@@ -62,7 +62,7 @@ Artifact builder + sync job; triggers brew after syncing
 <p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
 <a href=https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
 
-<p>Results:<ul><li><a href=https://quay.io/devspaces/devspaces-3-rhel8-'''+MIDSTM_NAME+'''>quay.io/devspaces/devspaces-3-rhel8-'''+MIDSTM_NAME+'''</a></li></ul></p>
+<p>Results:<ul><li><a href=https://quay.io/devspaces/devspaces-'''+MIDSTM_NAME+'''>quay.io/devspaces/devspaces-'''+MIDSTM_NAME+'''</a></li></ul></p>
             ''')
 
             properties {

@@ -48,22 +48,31 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 </ul>
 
 Results:  <a href=https://github.com/redhat-developer/devspaces-chectl/releases>chectl/releases</a>
-<p>
-To retrieve assets from github:
-<ul>
-<pre>
-cd /tmp
-git clone git@github.com:redhat-developer/devspaces-chectl.git --depth=1 dsc && cd dsc
+<p><blockquote>
+    To retrieve assets from github:
+    <p><pre>
+        cd /tmp
+        git clone git@github.com:redhat-developer/devspaces-chectl.git --depth=1 dsc && cd dsc
 
-export GITHUB_TOKEN="github-token-here"
+        export GITHUB_TOKEN="github-token-here"
 
-$➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i LIST
-...
-$➔ hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i "*dsc-linux-x64*"
-</pre>
-</ul>
+        hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i LIST
+        ...
+        hub release download '''+(config.CSVs."operator-bundle"[JB].CSV_VERSION)+'''-CI-dsc-assets -i "*dsc-linux-x64*"
+    </pre></p>
+</blockquote></p>
 
-            ''')
+<p><blockquote>
+    If the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
+    <p><pre>
+        kinit kinit -k -t /path/to/crw-build.keytab crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@REDHAT.COM
+        ssh crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@rcm-guest.app.eng.bos.redhat.com
+
+        [crw-build@rcm-guest ~]$ /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release devspaces-3.yy.z
+        Staged devspaces-3.yy.z in 0:04:30.158899
+    </pre></p>
+</blockquote></p>
+''')
 
             properties {
                 ownership {

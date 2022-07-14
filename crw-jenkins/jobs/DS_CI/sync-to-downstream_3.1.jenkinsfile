@@ -253,9 +253,13 @@ rm -f /tmp/rsync-excludes
                 currentBuild.description+=" synced; "
                 if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
                   QUAY_REPO_PATH=util.getDSShortName("${SYNC_REPOS[i]}") + "-rhel8"
-                  if ("${SYNC_REPOS[i]}".contains("-operator-")) {
-                    // SPECIAL CASE FOR operator (and operator-bundle)
-                    QUAY_REPO_PATH="devspaces-3-rhel8-" + util.getDSShortName("${SYNC_REPOS[i]}")
+                  // special cases for operator and bundle
+                  if ("${SYNC_REPOS[i]}".contains("-operator-bundle")) {
+                    // devspaces-operator-bundle
+                    QUAY_REPO_PATH="devspaces-" + util.getDSShortName("${SYNC_REPOS[i]}")
+                  } else if ("${SYNC_REPOS[i]}".contains("-operator")) {
+                    // devspaces-rhel8-operator
+                    QUAY_REPO_PATH="devspaces-rhel8-" + util.getDSShortName("${SYNC_REPOS[i]}")
                   }
                   println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
                   // kick off get-sources-rhpkg-container-build_2.y job
