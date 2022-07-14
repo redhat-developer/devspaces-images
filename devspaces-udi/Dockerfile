@@ -28,8 +28,9 @@ ENV \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_RPM_VERSION=3.1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
-    JAVA11_HOME=/usr/lib/jvm/java-11-openjdk \
-    JAVA8_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
+    JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk \
+    JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
+    JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/user/.java/current" \
     PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
@@ -84,10 +85,11 @@ RUN \
     > ${HOME}/group.template
 RUN \
     ########################################################################
-    # Java 8 & 11
+    # Java 8 11 17
     ########################################################################
     dnf -y -q install java-1.8.0-openjdk java-1.8.0-openjdk-devel java-1.8.0-openjdk-headless \
     java-11-openjdk java-11-openjdk-devel java-11-openjdk-src java-11-openjdk-headless && \
+    microdnf install -y java-17-openjdk java-17-openjdk-devel java-17-openjdk-headless && \
     mkdir -p ${HOME}/.java/current && \
     rm -f /usr/bin/java && \
     ln -s /usr/lib/jvm/java-11-openjdk/* ${HOME}/.java/current && \
@@ -222,6 +224,7 @@ RUN \
     ########################################################################
 RUN \
     # fetch CVE updates
+    microdnf clean all && \
     dnf -y -q update && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
@@ -230,7 +233,9 @@ RUN \
     chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     echo "========" && \
-    echo -n "java:  "; java -version; \
+    echo -n "Java 1.8:  "; /usr/lib/jvm/java-1.8.0-openjdk/bin/java -version; \
+    echo -n "Java 11:  "; /usr/lib/jvm/java-11-openjdk/bin/java -version; \
+    echo -n "Java 17:  "; /usr/lib/jvm/java-17-openjdk/bin/java -version; \
     echo -n "mvn:   "; mvn -version; \
     echo -n "gradle:    "; gradle -v; \
     echo "========" && \
