@@ -31,6 +31,8 @@ RUN for f in "/mnt/rootfs/bin/" "/mnt/rootfs/home/che" "/mnt/rootfs/etc/passwd" 
            chmod -R g+rwX ${f}; \
        done
 
+RUN rm /mnt/rootfs/etc/hosts
+
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.6-854
 COPY --from=ubi-builder /mnt/rootfs/ /
