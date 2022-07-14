@@ -14,3 +14,16 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-configbump
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 47dbb41a7d97598ced9fb3a46d81e1cdf8694fd0
+    pkg_managers: [gomod]
+    flags: [gomod-vendor-check]
+    packages: 
+      gomod: 
+        - path: devspaces-configbump
+      
