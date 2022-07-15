@@ -232,9 +232,14 @@ RUN \
     chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     echo "========" && \
+    echo -n "Default Java Version:  "; java -version; \
+    echo "========" && \
     echo -n "Java 1.8:  "; /usr/lib/jvm/java-1.8.0-openjdk/bin/java -version; \
+    echo "========" && \
     echo -n "Java 11:  "; /usr/lib/jvm/java-11-openjdk/bin/java -version; \
+    echo "========" && \
     echo -n "Java 17:  "; /usr/lib/jvm/java-17-openjdk/bin/java -version; \
+    echo "========" && \
     echo -n "mvn:   "; mvn -version; \
     echo -n "gradle:    "; gradle -v; \
     echo "========" && \
