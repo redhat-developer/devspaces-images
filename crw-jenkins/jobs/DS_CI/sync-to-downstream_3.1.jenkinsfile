@@ -19,7 +19,7 @@ def SOURCE_SHA=""
 // CRW-2656 if a theia build, ONLY use dynamic rhel85 boxes so there's maximum disk space available
 // CRW-2736 if an idea build, must run on x64 only (fails on ppc64le)
 // NB 2022-01-14 remove s390x-rhel8 as it can be flaky with ssh connections
-def String nodeLabelAnyArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : (REPOS.contains("idea") ? 'x86_64-rhel8' : 'x86_64-rhel8||ppc64le-rhel8')
+def String nodeLabelAnyArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : ((REPOS.contains("idea")||REPOS.contains("code")) ? 'x86_64-rhel8' : 'x86_64-rhel8||ppc64le-rhel8')
 def String nodeLabelXArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8' 
 
 currentBuild.description=""
@@ -187,6 +187,13 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 println "########################################################################################################"
                 util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
+                // if container.yaml has ref for cachito, update it to SOURCE_SHA
+                sh('''
+if grep -q 'ref:' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml; then
+  sed -r -e 's|ref:.*|ref: ''' + ${SOURCE_SHA} + '''|'
+fi
+                ''')
+                // Sync
                 sh('''
 SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"
 TARGETDIR="${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''"
