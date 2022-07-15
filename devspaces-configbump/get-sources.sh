@@ -31,7 +31,7 @@ function log()
 }
 
 if [[ ${forceBuild} -eq 1 ] || [ ${doRhpkgContainerBuild} -eq 1 ]]; then
-	echo "[INFO] #2 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
+	echo "[INFO] #0 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true
 	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
 	taskID=$(cat $tmpfile | grep "Created task:" | sed -e "s#Created task:##") && brew watch-logs $taskID | tee 2>&1 $tmpfile
@@ -42,5 +42,5 @@ $ERRORS
 
 	"; exit 1; fi
 else
-	log "[INFO] No new sources, so nothing to build."
+	log "[INFO] No build triggered, use -f or --force-build to build in Brew."
 fi
