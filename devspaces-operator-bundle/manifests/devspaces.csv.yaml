@@ -23,7 +23,7 @@ metadata:
           "kind": "CheCluster",
           "metadata": {
             "name": "devspaces",
-            "namespace": "openshift-devspaces"
+            "namespace": "devspaces"
           },
           "spec": {
             "auth": {
