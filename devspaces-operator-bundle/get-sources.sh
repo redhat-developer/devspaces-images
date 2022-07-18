@@ -34,5 +34,5 @@ $ERRORS
 
 "; exit 1; fi
 else
-	echo "[INFO] No new sources, so nothing to build."
+	log "[INFO] No build triggered, use -f or --force-build to build in Brew."
 fi

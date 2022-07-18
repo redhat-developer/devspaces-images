@@ -30,7 +30,7 @@ function log()
 	fi
 }
 
-if [[ (${forceBuild} -eq 1) || (${doRhpkgContainerBuild} -eq 1) ]]; then
+if [[ ${forceBuild} -eq 1 ]] || [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	echo "[INFO] #0 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true
 	tmpfile=$(mktemp) && rhpkg container-build ${scratchFlag} --nowait | tee 2>&1 $tmpfile
