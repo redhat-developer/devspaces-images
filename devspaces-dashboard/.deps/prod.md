@@ -7,9 +7,9 @@
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.50.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.50.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.50.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.51.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.51.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.51.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-d624e3e`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
@@ -128,7 +128,7 @@
 | [`convert-source-map@1.8.0`](git://github.com/thlorenz/convert-source-map.git) | MIT | clearlydefined |
 | [`cookie@0.4.2`](https://github.com/jshttp/cookie.git) | MIT | clearlydefined |
 | [`copy-to-clipboard@3.3.1`](git+https://github.com/sudodoki/copy-to-clipboard) | MIT | clearlydefined |
-| [`core-js@2.6.12`](https://github.com/zloirock/core-js.git) | MIT | clearlydefined |
+| [`core-js@2.6.12`](https://github.com/zloirock/core-js.git) | MIT | #2912 |
 | [`core-util-is@1.0.2`](git://github.com/isaacs/core-util-is) | MIT | clearlydefined |
 | [`create-ecdh@4.0.4`](https://github.com/crypto-browserify/createECDH.git) | MIT | clearlydefined |
 | [`create-hash@1.2.0`](git@github.com:crypto-browserify/createHash.git) | MIT | clearlydefined |
@@ -161,7 +161,7 @@
 | [`encoding-negotiator@2.0.1`](git+https://github.com/SerayaEryn/encoding-negotiator.git) | MIT | clearlydefined |
 | [`end-of-stream@1.4.4`](git://github.com/mafintosh/end-of-stream.git) | MIT | clearlydefined |
 | [`entities@2.2.0`](git://github.com/fb55/entities.git) | BSD-2-Clause | clearlydefined |
-| [`es6-promise@4.2.8`](git://github.com/stefanpenner/es6-promise.git) | MIT | clearlydefined |
+| [`es6-promise@4.2.8`](git://github.com/stefanpenner/es6-promise.git) | MIT | #2898 |
 | [`es6-promisify@5.0.0`](https://github.com/digitaldesignlabs/es6-promisify.git) | MIT | clearlydefined |
 | [`escape-html@1.0.3`](https://github.com/component/escape-html.git) | MIT | clearlydefined |
 | [`escape-string-regexp@1.0.5`](https://github.com/sindresorhus/escape-string-regexp.git) | MIT | clearlydefined |
@@ -348,9 +348,9 @@
 | [`react-helmet@6.1.0`](https://github.com/nfl/react-helmet) | MIT | clearlydefined |
 | [`react-is@16.13.1`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`react-pluralize@1.6.3`](https://github.com/tsmith123/react-pluralize) | MIT | clearlydefined |
-| [`react-redux@7.2.6`](https://github.com/reduxjs/react-redux.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-redux/7.2.6) |
-| [`react-router-dom@5.3.3`](https://github.com/remix-run/react-router.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router-dom/5.3.3) |
-| [`react-router@5.3.3`](https://github.com/remix-run/react-router.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/react-router/5.3.3) |
+| [`react-redux@7.2.6`](https://github.com/reduxjs/react-redux.git) | MIT | #2978 |
+| [`react-router-dom@5.3.3`](https://github.com/remix-run/react-router.git) | MIT | #3023 |
+| [`react-router@5.3.3`](https://github.com/remix-run/react-router.git) | MIT | #3024 |
 | [`react-side-effect@2.1.1`](https://github.com/gaearon/react-side-effect.git) | MIT | clearlydefined |
 | [`react-tooltip@4.2.21`](https://github.com/wwayne/react-tooltip) | MIT | clearlydefined |
 | [`react@16.14.0`](git+https://github.com/facebook/react.git) | MIT | clearlydefined |

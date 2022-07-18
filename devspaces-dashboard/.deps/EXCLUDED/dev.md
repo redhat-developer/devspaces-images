@@ -23,3 +23,5 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `sockjs@0.3.24` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/sockjs/0.3.24) |
 | `source-map-url@0.4.1` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/source-map-url/0.4.1) |
 | `webpack-merge@4.2.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/webpack-merge/4.2.2) |
+| `@lerna/create@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/create/5.1.8) |
+| `@lerna/npm-conf@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/npm-conf/5.1.8) |
