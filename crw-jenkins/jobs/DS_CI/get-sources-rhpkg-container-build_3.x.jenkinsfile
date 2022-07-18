@@ -80,22 +80,26 @@ set -x
                 !currentBuild.result.equals("FAILURE") && 
                 !currentBuild.result.equals("UNSTABLE")) {
               sh ('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+MIDSTM_BRANCH+'/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh')
-              CONTAINERS=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim()
+              CONTAINERS=QUAY_REPO_PATHs.trim()
 
               withCredentials([string(credentialsId: 'quay.io-devspacesci_user_token', variable: 'QUAY_TOKEN_devspaces')]) {
                 sh(script: '''#!/bin/bash -xe
 echo "${QUAY_TOKEN_devspaces}" | podman login --authfile=~/.docker/config.json -u="devspaces+devspacesci" --password-stdin quay.io
 
 echo " ########################################### "
-echo " Copy latest images in osbs to quay: ''' + CONTAINERS.trim() + '''"
+echo " Copy latest images in osbs to quay: ''' + CONTAINERS + '''"
 echo " ########################################### "
-for c in ''' + CONTAINERS.trim() + '''; do
-    d=devspaces-${c}-rhel8
-    # special case for operator; all other images follow the pattern
-    if [[ $c == "operator" ]] || [[ $c == "operator-"* ]]; then 
-        d=devspaces-${c}
+for c in ''' + CONTAINERS + '''; do
+    d=${c}
+    # special case for operator and bundle; all other images follow the pattern
+    # registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1-24
+    # registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.1-155
+    if [[ $c == *"operator-bundle" ]]; then 
+        d=operator-bundle
+    elif [[ $c == *"operator" ]]; then 
+        d=operator
     fi 
-    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c ${d} --osbs --pushtoquay="''' + DS_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' -c devspaces-${d} --osbs --pushtoquay="''' + DS_VERSION + ''' ''' + FLOATING_QUAY_TAGS + '''" &
 done
 wait
 ''', returnStatus: true)
@@ -111,7 +115,7 @@ wait
 
       // trigger push-latest-container-to-quay job (does more than just copy to quay)
       try {
-        CONTAINERS=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim()
+        CONTAINERS=QUAY_REPO_PATHs.trim()
         println "########################################################################################################"
         println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
         println "########################################################################################################"

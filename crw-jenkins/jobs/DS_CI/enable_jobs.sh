@@ -49,6 +49,7 @@ if [[ ! ${DS_VERSION} ]]; then usage; fi
 if [[ -f /tmp/token ]]; then
     USERTOKEN=$(cat /tmp/token)
     for d in \
+        code\
         configbump\
         dashboard\
         devfileregistry\

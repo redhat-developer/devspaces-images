@@ -190,7 +190,7 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 // if container.yaml has ref for cachito, update it to SOURCE_SHA
                 sh('''
 if grep -q 'ref:' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml; then
-  sed -r -e 's|ref:.*|ref: ''' + ${SOURCE_SHA} + '''|'
+  sed -r -e 's|ref:.*|ref: ''' + SOURCE_SHA + '''|'
 fi
                 ''')
                 // Sync

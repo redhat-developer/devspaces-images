@@ -43,13 +43,14 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     if (PHASE_LIST.contains("2")) {
                         // 14 jobs
                         def jobsList = [
+                            "code",                     // @since 3.1
                             "configbump",
-                            "operator",                 // special case: "devspaces-rhel8-operator"
                             "dashboard",
                             "devfileregistry",
                             "idea",                     // @since 2.11
                             "imagepuller",
                             "machineexec",
+                            "operator",                 // special case: "devspaces-rhel8-operator"
                             "pluginregistry",
                             "server",
                             "traefik",

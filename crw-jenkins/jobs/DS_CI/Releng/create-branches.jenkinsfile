@@ -30,7 +30,7 @@ timeout(120) {
                     }
                     currentBuild.description="Create ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} ..."
                     sh ('''
-                    ./tagRelease.sh --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
+                    ./tagRelease.sh --clean --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
                     )
                     currentBuild.description="Created ${FUTURE_BRANCH} branches"
                 } //with
