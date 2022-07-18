@@ -22,7 +22,7 @@ remote_sources:
     # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
     ref: 47dbb41a7d97598ced9fb3a46d81e1cdf8694fd0
     pkg_managers: [gomod]
-    flags: [gomod-vendor-check]
+    flags: [gomod-vendor-check,cgo-disable]
     packages: 
       gomod: 
         - path: devspaces-configbump
