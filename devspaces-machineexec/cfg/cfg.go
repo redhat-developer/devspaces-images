@@ -34,11 +34,14 @@ var (
 	AuthenticatedUserID string
 
 	// IdleTimeout is a inactivity period after which workspace should be stopped
-	// Default -1, which mean - does not stop
+	// Default value is 30 minutes
 	IdleTimeout time.Duration
 	// StopRetryPeriod is a period after which workspace should be tried to stop if the previous try failed
-	// Defaults 10 second
+	// Default value is 10 seconds
 	StopRetryPeriod time.Duration
+	// RunTimeout is the maximum duration a workspace can be running before it is stopped
+	// Default value is -1, which means - no maximium duration
+	RunTimeout time.Duration
 
 	// UseTLS flag to enable/disable serving TLS
 	UseTLS bool
@@ -82,7 +85,32 @@ func init() {
 	}
 	flag.StringVar(&AuthenticatedUserID, "authenticated-user-id", defaultAuthenticatedUserID, "OpenShift user's ID that should has access to API. Is used only if useBearerToken is configured")
 
-	flag.DurationVar(&IdleTimeout, "idle-timeout", -1*time.Nanosecond, "IdleTimeout is a inactivity period after which workspace should be stopped. Examples: -1, 30s, 15m, 1h")
+	const defaultIdleTimeout = -1 * time.Nanosecond
+	idleTimeout := defaultIdleTimeout
+	idleTimeoutEnv := "SECONDS_OF_DW_INACTIVITY_BEFORE_IDLING"
+	idleTimeoutEnvValue, isFound := os.LookupEnv(idleTimeoutEnv)
+	if isFound && len(idleTimeoutEnvValue) > 0 {
+		if v, err := strconv.ParseInt(idleTimeoutEnvValue, 10, 32); err == nil {
+			idleTimeout = time.Duration(v) * time.Second
+		} else {
+			logrus.Errorf("Invalid value '%s' for env variable key '%s'. Value should be an integer", idleTimeoutEnvValue, idleTimeoutEnv)
+		}
+	}
+	flag.DurationVar(&IdleTimeout, "idle-timeout", idleTimeout, "IdleTimeout is a inactivity period after which workspace should be stopped. By default, IdleTimeout is set to 30m. To disable IdleTimeout, set to -1. Examples: -1, 30s, 15m, 1h")
+
+	const defaultRunTimeout = 1800 * time.Nanosecond
+	runtimeout := defaultRunTimeout
+	runTimeoutEnv := "SECONDS_OF_DW_RUN_BEFORE_IDLING"
+	runTimeoutEnvValue, isFound := os.LookupEnv(runTimeoutEnv)
+	if isFound && len(runTimeoutEnvValue) > 0 {
+		if v, err := strconv.ParseInt(runTimeoutEnvValue, 10, 32); err == nil {
+			runtimeout = time.Duration(v) * time.Second
+		} else {
+			logrus.Errorf("Invalid value '%s' for env variable key '%s'. Value should be an integer", runTimeoutEnvValue, runTimeoutEnv)
+		}
+	}
+	flag.DurationVar(&RunTimeout, "run-timeout", runtimeout, "RunTimeout is the maximum duration a workspace can run. After this period, the workspace will be stopped. Examples: -1, 30s, 15m, 1h")
+
 	flag.DurationVar(&StopRetryPeriod, "stop-retry-period", 10*time.Second, "StopRetryPeriod is a period after which workspace should be tried to stop if the previous try failed. Examples: 30s")
 
 	flag.BoolVar(&UseTLS, "use-tls", false, "Serve content via TLS")
@@ -148,6 +176,11 @@ func Print() {
 	}
 	if IdleTimeout > 0 {
 		logrus.Infof("==> Idle timeout: %s", IdleTimeout)
+	}
+	if RunTimeout > 0 {
+		logrus.Infof("==> Run timeout: %s", RunTimeout)
+	}
+	if IdleTimeout > 0 || RunTimeout > 0 {
 		logrus.Infof("==> Stop retry period: %s", StopRetryPeriod)
 	}
 }

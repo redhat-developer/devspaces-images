@@ -15,7 +15,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/eclipse-che/che-machine-exec/activity"
+	"github.com/eclipse-che/che-machine-exec/timeout"
 
 	jsonRpcApi "github.com/eclipse-che/che-machine-exec/api/jsonrpc"
 	"github.com/eclipse-che/che-machine-exec/api/rest"
@@ -30,9 +30,15 @@ func main() {
 	cfg.Parse()
 	cfg.Print()
 
-	activityManager, err := activity.New(cfg.IdleTimeout, cfg.StopRetryPeriod)
+	activityManager, err := timeout.NewInactivityIdleManager(cfg.IdleTimeout, cfg.StopRetryPeriod)
 	if err != nil {
 		logrus.Fatal("Unable to create activity manager. Cause: ", err.Error())
+		return
+	}
+
+	runtimeManager, err := timeout.NewRunIdleManager(cfg.RunTimeout, cfg.StopRetryPeriod)
+	if err != nil {
+		logrus.Fatal("Unable to create runtime manager. Cause: ", err.Error())
 		return
 	}
 
@@ -82,6 +88,10 @@ func main() {
 
 	if activityManager != nil {
 		activityManager.Start()
+	}
+
+	if runtimeManager != nil {
+		runtimeManager.Start()
 	}
 
 	if cfg.UseTLS {

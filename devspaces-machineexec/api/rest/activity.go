@@ -15,13 +15,13 @@ package rest
 import (
 	"net/http"
 
-	"github.com/eclipse-che/che-machine-exec/activity"
 	"github.com/eclipse-che/che-machine-exec/auth"
 	restUtil "github.com/eclipse-che/che-machine-exec/common/rest"
+	"github.com/eclipse-che/che-machine-exec/timeout"
 	"github.com/gin-gonic/gin"
 )
 
-func HandleActivityTick(c *gin.Context, manager activity.Manager) {
+func HandleActivityTick(c *gin.Context, manager timeout.InactivityIdleManager) {
 	if auth.IsEnabled() {
 		_, err := auth.Authenticate(c)
 		if err != nil {

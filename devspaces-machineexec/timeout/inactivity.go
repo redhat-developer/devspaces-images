@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 Red Hat, Inc.
+// Copyright (c) 2019-2022 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -10,10 +10,9 @@
 //   Red Hat, Inc. - initial API and implementation
 //
 
-package activity
+package timeout
 
 import (
-	"context"
 	"errors"
 	"os"
 	"os/signal"
@@ -22,30 +21,9 @@ import (
 
 	"github.com/eclipse-che/che-machine-exec/exec"
 	"github.com/sirupsen/logrus"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/rest"
 )
 
-var (
-	DevWorkspaceAPIResource = &metav1.APIResource{
-		Name:       "devworkspaces",
-		Group:      "workspace.devfile.io",
-		Version:    "v1alpha1",
-		Namespaced: true,
-	}
-
-	DevWorkspaceGroupVersion = &schema.GroupVersion{
-		Group:   "workspace.devfile.io",
-		Version: "v1alpha1",
-	}
-)
-
-type Manager interface {
+type InactivityIdleManager interface {
 	// Start starts tracking users activity and scheduling workspace stopping if there is no activity for idle timeout
 	// Should be called once
 	Start()
@@ -54,9 +32,9 @@ type Manager interface {
 	Tick()
 }
 
-func New(idleTimeout, stopRetryPeriod time.Duration) (Manager, error) {
-	if idleTimeout < 0 {
-		return &noOpManager{}, nil
+func NewInactivityIdleManager(idleTimeout, stopRetryPeriod time.Duration) (InactivityIdleManager, error) {
+	if idleTimeout <= 0 {
+		return &noOpInactivityIdleManager{}, nil
 	}
 
 	if stopRetryPeriod <= 0 {
@@ -65,7 +43,7 @@ func New(idleTimeout, stopRetryPeriod time.Duration) (Manager, error) {
 
 	namespace := exec.GetNamespace()
 	if namespace == "" {
-		return nil, errors.New("unable to evaluate the current namespace that is needed for activity manager works correctly")
+		return nil, errors.New("unable to evaluate the current namespace required for activity manager to work correctly")
 	}
 
 	workspaceName, isFound := os.LookupEnv("CHE_WORKSPACE_NAME")
@@ -76,7 +54,7 @@ func New(idleTimeout, stopRetryPeriod time.Duration) (Manager, error) {
 		}
 	}
 
-	return managerImpl{
+	return inactivityIdleManagerImpl{
 		namespace:       namespace,
 		workspaceName:   workspaceName,
 		idleTimeout:     idleTimeout,
@@ -85,14 +63,14 @@ func New(idleTimeout, stopRetryPeriod time.Duration) (Manager, error) {
 	}, nil
 }
 
-// noOpManager should be used if idle timeout is configured less 0
+// noOpInactivityIdleManager should be used if idle timeout is configured less 0
 // invocation its method does not have affect
-type noOpManager struct{}
+type noOpInactivityIdleManager struct{}
 
-func (m noOpManager) Tick()  {}
-func (m noOpManager) Start() {}
+func (m noOpInactivityIdleManager) Tick()  {}
+func (m noOpInactivityIdleManager) Start() {}
 
-type managerImpl struct {
+type inactivityIdleManagerImpl struct {
 	namespace     string
 	workspaceName string
 
@@ -102,7 +80,7 @@ type managerImpl struct {
 	activityC chan bool
 }
 
-func (m managerImpl) Tick() {
+func (m inactivityIdleManagerImpl) Tick() {
 	select {
 	case m.activityC <- true:
 	default:
@@ -111,7 +89,7 @@ func (m managerImpl) Tick() {
 	}
 }
 
-func (m managerImpl) Start() {
+func (m inactivityIdleManagerImpl) Start() {
 	logrus.Infof("Activity tracker is run and workspace will be stopped in %s if there is no activity", m.idleTimeout)
 	timer := time.NewTimer(m.idleTimeout)
 	var shutdownChan = make(chan os.Signal, 1)
@@ -121,7 +99,7 @@ func (m managerImpl) Start() {
 		for {
 			select {
 			case <-timer.C:
-				if err := m.stopWorkspace(); err != nil {
+				if err := stopWorkspace(m.namespace, m.workspaceName); err != nil {
 					timer.Reset(m.stopRetryPeriod)
 					logrus.Errorf("Failed to stop workspace. Will retry in %s. Cause: %s", m.stopRetryPeriod, err)
 				} else {
@@ -140,50 +118,4 @@ func (m managerImpl) Start() {
 			}
 		}
 	}()
-}
-
-func (m managerImpl) stopWorkspace() error {
-	c, err := newWorkspaceClientInCluster()
-	if err != nil {
-		return err
-	}
-
-	stopWorkspacePath := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"metadata": map[string]interface{}{
-				"annotations": map[string]interface{}{
-					"controller.devfile.io/stopped-by": "inactivity",
-				},
-			},
-			"spec": map[string]interface{}{
-				"started": false,
-			},
-		},
-	}
-	jsonPath, err := stopWorkspacePath.MarshalJSON()
-	if err != nil {
-		return err
-	}
-
-	_, err = c.Resource(DevWorkspaceGroupVersion.WithResource("devworkspaces")).Namespace(m.namespace).Patch(context.TODO(), m.workspaceName, types.MergePatchType, jsonPath, v1.PatchOptions{}, "")
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func newWorkspaceClientInCluster() (dynamic.Interface, error) {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return nil, err
-	}
-	config.APIPath = "/apis"
-	config.GroupVersion = DevWorkspaceGroupVersion
-
-	c, err := dynamic.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-	return c, nil
 }
