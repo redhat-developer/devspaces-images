@@ -192,7 +192,6 @@
 | [`@types/istanbul-lib-report@3.0.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/istanbul-reports@3.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/jest@25.2.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/js-yaml@3.12.7`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/json-schema@7.0.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/less@3.0.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/lodash@4.14.180`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -284,7 +283,6 @@
 | [`anymatch@3.1.2`](https://github.com/micromatch/anymatch) | ISC | clearlydefined |
 | [`aproba@2.0.0`](https://github.com/iarna/aproba) | ISC | clearlydefined |
 | [`are-we-there-yet@3.0.0`](https://github.com/npm/are-we-there-yet.git) | ISC | clearlydefined |
-| [`argparse@1.0.10`](https://github.com/nodeca/argparse.git) | MIT | #2174 |
 | [`aria-query@4.2.2`](git+https://github.com/A11yance/aria-query.git) | Apache-2.0 | clearlydefined |
 | [`arr-diff@4.0.0`](https://github.com/jonschlinkert/arr-diff.git) | MIT | clearlydefined |
 | [`arr-flatten@1.1.0`](https://github.com/jonschlinkert/arr-flatten.git) | MIT | clearlydefined |
@@ -652,7 +650,6 @@
 | [`jest-watcher@26.6.2`](https://github.com/facebook/jest) | MIT | clearlydefined |
 | [`jest-worker@26.6.2`](https://github.com/facebook/jest.git) | MIT | clearlydefined |
 | [`jest@26.6.3`](https://github.com/facebook/jest) | MIT | clearlydefined |
-| [`js-yaml@3.14.1`](https://github.com/nodeca/js-yaml.git) | MIT | clearlydefined |
 | [`jsdom@16.7.0`](https://github.com/jsdom/jsdom.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/jsdom/16.7.0) |
 | [`jsesc@2.5.2`](https://github.com/mathiasbynens/jsesc.git) | MIT | clearlydefined |
 | [`json-parse-better-errors@1.0.2`](https://github.com/zkat/json-parse-better-errors) | MIT | clearlydefined |
@@ -1041,6 +1038,7 @@
 | [`write-file-atomic@3.0.3`](git://github.com/npm/write-file-atomic.git) | ISC | clearlydefined |
 | [`write-json-file@4.3.0`](https://github.com/sindresorhus/write-json-file.git) | MIT | clearlydefined |
 | [`write-pkg@4.0.0`](https://github.com/sindresorhus/write-pkg.git) | MIT | clearlydefined |
+| [`ws@7.5.7`](https://github.com/websockets/ws.git) | MIT | #1940 |
 | [`xdg-basedir@4.0.0`](https://github.com/sindresorhus/xdg-basedir.git) | MIT | clearlydefined |
 | [`xml-name-validator@3.0.0`](https://github.com/jsdom/xml-name-validator.git) | Apache-2.0 | clearlydefined |
 | [`xmlchars@2.2.0`](https://github.com/lddubeau/xmlchars.git) | MIT | clearlydefined |
