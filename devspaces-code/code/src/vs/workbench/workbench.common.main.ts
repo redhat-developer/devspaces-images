@@ -52,7 +52,6 @@ import 'vs/workbench/browser/parts/views/viewsService';
 
 //#region --- workbench services
 
-import 'vs/platform/actions/common/actions.contribution';
 import 'vs/platform/undoRedo/common/undoRedoService';
 import 'vs/workbench/services/extensions/browser/extensionUrlHandler';
 import 'vs/workbench/services/keybinding/common/keybindingEditing';
@@ -77,6 +76,7 @@ import 'vs/workbench/services/commands/common/commandService';
 import 'vs/workbench/services/themes/browser/workbenchThemeService';
 import 'vs/workbench/services/label/common/labelService';
 import 'vs/workbench/services/extensions/common/extensionManifestPropertiesService';
+import 'vs/workbench/services/extensionManagement/browser/webExtensionsScannerService';
 import 'vs/workbench/services/extensionManagement/browser/extensionEnablementService';
 import 'vs/workbench/services/extensionManagement/browser/builtinExtensionsScannerService';
 import 'vs/workbench/services/extensionRecommendations/common/extensionIgnoredRecommendationsService';
@@ -117,6 +117,8 @@ import { ContextKeyService } from 'vs/platform/contextkey/browser/contextKeyServ
 import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { ITextResourceConfigurationService } from 'vs/editor/common/services/textResourceConfiguration';
 import { TextResourceConfigurationService } from 'vs/editor/common/services/textResourceConfigurationService';
+import { IMenuService } from 'vs/platform/actions/common/actions';
+import { MenuService } from 'vs/platform/actions/common/menuService';
 import { IDownloadService } from 'vs/platform/download/common/download';
 import { DownloadService } from 'vs/platform/download/common/downloadService';
 import { OpenerService } from 'vs/editor/browser/services/openerService';
@@ -139,6 +141,7 @@ registerSingleton(IMarkerDecorationsService, MarkerDecorationsService);
 registerSingleton(IMarkerService, MarkerService, true);
 registerSingleton(IContextKeyService, ContextKeyService);
 registerSingleton(ITextResourceConfigurationService, TextResourceConfigurationService);
+registerSingleton(IMenuService, MenuService, true);
 registerSingleton(IDownloadService, DownloadService, true);
 registerSingleton(IOpenerService, OpenerService, true);
 registerSingleton(IExtensionsProfileScannerService, ExtensionsProfileScannerService);
@@ -326,7 +329,7 @@ import 'vs/workbench/contrib/userDataSync/browser/userDataSync.contribution';
 import 'vs/workbench/contrib/userDataProfile/browser/userDataProfile.contribution';
 
 // Continue Edit Session
-import 'vs/workbench/contrib/editSessions/browser/editSessions.contribution';
+import 'vs/workbench/contrib/sessionSync/browser/sessionSync.contribution';
 
 // Code Actions
 import 'vs/workbench/contrib/codeActions/browser/codeActions.contribution';

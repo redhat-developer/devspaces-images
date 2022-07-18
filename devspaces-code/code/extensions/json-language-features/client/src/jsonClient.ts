@@ -57,7 +57,6 @@ type Settings = {
 	json?: {
 		schemas?: JSONSchemaSettings[];
 		format?: { enable?: boolean };
-		keepLines?: { enable?: boolean };
 		validate?: { enable?: boolean };
 		resultLimit?: number;
 	};
@@ -75,7 +74,6 @@ export type JSONSchemaSettings = {
 
 export namespace SettingIds {
 	export const enableFormatter = 'json.format.enable';
-	export const enableKeepLines = 'json.format.keepLines';
 	export const enableValidation = 'json.validate.enable';
 	export const enableSchemaDownload = 'json.schemaDownload.enable';
 	export const maxItemsComputed = 'json.maxItemsComputed';
@@ -482,7 +480,6 @@ function getSettings(): Settings {
 		json: {
 			validate: { enable: configuration.get(SettingIds.enableValidation) },
 			format: { enable: configuration.get(SettingIds.enableFormatter) },
-			keepLines: { enable: configuration.get(SettingIds.enableKeepLines) },
 			schemas: [],
 			resultLimit: resultLimit + 1 // ask for one more so we can detect if the limit has been exceeded
 		}

@@ -279,7 +279,7 @@
 			"project": "vscode-workbench"
 		},
 		{
-			"name": "vs/workbench/contrib/editSessions",
+			"name": "vs/workbench/contrib/sessionSync",
 			"project": "vscode-workbench"
 		},
 		{
@@ -431,7 +431,7 @@
 			"project": "vscode-workbench"
 		},
 		{
-			"name": "vs/workbench/services/editSessions",
+			"name": "vs/workbench/services/sessionSync",
 			"project": "vscode-workbench"
 		},
 		{

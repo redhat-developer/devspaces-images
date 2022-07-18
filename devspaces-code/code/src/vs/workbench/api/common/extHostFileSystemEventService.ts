@@ -16,7 +16,6 @@ import { FileOperation } from 'vs/platform/files/common/files';
 import { CancellationToken } from 'vs/base/common/cancellation';
 import { ILogService } from 'vs/platform/log/common/log';
 import { IExtHostWorkspace } from 'vs/workbench/api/common/extHostWorkspace';
-import { isProposedApiEnabled } from 'vs/workbench/services/extensions/common/extensions';
 
 class FileSystemWatcher implements vscode.FileSystemWatcher {
 
@@ -224,14 +223,14 @@ export class ExtHostFileSystemEventService implements ExtHostFileSystemEventServ
 	private async _fireWillEvent<E extends IWaitUntil>(emitter: AsyncEmitter<E>, data: IWaitUntilData<E>, timeout: number, token: CancellationToken): Promise<IWillRunFileOperationParticipation | undefined> {
 
 		const extensionNames = new Set<string>();
-		const edits: [IExtensionDescription, WorkspaceEdit][] = [];
+		const edits: WorkspaceEdit[] = [];
 
-		await emitter.fireAsync(data, token, async (thenable: Promise<unknown>, listener) => {
+		await emitter.fireAsync(data, token, async (thenable, listener) => {
 			// ignore all results except for WorkspaceEdits. Those are stored in an array.
 			const now = Date.now();
 			const result = await Promise.resolve(thenable);
 			if (result instanceof WorkspaceEdit) {
-				edits.push([(<IExtensionListener<E>>listener).extension, result]);
+				edits.push(result);
 				extensionNames.add((<IExtensionListener<E>>listener).extension.displayName ?? (<IExtensionListener<E>>listener).extension.identifier.value);
 			}
 
@@ -250,11 +249,11 @@ export class ExtHostFileSystemEventService implements ExtHostFileSystemEventServ
 
 		// concat all WorkspaceEdits collected via waitUntil-call and send them over to the renderer
 		const dto: IWorkspaceEditDto = { edits: [] };
-		for (const [extension, edit] of edits) {
+		for (const edit of edits) {
 			const { edits } = typeConverter.WorkspaceEdit.from(edit, {
 				getTextDocumentVersion: uri => this._extHostDocumentsAndEditors.getDocument(uri)?.version,
 				getNotebookDocumentVersion: () => undefined,
-			}, isProposedApiEnabled(extension, 'snippetWorkspaceEdit'));
+			});
 			dto.edits = dto.edits.concat(edits);
 		}
 		return { edit: dto, extensionNames: Array.from(extensionNames) };

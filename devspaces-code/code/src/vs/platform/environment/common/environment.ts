@@ -66,7 +66,6 @@ export interface IEnvironmentService {
 
 	// --- continue edit session
 	editSessionId?: string;
-	editSessionsLogResource: URI;
 
 	// --- extension development
 	debugExtensionHost: IExtensionHostDebugParams;

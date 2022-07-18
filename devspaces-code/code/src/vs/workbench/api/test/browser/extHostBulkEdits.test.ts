@@ -4,12 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 import * as assert from 'assert';
 import * as extHostTypes from 'vs/workbench/api/common/extHostTypes';
-import { MainContext, IWorkspaceEditDto, MainThreadBulkEditsShape, IWorkspaceTextEditDto } from 'vs/workbench/api/common/extHost.protocol';
+import { MainContext, IWorkspaceEditDto, WorkspaceEditType, MainThreadBulkEditsShape } from 'vs/workbench/api/common/extHost.protocol';
 import { URI } from 'vs/base/common/uri';
 import { mock } from 'vs/base/test/common/mock';
 import { ExtHostDocumentsAndEditors } from 'vs/workbench/api/common/extHostDocumentsAndEditors';
 import { SingleProxyRPCProtocol, TestRPCProtocol } from 'vs/workbench/api/test/common/testRPCProtocol';
 import { NullLogService } from 'vs/platform/log/common/log';
+import { assertType } from 'vs/base/common/types';
 import { ExtHostBulkEdits } from 'vs/workbench/api/common/extHostBulkEdits';
 import { nullExtensionDescription } from 'vs/workbench/services/extensions/common/extensions';
 
@@ -49,7 +50,8 @@ suite('ExtHostBulkEdits.applyWorkspaceEdit', () => {
 		await bulkEdits.applyWorkspaceEdit(edit, nullExtensionDescription);
 		assert.strictEqual(workspaceResourceEdits.edits.length, 1);
 		const [first] = workspaceResourceEdits.edits;
-		assert.strictEqual((<IWorkspaceTextEditDto>first).versionId, 1337);
+		assertType(first._type === WorkspaceEditType.Text);
+		assert.strictEqual(first.modelVersionId, 1337);
 	});
 
 	test('does not use version id if document is not available', async () => {
@@ -58,7 +60,8 @@ suite('ExtHostBulkEdits.applyWorkspaceEdit', () => {
 		await bulkEdits.applyWorkspaceEdit(edit, nullExtensionDescription);
 		assert.strictEqual(workspaceResourceEdits.edits.length, 1);
 		const [first] = workspaceResourceEdits.edits;
-		assert.ok(typeof (<IWorkspaceTextEditDto>first).versionId === 'undefined');
+		assertType(first._type === WorkspaceEditType.Text);
+		assert.ok(typeof first.modelVersionId === 'undefined');
 	});
 
 });

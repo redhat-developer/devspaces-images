@@ -35,7 +35,6 @@ exports.dirs = [
 	'extensions/jake',
 	'extensions/json-language-features',
 	'extensions/json-language-features/server',
-	'extensions/markdown-language-features/server',
 	'extensions/markdown-language-features',
 	'extensions/markdown-math',
 	'extensions/merge-conflict',

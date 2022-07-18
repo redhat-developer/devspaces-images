@@ -183,7 +183,7 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 	const extHostWebviewViews = rpcProtocol.set(ExtHostContext.ExtHostWebviewViews, new ExtHostWebviewViews(rpcProtocol, extHostWebviews));
 	const extHostTesting = rpcProtocol.set(ExtHostContext.ExtHostTesting, new ExtHostTesting(rpcProtocol, extHostCommands));
 	const extHostUriOpeners = rpcProtocol.set(ExtHostContext.ExtHostUriOpeners, new ExtHostUriOpeners(rpcProtocol));
-	rpcProtocol.set(ExtHostContext.ExtHostInteractive, new ExtHostInteractive(rpcProtocol, extHostNotebook, extHostDocumentsAndEditors, extHostCommands, extHostLogService));
+	rpcProtocol.set(ExtHostContext.ExtHostInteractive, new ExtHostInteractive(rpcProtocol, extHostNotebook, extHostDocumentsAndEditors, extHostCommands));
 
 	// Check that no named customers are missing
 	const expected = Object.values<ProxyIdentifier<any>>(ExtHostContext);
@@ -576,7 +576,7 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 			createLanguageStatusItem(id: string, selector: vscode.DocumentSelector): vscode.LanguageStatusItem {
 				return extHostLanguages.createLanguageStatusItem(extension, id, selector);
 			},
-			registerDocumentDropEditProvider(selector: vscode.DocumentSelector, provider: vscode.DocumentDropEditProvider): vscode.Disposable {
+			registerDocumentOnDropEditProvider(selector: vscode.DocumentSelector, provider: vscode.DocumentOnDropEditProvider): vscode.Disposable {
 				checkProposedApiEnabled(extension, 'textEditorDrop');
 				return extHostLanguageFeatures.registerDocumentOnDropEditProvider(extension, selector, provider);
 			}
@@ -1347,9 +1347,7 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 			TabInputNotebook: extHostTypes.NotebookEditorTabInput,
 			TabInputNotebookDiff: extHostTypes.NotebookDiffEditorTabInput,
 			TabInputWebview: extHostTypes.WebviewEditorTabInput,
-			TabInputTerminal: extHostTypes.TerminalEditorTabInput,
-			TabInputInteractiveWindow: extHostTypes.InteractiveWindowInput,
-			TerminalExitReason: extHostTypes.TerminalExitReason
+			TabInputTerminal: extHostTypes.TerminalEditorTabInput
 		};
 	};
 }

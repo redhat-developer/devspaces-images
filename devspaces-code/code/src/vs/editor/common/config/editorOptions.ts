@@ -563,7 +563,7 @@ export interface IEditorOptions {
 	 * Controls whether the fold actions in the gutter stay always visible or hide unless the mouse is over the gutter.
 	 * Defaults to 'mouseover'.
 	 */
-	showFoldingControls?: 'always' | 'never' | 'mouseover';
+	showFoldingControls?: 'always' | 'mouseover';
 	/**
 	 * Controls whether clicking on the empty content after a folded line will unfold the line.
 	 * Defaults to false.
@@ -2331,7 +2331,6 @@ export class EditorLayoutInfoComputer extends ComputedEditorOption<EditorOption.
 
 		const rawLineDecorationsWidth = options.get(EditorOption.lineDecorationsWidth);
 		const folding = options.get(EditorOption.folding);
-		const showFoldingDecoration = options.get(EditorOption.showFoldingControls) !== 'never';
 
 		let lineDecorationsWidth: number;
 		if (typeof rawLineDecorationsWidth === 'string' && /^\d+(\.\d+)?ch$/.test(rawLineDecorationsWidth)) {
@@ -2340,7 +2339,7 @@ export class EditorLayoutInfoComputer extends ComputedEditorOption<EditorOption.
 		} else {
 			lineDecorationsWidth = EditorIntOption.clampedInt(rawLineDecorationsWidth, 0, 0, 1000);
 		}
-		if (folding && showFoldingDecoration) {
+		if (folding) {
 			lineDecorationsWidth += 16;
 		}
 
@@ -2562,12 +2561,12 @@ class EditorInlayHints extends BaseEditorOption<EditorOption.inlayHints, IEditor
 				'editor.inlayHints.fontSize': {
 					type: 'number',
 					default: defaults.fontSize,
-					markdownDescription: nls.localize('inlayHints.fontSize', "Controls font size of inlay hints in the editor. As default the {0} is used when the configured value is less than {1} or greater than the editor font size.", '`#editor.fontSize#`', '`5`')
+					markdownDescription: nls.localize('inlayHints.fontSize', "Controls font size of inlay hints in the editor. As default the `#editor.fontSize#` is used when the configured value is less than `5` or greater than the editor font size.")
 				},
 				'editor.inlayHints.fontFamily': {
 					type: 'string',
 					default: defaults.fontFamily,
-					markdownDescription: nls.localize('inlayHints.fontFamily', "Controls font family of inlay hints in the editor. When set to empty, the {0} is used.", '`#editor.fontFamily#`')
+					markdownDescription: nls.localize('inlayHints.fontFamily', "Controls font family of inlay hints in the editor. When set to empty, the `#editor.fontFamily#` is used.")
 				},
 				'editor.inlayHints.padding': {
 					type: 'boolean',
@@ -3643,7 +3642,7 @@ class BracketPairColorization extends BaseEditorOption<EditorOption.bracketPairC
 				'editor.bracketPairColorization.enabled': {
 					type: 'boolean',
 					default: defaults.enabled,
-					markdownDescription: nls.localize('bracketPairColorization.enabled', "Controls whether bracket pair colorization is enabled or not. Use {0} to override the bracket highlight colors.", '`#workbench.colorCustomizations#`')
+					markdownDescription: nls.localize('bracketPairColorization.enabled', "Controls whether bracket pair colorization is enabled or not. Use `#workbench.colorCustomizations#` to override the bracket highlight colors.")
 				},
 				'editor.bracketPairColorization.independentColorPoolPerBracketType': {
 					type: 'boolean',
@@ -4897,7 +4896,7 @@ export const EditorOptions = {
 					'- `ctrlCmd` refers to a value the setting can take and should not be localized.',
 					'- `Control` and `Command` refer to the modifier keys Ctrl or Cmd on the keyboard and can be localized.'
 				]
-			}, "The modifier to be used to add multiple cursors with the mouse. The Go to Definition and Open Link mouse gestures will adapt such that they do not conflict with the [multicursor modifier](https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).")
+			}, "The modifier to be used to add multiple cursors with the mouse. The Go to Definition and Open Link mouse gestures will adapt such that they do not conflict with the multicursor modifier. [Read more](https://code.visualstudio.com/docs/editor/codebasics#_multicursor-modifier).")
 		}
 	)),
 	multiCursorPaste: register(new EditorStringEnumOption(
@@ -5040,12 +5039,11 @@ export const EditorOptions = {
 	)),
 	showFoldingControls: register(new EditorStringEnumOption(
 		EditorOption.showFoldingControls, 'showFoldingControls',
-		'mouseover' as 'always' | 'never' | 'mouseover',
-		['always', 'never', 'mouseover'] as const,
+		'mouseover' as 'always' | 'mouseover',
+		['always', 'mouseover'] as const,
 		{
 			enumDescriptions: [
 				nls.localize('showFoldingControls.always', "Always show the folding controls."),
-				nls.localize('showFoldingControls.never', "Never show the folding controls and reduce the gutter size."),
 				nls.localize('showFoldingControls.mouseover', "Only show the folding controls when the mouse is over the gutter."),
 			],
 			description: nls.localize('showFoldingControls', "Controls when the folding controls on the gutter are shown.")
@@ -5088,12 +5086,12 @@ export const EditorOptions = {
 	suggestFontSize: register(new EditorIntOption(
 		EditorOption.suggestFontSize, 'suggestFontSize',
 		0, 0, 1000,
-		{ markdownDescription: nls.localize('suggestFontSize', "Font size for the suggest widget. When set to {0}, the value of {1} is used.", '`0`', '`#editor.fontSize#`') }
+		{ markdownDescription: nls.localize('suggestFontSize', "Font size for the suggest widget. When set to `0`, the value of `#editor.fontSize#` is used.") }
 	)),
 	suggestLineHeight: register(new EditorIntOption(
 		EditorOption.suggestLineHeight, 'suggestLineHeight',
 		0, 0, 1000,
-		{ markdownDescription: nls.localize('suggestLineHeight', "Line height for the suggest widget. When set to {0}, the value of {1} is used. The minimum value is 8.", '`0`', '`#editor.lineHeight#`') }
+		{ markdownDescription: nls.localize('suggestLineHeight', "Line height for the suggest widget. When set to `0`, the value of `#editor.lineHeight#` is used. The minimum value is 8.") }
 	)),
 	suggestOnTriggerCharacters: register(new EditorBooleanOption(
 		EditorOption.suggestOnTriggerCharacters, 'suggestOnTriggerCharacters', true,

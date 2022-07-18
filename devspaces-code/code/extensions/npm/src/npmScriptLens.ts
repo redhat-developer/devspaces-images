@@ -71,7 +71,7 @@ export class NpmScriptLensProvider implements CodeLensProvider, Disposable {
 			return [];
 		}
 
-		const title = '$(debug-start) ' + localize('codelens.debug', 'Debug');
+		const title = localize('codelens.debug', '{0} Debug', '$(debug-start)');
 		const cwd = path.dirname(document.uri.fsPath);
 		if (this.lensLocation === 'top') {
 			return [

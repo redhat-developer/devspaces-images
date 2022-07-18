@@ -12,7 +12,7 @@ declare module 'vscode' {
 	 *
 	 * The user can drop into a text editor by holding down `shift` while dragging. Requires `workbench.experimental.editor.dropIntoEditor.enabled` to be on.
 	 */
-	export interface DocumentDropEditProvider {
+	export interface DocumentOnDropEditProvider {
 		/**
 		 * Provide edits which inserts the content being dragged and dropped into the document.
 		 *
@@ -24,7 +24,7 @@ declare module 'vscode' {
 		 * @return A {@link DocumentDropEdit} or a thenable that resolves to such. The lack of a result can be
 		 * signaled by returning `undefined` or `null`.
 		 */
-		provideDocumentDropEdits(document: TextDocument, position: Position, dataTransfer: DataTransfer, token: CancellationToken): ProviderResult<DocumentDropEdit>;
+		provideDocumentOnDropEdits(document: TextDocument, position: Position, dataTransfer: DataTransfer, token: CancellationToken): ProviderResult<DocumentDropEdit>;
 	}
 
 	/**
@@ -49,13 +49,13 @@ declare module 'vscode' {
 
 	export namespace languages {
 		/**
-		 * Registers a new {@link DocumentDropEditProvider}.
+		 * Registers a new {@link DocumentOnDropEditProvider}.
 		 *
 		 * @param selector A selector that defines the documents this provider applies to.
 		 * @param provider A drop provider.
 		 *
 		 * @return A {@link Disposable} that unregisters this provider when disposed of.
 		 */
-		export function registerDocumentDropEditProvider(selector: DocumentSelector, provider: DocumentDropEditProvider): Disposable;
+		export function registerDocumentOnDropEditProvider(selector: DocumentSelector, provider: DocumentOnDropEditProvider): Disposable;
 	}
 }

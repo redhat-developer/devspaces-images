@@ -82,15 +82,7 @@ export class WebWorkerExtensionHost extends Disposable implements IExtensionHost
 	}
 
 	private async _getWebWorkerExtensionHostIframeSrc(): Promise<string> {
-		const suffixSearchParams = new URLSearchParams();
-		if (this._environmentService.debugExtensionHost && this._environmentService.debugRenderer) {
-			suffixSearchParams.set('debugged', '1');
-		}
-		if (globalThis.crossOriginIsolated) {
-			suffixSearchParams.set('vscode-coi', '3' /*COOP+COEP*/);
-		}
-		const suffix = `?${suffixSearchParams.toString()}`;
-
+		const suffix = this._environmentService.debugExtensionHost && this._environmentService.debugRenderer ? '?debugged=1' : '?';
 		const iframeModulePath = 'vs/workbench/services/extensions/worker/webWorkerExtensionHostIframe.html';
 		if (platform.isWeb) {
 			const webEndpointUrlTemplate = this._productService.webEndpointUrlTemplate;

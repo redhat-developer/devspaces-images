@@ -19,7 +19,6 @@ import { AbstractNativeEnvironmentService } from 'vs/platform/environment/common
 import { IEnvironmentService } from 'vs/platform/environment/common/environment';
 import product from 'vs/platform/product/common/product';
 import { IUserDataProfilesService, UserDataProfilesService } from 'vs/platform/userDataProfile/common/userDataProfile';
-import { UriIdentityService } from 'vs/platform/uriIdentity/common/uriIdentityService';
 
 const ROOT = URI.file('tests').with({ scheme: 'vscode-tests' });
 
@@ -53,7 +52,7 @@ suite('FileUserDataProvider', () => {
 		await testObject.createFolder(backupWorkspaceHomeOnDisk);
 
 		environmentService = new TestEnvironmentService(userDataHomeOnDisk);
-		userDataProfilesService = new UserDataProfilesService(environmentService, testObject, new UriIdentityService(testObject), logService);
+		userDataProfilesService = new UserDataProfilesService(environmentService, testObject, logService);
 
 		fileUserDataProvider = new FileUserDataProvider(ROOT.scheme, fileSystemProvider, Schemas.vscodeUserData, logService);
 		disposables.add(fileUserDataProvider);

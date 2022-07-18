@@ -275,20 +275,6 @@ export class SearchEditor extends AbstractTextCodeEditor<SearchEditorViewState> 
 		this.queryEditorWidget.searchInput.focus();
 	}
 
-	focusFilesToIncludeInput() {
-		if (!this.showingIncludesExcludes) {
-			this.toggleIncludesExcludes(true);
-		}
-		this.inputPatternIncludes.focus();
-	}
-
-	focusFilesToExcludeInput() {
-		if (!this.showingIncludesExcludes) {
-			this.toggleIncludesExcludes(true);
-		}
-		this.inputPatternExcludes.focus();
-	}
-
 	focusNextInput() {
 		if (this.queryEditorWidget.searchInputHasFocus()) {
 			if (this.showingIncludesExcludes) {

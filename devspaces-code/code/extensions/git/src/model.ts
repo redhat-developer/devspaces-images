@@ -13,13 +13,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as nls from 'vscode-nls';
 import { fromGitUri } from './uri';
-import { APIState as State, CredentialsProvider, PushErrorHandler, PublishEvent, RemoteSourcePublisher, PostCommitCommandsProvider } from './api/git';
+import { APIState as State, CredentialsProvider, PushErrorHandler, PublishEvent, RemoteSourcePublisher } from './api/git';
 import { Askpass } from './askpass';
 import { IPushErrorHandlerRegistry } from './pushError';
 import { ApiRepository } from './api/api1';
 import { IRemoteSourcePublisherRegistry } from './remotePublisher';
 import { OutputChannelLogger } from './log';
-import { IPostCommitCommandsProviderRegistry } from './postCommitCommands';
 
 const localize = nls.loadMessageBundle();
 
@@ -51,7 +50,7 @@ interface OpenRepository extends Disposable {
 	repository: Repository;
 }
 
-export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommandsProviderRegistry, IPushErrorHandlerRegistry {
+export class Model implements IRemoteSourcePublisherRegistry, IPushErrorHandlerRegistry {
 
 	private _onDidOpenRepository = new EventEmitter<Repository>();
 	readonly onDidOpenRepository: Event<Repository> = this._onDidOpenRepository.event;
@@ -105,8 +104,6 @@ export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommand
 
 	private _onDidRemoveRemoteSourcePublisher = new EventEmitter<RemoteSourcePublisher>();
 	readonly onDidRemoveRemoteSourcePublisher = this._onDidRemoveRemoteSourcePublisher.event;
-
-	private postCommitCommandsProviders = new Set<PostCommitCommandsProvider>();
 
 	private showRepoOnHomeDriveRootWarning = true;
 	private pushErrorHandlers = new Set<PushErrorHandler>();
@@ -372,7 +369,7 @@ export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommand
 			}
 
 			const dotGit = await this.git.getRepositoryDotGit(repositoryRoot);
-			const repository = new Repository(this.git.open(repositoryRoot, dotGit), this, this, this, this.globalState, this.outputChannelLogger, this.telemetryReporter);
+			const repository = new Repository(this.git.open(repositoryRoot, dotGit), this, this, this.globalState, this.outputChannelLogger, this.telemetryReporter);
 
 			this.open(repository);
 			repository.status(); // do not await this, we want SCM to know about the repo asap
@@ -509,10 +506,6 @@ export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommand
 			return this.openRepositories.filter(r => r.repository === hint)[0];
 		}
 
-		if (hint instanceof ApiRepository) {
-			return this.openRepositories.filter(r => r.repository === hint.repository)[0];
-		}
-
 		if (typeof hint === 'string') {
 			hint = Uri.file(hint);
 		}
@@ -587,16 +580,6 @@ export class Model implements IRemoteSourcePublisherRegistry, IPostCommitCommand
 
 	getRemoteSourcePublishers(): RemoteSourcePublisher[] {
 		return [...this.remoteSourcePublishers.values()];
-	}
-
-	registerPostCommitCommandsProvider(provider: PostCommitCommandsProvider): Disposable {
-		this.postCommitCommandsProviders.add(provider);
-
-		return toDisposable(() => this.postCommitCommandsProviders.delete(provider));
-	}
-
-	getPostCommitCommandsProviders(): PostCommitCommandsProvider[] {
-		return [...this.postCommitCommandsProviders.values()];
 	}
 
 	registerCredentialsProvider(provider: CredentialsProvider): Disposable {

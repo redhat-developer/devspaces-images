@@ -11,11 +11,11 @@ import { Disposable, IDisposable, toDisposable } from 'vs/base/common/lifecycle'
 import * as perf from 'vs/base/common/performance';
 import { isEqualOrParent } from 'vs/base/common/resources';
 import { IWorkbenchEnvironmentService } from 'vs/workbench/services/environment/common/environmentService';
-import { IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService } from 'vs/workbench/services/extensionManagement/common/extensionManagement';
+import { IWebExtensionsScannerService, IWorkbenchExtensionEnablementService, IWorkbenchExtensionManagementService } from 'vs/workbench/services/extensionManagement/common/extensionManagement';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { INotificationService, Severity } from 'vs/platform/notification/common/notification';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
-import { ActivationTimes, ExtensionPointContribution, IExtensionService, IExtensionsStatus, IMessage, IWillActivateEvent, IResponsiveStateChangeEvent, toExtension, IExtensionHost, ActivationKind, ExtensionHostKind, ExtensionRunningLocation, extensionHostKindToString, ExtensionActivationReason, IInternalExtensionService, RemoteRunningLocation, LocalProcessRunningLocation, LocalWebWorkerRunningLocation } from 'vs/workbench/services/extensions/common/extensions';
+import { ActivationTimes, ExtensionPointContribution, IExtensionService, IExtensionsStatus, IMessage, IWillActivateEvent, IResponsiveStateChangeEvent, toExtension, IExtensionHost, ActivationKind, ExtensionHostKind, toExtensionDescription, ExtensionRunningLocation, extensionHostKindToString, ExtensionActivationReason, IInternalExtensionService, RemoteRunningLocation, LocalProcessRunningLocation, LocalWebWorkerRunningLocation } from 'vs/workbench/services/extensions/common/extensions';
 import { ExtensionMessageCollector, ExtensionPoint, ExtensionsRegistry, IExtensionPoint, IExtensionPointUser } from 'vs/workbench/services/extensions/common/extensionsRegistry';
 import { ExtensionDescriptionRegistry } from 'vs/workbench/services/extensions/common/extensionDescriptionRegistry';
 import { ResponsiveState } from 'vs/workbench/services/extensions/common/rpcProtocol';
@@ -32,11 +32,12 @@ import { IConfigurationService } from 'vs/platform/configuration/common/configur
 import { Schemas } from 'vs/base/common/network';
 import { URI } from 'vs/base/common/uri';
 import { IExtensionManifestPropertiesService } from 'vs/workbench/services/extensions/common/extensionManifestPropertiesService';
+import { dedupExtensions } from 'vs/workbench/services/extensions/common/extensionsUtil';
 import { ApiProposalName, allApiProposals } from 'vs/workbench/services/extensions/common/extensionsApiProposals';
+import { forEach } from 'vs/base/common/collections';
 import { ILogService } from 'vs/platform/log/common/log';
 import { IExtensionHostExitInfo, IRemoteAgentService } from 'vs/workbench/services/remote/common/remoteAgentService';
 import { ILifecycleService } from 'vs/workbench/services/lifecycle/common/lifecycle';
-import { IUserDataProfileService } from 'vs/workbench/services/userDataProfile/common/userDataProfile';
 
 const hasOwnProperty = Object.hasOwnProperty;
 const NO_OP_VOID_PROMISE = Promise.resolve<void>(undefined);
@@ -185,10 +186,10 @@ export abstract class AbstractExtensionService extends Disposable implements IEx
 		@IWorkspaceContextService private readonly _contextService: IWorkspaceContextService,
 		@IConfigurationService protected readonly _configurationService: IConfigurationService,
 		@IExtensionManifestPropertiesService protected readonly _extensionManifestPropertiesService: IExtensionManifestPropertiesService,
+		@IWebExtensionsScannerService protected readonly _webExtensionsScannerService: IWebExtensionsScannerService,
 		@ILogService protected readonly _logService: ILogService,
 		@IRemoteAgentService protected readonly _remoteAgentService: IRemoteAgentService,
 		@ILifecycleService private readonly _lifecycleService: ILifecycleService,
-		@IUserDataProfileService protected readonly _userDataProfileService: IUserDataProfileService,
 	) {
 		super();
 
@@ -545,6 +546,23 @@ export abstract class AbstractExtensionService extends Disposable implements IEx
 	}
 
 	private async _deltaExtensions(_toAdd: IExtension[], _toRemove: string[] | IExtension[]): Promise<void> {
+		const toAdd: IExtensionDescription[] = [];
+		for (let i = 0, len = _toAdd.length; i < len; i++) {
+			const extension = _toAdd[i];
+
+			const extensionDescription = await this._scanSingleExtension(extension);
+			if (!extensionDescription) {
+				// could not scan extension...
+				continue;
+			}
+
+			if (!this.canAddExtension(extensionDescription)) {
+				continue;
+			}
+
+			toAdd.push(extensionDescription);
+		}
+
 		let toRemove: IExtensionDescription[] = [];
 		for (let i = 0, len = _toRemove.length; i < len; i++) {
 			const extensionOrId = _toRemove[i];
@@ -567,23 +585,6 @@ export abstract class AbstractExtensionService extends Disposable implements IEx
 			}
 
 			toRemove.push(extensionDescription);
-		}
-
-		const toAdd: IExtensionDescription[] = [];
-		for (let i = 0, len = _toAdd.length; i < len; i++) {
-			const extension = _toAdd[i];
-
-			const extensionDescription = await this._scanSingleExtension(extension);
-			if (!extensionDescription) {
-				// could not scan extension...
-				continue;
-			}
-
-			if (!this._canAddExtension(extensionDescription, toRemove)) {
-				continue;
-			}
-
-			toAdd.push(extensionDescription);
 		}
 
 		if (toAdd.length === 0 && toRemove.length === 0) {
@@ -642,19 +643,15 @@ export abstract class AbstractExtensionService extends Disposable implements IEx
 	}
 
 	public canAddExtension(extension: IExtensionDescription): boolean {
-		return this._canAddExtension(extension, []);
-	}
-
-	private _canAddExtension(extension: IExtensionDescription, extensionsBeingRemoved: IExtensionDescription[]): boolean {
-		// (Also check for renamed extensions)
-		const existing = this._registry.getExtensionDescriptionByIdOrUUID(extension.identifier, extension.id);
+		const existing = this._registry.getExtensionDescription(extension.identifier);
 		if (existing) {
-			// This extension is already known (most likely at a different version)
-			// so it cannot be added again unless it is removed first
-			const isBeingRemoved = extensionsBeingRemoved.some((extensionDescription) => ExtensionIdentifier.equals(extension.identifier, extensionDescription.identifier));
-			if (!isBeingRemoved) {
-				return false;
-			}
+			// this extension is already running (most likely at a different version)
+			return false;
+		}
+
+		// Check if extension is renamed
+		if (extension.uuid && this._registry.getAllExtensionDescriptions().some(e => e.uuid === extension.uuid)) {
+			return false;
 		}
 
 		const extensionKind = this._getExtensionKind(extension);
@@ -670,7 +667,7 @@ export abstract class AbstractExtensionService extends Disposable implements IEx
 	public canRemoveExtension(extension: IExtensionDescription): boolean {
 		const extensionDescription = this._registry.getExtensionDescription(extension.identifier);
 		if (!extensionDescription) {
-			// Can't remove an extension that is unknown!
+			// ignore removing an extension which is not running
 			return false;
 		}
 
@@ -1326,6 +1323,20 @@ export abstract class AbstractExtensionService extends Disposable implements IEx
 		this._onDidChangeExtensionsStatus.fire([extensionId]);
 	}
 
+	protected async _scanWebExtensions(): Promise<IExtensionDescription[]> {
+		const system: IExtensionDescription[] = [], user: IExtensionDescription[] = [], development: IExtensionDescription[] = [];
+		try {
+			await Promise.all([
+				this._webExtensionsScannerService.scanSystemExtensions().then(extensions => system.push(...extensions.map(e => toExtensionDescription(e)))),
+				this._webExtensionsScannerService.scanUserExtensions({ skipInvalidExtensions: true }).then(extensions => user.push(...extensions.map(e => toExtensionDescription(e)))),
+				this._webExtensionsScannerService.scanExtensionsUnderDevelopment().then(extensions => development.push(...extensions.map(e => toExtensionDescription(e, true))))
+			]);
+		} catch (error) {
+			this._logService.error(error);
+		}
+		return dedupExtensions(system, user, development, this._logService);
+	}
+
 	//#endregion
 
 	protected abstract _createExtensionHost(runningLocation: ExtensionRunningLocation, isInitialStart: boolean): IExtensionHost | null;
@@ -1464,9 +1475,9 @@ class ProposedApiController {
 
 		// NEW world - product.json spells out what proposals each extension can use
 		if (productService.extensionEnabledApiProposals) {
-			for (const [k, value] of Object.entries(productService.extensionEnabledApiProposals)) {
-				const key = ExtensionIdentifier.toKey(k);
-				const proposalNames = value.filter(name => {
+			forEach(productService.extensionEnabledApiProposals, entry => {
+				const key = ExtensionIdentifier.toKey(entry.key);
+				const proposalNames = entry.value.filter(name => {
 					if (!allApiProposals[<ApiProposalName>name]) {
 						_logService.warn(`Via 'product.json#extensionEnabledApiProposals' extension '${key}' wants API proposal '${name}' but that proposal DOES NOT EXIST. Likely, the proposal has been finalized (check 'vscode.d.ts') or was abandoned.`);
 						return false;
@@ -1474,7 +1485,7 @@ class ProposedApiController {
 					return true;
 				});
 				this._productEnabledExtensions.set(key, proposalNames);
-			}
+			});
 		}
 	}
 

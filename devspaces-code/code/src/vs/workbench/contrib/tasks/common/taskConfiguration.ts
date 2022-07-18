@@ -362,11 +362,6 @@ export interface IConfigurationProperties {
 	 * The icon's color in the terminal tabs list
 	 */
 	color?: string;
-
-	/**
-	 * Do not show this task in the run task quickpick
-	 */
-	hide?: boolean;
 }
 
 export interface ICustomTask extends ICommandProperties, IConfigurationProperties {
@@ -1327,8 +1322,7 @@ namespace ConfigurationProperties {
 		{ property: 'presentation', type: CommandConfiguration.PresentationOptions },
 		{ property: 'problemMatchers' },
 		{ property: 'options' },
-		{ property: 'icon' },
-		{ property: 'hide' }
+		{ property: 'icon' }
 	];
 
 	export function from(this: void, external: IConfigurationProperties & { [key: string]: any }, context: IParseContext,
@@ -1356,7 +1350,7 @@ namespace ConfigurationProperties {
 			result.identifier = external.identifier;
 		}
 		result.icon = external.icon;
-		result.hide = external.hide;
+
 		if (external.isBackground !== undefined) {
 			result.isBackground = !!external.isBackground;
 		}
@@ -1489,7 +1483,7 @@ namespace ConfiguringTask {
 			type,
 			taskIdentifier,
 			RunOptions.fromConfiguration(external.runOptions),
-			{ hide: external.hide }
+			{}
 		);
 		const configuration = ConfigurationProperties.from(external, context, true, source, typeDeclaration.properties);
 		result.addTaskLoadMessages(configuration.errors);
@@ -1641,8 +1635,7 @@ namespace CustomTask {
 			{
 				name: configuredProps.configurationProperties.name || contributedTask.configurationProperties.name,
 				identifier: configuredProps.configurationProperties.identifier || contributedTask.configurationProperties.identifier,
-				icon: configuredProps.configurationProperties.icon,
-				hide: configuredProps.configurationProperties.hide
+				icon: configuredProps.configurationProperties.icon
 			},
 
 		);
@@ -2126,7 +2119,7 @@ class ConfigurationParser {
 					identifier: name,
 					group: Tasks.TaskGroup.Build,
 					isBackground: isBackground,
-					problemMatchers: matchers
+					problemMatchers: matchers,
 				}
 			);
 			const taskGroupKind = GroupKind.from(fileConfig.group);

@@ -42,7 +42,7 @@ export class BetweenCellToolbar extends CellPart {
 			actionViewItemProvider: action => {
 				if (action instanceof MenuItemAction) {
 					if (this._notebookEditor.notebookOptions.getLayoutConfiguration().insertToolbarAlignment === 'center') {
-						return instantiationService.createInstance(CodiconActionViewItem, action, undefined);
+						return instantiationService.createInstance(CodiconActionViewItem, action);
 					} else {
 						return instantiationService.createInstance(MenuEntryActionViewItem, action, undefined);
 					}

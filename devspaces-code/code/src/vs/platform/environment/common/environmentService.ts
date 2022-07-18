@@ -81,9 +81,6 @@ export abstract class AbstractNativeEnvironmentService implements INativeEnviron
 	get userDataSyncLogResource(): URI { return URI.file(join(this.logsPath, 'userDataSync.log')); }
 
 	@memoize
-	get editSessionsLogResource(): URI { return URI.file(join(this.logsPath, 'editSessions.log')); }
-
-	@memoize
 	get sync(): 'on' | 'off' | undefined { return this.args.sync; }
 
 	@memoize

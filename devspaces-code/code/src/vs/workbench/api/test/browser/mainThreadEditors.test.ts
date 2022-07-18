@@ -9,7 +9,7 @@ import { TestConfigurationService } from 'vs/platform/configuration/test/common/
 import { ModelService } from 'vs/editor/common/services/modelService';
 import { TestCodeEditorService } from 'vs/editor/test/browser/editorTestServices';
 import { ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
-import { IWorkspaceTextEditDto } from 'vs/workbench/api/common/extHost.protocol';
+import { IWorkspaceTextEditDto, WorkspaceEditType } from 'vs/workbench/api/common/extHost.protocol';
 import { mock } from 'vs/base/test/common/mock';
 import { Event } from 'vs/base/common/event';
 import { URI } from 'vs/base/common/uri';
@@ -197,9 +197,10 @@ suite('MainThreadEditors', () => {
 		const model = modelService.createModel('something', null, resource);
 
 		const workspaceResourceEdit: IWorkspaceTextEditDto = {
+			_type: WorkspaceEditType.Text,
 			resource: resource,
-			versionId: model.getVersionId(),
-			textEdit: {
+			modelVersionId: model.getVersionId(),
+			edit: {
 				text: 'asdfg',
 				range: new Range(1, 1, 1, 1)
 			}
@@ -218,17 +219,19 @@ suite('MainThreadEditors', () => {
 		const model = modelService.createModel('something', null, resource);
 
 		const workspaceResourceEdit1: IWorkspaceTextEditDto = {
+			_type: WorkspaceEditType.Text,
 			resource: resource,
-			versionId: model.getVersionId(),
-			textEdit: {
+			modelVersionId: model.getVersionId(),
+			edit: {
 				text: 'asdfg',
 				range: new Range(1, 1, 1, 1)
 			}
 		};
 		const workspaceResourceEdit2: IWorkspaceTextEditDto = {
+			_type: WorkspaceEditType.Text,
 			resource: resource,
-			versionId: model.getVersionId(),
-			textEdit: {
+			modelVersionId: model.getVersionId(),
+			edit: {
 				text: 'asdfg',
 				range: new Range(1, 1, 1, 1)
 			}
@@ -248,9 +251,9 @@ suite('MainThreadEditors', () => {
 	test(`applyWorkspaceEdit with only resource edit`, () => {
 		return bulkEdits.$tryApplyWorkspaceEdit({
 			edits: [
-				{ oldResource: resource, newResource: resource, options: undefined },
-				{ oldResource: undefined, newResource: resource, options: undefined },
-				{ oldResource: resource, newResource: undefined, options: undefined }
+				{ _type: WorkspaceEditType.File, oldUri: resource, newUri: resource, options: undefined },
+				{ _type: WorkspaceEditType.File, oldUri: undefined, newUri: resource, options: undefined },
+				{ _type: WorkspaceEditType.File, oldUri: resource, newUri: undefined, options: undefined }
 			]
 		}).then((result) => {
 			assert.strictEqual(result, true);

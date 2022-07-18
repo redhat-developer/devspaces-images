@@ -969,7 +969,6 @@ function registerCloseEditorCommands() {
 
 			type WorkbenchEditorReopenClassification = {
 				owner: 'rebornix';
-				comment: 'Identify how a document is reopened';
 				scheme: { classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
 				ext: { classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
 				from: { classification: 'SystemMetaData'; purpose: 'FeatureInsight' };

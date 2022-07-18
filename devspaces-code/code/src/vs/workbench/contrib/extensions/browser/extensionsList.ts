@@ -13,7 +13,7 @@ import { IListVirtualDelegate } from 'vs/base/browser/ui/list/list';
 import { IPagedRenderer } from 'vs/base/browser/ui/list/listPaging';
 import { Event } from 'vs/base/common/event';
 import { IExtension, ExtensionContainers, ExtensionState, IExtensionsWorkbenchService } from 'vs/workbench/contrib/extensions/common/extensions';
-import { UpdateAction, ManageExtensionAction, ReloadAction, ExtensionStatusLabelAction, RemoteInstallAction, ExtensionStatusAction, LocalInstallAction, ActionWithDropDownAction, InstallDropdownAction, InstallingLabelAction, ExtensionActionWithDropdownActionViewItem, ExtensionDropDownAction, WebInstallAction, SwitchToPreReleaseVersionAction, SwitchToReleasedVersionAction, MigrateDeprecatedExtensionAction, SetLanguageAction } from 'vs/workbench/contrib/extensions/browser/extensionsActions';
+import { UpdateAction, ManageExtensionAction, ReloadAction, ExtensionStatusLabelAction, RemoteInstallAction, ExtensionStatusAction, LocalInstallAction, ActionWithDropDownAction, InstallDropdownAction, InstallingLabelAction, ExtensionActionWithDropdownActionViewItem, ExtensionDropDownAction, WebInstallAction, SwitchToPreReleaseVersionAction, SwitchToReleasedVersionAction, MigrateDeprecatedExtensionAction } from 'vs/workbench/contrib/extensions/browser/extensionsActions';
 import { areSameExtensions } from 'vs/platform/extensionManagement/common/extensionManagementUtil';
 import { RatingsWidget, InstallCountWidget, RecommendationWidget, RemoteBadgeWidget, ExtensionPackCountWidget as ExtensionPackBadgeWidget, SyncIgnoredWidget, ExtensionHoverWidget, ExtensionActivationStatusWidget, PreReleaseBookmarkWidget, extensionVerifiedPublisherIconColor } from 'vs/workbench/contrib/extensions/browser/extensionsWidgets';
 import { IExtensionService, toExtension } from 'vs/workbench/services/extensions/common/extensions';
@@ -123,7 +123,6 @@ export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
 			reloadAction,
 			this.instantiationService.createInstance(InstallDropdownAction),
 			this.instantiationService.createInstance(InstallingLabelAction),
-			this.instantiationService.createInstance(SetLanguageAction),
 			this.instantiationService.createInstance(RemoteInstallAction, false),
 			this.instantiationService.createInstance(LocalInstallAction),
 			this.instantiationService.createInstance(WebInstallAction),
@@ -187,25 +186,16 @@ export class Renderer implements IPagedRenderer<IExtension, ITemplateData> {
 
 		data.extensionDisposables = dispose(data.extensionDisposables);
 
-		const computeEnablement = async () => {
+		const updateEnablement = async () => {
+			let disabled = false;
+			const deprecated = !!extension.deprecationInfo;
 			if (extension.state === ExtensionState.Uninstalled) {
-				if (!!extension.deprecationInfo) {
-					return true;
-				}
-				if (this.extensionsWorkbenchService.canSetLanguage(extension)) {
-					return false;
-				}
-				return !(await this.extensionsWorkbenchService.canInstall(extension));
+				disabled = deprecated || !(await this.extensionsWorkbenchService.canInstall(extension));
 			} else if (extension.local && !isLanguagePackExtension(extension.local.manifest)) {
 				const runningExtensions = await this.extensionService.getExtensions();
 				const runningExtension = runningExtensions.filter(e => areSameExtensions({ id: e.identifier.value, uuid: e.uuid }, extension.identifier))[0];
-				return !(runningExtension && extension.server === this.extensionManagementServerService.getExtensionManagementServer(toExtension(runningExtension)));
+				disabled = !(runningExtension && extension.server === this.extensionManagementServerService.getExtensionManagementServer(toExtension(runningExtension)));
 			}
-			return false;
-		};
-		const updateEnablement = async () => {
-			const disabled = await computeEnablement();
-			const deprecated = !!extension.deprecationInfo;
 			data.element.classList.toggle('deprecated', deprecated);
 			data.root.classList.toggle('disabled', disabled);
 		};

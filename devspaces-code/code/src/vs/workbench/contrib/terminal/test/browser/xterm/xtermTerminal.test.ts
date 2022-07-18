@@ -80,7 +80,7 @@ const defaultTerminalConfig: Partial<ITerminalConfiguration> = {
 	scrollback: 1000,
 	fastScrollSensitivity: 2,
 	mouseWheelScrollSensitivity: 1,
-	unicodeVersion: '6'
+	unicodeVersion: '11'
 };
 
 suite('XtermTerminal', () => {

@@ -14,13 +14,14 @@ import { IFileService } from 'vs/platform/files/common/files';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { ILabelService } from 'vs/platform/label/common/label';
 import { IEditorIdentifier, IUntypedEditorInput } from 'vs/workbench/common/editor';
-import { EditorInput, IEditorCloseHandler } from 'vs/workbench/common/editor/editorInput';
+import { EditorInput } from 'vs/workbench/common/editor/editorInput';
 import { AbstractTextResourceEditorInput } from 'vs/workbench/common/editor/textResourceEditorInput';
 import { EditorWorkerServiceDiffComputer } from 'vs/workbench/contrib/mergeEditor/browser/model/diffComputer';
+import { autorun } from 'vs/workbench/contrib/audioCues/browser/observable';
 import { MergeEditorModel } from 'vs/workbench/contrib/mergeEditor/browser/model/mergeEditorModel';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
+import { AutoSaveMode, IFilesConfigurationService } from 'vs/workbench/services/filesConfiguration/common/filesConfigurationService';
 import { ILanguageSupport, ITextFileEditorModel, ITextFileService } from 'vs/workbench/services/textfile/common/textfiles';
-import { autorun } from 'vs/base/common/observable';
 
 export class MergeEditorInputData {
 	constructor(
@@ -37,8 +38,7 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 
 	private _model?: MergeEditorModel;
 	private _outTextModel?: ITextFileEditorModel;
-
-	override closeHandler: MergeEditorCloseHandler | undefined;
+	private _ignoreUnhandledConflictsForDirtyState?: true;
 
 	constructor(
 		public readonly base: URI,
@@ -47,6 +47,8 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 		public readonly result: URI,
 		@IInstantiationService private readonly _instaService: IInstantiationService,
 		@ITextModelService private readonly _textModelService: ITextModelService,
+		@IDialogService private readonly _dialogService: IDialogService,
+		@IFilesConfigurationService private readonly _filesConfigurationService: IFilesConfigurationService,
 		@IEditorService editorService: IEditorService,
 		@ITextFileService textFileService: ITextFileService,
 		@ILabelService labelService: ILabelService,
@@ -110,17 +112,7 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 				this.input2.description,
 				result.object.textEditorModel,
 				this._instaService.createInstance(EditorWorkerServiceDiffComputer),
-				{
-					resetUnknownOnInitialization: true
-				},
 			);
-
-			// set/unset the closeHandler whenever unhandled conflicts are detected
-			const closeHandler = this._instaService.createInstance(MergeEditorCloseHandler, this._model);
-			this._store.add(autorun('closeHandler', reader => {
-				const value = this._model!.hasUnhandledConflicts.read(reader);
-				this.closeHandler = value ? closeHandler : undefined;
-			}));
 
 			await this._model.onInitialized;
 
@@ -129,8 +121,14 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 			this._store.add(input1);
 			this._store.add(input2);
 			this._store.add(result);
+
+			this._store.add(autorun(reader => {
+				this._model?.hasUnhandledConflicts.read(reader);
+				this._onDidChangeDirty.fire(undefined);
+			}, 'drive::onDidChangeDirty'));
 		}
 
+		this._ignoreUnhandledConflictsForDirtyState = undefined;
 		return this._model;
 	}
 
@@ -147,56 +145,63 @@ export class MergeEditorInput extends AbstractTextResourceEditorInput implements
 	// ---- FileEditorInput
 
 	override isDirty(): boolean {
-		return Boolean(this._outTextModel?.isDirty());
+		const textModelDirty = Boolean(this._outTextModel?.isDirty());
+		if (textModelDirty) {
+			// text model dirty -> 3wm is dirty
+			return true;
+		}
+		if (!this._ignoreUnhandledConflictsForDirtyState) {
+			// unhandled conflicts -> 3wm is dirty UNLESS we explicitly set this input
+			// to ignore unhandled conflicts for the dirty-state. This happens only
+			// after confirming to ignore unhandled changes
+			return Boolean(this._model && this._model.hasUnhandledConflicts.get());
+		}
+		return false;
 	}
 
-	setLanguageId(languageId: string, _setExplicitly?: boolean): void {
-		this._model?.setLanguageId(languageId);
-	}
+	override async confirm(editors?: ReadonlyArray<IEditorIdentifier>): Promise<ConfirmResult> {
 
-	// implement get/set languageId
-	// implement get/set encoding
-}
+		const inputs: MergeEditorInput[] = [this];
+		if (editors) {
+			for (const { editor } of editors) {
+				if (editor instanceof MergeEditorInput) {
+					inputs.push(editor);
+				}
+			}
+		}
 
-class MergeEditorCloseHandler implements IEditorCloseHandler {
-
-	private _ignoreUnhandledConflicts: boolean = false;
-
-	constructor(
-		private readonly _model: MergeEditorModel,
-		@IDialogService private readonly _dialogService: IDialogService,
-	) { }
-
-	showConfirm(): boolean {
-		// unhandled conflicts -> 3wm asks to confirm UNLESS we explicitly set this input
-		// to ignore unhandled conflicts. This happens only after confirming to ignore unhandled changes
-		return !this._ignoreUnhandledConflicts && this._model.hasUnhandledConflicts.get();
-	}
-
-	async confirm(editors?: readonly IEditorIdentifier[] | undefined): Promise<ConfirmResult> {
-
-		const handler: MergeEditorCloseHandler[] = [this];
-		editors?.forEach(candidate => candidate.editor.closeHandler instanceof MergeEditorCloseHandler && handler.push(candidate.editor.closeHandler));
-
-		const inputsWithUnhandledConflicts = handler
+		const inputsWithUnhandledConflicts = inputs
 			.filter(input => input._model && input._model.hasUnhandledConflicts.get());
 
 		if (inputsWithUnhandledConflicts.length === 0) {
-			// shouldn't happen
 			return ConfirmResult.SAVE;
 		}
 
-		const actions: string[] = [
-			localize('unhandledConflicts.ignore', "Continue with Conflicts"),
-			localize('unhandledConflicts.discard', "Discard Merge Changes"),
-			localize('unhandledConflicts.cancel', "Cancel"),
-		];
+		const actions: string[] = [];
 		const options = {
-			cancelId: 2,
-			detail: handler.length > 1
-				? localize('unhandledConflicts.detailN', 'Merge conflicts in {0} editors will remain unhandled.', handler.length)
+			cancelId: 0,
+			detail: inputs.length > 1
+				? localize('unhandledConflicts.detailN', 'Merge conflicts in {0} editors will remain unhandled.', inputs.length)
 				: localize('unhandledConflicts.detail1', 'Merge conflicts in this editor will remain unhandled.')
 		};
+
+		const isAnyAutoSave = this._filesConfigurationService.getAutoSaveMode() !== AutoSaveMode.OFF;
+		if (!isAnyAutoSave) {
+			// manual-save: FYI and discard
+			actions.push(
+				localize('unhandledConflicts.manualSaveIgnore', "Save and Continue with Conflicts"), // 0
+				localize('unhandledConflicts.manualSaveNoSave', "Don't Save") // 1
+			);
+
+		} else {
+			// auto-save: only FYI
+			actions.push(
+				localize('unhandledConflicts.ignore', "Continue with Conflicts"), // 0
+			);
+		}
+
+		actions.push(localize('unhandledConflicts.cancel', "Cancel"));
+		options.cancelId = actions.length - 1;
 
 		const { choice } = await this._dialogService.show(
 			Severity.Info,
@@ -212,36 +217,23 @@ class MergeEditorCloseHandler implements IEditorCloseHandler {
 
 		// save or revert: in both cases we tell the inputs to ignore unhandled conflicts
 		// for the dirty state computation.
-		for (const input of handler) {
-			input._ignoreUnhandledConflicts = true;
+		for (const input of inputs) {
+			input._ignoreUnhandledConflictsForDirtyState = true;
 		}
 
 		if (choice === 0) {
 			// conflicts: continue with remaining conflicts
 			return ConfirmResult.SAVE;
-
-		} else if (choice === 1) {
-			// discard: undo all changes and save original (pre-merge) state
-			for (const input of handler) {
-				input._discardMergeChanges();
-			}
-			return ConfirmResult.SAVE;
-
-		} else {
-			// don't save
-			return ConfirmResult.DONT_SAVE;
 		}
+
+		// don't save
+		return ConfirmResult.DONT_SAVE;
 	}
 
-	private _discardMergeChanges(): void {
-		const chunks: string[] = [];
-		while (true) {
-			const chunk = this._model.resultSnapshot.read();
-			if (chunk === null) {
-				break;
-			}
-			chunks.push(chunk);
-		}
-		this._model.result.setValue(chunks.join());
+	setLanguageId(languageId: string, _setExplicitly?: boolean): void {
+		this._model?.setLanguageId(languageId);
 	}
+
+	// implement get/set languageId
+	// implement get/set encoding
 }
