@@ -23,13 +23,6 @@ while [[ "$#" -gt 0 ]]; do
 	shift 1
 done
 
-function log()
-{
-	if [[ ${verbose} -gt 0 ]]; then
-	echo "$1"
-	fi
-}
-
 if [[ ${forceBuild} -eq 1 ]] || [[ ${doRhpkgContainerBuild} -eq 1 ]]; then
 	echo "[INFO] #0 Trigger container-build in current branch: rhpkg container-build ${scratchFlag}"
 	git status || true
@@ -42,5 +35,5 @@ $ERRORS
 
 	"; exit 1; fi
 else
-	log "[INFO] No build triggered, use -f or --force-build to build in Brew."
+	echo "[INFO] No build triggered, use -f or --force-build to build in Brew."
 fi

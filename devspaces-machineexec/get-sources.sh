@@ -34,5 +34,5 @@ $ERRORS
 
 "; exit 1; fi
 else
-	log "[INFO] No build triggered, use -f or --force-build to build in Brew."
+	echo "[INFO] No build triggered, use -f or --force-build to build in Brew."
 fi
