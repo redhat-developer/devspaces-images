@@ -26,7 +26,6 @@ ENV \
     E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
-    DOTNET_RPM_VERSION=3.1 \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA_HOME_17=/usr/lib/jvm/java-17-openjdk \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
@@ -165,12 +164,16 @@ RUN \
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh
-    ########################################################################
-    # Dotnet (x64 only) (Tech Preview)
-    ########################################################################
 RUN \
+    ########################################################################
+    # .NET (dotnet) 3.1 (x64 only) + 6.0 (s390x and x64 only) (Tech Preview)
+    ########################################################################
+    # TODO: dotnet 3.1 is deprecated and will hit EOL Dec 13, 2022. See https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core
+    # TODO: remove dotnet 3.1 from Dev Spaces 3.4 release - see https://issues.redhat.com/browse/CRW-3159
     if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-host dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}; \
+        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0 dotnet-sdk-3.1; \
+    elif [[ "$(uname -m)" == 's390x' ]]; then \
+        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0; \
     fi
 RUN \
     ########################################################################
@@ -266,7 +269,7 @@ RUN \
     echo "========" && \
     echo -n "clangd:    "; clangd --version; \
     if [[ -f /usr/bin/dotnet ]]; then \
-      echo -n "dotnet:    "; dotnet --version; \
+      echo -n "dotnet:    "; dotnet --info; \
     else \
       echo "dotnet: not available on $(uname -m)"; \
     fi; \
