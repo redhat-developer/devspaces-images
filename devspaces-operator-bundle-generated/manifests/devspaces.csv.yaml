@@ -23,7 +23,7 @@ metadata:
           "kind": "CheCluster",
           "metadata": {
             "name": "devspaces",
-            "namespace": "devspaces"
+            "namespace": "openshift-devspaces"
           },
           "spec": {
             "auth": {
@@ -54,7 +54,7 @@ metadata:
           "kind": "CheCluster",
           "metadata": {
             "name": "devspaces",
-            "namespace": "devspaces"
+            "namespace": "openshift-devspaces"
           },
           "spec": {
             "components": {},
@@ -68,7 +68,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1ff787f34bd0427b0f296e2de80d8cd1368515d56a97642eb3639f529e9d2def
-    createdAt: "2022-07-14T14:04:33+00:00"
+    createdAt: "2022-07-18T17:13:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1078,9 +1078,9 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:d1901381457874403988987ef088d0a4d7455470b599a7b496e41b3fc7b6c625
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:1c966a6debc71381b132ec4b52ed12cf52fa9d11e3a6ad8444f6fec8a0325e06
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:7957439b9a8138a6cdfd8419117bc419df76228de82cee72ba11accd8aff4ff9
                 - name: RELATED_IMAGE_devfile_registry
-                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:3d43a236b1c378f85e5a9b5d4c857f1d97a8d76d90b2f4e12dc20a39f9c9c06b
+                  value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:53c2fc3147369840c283dc8ae0240fa47025db534dfbb2871ef677d95e341ae7
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:542349b2f35b8fa4ef4ec07cfd8c1cd69467a38fc4945181ed909b51bcb81ae1
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
@@ -1116,7 +1116,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:cfa35694ab56e66409d22a1051a7a53bc8c465b1fa4c718c6cc0079a8f6d1036
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:97f9a3c24d839261ed18ff6e299077873c1b4bc04eb7e6eee76080e41f2b9259
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1130,7 +1130,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:a9eff1f07bcbcfc6432bf23988a1368a44a2e805b5587f1d044a0f96d37ee76e
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:62b99940470d362e6f3b47837255cad280793aa758c45586e5b84d2ad472bf8c
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:d13d4d3ad1fdc75bea9d6bf56adfc7772d249f22e7a2de8ef413f07e3986c5eb
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1410,9 +1410,9 @@ spec:
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:d1901381457874403988987ef088d0a4d7455470b599a7b496e41b3fc7b6c625
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:1c966a6debc71381b132ec4b52ed12cf52fa9d11e3a6ad8444f6fec8a0325e06
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:7957439b9a8138a6cdfd8419117bc419df76228de82cee72ba11accd8aff4ff9
   - name: devfile_registry
-    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:3d43a236b1c378f85e5a9b5d4c857f1d97a8d76d90b2f4e12dc20a39f9c9c06b
+    image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:53c2fc3147369840c283dc8ae0240fa47025db534dfbb2871ef677d95e341ae7
   - name: devspaces_idea_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:542349b2f35b8fa4ef4ec07cfd8c1cd69467a38fc4945181ed909b51bcb81ae1
   - name: devspaces_idea_plugin_registry_image_gmxdccq_
@@ -1448,7 +1448,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:cfa35694ab56e66409d22a1051a7a53bc8c465b1fa4c718c6cc0079a8f6d1036
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:97f9a3c24d839261ed18ff6e299077873c1b4bc04eb7e6eee76080e41f2b9259
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
@@ -1462,4 +1462,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:a9eff1f07bcbcfc6432bf23988a1368a44a2e805b5587f1d044a0f96d37ee76e
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:62b99940470d362e6f3b47837255cad280793aa758c45586e5b84d2ad472bf8c
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:d13d4d3ad1fdc75bea9d6bf56adfc7772d249f22e7a2de8ef413f07e3986c5eb
