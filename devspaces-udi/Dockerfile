@@ -163,11 +163,15 @@ RUN \
     mkdir -p ${HOME}/che/ls-csharp ${HOME}/che/ls-clangd && \
     echo "clangd -pretty" > ${HOME}/che/ls-clangd/launch.sh && \
     chmod +x ${HOME}/che/ls-clangd/launch.sh
-    ########################################################################
-    # .NET (dotnet) 6 (s390x and x64 only) (Tech Preview)
-    ########################################################################
 RUN \
-    if [[ "$(uname -m)" == 's390x' ]] || [[ "$(uname -m)" == 'x86_64' ]]; then \
+    ########################################################################
+    # .NET (dotnet) 3.1 (x64 only) + 6.0 (s390x and x64 only) (Tech Preview)
+    ########################################################################
+    # TODO: dotnet 3.1 is deprecated and will hit EOL Dec 13, 2022. See https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core
+    # TODO: remove dotnet 3.1 from Dev Spaces 3.4 release - see https://issues.redhat.com/browse/CRW-3159
+    if [[ "$(uname -m)" == 'x86_64' ]]; then \
+        dnf -y -q --setopt=tsflags=nodocs install dotnet-sdk-6.0 dotnet-sdk-3.1; \
+    elif [[ "$(uname -m)" == 's390x' ]]; then \
         dnf -y -q --setopt=tsflags=nodocs install dotnet-sdk-6.0; \
     fi
 RUN \
