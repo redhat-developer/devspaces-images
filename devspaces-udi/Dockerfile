@@ -26,7 +26,6 @@ ENV \
     E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
-    DOTNET_RPM_VERSION="6.0" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
     JAVA11_HOME=/usr/lib/jvm/java-11-openjdk \
     JAVA8_HOME=/usr/lib/jvm/java-1.8.0-openjdk \
@@ -170,9 +169,9 @@ RUN \
     # TODO: dotnet 3.1 is deprecated and will hit EOL Dec 13, 2022. See https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core
     # TODO: remove dotnet 3.1 from Dev Spaces 3.4 release - see https://issues.redhat.com/browse/CRW-3159
     if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet-sdk-6.0 dotnet-sdk-3.1; \
+        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0 dotnet-sdk-3.1; \
     elif [[ "$(uname -m)" == 's390x' ]]; then \
-        dnf -y -q --setopt=tsflags=nodocs install dotnet-sdk-6.0; \
+        dnf -y -q --setopt=tsflags=nodocs install dotnet dotnet-sdk-6.0; \
     fi
 RUN \
     ########################################################################
