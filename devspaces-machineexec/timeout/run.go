@@ -83,7 +83,7 @@ func (m runIdleManagerImpl) Start() {
 		for {
 			select {
 			case <-timer.C:
-				if err := stopWorkspace(m.namespace, m.workspaceName); err != nil {
+				if err := stopWorkspace(m.namespace, m.workspaceName, stoppedByRunTimeout); err != nil {
 					timer.Reset(m.stopRetryPeriod)
 					logrus.Errorf("Failed to stop workspace. Will retry in %s. Cause: %s", m.stopRetryPeriod, err)
 				} else {

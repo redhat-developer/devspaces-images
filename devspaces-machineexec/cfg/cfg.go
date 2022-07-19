@@ -85,7 +85,7 @@ func init() {
 	}
 	flag.StringVar(&AuthenticatedUserID, "authenticated-user-id", defaultAuthenticatedUserID, "OpenShift user's ID that should has access to API. Is used only if useBearerToken is configured")
 
-	const defaultIdleTimeout = -1 * time.Nanosecond
+	const defaultIdleTimeout = 1800 * time.Second
 	idleTimeout := defaultIdleTimeout
 	idleTimeoutEnv := "SECONDS_OF_DW_INACTIVITY_BEFORE_IDLING"
 	idleTimeoutEnvValue, isFound := os.LookupEnv(idleTimeoutEnv)
@@ -98,7 +98,7 @@ func init() {
 	}
 	flag.DurationVar(&IdleTimeout, "idle-timeout", idleTimeout, "IdleTimeout is a inactivity period after which workspace should be stopped. By default, IdleTimeout is set to 30m. To disable IdleTimeout, set to -1. Examples: -1, 30s, 15m, 1h")
 
-	const defaultRunTimeout = 1800 * time.Nanosecond
+	const defaultRunTimeout = -1 * time.Nanosecond
 	runtimeout := defaultRunTimeout
 	runTimeoutEnv := "SECONDS_OF_DW_RUN_BEFORE_IDLING"
 	runTimeoutEnvValue, isFound := os.LookupEnv(runTimeoutEnv)
