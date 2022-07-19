@@ -26,7 +26,7 @@ import (
 var (
 	DevWorkspaceGroupVersion = &schema.GroupVersion{
 		Group:   "workspace.devfile.io",
-		Version: "v1alpha1",
+		Version: "v1alpha2",
 	}
 )
 
