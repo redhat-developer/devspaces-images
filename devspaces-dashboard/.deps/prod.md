@@ -45,7 +45,8 @@
 | [`@types/hoist-non-react-statics@3.3.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/http-cache-semantics@4.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/js-yaml@4.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/keyv@3.1.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/json-buffer@3.0.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/keyv@3.1.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minipass@3.1.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/node@17.0.21`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/prop-types@15.7.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -118,10 +119,11 @@
 | [`chownr@2.0.0`](git://github.com/isaacs/chownr.git) | ISC | clearlydefined |
 | [`cipher-base@1.0.4`](git+https://github.com/crypto-browserify/cipher-base.git) | MIT | clearlydefined |
 | [`clean-stack@2.2.0`](https://github.com/sindresorhus/clean-stack.git) | MIT | clearlydefined |
-| [`clone-response@1.0.2`](git+https://github.com/lukechilds/clone-response.git) | MIT | clearlydefined |
+| [`clone-response@1.0.3`](git+https://github.com/sindresorhus/clone-response.git) | MIT | clearlydefined |
 | [`color-convert@1.9.3`](https://github.com/Qix-/color-convert.git) | MIT | clearlydefined |
 | [`color-name@1.1.3`](git@github.com:dfcreative/color-name.git) | MIT | clearlydefined |
 | [`combined-stream@1.0.8`](git://github.com/felixge/node-combined-stream.git) | MIT | clearlydefined |
+| [`compress-brotli@1.3.8`](git+https://github.com/Kikobeats/compress-brotli.git) | MIT | clearlydefined |
 | [`concat-map@0.0.1`](git://github.com/substack/node-concat-map.git) | MIT | clearlydefined |
 | [`connected-react-router@6.9.2`](https://github.com/supasate/connected-react-router.git) | MIT | clearlydefined |
 | [`content-disposition@0.5.4`](https://github.com/jshttp/content-disposition.git) | MIT | clearlydefined |
@@ -200,7 +202,7 @@
 | [`glob-to-regexp@0.3.0`](https://github.com/fitzgen/glob-to-regexp.git) | BSD | #1140 |
 | [`glob@7.2.0`](git://github.com/isaacs/node-glob.git) | ISC | clearlydefined |
 | [`globals@9.18.0`](https://github.com/sindresorhus/globals.git) | MIT | clearlydefined |
-| [`got@11.8.3`](https://github.com/sindresorhus/got.git) | MIT | clearlydefined |
+| [`got@11.8.5`](https://github.com/sindresorhus/got.git) | MIT | clearlydefined |
 | [`graceful-fs@4.2.9`](https://github.com/isaacs/node-graceful-fs) | ISC | clearlydefined |
 | [`gravatar-url@3.1.0`](https://github.com/sindresorhus/gravatar-url.git) | MIT | clearlydefined |
 | [`har-schema@2.0.0`](https://github.com/ahmadnassri/har-schema.git) | ISC | clearlydefined |
@@ -258,7 +260,7 @@
 | [`jsonfile@6.1.0`](git@github.com:jprichardson/node-jsonfile.git) | MIT | clearlydefined |
 | [`jsonpath-plus@0.19.0`](git://github.com/s3u/JSONPath.git) | MIT | clearlydefined |
 | [`jsprim@1.4.2`](git://github.com/joyent/node-jsprim.git) | MIT | clearlydefined |
-| [`keyv@4.1.1`](git+https://github.com/jaredwray/keyv.git) | MIT | #1961 |
+| [`keyv@4.3.3`](git+https://github.com/jaredwray/keyv.git) | MIT | clearlydefined |
 | [`klona@2.0.5`](https://github.com/lukeed/klona.git) | MIT | clearlydefined |
 | [`leven@2.1.0`](https://github.com/sindresorhus/leven.git) | MIT | clearlydefined |
 | [`light-my-request@4.8.0`](https://github.com/fastify/light-my-request.git) | BSD-3-Clause | clearlydefined |
@@ -371,7 +373,7 @@
 | [`resolve-alpn@1.2.1`](git+https://github.com/szmarczak/resolve-alpn.git) | MIT | clearlydefined |
 | [`resolve-pathname@3.0.0`](https://github.com/mjackson/resolve-pathname.git) | MIT | clearlydefined |
 | [`resolve@1.22.0`](git://github.com/browserify/resolve.git) | MIT | #2409 |
-| [`responselike@2.0.0`](https://github.com/lukechilds/responselike.git) | MIT | clearlydefined |
+| [`responselike@2.0.1`](https://github.com/sindresorhus/responselike.git) | MIT | clearlydefined |
 | [`ret@0.2.2`](git://github.com/fent/ret.js.git) | MIT | clearlydefined |
 | [`reusify@1.0.4`](git+https://github.com/mcollina/reusify.git) | MIT | clearlydefined |
 | [`rewire@3.0.2`](git://github.com/jhnns/rewire.git) | MIT | clearlydefined |

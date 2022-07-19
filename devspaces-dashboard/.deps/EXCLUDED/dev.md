@@ -25,3 +25,4 @@ This file contains a manual contribution to .deps/dev.md and it's needed because
 | `webpack-merge@4.2.2` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/webpack-merge/4.2.2) |
 | `@lerna/create@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/create/5.1.8) |
 | `@lerna/npm-conf@5.1.8` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/@lerna/npm-conf/5.1.8) |
+| `simple-update-notifier@1.0.7` | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/simple-update-notifier/1.0.7) |
