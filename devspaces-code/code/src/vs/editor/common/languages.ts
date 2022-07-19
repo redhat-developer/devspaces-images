@@ -1412,22 +1412,22 @@ export interface WorkspaceFileEditOptions {
 	maxSize?: number;
 }
 
-export interface IWorkspaceFileEdit {
-	oldResource?: URI;
-	newResource?: URI;
+export interface WorkspaceFileEdit {
+	oldUri?: URI;
+	newUri?: URI;
 	options?: WorkspaceFileEditOptions;
 	metadata?: WorkspaceEditMetadata;
 }
 
-export interface IWorkspaceTextEdit {
+export interface WorkspaceTextEdit {
 	resource: URI;
-	textEdit: TextEdit & { insertAsSnippet?: boolean };
-	versionId: number | undefined;
+	edit: TextEdit;
+	modelVersionId?: number;
 	metadata?: WorkspaceEditMetadata;
 }
 
 export interface WorkspaceEdit {
-	edits: Array<IWorkspaceTextEdit | IWorkspaceFileEdit>;
+	edits: Array<WorkspaceTextEdit | WorkspaceFileEdit>;
 }
 
 export interface Rejection {

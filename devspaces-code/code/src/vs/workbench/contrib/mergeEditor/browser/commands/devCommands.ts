@@ -18,7 +18,6 @@ import { IEditorService } from 'vs/workbench/services/editor/common/editorServic
 import { IWorkbenchFileService } from 'vs/workbench/services/files/common/files';
 import { URI } from 'vs/base/common/uri';
 import { MergeEditorInput } from 'vs/workbench/contrib/mergeEditor/browser/mergeEditorInput';
-import { ctxIsMergeEditor } from 'vs/workbench/contrib/mergeEditor/common/mergeEditor';
 
 interface MergeEditorContents {
 	languageId: string;
@@ -29,20 +28,13 @@ interface MergeEditorContents {
 }
 
 export class MergeEditorCopyContentsToJSON extends Action2 {
+
 	constructor() {
 		super({
 			id: 'merge.dev.copyContents',
-			category: 'Merge Editor (Dev)',
-			title: {
-				value: localize(
-					'merge.dev.copyContents',
-					'Copy Contents of Inputs, Base and Result as JSON'
-				),
-				original: 'Copy Contents of Inputs, Base and Result as JSON',
-			},
+			title: localize('merge.dev.copyContents', "Developer Merge Editor: Copy Contents of Inputs, Base and Result as JSON"),
 			icon: Codicon.layoutCentered,
 			f1: true,
-			precondition: ctxIsMergeEditor,
 		});
 	}
 
@@ -80,17 +72,11 @@ export class MergeEditorCopyContentsToJSON extends Action2 {
 }
 
 export class MergeEditorOpenContents extends Action2 {
+
 	constructor() {
 		super({
 			id: 'merge.dev.openContents',
-			category: 'Merge Editor (Dev)',
-			title: {
-				value: localize(
-					'merge.dev.openContents',
-					'Open Contents of Inputs, Base and Result from JSON'
-				),
-				original: 'Open Contents of Inputs, Base and Result from JSON',
-			},
+			title: localize('merge.dev.openContents', "Developer Merge Editor: Open Contents of Inputs, Base and Result from JSON"),
 			icon: Codicon.layoutCentered,
 			f1: true,
 		});
@@ -108,14 +94,11 @@ export class MergeEditorOpenContents extends Action2 {
 			prompt: localize('mergeEditor.enterJSON', 'Enter JSON'),
 			value: await clipboardService.readText(),
 		});
-		if (result === undefined) {
+		if (!result) {
 			return;
 		}
 
-		const content: MergeEditorContents =
-			result !== ''
-				? JSON.parse(result)
-				: { base: '', input1: '', input2: '', result: '', languageId: 'plaintext' };
+		const content: MergeEditorContents = JSON.parse(result);
 
 		const scheme = 'merge-editor-dev';
 

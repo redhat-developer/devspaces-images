@@ -9,7 +9,7 @@ import { Command, commands, Disposable, LineChange, MessageOptions, Position, Pr
 import TelemetryReporter from '@vscode/extension-telemetry';
 import * as nls from 'vscode-nls';
 import { uniqueNamesGenerator, adjectives, animals, colors, NumberDictionary } from '@joaomoreno/unique-names-generator';
-import { Branch, ForcePushMode, GitErrorCodes, Ref, RefType, Status, CommitOptions, RemoteSourcePublisher } from './api/git';
+import { Branch, ForcePushMode, GitErrorCodes, Ref, RefType, Status, CommitOptions, RemoteSourcePublisher, PostCommitCommand } from './api/git';
 import { Git, Stash } from './git';
 import { Model } from './model';
 import { Repository, Resource, ResourceGroupType } from './repository';
@@ -1623,11 +1623,12 @@ export class CommandCenter {
 
 		await repository.commit(message, opts);
 
-		// Execute post commit command
-		if (opts.postCommitCommand?.length) {
-			await commands.executeCommand(
-				opts.postCommitCommand,
-				new ApiRepository(repository));
+		const postCommitCommand = config.get<'none' | 'push' | 'sync'>('postCommitCommand');
+		if ((opts.postCommitCommand === undefined && postCommitCommand === 'push') || opts.postCommitCommand === 'push') {
+			await this._push(repository, { pushType: PushType.Push, silent: true });
+		}
+		if ((opts.postCommitCommand === undefined && postCommitCommand === 'sync') || opts.postCommitCommand === 'sync') {
+			await this.sync(repository);
 		}
 
 		return true;
@@ -1676,7 +1677,7 @@ export class CommandCenter {
 	}
 
 	@command('git.commit', { repository: true })
-	async commit(repository: Repository, postCommitCommand?: string): Promise<void> {
+	async commit(repository: Repository, postCommitCommand?: PostCommitCommand): Promise<void> {
 		await this.commitWithAnyInput(repository, { postCommitCommand });
 	}
 
@@ -1708,51 +1709,6 @@ export class CommandCenter {
 	@command('git.commitAllAmend', { repository: true })
 	async commitAllAmend(repository: Repository): Promise<void> {
 		await this.commitWithAnyInput(repository, { all: true, amend: true });
-	}
-
-	@command('git.commitMessageAccept')
-	async commitMessageAccept(arg?: Uri): Promise<void> {
-		if (!arg) { return; }
-
-		// Close the tab
-		this._closeEditorTab(arg);
-	}
-
-	@command('git.commitMessageDiscard')
-	async commitMessageDiscard(arg?: Uri): Promise<void> {
-		if (!arg) { return; }
-
-		// Clear the contents of the editor
-		const editors = window.visibleTextEditors
-			.filter(e => e.document.languageId === 'git-commit' && e.document.uri.toString() === arg.toString());
-
-		if (editors.length !== 1) { return; }
-
-		const commitMsgEditor = editors[0];
-		const commitMsgDocument = commitMsgEditor.document;
-
-		const editResult = await commitMsgEditor.edit(builder => {
-			const firstLine = commitMsgDocument.lineAt(0);
-			const lastLine = commitMsgDocument.lineAt(commitMsgDocument.lineCount - 1);
-
-			builder.delete(new Range(firstLine.range.start, lastLine.range.end));
-		});
-
-		if (!editResult) { return; }
-
-		// Save the document
-		const saveResult = await commitMsgDocument.save();
-		if (!saveResult) { return; }
-
-		// Close the tab
-		this._closeEditorTab(arg);
-	}
-
-	private _closeEditorTab(uri: Uri): void {
-		const tabToClose = window.tabGroups.all.map(g => g.tabs).flat()
-			.filter(t => t.input instanceof TabInputText && t.input.uri.toString() === uri.toString());
-
-		window.tabGroups.close(tabToClose);
 	}
 
 	private async _commitEmpty(repository: Repository, noVerify?: boolean): Promise<void> {

@@ -7,7 +7,7 @@ import { localize } from 'vs/nls';
 import { IQuickPickSeparator } from 'vs/platform/quickinput/common/quickInput';
 import { IPickerQuickAccessItem, PickerQuickAccessProvider, TriggerAction } from 'vs/platform/quickinput/browser/pickerQuickAccess';
 import { matchesFuzzy } from 'vs/base/common/filters';
-import { ITerminalEditorService, ITerminalGroupService, ITerminalInstance, ITerminalService } from 'vs/workbench/contrib/terminal/browser/terminal';
+import { ITerminalEditorService, ITerminalGroupService, ITerminalInstance } from 'vs/workbench/contrib/terminal/browser/terminal';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 import { TerminalCommandId } from 'vs/workbench/contrib/terminal/common/terminal';
 import { IThemeService, ThemeIcon } from 'vs/platform/theme/common/themeService';
@@ -16,7 +16,6 @@ import { getColorClass, getIconId, getUriClasses } from 'vs/workbench/contrib/te
 import { terminalStrings } from 'vs/workbench/contrib/terminal/common/terminalStrings';
 import { TerminalLocation } from 'vs/platform/terminal/common/terminal';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
-import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 let terminalPicks: Array<IPickerQuickAccessItem | IQuickPickSeparator> = [];
 
 export class TerminalQuickAccessProvider extends PickerQuickAccessProvider<IPickerQuickAccessItem> {
@@ -25,12 +24,10 @@ export class TerminalQuickAccessProvider extends PickerQuickAccessProvider<IPick
 
 	constructor(
 		@IEditorService private readonly _editorService: IEditorService,
-		@ITerminalEditorService private readonly _terminalService: ITerminalService,
 		@ITerminalEditorService private readonly _terminalEditorService: ITerminalEditorService,
 		@ITerminalGroupService private readonly _terminalGroupService: ITerminalGroupService,
 		@ICommandService private readonly _commandService: ICommandService,
-		@IThemeService private readonly _themeService: IThemeService,
-		@IInstantiationService private readonly _instantiationService: IInstantiationService
+		@IThemeService private readonly _themeService: IThemeService
 	) {
 		super(TerminalQuickAccessProvider.PREFIX, { canAcceptInBackground: true });
 	}
@@ -83,7 +80,7 @@ export class TerminalQuickAccessProvider extends PickerQuickAccessProvider<IPick
 	}
 
 	private _createPick(terminal: ITerminalInstance, terminalIndex: number, filter: string, groupInfo?: { groupIndex: number; groupSize: number }): IPickerQuickAccessItem | undefined {
-		const iconId = this._instantiationService.invokeFunction(getIconId, terminal);
+		const iconId = getIconId(terminal);
 		const index = groupInfo
 			? (groupInfo.groupSize > 1
 				? `${groupInfo.groupIndex + 1}.${terminalIndex + 1}`
@@ -122,7 +119,7 @@ export class TerminalQuickAccessProvider extends PickerQuickAccessProvider<IPick
 							this._commandService.executeCommand(TerminalCommandId.Rename, terminal);
 							return TriggerAction.NO_ACTION;
 						case 1:
-							this._terminalService.safeDisposeTerminal(terminal);
+							terminal.dispose(true);
 							return TriggerAction.REMOVE_ITEM;
 					}
 

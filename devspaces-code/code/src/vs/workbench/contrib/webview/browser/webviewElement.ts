@@ -474,14 +474,9 @@ export class WebviewElement extends Disposable implements IWebview, WebviewFindD
 		element.name = this.id;
 		element.className = `webview ${options.customClasses || ''}`;
 		element.sandbox.add('allow-scripts', 'allow-same-origin', 'allow-forms', 'allow-pointer-lock', 'allow-downloads');
-
-		const allowRules = ['cross-origin-isolated;'];
 		if (!isFirefox) {
-			allowRules.push('clipboard-read;', 'clipboard-write;');
-			element.setAttribute('allow', 'clipboard-read; clipboard-write; cross-origin-isolated;');
+			element.setAttribute('allow', 'clipboard-read; clipboard-write;');
 		}
-		element.setAttribute('allow', allowRules.join(' '));
-
 		element.style.border = 'none';
 		element.style.width = '100%';
 		element.style.height = '100%';
@@ -511,10 +506,6 @@ export class WebviewElement extends Disposable implements IWebview, WebviewFindD
 
 		if (options.purpose) {
 			params.purpose = options.purpose;
-		}
-
-		if (globalThis.crossOriginIsolated) {
-			params['vscode-coi'] = '3'; /*COOP+COEP*/
 		}
 
 		const queryString = new URLSearchParams(params).toString();

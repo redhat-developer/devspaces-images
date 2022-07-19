@@ -1100,7 +1100,6 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 			}
 			type WorkbenchNotebookOpenClassification = {
 				owner: 'rebornix';
-				comment: 'Identify the notebook editor view type';
 				scheme: { classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
 				ext: { classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
 				viewType: { classification: 'SystemMetaData'; purpose: 'FeatureInsight' };
@@ -1154,25 +1153,22 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 		const endTime = Date.now() + deadline.timeRemaining();
 
 		const execute = () => {
-			try {
-				this._backgroundMarkdownRenderRunning = true;
-				if (this._isDisposed) {
-					return;
-				}
-
-				if (!this.viewModel) {
-					return;
-				}
-
-				const firstMarkupCell = this.viewModel.viewCells.find(cell => cell.cellKind === CellKind.Markup && !this._webview?.markupPreviewMapping.has(cell.id) && !this.cellIsHidden(cell)) as MarkupCellViewModel | undefined;
-				if (!firstMarkupCell) {
-					return;
-				}
-
-				this.createMarkupPreview(firstMarkupCell);
-			} finally {
-				this._backgroundMarkdownRenderRunning = false;
+			this._backgroundMarkdownRenderRunning = false;
+			if (this._isDisposed) {
+				return;
 			}
+
+			if (!this.viewModel) {
+				return;
+			}
+
+			const firstMarkupCell = this.viewModel.viewCells.find(cell => cell.cellKind === CellKind.Markup && !this._webview?.markupPreviewMapping.has(cell.id)) as MarkupCellViewModel | undefined;
+			if (!firstMarkupCell) {
+				return;
+			}
+
+			this._backgroundMarkdownRenderRunning = true;
+			this.createMarkupPreview(firstMarkupCell);
 
 			if (Date.now() < endTime) {
 				setTimeout0(execute);
@@ -1693,11 +1689,8 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 
 	private _restoreSelectedKernel(viewState: INotebookEditorViewState | undefined): void {
 		if (viewState?.selectedKernelId && this.textModel) {
-			const matching = this.notebookKernelService.getMatchingKernel(this.textModel);
-			const kernel = matching.all.find(k => k.id === viewState.selectedKernelId);
-			// Selected kernel may have already been picked prior to the view state loading
-			// If so, don't overwrite it with the saved kernel.
-			if (kernel && !matching.selected) {
+			const kernel = this.notebookKernelService.getMatchingKernel(this.textModel).all.find(k => k.id === viewState.selectedKernelId);
+			if (kernel) {
 				this.notebookKernelService.selectKernelForNotebook(kernel, this.textModel);
 			}
 		}
@@ -2571,7 +2564,10 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 			return;
 		}
 
-		if (this.cellIsHidden(cell)) {
+		const modelIndex = this.viewModel.getCellIndex(cell);
+		const foldedRanges = this.viewModel.getHiddenRanges();
+		const isVisible = !foldedRanges.some(range => modelIndex >= range.start && modelIndex < range.end);
+		if (!isVisible) {
 			return;
 		}
 
@@ -2587,12 +2583,6 @@ export class NotebookEditorWidget extends Disposable implements INotebookEditorD
 			offset: cellTop + top,
 			visible: true,
 		});
-	}
-
-	private cellIsHidden(cell: ICellViewModel): boolean {
-		const modelIndex = this.viewModel!.getCellIndex(cell);
-		const foldedRanges = this.viewModel!.getHiddenRanges();
-		return foldedRanges.some(range => modelIndex >= range.start && modelIndex <= range.end);
 	}
 
 	async unhideMarkupPreviews(cells: readonly MarkupCellViewModel[]) {

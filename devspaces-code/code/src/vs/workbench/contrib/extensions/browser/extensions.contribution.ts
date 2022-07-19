@@ -77,8 +77,6 @@ import { UnsupportedExtensionsMigrationContrib } from 'vs/workbench/contrib/exte
 import { isWeb } from 'vs/base/common/platform';
 import { ExtensionStorageService } from 'vs/platform/extensionManagement/common/extensionStorage';
 import { IStorageService } from 'vs/platform/storage/common/storage';
-import product from 'vs/platform/product/common/product';
-import { IStringDictionary } from 'vs/base/common/collections';
 
 // Singletons
 registerSingleton(IExtensionsWorkbenchService, ExtensionsWorkbenchService);
@@ -230,7 +228,7 @@ Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration)
 			'extensions.experimental.useUtilityProcess': {
 				type: 'boolean',
 				description: localize('extensionsUseUtilityProcess', "When enabled, the extension host will be launched using the new UtilityProcess Electron API."),
-				default: product.quality === 'stable' ? false : true // disabled by default in stable for now
+				default: false
 			},
 			[WORKSPACE_TRUST_EXTENSION_SUPPORT]: {
 				type: 'object',
@@ -317,17 +315,13 @@ CommandsRegistry.registerCommand({
 							'type': 'boolean',
 							'description': localize('workbench.extensions.installExtension.option.donotSync', "When enabled, VS Code do not sync this extension when Settings Sync is on."),
 							default: false
-						},
-						'context': {
-							'type': 'object',
-							'description': localize('workbench.extensions.installExtension.option.context', "Context for the installation. This is a JSON object that can be used to pass any information to the installation handlers. i.e. `{skipWalkthrough: true}` will skip opening the walkthrough upon install."),
 						}
 					}
 				}
 			}
 		]
 	},
-	handler: async (accessor, arg: string | UriComponents, options?: { installOnlyNewlyAddedFromExtensionPackVSIX?: boolean; installPreReleaseVersion?: boolean; donotSync?: boolean; context?: IStringDictionary<any> }) => {
+	handler: async (accessor, arg: string | UriComponents, options?: { installOnlyNewlyAddedFromExtensionPackVSIX?: boolean; installPreReleaseVersion?: boolean; donotSync?: boolean }) => {
 		const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
 		try {
 			if (typeof arg === 'string') {
@@ -337,8 +331,7 @@ CommandsRegistry.registerCommand({
 					const installOptions: InstallOptions = {
 						isMachineScoped: options?.donotSync ? true : undefined, /* do not allow syncing extensions automatically while installing through the command */
 						installPreReleaseVersion: options?.installPreReleaseVersion,
-						installGivenVersion: !!version,
-						context: options?.context
+						installGivenVersion: !!version
 					};
 					if (version) {
 						await extensionsWorkbenchService.installVersion(extension, version, installOptions);
@@ -452,7 +445,7 @@ async function runAction(action: IAction): Promise<void> {
 }
 
 interface IExtensionActionOptions extends IAction2Options {
-	menuTitles?: { [id: string]: string };
+	menuTitles?: { [id: number]: string };
 	run(accessor: ServicesAccessor, ...args: any[]): Promise<any>;
 }
 

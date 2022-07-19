@@ -564,43 +564,27 @@ export class CodeEditorWidget extends Disposable implements editorBrowser.ICodeE
 		return this._modelData.viewModel.viewLayout.getWhitespaces();
 	}
 
-	private static _getVerticalOffsetAfterPosition(modelData: ModelData, modelLineNumber: number, modelColumn: number, includeViewZones: boolean): number {
+	private static _getVerticalOffsetForPosition(modelData: ModelData, modelLineNumber: number, modelColumn: number): number {
 		const modelPosition = modelData.model.validatePosition({
 			lineNumber: modelLineNumber,
 			column: modelColumn
 		});
 		const viewPosition = modelData.viewModel.coordinatesConverter.convertModelPositionToViewPosition(modelPosition);
-		return modelData.viewModel.viewLayout.getVerticalOffsetAfterLineNumber(viewPosition.lineNumber, includeViewZones);
+		return modelData.viewModel.viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber);
 	}
 
-	public getTopForLineNumber(lineNumber: number, includeViewZones: boolean = false): number {
+	public getTopForLineNumber(lineNumber: number): number {
 		if (!this._modelData) {
 			return -1;
 		}
-		return CodeEditorWidget._getVerticalOffsetForPosition(this._modelData, lineNumber, 1, includeViewZones);
+		return CodeEditorWidget._getVerticalOffsetForPosition(this._modelData, lineNumber, 1);
 	}
 
 	public getTopForPosition(lineNumber: number, column: number): number {
 		if (!this._modelData) {
 			return -1;
 		}
-		return CodeEditorWidget._getVerticalOffsetForPosition(this._modelData, lineNumber, column, false);
-	}
-
-	private static _getVerticalOffsetForPosition(modelData: ModelData, modelLineNumber: number, modelColumn: number, includeViewZones: boolean = false): number {
-		const modelPosition = modelData.model.validatePosition({
-			lineNumber: modelLineNumber,
-			column: modelColumn
-		});
-		const viewPosition = modelData.viewModel.coordinatesConverter.convertModelPositionToViewPosition(modelPosition);
-		return modelData.viewModel.viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber, includeViewZones);
-	}
-
-	public getBottomForLineNumber(lineNumber: number, includeViewZones: boolean = false): number {
-		if (!this._modelData) {
-			return -1;
-		}
-		return CodeEditorWidget._getVerticalOffsetAfterPosition(this._modelData, lineNumber, 1, includeViewZones);
+		return CodeEditorWidget._getVerticalOffsetForPosition(this._modelData, lineNumber, column);
 	}
 
 	public setHiddenAreas(ranges: IRange[]): void {

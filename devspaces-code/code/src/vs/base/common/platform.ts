@@ -68,6 +68,7 @@ const isElectronRenderer = isElectronProcess && nodeProcess?.type === 'renderer'
 
 interface INavigator {
 	userAgent: string;
+	language: string;
 	maxTouchPoints?: number;
 }
 declare const navigator: INavigator;
@@ -89,7 +90,7 @@ if (typeof navigator === 'object' && !isElectronRenderer) {
 		nls.localize({ key: 'ensureLoaderPluginIsLoaded', comment: ['{Locked}'] }, '_')
 	);
 
-	_locale = configuredLocale || LANGUAGE_DEFAULT;
+	_locale = configuredLocale || navigator.language;
 
 	_language = _locale;
 }

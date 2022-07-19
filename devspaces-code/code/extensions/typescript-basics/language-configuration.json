@@ -99,24 +99,6 @@
 			">"
 		]
 	],
-	"colorizedBracketPairs": [
-		[
-			"(",
-			")"
-		],
-		[
-			"[",
-			"]"
-		],
-		[
-			"{",
-			"}"
-		],
-		[
-			"<",
-			">"
-		]
-	],
 	"autoCloseBefore": ";:.,=}])>` \n\t",
 	"folding": {
 		"markers": {

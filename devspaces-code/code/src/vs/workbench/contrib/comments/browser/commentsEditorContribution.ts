@@ -382,7 +382,6 @@ export class CommentController implements IEditorContribution {
 				this._commentingRangeDecorator.update(this.editor, []);
 				this._commentThreadRangeDecorator.update(this.editor, []);
 				dispose(this._commentWidgets);
-				this._commentWidgets = [];
 			}
 		}));
 
@@ -860,7 +859,7 @@ export class CommentController implements IEditorContribution {
 				}
 
 				const options = this.editor.getOptions();
-				if (options.get(EditorOption.folding) && options.get(EditorOption.showFoldingControls) !== 'never') {
+				if (options.get(EditorOption.folding)) {
 					lineDecorationsWidth -= 16;
 				}
 				lineDecorationsWidth += 9;

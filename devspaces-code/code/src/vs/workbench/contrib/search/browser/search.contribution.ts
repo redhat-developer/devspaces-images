@@ -365,10 +365,7 @@ registerAction2(class CancelSearchAction extends Action2 {
 	constructor() {
 		super({
 			id: 'search.action.cancel',
-			title: {
-				value: nls.localize('CancelSearchAction.label', "Cancel Search"),
-				original: 'Cancel Search'
-			},
+			title: nls.localize('CancelSearchAction.label', "Cancel Search"),
 			icon: searchStopIcon,
 			category,
 			f1: true,
@@ -395,10 +392,7 @@ registerAction2(class RefreshAction extends Action2 {
 	constructor() {
 		super({
 			id: 'search.action.refreshSearchResults',
-			title: {
-				value: nls.localize('RefreshAction.label', "Refresh"),
-				original: 'Refresh'
-			},
+			title: nls.localize('RefreshAction.label', "Refresh"),
 			icon: searchRefreshIcon,
 			precondition: Constants.ViewHasSearchPatternKey,
 			category,
@@ -420,10 +414,7 @@ registerAction2(class CollapseDeepestExpandedLevelAction extends Action2 {
 	constructor() {
 		super({
 			id: 'search.action.collapseSearchResults',
-			title: {
-				value: nls.localize('CollapseDeepestExpandedLevelAction.label', "Collapse All"),
-				original: 'Collapse All'
-			},
+			title: nls.localize('CollapseDeepestExpandedLevelAction.label', "Collapse All"),
 			category,
 			icon: searchCollapseAllIcon,
 			f1: true,
@@ -445,10 +436,7 @@ registerAction2(class ExpandAllAction extends Action2 {
 	constructor() {
 		super({
 			id: 'search.action.expandSearchResults',
-			title: {
-				value: nls.localize('ExpandAllAction.label', "Expand All"),
-				original: 'Expand All'
-			},
+			title: nls.localize('ExpandAllAction.label', "Expand All"),
 			category,
 			icon: searchExpandAllIcon,
 			f1: true,
@@ -470,10 +458,7 @@ registerAction2(class ClearSearchResultsAction extends Action2 {
 	constructor() {
 		super({
 			id: 'search.action.clearSearchResults',
-			title: {
-				value: nls.localize('ClearSearchResultsAction.label', "Clear Search Results"),
-				original: 'Clear Search Results'
-			},
+			title: nls.localize('ClearSearchResultsAction.label', "Clear Search Results"),
 			category,
 			icon: searchClearIcon,
 			f1: true,
@@ -844,7 +829,7 @@ configurationRegistry.registerConfiguration({
 								type: 'string', // expression ({ "**/*.js": { "when": "$(basename).js" } })
 								pattern: '\\w*\\$\\(basename\\)\\w*',
 								default: '$(basename).ext',
-								markdownDescription: nls.localize({ key: 'exclude.when', comment: ['\\$(basename) should not be translated'] }, 'Additional check on the siblings of a matching file. Use \\$(basename) as variable for the matching file name.')
+								markdownDescription: nls.localize('exclude.when', 'Additional check on the siblings of a matching file. Use \\$(basename) as variable for the matching file name.')
 							}
 						}
 					}
@@ -996,7 +981,7 @@ configurationRegistry.registerConfiguration({
 		'search.searchOnTypeDebouncePeriod': {
 			type: 'number',
 			default: 300,
-			markdownDescription: nls.localize('search.searchOnTypeDebouncePeriod', "When {0} is enabled, controls the timeout in milliseconds between a character being typed and the search starting. Has no effect when {0} is disabled.", '`#search.searchOnType#`')
+			markdownDescription: nls.localize('search.searchOnTypeDebouncePeriod', "When `#search.searchOnType#` is enabled, controls the timeout in milliseconds between a character being typed and the search starting. Has no effect when `search.searchOnType` is disabled.")
 		},
 		'search.searchEditor.doubleClickBehaviour': {
 			type: 'string',

@@ -20,8 +20,7 @@ import { IDialogService } from 'vs/platform/dialogs/common/dialogs';
 import { IInstantiationService } from 'vs/platform/instantiation/common/instantiation';
 import { ILogService } from 'vs/platform/log/common/log';
 import { INotificationService } from 'vs/platform/notification/common/notification';
-import { ICreateContributedTerminalProfileOptions, IShellLaunchConfig, ITerminalLaunchError, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, TerminalExitReason, TerminalLocation, TerminalLocationString, TitleEventSource } from 'vs/platform/terminal/common/terminal';
-import { formatMessageForTerminal } from 'vs/platform/terminal/common/terminalStrings';
+import { ICreateContributedTerminalProfileOptions, IShellLaunchConfig, ITerminalLaunchError, ITerminalsLayoutInfo, ITerminalsLayoutInfoById, TerminalLocation, TerminalLocationString, TitleEventSource } from 'vs/platform/terminal/common/terminal';
 import { iconForeground } from 'vs/platform/theme/common/colorRegistry';
 import { getIconRegistry } from 'vs/platform/theme/common/iconRegistry';
 import { ColorScheme } from 'vs/platform/theme/common/theme';
@@ -39,6 +38,7 @@ import { getInstanceFromResource, getTerminalUri, parseTerminalUri } from 'vs/wo
 import { TerminalViewPane } from 'vs/workbench/contrib/terminal/browser/terminalView';
 import { IRemoteTerminalAttachTarget, IStartExtensionTerminalRequest, ITerminalBackend, ITerminalConfigHelper, ITerminalProcessExtHostProxy, ITerminalProfileService, TERMINAL_VIEW_ID } from 'vs/workbench/contrib/terminal/common/terminal';
 import { TerminalContextKeys } from 'vs/workbench/contrib/terminal/common/terminalContextKey';
+import { formatMessageForTerminal } from 'vs/platform/terminal/common/terminalStrings';
 import { IEditorGroupsService } from 'vs/workbench/services/editor/common/editorGroupsService';
 import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from 'vs/workbench/services/editor/common/editorService';
 import { IWorkbenchEnvironmentService } from 'vs/workbench/services/environment/common/environmentService';
@@ -282,7 +282,7 @@ export class TerminalService implements ITerminalService {
 						} else {
 							this._terminalGroupService.getGroupForInstance(instanceToDetach)?.removeInstance(instanceToDetach);
 						}
-						await instanceToDetach.detachProcessAndDispose(TerminalExitReason.User);
+						await instanceToDetach.detachFromProcess();
 						await this._primaryBackend?.acceptDetachInstanceReply(e.requestId, persistentProcessId);
 					} else {
 						// will get rejected without a persistentProcessId to attach to
@@ -371,7 +371,7 @@ export class TerminalService implements ITerminalService {
 		}
 		return new Promise<void>(r => {
 			instance.onExit(() => r());
-			instance.dispose(TerminalExitReason.User);
+			instance.dispose();
 		});
 	}
 
@@ -615,19 +615,14 @@ export class TerminalService implements ITerminalService {
 		const shouldPersistTerminals = this._configHelper.config.enablePersistentSessions && e.reason === ShutdownReason.RELOAD;
 		if (shouldPersistTerminals) {
 			for (const instance of this.instances) {
-				instance.detachProcessAndDispose(TerminalExitReason.Shutdown);
+				instance.detachFromProcess();
 			}
 			return;
 		}
 
-
 		// Force dispose of all terminal instances
-		const shouldPersistTerminalsForEvent = this._shouldReviveProcesses(e.reason);
 		for (const instance of this.instances) {
-			if (shouldPersistTerminalsForEvent) {
-				instance.shutdownPersistentProcessId = instance.persistentProcessId;
-			}
-			instance.dispose(TerminalExitReason.Shutdown);
+			instance.dispose();
 		}
 
 		// Clear terminal layout info only when not persisting

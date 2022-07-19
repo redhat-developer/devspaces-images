@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable, DisposableStore, dispose, IDisposable } from 'vs/base/common/lifecycle';
-import { localize } from 'vs/nls';
 import { Action2, registerAction2 } from 'vs/platform/actions/common/actions';
 import { ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
 import { CATEGORIES } from 'vs/workbench/common/actions';
@@ -122,10 +121,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: 'notebook.toggleLayoutTroubleshoot',
-			title: {
-				value: localize('workbench.notebook.toggleLayoutTroubleshoot', "Toggle Layout Troubleshoot"),
-				original: 'Toggle Notebook Layout Troubleshoot'
-			},
+			title: 'Toggle Notebook Layout Troubleshoot',
 			category: CATEGORIES.Developer,
 			f1: true
 		});
@@ -148,10 +144,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: 'notebook.inspectLayout',
-			title: {
-				value: localize('workbench.notebook.inspectLayout', "Inspect Notebook Layout"),
-				original: 'Inspect Notebook Layout'
-			},
+			title: 'Inspect Notebook Layout',
 			category: CATEGORIES.Developer,
 			f1: true
 		});
@@ -176,10 +169,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: 'notebook.clearNotebookEdtitorTypeCache',
-			title: {
-				value: localize('workbench.notebook.clearNotebookEdtitorTypeCache', "Clear Notebook Editor Type Cache"),
-				original: 'Clear Notebook Editor Cache'
-			},
+			title: 'Clear Notebook Editor Cache',
 			category: CATEGORIES.Developer,
 			f1: true
 		});

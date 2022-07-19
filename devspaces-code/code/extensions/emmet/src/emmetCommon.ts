@@ -204,7 +204,7 @@ function refreshCompletionProviders(_: vscode.ExtensionContext) {
 			completionProviderDisposables.push(inlineCompletionsProvider);
 		}
 
-		const explicitProvider = vscode.languages.registerCompletionItemProvider({ language, scheme: '*' }, completionProvider, ...LANGUAGE_MODES[includedLanguages[language]]);
+		const explicitProvider = vscode.languages.registerCompletionItemProvider({ language, scheme: '*' }, completionProvider);
 		completionProviderDisposables.push(explicitProvider);
 
 		languageMappingForCompletionProviders.set(language, includedLanguages[language]);
@@ -217,7 +217,7 @@ function refreshCompletionProviders(_: vscode.ExtensionContext) {
 				completionProviderDisposables.push(inlineCompletionsProvider);
 			}
 
-			const explicitProvider = vscode.languages.registerCompletionItemProvider({ language, scheme: '*' }, completionProvider, ...LANGUAGE_MODES[language]);
+			const explicitProvider = vscode.languages.registerCompletionItemProvider({ language, scheme: '*' }, completionProvider);
 			completionProviderDisposables.push(explicitProvider);
 
 			languageMappingForCompletionProviders.set(language, language);

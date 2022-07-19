@@ -22,50 +22,14 @@ export function getRepositoryForFile(gitAPI: GitAPI, file: vscode.Uri): Reposito
 	return undefined;
 }
 
-enum LinkType {
-	File = 1,
-	Notebook = 2
-}
-
-interface IFilePosition {
-	type: LinkType.File;
-	uri: vscode.Uri;
-	range: vscode.Range | undefined;
-}
-
-interface INotebookPosition {
-	type: LinkType.Notebook;
-	uri: vscode.Uri;
-	cellIndex: number;
-	range: vscode.Range | undefined;
-}
-
-function getFileAndPosition(): IFilePosition | INotebookPosition | undefined {
+function getFileAndPosition(): { uri: vscode.Uri | undefined; range: vscode.Range | undefined } {
 	let uri: vscode.Uri | undefined;
 	let range: vscode.Range | undefined;
 	if (vscode.window.activeTextEditor) {
 		uri = vscode.window.activeTextEditor.document.uri;
-
-		if (uri.scheme === 'vscode-notebook-cell' && vscode.window.activeNotebookEditor?.notebook.uri.fsPath === uri.fsPath) {
-			// if the active editor is a notebook editor and the focus is inside any a cell text editor
-			// generate deep link for text selection for the notebook cell.
-			const cell = vscode.window.activeNotebookEditor.notebook.getCells().find(cell => cell.document.uri.fragment === uri?.fragment);
-			const cellIndex = cell?.index ?? vscode.window.activeNotebookEditor.selection.start;
-			const range = cell !== undefined ? vscode.window.activeTextEditor.selection : undefined;
-			return { type: LinkType.Notebook, uri, cellIndex, range };
-		} else {
-			// the active editor is a text editor
-			range = vscode.window.activeTextEditor.selection;
-			return { type: LinkType.File, uri, range };
-		}
+		range = vscode.window.activeTextEditor.selection;
 	}
-
-	if (vscode.window.activeNotebookEditor) {
-		// if the active editor is a notebook editor but the focus is not inside any cell text editor, generate deep link for the cell selection in the notebook document.
-		return { type: LinkType.Notebook, uri: vscode.window.activeNotebookEditor.notebook.uri, cellIndex: vscode.window.activeNotebookEditor.selection.start, range: undefined };
-	}
-
-	return undefined;
+	return { uri, range };
 }
 
 function rangeString(range: vscode.Range | undefined) {
@@ -79,32 +43,13 @@ function rangeString(range: vscode.Range | undefined) {
 	return hash;
 }
 
-export function notebookCellRangeString(index: number | undefined, range: vscode.Range | undefined) {
-	if (index === undefined) {
-		return '';
-	}
-
-	if (!range) {
-		return `#C${index + 1}`;
-	}
-
-	let hash = `#C${index + 1}:L${range.start.line + 1}`;
-	if (range.start.line !== range.end.line) {
-		hash += `-L${range.end.line + 1}`;
-	}
-	return hash;
-}
-
-export function getPermalink(gitAPI: GitAPI, useSelection: boolean, hostPrefix?: string): string | undefined {
+export function getPermalink(gitAPI: GitAPI, hostPrefix?: string): string | undefined {
 	hostPrefix = hostPrefix ?? 'https://github.com';
-	const fileAndPosition = getFileAndPosition();
-	if (!fileAndPosition) {
+	const { uri, range } = getFileAndPosition();
+	if (!uri) {
 		return;
 	}
-	const uri = fileAndPosition.uri;
-
-	// Use the first repo if we cannot determine a repo from the uri.
-	const gitRepo = (uri ? getRepositoryForFile(gitAPI, uri) : gitAPI.repositories[0]) ?? gitAPI.repositories[0];
+	const gitRepo = getRepositoryForFile(gitAPI, uri);
 	if (!gitRepo) {
 		return;
 	}
@@ -126,10 +71,8 @@ export function getPermalink(gitAPI: GitAPI, useSelection: boolean, hostPrefix?:
 	}
 
 	const commitHash = gitRepo.state.HEAD?.commit;
-	const fileSegments = fileAndPosition.type === LinkType.File
-		? (useSelection ? `${uri.path.substring(gitRepo.rootUri.path.length)}${rangeString(fileAndPosition.range)}` : '')
-		: (useSelection ? `${uri.path.substring(gitRepo.rootUri.path.length)}${notebookCellRangeString(fileAndPosition.cellIndex, fileAndPosition.range)}` : '');
+	const pathSegment = uri.path.substring(gitRepo.rootUri.path.length);
 
 	return `${hostPrefix}/${repo.owner}/${repo.repo}/blob/${commitHash
-		}${fileSegments}`;
+		}${pathSegment}${rangeString(range)}`;
 }

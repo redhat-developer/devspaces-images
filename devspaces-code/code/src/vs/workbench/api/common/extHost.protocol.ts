@@ -40,7 +40,7 @@ import * as quickInput from 'vs/platform/quickinput/common/quickInput';
 import { IRemoteConnectionData, TunnelDescription } from 'vs/platform/remote/common/remoteAuthorityResolver';
 import { ClassifiedEvent, GDPRClassification, StrictPropertyCheck } from 'vs/platform/telemetry/common/gdprTypings';
 import { TelemetryLevel } from 'vs/platform/telemetry/common/telemetry';
-import { ICreateContributedTerminalProfileOptions, IProcessProperty, IShellLaunchConfigDto, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, TerminalExitReason, TerminalLocation } from 'vs/platform/terminal/common/terminal';
+import { ICreateContributedTerminalProfileOptions, IProcessProperty, IShellLaunchConfigDto, ITerminalEnvironment, ITerminalLaunchError, ITerminalProfile, TerminalLocation } from 'vs/platform/terminal/common/terminal';
 import { ThemeColor, ThemeIcon } from 'vs/platform/theme/common/themeService';
 import { ProvidedPortAttributes, TunnelCreationOptions, TunnelOptions, TunnelPrivacyId, TunnelProviderFeatures } from 'vs/platform/tunnel/common/tunnel';
 import { WorkspaceTrustRequestOptions } from 'vs/platform/workspace/common/workspaceTrust';
@@ -92,7 +92,6 @@ export interface MainThreadClipboardShape extends IDisposable {
 export interface MainThreadCommandsShape extends IDisposable {
 	$registerCommand(id: string): void;
 	$unregisterCommand(id: string): void;
-	$fireCommandActivationEvent(id: string): void;
 	$executeCommand(id: string, args: any[] | SerializableObjectWithBuffers<any[]>, retry: boolean): Promise<unknown | undefined>;
 	$getCommands(): Promise<string[]>;
 }
@@ -624,8 +623,7 @@ export const enum TabInputKind {
 	NotebookDiffInput,
 	CustomEditorInput,
 	WebviewEditorInput,
-	TerminalEditorInput,
-	InteractiveEditorInput,
+	TerminalEditorInput
 }
 
 export const enum TabModelOperationKind {
@@ -674,17 +672,11 @@ export interface WebviewInputDto {
 	viewType: string;
 }
 
-export interface InteractiveEditorInputDto {
-	kind: TabInputKind.InteractiveEditorInput;
-	uri: UriComponents;
-	inputBoxUri: UriComponents;
-}
-
 export interface TabInputDto {
 	kind: TabInputKind.TerminalEditorInput;
 }
 
-export type AnyInputDto = UnknownInputDto | TextInputDto | TextDiffInputDto | NotebookInputDto | NotebookDiffInputDto | CustomInputDto | WebviewInputDto | InteractiveEditorInputDto | TabInputDto;
+export type AnyInputDto = UnknownInputDto | TextInputDto | TextDiffInputDto | NotebookInputDto | NotebookDiffInputDto | CustomInputDto | WebviewInputDto | TabInputDto;
 
 export interface MainThreadEditorTabsShape extends IDisposable {
 	// manage tabs: move, close, rearrange etc
@@ -1594,6 +1586,27 @@ export interface IWorkspaceEditEntryMetadataDto {
 	iconPath?: { id: string } | UriComponents | { light: UriComponents; dark: UriComponents };
 }
 
+export const enum WorkspaceEditType {
+	File = 1,
+	Text = 2,
+	Cell = 3,
+}
+
+export interface IWorkspaceFileEditDto {
+	_type: WorkspaceEditType.File;
+	oldUri?: UriComponents;
+	newUri?: UriComponents;
+	options?: languages.WorkspaceFileEditOptions;
+	metadata?: IWorkspaceEditEntryMetadataDto;
+}
+
+export interface IWorkspaceTextEditDto {
+	_type: WorkspaceEditType.Text;
+	resource: UriComponents;
+	edit: languages.TextEdit & { insertAsSnippet?: boolean };
+	modelVersionId?: number;
+	metadata?: IWorkspaceEditEntryMetadataDto;
+}
 
 export type ICellEditOperationDto =
 	notebookCommon.ICellPartialMetadataEdit
@@ -1605,19 +1618,31 @@ export type ICellEditOperationDto =
 		cells: NotebookCellDataDto[];
 	};
 
-export type IWorkspaceCellEditDto = Dto<Omit<notebookCommon.IWorkspaceNotebookCellEdit, 'cellEdit'>> & { cellEdit: ICellEditOperationDto };
-
-export type IWorkspaceFileEditDto = Dto<languages.IWorkspaceFileEdit>;
-
-export type IWorkspaceTextEditDto = Dto<languages.IWorkspaceTextEdit>;
+export interface IWorkspaceCellEditDto {
+	_type: WorkspaceEditType.Cell;
+	resource: UriComponents;
+	notebookVersionId?: number;
+	metadata?: IWorkspaceEditEntryMetadataDto;
+	edit: ICellEditOperationDto;
+}
 
 export interface IWorkspaceEditDto {
 	edits: Array<IWorkspaceFileEditDto | IWorkspaceTextEditDto | IWorkspaceCellEditDto>;
 }
 
-export function reviveWorkspaceEditDto(data: IWorkspaceEditDto | undefined): languages.WorkspaceEdit | undefined {
+export function reviveWorkspaceEditDto(data: IWorkspaceEditDto | undefined): languages.WorkspaceEdit {
 	if (data && data.edits) {
-		revive<languages.WorkspaceEdit>(data);
+		for (const edit of data.edits) {
+			if (typeof (<IWorkspaceTextEditDto>edit).resource === 'object') {
+				(<IWorkspaceTextEditDto>edit).resource = URI.revive((<IWorkspaceTextEditDto>edit).resource);
+			} else {
+				(<IWorkspaceFileEditDto>edit).newUri = URI.revive((<IWorkspaceFileEditDto>edit).newUri);
+				(<IWorkspaceFileEditDto>edit).oldUri = URI.revive((<IWorkspaceFileEditDto>edit).oldUri);
+			}
+			if (edit.metadata && edit.metadata.iconPath) {
+				edit.metadata = revive(edit.metadata);
+			}
+		}
 	}
 	return <languages.WorkspaceEdit>data;
 }
@@ -1792,7 +1817,7 @@ export interface ITerminalDimensionsDto {
 }
 
 export interface ExtHostTerminalServiceShape {
-	$acceptTerminalClosed(id: number, exitCode: number | undefined, exitReason: TerminalExitReason): void;
+	$acceptTerminalClosed(id: number, exitCode: number | undefined): void;
 	$acceptTerminalOpened(id: number, extHostTerminalId: string | undefined, name: string, shellLaunchConfig: IShellLaunchConfigDto): void;
 	$acceptActiveTerminalChanged(id: number | null): void;
 	$acceptTerminalProcessId(id: number, processId: number): void;

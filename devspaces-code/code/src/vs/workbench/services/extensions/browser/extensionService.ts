@@ -30,8 +30,6 @@ import { IExtensionManifestPropertiesService } from 'vs/workbench/services/exten
 import { IUserDataInitializationService } from 'vs/workbench/services/userData/browser/userDataInit';
 import { IAutomatedWindow } from 'vs/platform/log/browser/log';
 import { ILogService } from 'vs/platform/log/common/log';
-import { IUserDataProfileService } from 'vs/workbench/services/userDataProfile/common/userDataProfile';
-import { dedupExtensions } from 'vs/workbench/services/extensions/common/extensionsUtil';
 
 export class ExtensionService extends AbstractExtensionService implements IExtensionService {
 
@@ -50,13 +48,12 @@ export class ExtensionService extends AbstractExtensionService implements IExten
 		@IWorkspaceContextService contextService: IWorkspaceContextService,
 		@IConfigurationService configurationService: IConfigurationService,
 		@IExtensionManifestPropertiesService extensionManifestPropertiesService: IExtensionManifestPropertiesService,
-		@IWebExtensionsScannerService private readonly _webExtensionsScannerService: IWebExtensionsScannerService,
+		@IWebExtensionsScannerService webExtensionsScannerService: IWebExtensionsScannerService,
 		@ILogService logService: ILogService,
 		@IRemoteAgentService remoteAgentService: IRemoteAgentService,
 		@ILifecycleService lifecycleService: ILifecycleService,
 		@IRemoteAuthorityResolverService private readonly _remoteAuthorityResolverService: IRemoteAuthorityResolverService,
 		@IUserDataInitializationService private readonly _userDataInitializationService: IUserDataInitializationService,
-		@IUserDataProfileService userDataProfileService: IUserDataProfileService,
 	) {
 		super(
 			instantiationService,
@@ -70,10 +67,10 @@ export class ExtensionService extends AbstractExtensionService implements IExten
 			contextService,
 			configurationService,
 			extensionManifestPropertiesService,
+			webExtensionsScannerService,
 			logService,
 			remoteAgentService,
-			lifecycleService,
-			userDataProfileService
+			lifecycleService
 		);
 
 		// Initialize installed extensions first and do it only after workbench is ready
@@ -95,7 +92,7 @@ export class ExtensionService extends AbstractExtensionService implements IExten
 			return this._remoteAgentService.scanSingleExtension(extension.location, extension.type === ExtensionType.System);
 		}
 
-		const scannedExtension = await this._webExtensionsScannerService.scanExistingExtension(extension.location, extension.type, this._userDataProfileService.currentProfile.extensionsResource);
+		const scannedExtension = await this._webExtensionsScannerService.scanExistingExtension(extension.location, extension.type);
 		if (scannedExtension) {
 			return toExtensionDescription(scannedExtension);
 		}
@@ -190,20 +187,6 @@ export class ExtensionService extends AbstractExtensionService implements IExten
 				return null;
 			}
 		}
-	}
-
-	private async _scanWebExtensions(): Promise<IExtensionDescription[]> {
-		const system: IExtensionDescription[] = [], user: IExtensionDescription[] = [], development: IExtensionDescription[] = [];
-		try {
-			await Promise.all([
-				this._webExtensionsScannerService.scanSystemExtensions().then(extensions => system.push(...extensions.map(e => toExtensionDescription(e)))),
-				this._webExtensionsScannerService.scanUserExtensions(this._userDataProfileService.currentProfile.extensionsResource, { skipInvalidExtensions: true }).then(extensions => user.push(...extensions.map(e => toExtensionDescription(e)))),
-				this._webExtensionsScannerService.scanExtensionsUnderDevelopment().then(extensions => development.push(...extensions.map(e => toExtensionDescription(e, true))))
-			]);
-		} catch (error) {
-			this._logService.error(error);
-		}
-		return dedupExtensions(system, user, development, this._logService);
 	}
 
 	protected async _scanAndHandleExtensions(): Promise<void> {

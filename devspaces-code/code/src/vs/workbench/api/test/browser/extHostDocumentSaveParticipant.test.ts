@@ -266,8 +266,8 @@ suite('ExtHostDocumentSaveParticipant', () => {
 			sub.dispose();
 
 			assert.strictEqual(dto.edits.length, 2);
-			assert.ok((<IWorkspaceTextEditDto>dto.edits[0]).textEdit);
-			assert.ok((<IWorkspaceTextEditDto>dto.edits[1]).textEdit);
+			assert.ok((<IWorkspaceTextEditDto>dto.edits[0]).edit);
+			assert.ok((<IWorkspaceTextEditDto>dto.edits[1]).edit);
 		});
 	});
 
@@ -317,7 +317,7 @@ suite('ExtHostDocumentSaveParticipant', () => {
 				for (const edit of dto.edits) {
 
 					const uri = URI.revive((<IWorkspaceTextEditDto>edit).resource);
-					const { text, range } = (<IWorkspaceTextEditDto>edit).textEdit;
+					const { text, range } = (<IWorkspaceTextEditDto>edit).edit;
 					documents.$acceptModelChanged(uri, {
 						changes: [{
 							range,

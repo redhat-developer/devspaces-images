@@ -20,7 +20,7 @@ import { StatusbarAlignment, IStatusbarService, IStatusbarEntryAccessor, IStatus
 
 import { IOutputChannelRegistry, Extensions as OutputExt } from 'vs/workbench/services/output/common/output';
 
-import { ITaskEvent, TaskEventKind, TaskGroup, TaskSettingId, TASKS_CATEGORY, TASK_RUNNING_STATE } from 'vs/workbench/contrib/tasks/common/tasks';
+import { ITaskEvent, TaskEventKind, TaskGroup, TASKS_CATEGORY, TASK_RUNNING_STATE } from 'vs/workbench/contrib/tasks/common/tasks';
 import { ITaskService, ProcessExecutionSupportedContext, ShellExecutionSupportedContext } from 'vs/workbench/contrib/tasks/common/taskService';
 
 import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry, IWorkbenchContribution } from 'vs/workbench/common/contributions';
@@ -431,7 +431,7 @@ configurationRegistry.registerConfiguration({
 	title: nls.localize('tasksConfigurationTitle', "Tasks"),
 	type: 'object',
 	properties: {
-		[TaskSettingId.ProblemMatchersNeverPrompt]: {
+		'task.problemMatchers.neverPrompt': {
 			markdownDescription: nls.localize('task.problemMatchers.neverPrompt', "Configures whether to show the problem matcher prompt when running a task. Set to `true` to never prompt, or use a dictionary of task types to turn off prompting only for specific task types."),
 			'oneOf': [
 				{
@@ -453,13 +453,13 @@ configurationRegistry.registerConfiguration({
 			],
 			default: false
 		},
-		[TaskSettingId.AutoDetect]: {
+		'task.autoDetect': {
 			markdownDescription: nls.localize('task.autoDetect', "Controls enablement of `provideTasks` for all task provider extension. If the Tasks: Run Task command is slow, disabling auto detect for task providers may help. Individual extensions may also provide settings that disable auto detection."),
 			type: 'string',
 			enum: ['on', 'off'],
 			default: 'on'
 		},
-		[TaskSettingId.SlowProviderWarning]: {
+		'task.slowProviderWarning': {
 			markdownDescription: nls.localize('task.slowProviderWarning', "Configures whether a warning is shown when a provider is slow"),
 			'oneOf': [
 				{
@@ -476,44 +476,27 @@ configurationRegistry.registerConfiguration({
 			],
 			default: true
 		},
-		[TaskSettingId.QuickOpenHistory]: {
+		'task.quickOpen.history': {
 			markdownDescription: nls.localize('task.quickOpen.history', "Controls the number of recent items tracked in task quick open dialog."),
 			type: 'number',
 			default: 30, minimum: 0, maximum: 30
 		},
-		[TaskSettingId.QuickOpenDetail]: {
+		'task.quickOpen.detail': {
 			markdownDescription: nls.localize('task.quickOpen.detail', "Controls whether to show the task detail for tasks that have a detail in task quick picks, such as Run Task."),
 			type: 'boolean',
 			default: true
 		},
-		[TaskSettingId.QuickOpenSkip]: {
+		'task.quickOpen.skip': {
 			type: 'boolean',
 			description: nls.localize('task.quickOpen.skip', "Controls whether the task quick pick is skipped when there is only one task to pick from."),
 			default: false
 		},
-		[TaskSettingId.QuickOpenShowAll]: {
+		'task.quickOpen.showAll': {
 			type: 'boolean',
 			description: nls.localize('task.quickOpen.showAll', "Causes the Tasks: Run Task command to use the slower \"show all\" behavior instead of the faster two level picker where tasks are grouped by provider."),
 			default: false
 		},
-		[TaskSettingId.AllowAutomaticTasks]: {
-			type: 'string',
-			enum: ['on', 'auto', 'off'],
-			enumDescriptions: [
-				nls.localize('ttask.allowAutomaticTasks.on', "Always"),
-				nls.localize('task.allowAutomaticTasks.auto', "Prompt for permission for each folder"),
-				nls.localize('task.allowAutomaticTasks.off', "Never"),
-			],
-			description: nls.localize('task.allowAutomaticTasks', "Enable automatic tasks in the folder."),
-			default: 'auto',
-			restricted: true
-		},
-		[TaskSettingId.ShowDecorations]: {
-			type: 'boolean',
-			description: nls.localize('task.showDecorations', "Shows decorations at points of interest in the terminal buffer such as the first problem found via a watch task. Note that this will only take effect for future tasks."),
-			default: true
-		},
-		[TaskSettingId.SaveBeforeRun]: {
+		'task.saveBeforeRun': {
 			markdownDescription: nls.localize(
 				'task.saveBeforeRun',
 				'Save all dirty editors before running a task.'

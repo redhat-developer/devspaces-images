@@ -93,11 +93,8 @@ class CliMain extends Disposable {
 		services.set(IFileService, fileService);
 		fileService.registerProvider(Schemas.file, this._register(new DiskFileSystemProvider(logService)));
 
-		const uriIdentityService = new UriIdentityService(fileService);
-		services.set(IUriIdentityService, uriIdentityService);
-
 		// User Data Profiles
-		const userDataProfilesService = this._register(new UserDataProfilesService(environmentService, fileService, uriIdentityService, logService));
+		const userDataProfilesService = this._register(new UserDataProfilesService(environmentService, fileService, logService));
 		services.set(IUserDataProfilesService, userDataProfilesService);
 
 		// Configuration
@@ -105,6 +102,7 @@ class CliMain extends Disposable {
 		await configurationService.initialize();
 		services.set(IConfigurationService, configurationService);
 
+		services.set(IUriIdentityService, new UriIdentityService(fileService));
 		services.set(IRequestService, new SyncDescriptor(RequestService));
 		services.set(IDownloadService, new SyncDescriptor(DownloadService));
 		services.set(ITelemetryService, NullTelemetryService);

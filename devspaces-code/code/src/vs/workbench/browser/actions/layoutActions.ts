@@ -1182,7 +1182,7 @@ registerAction2(class CustomizeLayoutAction extends Action2 {
 	constructor() {
 		super({
 			id: 'workbench.action.customizeLayout',
-			title: { original: 'Customize Layout...', value: localize('customizeLayout', "Customize Layout...") },
+			title: localize('customizeLayout', "Customize Layout..."),
 			f1: true,
 			icon: configureLayoutIcon,
 			menu: [

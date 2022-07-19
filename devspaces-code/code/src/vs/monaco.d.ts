@@ -3325,7 +3325,7 @@ declare namespace monaco.editor {
 		 * Controls whether the fold actions in the gutter stay always visible or hide unless the mouse is over the gutter.
 		 * Defaults to 'mouseover'.
 		 */
-		showFoldingControls?: 'always' | 'never' | 'mouseover';
+		showFoldingControls?: 'always' | 'mouseover';
 		/**
 		 * Controls whether clicking on the empty content after a folded line will unfold the line.
 		 * Defaults to false.
@@ -4539,7 +4539,7 @@ declare namespace monaco.editor {
 		selectionClipboard: IEditorOption<EditorOption.selectionClipboard, boolean>;
 		selectionHighlight: IEditorOption<EditorOption.selectionHighlight, boolean>;
 		selectOnLineNumbers: IEditorOption<EditorOption.selectOnLineNumbers, boolean>;
-		showFoldingControls: IEditorOption<EditorOption.showFoldingControls, 'always' | 'never' | 'mouseover'>;
+		showFoldingControls: IEditorOption<EditorOption.showFoldingControls, 'always' | 'mouseover'>;
 		showUnused: IEditorOption<EditorOption.showUnused, boolean>;
 		showDeprecated: IEditorOption<EditorOption.showDeprecated, boolean>;
 		inlayHints: IEditorOption<EditorOption.inlayHints, Readonly<Required<IEditorInlayHintsOptions>>>;
@@ -7015,24 +7015,22 @@ declare namespace monaco.languages {
 		maxSize?: number;
 	}
 
-	export interface IWorkspaceFileEdit {
-		oldResource?: Uri;
-		newResource?: Uri;
+	export interface WorkspaceFileEdit {
+		oldUri?: Uri;
+		newUri?: Uri;
 		options?: WorkspaceFileEditOptions;
 		metadata?: WorkspaceEditMetadata;
 	}
 
-	export interface IWorkspaceTextEdit {
+	export interface WorkspaceTextEdit {
 		resource: Uri;
-		textEdit: TextEdit & {
-			insertAsSnippet?: boolean;
-		};
-		versionId: number | undefined;
+		edit: TextEdit;
+		modelVersionId?: number;
 		metadata?: WorkspaceEditMetadata;
 	}
 
 	export interface WorkspaceEdit {
-		edits: Array<IWorkspaceTextEdit | IWorkspaceFileEdit>;
+		edits: Array<WorkspaceTextEdit | WorkspaceFileEdit>;
 	}
 
 	export interface Rejection {

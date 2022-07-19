@@ -47,7 +47,7 @@ export const enum GroupsArrangement {
 	 * Make the current active group consume the maximum
 	 * amount of space possible.
 	 */
-	MAXIMIZE,
+	MINIMIZE_OTHERS,
 
 	/**
 	 * Size all groups evenly.

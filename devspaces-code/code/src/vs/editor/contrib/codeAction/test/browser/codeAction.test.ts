@@ -73,7 +73,7 @@ suite('CodeAction', () => {
 			bcd: {
 				diagnostics: <IMarkerData[]>[],
 				edit: new class implements languages.WorkspaceEdit {
-					edits!: languages.IWorkspaceTextEdit[];
+					edits!: languages.WorkspaceTextEdit[];
 				},
 				title: 'abc'
 			}

@@ -19,9 +19,8 @@ import { ResourceMap } from 'vs/base/common/map';
 import { IModelService } from 'vs/editor/common/services/model';
 import { ResourceTextEdit } from 'vs/editor/browser/services/bulkEditService';
 import { CancellationToken } from 'vs/base/common/cancellation';
-import { SnippetController2 } from 'vs/editor/contrib/snippet/browser/snippetController2';
+import { performSnippetEdits } from 'vs/editor/contrib/snippet/browser/snippetController2';
 import { SnippetParser } from 'vs/editor/contrib/snippet/browser/snippetParser';
-import { ISnippetEdit } from 'vs/editor/contrib/snippet/browser/snippetSession';
 
 type ValidationResult = { canApply: true } | { canApply: false; reason: URI };
 
@@ -116,7 +115,7 @@ class ModelEditTask implements IDisposable {
 		if (!edit.text) {
 			return edit;
 		}
-		const text = new SnippetParser().text(edit.text);
+		const text = new SnippetParser().parse(edit.text, false, false).toString();
 		return { ...edit, insertAsSnippet: false, text };
 	}
 }
@@ -142,24 +141,14 @@ class EditorEditTask extends ModelEditTask {
 			super.apply();
 			return;
 		}
-
 		if (this._edits.length > 0) {
-			const snippetCtrl = SnippetController2.get(this._editor);
-			if (snippetCtrl && this._edits.some(edit => edit.insertAsSnippet)) {
-				// some edit is a snippet edit -> use snippet controller and ISnippetEdits
-				const snippetEdits: ISnippetEdit[] = [];
-				for (const edit of this._edits) {
-					if (edit.range && edit.text !== null) {
-						snippetEdits.push({
-							range: Range.lift(edit.range),
-							template: edit.insertAsSnippet ? edit.text : SnippetParser.escape(edit.text)
-						});
-					}
-				}
-				snippetCtrl.apply(snippetEdits);
+
+			const insertAsSnippet = this._edits.every(edit => edit.insertAsSnippet);
+			if (insertAsSnippet) {
+				// todo@jrieken what ABOUT EOL?
+				performSnippetEdits(this._editor, this._edits.map(edit => ({ range: Range.lift(edit.range!), snippet: edit.text! })));
 
 			} else {
-				// normal edit
 				this._edits = this._edits
 					.map(this._transformSnippetStringToInsertText, this) // mixed edits (snippet and normal) -> no snippet mode
 					.sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
@@ -233,13 +222,13 @@ export class BulkTextEdits {
 				let makeMinimal = false;
 				if (this._editor?.getModel()?.uri.toString() === ref.object.textEditorModel.uri.toString()) {
 					task = new EditorEditTask(ref, this._editor);
-					makeMinimal = true;
+					makeMinimal = true && false; // todo@jrieken HACK
 				} else {
 					task = new ModelEditTask(ref);
 				}
 
 				for (const edit of value) {
-					if (makeMinimal && !edit.textEdit.insertAsSnippet) {
+					if (makeMinimal) {
 						const newEdits = await this._editorWorker.computeMoreMinimalEdits(edit.resource, [edit.textEdit]);
 						if (!newEdits) {
 							task.addEdit(edit);

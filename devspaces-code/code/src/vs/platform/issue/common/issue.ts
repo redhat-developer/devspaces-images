@@ -59,7 +59,6 @@ export interface IssueReporterData extends WindowData {
 	extensionId?: string;
 	experiments?: string;
 	restrictedMode: boolean;
-	isUnsupported: boolean;
 	githubAccessToken: string;
 	readonly issueTitle?: string;
 	readonly issueBody?: string;

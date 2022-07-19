@@ -7,9 +7,10 @@ declare module 'vscode' {
 
 	// https://github.com/microsoft/vscode/issues/145374
 
-	interface WorkspaceEdit {
+	export interface TextEdit {
 
-		// todo@API have a SnippetTextEdit and allow to set that?
-		replace(uri: Uri, range: Range, newText: string | SnippetString, metadata?: WorkspaceEditEntryMetadata): void;
+		// will be merged with newText
+		// will NOT be supported everywhere, only: `workspace.applyEdit`
+		newText2?: string | SnippetString;
 	}
 }

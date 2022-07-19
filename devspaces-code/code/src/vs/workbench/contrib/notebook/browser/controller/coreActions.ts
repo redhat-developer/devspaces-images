@@ -42,8 +42,7 @@ export const enum CellToolbarOrder {
 export const enum CellOverflowToolbarGroups {
 	Copy = '1_copy',
 	Insert = '2_insert',
-	Edit = '3_edit',
-	Share = '4_share'
+	Edit = '3_edit'
 }
 
 export interface INotebookActionContext {
@@ -427,10 +426,4 @@ MenuRegistry.appendMenuItem(MenuId.EditorContext, {
 	title: localize('notebookMenu.cellTitle', "Notebook Cell"),
 	group: CellOverflowToolbarGroups.Insert,
 	when: NOTEBOOK_EDITOR_FOCUSED
-});
-
-MenuRegistry.appendMenuItem(MenuId.NotebookCellTitle, {
-	title: localize('miShare', "Share"),
-	submenu: MenuId.EditorContextShare,
-	group: CellOverflowToolbarGroups.Share
 });

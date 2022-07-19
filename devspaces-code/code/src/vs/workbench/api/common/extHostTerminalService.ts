@@ -10,7 +10,7 @@ import { createDecorator } from 'vs/platform/instantiation/common/instantiation'
 import { URI } from 'vs/base/common/uri';
 import { IExtHostRpcService } from 'vs/workbench/api/common/extHostRpcService';
 import { IDisposable, DisposableStore, Disposable } from 'vs/base/common/lifecycle';
-import { Disposable as VSCodeDisposable, EnvironmentVariableMutatorType, TerminalExitReason } from './extHostTypes';
+import { Disposable as VSCodeDisposable, EnvironmentVariableMutatorType } from './extHostTypes';
 import { IExtensionDescription } from 'vs/platform/extensions/common/extensions';
 import { localize } from 'vs/nls';
 import { NotSupportedError } from 'vs/base/common/errors';
@@ -203,8 +203,8 @@ export class ExtHostTerminal {
 		this._name = name;
 	}
 
-	public setExitStatus(code: number | undefined, reason: TerminalExitReason) {
-		this._exitStatus = Object.freeze({ code, reason });
+	public setExitCode(code: number | undefined) {
+		this._exitStatus = Object.freeze({ code });
 	}
 
 	public setDimensions(cols: number, rows: number): boolean {
@@ -500,11 +500,11 @@ export abstract class BaseExtHostTerminalService extends Disposable implements I
 		}
 	}
 
-	public async $acceptTerminalClosed(id: number, exitCode: number | undefined, exitReason: TerminalExitReason): Promise<void> {
+	public async $acceptTerminalClosed(id: number, exitCode: number | undefined): Promise<void> {
 		const index = this._getTerminalObjectIndexById(this._terminals, id);
 		if (index !== null) {
 			const terminal = this._terminals.splice(index, 1)[0];
-			terminal.setExitStatus(exitCode, exitReason);
+			terminal.setExitCode(exitCode);
 			this._onDidCloseTerminal.fire(terminal.value);
 		}
 	}
