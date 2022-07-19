@@ -30,7 +30,6 @@ import stringify, { language, conf } from '../../services/helpers/editor';
 import { merge, isMatch } from 'lodash';
 import devfileApi from '../../services/devfileApi';
 import { selectDevfileSchema } from '../../store/DevfileRegistries/selectors';
-import { selectPlugins } from '../../store/Plugins/chePlugins/selectors';
 import { selectBranding } from '../../store/Branding/selectors';
 
 import styles from './index.module.css';
@@ -408,7 +407,6 @@ export class DevfileEditor extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
   devfileSchema: selectDevfileSchema(state),
-  plugins: selectPlugins(state),
 });
 
 const connector = connect(mapStateToProps, null, null, { forwardRef: true });

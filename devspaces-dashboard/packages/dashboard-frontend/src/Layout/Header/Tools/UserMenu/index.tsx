@@ -12,7 +12,7 @@
 
 import { History } from 'history';
 import React from 'react';
-import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
+import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
 import { ROUTE } from '../../../../route.enum';
 import { lazyInject } from '../../../../inversify.config';
@@ -111,7 +111,7 @@ export class UserMenu extends React.PureComponent<Props, State> {
     return (
       <Dropdown
         isPlain
-        position="right"
+        position={DropdownPosition.right}
         onSelect={() => this.onUsernameSelect()}
         isOpen={isUsernameDropdownOpen}
         toggle={this.buildUserToggleButton()}

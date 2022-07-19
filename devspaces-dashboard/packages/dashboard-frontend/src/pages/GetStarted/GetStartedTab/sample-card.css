@@ -22,3 +22,7 @@
   width: 100%;
   font-size: 50px;
 }
+
+.sample-card .pf-c-card__actions span.pf-c-label__content::before {
+  border-color: inherit;
+}

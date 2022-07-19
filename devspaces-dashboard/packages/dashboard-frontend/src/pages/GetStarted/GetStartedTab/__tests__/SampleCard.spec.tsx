@@ -35,7 +35,12 @@ describe('Devfile Metadata Card', () => {
 
   function renderCard(): RenderResult {
     return render(
-      <SampleCard key={metadata.links.self} metadata={metadata} onClick={onCardClick} />,
+      <SampleCard
+        key={metadata.links.self}
+        metadata={metadata}
+        onClick={onCardClick}
+        targetEditors={[]}
+      />,
     );
   }
 
@@ -68,7 +73,7 @@ describe('Devfile Metadata Card', () => {
     const card = screen.getByRole('article');
     fireEvent.click(card);
 
-    expect(onCardClick).toHaveBeenCalledWith(metadata);
+    expect(onCardClick).toHaveBeenCalledWith(undefined);
   });
 
   it('should not have visible tags', () => {

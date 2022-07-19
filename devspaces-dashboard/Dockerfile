@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Red Hat, Inc.
+# Copyright (c) 2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -34,7 +34,7 @@ RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-c
 COPY packages/ /dashboard/packages
 RUN /dashboard/.yarn/releases/yarn-*.*js build
 
-FROM ubi8/nodejs-16:1-42
+FROM ubi8/nodejs-16:1-18
 USER 0
 
 RUN \
@@ -65,6 +65,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.2" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Josh Pinkney <jpinkney@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""

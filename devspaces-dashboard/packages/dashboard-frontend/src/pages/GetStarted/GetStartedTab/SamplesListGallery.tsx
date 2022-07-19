@@ -36,7 +36,15 @@ import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/sel
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
 import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
 import { selectDefaultEditor } from '../../../store/Plugins/devWorkspacePlugins/selectors';
+import { selectEditors } from '../../../store/Plugins/chePlugins/selectors';
 
+export type TargetEditor = {
+  id: string;
+  name: string;
+  tooltip: string | undefined;
+  version: string;
+  isDefault: boolean;
+};
 type Props = MappedProps & {
   onCardClick: (
     devfileContent: string,
@@ -51,7 +59,24 @@ type State = {
   alerts: AlertItem[];
 };
 
+const EXCLUDED_TARGET_EDITOR_NAMES = [
+  'dirigible',
+  'jupyter',
+  'che-pycharm',
+  'eclipseide',
+  'code-server',
+];
+
 export class SamplesListGallery extends React.PureComponent<Props, State> {
+  private static sortByName(a: TargetEditor, b: TargetEditor): number {
+    if (a.name < b.name) {
+      return -1;
+    }
+    if (a.name > b.name) {
+      return 1;
+    }
+    return 0;
+  }
   private static sortByDisplayName(a: che.DevfileMetaData, b: che.DevfileMetaData): number {
     if (a.displayName < b.displayName) {
       return -1;
@@ -102,7 +127,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
     return this.buildEmptyState();
   }
 
-  private async fetchDevfile(meta: che.DevfileMetaData): Promise<void> {
+  private async fetchDevfile(meta: che.DevfileMetaData, editor: string | undefined): Promise<void> {
     if (this.isLoading) {
       return;
     }
@@ -112,15 +137,21 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
       if (cheDevworkspaceEnabled && meta.links.v2) {
         const link = encodeURIComponent(meta.links.v2);
         let devWorkspace = '';
-        if (this.props.defaultEditor) {
-          const prebuiltDevWorkspace = meta.links.devWorkspaces?.[this.props.defaultEditor];
+        if (!editor && this.props.defaultEditor) {
+          editor = this.props.defaultEditor;
+        }
+        if (editor) {
+          const prebuiltDevWorkspace = meta.links.devWorkspaces?.[editor];
           const storageType = this.props.storageType;
           devWorkspace = prebuiltDevWorkspace
             ? `&devWorkspace=${encodeURIComponent(prebuiltDevWorkspace)}&storageType=${storageType}`
             : `&storageType=${storageType}`;
         }
         // use factory workflow to load the getting started samples
-        const factoryUrl = `${window.location.origin}${window.location.pathname}#/load-factory?url=${link}${devWorkspace}`;
+        let factoryUrl = `${window.location.origin}${window.location.pathname}#/load-factory?url=${link}${devWorkspace}`;
+        if (editor !== this.props.defaultEditor) {
+          factoryUrl += `&che-editor=${editor}`;
+        }
         // open a new page to handle that
         window.open(factoryUrl, '_blank');
         this.isLoading = false;
@@ -145,13 +176,30 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
   }
 
   private buildCardsList(metadata: che.DevfileMetaData[] = []): React.ReactElement[] {
+    const { editors, defaultEditor } = this.props;
+    const targetEditors = editors
+      .filter(editor => !EXCLUDED_TARGET_EDITOR_NAMES.includes(editor.name))
+      .map(editor => {
+        return {
+          id: editor.id,
+          version: editor.version,
+          name: editor.displayName,
+          tooltip: editor.description,
+          isDefault: defaultEditor === editor.id,
+        } as TargetEditor;
+      });
+    targetEditors.sort(SamplesListGallery.sortByName);
+
     return metadata
       .sort(SamplesListGallery.sortByDisplayName)
       .map(meta => (
         <SampleCard
           key={meta.links.self}
           metadata={meta}
-          onClick={(): Promise<void> => this.fetchDevfile(meta)}
+          targetEditors={targetEditors}
+          onClick={(editorId: string | undefined): Promise<void> =>
+            this.fetchDevfile(meta, editorId)
+          }
         />
       ));
   }
@@ -178,6 +226,7 @@ const mapStateToProps = (state: AppState) => ({
   metadataFiltered: selectMetadataFiltered(state),
   workspacesSettings: selectWorkspacesSettings(state),
   factoryResolver: state.factoryResolver,
+  editors: selectEditors(state),
   defaultEditor: selectDefaultEditor(state),
 });
 

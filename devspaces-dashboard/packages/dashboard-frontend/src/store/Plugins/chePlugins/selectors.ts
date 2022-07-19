@@ -13,9 +13,17 @@
 import { createSelector } from 'reselect';
 import { AppState } from '../..';
 
+const CHE_EDITOR = 'Che Editor';
+
 const selectState = (state: AppState) => state.plugins;
 export const selectPluginsState = selectState;
 
-export const selectPlugins = createSelector(selectState, state => state.plugins);
+export const selectPlugins = createSelector(selectState, state =>
+  state.plugins.filter(item => item.type !== CHE_EDITOR),
+);
+
+export const selectEditors = createSelector(selectState, state =>
+  state.plugins.filter(item => item.type === CHE_EDITOR),
+);
 
 export const selectPluginsError = createSelector(selectState, state => state.error);

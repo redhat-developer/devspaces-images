@@ -12,7 +12,7 @@
 
 import { History } from 'history';
 import React from 'react';
-import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
+import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle } from '@patternfly/react-core';
 import { CaretDownIcon } from '@patternfly/react-icons';
 import {
   WorkspaceStatus,
@@ -127,7 +127,7 @@ export default class DropdownActions extends React.PureComponent<Props, State> {
           </DropdownToggle>
         }
         isOpen={isExpanded}
-        position="right"
+        position={DropdownPosition.right}
         dropdownItems={dropdownItems}
       />
     );

@@ -19,17 +19,34 @@ import {
   CardHeaderMain,
   Badge,
   CardActions,
+  Dropdown,
+  KebabToggle,
+  DropdownPosition,
 } from '@patternfly/react-core';
 import './sample-card.css';
+import { TargetEditor } from './SamplesListGallery';
+import DropdownEditors from './DropdownEditors';
 
-type SampleCardProps = {
+type Props = {
   metadata: che.DevfileMetaData;
-  onClick: (metadata: che.DevfileMetaData) => void;
+  targetEditors: TargetEditor[];
+  onClick: (editorId: string | undefined) => void;
+};
+type State = {
+  isExpanded: boolean;
 };
 
 const VISIBLE_TAGS = ['community', 'tech-preview'];
 
-export class SampleCard extends React.PureComponent<SampleCardProps> {
+export class SampleCard extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      isExpanded: false,
+    };
+  }
+
   private getTags(): JSX.Element[] {
     const {
       metadata: { tags },
@@ -53,11 +70,47 @@ export class SampleCard extends React.PureComponent<SampleCardProps> {
       .map((item: string, index: number) => createTag(item, index));
   }
 
+  private getEditors(): TargetEditor[] {
+    const editors: TargetEditor[] = [];
+    this.props.targetEditors.forEach((editor: TargetEditor) => {
+      const isAdded = editors.find(e => e.name === editor.name);
+      if (!isAdded) {
+        editors.push(editor);
+        return;
+      }
+      if (isAdded.isDefault || isAdded.version === 'next') {
+        return;
+      }
+      if (editor.isDefault || editor.version === 'next' || editor.version === 'latest') {
+        const existingEditorIndex = editors.indexOf(isAdded);
+        editors[existingEditorIndex] = editor;
+      }
+    });
+    return editors;
+  }
+
+  private getDropdownItems(): React.ReactNode[] {
+    const targetEditors = this.getEditors();
+
+    return [
+      <DropdownEditors
+        key="che-editors"
+        targetEditors={targetEditors}
+        onClick={(editorId: string) => {
+          this.setState({ isExpanded: false });
+          this.props.onClick(editorId);
+        }}
+      />,
+    ];
+  }
+
   render(): React.ReactElement {
-    const metadata = this.props.metadata;
-    const devfileIcon = this.buildIcon(metadata);
-    const onClickHandler = (): void => this.props.onClick(metadata);
+    const { metadata } = this.props;
+    const { isExpanded } = this.state;
     const tags = this.getTags();
+    const devfileIcon = this.buildIcon(metadata);
+    const dropdownItems = this.getDropdownItems();
+    const onClickHandler = () => this.props.onClick(undefined);
 
     return (
       <Card
@@ -71,7 +124,24 @@ export class SampleCard extends React.PureComponent<SampleCardProps> {
       >
         <CardHeader>
           <CardHeaderMain>{devfileIcon}</CardHeaderMain>
-          <CardActions style={{ marginTop: '4px' }}>{tags}</CardActions>
+          <CardActions>
+            {tags}
+            <Dropdown
+              style={{ whiteSpace: 'nowrap' }}
+              onClick={e => e.stopPropagation()}
+              toggle={
+                <KebabToggle
+                  onToggle={isExpanded => {
+                    this.setState({ isExpanded });
+                  }}
+                />
+              }
+              isOpen={isExpanded}
+              position={DropdownPosition.right}
+              dropdownItems={dropdownItems}
+              isPlain
+            />
+          </CardActions>
         </CardHeader>
         <CardHeader>{metadata.displayName}</CardHeader>
         <CardBody>{metadata.description}</CardBody>
