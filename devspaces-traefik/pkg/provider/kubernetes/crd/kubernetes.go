@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/sha1"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,6 +25,7 @@ import (
 	"github.com/traefik/traefik/v2/pkg/provider/kubernetes/crd/traefik/v1alpha1"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/traefik/v2/pkg/tls"
+	"github.com/traefik/traefik/v2/pkg/types"
 	corev1 "k8s.io/api/core/v1"
 	apiextensionv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -42,7 +45,7 @@ const (
 // Provider holds configurations of the provider.
 type Provider struct {
 	Endpoint                  string          `description:"Kubernetes server endpoint (required for external cluster client)." json:"endpoint,omitempty" toml:"endpoint,omitempty" yaml:"endpoint,omitempty"`
-	Token                     string          `description:"Kubernetes bearer token (not needed for in-cluster client)." json:"token,omitempty" toml:"token,omitempty" yaml:"token,omitempty"`
+	Token                     string          `description:"Kubernetes bearer token (not needed for in-cluster client)." json:"token,omitempty" toml:"token,omitempty" yaml:"token,omitempty" loggable:"false"`
 	CertAuthFilePath          string          `description:"Kubernetes certificate authority file path (not needed for in-cluster client)." json:"certAuthFilePath,omitempty" toml:"certAuthFilePath,omitempty" yaml:"certAuthFilePath,omitempty"`
 	Namespaces                []string        `description:"Kubernetes namespaces." json:"namespaces,omitempty" toml:"namespaces,omitempty" yaml:"namespaces,omitempty" export:"true"`
 	AllowCrossNamespace       bool            `description:"Allow cross namespace resource reference." json:"allowCrossNamespace,omitempty" toml:"allowCrossNamespace,omitempty" yaml:"allowCrossNamespace,omitempty" export:"true"`
@@ -50,6 +53,7 @@ type Provider struct {
 	LabelSelector             string          `description:"Kubernetes label selector to use." json:"labelSelector,omitempty" toml:"labelSelector,omitempty" yaml:"labelSelector,omitempty" export:"true"`
 	IngressClass              string          `description:"Value of kubernetes.io/ingress.class annotation to watch for." json:"ingressClass,omitempty" toml:"ingressClass,omitempty" yaml:"ingressClass,omitempty" export:"true"`
 	ThrottleDuration          ptypes.Duration `description:"Ingress refresh throttle duration" json:"throttleDuration,omitempty" toml:"throttleDuration,omitempty" yaml:"throttleDuration,omitempty" export:"true"`
+	AllowEmptyServices        bool            `description:"Allow the creation of services without endpoints." json:"allowEmptyServices,omitempty" toml:"allowEmptyServices,omitempty" yaml:"allowEmptyServices,omitempty" export:"true"`
 	lastConfiguration         safe.Safe
 }
 
@@ -175,17 +179,24 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 }
 
 func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) *dynamic.Configuration {
-	tlsConfigs := make(map[string]*tls.CertAndStores)
+	stores, tlsConfigs := buildTLSStores(ctx, client)
+	if tlsConfigs == nil {
+		tlsConfigs = make(map[string]*tls.CertAndStores)
+	}
+
 	conf := &dynamic.Configuration{
+		// TODO: choose between mutating and returning tlsConfigs
 		HTTP: p.loadIngressRouteConfiguration(ctx, client, tlsConfigs),
 		TCP:  p.loadIngressRouteTCPConfiguration(ctx, client, tlsConfigs),
 		UDP:  p.loadIngressRouteUDPConfiguration(ctx, client),
 		TLS: &dynamic.TLSConfiguration{
-			Certificates: getTLSConfig(tlsConfigs),
-			Options:      buildTLSOptions(ctx, client),
-			Stores:       buildTLSStores(ctx, client),
+			Options: buildTLSOptions(ctx, client),
+			Stores:  stores,
 		},
 	}
+
+	// Done after because tlsConfigs is mutated by the others above.
+	conf.TLS.Certificates = getTLSConfig(tlsConfigs)
 
 	for _, middleware := range client.GetMiddlewares() {
 		id := provider.Normalize(makeID(middleware.Namespace, middleware.Name))
@@ -239,6 +250,12 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 			continue
 		}
 
+		circuitBreaker, err := createCircuitBreakerMiddleware(middleware.Spec.CircuitBreaker)
+		if err != nil {
+			log.FromContext(ctxMid).Errorf("Error while reading circuit breaker middleware: %v", err)
+			continue
+		}
+
 		conf.HTTP.Middlewares[id] = &dynamic.Middleware{
 			AddPrefix:         middleware.Spec.AddPrefix,
 			StripPrefix:       middleware.Spec.StripPrefix,
@@ -257,7 +274,7 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 			ForwardAuth:       forwardAuth,
 			InFlightReq:       middleware.Spec.InFlightReq,
 			Buffering:         middleware.Spec.Buffering,
-			CircuitBreaker:    middleware.Spec.CircuitBreaker,
+			CircuitBreaker:    circuitBreaker,
 			Compress:          middleware.Spec.Compress,
 			PassTLSClientCert: middleware.Spec.PassTLSClientCert,
 			Retry:             retry,
@@ -270,7 +287,8 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 		id := provider.Normalize(makeID(middlewareTCP.Namespace, middlewareTCP.Name))
 
 		conf.TCP.Middlewares[id] = &dynamic.TCPMiddleware{
-			IPWhiteList: middlewareTCP.Spec.IPWhiteList,
+			InFlightConn: middlewareTCP.Spec.InFlightConn,
+			IPWhiteList:  middlewareTCP.Spec.IPWhiteList,
 		}
 	}
 
@@ -337,15 +355,32 @@ func (p *Provider) loadConfigurationFromCRD(ctx context.Context, client Client) 
 					logger.Errorf("Error while reading IdleConnTimeout: %v", err)
 				}
 			}
+
+			if serversTransport.Spec.ForwardingTimeouts.ReadIdleTimeout != nil {
+				err := forwardingTimeout.ReadIdleTimeout.Set(serversTransport.Spec.ForwardingTimeouts.ReadIdleTimeout.String())
+				if err != nil {
+					logger.Errorf("Error while reading ReadIdleTimeout: %v", err)
+				}
+			}
+
+			if serversTransport.Spec.ForwardingTimeouts.PingTimeout != nil {
+				err := forwardingTimeout.PingTimeout.Set(serversTransport.Spec.ForwardingTimeouts.PingTimeout.String())
+				if err != nil {
+					logger.Errorf("Error while reading PingTimeout: %v", err)
+				}
+			}
 		}
 
-		conf.HTTP.ServersTransports[serversTransport.Name] = &dynamic.ServersTransport{
+		id := provider.Normalize(makeID(serversTransport.Namespace, serversTransport.Name))
+		conf.HTTP.ServersTransports[id] = &dynamic.ServersTransport{
 			ServerName:          serversTransport.Spec.ServerName,
 			InsecureSkipVerify:  serversTransport.Spec.InsecureSkipVerify,
 			RootCAs:             rootCAs,
 			Certificates:        certs,
+			DisableHTTP2:        serversTransport.Spec.DisableHTTP2,
 			MaxIdleConnsPerHost: serversTransport.Spec.MaxIdleConnsPerHost,
 			ForwardingTimeouts:  forwardingTimeout,
+			PeerCertURI:         serversTransport.Spec.PeerCertURI,
 		}
 	}
 
@@ -378,7 +413,7 @@ func getServicePort(svc *corev1.Service, port intstr.IntOrString) (*corev1.Servi
 
 	if hasValidPort {
 		log.WithoutContext().
-			Warning("The port %d from IngressRoute doesn't match with ports defined in the ExternalName service %s/%s.", port, svc.Namespace, svc.Name)
+			Warnf("The port %s from IngressRoute doesn't match with ports defined in the ExternalName service %s/%s.", port, svc.Namespace, svc.Name)
 	}
 
 	return &corev1.ServicePort{Port: port.IntVal}, nil
@@ -403,6 +438,35 @@ func createPluginMiddleware(plugins map[string]apiextensionv1.JSON) (map[string]
 	return pc, nil
 }
 
+func createCircuitBreakerMiddleware(circuitBreaker *v1alpha1.CircuitBreaker) (*dynamic.CircuitBreaker, error) {
+	if circuitBreaker == nil {
+		return nil, nil
+	}
+
+	cb := &dynamic.CircuitBreaker{Expression: circuitBreaker.Expression}
+	cb.SetDefaults()
+
+	if circuitBreaker.CheckPeriod != nil {
+		if err := cb.CheckPeriod.Set(circuitBreaker.CheckPeriod.String()); err != nil {
+			return nil, err
+		}
+	}
+
+	if circuitBreaker.FallbackDuration != nil {
+		if err := cb.FallbackDuration.Set(circuitBreaker.FallbackDuration.String()); err != nil {
+			return nil, err
+		}
+	}
+
+	if circuitBreaker.RecoveryDuration != nil {
+		if err := cb.RecoveryDuration.Set(circuitBreaker.RecoveryDuration.String()); err != nil {
+			return nil, err
+		}
+	}
+
+	return cb, nil
+}
+
 func createRateLimitMiddleware(rateLimit *v1alpha1.RateLimit) (*dynamic.RateLimit, error) {
 	if rateLimit == nil {
 		return nil, nil
@@ -420,6 +484,10 @@ func createRateLimitMiddleware(rateLimit *v1alpha1.RateLimit) (*dynamic.RateLimi
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if rateLimit.SourceCriterion != nil {
+		rl.SourceCriterion = rateLimit.SourceCriterion
 	}
 
 	return rl, nil
@@ -478,7 +546,7 @@ func createForwardAuthMiddleware(k8sClient Client, namespace string, auth *v1alp
 		return forwardAuth, nil
 	}
 
-	forwardAuth.TLS = &dynamic.ClientTLS{
+	forwardAuth.TLS = &types.ClientTLS{
 		CAOptional:         auth.TLS.CAOptional,
 		InsecureSkipVerify: auth.TLS.InsecureSkipVerify,
 	}
@@ -555,9 +623,38 @@ func createBasicAuthMiddleware(client Client, namespace string, basicAuth *v1alp
 		return nil, nil
 	}
 
-	credentials, err := getAuthCredentials(client, basicAuth.Secret, namespace)
+	if basicAuth.Secret == "" {
+		return nil, fmt.Errorf("auth secret must be set")
+	}
+
+	secret, ok, err := client.GetSecret(namespace, basicAuth.Secret)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch secret '%s/%s': %w", namespace, basicAuth.Secret, err)
+	}
+	if !ok {
+		return nil, fmt.Errorf("secret '%s/%s' not found", namespace, basicAuth.Secret)
+	}
+	if secret == nil {
+		return nil, fmt.Errorf("data for secret '%s/%s' must not be nil", namespace, basicAuth.Secret)
+	}
+
+	if secret.Type == corev1.SecretTypeBasicAuth {
+		credentials, err := loadBasicAuthCredentials(secret)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load basic auth credentials: %w", err)
+		}
+
+		return &dynamic.BasicAuth{
+			Users:        credentials,
+			Realm:        basicAuth.Realm,
+			RemoveHeader: basicAuth.RemoveHeader,
+			HeaderField:  basicAuth.HeaderField,
+		}, nil
+	}
+
+	credentials, err := loadAuthCredentials(secret)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load basic auth credentials: %w", err)
 	}
 
 	return &dynamic.BasicAuth{
@@ -573,9 +670,24 @@ func createDigestAuthMiddleware(client Client, namespace string, digestAuth *v1a
 		return nil, nil
 	}
 
-	credentials, err := getAuthCredentials(client, digestAuth.Secret, namespace)
+	if digestAuth.Secret == "" {
+		return nil, fmt.Errorf("auth secret must be set")
+	}
+
+	secret, ok, err := client.GetSecret(namespace, digestAuth.Secret)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch secret '%s/%s': %w", namespace, digestAuth.Secret, err)
+	}
+	if !ok {
+		return nil, fmt.Errorf("secret '%s/%s' not found", namespace, digestAuth.Secret)
+	}
+	if secret == nil {
+		return nil, fmt.Errorf("data for secret '%s/%s' must not be nil", namespace, digestAuth.Secret)
+	}
+
+	credentials, err := loadAuthCredentials(secret)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load digest auth credentials: %w", err)
 	}
 
 	return &dynamic.DigestAuth{
@@ -586,32 +698,23 @@ func createDigestAuthMiddleware(client Client, namespace string, digestAuth *v1a
 	}, nil
 }
 
-func getAuthCredentials(k8sClient Client, authSecret, namespace string) ([]string, error) {
-	if authSecret == "" {
-		return nil, fmt.Errorf("auth secret must be set")
+func loadBasicAuthCredentials(secret *corev1.Secret) ([]string, error) {
+	username, usernameExists := secret.Data["username"]
+	password, passwordExists := secret.Data["password"]
+	if !(usernameExists && passwordExists) {
+		return nil, fmt.Errorf("secret '%s/%s' must contain both username and password keys", secret.Namespace, secret.Name)
 	}
 
-	auth, err := loadAuthCredentials(namespace, authSecret, k8sClient)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load auth credentials: %w", err)
-	}
+	hash := sha1.New()
+	hash.Write(password)
+	passwordSum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
-	return auth, nil
+	return []string{fmt.Sprintf("%s:{SHA}%s", username, passwordSum)}, nil
 }
 
-func loadAuthCredentials(namespace, secretName string, k8sClient Client) ([]string, error) {
-	secret, ok, err := k8sClient.GetSecret(namespace, secretName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch secret '%s/%s': %w", namespace, secretName, err)
-	}
-	if !ok {
-		return nil, fmt.Errorf("secret '%s/%s' not found", namespace, secretName)
-	}
-	if secret == nil {
-		return nil, fmt.Errorf("data for secret '%s/%s' must not be nil", namespace, secretName)
-	}
+func loadAuthCredentials(secret *corev1.Secret) ([]string, error) {
 	if len(secret.Data) != 1 {
-		return nil, fmt.Errorf("found %d elements for secret '%s/%s', must be single element exactly", len(secret.Data), namespace, secretName)
+		return nil, fmt.Errorf("found %d elements for secret '%s/%s', must be single element exactly", len(secret.Data), secret.Namespace, secret.Name)
 	}
 
 	var firstSecret []byte
@@ -628,10 +731,10 @@ func loadAuthCredentials(namespace, secretName string, k8sClient Client) ([]stri
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("error reading secret for %s/%s: %w", namespace, secretName, err)
+		return nil, fmt.Errorf("error reading secret for %s/%s: %w", secret.Namespace, secret.Name, err)
 	}
 	if len(credentials) == 0 {
-		return nil, fmt.Errorf("secret '%s/%s' does not contain any credentials", namespace, secretName)
+		return nil, fmt.Errorf("secret '%s/%s' does not contain any credentials", secret.Namespace, secret.Name)
 	}
 
 	return credentials, nil
@@ -703,6 +806,12 @@ func buildTLSOptions(ctx context.Context, client Client) map[string]tls.Options 
 			id = tlsOption.Name
 			nsDefault = append(nsDefault, tlsOption.Namespace)
 		}
+
+		alpnProtocols := tls.DefaultTLSOptions.ALPNProtocols
+		if len(tlsOption.Spec.ALPNProtocols) > 0 {
+			alpnProtocols = tlsOption.Spec.ALPNProtocols
+		}
+
 		tlsOptions[id] = tls.Options{
 			MinVersion:       tlsOption.Spec.MinVersion,
 			MaxVersion:       tlsOption.Spec.MaxVersion,
@@ -714,6 +823,7 @@ func buildTLSOptions(ctx context.Context, client Client) map[string]tls.Options 
 			},
 			SniStrict:                tlsOption.Spec.SniStrict,
 			PreferServerCipherSuites: tlsOption.Spec.PreferServerCipherSuites,
+			ALPNProtocols:            alpnProtocols,
 		}
 	}
 
@@ -725,49 +835,60 @@ func buildTLSOptions(ctx context.Context, client Client) map[string]tls.Options 
 	return tlsOptions
 }
 
-func buildTLSStores(ctx context.Context, client Client) map[string]tls.Store {
+func buildTLSStores(ctx context.Context, client Client) (map[string]tls.Store, map[string]*tls.CertAndStores) {
 	tlsStoreCRD := client.GetTLSStores()
-	var tlsStores map[string]tls.Store
-
 	if len(tlsStoreCRD) == 0 {
-		return tlsStores
+		return nil, nil
 	}
-	tlsStores = make(map[string]tls.Store)
+
 	var nsDefault []string
+	tlsStores := make(map[string]tls.Store)
+	tlsConfigs := make(map[string]*tls.CertAndStores)
 
-	for _, tlsStore := range tlsStoreCRD {
-		namespace := tlsStore.Namespace
-		secretName := tlsStore.Spec.DefaultCertificate.SecretName
-		logger := log.FromContext(log.With(ctx, log.Str("tlsStore", tlsStore.Name), log.Str("namespace", namespace), log.Str("secretName", secretName)))
+	for _, t := range tlsStoreCRD {
+		logger := log.FromContext(log.With(ctx, log.Str("TLSStore", t.Name), log.Str("namespace", t.Namespace)))
 
-		secret, exists, err := client.GetSecret(namespace, secretName)
-		if err != nil {
-			logger.Errorf("Failed to fetch secret %s/%s: %v", namespace, secretName, err)
-			continue
-		}
-		if !exists {
-			logger.Errorf("Secret %s/%s does not exist", namespace, secretName)
-			continue
-		}
+		id := makeID(t.Namespace, t.Name)
 
-		cert, key, err := getCertificateBlocks(secret, namespace, secretName)
-		if err != nil {
-			logger.Errorf("Could not get certificate blocks: %v", err)
-			continue
-		}
-
-		id := makeID(tlsStore.Namespace, tlsStore.Name)
 		// If the name is default, we override the default config.
-		if tlsStore.Name == tls.DefaultTLSStoreName {
-			id = tlsStore.Name
-			nsDefault = append(nsDefault, tlsStore.Namespace)
+		if t.Name == tls.DefaultTLSStoreName {
+			id = t.Name
+			nsDefault = append(nsDefault, t.Namespace)
 		}
-		tlsStores[id] = tls.Store{
-			DefaultCertificate: &tls.Certificate{
+
+		var tlsStore tls.Store
+
+		if t.Spec.DefaultCertificate != nil {
+			secretName := t.Spec.DefaultCertificate.SecretName
+
+			secret, exists, err := client.GetSecret(t.Namespace, secretName)
+			if err != nil {
+				logger.Errorf("Failed to fetch secret %s/%s: %v", t.Namespace, secretName, err)
+				continue
+			}
+			if !exists {
+				logger.Errorf("Secret %s/%s does not exist", t.Namespace, secretName)
+				continue
+			}
+
+			cert, key, err := getCertificateBlocks(secret, t.Namespace, secretName)
+			if err != nil {
+				logger.Errorf("Could not get certificate blocks: %v", err)
+				continue
+			}
+
+			tlsStore.DefaultCertificate = &tls.Certificate{
 				CertFile: tls.FileOrContent(cert),
 				KeyFile:  tls.FileOrContent(key),
-			},
+			}
 		}
+
+		if err := buildCertificates(client, id, t.Namespace, t.Spec.Certificates, tlsConfigs); err != nil {
+			logger.Errorf("Failed to load certificates: %v", err)
+			continue
+		}
+
+		tlsStores[id] = tlsStore
 	}
 
 	if len(nsDefault) > 1 {
@@ -775,7 +896,25 @@ func buildTLSStores(ctx context.Context, client Client) map[string]tls.Store {
 		log.FromContext(ctx).Errorf("Default TLS Stores defined in multiple namespaces: %v", nsDefault)
 	}
 
-	return tlsStores
+	return tlsStores, tlsConfigs
+}
+
+// buildCertificates loads TLSStore certificates from secrets and sets them into tlsConfigs.
+func buildCertificates(client Client, tlsStore, namespace string, certificates []v1alpha1.Certificate, tlsConfigs map[string]*tls.CertAndStores) error {
+	for _, c := range certificates {
+		configKey := namespace + "/" + c.SecretName
+		if _, tlsExists := tlsConfigs[configKey]; !tlsExists {
+			certAndStores, err := getTLS(client, c.SecretName, namespace)
+			if err != nil {
+				return fmt.Errorf("unable to read secret %s: %w", configKey, err)
+			}
+
+			certAndStores.Stores = []string{tlsStore}
+			tlsConfigs[configKey] = certAndStores
+		}
+	}
+
+	return nil
 }
 
 func makeServiceKey(rule, ingressName string) (string, error) {

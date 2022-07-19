@@ -1,3 +1,8 @@
+---
+title: "Traefik ECS Documentation"
+description: "AWS ECS is a provider for routing and load balancing in Traefik Proxy. Read the technical documentation to get started."
+---
+
 # Traefik & ECS
 
 A Story of Labels & Elastic Containers
@@ -377,6 +382,14 @@ You can declare TCP Routers and/or Services using labels.
     
     ```yaml
     traefik.tcp.routers.mytcprouter.tls.passthrough=true
+    ```
+
+??? info "`traefik.tcp.routers.<router_name>.priority`"
+
+    See [priority](../routers/index.md#priority_1) for more information.
+
+    ```yaml
+    traefik.tcp.routers.myrouter.priority=42
     ```
 
 #### TCP Services

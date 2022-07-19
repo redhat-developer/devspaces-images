@@ -1,3 +1,8 @@
+---
+title: "Traefik Maintainers Documentation"
+description: "Traefik Proxy is an open source software with a thriving community of contributors and maintainers. Read the list of maintainers on this page."
+---
+
 # Maintainers
 
 ## The Team
@@ -19,6 +24,7 @@
 * Romain Tribotté [@rtribotte](https://github.com/rtribotte)
 * Kevin Pollet [@kevinpollet](https://github.com/kevinpollet)
 * Harold Ozouf [@jspdown](https://github.com/jspdown)
+* Tom Moulard [@tommoulard](https://github.com/tommoulard)
 
 ## Maintainer's Guidelines
 

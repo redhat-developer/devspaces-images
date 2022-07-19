@@ -54,6 +54,9 @@ Certificates resolvers configuration. (Default: ```false```)
 `--certificatesresolvers.<name>.acme.caserver`:  
 CA server to use. (Default: ```https://acme-v02.api.letsencrypt.org/directory```)
 
+`--certificatesresolvers.<name>.acme.certificatesduration`:  
+Certificates' duration in hours. (Default: ```2160```)
+
 `--certificatesresolvers.<name>.acme.dnschallenge`:  
 Activate DNS-01 Challenge. (Default: ```false```)
 
@@ -102,9 +105,6 @@ Entry points definition. (Default: ```false```)
 `--entrypoints.<name>.address`:  
 Entry point address.
 
-`--entrypoints.<name>.enablehttp3`:  
-Enable HTTP3. (Default: ```false```)
-
 `--entrypoints.<name>.forwardedheaders.insecure`:  
 Trust all forwarded headers. (Default: ```false```)
 
@@ -147,6 +147,15 @@ Subject alternative names.
 `--entrypoints.<name>.http.tls.options`:  
 Default TLS options for the routers linked to the entry point.
 
+`--entrypoints.<name>.http2.maxconcurrentstreams`:  
+Specifies the number of concurrent streams per connection that each client is allowed to initiate. (Default: ```250```)
+
+`--entrypoints.<name>.http3`:  
+HTTP/3 configuration. (Default: ```false```)
+
+`--entrypoints.<name>.http3.advertisedport`:  
+UDP port to advertise, on which HTTP/3 is available. (Default: ```0```)
+
 `--entrypoints.<name>.proxyprotocol`:  
 Proxy-Protocol configuration. (Default: ```false```)
 
@@ -176,6 +185,9 @@ Timeout defines how long to wait on an idle session before releasing the related
 
 `--experimental.http3`:  
 Enable HTTP3. (Default: ```false```)
+
+`--experimental.hub`:  
+Enable the Traefik Hub provider. (Default: ```false```)
 
 `--experimental.kubernetesgateway`:  
 Allow the Kubernetes gateway api provider usage. (Default: ```false```)
@@ -210,6 +222,21 @@ resolv.conf used for DNS resolving (Default: ```/etc/resolv.conf```)
 `--hostresolver.resolvdepth`:  
 The maximal depth of DNS recursive resolving (Default: ```5```)
 
+`--hub`:  
+Traefik Hub configuration. (Default: ```false```)
+
+`--hub.tls.ca`:  
+The certificate authority authenticates the Traefik Hub Agent certificate.
+
+`--hub.tls.cert`:  
+The TLS certificate for Traefik Proxy as a TLS client.
+
+`--hub.tls.insecure`:  
+Enables an insecure TLS connection that uses default credentials, and which has no peer authentication between Traefik Proxy and the Traefik Hub Agent. (Default: ```false```)
+
+`--hub.tls.key`:  
+The TLS key for Traefik Proxy as a TLS client.
+
 `--log`:  
 Traefik log settings. (Default: ```false```)
 
@@ -237,6 +264,9 @@ Enable metrics on routers. (Default: ```false```)
 `--metrics.datadog.addserviceslabels`:  
 Enable metrics on services. (Default: ```true```)
 
+`--metrics.datadog.prefix`:  
+Prefix to use for metrics collection. (Default: ```traefik```)
+
 `--metrics.datadog.pushinterval`:  
 Datadog push interval. (Default: ```10```)
 
@@ -245,6 +275,9 @@ InfluxDB metrics exporter type. (Default: ```false```)
 
 `--metrics.influxdb.addentrypointslabels`:  
 Enable metrics on entry points. (Default: ```true```)
+
+`--metrics.influxdb.additionallabels.<name>`:  
+Additional labels (influxdb tags) on all metrics
 
 `--metrics.influxdb.address`:  
 InfluxDB address. (Default: ```localhost:8089```)
@@ -272,6 +305,36 @@ InfluxDB retention policy used when protocol is http.
 
 `--metrics.influxdb.username`:  
 InfluxDB username (only with http).
+
+`--metrics.influxdb2`:  
+InfluxDB v2 metrics exporter type. (Default: ```false```)
+
+`--metrics.influxdb2.addentrypointslabels`:  
+Enable metrics on entry points. (Default: ```true```)
+
+`--metrics.influxdb2.additionallabels.<name>`:  
+Additional labels (influxdb tags) on all metrics
+
+`--metrics.influxdb2.address`:  
+InfluxDB v2 address. (Default: ```http://localhost:8086```)
+
+`--metrics.influxdb2.addrouterslabels`:  
+Enable metrics on routers. (Default: ```false```)
+
+`--metrics.influxdb2.addserviceslabels`:  
+Enable metrics on services. (Default: ```true```)
+
+`--metrics.influxdb2.bucket`:  
+InfluxDB v2 bucket ID.
+
+`--metrics.influxdb2.org`:  
+InfluxDB v2 org ID.
+
+`--metrics.influxdb2.pushinterval`:  
+InfluxDB v2 push interval. (Default: ```10```)
+
+`--metrics.influxdb2.token`:  
+InfluxDB v2 access token.
 
 `--metrics.prometheus`:  
 Prometheus metrics exporter type. (Default: ```false```)
@@ -339,6 +402,12 @@ Enable Consul backend with default settings. (Default: ```false```)
 `--providers.consul.endpoints`:  
 KV store endpoints (Default: ```127.0.0.1:8500```)
 
+`--providers.consul.namespace`:  
+Sets the namespace used to discover the configuration (Consul Enterprise only).
+
+`--providers.consul.namespaces`:  
+Sets the namespaces used to discover the configuration (Consul Enterprise only).
+
 `--providers.consul.password`:  
 KV Password
 
@@ -359,6 +428,9 @@ TLS insecure skip verify (Default: ```false```)
 
 `--providers.consul.tls.key`:  
 TLS key
+
+`--providers.consul.token`:  
+KV Token
 
 `--providers.consul.username`:  
 KV Username
@@ -420,11 +492,17 @@ Token is used to provide a per-request ACL token which overrides the agent's def
 `--providers.consulcatalog.exposedbydefault`:  
 Expose containers by default. (Default: ```true```)
 
+`--providers.consulcatalog.namespace`:  
+Sets the namespace used to discover services (Consul Enterprise only).
+
+`--providers.consulcatalog.namespaces`:  
+Sets the namespaces used to discover services (Consul Enterprise only).
+
 `--providers.consulcatalog.prefix`:  
-Prefix for consul service tags. Default 'traefik' (Default: ```traefik```)
+Prefix for consul service tags. (Default: ```traefik```)
 
 `--providers.consulcatalog.refreshinterval`:  
-Interval for check Consul API. Default 15s (Default: ```15```)
+Interval for check Consul API. (Default: ```15```)
 
 `--providers.consulcatalog.requireconsistent`:  
 Forces the read to be fully consistent. (Default: ```false```)
@@ -434,6 +512,9 @@ Name of the Traefik service in Consul Catalog (needs to be registered via the or
 
 `--providers.consulcatalog.stale`:  
 Use stale consistency for catalog reads. (Default: ```false```)
+
+`--providers.consulcatalog.watch`:  
+Watch Consul API events. (Default: ```false```)
 
 `--providers.docker`:  
 Enable Docker backend with default settings. (Default: ```false```)
@@ -540,6 +621,9 @@ TLS insecure skip verify (Default: ```false```)
 `--providers.etcd.tls.key`:  
 TLS key
 
+`--providers.etcd.token`:  
+KV Token
+
 `--providers.etcd.username`:  
 KV Username
 
@@ -587,6 +671,9 @@ Enable Kubernetes backend with default settings. (Default: ```false```)
 
 `--providers.kubernetescrd.allowcrossnamespace`:  
 Allow cross namespace resource reference. (Default: ```false```)
+
+`--providers.kubernetescrd.allowemptyservices`:  
+Allow the creation of services without endpoints. (Default: ```false```)
 
 `--providers.kubernetescrd.allowexternalnameservices`:  
 Allow ExternalName services. (Default: ```false```)
@@ -735,6 +822,57 @@ Display additional provider logs. (Default: ```false```)
 `--providers.marathon.watch`:  
 Watch provider. (Default: ```true```)
 
+`--providers.nomad`:  
+Enable Nomad backend with default settings. (Default: ```false```)
+
+`--providers.nomad.constraints`:  
+Constraints is an expression that Traefik matches against the Nomad service's tags to determine whether to create route(s) for that service.
+
+`--providers.nomad.defaultrule`:  
+Default rule. (Default: ```Host(`{{ normalize .Name }}`)```)
+
+`--providers.nomad.endpoint.address`:  
+The address of the Nomad server, including scheme and port.
+
+`--providers.nomad.endpoint.endpointwaittime`:  
+WaitTime limits how long a Watch will block. If not provided, the agent default values will be used (Default: ```0```)
+
+`--providers.nomad.endpoint.region`:  
+Nomad region to use. If not provided, the local agent region is used.
+
+`--providers.nomad.endpoint.tls.ca`:  
+TLS CA
+
+`--providers.nomad.endpoint.tls.caoptional`:  
+TLS CA.Optional (Default: ```false```)
+
+`--providers.nomad.endpoint.tls.cert`:  
+TLS cert
+
+`--providers.nomad.endpoint.tls.insecureskipverify`:  
+TLS insecure skip verify (Default: ```false```)
+
+`--providers.nomad.endpoint.tls.key`:  
+TLS key
+
+`--providers.nomad.endpoint.token`:  
+Token is used to provide a per-request ACL token.
+
+`--providers.nomad.exposedbydefault`:  
+Expose Nomad services by default. (Default: ```true```)
+
+`--providers.nomad.namespace`:  
+Sets the Nomad namespace used to discover services.
+
+`--providers.nomad.prefix`:  
+Prefix for nomad service tags. (Default: ```traefik```)
+
+`--providers.nomad.refreshinterval`:  
+Interval for polling Nomad API. (Default: ```15```)
+
+`--providers.nomad.stale`:  
+Use stale consistency for catalog reads. (Default: ```false```)
+
 `--providers.plugin.<name>`:  
 Plugins configuration.
 
@@ -795,6 +933,9 @@ TLS insecure skip verify (Default: ```false```)
 `--providers.redis.tls.key`:  
 TLS key
 
+`--providers.redis.token`:  
+KV Token
+
 `--providers.redis.username`:  
 KV Username
 
@@ -831,6 +972,9 @@ TLS insecure skip verify (Default: ```false```)
 `--providers.zookeeper.tls.key`:  
 TLS key
 
+`--providers.zookeeper.token`:  
+KV Token
+
 `--providers.zookeeper.username`:  
 KV Username
 
@@ -859,76 +1003,79 @@ OpenTracing configuration. (Default: ```false```)
 Settings for Datadog. (Default: ```false```)
 
 `--tracing.datadog.bagageprefixheadername`:  
-Specifies the header name prefix that will be used to store baggage items in a map.
+Sets the header name prefix used to store baggage items in a map.
 
 `--tracing.datadog.debug`:  
-Enable Datadog debug. (Default: ```false```)
+Enables Datadog debug. (Default: ```false```)
 
 `--tracing.datadog.globaltag`:  
-Key:Value tag to be set on all the spans.
+Sets a key:value tag on all spans.
 
 `--tracing.datadog.localagenthostport`:  
-Set datadog-agent's host:port that the reporter will used. (Default: ```localhost:8126```)
+Sets the Datadog Agent host:port. (Default: ```localhost:8126```)
 
 `--tracing.datadog.parentidheadername`:  
-Specifies the header name that will be used to store the parent ID.
+Sets the header name used to store the parent ID.
 
 `--tracing.datadog.prioritysampling`:  
-Enable priority sampling. When using distributed tracing, this option must be enabled in order to get all the parts of a distributed trace sampled. (Default: ```false```)
+Enables priority sampling. When using distributed tracing, this option must be enabled in order to get all the parts of a distributed trace sampled. (Default: ```false```)
 
 `--tracing.datadog.samplingpriorityheadername`:  
-Specifies the header name that will be used to store the sampling priority.
+Sets the header name used to store the sampling priority.
 
 `--tracing.datadog.traceidheadername`:  
-Specifies the header name that will be used to store the trace ID.
+Sets the header name used to store the trace ID.
 
 `--tracing.elastic`:  
 Settings for Elastic. (Default: ```false```)
 
 `--tracing.elastic.secrettoken`:  
-Set the token used to connect to Elastic APM Server.
+Sets the token used to connect to Elastic APM Server.
 
 `--tracing.elastic.serverurl`:  
-Set the URL of the Elastic APM server.
+Sets the URL of the Elastic APM server.
 
 `--tracing.elastic.serviceenvironment`:  
-Set the name of the environment Traefik is deployed in, e.g. 'production' or 'staging'.
+Sets the name of the environment Traefik is deployed in, e.g. 'production' or 'staging'.
 
 `--tracing.haystack`:  
 Settings for Haystack. (Default: ```false```)
 
 `--tracing.haystack.baggageprefixheadername`:  
-Specifies the header name prefix that will be used to store baggage items in a map.
+Sets the header name prefix used to store baggage items in a map.
 
 `--tracing.haystack.globaltag`:  
-Key:Value tag to be set on all the spans.
+Sets a key:value tag on all spans.
 
 `--tracing.haystack.localagenthost`:  
-Set haystack-agent's host that the reporter will used. (Default: ```127.0.0.1```)
+Sets the Haystack Agent host. (Default: ```127.0.0.1```)
 
 `--tracing.haystack.localagentport`:  
-Set haystack-agent's port that the reporter will used. (Default: ```35000```)
+Sets the Haystack Agent port. (Default: ```35000```)
 
 `--tracing.haystack.parentidheadername`:  
-Specifies the header name that will be used to store the parent ID.
+Sets the header name used to store the parent ID.
 
 `--tracing.haystack.spanidheadername`:  
-Specifies the header name that will be used to store the span ID.
+Sets the header name used to store the span ID.
 
 `--tracing.haystack.traceidheadername`:  
-Specifies the header name that will be used to store the trace ID.
+Sets the header name used to store the trace ID.
 
 `--tracing.instana`:  
 Settings for Instana. (Default: ```false```)
 
+`--tracing.instana.enableautoprofile`:  
+Enables automatic profiling for the Traefik process. (Default: ```false```)
+
 `--tracing.instana.localagenthost`:  
-Set instana-agent's host that the reporter will used.
+Sets the Instana Agent host.
 
 `--tracing.instana.localagentport`:  
-Set instana-agent's port that the reporter will used. (Default: ```42699```)
+Sets the Instana Agent port. (Default: ```42699```)
 
 `--tracing.instana.loglevel`:  
-Set instana-agent's log level. ('error','warn','info','debug') (Default: ```info```)
+Sets the log level for the Instana tracer. ('error','warn','info','debug') (Default: ```info```)
 
 `--tracing.jaeger`:  
 Settings for Jaeger. (Default: ```false```)
@@ -943,28 +1090,28 @@ Password for basic http authentication when sending spans to jaeger-collector.
 User for basic http authentication when sending spans to jaeger-collector.
 
 `--tracing.jaeger.disableattemptreconnecting`:  
-Disable the periodic re-resolution of the agent's hostname and reconnection if there was a change. (Default: ```true```)
+Disables the periodic re-resolution of the agent's hostname and reconnection if there was a change. (Default: ```true```)
 
 `--tracing.jaeger.gen128bit`:  
-Generate 128 bit span IDs. (Default: ```false```)
+Generates 128 bits span IDs. (Default: ```false```)
 
 `--tracing.jaeger.localagenthostport`:  
-Set jaeger-agent's host:port that the reporter will used. (Default: ```127.0.0.1:6831```)
+Sets the Jaeger Agent host:port. (Default: ```127.0.0.1:6831```)
 
 `--tracing.jaeger.propagation`:  
-Which propagation format to use (jaeger/b3). (Default: ```jaeger```)
+Sets the propagation format (jaeger/b3). (Default: ```jaeger```)
 
 `--tracing.jaeger.samplingparam`:  
-Set the sampling parameter. (Default: ```1.000000```)
+Sets the sampling parameter. (Default: ```1.000000```)
 
 `--tracing.jaeger.samplingserverurl`:  
-Set the sampling server url. (Default: ```http://localhost:5778/sampling```)
+Sets the sampling server URL. (Default: ```http://localhost:5778/sampling```)
 
 `--tracing.jaeger.samplingtype`:  
-Set the sampling type. (Default: ```const```)
+Sets the sampling type. (Default: ```const```)
 
 `--tracing.jaeger.tracecontextheadername`:  
-Set the header to use for the trace-id. (Default: ```uber-trace-id```)
+Sets the header name used to store the trace ID. (Default: ```uber-trace-id```)
 
 `--tracing.servicename`:  
 Set the name for this service. (Default: ```traefik```)
@@ -976,13 +1123,13 @@ Set the maximum character limit for Span names (default 0 = no limit). (Default:
 Settings for Zipkin. (Default: ```false```)
 
 `--tracing.zipkin.httpendpoint`:  
-HTTP Endpoint to report traces to. (Default: ```http://localhost:9411/api/v2/spans```)
+Sets the HTTP Endpoint to report traces to. (Default: ```http://localhost:9411/api/v2/spans```)
 
 `--tracing.zipkin.id128bit`:  
-Use Zipkin 128 bit root span IDs. (Default: ```true```)
+Uses 128 bits root span IDs. (Default: ```true```)
 
 `--tracing.zipkin.samespan`:  
-Use Zipkin SameSpan RPC style traces. (Default: ```false```)
+Uses SameSpan RPC style traces. (Default: ```false```)
 
 `--tracing.zipkin.samplerate`:  
-The rate between 0.0 and 1.0 of requests to trace. (Default: ```1.000000```)
+Sets the rate between 0.0 and 1.0 of requests to trace. (Default: ```1.000000```)

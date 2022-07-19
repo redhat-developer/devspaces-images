@@ -50,7 +50,12 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 			ingressName = ingressRoute.GenerateName
 		}
 
-		cb := configBuilder{client: client, allowCrossNamespace: p.AllowCrossNamespace, allowExternalNameServices: p.AllowExternalNameServices}
+		cb := configBuilder{
+			client:                    client,
+			allowCrossNamespace:       p.AllowCrossNamespace,
+			allowExternalNameServices: p.AllowExternalNameServices,
+			allowEmptyServices:        p.AllowEmptyServices,
+		}
 
 		for _, route := range ingressRoute.Spec.Routes {
 			if route.Kind != "Rule" {
@@ -79,7 +84,7 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 			serviceName := normalized
 
 			if len(route.Services) > 1 {
-				spec := v1alpha1.ServiceSpec{
+				spec := v1alpha1.TraefikServiceSpec{
 					Weighted: &v1alpha1.WeightedRoundRobin{
 						Services: route.Services,
 					},
@@ -104,7 +109,7 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 				}
 			}
 
-			conf.Routers[normalized] = &dynamic.Router{
+			r := &dynamic.Router{
 				Middlewares: mds,
 				Priority:    route.Priority,
 				EntryPoints: ingressRoute.Spec.EntryPoints,
@@ -113,7 +118,7 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 			}
 
 			if ingressRoute.Spec.TLS != nil {
-				tlsConf := &dynamic.RouterTLSConfig{
+				r.TLS = &dynamic.RouterTLSConfig{
 					CertResolver: ingressRoute.Spec.TLS.CertResolver,
 					Domains:      ingressRoute.Spec.TLS.Domains,
 				}
@@ -129,14 +134,21 @@ func (p *Provider) loadIngressRouteConfiguration(ctx context.Context, client Cli
 						tlsOptionsName = makeID(ns, tlsOptionsName)
 					} else if len(ns) > 0 {
 						logger.
-							WithField("TLSoptions", ingressRoute.Spec.TLS.Options.Name).
-							Warnf("namespace %q is ignored in cross-provider context", ns)
+							WithField("TLSOption", ingressRoute.Spec.TLS.Options.Name).
+							Warnf("Namespace %q is ignored in cross-provider context", ns)
 					}
 
-					tlsConf.Options = tlsOptionsName
+					if !isNamespaceAllowed(p.AllowCrossNamespace, ingressRoute.Namespace, ns) {
+						logger.Errorf("TLSOption %s/%s is not in the IngressRoute namespace %s",
+							ns, ingressRoute.Spec.TLS.Options.Name, ingressRoute.Namespace)
+						continue
+					}
+
+					r.TLS.Options = tlsOptionsName
 				}
-				conf.Routers[normalized].TLS = tlsConf
 			}
+
+			conf.Routers[normalized] = r
 		}
 	}
 
@@ -176,7 +188,7 @@ func (p *Provider) makeMiddlewareKeys(ctx context.Context, ingRouteNamespace str
 			ns = mi.Namespace
 		}
 
-		mds = append(mds, makeID(ns, name))
+		mds = append(mds, provider.Normalize(makeID(ns, name)))
 	}
 
 	return mds, nil
@@ -186,6 +198,7 @@ type configBuilder struct {
 	client                    Client
 	allowCrossNamespace       bool
 	allowExternalNameServices bool
+	allowEmptyServices        bool
 }
 
 // buildTraefikService creates the configuration for the traefik service defined in tService,
@@ -204,7 +217,7 @@ func (c configBuilder) buildTraefikService(ctx context.Context, tService *v1alph
 
 // buildServicesLB creates the configuration for the load-balancer of services named id, and defined in tService.
 // It adds it to the given conf map.
-func (c configBuilder) buildServicesLB(ctx context.Context, namespace string, tService v1alpha1.ServiceSpec, id string, conf map[string]*dynamic.Service) error {
+func (c configBuilder) buildServicesLB(ctx context.Context, namespace string, tService v1alpha1.TraefikServiceSpec, id string, conf map[string]*dynamic.Service) error {
 	var wrrServices []dynamic.WRRService
 
 	for _, service := range tService.Weighted.Services {
@@ -297,9 +310,32 @@ func (c configBuilder) buildServersLB(namespace string, svc v1alpha1.LoadBalance
 	lb.ResponseForwarding = conf.ResponseForwarding
 
 	lb.Sticky = svc.Sticky
-	lb.ServersTransport = svc.ServersTransport
+
+	lb.ServersTransport, err = c.makeServersTransportKey(namespace, svc.ServersTransport)
+	if err != nil {
+		return nil, err
+	}
 
 	return &dynamic.Service{LoadBalancer: lb}, nil
+}
+
+func (c *configBuilder) makeServersTransportKey(parentNamespace string, serversTransportName string) (string, error) {
+	if serversTransportName == "" {
+		return "", nil
+	}
+
+	if !c.allowCrossNamespace && strings.HasSuffix(serversTransportName, providerNamespaceSeparator+providerName) {
+		// Since we are not able to know if another namespace is in the name (namespace-name@kubernetescrd),
+		// if the provider namespace kubernetescrd is used,
+		// we don't allow this format to avoid cross namespace references.
+		return "", fmt.Errorf("invalid reference to serversTransport %s: namespace-name@kubernetescrd format is not allowed when crossnamespace is disallowed", serversTransportName)
+	}
+
+	if strings.Contains(serversTransportName, providerNamespaceSeparator) {
+		return serversTransportName, nil
+	}
+
+	return provider.Normalize(makeID(parentNamespace, serversTransportName)), nil
 }
 
 func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBalancerSpec) ([]dynamic.Server, error) {
@@ -357,7 +393,8 @@ func (c configBuilder) loadServers(parentNamespace string, svc v1alpha1.LoadBala
 	if !endpointsExists {
 		return nil, fmt.Errorf("endpoints not found for %s/%s", namespace, sanitizedName)
 	}
-	if len(endpoints.Subsets) == 0 {
+
+	if len(endpoints.Subsets) == 0 && !c.allowEmptyServices {
 		return nil, fmt.Errorf("subset not found for %s/%s", namespace, sanitizedName)
 	}
 
@@ -458,6 +495,7 @@ func namespaceOrFallback(lb v1alpha1.LoadBalancerSpec, fallback string) string {
 	return fallback
 }
 
+// getTLSHTTP mutates tlsConfigs.
 func getTLSHTTP(ctx context.Context, ingressRoute *v1alpha1.IngressRoute, k8sClient Client, tlsConfigs map[string]*tls.CertAndStores) error {
 	if ingressRoute.Spec.TLS == nil {
 		return nil

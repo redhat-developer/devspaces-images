@@ -1,9 +1,14 @@
+---
+title: "Traefik Consul Catalog Routing"
+description: "Learn how to use Consul Catalog as a provider for routing configurations in Traefik Proxy. Read the technical documentation."
+---
+
 # Traefik & Consul Catalog
 
 A Story of Tags, Services & Instances
 {: .subtitle }
 
-![Rancher](../../assets/img/providers/consul.png)
+![Consul Catalog](../../assets/img/providers/consul.png)
 
 Attach tags to your services and let Traefik do the rest!
 
@@ -63,7 +68,7 @@ For example, to change the rule, you could add the tag ```traefik.http.routers.m
     See [tls](../routers/index.md#tls) for more information.
     
     ```yaml
-    traefik.http.routers.myrouter>.tls=true
+    traefik.http.routers.myrouter.tls=true
     ```
 
 ??? info "`traefik.http.routers.<router_name>.tls.certresolver`"
@@ -99,7 +104,8 @@ For example, to change the rule, you could add the tag ```traefik.http.routers.m
     ```
 
 ??? info "`traefik.http.routers.<router_name>.priority`"
-    <!-- TODO doc priority in routers page -->
+
+    See [priority](../routers/index.md#priority) for more information.
     
     ```yaml
     traefik.http.routers.myrouter.priority=42
@@ -136,7 +142,7 @@ you'd add the tag `traefik.http.services.{name-of-your-choice}.loadbalancer.pass
     See [serverstransport](../services/index.md#serverstransport) for more information.
     
     ```yaml
-    traefik.http.services.<service_name>.loadbalancer.serverstransport=foobar@file
+    traefik.http.services.myservice.loadbalancer.serverstransport=foobar@file
     ```
 
 ??? info "`traefik.http.services.<service_name>.loadbalancer.passhostheader`"

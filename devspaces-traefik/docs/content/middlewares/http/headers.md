@@ -1,3 +1,8 @@
+---
+title: "Traefik Headers Documentation"
+description: "In Traefik Proxy, the HTTP headers middleware manages the headers of requests and responses. Read the technical documentation."
+---
+
 # Headers
 
 Managing Request/Response headers
@@ -6,6 +11,8 @@ Managing Request/Response headers
 ![Headers](../../assets/img/middleware/headers.png)
 
 The Headers middleware manages the headers of requests and responses.
+
+A set of forwarded headers are automatically added by default. See the [FAQ](../../getting-started/faq.md#what-are-the-forwarded-headers-when-proxying-http-requests) for more information.
 
 ## Configuration Examples
 
@@ -158,7 +165,7 @@ metadata:
 spec:
   headers:
     frameDeny: true
-    browserxssfilter: true
+    browserXssFilter: true
 ```
 
 ```yaml tab="Consul Catalog"
@@ -185,20 +192,22 @@ http:
     testHeader:
       headers:
         frameDeny: true
-        browserxssfilter: true
+        browserXssFilter: true
 ```
 
 ```toml tab="File (TOML)"
 [http.middlewares]
   [http.middlewares.testHeader.headers]
     frameDeny = true
-    browserxssfilter = true
+    browserXssFilter = true
 ```
 
 ### CORS Headers
 
 CORS (Cross-Origin Resource Sharing) headers can be added and configured in a manner similar to the custom headers above.
 This functionality allows for more advanced security features to quickly be set.
+If CORS headers are set, then the middleware does not pass preflight requests to any service,
+instead the response will be generated and sent back to the client directly.
 
 ```yaml tab="Docker"
 labels:
@@ -331,7 +340,9 @@ It allows all origins that contain any match of a regular expression in the `acc
 
 !!! tip
 
-    Regular expressions can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+
+    When defining a regular expression within YAML, any escaped character needs to be escaped twice: `example\.com` needs to be written as `example\\.com`.
 
 ### `accessControlExposeHeaders`
 

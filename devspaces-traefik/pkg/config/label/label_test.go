@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	ptypes "github.com/traefik/paerser/types"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
+	"github.com/traefik/traefik/v2/pkg/types"
 )
 
 func TestDecodeConfiguration(t *testing.T) {
@@ -26,6 +27,9 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware2.buffering.retryexpression":                           "foobar",
 		"traefik.http.middlewares.Middleware3.chain.middlewares":                                   "foobar, fiibar",
 		"traefik.http.middlewares.Middleware4.circuitbreaker.expression":                           "foobar",
+		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.checkperiod":                          "1s",
+		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.fallbackduration":                     "1s",
+		"traefik.HTTP.Middlewares.Middleware4.circuitbreaker.recoveryduration":                     "1s",
 		"traefik.http.middlewares.Middleware5.digestauth.headerfield":                              "foobar",
 		"traefik.http.middlewares.Middleware5.digestauth.realm":                                    "foobar",
 		"traefik.http.middlewares.Middleware5.digestauth.removeheader":                             "true",
@@ -95,6 +99,7 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.domaincomponent":     "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.locality":            "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.organization":        "true",
+		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.organizationalunit":  "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.province":            "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.subject.serialnumber":        "true",
 		"traefik.http.middlewares.Middleware11.passtlsclientcert.info.issuer.commonname":           "true",
@@ -125,7 +130,7 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.middlewares.Middleware16.retry.initialinterval":                              "1s",
 		"traefik.http.middlewares.Middleware17.stripprefix.prefixes":                               "foobar, fiibar",
 		"traefik.http.middlewares.Middleware18.stripprefixregex.regex":                             "foobar, fiibar",
-		"traefik.http.middlewares.Middleware19.compress":                                           "true",
+		"traefik.http.middlewares.Middleware19.compress.minresponsebodybytes":                      "42",
 		"traefik.http.middlewares.Middleware20.plugin.tomato.aaa":                                  "foo1",
 		"traefik.http.middlewares.Middleware20.plugin.tomato.bbb":                                  "foo2",
 		"traefik.http.routers.Router0.entrypoints":                                                 "foobar, fiibar",
@@ -172,12 +177,15 @@ func TestDecodeConfiguration(t *testing.T) {
 		"traefik.http.services.Service1.loadbalancer.sticky.cookie.name":               "fui",
 
 		"traefik.tcp.middlewares.Middleware0.ipwhitelist.sourcerange":      "foobar, fiibar",
+		"traefik.tcp.middlewares.Middleware2.inflightconn.amount":          "42",
 		"traefik.tcp.routers.Router0.rule":                                 "foobar",
+		"traefik.tcp.routers.Router0.priority":                             "42",
 		"traefik.tcp.routers.Router0.entrypoints":                          "foobar, fiibar",
 		"traefik.tcp.routers.Router0.service":                              "foobar",
 		"traefik.tcp.routers.Router0.tls.passthrough":                      "false",
 		"traefik.tcp.routers.Router0.tls.options":                          "foo",
 		"traefik.tcp.routers.Router1.rule":                                 "foobar",
+		"traefik.tcp.routers.Router1.priority":                             "42",
 		"traefik.tcp.routers.Router1.entrypoints":                          "foobar, fiibar",
 		"traefik.tcp.routers.Router1.service":                              "foobar",
 		"traefik.tcp.routers.Router1.tls.options":                          "foo",
@@ -208,8 +216,9 @@ func TestDecodeConfiguration(t *testing.T) {
 						"foobar",
 						"fiibar",
 					},
-					Service: "foobar",
-					Rule:    "foobar",
+					Service:  "foobar",
+					Rule:     "foobar",
+					Priority: 42,
 					TLS: &dynamic.RouterTCPTLSConfig{
 						Passthrough: false,
 						Options:     "foo",
@@ -220,8 +229,9 @@ func TestDecodeConfiguration(t *testing.T) {
 						"foobar",
 						"fiibar",
 					},
-					Service: "foobar",
-					Rule:    "foobar",
+					Service:  "foobar",
+					Rule:     "foobar",
+					Priority: 42,
 					TLS: &dynamic.RouterTCPTLSConfig{
 						Passthrough: false,
 						Options:     "foo",
@@ -232,6 +242,11 @@ func TestDecodeConfiguration(t *testing.T) {
 				"Middleware0": {
 					IPWhiteList: &dynamic.TCPIPWhiteList{
 						SourceRange: []string{"foobar", "fiibar"},
+					},
+				},
+				"Middleware2": {
+					InFlightConn: &dynamic.TCPInFlightConn{
+						Amount: 42,
 					},
 				},
 			},
@@ -366,16 +381,17 @@ func TestDecodeConfiguration(t *testing.T) {
 							NotAfter:     true,
 							NotBefore:    true,
 							SerialNumber: true,
-							Subject: &dynamic.TLSCLientCertificateDNInfo{
-								Country:         true,
-								Province:        true,
-								Locality:        true,
-								Organization:    true,
-								CommonName:      true,
-								SerialNumber:    true,
-								DomainComponent: true,
+							Subject: &dynamic.TLSClientCertificateSubjectDNInfo{
+								Country:            true,
+								Province:           true,
+								Locality:           true,
+								Organization:       true,
+								OrganizationalUnit: true,
+								CommonName:         true,
+								SerialNumber:       true,
+								DomainComponent:    true,
 							},
-							Issuer: &dynamic.TLSCLientCertificateDNInfo{
+							Issuer: &dynamic.TLSClientCertificateIssuerDNInfo{
 								Country:         true,
 								Province:        true,
 								Locality:        true,
@@ -452,7 +468,9 @@ func TestDecodeConfiguration(t *testing.T) {
 					},
 				},
 				"Middleware19": {
-					Compress: &dynamic.Compress{},
+					Compress: &dynamic.Compress{
+						MinResponseBodyBytes: 42,
+					},
 				},
 				"Middleware2": {
 					Buffering: &dynamic.Buffering{
@@ -473,7 +491,10 @@ func TestDecodeConfiguration(t *testing.T) {
 				},
 				"Middleware4": {
 					CircuitBreaker: &dynamic.CircuitBreaker{
-						Expression: "foobar",
+						Expression:       "foobar",
+						CheckPeriod:      ptypes.Duration(time.Second),
+						FallbackDuration: ptypes.Duration(time.Second),
+						RecoveryDuration: ptypes.Duration(time.Second),
 					},
 				},
 				"Middleware5": {
@@ -501,7 +522,7 @@ func TestDecodeConfiguration(t *testing.T) {
 				"Middleware7": {
 					ForwardAuth: &dynamic.ForwardAuth{
 						Address: "foobar",
-						TLS: &dynamic.ClientTLS{
+						TLS: &types.ClientTLS{
 							CA:                 "foobar",
 							CAOptional:         true,
 							Cert:               "foobar",
@@ -688,8 +709,9 @@ func TestEncodeConfiguration(t *testing.T) {
 						"foobar",
 						"fiibar",
 					},
-					Service: "foobar",
-					Rule:    "foobar",
+					Service:  "foobar",
+					Rule:     "foobar",
+					Priority: 42,
 					TLS: &dynamic.RouterTCPTLSConfig{
 						Passthrough: false,
 						Options:     "foo",
@@ -700,8 +722,9 @@ func TestEncodeConfiguration(t *testing.T) {
 						"foobar",
 						"fiibar",
 					},
-					Service: "foobar",
-					Rule:    "foobar",
+					Service:  "foobar",
+					Rule:     "foobar",
+					Priority: 42,
 					TLS: &dynamic.RouterTCPTLSConfig{
 						Passthrough: false,
 						Options:     "foo",
@@ -712,6 +735,11 @@ func TestEncodeConfiguration(t *testing.T) {
 				"Middleware0": {
 					IPWhiteList: &dynamic.TCPIPWhiteList{
 						SourceRange: []string{"foobar", "fiibar"},
+					},
+				},
+				"Middleware2": {
+					InFlightConn: &dynamic.TCPInFlightConn{
+						Amount: 42,
 					},
 				},
 			},
@@ -844,16 +872,17 @@ func TestEncodeConfiguration(t *testing.T) {
 							NotAfter:     true,
 							NotBefore:    true,
 							SerialNumber: true,
-							Subject: &dynamic.TLSCLientCertificateDNInfo{
-								Country:         true,
-								Province:        true,
-								Locality:        true,
-								Organization:    true,
-								CommonName:      true,
-								SerialNumber:    true,
-								DomainComponent: true,
+							Subject: &dynamic.TLSClientCertificateSubjectDNInfo{
+								Country:            true,
+								Province:           true,
+								Locality:           true,
+								Organization:       true,
+								OrganizationalUnit: true,
+								CommonName:         true,
+								SerialNumber:       true,
+								DomainComponent:    true,
 							},
-							Issuer: &dynamic.TLSCLientCertificateDNInfo{
+							Issuer: &dynamic.TLSClientCertificateIssuerDNInfo{
 								Country:         true,
 								Province:        true,
 								Locality:        true,
@@ -929,7 +958,9 @@ func TestEncodeConfiguration(t *testing.T) {
 					},
 				},
 				"Middleware19": {
-					Compress: &dynamic.Compress{},
+					Compress: &dynamic.Compress{
+						MinResponseBodyBytes: 42,
+					},
 				},
 				"Middleware2": {
 					Buffering: &dynamic.Buffering{
@@ -958,7 +989,10 @@ func TestEncodeConfiguration(t *testing.T) {
 				},
 				"Middleware4": {
 					CircuitBreaker: &dynamic.CircuitBreaker{
-						Expression: "foobar",
+						Expression:       "foobar",
+						CheckPeriod:      ptypes.Duration(time.Second),
+						FallbackDuration: ptypes.Duration(time.Second),
+						RecoveryDuration: ptypes.Duration(time.Second),
 					},
 				},
 				"Middleware5": {
@@ -986,7 +1020,7 @@ func TestEncodeConfiguration(t *testing.T) {
 				"Middleware7": {
 					ForwardAuth: &dynamic.ForwardAuth{
 						Address: "foobar",
-						TLS: &dynamic.ClientTLS{
+						TLS: &types.ClientTLS{
 							CA:                 "foobar",
 							CAOptional:         true,
 							Cert:               "foobar",
@@ -1166,6 +1200,9 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware2.Buffering.RetryExpression":                           "foobar",
 		"traefik.HTTP.Middlewares.Middleware3.Chain.Middlewares":                                   "foobar, fiibar",
 		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.Expression":                           "foobar",
+		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.CheckPeriod":                          "1000000000",
+		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.FallbackDuration":                     "1000000000",
+		"traefik.HTTP.Middlewares.Middleware4.CircuitBreaker.RecoveryDuration":                     "1000000000",
 		"traefik.HTTP.Middlewares.Middleware5.DigestAuth.HeaderField":                              "foobar",
 		"traefik.HTTP.Middlewares.Middleware5.DigestAuth.Realm":                                    "foobar",
 		"traefik.HTTP.Middlewares.Middleware5.DigestAuth.RemoveHeader":                             "true",
@@ -1234,6 +1271,7 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.Province":            "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.Locality":            "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.Organization":        "true",
+		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.OrganizationalUnit":  "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.CommonName":          "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.SerialNumber":        "true",
 		"traefik.HTTP.Middlewares.Middleware11.PassTLSClientCert.Info.Subject.DomainComponent":     "true",
@@ -1266,7 +1304,7 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Middlewares.Middleware17.StripPrefix.Prefixes":                               "foobar, fiibar",
 		"traefik.HTTP.Middlewares.Middleware17.StripPrefix.ForceSlash":                             "true",
 		"traefik.HTTP.Middlewares.Middleware18.StripPrefixRegex.Regex":                             "foobar, fiibar",
-		"traefik.HTTP.Middlewares.Middleware19.Compress":                                           "true",
+		"traefik.HTTP.Middlewares.Middleware19.Compress.MinResponseBodyBytes":                      "42",
 		"traefik.HTTP.Middlewares.Middleware20.Plugin.tomato.aaa":                                  "foo1",
 		"traefik.HTTP.Middlewares.Middleware20.Plugin.tomato.bbb":                                  "foo2",
 
@@ -1311,12 +1349,15 @@ func TestEncodeConfiguration(t *testing.T) {
 		"traefik.HTTP.Services.Service0.LoadBalancer.HealthCheck.Headers.name0":        "foobar",
 
 		"traefik.TCP.Middlewares.Middleware0.IPWhiteList.SourceRange": "foobar, fiibar",
+		"traefik.TCP.Middlewares.Middleware2.InFlightConn.Amount":     "42",
 		"traefik.TCP.Routers.Router0.Rule":                            "foobar",
+		"traefik.TCP.Routers.Router0.Priority":                        "42",
 		"traefik.TCP.Routers.Router0.EntryPoints":                     "foobar, fiibar",
 		"traefik.TCP.Routers.Router0.Service":                         "foobar",
 		"traefik.TCP.Routers.Router0.TLS.Passthrough":                 "false",
 		"traefik.TCP.Routers.Router0.TLS.Options":                     "foo",
 		"traefik.TCP.Routers.Router1.Rule":                            "foobar",
+		"traefik.TCP.Routers.Router1.Priority":                        "42",
 		"traefik.TCP.Routers.Router1.EntryPoints":                     "foobar, fiibar",
 		"traefik.TCP.Routers.Router1.Service":                         "foobar",
 		"traefik.TCP.Routers.Router1.TLS.Passthrough":                 "false",

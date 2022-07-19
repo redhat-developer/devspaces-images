@@ -1,3 +1,8 @@
+---
+title: "Traefik Routers Documentation"
+description: "In Traefik Proxy, a router is in charge of connecting incoming requests to the Services that can handle them. Read the technical documentation."
+---
+
 # Routers
 
 Connecting Requests to Services
@@ -212,7 +217,7 @@ If the rule is verified, the router becomes active, calls middlewares, and then 
 ??? tip "Backticks or Quotes?"
     To set the value of a rule, use [backticks](https://en.wiktionary.org/wiki/backtick) ``` ` ``` or escaped double-quotes `\"`.
 
-    Single quotes `'` are not accepted as values are [Golang's String Literals](https://golang.org/ref/spec#String_literals).
+    Single quotes `'` are not accepted since the values are [Golang's String Literals](https://golang.org/ref/spec#String_literals).
 
 !!! example "Host is example.com"
 
@@ -233,11 +238,11 @@ The table below lists all the available matchers:
 | ```Headers(`key`, `value`)```                                          | Check if there is a key `key`defined in the headers, with the value `value`                                    |
 | ```HeadersRegexp(`key`, `regexp`)```                                   | Check if there is a key `key`defined in the headers, with a value that matches the regular expression `regexp` |
 | ```Host(`example.com`, ...)```                                         | Check if the request domain (host header value) targets one of the given `domains`.                            |
-| ```HostHeader(`example.com`, ...)```                                   | Check if the request domain (host header value) targets one of the given `domains`.                            |
-| ```HostRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``` | Check if the request domain matches the given `regexp`.                                                        |
+| ```HostHeader(`example.com`, ...)```                                   | Same as `Host`, only exists for historical reasons.                                                            |
+| ```HostRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``` | Match the request domain. See "Regexp Syntax" below.                                                           |
 | ```Method(`GET`, ...)```                                               | Check if the request method is one of the given `methods` (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `HEAD`)    |
-| ```Path(`/path`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`, ...)```         | Match exact request path. It accepts a sequence of literal and regular expression paths.                       |
-| ```PathPrefix(`/products/`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`)```   | Match request prefix path. It accepts a sequence of literal and regular expression prefix paths.               |
+| ```Path(`/path`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`, ...)```         | Match exact request path. See "Regexp Syntax" below.                                                           |
+| ```PathPrefix(`/products/`, `/articles/{cat:[a-z]+}/{id:[0-9]+}`)```   | Match request prefix path. See "Regexp Syntax" below.                                                          |
 | ```Query(`foo=bar`, `bar=baz`)```                                      | Match Query String parameters. It accepts a sequence of key=value pairs.                                       |
 | ```ClientIP(`10.0.0.0/16`, `::1`)```                                   | Match if the request client IP is one of the given IP/CIDR. It accepts IPv4, IPv6 and CIDR formats.            |
 
@@ -249,17 +254,20 @@ The table below lists all the available matchers:
 
 !!! important "Regexp Syntax"
 
-    `HostRegexp` and `Path` accept an expression with zero or more groups enclosed by curly braces.
-    Named groups can be like `{name:pattern}` that matches the given regexp pattern or like `{name}` that matches anything until the next dot.
-    Any pattern supported by [Go's regexp package](https://golang.org/pkg/regexp/) may be used (example: `{subdomain:[a-z]+}.{domain}.com`).
+    `HostRegexp`, `PathPrefix`, and `Path` accept an expression with zero or more groups enclosed by curly braces, which are called named regexps.
+    Named regexps, of the form `{name:regexp}`, are the only expressions considered for regexp matching.
+    The regexp name (`name` in the above example) is an arbitrary value, that exists only for historical reasons.
+
+    Any `regexp` supported by [Go's regexp package](https://golang.org/pkg/regexp/) may be used.
 
 !!! info "Combining Matchers Using Operators and Parenthesis"
 
-    You can combine multiple matchers using the AND (`&&`) and OR (`||`) operators. You can also use parenthesis.
+    The usual AND (`&&`) and OR (`||`) logical operators can be used, with the expected precedence rules,
+    as well as parentheses.
 
-!!! info "Invert a matcher"
+!!! info "Inverting a matcher"
 
-    You can invert a matcher by using the `!` operator.
+    One can invert a matcher by using the `!` operator.
 
 !!! important "Rule, Middleware, and Services"
 
@@ -290,7 +298,7 @@ A value of `0` for the priority is ignored: `priority = 0` means that the defaul
     http:
       routers:
         Router-1:
-          rule: "HostRegexp(`.*\.traefik\.com`)"
+          rule: "HostRegexp(`{subdomain:[a-z]+}.traefik.com`)"
           # ...
         Router-2:
           rule: "Host(`foobar.traefik.com`)"
@@ -301,7 +309,7 @@ A value of `0` for the priority is ignored: `priority = 0` means that the defaul
     ## Dynamic configuration
     [http.routers]
       [http.routers.Router-1]
-        rule = "HostRegexp(`.*\.traefik\.com`)"
+        rule = "HostRegexp(`{subdomain:[a-z]+}.traefik.com`)"
         # ...
       [http.routers.Router-2]
         rule = "Host(`foobar.traefik.com`)"
@@ -310,10 +318,10 @@ A value of `0` for the priority is ignored: `priority = 0` means that the defaul
 
     In this case, all requests with host `foobar.traefik.com` will be routed through `Router-1` instead of `Router-2`.
 
-    | Name     | Rule                                 | Priority |
-    |----------|--------------------------------------|----------|
-    | Router-1 | ```HostRegexp(`.*\.traefik\.com`)``` | 30       |
-    | Router-2 | ```Host(`foobar.traefik.com`)```     | 26       |
+    | Name     | Rule                                               | Priority |
+    |----------|----------------------------------------------------|----------|
+    | Router-1 | ```HostRegexp(`{subdomain:[a-z]+}.traefik.com`)``` | 44       |
+    | Router-2 | ```Host(`foobar.traefik.com`)```                   | 26       |
 
     The previous table shows that `Router-1` has a higher priority than `Router-2`.
 
@@ -326,7 +334,7 @@ A value of `0` for the priority is ignored: `priority = 0` means that the defaul
     http:
       routers:
         Router-1:
-          rule: "HostRegexp(`.*\.traefik\.com`)"
+          rule: "HostRegexp(`{subdomain:[a-z]+}.traefik.com`)"
           entryPoints:
           - "web"
           service: service-1
@@ -343,7 +351,7 @@ A value of `0` for the priority is ignored: `priority = 0` means that the defaul
     ## Dynamic configuration
     [http.routers]
       [http.routers.Router-1]
-        rule = "HostRegexp(`.*\.traefik\.com`)"
+        rule = "HostRegexp(`{subdomain:[a-z]+}.traefik.com`)"
         entryPoints = ["web"]
         service = "service-1"
         priority = 1
@@ -665,6 +673,21 @@ If no matching route is found for the TCP routers, then the HTTP routers will ta
 If not specified, TCP routers will accept requests from all defined entry points.
 If you want to limit the router scope to a set of entry points, set the entry points option.
 
+??? info "How to handle Server First protocols?"
+
+    To correctly handle a request, Traefik needs to wait for the first
+    few bytes to arrive before it can decide what to do with it.
+
+    For protocols where the server is expected to send first, such
+    as SMTP, if no specific setup is in place, we could end up in
+    a situation where both sides are waiting for data and the
+    connection appears to have hanged.
+
+    The only way that Traefik can deal with such a case, is to make 
+    sure that on the concerned entry point, there is no TLS router 
+    whatsoever (neither TCP nor HTTP), and there is at least one 
+    non-TLS TCP router that leads to the server in question.
+
 ??? example "Listens to Every Entry Point"
 
     **Dynamic Configuration**
@@ -793,20 +816,147 @@ If you want to limit the router scope to a set of entry points, set the entry po
 
 ### Rule
 
-| Rule                           | Description                                                             |
-|--------------------------------|-------------------------------------------------------------------------|
-| ```HostSNI(`domain-1`, ...)``` | Check if the Server Name Indication corresponds to the given `domains`. |
+Rules are a set of matchers configured with values, that determine if a particular request matches specific criteria.
+If the rule is verified, the router becomes active, calls middlewares, and then forwards the request to the service.
+
+??? tip "Backticks or Quotes?"
+
+     To set the value of a rule, use [backticks](https://en.wiktionary.org/wiki/backtick) ``` ` ``` or escaped double-quotes `\"`.
+
+    Single quotes `'` are not accepted since the values are [Golang's String Literals](https://golang.org/ref/spec#String_literals).
+
+!!! example "HostSNI is example.com"
+
+    ```toml
+    rule = "HostSNI(`example.com`)"
+    ```
+
+!!! example "HostSNI is example.com OR HostSNI is example.org AND ClientIP is 0.0.0.0"
+
+    ```toml
+    rule = "HostSNI(`example.com`) || (HostSNI(`example.org`) && ClientIP(`0.0.0.0`))"
+    ```
+
+The table below lists all the available matchers:
+
+| Rule                                                                      | Description                                                                                               |
+|---------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| ```HostSNI(`domain-1`, ...)```                                            | Check if the Server Name Indication corresponds to the given `domains`.                                   |
+| ```HostSNIRegexp(`example.com`, `{subdomain:[a-z]+}.example.com`, ...)``` | Check if the Server Name Indication matches the given regular expressions. See "Regexp Syntax" below. |
+| ```ClientIP(`10.0.0.0/16`, `::1`)```                                      | Check if the request client IP is one of the given IP/CIDR. It accepts IPv4, IPv6 and CIDR formats.       |
 
 !!! important "Non-ASCII Domain Names"
 
-    Non-ASCII characters are not supported in the `HostSNI` expression, and by doing so the associated TCP router will be invalid.
+    Non-ASCII characters are not supported in the `HostSNI` and `HostSNIRegexp` expressions, and so using them would invalidate the associated TCP router.
     Domain names containing non-ASCII characters must be provided as punycode encoded values ([rfc 3492](https://tools.ietf.org/html/rfc3492)).
+
+!!! important "Regexp Syntax"
+
+    `HostSNIRegexp` accepts an expression with zero or more groups enclosed by curly braces, which are called named regexps.
+    Named regexps, of the form `{name:regexp}`, are the only expressions considered for regexp matching.
+    The regexp name (`name` in the above example) is an arbitrary value, that exists only for historical reasons.
+
+    Any `regexp` supported by [Go's regexp package](https://golang.org/pkg/regexp/) may be used.
 
 !!! important "HostSNI & TLS"
 
     It is important to note that the Server Name Indication is an extension of the TLS protocol.
     Hence, only TLS routers will be able to specify a domain name with that rule.
-    However, non-TLS routers will have to explicitly use that rule with `*` (every domain) to state that every non-TLS request will be handled by the router.
+    However, there is one special use case for HostSNI with non-TLS routers:
+    when one wants a non-TLS router that matches all (non-TLS) requests,
+    one should use the specific ```HostSNI(`*`)``` syntax.
+
+!!! info "Combining Matchers Using Operators and Parenthesis"
+
+    The usual AND (`&&`) and OR (`||`) logical operators can be used, with the expected precedence rules,
+    as well as parentheses.
+
+!!! info "Inverting a matcher"
+
+    One can invert a matcher by using the `!` operator.
+
+!!! important "Rule, Middleware, and Services"
+
+    The rule is evaluated "before" any middleware has the opportunity to work, and "before" the request is forwarded to the service.
+
+### Priority
+
+To avoid path overlap, routes are sorted, by default, in descending order using rules length. 
+The priority is directly equal to the length of the rule, and so the longest length has the highest priority.
+
+A value of `0` for the priority is ignored: `priority = 0` means that the default rules length sorting is used.
+
+??? info "How default priorities are computed"
+
+    ```yaml tab="File (YAML)"
+    ## Dynamic configuration
+    tcp:
+      routers:
+        Router-1:
+          rule: "ClientIP(`192.168.0.12`)"
+          # ...
+        Router-2:
+          rule: "ClientIP(`192.168.0.0/24`)"
+          # ...
+    ```
+
+    ```toml tab="File (TOML)"
+    ## Dynamic configuration
+    [tcp.routers]
+      [tcp.routers.Router-1]
+        rule = "ClientIP(`192.168.0.12`)"
+        # ...
+      [tcp.routers.Router-2]
+        rule = "ClientIP(`192.168.0.0/24`)"
+        # ...
+    ```
+
+    The table below shows that `Router-2` has a higher computed priority than `Router-1`.
+
+    | Name     | Rule                                                        | Priority |
+    |----------|-------------------------------------------------------------|----------|
+    | Router-1 | ```ClientIP(`192.168.0.12`)```                              | 24       |
+    | Router-2 | ```ClientIP(`192.168.0.0/24`)```                            | 26       |
+
+    Which means that requests from `192.168.0.12` would go to Router-2 even though Router-1 is intended to specifically handle them.
+    To achieve this intention, a priority (higher than 26) should be set on Router-1.
+
+??? example "Setting priorities -- using the [File Provider](../../providers/file.md)"
+
+    ```yaml tab="File (YAML)"
+    ## Dynamic configuration
+    tcp:
+      routers:
+        Router-1:
+          rule: "ClientIP(`192.168.0.12`)"
+          entryPoints:
+          - "web"
+          service: service-1
+          priority: 2
+        Router-2:
+          rule: "ClientIP(`192.168.0.0/24`)"
+          entryPoints:
+          - "web"
+          priority: 1
+          service: service-2
+    ```
+
+    ```toml tab="File (TOML)"
+    ## Dynamic configuration
+    [tcp.routers]
+      [tcp.routers.Router-1]
+        rule = "ClientIP(`192.168.0.12`)"
+        entryPoints = ["web"]
+        service = "service-1"
+        priority = 2
+      [tcp.routers.Router-2]
+        rule = "ClientIP(`192.168.0.0/24`)"
+        entryPoints = ["web"]
+        priority = 1
+        service = "service-2"
+    ```
+
+    In this configuration, the priority is configured so that `Router-1` will handle requests from `192.168.0.12`.
 
 ### Middlewares
 
@@ -1171,3 +1321,18 @@ There must be one (and only one) UDP [service](../services/index.md) referenced 
 Services are the target for the router.
 
 !!! important "UDP routers can only target UDP services (and not HTTP or TCP services)."
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

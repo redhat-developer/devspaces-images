@@ -1,6 +1,11 @@
+---
+title: "Traefik Zipkin Documentation"
+description: "Traefik supports several tracing backends, including Zipkin. Learn how to implement it for observability in Traefik Proxy. Read the technical documentation."
+---
+
 # Zipkin
 
-To enable the Zipkin:
+To enable the Zipkin tracer:
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -20,7 +25,7 @@ tracing:
 
 _Required, Default="http://localhost:9411/api/v2/spans"_
 
-Zipkin HTTP endpoint used to send data.
+HTTP endpoint used to send data.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -42,7 +47,7 @@ tracing:
 
 _Optional, Default=false_
 
-Use Zipkin SameSpan RPC style traces.
+Uses SameSpan RPC style traces.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -64,7 +69,7 @@ tracing:
 
 _Optional, Default=true_
 
-Use Zipkin 128 bit trace IDs.
+Uses 128 bits trace IDs.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -86,7 +91,7 @@ tracing:
 
 _Required, Default=1.0_
 
-The rate between 0.0 and 1.0 of requests to trace.
+The proportion of requests to trace, specified between 0.0 and 1.0.
 
 ```yaml tab="File (YAML)"
 tracing:

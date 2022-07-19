@@ -1,6 +1,11 @@
+---
+title: "Traefik Elastic Documentation"
+description: "Traefik supports several tracing backends, including Elastic. Learn how to implement it for observability in Traefik Proxy. Read the technical documentation."
+---
+
 # Elastic
 
-To enable the Elastic:
+To enable the Elastic tracer:
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -20,7 +25,7 @@ tracing:
 
 _Optional, Default="http://localhost:8200"_
 
-APM ServerURL is the URL of the Elastic APM server.
+URL of the Elastic APM server.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -42,7 +47,7 @@ tracing:
 
 _Optional, Default=""_
 
-APM Secret Token is the token used to connect to Elastic APM Server.
+Token used to connect to Elastic APM Server.
 
 ```yaml tab="File (YAML)"
 tracing:
@@ -64,7 +69,7 @@ tracing:
 
 _Optional, Default=""_
 
-APM Service Environment is the name of the environment Traefik is deployed in, e.g. `production` or `staging`.
+Environment's name where Traefik is deployed in, e.g. `production` or `staging`.
 
 ```yaml tab="File (YAML)"
 tracing:

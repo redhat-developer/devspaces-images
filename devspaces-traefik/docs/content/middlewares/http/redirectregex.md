@@ -1,3 +1,8 @@
+---
+title: "Traefik RedirectRegex Documentation"
+description: "In Traefik Proxy's HTTP middleware, RedirectRegex redirecting clients to different locations. Read the technical documentation."
+---
+
 # RedirectRegex
 
 Redirecting the Client to a Different Location
@@ -73,10 +78,6 @@ http:
 
 ## Configuration Options
 
-!!! tip
-
-    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
-
 ### `permanent`
 
 Set the `permanent` option to `true` to apply a permanent redirection.
@@ -84,6 +85,12 @@ Set the `permanent` option to `true` to apply a permanent redirection.
 ### `regex`
 
 The `regex` option is the regular expression to match and capture elements from the request URL.
+
+!!! tip
+
+    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+
+    When defining a regular expression within YAML, any escaped character needs to be escaped twice: `example\.com` needs to be written as `example\\.com`.
 
 ### `replacement`
 

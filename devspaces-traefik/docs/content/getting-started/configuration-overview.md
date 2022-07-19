@@ -1,3 +1,8 @@
+---
+title: "Traefik Configuration Documentation"
+description: "Get started with Traefik Proxy. This page will introduce you to the dynamic routing and startup configurations. Read the technical documentation."
+---
+
 # Configuration Introduction
 
 How the Magic Happens
@@ -51,7 +56,7 @@ Once positioned, this option sets (and resets) all the default values of the sub
 
 ### Configuration File
 
-At startup, Traefik searches for a file named `traefik.yml` (or `traefik.yaml` or `traefik.toml`) in:
+At startup, Traefik searches for static configuration in a file named `traefik.yml` (or `traefik.yaml` or `traefik.toml`) in:
 
 - `/etc/traefik/`
 - `$XDG_CONFIG_HOME/`
@@ -74,7 +79,7 @@ traefik --help
 # or
 
 docker run traefik[:version] --help
-# ex: docker run traefik:2.1 --help
+# ex: docker run traefik:v2.8 --help
 ```
 
 All available arguments can also be found [here](../reference/static-configuration/cli.md).
@@ -88,3 +93,18 @@ All available environment variables can be found [here](../reference/static-conf
 All the configuration options are documented in their related section.
 
 You can browse the available features in the menu, the [providers](../providers/overview.md), or the [routing section](../routing/overview.md) to see them in action.
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

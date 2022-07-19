@@ -1,3 +1,8 @@
+---
+title: "Traefik EntryPoints Documentation"
+description: "For routing and load balancing in Traefik Proxy, EntryPoints define which port will receive packets and whether in UDP or TCP. Read the technical documentation."
+---
+
 # EntryPoints
 
 Opening Connections for Incoming Requests
@@ -100,7 +105,10 @@ They can be defined by using a file (YAML or TOML) or CLI arguments.
     entryPoints:
       name:
         address: ":8888" # same as ":8888/tcp"
-        enableHTTP3: true
+        http2:
+          maxConcurrentStreams: 42
+        http3:
+          advertisedPort: 8888
         transport:
           lifeCycle:
             requestAcceptGraceTimeout: 42
@@ -126,7 +134,10 @@ They can be defined by using a file (YAML or TOML) or CLI arguments.
     [entryPoints]
       [entryPoints.name]
         address = ":8888" # same as ":8888/tcp"
-        enableHTTP3 = true
+        [entryPoints.name.http2]
+          maxConcurrentStreams = 42
+        [entryPoints.name.http3]
+          advertisedPort = 8888
         [entryPoints.name.transport]
           [entryPoints.name.transport.lifeCycle]
             requestAcceptGraceTimeout = 42
@@ -146,7 +157,8 @@ They can be defined by using a file (YAML or TOML) or CLI arguments.
     ```bash tab="CLI"
     ## Static configuration
     --entryPoints.name.address=:8888 # same as :8888/tcp
-    --entryPoints.name.http3=true
+    --entryPoints.name.http2.maxConcurrentStreams=42
+    --entryPoints.name.http3.advertisedport=8888
     --entryPoints.name.transport.lifeCycle.requestAcceptGraceTimeout=42
     --entryPoints.name.transport.lifeCycle.graceTimeOut=42
     --entryPoints.name.transport.respondingTimeouts.readTimeout=42
@@ -221,41 +233,100 @@ If both TCP and UDP are wanted for the same port, two entryPoints definitions ar
 
     Full details for how to specify `address` can be found in [net.Listen](https://golang.org/pkg/net/#Listen) (and [net.Dial](https://golang.org/pkg/net/#Dial)) of the doc for go.
 
-### EnableHTTP3
+### HTTP/2
 
-`enableHTTP3` defines that you want to enable HTTP3 on this `address`.
-You can only enable HTTP3 on a TCP entrypoint.
-Enabling HTTP3 will automatically add the correct headers for the connection upgrade to HTTP3.
+#### `maxConcurrentStreams`
 
-??? info "HTTP3 uses UDP+TLS"
+_Optional, Default=250_
 
-    As HTTP3 uses UDP, you can't have a TCP entrypoint with HTTP3 on the same port as a UDP entrypoint.
-    Since HTTP3 requires the use of TLS, only routers with TLS enabled will be usable with HTTP3.
+`maxConcurrentStreams` specifies the number of concurrent streams per connection that each client is allowed to initiate.
+The `maxConcurrentStreams` value must be greater than zero.
 
-!!! warning "Enabling Experimental HTTP3"
+```yaml tab="File (YAML)"
+entryPoints:
+  foo:
+    http2:
+      maxConcurrentStreams: 250
+```
 
-    As the HTTP3 spec is still in draft, HTTP3 support in Traefik is an experimental feature and needs to be activated 
+```toml tab="File (TOML)"
+[entryPoints.foo]
+  [entryPoints.foo.http2]
+    maxConcurrentStreams = 250
+```
+
+```bash tab="CLI"
+--entryPoints.name.http2.maxConcurrentStreams=250
+```
+
+### HTTP/3
+
+#### `http3`
+
+`http3` enables HTTP/3 protocol on the entryPoint.
+HTTP/3 requires a TCP entryPoint, as HTTP/3 always starts as a TCP connection that then gets upgraded to UDP.
+In most scenarios, this entryPoint is the same as the one used for TLS traffic.
+
+??? info "HTTP/3 uses UDP+TLS"
+
+    As HTTP/3 uses UDP, you can't have a TCP entryPoint with HTTP/3 on the same port as a UDP entryPoint.
+    Since HTTP/3 requires the use of TLS, only routers with TLS enabled will be usable with HTTP/3.
+
+!!! warning "Enabling Experimental HTTP/3"
+
+    As the HTTP/3 spec is still in draft, HTTP/3 support in Traefik is an experimental feature and needs to be activated 
     in the experimental section of the static configuration.
     
     ```yaml tab="File (YAML)"
     experimental:
       http3: true
-    
+
     entryPoints:
       name:
-        enableHTTP3: true
+        http3: {}
     ```
 
     ```toml tab="File (TOML)"
     [experimental]
       http3 = true
     
-    [entryPoints.name]
-      enableHTTP3 = true
+    [entryPoints.name.http3]
     ```
     
     ```bash tab="CLI"
-    --experimental.http3=true --entrypoints.name.enablehttp3=true
+    --experimental.http3=true 
+    --entrypoints.name.http3
+    ```
+
+#### `advertisedPort`
+
+`http3.advertisedPort` defines which UDP port to advertise as the HTTP/3 authority.
+It defaults to the entryPoint's address port.
+It can be used to override the authority in the `alt-svc` header, for example if the public facing port is different from where Traefik is listening.
+
+!!! info "http3.advertisedPort"
+
+    ```yaml tab="File (YAML)"
+    experimental:
+      http3: true
+
+    entryPoints:
+      name:
+        http3:
+          advertisedPort: 443
+    ```
+
+    ```toml tab="File (TOML)"
+    [experimental]
+      http3 = true
+    
+    [entryPoints.name.http3]
+      advertisedPort = 443
+    ```
+    
+    ```bash tab="CLI"
+    --experimental.http3=true 
+    --entrypoints.name.http3.advertisedport=443
     ```
 
 ### Forwarded Headers
@@ -734,7 +805,7 @@ This section is a convenience to enable (permanent) redirecting of all incoming 
 
 ??? info "`entryPoint.priority`"
 
-    _Optional, Default=1_
+    _Optional, Default=MaxInt32-1 (2147483646)_
 
     Priority of the generated router.
 
@@ -896,3 +967,18 @@ entryPoints:
 entrypoints.foo.address=:8000/udp
 entrypoints.foo.udp.timeout=10s
 ```
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

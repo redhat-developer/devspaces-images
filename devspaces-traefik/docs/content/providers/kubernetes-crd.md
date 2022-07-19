@@ -1,3 +1,8 @@
+---
+title: "Kubernetes IngressRoute & Traefik CRD"
+description: "The Traefik team developed a Custom Resource Definition (CRD) for an IngressRoute type, to provide a better way to configure access to a Kubernetes cluster."
+---
+
 # Traefik & Kubernetes
 
 The Kubernetes Ingress Controller, The Custom Resource Way.
@@ -26,15 +31,14 @@ the Traefik engineering team developed a [Custom Resource Definition](https://ku
     
     For Kubernetes `v1.16+`, please use the Traefik `apiextensions.k8s.io/v1` CRDs instead.
 
-??? example "Initializing Resource Definition and RBAC"
+!!! example "Installing Resource Definition and RBAC"
 
-    ```yaml tab="Traefik Resource Definition"
-    # All resources definition must be declared
-    --8<-- "content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
-    ```
-
-    ```yaml tab="RBAC for Traefik CRD"
-    --8<-- "content/reference/dynamic-configuration/kubernetes-crd-rbac.yml"
+    ```bash
+    # Install Traefik Resource Definitions:
+    kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+    
+    # Install RBAC for Traefik:
+    kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
     ```
 
 ## Resource Configuration
@@ -62,7 +66,7 @@ Previous versions of Traefik used a [KV store](https://doc.traefik.io/traefik/v1
 
 If you need Let's Encrypt with HA in a Kubernetes environment, we recommend using [Traefik Enterprise](https://traefik.io/traefik-enterprise/), which includes distributed Let's Encrypt as a supported feature.
 
-If you want to keep using Traefik Proxy, high availability for Let's Encrypt can be achieved by using a Certificate Controller such as [Cert-Manager](https://docs.cert-manager.io/en/latest/index.html).
+If you want to keep using Traefik Proxy, high availability for Let's Encrypt can be achieved by using a Certificate Controller such as [Cert-Manager](https://cert-manager.io/docs/).
 When using Cert-Manager to manage certificates, it creates secrets in your namespaces that can be referenced as TLS secrets in your [ingress objects](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls).
 When using the Traefik Kubernetes CRD Provider, unfortunately Cert-Manager cannot yet interface directly with the CRDs.
 A workaround is to enable the [Kubernetes Ingress provider](./kubernetes-ingress.md) to allow Cert-Manager to create ingress objects to complete the challenges.
@@ -195,13 +199,13 @@ See [label-selectors](https://kubernetes.io/docs/concepts/overview/working-with-
 ```yaml tab="File (YAML)"
 providers:
   kubernetesCRD:
-    labelselector: "app=traefik"
+    labelSelector: "app=traefik"
     # ...
 ```
 
 ```toml tab="File (TOML)"
 [providers.kubernetesCRD]
-  labelselector = "app=traefik"
+  labelSelector = "app=traefik"
   # ...
 ```
 
@@ -264,11 +268,38 @@ providers:
 --providers.kubernetescrd.throttleDuration=10s
 ```
 
+### `allowEmptyServices`
+
+_Optional, Default: false_
+
+If the parameter is set to `true`,
+it allows the creation of an empty [servers load balancer](../routing/services/index.md#servers-load-balancer) if the targeted Kubernetes service has no endpoints available.
+With IngressRoute resources,
+this results in `503` HTTP responses instead of `404` ones.
+
+```yaml tab="File (YAML)"
+providers:
+  kubernetesCRD:
+    allowEmptyServices: true
+    # ...
+```
+
+```toml tab="File (TOML)"
+[providers.kubernetesCRD]
+  allowEmptyServices = true
+  # ...
+```
+
+```bash tab="CLI"
+--providers.kubernetesCRD.allowEmptyServices=true
+```
+
 ### `allowCrossNamespace`
 
 _Optional, Default: false_
 
-If the parameter is set to `true`, IngressRoutes are  able to reference  resources in other namespaces than theirs.
+If the parameter is set to `true`,
+IngressRoute are able to reference resources in namespaces other than theirs.
 
 ```yaml tab="File (YAML)"
 providers:

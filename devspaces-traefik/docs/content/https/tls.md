@@ -1,3 +1,8 @@
+---
+title: "Traefik TLS Documentation"
+description: "Learn how to configure the transport layer security (TLS) connection in Traefik Proxy. Read the technical documentation."
+---
+
 # TLS
 
 Transport Layer Security
@@ -128,6 +133,30 @@ tls:
       keyFile  = "path/to/cert.key"
 ```
 
+```yaml tab="Kubernetes"
+apiVersion: traefik.containo.us/v1alpha1
+kind: TLSStore
+metadata:
+  name: default
+  namespace: default
+
+spec:
+  defaultCertificate:
+    secretName: default-certificate
+    
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: default-certificate
+  namespace: default
+  
+type: Opaque
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=
+```
+
 If no default certificate is provided, Traefik generates and uses a self-signed certificate.
 
 ## TLS Options
@@ -143,11 +172,11 @@ The TLS options allow one to configure some parameters of the TLS connection.
     you must specify the provider namespace, for example:  
     `traefik.http.routers.myrouter.tls.options=myoptions@file`
 
-!!! important "TLSOptions in Kubernetes"
+!!! important "TLSOption in Kubernetes"
 
-    When using the TLSOptions-CRD in Kubernetes, one might setup a default set of options that,
+    When using the [TLSOption resource](../../routing/providers/kubernetes-crd#kind-tlsoption) in Kubernetes, one might setup a default set of options that,
     if not explicitly overwritten, should apply to all ingresses.  
-    To achieve that, you'll have to create a TLSOptions CR with the name `default`.
+    To achieve that, you'll have to create a TLSOption resource with the name `default`.
     There may exist only one TLSOption with the name `default` (across all namespaces) - otherwise they will be dropped.  
     To explicitly use a different TLSOption (and using the Kubernetes Ingress resources)
     you'll have to add an annotation to the Ingress in the following form:
@@ -335,8 +364,9 @@ spec:
 
 ### Strict SNI Checking
 
-With strict SNI checking enabled, Traefik won't allow connections from clients
-that do not specify a server_name extension or don't match any certificate configured on the tlsOption.
+With strict SNI checking enabled, Traefik won't allow connections from clients that do not specify a server_name extension
+or don't match any of the configured certificates.
+The default certificate is irrelevant on that matter.
 
 ```yaml tab="File (YAML)"
 # Dynamic configuration
@@ -397,6 +427,47 @@ metadata:
 
 spec:
   preferServerCipherSuites: true
+```
+
+### ALPN Protocols
+
+_Optional, Default="h2, http/1.1, acme-tls/1"_
+
+This option allows to specify the list of supported application level protocols for the TLS handshake,
+in order of preference.
+If the client supports ALPN, the selected protocol will be one from this list, 
+and the connection will fail if there is no mutually supported protocol.
+
+```yaml tab="File (YAML)"
+# Dynamic configuration
+
+tls:
+  options:
+    default:
+      alpnProtocols:
+        - http/1.1
+        - h2
+```
+
+```toml tab="File (TOML)"
+# Dynamic configuration
+
+[tls.options]
+  [tls.options.default]
+    alpnProtocols = ["http/1.1", "h2"]
+```
+
+```yaml tab="Kubernetes"
+apiVersion: traefik.containo.us/v1alpha1
+kind: TLSOption
+metadata:
+  name: default
+  namespace: default
+
+spec:
+  alpnProtocols:
+    - http/1.1
+    - h2
 ```
 
 ### Client Authentication (mTLS)

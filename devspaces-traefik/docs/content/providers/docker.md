@@ -1,3 +1,8 @@
+---
+title: "Traefik Docker Documentation"
+description: "Learn how to achieve configuration discovery in Traefik through Docker. Read the technical documentation."
+---
+
 # Traefik & Docker
 
 A Story of Labels & Containers
@@ -252,7 +257,7 @@ See the sections [Docker API Access](#docker-api-access) and [Docker Swarm API A
 
     services:
       traefik:
-         image: traefik:v2.5 # The official v2 Traefik docker image
+         image: traefik:v2.8 # The official v2 Traefik docker image
          ports:
            - "80:80"
          volumes:
@@ -427,8 +432,8 @@ _Optional, Default=```Host(`{{ normalize .Name }}`)```_
 
 The `defaultRule` option defines what routing rule to apply to a container if no rule is defined by a label.
 
-It must be a valid [Go template](https://golang.org/pkg/text/template/), and can use
-[sprig template functions](http://masterminds.github.io/sprig/).
+It must be a valid [Go template](https://pkg.go.dev/text/template/), and can use
+[sprig template functions](https://masterminds.github.io/sprig/).
 The container service name can be accessed with the `Name` identifier,
 and the template has access to all the labels defined on this container.
 
@@ -550,11 +555,11 @@ providers:
 
 _Optional, Default=""_
 
-The `constraints` option can be set to an expression that Traefik matches against the container tags to determine whether
-to create any route for that container. If none of the container tags match the expression, no route for that container is
+The `constraints` option can be set to an expression that Traefik matches against the container labels to determine whether
+to create any route for that container. If none of the container labels match the expression, no route for that container is
 created. If the expression is empty, all detected containers are included.
 
-The expression syntax is based on the ```Tag(`tag`)```, and ```TagRegex(`tag`)``` functions,
+The expression syntax is based on the `Label("key", "value")`, and `LabelRegex("key", "value")` functions,
 as well as the usual boolean logic, as shown in examples below.
 
 ??? example "Constraints Expression Examples"
@@ -613,9 +618,14 @@ providers:
 
 _Optional_
 
-#### `tls.ca`
+Defines the TLS configuration used for the secure connection to Docker.
 
-Certificate Authority used for the secure connection to Docker.
+#### `ca`
+
+_Optional_
+
+`ca` is the path to the certificate authority used for the secure connection to Docker,
+it defaults to the system bundle.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -633,37 +643,10 @@ providers:
 --providers.docker.tls.ca=path/to/ca.crt
 ```
 
-#### `tls.caOptional`
+#### `cert`
 
-The value of `tls.caOptional` defines which policy should be used for the secure connection with TLS Client Authentication to Docker.
-
-!!! warning ""
-
-    If `tls.ca` is undefined, this option will be ignored, and no client certificate will be requested during the handshake. Any provided certificate will thus never be verified.
-
-When this option is set to `true`, a client certificate is requested during the handshake but is not required. If a certificate is sent, it is required to be valid.
-
-When this option is set to `false`, a client certificate is requested during the handshake, and at least one valid certificate should be sent by the client.
-
-```yaml tab="File (YAML)"
-providers:
-  docker:
-    tls:
-      caOptional: true
-```
-
-```toml tab="File (TOML)"
-[providers.docker.tls]
-  caOptional = true
-```
-
-```bash tab="CLI"
---providers.docker.tls.caOptional=true
-```
-
-#### `tls.cert`
-
-Public certificate used for the secure connection to Docker.
+`cert` is the path to the public certificate used for the secure connection to Docker.
+When using this option, setting the `key` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -684,9 +667,12 @@ providers:
 --providers.docker.tls.key=path/to/foo.key
 ```
 
-#### `tls.key`
+#### `key`
 
-Private certificate used for the secure connection to Docker.
+_Optional_
+
+`key` is the path to the private key used for the secure connection Docker.
+When using this option, setting the `cert` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -707,7 +693,9 @@ providers:
 --providers.docker.tls.key=path/to/foo.key
 ```
 
-#### `tls.insecureSkipVerify`
+#### `insecureSkipVerify`
+
+_Optional, Default=false_
 
 If `insecureSkipVerify` is `true`, the TLS connection to Docker accepts any certificate presented by the server regardless of the hostnames it covers.
 
@@ -726,3 +714,18 @@ providers:
 ```bash tab="CLI"
 --providers.docker.tls.insecureSkipVerify=true
 ```
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

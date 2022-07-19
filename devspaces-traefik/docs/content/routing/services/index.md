@@ -1,3 +1,8 @@
+---
+title: "Traefik Services Documentation"
+description: "Learn how to configure routing and load balancing in Traefik Proxy to reach Services, which handle incoming requests. Read the technical documentation."
+---
+
 # Services
 
 Configuring How to Reach the Services
@@ -317,14 +322,14 @@ To propagate status changes (e.g. all servers of this service are down) upwards,
 
 Below are the available options for the health check mechanism:
 
-- `path` is appended to the server URL to set the health check endpoint.
-- `scheme`, if defined, will replace the server URL `scheme` for the health check endpoint
-- `hostname`, if defined, will apply `Host` header `hostname` to the health check request.
-- `port`, if defined, will replace the server URL `port` for the health check endpoint.
-- `interval` defines the frequency of the health check calls.
-- `timeout` defines the maximum duration Traefik will wait for a health check request before considering the server failed (unhealthy).
-- `headers` defines custom headers to be sent to the health check endpoint.
-- `followRedirects` defines whether redirects should be followed during the health check calls (default: true).
+- `path` (required), defines the server URL path for the health check endpoint .
+- `scheme` (optional), replaces the server URL `scheme` for the health check endpoint.
+- `hostname` (optional), sets the value of `hostname` in the `Host` header of the health check request.
+- `port` (optional), replaces the server URL `port` for the health check endpoint.
+- `interval` (default: 30s), defines the frequency of the health check calls.
+- `timeout` (default: 5s), defines the maximum duration Traefik will wait for a health check request before considering the server unhealthy.
+- `headers` (optional), defines custom headers to be sent to the health check endpoint.
+- `followRedirects` (default: true), defines whether redirects should be followed during the health check calls.
 
 !!! info "Interval & Timeout Format"
 
@@ -336,11 +341,11 @@ Below are the available options for the health check mechanism:
     Traefik keeps monitoring the health of unhealthy servers.
     If a server has recovered (returning `2xx` -> `3xx` responses again), it will be added back to the load balancer rotation pool.
 
-!!! warning "Health check in Kubernetes"
+!!! warning "Health check with Kubernetes"
 
-    The Traefik health check is not available for `kubernetesCRD` and `kubernetesIngress` providers because Kubernetes
-    already has a health check mechanism.
-    Unhealthy pods will be removed by kubernetes. (cf [liveness documentation](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-liveness-http-request))
+    Kubernetes has an health check mechanism to remove unhealthy pods from Kubernetes services (cf [readiness probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-readiness-probes)).
+    As unhealthy pods have no Kubernetes endpoints, Traefik will not forward traffic to them.
+    Therefore, Traefik health check is not available for `kubernetesCRD` and `kubernetesIngress` providers.
 
 ??? example "Custom Interval & Timeout -- Using the [File Provider](../../providers/file.md)"
 
@@ -606,7 +611,7 @@ metadata:
 
 _Optional_
 
-`insecureSkipVerify` disables SSL certificate verification.
+`insecureSkipVerify` controls whether the server's certificate chain and host name is verified.
 
 ```yaml tab="File (YAML)"
 ## Dynamic configuration
@@ -637,8 +642,7 @@ spec:
 
 _Optional_
 
-`rootCAs` is the list of certificates (as file paths, or data bytes)
-that will be set as Root Certificate Authorities when using a self-signed TLS certificate.
+`rootCAs` defines the set of root certificate authorities (as file paths, or data bytes) to use when verifying server certificates.
 
 ```yaml tab="File (YAML)"
 ## Dynamic configuration
@@ -711,7 +715,7 @@ spec:
 
 _Optional, Default=false_
 
-`disableHTTP2` disables HTTP/2 for connections with backend servers.
+`disableHTTP2` disables HTTP/2 for connections with servers.
 
 ```toml tab="File (TOML)"
 ## Dynamic configuration
@@ -742,7 +746,7 @@ spec:
 
 _Optional, Default=false_
 
-`peerCertURI` defines the URI used to match against SAN URI during the peer certificate verification.
+`peerCertURI` defines the URI used to match against SAN URIs during the server's certificate verification.
 
 ```toml tab="File (TOML)"
 ## Dynamic configuration
@@ -771,7 +775,7 @@ spec:
 
 #### `forwardingTimeouts`
 
-`forwardingTimeouts` is about a number of timeouts relevant to when forwarding requests to the backend servers.
+`forwardingTimeouts` are the timeouts applied when forwarding requests to the servers.
 
 ##### `forwardingTimeouts.dialTimeout`
 
@@ -847,8 +851,7 @@ spec:
 
 _Optional, Default=90s_
 
-`idleConnTimeout`, is the maximum amount of time an idle (keep-alive) connection
-will remain idle before closing itself.
+`idleConnTimeout` is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
 Zero means no limit.
 
 ```yaml tab="File (YAML)"
@@ -876,6 +879,78 @@ metadata:
 spec:
     forwardingTimeouts:
       idleConnTimeout: "1s"
+```
+
+##### `forwardingTimeouts.readIdleTimeout`
+
+_Optional, Default=0s_
+
+`readIdleTimeout` is the timeout after which a health check using ping frame will be carried out
+if no frame is received on the HTTP/2 connection.
+Note that a ping response will be considered a received frame,
+so if there is no other traffic on the connection,
+the health check will be performed every `readIdleTimeout` interval.
+If zero, no health check is performed.
+
+```yaml tab="File (YAML)"
+## Dynamic configuration
+http:
+  serversTransports:
+    mytransport:
+      forwardingTimeouts:
+        readIdleTimeout: "1s"
+```
+
+```toml tab="File (TOML)"
+## Dynamic configuration
+[http.serversTransports.mytransport.forwardingTimeouts]
+  readIdleTimeout = "1s"
+```
+
+```yaml tab="Kubernetes"
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: mytransport
+  namespace: default
+
+spec:
+    forwardingTimeouts:
+      readIdleTimeout: "1s"
+```
+
+##### `forwardingTimeouts.pingTimeout`
+
+_Optional, Default=15s_
+
+`pingTimeout` is the timeout after which the HTTP/2 connection will be closed
+if a response to ping is not received.
+
+```yaml tab="File (YAML)"
+## Dynamic configuration
+http:
+  serversTransports:
+    mytransport:
+      forwardingTimeouts:
+        pingTimeout: "1s"
+```
+
+```toml tab="File (TOML)"
+## Dynamic configuration
+[http.serversTransports.mytransport.forwardingTimeouts]
+  pingTimeout = "1s"
+```
+
+```yaml tab="Kubernetes"
+apiVersion: traefik.containo.us/v1alpha1
+kind: ServersTransport
+metadata:
+  name: mytransport
+  namespace: default
+
+spec:
+    forwardingTimeouts:
+      pingTimeout: "1s"
 ```
 
 ### Weighted Round Robin (service)
@@ -1139,6 +1214,139 @@ http:
         interval = "10s"
         timeout = "3s"
       [[http.services.appv2.loadBalancer.servers]]
+        url = "http://private-ip-server-2/"
+```
+
+### Failover (service)
+
+A failover service job is to forward all requests to a fallback service when the main service becomes unreachable.
+
+!!! info "Relation to HealthCheck"
+
+    The failover service relies on the HealthCheck system to get notified when its main service becomes unreachable,
+    which means HealthCheck needs to be enabled and functional on the main service.
+    However, HealthCheck does not need to be enabled on the failover service itself for it to be functional.
+    It is only required in order to propagate upwards the information when the failover itself becomes down
+    (i.e. both its main and its fallback are down too).
+
+!!! info "Supported Providers"
+
+    This strategy can currently only be defined with the [File](../../providers/file.md) provider.
+
+```yaml tab="YAML"
+## Dynamic configuration
+http:
+  services:
+    app:
+      failover:
+        service: main
+        fallback: backup
+
+    main:
+      loadBalancer:
+        healthCheck:
+          path: /status
+          interval: 10s
+          timeout: 3s
+        servers:
+        - url: "http://private-ip-server-1/"
+
+    backup:
+      loadBalancer:
+        servers:
+        - url: "http://private-ip-server-2/"
+```
+
+```toml tab="TOML"
+## Dynamic configuration
+[http.services]
+  [http.services.app]
+    [http.services.app.failover]
+      service = "main"
+      fallback = "backup"
+
+  [http.services.main]
+    [http.services.main.loadBalancer]
+      [http.services.main.loadBalancer.healthCheck]
+        path = "/health"
+        interval = "10s"
+        timeout = "3s"
+      [[http.services.main.loadBalancer.servers]]
+        url = "http://private-ip-server-1/"
+
+  [http.services.backup]
+    [http.services.backup.loadBalancer]
+      [[http.services.backup.loadBalancer.servers]]
+        url = "http://private-ip-server-2/"
+```
+
+#### Health Check
+
+HealthCheck enables automatic self-healthcheck for this service,
+i.e. if the main and the fallback services become unreachable,
+the information is propagated upwards to its parent.
+
+!!! info "All or nothing"
+
+    If HealthCheck is enabled for a given service, but any of its descendants does
+    not have it enabled, the creation of the service will fail.
+
+    HealthCheck on a Failover service can currently only be defined with the [File](../../providers/file.md) provider.
+
+```yaml tab="YAML"
+## Dynamic configuration
+http:
+  services:
+    app:
+      failover:
+        healthCheck: {}
+        service: main
+        fallback: backup
+
+    main:
+      loadBalancer:
+        healthCheck:
+          path: /status
+          interval: 10s
+          timeout: 3s
+        servers:
+        - url: "http://private-ip-server-1/"
+
+    backup:
+      loadBalancer:
+        healthCheck:
+          path: /status
+          interval: 10s
+          timeout: 3s
+        servers:
+        - url: "http://private-ip-server-2/"
+```
+
+```toml tab="TOML"
+## Dynamic configuration
+[http.services]
+  [http.services.app]
+    [http.services.app.failover.healthCheck]
+    [http.services.app.failover]
+      service = "main"
+      fallback = "backup"
+
+  [http.services.main]
+    [http.services.main.loadBalancer]
+      [http.services.main.loadBalancer.healthCheck]
+        path = "/health"
+        interval = "10s"
+        timeout = "3s"
+      [[http.services.main.loadBalancer.servers]]
+        url = "http://private-ip-server-1/"
+
+  [http.services.backup]
+    [http.services.backup.loadBalancer]
+      [http.services.backup.loadBalancer.healthCheck]
+        path = "/health"
+        interval = "10s"
+        timeout = "3s"
+      [[http.services.backup.loadBalancer.servers]]
         url = "http://private-ip-server-2/"
 ```
 
@@ -1437,3 +1645,18 @@ udp:
       [[udp.services.appv2.loadBalancer.servers]]
         address = "private-ip-server-2:8080/"
 ```
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

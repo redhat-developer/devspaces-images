@@ -1,3 +1,8 @@
+---
+title: "Traefik Etcd Documentation"
+description: "Use Etcd as a provider for configuration discovery in Traefik Proxy. Automate and store your configurations with Etcd. Read the technical documentation."
+---
+
 # Traefik & Etcd
 
 A Story of KV store & Containers
@@ -64,7 +69,7 @@ Defines a username with which to connect to etcd.
 providers:
   etcd:
     # ...
-    usename: "foo"
+    username: "foo"
 ```
 
 ```toml tab="File (TOML)"
@@ -104,9 +109,14 @@ providers:
 
 _Optional_
 
-#### `tls.ca`
+Defines the TLS configuration used for the secure connection to etcd.
 
-Certificate Authority used for the secure connection to etcd.
+#### `ca`
+
+_Optional_
+
+`ca` is the path to the certificate authority used for the secure connection to etcd,
+it defaults to the system bundle.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -124,37 +134,12 @@ providers:
 --providers.etcd.tls.ca=path/to/ca.crt
 ```
 
-#### `tls.caOptional`
+#### `cert`
 
-The value of `tls.caOptional` defines which policy should be used for the secure connection with TLS Client Authentication to etcd.
+_Optional_
 
-!!! warning ""
-
-    If `tls.ca` is undefined, this option will be ignored, and no client certificate will be requested during the handshake. Any provided certificate will thus never be verified.
-
-When this option is set to `true`, a client certificate is requested during the handshake but is not required. If a certificate is sent, it is required to be valid.
-
-When this option is set to `false`, a client certificate is requested during the handshake, and at least one valid certificate should be sent by the client.
-
-```yaml tab="File (YAML)"
-providers:
-  etcd:
-    tls:
-      caOptional: true
-```
-
-```toml tab="File (TOML)"
-[providers.etcd.tls]
-  caOptional = true
-```
-
-```bash tab="CLI"
---providers.etcd.tls.caOptional=true
-```
-
-#### `tls.cert`
-
-Public certificate used for the secure connection to etcd.
+`cert` is the path to the public certificate used for the secure connection to etcd.
+When using this option, setting the `key` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -175,9 +160,12 @@ providers:
 --providers.etcd.tls.key=path/to/foo.key
 ```
 
-#### `tls.key`
+#### `key`
 
-Private certificate used for the secure connection to etcd.
+_Optional_
+
+`key` is the path to the private key used for the secure connection to etcd.
+When using this option, setting the `cert` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -198,7 +186,9 @@ providers:
 --providers.etcd.tls.key=path/to/foo.key
 ```
 
-#### `tls.insecureSkipVerify`
+#### `insecureSkipVerify`
+
+_Optional, Default=false_
 
 If `insecureSkipVerify` is `true`, the TLS connection to etcd accepts any certificate presented by the server regardless of the hostnames it covers.
 

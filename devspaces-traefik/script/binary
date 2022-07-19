@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-if ! test -e autogen/genstatic/gen.go; then
-	echo >&2 'error: generate must be run before binary'
-	false
-fi
-
 rm -f dist/traefik
 
 FLAGS=()
@@ -31,4 +26,4 @@ CGO_ENABLED=0 GOGC=off go build ${FLAGS[*]} -ldflags "-s -w \
     -X github.com/traefik/traefik/v2/pkg/version.Version=$VERSION \
     -X github.com/traefik/traefik/v2/pkg/version.Codename=$CODENAME \
     -X github.com/traefik/traefik/v2/pkg/version.BuildDate=$DATE" \
-    -a -installsuffix nocgo -o dist/traefik ./cmd/traefik
+    -installsuffix nocgo -o dist/traefik ./cmd/traefik

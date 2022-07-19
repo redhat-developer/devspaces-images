@@ -1,3 +1,8 @@
+---
+title: "Traefik Configuration for Marathon"
+description: "Traefik Proxy can be configured to use Marathon as a provider. Read the technical documentation to learn how."
+---
+
 # Traefik & Marathon
 
 Traefik can be configured to use Marathon as a provider.
@@ -113,8 +118,8 @@ The default host rule for all services.
 
 For a given application, if no routing rule was defined by a label, it is defined by this `defaultRule` instead.
 
-It must be a valid [Go template](https://golang.org/pkg/text/template/),
-and can include [sprig template functions](http://masterminds.github.io/sprig/).
+It must be a valid [Go template](https://pkg.go.dev/text/template/),
+and can include [sprig template functions](https://masterminds.github.io/sprig/).
 
 The app ID can be accessed with the `Name` identifier,
 and the template has access to all the labels defined on this Marathon application.
@@ -404,9 +409,12 @@ providers:
 
 _Optional_
 
-#### `tls.ca`
+Defines the TLS configuration used for the secure connection to Marathon.
 
-Certificate Authority used for the secure connection to Marathon.
+#### `ca`
+
+`ca` is the path to the certificate authority used for the secure connection to Marathon,
+it defaults to the system bundle.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -424,37 +432,12 @@ providers:
 --providers.marathon.tls.ca=path/to/ca.crt
 ```
 
-#### `tls.caOptional`
+#### `cert`
 
-The value of `tls.caOptional` defines which policy should be used for the secure connection with TLS Client Authentication to Marathon.
+_Optional_
 
-!!! warning ""
-
-    If `tls.ca` is undefined, this option will be ignored, and no client certificate will be requested during the handshake. Any provided certificate will thus never be verified.
-
-When this option is set to `true`, a client certificate is requested during the handshake but is not required. If a certificate is sent, it is required to be valid.
-
-When this option is set to `false`, a client certificate is requested during the handshake, and at least one valid certificate should be sent by the client.
-
-```yaml tab="File (YAML)"
-providers:
-  marathon:
-    tls:
-      caOptional: true
-```
-
-```toml tab="File (TOML)"
-[providers.marathon.tls]
-  caOptional = true
-```
-
-```bash tab="CLI"
---providers.marathon.tls.caOptional=true
-```
-
-#### `tls.cert`
-
-Public certificate used for the secure connection to Marathon.
+`cert` is the path to the public certificate used for the secure connection to Marathon.
+When using this option, setting the `key` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -475,9 +458,12 @@ providers:
 --providers.marathon.tls.key=path/to/foo.key
 ```
 
-#### `tls.key`
+#### `key`
 
-Private certificate used for the secure connection to Marathon.
+_Optional_
+
+`key` is the path to the private key used for the secure connection to Marathon.
+When using this option, setting the `cert` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -498,7 +484,9 @@ providers:
 --providers.marathon.tls.key=path/to/foo.key
 ```
 
-#### `tls.insecureSkipVerify`
+#### `insecureSkipVerify`
+
+_Optional, Default=false_
 
 If `insecureSkipVerify` is `true`, the TLS connection to Marathon accepts any certificate presented by the server regardless of the hostnames it covers.
 
@@ -531,18 +519,18 @@ see [time.ParseDuration](https://golang.org/pkg/time/#ParseDuration).
 ```yaml tab="File (YAML)"
 providers:
   marathon:
-    responseHeaderTimeout: "10s"
+    tlsHandshakeTimeout: "10s"
     # ...
 ```
 
 ```toml tab="File (TOML)"
 [providers.marathon]
-  responseHeaderTimeout = "10s"
+  tlsHandshakeTimeout = "10s"
   # ...
 ```
 
 ```bash tab="CLI"
---providers.marathon.responseHeaderTimeout=10s
+--providers.marathon.tlsHandshakeTimeout=10s
 # ...
 ```
 

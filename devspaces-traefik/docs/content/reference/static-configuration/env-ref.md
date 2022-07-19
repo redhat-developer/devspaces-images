@@ -54,6 +54,9 @@ Certificates resolvers configuration. (Default: ```false```)
 `TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_CASERVER`:  
 CA server to use. (Default: ```https://acme-v02.api.letsencrypt.org/directory```)
 
+`TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_CERTIFICATESDURATION`:  
+Certificates' duration in hours. (Default: ```2160```)
+
 `TRAEFIK_CERTIFICATESRESOLVERS_<NAME>_ACME_DNSCHALLENGE`:  
 Activate DNS-01 Challenge. (Default: ```false```)
 
@@ -102,9 +105,6 @@ Entry points definition. (Default: ```false```)
 `TRAEFIK_ENTRYPOINTS_<NAME>_ADDRESS`:  
 Entry point address.
 
-`TRAEFIK_ENTRYPOINTS_<NAME>_ENABLEHTTP3`:  
-Enable HTTP3. (Default: ```false```)
-
 `TRAEFIK_ENTRYPOINTS_<NAME>_FORWARDEDHEADERS_INSECURE`:  
 Trust all forwarded headers. (Default: ```false```)
 
@@ -113,6 +113,15 @@ Trust only forwarded headers from selected IPs.
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP`:  
 HTTP configuration.
+
+`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP2_MAXCONCURRENTSTREAMS`:  
+Specifies the number of concurrent streams per connection that each client is allowed to initiate. (Default: ```250```)
+
+`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP3`:  
+HTTP/3 configuration. (Default: ```false```)
+
+`TRAEFIK_ENTRYPOINTS_<NAME>_HTTP3_ADVERTISEDPORT`:  
+UDP port to advertise, on which HTTP/3 is available. (Default: ```0```)
 
 `TRAEFIK_ENTRYPOINTS_<NAME>_HTTP_MIDDLEWARES`:  
 Default middlewares for the routers linked to the entry point.
@@ -177,6 +186,9 @@ Timeout defines how long to wait on an idle session before releasing the related
 `TRAEFIK_EXPERIMENTAL_HTTP3`:  
 Enable HTTP3. (Default: ```false```)
 
+`TRAEFIK_EXPERIMENTAL_HUB`:  
+Enable the Traefik Hub provider. (Default: ```false```)
+
 `TRAEFIK_EXPERIMENTAL_KUBERNETESGATEWAY`:  
 Allow the Kubernetes gateway api provider usage. (Default: ```false```)
 
@@ -210,6 +222,21 @@ resolv.conf used for DNS resolving (Default: ```/etc/resolv.conf```)
 `TRAEFIK_HOSTRESOLVER_RESOLVDEPTH`:  
 The maximal depth of DNS recursive resolving (Default: ```5```)
 
+`TRAEFIK_HUB`:  
+Traefik Hub configuration. (Default: ```false```)
+
+`TRAEFIK_HUB_TLS_CA`:  
+The certificate authority authenticates the Traefik Hub Agent certificate.
+
+`TRAEFIK_HUB_TLS_CERT`:  
+The TLS certificate for Traefik Proxy as a TLS client.
+
+`TRAEFIK_HUB_TLS_INSECURE`:  
+Enables an insecure TLS connection that uses default credentials, and which has no peer authentication between Traefik Proxy and the Traefik Hub Agent. (Default: ```false```)
+
+`TRAEFIK_HUB_TLS_KEY`:  
+The TLS key for Traefik Proxy as a TLS client.
+
 `TRAEFIK_LOG`:  
 Traefik log settings. (Default: ```false```)
 
@@ -237,14 +264,50 @@ Enable metrics on routers. (Default: ```false```)
 `TRAEFIK_METRICS_DATADOG_ADDSERVICESLABELS`:  
 Enable metrics on services. (Default: ```true```)
 
+`TRAEFIK_METRICS_DATADOG_PREFIX`:  
+Prefix to use for metrics collection. (Default: ```traefik```)
+
 `TRAEFIK_METRICS_DATADOG_PUSHINTERVAL`:  
 Datadog push interval. (Default: ```10```)
 
 `TRAEFIK_METRICS_INFLUXDB`:  
 InfluxDB metrics exporter type. (Default: ```false```)
 
+`TRAEFIK_METRICS_INFLUXDB2`:  
+InfluxDB v2 metrics exporter type. (Default: ```false```)
+
+`TRAEFIK_METRICS_INFLUXDB2_ADDENTRYPOINTSLABELS`:  
+Enable metrics on entry points. (Default: ```true```)
+
+`TRAEFIK_METRICS_INFLUXDB2_ADDITIONALLABELS_<NAME>`:  
+Additional labels (influxdb tags) on all metrics
+
+`TRAEFIK_METRICS_INFLUXDB2_ADDRESS`:  
+InfluxDB v2 address. (Default: ```http://localhost:8086```)
+
+`TRAEFIK_METRICS_INFLUXDB2_ADDROUTERSLABELS`:  
+Enable metrics on routers. (Default: ```false```)
+
+`TRAEFIK_METRICS_INFLUXDB2_ADDSERVICESLABELS`:  
+Enable metrics on services. (Default: ```true```)
+
+`TRAEFIK_METRICS_INFLUXDB2_BUCKET`:  
+InfluxDB v2 bucket ID.
+
+`TRAEFIK_METRICS_INFLUXDB2_ORG`:  
+InfluxDB v2 org ID.
+
+`TRAEFIK_METRICS_INFLUXDB2_PUSHINTERVAL`:  
+InfluxDB v2 push interval. (Default: ```10```)
+
+`TRAEFIK_METRICS_INFLUXDB2_TOKEN`:  
+InfluxDB v2 access token.
+
 `TRAEFIK_METRICS_INFLUXDB_ADDENTRYPOINTSLABELS`:  
 Enable metrics on entry points. (Default: ```true```)
+
+`TRAEFIK_METRICS_INFLUXDB_ADDITIONALLABELS_<NAME>`:  
+Additional labels (influxdb tags) on all metrics
 
 `TRAEFIK_METRICS_INFLUXDB_ADDRESS`:  
 InfluxDB address. (Default: ```localhost:8089```)
@@ -393,11 +456,17 @@ Token is used to provide a per-request ACL token which overrides the agent's def
 `TRAEFIK_PROVIDERS_CONSULCATALOG_EXPOSEDBYDEFAULT`:  
 Expose containers by default. (Default: ```true```)
 
+`TRAEFIK_PROVIDERS_CONSULCATALOG_NAMESPACE`:  
+Sets the namespace used to discover services (Consul Enterprise only).
+
+`TRAEFIK_PROVIDERS_CONSULCATALOG_NAMESPACES`:  
+Sets the namespaces used to discover services (Consul Enterprise only).
+
 `TRAEFIK_PROVIDERS_CONSULCATALOG_PREFIX`:  
-Prefix for consul service tags. Default 'traefik' (Default: ```traefik```)
+Prefix for consul service tags. (Default: ```traefik```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_REFRESHINTERVAL`:  
-Interval for check Consul API. Default 15s (Default: ```15```)
+Interval for check Consul API. (Default: ```15```)
 
 `TRAEFIK_PROVIDERS_CONSULCATALOG_REQUIRECONSISTENT`:  
 Forces the read to be fully consistent. (Default: ```false```)
@@ -408,8 +477,17 @@ Name of the Traefik service in Consul Catalog (needs to be registered via the or
 `TRAEFIK_PROVIDERS_CONSULCATALOG_STALE`:  
 Use stale consistency for catalog reads. (Default: ```false```)
 
+`TRAEFIK_PROVIDERS_CONSULCATALOG_WATCH`:  
+Watch Consul API events. (Default: ```false```)
+
 `TRAEFIK_PROVIDERS_CONSUL_ENDPOINTS`:  
 KV store endpoints (Default: ```127.0.0.1:8500```)
+
+`TRAEFIK_PROVIDERS_CONSUL_NAMESPACE`:  
+Sets the namespace used to discover the configuration (Consul Enterprise only).
+
+`TRAEFIK_PROVIDERS_CONSUL_NAMESPACES`:  
+Sets the namespaces used to discover the configuration (Consul Enterprise only).
 
 `TRAEFIK_PROVIDERS_CONSUL_PASSWORD`:  
 KV Password
@@ -431,6 +509,9 @@ TLS insecure skip verify (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_CONSUL_TLS_KEY`:  
 TLS key
+
+`TRAEFIK_PROVIDERS_CONSUL_TOKEN`:  
+KV Token
 
 `TRAEFIK_PROVIDERS_CONSUL_USERNAME`:  
 KV Username
@@ -540,6 +621,9 @@ TLS insecure skip verify (Default: ```false```)
 `TRAEFIK_PROVIDERS_ETCD_TLS_KEY`:  
 TLS key
 
+`TRAEFIK_PROVIDERS_ETCD_TOKEN`:  
+KV Token
+
 `TRAEFIK_PROVIDERS_ETCD_USERNAME`:  
 KV Username
 
@@ -587,6 +671,9 @@ Enable Kubernetes backend with default settings. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_KUBERNETESCRD_ALLOWCROSSNAMESPACE`:  
 Allow cross namespace resource reference. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_KUBERNETESCRD_ALLOWEMPTYSERVICES`:  
+Allow the creation of services without endpoints. (Default: ```false```)
 
 `TRAEFIK_PROVIDERS_KUBERNETESCRD_ALLOWEXTERNALNAMESERVICES`:  
 Allow ExternalName services. (Default: ```false```)
@@ -735,6 +822,57 @@ Display additional provider logs. (Default: ```false```)
 `TRAEFIK_PROVIDERS_MARATHON_WATCH`:  
 Watch provider. (Default: ```true```)
 
+`TRAEFIK_PROVIDERS_NOMAD`:  
+Enable Nomad backend with default settings. (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_NOMAD_CONSTRAINTS`:  
+Constraints is an expression that Traefik matches against the Nomad service's tags to determine whether to create route(s) for that service.
+
+`TRAEFIK_PROVIDERS_NOMAD_DEFAULTRULE`:  
+Default rule. (Default: ```Host(`{{ normalize .Name }}`)```)
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_ADDRESS`:  
+The address of the Nomad server, including scheme and port.
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_ENDPOINTWAITTIME`:  
+WaitTime limits how long a Watch will block. If not provided, the agent default values will be used (Default: ```0```)
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_REGION`:  
+Nomad region to use. If not provided, the local agent region is used.
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_TLS_CA`:  
+TLS CA
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_TLS_CAOPTIONAL`:  
+TLS CA.Optional (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_TLS_CERT`:  
+TLS cert
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_TLS_INSECURESKIPVERIFY`:  
+TLS insecure skip verify (Default: ```false```)
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_TLS_KEY`:  
+TLS key
+
+`TRAEFIK_PROVIDERS_NOMAD_ENDPOINT_TOKEN`:  
+Token is used to provide a per-request ACL token.
+
+`TRAEFIK_PROVIDERS_NOMAD_EXPOSEDBYDEFAULT`:  
+Expose Nomad services by default. (Default: ```true```)
+
+`TRAEFIK_PROVIDERS_NOMAD_NAMESPACE`:  
+Sets the Nomad namespace used to discover services.
+
+`TRAEFIK_PROVIDERS_NOMAD_PREFIX`:  
+Prefix for nomad service tags. (Default: ```traefik```)
+
+`TRAEFIK_PROVIDERS_NOMAD_REFRESHINTERVAL`:  
+Interval for polling Nomad API. (Default: ```15```)
+
+`TRAEFIK_PROVIDERS_NOMAD_STALE`:  
+Use stale consistency for catalog reads. (Default: ```false```)
+
 `TRAEFIK_PROVIDERS_PLUGIN_<NAME>`:  
 Plugins configuration.
 
@@ -795,6 +933,9 @@ TLS insecure skip verify (Default: ```false```)
 `TRAEFIK_PROVIDERS_REDIS_TLS_KEY`:  
 TLS key
 
+`TRAEFIK_PROVIDERS_REDIS_TOKEN`:  
+KV Token
+
 `TRAEFIK_PROVIDERS_REDIS_USERNAME`:  
 KV Username
 
@@ -831,6 +972,9 @@ TLS insecure skip verify (Default: ```false```)
 `TRAEFIK_PROVIDERS_ZOOKEEPER_TLS_KEY`:  
 TLS key
 
+`TRAEFIK_PROVIDERS_ZOOKEEPER_TOKEN`:  
+KV Token
+
 `TRAEFIK_PROVIDERS_ZOOKEEPER_USERNAME`:  
 KV Username
 
@@ -859,76 +1003,79 @@ OpenTracing configuration. (Default: ```false```)
 Settings for Datadog. (Default: ```false```)
 
 `TRAEFIK_TRACING_DATADOG_BAGAGEPREFIXHEADERNAME`:  
-Specifies the header name prefix that will be used to store baggage items in a map.
+Sets the header name prefix used to store baggage items in a map.
 
 `TRAEFIK_TRACING_DATADOG_DEBUG`:  
-Enable Datadog debug. (Default: ```false```)
+Enables Datadog debug. (Default: ```false```)
 
 `TRAEFIK_TRACING_DATADOG_GLOBALTAG`:  
-Key:Value tag to be set on all the spans.
+Sets a key:value tag on all spans.
 
 `TRAEFIK_TRACING_DATADOG_LOCALAGENTHOSTPORT`:  
-Set datadog-agent's host:port that the reporter will used. (Default: ```localhost:8126```)
+Sets the Datadog Agent host:port. (Default: ```localhost:8126```)
 
 `TRAEFIK_TRACING_DATADOG_PARENTIDHEADERNAME`:  
-Specifies the header name that will be used to store the parent ID.
+Sets the header name used to store the parent ID.
 
 `TRAEFIK_TRACING_DATADOG_PRIORITYSAMPLING`:  
-Enable priority sampling. When using distributed tracing, this option must be enabled in order to get all the parts of a distributed trace sampled. (Default: ```false```)
+Enables priority sampling. When using distributed tracing, this option must be enabled in order to get all the parts of a distributed trace sampled. (Default: ```false```)
 
 `TRAEFIK_TRACING_DATADOG_SAMPLINGPRIORITYHEADERNAME`:  
-Specifies the header name that will be used to store the sampling priority.
+Sets the header name used to store the sampling priority.
 
 `TRAEFIK_TRACING_DATADOG_TRACEIDHEADERNAME`:  
-Specifies the header name that will be used to store the trace ID.
+Sets the header name used to store the trace ID.
 
 `TRAEFIK_TRACING_ELASTIC`:  
 Settings for Elastic. (Default: ```false```)
 
 `TRAEFIK_TRACING_ELASTIC_SECRETTOKEN`:  
-Set the token used to connect to Elastic APM Server.
+Sets the token used to connect to Elastic APM Server.
 
 `TRAEFIK_TRACING_ELASTIC_SERVERURL`:  
-Set the URL of the Elastic APM server.
+Sets the URL of the Elastic APM server.
 
 `TRAEFIK_TRACING_ELASTIC_SERVICEENVIRONMENT`:  
-Set the name of the environment Traefik is deployed in, e.g. 'production' or 'staging'.
+Sets the name of the environment Traefik is deployed in, e.g. 'production' or 'staging'.
 
 `TRAEFIK_TRACING_HAYSTACK`:  
 Settings for Haystack. (Default: ```false```)
 
 `TRAEFIK_TRACING_HAYSTACK_BAGGAGEPREFIXHEADERNAME`:  
-Specifies the header name prefix that will be used to store baggage items in a map.
+Sets the header name prefix used to store baggage items in a map.
 
 `TRAEFIK_TRACING_HAYSTACK_GLOBALTAG`:  
-Key:Value tag to be set on all the spans.
+Sets a key:value tag on all spans.
 
 `TRAEFIK_TRACING_HAYSTACK_LOCALAGENTHOST`:  
-Set haystack-agent's host that the reporter will used. (Default: ```127.0.0.1```)
+Sets the Haystack Agent host. (Default: ```127.0.0.1```)
 
 `TRAEFIK_TRACING_HAYSTACK_LOCALAGENTPORT`:  
-Set haystack-agent's port that the reporter will used. (Default: ```35000```)
+Sets the Haystack Agent port. (Default: ```35000```)
 
 `TRAEFIK_TRACING_HAYSTACK_PARENTIDHEADERNAME`:  
-Specifies the header name that will be used to store the parent ID.
+Sets the header name used to store the parent ID.
 
 `TRAEFIK_TRACING_HAYSTACK_SPANIDHEADERNAME`:  
-Specifies the header name that will be used to store the span ID.
+Sets the header name used to store the span ID.
 
 `TRAEFIK_TRACING_HAYSTACK_TRACEIDHEADERNAME`:  
-Specifies the header name that will be used to store the trace ID.
+Sets the header name used to store the trace ID.
 
 `TRAEFIK_TRACING_INSTANA`:  
 Settings for Instana. (Default: ```false```)
 
+`TRAEFIK_TRACING_INSTANA_ENABLEAUTOPROFILE`:  
+Enables automatic profiling for the Traefik process. (Default: ```false```)
+
 `TRAEFIK_TRACING_INSTANA_LOCALAGENTHOST`:  
-Set instana-agent's host that the reporter will used.
+Sets the Instana Agent host.
 
 `TRAEFIK_TRACING_INSTANA_LOCALAGENTPORT`:  
-Set instana-agent's port that the reporter will used. (Default: ```42699```)
+Sets the Instana Agent port. (Default: ```42699```)
 
 `TRAEFIK_TRACING_INSTANA_LOGLEVEL`:  
-Set instana-agent's log level. ('error','warn','info','debug') (Default: ```info```)
+Sets the log level for the Instana tracer. ('error','warn','info','debug') (Default: ```info```)
 
 `TRAEFIK_TRACING_JAEGER`:  
 Settings for Jaeger. (Default: ```false```)
@@ -943,28 +1090,28 @@ Password for basic http authentication when sending spans to jaeger-collector.
 User for basic http authentication when sending spans to jaeger-collector.
 
 `TRAEFIK_TRACING_JAEGER_DISABLEATTEMPTRECONNECTING`:  
-Disable the periodic re-resolution of the agent's hostname and reconnection if there was a change. (Default: ```true```)
+Disables the periodic re-resolution of the agent's hostname and reconnection if there was a change. (Default: ```true```)
 
 `TRAEFIK_TRACING_JAEGER_GEN128BIT`:  
-Generate 128 bit span IDs. (Default: ```false```)
+Generates 128 bits span IDs. (Default: ```false```)
 
 `TRAEFIK_TRACING_JAEGER_LOCALAGENTHOSTPORT`:  
-Set jaeger-agent's host:port that the reporter will used. (Default: ```127.0.0.1:6831```)
+Sets the Jaeger Agent host:port. (Default: ```127.0.0.1:6831```)
 
 `TRAEFIK_TRACING_JAEGER_PROPAGATION`:  
-Which propagation format to use (jaeger/b3). (Default: ```jaeger```)
+Sets the propagation format (jaeger/b3). (Default: ```jaeger```)
 
 `TRAEFIK_TRACING_JAEGER_SAMPLINGPARAM`:  
-Set the sampling parameter. (Default: ```1.000000```)
+Sets the sampling parameter. (Default: ```1.000000```)
 
 `TRAEFIK_TRACING_JAEGER_SAMPLINGSERVERURL`:  
-Set the sampling server url. (Default: ```http://localhost:5778/sampling```)
+Sets the sampling server URL. (Default: ```http://localhost:5778/sampling```)
 
 `TRAEFIK_TRACING_JAEGER_SAMPLINGTYPE`:  
-Set the sampling type. (Default: ```const```)
+Sets the sampling type. (Default: ```const```)
 
 `TRAEFIK_TRACING_JAEGER_TRACECONTEXTHEADERNAME`:  
-Set the header to use for the trace-id. (Default: ```uber-trace-id```)
+Sets the header name used to store the trace ID. (Default: ```uber-trace-id```)
 
 `TRAEFIK_TRACING_SERVICENAME`:  
 Set the name for this service. (Default: ```traefik```)
@@ -976,13 +1123,13 @@ Set the maximum character limit for Span names (default 0 = no limit). (Default:
 Settings for Zipkin. (Default: ```false```)
 
 `TRAEFIK_TRACING_ZIPKIN_HTTPENDPOINT`:  
-HTTP Endpoint to report traces to. (Default: ```http://localhost:9411/api/v2/spans```)
+Sets the HTTP Endpoint to report traces to. (Default: ```http://localhost:9411/api/v2/spans```)
 
 `TRAEFIK_TRACING_ZIPKIN_ID128BIT`:  
-Use Zipkin 128 bit root span IDs. (Default: ```true```)
+Uses 128 bits root span IDs. (Default: ```true```)
 
 `TRAEFIK_TRACING_ZIPKIN_SAMESPAN`:  
-Use Zipkin SameSpan RPC style traces. (Default: ```false```)
+Uses SameSpan RPC style traces. (Default: ```false```)
 
 `TRAEFIK_TRACING_ZIPKIN_SAMPLERATE`:  
-The rate between 0.0 and 1.0 of requests to trace. (Default: ```1.000000```)
+Sets the rate between 0.0 and 1.0 of requests to trace. (Default: ```1.000000```)

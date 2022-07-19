@@ -866,17 +866,21 @@
           <q-card-section v-if="middleware.passTLSClientCert && middleware.passTLSClientCert.info && middleware.passTLSClientCert.info.subject">
             <div class="row items-start no-wrap">
               <div class="col">
-                <div class="text-subtitle2">Common Name</div>
-                <boolean-state :value="!!exData(middleware).info.subject.commonName"/>
+                <div class="text-subtitle2">Organizational Unit</div>
+                <boolean-state :value="!!exData(middleware).info.subject.organizationalUnit"/>
               </div>
               <div class="col">
-                <div class="text-subtitle2">Serial Number</div>
-                <boolean-state :value="!!exData(middleware).info.subject.serialNumber"/>
+                <div class="text-subtitle2">Common Name</div>
+                <boolean-state :value="!!exData(middleware).info.subject.commonName"/>
               </div>
             </div>
           </q-card-section>
           <q-card-section v-if="middleware.passTLSClientCert && middleware.passTLSClientCert.info && middleware.passTLSClientCert.info.subject">
             <div class="row items-start no-wrap">
+              <div class="col">
+                <div class="text-subtitle2">Serial Number</div>
+                <boolean-state :value="!!exData(middleware).info.subject.serialNumber"/>
+              </div>
               <div class="col">
                 <div class="text-subtitle2">Domain Component</div>
                 <boolean-state :value="!!exData(middleware).info.subject.domainComponent"/>
@@ -937,8 +941,9 @@
                 <div class="text-subtitle2">Regex</div>
                 <q-chip
                   dense
-                  class="app-chip app-chip-green">
+                  class="app-chip app-chip-green app-chip-overflow">
                   {{ exData(middleware).regex }}
+                  <q-tooltip>{{ exData(middleware).regex }}</q-tooltip>
                 </q-chip>
               </div>
             </div>
@@ -950,8 +955,9 @@
                 <div class="text-subtitle2">Replacement</div>
                 <q-chip
                   dense
-                  class="app-chip app-chip-green">
+                  class="app-chip app-chip-green app-chip-overflow">
                   {{ exData(middleware).replacement }}
+                  <q-tooltip>{{ exData(middleware).replacement }}</q-tooltip>
                 </q-chip>
               </div>
             </div>
@@ -1001,8 +1007,9 @@
                 <div class="text-subtitle2">Regex</div>
                 <q-chip
                   dense
-                  class="app-chip app-chip-green">
+                  class="app-chip app-chip-green app-chip-overflow">
                   {{ exData(middleware).regex }}
+                  <q-tooltip>{{ exData(middleware).regex }}</q-tooltip>
                 </q-chip>
               </div>
             </div>
@@ -1014,8 +1021,9 @@
                 <div class="text-subtitle2">Replacement</div>
                 <q-chip
                   dense
-                  class="app-chip app-chip-green">
+                  class="app-chip app-chip-green app-chip-overflow">
                   {{ exData(middleware).replacement }}
+                  <q-tooltip>{{ exData(middleware).replacement }}</q-tooltip>
                 </q-chip>
               </div>
             </div>
@@ -1058,8 +1066,9 @@
                 <q-chip
                   v-for="(exp, key) in exData(middleware).regex" :key="key"
                   dense
-                  class="app-chip app-chip-green">
+                  class="app-chip app-chip-green app-chip-overflow">
                   {{ exp }}
+                  <q-tooltip>{{ exp }}</q-tooltip>
                 </q-chip>
               </div>
             </div>
@@ -1133,8 +1142,14 @@ export default {
     getProviderLogoPath (provider) {
       const name = provider.toLowerCase()
 
-      if (name.includes('plugin-')) {
+      if (name.startsWith('plugin-')) {
         return 'statics/providers/plugin.svg'
+      }
+      if (name.startsWith('consul-')) {
+        return `statics/providers/consul.svg`
+      }
+      if (name.startsWith('consulcatalog-')) {
+        return `statics/providers/consulcatalog.svg`
       }
 
       return `statics/providers/${name}.svg`

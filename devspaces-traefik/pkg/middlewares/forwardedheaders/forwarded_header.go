@@ -142,6 +142,9 @@ func (x *XForwarded) rewrite(outreq *http.Request) {
 
 	xfProto := unsafeHeader(outreq.Header).Get(xForwardedProto)
 	if xfProto == "" {
+		// TODO: is this expected to set the X-Forwarded-Proto header value to
+		// ws(s) as the underlying request used to upgrade the connection is
+		// made over HTTP(S)?
 		if isWebsocketRequest(outreq) {
 			if outreq.TLS != nil {
 				unsafeHeader(outreq.Header).Set(xForwardedProto, "wss")
@@ -163,6 +166,12 @@ func (x *XForwarded) rewrite(outreq *http.Request) {
 
 	if xfHost := unsafeHeader(outreq.Header).Get(xForwardedHost); xfHost == "" && outreq.Host != "" {
 		unsafeHeader(outreq.Header).Set(xForwardedHost, outreq.Host)
+	}
+
+	// Per https://www.rfc-editor.org/rfc/rfc2616#section-4.2, the Forwarded IPs list is in
+	// the same order as the values in the X-Forwarded-For header(s).
+	if xffs := unsafeHeader(outreq.Header).Values(xForwardedFor); len(xffs) > 0 {
+		unsafeHeader(outreq.Header).Set(xForwardedFor, strings.Join(xffs, ", "))
 	}
 
 	if x.hostname != "" {
@@ -196,6 +205,10 @@ func (h unsafeHeader) Get(key string) string {
 		return ""
 	}
 	return h[key][0]
+}
+
+func (h unsafeHeader) Values(key string) []string {
+	return h[key]
 }
 
 func (h unsafeHeader) Del(key string) {

@@ -1,3 +1,8 @@
+---
+title: "Traefik Redis Documentation"
+description: "For configuration discovery in Traefik Proxy, you can store your configurations in Redis. Read the technical documentation."
+---
+
 # Traefik & Redis
 
 A Story of KV store & Containers
@@ -15,7 +20,7 @@ See the dedicated section in [routing](../routing/providers/kv.md).
 
 _Required, Default="127.0.0.1:6379"_
 
-Defines how to access to Redis.
+Defines how to access Redis.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -64,7 +69,7 @@ Defines a username to connect with Redis.
 providers:
   redis:
     # ...
-    usename: "foo"
+    username: "foo"
 ```
 
 ```toml tab="File (TOML)"
@@ -104,9 +109,14 @@ providers:
 
 _Optional_
 
-#### `tls.ca`
+Defines the TLS configuration used for the secure connection to Redis.
 
-Certificate Authority used for the secure connection to Redis.
+#### `ca`
+
+_Optional_
+
+`ca` is the path to the certificate authority used for the secure connection to Redis,
+it defaults to the system bundle.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -124,37 +134,12 @@ providers:
 --providers.redis.tls.ca=path/to/ca.crt
 ```
 
-#### `tls.caOptional`
+#### `cert`
 
-The value of `tls.caOptional` defines which policy should be used for the secure connection with TLS Client Authentication to Redis.
+_Optional_
 
-!!! warning ""
-
-    If `tls.ca` is undefined, this option will be ignored, and no client certificate will be requested during the handshake. Any provided certificate will thus never be verified.
-
-When this option is set to `true`, a client certificate is requested during the handshake but is not required. If a certificate is sent, it is required to be valid.
-
-When this option is set to `false`, a client certificate is requested during the handshake, and at least one valid certificate should be sent by the client.
-
-```yaml tab="File (YAML)"
-providers:
-  redis:
-    tls:
-      caOptional: true
-```
-
-```toml tab="File (TOML)"
-[providers.redis.tls]
-  caOptional = true
-```
-
-```bash tab="CLI"
---providers.redis.tls.caOptional=true
-```
-
-#### `tls.cert`
-
-Public certificate used for the secure connection to Redis.
+`cert` is the path to the public certificate used for the secure connection to Redis.
+When using this option, setting the `key` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -175,9 +160,12 @@ providers:
 --providers.redis.tls.key=path/to/foo.key
 ```
 
-#### `tls.key`
+#### `key`
 
-Private certificate used for the secure connection to Redis.
+_Optional_
+
+`key` is the path to the private key used for the secure connection to Redis.
+When using this option, setting the `cert` option is required.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -198,7 +186,9 @@ providers:
 --providers.redis.tls.key=path/to/foo.key
 ```
 
-#### `tls.insecureSkipVerify`
+#### `insecureSkipVerify`
+
+_Optional, Default=false_
 
 If `insecureSkipVerify` is `true`, the TLS connection to Redis accepts any certificate presented by the server regardless of the hostnames it covers.
 

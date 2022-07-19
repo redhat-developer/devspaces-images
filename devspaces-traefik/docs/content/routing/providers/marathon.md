@@ -1,3 +1,8 @@
+---
+title: "Traefik Routing Configuration for Marathon"
+description: "Traefik Proxy can be configured to use Marathon as a provider. Read the technical documentation to understand the Traefik routing configuration for Marathon."
+---
+
 # Traefik & Marathon
 
 Traefik can be configured to use Marathon as a provider.
@@ -410,6 +415,14 @@ You can declare TCP Routers and/or Services using labels.
     
     ```json
     "traefik.tcp.routers.mytcprouter.tls.passthrough": "true"
+    ```
+
+??? info "`traefik.tcp.routers.<router_name>.priority`"
+
+    See [priority](../routers/index.md#priority_1) for more information.
+    
+    ```json
+    "traefik.tcp.routers.myrouter.priority": "42"
     ```
 
 #### TCP Services

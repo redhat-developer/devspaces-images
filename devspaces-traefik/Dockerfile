@@ -17,7 +17,7 @@ ENTRYPOINT ["/traefik"]
 
 ENV SUMMARY="Red Hat OpenShift Dev Spaces traefik container" \
     DESCRIPTION="Red Hat OpenShift Dev Spaces traefik container" \
-    TRAEFIK_VERSION="v2.5.0" \
+    TRAEFIK_VERSION="v2.8.1" \
     GOLANG_VERSION="1.16.2" \
     PRODNAME="devspaces" \
     COMPNAME="traefik-rhel8"
