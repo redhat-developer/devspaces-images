@@ -1,0 +1,18 @@
+# dev
+rnikiten@redhat.com:
+    - UNSTABLE
+    - FAILURE
+    - SUCCESS
+#qe
+dnochevn@redhat.com: 
+    - UNSTABLE
+    - FAILURE
+    - SUCCESS
+#productization
+sdawley@redhat.com:
+    - UNSTABLE
+    - FAILURE
+nboldt@redhat.com:
+    - UNSTABLE
+    - FAILURE
+    - SUCCESS
