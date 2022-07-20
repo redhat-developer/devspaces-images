@@ -4,7 +4,8 @@ platforms:
 
   only:
     - x86_64   # can be a list (as here) or a string (as below)
-    - s390x
+    # TODO renable when CRW-3171 is fixed
+    # - s390x
     - ppc64le
 
 compose:
