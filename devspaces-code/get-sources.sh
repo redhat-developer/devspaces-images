@@ -35,7 +35,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
 		'-v') CSV_VERSION="$2"; shift 1;;
-		'-ght') GITHUB_TOKEN="$2"; GHT_STRING="-ght GITHUB_TOKEN"; shift 1;;
+		'-ght') GITHUB_TOKEN="$2"; GHT_STRING="-ght ${GITHUB_TOKEN}"; shift 1;;
 	esac
 	shift 1
 done
