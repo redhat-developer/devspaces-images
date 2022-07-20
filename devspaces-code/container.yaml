@@ -7,7 +7,7 @@ platforms:
     # TODO re-enable when CRW-3171 is fixed and support for BE exists (or a workaround is found)
     # - s390x
     # TODO re-enable when CRW-3153 is fixed and we can run podman on ppc-006 box
-    # - ppc64le
+    - ppc64le
 
 compose:
   inherit: false
