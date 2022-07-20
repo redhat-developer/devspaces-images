@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 # script to trigger rhpkg after fetching assets from GH
-#
+TARGETDIR=$(cd "$(dirname "$0")"; pwd)
 verbose=1
 scratchFlag=""
 doRhpkgContainerBuild=1
