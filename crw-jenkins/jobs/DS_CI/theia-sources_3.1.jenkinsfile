@@ -42,7 +42,7 @@ timeout(120) {
         def util = load "${WORKSPACE}/util2.groovy"
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
           cleanWs()
-          util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "${WORKSPACE}/devspaces-theia-prepare", MIDSTM_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "devspaces-theia-prepare", MIDSTM_BRANCH, true)
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
           println "DS_VERSION = '" + DS_VERSION + "'"
 
@@ -134,7 +134,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
               cleanWs()
               sh "docker system prune -af || true"
               withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "${WORKSPACE}/devspaces-theia", MIDSTM_BRANCH, false)
+                util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "devspaces-theia", MIDSTM_BRANCH, false)
                 DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
                 println "DS_VERSION = '" + DS_VERSION + "'"
                 def buildLog = ""
@@ -238,8 +238,8 @@ node(nodeLabel) {
       wrap([$class: 'TimestamperBuildWrapper']) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {        
           // sync devspaces-theia to devspaces-images
-          util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "${WORKSPACE}/devspaces-theia-sync", MIDSTM_BRANCH, false)
-          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "${WORKSPACE}/devspaces-images", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-theia.git", "devspaces-theia-sync", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "devspaces-images", MIDSTM_BRANCH, false)
 
           sh """
   pushd devspaces-theia-sync >/dev/null

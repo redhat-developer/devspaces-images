@@ -42,7 +42,7 @@ python3 --version; echo "-----"
           println "DS_VERSION = '" + DS_VERSION + "'"
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           println "CSV_VERSION = '" + CSV_VERSION + "'"
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "${WORKSPACE}/ds", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "ds", MIDSTM_BRANCH, false)
 
           if (TAG_RELEASE.equals("true")) {
             currentBuild.description="Tagging " + CSV_VERSION + "..."

@@ -21,9 +21,9 @@ timeout(90) {
         try {
           cleanWs()
           currentBuild.description="Check out code ..."
-          util.cloneRepo("https://github.com/che-incubator/chectl.git", "${WORKSPACE}/chectl", SOURCE_BRANCH, true)
-          util.cloneRepo("https://github.com/redhat-developer/devspaces-chectl.git", "${WORKSPACE}/devspaces-chectl", MIDSTM_BRANCH, true)
-          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "${WORKSPACE}/devspaces-images", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/che-incubator/chectl.git", "chectl", SOURCE_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-chectl.git", "devspaces-chectl", MIDSTM_BRANCH, true)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "devspaces-images", MIDSTM_BRANCH, false)
 
           currentBuild.description="Set up environment ..."
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)

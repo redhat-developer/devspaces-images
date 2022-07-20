@@ -20,7 +20,7 @@ timeout(120) {
                         DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
                         println "DS_VERSION = '" + DS_VERSION + "'"
                         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-                        util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "${WORKSPACE}/devspaces", MIDSTM_BRANCH, false)
+                        util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "devspaces", MIDSTM_BRANCH, false)
 
                         def NEW_IMAGES = sh (
                             script: "cd ${WORKSPACE}/devspaces/product && ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/devspaces/dependencies/LATEST_IMAGES.new",

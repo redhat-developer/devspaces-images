@@ -17,7 +17,7 @@ timeout(120) {
                     cleanWs()
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                     def util = load "${WORKSPACE}/util2.groovy"
-                    util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "${WORKSPACE}/targetmid", MIDSTM_BRANCH, false)
+                    util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "targetmid", MIDSTM_BRANCH, false)
                     DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
                     currentBuild.description="Update ${MIDSTM_BRANCH} to ${DS_VERSION}; disable ${DS_VERSION} jobs ..."
                     sh '''#!/bin/bash

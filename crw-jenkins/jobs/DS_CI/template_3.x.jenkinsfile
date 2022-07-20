@@ -57,7 +57,7 @@ cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
             println "########################################################################################################"
             println "##  Sync ${SYNC_REPO} to devspaces-images"
             println "########################################################################################################"
-            util.cloneRepo("https://github.com/${MIDSTM_REPO}", "${WORKSPACE}/targetdwn", MIDSTM_BRANCH, false)
+            util.cloneRepo("https://github.com/${MIDSTM_REPO}", "targetdwn", MIDSTM_BRANCH, false)
             TARGET_DIR="${WORKSPACE}/targetdwn/" + util.getDSLongName(SYNC_REPO)
             OLD_MID_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn")
             println "Got OLD_SHA in targetdwn/${SYNC_REPO} folder: " + OLD_MID_SHA

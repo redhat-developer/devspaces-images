@@ -41,7 +41,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
               // might be already defined by the referring job
               CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
               println("[INFO] Using CSV version = " + CSV_VERSION)
-              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+              util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
               nodeLabelString = sh( 
                 script: '''
 curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/''' + SYNC_REPOi + '''/container.yaml | yq -r '.platforms.only[]' 
@@ -91,7 +91,7 @@ popd
                   // might be already defined by the referring job
                   CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
-                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+                  util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
                     pushd sources/''' + SYNC_REPOi + '''
                     if [[ -f get-sources.sh ]]; then
@@ -143,7 +143,7 @@ timeout(600) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
-            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "${WORKSPACE}/sources", MIDSTM_BRANCH, false)
+            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
             DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
@@ -185,7 +185,7 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 println "########################################################################################################"
                 println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
                 println "########################################################################################################"
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
                 // if container.yaml has ref for cachito, update it to SOURCE_SHA
                 sh('''

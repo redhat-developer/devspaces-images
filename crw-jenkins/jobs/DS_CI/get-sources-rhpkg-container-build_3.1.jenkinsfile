@@ -28,7 +28,7 @@ timeout(240) {
           JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
           cleanWs()
-          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "${WORKSPACE}/sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), false)
+          util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), false)
           currentBuild.description=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
           try {
             util.updateBaseImages("${WORKSPACE}/sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
