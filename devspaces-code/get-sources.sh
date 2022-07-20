@@ -34,7 +34,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-		'-v') CSV_VERSION="$2"; shift 1;;
+		'-v') CSV_VERSION="$2"; DS_VERSION="${CSV_VERSION%.*}"; shift 1;;
 		'-ght') GITHUB_TOKEN="$2"; GHT_STRING="-ght ${GITHUB_TOKEN}"; shift 1;;
 	esac
 	shift 1
@@ -58,9 +58,44 @@ if [[ ${DELETE_ASSETS} -eq 1 ]]; then
 fi
 
 if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
+	BUILDER=$(command -v podman || true)
+	if [[ ! -x $BUILDER ]]; then
+		# echo "[WARNING] podman is not installed, trying with docker"
+		BUILDER=$(command -v docker || true)
+		if [[ ! -x $BUILDER ]]; then
+			echo "[ERROR] must install docker or podman. Abort!"; exit 1
+		fi
+	fi
+
 	log "[INFO] Build ${CSV_VERSION} ${ASSET_NAME} assets and publish to GH release:"
-	./build/scripts/collect-assets.sh -v ${CSV_VERSION} -n ${ASSET_NAME} ${GHT_STRING}
-	exit 0
+
+	ARCH="$(uname -m)"
+	mkdir -p target/brew-assets
+	DOCKERFILES_PATH="${SCRIPT_DIR}/build/dockerfiles"
+
+	LIBC_CONTENT_IMAGE=libc-content-provider
+    ${BUILDER} build -f "${DOCKERFILES_PATH}/${LIBC_CONTENT_IMAGE}.Dockerfile" --build-arg GITHUB_TOKEN=$GITHUB_TOKEN -t $LIBC_CONTENT_IMAGE .
+    id="$(${BUILDER} create $LIBC_CONTENT_IMAGE)"
+    ${BUILDER} cp "$id":/checode-linux-libc - | gzip -9 > target/brew-assets/asset-libc-content-${ARCH}.tar.gz 
+    ${BUILDER} rm -v $id
+    ${BUILDER} rmi $(${BUILDER} images $LIBC_CONTENT_IMAGE -a -q)
+
+	MACHINE_EXEC_IMAGE=quay.io/devspaces/machineexec-rhel8:${DS_VERSION}
+    echo "Using ${MACHINE_EXEC_IMAGE} to prepare machine-exec asset"
+    id="$(${BUILDER} create $MACHINE_EXEC_IMAGE)"
+    ${BUILDER} cp "$id":/go/bin/che-machine-exec - | gzip -9 > target/brew-assets/asset-machine-exec-${ARCH}.tar.gz 
+    ${BUILDER} rm -v $id
+    ${BUILDER} rmi $(${BUILDER} images $MACHINE_EXEC_IMAGE -a -q)
+
+	# upload the binary to GH
+	if [[ ! -x ./uploadAssetsToGHRelease.sh ]]; then 
+		curl -sSLO "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/product/uploadAssetsToGHRelease.sh" && chmod +x uploadAssetsToGHRelease.sh
+	fi
+	# create a new release & tag w/ fresh assets
+	./uploadAssetsToGHRelease.sh --publish-assets -v "${CSV_VERSION}" -b "${MIDSTM_BRANCH}" --asset-name "${ASSET_NAME}" target/brew-assets/asset-libc-content-${ARCH}.tar.gz  target/brew-assets/asset-machine-exec-${ARCH}.tar.gz 
+
+	# cleanup
+	rm -fr target/brew-assets
 fi
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then
