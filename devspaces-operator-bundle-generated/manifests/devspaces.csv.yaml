@@ -1076,7 +1076,7 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:abb045431404001b97f24690e7d4bc7d40ac631966f6374347b63a09a23c8a24
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:7703dda8bae0b884be827c07b42bc9edf0b03b267182e7036b39cc02c7040eaf
                 - name: RELATED_IMAGE_dashboard
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:d35bbff71e5688605a75280be1bb65ada79711a1f33e53dbe10efa70a9120c0d
                 - name: RELATED_IMAGE_devfile_registry
@@ -1408,7 +1408,7 @@ spec:
   - name: devspaces-operator
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:9b7dc798e02fbf15d62a0a5eb48a5650bbc0d1701fbec5c6cd8a62178fa186c1
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:abb045431404001b97f24690e7d4bc7d40ac631966f6374347b63a09a23c8a24
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:7703dda8bae0b884be827c07b42bc9edf0b03b267182e7036b39cc02c7040eaf
   - name: dashboard
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:d35bbff71e5688605a75280be1bb65ada79711a1f33e53dbe10efa70a9120c0d
   - name: devfile_registry
