@@ -53,10 +53,10 @@ asset-required-rpms.txt
 build/docker/
 build/scripts/sync.sh
 compatible-ide.json
-container.yaml
-content_sets.*
-cvp-owners.yml
-cvp.yml
+/container.yaml
+/content_sets.*
+/cvp.yml
+/cvp-owners.yml
 devfile.yaml
 devfiles/
 doc/
@@ -64,7 +64,7 @@ get-source*.sh
 kubernetes/
 make-release.sh
 sources
-tests/basic-test.yaml
+/tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
