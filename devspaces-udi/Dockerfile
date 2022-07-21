@@ -13,6 +13,8 @@ FROM ubi8-minimal:8.6-854
 
 USER root
 
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+
 ENV \
     HOME=/home/user \
     KAMEL_VERSION="" \
@@ -179,13 +181,12 @@ RUN \
     ########################################################################
     # Golang (Tech Preview)
     ########################################################################
-    dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
-    mkdir -p /projects/.che/gopath /.cache ${HOME}/go && \
-    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz --strip-components=1 -C /projects/.che/gopath/ && \
-    for f in "/home/user" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
-        chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
-    done 
+    dnf -y -q install tree golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
+    mkdir /projects/.che/gopath/bin -p && \
+    cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
+    echo 'replace golang.org/x/tools => ../' >> go.mod && \
+    source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
+    GO111MODULE=on go build -o /projects/.che/gopath/bin/gopls
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0

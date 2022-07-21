@@ -14,3 +14,13 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+
+remote_sources:
+- name: gopls
+  remote_source:
+    repo: https://github.com/golang/tools
+    ref: fd02dfae644ce04dfd4bb3828cf576b9d8717f79
+    pkg_managers:
+      - gomod
+    packages: {"gomod": [{"path": "."}, {"path": "gopls"}]}
