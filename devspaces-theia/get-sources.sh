@@ -3,6 +3,7 @@
 # TODO enable delete/publish/pull from GH releases instead of temp images in Quay
 verbose=1
 scratchFlag=""
+JOB_BRANCH=""
 doRhpkgContainerBuild=1
 forceBuild=0
 # here we want to collect assets during sync-to-downsteam (using get-sources.sh -n -p)
