@@ -14,8 +14,6 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
-
-
 remote_sources:
 - name: gopls
   remote_source:
