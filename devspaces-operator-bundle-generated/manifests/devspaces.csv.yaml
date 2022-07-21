@@ -68,7 +68,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1ff787f34bd0427b0f296e2de80d8cd1368515d56a97642eb3639f529e9d2def
-    createdAt: "2022-07-20T17:17:47+00:00"
+    createdAt: "2022-07-21T16:18:18+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1081,6 +1081,10 @@ spec:
                   value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:674a94d9bf7a466c1c874e613064d8709d71b604a1201dc3f044ceec2eea91d7
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:8784dc12b38969ffe23d6831a6bf195c98f4674a5a2edeef9d93c6bbf195f6fa
+                - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDECQ_
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:0ecd2375a80368d0dac4490654a0d53749f80f658ba898ff38c154771b42498a
+                - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDECQ_
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:0ecd2375a80368d0dac4490654a0d53749f80f658ba898ff38c154771b42498a
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDECQ_
                   value: registry.redhat.io/devspaces/idea-rhel8@sha256:a0ea5a5dcb2786e212315636b50c604859554b9664f9fd5453f18023c6c511dc
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDECQ_
@@ -1132,7 +1136,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:1bbff174c66a6fbe0bb175d147fe0748e23d81d62821bfc58ad76765708d4244
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:94d4a52460a9da990e021048fa3973111e39fa7d769928bfce93fc4551622272
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1429,6 +1433,10 @@ spec:
     image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:674a94d9bf7a466c1c874e613064d8709d71b604a1201dc3f044ceec2eea91d7
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:8784dc12b38969ffe23d6831a6bf195c98f4674a5a2edeef9d93c6bbf195f6fa
+  - name: devspaces_code_devfile_registry_image_gmxdecq_
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:0ecd2375a80368d0dac4490654a0d53749f80f658ba898ff38c154771b42498a
+  - name: devspaces_code_plugin_registry_image_gmxdecq_
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:0ecd2375a80368d0dac4490654a0d53749f80f658ba898ff38c154771b42498a
   - name: devspaces_idea_devfile_registry_image_gmxdecq_
     image: registry.redhat.io/devspaces/idea-rhel8@sha256:a0ea5a5dcb2786e212315636b50c604859554b9664f9fd5453f18023c6c511dc
   - name: devspaces_idea_plugin_registry_image_gmxdecq_
@@ -1480,7 +1488,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:1bbff174c66a6fbe0bb175d147fe0748e23d81d62821bfc58ad76765708d4244
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:94d4a52460a9da990e021048fa3973111e39fa7d769928bfce93fc4551622272
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
