@@ -63,7 +63,6 @@ code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
 devfile.yaml
 get-sources.sh
 rebase.sh
-
 sources
 /tests/basic-test.yaml
 " > /tmp/rsync-excludes
