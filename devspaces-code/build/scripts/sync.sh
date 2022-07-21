@@ -56,12 +56,16 @@ build/dockerfiles
 code/src/vs/code/electron-main
 code/src/vs/platform/environment/test/node/nativeModules.test.ts
 code/src/vs/platform/keyboardLayout/electron-main/keyboardLayoutMainService.ts
-container.yaml
-content_sets.yml
+/container.yaml
+/content_sets.*
+/cvp.yml
+/cvp-owners.yml
 devfile.yaml
 get-sources.sh
 rebase.sh
+
 sources
+/tests/basic-test.yaml
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
