@@ -1,7 +1,5 @@
 #!/bin/bash -xe
-# script to trigger rhpkg after fetching GH release asset files
-TARGETDIR=$(cd "$(dirname "$0")"; pwd)
-verbose=1
+# script to trigger rhpkg (no assets to fetch)
 scratchFlag=""
 targetFlag=""
 doRhpkgContainerBuild=1
