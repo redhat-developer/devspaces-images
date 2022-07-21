@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,32 +8,18 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
+# https://registry.access.redhat.com/ubi8/nodejs-16
 FROM registry.access.redhat.com/ubi8/nodejs-16:1-42 as builder
 USER 0
-RUN yum -y -q update && \
-    yum -y -q clean all && rm -rf /var/cache/yum
+RUN dnf -y -q update --exclude=unbound-libs 
 
-COPY package.json /dashboard/
-COPY yarn.lock /dashboard/
-COPY .yarn/releases /dashboard/.yarn/releases/
-COPY lerna.json /dashboard/
-COPY tsconfig.json /dashboard/
+COPY . /dashboard/
+WORKDIR /dashboard/
+RUN npm i -g npm yarn; yarn install
+RUN yarn build
 
-ENV COMMON=packages/common
-COPY ${COMMON}/package.json /dashboard/${COMMON}/
-
-ENV FRONTEND=packages/dashboard-frontend
-COPY ${FRONTEND}/package.json /dashboard/${FRONTEND}/
-
-ENV BACKEND=packages/dashboard-backend
-COPY ${BACKEND}/package.json /dashboard/${BACKEND}/
-
-WORKDIR /dashboard
-RUN /dashboard/.yarn/releases/yarn-*.*js install
-COPY packages/ /dashboard/packages
-RUN /dashboard/.yarn/releases/yarn-*.*js build
-
-FROM registry.access.redhat.com/ubi8/nodejs-16:1-18
+# https://registry.access.redhat.com/ubi8/nodejs-16
+FROM registry.access.redhat.com/ubi8/nodejs-16:1-42
 USER 0
 
 RUN \
