@@ -59,7 +59,7 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e
     # Common Installations and Configuration
     ########################################################################
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo \
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo tree \
     # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
@@ -181,12 +181,13 @@ RUN \
     ########################################################################
     # Golang (Tech Preview)
     ########################################################################
-    dnf -y -q install tree golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
+    dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
     mkdir /projects/.che/gopath/bin -p && \
     cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
     echo 'replace golang.org/x/tools => ../' >> go.mod && \
     source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
-    GO111MODULE=on go build -o /projects/.che/gopath/bin/gopls
+    GO111MODULE=on go build -o /projects/.che/gopath/bin/gopls && \
+    rm -fr $REMOTE_SOURCES_DIR
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
