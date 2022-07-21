@@ -32,13 +32,5 @@
         - name: Figure out a pod name for the started container
           shell: oc get pods --selector deploymentconfig=yq-cmd-test --output=jsonpath='{ .items[*].metadata.name }'
           register: pod_name
-        - name: Make sure 'node' command is available in the container
-          shell: oc exec {{ pod_name.stdout }} -- node --version
-          register: node_cmd_run
-        - debug:
-            msg: "{{ node_cmd_run.stdout }}"
-        - name: Make sure projects folder exists
-          shell: oc exec {{ pod_name.stdout }} -- ls -las /projects
-          register: ls_cmd_run
-        - debug:
-            msg: "{{ ls_cmd_run.stdout }}"
+
+# TODO write real tests here
