@@ -1,13 +1,3 @@
-#
-#  Copyright (c) 2018-2022 Red Hat, Inc.
-#    This program and the accompanying materials are made
-#    available under the terms of the Eclipse Public License 2.0
-#    which is available at https://www.eclipse.org/legal/epl-2.0/
-#
-#  SPDX-License-Identifier: EPL-2.0
-#
-#  Contributors:
-#    Red Hat, Inc. - initial API and implementation
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
@@ -1177,6 +1167,122 @@ spec:
                         valueFrom:
                           fieldRef:
                             fieldPath: metadata.annotations['olm.targetNamespaces']
+                      - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/code-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/machineexec-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/code-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/machineexec-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/code-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/machineexec-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/code-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/machineexec-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/code-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/machineexec-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+                      - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/code-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/idea-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/machineexec-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/theia-rhel8:3.1
+                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
+                        value: registry.redhat.io/devspaces/udi-rhel8:3.1
+                      - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
+                        value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4
+                      - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_devfile_registry_image_GMXDACQ_
+                        value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0
+                      - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_devfile_registry_image_GEWTKMAK
+                        value: registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
                     image: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.1
                     imagePullPolicy: Always
                     livenessProbe:
