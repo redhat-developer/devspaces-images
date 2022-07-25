@@ -5,7 +5,7 @@ def curlCMD = "https://raw.githubusercontent.com/redhat-developer/devspaces/devs
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
 
-def JOB_BRANCHES = config."Jobs"."theia-akamai"?.keySet()
+def JOB_BRANCHES = config."Jobs"."theia"?.keySet()
 for (JB in JOB_BRANCHES) {
     //check for jenkinsfile
     FILE_CHECK = false
@@ -21,7 +21,7 @@ for (JB in JOB_BRANCHES) {
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
-            disabled(config."Jobs"."theia-akamai"[JB].disabled) // on reload of job, disable to avoid churn
+            disabled(config."Jobs"."theia"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
 1. <a href=../theia-sources_''' + JOB_BRANCH + '''>theia-sources_''' + JOB_BRANCH + '''</a>: Bootstrap Dev Spaces Theia components by building temporary containers and pushing them to quay, then trigger <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream_''' + JOB_BRANCH + '''</a> and <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.<br/>
 2. <a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai_''' + JOB_BRANCH + '''</a>: Push Theia artifacts to akamai CDN <br/>

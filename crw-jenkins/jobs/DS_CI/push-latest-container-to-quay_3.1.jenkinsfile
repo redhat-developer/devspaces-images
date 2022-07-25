@@ -31,7 +31,7 @@ def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
 // TODO: for some reason, running getLatestImageTags.sh often returns null on cpt-ppc-006; so exclude 
-def String nodeLabel = '(x86_64-rhel8||s390x-rhel8||ppc64le-rhel8)&&!cpt-ppc-006'
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)&&!cpt-ppc-006'
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(90) {
     node(nodeLabel) {

@@ -12,7 +12,7 @@ def String MIDSTM_REPO = "redhat-developer/codeready-workspaces-images"
 def OLD_SHA=""
 def NEW_SHA=""
 def SOURCE_SHA=""
-def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8'
 timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {

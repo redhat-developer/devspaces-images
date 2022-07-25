@@ -5,7 +5,7 @@ import groovy.transform.Field
 //   MIDSTM_BRANCH
 //   CLEAN_ON_FAILURE = "true"
 
-def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8'
 timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
         node(nodeLabel) {
         stage ("Trigger builds for whole Dev Spaces stack on ${nodeLabel}") {

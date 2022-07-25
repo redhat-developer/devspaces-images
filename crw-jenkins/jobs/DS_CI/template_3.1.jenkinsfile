@@ -18,7 +18,7 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-def String nodeLabel = 'x86_64-rhel8||s390x-rhel8||ppc64le-rhel8'
+def String nodeLabel = 'x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8'
 timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
