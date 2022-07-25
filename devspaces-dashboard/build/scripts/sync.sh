@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -19,8 +19,7 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 # defaults
 CSV_VERSION=2.y.0 # csv 2.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 2.y
-
-UPDATE_VENDOR=0 # vendoring will be done in get-sources*.sh just before the brew build, so we can also commit the tarball
+GET_YARN=1
 
 usage () {
     echo "
@@ -40,7 +39,7 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and ouput
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    # '--no-vendor') UPDATE_VENDOR=0;;
+    '--no-yarn') GET_YARN=0;;
     '--help'|'-h') usage;;
     # optional tag overrides
   esac
@@ -84,13 +83,16 @@ rm -f /tmp/rsync-excludes
 SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
 configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
-# get yarn version
-YARN_VERSION=$(echo "${configjson}" | jq -r --arg DS_VERSION "${DS_VERSION}" '.Other["YARN_VERSION"][$DS_VERSION]');
-YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
-echo "Install Yarn $YARN_VERSION into $YARN_TARGET_DIR ... "
-mkdir -p "${YARN_TARGET_DIR}"
-curl -sSL "https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-${YARN_VERSION}.js" -o "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
-chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
+
+# get yarn version + download it for use in Brew; cannot use `npm i -g yarn` downstream so must install it this way
+if [[ $GET_YARN -eq 1 ]]; then
+  YARN_VERSION=$(echo "${configjson}" | jq -r --arg DS_VERSION "${DS_VERSION}" '.Other["YARN_VERSION"][$DS_VERSION]');
+  YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
+  echo "Install Yarn $YARN_VERSION into $YARN_TARGET_DIR ... "
+  mkdir -p "${YARN_TARGET_DIR}"
+  curl -sSL "https://github.com/yarnpkg/yarn/releases/download/v${YARN_VERSION}/yarn-${YARN_VERSION}.js" -o "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
+  chmod +x "${YARN_TARGET_DIR}/yarn-${YARN_VERSION}.js"
+fi
 
 # transform rhel.Dockerfile -> Dockerfile
 sed -r \
@@ -99,16 +101,32 @@ sed -r \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# CRW-2012 don't install unbound-libs` \
     -e 's|(RUN yum .+ update)(.+)|\1 --exclude=unbound-libs\2|' \
-    `# copy yarn binary` \
-    -e '/COPY yarn.lock/a \
-COPY .yarn/releases /dashboard/.yarn/releases/' \
-    -e '/RUN npm i -g yarn/d' \
-    `# insert logic to unpack asset-node-modules-cache.tgz into /dashboard/node-modules` \
-    -e '/RUN yarn install/c \
-COPY asset-node-modules-cache.tgz /tmp/\
-RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz' \
-    -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
+    `# replace COPY into /dashboard/` \
+    -e '/COPY . \/dashboard\//c \
+# cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir\
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR\
+RUN source $REMOTE_SOURCES_DIR/devspaces-images-dashboard/cachito.env' \
+    -e 's|/dashboard/|$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/|g' \
+    -e '/RUN npm i -g yarn; yarn install/c \
+\
+# cachito:yarn step 2: workaround for yarn not being installed in an executable path\
+COPY .yarn/releases $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/\
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn\
+\
+# cachito:yarn step 3: configure yarn & install deps\
+# see https://source.redhat.com/groups/public/container-build-system/container_build_system_wiki/containers_from_source_multistage_builds_in_osbs#jive_content_id_Cachito_Integration_for_yarn\
+RUN yarn config set nodedir /usr; yarn config set unsafe-perm true && yarn install\
+\
+# cachito:yarn step 4: lerna installed to $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/node_modules/.bin/lerna - add to path\
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/node_modules/.bin/lerna /usr/local/bin/lerna\
+\
+# cachito:yarn step 5: the actual build!' \
+  -e '/RUN yarn build/a \
+\
+# cachito:yarn step 6: cleanup (required only if not using a builder stage)\
+# RUN rm -rf $REMOTE_SOURCES_DIR' \
 ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile > ${TARGETDIR}/Dockerfile
+
 cat << EOT >> ${TARGETDIR}/Dockerfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces dashboard container" \\
     DESCRIPTION="Red Hat OpenShift Dev Spaces dashboard container" \\
@@ -123,25 +141,11 @@ LABEL summary="\$SUMMARY" \\
       name="\$PRODNAME/\$COMPNAME" \\
       version="${DS_VERSION}" \\
       license="EPLv2" \\
-      maintainer="Josh Pinkney <jpinkney@redhat.com>, Nick Boldt <nboldt@redhat.com>" \\
+      maintainer="Nick Boldt <nboldt@redhat.com>" \\
       io.openshift.expose-services="" \\
       usage=""
 EOT
-
-# Patch rhel.Dockerfile
-sed -r -i \
-  -e '/COPY yarn.lock/a \
-COPY .yarn/releases /dashboard/.yarn/releases/' \
-  -e '/RUN npm i -g yarn/d' \
-  -e 's|(RUN) yarn (install)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
-  -e 's|(RUN) yarn (build)|\1 /dashboard/.yarn/releases/yarn-\*\.\*js \2|' \
-  ${TARGETDIR}/build/dockerfiles/rhel.Dockerfile
-
 echo "Converted Dockerfile"
-
-# add ignore for the tarball in mid and downstream
-echo "/asset-node-modules-cache.tgz" >> ${TARGETDIR}/.gitignore
-echo "Adjusted .gitignore"
 
 # apply DS branding styles
 cp -f ${TARGETDIR}/packages/dashboard-frontend/assets/branding/branding{-devspaces,}.css

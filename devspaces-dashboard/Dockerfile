@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -8,33 +8,35 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
+# https://registry.access.redhat.com/ubi8/nodejs-16
 FROM ubi8/nodejs-16:1-42 as builder
 USER 0
-RUN yum -y -q update --exclude=unbound-libs && \
-    yum -y -q clean all && rm -rf /var/cache/yum
+RUN dnf -y -q update --exclude=unbound-libs 
 
-COPY package.json /dashboard/
-COPY yarn.lock /dashboard/
-COPY .yarn/releases /dashboard/.yarn/releases/
-COPY lerna.json /dashboard/
-COPY tsconfig.json /dashboard/
+# cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+RUN source $REMOTE_SOURCES_DIR/devspaces-images-dashboard/cachito.env
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/
 
-ENV COMMON=packages/common
-COPY ${COMMON}/package.json /dashboard/${COMMON}/
+# cachito:yarn step 2: workaround for yarn not being installed in an executable path
+COPY .yarn/releases $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn
 
-ENV FRONTEND=packages/dashboard-frontend
-COPY ${FRONTEND}/package.json /dashboard/${FRONTEND}/
+# cachito:yarn step 3: configure yarn & install deps
+# see https://source.redhat.com/groups/public/container-build-system/container_build_system_wiki/containers_from_source_multistage_builds_in_osbs#jive_content_id_Cachito_Integration_for_yarn
+RUN yarn config set nodedir /usr; yarn config set unsafe-perm true && yarn install
 
-ENV BACKEND=packages/dashboard-backend
-COPY ${BACKEND}/package.json /dashboard/${BACKEND}/
+# cachito:yarn step 4: lerna installed to $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/node_modules/.bin/lerna - add to path
+RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/node_modules/.bin/lerna /usr/local/bin/lerna
 
-WORKDIR /dashboard
-COPY asset-node-modules-cache.tgz /tmp/
-RUN tar xzf /tmp/asset-node-modules-cache.tgz && rm -f /tmp/asset-node-modules-cache.tgz
-COPY packages/ /dashboard/packages
-RUN /dashboard/.yarn/releases/yarn-*.*js build
+# cachito:yarn step 5: the actual build!
+RUN yarn build
 
-FROM ubi8/nodejs-16:1-18
+# cachito:yarn step 6: cleanup (required only if not using a builder stage)
+# RUN rm -rf $REMOTE_SOURCES_DIR
+
+# https://registry.access.redhat.com/ubi8/nodejs-16
+FROM ubi8/nodejs-16:1-42
 USER 0
 
 RUN \
@@ -42,8 +44,8 @@ RUN \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
-ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
-ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
+ENV FRONTEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-frontend/lib/public
+ENV BACKEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-backend/lib
 
 COPY --from=builder ${BACKEND_LIB} /backend
 COPY --from=builder ${FRONTEND_LIB} /public
@@ -65,6 +67,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.2" \
       license="EPLv2" \
-      maintainer="Josh Pinkney <jpinkney@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""

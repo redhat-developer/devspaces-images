@@ -12,4 +12,3 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
-/asset-node-modules-cache.tgz
