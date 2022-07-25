@@ -14,25 +14,17 @@
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.6-854
-
-# cachito
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-configbump/cachito.env
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-configbump/app/devspaces-configbump
-
-RUN microdnf -y install shadow-utils golang && \
+COPY asset-*.tar.gz /tmp/assets/
+RUN microdnf -y install tar gzip shadow-utils && \
     adduser appuser && \
-    export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH="amd64"; elif [[ ${ARCH} == "aarch64" ]]; then export ARCH="arm64"; fi && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go && \
-    cp configbump /usr/local/bin/configbump && \
+    tar xzf /tmp/assets/asset-configbump-$(uname -m).tar.gz -C / && \
+    rm -fr /tmp/assets/ && \
     chmod 755 /usr/local/bin/configbump && \
-    rm -rf $REMOTE_SOURCES_DIR && \
-    microdnf -y remove shadow-utils golang && \
+    microdnf -y remove tar gzip shadow-utils && \
     microdnf -y update || true && \
     microdnf -y clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 USER appuser
-
 ENTRYPOINT ["/usr/local/bin/configbump"]
 
 # append Brew metadata here
