@@ -69,7 +69,6 @@ container.yaml
 /cvp.yml
 /cvp-owners.yml
 get-source*.sh
-sources
 /README.adoc
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
