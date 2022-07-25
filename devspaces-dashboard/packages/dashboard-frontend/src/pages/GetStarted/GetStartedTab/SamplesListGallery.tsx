@@ -59,13 +59,7 @@ type State = {
   alerts: AlertItem[];
 };
 
-const EXCLUDED_TARGET_EDITOR_NAMES = [
-  'dirigible',
-  'jupyter',
-  'che-pycharm',
-  'eclipseide',
-  'code-server',
-];
+const EXCLUDED_TARGET_EDITOR_NAMES = ['dirigible', 'jupyter', 'eclipseide', 'code-server'];
 
 export class SamplesListGallery extends React.PureComponent<Props, State> {
   private static sortByName(a: TargetEditor, b: TargetEditor): number {

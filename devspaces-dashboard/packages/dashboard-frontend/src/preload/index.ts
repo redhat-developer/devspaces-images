@@ -10,6 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { WS_ATTRIBUTES_TO_SAVE } from '../containers/FactoryLoader/attrs';
 import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
 
 (function acceptNewFactoryLink(): void {
@@ -40,29 +41,25 @@ export function storePathIfNeeded(path: string) {
 
 export function buildFactoryLoaderPath(url: string): string {
   const fullUrl = new window.URL(url);
-  const editor = extractUrlParam(fullUrl, 'che-editor');
-  let devfilePath = extractUrlParam(fullUrl, 'devfilePath');
-  if (!devfilePath) {
-    devfilePath = extractUrlParam(fullUrl, 'df');
-  }
-  const devWorkspace = extractUrlParam(fullUrl, 'devWorkspace');
-  const newWorkspace = extractUrlParam(fullUrl, 'new');
-  const encodedUrl = encodeURIComponent(fullUrl.toString());
 
-  let newPath = '/f?url=' + encodedUrl;
-  if (editor) {
-    newPath = `${newPath}&che-editor=${editor}`;
-  }
+  const initParams = WS_ATTRIBUTES_TO_SAVE.map(paramName => {
+    const paramValue = extractUrlParam(fullUrl, paramName);
+    return [paramName, paramValue];
+  }).filter(([, paramValue]) => paramValue);
+
+  const devfilePath = extractUrlParam(fullUrl, 'devfilePath') || extractUrlParam(fullUrl, 'df');
   if (devfilePath) {
-    newPath = `${newPath}&override.devfileFilename=${devfilePath}`;
+    initParams.push(['override.devfileFilename', devfilePath]);
   }
+  const newWorkspace = extractUrlParam(fullUrl, 'new');
   if (newWorkspace) {
-    newPath = `${newPath}&policies.create=perclick`;
+    initParams.push(['policies.create', 'perclick']);
   }
-  if (devWorkspace) {
-    newPath = `${newPath}&devWorkspace=${encodeURIComponent(devWorkspace)}`;
-  }
-  return newPath;
+
+  const searchParams = new URLSearchParams(initParams);
+  searchParams.append('url', fullUrl.toString());
+
+  return '/f?' + searchParams.toString();
 }
 
 function extractUrlParam(fullUrl: URL, paramName: string): string {

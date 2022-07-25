@@ -15,7 +15,7 @@ RUN dnf -y -q update --exclude=unbound-libs
 
 COPY . /dashboard/
 WORKDIR /dashboard/
-RUN npm i -g npm yarn; yarn install
+RUN npm i -g yarn; yarn install
 RUN yarn build
 
 # https://registry.access.redhat.com/ubi8/nodejs-16

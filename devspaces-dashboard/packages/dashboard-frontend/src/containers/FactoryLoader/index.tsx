@@ -49,15 +49,7 @@ import getRandomString from '../../services/helpers/random';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import SessionStorageService, { SessionStorageKey } from '../../services/session-storage';
 import { DEVWORKSPACE_STORAGE_TYPE } from '../../services/devfileApi/devWorkspace/spec';
-
-const WS_ATTRIBUTES_TO_SAVE: string[] = [
-  'workspaceDeploymentLabels',
-  'workspaceDeploymentAnnotations',
-  'policies.create',
-  'che-editor',
-  'devWorkspace',
-  'storageType',
-];
+import { WS_ATTRIBUTES_TO_SAVE } from './attrs';
 
 export type CreatePolicy = 'perclick' | 'peruser';
 
