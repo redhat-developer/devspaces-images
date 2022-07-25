@@ -84,8 +84,7 @@ SCRIPTS_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
 if [[ $SCRIPTS_BRANCH != "devspaces-3."*"-rhel-8" ]]; then SCRIPTS_BRANCH="devspaces-3-rhel-8"; fi
 configjson=$(curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces/${SCRIPTS_BRANCH}/dependencies/job-config.json)
 
-# get yarn version + download it for use in Brew
-# TODO can we just run `npm i -g yarn` downstream too?
+# get yarn version + download it for use in Brew; cannot use `npm i -g yarn` downstream so must install it this way
 if [[ $GET_YARN -eq 1 ]]; then
   YARN_VERSION=$(echo "${configjson}" | jq -r --arg DS_VERSION "${DS_VERSION}" '.Other["YARN_VERSION"][$DS_VERSION]');
   YARN_TARGET_DIR=${TARGETDIR}/.yarn/releases
@@ -108,7 +107,7 @@ sed -r \
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR\
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-dashboard/cachito.env' \
     -e 's|/dashboard/|$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/|g' \
-    -e '/RUN npm i -g npm yarn; yarn install/c \
+    -e '/RUN npm i -g yarn; yarn install/c \
 \
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path\
 COPY .yarn/releases $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/\
