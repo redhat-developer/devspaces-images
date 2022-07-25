@@ -181,12 +181,15 @@ RUN \
     ########################################################################
     # Golang (Tech Preview)
     ########################################################################
-    dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
-    mkdir /projects/.che/gopath/bin -p && \
+    dnf -y -q install golang && \
+    mkdir /home/user/go/bin -p && \
     cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
+    # gopls must refer to tools as local dependency, which is located one dir above in the project
     echo 'replace golang.org/x/tools => ../' >> go.mod && \
+    # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
     source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
-    GO111MODULE=on go build -o /projects/.che/gopath/bin/gopls && \
+    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
+    /home/user/go/bin/gopls version && \
     rm -fr $REMOTE_SOURCES_DIR
 RUN \
     ########################################################################
