@@ -13,6 +13,8 @@ FROM ubi8-minimal:8.6-854
 
 USER root
 
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+
 ENV \
     HOME=/home/user \
     KAMEL_VERSION="" \
@@ -57,7 +59,7 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e
     # Common Installations and Configuration
     ########################################################################
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo \
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo tree \
     # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
@@ -179,13 +181,16 @@ RUN \
     ########################################################################
     # Golang (Tech Preview)
     ########################################################################
-    dnf -y -q install golang glibc-devel zlib-devel libstdc++ libstdc++-devel && \
-    mkdir -p /projects/.che/gopath /.cache ${HOME}/go && \
-    tar -xvf /tmp/assets/asset-golang-$(uname -m).tar.gz --strip-components=1 -C /projects/.che/gopath/ && \
-    for f in "/home/user" "/etc/passwd" "/etc/group" "/projects" "/.cache" "/usr/share/gocode" "/opt/app-root/src/"; do \
-        chgrp -R 0 ${f} && \
-        chmod -R g+rwX ${f}; \
-    done 
+    dnf -y -q install golang && \
+    mkdir /home/user/go/bin -p && \
+    cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
+    # gopls must refer to tools as local dependency, which is located one dir above in the project
+    echo 'replace golang.org/x/tools => ../' >> go.mod && \
+    # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
+    source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
+    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
+    /home/user/go/bin/gopls version && \
+    rm -fr $REMOTE_SOURCES_DIR
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
