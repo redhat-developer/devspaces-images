@@ -286,20 +286,6 @@
           "7.49.x"
         ],
         "disabled": true
-      },
-      "3.2": {
-        "upstream_branch": [
-          "7.52.x",
-          "7.51.x"
-        ],
-        "disabled": false
-      },
-      "3.x": {
-        "upstream_branch": [
-          "main",
-          "main"
-        ],
-        "disabled": false
       }
     },
     "theia": {
@@ -360,20 +346,6 @@
           "7.49.x"
         ],
         "disabled": true
-      },
-      "3.2": {
-        "upstream_branch": [
-          "7.52.x",
-          "7.51.x"
-        ],
-        "disabled": false
-      },
-      "3.x": {
-        "upstream_branch": [
-          "main",
-          "main"
-        ],
-        "disabled": false
       }
     },
     "devfileregistry": {
@@ -623,12 +595,6 @@
       },
       "3.1": {
         "disabled": true
-      },
-      "3.2": {
-        "disabled": false
-      },
-      "3.x": {
-        "disabled": false
       }
     },
     "build-all-images": {
@@ -705,7 +671,7 @@
           "7.49.x"
         ],
         "node_version": "16.13.2",
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -744,7 +710,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -778,7 +744,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -795,7 +761,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -812,7 +778,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -829,7 +795,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
