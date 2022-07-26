@@ -14,11 +14,11 @@ timeout(120) {
         try {
             stage ("Check for updated images") {
                 wrap([$class: 'TimestamperBuildWrapper']) {
-                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                     def util = load "${WORKSPACE}/util2.groovy"
                     cleanWs()
                     withCredentials([string(credentialsId: 'jira-jiralint-token', variable: 'JIRA_TOKEN'), string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-                        util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "ds", MIDSTM_BRANCH, false)
+                        util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "ds", MIDSTM_BRANCH, false)
                         GHIRA_OPTIONS = ''
                         if (DRY_RUN.equals("true")) {
                             GHIRA_OPTIONS += " --dryrun"

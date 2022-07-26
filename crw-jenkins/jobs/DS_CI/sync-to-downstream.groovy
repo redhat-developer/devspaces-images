@@ -26,6 +26,8 @@ for (JB in JOB_BRANCHES) {
 Sync job between midstream repo https://github.com/redhat-developer/devspaces-images and pkgs.devel.
 
 <p>Once sync is done, track Brew builds from <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>.
+<p>For <a href=../operator_''' + JOB_BRANCH + '''>operator</a> or <a href=../operator-bundle_''' + JOB_BRANCH + '''>operator-bundle</a> builds, a <a href=../dsc_''' + JOB_BRANCH + '''>dsc</a> rebuild will also be triggered.</p>
+
             ''')
 
             properties {

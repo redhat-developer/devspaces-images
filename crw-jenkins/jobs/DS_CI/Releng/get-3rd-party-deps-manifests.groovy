@@ -1,6 +1,6 @@
 import groovy.json.JsonSlurper
 
-def curlCMD = "https://raw.github.com/redhat-developer/codeready-workspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
+def curlCMD = "https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json".toURL().text
 
 def jsonSlurper = new JsonSlurper();
 def config = jsonSlurper.parseText(curlCMD);
@@ -26,8 +26,8 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
 
         description('''
-Collect product security manifests container builds, and push to <a href=https://github.com/redhat-developer/codeready-workspaces/tree/devspaces-3-rhel-8/product/manifest/>
-https://github.com/redhat-developer/codeready-workspaces/tree/devspaces-3-rhel-8/product/manifest/</a>
+Collect product security manifests container builds, and push to <a href=https://github.com/redhat-developer/devspaces/tree/devspaces-3-rhel-8/product/manifest/>
+https://github.com/redhat-developer/devspaces/tree/devspaces-3-rhel-8/product/manifest/</a>
 
 as part of a GA release. 
 
@@ -48,7 +48,7 @@ as part of a GA release.
         }
 
         parameters{
-            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/codeready-workspaces branch to use")
+            stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use")
             booleanParam("TAG_RELEASE", false, "if true, tag the repos before collecting manifests")
             booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so if can be used for debugging.")
         }

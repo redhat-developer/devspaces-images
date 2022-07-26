@@ -198,6 +198,7 @@ if grep -q 'ref:' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.
 fi
                 ''')
                 // Sync
+                // TODO CRW-3080 remove sources from the exclude list, so that we can delete it from downstream if it doesn't exist in midstream
                 sh('''
 SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"
 TARGETDIR="${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''"

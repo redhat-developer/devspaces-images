@@ -67,7 +67,7 @@ if [[ -f /tmp/token ]]; then
         get-sources-rhpkg-container-build\
         push-latest-container-to-quay\
         sync-to-downstream\
-        update-digests-in-metadata\
+        update-digests\
         Releng/job/build-all-images\
         Releng/job/send-email-qe-build-list\
         ; do 

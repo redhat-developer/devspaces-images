@@ -26,48 +26,55 @@ for (JB in JOB_BRANCHES) {
             disabled(config."Management-Jobs"."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
             description('''
 Push 1 or more containers from OSBS to quay.io/devspaces/ (or quay.io/crw/). 
-Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, but can be used manually too.
+Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>, but can be used manually too.</p>
    
-<p>
-  
-Images to copy to quay (18):
 <table>
-<tr><td>
+    <tr><th colspan=4>Images to copy to quay (16):</th></tr>
+    <tr><td>
 
-  <li> <a href=https://quay.io/repository/devspaces/configbump-rhel8?tab=tags>configbump</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/devspaces-rhel8-operator?tab=tags>operator</a> 
-  <li> <a href=https://quay.io/repository/devspaces/devspaces-operator-bundle?tab=tags>operator-bundle</a> @since 2.12
-  <li> <a href=https://quay.io/repository/devspaces/dashboard-rhel8?tab=tags>dashboard</a> @since 2.9</li>
-  <li> <a href=https://quay.io/repository/devspaces/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
+        <li> <a href=https://quay.io/repository/devspaces/code-rhel8?tab=tags>code</a> @since 3.1</li>
+        <li> <a href=https://quay.io/repository/devspaces/configbump-rhel8?tab=tags>configbump</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/devspaces-rhel8-operator?tab=tags>operator</a> 
+        <li> <a href=https://quay.io/repository/devspaces/devspaces-operator-bundle?tab=tags>operator-bundle</a>
+        <li> <a href=https://quay.io/repository/devspaces/dashboard-rhel8?tab=tags>dashboard</a></li>
 
-  </td><td>
+        </td><td>
 
-  <li> <a href=https://quay.io/repository/devspaces/idea-rhel8?tab=tags>idea</a> @since 2.11</li>
-  <li> <a href=https://quay.io/repository/devspaces/imagepuller-rhel8?tab=tags>imagepuller</a></li>
-  <li> <a href=https://quay.io/repository/devspaces/machineexec-rhel8?tab=tags>machineexec</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
-  <li> <a href=https://quay.io/repository/devspaces/server-rhel8?tab=tags>server</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/devfileregistry-rhel8?tab=tags>devfileregistry</a></li>
+        <li> <a href=https://quay.io/repository/devspaces/idea-rhel8?tab=tags>idea</a></li>
+        <li> <a href=https://quay.io/repository/devspaces/imagepuller-rhel8?tab=tags>imagepuller</a></li>
+        <li> <a href=https://quay.io/repository/devspaces/machineexec-rhel8?tab=tags>machineexec</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
 
-  </td><td>
+        </td><td>
 
-  <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/traefik-rhel8?tab=tags>traefik</a> </li>
-  <li> <a href=https://quay.io/repository/devspaces/udi-rhel8?tab=tags>udi</a></li>
-  </td></tr>
+        <li> <a href=https://quay.io/repository/devspaces/server-rhel8?tab=tags>server</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/theia-dev-rhel8?tab=tags>theia-dev</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/theia-rhel8?tab=tags>theia</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a> </li>
+        <li> <a href=https://quay.io/repository/devspaces/traefik-rhel8?tab=tags>traefik</a> </li>
+        </td><td>
+
+        <li> <a href=https://quay.io/repository/devspaces/udi-rhel8?tab=tags>udi</a></li>
+
+    </td></tr>
   </table>
 </ul>
-            <p>NOTE:  If no nodes are available, run: <br/>
+
+<p>NOTE:  If no nodes are available, run: <br/>
     <b><a href=https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/getLatestImageTags.sh>getLatestImageTags.sh</a> 
-    -c "codeready-workspaces-udi-rhel8 codeready-workspaces-dashboard-rhel8" --osbs --pushtoquay="''' + 
-    (JOB_BRANCH.equals("3.x") ? '''3.y next''' : JOB_BRANCH+''' latest''') + 
+    -c "codeready-workspaces-udi-rhel8 codeready-workspaces-dashboard-rhel8" -b ''' + MIDSTM_BRANCH + ''' --osbs --pushtoquay="''' + 
+    (JOB_BRANCH.equals("3.x") ? config.Version + ''' next''' : JOB_BRANCH+''' latest''') + 
     '''"</b>
   
-  to get latest from osbs and push to quay.
+  to get latest from osbs and push to quay.</p>
 
-  <p>After this job runs, <a href=../update-digests-in-metadata_''' + JOB_BRANCH + '''>update-digests-in-metadata</a> will be triggered to check if those containers need a respin.
-            ''')
+  <p>After this job runs:
+  <ul>
+    <li><a href=../update-digests_''' + JOB_BRANCH + '''>update-digests</a> will be triggered to check if those containers need a respin, and
+    <li><a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> will be triggered if we're publishing a <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build.
+  </ul>
+''')
 
             properties {
                 ownership {

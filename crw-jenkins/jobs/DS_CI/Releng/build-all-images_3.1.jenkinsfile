@@ -122,7 +122,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
                         // trigger update-digests job (to rebuild bundle image)
-                        currentJob="update-digests-in-metadata_" + JOB_BRANCH
+                        currentJob="update-digests_" + JOB_BRANCH
                         def int lastBuildId4 = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId4}>update-digests#${lastBuildId4}</a> triggered"
                     }

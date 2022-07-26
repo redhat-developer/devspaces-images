@@ -104,7 +104,7 @@ ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WOR
                             wait: true
 
                         // trigger an update of metadata and registries
-                        build job: "update-digests-in-metadata_${MIDSTM_BRANCH}",
+                        build job: "update-digests_${MIDSTM_BRANCH}",
                             parameters: [[$class: 'StringParameterValue', name: 'MIDSTM_BRANCH', value: "${MIDSTM_BRANCH}"]],
                             propagate: false,
                             quietPeriod: 0,

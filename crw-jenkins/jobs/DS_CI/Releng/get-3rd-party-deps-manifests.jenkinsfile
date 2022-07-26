@@ -17,7 +17,7 @@ timeout(240) {
       wrap([$class: 'TimestamperBuildWrapper']) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
             file(credentialsId: 'crw_crw-build-keytab', variable: 'CRW_KEYTAB')]) {
-          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+          sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
           def util = load "${WORKSPACE}/util2.groovy"
           cleanWs()
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
@@ -42,7 +42,7 @@ python3 --version; echo "-----"
           println "DS_VERSION = '" + DS_VERSION + "'"
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           println "CSV_VERSION = '" + CSV_VERSION + "'"
-          util.cloneRepo("https://github.com/redhat-developer/codeready-workspaces.git", "ds", MIDSTM_BRANCH, false)
+          util.cloneRepo("https://github.com/redhat-developer/devspaces.git", "ds", MIDSTM_BRANCH, false)
 
           if (TAG_RELEASE.equals("true")) {
             currentBuild.description="Tagging " + CSV_VERSION + "..."

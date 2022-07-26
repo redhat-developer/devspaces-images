@@ -51,7 +51,7 @@ pushd .. >/dev/null || exit
                     sync-to-downstream \
                     get-sources-rhpkg-container-build \
                     push-latest-container-to-quay \
-                    update-digests-in-metadata operator-bundle \
+                    update-digests operator-bundle \
                     ; do
                     result=$(curl -sSL -X POST "http://localhost:8080/job/DS_CI/job/${JOB}_${VER}/enable" --user "${USERTOKEN}" | grep -E "Unauthorized|Authentization|401|URI")
                     if [[ $result ]]; then

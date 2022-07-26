@@ -7,7 +7,7 @@ import groovy.transform.Field
 //   CLEAN_ON_FAILURE = "true"
 
 def String SOURCE_REPO = "codeready-workspaces/crw-jenkins" 
-def String MIDSTM_REPO = "redhat-developer/codeready-workspaces-images"
+def String MIDSTM_REPO = "redhat-developer/devspaces-images"
 
 def OLD_SHA=""
 def NEW_SHA=""
@@ -17,7 +17,7 @@ timeout(120) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
         cleanWs()
         currentBuild.description="Sync gitlab:" + GITLAB_BRANCH + " to github:" + MIDSTM_BRANCH + "..."

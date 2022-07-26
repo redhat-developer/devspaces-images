@@ -47,8 +47,7 @@ for (JB in JOB_BRANCHES) {
             }
 
             description('''
-<p>Since this build depends on multiple upstream repos (eclipse theia, che-theia), this build is configured 
-to only poll scm weekly on ''' + (JOB_BRANCH.equals("3.x") ? "Tues/Thurs" : "Thurs") + ''' to avoid nuissance respins.
+<p>This build depends on multiple upstream repos (eclipse theia, che-theia), but is configured to trigger based on changes to che-theia only.
 <p>
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>

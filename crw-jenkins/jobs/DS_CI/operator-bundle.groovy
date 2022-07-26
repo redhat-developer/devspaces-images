@@ -44,9 +44,11 @@ for (JB in JOB_BRANCHES) {
             description('''
 Artifact builder + sync job; triggers brew after syncing
 
-<p>Operator-related sync jobs:<br/>
+<p>Operator / installer jobs:<br/>
 1. <a href=../operator_''' + JOB_BRANCH + '''>operator_''' + JOB_BRANCH + '''</a>: go code<br/>
-2. <a href=../operator-bundle_''' + JOB_BRANCH + '''>operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV</p>
+2. <a href=../operator-bundle_''' + JOB_BRANCH + '''>operator-bundle_''' + JOB_BRANCH + '''</a>: CRD, CSV<br/>
+3. <a href=../dsc_''' + JOB_BRANCH + '''>dsc_''' + JOB_BRANCH + '''</a>: installer CLI
+</p>
 
 <ul>
 <li>Upstream: <a href=https://github.com/''' + SOURCE_REPO + '''>''' + UPSTM_NAME + '''</a></li>
@@ -56,11 +58,11 @@ Artifact builder + sync job; triggers brew after syncing
 
 <p>If <b style="color:green">downstream job fires</b>, see 
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
-<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. <br/>
+<a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + '''/>get-sources-rhpkg-container-build</a>. See also <a href=../dsc_''' + JOB_BRANCH + '''>dsc</a>. <br/>
    If <b style="color:orange">job is yellow</b>, no changes found to push, so no container-build triggered. </p>
 
-<p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, see 
-<a href=https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh</a>
+<p> If this job is ever disabled and you want to update the LATEST_IMAGES files yourself, run 
+<a href=https://github.com/redhat-developer/devspaces/blob/''' + MIDSTM_BRANCH + '''/dependencies/LATEST_IMAGES.sh>LATEST_IMAGES.sh --commit</a>
 
 <p>Results:<ul><li><a href=https://quay.io/devspaces/devspaces-'''+MIDSTM_NAME+'''>quay.io/devspaces/devspaces-'''+MIDSTM_NAME+'''</a></li></ul></p>
             ''')

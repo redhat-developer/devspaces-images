@@ -183,7 +183,7 @@ node(nodeLabel){
         } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
             println "Scheduling update-digests for this update:"
             println DIFF_LATEST_IMAGES_QUAY_V_STORED
-            jobPath='/job/DS_CI/job/update-digests-in-metadata_' + JOB_BRANCH
+            jobPath='/job/DS_CI/job/update-digests_' + JOB_BRANCH
             final jobResult = build(
                 job: jobPath.replaceAll("/job/","/"),
                 wait: false,

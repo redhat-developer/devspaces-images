@@ -4,7 +4,7 @@
 //   DS_VERSION
 //   CLEAN_ON_FAILURE = "true"
 
-def MIDSTM_REPO = "redhat-developer/codeready-workspaces"
+def MIDSTM_REPO = "redhat-developer/devspaces"
 def MIDSTM_BRANCH = "devspaces-3-rhel-8"
 
 def buildNode = "x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
@@ -15,7 +15,7 @@ timeout(120) {
                 withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) 
                 {
                     cleanWs()
-                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/codeready-workspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                     def util = load "${WORKSPACE}/util2.groovy"
                     util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "targetmid", MIDSTM_BRANCH, false)
                     DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)

@@ -47,7 +47,7 @@ Artifact builder + sync job; triggers cli build after syncing from upstream
 <li>Downstream: <a href=https://github.com/redhat-developer/devspaces-chectl/tree/''' + MIDSTM_BRANCH + '''>dsc</a></li>
 </ul>
 
-Results:  <a href=https://github.com/redhat-developer/devspaces-chectl/releases>chectl/releases</a>
+Results: <ul><li> <a href=https://github.com/redhat-developer/devspaces-chectl/releases>chectl/releases</a> </li></ul>
 <p><blockquote>
     To retrieve assets from github:
     <p><pre>
