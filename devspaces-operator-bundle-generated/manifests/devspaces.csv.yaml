@@ -1116,11 +1116,11 @@ spec:
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:21a4e21e4a8e3a8ae721dfdbb80f74360a003a4aa57a729b4046839a28520a3b
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDECQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:95beca98a0eef9dc8b27e468bb4c0338ae6ecbf240207e827d33821672d967d1
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:e99b82551e83c14ad17351805c6b3625eb6729ec4f722060042d76e5c5c6d0d1
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDCCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:21a4e21e4a8e3a8ae721dfdbb80f74360a003a4aa57a729b4046839a28520a3b
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDECQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:95beca98a0eef9dc8b27e468bb4c0338ae6ecbf240207e827d33821672d967d1
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:e99b82551e83c14ad17351805c6b3625eb6729ec4f722060042d76e5c5c6d0d1
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1136,7 +1136,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:47f6e4b9706bc5e4c39350e33ac2d4b7aa7820e6a07504c7beb5210d1c155299
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:f3c80c259a57534b8b8759df8ef0eace546f6bf8e810d1d4138371ab3bd86713
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1468,11 +1468,11 @@ spec:
   - name: devspaces_udi_devfile_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:21a4e21e4a8e3a8ae721dfdbb80f74360a003a4aa57a729b4046839a28520a3b
   - name: devspaces_udi_devfile_registry_image_gmxdecq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:95beca98a0eef9dc8b27e468bb4c0338ae6ecbf240207e827d33821672d967d1
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:e99b82551e83c14ad17351805c6b3625eb6729ec4f722060042d76e5c5c6d0d1
   - name: devspaces_udi_plugin_registry_image_gmxdccq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:21a4e21e4a8e3a8ae721dfdbb80f74360a003a4aa57a729b4046839a28520a3b
   - name: devspaces_udi_plugin_registry_image_gmxdecq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:95beca98a0eef9dc8b27e468bb4c0338ae6ecbf240207e827d33821672d967d1
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:e99b82551e83c14ad17351805c6b3625eb6729ec4f722060042d76e5c5c6d0d1
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:f03c80ddc410d25b59de26837825fa0626b0eff5eaa4780aab5f96ebe210af19
   - name: gateway_authentication_sidecar
@@ -1488,7 +1488,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:47f6e4b9706bc5e4c39350e33ac2d4b7aa7820e6a07504c7beb5210d1c155299
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:f3c80c259a57534b8b8759df8ef0eace546f6bf8e810d1d4138371ab3bd86713
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
