@@ -10,7 +10,6 @@
 #
 
 # this container build creates configbump binary, which can then be extracted with rhel.Dockefile.extract.assets.sh
-# so we can use asset-*.tar.gz files for all arches in brew.Dockerfile
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/go-toolset
 FROM registry.access.redhat.com/ubi8/go-toolset:1.15.14-3 as builder
