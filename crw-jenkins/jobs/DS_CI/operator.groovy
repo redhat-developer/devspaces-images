@@ -72,44 +72,12 @@ Artifact builder + sync job; triggers brew after syncing
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                pipelineTriggers {
-                    triggers{
-                        genericTrigger {
-                            genericVariables {
-                                genericVariable {
-                                    key("ref")
-                                    value('\$.ref')
-                                    expressionType("JSONPath")
-                                    regexpFilter("")
-                                    defaultValue("")
-                                }
-                                genericVariable {
-                                    key("name")
-                                    value('\$.repository.full_name')
-                                    expressionType("JSONPath")
-                                    regexpFilter("")
-                                    defaultValue("")
-                                }
-                                genericVariable {
-                                    key("files")
-                                    value('\$.commits[*].[\'modified\',\'added\',\'removed\'][*]')
-                                    expressionType("JSONPath")
-                                    regexpFilter("")
-                                    defaultValue("")
-                                }
-                            }
-                            token('')
-                            tokenCredentialId('')
-                            printContributedVariables(true)
-                            printPostContent(true)
-                            causeString("Generic Webhook Trigger for changes to https://github.com/" + SOURCE_REPO)
-                            silentResponse(false)
-                            regexpFilterText('$ref $files $name')
-                            regexpFilterExpression('refs/heads/' + SOURCE_BRANCH + 'refs/heads/main .*"(?!(olm|\\.github|hack)).*/[^"]+?".* ' + SOURCE_REPO)
-                        }
-                    }
-                }
-
+                // watch upstream but with some ignored folders
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO, 
+                    '$ref $files $name', 
+                    'refs/heads/' + SOURCE_BRANCH + 'refs/heads/main .*"(?!(bin|\\.ci|\\.github|helmcharts)).*/[^"]+?".* ' + SOURCE_REPO
+                )
+                
                 disableResumeJobProperty()
             }
 

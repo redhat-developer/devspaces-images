@@ -63,14 +63,7 @@ Artifact builder + sync job; triggers brew after syncing
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                // disabled because no changes in the branch / run this manually 
-                // pipelineTriggers {
-                //     triggers{
-                //         pollSCM{
-                //             scmpoll_spec("H H * * *") // every 24hrs
-                //         }
-                //     }
-                // }
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO) 
 
                 disableResumeJobProperty()
             }

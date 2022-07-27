@@ -62,43 +62,11 @@ UDI image builder (including assets); triggers brew
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                pipelineTriggers {
-                    triggers{
-                        genericTrigger {
-                            genericVariables {
-                                genericVariable {
-                                    key("ref")
-                                    value('\$.ref')
-                                    expressionType("JSONPath")
-                                    regexpFilter("")
-                                    defaultValue("")
-                                }
-                                genericVariable {
-                                    key("name")
-                                    value('\$.repository.full_name')
-                                    expressionType("JSONPath")
-                                    regexpFilter("")
-                                    defaultValue("")
-                                }
-                                genericVariable {
-                                    key("files")
-                                    value('\$.commits[*].[\'modified\',\'added\',\'removed\'][*]')
-                                    expressionType("JSONPath")
-                                    regexpFilter("")
-                                    defaultValue("")
-                                }
-                            }
-                            token('')
-                            tokenCredentialId('')
-                            printContributedVariables(true)
-                            printPostContent(true)
-                            causeString("Generic Webhook Trigger for changes to https://github.com/" + SOURCE_REPO)
-                            silentResponse(false)
-                            regexpFilterText('$ref $files $name')
-                            regexpFilterExpression('refs/heads/' + MIDSTM_BRANCH + ' .*"(?!devspaces-' + MIDSTM_NAME + '/sources)' + "devspaces-" + MIDSTM_NAME + '/[^"]+?".* ' + SOURCE_REPO)
-                        }
-                    }
-                }
+                // only watch devspaces-udi folder, but ignore sources file
+                JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO, 
+                    '$ref $files $name', 
+                    'refs/heads/' + MIDSTM_BRANCH + ' .*"(?!devspaces-' + MIDSTM_NAME + '/sources)' + "devspaces-" + MIDSTM_NAME + '/[^"]+?".* ' + SOURCE_REPO
+                )
 
                 disableResumeJobProperty()
             }
