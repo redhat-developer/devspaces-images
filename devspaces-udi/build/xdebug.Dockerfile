@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/php-74
-FROM registry.access.redhat.com/ubi8/php-74:1-28 as builder
+FROM registry.access.redhat.com/ubi8/php-74:1-67.1656631955 as builder
 USER root
 RUN dnf install -y diffutils findutils php-fpm php-opcache php-devel php-pear php-gd php-mysqli php-zlib php-curl ca-certificates && \
     pecl channel-update pecl.php.net && \
