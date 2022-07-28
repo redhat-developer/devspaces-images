@@ -441,7 +441,13 @@ func TestEnvVars(t *testing.T) {
 				"RELATED_IMAGE_che_golang_1_14_devfile_registry_image_G4XDGNR":                     "quay.io/eclipse/che-golang-1.14",
 				"RELATED_IMAGE_che_php_7_devfile_registry_image_G4XDGNR":                           "quay.io/eclipse/che-php-7",
 				"RELATED_IMAGE_che_java11_maven_devfile_registry_image_G4XDGNR":                    "quay.io/eclipse/che-java11-maven",
-				"RELATED_IMAGE_che_java8_maven_devfile_registry_image_G4XDGNR":                     "quay.io/eclipse/che-java8-maven"
+				"RELATED_IMAGE_che_java8_maven_devfile_registry_image_G4XDGNR":                     "quay.io/eclipse/che-java8-maven",
+				"RELATED_IMAGE_codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMQK":    "registry.redhat.io/codeready-workspaces/stacks-cpp-rhel8",
+				"RELATED_IMAGE_codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8",
+				"RELATED_IMAGE_codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/stacks-golang-rhel8",
+				"RELATED_IMAGE_codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMQK":    "registry.redhat.io/codeready-workspaces/stacks-php-rhel8",
+				"RELATED_IMAGE_codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/plugin-java11-rhel8",
+				"RELATED_IMAGE_codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMQK":  "registry.redhat.io/codeready-workspaces/plugin-java8-rhel8",
 			},
 			expected: []ImageAndName{
 				{Name: "che_cpp_rhel7_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-cpp-rhel7"},
@@ -450,7 +456,13 @@ func TestEnvVars(t *testing.T) {
 				{Name: "che_golang_1_14_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-golang-1.14"},
 				{Name: "che_php_7_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-php-7"},
 				{Name: "che_java11_maven_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-java11-maven"},
-				{Name: "che_java8_maven_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-java8-maven"}
+				{Name: "che_java8_maven_devfile_registry_image_G4XDGNR", Image: "quay.io/eclipse/che-java8-maven"},
+				{Name: "codeready_workspaces_stacks_cpp_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/stacks-cpp-rhel8"},
+				{Name: "codeready_workspaces_stacks_dotnet_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/stacks-dotnet-rhel8"},
+				{Name: "codeready_workspaces_stacks_golang_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/stacks-golang-rhel8"},
+				{Name: "codeready_workspaces_stacks_php_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/stacks-php-rhel8"},
+				{Name: "codeready_workspaces_plugin_java11_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/plugin-java11-rhel8"},
+				{Name: "codeready_workspaces_plugin_java8_devfile_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/plugin-java8-rhel8"},
 			},
 		},
 	}

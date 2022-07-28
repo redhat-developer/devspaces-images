@@ -42,7 +42,10 @@ spec:
     singular: checluster
   scope: Namespaced
   versions:
-    - name: v1
+    - deprecated: true
+      deprecationWarning: org.eclipse.che/v1 CheCluster is deprecated and will be
+        removed in future releases
+      name: v1
       schema:
         openAPIV3Schema:
           description: The `CheCluster` custom resource allows defining and managing
@@ -918,7 +921,7 @@ spec:
                       type: object
                     pluginRegistryMemoryLimit:
                       description: Overrides the memory limit used in the plugin registry
-                        deployment. Defaults to 256Mi.
+                        deployment. Defaults to 512Mi.
                       type: string
                     pluginRegistryMemoryRequest:
                       description: Overrides the memory request used in the plugin

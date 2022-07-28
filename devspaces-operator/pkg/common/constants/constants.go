@@ -33,7 +33,7 @@ const (
 	DefaultDashboardCpuRequest    = "100m"
 
 	// PluginRegistry
-	DefaultPluginRegistryMemoryLimit   = "256Mi"
+	DefaultPluginRegistryMemoryLimit   = "512Mi"
 	DefaultPluginRegistryMemoryRequest = "32Mi"
 	DefaultPluginRegistryCpuLimit      = "500m"
 	DefaultPluginRegistryCpuRequest    = "100m"
@@ -61,18 +61,20 @@ const (
 	DefaultCheServiceAccountName           = "che"
 
 	// OAuth
-	BitBucketOAuthConfigMountPath           = "/che-conf/oauth/bitbucket"
-	BitBucketOAuthConfigPrivateKeyFileName  = "private.key"
-	BitBucketOAuthConfigConsumerKeyFileName = "consumer.key"
-	GitHubOAuthConfigMountPath              = "/che-conf/oauth/github"
-	GitHubOAuthConfigClientIdFileName       = "id"
-	GitHubOAuthConfigClientSecretFileName   = "secret"
-	GitLabOAuthConfigMountPath              = "/che-conf/oauth/gitlab"
-	GitLabOAuthConfigClientIdFileName       = "id"
-	GitLabOAuthConfigClientSecretFileName   = "secret"
-	OAuthScmConfiguration                   = "oauth-scm-configuration"
-	AccessToken                             = "access_token"
-	IdToken                                 = "id_token"
+	BitBucketOAuthConfigClientIdFileName     = "id"
+	BitBucketOAuthConfigClientSecretFileName = "secret"
+	BitBucketOAuthConfigMountPath            = "/che-conf/oauth/bitbucket"
+	BitBucketOAuthConfigPrivateKeyFileName   = "private.key"
+	BitBucketOAuthConfigConsumerKeyFileName  = "consumer.key"
+	GitHubOAuthConfigMountPath               = "/che-conf/oauth/github"
+	GitHubOAuthConfigClientIdFileName        = "id"
+	GitHubOAuthConfigClientSecretFileName    = "secret"
+	GitLabOAuthConfigMountPath               = "/che-conf/oauth/gitlab"
+	GitLabOAuthConfigClientIdFileName        = "id"
+	GitLabOAuthConfigClientSecretFileName    = "secret"
+	OAuthScmConfiguration                    = "oauth-scm-configuration"
+	AccessToken                              = "access_token"
+	IdToken                                  = "id_token"
 
 	// Labels
 	KubernetesComponentLabelKey = "app.kubernetes.io/component"

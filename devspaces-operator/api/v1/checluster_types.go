@@ -251,7 +251,7 @@ type CheClusterSpecServer struct {
 	// Default value is `Always` for `nightly`, `next` or `latest` images, and `IfNotPresent` in other cases.
 	// +optional
 	PluginRegistryPullPolicy corev1.PullPolicy `json:"pluginRegistryPullPolicy,omitempty"`
-	// Overrides the memory limit used in the plugin registry deployment. Defaults to 256Mi.
+	// Overrides the memory limit used in the plugin registry deployment. Defaults to 512Mi.
 	// +optional
 	PluginRegistryMemoryLimit string `json:"pluginRegistryMemoryLimit,omitempty"`
 	// Overrides the memory request used in the plugin registry deployment. Defaults to 16Mi.
@@ -876,6 +876,7 @@ type CheClusterStatus struct {
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:deprecatedversion:warning="org.eclipse.che/v1 CheCluster is deprecated and will be removed in future releases"
 // +k8s:openapi-gen=true
 // +operator-sdk:csv:customresourcedefinitions:displayName="Eclipse Che instance Specification"
 // +operator-sdk:csv:customresourcedefinitions:order=1
