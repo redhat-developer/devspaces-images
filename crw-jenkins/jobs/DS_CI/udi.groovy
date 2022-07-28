@@ -65,7 +65,9 @@ UDI image builder (including assets); triggers brew
                 // only watch devspaces-udi folder, but ignore sources file
                 JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO, 
                     '$ref $files $name', 
-                    'refs/heads/' + MIDSTM_BRANCH + ' .*"(?!devspaces-' + MIDSTM_NAME + '/sources)' + "devspaces-" + MIDSTM_NAME + '/[^"]+?".* ' + SOURCE_REPO
+                    'refs/heads/' + MIDSTM_BRANCH + ' ' + 
+                        '.*"(?!devspaces-' + MIDSTM_NAME + '/sources)' + "devspaces-" + MIDSTM_NAME + '/[^"]+?".*' + ' ' + 
+                        SOURCE_REPO
                 )
 
                 disableResumeJobProperty()

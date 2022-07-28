@@ -75,7 +75,9 @@ Artifact builder + sync job; triggers brew after syncing
                 // watch upstream but with some ignored folders
                 JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO, 
                     '$ref $files $name', 
-                    'refs/heads/' + SOURCE_BRANCH + 'refs/heads/main .*"(?!(bin|\\.ci|\\.github|helmcharts)).*/[^"]+?".* ' + SOURCE_REPO
+                    'refs/heads/' + SOURCE_BRANCH + ' ' +
+                        '.*"(?!(bin|\\.ci|\\.github|helmcharts)/.+)[^"]+?".*' + ' ' + 
+                        SOURCE_REPO
                 )
                 
                 disableResumeJobProperty()

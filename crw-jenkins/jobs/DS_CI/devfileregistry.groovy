@@ -65,7 +65,9 @@ Artifact builder + sync job; triggers brew after syncing
                 // only watch dependencies/UPSTM_NAME
                 JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO, 
                     '$ref $files $name', 
-                    'refs/heads/' + SOURCE_BRANCH + ' .*"dependencies/' + UPSTM_NAME + '/[^"]+?".* '+ SOURCE_REPO
+                    'refs/heads/' + SOURCE_BRANCH + ' ' + 
+                        '.*"dependencies/' + UPSTM_NAME + '/[^"]+?".*' + ' ' + 
+                        SOURCE_REPO
                 )
 
                 disableResumeJobProperty()
