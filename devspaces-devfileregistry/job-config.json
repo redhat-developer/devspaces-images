@@ -17,12 +17,12 @@
           "devspaces-3.1-rhel-8",
           "devspaces-3.1-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
-          "main",
-          "main"
+          "devspaces-3.2-rhel-8",
+          "devspaces-3.2-rhel-8"
         ],
         "disabled": false
       },
@@ -54,7 +54,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -91,7 +91,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -128,7 +128,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -174,7 +174,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -211,7 +211,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -248,7 +248,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -285,21 +285,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
-      },
-      "3.2": {
-        "upstream_branch": [
-          "7.52.x",
-          "7.51.x"
-        ],
-        "disabled": false
-      },
-      "3.x": {
-        "upstream_branch": [
-          "main",
-          "main"
-        ],
-        "disabled": false
+        "disabled": true
       }
     },
     "theia": {
@@ -322,7 +308,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -359,21 +345,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
-      },
-      "3.2": {
-        "upstream_branch": [
-          "7.52.x",
-          "7.51.x"
-        ],
-        "disabled": false
-      },
-      "3.x": {
-        "upstream_branch": [
-          "main",
-          "main"
-        ],
-        "disabled": false
+        "disabled": true
       }
     },
     "devfileregistry": {
@@ -396,7 +368,7 @@
           "devspaces-3.1-rhel-8",
           "devspaces-3.1-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -433,7 +405,7 @@
           "devspaces-3.1-rhel-8",
           "devspaces-3.1-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -560,7 +532,7 @@
           "20220623",
           "20220623"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -597,7 +569,7 @@
           "v2.5.0",
           "v2.5.0"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -622,13 +594,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
-      },
-      "3.2": {
-        "disabled": false
-      },
-      "3.x": {
-        "disabled": false
+        "disabled": true
       }
     },
     "build-all-images": {
@@ -639,7 +605,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -661,7 +627,7 @@
           "devspaces-3.1-rhel-8",
           "devspaces-3.1-rhel-8"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -705,7 +671,7 @@
           "7.49.x"
         ],
         "node_version": "16.13.2",
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -744,7 +710,7 @@
           "7.50.x",
           "7.49.x"
         ],
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "upstream_branch": [
@@ -778,7 +744,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -795,7 +761,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -812,7 +778,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -827,9 +793,11 @@
       },
       "3.0": {
         "disabled": true
-      },
+      }
+    },
+    "update-digests": {
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -846,7 +814,7 @@
         "disabled": true
       },
       "3.1": {
-        "disabled": false
+        "disabled": true
       },
       "3.2": {
         "disabled": false
@@ -868,15 +836,15 @@
       },
       "3.1": {
         "CSV_VERSION": "3.1.0",
-        "CSV_VERSION_PREV": "3.0.0-0.1655729426.p"
+        "CSV_VERSION_PREV": "3.0.0-0.1657548302.p"
       },
       "3.2": {
         "CSV_VERSION": "3.2.0",
-        "CSV_VERSION_PREV": "3.0.0-0.1655729426.p"
+        "CSV_VERSION_PREV": "3.0.0-0.1657548302.p"
       },
       "3.x": {
         "CSV_VERSION": "3.2.0",
-        "CSV_VERSION_PREV": "3.0.0-0.1655729426.p"
+        "CSV_VERSION_PREV": "3.0.0-0.1657548302.p"
       }
     },
     "operator-metadata": {
@@ -891,14 +859,14 @@
       "2.15": "94671",
       "3.0": "89695",
       "3.1": "97714",
-      "3.2": "n/a",
+      "3.2": "98977",
       "3.x": "n/a"
     },
     "Epic": {
       "2.15": "CRW-2962",
       "3.0": "CRW-2475",
       "3.1": "CRW-2746",
-      "3.2": "n/a",
+      "3.2": "CRW-3096",
       "3.x": "n/a"
     },
     "FLOATING_QUAY_TAGS": {
