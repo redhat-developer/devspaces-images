@@ -1124,7 +1124,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:a345c43c04fed726d518fdf8db7624c13e0b1f9436a213092e893f376914e812
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:b542b7c5d26e3abf7ed787b8efec7a7cfb82579f53333330a098adea1e6a2133
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1138,7 +1138,7 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:b68d2d86ac9f9a191774cf7a0f06814701b46cdffba609e207c1d30d9b554558
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:81bffbe5b0bef9b38505dcf673936d0d0a5473c1ddc7c6fedb6738aeb9618a8c
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:513476f5d0a6f85e55c1a6a5c4fb633c2371b56d98d8041bc308dd4ba9131820
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
@@ -1464,7 +1464,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:9e50747d0cb79b32417cca7b4ddfaf7fc3c687e48664440377bad8a3a0b67955
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:a345c43c04fed726d518fdf8db7624c13e0b1f9436a213092e893f376914e812
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:b542b7c5d26e3abf7ed787b8efec7a7cfb82579f53333330a098adea1e6a2133
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
@@ -1478,4 +1478,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:b68d2d86ac9f9a191774cf7a0f06814701b46cdffba609e207c1d30d9b554558
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:81bffbe5b0bef9b38505dcf673936d0d0a5473c1ddc7c6fedb6738aeb9618a8c
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:513476f5d0a6f85e55c1a6a5c4fb633c2371b56d98d8041bc308dd4ba9131820
