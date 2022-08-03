@@ -251,7 +251,7 @@ type CheClusterSpecServer struct {
 	// Default value is `Always` for `nightly`, `next` or `latest` images, and `IfNotPresent` in other cases.
 	// +optional
 	PluginRegistryPullPolicy corev1.PullPolicy `json:"pluginRegistryPullPolicy,omitempty"`
-	// Overrides the memory limit used in the plugin registry deployment. Defaults to 512Mi.
+	// Overrides the memory limit used in the plugin registry deployment. Defaults to 1536Mi.
 	// +optional
 	PluginRegistryMemoryLimit string `json:"pluginRegistryMemoryLimit,omitempty"`
 	// Overrides the memory request used in the plugin registry deployment. Defaults to 16Mi.
@@ -366,6 +366,9 @@ type CheClusterSpecServer struct {
 	// These default components are meant to be used when a Devfile does not contain any components.
 	// +optional
 	WorkspaceDefaultComponents []devfile.Component `json:"workspaceDefaultComponents,omitempty"`
+	// Open VSX registry URL. If omitted an embedded instance will be used.
+	// +optional
+	OpenVSXRegistryURL string `json:"openVSXRegistryURL,omitempty"`
 }
 
 // +k8s:openapi-gen=true
