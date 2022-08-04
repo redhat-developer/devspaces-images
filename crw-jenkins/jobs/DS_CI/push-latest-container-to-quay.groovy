@@ -21,6 +21,7 @@ for (JB in JOB_BRANCHES) {
         JOB_BRANCH=""+JB
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         FLOATING_QUAY_TAGS="" + config.Other."FLOATING_QUAY_TAGS"[JB]
+        OCP_VERSIONS="" + config.Other."OPENSHIFT_VERSIONS_SUPPORTED"[JB]?.join(" ")
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."push-latest-container-to-quay"[JB].disabled) // on reload of job, disable to avoid churn
@@ -98,15 +99,6 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
                 artifactNumToKeep(1)
             }
 
-            /* requires naginator plugin */
-            /* publishers {
-                retryBuild {
-                    rerunIfUnstable()
-                    retryLimit(1)
-                    progressiveDelay(30,90)
-                }
-            } */
-
             parameters{ 
                 textParam("CONTAINERS", '''\
 configbump operator operator-bundle dashboard devfileregistry \
@@ -116,11 +108,10 @@ theia-dev theia-endpoint traefik udi''', '''list of 15 containers to copy:<br/>
 * no '-rhel8' suffix<br/>
 * include one, some, or all as needed''')
                 stringParam("MIDSTM_BRANCH", MIDSTM_BRANCH, "")
-                stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (2.y-zz) and base (2.y) tags.")
+                stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
+                stringParam("FLOATING_QUAY_TAGS", FLOATING_QUAY_TAGS, "Update :" + FLOATING_QUAY_TAGS + " tag in addition to latest (3.y-zz) and base (3.y) tags.")
                 booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
             }
-
-            // TODO: enable naginator plugin to re-trigger if job fails
 
             // TODO: add email notification to nboldt@, anyone who submits a bad build, etc.
 

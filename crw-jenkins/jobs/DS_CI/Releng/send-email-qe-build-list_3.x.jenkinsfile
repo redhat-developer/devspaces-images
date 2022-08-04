@@ -7,6 +7,7 @@ import groovy.transform.Field
 // mailSubject
 // errataURL
 // epicURL
+// OCP_VERSIONS
 // additionalNotes
 // doSendEmail
 // RECIPIENTS
@@ -135,38 +136,71 @@ Quay Images:
 ''' + NEW_QUAY_L
 
                     mailBody = mailBody + '''
-Brew NVRs (for use in ''' + errataURL + '''):
+Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
 ''' + NEW_NVR_L
 
-                    IIB_INFO = sh (
-                        script: '''
-DS_VERSION="'''+DS_VERSION+'''"
-for csv in operator-bundle; do
-    lastcsv=$(curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | \
-        jq ".raw_messages[].msg.index | .added_bundle_images[0]" -r | sort -uV | \
-        grep "${csv}:${DS_VERSION}" | tail -1 | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-##");
-    curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | \
-        jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | \
-        grep "${lastcsv}" | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#  #";echo
+            whichBundle="operator-bundle"
+
+            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+            // NOTE: similar code in send-email-qe-build-list_3.*.jenkinsfile and push-latest-container-to-quay_3.*.jenkinsfile
+            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+            println "####################################################################################################################"
+            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"
+            println "####################################################################################################################"
+
+            // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
+            // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
+            def latestBundleImage = sh(script: '''#!/bin/bash
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
+./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+''', returnStdout: true).trim()
+
+            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
+            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10) 
+            def IIBs = sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
+for OCP_VER in ''' + OCP_VERSIONS + '''; do
+    ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + ''' | sed -r \
+        -e "s#''' + latestBundleImage + '''\\t+##" \
+        -e "s#(.+)\\t(.+)#\\1 (\\2)#"
 done
-                        ''',
-                        returnStdout: true
-                    ).trim()
+''', returnStdout: true)
+
+            // if we got the right number of values (matching number of OCP versions)
+            if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
+                println "####################################################################################################################"
+                println "##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}"
+                println "## " + IIBs.trim().replaceAll("\n", "\n## ")
+                println "####################################################################################################################"
+                currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIBs found: "
+                currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+
+                // // // // // // // // // // // // // // // // // // // // // 
+                // CRW-3219 copy IIBs to Quay, including ER or RC tagged images
+                // // // // // // // // // // // // // // // // // // // // // 
+                def IIBsToQuay = sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
+./copyIIBsToQuay.sh --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''" --extra-tags "''' + mailSubject.split(" ")[1] + '''"
+''', returnStdout: true)
+            } else {
+                currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
+                if (IIBs?.trim().split("\n").length > 0) { 
+                    currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
+                    currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                }
+                currentBuild.result = 'FAILURE'
+            }
 
                     mailBody = mailBody + '''
 Bundle Image, Index Image, OCP Version:
-  ''' + IIB_INFO + '''
+* ''' + IIBs.trim().replaceAll("\n", "\n* ") + '''
 
 (queried with: 
-    DS_VERSION="'''+DS_VERSION+'''"
-    for csv in operator-bundle; do
-        lastcsv=$(curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | \
-            jq ".raw_messages[].msg.index | .added_bundle_images[0]" -r | sort -uV | \
-            grep "${csv}:${DS_VERSION}" | tail -1 | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-##");
-        curl -sSLk "https://datagrepper.engineering.redhat.com/raw?topic=/topic/VirtualTopic.eng.ci.redhat-container-image.index.built&delta=1728000&rows_per_page=30&contains=codeready-workspaces" | \
-            jq ".raw_messages[].msg.index | [.added_bundle_images[0], .index_image, .ocp_version] | @tsv" -r | sort -uV | \
-            grep "${lastcsv}" | sed -r -e "s#registry-proxy.engineering.redhat.com/rh-osbs/codeready-workspaces-#  #"
-        echo
+  $ ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+  ''' + latestBundleImage + '''
+
+  $ for OCP_VER in ''' + OCP_VERSIONS + '''; do \\
+      ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + '''; \\
     done
 )
 '''

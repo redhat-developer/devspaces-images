@@ -51,7 +51,7 @@ set -x
 
             // compute BUILD_RESULT from output of rhpkg-container-build.sh, after BUILD_RESULT=
             BUILD_RESULT=sh(returnStdout:true,script:'''sed -n '/BUILD_RESULT=/{:loop;n;p;b loop;}' ${WORKSPACE}/rhpkg-container-build.txt''').trim()
-            // compute the new tag (eg., 2.y-zz)
+            // compute the new tag (eg., 3.y-zz)
             NEW_TAG=sh(returnStdout:true,script:'''grep 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
             // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
             TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()

@@ -6,6 +6,7 @@ import groovy.transform.Field
 //   CONTAINERS
 //   MIDSTM_BRANCH
 //   FLOATING_QUAY_TAGS
+//   OCP_VERSIONS
 //   CLEAN_ON_FAILURE = "true"
 
 def checkFailureQuay(arrayLines,errorOccurred)
@@ -225,10 +226,11 @@ node(nodeLabel){
             println "####################################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
             println "####################################################################################################################"
+
+            whichBundle="operator-bundle"
+
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                 util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
-
-                whichBundle="operator-bundle"
                 sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
@@ -238,8 +240,11 @@ chmod +x updateGeneratedOperatorMetadata.sh
             }
             currentBuild.description+="; " + whichBundle.replaceAll("operator-","") + "-generated updated"
 
+            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+            // NOTE: similar code in send-email-qe-build-list_3.*.jenkinsfile and push-latest-container-to-quay_3.*.jenkinsfile
+            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
             println "####################################################################################################################"
-            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest " + whichBundle + " ${DS_VERSION}"
+            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"
             println "####################################################################################################################"
 
             // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
@@ -249,22 +254,39 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
 ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
 ''', returnStdout: true).trim()
 
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:235331 (v4.10) registry-proxy.engineering.redhat.com/rh-osbs/iib:235333 (v4.11)
+            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
+            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10) 
             def IIBs = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
-./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -i ''' + latestBundleImage + ''' | sed -r -e "s#''' + latestBundleImage + '''\\t+##" -e "s#(.+)\\t(.+)#\\1 (\\2)#"
+for OCP_VER in ''' + OCP_VERSIONS + '''; do
+    ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + ''' | sed -r \
+        -e "s#''' + latestBundleImage + '''\\t+##" \
+        -e "s#(.+)\\t(.+)#\\1 (\\2)#"
+done
 ''', returnStdout: true)
 
-            // if we got a value, we can proceed. 
-            if (IIBs?.trim().replaceAll("\n", " ")) { 
+            // if we got the right number of values (matching number of OCP versions)
+            if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
                 println "####################################################################################################################"
                 println "##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}"
                 println "## " + IIBs.trim().replaceAll("\n", "\n## ")
                 println "####################################################################################################################"
-                currentBuild.description+="; IIBs found: <br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIBs found: "
+                currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+
+                // // // // // // // // // // // // // // // 
+                // CRW-3219 copy IIBs to Quay, CI builds only
+                // // // // // // // // // // // // // // // 
+                def IIBsToQuay = sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
+./copyIIBsToQuay.sh --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''"
+''', returnStdout: true)
             } else {
-                // TODO: wait 5 mins and try again?
-                currentBuild.description+="; ERROR: no rh-osbs/iib available for " + latestBundleImage
+                currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
+                if (IIBs?.trim().split("\n").length > 0) { 
+                    currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
+                    currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                }
                 currentBuild.result = 'FAILURE'
             }
         } // if metadata or bundle

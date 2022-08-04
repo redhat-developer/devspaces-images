@@ -21,6 +21,7 @@ for (JB in JOB_BRANCHES) {
         MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
         jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
         CSV_VERSION=config.CSVs."operator-bundle"[JB].CSV_VERSION
+        OCP_VERSIONS="" + config.Other."OPENSHIFT_VERSIONS_SUPPORTED"[JB]?.join(" ")
         pipelineJob(jobPath){
             disabled(config."Management-Jobs"."send-email-qe-build-list"[JB].disabled) // on reload of job, disable to avoid churn 
             description('''
@@ -56,6 +57,7 @@ Send an email to QE announcing an ER or RC build, including a list of images.
                     '''<a href=https://errata.devel.redhat.com/filter/2410>Find an Errata</a>''')
                 stringParam("epicURL", "https://issues.redhat.com/browse/"+config.Other.Epic[JB],
                     '''<a href=https://issues.redhat.com/issues/?jql=project%20%3D%20CRW%20AND%20issuetype%20%3D%20Epic%20and%20text%20~%20%22overall%20epic%22%20order%20by%20key%20desc>Find an Epic</a>''')
+                stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
                 textParam("additionalNotes",'''(purpose of this build or respin goes here, if applicable)''',"Stuff to mention before the lists of images")
                 booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
                 booleanParam("doDisableJobs",false,'''if checked, disable the _''' + JOB_BRANCH + ''' jobs for this release to avoid respins''')

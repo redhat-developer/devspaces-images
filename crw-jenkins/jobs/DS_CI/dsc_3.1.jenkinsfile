@@ -61,10 +61,10 @@ set -x
               "assets>" + DSC_VERSION + " GA</a>"
           } else if (!versionSuffix.equals("")) {
             currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + versionSuffix + "-dsc-" + 
-              "-assets>" + DSC_VERSION + " " + versionSuffix + "</a>"
+              "assets>" + DSC_VERSION + " " + versionSuffix + "</a>"
           } else {
             currentBuild.description = "<a href=https://github.com/redhat-developer/devspaces-chectl/releases/"+DSC_VERSION+"-" + "CI"          + "-dsc-" +  
-              "-assets>" + DSC_VERSION + " CI</a>"
+              "assets>" + DSC_VERSION + " CI</a>"
           }
           if (versionSuffix.equals("GA")) {
             currentBuild.description += "; published to RCM"
