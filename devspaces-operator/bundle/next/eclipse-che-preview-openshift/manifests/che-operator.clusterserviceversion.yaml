@@ -1007,6 +1007,8 @@ spec:
                         value: "1"
                       - name: ADD_COMPONENT_READINESS_INIT_CONTAINERS
                         value: "false"
+                      - name: NO_OPT_DWO
+                        value: 'true'
                     image: registry.redhat.io/devspaces/devspaces-rhel8-operator:latest
                     imagePullPolicy: Always
                     livenessProbe:
