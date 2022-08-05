@@ -16,7 +16,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import WorkspaceDetailsContainer from '..';
 import { getMockRouterProps } from '../../../services/__mocks__/router';
-import { ROUTE } from '../../../route.enum';
+import { ROUTE } from '../../../Routes/routes';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import {
   ActionCreators,

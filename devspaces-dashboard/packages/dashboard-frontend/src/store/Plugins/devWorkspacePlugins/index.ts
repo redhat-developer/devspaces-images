@@ -15,7 +15,8 @@ import { Action, Reducer } from 'redux';
 import common from '@eclipse-che/common';
 import devfileApi from '../../../services/devfileApi';
 import { AppThunk } from '../..';
-import { fetchDevfile, fetchData } from '../../../services/registry/devfiles';
+import { fetchDevfile } from '../../../services/registry/devfiles';
+import { fetchData } from '../../../services/registry/fetchData';
 import { createObject } from '../../helpers';
 
 export interface PluginDefinition {

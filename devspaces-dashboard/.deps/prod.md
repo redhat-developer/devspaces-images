@@ -7,9 +7,9 @@
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.51.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.51.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.51.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.52.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.52.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.52.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-d624e3e`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1632305737`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
@@ -128,7 +128,7 @@
 | [`connected-react-router@6.9.2`](https://github.com/supasate/connected-react-router.git) | MIT | clearlydefined |
 | [`content-disposition@0.5.4`](https://github.com/jshttp/content-disposition.git) | MIT | clearlydefined |
 | [`convert-source-map@1.8.0`](git://github.com/thlorenz/convert-source-map.git) | MIT | clearlydefined |
-| [`cookie@0.4.2`](https://github.com/jshttp/cookie.git) | MIT | clearlydefined |
+| [`cookie@0.5.0`](https://github.com/jshttp/cookie.git) | MIT | clearlydefined |
 | [`copy-to-clipboard@3.3.1`](git+https://github.com/sudodoki/copy-to-clipboard) | MIT | clearlydefined |
 | [`core-js@2.6.12`](https://github.com/zloirock/core-js.git) | MIT | #2912 |
 | [`core-util-is@1.0.2`](git://github.com/isaacs/core-util-is) | MIT | clearlydefined |
@@ -181,7 +181,7 @@
 | [`fast-redact@3.1.1`](git+https://github.com/davidmarkclements/fast-redact.git) | MIT | clearlydefined |
 | [`fast-safe-stringify@2.1.1`](git+https://github.com/davidmarkclements/fast-safe-stringify.git) | MIT | clearlydefined |
 | [`fastify-plugin@3.0.1`](git+https://github.com/fastify/fastify-plugin.git) | MIT | clearlydefined |
-| [`fastify@3.29.0`](git+https://github.com/fastify/fastify.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.29.0) |
+| [`fastify@3.29.1`](git+https://github.com/fastify/fastify.git) | MIT | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fastify/3.29.1) |
 | [`fastq@1.13.0`](git+https://github.com/mcollina/fastq.git) | ISC | clearlydefined |
 | [`file-selector@0.1.19`](https://github.com/react-dropzone/file-selector.git) | MIT | [CQ22350](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22350) |
 | [`find-my-way@4.5.1`](git+https://github.com/delvedor/find-my-way.git) | MIT | clearlydefined |
@@ -263,7 +263,7 @@
 | [`keyv@4.3.3`](git+https://github.com/jaredwray/keyv.git) | MIT | clearlydefined |
 | [`klona@2.0.5`](https://github.com/lukeed/klona.git) | MIT | clearlydefined |
 | [`leven@2.1.0`](https://github.com/sindresorhus/leven.git) | MIT | clearlydefined |
-| [`light-my-request@4.8.0`](https://github.com/fastify/light-my-request.git) | BSD-3-Clause | clearlydefined |
+| [`light-my-request@4.12.0`](https://github.com/fastify/light-my-request.git) | BSD-3-Clause | clearlydefined |
 | [`loader-utils@1.4.0`](https://github.com/webpack/loader-utils.git) | MIT | clearlydefined |
 | [`lodash.isequalwith@4.4.0`](https://github.com/lodash/lodash.git) | MIT | clearlydefined |
 | [`lodash@4.17.21`](https://github.com/lodash/lodash.git) | MIT | #2096 |
@@ -387,7 +387,7 @@
 | [`sanitize-html@2.3.2`](https://github.com/apostrophecms/sanitize-html.git) | MIT | [CQ23018](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=23018) |
 | [`scheduler@0.19.1`](https://github.com/facebook/react.git) | MIT | clearlydefined |
 | [`seamless-immutable@7.1.4`](https://github.com/rtfeldman/seamless-immutable.git) | BSD-3-Clause | clearlydefined |
-| [`secure-json-parse@2.4.0`](git+https://github.com/fastify/secure-json-parse.git) | BSD-3-Clause | clearlydefined |
+| [`secure-json-parse@2.5.0`](git+https://github.com/fastify/secure-json-parse.git) | BSD-3-Clause | clearlydefined |
 | [`semver-store@0.3.0`](git+https://github.com/delvedor/semver-store.git) | MIT | clearlydefined |
 | [`semver@7.3.7`](https://github.com/npm/node-semver.git) | ISC | clearlydefined |
 | [`send@0.17.2`](https://github.com/pillarjs/send.git) | MIT | clearlydefined |
@@ -437,7 +437,7 @@
 | [`typedarray-to-buffer@3.1.5`](git://github.com/feross/typedarray-to-buffer.git) | MIT | clearlydefined |
 | [`umd-compat-loader@2.1.2`](http://github.com/matt-gadd/umd-compat-loader.git) | Apache-2.0 | clearlydefined |
 | [`underscore@1.13.2`](git://github.com/jashkenas/underscore.git) | MIT | clearlydefined |
-| [`undici@5.5.1`](git+https://github.com/nodejs/undici.git) | MIT | clearlydefined |
+| [`undici@5.8.0`](git+https://github.com/nodejs/undici.git) | MIT | clearlydefined |
 | [`universalify@2.0.0`](git+https://github.com/RyanZim/universalify.git) | MIT | clearlydefined |
 | [`uri-js@4.4.1`](http://github.com/garycourt/uri-js) | BSD-2-Clause | #1086 |
 | [`util-deprecate@1.0.2`](git://github.com/TooTallNate/util-deprecate.git) | MIT | clearlydefined |

@@ -15,7 +15,7 @@ import { NavGroup, NavList } from '@patternfly/react-core';
 
 import NavigationRecentItem from './RecentItem';
 import { NavigationRecentItemObject } from '.';
-import { ROUTE } from '../../route.enum';
+import { ROUTE } from '../../Routes/routes';
 import { Workspace } from '../../services/workspace-adapter';
 import { History } from 'history';
 

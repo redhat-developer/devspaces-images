@@ -25,6 +25,11 @@
   color: var(--pf-global--danger-color--100);
 }
 
+.infoIcon {
+  margin-right: 20px;
+  color: var(--pf-global--info-color--100);
+}
+
 .keybinding {
   margin: 0 3px;
   padding: 3px;

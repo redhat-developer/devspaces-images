@@ -172,7 +172,6 @@ function subscribeToStatusChange(
     return;
   }
   const callback = (message: any) => onStatusUpdateReceived(workspace, dispatch, message);
-  cheWorkspaceClient.jsonRpcMasterApi.subscribeWorkspaceStatus(workspace.id, callback);
   subscribedWorkspaceStatusCallbacks.set(workspace.id, callback);
 }
 
@@ -197,7 +196,6 @@ function subscribeToEnvironmentOutput(
     type: 'CHE_DELETE_WORKSPACE_LOGS',
     workspaceId,
   });
-  cheWorkspaceClient.jsonRpcMasterApi.subscribeEnvironmentOutput(workspaceId, callback);
   subscribedEnvironmentOutputCallbacks.set(workspaceId, callback);
 }
 
@@ -273,12 +271,12 @@ export const actionCreators: ActionCreators = {
       }
     },
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  /* eslint-enable @typescript-eslint/no-unused-vars */
   startWorkspace:
     (
+      /* eslint-disable @typescript-eslint/no-unused-vars */
       workspace: che.Workspace,
       params?: ResourceQueryParams,
+      /* eslint-enable @typescript-eslint/no-unused-vars */
     ): AppThunk<KnownAction, Promise<void>> =>
     async (): Promise<void> => {
       throw new Error('Running Che7 workspaces is not supported.');

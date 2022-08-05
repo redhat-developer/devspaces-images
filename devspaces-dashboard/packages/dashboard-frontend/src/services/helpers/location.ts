@@ -11,13 +11,13 @@
  */
 
 import { History, Location } from 'history';
-import { ROUTE } from '../../route.enum';
-import { CreateWorkspaceTab, IdeLoaderTab, WorkspaceDetailsTab } from './types';
+import { ROUTE } from '../../Routes/routes';
+import { CreateWorkspaceTab, LoaderTab, WorkspaceDetailsTab } from './types';
 import { Workspace } from '../workspace-adapter';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-export function buildIdeLoaderLocation(workspace: Workspace, tab?: IdeLoaderTab): Location {
+export function buildIdeLoaderLocation(workspace: Workspace, tab?: LoaderTab): Location {
   let pathAndQuery: string;
   if (!tab) {
     pathAndQuery = ROUTE.IDE_LOADER.replace(':namespace', workspace.namespace).replace(
@@ -25,7 +25,7 @@ export function buildIdeLoaderLocation(workspace: Workspace, tab?: IdeLoaderTab)
       workspace.name,
     );
   } else {
-    const tabId = IdeLoaderTab[tab];
+    const tabId = LoaderTab[tab];
     pathAndQuery = ROUTE.IDE_LOADER_TAB.replace(':namespace', workspace.namespace)
       .replace(':workspaceName', workspace.name)
       .replace(':tabId', tabId);

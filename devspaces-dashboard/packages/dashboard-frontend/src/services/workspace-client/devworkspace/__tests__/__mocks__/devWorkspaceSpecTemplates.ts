@@ -75,13 +75,7 @@ const getDevWorkspaceTemplate = (cpuLimit = '1500m') =>
             'app.kubernetes.io/part-of': 'che-theia.eclipse.org',
           },
           container: {
-            command: [
-              '/go/bin/che-machine-exec',
-              '--url',
-              '127.0.0.1:3333',
-              '--idle-timeout',
-              '15m',
-            ],
+            command: ['/go/bin/che-machine-exec', '--url', '127.0.0.1:3333'],
             cpuLimit: '500m',
             cpuRequest: '30m',
             env: [

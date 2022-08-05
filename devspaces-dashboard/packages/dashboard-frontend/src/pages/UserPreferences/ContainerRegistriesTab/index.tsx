@@ -28,7 +28,7 @@ import ProgressIndicator from '../../../components/Progress';
 import { lazyInject } from '../../../inversify.config';
 import { AppAlerts } from '../../../services/alerts/appAlerts';
 import { AlertItem } from '../../../services/helpers/types';
-import { ROUTE } from '../../../route.enum';
+import { ROUTE } from '../../../Routes/routes';
 import { AppState } from '../../../store';
 import * as DockerConfigStore from '../../../store/DockerConfig';
 import { RegistryEntry } from '../../../store/DockerConfig/types';

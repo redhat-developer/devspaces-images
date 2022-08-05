@@ -11,15 +11,9 @@
  */
 
 import { injectable } from 'inversify';
-import {
-  default as WorkspaceClientLib,
-  IWorkspaceMasterApi,
-  IRemoteAPI,
-} from '@eclipse-che/workspace-client';
+import { default as WorkspaceClientLib, IRemoteAPI } from '@eclipse-che/workspace-client';
 import { EventEmitter } from 'events';
 import { WorkspaceClient } from '../index';
-
-export type WebSocketsFailedCallback = () => void;
 
 /**
  * This class manages the api connection.
@@ -29,10 +23,8 @@ export class CheWorkspaceClient extends WorkspaceClient {
   private originLocation: string;
   private baseUrl: string;
   private _restApiClient: IRemoteAPI;
-  private _jsonRpcMasterApi: IWorkspaceMasterApi;
   private _failingWebSockets: string[];
   private webSocketEventEmitter: EventEmitter;
-  private webSocketEventName = 'websocketChanged';
 
   /**
    * Default constructor that is using resource.
@@ -54,48 +46,8 @@ export class CheWorkspaceClient extends WorkspaceClient {
     return this._restApiClient;
   }
 
-  get jsonRpcMasterApi(): IWorkspaceMasterApi {
-    return this._jsonRpcMasterApi;
-  }
-
-  getBaseUrl(): string {
-    return this.baseUrl;
-  }
-
-  setBaseUrl(baseUrl: string): void {
-    this.baseUrl = baseUrl;
-  }
-
   updateRestApiClient(): void {
     const baseUrl = this.baseUrl;
     this._restApiClient = WorkspaceClientLib.getRestApi({ baseUrl });
-  }
-
-  async updateJsonRpcMasterApi(): Promise<void> {
-    const jsonRpcApiLocation = this.originLocation.replace('http', 'ws');
-    this._jsonRpcMasterApi = WorkspaceClientLib.getJsonRpcApi(jsonRpcApiLocation, () =>
-      Promise.resolve(''),
-    );
-    this._jsonRpcMasterApi.onDidWebSocketStatusChange((websockets: string[]) => {
-      this._failingWebSockets = [];
-      for (const websocket of websockets) {
-        const trimmedWebSocketId = websocket.substring(0, websocket.indexOf('?'));
-        this._failingWebSockets.push(trimmedWebSocketId);
-      }
-      this.webSocketEventEmitter.emit(this.webSocketEventName);
-    });
-    await this._jsonRpcMasterApi.connect();
-  }
-
-  onWebSocketFailed(callback: WebSocketsFailedCallback) {
-    this.webSocketEventEmitter.on(this.webSocketEventName, callback);
-  }
-
-  removeWebSocketFailedListener() {
-    this.webSocketEventEmitter.removeAllListeners(this.webSocketEventName);
-  }
-
-  get failingWebSockets(): string[] {
-    return Array.from(this._failingWebSockets);
   }
 }

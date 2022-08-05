@@ -12,18 +12,20 @@
 
 import React from 'react';
 import renderer, { ReactTestRenderer } from 'react-test-renderer';
-import { IdeLoaderSteps } from '../../Step';
-import { buildIdeLoaderSteps } from '../../Step/buildSteps';
-import { LoaderProgress } from '..';
 import { WizardStep } from '@patternfly/react-core';
+import { LoaderStep, LoadingStep } from '../../Step';
+import { buildLoaderSteps, getWorkspaceLoadingSteps } from '../../Step/buildSteps';
+import { LoaderProgress } from '..';
 
 describe('Loader Progress', () => {
   describe('Step INITIALIZATION', () => {
-    const currentStepId = IdeLoaderSteps.INITIALIZING;
+    const currentStepId = LoadingStep.INITIALIZE;
     let wizardSteps: WizardStep[];
 
     beforeEach(() => {
-      wizardSteps = buildIdeLoaderSteps().values.map(v => v.toWizardStep(currentStepId));
+      const loadingSteps = getWorkspaceLoadingSteps();
+      const steps = buildLoaderSteps(loadingSteps).values;
+      wizardSteps = LoaderStep.toWizardSteps(currentStepId, steps);
     });
 
     test('snapshot', () => {
@@ -33,10 +35,7 @@ describe('Loader Progress', () => {
   });
 });
 
-function getComponent(
-  currentStepId: IdeLoaderSteps,
-  wizardSteps: WizardStep[],
-): React.ReactElement {
+function getComponent(currentStepId: LoadingStep, wizardSteps: WizardStep[]): React.ReactElement {
   return <LoaderProgress steps={wizardSteps} currentStepId={currentStepId} />;
 }
 

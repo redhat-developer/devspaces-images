@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { ROUTE } from '../../../route.enum';
+import { ROUTE } from '../../../Routes/routes';
 import isActive from '../isActive';
 
 describe('Active navigation item', () => {

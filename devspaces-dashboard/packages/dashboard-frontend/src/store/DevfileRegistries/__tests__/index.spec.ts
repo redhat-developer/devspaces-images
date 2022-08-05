@@ -292,6 +292,7 @@ describe('Devfile registries', () => {
         isLoading: false,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -304,6 +305,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -316,6 +318,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -327,6 +330,7 @@ describe('Devfile registries', () => {
         isLoading: false,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -339,6 +343,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -350,6 +355,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -368,6 +374,7 @@ describe('Devfile registries', () => {
           [url]: { metadata },
         },
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -379,6 +386,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -397,6 +405,7 @@ describe('Devfile registries', () => {
           [url]: { error },
         },
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -408,6 +417,7 @@ describe('Devfile registries', () => {
         isLoading: false,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -420,6 +430,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -431,6 +442,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -449,6 +461,7 @@ describe('Devfile registries', () => {
         devfiles: {
           [url]: { content },
         },
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -460,6 +473,7 @@ describe('Devfile registries', () => {
         isLoading: false,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -472,6 +486,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -483,6 +498,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -497,6 +513,7 @@ describe('Devfile registries', () => {
         isLoading: false,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: { schema },
         filter: '',
       };
@@ -508,6 +525,7 @@ describe('Devfile registries', () => {
         isLoading: true,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {},
         filter: '',
       };
@@ -522,6 +540,7 @@ describe('Devfile registries', () => {
         isLoading: false,
         registries: {},
         devfiles: {},
+        devWorkspaceResources: {},
         schema: {
           error,
         },

@@ -12,12 +12,12 @@
 
 import React from 'react';
 import { Wizard, WizardStep } from '@patternfly/react-core';
-import { IdeLoaderSteps } from '../Step';
+import { LoadingStep } from '../Step';
 
 import styles from './index.module.css';
 
 export type Props = {
-  currentStepId: IdeLoaderSteps;
+  currentStepId: LoadingStep;
   steps: WizardStep[];
 };
 

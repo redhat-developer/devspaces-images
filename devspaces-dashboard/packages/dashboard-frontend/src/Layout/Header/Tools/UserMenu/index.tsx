@@ -14,7 +14,7 @@ import { History } from 'history';
 import React from 'react';
 import { Dropdown, DropdownItem, DropdownPosition, DropdownToggle } from '@patternfly/react-core';
 import { connect, ConnectedProps } from 'react-redux';
-import { ROUTE } from '../../../../route.enum';
+import { ROUTE } from '../../../../Routes/routes';
 import { lazyInject } from '../../../../inversify.config';
 import { AppAlerts } from '../../../../services/alerts/appAlerts';
 import * as InfrastructureNamespacesStore from '../../../../store/InfrastructureNamespaces';

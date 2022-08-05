@@ -13,13 +13,12 @@
 import React from 'react';
 import { Redirect, Route, RouteComponentProps, Switch } from 'react-router';
 import { buildFactoryLoaderPath } from '../preload';
-import { ROUTE } from '../route.enum';
+import { ROUTE } from './routes';
 
 const CreateWorkspace = React.lazy(() => import('../pages/GetStarted'));
 const WorkspacesListContainer = React.lazy(() => import('../containers/WorkspacesList'));
 const WorkspaceDetailsContainer = React.lazy(() => import('../containers/WorkspaceDetails'));
-const IdeLoaderContainer = React.lazy(() => import('../containers/IdeLoader'));
-const FactoryLoaderContainer = React.lazy(() => import('../containers/FactoryLoader'));
+const LoaderContainer = React.lazy(() => import('../containers/Loader'));
 const UserPreferences = React.lazy(() => import('../pages/UserPreferences'));
 const UserAccount = React.lazy(() => import('../pages/UserAccount'));
 
@@ -33,8 +32,8 @@ const items: RouteItem[] = [
   { to: ROUTE.HOME, component: CreateWorkspace },
   { to: ROUTE.WORKSPACES, component: WorkspacesListContainer },
   { to: ROUTE.WORKSPACE_DETAILS, component: WorkspaceDetailsContainer },
-  { to: ROUTE.IDE_LOADER, component: IdeLoaderContainer },
-  { to: ROUTE.LOAD_FACTORY, component: FactoryLoaderContainer },
+  { to: ROUTE.IDE_LOADER, component: LoaderContainer },
+  { to: ROUTE.FACTORY_LOADER, component: LoaderContainer },
   { to: ROUTE.USER_PREFERENCES, component: UserPreferences },
   { to: ROUTE.USER_ACCOUNT, component: UserAccount },
 ];
@@ -59,7 +58,10 @@ function redirectToFactoryLoader(props: RouteComponentProps): React.ReactElement
   if (!factoryUrl.includes('?')) {
     factoryUrl = factoryUrl.replace('&', '?');
   }
-  const factoryLoaderPath = buildFactoryLoaderPath(factoryUrl).replace(/^\/f/, ROUTE.LOAD_FACTORY);
+  const factoryLoaderPath = buildFactoryLoaderPath(factoryUrl).replace(
+    /^\/f/,
+    ROUTE.FACTORY_LOADER,
+  );
   return <Redirect key="redirect-to-factory" to={factoryLoaderPath} />;
 }
 

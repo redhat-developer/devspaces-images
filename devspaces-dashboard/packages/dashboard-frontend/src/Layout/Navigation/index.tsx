@@ -21,7 +21,7 @@ import NavigationMainList from './MainList';
 import NavigationRecentList from './RecentList';
 import * as WorkspacesStore from '../../store/Workspaces';
 import { selectAllWorkspaces, selectRecentWorkspaces } from '../../store/Workspaces/selectors';
-import { ROUTE } from '../../route.enum';
+import { ROUTE } from '../../Routes/routes';
 import {
   buildGettingStartedLocation,
   buildWorkspacesLocation,

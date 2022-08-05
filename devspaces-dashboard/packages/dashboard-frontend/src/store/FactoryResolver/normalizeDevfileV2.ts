@@ -10,59 +10,73 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { safeDump } from 'js-yaml';
+import { cloneDeep } from 'lodash';
+import { V220DevfileComponents } from '@devfile/api';
 import { FactoryResolver, DevfileV2ProjectSource } from '../../services/helpers/types';
 import devfileApi from '../../services/devfileApi';
 import { getProjectName } from '../../services/helpers/getProjectName';
-import { safeDump } from 'js-yaml';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { V220DevfileComponents } from '@devfile/api';
+import { generateWorkspaceName } from '../../services/helpers/generateName';
 
 /**
  * Returns a devfile from the FactoryResolver object.
- * @param devfile a Devfile.
+ * @param devfileLike a Devfile.
  * @param data a FactoryResolver object.
  * @param location a source location.
  * @param defaultComponents Default components. These default components
  * are meant to be used when a Devfile does not contain any components.
  */
 export default function normalizeDevfileV2(
-  devfile: devfileApi.Devfile,
+  devfileLike: devfileApi.DevfileLike,
   data: FactoryResolver,
   location: string,
   defaultComponents: V220DevfileComponents[],
+  namespace: string,
 ): devfileApi.Devfile {
   const scmInfo = data['scm_info'];
 
-  devfile = devfile as devfileApi.Devfile;
+  const projectName = getProjectName(scmInfo?.clone_url || location);
+  const name = devfileLike.metadata?.name || generateWorkspaceName(projectName);
+
+  // set mandatory fields
+  const devfile: devfileApi.Devfile = {
+    metadata: {
+      name,
+      namespace,
+    },
+    schemaVersion: devfileLike.schemaVersion,
+  };
+
+  Object.assign(devfile, cloneDeep(devfileLike));
+
+  // propagate default components
   if (!devfile.components || devfile.components.length === 0) {
     devfile.components = defaultComponents;
   }
 
   // temporary solution for fix che-server serialization bug with empty volume
-  const components =
-    devfile.components.map(component => {
-      if (Object.keys(component).length === 1 && component.name) {
-        component.volume = {};
-      }
-      return component;
-    }) || [];
-  devfile = Object.assign(devfile, { components });
+  devfile.components.forEach(component => {
+    if (Object.keys(component).length === 1 && component.name) {
+      component.volume = {};
+    }
+  });
 
   // add a default project
   const projects: DevfileV2ProjectSource[] = [];
   if (!devfile.projects?.length && scmInfo) {
     const origin = scmInfo.clone_url;
-    const name = getProjectName(origin);
+    const projectName = getProjectName(origin);
     const revision = scmInfo.branch;
-    const project: DevfileV2ProjectSource = { name, git: { remotes: { origin } } };
+    const project: DevfileV2ProjectSource = { name: projectName, git: { remotes: { origin } } };
     if (revision) {
       project.git.checkoutFrom = { revision };
     }
     projects.push(project);
-    devfile = Object.assign({ projects }, devfile);
+    devfile.projects = projects;
   }
 
   // provide metadata about the origin of the devfile with DevWorkspace
@@ -87,22 +101,14 @@ export default function normalizeDevfileV2(
   } else if (location) {
     devfileSource = safeDump({ url: { location } });
   }
-  if (!devfile.metadata) {
-    devfile.metadata = {} as devfileApi.DevfileMetadata;
+  if (!devfile.metadata.attributes) {
+    devfile.metadata.attributes = {};
   }
-  const metadata = devfile.metadata;
-  if (!metadata.attributes) {
-    metadata.attributes = {};
+  if (!devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
+    devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
   }
-  if (!metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION]) {
-    metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION] = {};
-  }
-  metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
+  devfile.metadata.attributes[DEVWORKSPACE_METADATA_ANNOTATION][DEVWORKSPACE_DEVFILE_SOURCE] =
     devfileSource;
-  if (!metadata.name && !metadata.generateName) {
-    metadata.generateName = getProjectName(scmInfo?.clone_url || location);
-  }
-  devfile = Object.assign({}, devfile, { metadata });
 
   return devfile;
 }

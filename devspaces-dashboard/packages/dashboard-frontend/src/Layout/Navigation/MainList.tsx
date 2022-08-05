@@ -14,7 +14,7 @@ import React from 'react';
 import { NavList } from '@patternfly/react-core';
 import NavigationMainItem from './MainItem';
 import { NavigationItemObject } from '.';
-import { ROUTE } from '../../route.enum';
+import { ROUTE } from '../../Routes/routes';
 import { AppState } from '../../store';
 import { connect, ConnectedProps } from 'react-redux';
 import { selectAllWorkspaces } from '../../store/Workspaces/selectors';

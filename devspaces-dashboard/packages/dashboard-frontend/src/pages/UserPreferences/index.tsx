@@ -16,7 +16,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import Head from '../../components/Head';
 import { UserPreferencesTab } from '../../services/helpers/types';
-import { ROUTE } from '../../route.enum';
+import { ROUTE } from '../../Routes/routes';
 import { AppState } from '../../store';
 import { selectIsLoading, selectRegistries } from '../../store/DockerConfig/selectors';
 
@@ -84,7 +84,7 @@ export class UserPreferences extends React.PureComponent<Props, State> {
           <Tab
             id="container-registries-tab"
             eventKey={containerRegistriesTab}
-            title="Containter Registries"
+            title="Container Registries"
           >
             <ContanerRegistryList history={this.props.history} />
           </Tab>

@@ -28,6 +28,7 @@ module.exports = {
   globals: {
     'ts-jest': {
       tsconfig: 'tsconfig.test.json',
+      diagnostics: true,
     },
   },
   setupFilesAfterEnv: ['./jest.setup.ts'],
@@ -35,6 +36,7 @@ module.exports = {
   collectCoverageFrom: [
     ...base.collectCoverageFrom,
 
+    '!src/**/__tests__/**',
     '!src/**/*.d.{ts,tsx}',
     '!src/**/*.config.ts',
     '!src/**/*.enum.ts',
@@ -44,10 +46,10 @@ module.exports = {
   ],
   coverageThreshold: {
     global: {
-      statements: 64,
-      branches: 54,
-      functions: 60,
-      lines: 64,
+      statements: 66,
+      branches: 55,
+      functions: 62,
+      lines: 66,
     },
   },
 };

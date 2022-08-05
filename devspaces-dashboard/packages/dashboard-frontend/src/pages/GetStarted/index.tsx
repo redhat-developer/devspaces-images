@@ -30,7 +30,7 @@ import { AppAlerts } from '../../services/alerts/appAlerts';
 import * as WorkspaceStore from '../../store/Workspaces';
 import { AppState } from '../../store';
 import { AlertItem, CreateWorkspaceTab } from '../../services/helpers/types';
-import { ROUTE } from '../../route.enum';
+import { ROUTE } from '../../Routes/routes';
 import { Workspace } from '../../services/workspace-adapter';
 import { selectBranding } from '../../store/Branding/selectors';
 import { selectRegistriesErrors } from '../../store/DevfileRegistries/selectors';

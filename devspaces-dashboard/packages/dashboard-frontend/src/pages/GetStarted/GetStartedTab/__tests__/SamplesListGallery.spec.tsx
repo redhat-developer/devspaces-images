@@ -163,9 +163,8 @@ function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?:
       },
     } as BrandingData)
     .withWorkspacesSettings(workspaceSettings)
-    .withFactoryResolver(
-      {
-        v: '4.0',
+    .withFactoryResolver({
+      resolver: {
         source: 'devfile.yaml',
         devfile: {} as Devfile,
         location: 'http://fake-location',
@@ -175,10 +174,10 @@ function createFakeStore(metadata?: che.DevfileMetaData[], devWorkspaceEnabled?:
         },
         links: [],
       },
-      {
+      converted: {
         isConverted: false,
       } as ConvertedState,
-    )
+    })
     .withDevfileRegistries({ registries })
     .build();
 }

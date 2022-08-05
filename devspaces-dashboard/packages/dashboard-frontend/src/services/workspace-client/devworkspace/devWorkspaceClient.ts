@@ -43,7 +43,7 @@ import {
   V220DevfileComponentsItemsContainer,
 } from '@devfile/api';
 import { isEqual } from 'lodash';
-import { fetchData } from '../../registry/devfiles';
+import { fetchData } from '../../registry/fetchData';
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
 
@@ -52,6 +52,9 @@ export interface IStatusUpdate {
   message: string;
   prevStatus: string | undefined;
   workspaceUID: string;
+  mainUrl?: string;
+  namespace?: string;
+  workspaceId?: string;
 }
 
 export type Subscriber = {
@@ -903,6 +906,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
       message,
       workspaceUID,
       prevStatus: prevStatusUpdate?.status,
+      namespace,
+      workspaceId: devworkspace.status?.devworkspaceId,
+      mainUrl: devworkspace.status?.mainUrl,
     };
 
     previousItem?.set(workspaceUID, statusUpdate);

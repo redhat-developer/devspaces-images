@@ -10,8 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import axios from 'axios';
-import common from '@eclipse-che/common';
+import { fetchData } from './fetchData';
 
 function createURL(url: string, baseUrl: string): URL {
   // Remove it after fixing all source links https://github.com/eclipse/che/issues/19140
@@ -50,15 +49,6 @@ export function updateObjectLinks(object: any, baseUrl): any {
     });
   }
   return object;
-}
-
-export async function fetchData<T>(url: string): Promise<T> {
-  try {
-    const response = await axios.get<T>(url);
-    return response.data;
-  } catch (e) {
-    throw common.helpers.errors.getMessage(e);
-  }
 }
 
 export async function fetchRegistryMetadata(registryUrl: string): Promise<che.DevfileMetaData[]> {

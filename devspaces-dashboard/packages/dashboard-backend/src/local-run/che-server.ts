@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { FastifyInstance, RouteShorthandOptions } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import fastifyHttpProxy from '@fastify/http-proxy';
 
 export function registerCheApiProxy(
@@ -18,21 +18,6 @@ export function registerCheApiProxy(
   cheApiProxyUpstream: string,
   origin: string,
 ) {
-  // fake JSON RPC for Che websocket API
-  // because the real proxy fails to some reason
-  // but since che workspace and devworkspace are not expected to work at the same time
-  // faking is an easier solution
-  server.get('/api/websocket', { websocket: true } as RouteShorthandOptions, connection => {
-    (connection as any).setEncoding('utf8');
-    connection.socket.on('message', message => {
-      const data = JSON.parse(message);
-      if (data?.id && data?.jsonrpc) {
-        (connection.socket as any).send(
-          JSON.stringify({ jsonrpc: data.jsonrpc, id: data.id, result: [] }),
-        );
-      }
-    });
-  });
   console.log(`Dashboard proxies requests to Che Server API on ${cheApiProxyUpstream}/api.`);
   // server api
   server.register(fastifyHttpProxy, {
@@ -51,7 +36,7 @@ export function registerCheApiProxy(
       },
     },
   });
-  // stub OPTIONS requests to '/api/' since they fails when running the backend locally.
+  // stub OPTIONS requests to '/api/' since they fail when running the backend locally.
   server.addHook('onRequest', (request, reply, done) => {
     if ((request.url === '/api' || request.url === '/api/') && request.method === 'OPTIONS') {
       return reply.send({

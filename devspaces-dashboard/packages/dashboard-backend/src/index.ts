@@ -16,7 +16,7 @@ import args from 'args';
 import { registerStaticServer } from './static';
 import { registerDevworkspaceWebsocketWatcher } from './api/devworkspaceWebsocketWatcher';
 import { registerDevworkspaceApi } from './api/devworkspaceApi';
-import { registerTemplateApi } from './api/templateApi';
+import { registerTemplateApi } from './api/devworkspaceTemplateApi';
 import { registerLocalServers } from './local-run';
 import { registerCors } from './cors';
 import { registerSwagger } from './swagger';
@@ -35,6 +35,7 @@ import {
   addAuthorizationHooks,
 } from './local-run/dexHelper';
 import { registerFactory } from './factory';
+import { namespaceApi } from './api/namespaceApi';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 
@@ -89,6 +90,10 @@ registerDevworkspaceWebsocketWatcher(server);
 
 // swagger and API
 registerSwagger(server);
+
+if (isLocalRun) {
+  namespaceApi(server);
+}
 
 registerDevworkspaceApi(server);
 

@@ -29,7 +29,7 @@ import {
   buildWorkspacesLocation,
   toHref,
 } from '../../services/helpers/location';
-import { IdeLoaderTab, WorkspaceAction, WorkspaceDetailsTab } from '../../services/helpers/types';
+import { LoaderTab, WorkspaceAction, WorkspaceDetailsTab } from '../../services/helpers/types';
 import { AppState } from '../../store';
 import { selectAllWorkspaces } from '../../store/Workspaces/selectors';
 import * as WorkspacesStore from '../../store/Workspaces';
@@ -135,7 +135,7 @@ export class WorkspaceActionsProvider extends React.Component<Props, State> {
         await this.props.startWorkspace(workspace, {
           'debug-workspace-start': true,
         });
-        return this.handleLocation(buildIdeLoaderLocation(workspace, IdeLoaderTab.Logs), workspace);
+        return this.handleLocation(buildIdeLoaderLocation(workspace, LoaderTab.Logs), workspace);
       }
       case WorkspaceAction.START_IN_BACKGROUND:
         {

@@ -13,6 +13,7 @@
 import { ApisApi, Context, KubeConfig, User } from '@kubernetes/client-node';
 import * as helper from './helpers';
 import { isLocalRun } from '../../local-run';
+import { getUserName } from './helpers';
 
 export class KubeConfigProvider {
   private isOpenShift: Promise<boolean>;
@@ -37,10 +38,7 @@ export class KubeConfigProvider {
 
     let name: string;
     try {
-      const tokenPayload = token.split('.')[1];
-      const decodedTokenPayload = Buffer.from(tokenPayload, 'base64').toString();
-      const parsedTokenPayload = JSON.parse(decodedTokenPayload);
-      name = parsedTokenPayload.name;
+      name = getUserName(token);
     } catch (error) {
       name = 'developer';
     }

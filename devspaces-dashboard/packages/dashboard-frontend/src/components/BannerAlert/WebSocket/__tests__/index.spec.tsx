@@ -13,7 +13,7 @@
 import React from 'react';
 import { container } from '../../../../inversify.config';
 import BannerAlertWebSocket from '..';
-import { CheWorkspaceClient } from '../../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
+import { DevWorkspaceClient } from '../../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { Provider } from 'react-redux';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
@@ -22,7 +22,7 @@ import { render, RenderResult } from '@testing-library/react';
 const failingWebSocketName = 'Failing websocket';
 const failingMessage = 'WebSocket connections are failing';
 
-class mockCheWorkspaceClient extends CheWorkspaceClient {
+class mockDevWorkspaceClient extends DevWorkspaceClient {
   get failingWebSockets() {
     return [failingWebSocketName];
   }
@@ -38,9 +38,9 @@ const store = new FakeStoreBuilder()
 
 describe('BannerAlertWebSocket component', () => {
   it('should show error message when error found before mounting', () => {
-    container.rebind(CheWorkspaceClient).to(mockCheWorkspaceClient).inSingletonScope();
+    container.rebind(DevWorkspaceClient).to(mockDevWorkspaceClient).inSingletonScope();
     const component = renderComponent(<BannerAlertWebSocket />);
-    container.rebind(CheWorkspaceClient).to(CheWorkspaceClient).inSingletonScope();
+    container.rebind(DevWorkspaceClient).to(DevWorkspaceClient).inSingletonScope();
     expect(
       component.getAllByText(failingMessage, {
         exact: false,
@@ -60,9 +60,9 @@ describe('BannerAlertWebSocket component', () => {
         exact: false,
       }),
     ).toEqual([]);
-    container.rebind(CheWorkspaceClient).to(mockCheWorkspaceClient).inSingletonScope();
+    container.rebind(DevWorkspaceClient).to(mockDevWorkspaceClient).inSingletonScope();
     component.rerender(comp);
-    container.rebind(CheWorkspaceClient).to(CheWorkspaceClient).inSingletonScope();
+    container.rebind(DevWorkspaceClient).to(DevWorkspaceClient).inSingletonScope();
     expect(
       component.getAllByText(failingMessage, {
         exact: false,

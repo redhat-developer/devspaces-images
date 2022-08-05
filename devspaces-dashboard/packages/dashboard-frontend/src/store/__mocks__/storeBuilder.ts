@@ -14,7 +14,7 @@ import { Store } from 'redux';
 import createMockStore from 'redux-mock-store';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
 import { AppState } from '..';
-import { State as DevfileRegistriesState } from '../DevfileRegistries/index';
+import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries/index';
 import { RegistryEntry } from '../DockerConfig/types';
 import { State as WorkspacesState } from '../Workspaces/index';
 import { State as BrandingState } from '../Branding';
@@ -94,6 +94,7 @@ export class FakeStoreBuilder {
       devfiles: {},
       filter: '',
       registries: {},
+      devWorkspaceResources: {},
       schema: {},
     } as DevfileRegistriesState,
     user: {
@@ -206,12 +207,18 @@ export class FakeStoreBuilder {
   }
 
   public withFactoryResolver(
-    resolver: ResolverState,
-    converted: ConvertedState,
+    options: {
+      resolver?: Partial<ResolverState>;
+      converted?: Partial<ConvertedState>;
+    },
     isLoading = false,
   ): FakeStoreBuilder {
-    this.state.factoryResolver.resolver = Object.assign({}, resolver);
-    this.state.factoryResolver.converted = Object.assign({}, converted);
+    if (options.resolver) {
+      this.state.factoryResolver.resolver = Object.assign({}, options.resolver as ResolverState);
+    }
+    if (options.converted) {
+      this.state.factoryResolver.converted = Object.assign({}, options.converted as ConvertedState);
+    }
     this.state.factoryResolver.isLoading = isLoading;
     return this;
   }
@@ -248,8 +255,11 @@ export class FakeStoreBuilder {
 
   public withDevfileRegistries(
     options: {
-      devfiles?: { [location: string]: { content: string; error: string } };
+      devfiles?: { [location: string]: { content?: string; error?: string } };
       registries?: { [location: string]: { metadata?: che.DevfileMetaData[]; error?: string } };
+      devWorkspaceResources?: {
+        [location: string]: { resources?: DevWorkspaceResources; error?: string };
+      };
       schema?: any;
     },
     isLoading = false,
@@ -259,6 +269,12 @@ export class FakeStoreBuilder {
     }
     if (options.registries) {
       this.state.devfileRegistries.registries = Object.assign({}, options.registries);
+    }
+    if (options.devWorkspaceResources) {
+      this.state.devfileRegistries.devWorkspaceResources = Object.assign(
+        {},
+        options.devWorkspaceResources,
+      );
     }
     if (options.schema) {
       this.state.devfileRegistries.schema = Object.assign({}, options.schema);

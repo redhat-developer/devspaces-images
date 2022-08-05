@@ -11,12 +11,12 @@
  */
 
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
-import { WarningTriangleIcon } from '@patternfly/react-icons';
+import { InfoIcon, WarningTriangleIcon } from '@patternfly/react-icons';
 import React from 'react';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
 import { Issue, WorkspaceRoutes } from '../../../services/bootstrap/issuesReporter';
 
-import * as styles from './index.module.css';
+import styles from './index.module.css';
 
 type Props = {
   branding: BrandingData;
@@ -33,7 +33,13 @@ export class IssueComponent extends React.PureComponent<Props> {
       case 'sso':
         return this.renderSsoError(issue.error);
       case 'workspaceInactive':
-        return this.renderWorkspaceInactiveError(issue.error, issue.data);
+        return this.renderInactivityTimeoutError(issue.data);
+      case 'workspaceRunTimeout':
+        return this.renderRunTimeoutError(issue.data);
+      case 'workspaceStoppedError':
+        return this.renderWorkspaceStoppedWithError(issue.error, issue.data);
+      case 'workspaceStopped':
+        return this.renderWorkspaceStopped(issue.data);
       default:
         return this.renderUnknownError(issue.error);
     }
@@ -79,7 +85,7 @@ export class IssueComponent extends React.PureComponent<Props> {
     );
 
     return (
-      <TextContent>
+      <TextContent className={styles.messageContainer}>
         <Text component={TextVariants.h1}>
           <WarningTriangleIcon className={styles.warningIcon} />
           SSO Error
@@ -94,48 +100,152 @@ export class IssueComponent extends React.PureComponent<Props> {
     );
   }
 
-  private renderWorkspaceInactiveError(
-    error: Error,
+  private renderLinkWithHash(hash: string, text: string): React.ReactNode {
+    return (
+      <a
+        onClick={() => {
+          window.location.hash = hash;
+          window.location.reload();
+        }}
+      >
+        {text}
+      </a>
+    );
+  }
+
+  private renderInactivityTimeoutError(
     workspaceRoutes: WorkspaceRoutes | undefined,
   ): React.ReactNode {
-    const linkOnClick = (hash: string) => {
-      return () => {
-        window.location.hash = hash;
-        window.location.reload();
-      };
-    };
+    let ideLoader: React.ReactNode;
+    let workspaceDetails: React.ReactNode;
 
+    if (workspaceRoutes) {
+      ideLoader = this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Restart your workspace');
+      workspaceDetails = (
+        <Text component={TextVariants.p}>
+          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+        </Text>
+      );
+    } else {
+      ideLoader = 'Restart your workspace';
+    }
+
+    return (
+      <TextContent className={styles.messageContainer}>
+        <Text component={TextVariants.h1}>
+          <WarningTriangleIcon className={styles.warningIcon} />
+          Warning
+        </Text>
+        <Text component={TextVariants.p}>
+          Your workspace has stopped due to inactivity. {ideLoader} to continue using your
+          workspace.
+        </Text>
+        {workspaceDetails}
+      </TextContent>
+    );
+  }
+
+  private renderRunTimeoutError(workspaceRoutes: WorkspaceRoutes | undefined): React.ReactNode {
+    let ideLoader: React.ReactNode;
+    let workspaceDetails: React.ReactNode;
+
+    if (workspaceRoutes) {
+      ideLoader = this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Restart your workspace');
+      workspaceDetails = (
+        <Text component={TextVariants.p}>
+          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+        </Text>
+      );
+    } else {
+      ideLoader = 'Restart your workspace';
+    }
+
+    return (
+      <TextContent className={styles.messageContainer}>
+        <Text component={TextVariants.h1}>
+          <WarningTriangleIcon className={styles.warningIcon} />
+          Warning
+        </Text>
+        <Text component={TextVariants.p}>
+          Your workspace has stopped because it has reached the run timeout. {ideLoader} to continue
+          using your workspace.
+        </Text>
+        {workspaceDetails}
+      </TextContent>
+    );
+  }
+
+  private renderWorkspaceStoppedWithError(
+    error: Error,
+    workspaceRoutes: WorkspaceRoutes | undefined,
+  ) {
     let ideLoader: React.ReactNode;
     let workspaceDetails: React.ReactNode;
 
     if (workspaceRoutes) {
       ideLoader = (
         <Text component={TextVariants.p}>
-          <a onClick={linkOnClick(workspaceRoutes.ideLoader)}>Restart your workspace</a>
+          {this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Restart your workspace')}
         </Text>
       );
 
       workspaceDetails = (
         <Text component={TextVariants.p}>
-          <a onClick={linkOnClick(workspaceRoutes.workspaceDetails)}>Return to the dashboard</a>
+          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
         </Text>
       );
     }
 
-    const warningTextbox = !error ? undefined : (
+    const messageTextbox = (
+      <Text component={TextVariants.p}>
+        Your workspace has failed with {!error ? 'an error' : 'the following error:'}
+      </Text>
+    );
+
+    const errorTextbox = !error ? undefined : (
       <Text component={TextVariants.pre} className={styles.errorMessage}>
         {error.message}
       </Text>
     );
 
     return (
-      <TextContent>
+      <TextContent className={styles.messageContainer}>
         <Text component={TextVariants.h1}>
           <WarningTriangleIcon className={styles.warningIcon} />
           Warning
         </Text>
-        {warningTextbox}
+        {messageTextbox}
+        {errorTextbox}
         {ideLoader}
+        {workspaceDetails}
+      </TextContent>
+    );
+  }
+
+  private renderWorkspaceStopped(workspaceRoutes: WorkspaceRoutes | undefined) {
+    let ideLoader: React.ReactNode;
+    let workspaceDetails: React.ReactNode;
+
+    if (workspaceRoutes) {
+      ideLoader = this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Start your workspace');
+      workspaceDetails = (
+        <Text component={TextVariants.p}>
+          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+        </Text>
+      );
+    } else {
+      ideLoader = 'Start your workspace';
+    }
+
+    return (
+      <TextContent className={styles.messageContainer}>
+        <Text component={TextVariants.h1}>
+          <InfoIcon className={styles.infoIcon} />
+          Info
+        </Text>
+        <Text component={TextVariants.p}>
+          Your workspace is not running. {ideLoader} to continue using your workspace.
+        </Text>
         {workspaceDetails}
       </TextContent>
     );
@@ -149,14 +259,15 @@ export class IssueComponent extends React.PureComponent<Props> {
     );
 
     return (
-      <TextContent>
+      <TextContent className={styles.messageContainer}>
         <Text component={TextVariants.h1}>
           <WarningTriangleIcon className={styles.warningIcon} />
           Error
         </Text>
         {errorTextbox}
         <Text component={TextVariants.p}>
-          Please try <kbd>Shift</kbd>+<kbd>Refresh</kbd>
+          Please try <kbd className={styles.keybinding}>Shift</kbd>+
+          <kbd className={styles.keybinding}>Refresh</kbd>
         </Text>
       </TextContent>
     );

@@ -17,19 +17,38 @@ import { CheckCircleIcon, ExclamationCircleIcon, InProgressIcon } from '@pattern
 import workspaceStatusLabelStyles from '../../WorkspaceStatusLabel/index.module.css';
 import styles from './index.module.css';
 
-export enum IdeLoaderSteps {
-  INITIALIZING = 1,
+export enum LoadingStep {
+  INITIALIZE = 1,
+  CREATE_WORKSPACE,
+  CREATE_WORKSPACE__FETCH_DEVFILE,
+  CREATE_WORKSPACE__APPLY_DEVFILE,
+  CREATE_WORKSPACE__FETCH_RESOURCES,
+  CREATE_WORKSPACE__APPLY_RESOURCES,
   START_WORKSPACE,
-  OPEN_IDE,
+  OPEN_WORKSPACE,
 }
 
-function getStepTitle(id: IdeLoaderSteps): string {
+export function isIdeStep(loadingStep: LoadingStep): boolean {
+  return loadingStep === LoadingStep.START_WORKSPACE || loadingStep === LoadingStep.OPEN_WORKSPACE;
+}
+
+function getStepTitle(id: LoadingStep): string {
   switch (id) {
-    case IdeLoaderSteps.INITIALIZING:
+    case LoadingStep.INITIALIZE:
       return 'Initializing';
-    case IdeLoaderSteps.START_WORKSPACE:
+    case LoadingStep.CREATE_WORKSPACE:
+      return 'Creating a workspace';
+    case LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE:
+      return 'Looking for devfile';
+    case LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE:
+      return 'Applying devfile';
+    case LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES:
+      return 'Fetching pre-built resources';
+    case LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES:
+      return 'Applying resources';
+    case LoadingStep.START_WORKSPACE:
       return 'Waiting for workspace to start';
-    case IdeLoaderSteps.OPEN_IDE:
+    case LoadingStep.OPEN_WORKSPACE:
       return 'Open IDE';
   }
 }
@@ -37,20 +56,42 @@ function getStepTitle(id: IdeLoaderSteps): string {
 export class LoaderStep {
   private _id: number;
   private _title: string;
+  private _parentId: number | undefined;
   public hasError: boolean;
 
-  constructor(id: number, hasError = false) {
-    this._id = id;
-    this._title = getStepTitle(id);
-    this.hasError = hasError;
+  static toWizardSteps(
+    currentStepId: number,
+    steps: LoaderStep[],
+    parentId?: number,
+  ): WizardStep[] {
+    return steps
+      .filter(step => step.parentId === parentId)
+      .map(step => {
+        const childrenSteps = LoaderStep.toWizardSteps(currentStepId, steps, step.id);
+        return step.toWizardStep(currentStepId, childrenSteps);
+      });
   }
 
-  get id(): IdeLoaderSteps {
+  constructor(id: number, parentId?: number) {
+    this._id = id;
+    this._title = getStepTitle(id);
+    this._parentId = parentId;
+  }
+
+  get id(): LoadingStep {
     return this._id;
   }
 
   get title(): string {
     return this._title;
+  }
+
+  set title(newTitle: string) {
+    this._title = newTitle;
+  }
+
+  get parentId(): number | undefined {
+    return this._parentId;
   }
 
   private buildIcon(currentStepId: number): React.ReactNode {
@@ -98,13 +139,17 @@ export class LoaderStep {
     );
   }
 
-  public toWizardStep(currentStepId: number): WizardStep {
+  private toWizardStep(currentStepId: number, childrenSteps?: WizardStep[]): WizardStep {
     const icon = this.buildIcon(currentStepId);
-    return {
+    const step: WizardStep = {
       id: this.id,
       name: this.buildName(currentStepId, icon),
       canJumpTo: currentStepId >= this.id,
     };
+    if (childrenSteps && childrenSteps.length !== 0) {
+      step.steps = childrenSteps;
+    }
+    return step;
   }
 }
 
@@ -141,7 +186,7 @@ export class ListNode<T> {
   }
 
   hasNext(): boolean {
-    return this.nextIndex <= this.list.size;
+    return this.nextIndex < this.list.size;
   }
 }
 
@@ -170,5 +215,9 @@ export class List<T> {
 
   get(index: number): ListNode<T> {
     return this.nodes[index];
+  }
+
+  find(value: T): ListNode<T> | undefined {
+    return this.nodes.find(node => node.value === value);
   }
 }

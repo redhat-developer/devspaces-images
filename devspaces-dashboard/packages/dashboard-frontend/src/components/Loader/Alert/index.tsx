@@ -14,10 +14,15 @@ import React from 'react';
 import { AlertGroup, Alert, AlertActionCloseButton, AlertActionLink } from '@patternfly/react-core';
 import { AlertItem } from '../../../services/helpers/types';
 
+export type ActionCallback = {
+  title: string;
+  callback: () => void;
+};
+
 export type Props = {
   isToast: boolean;
   alertItem?: AlertItem;
-  onRestart: (verbose: boolean) => void;
+  actionCallbacks: Array<ActionCallback>;
 };
 
 export type State = {
@@ -53,7 +58,7 @@ export class LoaderAlert extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactElement {
-    const { alertItem, isToast } = this.props;
+    const { alertItem, isToast, actionCallbacks } = this.props;
     const { hidden } = this.state;
 
     if (hidden || alertItem === undefined) {
@@ -61,6 +66,13 @@ export class LoaderAlert extends React.PureComponent<Props, State> {
     }
 
     const isInline = !isToast;
+    const alertActionLinks = actionCallbacks.map(entry => {
+      return (
+        <AlertActionLink key={entry.title} onClick={() => entry.callback()}>
+          {entry.title}
+        </AlertActionLink>
+      );
+    });
     return (
       <AlertGroup
         data-testid="loader-alerts-group"
@@ -75,14 +87,7 @@ export class LoaderAlert extends React.PureComponent<Props, State> {
           title={alertItem.title}
           variant={alertItem.variant}
           actionClose={<AlertActionCloseButton onClose={() => this.handleOnClose()} />}
-          actionLinks={
-            <React.Fragment>
-              <AlertActionLink onClick={() => this.props.onRestart(false)}>Restart</AlertActionLink>
-              <AlertActionLink onClick={() => this.props.onRestart(true)}>
-                Open in Verbose mode
-              </AlertActionLink>
-            </React.Fragment>
-          }
+          actionLinks={<React.Fragment>{alertActionLinks}</React.Fragment>}
         >
           {alertItem.children}
         </Alert>

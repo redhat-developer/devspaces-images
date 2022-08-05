@@ -1,0 +1,285 @@
+/*
+ * Copyright (c) 2018-2021 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+
+import React from 'react';
+import { Provider } from 'react-redux';
+import { Store } from 'redux';
+import userEvent from '@testing-library/user-event';
+import { screen, waitFor, within } from '@testing-library/react';
+import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
+import { List, LoaderStep, LoadingStep } from '../../../../../../components/Loader/Step';
+import {
+  buildLoaderSteps,
+  getFactoryLoadingSteps,
+} from '../../../../../../components/Loader/Step/buildSteps';
+import StepInitialize from '..';
+import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
+import {
+  DEV_WORKSPACE_ATTR,
+  ERROR_CODE_ATTR,
+  FACTORY_URL_ATTR,
+  MIN_STEP_DURATION_MS,
+  POLICIES_CREATE_ATTR,
+} from '../../../../const';
+
+jest.mock('../../../../../../pages/Loader/Factory');
+
+const { renderComponent } = getComponentRenderer(getComponent);
+
+const mockOnNextStep = jest.fn();
+const mockOnRestart = jest.fn();
+
+const stepId = LoadingStep.INITIALIZE.toString();
+const currentStepIndex = 0;
+const loadingSteps = getFactoryLoadingSteps('devfile');
+
+const factoryUrl = 'https://factory-url';
+
+describe('Factory Loader, step INITIALIZE', () => {
+  let store: Store;
+  let loaderSteps: List<LoaderStep>;
+
+  beforeEach(() => {
+    store = new FakeStoreBuilder()
+      .withInfrastructureNamespace([{ name: 'user-che', attributes: { phase: 'Active' } }])
+      .build();
+    loaderSteps = buildLoaderSteps(loadingSteps);
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.clearAllMocks();
+  });
+
+  test('factory URL is omitted', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: '',
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    await waitFor(() => expect(hasError.textContent).toEqual('true'));
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toContain(
+      `Repository/Devfile URL is missing. Please specify it via url query param: ${window.location.origin}${window.location.pathname}#/load-factory?url=your-repository-url`,
+    );
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('devworkspace resources URL is omitted', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+      [DEV_WORKSPACE_ATTR]: '',
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    await waitFor(() => expect(hasError.textContent).toEqual('true'));
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toContain('Devworkspace resources URL is missing.');
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('`invalid_request` error code', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+      [ERROR_CODE_ATTR]: 'invalid_request',
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('true');
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toEqual(
+      'Could not resolve devfile from private repository because authentication request is missing a parameter, contains an invalid parameter, includes a parameter more than once, or is otherwise invalid.',
+    );
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('`access_denied` error code', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+      [ERROR_CODE_ATTR]: 'access_denied',
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('true');
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toEqual(
+      'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
+    );
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('`policies.create` valid', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+      [POLICIES_CREATE_ATTR]: 'peruser',
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('false');
+
+    await waitFor(() => expect(mockOnNextStep).toHaveBeenCalled());
+  });
+
+  test('`policies.create` invalid', async () => {
+    const wrongPolicy = 'wrong-policy';
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+      [POLICIES_CREATE_ATTR]: wrongPolicy,
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('true');
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toEqual(
+      `Unsupported create policy '${wrongPolicy}' is specified while the only following are supported: peruser, perclick. Please fix 'policies.create' parameter and try again.`,
+    );
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('no pre-created infrastructure namespaces', async () => {
+    const storeNoNamespace = new FakeStoreBuilder().build();
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    renderComponent(storeNoNamespace, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const currentStepId = screen.getByTestId('current-step-id');
+    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
+
+    const currentStep = screen.getByTestId(stepId);
+    const hasError = within(currentStep).getByTestId('hasError');
+    expect(hasError.textContent).toEqual('true');
+
+    const alertTitle = screen.getByTestId('alert-title');
+    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
+
+    const alertBody = screen.getByTestId('alert-body');
+    expect(alertBody.textContent).toEqual(
+      'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
+    );
+
+    expect(mockOnNextStep).not.toHaveBeenCalled();
+  });
+
+  test('restart flow', async () => {
+    const searchParams = new URLSearchParams({
+      [FACTORY_URL_ATTR]: factoryUrl,
+    });
+
+    renderComponent(store, loaderSteps, searchParams);
+
+    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
+
+    const restartButton = screen.getByRole('button', {
+      name: 'Restart',
+    });
+    userEvent.click(restartButton);
+
+    expect(mockOnRestart).toHaveBeenCalled();
+  });
+});
+
+function getComponent(
+  store: Store,
+  loaderSteps: List<LoaderStep>,
+  searchParams: URLSearchParams,
+): React.ReactElement {
+  return (
+    <Provider store={store}>
+      <StepInitialize
+        currentStepIndex={currentStepIndex}
+        loaderSteps={loaderSteps}
+        searchParams={searchParams}
+        tabParam={undefined}
+        onNextStep={mockOnNextStep}
+        onRestart={mockOnRestart}
+      />
+    </Provider>
+  );
+}

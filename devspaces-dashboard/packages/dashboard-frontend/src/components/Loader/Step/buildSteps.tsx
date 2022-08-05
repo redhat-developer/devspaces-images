@@ -10,12 +10,48 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { List, LoaderStep, IdeLoaderSteps } from './index';
+import { List, LoaderStep, LoadingStep } from './index';
 
-export function buildIdeLoaderSteps(): List<LoaderStep> {
+export function getWorkspaceLoadingSteps(): LoadingStep[] {
+  return [LoadingStep.INITIALIZE, LoadingStep.START_WORKSPACE, LoadingStep.OPEN_WORKSPACE];
+}
+
+export type FactorySource = 'devworkspace' | 'devfile';
+export function getFactoryLoadingSteps(source: FactorySource): LoadingStep[] {
+  return [
+    LoadingStep.INITIALIZE,
+    LoadingStep.CREATE_WORKSPACE,
+    ...getResourcesFetchingSteps(source),
+    LoadingStep.START_WORKSPACE,
+    LoadingStep.OPEN_WORKSPACE,
+  ];
+}
+
+export function getResourcesFetchingSteps(source: FactorySource): LoadingStep[] {
+  if (source === 'devfile') {
+    return [
+      LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE,
+      LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE,
+    ];
+  } else {
+    return [
+      LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES,
+      LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES,
+    ];
+  }
+}
+
+export function buildLoaderSteps(loadingSteps: LoadingStep[]): List<LoaderStep> {
   const stepsList = new List<LoaderStep>();
-  stepsList.add(new LoaderStep(IdeLoaderSteps.INITIALIZING));
-  stepsList.add(new LoaderStep(IdeLoaderSteps.START_WORKSPACE));
-  stepsList.add(new LoaderStep(IdeLoaderSteps.OPEN_IDE));
+  loadingSteps.forEach(step => {
+    const parentStep =
+      step === LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE ||
+      step === LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES ||
+      step === LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE ||
+      step === LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES
+        ? LoadingStep.CREATE_WORKSPACE
+        : undefined;
+    stepsList.add(new LoaderStep(step, parentStep));
+  });
   return stepsList;
 }

@@ -78,6 +78,7 @@ interface UpdateWorkspaceStatusAction extends Action {
   workspaceUID: string;
   status: string;
   message: string;
+  mainUrl?: string;
 }
 
 interface UpdateWorkspacesLogsAction extends Action {
@@ -279,6 +280,8 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
+      // await delay(500);
+      // throw new Error('asdfjkl;');
       try {
         const { workspaces } = await devWorkspaceClient.getAllWorkspaces(
           workspace.metadata.namespace,
@@ -533,8 +536,7 @@ export const actionCreators: ActionCreators = {
         });
       } catch (e) {
         const errorMessage =
-          'Failed to create a new workspace from the devfile, reason: ' +
-          common.helpers.errors.getMessage(e);
+          'Failed to create a new workspace, reason: ' + common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVE_DEVWORKSPACE_ERROR',
           error: errorMessage,
@@ -675,6 +677,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
           }
           nextWorkspace.status.phase = action.status;
           nextWorkspace.status.message = action.message;
+          nextWorkspace.status.mainUrl = action.mainUrl;
           return nextWorkspace;
         }),
       });
@@ -725,16 +728,14 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
 
 async function onStatusUpdateReceived(
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
-  statusUpdate: IStatusUpdate & {
-    namespace?: string;
-    workspaceId?: string;
-  },
+  statusUpdate: IStatusUpdate,
 ) {
-  const { status, message, prevStatus, workspaceUID, namespace, workspaceId } = statusUpdate;
+  const { status, message, prevStatus, workspaceUID, namespace, workspaceId, mainUrl } =
+    statusUpdate;
 
   if (status !== prevStatus) {
     const type = 'UPDATE_DEVWORKSPACE_STATUS';
-    dispatch({ type, workspaceUID, message, status });
+    dispatch({ type, workspaceUID, message, status, mainUrl });
 
     const onChangeCallback = onStatusChangeCallbacks.get(workspaceUID);
     if (onChangeCallback) {

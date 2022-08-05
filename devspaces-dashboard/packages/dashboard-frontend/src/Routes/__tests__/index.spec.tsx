@@ -18,16 +18,16 @@ import { render, screen, waitFor } from '@testing-library/react';
 import Routes from '..';
 import { FakeStoreBuilder } from '../../store/__mocks__/storeBuilder';
 import Fallback from '../../components/Fallback';
-import { ROUTE } from '../../route.enum';
+import { ROUTE } from '../routes';
 import {
   buildDetailsLocation,
   buildGettingStartedLocation,
   buildIdeLoaderLocation,
   buildWorkspacesLocation,
 } from '../../services/helpers/location';
-import { IdeLoaderTab, WorkspaceDetailsTab } from '../../services/helpers/types';
+import { LoaderTab, WorkspaceDetailsTab } from '../../services/helpers/types';
 import { constructWorkspace, Workspace } from '../../services/workspace-adapter';
-import { CheWorkspaceBuilder } from '../../store/__mocks__/cheWorkspaceBuilder';
+import { DevWorkspaceBuilder } from '../../store/__mocks__/devWorkspaceBuilder';
 
 jest.mock('../../pages/GetStarted', () => {
   return function GetStarted() {
@@ -44,9 +44,9 @@ jest.mock('../../containers/WorkspaceDetails', () => {
     return <span>Workspace Details</span>;
   };
 });
-jest.mock('../../containers/IdeLoader', () => {
-  return function IdeLoader() {
-    return <span>Ide Loader</span>;
+jest.mock('../../containers/Loader', () => {
+  return function Loader() {
+    return <span>Loader</span>;
   };
 });
 jest.mock('../../pages/UserPreferences', () => {
@@ -60,65 +60,37 @@ jest.mock('../../pages/UserAccount', () => {
   };
 });
 
-jest.mock('../../containers/FactoryLoader', () => {
-  return function FactoryLoader() {
-    return <span>Factory Loader</span>;
-  };
-});
-
 describe('Routes', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-  function getComponent(locationOrPath: Location | string): React.ReactElement {
-    const store = new FakeStoreBuilder().build();
-    return (
-      <Provider store={store}>
-        <MemoryRouter initialEntries={[locationOrPath]}>
-          <Suspense fallback={Fallback}>
-            <Routes />
-          </Suspense>
-        </MemoryRouter>
-      </Provider>
-    );
-  }
 
   describe('Quick Add route', () => {
     it('should handle "/"', async () => {
       const path = ROUTE.HOME;
       render(getComponent(path));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Quick Add')).toBeTruthy());
 
-      expect(screen.queryByText('Quick Add')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/quick-add"', async () => {
       const location = buildGettingStartedLocation();
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Quick Add')).toBeTruthy());
 
-      expect(screen.queryByText('Quick Add')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/create-workspace?tab=quick-add"', async () => {
       const location = buildGettingStartedLocation('quick-add');
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Quick Add')).toBeTruthy());
 
-      expect(screen.queryByText('Quick Add')).toBeTruthy();
-    });
-
-    it('should handle "/create-workspace?tab=custom-workspace"', async () => {
-      const location = buildGettingStartedLocation('custom-workspace');
-      render(getComponent(location));
-
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
-
-      expect(screen.queryByText('Quick Add')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
 
@@ -127,9 +99,9 @@ describe('Routes', () => {
       const location = buildWorkspacesLocation();
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Workspaces List')).toBeTruthy());
 
-      expect(screen.queryByText('Workspaces List')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
 
@@ -137,43 +109,45 @@ describe('Routes', () => {
     let workspace: Workspace;
 
     beforeEach(() => {
-      workspace = constructWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
+      workspace = constructWorkspace(
+        new DevWorkspaceBuilder().withNamespace('namespace').withName('wksp').build(),
+      );
     });
 
     it('should handle "/workspace/namespace/name"', async () => {
       const location = buildDetailsLocation(workspace);
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());
 
-      expect(screen.queryByText('Workspace Details')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/workspace/namespace/name?tab=Overview"', async () => {
       const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.OVERVIEW);
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());
 
-      expect(screen.queryByText('Workspace Details')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/workspace/namespace/name?tab=Devfile"', async () => {
       const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.DEVFILE);
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());
 
-      expect(screen.queryByText('Workspace Details')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/workspace/namespace/name?tab=Logs"', async () => {
       const location = buildDetailsLocation(workspace, WorkspaceDetailsTab.LOGS);
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Workspace Details')).toBeTruthy());
 
-      expect(screen.queryByText('Workspace Details')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
 
@@ -181,34 +155,36 @@ describe('Routes', () => {
     let workspace: Workspace;
 
     beforeEach(() => {
-      workspace = constructWorkspace(new CheWorkspaceBuilder().withNamespace('namespace').build());
+      workspace = constructWorkspace(
+        new DevWorkspaceBuilder().withNamespace('namespace').withName('wksp').build(),
+      );
     });
 
     it('should handle "/ide/namespace/name"', async () => {
       const location = buildIdeLoaderLocation(workspace);
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Loader')).toBeTruthy());
 
-      expect(screen.queryByText('Ide Loader')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/ide/namespace/name?tab=Progress"', async () => {
-      const path = buildIdeLoaderLocation(workspace, IdeLoaderTab.Progress);
+      const path = buildIdeLoaderLocation(workspace, LoaderTab.Progress);
       render(getComponent(path));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Loader')).toBeTruthy());
 
-      expect(screen.queryByText('Ide Loader')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
 
     it('should handle "/ide/namespace/name?tab=Logs"', async () => {
-      const location = buildIdeLoaderLocation(workspace, IdeLoaderTab.Logs);
+      const location = buildIdeLoaderLocation(workspace, LoaderTab.Logs);
       render(getComponent(location));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('Loader')).toBeTruthy());
 
-      expect(screen.queryByText('Ide Loader')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
 
@@ -217,9 +193,9 @@ describe('Routes', () => {
       const path = ROUTE.USER_PREFERENCES;
       render(getComponent(path));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('User Preferences')).toBeTruthy());
 
-      expect(screen.queryByText('User Preferences')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
 
@@ -228,9 +204,22 @@ describe('Routes', () => {
       const path = ROUTE.USER_ACCOUNT;
       render(getComponent(path));
 
-      await waitFor(() => expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument());
+      await waitFor(() => expect(screen.queryByText('User Account')).toBeTruthy());
 
-      expect(screen.queryByText('User Account')).toBeTruthy();
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });
   });
 });
+
+function getComponent(locationOrPath: Location | string): React.ReactElement {
+  const store = new FakeStoreBuilder().build();
+  return (
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[locationOrPath]}>
+        <Suspense fallback={Fallback}>
+          <Routes />
+        </Suspense>
+      </MemoryRouter>
+    </Provider>
+  );
+}

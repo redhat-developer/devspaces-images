@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { WS_ATTRIBUTES_TO_SAVE } from '../containers/FactoryLoader/attrs';
+import { PROPAGATE_FACTORY_ATTRS } from '../containers/Loader/const';
 import SessionStorageService, { SessionStorageKey } from '../services/session-storage';
 
 (function acceptNewFactoryLink(): void {
@@ -42,7 +42,7 @@ export function storePathIfNeeded(path: string) {
 export function buildFactoryLoaderPath(url: string): string {
   const fullUrl = new window.URL(url);
 
-  const initParams = WS_ATTRIBUTES_TO_SAVE.map(paramName => {
+  const initParams = PROPAGATE_FACTORY_ATTRS.map(paramName => {
     const paramValue = extractUrlParam(fullUrl, paramName);
     return [paramName, paramValue];
   }).filter(([, paramValue]) => paramValue);

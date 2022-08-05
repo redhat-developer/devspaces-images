@@ -70,7 +70,7 @@ export function isDevWorkspaceStatus(status: unknown): status is DevWorkspaceSta
 
 export type CreateWorkspaceTab = 'quick-add' | 'custom-workspace';
 
-export enum IdeLoaderTab {
+export enum LoaderTab {
   Progress = 0,
   Logs = 1,
 }

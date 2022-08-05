@@ -14,7 +14,6 @@ import { Banner } from '@patternfly/react-core';
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { container } from '../../../inversify.config';
-import { CheWorkspaceClient } from '../../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppState } from '../../../store';
 import { selectBranding } from '../../../store/Branding/selectors';
 import { DevWorkspaceClient } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
@@ -26,32 +25,21 @@ type State = {
 };
 
 class BannerAlertWebSocket extends React.PureComponent<Props, State> {
-  private readonly cheWorkspaceClient: CheWorkspaceClient;
   private readonly devWorkspaceClient: DevWorkspaceClient;
 
   constructor(props: Props) {
     super(props);
-    this.cheWorkspaceClient = container.get(CheWorkspaceClient);
     this.devWorkspaceClient = container.get(DevWorkspaceClient);
     this.state = {
-      erroringWebSockets: [
-        ...this.cheWorkspaceClient.failingWebSockets,
-        ...this.devWorkspaceClient.failingWebSockets,
-      ],
+      erroringWebSockets: [...this.devWorkspaceClient.failingWebSockets],
     };
   }
 
   public componentWillUnmount() {
-    this.cheWorkspaceClient.removeWebSocketFailedListener();
     this.devWorkspaceClient.removeWebSocketFailedListener();
   }
 
   public componentDidMount() {
-    this.cheWorkspaceClient.onWebSocketFailed(() => {
-      this.setState({
-        erroringWebSockets: this.cheWorkspaceClient.failingWebSockets,
-      });
-    });
     this.devWorkspaceClient.onWebSocketFailed(() => {
       this.setState({
         erroringWebSockets: this.devWorkspaceClient.failingWebSockets,

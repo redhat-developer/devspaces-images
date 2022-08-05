@@ -14,7 +14,7 @@ import React from 'react';
 import { WizardStep } from '@patternfly/react-core';
 import { render, RenderResult, screen } from '@testing-library/react';
 import renderer, { ReactTestRenderer } from 'react-test-renderer';
-import { IdeLoaderSteps, LoaderStep } from '..';
+import { LoadingStep, LoaderStep } from '..';
 
 import styles from '../index.module.css';
 
@@ -23,8 +23,9 @@ describe('Loader step', () => {
     let wizardStep: WizardStep;
 
     beforeEach(() => {
-      const step = new LoaderStep(IdeLoaderSteps.START_WORKSPACE);
-      wizardStep = step.toWizardStep(IdeLoaderSteps.INITIALIZING);
+      const step = new LoaderStep(LoadingStep.START_WORKSPACE);
+
+      wizardStep = LoaderStep.toWizardSteps(LoadingStep.INITIALIZE, [step])[0];
     });
 
     test('SNAPSHOT', () => {
@@ -59,9 +60,9 @@ describe('Loader step', () => {
       let wizardStep: WizardStep;
 
       beforeEach(() => {
-        const step = new LoaderStep(IdeLoaderSteps.START_WORKSPACE);
+        const step = new LoaderStep(LoadingStep.START_WORKSPACE);
 
-        wizardStep = step.toWizardStep(IdeLoaderSteps.START_WORKSPACE);
+        wizardStep = LoaderStep.toWizardSteps(LoadingStep.START_WORKSPACE, [step])[0];
       });
 
       test('SNAPSHOT', () => {
@@ -95,10 +96,10 @@ describe('Loader step', () => {
       let wizardStep: WizardStep;
 
       beforeEach(() => {
-        const step = new LoaderStep(IdeLoaderSteps.START_WORKSPACE);
+        const step = new LoaderStep(LoadingStep.START_WORKSPACE);
         step.hasError = true;
 
-        wizardStep = step.toWizardStep(IdeLoaderSteps.START_WORKSPACE);
+        wizardStep = LoaderStep.toWizardSteps(LoadingStep.START_WORKSPACE, [step])[0];
       });
 
       test('SNAPSHOT', () => {
@@ -133,8 +134,9 @@ describe('Loader step', () => {
     let wizardStep: WizardStep;
 
     beforeEach(() => {
-      const step = new LoaderStep(IdeLoaderSteps.START_WORKSPACE);
-      wizardStep = step.toWizardStep(IdeLoaderSteps.OPEN_IDE);
+      const step = new LoaderStep(LoadingStep.START_WORKSPACE);
+
+      wizardStep = LoaderStep.toWizardSteps(LoadingStep.OPEN_WORKSPACE, [step])[0];
     });
 
     test('SNAPSHOT', () => {

@@ -24,6 +24,7 @@ import {
 import { DevWorkspaceEditorProcessTheia } from './services/workspace-client/devworkspace/DevWorkspaceEditorProcessTheia';
 import { DevWorkspaceEditorProcessCode } from './services/workspace-client/devworkspace/DevWorkspaceEditorProcessCode';
 import { DevWorkspaceDefaultPluginsHandler } from './services/workspace-client/devworkspace/DevWorkspaceDefaultPluginsHandler';
+import { WorkspaceStoppedDetector } from './services/bootstrap/workspaceStoppedDetector';
 
 const container = new Container();
 const { lazyInject } = getDecorators(container);
@@ -36,5 +37,6 @@ container.bind(IDevWorkspaceEditorProcess).to(DevWorkspaceEditorProcessTheia).in
 container.bind(IDevWorkspaceEditorProcess).to(DevWorkspaceEditorProcessCode).inSingletonScope();
 container.bind(AppAlerts).toSelf().inSingletonScope();
 container.bind(DevWorkspaceDefaultPluginsHandler).toSelf().inSingletonScope();
+container.bind(WorkspaceStoppedDetector).toSelf().inSingletonScope();
 
 export { container, lazyInject };

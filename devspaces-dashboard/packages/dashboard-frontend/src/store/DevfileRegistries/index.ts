@@ -20,8 +20,12 @@ import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace
 import { selectPlugins } from '../Plugins/chePlugins/selectors';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
+import devfileApi from '../../services/devfileApi';
+import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
+
+export type DevWorkspaceResources = [devfileApi.DevWorkspace, devfileApi.DevWorkspaceTemplate];
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
@@ -42,6 +46,12 @@ export interface State {
       error?: string;
     };
   };
+  devWorkspaceResources: {
+    [location: string]: {
+      resources?: DevWorkspaceResources;
+      error?: string;
+    };
+  };
 
   // current filter value
   filter: string;
@@ -53,6 +63,9 @@ export enum Type {
   RECEIVE_REGISTRY_ERROR = 'RECEIVE_REGISTRY_ERROR',
   REQUEST_DEVFILE = 'REQUEST_DEVFILE',
   RECEIVE_DEVFILE = 'RECEIVE_DEVFILE',
+  REQUEST_RESOURCES = 'REQUEST_RESOURCES',
+  RECEIVE_RESOURCES = 'RECEIVE_RESOURCES',
+  RECEIVE_RESOURCES_ERROR = 'RECEIVE_RESOURCES_ERROR',
   REQUEST_SCHEMA = 'REQUEST_SCHEMA',
   RECEIVE_SCHEMA = 'RECEIVE_SCHEMA',
   RECEIVE_SCHEMA_ERROR = 'RECEIVE_SCHEMA_ERROR',
@@ -87,6 +100,23 @@ export interface ReceiveDevfileAction {
   devfile: string;
 }
 
+export interface RequestResourcesAction {
+  type: Type.REQUEST_RESOURCES;
+}
+
+export interface ReceiveResourcesAction {
+  type: Type.RECEIVE_RESOURCES;
+  url: string;
+  devWorkspace: devfileApi.DevWorkspace;
+  devWorkspaceTemplate: devfileApi.DevWorkspaceTemplate;
+}
+
+export interface ReceiveResourcesErrorAction {
+  type: Type.RECEIVE_RESOURCES_ERROR;
+  url: string;
+  error: string;
+}
+
 export interface RequestSchemaAction {
   type: Type.REQUEST_SCHEMA;
 }
@@ -116,6 +146,9 @@ export type KnownAction =
   | ReceiveRegistryErrorAction
   | RequestDevfileAction
   | ReceiveDevfileAction
+  | RequestResourcesAction
+  | ReceiveResourcesAction
+  | ReceiveResourcesErrorAction
   | RequestSchemaAction
   | ReceiveSchemaAction
   | ReceiveSchemaErrorAction
@@ -124,7 +157,8 @@ export type KnownAction =
 
 export type ActionCreators = {
   requestRegistriesMetadata: (location: string) => AppThunk<KnownAction, Promise<void>>;
-  requestDevfile: (Location: string) => AppThunk<KnownAction, Promise<string>>;
+  requestDevfile: (location: string) => AppThunk<KnownAction, Promise<string>>;
+  requestResources: (resourceUrl: string) => AppThunk<KnownAction, Promise<void>>;
   requestJsonSchema: () => AppThunk<KnownAction, any>;
 
   setFilter: (value: string) => AppThunk<SetFilterValue, void>;
@@ -179,6 +213,46 @@ export const actionCreators: ActionCreators = {
         return devfile;
       } catch (e) {
         throw new Error(`Failed to request a devfile from URL: ${url}, \n` + e);
+      }
+    },
+
+  requestResources:
+    (resourcesUrl: string): AppThunk<KnownAction, Promise<void>> =>
+    async (dispatch): Promise<void> => {
+      dispatch({ type: Type.REQUEST_RESOURCES });
+
+      try {
+        const resourcesContent = await fetchResources(resourcesUrl);
+        const resources = loadResourcesContent(resourcesContent);
+
+        const devWorkspace = resources.find(
+          resource => resource.kind === 'DevWorkspace',
+        ) as devfileApi.DevWorkspace;
+        if (!devWorkspace) {
+          throw new Error('Failed to find a devworkspace in prebuilt resources.');
+        }
+        const devWorkspaceTemplate = resources.find(
+          resource => resource.kind === 'DevWorkspaceTemplate',
+        ) as devfileApi.DevWorkspaceTemplate;
+        if (!devWorkspaceTemplate) {
+          throw new Error('Failed to find a devworkspaceTemplate in prebuilt resources.');
+        }
+
+        dispatch({
+          type: Type.RECEIVE_RESOURCES,
+          url: resourcesUrl,
+          devWorkspace,
+          devWorkspaceTemplate,
+        });
+      } catch (e) {
+        const message =
+          'Failed to fetch devworkspace resources. ' + common.helpers.errors.getMessage(e);
+        dispatch({
+          type: Type.RECEIVE_RESOURCES_ERROR,
+          url: resourcesUrl,
+          error: message,
+        });
+        throw new Error(message);
       }
     },
 
@@ -281,6 +355,7 @@ const unloadedState: State = {
   registries: {},
   devfiles: {},
   schema: {},
+  devWorkspaceResources: {},
 
   filter: '',
 };
@@ -309,6 +384,10 @@ export const reducer: Reducer<State> = (
       return createObject(state, {
         isLoading: true,
       });
+    case Type.REQUEST_RESOURCES:
+      return createObject(state, {
+        isLoading: true,
+      });
     case Type.RECEIVE_REGISTRY_METADATA:
       return createObject(state, {
         isLoading: false,
@@ -333,6 +412,24 @@ export const reducer: Reducer<State> = (
         devfiles: {
           [action.url]: {
             content: action.devfile,
+          },
+        },
+      });
+    case Type.RECEIVE_RESOURCES:
+      return createObject(state, {
+        isLoading: false,
+        devWorkspaceResources: {
+          [action.url]: {
+            resources: [action.devWorkspace, action.devWorkspaceTemplate],
+          },
+        },
+      });
+    case Type.RECEIVE_RESOURCES_ERROR:
+      return createObject(state, {
+        isLoading: false,
+        devWorkspaceResources: {
+          [action.url]: {
+            error: action.error,
           },
         },
       });

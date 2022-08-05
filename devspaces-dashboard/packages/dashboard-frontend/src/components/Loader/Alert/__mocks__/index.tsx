@@ -15,14 +15,20 @@ import { Props, State } from '..';
 
 export class LoaderAlert extends React.PureComponent<Props, State> {
   render(): React.ReactNode {
-    const { alertItem, onRestart } = this.props;
+    const { alertItem, actionCallbacks } = this.props;
     if (alertItem === undefined) {
       return <></>;
     }
+    const actionLinks = actionCallbacks.map(entry => {
+      return (
+        <button key={entry.title} onClick={() => entry.callback()}>
+          {entry.title}
+        </button>
+      );
+    });
     return (
       <div data-testid="ide-loader-alert">
-        <button onClick={() => onRestart(false)}>reload</button>
-        <button onClick={() => onRestart(true)}>reload-verbose</button>
+        {actionLinks}
         <span data-testid="alert-title">{alertItem.title}</span>
         <span data-testid="alert-body">{alertItem.children}</span>
       </div>

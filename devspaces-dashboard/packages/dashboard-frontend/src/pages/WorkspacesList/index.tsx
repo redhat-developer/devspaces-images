@@ -49,7 +49,7 @@ import NothingFoundEmptyState from './EmptyState/NothingFound';
 import { buildRows, RowData } from './Rows';
 import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 
-import * as styles from './index.module.css';
+import styles from './index.module.css';
 
 type Props = {
   branding: BrandingData;

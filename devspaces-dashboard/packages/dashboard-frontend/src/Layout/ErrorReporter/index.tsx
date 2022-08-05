@@ -13,7 +13,7 @@
 import React from 'react';
 import { Bullseye, Page, PageSection, Stack, StackItem } from '@patternfly/react-core';
 
-import * as styles from './index.module.css';
+import styles from './index.module.css';
 
 type Props = {
   children?: React.ReactElement;

@@ -14,10 +14,22 @@ import { AlertVariant } from '@patternfly/react-core';
 import { render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { LoaderAlert } from '..';
+import { ActionCallback, LoaderAlert } from '..';
 import { AlertItem } from '../../../../services/helpers/types';
 
 const mockOnRestart = jest.fn();
+
+const alertItem: AlertItem = {
+  key: 'alert-id',
+  title: 'Alert title',
+  variant: AlertVariant.danger,
+};
+const actionCallbacks: ActionCallback[] = [
+  {
+    title: 'Restart',
+    callback: mockOnRestart,
+  },
+];
 
 describe('Loader Alert', () => {
   afterEach(() => {
@@ -25,7 +37,7 @@ describe('Loader Alert', () => {
   });
 
   test('no alert', () => {
-    renderComponent();
+    renderComponent(actionCallbacks);
     const alertGroup = screen.queryByRole('list', {
       name: 'Loader Alerts Group',
     });
@@ -33,12 +45,7 @@ describe('Loader Alert', () => {
   });
 
   test('with alert item', () => {
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Alert title',
-      variant: AlertVariant.danger,
-    };
-    renderComponent(alertItem);
+    renderComponent(actionCallbacks, alertItem);
 
     const alertGroup = screen.queryByRole('list', {
       name: 'Loader Alerts Group',
@@ -50,7 +57,7 @@ describe('Loader Alert', () => {
   });
 
   it('should show alerts group', () => {
-    const { rerender } = renderComponent();
+    const { rerender } = renderComponent(actionCallbacks);
     expect(screen.queryByTestId('loader-alerts-group')).toBeNull();
 
     const alertItem: AlertItem = {
@@ -58,7 +65,7 @@ describe('Loader Alert', () => {
       title: 'Alert title',
       variant: AlertVariant.danger,
     };
-    rerender(getComponent(alertItem));
+    rerender(getComponent(actionCallbacks, alertItem));
 
     expect(screen.queryByTestId('loader-alerts-group')).not.toBeNull();
   });
@@ -69,10 +76,10 @@ describe('Loader Alert', () => {
       title: 'Alert title',
       variant: AlertVariant.danger,
     };
-    const { rerender } = renderComponent(alertItem);
+    const { rerender } = renderComponent(actionCallbacks, alertItem);
     expect(screen.queryByTestId('loader-alerts-group')).not.toBeNull();
 
-    rerender(getComponent());
+    rerender(getComponent(actionCallbacks));
 
     expect(screen.queryByTestId('loader-alerts-group')).toBeNull();
   });
@@ -83,7 +90,7 @@ describe('Loader Alert', () => {
       title: 'Alert title',
       variant: AlertVariant.danger,
     };
-    renderComponent(alertItem);
+    renderComponent(actionCallbacks, alertItem);
 
     const closeButton = screen.getByRole('button', {
       name: /^close/i,
@@ -96,41 +103,29 @@ describe('Loader Alert', () => {
     expect(alertGroup).toBeNull();
   });
 
-  it('should handle restart action', () => {
+  it('should handle click on the action', () => {
     const alertItem: AlertItem = {
       key: 'alert-id',
       title: 'Alert title',
       variant: AlertVariant.danger,
     };
-    renderComponent(alertItem);
+    renderComponent(actionCallbacks, alertItem);
 
     const closeButton = screen.getByRole('button', {
       name: 'Restart',
     });
     userEvent.click(closeButton);
 
-    expect(mockOnRestart).toHaveBeenCalledWith(false);
-  });
-
-  it('should handle verbose restart action', () => {
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Alert title',
-      variant: AlertVariant.danger,
-    };
-    renderComponent(alertItem);
-
-    const closeButton = screen.getByRole('button', {
-      name: 'Open in Verbose mode',
-    });
-    userEvent.click(closeButton);
-
-    expect(mockOnRestart).toHaveBeenCalledWith(true);
+    expect(mockOnRestart).toHaveBeenCalled();
   });
 });
 
-function getComponent(alertItem?: AlertItem, isToast = true): React.ReactElement {
-  return <LoaderAlert isToast={isToast} alertItem={alertItem} onRestart={mockOnRestart} />;
+function getComponent(
+  actionCallbacks: ActionCallback[],
+  alertItem?: AlertItem,
+  isToast = true,
+): React.ReactElement {
+  return <LoaderAlert isToast={isToast} alertItem={alertItem} actionCallbacks={actionCallbacks} />;
 }
 
 function renderComponent(...args: Parameters<typeof getComponent>): RenderResult {

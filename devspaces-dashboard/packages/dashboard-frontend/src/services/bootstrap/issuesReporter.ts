@@ -12,7 +12,14 @@
 
 import { injectable } from 'inversify';
 
-export type IssueType = 'cert' | 'sso' | 'workspaceInactive' | 'unknown';
+export type IssueType =
+  | 'cert'
+  | 'sso'
+  | 'workspaceInactive'
+  | 'workspaceRunTimeout'
+  | 'workspaceStoppedError'
+  | 'workspaceStopped'
+  | 'unknown';
 export type Issue = {
   type: IssueType;
   error: Error;

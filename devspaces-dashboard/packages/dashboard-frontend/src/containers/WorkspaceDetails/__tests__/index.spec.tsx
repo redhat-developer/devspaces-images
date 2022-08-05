@@ -17,7 +17,7 @@ import { Provider } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import WorkspaceDetailsContainer from '..';
 import { getMockRouterProps } from '../../../services/__mocks__/router';
-import { ROUTE } from '../../../route.enum';
+import { ROUTE } from '../../../Routes/routes';
 import { FakeStoreBuilder } from '../../../store/__mocks__/storeBuilder';
 import { constructWorkspace, WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {

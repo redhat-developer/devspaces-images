@@ -55,6 +55,39 @@ describe('Issue component', () => {
     expect(renderer.create(component).toJSON()).toMatchSnapshot();
   });
 
+  it('should render the workspaceRunTimeout error', () => {
+    const issue = {
+      type: 'workspaceRunTimeout',
+      error: new Error('workspaceRunTimeout error message'),
+      data: { ideLoader: '', workspaceDetails: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceStoppedError error', () => {
+    const issue = {
+      type: 'workspaceStoppedError',
+      error: new Error('workspaceStoppedError error message'),
+      data: { ideLoader: '', workspaceDetails: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceStopped error', () => {
+    const issue = {
+      type: 'workspaceStopped',
+      error: new Error('workspaceStopped error message'),
+      data: { ideLoader: '', workspaceDetails: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
   it('should render an unknown error', () => {
     const issue = {
       type: 'unknown',

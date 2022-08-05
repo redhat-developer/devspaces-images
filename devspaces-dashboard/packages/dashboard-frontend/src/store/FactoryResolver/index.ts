@@ -28,6 +28,7 @@ import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
 import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import normalizeDevfileV2 from './normalizeDevfileV2';
 import normalizeDevfileV1 from './normalizeDevfileV1';
+import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -149,7 +150,7 @@ export const actionCreators: ActionCreators = {
           overrideParams,
         );
         if (!data.devfile) {
-          throw 'The specified link does not contain a valid Devfile.';
+          throw new Error('The specified link does not contain a valid Devfile.');
         }
         // now, grab content of optional files if they're there
         const optionalFilesContent = {};
@@ -169,12 +170,19 @@ export const actionCreators: ActionCreators = {
         const state = getState();
         const isDevworkspacesEnabled = selectDevworkspacesEnabled(state);
         const preferredStorageType = selectPreferredStorageType(state);
+        const namespace = selectDefaultNamespace(state).name;
         const resolvedDevfile = data.devfile;
         const isResolvedDevfileV2 = isDevfileV2(resolvedDevfile);
         let devfileV2: devfileApi.Devfile;
         const defaultComponents = selectDefaultComponents(state);
         if (isResolvedDevfileV2) {
-          devfileV2 = normalizeDevfileV2(resolvedDevfile, data, location, defaultComponents);
+          devfileV2 = normalizeDevfileV2(
+            resolvedDevfile,
+            data,
+            location,
+            defaultComponents,
+            namespace,
+          );
         } else {
           const devfileV1 = normalizeDevfileV1(resolvedDevfile, preferredStorageType);
           devfileV2 = normalizeDevfileV2(
@@ -182,6 +190,7 @@ export const actionCreators: ActionCreators = {
             data,
             location,
             defaultComponents,
+            namespace,
           );
         }
         const converted: ConvertedState = {
