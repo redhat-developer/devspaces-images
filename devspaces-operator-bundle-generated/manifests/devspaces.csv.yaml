@@ -66,8 +66,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:94c34160d067dbe7c9612a39ea6745781a2ea745a9a11c1fdfe756e064459ccc
-    createdAt: "2022-08-05T21:24:09+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6a3d7588e21ce79587cc0ed11821a33f70993d5085d456f1c674ca31c0112da0
+    createdAt: "2022-08-05T22:06:55+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1009,7 +1009,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:94c34160d067dbe7c9612a39ea6745781a2ea745a9a11c1fdfe756e064459ccc
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6a3d7588e21ce79587cc0ed11821a33f70993d5085d456f1c674ca31c0112da0
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1281,11 +1281,12 @@ spec:
   provider:
     name: Red Hat
   version: 3.0.1
+  replaces: devspacesoperator.vNONE
   relatedImages:
-  - name: devspaces-rhel8-operator-94c34160d067dbe7c9612a39ea6745781a2ea745a9a11c1fdfe756e064459ccc-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:94c34160d067dbe7c9612a39ea6745781a2ea745a9a11c1fdfe756e064459ccc
+  - name: devspaces-rhel8-operator-6a3d7588e21ce79587cc0ed11821a33f70993d5085d456f1c674ca31c0112da0-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6a3d7588e21ce79587cc0ed11821a33f70993d5085d456f1c674ca31c0112da0
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:94c34160d067dbe7c9612a39ea6745781a2ea745a9a11c1fdfe756e064459ccc
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:6a3d7588e21ce79587cc0ed11821a33f70993d5085d456f1c674ca31c0112da0
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:09cf293f6908ecb4fa535b0e84c795eadb9509b76f71abb798189dca8734f465
   - name: dashboard
