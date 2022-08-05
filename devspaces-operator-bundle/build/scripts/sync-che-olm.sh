@@ -304,9 +304,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		# TODO CRW-2725 when CRW 3.0 is live, re-enable the replaces directive instead of this deletion
-		[".spec.replaces"]="DELETEME"
-		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
+		[".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
