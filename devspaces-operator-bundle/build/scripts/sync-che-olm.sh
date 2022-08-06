@@ -22,7 +22,7 @@ CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
 DWO_TAG=0.13
-UBI_TAG=8.5
+UBI_TAG=8.6
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
 OPENSHIFT_TAG="v4.8"
@@ -298,6 +298,8 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
+		# CRW-3243, CRW-2798 skip Freshmaker and z-stream respins that went out before the 3.2.0 release
+		['.metadata.annotations.skipRange']='>=3.0.0 <=3.2.0'
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
