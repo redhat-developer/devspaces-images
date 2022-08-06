@@ -304,7 +304,13 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		[".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}"
+		# CRW-3243 hack to allow this to sub for (but not replace:) 3.0.0-fm installs
+		# not sure if that means subscription will immediately update (but I'd hope so, since otherwise what's the point of FM updates that use this flow?)
+		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}" # CRW-3243 disabled to try substitutesFor
+		['.metadata.annotations.olm.substitutesFor']="devspacesoperator.v${CSV_VERSION_PREV}"
+		[".spec.replaces"]="DELETEME"
+		# CRW-3243 /hack
+
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
