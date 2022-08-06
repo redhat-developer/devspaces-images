@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2021 Red Hat, Inc.
+# Copyright (c) 2021-22 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -18,7 +18,7 @@ set -e
 CSV_VERSION=2.y.0 # csv 2.y.0
 CRW_VERSION=${CSV_VERSION%.*} # tag 2.y
 DWO_TAG=0.13
-UBI_TAG=8.5
+UBI_TAG=8.6
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
 OPENSHIFT_TAG="v4.8"
@@ -59,13 +59,6 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ "${CSV_VERSION}" == "2.y.0" ]]; then usage; fi
-
-if [[ $CSV_VERSION =~ ^([0-9]+\.[0-9]+)\.([0-9]+) ]]; then # add 100 to the z digit
-  XY=${BASH_REMATCH[1]}
-  ZZ=${BASH_REMATCH[2]}; (( ZZ=ZZ+100 ));
-
-  CSV_VERSION="${XY}.${ZZ}"
-fi
 
 # see both sync-che-o*.sh scripts - need these since we're syncing to different midstream/dowstream repos
 CRW_RRIO="registry.redhat.io/devspaces"
