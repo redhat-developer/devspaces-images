@@ -304,17 +304,18 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 
 	# insert replaces: field
 	declare -A spec_insertions=(
-		# CRW-3243 hack to allow this to sub for (but not replace:) 3.0.0-fm installs
-		# not sure if that means subscription will immediately update (but I'd hope so, since otherwise what's the point of FM updates that use this flow?)
-		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}" # CRW-3243 disabled to try substitutesFor
-		['.metadata.annotations.olm.substitutesFor']="devspacesoperator.v${CSV_VERSION_PREV}"
+		# CRW-3243 hack to allow this to sub for (but not replace:) 3.0.0-fm installs /CRW-3243
+		# not sure if that means subscription will immediately update (but I'd hope so, since otherwise what's the point of FM updates that use this flow?) /CRW-3243
+		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}" # disabled to try substitutesFor /CRW-3243
+		# NOTE: can't use yq to set olm.substitutesFor; results in nested yaml instead of the correct "olm.substitutesFor" key; sed transform below fixes this /CRW-3243
+		['.metadata.annotations.substitutesFor']="devspacesoperator.v${CSV_VERSION_PREV}"
 		[".spec.replaces"]="DELETEME"
 		# CRW-3243 /hack
 
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
-		# CRW-3243, CRW-2798 skip Freshmaker builds that went out before this x.y.1 release
+		# CRW-3243, CRW-2798 skip Freshmaker builds that went out before this x.y.1 release 
 		['.metadata.annotations.skipRange']='>=3.0.0 <3.0.1'
 	)
 	for updateName in "${!spec_insertions[@]}"; do
@@ -322,6 +323,11 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		replaceField "${CSVFILE}" "${updateName}" "${updateVal}" "${COPYRIGHT}"
 	done
 	echo "Converted (yq #3) ${CSVFILE}"
+	# NOTE: can't use yq to set olm.substitutesFor; results in nested yaml instead of the correct "olm.substitutesFor" key; sed transform below fixes this /CRW-3243
+	sed -r \
+		-e 's|substitutesFor|olm.substitutesFor|g' \
+		-i "${CSVFILE}"
+	echo "Converted (sed #2) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
 	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --crw-branch "${MIDSTM_BRANCH}"
