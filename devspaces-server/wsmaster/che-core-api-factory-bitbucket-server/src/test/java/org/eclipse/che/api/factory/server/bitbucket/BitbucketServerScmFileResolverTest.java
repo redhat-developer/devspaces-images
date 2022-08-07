@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 public class BitbucketServerScmFileResolverTest {
 
   public static final String SCM_URL = "https://foo.bar";
-  BitbucketURLParser bitbucketURLParser;
+  BitbucketServerURLParser bitbucketURLParser;
 
   @Mock private URLFetcher urlFetcher;
 
@@ -49,7 +49,7 @@ public class BitbucketServerScmFileResolverTest {
   @BeforeMethod
   protected void init() {
     bitbucketURLParser =
-        new BitbucketURLParser(
+        new BitbucketServerURLParser(
             SCM_URL, devfileFilenamesProvider, mock(PersonalAccessTokenManager.class));
     assertNotNull(this.bitbucketURLParser);
     serverScmFileResolver =
