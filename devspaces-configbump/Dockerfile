@@ -13,7 +13,7 @@
 # assumes you have created asset-*.tar.gz files for all arches, but you'll only unpack the one for your arch
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.6-854
+FROM ubi8-minimal:8.6-902
 
 # cachito
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
