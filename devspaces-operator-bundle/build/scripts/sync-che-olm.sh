@@ -295,17 +295,17 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	declare -A spec_insertions=(
 		# CRW-3243 hack to allow this to sub for (but not replace:) 3.0.0-fm installs /CRW-3243
 		# not sure if that means subscription will immediately update (but I'd hope so, since otherwise what's the point of FM updates that use this flow?) /CRW-3243
-		# [".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}" # disabled to try substitutesFor /CRW-3243
+		[".spec.replaces"]="devspacesoperator.v${CSV_VERSION_PREV}" # disabled to try substitutesFor /CRW-3243
 		# NOTE: can't use yq to set olm.substitutesFor; results in nested yaml instead of the correct "olm.substitutesFor" key; sed transform below fixes this /CRW-3243
-		['.metadata.annotations.substitutesFor']="devspacesoperator.v${CSV_VERSION_PREV}"
-		[".spec.replaces"]="DELETEME"
+		# ['.metadata.annotations.substitutesFor']="devspacesoperator.v${CSV_VERSION_PREV}"
+		# [".spec.replaces"]="DELETEME"
 		# CRW-3243 /hack
 
 		[".spec.version"]="${CSV_VERSION}"
 		['.spec.displayName']="Red Hat OpenShift Dev Spaces"
 		['.metadata.annotations.description']="Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces."
 		# CRW-3243, CRW-2798 skip Freshmaker and z-stream respins that went out before the 3.1.0 release
-		['.metadata.annotations.skipRange']='>=3.0.0 <3.1.0'
+		['.metadata.annotations.skipRange']='>=3.0.1 <3.1.0'
 	)
 	for updateName in "${!spec_insertions[@]}"; do
 		updateVal="${spec_insertions[$updateName]}"
