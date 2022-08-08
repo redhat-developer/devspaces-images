@@ -217,10 +217,15 @@ rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ vendor/ version
 
 CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
 # transform into Brew-friendly version of CSV
+
+# OPTION 1: only for images changed in this respin (required for subsequent GAs of 3.y.z)
 sed -r -i "${CSVFILE}" \
-  -e "s@registry.redhat.io/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
-  -e "s@devspaces-rhel8-operator@operator@g" \
-  -e "s@:latest@:${CRW_VERSION}@g"
+  -e "s@registry.redhat.io/devspaces/devspaces-rhel8-operator@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator@g"
+  # ...
+# OPTION 2: use images from reg-proxy, which could be older than the RHEC Freshmaker updates (required for initial GA of 3.y.0)
+  # -e "s@registry.redhat.io/devspaces/@registry-proxy.engineering.redhat.com/rh-osbs/devspaces-@g" \
+  # -e "s@devspaces-rhel8-operator@operator@g" \
+  # -e "s@:latest@:${CRW_VERSION}@g"
 
 # date in CSV will be updated only if there were any changes in CSV
 pushd ${CSVFILE%/*} >/dev/null || exit # targetdir/manifests/
