@@ -48,7 +48,40 @@ describe('Issue component', () => {
     const issue = {
       type: 'workspaceInactive',
       error: new Error('The workspace is inactive.'),
-      data: { ideLoader: '', workspaceDetails: '' },
+      data: { ideLoaderPath: '', workspaceDetailsPath: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceInactive error with timeout with seconds', () => {
+    const issue = {
+      type: 'workspaceInactive',
+      error: new Error('The workspace is inactive.'),
+      data: { ideLoaderPath: '', workspaceDetailsPath: '', timeout: 40 },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceInactive error with timeout with minutes', () => {
+    const issue = {
+      type: 'workspaceInactive',
+      error: new Error('The workspace is inactive.'),
+      data: { ideLoaderPath: '', workspaceDetailsPath: '', timeout: 300 },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceInactive error with timeout with minutes and seconds', () => {
+    const issue = {
+      type: 'workspaceInactive',
+      error: new Error('The workspace is inactive.'),
+      data: { ideLoaderPath: '', workspaceDetailsPath: '', timeout: 320 },
     } as Issue;
     const component = <IssueComponent branding={brandingData} issue={issue} />;
 
@@ -59,7 +92,40 @@ describe('Issue component', () => {
     const issue = {
       type: 'workspaceRunTimeout',
       error: new Error('workspaceRunTimeout error message'),
-      data: { ideLoader: '', workspaceDetails: '' },
+      data: { ideLoaderPath: '', workspaceDetailsPath: '' },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceRunTimeout error with timeout with seconds', () => {
+    const issue = {
+      type: 'workspaceRunTimeout',
+      error: new Error('workspaceRunTimeout error message'),
+      data: { ideLoaderPath: '', workspaceDetailsPath: '', timeout: 40 },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceRunTimeout error with timeout with minutes', () => {
+    const issue = {
+      type: 'workspaceRunTimeout',
+      error: new Error('workspaceRunTimeout error message'),
+      data: { ideLoaderPath: '', workspaceDetailsPath: '', timeout: 300 },
+    } as Issue;
+    const component = <IssueComponent branding={brandingData} issue={issue} />;
+
+    expect(renderer.create(component).toJSON()).toMatchSnapshot();
+  });
+
+  it('should render the workspaceRunTimeout error with timeout with minutes and seconds', () => {
+    const issue = {
+      type: 'workspaceRunTimeout',
+      error: new Error('workspaceRunTimeout error message'),
+      data: { ideLoaderPath: '', workspaceDetailsPath: '', timeout: 320 },
     } as Issue;
     const component = <IssueComponent branding={brandingData} issue={issue} />;
 
@@ -70,7 +136,7 @@ describe('Issue component', () => {
     const issue = {
       type: 'workspaceStoppedError',
       error: new Error('workspaceStoppedError error message'),
-      data: { ideLoader: '', workspaceDetails: '' },
+      data: { ideLoaderPath: '', workspaceDetailsPath: '' },
     } as Issue;
     const component = <IssueComponent branding={brandingData} issue={issue} />;
 
@@ -81,7 +147,7 @@ describe('Issue component', () => {
     const issue = {
       type: 'workspaceStopped',
       error: new Error('workspaceStopped error message'),
-      data: { ideLoader: '', workspaceDetails: '' },
+      data: { ideLoaderPath: '', workspaceDetailsPath: '' },
     } as Issue;
     const component = <IssueComponent branding={brandingData} issue={issue} />;
 

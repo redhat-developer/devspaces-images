@@ -317,6 +317,10 @@ describe('dwPlugins store', () => {
               },
             ],
           },
+          timeouts: {
+            inactivityTimeout: -1,
+            runTimeout: -1,
+          },
         })
         .build() as MockStoreEnhanced<
         AppState,

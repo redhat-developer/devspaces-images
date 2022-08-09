@@ -14,7 +14,7 @@ import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { InfoIcon, WarningTriangleIcon } from '@patternfly/react-icons';
 import React from 'react';
 import { BrandingData } from '../../../services/bootstrap/branding.constant';
-import { Issue, WorkspaceRoutes } from '../../../services/bootstrap/issuesReporter';
+import { Issue, WorkspaceData } from '../../../services/bootstrap/issuesReporter';
 
 import styles from './index.module.css';
 
@@ -113,17 +113,24 @@ export class IssueComponent extends React.PureComponent<Props> {
     );
   }
 
-  private renderInactivityTimeoutError(
-    workspaceRoutes: WorkspaceRoutes | undefined,
-  ): React.ReactNode {
+  private renderInactivityTimeoutError(workspaceData: WorkspaceData | undefined): React.ReactNode {
     let ideLoader: React.ReactNode;
     let workspaceDetails: React.ReactNode;
 
-    if (workspaceRoutes) {
-      ideLoader = this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Restart your workspace');
+    let reasonMessage: string;
+    if (workspaceData?.timeout && workspaceData.timeout > -1) {
+      reasonMessage = `Your workspace has stopped because there was no activity for ${this.renderTimeout(
+        workspaceData.timeout,
+      )}. `;
+    } else {
+      reasonMessage = 'Your workspace has stopped due to inactivity. ';
+    }
+
+    if (workspaceData) {
+      ideLoader = this.renderLinkWithHash(workspaceData.ideLoaderPath, 'Restart your workspace');
       workspaceDetails = (
         <Text component={TextVariants.p}>
-          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+          {this.renderLinkWithHash(workspaceData.workspaceDetailsPath, 'Return to dashboard')}
         </Text>
       );
     } else {
@@ -137,23 +144,32 @@ export class IssueComponent extends React.PureComponent<Props> {
           Warning
         </Text>
         <Text component={TextVariants.p}>
-          Your workspace has stopped due to inactivity. {ideLoader} to continue using your
-          workspace.
+          {reasonMessage}
+          {ideLoader} to continue using your workspace.
         </Text>
         {workspaceDetails}
       </TextContent>
     );
   }
 
-  private renderRunTimeoutError(workspaceRoutes: WorkspaceRoutes | undefined): React.ReactNode {
+  private renderRunTimeoutError(workspaceData: WorkspaceData | undefined): React.ReactNode {
     let ideLoader: React.ReactNode;
     let workspaceDetails: React.ReactNode;
 
-    if (workspaceRoutes) {
-      ideLoader = this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Restart your workspace');
+    let reasonMessage: string;
+    if (workspaceData?.timeout && workspaceData.timeout > -1) {
+      reasonMessage = `Your workspace has stopped because it has reached the maximum run time of ${this.renderTimeout(
+        workspaceData.timeout,
+      )}. `;
+    } else {
+      reasonMessage = 'Your workspace has stopped because it has reached the maximum run time. ';
+    }
+
+    if (workspaceData) {
+      ideLoader = this.renderLinkWithHash(workspaceData.ideLoaderPath, 'Restart your workspace');
       workspaceDetails = (
         <Text component={TextVariants.p}>
-          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+          {this.renderLinkWithHash(workspaceData.workspaceDetailsPath, 'Return to dashboard')}
         </Text>
       );
     } else {
@@ -167,31 +183,28 @@ export class IssueComponent extends React.PureComponent<Props> {
           Warning
         </Text>
         <Text component={TextVariants.p}>
-          Your workspace has stopped because it has reached the run timeout. {ideLoader} to continue
-          using your workspace.
+          {reasonMessage}
+          {ideLoader} to continue using your workspace.
         </Text>
         {workspaceDetails}
       </TextContent>
     );
   }
 
-  private renderWorkspaceStoppedWithError(
-    error: Error,
-    workspaceRoutes: WorkspaceRoutes | undefined,
-  ) {
+  private renderWorkspaceStoppedWithError(error: Error, workspaceData: WorkspaceData | undefined) {
     let ideLoader: React.ReactNode;
     let workspaceDetails: React.ReactNode;
 
-    if (workspaceRoutes) {
+    if (workspaceData) {
       ideLoader = (
         <Text component={TextVariants.p}>
-          {this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Restart your workspace')}
+          {this.renderLinkWithHash(workspaceData.ideLoaderPath, 'Restart your workspace')}
         </Text>
       );
 
       workspaceDetails = (
         <Text component={TextVariants.p}>
-          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+          {this.renderLinkWithHash(workspaceData.workspaceDetailsPath, 'Return to dashboard')}
         </Text>
       );
     }
@@ -222,15 +235,15 @@ export class IssueComponent extends React.PureComponent<Props> {
     );
   }
 
-  private renderWorkspaceStopped(workspaceRoutes: WorkspaceRoutes | undefined) {
+  private renderWorkspaceStopped(workspaceData: WorkspaceData | undefined) {
     let ideLoader: React.ReactNode;
     let workspaceDetails: React.ReactNode;
 
-    if (workspaceRoutes) {
-      ideLoader = this.renderLinkWithHash(workspaceRoutes.ideLoader, 'Start your workspace');
+    if (workspaceData) {
+      ideLoader = this.renderLinkWithHash(workspaceData.ideLoaderPath, 'Start your workspace');
       workspaceDetails = (
         <Text component={TextVariants.p}>
-          {this.renderLinkWithHash(workspaceRoutes.workspaceDetails, 'Return to dashboard')}
+          {this.renderLinkWithHash(workspaceData.workspaceDetailsPath, 'Return to dashboard')}
         </Text>
       );
     } else {
@@ -271,5 +284,17 @@ export class IssueComponent extends React.PureComponent<Props> {
         </Text>
       </TextContent>
     );
+  }
+
+  private renderTimeout(timeout: number) {
+    const seconds = timeout % 60;
+    const minutes = (timeout - seconds) / 60;
+    if (minutes === 0) {
+      return `${seconds} seconds`;
+    }
+    if (seconds === 0) {
+      return `${minutes} minutes`;
+    }
+    return `${minutes} minutes and ${seconds} seconds`;
   }
 }

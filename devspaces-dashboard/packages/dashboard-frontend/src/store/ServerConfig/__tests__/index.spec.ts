@@ -46,6 +46,10 @@ describe('dwPlugins store', () => {
               },
             ],
           },
+          timeouts: {
+            inactivityTimeout: -1,
+            runTimeout: -1,
+          },
         },
       });
 
@@ -81,6 +85,10 @@ describe('dwPlugins store', () => {
                   plugins: ['https://test.com/devfile.yaml'],
                 },
               ],
+            },
+            timeouts: {
+              inactivityTimeout: -1,
+              runTimeout: -1,
             },
           },
         },

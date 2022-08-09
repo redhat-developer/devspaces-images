@@ -29,7 +29,7 @@ import * as WorkspacesStore from '../../store/Workspaces';
 import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
 import { ResourceFetcherService } from '../resource-fetcher';
-import { IssuesReporterService, IssueType } from './issuesReporter';
+import { IssuesReporterService, IssueType, WorkspaceData } from './issuesReporter';
 import { CheWorkspaceClient } from '../workspace-client/cheworkspace/cheWorkspaceClient';
 import { DevWorkspaceClient } from '../workspace-client/devworkspace/devWorkspaceClient';
 import { selectDwEditorsPluginsList } from '../../store/Plugins/devWorkspacePlugins/selectors';
@@ -303,16 +303,18 @@ export default class Bootstrap {
         return;
       }
 
-      const ideLoader = buildIdeLoaderLocation(stoppedWorkspace).pathname;
-      const workspaceDetails = buildDetailsLocation(stoppedWorkspace).pathname;
-
       const type: IssueType =
         this.workspaceStoppedDetector.getWorkspaceStoppedIssueType(stoppedWorkspace);
+      const workspaceData: WorkspaceData = {
+        ideLoaderPath: buildIdeLoaderLocation(stoppedWorkspace).pathname,
+        workspaceDetailsPath: buildDetailsLocation(stoppedWorkspace).pathname,
+      };
+      if (type === 'workspaceInactive' || type === 'workspaceRunTimeout') {
+        workspaceData.timeout = this.getWorkspaceTimeout(type);
+      }
+
       const error = this.workspaceStoppedDetector.getWorkspaceStoppedError(stoppedWorkspace, type);
-      this.issuesReporterService.registerIssue(type, error, {
-        ideLoader,
-        workspaceDetails,
-      });
+      this.issuesReporterService.registerIssue(type, error, workspaceData);
     } catch (e) {
       if (e instanceof WorkspaceRunningError) {
         // workspace is running, redirect to workspace url
@@ -324,5 +326,16 @@ export default class Bootstrap {
         console.warn('Unable to check for stopped workspace.', e);
       }
     }
+  }
+
+  private getWorkspaceTimeout(issueType: IssueType): number {
+    if (issueType === 'workspaceInactive') {
+      return this.store.getState().dwServerConfig.config.timeouts.inactivityTimeout;
+    }
+
+    if (issueType === 'workspaceRunTimeout') {
+      return this.store.getState().dwServerConfig.config.timeouts.runTimeout;
+    }
+    return -1;
   }
 }

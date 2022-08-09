@@ -26,12 +26,17 @@ export function registerServerConfigApi(server: FastifyInstance) {
     const plugins = serverConfigApi.getDefaultPlugins(cheCustomResource);
     const editor = serverConfigApi.getDefaultEditor(cheCustomResource);
     const components = serverConfigApi.getDefaultComponents(cheCustomResource);
-
+    const inactivityTimeout = serverConfigApi.getWorkspaceInactivityTimeout(cheCustomResource);
+    const runTimeout = serverConfigApi.getWorkspaceRunTimeout(cheCustomResource);
     return {
       defaults: {
         editor,
         plugins,
         components,
+      },
+      timeouts: {
+        inactivityTimeout,
+        runTimeout,
       },
     };
   });

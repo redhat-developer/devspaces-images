@@ -23,10 +23,14 @@ export type IssueType =
 export type Issue = {
   type: IssueType;
   error: Error;
-  data?: WorkspaceRoutes;
+  data?: WorkspaceData;
 };
 
-export type WorkspaceRoutes = { ideLoader: string; workspaceDetails: string };
+export type WorkspaceData = {
+  ideLoaderPath: string;
+  workspaceDetailsPath: string;
+  timeout?: number;
+};
 
 @injectable()
 export class IssuesReporterService {
@@ -36,7 +40,7 @@ export class IssuesReporterService {
     return this.issues.length !== 0;
   }
 
-  public registerIssue(type: IssueType, error: Error, data?: WorkspaceRoutes): void {
+  public registerIssue(type: IssueType, error: Error, data?: WorkspaceData): void {
     this.issues.push({ type, error, data });
   }
 
