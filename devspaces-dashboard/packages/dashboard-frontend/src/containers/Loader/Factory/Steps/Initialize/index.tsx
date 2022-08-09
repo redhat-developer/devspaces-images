@@ -99,11 +99,6 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
         'Could not resolve devfile from private repository because authentication request is missing a parameter, contains an invalid parameter, includes a parameter more than once, or is otherwise invalid.',
       );
     }
-    if (errorCode === 'access_denied') {
-      throw new Error(
-        'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
-      );
-    }
 
     // validate creation policies
     if (this.isCreatePolicy(policiesCreate) === false) {

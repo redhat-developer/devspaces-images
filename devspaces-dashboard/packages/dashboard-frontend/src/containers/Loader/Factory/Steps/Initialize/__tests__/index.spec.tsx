@@ -142,34 +142,6 @@ describe('Factory Loader, step INITIALIZE', () => {
     expect(mockOnNextStep).not.toHaveBeenCalled();
   });
 
-  test('`access_denied` error code', async () => {
-    const searchParams = new URLSearchParams({
-      [FACTORY_URL_ATTR]: factoryUrl,
-      [ERROR_CODE_ATTR]: 'access_denied',
-    });
-
-    renderComponent(store, loaderSteps, searchParams);
-
-    jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
-
-    const currentStepId = screen.getByTestId('current-step-id');
-    await waitFor(() => expect(currentStepId.textContent).toEqual(stepId));
-
-    const currentStep = screen.getByTestId(stepId);
-    const hasError = within(currentStep).getByTestId('hasError');
-    expect(hasError.textContent).toEqual('true');
-
-    const alertTitle = screen.getByTestId('alert-title');
-    expect(alertTitle.textContent).toEqual('Failed to create the workspace');
-
-    const alertBody = screen.getByTestId('alert-body');
-    expect(alertBody.textContent).toEqual(
-      'Could not resolve devfile from private repository because the user or authorization server denied the authentication request.',
-    );
-
-    expect(mockOnNextStep).not.toHaveBeenCalled();
-  });
-
   test('`policies.create` valid', async () => {
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
