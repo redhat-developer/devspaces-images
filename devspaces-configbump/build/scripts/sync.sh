@@ -62,7 +62,6 @@ tests/
 /cvp-owners.yml
 get-source*.sh
 tests/basic-test.yaml
-sources
 make-release.sh
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
