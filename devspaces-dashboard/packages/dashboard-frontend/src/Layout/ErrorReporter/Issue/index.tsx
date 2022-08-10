@@ -209,12 +209,6 @@ export class IssueComponent extends React.PureComponent<Props> {
       );
     }
 
-    const messageTextbox = (
-      <Text component={TextVariants.p}>
-        Your workspace has failed with {!error ? 'an error' : 'the following error:'}
-      </Text>
-    );
-
     const errorTextbox = !error ? undefined : (
       <Text component={TextVariants.pre} className={styles.errorMessage}>
         {error.message}
@@ -225,9 +219,8 @@ export class IssueComponent extends React.PureComponent<Props> {
       <TextContent className={styles.messageContainer}>
         <Text component={TextVariants.h1}>
           <WarningTriangleIcon className={styles.warningIcon} />
-          Warning
+          Workspace failed
         </Text>
-        {messageTextbox}
         {errorTextbox}
         {ideLoader}
         {workspaceDetails}
