@@ -1,11 +1,13 @@
 package integration
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -31,7 +33,7 @@ func (s *SimpleSuite) TestInvalidConfigShouldFail(c *check.C) {
 	defer s.killCmd(cmd)
 
 	err = try.Do(500*time.Millisecond, func() error {
-		expected := "Near line 0 (last key parsed ''): bare keys cannot contain '{'"
+		expected := "expected '.' or '=', but got '{' instead"
 		actual := output.String()
 
 		if !strings.Contains(actual, expected) {
@@ -50,7 +52,6 @@ func (s *SimpleSuite) TestSimpleDefaultConfig(c *check.C) {
 	c.Assert(err, checker.IsNil)
 	defer s.killCmd(cmd)
 
-	// TODO validate : run on 80
 	// Expected a 404 as we did not configure anything
 	err = try.GetRequest("http://127.0.0.1:8000/", 1*time.Second, try.StatusCodeIs(http.StatusNotFound))
 	c.Assert(err, checker.IsNil)
@@ -93,17 +94,20 @@ func (s *SimpleSuite) TestPrintHelp(c *check.C) {
 
 func (s *SimpleSuite) TestRequestAcceptGraceTimeout(c *check.C) {
 	s.createComposeProject(c, "reqacceptgrace")
-	s.composeProject.Start(c)
 
-	whoami := "http://" + s.composeProject.Container(c, "whoami").NetworkSettings.IPAddress + ":80"
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	whoamiURL := "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "whoami"), "80")
 
 	file := s.adaptFile(c, "fixtures/reqacceptgrace.toml", struct {
 		Server string
-	}{whoami})
+	}{whoamiURL})
 	defer os.Remove(file)
 
 	cmd, display := s.traefikCmd(withConfigFile(file))
 	defer display(c)
+
 	err := cmd.Start()
 	c.Assert(err, checker.IsNil)
 	defer s.killCmd(cmd)
@@ -193,15 +197,17 @@ func (s *SimpleSuite) TestCustomPingTerminationStatusCode(c *check.C) {
 func (s *SimpleSuite) TestStatsWithMultipleEntryPoint(c *check.C) {
 	c.Skip("Stats is missing")
 	s.createComposeProject(c, "stats")
-	s.composeProject.Start(c)
 
-	whoami1 := "http://" + s.composeProject.Container(c, "whoami1").NetworkSettings.IPAddress + ":80"
-	whoami2 := "http://" + s.composeProject.Container(c, "whoami2").NetworkSettings.IPAddress + ":80"
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	whoami1URL := "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "whoami1"), "80")
+	whoami2URL := "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "whoami2"), "80")
 
 	file := s.adaptFile(c, "fixtures/simple_stats.toml", struct {
 		Server1 string
 		Server2 string
-	}{whoami1, whoami2})
+	}{whoami1URL, whoami2URL})
 	cmd, output := s.traefikCmd(withConfigFile(file))
 	defer output(c)
 
@@ -229,7 +235,9 @@ func (s *SimpleSuite) TestNoAuthOnPing(c *check.C) {
 	c.Skip("Waiting for new api handler implementation")
 
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	file := s.adaptFile(c, "./fixtures/simple_auth.toml", struct{}{})
 	defer os.Remove(file)
@@ -249,7 +257,9 @@ func (s *SimpleSuite) TestNoAuthOnPing(c *check.C) {
 
 func (s *SimpleSuite) TestDefaultEntryPointHTTP(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	cmd, output := s.traefikCmd("--entryPoints.http.Address=:8000", "--log.level=DEBUG", "--providers.docker", "--api.insecure")
 	defer output(c)
@@ -267,7 +277,9 @@ func (s *SimpleSuite) TestDefaultEntryPointHTTP(c *check.C) {
 
 func (s *SimpleSuite) TestWithNonExistingEntryPoint(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	cmd, output := s.traefikCmd("--entryPoints.http.Address=:8000", "--log.level=DEBUG", "--providers.docker", "--api.insecure")
 	defer output(c)
@@ -285,7 +297,9 @@ func (s *SimpleSuite) TestWithNonExistingEntryPoint(c *check.C) {
 
 func (s *SimpleSuite) TestMetricsPrometheusDefaultEntryPoint(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	cmd, output := s.traefikCmd("--entryPoints.http.Address=:8000", "--api.insecure", "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0", "--providers.docker", "--metrics.prometheus.addrouterslabels=true", "--log.level=DEBUG")
 	defer output(c)
@@ -315,7 +329,9 @@ func (s *SimpleSuite) TestMetricsPrometheusDefaultEntryPoint(c *check.C) {
 
 func (s *SimpleSuite) TestMetricsPrometheusTwoRoutersOneService(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	cmd, output := s.traefikCmd("--entryPoints.http.Address=:8000", "--api.insecure", "--metrics.prometheus.buckets=0.1,0.3,1.2,5.0", "--providers.docker", "--metrics.prometheus.addentrypointslabels=false", "--metrics.prometheus.addrouterslabels=true", "--log.level=DEBUG")
 	defer output(c)
@@ -333,32 +349,35 @@ func (s *SimpleSuite) TestMetricsPrometheusTwoRoutersOneService(c *check.C) {
 	err = try.GetRequest("http://127.0.0.1:8000/whoami2", 1*time.Second, try.StatusCodeIs(http.StatusOK))
 	c.Assert(err, checker.IsNil)
 
-	request, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8080/metrics", nil)
-	c.Assert(err, checker.IsNil)
+	// adding a loop to test if metrics are not deleted
+	for i := 0; i < 10; i++ {
+		request, err := http.NewRequest(http.MethodGet, "http://127.0.0.1:8080/metrics", nil)
+		c.Assert(err, checker.IsNil)
 
-	response, err := http.DefaultClient.Do(request)
-	c.Assert(err, checker.IsNil)
-	c.Assert(response.StatusCode, checker.Equals, http.StatusOK)
+		response, err := http.DefaultClient.Do(request)
+		c.Assert(err, checker.IsNil)
+		c.Assert(response.StatusCode, checker.Equals, http.StatusOK)
 
-	body, err := io.ReadAll(response.Body)
-	c.Assert(err, checker.IsNil)
+		body, err := io.ReadAll(response.Body)
+		c.Assert(err, checker.IsNil)
 
-	// Reqs count of 1 for both routers
-	c.Assert(string(body), checker.Contains, "traefik_router_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",router=\"router1@docker\",service=\"whoami1-integrationtestbase\"} 1")
-	c.Assert(string(body), checker.Contains, "traefik_router_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",router=\"router2@docker\",service=\"whoami1-integrationtestbase\"} 1")
-	// Reqs count of 2 for service behind both routers
-	c.Assert(string(body), checker.Contains, "traefik_service_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"whoami1-integrationtestbase@docker\"} 2")
+		// Reqs count of 1 for both routers
+		c.Assert(string(body), checker.Contains, "traefik_router_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",router=\"router1@docker\",service=\"whoami1-traefik-integration-test-base@docker\"} 1")
+		c.Assert(string(body), checker.Contains, "traefik_router_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",router=\"router2@docker\",service=\"whoami1-traefik-integration-test-base@docker\"} 1")
+		// Reqs count of 2 for service behind both routers
+		c.Assert(string(body), checker.Contains, "traefik_service_requests_total{code=\"200\",method=\"GET\",protocol=\"http\",service=\"whoami1-traefik-integration-test-base@docker\"} 2")
+	}
 }
 
 func (s *SimpleSuite) TestMultipleProviderSameBackendName(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
 
-	ipWhoami01 := s.composeProject.Container(c, "whoami1").NetworkSettings.IPAddress
-	ipWhoami02 := s.composeProject.Container(c, "whoami2").NetworkSettings.IPAddress
-	file := s.adaptFile(c, "fixtures/multiple_provider.toml", struct{ IP string }{
-		IP: ipWhoami02,
-	})
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	whoami1IP := s.getComposeServiceIP(c, "whoami1")
+	whoami2IP := s.getComposeServiceIP(c, "whoami2")
+	file := s.adaptFile(c, "fixtures/multiple_provider.toml", struct{ IP string }{IP: whoami2IP})
 	defer os.Remove(file)
 
 	cmd, output := s.traefikCmd(withConfigFile(file))
@@ -371,16 +390,18 @@ func (s *SimpleSuite) TestMultipleProviderSameBackendName(c *check.C) {
 	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("PathPrefix"))
 	c.Assert(err, checker.IsNil)
 
-	err = try.GetRequest("http://127.0.0.1:8000/whoami", 1*time.Second, try.BodyContains(ipWhoami01))
+	err = try.GetRequest("http://127.0.0.1:8000/whoami", 1*time.Second, try.BodyContains(whoami1IP))
 	c.Assert(err, checker.IsNil)
 
-	err = try.GetRequest("http://127.0.0.1:8000/file", 1*time.Second, try.BodyContains(ipWhoami02))
+	err = try.GetRequest("http://127.0.0.1:8000/file", 1*time.Second, try.BodyContains(whoami2IP))
 	c.Assert(err, checker.IsNil)
 }
 
 func (s *SimpleSuite) TestIPStrategyWhitelist(c *check.C) {
 	s.createComposeProject(c, "whitelist")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	cmd, output := s.traefikCmd(withConfigFile("fixtures/simple_whitelist.toml"))
 	defer output(c)
@@ -448,7 +469,9 @@ func (s *SimpleSuite) TestIPStrategyWhitelist(c *check.C) {
 
 func (s *SimpleSuite) TestXForwardedHeaders(c *check.C) {
 	s.createComposeProject(c, "whitelist")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	cmd, output := s.traefikCmd(withConfigFile("fixtures/simple_whitelist.toml"))
 	defer output(c)
@@ -476,13 +499,13 @@ func (s *SimpleSuite) TestXForwardedHeaders(c *check.C) {
 
 func (s *SimpleSuite) TestMultiProvider(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
 
-	server := "http://" + s.composeProject.Container(c, "whoami1").NetworkSettings.IPAddress
+	s.composeUp(c)
+	defer s.composeDown(c)
 
-	file := s.adaptFile(c, "fixtures/multiprovider.toml", struct {
-		Server string
-	}{Server: server})
+	whoamiURL := "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "whoami1"), "80")
+
+	file := s.adaptFile(c, "fixtures/multiprovider.toml", struct{ Server string }{Server: whoamiURL})
 	defer os.Remove(file)
 
 	cmd, output := s.traefikCmd(withConfigFile(file))
@@ -527,13 +550,13 @@ func (s *SimpleSuite) TestMultiProvider(c *check.C) {
 
 func (s *SimpleSuite) TestSimpleConfigurationHostRequestTrailingPeriod(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
 
-	server := "http://" + s.composeProject.Container(c, "whoami1").NetworkSettings.IPAddress
+	s.composeUp(c)
+	defer s.composeDown(c)
 
-	file := s.adaptFile(c, "fixtures/file/simple-hosts.toml", struct {
-		Server string
-	}{Server: server})
+	whoamiURL := "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "whoami1"), "80")
+
+	file := s.adaptFile(c, "fixtures/file/simple-hosts.toml", struct{ Server string }{Server: whoamiURL})
 	defer os.Remove(file)
 
 	cmd, output := s.traefikCmd(withConfigFile(file))
@@ -641,7 +664,7 @@ func (s *SimpleSuite) TestTCPRouterConfigErrors(c *check.C) {
 	c.Assert(err, checker.IsNil)
 
 	// router4 has an unsupported Rule
-	err = try.GetRequest("http://127.0.0.1:8080/api/tcp/routers/router4@file", 1000*time.Millisecond, try.BodyContains("unknown rule Host(`mydomain.com`)"))
+	err = try.GetRequest("http://127.0.0.1:8080/api/tcp/routers/router4@file", 1000*time.Millisecond, try.BodyContains("invalid rule: \\\"Host(`mydomain.com`)\\\""))
 	c.Assert(err, checker.IsNil)
 }
 
@@ -704,15 +727,17 @@ func (s *SimpleSuite) TestUDPServiceConfigErrors(c *check.C) {
 
 func (s *SimpleSuite) TestWRR(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
 
-	server1 := s.composeProject.Container(c, "whoami1").NetworkSettings.IPAddress
-	server2 := s.composeProject.Container(c, "whoami2").NetworkSettings.IPAddress
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	whoami1IP := s.getComposeServiceIP(c, "whoami1")
+	whoami2IP := s.getComposeServiceIP(c, "whoami2")
 
 	file := s.adaptFile(c, "fixtures/wrr.toml", struct {
 		Server1 string
 		Server2 string
-	}{Server1: "http://" + server1, Server2: "http://" + server2})
+	}{Server1: "http://" + whoami1IP, Server2: "http://" + whoami2IP})
 	defer os.Remove(file)
 
 	cmd, output := s.traefikCmd(withConfigFile(file))
@@ -737,29 +762,31 @@ func (s *SimpleSuite) TestWRR(c *check.C) {
 		body, err := io.ReadAll(response.Body)
 		c.Assert(err, checker.IsNil)
 
-		if strings.Contains(string(body), server1) {
-			repartition[server1]++
+		if strings.Contains(string(body), whoami1IP) {
+			repartition[whoami1IP]++
 		}
-		if strings.Contains(string(body), server2) {
-			repartition[server2]++
+		if strings.Contains(string(body), whoami2IP) {
+			repartition[whoami2IP]++
 		}
 	}
 
-	c.Assert(repartition[server1], checker.Equals, 3)
-	c.Assert(repartition[server2], checker.Equals, 1)
+	c.Assert(repartition[whoami1IP], checker.Equals, 3)
+	c.Assert(repartition[whoami2IP], checker.Equals, 1)
 }
 
 func (s *SimpleSuite) TestWRRSticky(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
 
-	server1 := s.composeProject.Container(c, "whoami1").NetworkSettings.IPAddress
-	server2 := s.composeProject.Container(c, "whoami2").NetworkSettings.IPAddress
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	whoami1IP := s.getComposeServiceIP(c, "whoami1")
+	whoami2IP := s.getComposeServiceIP(c, "whoami2")
 
 	file := s.adaptFile(c, "fixtures/wrr_sticky.toml", struct {
 		Server1 string
 		Server2 string
-	}{Server1: "http://" + server1, Server2: "http://" + server2})
+	}{Server1: "http://" + whoami1IP, Server2: "http://" + whoami2IP})
 	defer os.Remove(file)
 
 	cmd, output := s.traefikCmd(withConfigFile(file))
@@ -788,16 +815,16 @@ func (s *SimpleSuite) TestWRRSticky(c *check.C) {
 		body, err := io.ReadAll(response.Body)
 		c.Assert(err, checker.IsNil)
 
-		if strings.Contains(string(body), server1) {
-			repartition[server1]++
+		if strings.Contains(string(body), whoami1IP) {
+			repartition[whoami1IP]++
 		}
-		if strings.Contains(string(body), server2) {
-			repartition[server2]++
+		if strings.Contains(string(body), whoami2IP) {
+			repartition[whoami2IP]++
 		}
 	}
 
-	c.Assert(repartition[server1], checker.Equals, 4)
-	c.Assert(repartition[server2], checker.Equals, 0)
+	c.Assert(repartition[whoami1IP], checker.Equals, 4)
+	c.Assert(repartition[whoami2IP], checker.Equals, 0)
 }
 
 func (s *SimpleSuite) TestMirror(c *check.C) {
@@ -1034,7 +1061,9 @@ func (s *SimpleSuite) TestMirrorCanceled(c *check.C) {
 
 func (s *SimpleSuite) TestSecureAPI(c *check.C) {
 	s.createComposeProject(c, "base")
-	s.composeProject.Start(c)
+
+	s.composeUp(c)
+	defer s.composeDown(c)
 
 	file := s.adaptFile(c, "./fixtures/simple_secure_api.toml", struct{}{})
 	defer os.Remove(file)
@@ -1149,4 +1178,125 @@ func (s *SimpleSuite) TestContentTypeDisableAutoDetect(c *check.C) {
 		return nil
 	})
 	c.Assert(err, checker.IsNil)
+}
+
+func (s *SimpleSuite) TestMuxer(c *check.C) {
+	s.createComposeProject(c, "base")
+
+	s.composeUp(c)
+	defer s.composeDown(c)
+
+	whoami1URL := "http://" + net.JoinHostPort(s.getComposeServiceIP(c, "whoami1"), "80")
+
+	file := s.adaptFile(c, "fixtures/simple_muxer.toml", struct {
+		Server1 string
+	}{whoami1URL})
+	defer os.Remove(file)
+
+	cmd, output := s.traefikCmd(withConfigFile(file))
+	defer output(c)
+
+	err := cmd.Start()
+	c.Assert(err, checker.IsNil)
+	defer s.killCmd(cmd)
+
+	err = try.GetRequest("http://127.0.0.1:8080/api/rawdata", 1*time.Second, try.BodyContains("!Host"))
+	c.Assert(err, checker.IsNil)
+
+	testCases := []struct {
+		desc     string
+		request  string
+		target   string
+		body     string
+		expected int
+	}{
+		{
+			desc:     "!Host with absolute-form URL with empty host and host header, no match",
+			request:  "GET http://@/ HTTP/1.1\r\nHost: test.localhost\r\n\r\n",
+			target:   "127.0.0.1:8000",
+			expected: http.StatusNotFound,
+		},
+		{
+			desc:     "!Host with absolute-form URL with empty host and host header, match",
+			request:  "GET http://@/ HTTP/1.1\r\nHost: toto.localhost\r\n\r\n",
+			target:   "127.0.0.1:8000",
+			expected: http.StatusOK,
+		},
+		{
+			desc:     "!Host with absolute-form URL and host header, no match",
+			request:  "GET http://test.localhost/ HTTP/1.1\r\nHost: toto.localhost\r\n\r\n",
+			target:   "127.0.0.1:8000",
+			expected: http.StatusNotFound,
+		},
+		{
+			desc:     "!Host with absolute-form URL and host header, match",
+			request:  "GET http://toto.localhost/ HTTP/1.1\r\nHost: test.localhost\r\n\r\n",
+			target:   "127.0.0.1:8000",
+			expected: http.StatusOK,
+		},
+		{
+			desc:     "!HostRegexp with absolute-form URL with empty host and host header, no match",
+			request:  "GET http://@/ HTTP/1.1\r\nHost: test.localhost\r\n\r\n",
+			target:   "127.0.0.1:8001",
+			expected: http.StatusNotFound,
+		},
+		{
+			desc:     "!HostRegexp with absolute-form URL with empty host and host header, match",
+			request:  "GET http://@/ HTTP/1.1\r\nHost: toto.localhost\r\n\r\n",
+			target:   "127.0.0.1:8001",
+			expected: http.StatusOK,
+		},
+		{
+			desc:     "!HostRegexp with absolute-form URL and host header, no match",
+			request:  "GET http://test.localhost/ HTTP/1.1\r\nHost: toto.localhost\r\n\r\n",
+			target:   "127.0.0.1:8001",
+			expected: http.StatusNotFound,
+		},
+		{
+			desc:     "!HostRegexp with absolute-form URL and host header, match",
+			request:  "GET http://toto.localhost/ HTTP/1.1\r\nHost: test.localhost\r\n\r\n",
+			target:   "127.0.0.1:8001",
+			expected: http.StatusOK,
+		},
+		{
+			desc:     "!Query with semicolon, no match",
+			request:  "GET /?foo=; HTTP/1.1\r\nHost: other.localhost\r\n\r\n",
+			target:   "127.0.0.1:8002",
+			expected: http.StatusNotFound,
+		},
+		{
+			desc:     "!Query with semicolon, no match",
+			request:  "GET /?foo=titi;bar=toto HTTP/1.1\r\nHost: other.localhost\r\n\r\n",
+			target:   "127.0.0.1:8002",
+			expected: http.StatusNotFound,
+		},
+		{
+			desc:     "!Query with semicolon, match",
+			request:  "GET /?bar=toto;boo=titi HTTP/1.1\r\nHost: other.localhost\r\n\r\n",
+			target:   "127.0.0.1:8002",
+			expected: http.StatusOK,
+			body:     "bar=toto&boo=titi",
+		},
+	}
+
+	for _, test := range testCases {
+		conn, err := net.Dial("tcp", test.target)
+		c.Assert(err, checker.IsNil)
+
+		_, err = conn.Write([]byte(test.request))
+		c.Assert(err, checker.IsNil)
+
+		resp, err := http.ReadResponse(bufio.NewReader(conn), nil)
+		c.Assert(err, checker.IsNil)
+
+		if resp.StatusCode != test.expected {
+			c.Errorf("%s failed with %d instead of %d", test.desc, resp.StatusCode, test.expected)
+		}
+
+		if test.body != "" {
+			body, err := io.ReadAll(resp.Body)
+			c.Assert(err, checker.IsNil)
+			c.Assert(string(body), checker.Contains, test.body)
+		}
+	}
 }

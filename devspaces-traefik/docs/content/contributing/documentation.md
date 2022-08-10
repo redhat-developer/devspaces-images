@@ -1,3 +1,8 @@
+---
+title: "Traefik Contribution Documentation"
+description: "Found something unclear in the Traefik Proxy documentation and want to give a try at explaining it better? Read the guide to building documentation."
+---
+
 # Documentation
 
 Features Are Better When You Know How to Use Them
@@ -29,7 +34,7 @@ docker run  --rm -v /home/user/go/github/traefik/traefik:/mkdocs -p 8000:8000 tr
 
 !!! tip "Default URL"
 
-    Your local documentation server will run by default on [http://127.0.0.1:8000](http://127.0.0.1:8000).
+    Your local documentation server will run by default on <http://127.0.0.1:8000>.
 
 If you only want to build the documentation without serving it locally, you can use the following command:
 

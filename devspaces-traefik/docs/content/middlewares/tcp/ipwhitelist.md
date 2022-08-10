@@ -1,3 +1,8 @@
+---
+title: "Traefik TCP Middlewares IPWhiteList"
+description: "Learn how to use IPWhiteList in TCP middleware for limiting clients to specific IPs in Traefik Proxy. Read the technical documentation."
+---
+
 # IPWhiteList
 
 Limiting Clients to Specific IPs
@@ -51,7 +56,7 @@ labels:
 
 ```yaml tab="File (YAML)"
 # Accepts request from defined IP
-http:
+tcp:
   middlewares:
     test-ipwhitelist:
       ipWhiteList:

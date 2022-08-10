@@ -7,10 +7,13 @@ import (
 	stdlog "log"
 	"net"
 	"net/http"
+	"os"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
 
+	"github.com/containous/alice"
 	"github.com/pires/go-proxyproto"
 	"github.com/sirupsen/logrus"
 	"github.com/traefik/traefik/v2/pkg/config/static"
@@ -18,9 +21,12 @@ import (
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/middlewares"
 	"github.com/traefik/traefik/v2/pkg/middlewares/forwardedheaders"
+	"github.com/traefik/traefik/v2/pkg/middlewares/requestdecorator"
 	"github.com/traefik/traefik/v2/pkg/safe"
 	"github.com/traefik/traefik/v2/pkg/server/router"
+	tcprouter "github.com/traefik/traefik/v2/pkg/server/router/tcp"
 	"github.com/traefik/traefik/v2/pkg/tcp"
+	"github.com/traefik/traefik/v2/pkg/types"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )
@@ -60,7 +66,7 @@ func (h *httpForwarder) Accept() (net.Conn, error) {
 type TCPEntryPoints map[string]*TCPEntryPoint
 
 // NewTCPEntryPoints creates a new TCPEntryPoints.
-func NewTCPEntryPoints(entryPointsConfig static.EntryPoints) (TCPEntryPoints, error) {
+func NewTCPEntryPoints(entryPointsConfig static.EntryPoints, hostResolverConfig *types.HostResolverConfig) (TCPEntryPoints, error) {
 	serverEntryPointsTCP := make(TCPEntryPoints)
 	for entryPointName, config := range entryPointsConfig {
 		protocol, err := config.GetProtocol()
@@ -74,7 +80,7 @@ func NewTCPEntryPoints(entryPointsConfig static.EntryPoints) (TCPEntryPoints, er
 
 		ctx := log.With(context.Background(), log.Str(log.EntryPointName, entryPointName))
 
-		serverEntryPointsTCP[entryPointName], err = NewTCPEntryPoint(ctx, config)
+		serverEntryPointsTCP[entryPointName], err = NewTCPEntryPoint(ctx, config, hostResolverConfig)
 		if err != nil {
 			return nil, fmt.Errorf("error while building entryPoint %s: %w", entryPointName, err)
 		}
@@ -111,7 +117,7 @@ func (eps TCPEntryPoints) Stop() {
 }
 
 // Switch the TCP routers.
-func (eps TCPEntryPoints) Switch(routersTCP map[string]*tcp.Router) {
+func (eps TCPEntryPoints) Switch(routersTCP map[string]*tcprouter.Router) {
 	for entryPointName, rt := range routersTCP {
 		eps[entryPointName].SwitchRouter(rt)
 	}
@@ -130,7 +136,7 @@ type TCPEntryPoint struct {
 }
 
 // NewTCPEntryPoint creates a new TCPEntryPoint.
-func NewTCPEntryPoint(ctx context.Context, configuration *static.EntryPoint) (*TCPEntryPoint, error) {
+func NewTCPEntryPoint(ctx context.Context, configuration *static.EntryPoint, hostResolverConfig *types.HostResolverConfig) (*TCPEntryPoint, error) {
 	tracker := newConnectionTracker()
 
 	listener, err := buildListener(ctx, configuration)
@@ -138,26 +144,28 @@ func NewTCPEntryPoint(ctx context.Context, configuration *static.EntryPoint) (*T
 		return nil, fmt.Errorf("error preparing server: %w", err)
 	}
 
-	rt := &tcp.Router{}
+	rt := &tcprouter.Router{}
 
-	httpServer, err := createHTTPServer(ctx, listener, configuration, true)
+	reqDecorator := requestdecorator.New(hostResolverConfig)
+
+	httpServer, err := createHTTPServer(ctx, listener, configuration, true, reqDecorator)
 	if err != nil {
-		return nil, fmt.Errorf("error preparing httpServer: %w", err)
+		return nil, fmt.Errorf("error preparing http server: %w", err)
 	}
 
-	rt.HTTPForwarder(httpServer.Forwarder)
+	rt.SetHTTPForwarder(httpServer.Forwarder)
 
-	httpsServer, err := createHTTPServer(ctx, listener, configuration, false)
+	httpsServer, err := createHTTPServer(ctx, listener, configuration, false, reqDecorator)
 	if err != nil {
-		return nil, fmt.Errorf("error preparing httpsServer: %w", err)
+		return nil, fmt.Errorf("error preparing https server: %w", err)
 	}
 
-	h3server, err := newHTTP3Server(ctx, configuration, httpsServer)
+	h3Server, err := newHTTP3Server(ctx, configuration, httpsServer)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error preparing http3 server: %w", err)
 	}
 
-	rt.HTTPSForwarder(httpsServer.Forwarder)
+	rt.SetHTTPSForwarder(httpsServer.Forwarder)
 
 	tcpSwitcher := &tcp.HandlerSwitcher{}
 	tcpSwitcher.Switch(rt)
@@ -169,14 +177,14 @@ func NewTCPEntryPoint(ctx context.Context, configuration *static.EntryPoint) (*T
 		tracker:                tracker,
 		httpServer:             httpServer,
 		httpsServer:            httpsServer,
-		http3Server:            h3server,
+		http3Server:            h3Server,
 	}, nil
 }
 
 // Start starts the TCP server.
 func (e *TCPEntryPoint) Start(ctx context.Context) {
 	logger := log.FromContext(ctx)
-	logger.Debugf("Start TCP Server")
+	logger.Debug("Starting TCP Server")
 
 	if e.http3Server != nil {
 		go func() { _ = e.http3Server.Start() }()
@@ -296,8 +304,8 @@ func (e *TCPEntryPoint) Shutdown(ctx context.Context) {
 }
 
 // SwitchRouter switches the TCP router handler.
-func (e *TCPEntryPoint) SwitchRouter(rt *tcp.Router) {
-	rt.HTTPForwarder(e.httpServer.Forwarder)
+func (e *TCPEntryPoint) SwitchRouter(rt *tcprouter.Router) {
+	rt.SetHTTPForwarder(e.httpServer.Forwarder)
 
 	httpHandler := rt.GetHTTPHandler()
 	if httpHandler == nil {
@@ -306,7 +314,7 @@ func (e *TCPEntryPoint) SwitchRouter(rt *tcp.Router) {
 
 	e.httpServer.Switcher.UpdateHandler(httpHandler)
 
-	rt.HTTPSForwarder(e.httpsServer.Forwarder)
+	rt.SetHTTPSForwarder(e.httpsServer.Forwarder)
 
 	httpsHandler := rt.GetHTTPSHandler()
 	if httpsHandler == nil {
@@ -500,22 +508,33 @@ type httpServer struct {
 	Switcher  *middlewares.HTTPHandlerSwitcher
 }
 
-func createHTTPServer(ctx context.Context, ln net.Listener, configuration *static.EntryPoint, withH2c bool) (*httpServer, error) {
+func createHTTPServer(ctx context.Context, ln net.Listener, configuration *static.EntryPoint, withH2c bool, reqDecorator *requestdecorator.RequestDecorator) (*httpServer, error) {
+	if configuration.HTTP2.MaxConcurrentStreams < 0 {
+		return nil, errors.New("max concurrent streams value must be greater than or equal to zero")
+	}
+
 	httpSwitcher := middlewares.NewHandlerSwitcher(router.BuildDefaultHTTPRouter())
 
-	var handler http.Handler
-	var err error
-	handler, err = forwardedheaders.NewXForwarded(
-		configuration.ForwardedHeaders.Insecure,
-		configuration.ForwardedHeaders.TrustedIPs,
-		httpSwitcher)
-
+	next, err := alice.New(requestdecorator.WrapHandler(reqDecorator)).Then(httpSwitcher)
 	if err != nil {
 		return nil, err
 	}
 
+	var handler http.Handler
+	handler, err = forwardedheaders.NewXForwarded(
+		configuration.ForwardedHeaders.Insecure,
+		configuration.ForwardedHeaders.TrustedIPs,
+		next)
+	if err != nil {
+		return nil, err
+	}
+
+	handler = http.AllowQuerySemicolons(handler)
+
 	if withH2c {
-		handler = h2c.NewHandler(handler, &http2.Server{})
+		handler = h2c.NewHandler(handler, &http2.Server{
+			MaxConcurrentStreams: uint32(configuration.HTTP2.MaxConcurrentStreams),
+		})
 	}
 
 	serverHTTP := &http.Server{
@@ -524,6 +543,20 @@ func createHTTPServer(ctx context.Context, ln net.Listener, configuration *stati
 		ReadTimeout:  time.Duration(configuration.Transport.RespondingTimeouts.ReadTimeout),
 		WriteTimeout: time.Duration(configuration.Transport.RespondingTimeouts.WriteTimeout),
 		IdleTimeout:  time.Duration(configuration.Transport.RespondingTimeouts.IdleTimeout),
+	}
+
+	// ConfigureServer configures HTTP/2 with the MaxConcurrentStreams option for the given server.
+	// Also keeping behavior the same as
+	// https://cs.opensource.google/go/go/+/refs/tags/go1.17.7:src/net/http/server.go;l=3262
+	if !strings.Contains(os.Getenv("GODEBUG"), "http2server=0") {
+		err = http2.ConfigureServer(serverHTTP, &http2.Server{
+			MaxConcurrentStreams: uint32(configuration.HTTP2.MaxConcurrentStreams),
+			NewWriteScheduler:    func() http2.WriteScheduler { return http2.NewPriorityWriteScheduler(nil) },
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf("configure HTTP/2 server: %w", err)
+		}
 	}
 
 	listener := newHTTPForwarder(ln)

@@ -165,7 +165,7 @@ func (p *Provider) getClientOpts() ([]client.Opt, error) {
 
 		conf, err := p.TLS.CreateTLSConfig(ctx)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to create client TLS configuration: %w", err)
 		}
 
 		hostURL, err := client.ParseHostURL(p.Endpoint)
@@ -528,7 +528,8 @@ func (p *Provider) parseService(ctx context.Context, service swarmtypes.Service,
 }
 
 func listTasks(ctx context.Context, dockerClient client.APIClient, serviceID string,
-	serviceDockerData dockerData, networkMap map[string]*dockertypes.NetworkResource, isGlobalSvc bool) ([]dockerData, error) {
+	serviceDockerData dockerData, networkMap map[string]*dockertypes.NetworkResource, isGlobalSvc bool,
+) ([]dockerData, error) {
 	serviceIDFilter := filters.NewArgs()
 	serviceIDFilter.Add("service", serviceID)
 	serviceIDFilter.Add("desired-state", "running")
@@ -552,7 +553,8 @@ func listTasks(ctx context.Context, dockerClient client.APIClient, serviceID str
 }
 
 func parseTasks(ctx context.Context, task swarmtypes.Task, serviceDockerData dockerData,
-	networkMap map[string]*dockertypes.NetworkResource, isGlobalSvc bool) dockerData {
+	networkMap map[string]*dockertypes.NetworkResource, isGlobalSvc bool,
+) dockerData {
 	dData := dockerData{
 		ID:              task.ID,
 		ServiceName:     serviceDockerData.Name,

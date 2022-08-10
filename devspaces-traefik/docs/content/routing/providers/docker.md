@@ -1,3 +1,8 @@
+---
+title: "Traefik Docker Routing Documentation"
+description: "This guide will teach you how to attach labels to your containers, to route traffic and load balance with Traefik and Docker."
+---
+
 # Traefik & Docker
 
 A Story of Labels & Containers
@@ -536,6 +541,14 @@ You can declare TCP Routers and/or Services using labels.
 
     ```yaml
     - "traefik.tcp.routers.mytcprouter.tls.passthrough=true"
+    ```
+
+??? info "`traefik.tcp.routers.<router_name>.priority`"
+
+    See [priority](../routers/index.md#priority_1) for more information.
+
+    ```yaml
+    - "traefik.tcp.routers.myrouter.priority=42"
     ```
 
 #### TCP Services

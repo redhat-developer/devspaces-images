@@ -7,13 +7,13 @@ import (
 	"path"
 	"time"
 
-	"github.com/abronan/valkeyrie"
-	"github.com/abronan/valkeyrie/store"
-	"github.com/abronan/valkeyrie/store/consul"
-	etcdv3 "github.com/abronan/valkeyrie/store/etcd/v3"
-	"github.com/abronan/valkeyrie/store/redis"
-	"github.com/abronan/valkeyrie/store/zookeeper"
 	"github.com/cenkalti/backoff/v4"
+	"github.com/kvtools/valkeyrie"
+	"github.com/kvtools/valkeyrie/store"
+	"github.com/kvtools/valkeyrie/store/consul"
+	etcdv3 "github.com/kvtools/valkeyrie/store/etcd/v3"
+	"github.com/kvtools/valkeyrie/store/redis"
+	"github.com/kvtools/valkeyrie/store/zookeeper"
 	"github.com/traefik/traefik/v2/pkg/config/dynamic"
 	"github.com/traefik/traefik/v2/pkg/config/kv"
 	"github.com/traefik/traefik/v2/pkg/job"
@@ -24,16 +24,18 @@ import (
 
 // Provider holds configurations of the provider.
 type Provider struct {
-	RootKey string `description:"Root key used for KV store" export:"true" json:"rootKey,omitempty" toml:"rootKey,omitempty" yaml:"rootKey,omitempty"`
+	RootKey string `description:"Root key used for KV store" json:"rootKey,omitempty" toml:"rootKey,omitempty" yaml:"rootKey,omitempty"`
 
 	Endpoints []string         `description:"KV store endpoints" json:"endpoints,omitempty" toml:"endpoints,omitempty" yaml:"endpoints,omitempty"`
-	Username  string           `description:"KV Username" json:"username,omitempty" toml:"username,omitempty" yaml:"username,omitempty"`
-	Password  string           `description:"KV Password" json:"password,omitempty" toml:"password,omitempty" yaml:"password,omitempty"`
-	TLS       *types.ClientTLS `description:"Enable TLS support" export:"true" json:"tls,omitempty" toml:"tls,omitempty" yaml:"tls,omitempty"`
+	Username  string           `description:"KV Username" json:"username,omitempty" toml:"username,omitempty" yaml:"username,omitempty" loggable:"false"`
+	Password  string           `description:"KV Password" json:"password,omitempty" toml:"password,omitempty" yaml:"password,omitempty" loggable:"false"`
+	Token     string           `description:"KV Token" json:"token,omitempty" toml:"token,omitempty" yaml:"token,omitempty" loggable:"false"`
+	TLS       *types.ClientTLS `description:"Enable TLS support" json:"tls,omitempty" toml:"tls,omitempty" yaml:"tls,omitempty" export:"true" `
 
+	name      string
+	namespace string
 	storeType store.Backend
 	kvClient  store.Store
-	name      string
 }
 
 // SetDefaults sets the default values.
@@ -42,11 +44,12 @@ func (p *Provider) SetDefaults() {
 }
 
 // Init the provider.
-func (p *Provider) Init(storeType store.Backend, name string) error {
+func (p *Provider) Init(storeType store.Backend, name, namespace string) error {
 	ctx := log.With(context.Background(), log.Str(log.ProviderName, name))
 
-	p.storeType = storeType
 	p.name = name
+	p.namespace = namespace
+	p.storeType = storeType
 
 	kvClient, err := p.createKVClient(ctx)
 	if err != nil {
@@ -164,13 +167,15 @@ func (p *Provider) createKVClient(ctx context.Context) (store.Store, error) {
 		Bucket:            "traefik",
 		Username:          p.Username,
 		Password:          p.Password,
+		Token:             p.Token,
+		Namespace:         p.namespace,
 	}
 
 	if p.TLS != nil {
 		var err error
 		storeConfig.TLS, err = p.TLS.CreateTLSConfig(ctx)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("unable to create client TLS configuration: %w", err)
 		}
 	}
 

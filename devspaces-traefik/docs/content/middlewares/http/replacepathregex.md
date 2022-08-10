@@ -1,3 +1,8 @@
+---
+title: "Traefik ReplacePathRegex Documentation"
+description: "In Traefik Proxy's HTTP middleware, ReplacePathRegex updates paths before forwarding requests, using a regex. Read the technical documentation."
+---
+
 # ReplacePathRegex
 
 Updating the Path Before Forwarding the Request (Using a Regex)
@@ -79,7 +84,9 @@ The ReplacePathRegex middleware will:
 
 !!! tip
 
-    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or [Regex101](https://regex101.com/r/58sIgx/2).
+    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+
+    When defining a regular expression within YAML, any escaped character needs to be escaped twice: `example\.com` needs to be written as `example\\.com`.
 
 ### `regex`
 

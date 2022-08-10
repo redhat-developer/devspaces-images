@@ -1,3 +1,8 @@
+---
+title: "Traefik StatsD Documentation"
+description: "Traefik supports several metrics backends, including StatsD. Learn how to implement it for observability in Traefik Proxy. Read the technical documentation."
+---
+
 # StatsD
 
 To enable the Statsd:
@@ -60,22 +65,22 @@ metrics:
 --metrics.statsd.addEntryPointsLabels=true
 ```
 
-#### `AddRoutersLabels`
+#### `addRoutersLabels`
 
 _Optional, Default=false_
 
 Enable metrics on entry points.
 
-```toml tab="File (TOML)"
-[metrics]
-  [metrics.statsD]
-    addRoutersLabels = true
-```
-
 ```yaml tab="File (YAML)"
 metrics:
   statsD:
     addRoutersLabels: true
+```
+
+```toml tab="File (TOML)"
+[metrics]
+  [metrics.statsD]
+    addRoutersLabels = true
 ```
 
 ```bash tab="CLI"
@@ -119,7 +124,7 @@ metrics:
 ```toml tab="File (TOML)"
 [metrics]
   [metrics.statsD]
-    pushInterval = 10s
+    pushInterval = "10s"
 ```
 
 ```bash tab="CLI"
@@ -145,5 +150,5 @@ metrics:
 ```
 
 ```bash tab="CLI"
---metrics.statsd.prefix="traefik"
+--metrics.statsd.prefix=traefik
 ```

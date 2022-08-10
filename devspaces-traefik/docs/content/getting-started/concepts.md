@@ -1,3 +1,8 @@
+---
+title: "Traefik Concepts Documentation"
+description: "Get started with Traefik Proxy. Read the technical documentation for an introduction into the key concepts behind our open source edge router."
+---
+
 # Concepts
 
 Everything You Need to Know
@@ -19,7 +24,7 @@ Deploying your services, you attach information that tells Traefik the character
 ![Decentralized Configuration](../assets/img/traefik-concepts-2.png)
 
 It means that when a service is deployed, Traefik detects it immediately and updates the routing rules in real time.
-The opposite is true: when you remove a service from your infrastructure, the route will disappear accordingly.
+Similarly, when a service is removed from the infrastructure, the corresponding route is deleted accordingly.
 
 You no longer need to create and synchronize configuration files cluttered with IP addresses or other rules.
 

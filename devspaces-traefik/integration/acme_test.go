@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -19,7 +20,7 @@ import (
 	checker "github.com/vdemeester/shakers"
 )
 
-// ACME test suites (using libcompose).
+// ACME test suites.
 type AcmeSuite struct {
 	BaseSuite
 	pebbleIP      string
@@ -54,7 +55,8 @@ const (
 )
 
 func (s *AcmeSuite) getAcmeURL() string {
-	return fmt.Sprintf("https://%s:14000/dir", s.pebbleIP)
+	return fmt.Sprintf("https://%s/dir",
+		net.JoinHostPort(s.pebbleIP, "14000"))
 }
 
 func setupPebbleRootCA() (*http.Transport, error) {
@@ -86,11 +88,10 @@ func setupPebbleRootCA() (*http.Transport, error) {
 
 func (s *AcmeSuite) SetUpSuite(c *check.C) {
 	s.createComposeProject(c, "pebble")
-	s.composeProject.Start(c)
+	s.composeUp(c)
 
-	s.fakeDNSServer = startFakeDNSServer()
-
-	s.pebbleIP = s.composeProject.Container(c, "pebble").NetworkSettings.IPAddress
+	s.fakeDNSServer = startFakeDNSServer(s.getContainerIP(c, "traefik"))
+	s.pebbleIP = s.getComposeServiceIP(c, "pebble")
 
 	pebbleTransport, err := setupPebbleRootCA()
 	if err != nil {
@@ -115,15 +116,14 @@ func (s *AcmeSuite) SetUpSuite(c *check.C) {
 }
 
 func (s *AcmeSuite) TearDownSuite(c *check.C) {
-	err := s.fakeDNSServer.Shutdown()
-	if err != nil {
-		c.Log(err)
+	if s.fakeDNSServer != nil {
+		err := s.fakeDNSServer.Shutdown()
+		if err != nil {
+			c.Log(err)
+		}
 	}
 
-	// shutdown and delete compose project
-	if s.composeProject != nil {
-		s.composeProject.Stop(c)
-	}
+	s.composeDown(c)
 }
 
 func (s *AcmeSuite) TestHTTP01Domains(c *check.C) {
@@ -446,26 +446,28 @@ func (s *AcmeSuite) retrieveAcmeCertificate(c *check.C, testCase acmeTestCase) {
 	backend := startTestServer("9010", http.StatusOK, "")
 	defer backend.Close()
 
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	// wait for traefik (generating acme account take some seconds)
+	err = try.Do(60*time.Second, func() error {
+		_, errGet := client.Get("https://127.0.0.1:5001")
+		return errGet
+	})
+	c.Assert(err, checker.IsNil)
+
 	for _, sub := range testCase.subCases {
-		client := &http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			},
-		}
-
-		// wait for traefik (generating acme account take some seconds)
-		err = try.Do(60*time.Second, func() error {
-			_, errGet := client.Get("https://127.0.0.1:5001")
-			return errGet
-		})
-		c.Assert(err, checker.IsNil)
-
 		client = &http.Client{
 			Transport: &http.Transport{
 				TLSClientConfig: &tls.Config{
 					InsecureSkipVerify: true,
 					ServerName:         sub.host,
 				},
+				// Needed so that each subcase redoes the SSL handshake
+				DisableKeepAlives: true,
 			},
 		}
 
@@ -479,10 +481,6 @@ func (s *AcmeSuite) retrieveAcmeCertificate(c *check.C, testCase acmeTestCase) {
 		// Retry to send a Request which uses the LE generated certificate
 		err = try.Do(60*time.Second, func() error {
 			resp, err = client.Do(req)
-
-			// /!\ If connection is not closed, SSLHandshake will only be done during the first trial /!\
-			req.Close = true
-
 			if err != nil {
 				return err
 			}

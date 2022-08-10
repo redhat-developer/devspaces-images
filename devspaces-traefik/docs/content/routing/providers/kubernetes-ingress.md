@@ -1,3 +1,8 @@
+---
+title: "Kubernetes Ingress Routing Configuration"
+description: "Understand the routing configuration for the Kubernetes Ingress Controller and Traefik Proxy. Read the technical documentation."
+---
+
 # Traefik & Kubernetes
 
 The Kubernetes Ingress Controller.
@@ -15,8 +20,8 @@ which in turn will create the resulting routers, services, handlers, etc.
 
     ```yaml tab="RBAC"
     ---
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
-    apiVersion: rbac.authorization.k8s.io/v1beta1
     metadata:
       name: traefik-ingress-controller
     rules:
@@ -48,8 +53,8 @@ which in turn will create the resulting routers, services, handlers, etc.
           - update
 
     ---
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
-    apiVersion: rbac.authorization.k8s.io/v1beta1
     metadata:
       name: traefik-ingress-controller
     roleRef:
@@ -63,8 +68,37 @@ which in turn will create the resulting routers, services, handlers, etc.
     ```
 
     ```yaml tab="Ingress"
+    apiVersion: networking.k8s.io/v1
     kind: Ingress
+    metadata:
+      name: myingress
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: web
+
+    spec:
+      rules:
+        - host: example.com
+          http:
+            paths:
+              - path: /bar
+                pathType: Exact
+                backend:
+                  service:
+                    name:  whoami
+                    port:
+                      number: 80
+              - path: /foo
+                pathType: Exact
+                backend:
+                  service:
+                    name:  whoami
+                    port:
+                      number: 80
+    ```
+
+    ```yaml tab="Ingress v1beta1 (deprecated)"
     apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
     metadata:
       name: myingress
       annotations:
@@ -84,34 +118,7 @@ which in turn will create the resulting routers, services, handlers, etc.
                   serviceName: whoami
                   servicePort: 80
     ```
-    
-    ```yaml tab="Ingress Kubernetes v1.19+"
-    kind: Ingress
-    apiVersion: networking.k8s.io/v1
-    metadata:
-      name: myingress
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: web
-    
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /bar
-                backend:
-                  service:
-                    name:  whoami
-                    port:
-                      number: 80
-              - path: /foo
-                backend:
-                  service:
-                    name:  whoami
-                    port:
-                      number: 80
-    ```
-    
+
     ```yaml tab="Traefik"
     apiVersion: v1
     kind: ServiceAccount
@@ -119,8 +126,8 @@ which in turn will create the resulting routers, services, handlers, etc.
       name: traefik-ingress-controller
 
     ---
-    kind: Deployment
     apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: traefik
       labels:
@@ -139,7 +146,7 @@ which in turn will create the resulting routers, services, handlers, etc.
           serviceAccountName: traefik-ingress-controller
           containers:
             - name: traefik
-              image: traefik:v2.5
+              image: traefik:v2.8
               args:
                 - --entrypoints.web.address=:80
                 - --providers.kubernetesingress
@@ -164,8 +171,8 @@ which in turn will create the resulting routers, services, handlers, etc.
     ```
 
     ```yaml tab="Whoami"
-    kind: Deployment
     apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: whoami
       labels:
@@ -207,6 +214,11 @@ which in turn will create the resulting routers, services, handlers, etc.
 
 ## Annotations
 
+!!! warning "Referencing resources in annotations"
+    
+    In an annotation, when referencing a resource defined by another provider,
+    the [provider namespace syntax](../../providers/overview.md#provider-namespace) must be used.
+
 #### On Ingress
 
 ??? info "`traefik.ingress.kubernetes.io/router.entrypoints`"
@@ -222,7 +234,7 @@ which in turn will create the resulting routers, services, handlers, etc.
     See [middlewares](../routers/index.md#middlewares) and [middlewares overview](../../middlewares/overview.md) for more information.
 
     ```yaml
-    traefik.ingress.kubernetes.io/router.middlewares: auth@file,prefix@kubernetescrd,cb@file
+    traefik.ingress.kubernetes.io/router.middlewares: auth@file,default-prefix@kubernetescrd
     ```
 
 ??? info "`traefik.ingress.kubernetes.io/router.priority`"
@@ -235,7 +247,7 @@ which in turn will create the resulting routers, services, handlers, etc.
 
 ??? info "`traefik.ingress.kubernetes.io/router.pathmatcher`"
 
-    Overrides the default router rule type used for a path.  
+    Overrides the default router rule type used for a path.
     Only path-related matcher name can be specified: `Path`, `PathPrefix`.
 
     Default `PathPrefix`
@@ -281,7 +293,7 @@ which in turn will create the resulting routers, services, handlers, etc.
     See [options](../routers/index.md#options) for more information.
 
     ```yaml
-    traefik.ingress.kubernetes.io/router.tls.options: foobar
+    traefik.ingress.kubernetes.io/router.tls.options: foobar@file
     ```
 
 #### On Service
@@ -399,8 +411,8 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
 
     ```yaml tab="RBAC"
     ---
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
-    apiVersion: rbac.authorization.k8s.io/v1beta1
     metadata:
       name: traefik-ingress-controller
     rules:
@@ -432,8 +444,8 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
           - update
 
     ---
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
-    apiVersion: rbac.authorization.k8s.io/v1beta1
     metadata:
       name: traefik-ingress-controller
     roleRef:
@@ -447,8 +459,37 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
     ```
 
     ```yaml tab="Ingress"
+    apiVersion: networking.k8s.io/v1
     kind: Ingress
+    metadata:
+      name: myingress
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+
+    spec:
+      rules:
+        - host: example.com
+          http:
+            paths:
+              - path: /bar
+                pathType: Exact
+                backend:
+                  service:
+                    name:  whoami
+                    port:
+                      number: 80
+              - path: /foo
+                pathType: Exact
+                backend:
+                  service:
+                    name:  whoami
+                    port:
+                      number: 80
+    ```
+
+    ```yaml tab="Ingress v1beta1 (deprecated)"
     apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
     metadata:
       name: myingress
       annotations:
@@ -468,34 +509,7 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
                   serviceName: whoami
                   servicePort: 80
     ```
-    
-    ```yaml tab="Ingress Kubernetes v1.19+"
-    kind: Ingress
-    apiVersion: networking.k8s.io/v1
-    metadata:
-      name: myingress
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /bar
-                backend:
-                  service:
-                    name:  whoami
-                    port:
-                      number: 80
-              - path: /foo
-                backend:
-                  service:
-                    name:  whoami
-                    port:
-                      number: 80
-    ```
-    
+
     ```yaml tab="Traefik"
     apiVersion: v1
     kind: ServiceAccount
@@ -503,8 +517,8 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
       name: traefik-ingress-controller
 
     ---
-    kind: Deployment
     apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: traefik
       labels:
@@ -523,7 +537,7 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
           serviceAccountName: traefik-ingress-controller
           containers:
             - name: traefik
-              image: traefik:v2.5
+              image: traefik:v2.8
               args:
                 - --entrypoints.websecure.address=:443
                 - --entrypoints.websecure.http.tls
@@ -549,8 +563,8 @@ This way, any Ingress attached to this Entrypoint will have TLS termination by d
     ```
 
     ```yaml tab="Whoami"
-    kind: Deployment
     apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: whoami
       labels:
@@ -604,8 +618,8 @@ For more options, please refer to the available [annotations](#on-ingress).
 
     ```yaml tab="RBAC"
     ---
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
-    apiVersion: rbac.authorization.k8s.io/v1beta1
     metadata:
       name: traefik-ingress-controller
     rules:
@@ -637,8 +651,8 @@ For more options, please refer to the available [annotations](#on-ingress).
           - update
 
     ---
+    apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
-    apiVersion: rbac.authorization.k8s.io/v1beta1
     metadata:
       name: traefik-ingress-controller
     roleRef:
@@ -652,8 +666,38 @@ For more options, please refer to the available [annotations](#on-ingress).
     ```
 
     ```yaml tab="Ingress"
+    apiVersion: networking.k8s.io/v1
     kind: Ingress
+    metadata:
+      name: myingress
+      annotations:
+        traefik.ingress.kubernetes.io/router.entrypoints: websecure
+        traefik.ingress.kubernetes.io/router.tls: true
+
+    spec:
+      rules:
+        - host: example.com
+          http:
+            paths:
+              - path: /bar
+                pathType: Exact
+                backend:
+                  service:
+                    name:  whoami
+                    port:
+                      number: 80
+              - path: /foo
+                pathType: Exact
+                backend:
+                  service:
+                    name:  whoami
+                    port:
+                      number: 80
+    ```
+
+    ```yaml tab="Ingress v1beta1 (deprecated)"
     apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
     metadata:
       name: myingress
       annotations:
@@ -674,35 +718,7 @@ For more options, please refer to the available [annotations](#on-ingress).
                   serviceName: whoami
                   servicePort: 80
     ```
-    
-    ```yaml tab="Ingress Kubernetes v1.19+"
-    kind: Ingress
-    apiVersion: networking.k8s.io/v1
-    metadata:
-      name: myingress
-      annotations:
-        traefik.ingress.kubernetes.io/router.entrypoints: websecure
-        traefik.ingress.kubernetes.io/router.tls: true
-    
-    spec:
-      rules:
-        - host: example.com
-          http:
-            paths:
-              - path: /bar
-                backend:
-                  service:
-                    name:  whoami
-                    port:
-                      number: 80
-              - path: /foo
-                backend:
-                  service:
-                    name:  whoami
-                    port:
-                      number: 80
-    ```
-    
+
     ```yaml tab="Traefik"
     apiVersion: v1
     kind: ServiceAccount
@@ -710,8 +726,8 @@ For more options, please refer to the available [annotations](#on-ingress).
       name: traefik-ingress-controller
 
     ---
-    kind: Deployment
     apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: traefik
       labels:
@@ -730,7 +746,7 @@ For more options, please refer to the available [annotations](#on-ingress).
           serviceAccountName: traefik-ingress-controller
           containers:
             - name: traefik
-              image: traefik:v2.5
+              image: traefik:v2.8
               args:
                 - --entrypoints.websecure.address=:443
                 - --providers.kubernetesingress
@@ -755,8 +771,8 @@ For more options, please refer to the available [annotations](#on-ingress).
     ```
 
     ```yaml tab="Whoami"
-    kind: Deployment
     apiVersion: apps/v1
+    kind: Deployment
     metadata:
       name: whoami
       labels:
@@ -801,8 +817,34 @@ For more options, please refer to the available [annotations](#on-ingress).
 ??? example "Using a secret"
 
     ```yaml tab="Ingress"
+    apiVersion: networking.k8s.io/v1
     kind: Ingress
+    metadata:
+      name: foo
+      namespace: production
+
+    spec:
+      rules:
+      - host: example.net
+        http:
+          paths:
+          - path: /bar
+            pathType: Exact
+            backend:
+              service:
+                name:  service1
+                port:
+                  number: 80
+      # Only selects which certificate(s) should be loaded from the secret, in order to terminate TLS.
+      # Doesn't enable TLS for that ingress (hence for the underlying router).
+      # Please see the TLS annotations on ingress made for that purpose.
+      tls:
+      - secretName: supersecret
+    ```
+
+    ```yaml tab="Ingress v1beta1 (deprecated)"
     apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
     metadata:
       name: foo
       namespace: production
@@ -823,31 +865,6 @@ For more options, please refer to the available [annotations](#on-ingress).
       - secretName: supersecret
     ```
 
-    ```yaml tab="Ingress Kubernetes v1.19+"
-    kind: Ingress
-    apiVersion: networking.k8s.io/v1
-    metadata:
-      name: foo
-      namespace: production
-    
-    spec:
-      rules:
-      - host: example.net
-        http:
-          paths:
-          - path: /bar
-            backend:
-              service:
-                name:  service1
-                port:
-                  number: 80
-      # Only selects which certificate(s) should be loaded from the secret, in order to terminate TLS.
-      # Doesn't enable TLS for that ingress (hence for the underlying router).
-      # Please see the TLS annotations on ingress made for that purpose.
-      tls:
-      - secretName: supersecret
-    ```
-      
     ```yaml tab="Secret"
     apiVersion: v1
     kind: Secret
@@ -893,18 +910,6 @@ and will connect via TLS automatically.
 Ingresses can be created that look like the following:
 
 ```yaml tab="Ingress"
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
- name: cheese
-
-spec:
-  defaultBackend:
-    serviceName: stilton
-    serverPort: 80
-```
-
-```yaml tab="Ingress Kubernetes v1.19+"
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -916,6 +921,18 @@ spec:
       name: stilton
       port:
         number: 80
+```
+
+```yaml tab="Ingress v1beta1 (deprecated)"
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+ name: cheese
+
+spec:
+  defaultBackend:
+    serviceName: stilton
+    serverPort: 80
 ```
 
 This ingress follows the Global Default Backend property of ingresses.

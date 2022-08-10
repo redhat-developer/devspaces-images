@@ -1,3 +1,8 @@
+---
+title: "Traefik Installation Documentation"
+description: "There are several flavors to choose from when installing Traefik Proxy. Get started with Traefik Proxy, and read the technical documentation."
+---
+
 # Install Traefik
 
 You can install Traefik with the following flavors:
@@ -11,12 +16,12 @@ You can install Traefik with the following flavors:
 
 Choose one of the [official Docker images](https://hub.docker.com/_/traefik) and run it with one sample configuration file:
 
-* [YAML](https://raw.githubusercontent.com/traefik/traefik/v2.5/traefik.sample.yml)
-* [TOML](https://raw.githubusercontent.com/traefik/traefik/v2.5/traefik.sample.toml)
+* [YAML](https://raw.githubusercontent.com/traefik/traefik/v2.8/traefik.sample.yml)
+* [TOML](https://raw.githubusercontent.com/traefik/traefik/v2.8/traefik.sample.toml)
 
 ```bash
 docker run -d -p 8080:8080 -p 80:80 \
-    -v $PWD/traefik.yml:/etc/traefik/traefik.yml traefik:v2.5
+    -v $PWD/traefik.yml:/etc/traefik/traefik.yml traefik:v2.8
 ```
 
 For more details, go to the [Docker provider documentation](../providers/docker.md)
@@ -24,7 +29,7 @@ For more details, go to the [Docker provider documentation](../providers/docker.
 !!! tip
 
     * Prefer a fixed version than the latest that could be an unexpected version.
-    ex: `traefik:v2.1.4`
+    ex: `traefik:v2.8`
     * Docker images are based from the [Alpine Linux Official image](https://hub.docker.com/_/alpine).
     * Any orchestrator using docker images can fetch the official Traefik docker image.
 
@@ -101,13 +106,13 @@ helm install traefik traefik/traefik
 
 This HelmChart does not expose the Traefik dashboard by default, for security concerns.
 Thus, there are multiple ways to expose the dashboard.
-For instance, the dashboard access could be achieved through a port-forward :
+For instance, the dashboard access could be achieved through a port-forward:
 
 ```shell
 kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
 ```
 
-Accessible with the url: http://127.0.0.1:9000/dashboard/
+It can then be reached at: `http://127.0.0.1:9000/dashboard/`
 
 Another way would be to apply your own configuration, for instance,
 by defining and applying an IngressRoute CRD (`kubectl apply -f dashboard.yaml`):
@@ -173,3 +178,18 @@ And run it:
 ## Compile your Binary from the Sources
 
 All the details are available in the [Contributing Guide](../contributing/building-testing.md)
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

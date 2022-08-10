@@ -39,8 +39,9 @@
             <div class="text-subtitle2">Main Service</div>
             <q-chip
               dense
-              class="app-chip app-chip-name">
+              class="app-chip app-chip-name app-chip-overflow">
               {{ data.mirroring.service }}
+              <q-tooltip>{{ data.mirroring.service }}</q-tooltip>
             </q-chip>
           </div>
         </div>
@@ -75,6 +76,34 @@
               dense
               class="app-chip app-chip-name">
               Version {{ data.loadBalancer.proxyProtocol.version }}
+            </q-chip>
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-section v-if="data.failover && data.failover.service">
+        <div class="row items-start no-wrap">
+          <div class="col">
+            <div class="text-subtitle2">Main Service</div>
+            <q-chip
+              dense
+              class="app-chip app-chip-name app-chip-overflow">
+              {{ data.failover.service }}
+              <q-tooltip>{{ data.failover.service }}</q-tooltip>
+            </q-chip>
+          </div>
+        </div>
+      </q-card-section>
+
+      <q-card-section v-if="data.failover && data.failover.fallback">
+        <div class="row items-start no-wrap">
+          <div class="col">
+            <div class="text-subtitle2">Fallback Service</div>
+            <q-chip
+              dense
+              class="app-chip app-chip-name app-chip-overflow">
+              {{ data.failover.fallback }}
+              <q-tooltip>{{ data.failover.fallback }}</q-tooltip>
             </q-chip>
           </div>
         </div>
@@ -117,8 +146,14 @@ export default {
     getProviderLogoPath () {
       const name = this.data.provider.toLowerCase()
 
-      if (name.includes('plugin-')) {
+      if (name.startsWith('plugin-')) {
         return 'statics/providers/plugin.svg'
+      }
+      if (name.startsWith('consul-')) {
+        return `statics/providers/consul.svg`
+      }
+      if (name.startsWith('consulcatalog-')) {
+        return `statics/providers/consulcatalog.svg`
       }
 
       return `statics/providers/${name}.svg`

@@ -1,3 +1,8 @@
+---
+title: "Traefik Building & Testing Documentation"
+description: "Compile and test your own Traefik Proxy! Learn how to build your own Traefik binary from the sources, and read the technical documentation."
+---
+
 # Building and Testing
 
 Compile and Test Your Own Traefik!
@@ -45,7 +50,7 @@ $ ls dist/
 traefik*
 ```
 
-The following targets can be executed outside Docker by setting the variable `PRE_TARGET` to an empty string (we don't recommend that):
+The following targets can be executed outside Docker by setting the variable `IN_DOCKER` to an empty string (although be aware that some of the tests might fail in that context):
 
 - `test-unit`
 - `test-integration`
@@ -55,7 +60,7 @@ The following targets can be executed outside Docker by setting the variable `PR
 ex:
 
 ```bash
-PRE_TARGET= make test-unit
+IN_DOCKER= make test-unit
 ```
 
 ### Method 2: Using `go`
@@ -64,7 +69,6 @@ Requirements:
 
 - `go` v1.16+
 - environment variable `GO111MODULE=on`
-- [go-bindata](https://github.com/containous/go-bindata) `GO111MODULE=off go get -u github.com/containous/go-bindata/...`
 
 !!! tip "Source Directory"
 
@@ -101,18 +105,9 @@ Requirements:
 
 Once you've set up your go environment and cloned the source repository, you can build Traefik.
 
-Beforehand, you need to get [go-bindata](https://github.com/containous/go-bindata) (the first time) in order to be able to use the `go generate` command (which is part of the build process).
-
-```bash
-cd ~/go/src/github.com/traefik/traefik
-
-# Get go-bindata. (Important: the ellipses are required.)
-GO111MODULE=off go get github.com/containous/go-bindata/...
-```
-
 ```bash
 # Generate UI static files
-rm -rf static/ autogen/; make generate-webui
+make clean-webui generate-webui
 
 # required to merge non-code components into the final binary,
 # such as the web dashboard/UI

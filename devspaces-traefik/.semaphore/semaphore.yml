@@ -25,44 +25,25 @@ global_job_config:
       - export "PATH=${GOPATH}/bin:${PATH}"
       - mkdir -vp "${SEMAPHORE_GIT_DIR}" "${GOPATH}/bin"
       - export GOPROXY=https://proxy.golang.org,direct
-      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "${GOPATH}/bin" v1.41.1
-      - curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | bash -s -- -b "${GOPATH}/bin"
-      - go install github.com/containous/go-bindata/go-bindata@v1.0.0
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b "${GOPATH}/bin" v1.46.2
+      - curl -sSfL https://gist.githubusercontent.com/traefiker/6d7ac019c11d011e4f131bb2cca8900e/raw/goreleaser.sh | bash -s -- -b "${GOPATH}/bin"
       - checkout
       - cache restore traefik-$(checksum go.sum)
 
 blocks:
-  - name: Test Integration Container
+  - name: Test Integration
     dependencies: []
     run:
       when: "branch =~ '.*' OR pull_request =~'.*'"
     task:
       jobs:
-        - name: Test Integration Container
+        - name: Test Integration
           commands:
             - make pull-images
-            - mkdir -p static # Avoid to generate webui
-            - PRE_TARGET="" make binary
-            - make test-integration-container
+            - touch webui/static/index.html # Avoid generating webui
+            - IN_DOCKER="" make binary
+            - make test-integration
             - df -h
-      epilogue:
-        always:
-          commands:
-            - cache store traefik-$(checksum go.sum) $HOME/go/pkg/mod
-
-  - name: Test Integration Host
-    dependencies: []
-    run:
-      when: "branch =~ '.*' OR pull_request =~'.*'"
-    task:
-      env_vars:
-        - name: PRE_TARGET
-          value: ""
-      jobs:
-        - name: Test Integration Host
-          commands:
-            - mkdir -p static # Avoid to generate webui
-            - make test-integration-host
       epilogue:
         always:
           commands:
@@ -83,8 +64,8 @@ blocks:
         - name: GH_VERSION
           value: 1.12.1
         - name: CODENAME
-          value: "livarot"
-        - name: PRE_TARGET
+          value: "vacherin"
+        - name: IN_DOCKER
           value: ""
       prologue:
         commands:
@@ -92,6 +73,8 @@ blocks:
           - curl -sSL -o /tmp/gh_${GH_VERSION}_linux_amd64.tar.gz https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.tar.gz
           - tar -zxvf /tmp/gh_${GH_VERSION}_linux_amd64.tar.gz -C /tmp
           - sudo mv /tmp/gh_${GH_VERSION}_linux_amd64/bin/gh /usr/local/bin/gh
+          - sudo rm -rf ~/.phpbrew ~/.kerl ~/.sbt ~/.nvm ~/.npm ~/.kiex /usr/lib/jvm /opt/az /opt/firefox # Remove unnecessary data.
+          - sudo service docker stop && sudo umount /var/lib/docker && sudo service docker start # Unmounts the docker disk and the whole system disk is usable.
       jobs:
         - name: Release
           commands:

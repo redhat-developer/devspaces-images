@@ -13,7 +13,7 @@ import (
 	"github.com/lucas-clemente/quic-go/http3"
 	"github.com/traefik/traefik/v2/pkg/config/static"
 	"github.com/traefik/traefik/v2/pkg/log"
-	"github.com/traefik/traefik/v2/pkg/tcp"
+	tcprouter "github.com/traefik/traefik/v2/pkg/server/router/tcp"
 )
 
 type http3server struct {
@@ -26,13 +26,17 @@ type http3server struct {
 }
 
 func newHTTP3Server(ctx context.Context, configuration *static.EntryPoint, httpsServer *httpServer) (*http3server, error) {
-	if !configuration.EnableHTTP3 {
+	if configuration.HTTP3 == nil {
 		return nil, nil
+	}
+
+	if configuration.HTTP3.AdvertisedPort < 0 {
+		return nil, errors.New("advertised port must be greater than or equal to zero")
 	}
 
 	conn, err := net.ListenPacket("udp", configuration.GetAddress())
 	if err != nil {
-		return nil, fmt.Errorf("error while starting http3 listener: %w", err)
+		return nil, fmt.Errorf("starting listener: %w", err)
 	}
 
 	h3 := &http3server{
@@ -43,6 +47,7 @@ func newHTTP3Server(ctx context.Context, configuration *static.EntryPoint, https
 	}
 
 	h3.Server = &http3.Server{
+		Port: configuration.HTTP3.AdvertisedPort,
 		Server: &http.Server{
 			Addr:         configuration.GetAddress(),
 			Handler:      httpsServer.Server.(*http.Server).Handler,
@@ -72,7 +77,7 @@ func (e *http3server) Start() error {
 	return e.Serve(e.http3conn)
 }
 
-func (e *http3server) Switch(rt *tcp.Router) {
+func (e *http3server) Switch(rt *tcprouter.Router) {
 	e.lock.Lock()
 	defer e.lock.Unlock()
 

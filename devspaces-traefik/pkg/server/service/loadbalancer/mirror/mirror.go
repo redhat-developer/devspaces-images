@@ -93,7 +93,7 @@ func (m *Mirroring) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if errors.Is(err, errBodyTooLarge) {
 		req.Body = io.NopCloser(io.MultiReader(bytes.NewReader(bytesRead), req.Body))
 		m.handler.ServeHTTP(rw, req)
-		logger.Debugf("no mirroring, request body larger than allowed size")
+		logger.Debug("no mirroring, request body larger than allowed size")
 		return
 	}
 
@@ -204,7 +204,7 @@ func newReusableRequest(req *http.Request, maxBodySize int64) (*reusableRequest,
 	if req == nil {
 		return nil, nil, errors.New("nil input request")
 	}
-	if req.Body == nil {
+	if req.Body == nil || req.ContentLength == 0 {
 		return &reusableRequest{req: req}, nil, nil
 	}
 

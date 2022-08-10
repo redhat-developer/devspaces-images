@@ -1,3 +1,8 @@
+---
+title: "Traefik Kubernetes Ingress Documentation"
+description: "Understand the requirements, routing configuration, and how to set up Traefik Proxy as your Kubernetes Ingress Controller. Read the technical documentation."
+---
+
 # Traefik & Kubernetes
 
 The Kubernetes Ingress Controller.
@@ -36,10 +41,10 @@ and derives the corresponding dynamic configuration from it,
 which in turn creates the resulting routers, services, handlers, etc.
 
 ```yaml tab="Ingress"
+apiVersion: networking.k8s.io/v1
 kind: Ingress
-apiVersion: networking.k8s.io/v1beta1
 metadata:
-  name: "foo"
+  name: foo
   namespace: production
 
 spec:
@@ -48,20 +53,26 @@ spec:
       http:
         paths:
           - path: /bar
+            pathType: Exact
             backend:
-              serviceName: service1
-              servicePort: 80
+              service:
+                name:  service1
+                port:
+                  number: 80
           - path: /foo
+            pathType: Exact
             backend:
-              serviceName: service1
-              servicePort: 80
+              service:
+                name:  service1
+                port:
+                  number: 80
 ```
 
-```yaml tab="Ingress Kubernetes v1.19+"
+```yaml tab="Ingress v1beta1 (deprecated)"
+apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
-apiVersion: networking.k8s.io/v1
 metadata:
-  name: "foo"
+  name: foo
   namespace: production
 
 spec:
@@ -71,16 +82,12 @@ spec:
         paths:
           - path: /bar
             backend:
-              service:
-                name:  service1
-                port:
-                  number: 80
+              serviceName: service1
+              servicePort: 80
           - path: /foo
             backend:
-              service:
-                name:  service1
-                port:
-                  number: 80
+              serviceName: service1
+              servicePort: 80
 ```
 
 ## LetsEncrypt Support with the Ingress Provider
@@ -102,7 +109,7 @@ If you need Let's Encrypt with high availability in a Kubernetes environment,
 we recommend using [Traefik Enterprise](https://traefik.io/traefik-enterprise/) which includes distributed Let's Encrypt as a supported feature.
 
 If you want to keep using Traefik Proxy,
-LetsEncrypt HA can be achieved by using a Certificate Controller such as [Cert-Manager](https://docs.cert-manager.io/en/latest/index.html).
+LetsEncrypt HA can be achieved by using a Certificate Controller such as [Cert-Manager](https://cert-manager.io/docs/).
 When using Cert-Manager to manage certificates,
 it creates secrets in your namespaces that can be referenced as TLS secrets in your [ingress objects](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls).
 
@@ -227,7 +234,7 @@ See [label-selectors](https://kubernetes.io/docs/concepts/overview/working-with-
 ```yaml tab="File (YAML)"
 providers:
   kubernetesIngress:
-    labelselector: "app=traefik"
+    labelSelector: "app=traefik"
     # ...
 ```
 
@@ -270,19 +277,19 @@ Otherwise, Ingresses missing the annotation, having an empty value, or the value
     ```
 
     ```yaml tab="Ingress"
-    apiVersion: "networking.k8s.io/v1beta1"
-    kind: "Ingress"
+    apiVersion: networking.k8s.io/v1beta1
+    kind: Ingress
     metadata:
-      name: "example-ingress"
+      name: example-ingress
     spec:
-      ingressClassName: "traefik-lb"
+      ingressClassName: traefik-lb
       rules:
       - host: "*.example.com"
         http:
           paths:
-          - path: "/example"
+          - path: /example
             backend:
-              serviceName: "example-service"
+              serviceName: example-service
               servicePort: 80
     ```
 
@@ -301,20 +308,21 @@ Otherwise, Ingresses missing the annotation, having an empty value, or the value
     ```
 
     ```yaml tab="Ingress"
-    apiVersion: "networking.k8s.io/v1"
-    kind: "Ingress"
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
     metadata:
-      name: "example-ingress"
+      name: example-ingress
     spec:
-      ingressClassName: "traefik-lb"
+      ingressClassName: traefik-lb
       rules:
       - host: "*.example.com"
         http:
           paths:
-          - path: "/example"
+          - path: /example
+            pathType: Exact
             backend:
               service:
-                name: "example-service"
+                name: example-service
                 port:
                     number: 80
     ```
@@ -442,7 +450,11 @@ providers:
 
 ### `allowEmptyServices`
 
-_Optional, Default: false
+_Optional, Default: false_
+
+If the parameter is set to `true`,
+it allows the creation of an empty [servers load balancer](../routing/services/index.md#servers-load-balancer) if the targeted Kubernetes service has no endpoints available.
+This results in `503` HTTP responses instead of `404` ones.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -461,14 +473,12 @@ providers:
 --providers.kubernetesingress.allowEmptyServices=true
 ```
 
-Allow the creation of services if there are no endpoints available.
-This results in `503` http responses instead of `404`.
-
 ### `allowExternalNameServices`
 
 _Optional, Default: false_
 
-If the parameter is set to `true`, Ingresses are able to reference ExternalName services.
+If the parameter is set to `true`,
+Ingresses are able to reference ExternalName services.
 
 ```yaml tab="File (YAML)"
 providers:
@@ -490,4 +500,19 @@ providers:
 ### Further
 
 To learn more about the various aspects of the Ingress specification that Traefik supports,
-many examples of Ingresses definitions are located in the test [examples](https://github.com/traefik/traefik/tree/v2.5/pkg/provider/kubernetes/ingress/fixtures) of the Traefik repository.
+many examples of Ingresses definitions are located in the test [examples](https://github.com/traefik/traefik/tree/v2.8/pkg/provider/kubernetes/ingress/fixtures) of the Traefik repository.
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

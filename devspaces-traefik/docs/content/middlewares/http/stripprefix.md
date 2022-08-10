@@ -1,3 +1,8 @@
+---
+title: "Traefik StripPrefix Documentation"
+description: "In Traefik Proxy's HTTP middleware, StripPrefix removes prefixes from paths before forwarding requests. Read the technical documentation."
+---
+
 # StripPrefix
 
 Removing Prefixes From the Path Before Forwarding the Request
@@ -82,7 +87,7 @@ The `prefixes` option defines the prefixes to strip from the request URL.
 For instance, `/products` also matches `/products/shoes` and `/products/shirts`.
 
 If your backend is serving assets (e.g., images or JavaScript files), it can use the `X-Forwarded-Prefix` header to properly construct relative URLs.
-Using the previous example, the backend should return `/products/shoes/image.png` (and not `/images.png`, which Traefik would likely not be able to associate with the same backend).
+Using the previous example, the backend should return `/products/shoes/image.png` (and not `/image.png`, which Traefik would likely not be able to associate with the same backend).
 
 ### `forceSlash`
 

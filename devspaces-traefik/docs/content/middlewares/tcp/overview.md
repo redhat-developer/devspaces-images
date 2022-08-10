@@ -1,3 +1,8 @@
+---
+title: "Traefik Proxy TCP Middleware Overview"
+description: "Read the official Traefik Proxy documentation for an overview of the available TCP middleware."
+---
+
 # TCP Middlewares
 
 Controlling connections
@@ -36,7 +41,7 @@ spec:
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
+kind: MiddlewareTCP
 metadata:
   name: foo-ip-whitelist
 spec:
@@ -47,7 +52,7 @@ spec:
 
 ---
 apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
+kind: IngressRouteTCP
 metadata:
   name: ingressroute
 spec:
@@ -131,4 +136,5 @@ tcp:
 
 | Middleware                                | Purpose                                           | Area                        |
 |-------------------------------------------|---------------------------------------------------|-----------------------------|
-| [IPWhiteList](ipwhitelist.md)             | Limit the allowed client IPs                      | Security, Request lifecycle |
+| [InFlightConn](inflightconn.md)           | Limits the number of simultaneous connections.    | Security, Request lifecycle |
+| [IPWhiteList](ipwhitelist.md)             | Limit the allowed client IPs.                     | Security, Request lifecycle |

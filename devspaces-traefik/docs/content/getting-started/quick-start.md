@@ -1,3 +1,8 @@
+---
+title: "Traefik Getting Started Quickly"
+description: "Looking to get started with Traefik Proxy quickly? Read the technical documentation to learn a simple use case that leverages Docker."
+---
+
 # Quick Start
 
 A Simple Use Case Using Docker
@@ -15,7 +20,7 @@ version: '3'
 services:
   reverse-proxy:
     # The official v2 Traefik docker image
-    image: traefik:v2.5
+    image: traefik:v2.8
     # Enables the web UI and tells Traefik to listen to docker
     command: --api.insecure=true --providers.docker
     ports:
@@ -36,7 +41,7 @@ Start your `reverse-proxy` with the following command:
 docker-compose up -d reverse-proxy
 ```
 
-You can open a browser and go to [http://localhost:8080/api/rawdata](http://localhost:8080/api/rawdata) to see Traefik's API rawdata (we'll go back there once we have launched a service in step 2).
+You can open a browser and go to `http://localhost:8080/api/rawdata` to see Traefik's API rawdata (we'll go back there once we have launched a service in step 2).
 
 ## Traefik Detects New Services and Creates the Route for You
 
@@ -61,7 +66,7 @@ Start the `whoami` service with the following command:
 docker-compose up -d whoami
 ```
 
-Go back to your browser ([http://localhost:8080/api/rawdata](http://localhost:8080/api/rawdata)) and see that Traefik has automatically detected the new container and updated its own configuration.
+Go back to your browser (`http://localhost:8080/api/rawdata`) and see that Traefik has automatically detected the new container and updated its own configuration.
 
 When Traefik detects new services, it creates the corresponding routes so you can call them ... _let's see!_  (Here, we're using curl)
 
@@ -85,7 +90,7 @@ Run more instances of your `whoami` service with the following command:
 docker-compose up -d --scale whoami=2
 ```
 
-Go back to your browser ([http://localhost:8080/api/rawdata](http://localhost:8080/api/rawdata)) and see that Traefik has automatically detected the new instance of the container.
+Go back to your browser (`http://localhost:8080/api/rawdata`) and see that Traefik has automatically detected the new instance of the container.
 
 Finally, see that Traefik load-balances between the two instances of your service by running the following command twice:
 
@@ -108,4 +113,20 @@ IP: 172.27.0.4
 ```
 
 !!! question "Where to Go Next?"
+
     Now that you have a basic understanding of how Traefik can automatically create the routes to your services and load balance them, it is time to dive into [the documentation](/) and let Traefik work for you!
+
+!!! question "Using Traefik for Business Applications?"
+
+    If you are using Traefik for commercial applications,
+    consider the [Enterprise Edition](https://traefik.io/traefik-enterprise/).
+    You can use it as your:
+
+    - [Kubernetes Ingress Controller](https://traefik.io/solutions/kubernetes-ingress/)
+    - [Load Balancer](https://traefik.io/solutions/docker-swarm-ingress/)
+    - [API Gateway](https://traefik.io/solutions/api-gateway/)
+
+    Traefik Enterprise enables centralized access management,
+    distributed Let's Encrypt,
+    and other advanced capabilities.
+    Learn more in [this 15-minute technical walkthrough](https://info.traefik.io/watch-traefikee-demo).

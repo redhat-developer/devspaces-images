@@ -1,3 +1,8 @@
+---
+title: "Traefik File Documentation"
+description: "The file provider in Traefik Proxy lets you define the dynamic configuration in a YAML or TOML file. Read the technical documentation."
+---
+
 # Traefik & File
 
 Good Old Configuration File
@@ -198,8 +203,8 @@ providers:
     Templating does not work in the Traefik main static configuration file.
 
 Traefik supports using Go templating to automatically generate repetitive sections of configuration files.
-These sections must be a valid [Go template](https://golang.org/pkg/text/template/), and can use
-[sprig template functions](http://masterminds.github.io/sprig/).
+These sections must be a valid [Go template](https://pkg.go.dev/text/template/), and can use
+[sprig template functions](https://masterminds.github.io/sprig/).
 
 To illustrate, it is possible to easily define multiple routers, services, and TLS certificates as described in the following examples:
 

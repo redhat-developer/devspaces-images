@@ -1,3 +1,8 @@
+---
+title: "Traefik ForwardAuth Documentation"
+description: "In Traefik Proxy, the HTTP ForwardAuth middleware delegates authentication to an external Service. Read the technical documentation."
+---
+
 # ForwardAuth
 
 Using an External Service to Forward Authentication
@@ -284,6 +289,12 @@ http:
     authResponseHeadersRegex = "^X-"
 ```
 
+!!! tip
+
+    Regular expressions and replacements can be tested using online tools such as [Go Playground](https://play.golang.org/p/mWU9p-wk2ru) or the [Regex101](https://regex101.com/r/58sIgx/2).
+
+    When defining a regular expression within YAML, any escaped character needs to be escaped twice: `example\.com` needs to be written as `example\\.com`.
+
 ### `authRequestHeaders`
 
 The `authRequestHeaders` option is the list of the headers to copy from the request to the authentication server.
@@ -343,11 +354,16 @@ http:
 
 ### `tls`
 
-The `tls` option is the TLS configuration from Traefik to the authentication server.
+_Optional_
 
-#### `tls.ca`
+Defines the TLS configuration used for the secure connection to the authentication server.
 
-Certificate Authority used for the secured connection to the authentication server.
+#### `ca`
+
+_Optional_
+
+`ca` is the path to the certificate authority used for the secured connection to the authentication server,
+it defaults to the system bundle.
 
 ```yaml tab="Docker"
 labels:
@@ -410,71 +426,12 @@ http:
       ca = "path/to/local.crt"
 ```
 
-#### `tls.caOptional`
+#### `cert`
 
-The value of `tls.caOptional` defines which policy should be used for the secure connection with TLS Client Authentication to the authentication server.
+_Optional_
 
-!!! warning ""
-
-    If `tls.ca` is undefined, this option will be ignored, and no client certificate will be requested during the handshake. Any provided certificate will thus never be verified.
-
-When this option is set to `true`, a client certificate is requested during the handshake but is not required. If a certificate is sent, it is required to be valid.
-
-When this option is set to `false`, a client certificate is requested during the handshake, and at least one valid certificate should be sent by the client.
-
-```yaml tab="Docker"
-labels:
-  - "traefik.http.middlewares.test-auth.forwardauth.tls.caOptional=true"
-```
-
-```yaml tab="Kubernetes"
-apiVersion: traefik.containo.us/v1alpha1
-kind: Middleware
-metadata:
-  name: test-auth
-spec:
-  forwardAuth:
-    address: https://example.com/auth
-    tls:
-      caOptional: true
-```
-
-```yaml tab="Consul Catalog"
-- "traefik.http.middlewares.test-auth.forwardauth.tls.caOptional=true"
-```
-
-```json tab="Marathon"
-"labels": {
-  "traefik.http.middlewares.test-auth.forwardauth.tls.caOptional": "true"
-}
-```
-
-```yaml tab="Rancher"
-labels:
-  - "traefik.http.middlewares.test-auth.forwardauth.tls.caOptional=true"
-```
-
-```yaml tab="File (YAML)"
-http:
-  middlewares:
-    test-auth:
-      forwardAuth:
-        address: "https://example.com/auth"
-        tls:
-          caOptional: true
-```
-
-```toml tab="File (TOML)"
-[http.middlewares]
-  [http.middlewares.test-auth.forwardAuth]
-    address = "https://example.com/auth"
-    [http.middlewares.test-auth.forwardAuth.tls]
-      caOptional = true
-```
-
-#### `tls.cert`
-
-The public certificate used for the secure connection to the authentication server.
+`cert` is the path to the public certificate used for the secure connection to the authentication server.
+When using this option, setting the `key` option is required.
 
 ```yaml tab="Docker"
 labels:
@@ -547,9 +504,12 @@ http:
 
     For security reasons, the field does not exist for Kubernetes IngressRoute, and one should use the `secret` field instead.
 
-#### `tls.key`
+#### `key`
 
-The private certificate used for the secure connection to the authentication server.
+_Optional_
+
+`key` is the path to the private key used for the secure connection to the authentication server.
+When using this option, setting the `cert` option is required.
 
 ```yaml tab="Docker"
 labels:
@@ -622,7 +582,9 @@ http:
 
     For security reasons, the field does not exist for Kubernetes IngressRoute, and one should use the `secret` field instead.
 
-#### `tls.insecureSkipVerify`
+#### `insecureSkipVerify`
+
+_Optional, Default=false_
 
 If `insecureSkipVerify` is `true`, the TLS connection to the authentication server accepts any certificate presented by the server regardless of the hostnames it covers.
 

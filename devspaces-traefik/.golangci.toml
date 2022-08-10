@@ -16,9 +16,6 @@
   [linters-settings.gocyclo]
     min-complexity = 14.0
 
-  [linters-settings.maligned]
-    suggest-new = true
-
   [linters-settings.goconst]
     min-len = 3.0
     min-occurrences = 4.0
@@ -51,6 +48,59 @@
     extensionsv1beta1 = "k8s.io/api/extensions/v1beta1"
     metav1 = "k8s.io/apimachinery/pkg/apis/meta/v1"
     kubeerror = "k8s.io/apimachinery/pkg/api/errors"
+    composeapi = "github.com/docker/compose/v2/pkg/api"
+
+  [linters-settings.revive]
+    [[linters-settings.revive.rules]]
+      name = "struct-tag"
+    [[linters-settings.rules]]
+      name = "blank-imports"
+    [[linters-settings.rules]]
+      name = "context-as-argument"
+    [[linters-settings.rules]]
+      name = "context-keys-type"
+    [[linters-settings.rules]]
+      name = "dot-imports"
+    [[linters-settings.rules]]
+      name = "error-return"
+    [[linters-settings.rules]]
+      name = "error-strings"
+    [[linters-settings.rules]]
+      name = "error-naming"
+    [[linters-settings.rules]]
+      name = "exported"
+    [[linters-settings.rules]]
+      name = "if-return"
+    [[linters-settings.rules]]
+      name = "increment-decrement"
+    [[linters-settings.rules]]
+      name = "var-naming"
+    [[linters-settings.rules]]
+      name = "var-declaration"
+    [[linters-settings.rules]]
+      name = "package-comments"
+    [[linters-settings.rules]]
+      name = "range"
+    [[linters-settings.rules]]
+      name = "receiver-naming"
+    [[linters-settings.rules]]
+      name = "time-naming"
+    [[linters-settings.rules]]
+      name = "unexported-return"
+    [[linters-settings.rules]]
+      name = "indent-error-flow"
+    [[linters-settings.rules]]
+      name = "errorf"
+    [[linters-settings.rules]]
+      name = "empty-block"
+    [[linters-settings.rules]]
+      name = "superfluous-else"
+    [[linters-settings.rules]]
+      name = "unused-parameter"
+    [[linters-settings.rules]]
+      name = "unreachable-code"
+    [[linters-settings.rules]]
+      name = "redefines-builtin-id"
 
   [linters-settings.gomoddirectives]
     replace-allow-list = [
@@ -59,6 +109,7 @@
       "github.com/gorilla/mux",
       "github.com/mailgun/minheap",
       "github.com/mailgun/multibuf",
+      "github.com/jaguilar/vt100",
     ]
 
 [linters]
@@ -68,6 +119,7 @@
     "interfacer", # Deprecated
     "maligned", # Deprecated
     "golint", # Deprecated
+    "execinquery", # Not relevant (SQL)
     "sqlclosecheck", # Not relevant (SQL)
     "rowserrcheck", # Not relevant (SQL)
     "lll", # Not relevant
@@ -91,6 +143,7 @@
     "paralleltest", # Not relevant
     "exhaustive", # Not relevant
     "exhaustivestruct", # Not relevant
+    "exhaustruct", # duplicate of exhaustivestruct
     "goerr113", # Too strict
     "wrapcheck", # Too strict
     "noctx", # Too strict
@@ -99,6 +152,13 @@
     "godox", # Too strict
     "forcetypeassert", # Too strict
     "tagliatelle", # Not compatible with current tags.
+    "varnamelen", # not relevant
+    "nilnil", # not relevant
+    "ireturn", # not relevant
+    "contextcheck", # too many false-positive
+    "containedctx", # too many false-positive
+    "maintidx", # kind of duplicate of gocyclo
+    "nonamedreturns", # not relevant
   ]
 
 [issues]
@@ -114,6 +174,8 @@
     "SA1019: cfg.SSLHost is deprecated",
     "SA1019: cfg.SSLForceHost is deprecated",
     "SA1019: cfg.FeaturePolicy is deprecated",
+    "SA1019: c.Providers.ConsulCatalog.Namespace is deprecated",
+    "SA1019: c.Providers.Consul.Namespace is deprecated",
   ]
  [[issues.exclude-rules]]
     path = "(.+)_test.go"
@@ -154,3 +216,9 @@
  [[issues.exclude-rules]]
     path = "pkg/log/deprecated.go"
     linters = ["godot"]
+ [[issues.exclude-rules]]
+    path = "(.+)\\.go"
+    text = "struct-tag: unknown option 'inline' in JSON tag"
+ [[issues.exclude-rules]]
+    path = "pkg/server/router/tcp/manager.go"
+    text = "Function 'buildEntryPointHandler' is too long (.+)"

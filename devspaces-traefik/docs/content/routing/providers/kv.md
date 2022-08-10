@@ -1,3 +1,8 @@
+---
+title: "Traefik Routing Configuration with KV stores"
+description: "Read the technical documentation to learn the Traefik Routing Configuration with KV stores."
+---
+
 # Traefik & KV Stores
 
 A Story of key & values
@@ -366,7 +371,6 @@ You can declare TCP Routers and/or Services using KV.
     | Key (Path)                                    | Value    |
     |-----------------------------------------------|----------|
     | `traefik/tcp/routers/mytcprouter/tls/options` | `foobar` |
-    
 
 ??? info "`traefik/tcp/routers/<router_name>/tls/passthrough`"
 
@@ -375,6 +379,14 @@ You can declare TCP Routers and/or Services using KV.
     | Key (Path)                                        | Value  |
     |---------------------------------------------------|--------|
     | `traefik/tcp/routers/mytcprouter/tls/passthrough` | `true` |
+
+??? info "`traefik/tcp/routers/<router_name>/priority`"
+
+    See [priority](../routers/index.md#priority_1) for more information.
+
+    | Key (Path)                               | Value |
+    |------------------------------------------|-------|
+    | `traefik/tcp/routers/myrouter/priority`  | `42`  |
 
 #### TCP Services
 

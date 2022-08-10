@@ -1,3 +1,8 @@
+---
+title: "Traefik Prometheus Documentation"
+description: "Traefik supports several metrics backends, including Prometheus. Learn how to implement it for observability in Traefik Proxy. Read the technical documentation."
+---
+
 # Prometheus
 
 To enable the Prometheus:
@@ -39,7 +44,7 @@ metrics:
 ```
 
 ```bash tab="CLI"
---metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+--metrics.prometheus.buckets=0.1,0.3,1.2,5.0
 ```
 
 #### `addEntryPointsLabels`
@@ -64,22 +69,22 @@ metrics:
 --metrics.prometheus.addEntryPointsLabels=true
 ```
 
-#### `AddRoutersLabels`
+#### `addRoutersLabels`
 
 _Optional, Default=false_
 
 Enable metrics on routers.
 
-```toml tab="File (TOML)"
-[metrics]
-  [metrics.prometheus]
-    addRoutersLabels = true
-```
-
 ```yaml tab="File (YAML)"
 metrics:
   prometheus:
     addRoutersLabels: true
+```
+
+```toml tab="File (TOML)"
+[metrics]
+  [metrics.prometheus]
+    addRoutersLabels = true
 ```
 
 ```bash tab="CLI"
@@ -117,7 +122,7 @@ Entry point used to expose metrics.
 ```yaml tab="File (YAML)"
 entryPoints:
   metrics:
-    address: ":8082"
+    address: :8082
 
 metrics:
   prometheus:

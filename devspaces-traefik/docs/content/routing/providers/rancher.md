@@ -1,3 +1,8 @@
+---
+title: "Routing & Load Balancing Providers: Rancher"
+description: "Traefik Proxy creates a corresponding service and router for each Rancher Service. Read the full documentation to learn more."
+---
+
 # Traefik & Rancher
 
 A Story of Labels, Services & Containers
@@ -413,6 +418,14 @@ You can declare TCP Routers and/or Services using labels.
     
     ```yaml
     - "traefik.tcp.routers.mytcprouter.tls.passthrough=true"
+    ```
+
+??? info "`traefik.tcp.routers.<router_name>.priority`"
+
+    See [priority](../routers/index.md#priority_1) for more information.
+    
+    ```yaml
+    - "traefik.tcp.routers.myrouter.priority=42"
     ```
 
 #### TCP Services

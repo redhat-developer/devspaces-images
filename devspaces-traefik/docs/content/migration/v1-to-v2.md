@@ -1,3 +1,8 @@
+---
+title: "Traefik V2 Migration Documentation"
+description: "Migrate from Traefik Proxy v1 to v2 and update all the necessary configurations to take advantage of all the improvements. Read the technical documentation."
+---
+
 # Migration Guide: From v1 to v2
 
 How to Migrate from Traefik v1 to Traefik v2.
@@ -104,7 +109,7 @@ Then any router can refer to an instance of the wanted middleware.
 
     ```yaml tab="K8s IngressRoute"
     # The definitions below require the definitions for the Middleware and IngressRoute kinds.
-    # https://doc.traefik.io/traefik/v2.3/reference/dynamic-configuration/kubernetes-crd/#definitions
+    # https://doc.traefik.io/traefik/v2.8/reference/dynamic-configuration/kubernetes-crd/#definitions
     apiVersion: traefik.containo.us/v1alpha1
     kind: Middleware
     metadata:
@@ -275,7 +280,7 @@ Then, a [router's TLS field](../routing/routers/index.md#tls) can refer to one o
 
     ```yaml tab="K8s IngressRoute"
     # The definitions below require the definitions for the TLSOption and IngressRoute kinds.
-    # https://doc.traefik.io/traefik/v2.3/reference/dynamic-configuration/kubernetes-crd/#definitions
+    # https://doc.traefik.io/traefik/v2.8/reference/dynamic-configuration/kubernetes-crd/#definitions
     apiVersion: traefik.containo.us/v1alpha1
     kind: TLSOption
     metadata:

@@ -34,8 +34,8 @@ type Provider struct {
 	Clusters             []string `description:"ECS Clusters name" json:"clusters,omitempty" toml:"clusters,omitempty" yaml:"clusters,omitempty" export:"true"`
 	AutoDiscoverClusters bool     `description:"Auto discover cluster" json:"autoDiscoverClusters,omitempty" toml:"autoDiscoverClusters,omitempty" yaml:"autoDiscoverClusters,omitempty" export:"true"`
 	Region               string   `description:"The AWS region to use for requests"  json:"region,omitempty" toml:"region,omitempty" yaml:"region,omitempty" export:"true"`
-	AccessKeyID          string   `description:"The AWS credentials access key to use for making requests" json:"accessKeyID,omitempty" toml:"accessKeyID,omitempty" yaml:"accessKeyID,omitempty"`
-	SecretAccessKey      string   `description:"The AWS credentials access key to use for making requests" json:"secretAccessKey,omitempty" toml:"secretAccessKey,omitempty" yaml:"secretAccessKey,omitempty"`
+	AccessKeyID          string   `description:"The AWS credentials access key to use for making requests" json:"accessKeyID,omitempty" toml:"accessKeyID,omitempty" yaml:"accessKeyID,omitempty" loggable:"false"`
+	SecretAccessKey      string   `description:"The AWS credentials access key to use for making requests" json:"secretAccessKey,omitempty" toml:"secretAccessKey,omitempty" yaml:"secretAccessKey,omitempty" loggable:"false"`
 	defaultRuleTpl       *template.Template
 }
 
@@ -263,8 +263,7 @@ func (p *Provider) listInstances(ctx context.Context, client *awsClient) ([]ecsI
 			return !lastPage
 		})
 		if err != nil {
-			logger.Error("Unable to list tasks")
-			return nil, err
+			return nil, fmt.Errorf("listing tasks: %w", err)
 		}
 
 		// Skip to the next cluster if there are no tasks found on
@@ -370,7 +369,6 @@ func (p *Provider) listInstances(ctx context.Context, client *awsClient) ([]ecsI
 }
 
 func (p *Provider) lookupEc2Instances(ctx context.Context, client *awsClient, clusterName *string, ecsDatas map[string]*ecs.Task) (map[string]*ec2.Instance, error) {
-	logger := log.FromContext(ctx)
 	instanceIds := make(map[string]string)
 	ec2Instances := make(map[string]*ec2.Instance)
 
@@ -389,12 +387,18 @@ func (p *Provider) lookupEc2Instances(ctx context.Context, client *awsClient, cl
 			Cluster:            clusterName,
 		})
 		if err != nil {
-			logger.Errorf("Unable to describe container instances: %v", err)
-			return nil, err
+			return nil, fmt.Errorf("describing container instances: %w", err)
 		}
 
 		for _, container := range resp.ContainerInstances {
 			instanceIds[aws.StringValue(container.Ec2InstanceId)] = aws.StringValue(container.ContainerInstanceArn)
+			// Disallow Instance IDs of the form mi-*
+			// This prevents considering external instances in ECS Anywhere setups
+			// and getting InvalidInstanceID.Malformed error when calling the describe-instances endpoint.
+			if strings.HasPrefix(aws.StringValue(container.Ec2InstanceId), "mi-") {
+				continue
+			}
+
 			instanceArns = append(instanceArns, container.Ec2InstanceId)
 		}
 	}
@@ -418,8 +422,7 @@ func (p *Provider) lookupEc2Instances(ctx context.Context, client *awsClient, cl
 				return !lastPage
 			})
 			if err != nil {
-				logger.Errorf("Unable to describe instances: %v", err)
-				return nil, err
+				return nil, fmt.Errorf("describing instances: %w", err)
 			}
 		}
 	}
@@ -440,8 +443,7 @@ func (p *Provider) lookupTaskDefinitions(ctx context.Context, client *awsClient,
 				TaskDefinition: task.TaskDefinitionArn,
 			})
 			if err != nil {
-				logger.Errorf("Unable to describe task definition: %v", err)
-				return nil, err
+				return nil, fmt.Errorf("describing task definition: %w", err)
 			}
 
 			taskDef[arn] = resp.TaskDefinition
@@ -454,7 +456,7 @@ func (p *Provider) lookupTaskDefinitions(ctx context.Context, client *awsClient,
 // chunkIDs ECS expects no more than 100 parameters be passed to a API call;
 // thus, pack each string into an array capped at 100 elements.
 func (p *Provider) chunkIDs(ids []*string) [][]*string {
-	var chuncked [][]*string
+	var chunked [][]*string
 	for i := 0; i < len(ids); i += 100 {
 		var sliceEnd int
 		if i+100 < len(ids) {
@@ -462,7 +464,7 @@ func (p *Provider) chunkIDs(ids []*string) [][]*string {
 		} else {
 			sliceEnd = len(ids)
 		}
-		chuncked = append(chuncked, ids[i:sliceEnd])
+		chunked = append(chunked, ids[i:sliceEnd])
 	}
-	return chuncked
+	return chunked
 }
