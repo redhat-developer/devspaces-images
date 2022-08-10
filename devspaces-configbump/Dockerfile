@@ -9,10 +9,9 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# this container build continues from rhel.Dockerfile and rhel.Dockefile.extract.assets.sh
-# assumes you have created asset-*.tar.gz files for all arches, but you'll only unpack the one for your arch
+# this container build continues from rhel.Dockerfile
 
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+# https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.6-902
 
 # cachito
@@ -50,6 +49,6 @@ LABEL summary="$SUMMARY" \
       name="$PRODNAME/$COMPNAME" \
       version="3.2" \
       license="EPLv2" \
-      maintainer="Nick Boldt <nboldt@redhat.com>" \
+      maintainer="Lukas Krejci <lkrejci@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
