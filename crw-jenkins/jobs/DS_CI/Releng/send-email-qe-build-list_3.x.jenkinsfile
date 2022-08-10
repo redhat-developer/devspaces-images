@@ -37,9 +37,9 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 
 def errorOccurred = ""
 
-def nodeLabel = "x86_64-rhel8||x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8"
+// requires opm binary to filter & copy IIB images to quay, which only exists for amd64 (not s390x or ppc64le)
 timeout(90) {
-    node("${nodeLabel}"){ 
+    node("x86_64-rhel8"){ 
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
             def util = load "${WORKSPACE}/util2.groovy"
@@ -66,23 +66,30 @@ timeout(90) {
                         returnStdout: true).trim().split( '\n' )
                     def NEW_QUAY = ""
                     def NEW_NVR = ""
-                    parallel quay_check: {
-                        NEW_QUAY = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
-                            returnStdout: true).trim().split( '\n' )
-                            errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
-                    }, 
-                    nvr_check: {
-                        NEW_NVR = sh (
-                            script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
-                            returnStdout: true).trim().split( '\n' )
+                    if (doCollectImages.equals("true")) {
+                        parallel quay_check: {
+                            NEW_QUAY = sh (
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --quay --tag ${DS_VERSION}- --hide | tee ${WORKSPACE}/LATEST_IMAGES.quay",
+                                returnStdout: true).trim().split( '\n' )
+                                errorOccurred = checkFailure(NEW_QUAY, "Quay", errorOccurred)
+                        }, 
+                        nvr_check: {
+                            NEW_NVR = sh (
+                                script: "./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --nvr --hide | tee ${WORKSPACE}/LATEST_IMAGES.nvr",
+                                returnStdout: true).trim().split( '\n' )
+                        }
                     }
-
                     // diff quay tag list vs. nvr tag list
-                    sh(script: '''#!/bin/bash -xe
+                    if (doCollectImages.equals("true")) {
+                        sh(script: '''#!/bin/bash -xe
 ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.quay) -s > ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly
 ${WORKSPACE}/getTagForImage.sh $(cat ${WORKSPACE}/LATEST_IMAGES.nvr)  -s > ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
 ''', returnStdout: true)
+                    } else {
+                        sh(script: '''#!/bin/bash -xe
+touch ${WORKSPACE}/LATEST_IMAGES.quay.tagsonly ${WORKSPACE}/LATEST_IMAGES.nvr.tagsonly
+''', returnStdout: true)
+                    }
                     def DIFF_LATEST_IMAGES_QUAY_V_NVR = sh (
                         script: 'diff -u0 ${WORKSPACE}/LATEST_IMAGES.{quay,nvr}.tagsonly | grep -v "@@" | grep -v "LATEST_IMAGES" || true',
                         returnStdout: true
@@ -139,69 +146,106 @@ Quay Images:
 Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
 ''' + NEW_NVR_L
 
-            whichBundle="operator-bundle"
+                    whichBundle="operator-bundle"
 
-            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-            // NOTE: similar code in send-email-qe-build-list_3.*.jenkinsfile and push-latest-container-to-quay_3.*.jenkinsfile
-            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-            println "####################################################################################################################"
-            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"
-            println "####################################################################################################################"
+                    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+                    // NOTE: similar code in send-email-qe-build-list_3.*.jenkinsfile and push-latest-container-to-quay_3.*.jenkinsfile
+                    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+                    println "####################################################################################################################"
+                    println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"
+                    println "####################################################################################################################"
 
-            // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
-            // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
-            def latestBundleImage = sh(script: '''#!/bin/bash
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
-./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
-''', returnStdout: true).trim()
+                    // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
+                    // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
+                    def latestBundleImage = sh(script: '''#!/bin/bash
+        curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
+        ./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+        ''', returnStdout: true).trim()
 
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10) 
-            def IIBs = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
-for OCP_VER in ''' + OCP_VERSIONS + '''; do
-    ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + ''' | sed -r \
-        -e "s#''' + latestBundleImage + '''\\t+##" \
-        -e "s#(.+)\\t(.+)#\\1 (\\2)#"
-done
-''', returnStdout: true)
+                    // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
+                    // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10) 
+                    def IIBs = sh(script: '''#!/bin/bash -xe
+        curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
+        for OCP_VER in ''' + OCP_VERSIONS + '''; do
+            ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + ''' | sed -r \
+                -e "s#''' + latestBundleImage + '''\\t+##" \
+                -e "s#(.+)\\t(.+)#\\1 (\\2)#"
+        done
+        ''', returnStdout: true)
 
-            // if we got the right number of values (matching number of OCP versions)
-            if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
-                println "####################################################################################################################"
-                println "##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}"
-                println "## " + IIBs.trim().replaceAll("\n", "\n## ")
-                println "####################################################################################################################"
-                currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIBs found: "
-                currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                    def IIBsToQuay_matches = null
 
-                // // // // // // // // // // // // // // // // // // // // // 
-                // CRW-3219 copy IIBs to Quay, including ER or RC tagged images
-                // // // // // // // // // // // // // // // // // // // // // 
-                def IIBsToQuay = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
-./copyIIBsToQuay.sh --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''" --extra-tags "''' + mailSubject.split(" ")[1] + '''"
-''', returnStdout: true)
-            } else {
-                currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
-                if (IIBs?.trim().split("\n").length > 0) { 
-                    currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
-                    currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
-                }
-                currentBuild.result = 'FAILURE'
-            }
+                    // if we got the right number of values (matching number of OCP versions)
+                    if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
+                        println "####################################################################################################################FOUND\n\
+        ##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}:\n\
+        ## " + IIBs.trim().replaceAll("\n", "\n## ")+"\n\
+        ####################################################################################################################FOUND\n"
+                        currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIB(s) found: "
+                        currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+
+                        // // // // // // // // // // // // // // // // // // // // // 
+                        // CRW-3219 copy IIBs to Quay, including ER or RC tagged images  (4 tags per IIB per OCP version)
+                        // // // // // // // // // // // // // // // // // // // // // 
+                        // requires opm binary to filter & copy IIB images to quay, which only exists for amd64 (not s390x or ppc64le)
+                        println("Filtering and copying images to quay. This may take ~3 mins per OCP version.")
+                        def IIBsToQuay = sh(script: '''#!/bin/bash -xe
+        curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
+        ./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''" --extra-tags "''' + mailSubject.split(" ")[1] + '''"
+        ''', returnStdout: true)
+
+                        // in console, echo all errors and warnings
+                        println "####################################################################################################################COPIED\n\
+        ##  IIB(s) copied:\n\
+        ## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
+        ####################################################################################################################COPIED\n"
+
+                        currentBuild.description+="<br/> IIB(s) copied: "
+                        // for build description, collect the lines that start with [IMG]; ignore all other output
+                        IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
+                        (0..<IIBsToQuay_matches.count).each { 
+                            currentBuild.description+="<br/>+ " + IIBsToQuay_matches[it][1] 
+                        }
+                    } else { // could not find the correct number of published IIBs in rh-osbs registry
+                        currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
+                        if (IIBs?.trim().split("\n").length > 0) { 
+                            currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
+                            currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
+                        }
+                        currentBuild.result = 'FAILURE'
+                    }
 
                     mailBody = mailBody + '''
-Bundle Image, Index Image, OCP Version:
-* ''' + IIBs.trim().replaceAll("\n", "\n* ") + '''
+OSBS Index Images (IIB) by OCP Version:
+* ''' + IIBs.trim().replaceAll("\n", "\n* ")
 
-(queried with: 
+                    if (IIBsToQuay_matches!=null && IIBsToQuay_matches.count>0) { 
+                        mailBody = mailBody + '''
+
+Quay Index (IIB) Images: '''
+                        (0..<IIBsToQuay_matches.count).each { 
+                            mailBody = mailBody + "\n+ " + IIBsToQuay_matches[it][1]
+                        }
+                        // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
+                        // https://stackoverflow.com/questions/40454558/jenkins-pipeline-java-io-notserializableexception-java-util-regex-matcher-error
+                        IIBsToQuay_matches = null
+
+                    }
+                    mailBody = mailBody + '''
+
+(latest IIBs in OSBS can be queried with: 
   $ ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
   ''' + latestBundleImage + '''
 
   $ for OCP_VER in ''' + OCP_VERSIONS + '''; do \\
       ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + '''; \\
     done
+)
+
+(latest IIBs in Quay can be queried with:
+  $ for OCP_VER in ''' + OCP_VERSIONS + '''; do \\
+    ./getLatestImageTags.sh -b ''' + MIDSTM_BRANCH + ''' --quay -c devspaces/iib -o ${OCP_VER} --tag ''' + DS_VERSION + '''-${OCP_VER}; \\
+  done
 )
 '''
 

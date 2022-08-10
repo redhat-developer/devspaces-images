@@ -59,6 +59,7 @@ Send an email to QE announcing an ER or RC build, including a list of images.
                     '''<a href=https://issues.redhat.com/issues/?jql=project%20%3D%20CRW%20AND%20issuetype%20%3D%20Epic%20and%20text%20~%20%22overall%20epic%22%20order%20by%20key%20desc>Find an Epic</a>''')
                 stringParam("OCP_VERSIONS", OCP_VERSIONS, '''Space-separated list of OCP versions supported by this release''')
                 textParam("additionalNotes",'''(purpose of this build or respin goes here, if applicable)''',"Stuff to mention before the lists of images")
+                booleanParam("doCollectImages",true,'''if checked, collect lists of quay images and NVRs''')
                 booleanParam("doSendEmail",false,'''if checked, send mail; else display email contents in Jenkins console, but do not send''')
                 booleanParam("doDisableJobs",false,'''if checked, disable the _''' + JOB_BRANCH + ''' jobs for this release to avoid respins''')
                 // # RECIPIENTS - comma and space separated list of recipient email addresses

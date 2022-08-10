@@ -166,7 +166,8 @@ Brew NVRs:
 } // timeout
 
 // trigger update_digests job if we have pushed new images that appear in the registry or metadata
-node(nodeLabel){ 
+// requires opm binary to filter & copy IIB images to quay, which only exists for amd64 (not s390x or ppc64le)
+node("x86_64-rhel8"){ 
   stage ("Update registries and metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
@@ -265,23 +266,43 @@ for OCP_VER in ''' + OCP_VERSIONS + '''; do
 done
 ''', returnStdout: true)
 
+            def IIBsToQuay_matches = null
+
             // if we got the right number of values (matching number of OCP versions)
             if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
-                println "####################################################################################################################"
-                println "##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}"
-                println "## " + IIBs.trim().replaceAll("\n", "\n## ")
-                println "####################################################################################################################"
-                currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIBs found: "
+                println "####################################################################################################################FOUND\n\
+##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}:\n\
+## " + IIBs.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################FOUND\n"
+                currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIB(s) found: "
                 currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
 
-                // // // // // // // // // // // // // // // 
-                // CRW-3219 copy IIBs to Quay, CI builds only
-                // // // // // // // // // // // // // // // 
+                // // // // // // // // // // // // // // // // // // // // // 
+                // CRW-3219 copy IIBs to Quay, CI builds only (3 tags per IIB per OCP version)
+                // // // // // // // // // // // // // // // // // // // // // 
+                // requires opm binary to filter & copy IIB images to quay, which only exists for amd64 (not s390x or ppc64le)
+                println("Filtering and copying images to quay. This may take ~3 mins per OCP version.")
                 def IIBsToQuay = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
-./copyIIBsToQuay.sh --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''"
+./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''"
 ''', returnStdout: true)
-            } else {
+
+                // in console, echo all errors and warnings
+                println "####################################################################################################################COPIED\n\
+##  IIB(s) copied:\n\
+## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################COPIED\n"
+
+                currentBuild.description+="<br/> IIB(s) copied: "
+                // for build description, collect the lines that start with [IMG]; ignore all other output
+                IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
+                (0..<IIBsToQuay_matches.count).each { 
+                    currentBuild.description+="<br/>+ " + IIBsToQuay_matches[it][1] 
+                }
+                // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
+                // https://stackoverflow.com/questions/40454558/jenkins-pipeline-java-io-notserializableexception-java-util-regex-matcher-error
+                IIBsToQuay_matches = null
+            } else { // could not find the correct number of published IIBs in rh-osbs registry
                 currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
                 if (IIBs?.trim().split("\n").length > 0) { 
                     currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
@@ -289,7 +310,7 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
                 }
                 currentBuild.result = 'FAILURE'
             }
-        } // if metadata or bundle
+        } // if bundle
     } // if
     cleanWs(
         cleanWhenSuccess: true,
