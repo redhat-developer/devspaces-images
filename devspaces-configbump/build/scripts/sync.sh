@@ -54,7 +54,7 @@ echo ".github/
 .travis
 .travis.yaml
 .gitattributes
-build/
+build/scripts/
 tests/
 /container.yaml
 /content_sets.*
@@ -62,9 +62,7 @@ tests/
 /cvp-owners.yml
 get-source*.sh
 tests/basic-test.yaml
-sources
 make-release.sh
-rhel.Dockerfile
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
