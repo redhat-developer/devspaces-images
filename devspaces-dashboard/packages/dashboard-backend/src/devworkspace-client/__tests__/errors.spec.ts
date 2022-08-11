@@ -34,8 +34,8 @@ describe('Kubernetes API integration testing against cluster', () => {
           );
           fail('request to non-existing Custom API should fail');
         } catch (e) {
-          const errorMessage = 'unable get non-existing: ' + helpers.errors.getMessage(e);
-          expect(errorMessage).toBe('unable get non-existing: 404 page not found\n');
+          const errorMessage = 'Unable get non-existing: ' + helpers.errors.getMessage(e);
+          expect(errorMessage).toBe('Unable get non-existing: 404 page not found\n');
         }
         done();
       },
@@ -61,7 +61,7 @@ describe('Kubernetes API integration testing against cluster', () => {
           fail('devworkspace is expected not to be found');
         } catch (e) {
           expect((e as Error).message).toBe(
-            'unable to get devworkspace any/non-existing: devworkspaces.workspace.devfile.io "non-existing" is forbidden: User "system:anonymous" ' +
+            'Unable to get devworkspace any/non-existing: devworkspaces.workspace.devfile.io "non-existing" is forbidden: User "system:anonymous" ' +
               'cannot get resource "devworkspaces" in API group "workspace.devfile.io" in the namespace "any"',
           );
         }
@@ -127,7 +127,7 @@ describe('Kubernetes API integration testing against cluster', () => {
           fail('devworkspace is expected not to be found');
         } catch (e) {
           expect((e as Error).message).toBe(
-            'unable to get devworkspace any/non-existing: getaddrinfo ENOTFOUND non-existing-k8s.127.0.0.1',
+            'Unable to get devworkspace any/non-existing: getaddrinfo ENOTFOUND non-existing-k8s.127.0.0.1',
           );
         }
         done();

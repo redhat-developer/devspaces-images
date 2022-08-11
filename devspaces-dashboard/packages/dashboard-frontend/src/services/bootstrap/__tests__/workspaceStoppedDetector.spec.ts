@@ -16,7 +16,6 @@ import SessionStorageService, { SessionStorageKey } from '../../session-storage'
 import { WorkspaceRunningError, WorkspaceStoppedDetector } from '../workspaceStoppedDetector';
 import { constructWorkspace } from '../../workspace-adapter';
 import { IssueType } from '../issuesReporter';
-import { devworkspaceApiVersion } from '@devfile/api';
 
 describe('WorkspaceStoppedDetector', () => {
   describe('checkWorkspaceStopped()', () => {
