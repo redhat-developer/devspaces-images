@@ -1,4 +1,4 @@
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal 
+# https://registry.access.redhat.com/ubi8-minimal 
 FROM registry.access.redhat.com/ubi8-minimal:8.6-902 
 
 COPY asset-*.tar.gz /tmp/assets/ 
