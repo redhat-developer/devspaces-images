@@ -81,21 +81,11 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed_in_place() {
-    SHORT_UNAME=$(uname -s)
-  if [ "$(uname)" == "Darwin" ]; then
-    sed -i '' "$@"
-  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-    sed -i "$@"
-  fi
-}
-
 SOURCE_SHA=$(cd "${SOURCEDIR}"; git checkout "${TRAEFIK_VERSION}"; git rev-parse --short=4 HEAD || true)
-sed_in_place -r \
-  `# Use the current SHA & correct GOLANG version to build` \
-  -e "s#ARG GOLANG_VERSION=\".*\"#ARG GOLANG_VERSION=\"${GOLANG_VERSION}\"#g" \
+sed -r \
+  `# Use the current SHA to build` \
   -e "s#ARG TRAEFIK_SHA=\".*\"#ARG TRAEFIK_SHA=\"${SOURCE_SHA}\"#g" \
-  "${TARGETDIR}"/build/rhel.binary.Dockerfile
+  -i "${TARGETDIR}"/build/rhel.binary.Dockerfile
 
 sed -r \
   `# Remove registry so build works in Brew` \
