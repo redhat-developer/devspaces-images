@@ -1,5 +1,5 @@
 # WEBUI
-FROM registry.redhat.io/rhel8/nodejs-12 as webui 
+FROM registry.redhat.io/rhel8/nodejs-16 as webui 
 USER root 
 RUN yum install -y python2
 
@@ -10,7 +10,7 @@ COPY ./webui/ $WEBUI_DIR/
 
 WORKDIR $WEBUI_DIR
 
-RUN npm install --unsafe-perm=true
+RUN npm install --unsafe-perm=true && npm -g i yarn
 RUN npm run build
 
 # BUILD
