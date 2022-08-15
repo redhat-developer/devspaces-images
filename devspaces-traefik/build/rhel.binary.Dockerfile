@@ -1,5 +1,5 @@
 # WEBUI
-FROM registry.redhat.io/rhel8/nodejs-16 as webui 
+FROM registry.redhat.io/rhel8/nodejs-14 as webui 
 USER root 
 RUN yum install -y python2
 
