@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # Copyright (c) 2021-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
@@ -11,8 +11,6 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 # convert che-dashboard upstream to devspaces-dashboard downstream using yq, sed, and deleting files
-
-set -e
 
 SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 
@@ -156,7 +154,7 @@ if [[ $VER_CHE =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)-(SNAPSHOT|next) ]]; then # reduc
   XX=${BASH_REMATCH[1]}
   YY=${BASH_REMATCH[2]}
   ZZ=${BASH_REMATCH[3]}
-  let ZZ=ZZ-1 || let ZZ=0; if [[ $ZZ -lt 0 ]]; then ZZ=0; fi # if result of a let == 0, bash returns 1
+  let ZZ=ZZ-1 || ZZ=0; if [[ $ZZ -lt 0 ]]; then ZZ=0; fi # if result of a let == 0, bash returns 1
   VER_CHE="${XX}.${YY}.${ZZ}"
 fi
 echo "Using: VER_CHE = $VER_CHE (SHA_CHE = $SHA_CHE)"
