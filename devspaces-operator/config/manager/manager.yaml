@@ -76,7 +76,7 @@ spec:
             - name: RELATED_IMAGE_devfile_registry
               value: registry.redhat.io/devspaces/devfileregistry-rhel8:3.3
             - name: RELATED_IMAGE_devworkspace_controller
-              value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator:0.13
+              value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator
             - name: RELATED_IMAGE_gateway_authentication_sidecar
               value: registry.redhat.io/openshift4/ose-oauth-proxy:v4.8
             - name: RELATED_IMAGE_gateway_authorization_sidecar
