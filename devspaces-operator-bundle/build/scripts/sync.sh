@@ -130,7 +130,6 @@ Makefile
 manifests
 metadata
 mocks/
-olm/
 pkg/
 PROJECT
 README.md
@@ -207,7 +206,7 @@ echo "Generated Dockerfile"
 "${TARGETDIR}"/build/scripts/sync-che-olm.sh -v "${CSV_VERSION}" -p "${CSV_VERSION_PREV}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
 
 pushd "${TARGETDIR}"/ >/dev/null || exit
-rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ olm/ pkg/ vendor/ version/ go.* *.go
+rm -fr 	api/ bundle/ config/ controllers/ hack/ mocks/ pkg/ vendor/ version/ go.* *.go
 
 CSVFILE="${TARGETDIR}"/manifests/devspaces.csv.yaml
 # transform into Brew-friendly version of CSV
