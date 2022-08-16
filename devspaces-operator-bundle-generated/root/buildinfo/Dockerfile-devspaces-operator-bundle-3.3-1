@@ -43,5 +43,5 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       io.openshift.expose-services="" \
       usage=""
 
-ADD devspaces-operator-bundle-container-3.2-84.json /root/buildinfo/content_manifests/devspaces-operator-bundle-container-3.2-84.json
-LABEL "release"="84" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-08-15T20:53:55.933060" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="4f26614516766650ff3d2be05efc09142668296c" "com.redhat.build-host"="cpt-1006.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/devspaces/operator-bundle/images/3.2-84"
+ADD devspaces-operator-bundle-container-3.3-1.json /root/buildinfo/content_manifests/devspaces-operator-bundle-container-3.3-1.json
+LABEL "release"="1" "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-08-16T15:30:09.991024" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="e7c74d2ec858855e60c8ebfdd88217cf850d06da" "com.redhat.build-host"="cpt-1003.osbs.prod.upshift.rdu2.redhat.com" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/devspaces/operator-bundle/images/3.3-1"
