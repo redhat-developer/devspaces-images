@@ -20,7 +20,6 @@ if [ -z "${OPERATOR_REPO}" ]; then
   OPERATOR_REPO=$(dirname "$(dirname "$SCRIPT")")
 fi
 source "${OPERATOR_REPO}/.github/bin/common.sh"
-source "${OPERATOR_REPO}/.ci/oci-common.sh"
 
 init() {
   NAMESPACE="eclipse-che"
@@ -57,18 +56,12 @@ usage () {
 }
 
 run() {
-  pushd ${OPERATOR_REPO} || exit 1
-    if [[ ${CHANNEL} == "next" ]]; then
-      make install-devworkspace CHANNEL=next
-    else
-      make install-devworkspace CHANNEL=fast
-    fi
+  deployDevWorkspaceOperator "${CHANNEL}"
 
-    make create-namespace NAMESPACE="eclipse-che"
-    make create-catalogsource NAME="${ECLIPSE_CHE_CATALOG_SOURCE_NAME}" IMAGE="${CATALOG_IMAGE}"
-  popd
+  createNamespace "${NAMESPACE}"
+  createCatalogSource "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}" "${CATALOG_IMAGE}"
 
-  local bundles=$(discoverCatalogSourceBundles "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}")
+  local bundles=$(getCatalogSourceBundles "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}")
   fetchPreviousCSVInfo "${CHANNEL}" "${bundles}"
   fetchLatestCSVInfo "${CHANNEL}" "${bundles}"
 
@@ -81,27 +74,16 @@ run() {
   forcePullingOlmImages "${PREVIOUS_CSV_BUNDLE_IMAGE}"
   forcePullingOlmImages "${LATEST_CSV_BUNDLE_IMAGE}"
 
-  pushd ${OPERATOR_REPO} || exit 1
-    make create-subscription \
-      NAME="${ECLIPSE_CHE_SUBSCRIPTION_NAME}" \
-      PACKAGE_NAME="${ECLIPSE_CHE_PREVIEW_PACKAGE_NAME}" \
-      CHANNEL="${CHANNEL}" \
-      SOURCE="${ECLIPSE_CHE_CATALOG_SOURCE_NAME}" \
-      SOURCE_NAMESPACE="openshift-marketplace" \
-      INSTALL_PLAN_APPROVAL="Manual" \
-      STARTING_CSV="${PREVIOUS_CSV_NAME}"
-    make approve-installplan SUBSCRIPTION_NAME="${ECLIPSE_CHE_SUBSCRIPTION_NAME}"
-  popd
+  createSubscription "${ECLIPSE_CHE_SUBSCRIPTION_NAME}" "${ECLIPSE_CHE_PACKAGE_NAME}" "${CHANNEL}" "${ECLIPSE_CHE_CATALOG_SOURCE_NAME}" "Manual" "${PREVIOUS_CSV_NAME}"
+  approveInstallPlan "${ECLIPSE_CHE_SUBSCRIPTION_NAME}"
 
   sleep 10s
 
-  getCheClusterCRFromInstalledCSV | oc apply -n "${NAMESPACE}" -f -
+  getCheClusterCRFromExistedCSV | oc apply -n "${NAMESPACE}" -f -
+  waitEclipseCheDeployed "$(getCheVersionFromExistedCSV)"
 
-  pushd ${OPERATOR_REPO} || exit 1
-    make wait-eclipseche-version VERSION="$(getCheVersionFromInstalledCSV)" NAMESPACE=${NAMESPACE}
-    make approve-installplan SUBSCRIPTION_NAME="${ECLIPSE_CHE_SUBSCRIPTION_NAME}"
-    make wait-eclipseche-version VERSION="$(getCheVersionFromInstalledCSV)" NAMESPACE=${NAMESPACE}
-  popd
+  approveInstallPlan "${ECLIPSE_CHE_SUBSCRIPTION_NAME}"
+  waitEclipseCheDeployed "$(getCheVersionFromExistedCSV)"
 }
 
 init "$@"
