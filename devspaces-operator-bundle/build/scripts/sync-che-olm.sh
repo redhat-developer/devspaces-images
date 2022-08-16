@@ -21,7 +21,6 @@ DS_VERSION=${CSV_VERSION%.*} # tag 3.y
 CSV_VERSION_PREV=3.x.0
 MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)
 OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operator/tree/main/bundle
-DWO_TAG=0.13
 UBI_TAG=8.6
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
@@ -46,7 +45,6 @@ usage () {
 	echo "Example: ${0##*/} -v ${CSV_VERSION} -p ${CSV_VERSION_PREV} -s ${HOME}/che-operator -t $(pwd) [if no che.version, use value from devspaces/devspaces-branch/pom.xml]"
 	echo "Options:
 	--ds-tag ${DS_VERSION}
-	--dwo-tag ${DWO_TAG}
 	--ubi-tag ${UBI_TAG}
 	--postgres-tag ${POSTGRES_TAG}
 	--postgres13-tag ${POSTGRES13_TAG}
@@ -71,7 +69,6 @@ while [[ "$#" -gt 0 ]]; do
 	'--help'|'-h') usage;;
 	# optional tag overrides
 	'--ds-tag') DS_VERSION="$2"; shift 1;;
-	'--dwo-tag') DWO_TAG="$2"; shift 1;;
 	'--ubi-tag') UBI_TAG="$2"; shift 1;;
 	'--postgres-tag') POSTGRES_TAG="$2"; shift 1;; # for deprecated 9.6 
 	'--postgres13-tag') POSTGRES13_TAG="$2"; shift 1;; # for 13 (@since CRW 2.14)
@@ -94,7 +91,6 @@ DS_OPERATOR="devspaces-rhel8-operator"
 DS_CONFIGBUMP_IMAGE="${DS_RRIO}/configbump-rhel8:${DS_VERSION}"
 DS_DASHBOARD_IMAGE="${DS_RRIO}/dashboard-rhel8:${DS_VERSION}"
 DS_DEVFILEREGISTRY_IMAGE="${DS_RRIO}/devfileregistry-rhel8:${DS_VERSION}"
-DWO_IMAGE="registry.redhat.io/devworkspace/devworkspace-rhel8-operator:${DWO_TAG}"
 DS_PLUGINREGISTRY_IMAGE="${DS_RRIO}/pluginregistry-rhel8:${DS_VERSION}"
 DS_SERVER_IMAGE="${DS_RRIO}/server-rhel8:${DS_VERSION}"
 DS_TRAEFIK_IMAGE="${DS_RRIO}/traefik-rhel8:${DS_VERSION}"
@@ -266,8 +262,10 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		["RELATED_IMAGE_che_server"]="${DS_SERVER_IMAGE}"
 		["RELATED_IMAGE_dashboard"]="${DS_DASHBOARD_IMAGE}"
 		["RELATED_IMAGE_devfile_registry"]="${DS_DEVFILEREGISTRY_IMAGE}"
-		["RELATED_IMAGE_devworkspace_controller"]="${DWO_IMAGE}"
 		["RELATED_IMAGE_plugin_registry"]="${DS_PLUGINREGISTRY_IMAGE}"
+
+		# hardcoded to latest DWO release, so that we replace the upstream value... but this isn't actually used downstream
+		["RELATED_IMAGE_devworkspace_controller"]="registry.redhat.io/devworkspace/devworkspace-rhel8-operator" 
 
 		["RELATED_IMAGE_single_host_gateway"]="${DS_TRAEFIK_IMAGE}"
 		["RELATED_IMAGE_single_host_gateway_config_sidecar"]="${DS_CONFIGBUMP_IMAGE}"
