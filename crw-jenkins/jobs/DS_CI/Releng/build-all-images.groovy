@@ -62,14 +62,20 @@ for global CVE updates.
 
             parameters{
                 stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH)
-                stringParam("PHASES", "1 2 3", '''
+                stringParam("PHASES", "1 2 3 4", '''
 Phases:
 <ol>
     <li> build theia images sequentially (3 images)</li>
-    <li> build internals in parallel (11 images): 
+    <li> build internals in parallel (10 images): 
         <ul>
-            <li> configbump, operator, dashboard, devfileregistry, idea (@since 2.11), </li>
-            <li> imagepuller, machineexec, pluginregistry, server, traefik, udi (@since 2.16)</li>
+            <li> configbump, operator, dashboard, devfileregistry, imagepuller, </li>
+            <li> machineexec, pluginregistry, server, traefik, udi (@since 2.16)</li>
+        </ul>
+    </li>
+    <li> build editors in parallel (2 images): 
+        <ul>
+            <li> code (@since 3.1), </li>
+            <li> idea (@since 2.11) [depends on machineexec] </li>
         </ul>
     </li>
     <li> build bundle image + IIBs</li>
