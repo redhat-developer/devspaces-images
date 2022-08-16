@@ -19,7 +19,7 @@ import { V220DevfileComponents } from '@devfile/api';
 const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 
 const GROUP = 'org.eclipse.che';
-const VERSION = 'v2';
+const VERSION = 'v1';
 const PLURAL = 'checlusters';
 
 const NAME = process.env.CHECLUSTER_CR_NAME;
@@ -59,33 +59,30 @@ export class ServerConfigApi implements IServerConfigApi {
   }
 
   getDefaultPlugins(cheCustomResource: { [key: string]: any }): api.IWorkspacesDefaultPlugins[] {
-    return cheCustomResource.spec.devEnvironments.defaultPlugins || [];
+    return cheCustomResource.spec.server.workspacesDefaultPlugins || [];
   }
 
   getDefaultEditor(cheCustomResource: { [key: string]: any }): string | undefined {
-    return cheCustomResource.spec.devEnvironments.defaultEditor;
+    return cheCustomResource.spec.server.workspaceDefaultEditor;
   }
 
   getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[] {
-    return cheCustomResource.spec.devEnvironments.defaultComponents || [];
+    return cheCustomResource.spec.server.workspaceDefaultComponents || [];
   }
 
   getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined {
-    if (!cheCustomResource.spec.components.dashboard.headerMessage?.show) {
-      return undefined;
-    }
-    return cheCustomResource.spec.components.dashboard.headerMessage?.text;
+    return cheCustomResource.spec.dashboard?.warning;
   }
 
   getRunningWorkspacesLimit(cheCustomResource: { [key: string]: any }): number {
-    return cheCustomResource.spec.components.devWorkspace.runningLimit || 1;
+    return cheCustomResource.spec.devWorkspace.runningLimit || 1;
   }
 
   getWorkspaceInactivityTimeout(cheCustomResource: { [key: string]: any }): number {
-    return cheCustomResource.spec.devEnvironments.secondsOfInactivityBeforeIdling || -1;
+    return cheCustomResource.spec.devWorkspace.secondsOfInactivityBeforeIdling || -1;
   }
 
   getWorkspaceRunTimeout(cheCustomResource: { [key: string]: any }): number {
-    return cheCustomResource.spec.devEnvironments.secondsOfRunBeforeIdling || -1;
+    return cheCustomResource.spec.devWorkspace.secondsOfRunBeforeIdling || -1;
   }
 }
