@@ -12,6 +12,7 @@ import { AbstractOneDataSystemAppender } from 'vs/platform/telemetry/common/1dsA
 export class OneDataSystemAppender extends AbstractOneDataSystemAppender {
 
 	constructor(
+		isInternalTelemetry: boolean,
 		eventPrefix: string,
 		defaultData: { [key: string]: any } | null,
 		iKeyOrClientFactory: string | (() => AppInsightsCore), // allow factory function for testing
@@ -46,6 +47,6 @@ export class OneDataSystemAppender extends AbstractOneDataSystemAppender {
 			}
 		};
 
-		super(eventPrefix, defaultData, iKeyOrClientFactory, customHttpXHROverride);
+		super(isInternalTelemetry, eventPrefix, defaultData, iKeyOrClientFactory, customHttpXHROverride);
 	}
 }
