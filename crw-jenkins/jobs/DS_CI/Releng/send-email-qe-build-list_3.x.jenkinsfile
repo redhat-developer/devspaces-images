@@ -178,9 +178,9 @@ Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
                     // if we got the right number of values (matching number of OCP versions)
                     if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
                         println "####################################################################################################################FOUND\n\
-        ##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}:\n\
-        ## " + IIBs.trim().replaceAll("\n", "\n## ")+"\n\
-        ####################################################################################################################FOUND\n"
+##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}:\n\
+## " + IIBs.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################FOUND\n"
                         currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIB(s) found: "
                         currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
 
@@ -196,9 +196,9 @@ Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
 
                         // in console, echo all errors and warnings
                         println "####################################################################################################################COPIED\n\
-        ##  IIB(s) copied:\n\
-        ## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
-        ####################################################################################################################COPIED\n"
+##  IIB(s) copied:\n\
+## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################COPIED\n"
 
                         currentBuild.description+="<br/> IIB(s) copied: "
                         // for build description, collect the lines that start with [IMG]; ignore all other output
