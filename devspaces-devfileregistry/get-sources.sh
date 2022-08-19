@@ -59,9 +59,16 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	cat bootstrap.Dockerfile
 	echo "<======= BOOTSTRAP DOCKERFILE ======="
 	echo "======= START BOOTSTRAP BUILD =======>"
+
+	# if this is a stable 3.yy.ER build, only allow RHEC images; if this is a 3.x.CI (or local) build, allow Quay images to be referenced by devfiles
+	ALLOWED_REGISTRIES=
+	if [[ $MIDSTM_BRANCH == "devspaces-3."*"-rhel-8" ]]; then
+		ALLOWED_REGISTRIES="registry.redhat.io registry.access.redhat.com"
+	fi
+
 	# do not want digests in the BOOTSTRAP build so override default with false
 	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
-		--target builder --build-arg BOOTSTRAP=true
+		--target builder --build-arg BOOTSTRAP=true --build-arg ALLOWED_REGISTRIES="${ALLOWED_REGISTRIES}"
 	echo "<======= END BOOTSTRAP BUILD ======="
 	rm VERSION
 	# update tarballs - step 2 - check old sources' tarballs

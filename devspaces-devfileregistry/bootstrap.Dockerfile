@@ -18,6 +18,10 @@ USER 0
 
 ARG BOOTSTRAP=true
 ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries in list_referenced_images
+# otherwise restrict to only those space-separated registries; if others found, build will fail
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
 
 COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
@@ -29,7 +33,7 @@ COPY ./VERSION /
 COPY ./devfiles /build/devfiles
 WORKDIR /build/
 
-RUN ./generate_devworkspace_templates.sh
+RUN ./generate_devworkspace_templates.sh && ./check_referenced_images.sh "${ALLOWED_REGISTRIES}"
 RUN chmod -R g+rwX /build/resources
 
 RUN ./check_mandatory_fields.sh devfiles
