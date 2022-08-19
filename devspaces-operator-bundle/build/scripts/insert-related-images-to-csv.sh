@@ -60,8 +60,12 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${DS_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
     wait
 
-    # sort & uniquify
-    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | sort -uV)
+
+    # sort uniquely; replace quay refs with RHEC refs (CRW-3177)
+    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | \
+      sed -r -e "s#quay.io/devspaces/#registry.redhat.io/devspaces/#g" | sort -uV)
+    echo EXTERNAL_IMAGES=
+    echo "${EXTERNAL_IMAGES[@]}"
 popd >/dev/null
 # cleanup
 rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/
