@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2021 Red Hat, Inc.
+# Copyright (c) 2018-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -12,8 +12,8 @@
 #
 
 # Builder: check meta.yamls and create index.json
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/python-38
-FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-71.1634036286 as builder
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
 USER 0
 
 ARG BOOTSTRAP=true
@@ -33,10 +33,13 @@ COPY ./VERSION /
 COPY ./devfiles /build/devfiles
 WORKDIR /build/
 
-RUN ./generate_devworkspace_templates.sh && ./check_referenced_images.sh "${ALLOWED_REGISTRIES}"
+RUN ./generate_devworkspace_templates.sh
 RUN chmod -R g+rwX /build/resources
 
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles "${ALLOWED_REGISTRIES}"
 RUN ./check_mandatory_fields.sh devfiles
+
 # Cache projects in DS 
 COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
 RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 

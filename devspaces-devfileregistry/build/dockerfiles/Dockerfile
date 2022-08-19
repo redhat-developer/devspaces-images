@@ -60,6 +60,7 @@ ARG PATCHED_IMAGES_ORG="eclipse"
 ARG PATCHED_IMAGES_TAG="next"
 
 # validate devfile content
+RUN ./check_referenced_images.sh devfiles "${ALLOWED_REGISTRIES}"
 RUN ./check_mandatory_fields.sh devfiles
 
 # Cache projects in DS 

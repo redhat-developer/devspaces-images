@@ -12,17 +12,20 @@
 # pass in space-separated list of acceptable registries
 set -e
 
+target_dir=""
+ALLOWED_REGISTRIES=""
 while [[ "$#" -gt 0 ]]; do
 	case $1 in
-		*) ALLOWED_REGISTRIES="${ALLOWED_REGISTRIES} $1";;
+		*) if [[ $target_dir == "" ]]; then target_dir="$1"; else ALLOWED_REGISTRIES="${ALLOWED_REGISTRIES} $1"; fi;;
 	esac
 	shift 1
 done
 
 # if no registries set, then all registries are allowed
 if [[ $ALLOWED_REGISTRIES ]]; then 
+    had_failure=0
     script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    containers=$(${script_dir}/list_referenced_images.sh .)
+    containers=$(${script_dir}/list_referenced_images.sh $target_dir)
     for container in $containers; do
         registry_passed=""
         for registry in $ALLOWED_REGISTRIES; do
@@ -34,7 +37,8 @@ if [[ $ALLOWED_REGISTRIES ]]; then
             echo " + $container PASS - $registry_passed allowed"
         else
             echo " - $container FAIL - not in allowed registries: '$ALLOWED_REGISTRIES'"
-            exit 1
+            had_failure=1
         fi
     done
+    if [[ $had_failure -eq 1 ]]; then exit 1; fi
 fi
