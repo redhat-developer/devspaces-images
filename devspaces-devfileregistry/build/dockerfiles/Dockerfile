@@ -22,6 +22,10 @@ USER 0
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries in list_referenced_images
+# otherwise restrict to only those space-separated registries; if others found, build will fail
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
 
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
