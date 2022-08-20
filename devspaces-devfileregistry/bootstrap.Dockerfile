@@ -18,10 +18,13 @@ USER 0
 
 ARG BOOTSTRAP=true
 ENV BOOTSTRAP=${BOOTSTRAP}
-# if not defined or string is null, allow all registries in list_referenced_images
-# otherwise restrict to only those space-separated registries; if others found, build will fail
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
 ARG ALLOWED_REGISTRIES=""
 ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
 
 COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
 COPY ./build/dockerfiles/rhel.install.sh /tmp
@@ -37,7 +40,7 @@ RUN ./generate_devworkspace_templates.sh
 RUN chmod -R g+rwX /build/resources
 
 # validate devfile content
-RUN ./check_referenced_images.sh devfiles "${ALLOWED_REGISTRIES}"
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
 RUN ./check_mandatory_fields.sh devfiles
 
 # Cache projects in DS 
@@ -47,7 +50,8 @@ RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /t
 # don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
 # RUN ./swap_yamlfiles.sh devfiles
 # RUN ./swap_images.sh devfiles
-RUN ./index.sh > /build/devfiles/index.json
-RUN ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt
-RUN chmod -R g+rwX /build/devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
 
