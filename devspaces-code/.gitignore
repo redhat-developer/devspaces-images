@@ -1,9 +1,3 @@
 vscode-reh-web-*
 node_modules
 
-/asset-libc-content-ppc64le.tar.gz
-/asset-libc-content-s390x.tar.gz
-/asset-libc-content-x86_64.tar.gz
-/asset-machine-exec-ppc64le.tar.gz
-/asset-machine-exec-s390x.tar.gz
-/asset-machine-exec-x86_64.tar.gz
