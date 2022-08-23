@@ -46,6 +46,10 @@ declare namespace restParams {
   export interface IDevWorkspaceSpecParam {
     devworkspace: V1alpha2DevWorkspace;
   }
+
+  export interface IYamlResolverParam {
+    url: string;
+  }
 }
 
 declare module 'restParams' {

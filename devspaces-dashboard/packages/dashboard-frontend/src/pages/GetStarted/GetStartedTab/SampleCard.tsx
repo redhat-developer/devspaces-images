@@ -24,7 +24,7 @@ import {
   DropdownPosition,
 } from '@patternfly/react-core';
 import './sample-card.css';
-import { TargetEditor } from './SamplesListGallery';
+import { TargetEditor, VISIBLE_TAGS } from './SamplesListGallery';
 import DropdownEditors from './DropdownEditors';
 
 type Props = {
@@ -35,8 +35,6 @@ type Props = {
 type State = {
   isExpanded: boolean;
 };
-
-const VISIBLE_TAGS = ['community', 'tech-preview'];
 
 export class SampleCard extends React.PureComponent<Props, State> {
   constructor(props: Props) {

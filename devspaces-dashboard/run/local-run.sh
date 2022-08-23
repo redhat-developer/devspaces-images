@@ -56,6 +56,7 @@ export KUBECONFIG="${KUBECONFIG:-$HOME/.kube/config}"
 DASHBOARD_COMMON=packages/common
 DASHBOARD_FRONTEND=packages/dashboard-frontend
 DASHBOARD_BACKEND=packages/dashboard-backend
+DEVFILE_REGISTRY=packages/devfile-registry
 
 parse_args "$@"
 
@@ -75,6 +76,11 @@ if [ "$FORCE_BUILD" == "true" ] ||
   [ ! -d $DASHBOARD_BACKEND/lib ] || [ -z "$(ls -A $DASHBOARD_BACKEND/lib)" ]; then
   echo "[INFO] Compiling backend package"
   yarn --cwd $DASHBOARD_BACKEND build:dev
+fi
+
+if [ ! -d $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry ]; then
+  echo "[INFO] Copy devfile registry"
+  cp -r $DEVFILE_REGISTRY $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry
 fi
 
 export CLUSTER_ACCESS_TOKEN=$(oc whoami -t)

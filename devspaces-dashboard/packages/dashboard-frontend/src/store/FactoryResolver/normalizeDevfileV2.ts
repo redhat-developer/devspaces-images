@@ -40,18 +40,18 @@ export default function normalizeDevfileV2(
   const scmInfo = data['scm_info'];
 
   const projectName = getProjectName(scmInfo?.clone_url || location);
-  const name = devfileLike.metadata?.name || generateWorkspaceName(projectName);
+  const prefix = devfileLike.metadata?.generateName
+    ? devfileLike.metadata.generateName
+    : projectName;
+  const name = devfileLike.metadata?.name || generateWorkspaceName(prefix);
 
   // set mandatory fields
-  const devfile: devfileApi.Devfile = {
-    metadata: {
-      name,
-      namespace,
-    },
-    schemaVersion: devfileLike.schemaVersion,
-  };
-
-  Object.assign(devfile, cloneDeep(devfileLike));
+  const devfile = cloneDeep(devfileLike) as devfileApi.Devfile;
+  devfile.metadata.name = name;
+  if (devfile.metadata.generateName) {
+    delete devfile.metadata.generateName;
+  }
+  devfile.metadata.namespace = namespace;
 
   // propagate default components
   if (!devfile.components || devfile.components.length === 0) {

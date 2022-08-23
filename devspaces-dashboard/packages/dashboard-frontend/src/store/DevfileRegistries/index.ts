@@ -24,6 +24,7 @@ import devfileApi from '../../services/devfileApi';
 import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
+export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
 
 export type DevWorkspaceResources = [devfileApi.DevWorkspace, devfileApi.DevWorkspaceTemplate];
 
@@ -174,7 +175,15 @@ export const actionCreators: ActionCreators = {
     async (dispatch): Promise<void> => {
       dispatch({ type: Type.REQUEST_REGISTRY_METADATA });
 
-      const promises = registryUrls.split(' ').map(async url => {
+      const registries: string[] = registryUrls.split(' ');
+      if (DEFAULT_REGISTRY) {
+        if (DEFAULT_REGISTRY.startsWith('http')) {
+          registries.push(DEFAULT_REGISTRY);
+        } else {
+          registries.push(new URL(DEFAULT_REGISTRY, window.location.origin).href);
+        }
+      }
+      const promises = registries.map(async url => {
         try {
           const metadata = await fetchRegistryMetadata(url);
           if (!Array.isArray(metadata) || metadata.length === 0) {

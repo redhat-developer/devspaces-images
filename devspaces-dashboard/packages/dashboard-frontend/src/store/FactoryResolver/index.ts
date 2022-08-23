@@ -18,10 +18,7 @@ import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
-import {
-  selectDevworkspacesEnabled,
-  selectPreferredStorageType,
-} from '../Workspaces/Settings/selectors';
+import { selectPreferredStorageType } from '../Workspaces/Settings/selectors';
 import { selectDefaultComponents } from '../ServerConfig/selectors';
 import { Devfile } from '../../services/workspace-adapter';
 import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
@@ -29,6 +26,8 @@ import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
 import normalizeDevfileV2 from './normalizeDevfileV2';
 import normalizeDevfileV1 from './normalizeDevfileV1';
 import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
+import { getYamlResolver } from '../../services/dashboard-backend-client/yamlResolverApi';
+import { DEFAULT_REGISTRY } from '../DevfileRegistries';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -142,49 +141,56 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_FACTORY_RESOLVER' });
+      const state = getState();
+      const namespace = selectDefaultNamespace(state).name;
+      const optionalFilesContent = {};
 
       try {
         await WorkspaceClient.restApiClient.provisionKubernetesNamespace();
-        const data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(
-          location,
-          overrideParams,
-        );
+
+        let data: FactoryResolver;
+
+        if (location.includes(DEFAULT_REGISTRY) && location.endsWith('.yaml')) {
+          data = await getYamlResolver(namespace, location);
+        } else {
+          data = await WorkspaceClient.restApiClient.getFactoryResolver<FactoryResolver>(
+            location,
+            overrideParams,
+          );
+          // now, grab content of optional files if they're there
+          const vscodeExtensionsJson = await grabLink(data.links, '.vscode/extensions.json');
+          if (vscodeExtensionsJson) {
+            optionalFilesContent['.vscode/extensions.json'] = vscodeExtensionsJson;
+          }
+          const cheTheiaPlugins = await grabLink(data.links, '.che/che-theia-plugins.yaml');
+          if (cheTheiaPlugins) {
+            optionalFilesContent['.che/che-theia-plugins.yaml'] = cheTheiaPlugins;
+          }
+          const cheEditor = await grabLink(data.links, '.che/che-editor.yaml');
+          if (cheEditor) {
+            optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
+          }
+        }
         if (!data.devfile) {
           throw new Error('The specified link does not contain a valid Devfile.');
         }
-        // now, grab content of optional files if they're there
-        const optionalFilesContent = {};
-        const vscodeExtensionsJson = await grabLink(data.links, '.vscode/extensions.json');
-        if (vscodeExtensionsJson) {
-          optionalFilesContent['.vscode/extensions.json'] = vscodeExtensionsJson;
-        }
-        const cheTheiaPlugins = await grabLink(data.links, '.che/che-theia-plugins.yaml');
-        if (cheTheiaPlugins) {
-          optionalFilesContent['.che/che-theia-plugins.yaml'] = cheTheiaPlugins;
-        }
-        const cheEditor = await grabLink(data.links, '.che/che-editor.yaml');
-        if (cheEditor) {
-          optionalFilesContent['.che/che-editor.yaml'] = cheEditor;
-        }
-
-        const state = getState();
-        const isDevworkspacesEnabled = selectDevworkspacesEnabled(state);
         const preferredStorageType = selectPreferredStorageType(state);
-        const namespace = selectDefaultNamespace(state).name;
-        const resolvedDevfile = data.devfile;
-        const isResolvedDevfileV2 = isDevfileV2(resolvedDevfile);
+        const isResolvedDevfileV2 = isDevfileV2(data.devfile);
         let devfileV2: devfileApi.Devfile;
         const defaultComponents = selectDefaultComponents(state);
         if (isResolvedDevfileV2) {
           devfileV2 = normalizeDevfileV2(
-            resolvedDevfile,
+            data.devfile as devfileApi.DevfileLike,
             data,
             location,
             defaultComponents,
             namespace,
           );
         } else {
-          const devfileV1 = normalizeDevfileV1(resolvedDevfile, preferredStorageType);
+          const devfileV1 = normalizeDevfileV1(
+            data.devfile as che.WorkspaceDevfile,
+            preferredStorageType,
+          );
           devfileV2 = normalizeDevfileV2(
             await convertDevfileV1toDevfileV2(devfileV1),
             data,
@@ -194,21 +200,18 @@ export const actionCreators: ActionCreators = {
           );
         }
         const converted: ConvertedState = {
-          resolvedDevfile,
-          isConverted:
-            (isDevworkspacesEnabled && isResolvedDevfileV2 === false) ||
-            (isDevworkspacesEnabled === false && isResolvedDevfileV2),
+          resolvedDevfile: data.devfile,
+          isConverted: !isResolvedDevfileV2,
           devfileV2,
         };
 
+        const resolver = { ...data, optionalFilesContent };
+        resolver.devfile = devfileV2;
+        resolver.location = location;
+
         dispatch({
           type: 'RECEIVE_FACTORY_RESOLVER',
-          resolver: {
-            ...data,
-            location,
-            devfile: devfileV2,
-            optionalFilesContent,
-          },
+          resolver,
           converted,
         });
         return;

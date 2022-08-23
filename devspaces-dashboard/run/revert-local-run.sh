@@ -35,6 +35,11 @@ if [[ ! -z "$(oc whoami -t)" ]]; then
   exit 0
 fi
 
+if [ -d $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry ]; then
+  echo "[INFO] Remove devfile registry"
+  rm -r $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry
+fi
+
 CHE_HOST=http://localhost:8080
 CHE_NAMESPACE="${CHE_NAMESPACE:-eclipse-che}"
 CHE_HOST_ORIGIN=$(kubectl get checluster -n $CHE_NAMESPACE eclipse-che -o=json | jq -r '.status.cheURL')

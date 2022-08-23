@@ -29,9 +29,11 @@ RUN \
 
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
+ENV DEVFILE_REGISTRY=/dashboard/packages/devfile-registry
 
 COPY --from=builder ${BACKEND_LIB} /backend
 COPY --from=builder ${FRONTEND_LIB} /public
+COPY --from=builder ${DEVFILE_REGISTRY} /public/dashboard/devfile-registry
 
 COPY build/dockerfiles/rhel.entrypoint.sh /usr/local/bin
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]

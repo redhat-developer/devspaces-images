@@ -37,9 +37,11 @@ FROM docker.io/node:16.14.0-alpine3.15
 
 ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
+ENV DEVFILE_REGISTRY=/dashboard/packages/devfile-registry
 
 COPY --from=builder ${BACKEND_LIB} /backend
 COPY --from=builder ${FRONTEND_LIB} /public
+COPY --from=builder ${DEVFILE_REGISTRY} /public/dashboard/devfile-registry
 
 COPY build/dockerfiles/entrypoint.sh /entrypoint.sh
 

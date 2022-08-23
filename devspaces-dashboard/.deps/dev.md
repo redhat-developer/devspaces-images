@@ -200,6 +200,7 @@
 | [`@types/mime@1.3.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minimatch@3.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minimist@1.2.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/node-fetch@2.6.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/normalize-package-data@2.4.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/parse-json@4.0.0`](https://www.github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/prettier@2.4.4`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -486,6 +487,7 @@
 | [`flat-cache@3.0.4`](https://github.com/royriojas/flat-cache.git) | MIT | clearlydefined |
 | [`flatted@3.2.5`](git+https://github.com/WebReflection/flatted.git) | ISC | #2430 |
 | [`for-in@1.0.2`](https://github.com/jonschlinkert/for-in.git) | MIT | clearlydefined |
+| [`form-data@3.0.1`](git://github.com/form-data/form-data.git) | MIT | clearlydefined |
 | [`fragment-cache@0.2.1`](https://github.com/jonschlinkert/fragment-cache.git) | MIT | clearlydefined |
 | [`fs-monkey@1.0.3`](https://github.com/streamich/fs-monkey.git) | Unlicense | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fs-monkey/1.0.3) |
 | `fsevents@2.3.2` |  | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/fsevents/2.3.2) |
@@ -711,7 +713,6 @@
 | [`neo-async@2.6.2`](git@github.com:suguru03/neo-async.git) | MIT | clearlydefined |
 | [`nice-try@1.0.5`](https://github.com/electerious/nice-try.git) | MIT | clearlydefined |
 | [`no-case@3.0.4`](git://github.com/blakeembrey/change-case.git) | MIT | clearlydefined |
-| [`node-fetch@2.6.7`](https://github.com/bitinn/node-fetch.git) | MIT | clearlydefined |
 | [`node-forge@1.3.1`](https://github.com/digitalbazaar/forge) | (BSD-3-Clause OR GPL-2.0) | [clearlydefined](https://clearlydefined.io/definitions/npm/npmjs/-/node-forge/1.3.1) |
 | [`node-gyp@8.4.1`](git://github.com/nodejs/node-gyp.git) | MIT | #1849 |
 | [`node-int64@0.4.0`](https://github.com/broofa/node-int64) | MIT | clearlydefined |

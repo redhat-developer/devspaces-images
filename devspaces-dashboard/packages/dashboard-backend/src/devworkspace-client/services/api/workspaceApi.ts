@@ -21,6 +21,7 @@ import {
 
 import { api } from '@eclipse-che/common';
 import { createError } from '../helpers';
+import { isLocalRun } from '../../../local-run';
 
 const DEV_WORKSPACE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
@@ -212,8 +213,10 @@ export class DevWorkspaceApi implements IDevWorkspaceApi {
         if (error && error.message) {
           message = error.message;
         } else {
-          // unexpected error format. Log it and expose to user what we can
-          console.log('Unexpected error', error);
+          if (isLocalRun) {
+            // unexpected error format. Log it and expose to user what we can
+            console.log('Unexpected error', error);
+          }
           if (error) {
             message = error.toString();
           }

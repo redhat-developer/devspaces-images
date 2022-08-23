@@ -36,6 +36,7 @@ import {
 } from './local-run/dexHelper';
 import { registerFactory } from './factory';
 import { namespaceApi } from './api/namespaceApi';
+import { registerYamlResolverApi } from './api/yamlResolverApi';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 
@@ -108,6 +109,8 @@ registerKubeConfigApi(server);
 registerClusterInfoApi(server);
 
 registerClusterConfigApi(server);
+
+registerYamlResolverApi(server);
 
 server.listen(8080, '0.0.0.0', (err: Error | null, address: string) => {
   if (err) {

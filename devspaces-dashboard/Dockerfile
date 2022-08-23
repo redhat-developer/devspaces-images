@@ -46,9 +46,11 @@ RUN \
 
 ENV FRONTEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-frontend/lib/public
 ENV BACKEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-backend/lib
+ENV DEVFILE_REGISTRY=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/devfile-registry
 
 COPY --from=builder ${BACKEND_LIB} /backend
 COPY --from=builder ${FRONTEND_LIB} /public
+COPY --from=builder ${DEVFILE_REGISTRY} /public$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/devfile-registry
 
 COPY build/dockerfiles/rhel.entrypoint.sh /usr/local/bin
 CMD ["/usr/local/bin/rhel.entrypoint.sh"]

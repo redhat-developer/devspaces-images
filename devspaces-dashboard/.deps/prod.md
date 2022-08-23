@@ -295,6 +295,7 @@
 | [`ms@2.0.0`](https://github.com/zeit/ms.git) | MIT | clearlydefined |
 | [`nan@2.15.0`](git://github.com/nodejs/nan.git) | MIT | #986 |
 | [`nanoid@3.3.4`](https://github.com/ai/nanoid.git) | MIT | clearlydefined |
+| [`node-fetch@2.6.7`](https://github.com/bitinn/node-fetch.git) | MIT | clearlydefined |
 | [`normalize-url@6.1.0`](https://github.com/sindresorhus/normalize-url.git) | MIT | clearlydefined |
 | [`npm-run-path@4.0.1`](https://github.com/sindresorhus/npm-run-path.git) | MIT | clearlydefined |
 | [`oauth-sign@0.9.0`](https://github.com/mikeal/oauth-sign) | Apache-2.0 | clearlydefined |
@@ -428,6 +429,7 @@
 | [`toggle-selection@1.0.6`](git+https://github.com/sudodoki/toggle-selection) | MIT | clearlydefined |
 | [`toidentifier@1.0.1`](https://github.com/component/toidentifier.git) | MIT | clearlydefined |
 | [`tough-cookie@2.5.0`](git://github.com/salesforce/tough-cookie.git) | BSD-3-Clause | clearlydefined |
+| [`tr46@0.0.3`](git+https://github.com/Sebmaster/tr46.js.git) | MIT | clearlydefined |
 | [`trim-right@1.0.1`](https://github.com/sindresorhus/trim-right.git) | MIT | clearlydefined |
 | [`tslib@2.3.1`](https://github.com/Microsoft/tslib.git) | 0BSD | clearlydefined |
 | [`tunnel-agent@0.6.0`](https://github.com/mikeal/tunnel-agent) | Apache-2.0 | clearlydefined |
@@ -455,7 +457,9 @@
 | [`vscode-nls@4.1.2`](https://github.com/Microsoft/vscode-nls.git) | MIT | clearlydefined |
 | [`vscode-uri@2.1.2`](git+https://github.com/Microsoft/vscode-uri.git) | MIT | clearlydefined |
 | [`warning@4.0.3`](https://github.com/BerkeleyTrue/warning.git) | MIT | [CQ22359](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22359) |
+| [`webidl-conversions@3.0.1`](https://github.com/jsdom/webidl-conversions.git) | BSD-2-Clause | clearlydefined |
 | [`websocket@1.0.23`](https://github.com/theturtle32/WebSocket-Node.git) | Apache-2.0 | [CQ22360](https://dev.eclipse.org/ipzilla/show_bug.cgi?id=22360) |
+| [`whatwg-url@5.0.0`](https://github.com/jsdom/whatwg-url.git) | MIT | clearlydefined |
 | [`which@2.0.2`](git://github.com/isaacs/node-which.git) | ISC | clearlydefined |
 | [`wrappy@1.0.2`](https://github.com/npm/wrappy) | ISC | clearlydefined |
 | [`ws@8.7.0`](https://github.com/websockets/ws.git) | MIT | clearlydefined |

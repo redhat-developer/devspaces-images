@@ -35,16 +35,6 @@ export const namespacedKubeConfigSchema: JSONSchema7 = {
   required: ['namespace', 'devworkspaceId'],
 };
 
-export const namespacedDockerConfigSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    namespace: {
-      type: 'string',
-    },
-  },
-  required: ['namespace'],
-};
-
 export const namespacedWorkspaceSchema: JSONSchema7 = {
   type: 'object',
   properties: {
@@ -135,6 +125,17 @@ export const dockerConfigSchema: JSONSchema7 = {
   },
   examples: [dockerConfigExample],
   required: ['dockerconfig'],
+};
+
+export const yamlResolverSchema: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    url: {
+      type: 'string',
+      pattern: '^http.*.yaml$',
+    },
+  },
+  required: ['url'],
 };
 
 export const devworkspaceSchema: JSONSchema7 = {
