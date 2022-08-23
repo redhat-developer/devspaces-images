@@ -1,0 +1,562 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> 1fdc105f8ae
+STEP 3/23: ARG BOOTSTRAP=true
+--> 89bef3f7221
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 347e0c48d70
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 5b5148b7eb4
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 07ead49fb30
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 24900fcad4d
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 579c5cda3eb
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 32bbddbf50f
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 736ec9c417e
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+Updating Subscription Management repositories.
+Unable to read consumer identity
+Subscription Manager is operating in container mode.
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+Red Hat Enterprise Linux 8 for Power, little en  68 MB/s |  43 MB     00:00    
+Red Hat Enterprise Linux 8 for Power, little en 7.5 MB/s |  42 MB     00:05    
+Red Hat Universal Base Image 8 (RPMs) - BaseOS  3.8 MB/s | 578 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre  15 MB/s | 2.6 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea  70 kB/s |  14 kB     00:00    
+Package findutils-1:4.6.0-20.el8.ppc64le is already installed.
+Package bash-4.4.20-3.el8.ppc64le is already installed.
+Package wget-1.19.5-10.el8.ppc64le is already installed.
+Package yum-4.7.0-8.el8.noarch is already installed.
+Package git-2.31.1-2.el8.ppc64le is already installed.
+Package gzip-1.9-13.el8_5.ppc64le is already installed.
+Package tar-2:1.30-5.el8.ppc64le is already installed.
+Package python3-six-1.11.0-8.el8.noarch is already installed.
+Dependencies resolved.
+================================================================================================================
+ Package               Arch     Version                                 Repository                          Size
+================================================================================================================
+Installing:
+ jq                    ppc64le  1.6-3.el8                               rhel-8-for-ppc64le-appstream-rpms  215 k
+ python3-pip           noarch   9.0.3-22.el8                            rhel-8-for-ppc64le-appstream-rpms   20 k
+ skopeo                ppc64le  2:1.8.0-2.module+el8.6.0+15917+093ca6f8 rhel-8-for-ppc64le-appstream-rpms  5.9 M
+Upgrading:
+ bash                  ppc64le  4.4.20-4.el8_6                          rhel-8-for-ppc64le-baseos-rpms     1.6 M
+Installing dependencies:
+ containers-common     ppc64le  2:1-35.module+el8.6.0+15917+093ca6f8    rhel-8-for-ppc64le-appstream-rpms  109 k
+ criu                  ppc64le  3.15-3.module+el8.6.0+15875+dc9a2b96    rhel-8-for-ppc64le-appstream-rpms  536 k
+ fuse-common           ppc64le  3.3.0-15.el8                            rhel-8-for-ppc64le-baseos-rpms      22 k
+ fuse3                 ppc64le  3.3.0-15.el8                            rhel-8-for-ppc64le-baseos-rpms      57 k
+ fuse3-libs            ppc64le  3.3.0-15.el8                            rhel-8-for-ppc64le-baseos-rpms      99 k
+ iptables-libs         ppc64le  1.8.4-22.el8                            rhel-8-for-ppc64le-baseos-rpms     114 k
+ jansson               ppc64le  2.14-1.el8                              rhel-8-for-ppc64le-baseos-rpms      51 k
+ kmod                  ppc64le  25-19.el8                               rhel-8-for-ppc64le-baseos-rpms     138 k
+ libibverbs            ppc64le  37.2-1.el8                              rhel-8-for-ppc64le-baseos-rpms     412 k
+ libmnl                ppc64le  1.0.4-6.el8                             rhel-8-for-ppc64le-baseos-rpms      31 k
+ libnet                ppc64le  1.1.6-15.el8                            rhel-8-for-ppc64le-appstream-rpms   73 k
+ libnftnl              ppc64le  1.1.5-5.el8                             rhel-8-for-ppc64le-baseos-rpms      88 k
+ libpcap               ppc64le  14:1.9.1-5.el8                          rhel-8-for-ppc64le-baseos-rpms     176 k
+ libslirp              ppc64le  4.4.0-1.module+el8.6.0+15875+dc9a2b96   rhel-8-for-ppc64le-appstream-rpms   74 k
+ nftables              ppc64le  1:0.9.3-25.el8                          rhel-8-for-ppc64le-baseos-rpms     340 k
+ oniguruma             ppc64le  6.8.2-2.el8                             rhel-8-for-ppc64le-appstream-rpms  199 k
+ platform-python-pip   noarch   9.0.3-22.el8                            rhel-8-for-ppc64le-baseos-rpms     1.6 M
+ protobuf-c            ppc64le  1.3.0-6.el8                             rhel-8-for-ppc64le-appstream-rpms   40 k
+ python3-setuptools    noarch   39.2.0-6.el8                            rhel-8-for-ppc64le-baseos-rpms     163 k
+ python36              ppc64le  3.6.8-38.module+el8.5.0+12207+5c5719bc  rhel-8-for-ppc64le-appstream-rpms   19 k
+ runc                  ppc64le  1:1.1.3-2.module+el8.6.0+15917+093ca6f8 rhel-8-for-ppc64le-appstream-rpms  2.6 M
+Installing weak dependencies:
+ fuse-overlayfs        ppc64le  1.9-1.module+el8.6.0+15917+093ca6f8     rhel-8-for-ppc64le-appstream-rpms   74 k
+ slirp4netns           ppc64le  1.2.0-2.module+el8.6.0+15917+093ca6f8   rhel-8-for-ppc64le-appstream-rpms   59 k
+Enabling module streams:
+ container-tools                rhel8                                                                           
+ python36                       3.6                                                                             
+
+Transaction Summary
+================================================================================================================
+Install  26 Packages
+Upgrade   1 Package
+
+Total download size: 15 M
+Downloading Packages:
+(1/27): libpcap-1.9.1-5.el8.ppc64le.rpm         1.3 MB/s | 176 kB     00:00    
+(2/27): python36-3.6.8-38.module+el8.5.0+12207+ 113 kB/s |  19 kB     00:00    
+(3/27): libmnl-1.0.4-6.el8.ppc64le.rpm          172 kB/s |  31 kB     00:00    
+(4/27): oniguruma-6.8.2-2.el8.ppc64le.rpm       1.1 MB/s | 199 kB     00:00    
+(5/27): python3-setuptools-39.2.0-6.el8.noarch. 864 kB/s | 163 kB     00:00    
+(6/27): libnftnl-1.1.5-5.el8.ppc64le.rpm        3.0 MB/s |  88 kB     00:00    
+(7/27): slirp4netns-1.2.0-2.module+el8.6.0+1591 2.0 MB/s |  59 kB     00:00    
+(8/27): fuse3-3.3.0-15.el8.ppc64le.rpm          2.1 MB/s |  57 kB     00:00    
+(9/27): criu-3.15-3.module+el8.6.0+15875+dc9a2b 8.4 MB/s | 536 kB     00:00    
+(10/27): protobuf-c-1.3.0-6.el8.ppc64le.rpm     1.6 MB/s |  40 kB     00:00    
+(11/27): fuse3-libs-3.3.0-15.el8.ppc64le.rpm    3.2 MB/s |  99 kB     00:00    
+(12/27): platform-python-pip-9.0.3-22.el8.noarc  13 MB/s | 1.6 MB     00:00    
+(13/27): libibverbs-37.2-1.el8.ppc64le.rpm      7.2 MB/s | 412 kB     00:00    
+(14/27): python3-pip-9.0.3-22.el8.noarch.rpm    453 kB/s |  20 kB     00:00    
+(15/27): kmod-25-19.el8.ppc64le.rpm             3.6 MB/s | 138 kB     00:00    
+(16/27): jansson-2.14-1.el8.ppc64le.rpm         1.8 MB/s |  51 kB     00:00    
+(17/27): libslirp-4.4.0-1.module+el8.6.0+15875+ 1.5 MB/s |  74 kB     00:00    
+(18/27): nftables-0.9.3-25.el8.ppc64le.rpm      8.2 MB/s | 340 kB     00:00    
+(19/27): iptables-libs-1.8.4-22.el8.ppc64le.rpm 3.8 MB/s | 114 kB     00:00    
+(20/27): fuse-common-3.3.0-15.el8.ppc64le.rpm   456 kB/s |  22 kB     00:00    
+(21/27): containers-common-1-35.module+el8.6.0+ 1.9 MB/s | 109 kB     00:00    
+(22/27): jq-1.6-3.el8.ppc64le.rpm               3.8 MB/s | 215 kB     00:00    
+(23/27): fuse-overlayfs-1.9-1.module+el8.6.0+15 2.8 MB/s |  74 kB     00:00    
+(24/27): bash-4.4.20-4.el8_6.ppc64le.rpm         19 MB/s | 1.6 MB     00:00    
+(25/27): libnet-1.1.6-15.el8.ppc64le.rpm        2.4 MB/s |  73 kB     00:00    
+(26/27): skopeo-1.8.0-2.module+el8.6.0+15917+09  14 MB/s | 5.9 MB     00:00    
+(27/27): runc-1.1.3-2.module+el8.6.0+15917+093c  23 MB/s | 2.6 MB     00:00    
+--------------------------------------------------------------------------------
+Total                                            32 MB/s |  15 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Upgrading        : bash-4.4.20-4.el8_6.ppc64le                           1/28 
+  Running scriptlet: bash-4.4.20-4.el8_6.ppc64le                           1/28 
+  Installing       : fuse3-libs-3.3.0-15.el8.ppc64le                       2/28 
+  Running scriptlet: fuse3-libs-3.3.0-15.el8.ppc64le                       2/28 
+  Installing       : libmnl-1.0.4-6.el8.ppc64le                            3/28 
+  Running scriptlet: libmnl-1.0.4-6.el8.ppc64le                            3/28 
+  Installing       : libnftnl-1.1.5-5.el8.ppc64le                          4/28 
+  Running scriptlet: libnftnl-1.1.5-5.el8.ppc64le                          4/28 
+  Installing       : libibverbs-37.2-1.el8.ppc64le                         5/28 
+  Running scriptlet: libibverbs-37.2-1.el8.ppc64le                         5/28 
+  Installing       : libpcap-14:1.9.1-5.el8.ppc64le                        6/28 
+  Installing       : iptables-libs-1.8.4-22.el8.ppc64le                    7/28 
+  Installing       : kmod-25-19.el8.ppc64le                                8/28 
+  Installing       : libnet-1.1.6-15.el8.ppc64le                           9/28 
+  Running scriptlet: libnet-1.1.6-15.el8.ppc64le                           9/28 
+  Installing       : libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.ppc   10/28 
+  Installing       : slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.   11/28 
+  Installing       : protobuf-c-1.3.0-6.el8.ppc64le                       12/28 
+  Installing       : oniguruma-6.8.2-2.el8.ppc64le                        13/28 
+  Running scriptlet: oniguruma-6.8.2-2.el8.ppc64le                        13/28 
+  Installing       : fuse-common-3.3.0-15.el8.ppc64le                     14/28 
+  Installing       : fuse3-3.3.0-15.el8.ppc64le                           15/28 
+  Installing       : fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8   16/28 
+  Running scriptlet: fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8   16/28 
+  Installing       : jansson-2.14-1.el8.ppc64le                           17/28 
+  Installing       : nftables-1:0.9.3-25.el8.ppc64le                      18/28 
+  Running scriptlet: nftables-1:0.9.3-25.el8.ppc64le                      18/28 
+  Installing       : criu-3.15-3.module+el8.6.0+15875+dc9a2b96.ppc64le    19/28 
+  Installing       : runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.ppc64   20/28 
+  Installing       : containers-common-2:1-35.module+el8.6.0+15917+093c   21/28 
+  Installing       : platform-python-pip-9.0.3-22.el8.noarch              22/28 
+  Installing       : python3-setuptools-39.2.0-6.el8.noarch               23/28 
+  Installing       : python3-pip-9.0.3-22.el8.noarch                      24/28 
+  Installing       : python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.pp   25/28 
+  Running scriptlet: python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.pp   25/28 
+  Installing       : skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.ppc   26/28 
+  Installing       : jq-1.6-3.el8.ppc64le                                 27/28 
+  Cleanup          : bash-4.4.20-3.el8.ppc64le                            28/28 
+  Running scriptlet: bash-4.4.20-3.el8.ppc64le                            28/28 
+  Verifying        : libmnl-1.0.4-6.el8.ppc64le                            1/28 
+  Verifying        : python3-setuptools-39.2.0-6.el8.noarch                2/28 
+  Verifying        : libpcap-14:1.9.1-5.el8.ppc64le                        3/28 
+  Verifying        : platform-python-pip-9.0.3-22.el8.noarch               4/28 
+  Verifying        : libnftnl-1.1.5-5.el8.ppc64le                          5/28 
+  Verifying        : fuse3-3.3.0-15.el8.ppc64le                            6/28 
+  Verifying        : libibverbs-37.2-1.el8.ppc64le                         7/28 
+  Verifying        : fuse3-libs-3.3.0-15.el8.ppc64le                       8/28 
+  Verifying        : kmod-25-19.el8.ppc64le                                9/28 
+  Verifying        : jansson-2.14-1.el8.ppc64le                           10/28 
+  Verifying        : nftables-1:0.9.3-25.el8.ppc64le                      11/28 
+  Verifying        : fuse-common-3.3.0-15.el8.ppc64le                     12/28 
+  Verifying        : iptables-libs-1.8.4-22.el8.ppc64le                   13/28 
+  Verifying        : skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.ppc   14/28 
+  Verifying        : python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.pp   15/28 
+  Verifying        : oniguruma-6.8.2-2.el8.ppc64le                        16/28 
+  Verifying        : criu-3.15-3.module+el8.6.0+15875+dc9a2b96.ppc64le    17/28 
+  Verifying        : slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.   18/28 
+  Verifying        : protobuf-c-1.3.0-6.el8.ppc64le                       19/28 
+  Verifying        : python3-pip-9.0.3-22.el8.noarch                      20/28 
+  Verifying        : libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.ppc   21/28 
+  Verifying        : containers-common-2:1-35.module+el8.6.0+15917+093c   22/28 
+  Verifying        : jq-1.6-3.el8.ppc64le                                 23/28 
+  Verifying        : fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8   24/28 
+  Verifying        : runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.ppc64   25/28 
+  Verifying        : libnet-1.1.6-15.el8.ppc64le                          26/28 
+  Verifying        : bash-4.4.20-4.el8_6.ppc64le                          27/28 
+  Verifying        : bash-4.4.20-3.el8.ppc64le                            28/28 
+Installed products updated.
+
+Upgraded:
+  bash-4.4.20-4.el8_6.ppc64le                                                   
+Installed:
+  containers-common-2:1-35.module+el8.6.0+15917+093ca6f8.ppc64le                
+  criu-3.15-3.module+el8.6.0+15875+dc9a2b96.ppc64le                             
+  fuse-common-3.3.0-15.el8.ppc64le                                              
+  fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8.ppc64le                    
+  fuse3-3.3.0-15.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-15.el8.ppc64le                                               
+  iptables-libs-1.8.4-22.el8.ppc64le                                            
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-3.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-37.2-1.el8.ppc64le                                                 
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.ppc64le                        
+  nftables-1:0.9.3-25.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  platform-python-pip-9.0.3-22.el8.noarch                                       
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  python3-pip-9.0.3-22.el8.noarch                                               
+  python3-setuptools-39.2.0-6.el8.noarch                                        
+  python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.ppc64le                       
+  runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.ppc64le                          
+  skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.ppc64le                        
+  slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.ppc64le                     
+
+Complete!
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/36/2b/61d51a2c4f25ef062ae3f74576b01638bebad5e045f747ff12643df63844/PyYAML-6.0.tar.gz (124kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+    Preparing wheel metadata: started
+    Preparing wheel metadata: finished with status 'done'
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting argcomplete>=1.8.1
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (PEP 517): started
+  Building wheel for PyYAML (PEP 517): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0-cp38-cp38-linux_ppc64le.whl size=45333 sha256=4a832b544cc2f7d4f25c7dddf44493ad6f65787681163a1c2f9b5125202f1a1b
+  Stored in directory: /tmp/pip-ephem-wheel-cache-8rh530qu/wheels/95/84/67/ebeac632c63797cfbeb90128ca41073117721540dad526d213
+Successfully built PyYAML
+Installing collected packages: PyYAML, xmltodict, toml, argcomplete, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.12
+yq: yq 3.1.0
+jq: jq-1.6
+--> 14a68a266e1
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> f525a0511ff
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 57d7e00afea
+STEP 14/23: COPY ./VERSION /
+--> 247cd9ed804
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 03e4a6a04c3
+STEP 16/23: WORKDIR /build/
+--> 93e9460fdb6
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
+added 121 packages from 182 contributors and audited 121 packages in 9.778s
+
+4 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
++ @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
+added 2 packages from 1 contributor and audited 240 packages in 2.208s
+
+4 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+--> b7d6004770b
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> 7e3fdda2b41
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.2 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.2 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.2 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.2 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.2 PASS - registry.redhat.io allowed
+ + registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4 PASS - registry.redhat.io allowed
+ + registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0 PASS - registry.redhat.io allowed
+ + registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS - registry.redhat.io allowed
+ + registry.redhat.io/devspaces/code-rhel8:3.2 PASS - 3.2 allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.2 PASS - 3.2 allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.2 PASS - 3.2 allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.2 PASS - 3.2 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.2 PASS - 3.2 allowed
+ = registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4 PASS
+ = registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0 PASS
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 191294e96ea
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/00_java11-maven-eap/meta.yaml'
+Checking devfile 'devfiles/00_java11-maven-microprofile-bootable/meta.yaml'
+Checking devfile 'devfiles/00_java11-maven-microprofile-xp3/meta.yaml'
+Checking devfile 'devfiles/02_java11-maven-fuse/meta.yaml'
+Checking devfile 'devfiles/03_camelk/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-gradle/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-lombok/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-quarkus/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-vertx/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-vertx-http-booster/meta.yaml'
+Checking devfile 'devfiles/03_java8-maven-spring-boot-http-booster/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-configmap/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-mongo/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-simple/meta.yaml'
+Checking devfile 'devfiles/04_python/meta.yaml'
+Checking devfile 'devfiles/05_cpp/meta.yaml'
+Checking devfile 'devfiles/05_dotnet/meta.yaml'
+Checking devfile 'devfiles/05_go/meta.yaml'
+Checking devfile 'devfiles/05_php-cake/meta.yaml'
+Checking devfile 'devfiles/05_php-di/meta.yaml'
+--> 5d98e341aad
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 23dd880a34c
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 43b4f809818
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> b505e6892b8
+Successfully tagged localhost/devfileregistry:tmp
+b505e6892b8cb1b6fd043aca65194e93b4f66b70137fd197a1fae712109a6cf9
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
+--- /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-08-23 20:18:49.000000000 +0000
++++ /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-08-23 21:47:32.639365320 +0000
+@@ -3,10 +3,10 @@
+ Version: 6.0
+ Summary: YAML parser and emitter for Python
+ Home-page: https://pyyaml.org/
++Download-URL: https://pypi.org/project/PyYAML/
+ Author: Kirill Simonov
+ Author-email: xi@resolvent.net
+ License: MIT
+-Download-URL: https://pypi.org/project/PyYAML/
+ Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
+ Project-URL: CI, https://github.com/yaml/pyyaml/actions
+ Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
+@@ -43,4 +43,3 @@
+ 
+ PyYAML is applicable for a broad range of tasks from complex
+ configuration files to object serialization and persistence.
+-
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
+--- /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-08-23 20:18:49.000000000 +0000
++++ /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-08-23 21:47:32.639365320 +0000
+@@ -1,8 +1,8 @@
+ PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+-PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
++PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
+ PyYAML-6.0.dist-info/RECORD,,
+-PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
++PyYAML-6.0.dist-info/WHEEL,sha256=VXb7H8_fWiBJHbEvxuDSYbC9VxfKWz2_woH0TyHF8yQ,104
+ PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-38.pyc,,
+@@ -24,7 +24,6 @@
+ yaml/__pycache__/scanner.cpython-38.pyc,,
+ yaml/__pycache__/serializer.cpython-38.pyc,,
+ yaml/__pycache__/tokens.cpython-38.pyc,,
+-yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
+--- /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-08-23 20:18:49.000000000 +0000
++++ /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-08-23 21:47:32.639365320 +0000
+@@ -1,8 +1,5 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.37.0)
++Generator: bdist_wheel (0.37.1)
+ Root-Is-Purelib: false
+-Tag: cp38-cp38-manylinux_2_5_x86_64
+-Tag: cp38-cp38-manylinux1_x86_64
+-Tag: cp38-cp38-manylinux_2_12_x86_64
+-Tag: cp38-cp38-manylinux2010_x86_64
++Tag: cp38-cp38-linux_ppc64le
+ 
+Only in /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-code-insiders.yaml /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-code-insiders.yaml	2022-08-23 20:18:50.000000000 +0000
++++ /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-code-insiders.yaml	2022-08-23 21:47:34.229320797 +0000
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: quay.io/devspaces/udi-rhel8:3.1
++          image: registry.redhat.io/devspaces/udi-rhel8:3.2
+           memoryLimit: 2Gi
+           endpoints:
+             - exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-theia-latest.yaml /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-theia-latest.yaml	2022-08-23 20:18:50.000000000 +0000
++++ /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-theia-latest.yaml	2022-08-23 21:47:34.229320797 +0000
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: quay.io/devspaces/udi-rhel8:3.1
++          image: registry.redhat.io/devspaces/udi-rhel8:3.2
+           memoryLimit: 1Gi
+           endpoints:
+             - exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/external_images_by_devfile.txt /tmp/tmp.kHVSkSbI72/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.7LvZNcfARN/devfiles/external_images_by_devfile.txt	2022-08-23 20:18:50.000000000 +0000
++++ /tmp/tmp.kHVSkSbI72/devfiles/external_images_by_devfile.txt	2022-08-23 21:47:34.229320797 +0000
+@@ -1,5 +1,3 @@
+-quay.io/devspaces/udi-rhel8:3.1	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/udi-rhel8:3.1	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.2	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.2	https://github.com/devspaces-samples/camel-k/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/code-rhel8:3.2	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+@@ -86,6 +84,8 @@
+ registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/camel-k/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/fuse-rest-http-booster/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/external_images.txt /tmp/tmp.kHVSkSbI72/devfiles/external_images.txt
+--- /tmp/tmp.7LvZNcfARN/devfiles/external_images.txt	2022-08-23 20:18:50.000000000 +0000
++++ /tmp/tmp.kHVSkSbI72/devfiles/external_images.txt	2022-08-23 21:47:34.229320797 +0000
+@@ -1,4 +1,3 @@
+-quay.io/devspaces/udi-rhel8:3.1
+ registry.redhat.io/devspaces/code-rhel8:3.2
+ registry.redhat.io/devspaces/machineexec-rhel8:3.2
+ registry.redhat.io/devspaces/theia-endpoint-rhel8:3.2
+Binary files /tmp/tmp.7LvZNcfARN/resources/v2/demo.zip and /tmp/tmp.kHVSkSbI72/resources/v2/demo.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: b505e6892b8cb1b6fd043aca65194e93b4f66b70137fd197a1fae712109a6cf9
+Deleted: 43b4f80981888415c24aa8f70da6f9a1e2fe973fb1154a170598b36ad1b7f221
+Deleted: 23dd880a34cfa45560d160c3fb28b99670ac8230995d4725976cef43e70ad8eb
+Deleted: 5d98e341aad8d7e78e6649ed5b3fd3e75d0d727d30d5d453819fd8a97891f7af
+Deleted: 191294e96ea89ed9827bb5f7cb79a7747df24c752dd8a730289dd60518cf0dc9
+Deleted: 7e3fdda2b41c3716dd78b394a2ceb755bcedad4825b70022c27950e3fa691a3c
+Deleted: b7d6004770b7ef8df47dce2ab9f8a0f08f93991deb8e237d6be092fc237dfb6d
+Deleted: 93e9460fdb63b70879014f44d5dc9d5797d34269042698fb2321247b4f523af1
+Deleted: 03e4a6a04c384a12c2fcb150e1466979f8658692f01279140621c0395b57fe8d
+Deleted: 247cd9ed804c64761a566cc9671e6b108005f59993676a2aab15de39e5ce1821
+Deleted: 57d7e00afea6b98387b4824bf4371ef9424233ac958edb1e99581cfc33a91728
+Deleted: f525a0511ffdc8d3db92cb6a5ebdd98239dc216f9b74799ac025cd0c814b4c94
+Deleted: 14a68a266e1a2596f7725fb168979392812f6ba8399fc164cbb5db848f51d822
+Deleted: 736ec9c417ef7a9edd4d4b0ff06bc44e0db40b7699356b53d8d7111ed94f6733
+Deleted: 32bbddbf50f5f95ba6b2fcb2daa1e896a9a7e320226711bf30d422b001f553ee
+Deleted: 579c5cda3ebe0b317b5818139be5e122462594894537039d108554d7eb89a043
+Deleted: 24900fcad4d92219a072c91f0022aac2d8fafd8052aa39cd6549c5411b77764e
+Deleted: 07ead49fb30300cb3951fc9e38cc8941f12ff2c9c76f83439874ac36d79f01e0
+Deleted: 5b5148b7eb492078104ff7b3396b07c4737243533b5eb627a36be148325d1b7a
+Deleted: 347e0c48d703b126d795c9de197bed8aee3f6894dc9a3eef8f3750ae47d09928
+Deleted: 89bef3f7221a8d607d1c2731f45924a3c46588bebf4d0886b89951ae5764bd9a
+Deleted: 1fdc105f8aea8a96226689fd67250cab87beee1b6d3ba4b22c61d82695bba77b
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
