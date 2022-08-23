@@ -40,7 +40,7 @@ RUN ./generate_devworkspace_templates.sh
 RUN chmod -R g+rwX /build/resources
 
 # validate devfile content
-RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}" || ./list_referenced_images_by_file.sh devfiles
 RUN ./check_mandatory_fields.sh devfiles
 
 # Cache projects in DS 
