@@ -31,8 +31,7 @@ def checkFailureQuay(arrayLines,errorOccurred)
 def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
-// TODO: for some reason, running getLatestImageTags.sh often returns null on cpt-ppc-006; so exclude 
-def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)&&!cpt-ppc-006'
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(90) {
     node(nodeLabel) {
@@ -166,8 +165,7 @@ Brew NVRs:
 } // timeout
 
 // trigger update_digests job if we have pushed new images that appear in the registry or metadata
-// requires opm binary to filter & copy IIB images to quay, which only exists for amd64 (not s390x or ppc64le)
-node("x86_64-rhel8"){ 
+node(nodeLabel) {
   stage ("Update registries and metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"

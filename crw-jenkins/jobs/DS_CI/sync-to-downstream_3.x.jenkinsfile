@@ -74,7 +74,8 @@ popd
       for (int j=0; j < nodeLabels.size(); j++) {
         switch(nodeLabels[j]) {
           case "s390x":
-            nodeLabel = "s390x-rhel8-perm"
+            // CRW-3281 - crwjen-1.s390 has only 4GB RAM; can't use it for code-rhel8 builds
+            nodeLabel = REPOS.contains("code") ? "s390x-rhel8&&!crwjen-1.s390" : "s390x-rhel8"
             break
           case "ppc64le":
             nodeLabel = "ppc64le-rhel8"

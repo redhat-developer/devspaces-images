@@ -37,9 +37,10 @@ def checkFailure(arrayLines,serverName,errorOccurred)
 
 def errorOccurred = ""
 
-// requires opm binary to filter & copy IIB images to quay, which only exists for amd64 (not s390x or ppc64le)
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
 timeout(90) {
-    node("x86_64-rhel8"){ 
+    // trigger update_digests job if we have pushed new images that appear in the registry or metadata
+    node(nodeLabel) {
         withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
             def util = load "${WORKSPACE}/util2.groovy"
