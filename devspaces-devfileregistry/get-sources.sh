@@ -45,6 +45,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 
 	#
 	# create/update sources tarballs (needed for offline Brew builds)
+	# TODO replace this with cachito
 	#
 
 	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path
@@ -59,9 +60,15 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	cat bootstrap.Dockerfile
 	echo "<======= BOOTSTRAP DOCKERFILE ======="
 	echo "======= START BOOTSTRAP BUILD =======>"
-	# do not want digests in the BOOTSTRAP build so override default with false
+
+	# if this is a stable 3.yy.ER build, only allow RHEC images; if this is a 3.x.CI (or local) build, allow Quay images to be referenced by devfiles
+	ALLOWED_REGISTRIES=
+	if [[ $MIDSTM_BRANCH == "devspaces-3."*"-rhel-8" ]]; then
+		ALLOWED_REGISTRIES="registry.redhat.io registry.access.redhat.com"
+	fi
+
 	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
-		--target builder --build-arg BOOTSTRAP=true
+		--target builder --build-arg BOOTSTRAP=true --build-arg ALLOWED_REGISTRIES="${ALLOWED_REGISTRIES}" --build-arg ALLOWED_TAGS="$(cat VERSION)"
 	echo "<======= END BOOTSTRAP BUILD ======="
 	rm VERSION
 	# update tarballs - step 2 - check old sources' tarballs
