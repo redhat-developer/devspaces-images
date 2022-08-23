@@ -14,6 +14,7 @@ import { FastifyInstance } from 'fastify';
 import { baseApiPath } from '../constants/config';
 import { getDevWorkspaceClient, getServiceAccountToken } from './helper';
 import { getSchema } from '../services/helpers';
+import { api } from '@eclipse-che/common';
 
 const tags = ['Server Config'];
 
@@ -28,7 +29,9 @@ export function registerServerConfigApi(server: FastifyInstance) {
     const components = serverConfigApi.getDefaultComponents(cheCustomResource);
     const inactivityTimeout = serverConfigApi.getWorkspaceInactivityTimeout(cheCustomResource);
     const runTimeout = serverConfigApi.getWorkspaceRunTimeout(cheCustomResource);
-    return {
+    const openVSXURL = serverConfigApi.getOpenVSXURL(cheCustomResource);
+
+    const serverConfig: api.IServerConfig = {
       defaults: {
         editor,
         plugins,
@@ -38,6 +41,11 @@ export function registerServerConfigApi(server: FastifyInstance) {
         inactivityTimeout,
         runTimeout,
       },
+      pluginRegistry: {
+        openVSXURL,
+      },
     };
+
+    return serverConfig;
   });
 }

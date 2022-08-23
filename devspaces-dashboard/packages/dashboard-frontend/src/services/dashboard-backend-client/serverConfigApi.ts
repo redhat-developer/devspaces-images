@@ -11,10 +11,8 @@
  */
 
 import axios from 'axios';
-import common from '@eclipse-che/common';
+import common, { api } from '@eclipse-che/common';
 import { prefix } from './const';
-import { api } from '@eclipse-che/common';
-import { V220DevfileComponents } from '@devfile/api';
 
 /**
  * Returns an array of default plug-ins per editor
@@ -23,17 +21,7 @@ import { V220DevfileComponents } from '@devfile/api';
  * default plug-ins for the specified editor,
  * default editor and default components
  */
-export async function getServerConfig(): Promise<{
-  defaults: {
-    plugins: api.IWorkspacesDefaultPlugins[];
-    components: V220DevfileComponents[];
-    editor: string | undefined;
-  };
-  timeouts: {
-    inactivityTimeout: number;
-    runTimeout: number;
-  };
-}> {
+export async function getServerConfig(): Promise<api.IServerConfig> {
   const url = `${prefix}/server-config`;
   try {
     const response = await axios.get(url);

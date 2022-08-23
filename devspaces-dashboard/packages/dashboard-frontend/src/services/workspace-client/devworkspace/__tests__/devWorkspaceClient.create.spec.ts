@@ -79,6 +79,7 @@ describe('DevWorkspace client, create', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         {},
       );
 
@@ -98,6 +99,7 @@ describe('DevWorkspace client, create', () => {
         testDevfile,
         namespace,
         [],
+        undefined,
         undefined,
         undefined,
         'eclipse/theia/next',
@@ -188,6 +190,7 @@ describe('DevWorkspace client, create', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
       );
 
       expect(spyCreateWorkspace).toBeCalledWith(
@@ -209,6 +212,7 @@ describe('DevWorkspace client, create', () => {
         undefined,
         'http://plugin.registry.url',
         'http://internal.plugin.registry.url',
+        undefined,
       );
 
       expect(spyCreateWorkspaceTemplate).toBeCalledWith(
@@ -240,6 +244,7 @@ describe('DevWorkspace client, create', () => {
         namespace,
         testDevWorkspace,
         testDevWorkspaceTemplate,
+        undefined,
         undefined,
         undefined,
         undefined,

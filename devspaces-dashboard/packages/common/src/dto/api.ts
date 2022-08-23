@@ -10,6 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V220DevfileComponents } from '@devfile/api';
+
 export interface IPatch {
   op: string;
   path: string;
@@ -24,4 +26,19 @@ export interface IDockerConfig {
 export interface IWorkspacesDefaultPlugins {
   editor: string;
   plugins: string[];
+}
+
+export interface IServerConfig {
+  defaults: {
+    editor: string | undefined;
+    components: V220DevfileComponents[];
+    plugins: IWorkspacesDefaultPlugins[];
+  };
+  pluginRegistry: {
+    openVSXURL: string;
+  };
+  timeouts: {
+    inactivityTimeout: number;
+    runTimeout: number;
+  };
 }

@@ -25,9 +25,8 @@ import { State as UserState } from '../User';
 import { State as UserProfileState } from '../UserProfile';
 import mockThunk from './thunk';
 import devfileApi from '../../services/devfileApi';
-import { ClusterConfig, ClusterInfo } from '@eclipse-che/common';
+import { api as dashboardBackendApi, ClusterConfig, ClusterInfo } from '@eclipse-che/common';
 import { WorkspacesLogs } from '../../services/helpers/types';
-import { ServerConfig } from '../ServerConfig';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -48,11 +47,14 @@ export class FakeStoreBuilder {
           components: [],
           plugins: [],
         },
+        pluginRegistry: {
+          openVSXURL: '',
+        },
         timeouts: {
           inactivityTimeout: -1,
           runTimeout: -1,
         },
-      } as ServerConfig,
+      } as dashboardBackendApi.IServerConfig,
     },
     clusterInfo: {
       isLoading: false,
@@ -135,7 +137,7 @@ export class FakeStoreBuilder {
     },
   };
 
-  public withDwServerConfig(config: ServerConfig): FakeStoreBuilder {
+  public withDwServerConfig(config: dashboardBackendApi.IServerConfig): FakeStoreBuilder {
     this.state.dwServerConfig = {
       isLoading: false,
       config,

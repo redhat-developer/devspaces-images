@@ -26,4 +26,9 @@ export const selectDefaultPlugins = createSelector(
   state => state.config.defaults?.plugins || [],
 );
 
+export const selectOpenVSXUrl = createSelector(
+  selectState,
+  state => state.config.pluginRegistry.openVSXURL,
+);
+
 export const selectServerConfigError = createSelector(selectState, state => state.error);

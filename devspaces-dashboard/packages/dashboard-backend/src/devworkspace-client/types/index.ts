@@ -112,12 +112,16 @@ export interface IServerConfigApi {
    */
   getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[];
   /**
-   * Returns a maintenance warning
+   * Returns the openVSX URL if it is defined.
+   */
+  getOpenVSXURL(cheCustomResource: { [key: string]: any }): string;
+  /**
+   * Returns a maintenance warning.
    */
   getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined;
 
   /**
-   * Returns limit of running workspaces per user
+   * Returns limit of running workspaces per user.
    */
   getRunningWorkspacesLimit(cheCustomResource: { [key: string]: any }): number;
 
@@ -134,7 +138,7 @@ export interface IServerConfigApi {
 
 export interface IKubeConfigApi {
   /**
-   * Inject the kubeconfig into all containers with the given devworkspaceId in a namespace
+   * Inject the kubeconfig into all containers with the given devworkspaceId in a namespace.
    */
   injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void>;
 }

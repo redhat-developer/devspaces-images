@@ -15,23 +15,10 @@ import common, { api } from '@eclipse-che/common';
 import { AppThunk } from '../';
 import { createObject } from '../helpers';
 import * as ServerConfigApi from '../../services/dashboard-backend-client/serverConfigApi';
-import { V220DevfileComponents } from '@devfile/api';
-
-export interface ServerConfig {
-  defaults: {
-    editor: string | undefined;
-    components: V220DevfileComponents[];
-    plugins: api.IWorkspacesDefaultPlugins[];
-  };
-  timeouts: {
-    inactivityTimeout: number;
-    runTimeout: number;
-  };
-}
 
 export interface State {
   isLoading: boolean;
-  config: ServerConfig;
+  config: api.IServerConfig;
   error?: string;
 }
 
@@ -41,7 +28,7 @@ export interface RequestDwServerConfigAction {
 
 export interface ReceiveDwServerConfigAction {
   type: 'RECEIVE_DW_SERVER_CONFIG';
-  config: ServerConfig;
+  config: api.IServerConfig;
 }
 
 export interface ReceiveDwServerConfigErrorAction {
@@ -88,6 +75,9 @@ const unloadedState: State = {
       editor: undefined,
       components: [],
       plugins: [],
+    },
+    pluginRegistry: {
+      openVSXURL: '',
     },
     timeouts: {
       inactivityTimeout: -1,

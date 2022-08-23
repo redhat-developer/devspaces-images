@@ -46,6 +46,9 @@ describe('dwPlugins store', () => {
               },
             ],
           },
+          pluginRegistry: {
+            openVSXURL: '',
+          },
           timeouts: {
             inactivityTimeout: -1,
             runTimeout: -1,
@@ -85,6 +88,9 @@ describe('dwPlugins store', () => {
                   plugins: ['https://test.com/devfile.yaml'],
                 },
               ],
+            },
+            pluginRegistry: {
+              openVSXURL: '',
             },
             timeouts: {
               inactivityTimeout: -1,

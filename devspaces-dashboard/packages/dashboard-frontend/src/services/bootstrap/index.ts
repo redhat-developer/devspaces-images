@@ -41,6 +41,7 @@ import { AlertVariant } from '@patternfly/react-core';
 import { buildDetailsLocation, buildIdeLoaderLocation } from '../helpers/location';
 import { Workspace } from '../workspace-adapter';
 import { WorkspaceRunningError, WorkspaceStoppedDetector } from './workspaceStoppedDetector';
+import { selectOpenVSXUrl } from '../../store/ServerConfig/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -216,14 +217,16 @@ export default class Bootstrap {
       selectDwEditorsPluginsList(state.dwPlugins.defaultEditorName)(state).forEach(dwEditor => {
         pluginsByUrl[dwEditor.url] = dwEditor.devfile;
       });
+      const openVSXUrl = selectOpenVSXUrl(state);
       const settings = this.store.getState().workspacesSettings.settings;
       const pluginRegistryUrl = settings['cheWorkspacePluginRegistryUrl'];
       const pluginRegistryInternalUrl = settings['cheWorkspacePluginRegistryInternalUrl'];
       const updates = await this.devWorkspaceClient.checkForTemplatesUpdate(
         defaultNamespace,
         pluginsByUrl,
-        pluginRegistryUrl || '',
-        pluginRegistryInternalUrl || '',
+        pluginRegistryUrl,
+        pluginRegistryInternalUrl,
+        openVSXUrl,
       );
       if (Object.keys(updates).length > 0) {
         await this.devWorkspaceClient.updateTemplates(defaultNamespace, updates);

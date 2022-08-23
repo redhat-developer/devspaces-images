@@ -39,6 +39,7 @@ import { injectKubeConfig } from '../../../services/dashboard-backend-client/dev
 import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
 import { cloneDeep } from 'lodash';
 import { delay } from '../../../services/helpers/delay';
+import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
 
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
@@ -507,6 +508,7 @@ export const actionCreators: ActionCreators = {
     async (dispatch, getState): Promise<void> => {
       const state = getState();
       const defaultKubernetesNamespace = selectDefaultNamespace(state);
+      const openVSXUrl = selectOpenVSXUrl(state);
       const defaultNamespace = defaultKubernetesNamespace.name;
       try {
         const cheEditor = editorId ? editorId : state.dwPlugins.defaultEditorName;
@@ -521,6 +523,7 @@ export const actionCreators: ActionCreators = {
           cheEditor,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
+          openVSXUrl,
         );
 
         if (workspace.spec.started) {
@@ -590,6 +593,7 @@ export const actionCreators: ActionCreators = {
         // If the devworkspace doesn't have a namespace then we assign it to the default kubernetesNamespace
         const devWorkspaceDevfile = devfile as devfileApi.Devfile;
         const defaultNamespace = selectDefaultNamespace(state);
+        const openVSXURL = selectOpenVSXUrl(state);
         const dwEditorsList = selectDwEditorsPluginsList(cheEditor)(state);
         const workspace = await devWorkspaceClient.createFromDevfile(
           devWorkspaceDevfile,
@@ -597,6 +601,7 @@ export const actionCreators: ActionCreators = {
           dwEditorsList,
           pluginRegistryUrl,
           pluginRegistryInternalUrl,
+          openVSXURL,
           cheEditor,
           optionalFilesContent,
         );

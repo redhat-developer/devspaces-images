@@ -138,6 +138,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
   private readonly maxStatusAttempts: number;
   private readonly pluginRegistryUrlEnvName: string;
   private readonly pluginRegistryInternalUrlEnvName: string;
+  private readonly openVSXUrlEnvName: string;
   private readonly dashboardUrlEnvName: string;
   private readonly websocketClient: WebsocketClient;
   private webSocketEventEmitter: EventEmitter;
@@ -157,6 +158,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     this.maxStatusAttempts = 10;
     this.pluginRegistryUrlEnvName = 'CHE_PLUGIN_REGISTRY_URL';
     this.pluginRegistryInternalUrlEnvName = 'CHE_PLUGIN_REGISTRY_INTERNAL_URL';
+    this.openVSXUrlEnvName = 'OPENVSX_REGISTRY_URL';
     this.dashboardUrlEnvName = 'CHE_DASHBOARD_URL';
     this.webSocketEventEmitter = new EventEmitter();
     this.webSocketEventName = 'websocketClose';
@@ -255,8 +257,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devworkspace: devfileApi.DevWorkspace,
     devworkspaceTemplate: devfileApi.DevWorkspaceTemplate,
     editorId: string | undefined,
-    pluginRegistryUrl = '',
-    pluginRegistryInternalUrl = '',
+    pluginRegistryUrl: string | undefined,
+    pluginRegistryInternalUrl: string | undefined,
+    openVSXUrl: string | undefined,
   ): Promise<any> {
     // create DW
     devworkspace.spec.routingClass = 'che';
@@ -277,7 +280,12 @@ export class DevWorkspaceClient extends WorkspaceClient {
     devworkspace.spec.started = false;
     const createdWorkspace = await DwApi.createWorkspace(devworkspace);
 
-    this.addEnvVarsToContainers(components, pluginRegistryUrl, pluginRegistryInternalUrl);
+    this.addEnvVarsToContainers(
+      components,
+      pluginRegistryUrl,
+      pluginRegistryInternalUrl,
+      openVSXUrl,
+    );
 
     // create DWT
     devworkspaceTemplate.metadata.namespace = defaultNamespace;
@@ -294,6 +302,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       devworkspaceTemplate.spec?.components,
       pluginRegistryUrl,
       pluginRegistryInternalUrl,
+      openVSXUrl,
     );
 
     await DwtApi.createTemplate(devworkspaceTemplate);
@@ -318,6 +327,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
     dwEditorsPlugins: { devfile: devfileApi.Devfile; url: string }[],
     pluginRegistryUrl: string | undefined,
     pluginRegistryInternalUrl: string | undefined,
+    openVSXUrl: string | undefined,
     editorId: string | undefined,
     optionalFilesContent: { [fileName: string]: string },
   ): Promise<devfileApi.DevWorkspace> {
@@ -490,8 +500,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
         ];
         this.addEnvVarsToContainers(
           template.spec?.components,
-          pluginRegistryUrl || '',
-          pluginRegistryInternalUrl || '',
+          pluginRegistryUrl,
+          pluginRegistryInternalUrl,
+          openVSXUrl,
         );
 
         const pluginDWT = await DwtApi.createTemplate(<devfileApi.DevWorkspaceTemplate>template);
@@ -501,8 +512,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
     this.addEnvVarsToContainers(
       createdWorkspace.spec.template.components,
-      pluginRegistryUrl || '',
-      pluginRegistryInternalUrl || '',
+      pluginRegistryUrl,
+      pluginRegistryInternalUrl,
+      openVSXUrl,
     );
 
     const patch = [
@@ -524,12 +536,15 @@ export class DevWorkspaceClient extends WorkspaceClient {
       | V1alpha2DevWorkspaceSpecTemplateComponents[]
       | V1alpha2DevWorkspaceTemplateSpecComponents[]
       | undefined,
-    pluginRegistryUrl: string,
-    pluginRegistryInternalUrl: string,
+    pluginRegistryUrl: string | undefined,
+    pluginRegistryInternalUrl: string | undefined,
+    openVSXUrl: string | undefined,
   ): void {
     if (components === undefined) {
       return;
     }
+
+    const dashboardUrl = window.location.origin;
 
     for (const component of components) {
       const container = component.container;
@@ -540,22 +555,31 @@ export class DevWorkspaceClient extends WorkspaceClient {
         env =>
           env.name !== this.dashboardUrlEnvName &&
           env.name !== this.pluginRegistryUrlEnvName &&
-          env.name !== this.pluginRegistryInternalUrlEnvName,
+          env.name !== this.pluginRegistryInternalUrlEnvName &&
+          env.name !== this.openVSXUrlEnvName,
       );
-      envs.push(
-        {
-          name: this.dashboardUrlEnvName,
-          value: window.location.origin,
-        },
-        {
+      envs.push({
+        name: this.dashboardUrlEnvName,
+        value: dashboardUrl,
+      });
+      if (pluginRegistryUrl !== undefined) {
+        envs.push({
           name: this.pluginRegistryUrlEnvName,
           value: pluginRegistryUrl,
-        },
-        {
+        });
+      }
+      if (pluginRegistryInternalUrl !== undefined) {
+        envs.push({
           name: this.pluginRegistryInternalUrlEnvName,
           value: pluginRegistryInternalUrl,
-        },
-      );
+        });
+      }
+      if (openVSXUrl !== undefined) {
+        envs.push({
+          name: this.openVSXUrlEnvName,
+          value: openVSXUrl,
+        });
+      }
       container.env = envs;
     }
   }
@@ -938,8 +962,9 @@ export class DevWorkspaceClient extends WorkspaceClient {
   async checkForTemplatesUpdate(
     namespace: string,
     pluginsByUrl: { [url: string]: devfileApi.Devfile } = {},
-    pluginRegistryUrl = '',
-    pluginRegistryInternalUrl = '',
+    pluginRegistryUrl: string | undefined,
+    pluginRegistryInternalUrl: string | undefined,
+    openVSXUrl: string | undefined,
   ): Promise<{ [templateName: string]: api.IPatch[] }> {
     const templates = await DwtApi.getTemplates(namespace);
     const managedTemplates = templates.filter(
@@ -975,6 +1000,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
               spec.components,
               pluginRegistryUrl,
               pluginRegistryInternalUrl,
+              openVSXUrl,
             );
           } else {
             spec[key] = plugin[key];
