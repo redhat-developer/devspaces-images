@@ -22,6 +22,13 @@ USER 0
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
 
 # to get all the python deps pre-fetched so we can build in Brew:
 # 1. extract files in the container to your local filesystem
@@ -60,6 +67,7 @@ WORKDIR /build/
 # ARG PATCHED_IMAGES_TAG="next"
 
 # validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
 RUN ./check_mandatory_fields.sh devfiles
 
 COPY ./build/dockerfiles/rhel.cache_projects.sh resources.tgz /tmp/ 
@@ -68,6 +76,7 @@ RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /t
 # Cache projects in DS 
 RUN ./index.sh > /build/devfiles/index.json && \
     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
     chmod -R g+rwX /build/devfiles /build/resources
 
 ################# 
