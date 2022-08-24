@@ -1,34 +1,44 @@
-apiVersion: 1.0.0
+schemaVersion: 2.1.0
 metadata:
+  name: che-dashboard
   generateName: che-dashboard-
 attributes:
-  persistVolumes: 'false'
+  controller.devfile.io/scc: container-build
 components:
-  - mountSources: true
-    command:
-      - tail
-      - '-f'
-      - /dev/null
-    memoryLimit: 3Gi
-    type: dockerimage
-    alias: dashboard-dev
-    image: 'quay.io/eclipse/che-nodejs12-community:next'
+  - name: tools
+    container:
+      image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
+      memoryLimit: 6G
+      mountSources: true
+      endpoints:
+        - exposure: public
+          name: local-server
+          protocol: http
+          targetPort: 8080
+          path: /
 commands:
-  - name: '[UD] install dependencies'
-    actions:
-      - workdir: /projects/che-dashboard
-        type: exec
-        command: yarn install --non-interactive --modules-folder /tmp/node_modules && ln -s /tmp/node_modules /projects/che-dashboard/node_modules
-        component: dashboard-dev
-  - name: '[UD] build'
-    actions:
-      - workdir: /projects/che-dashboard
-        type: exec
-        command: yarn build
-        component: dashboard-dev
-  - name: '[UD] test'
-    actions:
-      - workdir: /projects/che-dashboard
-        type: exec
-        command: yarn test
-        component: dashboard-dev
+  - id: installdependencies
+    exec:
+      label: "[UD] install dependencies"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/che-dashboard
+      commandLine: "yarn install --non-interactive"
+      group:
+        kind: build
+        isDefault: true
+  - id: build
+    exec:
+      label: "[UD] build"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/che-dashboard
+      commandLine: "yarn build"
+      group:
+        kind: build
+  - id: runtests
+    exec:
+      label: "[UD] test"
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/che-dashboard
+      commandLine: "yarn test"
+      group:
+        kind: test
