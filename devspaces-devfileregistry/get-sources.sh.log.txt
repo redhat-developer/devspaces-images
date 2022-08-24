@@ -60,23 +60,23 @@ RUN ./index.sh > /build/devfiles/index.json && \
 ======= START BOOTSTRAP BUILD =======>
 STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
 STEP 2/23: USER 0
---> 1fdc105f8ae
+--> 3e407bd207f
 STEP 3/23: ARG BOOTSTRAP=true
---> 89bef3f7221
+--> fa14cffc7b5
 STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
---> 347e0c48d70
+--> 593b8973465
 STEP 5/23: ARG ALLOWED_REGISTRIES=""
---> 5b5148b7eb4
+--> cc895c971ca
 STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
---> 07ead49fb30
+--> 2efd06625d3
 STEP 7/23: ARG ALLOWED_TAGS=""
---> 24900fcad4d
+--> 21e4672c4e3
 STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
---> 579c5cda3eb
+--> 1066fa3b5ac
 STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
---> 32bbddbf50f
+--> db620d008b8
 STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
---> 736ec9c417e
+--> 81d27ce2cb5
 STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
 Updating Subscription Management repositories.
 Unable to read consumer identity
@@ -84,11 +84,11 @@ Subscription Manager is operating in container mode.
 
 This system is not registered with an entitlement server. You can use subscription-manager to register.
 
-Red Hat Enterprise Linux 8 for Power, little en  68 MB/s |  43 MB     00:00    
-Red Hat Enterprise Linux 8 for Power, little en 7.5 MB/s |  42 MB     00:05    
-Red Hat Universal Base Image 8 (RPMs) - BaseOS  3.8 MB/s | 578 kB     00:00    
-Red Hat Universal Base Image 8 (RPMs) - AppStre  15 MB/s | 2.6 MB     00:00    
-Red Hat Universal Base Image 8 (RPMs) - CodeRea  70 kB/s |  14 kB     00:00    
+Red Hat Enterprise Linux 8 for Power, little en  54 MB/s |  43 MB     00:00    
+Red Hat Enterprise Linux 8 for Power, little en  61 MB/s |  42 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - BaseOS  675 kB/s | 578 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre 3.5 MB/s | 2.6 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea  18 kB/s |  14 kB     00:00    
 Package findutils-1:4.6.0-20.el8.ppc64le is already installed.
 Package bash-4.4.20-3.el8.ppc64le is already installed.
 Package wget-1.19.5-10.el8.ppc64le is already installed.
@@ -143,35 +143,35 @@ Upgrade   1 Package
 
 Total download size: 15 M
 Downloading Packages:
-(1/27): libpcap-1.9.1-5.el8.ppc64le.rpm         1.3 MB/s | 176 kB     00:00    
-(2/27): python36-3.6.8-38.module+el8.5.0+12207+ 113 kB/s |  19 kB     00:00    
-(3/27): libmnl-1.0.4-6.el8.ppc64le.rpm          172 kB/s |  31 kB     00:00    
-(4/27): oniguruma-6.8.2-2.el8.ppc64le.rpm       1.1 MB/s | 199 kB     00:00    
-(5/27): python3-setuptools-39.2.0-6.el8.noarch. 864 kB/s | 163 kB     00:00    
-(6/27): libnftnl-1.1.5-5.el8.ppc64le.rpm        3.0 MB/s |  88 kB     00:00    
-(7/27): slirp4netns-1.2.0-2.module+el8.6.0+1591 2.0 MB/s |  59 kB     00:00    
-(8/27): fuse3-3.3.0-15.el8.ppc64le.rpm          2.1 MB/s |  57 kB     00:00    
-(9/27): criu-3.15-3.module+el8.6.0+15875+dc9a2b 8.4 MB/s | 536 kB     00:00    
-(10/27): protobuf-c-1.3.0-6.el8.ppc64le.rpm     1.6 MB/s |  40 kB     00:00    
-(11/27): fuse3-libs-3.3.0-15.el8.ppc64le.rpm    3.2 MB/s |  99 kB     00:00    
-(12/27): platform-python-pip-9.0.3-22.el8.noarc  13 MB/s | 1.6 MB     00:00    
-(13/27): libibverbs-37.2-1.el8.ppc64le.rpm      7.2 MB/s | 412 kB     00:00    
-(14/27): python3-pip-9.0.3-22.el8.noarch.rpm    453 kB/s |  20 kB     00:00    
-(15/27): kmod-25-19.el8.ppc64le.rpm             3.6 MB/s | 138 kB     00:00    
-(16/27): jansson-2.14-1.el8.ppc64le.rpm         1.8 MB/s |  51 kB     00:00    
-(17/27): libslirp-4.4.0-1.module+el8.6.0+15875+ 1.5 MB/s |  74 kB     00:00    
-(18/27): nftables-0.9.3-25.el8.ppc64le.rpm      8.2 MB/s | 340 kB     00:00    
-(19/27): iptables-libs-1.8.4-22.el8.ppc64le.rpm 3.8 MB/s | 114 kB     00:00    
-(20/27): fuse-common-3.3.0-15.el8.ppc64le.rpm   456 kB/s |  22 kB     00:00    
-(21/27): containers-common-1-35.module+el8.6.0+ 1.9 MB/s | 109 kB     00:00    
-(22/27): jq-1.6-3.el8.ppc64le.rpm               3.8 MB/s | 215 kB     00:00    
-(23/27): fuse-overlayfs-1.9-1.module+el8.6.0+15 2.8 MB/s |  74 kB     00:00    
-(24/27): bash-4.4.20-4.el8_6.ppc64le.rpm         19 MB/s | 1.6 MB     00:00    
-(25/27): libnet-1.1.6-15.el8.ppc64le.rpm        2.4 MB/s |  73 kB     00:00    
-(26/27): skopeo-1.8.0-2.module+el8.6.0+15917+09  14 MB/s | 5.9 MB     00:00    
-(27/27): runc-1.1.3-2.module+el8.6.0+15917+093c  23 MB/s | 2.6 MB     00:00    
+(1/27): python36-3.6.8-38.module+el8.5.0+12207+ 217 kB/s |  19 kB     00:00    
+(2/27): oniguruma-6.8.2-2.el8.ppc64le.rpm       1.5 MB/s | 199 kB     00:00    
+(3/27): python3-setuptools-39.2.0-6.el8.noarch. 1.2 MB/s | 163 kB     00:00    
+(4/27): libmnl-1.0.4-6.el8.ppc64le.rpm          229 kB/s |  31 kB     00:00    
+(5/27): libpcap-1.9.1-5.el8.ppc64le.rpm         1.3 MB/s | 176 kB     00:00    
+(6/27): criu-3.15-3.module+el8.6.0+15875+dc9a2b 8.5 MB/s | 536 kB     00:00    
+(7/27): slirp4netns-1.2.0-2.module+el8.6.0+1591 1.0 MB/s |  59 kB     00:00    
+(8/27): protobuf-c-1.3.0-6.el8.ppc64le.rpm      830 kB/s |  40 kB     00:00    
+(9/27): libnftnl-1.1.5-5.el8.ppc64le.rpm        1.3 MB/s |  88 kB     00:00    
+(10/27): fuse3-3.3.0-15.el8.ppc64le.rpm         840 kB/s |  57 kB     00:00    
+(11/27): python3-pip-9.0.3-22.el8.noarch.rpm    744 kB/s |  20 kB     00:00    
+(12/27): libslirp-4.4.0-1.module+el8.6.0+15875+ 1.8 MB/s |  74 kB     00:00    
+(13/27): libibverbs-37.2-1.el8.ppc64le.rpm      7.6 MB/s | 412 kB     00:00    
+(14/27): platform-python-pip-9.0.3-22.el8.noarc  12 MB/s | 1.6 MB     00:00    
+(15/27): fuse3-libs-3.3.0-15.el8.ppc64le.rpm    1.4 MB/s |  99 kB     00:00    
+(16/27): containers-common-1-35.module+el8.6.0+ 1.7 MB/s | 109 kB     00:00    
+(17/27): jq-1.6-3.el8.ppc64le.rpm               3.2 MB/s | 215 kB     00:00    
+(18/27): jansson-2.14-1.el8.ppc64le.rpm         1.3 MB/s |  51 kB     00:00    
+(19/27): fuse-overlayfs-1.9-1.module+el8.6.0+15 2.0 MB/s |  74 kB     00:00    
+(20/27): kmod-25-19.el8.ppc64le.rpm             2.1 MB/s | 138 kB     00:00    
+(21/27): nftables-0.9.3-25.el8.ppc64le.rpm      5.5 MB/s | 340 kB     00:00    
+(22/27): fuse-common-3.3.0-15.el8.ppc64le.rpm   498 kB/s |  22 kB     00:00    
+(23/27): iptables-libs-1.8.4-22.el8.ppc64le.rpm 3.4 MB/s | 114 kB     00:00    
+(24/27): libnet-1.1.6-15.el8.ppc64le.rpm        1.6 MB/s |  73 kB     00:00    
+(25/27): skopeo-1.8.0-2.module+el8.6.0+15917+09  15 MB/s | 5.9 MB     00:00    
+(26/27): runc-1.1.3-2.module+el8.6.0+15917+093c  18 MB/s | 2.6 MB     00:00    
+(27/27): bash-4.4.20-4.el8_6.ppc64le.rpm         12 MB/s | 1.6 MB     00:00    
 --------------------------------------------------------------------------------
-Total                                            32 MB/s |  15 MB     00:00     
+Total                                            31 MB/s |  15 MB     00:00     
 Running transaction check
 Transaction check succeeded.
 Running transaction test
@@ -280,6 +280,10 @@ Installed:
 Complete!
 Collecting yq
   Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
 Collecting PyYAML>=5.3.1
   Downloading https://files.pythonhosted.org/packages/36/2b/61d51a2c4f25ef062ae3f74576b01638bebad5e045f747ff12643df63844/PyYAML-6.0.tar.gz (124kB)
   Installing build dependencies: started
@@ -288,34 +292,30 @@ Collecting PyYAML>=5.3.1
   Getting requirements to build wheel: finished with status 'done'
     Preparing wheel metadata: started
     Preparing wheel metadata: finished with status 'done'
-Collecting xmltodict>=0.11.0
-  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
-Collecting toml>=0.10.0
-  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
 Collecting argcomplete>=1.8.1
   Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
 Building wheels for collected packages: PyYAML
   Building wheel for PyYAML (PEP 517): started
   Building wheel for PyYAML (PEP 517): finished with status 'done'
-  Created wheel for PyYAML: filename=PyYAML-6.0-cp38-cp38-linux_ppc64le.whl size=45333 sha256=4a832b544cc2f7d4f25c7dddf44493ad6f65787681163a1c2f9b5125202f1a1b
-  Stored in directory: /tmp/pip-ephem-wheel-cache-8rh530qu/wheels/95/84/67/ebeac632c63797cfbeb90128ca41073117721540dad526d213
+  Created wheel for PyYAML: filename=PyYAML-6.0-cp38-cp38-linux_ppc64le.whl size=45333 sha256=4ed6cdc38dd672467f0b45f626198d23dbee30989adb4f3dbff75307097bb85a
+  Stored in directory: /tmp/pip-ephem-wheel-cache-0qai3b7h/wheels/95/84/67/ebeac632c63797cfbeb90128ca41073117721540dad526d213
 Successfully built PyYAML
-Installing collected packages: PyYAML, xmltodict, toml, argcomplete, yq
+Installing collected packages: toml, xmltodict, PyYAML, argcomplete, yq
 Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
 python: Python 3.8.12
 yq: yq 3.1.0
 jq: jq-1.6
---> 14a68a266e1
+--> 364023312e0
 STEP 12/23: COPY ./build/scripts ./versions.json /build/
---> f525a0511ff
+--> de29025dcfa
 STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
---> 57d7e00afea
+--> 95a0b309d73
 STEP 14/23: COPY ./VERSION /
---> 247cd9ed804
+--> b763bd54225
 STEP 15/23: COPY ./devfiles /build/devfiles
---> 03e4a6a04c3
+--> d797228ba17
 STEP 16/23: WORKDIR /build/
---> 93e9460fdb6
+--> 8c94f8b160b
 STEP 17/23: RUN ./generate_devworkspace_templates.sh
 
 > core-js@2.6.12 postinstall /build/node_modules/core-js
@@ -330,7 +330,7 @@ STEP 17/23: RUN ./generate_devworkspace_templates.sh
 [96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
 
 + @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
-added 121 packages from 182 contributors and audited 121 packages in 9.778s
+added 121 packages from 182 contributors and audited 121 packages in 9.895s
 
 4 packages are looking for funding
   run `npm fund` for details
@@ -338,7 +338,7 @@ added 121 packages from 182 contributors and audited 121 packages in 9.778s
 found 0 vulnerabilities
 
 + @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
-added 2 packages from 1 contributor and audited 240 packages in 2.208s
+added 2 packages from 1 contributor and audited 240 packages in 1.877s
 
 4 packages are looking for funding
   run `npm fund` for details
@@ -365,9 +365,9 @@ No sidecar policy. Setting to useDevContainer
 No sidecar policy. Setting to useDevContainer
 No sidecar policy. Setting to useDevContainer
 No sidecar policy. Setting to useDevContainer
---> b7d6004770b
+--> fd7094d1caf
 STEP 18/23: RUN chmod -R g+rwX /build/resources
---> 7e3fdda2b41
+--> cf532f16d58
 STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
  + registry.redhat.io/devspaces/code-rhel8:3.2 PASS - registry.redhat.io allowed
  + registry.redhat.io/devspaces/machineexec-rhel8:3.2 PASS - registry.redhat.io allowed
@@ -385,7 +385,7 @@ STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_RE
  = registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4 PASS
  = registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0 PASS
  = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
---> 191294e96ea
+--> 82cffd9d997
 STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
 Checking devfile 'devfiles/00_java11-maven-eap/meta.yaml'
 Checking devfile 'devfiles/00_java11-maven-microprofile-bootable/meta.yaml'
@@ -407,156 +407,44 @@ Checking devfile 'devfiles/05_dotnet/meta.yaml'
 Checking devfile 'devfiles/05_go/meta.yaml'
 Checking devfile 'devfiles/05_php-cake/meta.yaml'
 Checking devfile 'devfiles/05_php-di/meta.yaml'
---> 5d98e341aad
+--> a190ca94f19
 STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
---> 23dd880a34c
+--> 29bb1e2610c
 STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
---> 43b4f809818
+--> 031a4b74985
 STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
 COMMIT devfileregistry:tmp
---> b505e6892b8
+--> 816edb6bd54
 Successfully tagged localhost/devfileregistry:tmp
-b505e6892b8cb1b6fd043aca65194e93b4f66b70137fd197a1fae712109a6cf9
+816edb6bd54c35f52487444f93b0677517b74eb69e44b6ce5e5a904f086462d5
 <======= END BOOTSTRAP BUILD =======
 Downloading root-local.tgz
 Downloading resources.tgz
-DIFF START *****
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
---- /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-08-23 20:18:49.000000000 +0000
-+++ /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-08-23 21:47:32.639365320 +0000
-@@ -3,10 +3,10 @@
- Version: 6.0
- Summary: YAML parser and emitter for Python
- Home-page: https://pyyaml.org/
-+Download-URL: https://pypi.org/project/PyYAML/
- Author: Kirill Simonov
- Author-email: xi@resolvent.net
- License: MIT
--Download-URL: https://pypi.org/project/PyYAML/
- Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
- Project-URL: CI, https://github.com/yaml/pyyaml/actions
- Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
-@@ -43,4 +43,3 @@
- 
- PyYAML is applicable for a broad range of tasks from complex
- configuration files to object serialization and persistence.
--
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
---- /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-08-23 20:18:49.000000000 +0000
-+++ /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-08-23 21:47:32.639365320 +0000
-@@ -1,8 +1,8 @@
- PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
- PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
--PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
-+PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
- PyYAML-6.0.dist-info/RECORD,,
--PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
-+PyYAML-6.0.dist-info/WHEEL,sha256=VXb7H8_fWiBJHbEvxuDSYbC9VxfKWz2_woH0TyHF8yQ,104
- PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
- _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
- _yaml/__pycache__/__init__.cpython-38.pyc,,
-@@ -24,7 +24,6 @@
- yaml/__pycache__/scanner.cpython-38.pyc,,
- yaml/__pycache__/serializer.cpython-38.pyc,,
- yaml/__pycache__/tokens.cpython-38.pyc,,
--yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
- yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
- yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
- yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
-diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
---- /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-08-23 20:18:49.000000000 +0000
-+++ /tmp/tmp.cdQRTTkvjA/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-08-23 21:47:32.639365320 +0000
-@@ -1,8 +1,5 @@
- Wheel-Version: 1.0
--Generator: bdist_wheel (0.37.0)
-+Generator: bdist_wheel (0.37.1)
- Root-Is-Purelib: false
--Tag: cp38-cp38-manylinux_2_5_x86_64
--Tag: cp38-cp38-manylinux1_x86_64
--Tag: cp38-cp38-manylinux_2_12_x86_64
--Tag: cp38-cp38-manylinux2010_x86_64
-+Tag: cp38-cp38-linux_ppc64le
- 
-Only in /tmp/tmp.ABqxtHniP7/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
-***** END DIFF
-DIFF START *****
-diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-code-insiders.yaml /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-code-insiders.yaml
---- /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-code-insiders.yaml	2022-08-23 20:18:50.000000000 +0000
-+++ /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-code-insiders.yaml	2022-08-23 21:47:34.229320797 +0000
-@@ -36,7 +36,7 @@
-     components:
-       - name: tools
-         container:
--          image: quay.io/devspaces/udi-rhel8:3.1
-+          image: registry.redhat.io/devspaces/udi-rhel8:3.2
-           memoryLimit: 2Gi
-           endpoints:
-             - exposure: public
-diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-theia-latest.yaml /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-theia-latest.yaml
---- /tmp/tmp.7LvZNcfARN/devfiles/05_php-di/devworkspace-che-theia-latest.yaml	2022-08-23 20:18:50.000000000 +0000
-+++ /tmp/tmp.kHVSkSbI72/devfiles/05_php-di/devworkspace-che-theia-latest.yaml	2022-08-23 21:47:34.229320797 +0000
-@@ -152,7 +152,7 @@
-     components:
-       - name: tools
-         container:
--          image: quay.io/devspaces/udi-rhel8:3.1
-+          image: registry.redhat.io/devspaces/udi-rhel8:3.2
-           memoryLimit: 1Gi
-           endpoints:
-             - exposure: public
-diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/external_images_by_devfile.txt /tmp/tmp.kHVSkSbI72/devfiles/external_images_by_devfile.txt
---- /tmp/tmp.7LvZNcfARN/devfiles/external_images_by_devfile.txt	2022-08-23 20:18:50.000000000 +0000
-+++ /tmp/tmp.kHVSkSbI72/devfiles/external_images_by_devfile.txt	2022-08-23 21:47:34.229320797 +0000
-@@ -1,5 +1,3 @@
--quay.io/devspaces/udi-rhel8:3.1	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
--quay.io/devspaces/udi-rhel8:3.1	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
- registry.redhat.io/devspaces/code-rhel8:3.2	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
- registry.redhat.io/devspaces/code-rhel8:3.2	https://github.com/devspaces-samples/camel-k/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
- registry.redhat.io/devspaces/code-rhel8:3.2	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
-@@ -86,6 +84,8 @@
- registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/camel-k/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
- registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
- registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
-+registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
-+registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/demo/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
- registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
- registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/dotnet-web-simple/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
- registry.redhat.io/devspaces/udi-rhel8:3.2	https://github.com/devspaces-samples/fuse-rest-http-booster/tree/devspaces-3.2-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
-diff --suppress-common-lines -u -r /tmp/tmp.7LvZNcfARN/devfiles/external_images.txt /tmp/tmp.kHVSkSbI72/devfiles/external_images.txt
---- /tmp/tmp.7LvZNcfARN/devfiles/external_images.txt	2022-08-23 20:18:50.000000000 +0000
-+++ /tmp/tmp.kHVSkSbI72/devfiles/external_images.txt	2022-08-23 21:47:34.229320797 +0000
-@@ -1,4 +1,3 @@
--quay.io/devspaces/udi-rhel8:3.1
- registry.redhat.io/devspaces/code-rhel8:3.2
- registry.redhat.io/devspaces/machineexec-rhel8:3.2
- registry.redhat.io/devspaces/theia-endpoint-rhel8:3.2
-Binary files /tmp/tmp.7LvZNcfARN/resources/v2/demo.zip and /tmp/tmp.kHVSkSbI72/resources/v2/demo.zip differ
-***** END DIFF
 Untagged: localhost/devfileregistry:tmp
-Deleted: b505e6892b8cb1b6fd043aca65194e93b4f66b70137fd197a1fae712109a6cf9
-Deleted: 43b4f80981888415c24aa8f70da6f9a1e2fe973fb1154a170598b36ad1b7f221
-Deleted: 23dd880a34cfa45560d160c3fb28b99670ac8230995d4725976cef43e70ad8eb
-Deleted: 5d98e341aad8d7e78e6649ed5b3fd3e75d0d727d30d5d453819fd8a97891f7af
-Deleted: 191294e96ea89ed9827bb5f7cb79a7747df24c752dd8a730289dd60518cf0dc9
-Deleted: 7e3fdda2b41c3716dd78b394a2ceb755bcedad4825b70022c27950e3fa691a3c
-Deleted: b7d6004770b7ef8df47dce2ab9f8a0f08f93991deb8e237d6be092fc237dfb6d
-Deleted: 93e9460fdb63b70879014f44d5dc9d5797d34269042698fb2321247b4f523af1
-Deleted: 03e4a6a04c384a12c2fcb150e1466979f8658692f01279140621c0395b57fe8d
-Deleted: 247cd9ed804c64761a566cc9671e6b108005f59993676a2aab15de39e5ce1821
-Deleted: 57d7e00afea6b98387b4824bf4371ef9424233ac958edb1e99581cfc33a91728
-Deleted: f525a0511ffdc8d3db92cb6a5ebdd98239dc216f9b74799ac025cd0c814b4c94
-Deleted: 14a68a266e1a2596f7725fb168979392812f6ba8399fc164cbb5db848f51d822
-Deleted: 736ec9c417ef7a9edd4d4b0ff06bc44e0db40b7699356b53d8d7111ed94f6733
-Deleted: 32bbddbf50f5f95ba6b2fcb2daa1e896a9a7e320226711bf30d422b001f553ee
-Deleted: 579c5cda3ebe0b317b5818139be5e122462594894537039d108554d7eb89a043
-Deleted: 24900fcad4d92219a072c91f0022aac2d8fafd8052aa39cd6549c5411b77764e
-Deleted: 07ead49fb30300cb3951fc9e38cc8941f12ff2c9c76f83439874ac36d79f01e0
-Deleted: 5b5148b7eb492078104ff7b3396b07c4737243533b5eb627a36be148325d1b7a
-Deleted: 347e0c48d703b126d795c9de197bed8aee3f6894dc9a3eef8f3750ae47d09928
-Deleted: 89bef3f7221a8d607d1c2731f45924a3c46588bebf4d0886b89951ae5764bd9a
-Deleted: 1fdc105f8aea8a96226689fd67250cab87beee1b6d3ba4b22c61d82695bba77b
-Uploading: root-local.tgz
-Uploading: resources.tgz
-Source upload succeeded. Don't forget to commit the sources file
+Deleted: 816edb6bd54c35f52487444f93b0677517b74eb69e44b6ce5e5a904f086462d5
+Deleted: 031a4b74985ca86d6a48c50c401dbd88ad925a8408b811d053cc1750623a95b3
+Deleted: 29bb1e2610c1e867b6f0c0592d5c8b819332a2d074ba23605dadac0f4cc20a4c
+Deleted: a190ca94f191deab478af12e5e3b2fcda9cbe88af669ec211e489556a7b41ba9
+Deleted: 82cffd9d99710ca2ec787820df8b8281ce9ff9f614cc9d46e84ce80ebd8d87bb
+Deleted: cf532f16d586ba98a058155f013d52519ac275a108c73ddf1787a6c1dedc8fd0
+Deleted: fd7094d1caf153d0ef80bd02d3da44b5c3e8b5874266057a51030cd3deefc61d
+Deleted: 8c94f8b160bc637c46a864623b35f21bce5f5df2e624072f89c8de6e2f70c14d
+Deleted: d797228ba172893013208615f1c44e65dd403d593ca5fa92a12146474f2e612c
+Deleted: b763bd54225a788c3c3d8627824cd356c55515bc0e76f66bc39768baeff0f20c
+Deleted: 95a0b309d73f5356827d32cd59de6a279d83aa07bede2e9f87b1e5a7deb14050
+Deleted: de29025dcfa5bddadc2918110c7d519a432e7f2359ea543bb6cdca0948f92caa
+Deleted: 364023312e04cf943eda83f16760e2f13be23d1314f41deeb074d28c8ef4284a
+Deleted: 81d27ce2cb57ce51cddcea9d722282dad14d4a2f394b75a840e77045c754fb78
+Deleted: db620d008b8ab6a269514c4a6b99f3dd5314f97ce78a3cfe6a3acbef88eaf0ab
+Deleted: 1066fa3b5acefa3962b8b9b841808fbd09f05a32cbeb8ec0de6be572951ac306
+Deleted: 21e4672c4e3e5a7aa8f07ff75eaca4e871020d11d8b92af89488b53e534ee794
+Deleted: 2efd06625d32a2c1e063255d8c0c8042b0427774b556212e61c7801d9ac6a044
+Deleted: cc895c971ca19002fb2aa5ee485a303629a414e6de89d3503cf0d23ba5db3889
+Deleted: 593b89734658025034bf3c80c3ed7b1a0b301ee6a02e9a9d0b8c9477efefcd83
+Deleted: fa14cffc7b5eab0ab47bb4a9080ef842501b8b108e1a7dec02f8e6a5c0589f5b
+Deleted: 3e407bd207f6acc29e9d68abfcfe587450bd7ae3fe9829c6e8565f49c5914a0e
+File already uploaded: root-local.tgz
+File already uploaded: resources.tgz
+All sources were already uploaded.
 rm 'resources.tgz'
 rm 'root-local.tgz'
