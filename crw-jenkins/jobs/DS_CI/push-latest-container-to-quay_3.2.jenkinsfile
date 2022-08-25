@@ -165,7 +165,9 @@ Brew NVRs:
 } // timeout
 
 // trigger update_digests job if we have pushed new images that appear in the registry or metadata
-node(nodeLabel) {
+// requires opm binary to filter & copy IIB images to quay, which publishes for a single arch
+// TODO https://issues.redhat.com/browse/CRW-3287 make this a loop so we can assemble a multiarch IIB?
+node("x86_64-rhel8"){ 
   stage ("Update registries and metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
