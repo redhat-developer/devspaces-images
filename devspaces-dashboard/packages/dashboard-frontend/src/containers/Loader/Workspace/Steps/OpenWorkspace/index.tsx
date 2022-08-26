@@ -12,11 +12,13 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { isEqual } from 'lodash';
 import { AlertVariant } from '@patternfly/react-core';
+import common from '@eclipse-che/common';
 import { AppState } from '../../../../../store';
 import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../../../store/Workspaces';
-import { WorkspaceLoaderPage } from '../../../../../pages/Loader/Workspace';
+import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../const';
@@ -69,7 +71,7 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
       return true;
     }
     // set the error for the current step
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
     return false;
@@ -147,7 +149,7 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
             key: 'ide-loader-open-ide',
             title: 'Failed to open the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: common.helpers.errors.getMessage(lastError),
           };
 
     return (

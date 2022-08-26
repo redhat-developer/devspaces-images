@@ -13,7 +13,9 @@
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { generatePath } from 'react-router-dom';
+import { isEqual } from 'lodash';
 import { AlertVariant } from '@patternfly/react-core';
+import { helpers } from '@eclipse-che/common';
 import { AppState } from '../../../../../store';
 import { selectInfrastructureNamespaces } from '../../../../../store/InfrastructureNamespaces/selectors';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
@@ -60,7 +62,7 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     }
 
     // current step failed
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
 
@@ -136,7 +138,7 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
             key: 'factory-loader-initialize',
             title: 'Failed to create the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: helpers.errors.getMessage(lastError),
           };
 
     return (

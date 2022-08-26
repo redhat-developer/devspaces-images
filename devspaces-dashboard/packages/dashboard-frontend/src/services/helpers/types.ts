@@ -19,6 +19,7 @@ export interface AlertItem {
   title: string;
   variant: AlertVariant;
   children?: React.ReactNode;
+  error?: unknown;
 }
 
 export interface FactoryResolver {

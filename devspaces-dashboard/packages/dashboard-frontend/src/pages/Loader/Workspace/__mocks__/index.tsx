@@ -13,7 +13,7 @@
 import React from 'react';
 import { Props, State } from '..';
 
-export class WorkspaceLoaderPage extends React.PureComponent<Props, State> {
+export default class WorkspaceLoaderPage extends React.PureComponent<Props, State> {
   render(): React.ReactNode {
     const { alertItem, currentStepId, steps, onRestart } = this.props;
     const wizardSteps = steps.map(step => (

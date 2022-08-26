@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { AlertVariant } from '@patternfly/react-core';
+import { helpers } from '@eclipse-che/common';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { FactoryLoaderPage } from '../../../../../pages/Loader/Factory';
@@ -71,7 +72,7 @@ export default class StepCreateWorkspace extends AbstractLoaderStep<Props, State
             key: 'factory-loader-' + getRandomString(4),
             title: 'Failed to create the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: helpers.errors.getMessage(lastError),
           };
 
     return (

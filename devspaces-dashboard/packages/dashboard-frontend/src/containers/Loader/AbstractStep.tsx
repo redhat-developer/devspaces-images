@@ -10,7 +10,6 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common from '@eclipse-che/common';
 import React from 'react';
 import { Cancellation, pseudoCancellable } from 'real-cancellable-promise';
 import { List, LoaderStep } from '../../components/Loader/Step';
@@ -24,8 +23,9 @@ export type LoaderStepProps = {
   onRestart: () => void;
 };
 export type LoaderStepState = {
-  lastError?: string;
+  lastError?: unknown;
 };
+
 export abstract class AbstractLoaderStep<
   P extends LoaderStepProps,
   S extends LoaderStepState,
@@ -61,9 +61,8 @@ export abstract class AbstractLoaderStep<
     const currentStep = loaderSteps.get(currentStepIndex).value;
 
     currentStep.hasError = true;
-    const lastError = common.helpers.errors.getMessage(e);
     this.setState({
-      lastError,
+      lastError: e,
     });
   }
 

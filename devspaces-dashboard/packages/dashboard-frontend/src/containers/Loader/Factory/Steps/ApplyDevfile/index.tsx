@@ -13,7 +13,9 @@
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
+import { isEqual } from 'lodash';
 import { AlertVariant } from '@patternfly/react-core';
+import { helpers } from '@eclipse-che/common';
 import { AppState } from '../../../../../store';
 import * as WorkspacesStore from '../../../../../store/Workspaces';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
@@ -84,7 +86,7 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     }
 
     // current step failed
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
 
@@ -142,7 +144,10 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     }
 
     if (shouldCreate === false) {
-      throw new Error(this.state.lastError || 'The workspace creation unexpectedly failed.');
+      if (this.state.lastError instanceof Error) {
+        throw this.state.lastError;
+      }
+      throw new Error('The workspace creation unexpectedly failed.');
     }
 
     const devfile = factoryResolverConverted?.devfileV2;
@@ -211,7 +216,7 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
             key: 'factory-loader-' + getRandomString(4),
             title: 'Failed to create the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: helpers.errors.getMessage(lastError),
           };
 
     return (

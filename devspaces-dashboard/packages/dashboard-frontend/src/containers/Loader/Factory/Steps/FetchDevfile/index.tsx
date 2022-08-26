@@ -12,7 +12,8 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import common from '@eclipse-che/common';
+import { isEqual } from 'lodash';
+import { helpers } from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
 import { AppState } from '../../../../../store';
 import * as FactoryResolverStore from '../../../../../store/FactoryResolver';
@@ -96,7 +97,7 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
     }
 
     // current step failed
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
 
@@ -170,7 +171,10 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
     }
 
     if (shouldResolve === false) {
-      throw new Error(this.state.lastError || 'Failed to resolve the devfile.');
+      if (this.state.lastError instanceof Error) {
+        throw this.state.lastError;
+      }
+      throw new Error('Failed to resolve the devfile.');
     }
 
     // start resolving the devfile
@@ -243,7 +247,7 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
         oauthUrlTmp.toString() + '&redirect_after_login=' + redirectUrl.toString();
       window.location.href = fullOauthUrl;
     } catch (e) {
-      throw new Error(`Failed to open authentication page. ${common.helpers.errors.getMessage(e)}`);
+      throw new Error(`Failed to open authentication page. ${helpers.errors.getMessage(e)}`);
     }
   }
 
@@ -314,7 +318,7 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
             key: 'factory-loader-fetch-devfile',
             title: 'Failed to create the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: helpers.errors.getMessage(lastError),
           };
 
     return (

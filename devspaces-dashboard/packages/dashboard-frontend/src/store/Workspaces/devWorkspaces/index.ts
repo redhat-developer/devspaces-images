@@ -54,6 +54,13 @@ export interface State {
   workspacesLogs: WorkspacesLogs;
 }
 
+export class RunningWorkspacesExceededError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'RunningWorkspacesExceededError';
+  }
+}
+
 interface RequestDevWorkspacesAction extends Action {
   type: 'REQUEST_DEVWORKSPACE';
 }
@@ -281,8 +288,6 @@ export const actionCreators: ActionCreators = {
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
-      // await delay(500);
-      // throw new Error('asdfjkl;');
       try {
         const { workspaces } = await devWorkspaceClient.getAllWorkspaces(
           workspace.metadata.namespace,
@@ -290,7 +295,7 @@ export const actionCreators: ActionCreators = {
         const runningWorkspaces = workspaces.filter(w => w.spec.started === true);
         const runningLimit = selectRunningWorkspacesLimit(getState());
         if (runningWorkspaces.length >= runningLimit) {
-          throw new Error('You are not allowed to start more workspaces.');
+          throw new RunningWorkspacesExceededError('You are not allowed to start more workspaces.');
         }
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
@@ -358,7 +363,11 @@ export const actionCreators: ActionCreators = {
           type: 'RECEIVE_DEVWORKSPACE_ERROR',
           error: errorMessage,
         });
-        throw errorMessage;
+
+        if (common.helpers.errors.isError(e)) {
+          throw e;
+        }
+        throw new Error(errorMessage);
       }
     },
 

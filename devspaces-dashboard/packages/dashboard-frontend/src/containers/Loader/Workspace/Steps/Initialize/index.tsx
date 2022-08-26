@@ -12,11 +12,13 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { isEqual } from 'lodash';
 import { AlertVariant } from '@patternfly/react-core';
+import { helpers } from '@eclipse-che/common';
 import { AppState } from '../../../../../store';
 import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../../../store/Workspaces';
-import { WorkspaceLoaderPage } from '../../../../../pages/Loader/Workspace';
+import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { DevWorkspaceStatus } from '../../../../../services/helpers/types';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
@@ -69,7 +71,7 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
       return true;
     }
     // set the error for the current step
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
     return false;
@@ -161,9 +163,9 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
             key: 'ide-loader-initialize',
             title: 'Failed to open the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: helpers.errors.getMessage(lastError),
+            error: lastError,
           };
-
     return (
       <WorkspaceLoaderPage
         alertItem={alertItem}

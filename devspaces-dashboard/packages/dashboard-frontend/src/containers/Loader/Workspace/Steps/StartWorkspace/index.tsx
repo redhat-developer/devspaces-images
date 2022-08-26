@@ -14,10 +14,11 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { AlertVariant } from '@patternfly/react-core';
 import common from '@eclipse-che/common';
+import { isEqual } from 'lodash';
 import { AppState } from '../../../../../store';
 import { selectAllWorkspaces, selectLogs } from '../../../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../../../store/Workspaces';
-import { WorkspaceLoaderPage } from '../../../../../pages/Loader/Workspace';
+import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
 import { DevWorkspaceStatus } from '../../../../../services/helpers/types';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
@@ -77,7 +78,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
       return true;
     }
     // set the error for the current step
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
     return false;
@@ -165,14 +166,9 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
       this.state.shouldStart &&
       workspaceStatusIs(workspace, DevWorkspaceStatus.STOPPED, DevWorkspaceStatus.FAILED)
     ) {
-      try {
-        await this.props.startWorkspace(workspace);
-
-        // do not switch to the next step
-        return false;
-      } catch (e) {
-        throw new Error(common.helpers.errors.getMessage(e));
-      }
+      await this.props.startWorkspace(workspace);
+      // do not switch to the next step
+      return false;
     }
 
     // switch to the next step
@@ -198,7 +194,8 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
             key: 'ide-loader-start-workspace',
             title: 'Failed to open the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: common.helpers.errors.getMessage(lastError),
+            error: lastError,
           };
 
     return (

@@ -12,7 +12,9 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { isEqual } from 'lodash';
 import { AlertVariant } from '@patternfly/react-core';
+import { helpers } from '@eclipse-che/common';
 import { AppState } from '../../../../../store';
 import * as DevfileRegistriesStore from '../../../../../store/DevfileRegistries';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
@@ -84,7 +86,7 @@ class StepFetchResources extends AbstractLoaderStep<Props, State> {
     }
 
     // current step failed
-    if (this.state.lastError !== nextState.lastError) {
+    if (!isEqual(this.state.lastError, nextState.lastError)) {
       return true;
     }
 
@@ -146,7 +148,10 @@ class StepFetchResources extends AbstractLoaderStep<Props, State> {
     }
 
     if (shouldResolve === false) {
-      throw new Error(lastError || 'Failed to fetch pre-built resources');
+      if (lastError instanceof Error) {
+        throw lastError;
+      }
+      throw new Error('Failed to fetch pre-built resources');
     }
 
     await this.props.requestResources(sourceUrl);
@@ -186,7 +191,7 @@ class StepFetchResources extends AbstractLoaderStep<Props, State> {
             key: 'factory-loader-fetch-resources',
             title: 'Failed to create the workspace',
             variant: AlertVariant.danger,
-            children: lastError,
+            children: helpers.errors.getMessage(lastError),
           };
 
     return (
