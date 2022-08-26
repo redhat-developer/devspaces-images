@@ -67,7 +67,10 @@ set -x
                 currentBuild.result = "FAILURE"
               }
             }
-            currentBuild.description+=" :: " + BUILD_DESC + " </br/> " + BUILD_RESULT
+            // CRW-2978 exceptions for non-standard links to operator and bundle
+            currentBuild.description+=" :: " + 
+              BUILD_DESC.replaceAll("devspaces-3-rhel8-operator-bundle","devspaces-operator-bundle").replaceAll("devspaces-3-rhel8-operator","devspaces-rhel8-operator") + 
+              " <br/> " + BUILD_RESULT
           } catch (e) {
             currentBuild.result = "FAILURE"
             util.notifyBuildFailed()
