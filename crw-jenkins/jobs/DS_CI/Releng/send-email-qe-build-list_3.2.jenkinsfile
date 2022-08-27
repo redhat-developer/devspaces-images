@@ -228,7 +228,7 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
                                         def IIBsToQuay_matches = null
                                         IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
                                         (0..<IIBsToQuay_matches.count).each { 
-                                            currentBuild.description+="<br/>  + " + IIBsToQuay_matches[it][1] 
+                                            currentBuild.description+="<br/>&nbsp;&nbsp; + " + IIBsToQuay_matches[it][1] 
                                             mailBodyQuayIIBs+="\n+ " + IIBsToQuay_matches[it][1]
                                         }
                                         // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
