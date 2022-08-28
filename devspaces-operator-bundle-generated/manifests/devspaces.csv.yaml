@@ -1095,13 +1095,13 @@ spec:
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:6e89e3b320e38d559ef0c58b1a252659fddfbb7d508e378363873abd32c79ac4
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:5ed351575639ec61024e7326b5fe676ab633ca1c46a97c044aaa2bced8ec7952
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:c2349a08ffd4758b521a388a0a466f0148922fbdd139102d86f52ae316ad0885
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:25be4454dab0dc4de95162ad5acc688d92d4d33fbed5c5f0c261061469b179c8
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:25be4454dab0dc4de95162ad5acc688d92d4d33fbed5c5f0c261061469b179c8
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:5ed351575639ec61024e7326b5fe676ab633ca1c46a97c044aaa2bced8ec7952
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:c2349a08ffd4758b521a388a0a466f0148922fbdd139102d86f52ae316ad0885
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:5471bdb3756ca3e934c10e176d5c9343c2e40e54bb879d763e262f30ed953bba
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDGCQ_
@@ -1133,7 +1133,7 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:6c37ced7ff834c5ca92e3d97baa0c6e832ef50a4b9a3fb586be579bdf96b528e
+                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:489fa71e639ef75b42a2cebe46aa5c1a4ba4a439ddd4b268b9f1b3d5b5a72074
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                   value: registry.redhat.io/devspaces/configbump-rhel8@sha256:7ba090090295ecbf6b1636770e2665d39724c0dc79e60344225710ce81207fd7
                 - name: WATCH_NAMESPACE
@@ -1430,13 +1430,13 @@ spec:
   - name: devspaces_machineexec_plugin_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:6e89e3b320e38d559ef0c58b1a252659fddfbb7d508e378363873abd32c79ac4
   - name: devspaces_theia_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:5ed351575639ec61024e7326b5fe676ab633ca1c46a97c044aaa2bced8ec7952
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:c2349a08ffd4758b521a388a0a466f0148922fbdd139102d86f52ae316ad0885
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:25be4454dab0dc4de95162ad5acc688d92d4d33fbed5c5f0c261061469b179c8
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:25be4454dab0dc4de95162ad5acc688d92d4d33fbed5c5f0c261061469b179c8
   - name: devspaces_theia_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:5ed351575639ec61024e7326b5fe676ab633ca1c46a97c044aaa2bced8ec7952
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:c2349a08ffd4758b521a388a0a466f0148922fbdd139102d86f52ae316ad0885
   - name: devspaces_udi_devfile_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:5471bdb3756ca3e934c10e176d5c9343c2e40e54bb879d763e262f30ed953bba
   - name: devspaces_udi_plugin_registry_image_gmxdgcq_
@@ -1468,6 +1468,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_plugin_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:6c37ced7ff834c5ca92e3d97baa0c6e832ef50a4b9a3fb586be579bdf96b528e
+    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:489fa71e639ef75b42a2cebe46aa5c1a4ba4a439ddd4b268b9f1b3d5b5a72074
   - name: single_host_gateway_config_sidecar
     image: registry.redhat.io/devspaces/configbump-rhel8@sha256:7ba090090295ecbf6b1636770e2665d39724c0dc79e60344225710ce81207fd7
