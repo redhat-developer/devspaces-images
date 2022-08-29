@@ -19,7 +19,10 @@ import { helpers } from '@eclipse-che/common';
 
 const SECRET_KEY = '.dockerconfigjson';
 const SECRET_NAME = 'devworkspace-container-registry-dockercfg';
-const SECRET_LABELS = { 'controller.devfile.io/devworkspace_pullsecret': 'true' };
+const SECRET_LABELS = {
+  'controller.devfile.io/devworkspace_pullsecret': 'true',
+  'controller.devfile.io/watch-secret': 'true',
+};
 const DOCKER_CONFIG_API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 
 export class DockerConfigApi implements IDockerConfigApi {
@@ -73,7 +76,7 @@ export class DockerConfigApi implements IDockerConfigApi {
     return {
       apiVersion: 'v1',
       data: {
-        [SECRET_KEY]: dockerCfg.dockerconfig || '',
+        [SECRET_KEY]: dockerCfg.dockerconfig,
       },
       kind: 'Secret',
       metadata: {
@@ -84,8 +87,8 @@ export class DockerConfigApi implements IDockerConfigApi {
     };
   }
 
-  private getDockerConfig(secret?: V1Secret): string | undefined {
-    return secret?.data?.[SECRET_KEY];
+  private getDockerConfig(secret?: V1Secret): string {
+    return secret?.data?.[SECRET_KEY] || '';
   }
 
   private toDockerConfig(secret?: V1Secret): api.IDockerConfig {
@@ -99,7 +102,7 @@ export class DockerConfigApi implements IDockerConfigApi {
     if (!secret.metadata) {
       secret.metadata = {};
     }
-    secret.data = { [SECRET_KEY]: dockerCfg.dockerconfig || '' };
+    secret.data = { [SECRET_KEY]: dockerCfg.dockerconfig };
     secret.metadata.labels = SECRET_LABELS;
     if (dockerCfg.resourceVersion) {
       secret.metadata.resourceVersion = dockerCfg.resourceVersion;
