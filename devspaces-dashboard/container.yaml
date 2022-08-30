@@ -19,7 +19,7 @@ remote_sources:
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
     # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
-    ref: db9550c4b5f1c9a54d6da55cdf26c04cdc8031bf
+    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
     pkg_managers:
       - yarn
     packages: 
