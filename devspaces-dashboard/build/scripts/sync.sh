@@ -103,7 +103,7 @@ sed -r \
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir\
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR\
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-dashboard/cachito.env' \
-    -e 's|/dashboard/ |$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/|g' \
+    -e '/from=builder/!s|/dashboard/|$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/|g' \
     -e '/RUN npm i -g yarn; yarn install/c \
 \
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path\
