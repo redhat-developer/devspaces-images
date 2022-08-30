@@ -16,7 +16,7 @@ RUN dnf -y -q update --exclude=unbound-libs
 # cachito:yarn step 1: copy cachito sources where we can use them; source env vars; set working dir
 COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 RUN source $REMOTE_SOURCES_DIR/devspaces-images-dashboard/cachito.env
-WORKDIR /dashboard/
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/
 
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
 COPY .yarn/releases $REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/.yarn/releases/
@@ -44,9 +44,9 @@ RUN \
     yum -y -q clean all && rm -rf /var/cache/yum && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
 
-ENV FRONTEND_LIB=/dashboard/packages/dashboard-frontend/lib/public
-ENV BACKEND_LIB=/dashboard/packages/dashboard-backend/lib
-ENV DEVFILE_REGISTRY=/dashboard/packages/devfile-registry
+ENV FRONTEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-frontend/lib/public
+ENV BACKEND_LIB=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/dashboard-backend/lib
+ENV DEVFILE_REGISTRY=$REMOTE_SOURCES_DIR/devspaces-images-dashboard/app/devspaces-dashboard/packages/devfile-registry
 
 COPY --from=builder ${BACKEND_LIB} /backend
 COPY --from=builder ${FRONTEND_LIB} /public
