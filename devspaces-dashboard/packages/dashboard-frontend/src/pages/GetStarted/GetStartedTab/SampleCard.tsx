@@ -64,7 +64,7 @@ export class SampleCard extends React.PureComponent<Props, State> {
     };
 
     return tags
-      .filter(tag => VISIBLE_TAGS.indexOf(tag.toLowerCase()) !== -1)
+      .filter(tag => VISIBLE_TAGS.indexOf(tag) !== -1)
       .map((item: string, index: number) => createTag(item, index));
   }
 

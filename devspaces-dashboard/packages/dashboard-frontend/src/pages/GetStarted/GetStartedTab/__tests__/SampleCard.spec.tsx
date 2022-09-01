@@ -84,21 +84,21 @@ describe('Devfile Metadata Card', () => {
     expect(badge.length).toEqual(0);
   });
 
-  it('should have "community" tag', () => {
-    metadata.tags = ['community', 'Debian', 'Go'];
+  it('should have "Community" tag', () => {
+    metadata.tags = ['Community', 'Debian', 'Go'];
     renderCard();
 
     const badge = screen.queryAllByTestId('card-badge');
     expect(badge.length).toEqual(1);
-    expect(screen.queryByText('community')).toBeTruthy();
+    expect(screen.queryByText('Community')).toBeTruthy();
   });
 
   it('should have "tech-preview" tag', () => {
-    metadata.tags = ['tech-preview', 'Debian', 'Go'];
+    metadata.tags = ['Tech-Preview', 'Debian', 'Go'];
     renderCard();
 
     const badge = screen.queryAllByTestId('card-badge');
     expect(badge.length).toEqual(1);
-    expect(screen.queryByText('tech-preview')).toBeTruthy();
+    expect(screen.queryByText('Tech-Preview')).toBeTruthy();
   });
 });
