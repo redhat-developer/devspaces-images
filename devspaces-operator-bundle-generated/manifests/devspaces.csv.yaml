@@ -68,7 +68,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1ef069426e79925c2d3cf46466b35a4d371a6195c6839d5df42f6d1f4aaa9a4f
-    createdAt: "2022-08-30T14:35:52+00:00"
+    createdAt: "2022-09-01T08:44:55+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1081,7 +1081,7 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:5e4909025ecd23ebe5aa3bf50ada860868860872d096a1ecea53b1be5f0799fd
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:7df0883ee52826bdc320c14b40fc89757e578b3f97b170a6ddc983ba701879f7
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:e691a92d1fb0ba9c6d16b08ff526fe5252162c958bbce4c8be8dd4c1f735343d
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:305ff5e7e9ee80e14c50ff566281f72dfbb581d43e3242877d96ce11b0064ea8
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDECQ_
@@ -1407,7 +1407,7 @@ spec:
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
-  replaces: devspacesoperator.v3.0.1-0.1660823057.p
+  replaces: devspacesoperator.v3.1.0
   relatedImages:
   - name: devspaces-rhel8-operator-1ef069426e79925c2d3cf46466b35a4d371a6195c6839d5df42f6d1f4aaa9a4f-annotation
     image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:1ef069426e79925c2d3cf46466b35a4d371a6195c6839d5df42f6d1f4aaa9a4f
@@ -1416,7 +1416,7 @@ spec:
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:5e4909025ecd23ebe5aa3bf50ada860868860872d096a1ecea53b1be5f0799fd
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:7df0883ee52826bdc320c14b40fc89757e578b3f97b170a6ddc983ba701879f7
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:e691a92d1fb0ba9c6d16b08ff526fe5252162c958bbce4c8be8dd4c1f735343d
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:305ff5e7e9ee80e14c50ff566281f72dfbb581d43e3242877d96ce11b0064ea8
   - name: devspaces_code_devfile_registry_image_gmxdecq_
