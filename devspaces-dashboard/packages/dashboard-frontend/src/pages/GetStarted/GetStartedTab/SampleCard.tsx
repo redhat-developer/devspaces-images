@@ -24,7 +24,7 @@ import {
   DropdownPosition,
 } from '@patternfly/react-core';
 import './sample-card.css';
-import { TargetEditor } from './SamplesListGallery';
+import { TargetEditor, VISIBLE_TAGS } from './SamplesListGallery';
 import DropdownEditors from './DropdownEditors';
 
 type Props = {
@@ -35,8 +35,6 @@ type Props = {
 type State = {
   isExpanded: boolean;
 };
-
-const VISIBLE_TAGS = ['community', 'tech-preview'];
 
 export class SampleCard extends React.PureComponent<Props, State> {
   constructor(props: Props) {
@@ -66,7 +64,7 @@ export class SampleCard extends React.PureComponent<Props, State> {
     };
 
     return tags
-      .filter(tag => VISIBLE_TAGS.indexOf(tag.toLowerCase()) !== -1)
+      .filter(tag => VISIBLE_TAGS.indexOf(tag) !== -1)
       .map((item: string, index: number) => createTag(item, index));
   }
 

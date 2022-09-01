@@ -59,9 +59,26 @@ type State = {
   alerts: AlertItem[];
 };
 
+export const VISIBLE_TAGS = ['Community', 'Tech-Preview'];
 const EXCLUDED_TARGET_EDITOR_NAMES = ['dirigible', 'jupyter', 'eclipseide', 'code-server'];
 
 export class SamplesListGallery extends React.PureComponent<Props, State> {
+  private static sortByVisibleTag(a: che.DevfileMetaData, b: che.DevfileMetaData): number {
+    const getVisibleTag = (metadata: che.DevfileMetaData) =>
+      metadata.tags.filter(tag => VISIBLE_TAGS.includes(tag))[0];
+    const tagA = getVisibleTag(a);
+    const tagB = getVisibleTag(b);
+    if (tagA === tagB) {
+      return 0;
+    }
+    if (tagA === undefined || tagA < tagB) {
+      return -1;
+    }
+    if (tagB === undefined || tagA > tagB) {
+      return 1;
+    }
+    return 0;
+  }
   private static sortByName(a: TargetEditor, b: TargetEditor): number {
     if (a.name < b.name) {
       return -1;
@@ -186,6 +203,7 @@ export class SamplesListGallery extends React.PureComponent<Props, State> {
 
     return metadata
       .sort(SamplesListGallery.sortByDisplayName)
+      .sort(SamplesListGallery.sortByVisibleTag)
       .map(meta => (
         <SampleCard
           key={meta.links.self}
