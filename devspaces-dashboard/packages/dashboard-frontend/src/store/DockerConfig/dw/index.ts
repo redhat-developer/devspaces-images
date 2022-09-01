@@ -124,25 +124,25 @@ function putDockerConfig(
   registries: RegistryEntry[],
   resourceVersion?: string,
 ): Promise<api.IDockerConfig> {
-  const configObj = { auths: {} };
-  const dockerconfig: api.IDockerConfig = { dockerconfig: '' };
+  const config: api.IDockerConfig = { dockerconfig: '' };
   try {
+    const authInfo = { auths: {} };
     registries.forEach(item => {
       const { url, username, password } = item;
-      configObj.auths[url] = {};
-      configObj.auths[url].auth = window.btoa(username + ':' + password);
+      authInfo.auths[url] = { username, password };
+      authInfo.auths[url].auth = window.btoa(username + ':' + password);
     });
-    dockerconfig.dockerconfig = window.btoa(JSON.stringify(configObj));
+    config.dockerconfig = window.btoa(JSON.stringify(authInfo));
     if (resourceVersion) {
-      dockerconfig.resourceVersion = resourceVersion;
+      config.resourceVersion = resourceVersion;
+    }
+    try {
+      return DwApi.putDockerConfig(namespace, config);
+    } catch (err) {
+      throw 'Failed to update the docker cofig. Reason: ' + helpers.errors.getMessage(err);
     }
   } catch (e) {
     throw 'Unable to parse and code data. Reason: ' + helpers.errors.getMessage(e);
-  }
-  try {
-    return DwApi.putDockerConfig(namespace, dockerconfig);
-  } catch (e) {
-    throw 'Failed to update the docker cofig. Reason: ' + helpers.errors.getMessage(e);
   }
 }
 

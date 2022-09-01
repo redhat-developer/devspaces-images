@@ -17,7 +17,7 @@ export interface IPatch {
 }
 
 export interface IDockerConfig {
-  dockerconfig: string | undefined;
+  dockerconfig: string;
   resourceVersion?: string;
 }
 

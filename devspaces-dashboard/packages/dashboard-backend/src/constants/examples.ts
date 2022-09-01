@@ -12,14 +12,18 @@
 
 export const dockerConfigExample = {
   get dockerconfig() {
-    const registry = 'quay.io';
+    const registry = 'https://index.docker.io/v1/';
     const username = 'janedoe';
     const password = 'xxxxxxxxxxxxxxxxxxxxxxx';
     const auth = new Buffer(`${username}:${password}`).toString('base64');
     const buff = new Buffer(
       JSON.stringify({
         auths: {
-          [registry]: { auth },
+          [registry]: {
+            username,
+            password,
+            auth,
+          },
         },
       }),
     );
