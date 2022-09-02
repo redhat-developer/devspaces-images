@@ -1,0 +1,26 @@
+{
+	"nameShort": "Visual Studio Code - Open Source",
+	"nameLong": "Red Hat OpenShift Dev Spaces - Visual Studio Code - Open Source IDE container",
+	"workbenchConfigFilePath": "workbench-config.json",
+	"codiconCssFilePath": "css/codicon.css",
+	"icons": {
+		"favicon": {
+			"universal": "icons/favicon.ico"
+		},
+		"welcome": {
+			"universal": "icons/dev-spaces.svg"
+		},
+		"statusBarItem": {
+			"universal": "icons/dev-spaces.svg"
+		},
+		"letterpress": {
+			"light": "icons/letterpress-light.svg",
+			"dark": "icons/letterpress-light.svg"
+		}
+	},
+	"remoteIndicatorCommands": {
+		"openDocumentationCommand": "Dev Spaces: Open Documentation",
+		"openDashboardCommand": "Dev Spaces: Open Dashboard",
+		"stopWorkspaceCommand": "Dev Spaces: Stop Workspace"
+	}
+}

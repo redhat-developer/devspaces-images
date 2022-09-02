@@ -50,6 +50,10 @@ echo ".che/
 .github/
 README.md
 Dockerfile
+branding/css
+branding/icons
+branding/product.json
+branding/workbench-config.json
 build/scripts/sync.sh
 build/scripts/collect-assets.sh
 build/dockerfiles
@@ -88,3 +92,5 @@ sed_in_place -r \
   `# Update DevSpaces version for Dockerfile` \
   -e "s/version=.*/version=\"$DS_VERSION\" \\\/" \
   "${TARGETDIR}"/Dockerfile
+
+  (cd "$TARGETDIR/branding" && ./branding.sh)
