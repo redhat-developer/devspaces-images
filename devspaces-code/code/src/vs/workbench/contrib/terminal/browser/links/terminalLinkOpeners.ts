@@ -23,6 +23,7 @@ import { IWorkbenchEnvironmentService } from 'vs/workbench/services/environment/
 import { IHostService } from 'vs/workbench/services/host/browser/host';
 import { QueryBuilder } from 'vs/workbench/services/search/common/queryBuilder';
 import { ISearchService } from 'vs/workbench/services/search/common/search';
+import { basename } from 'vs/base/common/path';
 
 export class TerminalLocalFileLinkOpener implements ITerminalLinkOpener {
 	constructor(
@@ -35,7 +36,7 @@ export class TerminalLocalFileLinkOpener implements ITerminalLinkOpener {
 		if (!link.uri) {
 			throw new Error('Tried to open file link without a resolved URI');
 		}
-		const lineColumnInfo: ILineColumnInfo = this.extractLineColumnInfo(link.text);
+		const lineColumnInfo: ILineColumnInfo = this.extractLineColumnInfo(link.text, link.uri);
 		const selection: ITextEditorSelection = {
 			startLineNumber: lineColumnInfo.lineNumber,
 			startColumn: lineColumnInfo.columnNumber
@@ -51,16 +52,32 @@ export class TerminalLocalFileLinkOpener implements ITerminalLinkOpener {
 	 *
 	 * @param link Url link which may contain line and column number.
 	 */
-	extractLineColumnInfo(link: string): ILineColumnInfo {
+	extractLineColumnInfo(link: string, uri: URI): ILineColumnInfo {
 		const lineColumnInfo: ILineColumnInfo = {
 			lineNumber: 1,
 			columnNumber: 1
 		};
 
+		// Calculate the file name end using the URI if possible, this will help with sanitizing the
+		// link for the match regex. The actual path isn't important in extracting the line and
+		// column from the regex so modifying the link text before the file name is safe.
+		const fileName = basename(uri.path);
+		const index = link.indexOf(fileName);
+		const fileNameEndIndex: number = index !== -1 ? index + fileName.length : link.length;
+
+		// Sanitize the link text such that the folders and file name do not contain whitespace.
+		let sanitizedLink = link.slice(0, fileNameEndIndex).replace(/\s/g, '_') + link.slice(fileNameEndIndex);
+
+		// Remove / suffixes from Windows paths such that the windows link regex works
+		// (eg. /c:/file -> c:/file)
+		if (this._os === OperatingSystem.Windows && sanitizedLink.match(/^\/[a-z]:\//i)) {
+			sanitizedLink = sanitizedLink.slice(1);
+		}
+
 		// The local link regex only works for non file:// links, check these for a simple
 		// `:line:col` suffix
-		if (link.startsWith('file://')) {
-			const simpleMatches = link.match(/:(\d+)(:(\d+))?$/);
+		if (sanitizedLink.startsWith('file://')) {
+			const simpleMatches = sanitizedLink.match(/:(\d+)(:(\d+))?$/);
 			if (simpleMatches) {
 				if (simpleMatches[1] !== undefined) {
 					lineColumnInfo.lineNumber = parseInt(simpleMatches[1]);
@@ -72,7 +89,7 @@ export class TerminalLocalFileLinkOpener implements ITerminalLinkOpener {
 			return lineColumnInfo;
 		}
 
-		const matches: string[] | null = getLocalLinkRegex(this._os).exec(link);
+		const matches: string[] | null = getLocalLinkRegex(this._os).exec(sanitizedLink);
 		if (!matches) {
 			return lineColumnInfo;
 		}
@@ -189,9 +206,23 @@ export class TerminalSearchLinkOpener implements ITerminalLinkOpener {
 		// Try open as an absolute link
 		let resourceMatch: IResourceMatch | undefined;
 		if (absolutePath) {
-			const slashNormalizedPath = this._os === OperatingSystem.Windows ? absolutePath.replace(/\\/g, '/') : absolutePath;
-			const scheme = this._workbenchEnvironmentService.remoteAuthority ? Schemas.vscodeRemote : Schemas.file;
-			const uri = URI.from({ scheme, path: slashNormalizedPath });
+			let normalizedAbsolutePath: string = absolutePath;
+			if (this._os === OperatingSystem.Windows) {
+				normalizedAbsolutePath = absolutePath.replace(/\\/g, '/');
+				if (normalizedAbsolutePath.match(/[a-z]:/i)) {
+					normalizedAbsolutePath = `/${normalizedAbsolutePath}`;
+				}
+			}
+			let uri: URI;
+			if (this._workbenchEnvironmentService.remoteAuthority) {
+				uri = URI.from({
+					scheme: Schemas.vscodeRemote,
+					authority: this._workbenchEnvironmentService.remoteAuthority,
+					path: normalizedAbsolutePath
+				});
+			} else {
+				uri = URI.file(normalizedAbsolutePath);
+			}
 			try {
 				const fileStat = await this._fileService.stat(uri);
 				resourceMatch = { uri, isDirectory: fileStat.isDirectory };
@@ -218,13 +249,23 @@ export class TerminalSearchLinkOpener implements ITerminalLinkOpener {
 
 	private async _tryOpenExactLink(text: string, link: ITerminalSimpleLink): Promise<boolean> {
 		const sanitizedLink = text.replace(/:\d+(:\d+)?$/, '');
+		// For links made up of only a file name (no folder), disallow exact link matching. For
+		// example searching for `foo.txt` when there is no cwd information available (ie. only the
+		// initial cwd) should NOT search  as it's ambiguous if there are multiple matches.
+		//
+		// However, for a link like `src/foo.txt`, if there's an exact match for `src/foo.txt` in
+		// any folder we want to take it, even if there are partial matches like `src2/foo.txt`
+		// available.
+		if (!sanitizedLink.match(/[\\/]/)) {
+			return false;
+		}
 		try {
 			const result = await this._getExactMatch(sanitizedLink);
 			if (result) {
 				const { uri, isDirectory } = result;
 				const linkToOpen = {
 					// Use the absolute URI's path here so the optional line/col get detected
-					text: result.uri.fsPath + (text.match(/:\d+(:\d+)?$/)?.[0] || ''),
+					text: result.uri.path + (text.match(/:\d+(:\d+)?$/)?.[0] || ''),
 					uri,
 					bufferRange: link.bufferRange,
 					type: link.type

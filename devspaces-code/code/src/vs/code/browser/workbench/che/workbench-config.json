@@ -1,0 +1,20 @@
+{
+	"windowIndicator": {
+		"label": "$(devspaces) Dev Spaces",
+		"tooltip": "Dev Spaces"
+	},
+	"configurationDefaults": {
+		"workbench.colorTheme": "Dark",
+		"workbench.colorCustomizations": {
+			"statusBarItem.remoteBackground": "#ffffff",
+			"statusBarItem.remoteForeground": "#525C86"
+		}
+	},
+	"initialColorTheme": {
+		"themeType": "dark",
+		"colors": {
+			"statusBarItem.remoteBackground": "#ffffff",
+			"statusBarItem.remoteForeground": "#525C86"
+		}
+	}
+}

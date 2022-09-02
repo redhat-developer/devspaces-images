@@ -115,7 +115,7 @@ class LanguageDetectionStatusContribution implements IWorkbenchContribution {
 	}
 }
 
-Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(LanguageDetectionStatusContribution, LifecyclePhase.Restored);
+Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench).registerWorkbenchContribution(LanguageDetectionStatusContribution, 'LanguageDetectionStatusContribution', LifecyclePhase.Restored);
 
 
 registerAction2(class extends Action2 {
@@ -123,7 +123,7 @@ registerAction2(class extends Action2 {
 	constructor() {
 		super({
 			id: detectLanguageCommandId,
-			title: localize('detectlang', 'Detect Language from Content'),
+			title: { value: localize('detectlang', 'Detect Language from Content'), original: 'Detect Language from Content' },
 			f1: true,
 			precondition: ContextKeyExpr.and(NOTEBOOK_EDITOR_EDITABLE.toNegated(), EditorContextKeys.editorTextFocus),
 			keybinding: { primary: KeyCode.KeyD | KeyMod.Alt | KeyMod.Shift, weight: KeybindingWeight.WorkbenchContrib }

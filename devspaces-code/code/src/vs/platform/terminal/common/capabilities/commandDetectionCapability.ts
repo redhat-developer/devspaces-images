@@ -10,8 +10,8 @@ import { ILogService } from 'vs/platform/log/common/log';
 import { ICommandDetectionCapability, TerminalCapability, ITerminalCommand, IHandleCommandOptions, ICommandInvalidationRequest, CommandInvalidationReason } from 'vs/platform/terminal/common/capabilities/capabilities';
 import { ISerializedCommand, ISerializedCommandDetectionCapability } from 'vs/platform/terminal/common/terminalProcess';
 // Importing types is safe in any layer
-// eslint-disable-next-line code-import-patterns
-import type { IBuffer, IDisposable, IMarker, Terminal } from 'xterm-headless';
+// eslint-disable-next-line local/code-import-patterns
+import type { IBuffer, IBufferLine, IDisposable, IMarker, Terminal } from 'xterm-headless';
 
 export interface ICurrentPartialCommand {
 	previousCommandMarker?: IMarker;
@@ -457,7 +457,7 @@ export class CommandDetectionCapability implements ICommandDetectionCapability {
 				cwd: this._cwd,
 				exitCode: this._exitCode,
 				commandStartLineContent: this._currentCommand.commandStartLineContent,
-				hasOutput: !!(executedMarker && endMarker && executedMarker?.line < endMarker!.line),
+				hasOutput: () => !executedMarker?.isDisposed && !endMarker?.isDisposed && !!(executedMarker && endMarker && executedMarker?.line < endMarker!.line),
 				getOutput: () => getOutputForCommand(executedMarker, endMarker, buffer),
 				genericMarkProperties: options?.genericMarkProperties
 			};
@@ -579,7 +579,7 @@ export class CommandDetectionCapability implements ICommandDetectionCapability {
 				cwd: e.cwd,
 				commandStartLineContent: e.commandStartLineContent,
 				exitCode: e.exitCode,
-				hasOutput: !!(executedMarker && endMarker && executedMarker.line < endMarker.line),
+				hasOutput: () => !executedMarker?.isDisposed && !endMarker?.isDisposed && !!(executedMarker && endMarker && executedMarker.line < endMarker.line),
 				getOutput: () => getOutputForCommand(executedMarker, endMarker, buffer),
 				genericMarkProperties: e.genericMarkProperties
 			};
@@ -601,8 +601,13 @@ function getOutputForCommand(executedMarker: IMarker | undefined, endMarker: IMa
 		return undefined;
 	}
 	let output = '';
+	let line: IBufferLine | undefined;
 	for (let i = startLine; i < endLine; i++) {
-		output += buffer.getLine(i)?.translateToString(true) + '\n';
+		line = buffer.getLine(i);
+		if (!line) {
+			continue;
+		}
+		output += line.translateToString(!line.isWrapped) + (line.isWrapped ? '' : '\n');
 	}
 	return output === '' ? undefined : output;
 }

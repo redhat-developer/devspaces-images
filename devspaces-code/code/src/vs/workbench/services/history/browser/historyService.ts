@@ -993,6 +993,10 @@ export class HistoryService extends Disposable implements IHistoryService {
 			try {
 				const entriesParsed: ISerializedEditorHistoryEntry[] = JSON.parse(entriesRaw);
 				for (const entryParsed of entriesParsed) {
+					if (!entryParsed.editor || !entryParsed.editor.resource) {
+						continue; // unexpected data format
+					}
+
 					try {
 						entries.push({
 							...entryParsed.editor,
@@ -1103,7 +1107,7 @@ export class HistoryService extends Disposable implements IHistoryService {
 	//#endregion
 }
 
-registerSingleton(IHistoryService, HistoryService);
+registerSingleton(IHistoryService, HistoryService, false);
 
 class EditorSelectionState {
 

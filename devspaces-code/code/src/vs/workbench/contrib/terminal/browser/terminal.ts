@@ -6,12 +6,13 @@
 import { Orientation } from 'vs/base/browser/ui/splitview/splitview';
 import { Event } from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
+import { OperatingSystem } from 'vs/base/common/platform';
 import { URI } from 'vs/base/common/uri';
 import { FindReplaceState } from 'vs/editor/contrib/find/browser/findState';
 import { createDecorator } from 'vs/platform/instantiation/common/instantiation';
 import { IKeyMods } from 'vs/platform/quickinput/common/quickInput';
 import { ITerminalCapabilityStore, ITerminalCommand } from 'vs/platform/terminal/common/capabilities/capabilities';
-import { IExtensionTerminalProfile, IProcessPropertyMap, IShellIntegration, IShellLaunchConfig, ITerminalDimensions, ITerminalLaunchError, ITerminalProfile, ITerminalTabLayoutInfoById, ProcessPropertyType, TerminalIcon, TerminalLocation, TerminalShellType, TitleEventSource } from 'vs/platform/terminal/common/terminal';
+import { IExtensionTerminalProfile, IProcessPropertyMap, IReconnectionProperties, IShellIntegration, IShellLaunchConfig, ITerminalDimensions, ITerminalLaunchError, ITerminalProfile, ITerminalTabLayoutInfoById, ProcessPropertyType, TerminalExitReason, TerminalIcon, TerminalLocation, TerminalShellType, TerminalType, TitleEventSource, WaitOnExitValue } from 'vs/platform/terminal/common/terminal';
 import { IGenericMarkProperties } from 'vs/platform/terminal/common/terminalProcess';
 import { IWorkspaceFolder } from 'vs/platform/workspace/common/workspace';
 import { EditorInput } from 'vs/workbench/common/editor/editorInput';
@@ -63,7 +64,7 @@ export interface ITerminalInstanceService {
 	 * method to avoid using the more verbose fetching from the registry.
 	 * @param remoteAuthority The remote authority of the backend.
 	 */
-	getBackend(remoteAuthority?: string): ITerminalBackend | undefined;
+	getBackend(remoteAuthority?: string): Promise<ITerminalBackend | undefined>;
 }
 
 export interface IBrowserTerminalConfigHelper extends ITerminalConfigHelper {
@@ -133,6 +134,7 @@ export interface ITerminalService extends ITerminalInstanceHost {
 	readonly connectionState: TerminalConnectionState;
 	readonly defaultLocation: TerminalLocation;
 
+
 	initializeTerminals(): Promise<void>;
 	onDidChangeActiveGroup: Event<ITerminalGroup | undefined>;
 	onDidDisposeGroup: Event<ITerminalGroup>;
@@ -163,6 +165,11 @@ export interface ITerminalService extends ITerminalInstanceHost {
 	getInstanceFromId(terminalId: number): ITerminalInstance | undefined;
 	getInstanceFromIndex(terminalIndex: number): ITerminalInstance;
 
+	/**
+	 * An owner of terminals might be created after reconnection has occurred,
+	 * so store them to be requested/adopted later
+	 */
+	getReconnectedTerminals(reconnectionOwner: string): ITerminalInstance[] | undefined;
 
 	getActiveOrCreateInstance(): Promise<ITerminalInstance>;
 	moveToEditor(source: ITerminalInstance): void;
@@ -251,6 +258,10 @@ interface ITerminalEditorInputObject {
 	readonly icon: TerminalIcon | undefined;
 	readonly color: string | undefined;
 	readonly hasChildProcesses?: boolean;
+	readonly type?: TerminalType;
+	readonly isFeatureTerminal?: boolean;
+	readonly hideFromUser?: boolean;
+	readonly reconnectionProperties?: IReconnectionProperties;
 }
 
 export interface ISerializedTerminalEditorInput extends ITerminalEditorInputObject {
@@ -439,13 +450,14 @@ export interface ITerminalInstance {
 	readonly fixedRows?: number;
 	readonly icon?: TerminalIcon;
 	readonly color?: string;
-
+	readonly reconnectionProperties?: IReconnectionProperties;
 	readonly processName: string;
 	readonly sequence?: string;
 	readonly staticTitle?: string;
 	readonly workspaceFolder?: IWorkspaceFolder;
 	readonly cwd?: string;
 	readonly initialCwd?: string;
+	readonly os?: OperatingSystem;
 	readonly capabilities: ITerminalCapabilityStore;
 
 	readonly statusList: ITerminalStatusList;
@@ -471,6 +483,11 @@ export interface ITerminalInstance {
 	 * that supports reconnection.
 	 */
 	readonly persistentProcessId: number | undefined;
+
+	/**
+	 * The id of a persistent process during the shutdown process
+	 */
+	shutdownPersistentProcessId: number | undefined;
 
 	/**
 	 * Whether the process should be persisted across reloads.
@@ -501,6 +518,12 @@ export interface ITerminalInstance {
 	 * Whether an element within this terminal is focused.
 	 */
 	readonly hasFocus: boolean;
+
+	/**
+	 * Get or set the behavior of the terminal when it closes. This was indented only to be called
+	 * after reconnecting to a terminal.
+	 */
+	waitOnExit: WaitOnExitValue | undefined;
 
 	/**
 	 * An event that fires when the terminal instance's title changes.
@@ -566,6 +589,8 @@ export interface ITerminalInstance {
 	onDidChangeFindResults: Event<{ resultIndex: number; resultCount: number } | undefined>;
 
 	readonly exitCode: number | undefined;
+
+	readonly exitReason: TerminalExitReason | undefined;
 
 	readonly areLinksReady: boolean;
 
@@ -651,17 +676,17 @@ export interface ITerminalInstance {
 	/**
 	 * Dispose the terminal instance, removing it from the panel/service and freeing up resources.
 	 *
-	 * @param immediate Whether the kill should be immediate or not. Immediate should only be used
-	 * when VS Code is shutting down or in cases where the terminal dispose was user initiated.
-	 * The immediate===false exists to cover an edge case where the final output of the terminal can
-	 * get cut off. If immediate kill any terminal processes immediately.
+	 * @param reason The reason why the terminal is being disposed
 	 */
-	dispose(immediate?: boolean): void;
+	dispose(reason?: TerminalExitReason): void;
 
 	/**
-	 * Inform the process that the terminal is now detached.
+	 * Informs the process that the terminal is now detached and
+	 * then disposes the terminal.
+	 *
+	 * @param reason The reason why the terminal is being disposed
 	 */
-	detachFromProcess(): Promise<void>;
+	detachProcessAndDispose(reason: TerminalExitReason): Promise<void>;
 
 	/**
 	 * Check if anything is selected in terminal.
@@ -672,6 +697,12 @@ export interface ITerminalInstance {
 	 * Copies the terminal selection to the clipboard.
 	 */
 	copySelection(asHtml?: boolean, command?: ITerminalCommand): Promise<void>;
+
+
+	/**
+	 * Copies the ouput of the last command
+	 */
+	copyLastCommandOutput(): Promise<void>;
 
 	/**
 	 * Current selection in the terminal.
@@ -732,8 +763,12 @@ export interface ITerminalInstance {
 	 * @param addNewLine Whether to add a new line to the text being sent, this is normally required
 	 * to run a command in the terminal. The character(s) added are \n or \r\n depending on the
 	 * platform. This defaults to `true`.
+	 * @param bracketedPasteMode Whether to wrap the text in the bracketed paste mode sequence when
+	 * it's enabled. When true, the shell will treat the text as if it were pasted into the shell,
+	 * this may for example select the text and it will also ensure that the text will not be
+	 * interpreted as a shell keybinding.
 	 */
-	sendText(text: string, addNewLine: boolean): Promise<void>;
+	sendText(text: string, addNewLine: boolean, bracketedPasteMode?: boolean): Promise<void>;
 
 	/**
 	 * Sends a path to the terminal instance, preparing it as needed based on the detected shell
@@ -746,6 +781,14 @@ export interface ITerminalInstance {
 	 * platform. This defaults to `true`.
 	 */
 	sendPath(originalPath: string, addNewLine: boolean): Promise<void>;
+
+	/**
+	 * Takes a path and returns the properly escaped path to send to a given shell. On Windows, this
+	 * includes trying to prepare the path for WSL if needed.
+	 *
+	 * @param originalPath The path to be escaped and formatted.
+	 */
+	preparePathForShell(originalPath: string): Promise<string>;
 
 	/** Scroll the terminal buffer down 1 line. */   scrollDownLine(): void;
 	/** Scroll the terminal buffer down 1 page. */   scrollDownPage(): void;
@@ -944,6 +987,11 @@ export interface IXtermTerminal {
 	 * @param properties
 	 */
 	addDecoration(marker: IMarker, properties: IGenericMarkProperties): void;
+
+	/**
+	 * Returns a reverse iterator of buffer lines as strings
+	 */
+	getBufferReverseIterator(): IterableIterator<string>;
 }
 
 export interface IInternalXtermTerminal {
