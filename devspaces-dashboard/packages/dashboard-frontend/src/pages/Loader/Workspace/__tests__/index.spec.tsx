@@ -154,7 +154,7 @@ describe('Workspace loader page', () => {
         key: 'alert-id',
         title:
           'Failed to start the workspace golang-example, reason: You are not allowed to start more workspaces.',
-        variant: AlertVariant.danger,
+        variant: AlertVariant.warning,
         error: new RunningWorkspacesExceededError('You are not allowed to start more workspaces.'),
       };
 
@@ -191,7 +191,7 @@ describe('Workspace loader page', () => {
         key: 'alert-id',
         title:
           'Failed to start the workspace golang-example, reason: You are not allowed to start more workspaces.',
-        variant: AlertVariant.danger,
+        variant: AlertVariant.warning,
         error: new RunningWorkspacesExceededError('You are not allowed to start more workspaces.'),
       };
 
@@ -233,7 +233,7 @@ describe('Workspace loader page', () => {
         key: 'alert-id',
         title:
           'Failed to start the workspace golang-example, reason: You are not allowed to start more workspaces.',
-        variant: AlertVariant.danger,
+        variant: AlertVariant.warning,
         error: new RunningWorkspacesExceededError('You are not allowed to start more workspaces.'),
       };
 
@@ -268,7 +268,7 @@ describe('Workspace loader page', () => {
         key: 'alert-id',
         title:
           'Failed to start the workspace golang-example, reason: You are not allowed to start more workspaces.',
-        variant: AlertVariant.danger,
+        variant: AlertVariant.warning,
         error: new RunningWorkspacesExceededError('You are not allowed to start more workspaces.'),
       };
 

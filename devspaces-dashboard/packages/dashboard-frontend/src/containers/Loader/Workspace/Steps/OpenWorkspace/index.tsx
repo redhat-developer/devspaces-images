@@ -25,6 +25,7 @@ import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../const';
 import findTargetWorkspace from '../../findTargetWorkspace';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { RunningWorkspacesExceededError } from '../../../../../store/Workspaces/devWorkspaces';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -148,7 +149,10 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
         : {
             key: 'ide-loader-open-ide',
             title: 'Failed to open the workspace',
-            variant: AlertVariant.danger,
+            variant:
+              lastError instanceof RunningWorkspacesExceededError
+                ? AlertVariant.warning
+                : AlertVariant.danger,
             children: common.helpers.errors.getMessage(lastError),
           };
 

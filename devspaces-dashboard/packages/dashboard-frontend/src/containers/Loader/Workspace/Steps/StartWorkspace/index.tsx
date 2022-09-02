@@ -28,6 +28,7 @@ import findTargetWorkspace from '../../findTargetWorkspace';
 import workspaceStatusIs from '../workspaceStatusIs';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { RunningWorkspacesExceededError } from '../../../../../store/Workspaces/devWorkspaces';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -193,7 +194,10 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
         : {
             key: 'ide-loader-start-workspace',
             title: 'Failed to open the workspace',
-            variant: AlertVariant.danger,
+            variant:
+              lastError instanceof RunningWorkspacesExceededError
+                ? AlertVariant.warning
+                : AlertVariant.danger,
             children: common.helpers.errors.getMessage(lastError),
             error: lastError,
           };
