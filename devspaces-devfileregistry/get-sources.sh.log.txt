@@ -1,0 +1,416 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> 11cf9c2d2f6
+STEP 3/23: ARG BOOTSTRAP=true
+--> 0e6ed059119
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> ca91a70ff24
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> b8572aa0d01
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 79b93c66985
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> a6e589b29ca
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> a2b4593d152
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> e7b5f1c6080
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 5fca50ba1a0
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+Updating Subscription Management repositories.
+Unable to read consumer identity
+Subscription Manager is operating in container mode.
+
+This system is not registered with an entitlement server. You can use subscription-manager to register.
+
+Red Hat Universal Base Image 8 (RPMs) - BaseOS  2.5 MB/s | 801 kB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - AppStre 8.2 MB/s | 3.0 MB     00:00    
+Red Hat Universal Base Image 8 (RPMs) - CodeRea  94 kB/s |  20 kB     00:00    
+Package findutils-1:4.6.0-20.el8.x86_64 is already installed.
+Package bash-4.4.20-3.el8.x86_64 is already installed.
+Package wget-1.19.5-10.el8.x86_64 is already installed.
+Package yum-4.7.0-8.el8.noarch is already installed.
+Package git-2.31.1-2.el8.x86_64 is already installed.
+Package gzip-1.9-13.el8_5.x86_64 is already installed.
+Package tar-2:1.30-5.el8.x86_64 is already installed.
+Package python3-six-1.11.0-8.el8.noarch is already installed.
+Dependencies resolved.
+=============================================================================================
+ Package               Arch    Version                                 Repository        Size
+=============================================================================================
+Installing:
+ jq                    x86_64  1.6-3.el8                               ubi-8-appstream  202 k
+ python3-pip           noarch  9.0.3-22.el8                            ubi-8-appstream   20 k
+ skopeo                x86_64  2:1.8.0-2.module+el8.6.0+15917+093ca6f8 ubi-8-appstream  6.9 M
+Upgrading:
+ bash                  x86_64  4.4.20-4.el8_6                          ubi-8-baseos     1.5 M
+Installing dependencies:
+ containers-common     x86_64  2:1-35.module+el8.6.0+15917+093ca6f8    ubi-8-appstream  109 k
+ criu                  x86_64  3.15-3.module+el8.6.0+15875+dc9a2b96    ubi-8-appstream  518 k
+ fuse-common           x86_64  3.3.0-15.el8                            ubi-8-baseos      22 k
+ fuse3                 x86_64  3.3.0-15.el8                            ubi-8-baseos      54 k
+ fuse3-libs            x86_64  3.3.0-15.el8                            ubi-8-baseos      95 k
+ iptables-libs         x86_64  1.8.4-22.el8                            ubi-8-baseos     108 k
+ jansson               x86_64  2.14-1.el8                              ubi-8-baseos      47 k
+ kmod                  x86_64  25-19.el8                               ubi-8-baseos     126 k
+ libibverbs            x86_64  37.2-1.el8                              ubi-8-baseos     385 k
+ libmnl                x86_64  1.0.4-6.el8                             ubi-8-baseos      30 k
+ libnet                x86_64  1.1.6-15.el8                            ubi-8-appstream   67 k
+ libnftnl              x86_64  1.1.5-5.el8                             ubi-8-baseos      83 k
+ libpcap               x86_64  14:1.9.1-5.el8                          ubi-8-baseos     169 k
+ libslirp              x86_64  4.4.0-1.module+el8.6.0+15875+dc9a2b96   ubi-8-appstream   70 k
+ nftables              x86_64  1:0.9.3-25.el8                          ubi-8-baseos     324 k
+ oniguruma             x86_64  6.8.2-2.el8                             ubi-8-appstream  187 k
+ platform-python-pip   noarch  9.0.3-22.el8                            ubi-8-baseos     1.6 M
+ protobuf-c            x86_64  1.3.0-6.el8                             ubi-8-appstream   37 k
+ python3-setuptools    noarch  39.2.0-6.el8                            ubi-8-baseos     163 k
+ python36              x86_64  3.6.8-38.module+el8.5.0+12207+5c5719bc  ubi-8-appstream   19 k
+ runc                  x86_64  1:1.1.3-2.module+el8.6.0+15917+093ca6f8 ubi-8-appstream  3.0 M
+Installing weak dependencies:
+ fuse-overlayfs        x86_64  1.9-1.module+el8.6.0+15917+093ca6f8     ubi-8-appstream   73 k
+ slirp4netns           x86_64  1.2.0-2.module+el8.6.0+15917+093ca6f8   ubi-8-appstream   54 k
+Enabling module streams:
+ container-tools               rhel8                                                         
+ python36                      3.6                                                           
+
+Transaction Summary
+=============================================================================================
+Install  26 Packages
+Upgrade   1 Package
+
+Total download size: 16 M
+Downloading Packages:
+(1/27): python3-pip-9.0.3-22.el8.noarch.rpm     163 kB/s |  20 kB     00:00    
+(2/27): libnet-1.1.6-15.el8.x86_64.rpm          487 kB/s |  67 kB     00:00    
+(3/27): python36-3.6.8-38.module+el8.5.0+12207+ 606 kB/s |  19 kB     00:00    
+(4/27): libnftnl-1.1.5-5.el8.x86_64.rpm         520 kB/s |  83 kB     00:00    
+(5/27): jansson-2.14-1.el8.x86_64.rpm           1.4 MB/s |  47 kB     00:00    
+(6/27): jq-1.6-3.el8.x86_64.rpm                 1.0 MB/s | 202 kB     00:00    
+(7/27): oniguruma-6.8.2-2.el8.x86_64.rpm        2.5 MB/s | 187 kB     00:00    
+(8/27): libibverbs-37.2-1.el8.x86_64.rpm        1.7 MB/s | 385 kB     00:00    
+(9/27): libslirp-4.4.0-1.module+el8.6.0+15875+d 2.2 MB/s |  70 kB     00:00    
+(10/27): libmnl-1.0.4-6.el8.x86_64.rpm          1.1 MB/s |  30 kB     00:00    
+(11/27): fuse-overlayfs-1.9-1.module+el8.6.0+15 2.3 MB/s |  73 kB     00:00    
+(12/27): iptables-libs-1.8.4-22.el8.x86_64.rpm  3.5 MB/s | 108 kB     00:00    
+(13/27): fuse3-3.3.0-15.el8.x86_64.rpm          1.7 MB/s |  54 kB     00:00    
+(14/27): protobuf-c-1.3.0-6.el8.x86_64.rpm      245 kB/s |  37 kB     00:00    
+(15/27): platform-python-pip-9.0.3-22.el8.noarc 4.8 MB/s | 1.6 MB     00:00    
+(16/27): python3-setuptools-39.2.0-6.el8.noarch 4.7 MB/s | 163 kB     00:00    
+(17/27): nftables-0.9.3-25.el8.x86_64.rpm       2.0 MB/s | 324 kB     00:00    
+(18/27): fuse-common-3.3.0-15.el8.x86_64.rpm    845 kB/s |  22 kB     00:00    
+(19/27): kmod-25-19.el8.x86_64.rpm              4.0 MB/s | 126 kB     00:00    
+(20/27): fuse3-libs-3.3.0-15.el8.x86_64.rpm     3.1 MB/s |  95 kB     00:00    
+(21/27): libpcap-1.9.1-5.el8.x86_64.rpm         5.7 MB/s | 169 kB     00:00    
+(22/27): runc-1.1.3-2.module+el8.6.0+15917+093c  16 MB/s | 3.0 MB     00:00    
+(23/27): skopeo-1.8.0-2.module+el8.6.0+15917+09  40 MB/s | 6.9 MB     00:00    
+(24/27): slirp4netns-1.2.0-2.module+el8.6.0+159 1.5 MB/s |  54 kB     00:00    
+(25/27): bash-4.4.20-4.el8_6.x86_64.rpm          18 MB/s | 1.5 MB     00:00    
+(26/27): containers-common-1-35.module+el8.6.0+ 3.2 MB/s | 109 kB     00:00    
+(27/27): criu-3.15-3.module+el8.6.0+15875+dc9a2 1.0 MB/s | 518 kB     00:00    
+--------------------------------------------------------------------------------
+Total                                            20 MB/s |  16 MB     00:00     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                        1/1 
+  Upgrading        : bash-4.4.20-4.el8_6.x86_64                            1/28 
+  Running scriptlet: bash-4.4.20-4.el8_6.x86_64                            1/28 
+  Installing       : fuse3-libs-3.3.0-15.el8.x86_64                        2/28 
+  Running scriptlet: fuse3-libs-3.3.0-15.el8.x86_64                        2/28 
+  Installing       : libmnl-1.0.4-6.el8.x86_64                             3/28 
+  Running scriptlet: libmnl-1.0.4-6.el8.x86_64                             3/28 
+  Installing       : libnftnl-1.1.5-5.el8.x86_64                           4/28 
+  Running scriptlet: libnftnl-1.1.5-5.el8.x86_64                           4/28 
+  Installing       : libibverbs-37.2-1.el8.x86_64                          5/28 
+  Running scriptlet: libibverbs-37.2-1.el8.x86_64                          5/28 
+  Installing       : libpcap-14:1.9.1-5.el8.x86_64                         6/28 
+  Installing       : iptables-libs-1.8.4-22.el8.x86_64                     7/28 
+  Installing       : kmod-25-19.el8.x86_64                                 8/28 
+  Installing       : libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.x86    9/28 
+  Installing       : slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.   10/28 
+  Installing       : protobuf-c-1.3.0-6.el8.x86_64                        11/28 
+  Installing       : oniguruma-6.8.2-2.el8.x86_64                         12/28 
+  Running scriptlet: oniguruma-6.8.2-2.el8.x86_64                         12/28 
+  Installing       : libnet-1.1.6-15.el8.x86_64                           13/28 
+  Running scriptlet: libnet-1.1.6-15.el8.x86_64                           13/28 
+  Installing       : fuse-common-3.3.0-15.el8.x86_64                      14/28 
+  Installing       : fuse3-3.3.0-15.el8.x86_64                            15/28 
+  Installing       : fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8   16/28 
+  Running scriptlet: fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8   16/28 
+  Installing       : python3-setuptools-39.2.0-6.el8.noarch               17/28 
+  Installing       : jansson-2.14-1.el8.x86_64                            18/28 
+  Installing       : nftables-1:0.9.3-25.el8.x86_64                       19/28 
+  Running scriptlet: nftables-1:0.9.3-25.el8.x86_64                       19/28 
+  Installing       : criu-3.15-3.module+el8.6.0+15875+dc9a2b96.x86_64     20/28 
+  Installing       : runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.x86_6   21/28 
+  Installing       : containers-common-2:1-35.module+el8.6.0+15917+093c   22/28 
+  Installing       : platform-python-pip-9.0.3-22.el8.noarch              23/28 
+  Installing       : python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.x8   24/28 
+  Running scriptlet: python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.x8   24/28 
+  Installing       : python3-pip-9.0.3-22.el8.noarch                      25/28 
+  Installing       : skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.x86   26/28 
+  Installing       : jq-1.6-3.el8.x86_64                                  27/28 
+  Cleanup          : bash-4.4.20-3.el8.x86_64                             28/28 
+  Running scriptlet: bash-4.4.20-3.el8.x86_64                             28/28 
+  Verifying        : platform-python-pip-9.0.3-22.el8.noarch               1/28 
+  Verifying        : libnftnl-1.1.5-5.el8.x86_64                           2/28 
+  Verifying        : libibverbs-37.2-1.el8.x86_64                          3/28 
+  Verifying        : jansson-2.14-1.el8.x86_64                             4/28 
+  Verifying        : nftables-1:0.9.3-25.el8.x86_64                        5/28 
+  Verifying        : libmnl-1.0.4-6.el8.x86_64                             6/28 
+  Verifying        : iptables-libs-1.8.4-22.el8.x86_64                     7/28 
+  Verifying        : fuse3-3.3.0-15.el8.x86_64                             8/28 
+  Verifying        : python3-setuptools-39.2.0-6.el8.noarch                9/28 
+  Verifying        : fuse-common-3.3.0-15.el8.x86_64                      10/28 
+  Verifying        : kmod-25-19.el8.x86_64                                11/28 
+  Verifying        : fuse3-libs-3.3.0-15.el8.x86_64                       12/28 
+  Verifying        : libpcap-14:1.9.1-5.el8.x86_64                        13/28 
+  Verifying        : jq-1.6-3.el8.x86_64                                  14/28 
+  Verifying        : libnet-1.1.6-15.el8.x86_64                           15/28 
+  Verifying        : python3-pip-9.0.3-22.el8.noarch                      16/28 
+  Verifying        : python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.x8   17/28 
+  Verifying        : oniguruma-6.8.2-2.el8.x86_64                         18/28 
+  Verifying        : protobuf-c-1.3.0-6.el8.x86_64                        19/28 
+  Verifying        : libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.x86   20/28 
+  Verifying        : runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.x86_6   21/28 
+  Verifying        : fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8   22/28 
+  Verifying        : skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.x86   23/28 
+  Verifying        : criu-3.15-3.module+el8.6.0+15875+dc9a2b96.x86_64     24/28 
+  Verifying        : slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.   25/28 
+  Verifying        : containers-common-2:1-35.module+el8.6.0+15917+093c   26/28 
+  Verifying        : bash-4.4.20-4.el8_6.x86_64                           27/28 
+  Verifying        : bash-4.4.20-3.el8.x86_64                             28/28 
+Installed products updated.
+
+Upgraded:
+  bash-4.4.20-4.el8_6.x86_64                                                    
+Installed:
+  containers-common-2:1-35.module+el8.6.0+15917+093ca6f8.x86_64                 
+  criu-3.15-3.module+el8.6.0+15875+dc9a2b96.x86_64                              
+  fuse-common-3.3.0-15.el8.x86_64                                               
+  fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8.x86_64                     
+  fuse3-3.3.0-15.el8.x86_64                                                     
+  fuse3-libs-3.3.0-15.el8.x86_64                                                
+  iptables-libs-1.8.4-22.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-3.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-37.2-1.el8.x86_64                                                  
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.x86_64                         
+  nftables-1:0.9.3-25.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  platform-python-pip-9.0.3-22.el8.noarch                                       
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  python3-pip-9.0.3-22.el8.noarch                                               
+  python3-setuptools-39.2.0-6.el8.noarch                                        
+  python36-3.6.8-38.module+el8.5.0+12207+5c5719bc.x86_64                        
+  runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.x86_64                           
+  skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.x86_64                         
+  slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.x86_64                      
+
+Complete!
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting argcomplete>=1.8.1
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Installing collected packages: PyYAML, xmltodict, toml, argcomplete, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.12
+yq: yq 3.1.0
+jq: jq-1.6
+--> 238e6dc1bd7
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 1812380f9f5
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> b672ffe2a59
+STEP 14/23: COPY ./VERSION /
+--> 570f9536f6e
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 599b158481c
+STEP 16/23: WORKDIR /build/
+--> 0cbaca10682
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
+added 121 packages from 182 contributors and audited 121 packages in 9.616s
+
+4 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
++ @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
+added 2 packages from 1 contributor and audited 240 packages in 2.888s
+
+4 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+--> 2c563ddf0fc
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> aff3a947098
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + quay.io/devspaces/code-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/machineexec-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/theia-endpoint-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/theia-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/udi-rhel8:3.3 PASS - 3.3 allowed
+ = registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4 PASS
+ = registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0 PASS
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 1dabf7dce45
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/00_java11-maven-eap/meta.yaml'
+Checking devfile 'devfiles/00_java11-maven-microprofile-xp3/meta.yaml'
+Checking devfile 'devfiles/03_camelk/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-gradle/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-lombok/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-quarkus/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-mongo/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-simple/meta.yaml'
+Checking devfile 'devfiles/04_python/meta.yaml'
+Checking devfile 'devfiles/05_cpp/meta.yaml'
+Checking devfile 'devfiles/05_dotnet/meta.yaml'
+Checking devfile 'devfiles/05_go/meta.yaml'
+Checking devfile 'devfiles/05_php-cake/meta.yaml'
+Checking devfile 'devfiles/05_php-di/meta.yaml'
+--> 6603bd289d1
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 97227324b87
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> f814047a30f
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> c4273987317
+Successfully tagged localhost/devfileregistry:tmp
+c42739873172f9fbdc87ed90ed034eb24e08b0b1446ae9148f76ad4196a23dd1
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+Untagged: localhost/devfileregistry:tmp
+Deleted: c42739873172f9fbdc87ed90ed034eb24e08b0b1446ae9148f76ad4196a23dd1
+Deleted: f814047a30f1166c5d2dd7413f9a686f9d909b10cc55e82e0d4746417ca91749
+Deleted: 97227324b87ac2ef584833ba6af8dd4af7e4566e84f845791617cba78b79a5fc
+Deleted: 6603bd289d15aa8f05cf2fc818f1854f8c8ac02cb59f509c742424ede4cdcb17
+Deleted: 1dabf7dce45cd37f80d040f4a41fa171c2b2c71d57e379e2b725cd1d8f2e4e83
+Deleted: aff3a94709843061ee3704e0e3b805a34e3f23e9fab56bbe7070b4cd92b79a74
+Deleted: 2c563ddf0fc8c8382b7ade68de9d173b09a728210acbf11d2e38517c2d0ef7d9
+Deleted: 0cbaca10682006afc805347ed5acddb541fa89ab8414e4fee00baf6ca6935607
+Deleted: 599b158481c7cc715b74c35ea9905198bf962de31278b1ed22d5c446b89a9935
+Deleted: 570f9536f6e4fb13d8044865280e228c9d1efbccd56e56a4b8bb9703c46c4502
+Deleted: b672ffe2a5923edec559d263ff247299418850d11355d7fc9a46e8f6afa376e7
+Deleted: 1812380f9f5b1373b293f44502077cf48e3cd1a65ad7a4571cb83cab3fa602aa
+Deleted: 238e6dc1bd72faab44f475ee92b4d2be4e639bb73521324f0ea7c62aecfc16a0
+Deleted: 5fca50ba1a0a15fa36e413e6fc21a8aee25d09a8f7ae6662b8359adae171730a
+Deleted: e7b5f1c6080ac2ca56c5a6ed781e303d37a6c101f12c0c82c3e7cb326058d948
+Deleted: a2b4593d152542d1dc126fb17083930bdcabeae0bbf88e8541612642b91338ab
+Deleted: a6e589b29ca69bf27545e5252b08b62f0db8d80ccb94441f3c7d4fbe67a62b37
+Deleted: 79b93c66985d3e5b2d61275dd58aee9292db575b7300020fc6a792b413abf8cb
+Deleted: b8572aa0d0157f939c9c13c72099003b128a0c17481a10d93ac142f50f0b84d0
+Deleted: ca91a70ff24028cda58473980df0c54735db736c1fbb6a5788bdefa52b5145ac
+Deleted: 0e6ed0591196fc3634daec83f619f4e318ad1f9d1a00973f51791bdbb68b5654
+Deleted: 11cf9c2d2f697dc50eab3b79e84edfda2972aaa652334a8002bbf64f6650c9fb
+File already uploaded: root-local.tgz
+File already uploaded: resources.tgz
+All sources were already uploaded.
+rm 'resources.tgz'
+rm 'root-local.tgz'
