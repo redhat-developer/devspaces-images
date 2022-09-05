@@ -217,9 +217,12 @@ export const actionCreators: ActionCreators = {
       try {
         const defaultKubernetesNamespace = selectDefaultNamespace(getState());
         const defaultNamespace = defaultKubernetesNamespace.name;
-        const { workspaces, resourceVersion } = await devWorkspaceClient.getAllWorkspaces(
-          defaultNamespace,
-        );
+        const { workspaces, resourceVersion } = defaultNamespace
+          ? await devWorkspaceClient.getAllWorkspaces(defaultNamespace)
+          : {
+              workspaces: [],
+              resourceVersion: '',
+            };
 
         dispatch({
           type: 'RECEIVE_DEVWORKSPACE',

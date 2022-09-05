@@ -213,7 +213,7 @@ describe('Factory Loader, step INITIALIZE', () => {
 
     const alertBody = screen.getByTestId('alert-body');
     expect(alertBody.textContent).toEqual(
-      'Failed to accept the factory URL. The infrastructure namespace is required to be created. Please create a regular workspace to workaround the issue and open factory URL again.',
+      'Failed to create a workspace. The infrastructure namespace is required to be created. Please, contact the cluster administrator.',
     );
 
     expect(mockOnNextStep).not.toHaveBeenCalled();
