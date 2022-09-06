@@ -184,7 +184,8 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
                 // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
                 util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
-                SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources")
+                // CRW-3292 get FULL LENGTH SHA for use in container.yaml
+                SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources",40)
                 println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
                 println "########################################################################################################"
@@ -192,12 +193,6 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 println "########################################################################################################"
                 util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
-                // if container.yaml has ref for cachito, update it to SOURCE_SHA
-                sh('''
-if grep -q 'ref:' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml; then
-  sed -r -e 's|ref:.*|ref: ''' + SOURCE_SHA + '''|'
-fi
-                ''')
                 // Sync
                 // TODO CRW-3080 remove sources from the exclude list, so that we can delete it from downstream if it doesn't exist in midstream
                 sh('''
@@ -212,6 +207,25 @@ echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
                 ''')
+
+                // CRW-3292 if container.yaml has a cachito reference to the devspaces-images repo, update it to latest SOURCE_SHA in the source repo
+                // sed replacement (match a line, move *N*ext 2 lines and *S*ubstitute it) will only work for this 3-line pattern:
+                //    repo: https://github.com/redhat-developer/devspaces-images.git
+                //    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+                //    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
+                sh('''#!/bin/bash -x
+if [[ $(grep 'repo: https://github.com/redhat-developer/devspaces-images.git' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml) ]]; then
+  sed -r -e '/.+repo: .+devspaces-images.git.*/{n;n;s/ref: .*/ref: ''' + SOURCE_SHA + '''/}' \
+    ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml >
+    ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+fi
+                ''')
+                // NOTE: if container.yaml has cachito reference(s) to OTHER repo(s), 
+                // MUST handle that separately in another sync.sh or get-sources.sh script
+                // See https://issues.redhat.com/browse/CRW-2619
+                // eg., https://pkgs.devel.redhat.com/cgit/containers/devspaces-udi/tree/container.yaml?h=private-mkuznets-cachito-2619#n21 
+                //     repo: https://github.com/golang/tools
+                //     ref: fd02dfae644ce04dfd4bb3828cf576b9d8717f79
 
                 OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
                 println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
