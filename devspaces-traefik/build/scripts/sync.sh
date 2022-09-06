@@ -70,7 +70,6 @@ tests/
 README.md
 get-source*.sh
 tests/basic-test.yaml
-sources
 make-release.sh
 rhel.Dockerfile
 " > /tmp/rsync-excludes
@@ -85,12 +84,9 @@ SOURCE_SHA=$(cd "${SOURCEDIR}"; git checkout "${TRAEFIK_VERSION}"; git rev-parse
 sed -r \
   `# Use the current SHA to build` \
   -e "s#ARG TRAEFIK_SHA=\".*\"#ARG TRAEFIK_SHA=\"${SOURCE_SHA}\"#g" \
-  -i "${TARGETDIR}"/build/rhel.binary.Dockerfile
-
-sed -r \
   `# Remove registry so build works in Brew` \
   -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-  "${TARGETDIR}"/build/rhel.container.Dockerfile > "${TARGETDIR}"/Dockerfile
+  "${TARGETDIR}"/build/rhel.Dockerfile > "${TARGETDIR}"/Dockerfile
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
 
