@@ -1,5 +1,5 @@
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM registry.access.redhat.com/ubi8-minimal:8.6-902.1661794353 
+FROM registry.access.redhat.com/ubi8-minimal:8.6-902.1661794353 as builder
 USER 0
 
 # cachito
