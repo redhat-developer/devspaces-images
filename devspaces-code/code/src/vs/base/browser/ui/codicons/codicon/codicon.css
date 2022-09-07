@@ -31,3 +31,9 @@ span.codicon.codicon-eclipse-che  {
 	width: 13px;
 	height: 13px;
 }
+
+span.codicon.codicon-devspaces  {
+	background-image: url(./dev-spaces.svg);
+	width: 15px;
+	height: 15px;
+}
