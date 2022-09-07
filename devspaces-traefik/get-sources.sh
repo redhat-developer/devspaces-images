@@ -39,7 +39,6 @@ if [[ ${doRhpkgContainerBuild} -eq 1 ]] || [[ ${forceBuild} -eq 1 ]]; then
 $ERRORS
 
 "; exit 1; fi
-fi
 else
 	echo "[INFO] No build triggered, use -f or --force-build to build in Brew."
 fi
