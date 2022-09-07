@@ -172,5 +172,14 @@ sed -r \
     -e "s#@@devspaces.docs.baseurl@@#${DS_DOCS_BASEURL}#g" \
 ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json.template > ${TARGETDIR}/packages/dashboard-frontend/assets/branding/product.json
 
+# shellcheck disable=SC2086
+# https://issues.redhat.com/browse/CRW-3292 - remove -next suffix
+while IFS= read -r -d '' d; do
+  if [[ $(grep -E "version.*-next" ${d}) ]]; then
+  	sed -r -e 's|("version": "[0-9.]+)-next"|\1"|' -i "${d}"
+	  echo "Updated version in ${d}"
+  fi
+done <   <(find ${TARGETDIR}/ -name "*.json" -type f -print0)
+
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
