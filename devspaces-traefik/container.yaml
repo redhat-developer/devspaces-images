@@ -14,3 +14,17 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-traefik
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 985ed2db598f8f342ee9640134eca9946882c749
+    pkg_managers: [gomod, yarn]
+    flags: [gomod-vendor-check]
+    packages: 
+      gomod: 
+        - path: devspaces-traefik
+      yarn:
+        - path: devspaces-traefik/webui
