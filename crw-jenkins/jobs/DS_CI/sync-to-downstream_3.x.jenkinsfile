@@ -216,7 +216,7 @@ rm -f /tmp/rsync-excludes
                 sh('''#!/bin/bash -x
 if [[ $(grep 'repo: https://github.com/redhat-developer/devspaces-images.git' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml) ]]; then
   sed -r -e '/.+repo: .+devspaces-images.git.*/{n;n;s/ref: .*/ref: ''' + SOURCE_SHA + '''/}' \
-    ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml >
+    ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml > \
     ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
 fi
                 ''')
