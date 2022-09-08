@@ -60,6 +60,7 @@ metadata:
             "components": {},
             "containerRegistry": {},
             "devEnvironments": {},
+            "gitServices": {},
             "networking": {}
           }
         }
@@ -68,7 +69,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.3
-    createdAt: "2022-09-06T13:43:47+00:00"
+    createdAt: "2022-09-08T21:18:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -135,6 +136,10 @@ spec:
           - description: Che components configuration.
             displayName: Components
             path: components
+          - description: A configuration that allows users to work with remote Git
+              repositories.
+            displayName: Git Services
+            path: gitServices
           - description: Networking, Che authentication, and TLS configuration.
             displayName: Networking
             path: networking
@@ -142,6 +147,44 @@ spec:
               images.
             displayName: Container registry
             path: containerRegistry
+          - description: Enables users to work with repositories hosted on Bitbucket
+              (bitbucket.org or self-hosted).
+            displayName: Bitbucket
+            path: gitServices.bitbucket
+          - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket
+              OAuth 1.0 or OAuth 2.0 data. For OAuth 1.0: private key, Bitbucket Application
+              link consumer key and Bitbucket Application link shared secret must
+              be stored in `private.key`, `consumer.key` and `shared_secret` keys
+              respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/.
+              For OAuth 2.0: Bitbucket OAuth consumer key and Bitbucket OAuth consumer
+              secret must be stored in `id` and `secret` keys respectively. See the
+              following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
+            displayName: Secret Name
+            path: gitServices.bitbucket[0].secretName
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes:Secret
+          - description: Enables users to work with repositories hosted on GitHub
+              (github.com or GitHub Enterprise).
+            displayName: GitHub
+            path: gitServices.github
+          - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth
+              Client id and GitHub OAuth Client secret, that stored in `id` and `secret`
+              keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
+            displayName: Secret Name
+            path: gitServices.github[0].secretName
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes:Secret
+          - description: Enables users to work with repositories hosted on GitLab
+              (gitlab.com or self-hosted).
+            displayName: GitLab
+            path: gitServices.gitlab
+          - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application
+              id and GitLab Application Client secret, that stored in `id` and `secret`
+              keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
+            displayName: Secret Name
+            path: gitServices.gitlab[0].secretName
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes:Secret
         statusDescriptors:
           - description: Specifies the current phase of the Che deployment.
             displayName: ChePhase
@@ -264,6 +307,48 @@ spec:
             path: devWorkspace.enable
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+          - description: A configuration that allows users to work with remote Git
+              repositories.
+            displayName: Git Services
+            path: gitServices
+          - description: Enables users to work with repositories hosted on Bitbucket
+              (bitbucket.org or self-hosted).
+            displayName: Bitbucket
+            path: gitServices.bitbucket
+          - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket
+              OAuth 1.0 or OAuth 2.0 data. For OAuth 1.0: private key, Bitbucket Application
+              link consumer key and Bitbucket Application link shared secret must
+              be stored in `private.key`, `consumer.key` and `shared_secret` keys
+              respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/.
+              For OAuth 2.0: Bitbucket OAuth consumer key and Bitbucket OAuth consumer
+              secret must be stored in `id` and `secret` keys respectively. See the
+              following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
+            displayName: Secret Name
+            path: gitServices.bitbucket[0].secretName
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes:Secret
+          - description: Enables users to work with repositories hosted on GitHub
+              (github.com or GitHub Enterprise).
+            displayName: GitHub
+            path: gitServices.github
+          - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth
+              Client id and GitHub OAuth Client secret, that stored in `id` and `secret`
+              keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
+            displayName: Secret Name
+            path: gitServices.github[0].secretName
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes:Secret
+          - description: Enables users to work with repositories hosted on GitLab
+              (gitlab.com or self-hosted).
+            displayName: GitLab
+            path: gitServices.gitlab
+          - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application
+              id and GitLab Application Client secret, that stored in `id` and `secret`
+              keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
+            displayName: Secret Name
+            path: gitServices.gitlab[0].secretName
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes:Secret
           - description: Kubernetes Image Puller configuration
             displayName: Kubernetes Image Puller
             path: imagePuller
@@ -1429,6 +1514,27 @@ spec:
   webhookdefinitions:
     - admissionReviewVersions:
         - v1
+        - v1beta1
+      containerPort: 443
+      deploymentName: devspaces-operator
+      failurePolicy: Fail
+      generateName: vchecluster.kb.io
+      rules:
+        - apiGroups:
+            - org.eclipse.che
+          apiVersions:
+            - v2
+          operations:
+            - CREATE
+            - UPDATE
+          resources:
+            - checlusters
+      sideEffects: None
+      targetPort: 9443
+      type: ValidatingAdmissionWebhook
+      webhookPath: /validate-org-eclipse-che-v2-checluster
+    - admissionReviewVersions:
+        - v1
         - v2
       containerPort: 443
       conversionCRDs:
@@ -1439,4 +1545,4 @@ spec:
       targetPort: 9443
       type: ConversionWebhook
       webhookPath: /convert
-  replaces: devspacesoperator.v3.0.1
+  replaces: devspacesoperator.v3.2.0
