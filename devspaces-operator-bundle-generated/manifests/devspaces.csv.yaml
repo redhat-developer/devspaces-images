@@ -60,6 +60,7 @@ metadata:
             "components": {},
             "containerRegistry": {},
             "devEnvironments": {},
+            "gitServices": {},
             "networking": {}
           }
         }
@@ -67,8 +68,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:553f04177eb4b9ac705d154d1f22dc3821ff44b44c3453a07acaf850805224ee
-    createdAt: "2022-09-06T13:43:47+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
+    createdAt: "2022-09-08T21:18:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -129,12 +130,42 @@ spec:
       - description: Che components configuration.
         displayName: Components
         path: components
+      - description: A configuration that allows users to work with remote Git repositories.
+        displayName: Git Services
+        path: gitServices
       - description: Networking, Che authentication, and TLS configuration.
         displayName: Networking
         path: networking
       - description: Configuration of an alternative registry that stores Che images.
         displayName: Container registry
         path: containerRegistry
+      - description: Enables users to work with repositories hosted on Bitbucket (bitbucket.org or self-hosted).
+        displayName: Bitbucket
+        path: gitServices.bitbucket
+      - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket OAuth 1.0 or OAuth 2.0 data. For OAuth 1.0: private key, Bitbucket Application link consumer key and Bitbucket Application
+          link shared secret must be stored in `private.key`, `consumer.key` and `shared_secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/.
+          For OAuth 2.0: Bitbucket OAuth consumer key and Bitbucket OAuth consumer secret must be stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
+        displayName: Secret Name
+        path: gitServices.bitbucket[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - description: Enables users to work with repositories hosted on GitHub (github.com or GitHub Enterprise).
+        displayName: GitHub
+        path: gitServices.github
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth Client id and GitHub OAuth Client secret, that stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
+        displayName: Secret Name
+        path: gitServices.github[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - description: Enables users to work with repositories hosted on GitLab (gitlab.com or self-hosted).
+        displayName: GitLab
+        path: gitServices.gitlab
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application id and GitLab Application Client secret, that stored in `id` and `secret` keys respectively. See the following page:
+          https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
+        displayName: Secret Name
+        path: gitServices.gitlab[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
       statusDescriptors:
       - description: Specifies the current phase of the Che deployment.
         displayName: ChePhase
@@ -247,6 +278,36 @@ spec:
         path: devWorkspace.enable
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+      - description: A configuration that allows users to work with remote Git repositories.
+        displayName: Git Services
+        path: gitServices
+      - description: Enables users to work with repositories hosted on Bitbucket (bitbucket.org or self-hosted).
+        displayName: Bitbucket
+        path: gitServices.bitbucket
+      - description: 'Kubernetes secret, that contains Base64-encoded Bitbucket OAuth 1.0 or OAuth 2.0 data. For OAuth 1.0: private key, Bitbucket Application link consumer key and Bitbucket Application
+          link shared secret must be stored in `private.key`, `consumer.key` and `shared_secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-1-for-a-bitbucket-server/.
+          For OAuth 2.0: Bitbucket OAuth consumer key and Bitbucket OAuth consumer secret must be stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-the-bitbucket-cloud/.'
+        displayName: Secret Name
+        path: gitServices.bitbucket[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - description: Enables users to work with repositories hosted on GitHub (github.com or GitHub Enterprise).
+        displayName: GitHub
+        path: gitServices.github
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub OAuth Client id and GitHub OAuth Client secret, that stored in `id` and `secret` keys respectively. See the following page: https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/.'
+        displayName: Secret Name
+        path: gitServices.github[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
+      - description: Enables users to work with repositories hosted on GitLab (gitlab.com or self-hosted).
+        displayName: GitLab
+        path: gitServices.gitlab
+      - description: 'Kubernetes secret, that contains Base64-encoded GitHub Application id and GitLab Application Client secret, that stored in `id` and `secret` keys respectively. See the following page:
+          https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-gitlab/.'
+        displayName: Secret Name
+        path: gitServices.gitlab[0].secretName
+        x-descriptors:
+        - urn:alm:descriptor:io.kubernetes:Secret
       - description: Kubernetes Image Puller configuration
         displayName: Kubernetes Image Puller
         path: imagePuller
@@ -1077,19 +1138,19 @@ spec:
                     fieldRef:
                       fieldPath: metadata.name
                 - name: RELATED_IMAGE_che_server
-                  value: registry.redhat.io/devspaces/server-rhel8@sha256:9a1253495245bef303b9c31fcfc69dbe0e91e95f60c303d497f27a6ca689344b
+                  value: registry.redhat.io/devspaces/server-rhel8@sha256:7a8f39d74ada7e2587d00a77135df30a4de4b028d7e2af88a52e097351467e39
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:71dfd95137e112ac63950f97438243659884a5ab5af6fb6c55576805bbcc6128
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:6dbcad71816b5222bcf9910c73bd00e14455e54ea758025c4deb7cd45fba5cae
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:09219d1f023c9ec9af1495d843f0819fb8a78ed5eef2d52fb6ff6b8fe81794d9
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:cb293a3a230b7eeae0b3560127f8cd18fd646b5ca6f96fbdc07c55f20052d03b
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:f260bfc14113647817d2be8b6645c5654b9dfdea201029420354b8893b4ace96
                 - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/code-rhel8@sha256:cb293a3a230b7eeae0b3560127f8cd18fd646b5ca6f96fbdc07c55f20052d03b
+                  value: registry.redhat.io/devspaces/code-rhel8@sha256:f260bfc14113647817d2be8b6645c5654b9dfdea201029420354b8893b4ace96
                 - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:d4f5ae5e70ad3532eff854ec5597d12ee65273e5fbefbc1241b82f0a0b9c72f6
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:1980e896e0eb87602b5b0567741970f071de1281e8c36db725e49f9cd80f0360
                 - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:d4f5ae5e70ad3532eff854ec5597d12ee65273e5fbefbc1241b82f0a0b9c72f6
+                  value: registry.redhat.io/devspaces/idea-rhel8@sha256:1980e896e0eb87602b5b0567741970f071de1281e8c36db725e49f9cd80f0360
                 - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:41af0e7f71137ffd75717bfd9f1342c8782b71a660781bc545e50681a588641f
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDGCQ_
@@ -1135,12 +1196,12 @@ spec:
                 - name: RELATED_IMAGE_single_host_gateway
                   value: registry.redhat.io/devspaces/traefik-rhel8@sha256:3dffab74af2909166563a67fab4aaa4e4e264a71fd79cb869bb176ca40c89838
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
-                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:efcb9562c0e9364187132ec288ab3097580f3aafd0faa0ac22c95744c5775e73
+                  value: registry.redhat.io/devspaces/configbump-rhel8@sha256:97f587035a17c25a86d81d992716b2f267bcf730ef731d7f0ba8951154dbc8e1
                 - name: WATCH_NAMESPACE
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:553f04177eb4b9ac705d154d1f22dc3821ff44b44c3453a07acaf850805224ee
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1395,6 +1456,27 @@ spec:
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: devspaces-operator
+    failurePolicy: Fail
+    generateName: vchecluster.kb.io
+    rules:
+    - apiGroups:
+      - org.eclipse.che
+      apiVersions:
+      - v2
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - checlusters
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-org-eclipse-che-v2-checluster
+  - admissionReviewVersions:
+    - v1
     - v2
     containerPort: 443
     conversionCRDs:
@@ -1405,26 +1487,26 @@ spec:
     targetPort: 9443
     type: ConversionWebhook
     webhookPath: /convert
-  replaces: devspacesoperator.v3.0.1
+  replaces: devspacesoperator.v3.2.0
   relatedImages:
-  - name: devspaces-rhel8-operator-553f04177eb4b9ac705d154d1f22dc3821ff44b44c3453a07acaf850805224ee-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:553f04177eb4b9ac705d154d1f22dc3821ff44b44c3453a07acaf850805224ee
+  - name: devspaces-rhel8-operator-8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:553f04177eb4b9ac705d154d1f22dc3821ff44b44c3453a07acaf850805224ee
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
   - name: che_server
-    image: registry.redhat.io/devspaces/server-rhel8@sha256:9a1253495245bef303b9c31fcfc69dbe0e91e95f60c303d497f27a6ca689344b
+    image: registry.redhat.io/devspaces/server-rhel8@sha256:7a8f39d74ada7e2587d00a77135df30a4de4b028d7e2af88a52e097351467e39
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:71dfd95137e112ac63950f97438243659884a5ab5af6fb6c55576805bbcc6128
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:6dbcad71816b5222bcf9910c73bd00e14455e54ea758025c4deb7cd45fba5cae
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:09219d1f023c9ec9af1495d843f0819fb8a78ed5eef2d52fb6ff6b8fe81794d9
   - name: devspaces_code_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:cb293a3a230b7eeae0b3560127f8cd18fd646b5ca6f96fbdc07c55f20052d03b
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:f260bfc14113647817d2be8b6645c5654b9dfdea201029420354b8893b4ace96
   - name: devspaces_code_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/code-rhel8@sha256:cb293a3a230b7eeae0b3560127f8cd18fd646b5ca6f96fbdc07c55f20052d03b
+    image: registry.redhat.io/devspaces/code-rhel8@sha256:f260bfc14113647817d2be8b6645c5654b9dfdea201029420354b8893b4ace96
   - name: devspaces_idea_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:d4f5ae5e70ad3532eff854ec5597d12ee65273e5fbefbc1241b82f0a0b9c72f6
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:1980e896e0eb87602b5b0567741970f071de1281e8c36db725e49f9cd80f0360
   - name: devspaces_idea_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/idea-rhel8@sha256:d4f5ae5e70ad3532eff854ec5597d12ee65273e5fbefbc1241b82f0a0b9c72f6
+    image: registry.redhat.io/devspaces/idea-rhel8@sha256:1980e896e0eb87602b5b0567741970f071de1281e8c36db725e49f9cd80f0360
   - name: devspaces_machineexec_devfile_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:41af0e7f71137ffd75717bfd9f1342c8782b71a660781bc545e50681a588641f
   - name: devspaces_machineexec_plugin_registry_image_gmxdgcq_
@@ -1470,4 +1552,4 @@ spec:
   - name: single_host_gateway
     image: registry.redhat.io/devspaces/traefik-rhel8@sha256:3dffab74af2909166563a67fab4aaa4e4e264a71fd79cb869bb176ca40c89838
   - name: single_host_gateway_config_sidecar
-    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:efcb9562c0e9364187132ec288ab3097580f3aafd0faa0ac22c95744c5775e73
+    image: registry.redhat.io/devspaces/configbump-rhel8@sha256:97f587035a17c25a86d81d992716b2f267bcf730ef731d7f0ba8951154dbc8e1
