@@ -2206,7 +2206,7 @@ spec:
                     workspaceDefaultComponents:
                       default:
                         - container:
-                            image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
+                            image: registry.redhat.io/devspaces/udi-rhel8:3.3
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile does
@@ -5541,7 +5541,7 @@ spec:
                   default:
                     defaultComponents:
                       - container:
-                          image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
+                          image: registry.redhat.io/devspaces/udi-rhel8:3.3
                         name: universal-developer-image
                     defaultEditor: eclipse/che-theia/latest
                     defaultNamespace:
@@ -5556,7 +5556,7 @@ spec:
                     defaultComponents:
                       default:
                         - container:
-                            image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
+                            image: registry.redhat.io/devspaces/udi-rhel8:3.3
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile, that
