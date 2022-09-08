@@ -45,7 +45,7 @@ RUN /tmp/nexe/index.js -v && \
 
 # Light image without node. We include remote binary to this image.
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.6-902 as runtime
+FROM ubi8-minimal:8.6-902.1661794353 as runtime
 USER 0
 RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && \
     yum -y -q update && \
@@ -54,8 +54,8 @@ RUN microdnf -y install yum python38 python38-pyyaml jq && python3 --version && 
 # copy previously cached yq dependency wheels for offline install
 COPY *.whl /tmp
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - theia-endpoint container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - theia-endpoint container" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces with Eclipse Theia IDE (endpoint)" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces with Eclipse Theia IDE (endpoint)" \
     PRODNAME="devspaces" \
     COMPNAME="theia-endpoint-rhel8" 
 

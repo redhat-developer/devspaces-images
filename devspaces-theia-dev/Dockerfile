@@ -46,8 +46,8 @@ ENV HOME=/home/theia-dev \
 # setup extra stuff
 ENV YARN_FLAGS="--offline"
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - theia-dev container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - theia-dev container" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces with Eclipse Theia IDE (dev)" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces with Eclipse Theia IDE (dev)" \
     PRODNAME="devspaces" \
     COMPNAME="theia-dev-rhel8" 
 

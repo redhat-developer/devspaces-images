@@ -208,8 +208,8 @@ COPY --from=builder /tmp/branding ${HOME}/branding
 
 ENV YARN_FLAGS="--offline"
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - theia container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - theia container" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces with Eclipse Theia IDE" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces with Eclipse Theia IDE" \
     PRODNAME="devspaces" \
     COMPNAME="theia-rhel8" \
     PRODUCT_JSON=${HOME}/branding/product.json
