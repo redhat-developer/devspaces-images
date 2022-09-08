@@ -1,6 +1,6 @@
 {
-	"nameShort": "Visual Studio Code - Open Source",
-	"nameLong": "Red Hat OpenShift Dev Spaces - Visual Studio Code - Open Source IDE container",
+	"nameShort": "VS Code - Open Source",
+	"nameLong": "Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE",
 	"applicationName": "code-oss",
 	"dataFolderName": ".vscode-oss",
 	"win32MutexName": "che-code",
