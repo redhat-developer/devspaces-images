@@ -1,6 +1,6 @@
 [
   {
-    "displayName": "IntelliJ IDEA Community",
+    "displayName": "Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community IDE",
     "dockerImage": "idea-rhel8",
     "productCode": "IC",
     "productVersion": [
