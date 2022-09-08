@@ -40,8 +40,8 @@ ENV HOME=/home/che
 USER 1001
 ENTRYPOINT /entrypoint.sh
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces - Visual Studio Code - Open Source IDE container" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces - Visual Studio Code - Open Source IDE container" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces with Microsoft Visual Studio Code - Open Source IDE" \
     PRODNAME="devspaces" \
     COMPNAME="code-rhel8"
 LABEL summary="$SUMMARY" \
