@@ -24,6 +24,7 @@ import {
 import FactoryLoader from './Factory';
 import buildFactoryParams from './Factory/buildFactoryParams';
 import WorkspaceLoader from './Workspace';
+import { sanitizeLocation } from '../../services/helpers/location';
 
 type LoaderMode = 'factory' | 'workspace';
 
@@ -51,7 +52,9 @@ class LoaderContainer extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const searchParams = new URLSearchParams(this.props.history.location.search);
+    const { location: dirtyLocation } = this.props.history;
+    const { search } = sanitizeLocation(dirtyLocation);
+    const searchParams = new URLSearchParams(search);
     const tabParam = searchParams.get('tab') || undefined;
 
     const { mode } = this.getMode(props);

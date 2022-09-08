@@ -110,12 +110,11 @@ export async function grabLink(
     return undefined;
   }
 
-  // remove first part of the link until /api (to avoid the full links and use only relative links)
-  const href = foundLink.href.substring(foundLink.href.indexOf('/api/scm'));
+  const url = new URL(foundLink.href);
   try {
     // load it in raw format
     // see https://github.com/axios/axios/issues/907
-    const response = await axios.get<string>(href, {
+    const response = await axios.get<string>(`${url.pathname}${url.search}`, {
       responseType: 'text',
       transformResponse: [
         data => {

@@ -35,6 +35,8 @@ if [[ ! -z "$(oc whoami -t)" ]]; then
   exit 0
 fi
 
+DASHBOARD_FRONTEND=packages/dashboard-frontend
+
 if [ -d $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry ]; then
   echo "[INFO] Remove devfile registry"
   rm -r $DASHBOARD_FRONTEND/lib/public/dashboard/devfile-registry
