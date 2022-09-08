@@ -1,4 +1,4 @@
-# Copyright (c) 2021-2022 Red Hat, Inc.
+# Copyright (c) 2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -91,8 +91,8 @@ USER 1001
 EXPOSE 8887
 ENTRYPOINT $PROJECTOR_ASSEMBLY_DIR/entrypoint.sh
 
-ENV SUMMARY="Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community IDE" \
-    DESCRIPTION="Red Hat OpenShift Dev Spaces with JetBrains IntelliJ IDEA Community IDE" \
+ENV SUMMARY="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces - IntelliJ IDEA Community IDE container" \
     PRODNAME="devspaces" \
     COMPNAME="idea-rhel8"
 
