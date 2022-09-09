@@ -319,6 +319,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         },
       ],
     );
+    await delay();
   }
 
   async createFromDevfile(
@@ -516,7 +517,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       pluginRegistryInternalUrl,
       openVSXUrl,
     );
-
+    createdWorkspace.spec.started = false;
     const patch = [
       {
         op: 'replace',
@@ -525,6 +526,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
       },
     ];
     return DwApi.patchWorkspace(namespace, name, patch);
+    await delay();
   }
 
   /**
