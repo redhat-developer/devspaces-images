@@ -1097,13 +1097,13 @@ spec:
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDECQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:159f09195b5f7f97e976148cf05027aa4ee1324cfa1ef3a515cdd2e236de0e92
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDECQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:6e80073eca30c2f9911ffa1dedb7024b3877b34757d92d2eed1fda7f0f34e686
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:3c6ca7817853e0506092819865327f80a651bb2b941bc185d1dfc8583c4278e2
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDECQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:c1c10ee47e79191605ee4bedf51e113bcc0fc12e0ee7246a1a8d54baae7d2631
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:601969df5e89ec4cd4d6ff50049d25e24401d0021fa90c55606135a830cadb26
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDECQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:c1c10ee47e79191605ee4bedf51e113bcc0fc12e0ee7246a1a8d54baae7d2631
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:601969df5e89ec4cd4d6ff50049d25e24401d0021fa90c55606135a830cadb26
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDECQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:6e80073eca30c2f9911ffa1dedb7024b3877b34757d92d2eed1fda7f0f34e686
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:3c6ca7817853e0506092819865327f80a651bb2b941bc185d1dfc8583c4278e2
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDECQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:4d37e7eccf2764727cf0b9a015014248bd0360addd2ab3b67bbb4d74152d2cbe
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDECQ_
@@ -1432,13 +1432,13 @@ spec:
   - name: devspaces_machineexec_plugin_registry_image_gmxdecq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:159f09195b5f7f97e976148cf05027aa4ee1324cfa1ef3a515cdd2e236de0e92
   - name: devspaces_theia_devfile_registry_image_gmxdecq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:6e80073eca30c2f9911ffa1dedb7024b3877b34757d92d2eed1fda7f0f34e686
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:3c6ca7817853e0506092819865327f80a651bb2b941bc185d1dfc8583c4278e2
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdecq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:c1c10ee47e79191605ee4bedf51e113bcc0fc12e0ee7246a1a8d54baae7d2631
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:601969df5e89ec4cd4d6ff50049d25e24401d0021fa90c55606135a830cadb26
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdecq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:c1c10ee47e79191605ee4bedf51e113bcc0fc12e0ee7246a1a8d54baae7d2631
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:601969df5e89ec4cd4d6ff50049d25e24401d0021fa90c55606135a830cadb26
   - name: devspaces_theia_plugin_registry_image_gmxdecq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:6e80073eca30c2f9911ffa1dedb7024b3877b34757d92d2eed1fda7f0f34e686
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:3c6ca7817853e0506092819865327f80a651bb2b941bc185d1dfc8583c4278e2
   - name: devspaces_udi_devfile_registry_image_gmxdecq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:4d37e7eccf2764727cf0b9a015014248bd0360addd2ab3b67bbb4d74152d2cbe
   - name: devspaces_udi_plugin_registry_image_gmxdecq_
