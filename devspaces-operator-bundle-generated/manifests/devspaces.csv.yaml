@@ -68,7 +68,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:caceafaf9a00428e113ffd371adc300924dbe2a649759c5be56cd2ba4201d5ed
     createdAt: "2022-09-08T21:18:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1182,7 +1182,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:ede8f51e311a129c877a227841ececd63a1b0c4d04fb4ec01f9e81d491737287
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:def5a2a526e83b4929e4d739a0719677f028ae4e24a1110610f6f4793906e8dd
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:0eeed2e4f2bef9800ccf2b8d659dfc527e19357926f5c9b96d1ddfe8b453bfef
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1201,7 +1201,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:caceafaf9a00428e113ffd371adc300924dbe2a649759c5be56cd2ba4201d5ed
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1489,10 +1489,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.2.0
   relatedImages:
-  - name: devspaces-rhel8-operator-8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
+  - name: devspaces-rhel8-operator-caceafaf9a00428e113ffd371adc300924dbe2a649759c5be56cd2ba4201d5ed-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:caceafaf9a00428e113ffd371adc300924dbe2a649759c5be56cd2ba4201d5ed
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:8fbe30c62da225fcfca1d3c990cfb40b391115646c4bfecad42a950f79913ca8
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:caceafaf9a00428e113ffd371adc300924dbe2a649759c5be56cd2ba4201d5ed
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:57f5b9b1a34d7c53a0b9de2bc80e3c63173247bcbdd276b3aa747fb2248fafea
   - name: dashboard
@@ -1538,7 +1538,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:ede8f51e311a129c877a227841ececd63a1b0c4d04fb4ec01f9e81d491737287
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:def5a2a526e83b4929e4d739a0719677f028ae4e24a1110610f6f4793906e8dd
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:0eeed2e4f2bef9800ccf2b8d659dfc527e19357926f5c9b96d1ddfe8b453bfef
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
