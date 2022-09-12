@@ -68,7 +68,7 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c829d007c2706aadcef1c7a05c84a1b598592d6b532b496989bc9ba1809e3d9
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:a6279b63d4ce3de2ff529d7a8c099ac90924662cf9924862580b3e45137a2211
     createdAt: "2022-09-08T21:18:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -1156,13 +1156,13 @@ spec:
                 - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/machineexec-rhel8@sha256:97a77ebd2c212f5e3b559afa7a30f5da5f960d24f3520f59d585ea098c54218a
                 - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:6aea7b7fafa694f6b820b63bd39c52a28882396cf299117eaa1a9c3721ac7eab
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:fdb85fdb0bc1116b83d4bcec795befc26108d89651eb606279f5757f97c2eab6
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:a962f863925aecbb36e27833642ae531da3bdc517749112457cecfcde8e116c8
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:7b5b6d46dc31e3e7dd46227c345d2e549172684815f01977a3b2f8fbd4b1a960
                 - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:a962f863925aecbb36e27833642ae531da3bdc517749112457cecfcde8e116c8
+                  value: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:7b5b6d46dc31e3e7dd46227c345d2e549172684815f01977a3b2f8fbd4b1a960
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:6aea7b7fafa694f6b820b63bd39c52a28882396cf299117eaa1a9c3721ac7eab
+                  value: registry.redhat.io/devspaces/theia-rhel8@sha256:fdb85fdb0bc1116b83d4bcec795befc26108d89651eb606279f5757f97c2eab6
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:3395f6a4db93563224dce6852b051cd53012e823e73c8e5dd0f74913a95b0076
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDGCQ_
@@ -1201,7 +1201,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c829d007c2706aadcef1c7a05c84a1b598592d6b532b496989bc9ba1809e3d9
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:a6279b63d4ce3de2ff529d7a8c099ac90924662cf9924862580b3e45137a2211
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1489,10 +1489,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.2.0
   relatedImages:
-  - name: devspaces-rhel8-operator-4c829d007c2706aadcef1c7a05c84a1b598592d6b532b496989bc9ba1809e3d9-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c829d007c2706aadcef1c7a05c84a1b598592d6b532b496989bc9ba1809e3d9
+  - name: devspaces-rhel8-operator-a6279b63d4ce3de2ff529d7a8c099ac90924662cf9924862580b3e45137a2211-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:a6279b63d4ce3de2ff529d7a8c099ac90924662cf9924862580b3e45137a2211
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:4c829d007c2706aadcef1c7a05c84a1b598592d6b532b496989bc9ba1809e3d9
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:a6279b63d4ce3de2ff529d7a8c099ac90924662cf9924862580b3e45137a2211
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:ab09c251938e96051ebf7523f69263a87cfd81de1536af5b8fdb41478bda0880
   - name: dashboard
@@ -1512,13 +1512,13 @@ spec:
   - name: devspaces_machineexec_plugin_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/machineexec-rhel8@sha256:97a77ebd2c212f5e3b559afa7a30f5da5f960d24f3520f59d585ea098c54218a
   - name: devspaces_theia_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:6aea7b7fafa694f6b820b63bd39c52a28882396cf299117eaa1a9c3721ac7eab
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:fdb85fdb0bc1116b83d4bcec795befc26108d89651eb606279f5757f97c2eab6
   - name: devspaces_theia_endpoint_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:a962f863925aecbb36e27833642ae531da3bdc517749112457cecfcde8e116c8
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:7b5b6d46dc31e3e7dd46227c345d2e549172684815f01977a3b2f8fbd4b1a960
   - name: devspaces_theia_endpoint_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:a962f863925aecbb36e27833642ae531da3bdc517749112457cecfcde8e116c8
+    image: registry.redhat.io/devspaces/theia-endpoint-rhel8@sha256:7b5b6d46dc31e3e7dd46227c345d2e549172684815f01977a3b2f8fbd4b1a960
   - name: devspaces_theia_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/theia-rhel8@sha256:6aea7b7fafa694f6b820b63bd39c52a28882396cf299117eaa1a9c3721ac7eab
+    image: registry.redhat.io/devspaces/theia-rhel8@sha256:fdb85fdb0bc1116b83d4bcec795befc26108d89651eb606279f5757f97c2eab6
   - name: devspaces_udi_devfile_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:3395f6a4db93563224dce6852b051cd53012e823e73c8e5dd0f74913a95b0076
   - name: devspaces_udi_plugin_registry_image_gmxdgcq_
