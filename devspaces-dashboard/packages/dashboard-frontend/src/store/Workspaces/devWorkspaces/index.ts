@@ -298,7 +298,10 @@ export const actionCreators: ActionCreators = {
         const runningWorkspaces = workspaces.filter(w => w.spec.started === true);
         const runningLimit = selectRunningWorkspacesLimit(getState());
         if (runningWorkspaces.length >= runningLimit) {
-          throw new RunningWorkspacesExceededError('You are not allowed to start more workspaces.');
+          const message = `You can only have ${runningLimit} running workspace${
+            runningLimit > 1 ? 's' : ''
+          } at a time.`;
+          throw new RunningWorkspacesExceededError(message);
         }
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
