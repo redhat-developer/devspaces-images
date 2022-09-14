@@ -126,11 +126,11 @@ RUN \
     ########################################################################
     # Python
     ########################################################################
-    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    dnf -y -q module reset python38 && \
-    dnf -y -q module enable python38:${PYTHON_VERSION} && \
-    dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
-    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+    # BEGIN update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
+    dnf -y -q module reset python39 && \
+    dnf -y -q module enable python39:${PYTHON_VERSION} && \
+    dnf -y -q install python39 python38-devel python38-setuptools python38-pip && \
+    # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     # python lang server
     mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
     for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \

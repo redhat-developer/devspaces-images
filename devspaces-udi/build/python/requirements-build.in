@@ -1,0 +1,4 @@
+wheel
+setuptools
+setuptools-scm
+pip==22.2.2
