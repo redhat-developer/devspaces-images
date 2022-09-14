@@ -13,6 +13,7 @@
 import React from 'react';
 import { Action, Store } from 'redux';
 import { Provider } from 'react-redux';
+import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { screen } from '@testing-library/react';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
@@ -31,7 +32,8 @@ import { Workspace } from '../../../../services/workspace-adapter';
 jest.mock('../Steps/Initialize');
 jest.mock('../Steps/OpenWorkspace');
 jest.mock('../Steps/StartWorkspace');
-jest.mock('../findTargetWorkspace.ts', () => {
+jest.mock('../Steps/CheckRunningWorkspacesLimit');
+jest.mock('../../findTargetWorkspace.ts', () => {
   return {
     __esModule: true,
     default: () => {
@@ -121,8 +123,51 @@ describe('Workspace loader', () => {
     });
   });
 
-  describe('Step START_WORKSPACE', () => {
+  describe('Step CHECK_RUNNING_WORKSPACES_LIMIT', () => {
     const currentStepIndex = 1;
+
+    test('render step', async () => {
+      const store = new FakeStoreBuilder().build();
+
+      renderComponent(store, currentStepIndex);
+
+      expect(screen.queryByText('Step check running workspaces limit')).not.toBeNull();
+    });
+
+    test('restart the flow', () => {
+      const store = new FakeStoreBuilder().build();
+
+      renderComponent(store, currentStepIndex);
+
+      const restartButton = screen.queryByRole('button', {
+        name: 'Restart',
+      });
+      expect(restartButton).not.toBeNull();
+
+      userEvent.click(restartButton!);
+
+      expect(mockOnRestart).toHaveBeenCalled();
+      expect(mockDeleteWorkspaceLogs).toHaveBeenCalled();
+    });
+
+    test('next step switch', () => {
+      const store = new FakeStoreBuilder().build();
+
+      renderComponent(store, currentStepIndex);
+
+      const nextStepButton = screen.queryByRole('button', {
+        name: 'Next step',
+      });
+      expect(nextStepButton).not.toBeNull();
+
+      userEvent.click(nextStepButton!);
+
+      expect(mockOnNextStep).toHaveBeenCalled();
+    });
+  });
+
+  describe('Step START_WORKSPACE', () => {
+    const currentStepIndex = 2;
 
     test('render step', async () => {
       const store = new FakeStoreBuilder().build();
@@ -165,7 +210,7 @@ describe('Workspace loader', () => {
   });
 
   describe('Step OPEN_WORKSPACE', () => {
-    const currentStepIndex = 2;
+    const currentStepIndex = 3;
 
     test('render step', async () => {
       const store = new FakeStoreBuilder().build();
@@ -209,10 +254,12 @@ describe('Workspace loader', () => {
 });
 
 function getComponent(store: Store, currentStepIndex: number): React.ReactElement {
+  const history = createMemoryHistory();
   return (
     <Provider store={store}>
       <WorkspaceLoader
         currentStepIndex={currentStepIndex}
+        history={history}
         loaderSteps={loaderSteps}
         matchParams={matchParams}
         tabParam={undefined}

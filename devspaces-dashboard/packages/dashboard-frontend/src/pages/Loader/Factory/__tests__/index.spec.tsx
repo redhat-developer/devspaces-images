@@ -13,7 +13,6 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AlertVariant } from '@patternfly/react-core';
 import { FactoryLoaderPage } from '..';
 import { LoadingStep, List, LoaderStep } from '../../../../components/Loader/Step';
 import {
@@ -35,8 +34,6 @@ jest.mock('../../Common');
 
 const { renderComponent } = getComponentRenderer(getComponent);
 
-const mockOnFactoryRestart = jest.fn();
-
 const currentStepId = LoadingStep.INITIALIZE;
 
 describe('Factory Loader page', () => {
@@ -49,23 +46,6 @@ describe('Factory Loader page', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('should handle restart', () => {
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Failed to create a workspace',
-      variant: AlertVariant.danger,
-    };
-    renderComponent({ steps: steps.values, alertItem });
-
-    const reloadButton = screen.getByRole('button', { name: 'Click to try again' });
-    userEvent.click(reloadButton);
-
-    expect(mockOnFactoryRestart).toHaveBeenCalled();
-
-    const activeTab = screen.queryByTestId('active-tab-key');
-    expect(activeTab?.textContent).toEqual(LoaderTab.Progress.toString());
   });
 
   it('should handle tab change', () => {
@@ -90,7 +70,6 @@ function getComponent(props: {
     <FactoryLoaderPage
       alertItem={props.alertItem}
       currentStepId={currentStepId}
-      onRestart={mockOnFactoryRestart}
       steps={props.steps}
       tabParam={'Progress'}
       workspace={undefined}

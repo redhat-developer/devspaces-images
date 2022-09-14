@@ -12,6 +12,7 @@
 
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
+import { History } from 'history';
 import { AppState } from '../../../store';
 import { selectAllWorkspaces, selectLogs } from '../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../store/Workspaces';
@@ -19,10 +20,12 @@ import { List, LoaderStep, LoadingStep } from '../../../components/Loader/Step';
 import StepInitialize from './Steps/Initialize';
 import StepStartWorkspace from './Steps/StartWorkspace';
 import StepOpenWorkspace from './Steps/OpenWorkspace';
-import findTargetWorkspace from './findTargetWorkspace';
+import StepCheckRunningWorkspacesLimit from './Steps/CheckRunningWorkspacesLimit';
+import findTargetWorkspace from '../findTargetWorkspace';
 
 export type Props = MappedProps & {
   currentStepIndex: number; // not ID, but index
+  history: History;
   loaderSteps: Readonly<List<LoaderStep>>;
   matchParams: {
     namespace: string;
@@ -30,7 +33,7 @@ export type Props = MappedProps & {
   };
   tabParam: string | undefined;
   onNextStep: () => void;
-  onRestart: () => void;
+  onRestart: (tabName?: string) => void;
 };
 
 class WorkspaceLoader extends React.PureComponent<Props> {
@@ -38,14 +41,14 @@ class WorkspaceLoader extends React.PureComponent<Props> {
     super(props);
   }
 
-  private handleWorkspaceRestart(): void {
+  private handleWorkspaceRestart(tabName?: string): void {
     const { allWorkspaces, matchParams } = this.props;
     const workspace = findTargetWorkspace(allWorkspaces, matchParams);
     if (workspace) {
       this.props.deleteWorkspaceLogs(workspace);
     }
 
-    this.props.onRestart();
+    this.props.onRestart(tabName);
   }
 
   render(): React.ReactNode {
@@ -53,14 +56,32 @@ class WorkspaceLoader extends React.PureComponent<Props> {
 
     switch (loaderSteps.get(currentStepIndex).value.id) {
       case LoadingStep.INITIALIZE:
-        return <StepInitialize {...this.props} onRestart={() => this.handleWorkspaceRestart()} />;
+        return (
+          <StepInitialize
+            {...this.props}
+            onRestart={tabName => this.handleWorkspaceRestart(tabName)}
+          />
+        );
+      case LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT:
+        return (
+          <StepCheckRunningWorkspacesLimit
+            {...this.props}
+            onRestart={tabName => this.handleWorkspaceRestart(tabName)}
+          />
+        );
       case LoadingStep.START_WORKSPACE:
         return (
-          <StepStartWorkspace {...this.props} onRestart={() => this.handleWorkspaceRestart()} />
+          <StepStartWorkspace
+            {...this.props}
+            onRestart={tabName => this.handleWorkspaceRestart(tabName)}
+          />
         );
       default:
         return (
-          <StepOpenWorkspace {...this.props} onRestart={() => this.handleWorkspaceRestart()} />
+          <StepOpenWorkspace
+            {...this.props}
+            onRestart={tabName => this.handleWorkspaceRestart(tabName)}
+          />
         );
     }
   }

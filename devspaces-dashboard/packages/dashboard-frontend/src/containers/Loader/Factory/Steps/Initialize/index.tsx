@@ -26,6 +26,7 @@ import { FactoryParams, PoliciesCreate } from '../../types';
 import { MIN_STEP_DURATION_MS } from '../../../const';
 import buildFactoryParams from '../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { AlertItem } from '../../../../../services/helpers/types';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -124,6 +125,24 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     return (val && (val as PoliciesCreate) === 'perclick') || (val as PoliciesCreate) === 'peruser';
   }
 
+  private getAlertItem(error: unknown): AlertItem | undefined {
+    if (!error) {
+      return;
+    }
+    return {
+      key: 'factory-loader-initialize',
+      title: 'Failed to create the workspace',
+      variant: AlertVariant.danger,
+      children: helpers.errors.getMessage(error),
+      actionCallbacks: [
+        {
+          title: 'Click to try again',
+          callback: () => this.handleRestart(),
+        },
+      ],
+    };
+  }
+
   render(): React.ReactElement {
     const { currentStepIndex, loaderSteps, tabParam } = this.props;
     const { lastError } = this.state;
@@ -131,15 +150,7 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     const steps = loaderSteps.values;
     const currentStepId = loaderSteps.get(currentStepIndex).value.id;
 
-    const alertItem =
-      lastError === undefined
-        ? undefined
-        : {
-            key: 'factory-loader-initialize',
-            title: 'Failed to create the workspace',
-            variant: AlertVariant.danger,
-            children: helpers.errors.getMessage(lastError),
-          };
+    const alertItem = this.getAlertItem(lastError);
 
     return (
       <FactoryLoaderPage
@@ -147,7 +158,6 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
         currentStepId={currentStepId}
         steps={steps}
         tabParam={tabParam}
-        onRestart={() => this.handleRestart()}
       />
     );
   }
@@ -157,6 +167,9 @@ const mapStateToProps = (state: AppState) => ({
   infrastructureNamespaces: selectInfrastructureNamespaces(state),
 });
 
-const connector = connect(mapStateToProps, {});
+const connector = connect(mapStateToProps, {}, null, {
+  // forwardRef is mandatory for using `@react-mock/state` in unit tests
+  forwardRef: true,
+});
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(StepInitialize);

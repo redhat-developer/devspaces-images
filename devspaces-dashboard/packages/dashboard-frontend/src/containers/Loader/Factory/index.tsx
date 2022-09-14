@@ -11,16 +11,19 @@
  */
 
 import React from 'react';
+import { History } from 'history';
 import { List, LoaderStep, LoadingStep } from '../../../components/Loader/Step';
 import StepInitialize from './Steps/Initialize';
 import StepCreateWorkspace from './Steps/CreateWorkspace';
-import StepFetchDevfile from './Steps/FetchDevfile';
-import StepFetchResources from './Steps/FetchResources';
-import StepApplyDevfile from './Steps/ApplyDevfile';
-import StepApplyResources from './Steps/ApplyResources';
+import StepFetchDevfile from './Steps/Fetch/Devfile';
+import StepFetchResources from './Steps/Fetch/Resources';
+import StepApplyDevfile from './Steps/Apply/Devfile';
+import StepApplyResources from './Steps/Apply/Resources';
+import StepCheckExistingWorkspaces from './Steps/CheckExistingWorkspaces';
 
 export type Props = {
   currentStepIndex: number;
+  history: History;
   loaderSteps: Readonly<List<LoaderStep>>;
   searchParams: URLSearchParams;
   tabParam: string | undefined;
@@ -39,6 +42,8 @@ export default class FactoryLoader extends React.Component<Props> {
         return <StepFetchDevfile {...this.props} />;
       case LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES:
         return <StepFetchResources {...this.props} />;
+      case LoadingStep.CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES:
+        return <StepCheckExistingWorkspaces {...this.props} />;
       case LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE:
         return <StepApplyDevfile {...this.props} />;
       case LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES:

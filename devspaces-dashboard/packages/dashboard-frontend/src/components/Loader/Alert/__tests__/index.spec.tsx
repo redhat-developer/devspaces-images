@@ -14,7 +14,7 @@ import { AlertVariant } from '@patternfly/react-core';
 import { render, RenderResult, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { ActionCallback, LoaderAlert } from '..';
+import { LoaderAlert } from '..';
 import { AlertItem } from '../../../../services/helpers/types';
 
 const mockOnRestart = jest.fn();
@@ -23,13 +23,13 @@ const alertItem: AlertItem = {
   key: 'alert-id',
   title: 'Alert title',
   variant: AlertVariant.danger,
+  actionCallbacks: [
+    {
+      title: 'Restart',
+      callback: mockOnRestart,
+    },
+  ],
 };
-const actionCallbacks: ActionCallback[] = [
-  {
-    title: 'Restart',
-    callback: mockOnRestart,
-  },
-];
 
 describe('Loader Alert', () => {
   afterEach(() => {
@@ -37,7 +37,7 @@ describe('Loader Alert', () => {
   });
 
   test('no alert', () => {
-    renderComponent(actionCallbacks);
+    renderComponent();
     const alertGroup = screen.queryByRole('list', {
       name: 'Loader Alerts Group',
     });
@@ -45,7 +45,7 @@ describe('Loader Alert', () => {
   });
 
   test('with alert item', () => {
-    renderComponent(actionCallbacks, alertItem);
+    renderComponent(alertItem);
 
     const alertGroup = screen.queryByRole('list', {
       name: 'Loader Alerts Group',
@@ -57,40 +57,25 @@ describe('Loader Alert', () => {
   });
 
   it('should show alerts group', () => {
-    const { rerender } = renderComponent(actionCallbacks);
+    const { rerender } = renderComponent();
     expect(screen.queryByTestId('loader-alerts-group')).toBeNull();
 
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Alert title',
-      variant: AlertVariant.danger,
-    };
-    rerender(getComponent(actionCallbacks, alertItem));
+    rerender(getComponent(alertItem));
 
     expect(screen.queryByTestId('loader-alerts-group')).not.toBeNull();
   });
 
   it('should hide alerts group', () => {
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Alert title',
-      variant: AlertVariant.danger,
-    };
-    const { rerender } = renderComponent(actionCallbacks, alertItem);
+    const { rerender } = renderComponent(alertItem);
     expect(screen.queryByTestId('loader-alerts-group')).not.toBeNull();
 
-    rerender(getComponent(actionCallbacks));
+    rerender(getComponent());
 
     expect(screen.queryByTestId('loader-alerts-group')).toBeNull();
   });
 
   it('should handle the close alert action', () => {
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Alert title',
-      variant: AlertVariant.danger,
-    };
-    renderComponent(actionCallbacks, alertItem);
+    renderComponent(alertItem);
 
     const closeButton = screen.getByRole('button', {
       name: /^close/i,
@@ -103,15 +88,10 @@ describe('Loader Alert', () => {
     expect(alertGroup).toBeNull();
   });
 
-  it('should handle click on the action', () => {
-    const alertItem: AlertItem = {
-      key: 'alert-id',
-      title: 'Alert title',
-      variant: AlertVariant.danger,
-    };
-    renderComponent(actionCallbacks, alertItem);
+  it('should handle click on the action', async () => {
+    renderComponent(alertItem);
 
-    const closeButton = screen.getByRole('button', {
+    const closeButton = await screen.findByRole('button', {
       name: 'Restart',
     });
     userEvent.click(closeButton);
@@ -120,12 +100,8 @@ describe('Loader Alert', () => {
   });
 });
 
-function getComponent(
-  actionCallbacks: ActionCallback[],
-  alertItem?: AlertItem,
-  isToast = true,
-): React.ReactElement {
-  return <LoaderAlert isToast={isToast} alertItem={alertItem} actionCallbacks={actionCallbacks} />;
+function getComponent(alertItem?: AlertItem, isToast = true): React.ReactElement {
+  return <LoaderAlert isToast={isToast} alertItem={alertItem} />;
 }
 
 function renderComponent(...args: Parameters<typeof getComponent>): RenderResult {

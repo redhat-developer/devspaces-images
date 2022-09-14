@@ -107,7 +107,7 @@ describe('Loader container', () => {
 
     it('should handle onRestart in Workspace mode', async () => {
       const localState = {
-        currentStepIndex: 5,
+        currentStepIndex: 6,
         initialMode: 'factory',
         loaderSteps: buildLoaderSteps(getFactoryLoadingSteps('devfile')),
       } as Partial<State>;
@@ -119,13 +119,13 @@ describe('Loader container', () => {
       reRenderComponent(workspaceModeProps, store, localState);
 
       const currentStepIndex = screen.getByTestId('current-step-index');
-      await waitFor(() => expect(currentStepIndex.textContent).toEqual('5'));
+      await waitFor(() => expect(currentStepIndex.textContent).toEqual('6'));
 
       const restartButton = screen.getByTestId('on-restart');
 
       userEvent.click(restartButton);
 
-      await waitFor(() => expect(currentStepIndex.textContent).toEqual('4'));
+      await waitFor(() => expect(currentStepIndex.textContent).toEqual('5'));
     });
 
     describe('when starting the workspace', () => {

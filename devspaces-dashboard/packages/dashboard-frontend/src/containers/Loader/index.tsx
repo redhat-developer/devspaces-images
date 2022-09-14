@@ -24,6 +24,7 @@ import {
 import FactoryLoader from './Factory';
 import buildFactoryParams from './Factory/buildFactoryParams';
 import WorkspaceLoader from './Workspace';
+import { LoaderTab } from '../../services/helpers/types';
 import { sanitizeLocation } from '../../services/helpers/location';
 
 type LoaderMode = 'factory' | 'workspace';
@@ -105,34 +106,41 @@ class LoaderContainer extends React.Component<Props, State> {
     });
   }
 
-  private handleRestart(): void {
+  private handleRestart(tabName?: string): void {
     const { initialMode } = this.state;
+
+    const tabParam = tabName && LoaderTab[tabName] ? tabName : LoaderTab[LoaderTab.Progress];
+
     const { mode } = this.getMode(this.props);
     if (initialMode === mode) {
       this.setState({
         currentStepIndex: 0,
+        tabParam,
       });
     } else {
       // The workspace loader finalizes the factory loading flow - starts the workspace and opens the editor.
 
       // START_WORKSPACE step is always present in the array
       const startWorkspaceIndex = this.steps.findIndex(
-        step => step === LoadingStep.START_WORKSPACE,
+        step => step === LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT,
       );
       this.setState({
         currentStepIndex: startWorkspaceIndex,
+        tabParam,
       });
     }
   }
 
   render(): React.ReactElement {
     const { currentStepIndex, loaderSteps, tabParam, searchParams } = this.state;
+    const { history } = this.props;
 
     const { mode, ideLoaderParams } = this.getMode(this.props);
     if (mode === 'factory') {
       return (
         <FactoryLoader
           currentStepIndex={currentStepIndex}
+          history={history}
           loaderSteps={loaderSteps}
           searchParams={searchParams}
           tabParam={tabParam}
@@ -146,11 +154,12 @@ class LoaderContainer extends React.Component<Props, State> {
       return (
         <WorkspaceLoader
           currentStepIndex={currentStepIndex}
+          history={history}
           loaderSteps={loaderSteps}
           matchParams={matchParams}
           tabParam={tabParam}
           onNextStep={() => this.handleNextStep()}
-          onRestart={() => this.handleRestart()}
+          onRestart={tabName => this.handleRestart(tabName)}
         />
       );
     }

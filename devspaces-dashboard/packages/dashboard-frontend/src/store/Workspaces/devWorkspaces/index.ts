@@ -40,6 +40,7 @@ import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
 import { cloneDeep } from 'lodash';
 import { delay } from '../../../services/helpers/delay';
 import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
+import { selectRunningDevWorkspacesLimitExceeded } from './selectors';
 
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
@@ -292,17 +293,7 @@ export const actionCreators: ActionCreators = {
     async (dispatch, getState): Promise<void> => {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
       try {
-        const { workspaces } = await devWorkspaceClient.getAllWorkspaces(
-          workspace.metadata.namespace,
-        );
-        const runningWorkspaces = workspaces.filter(w => w.spec.started === true);
-        const runningLimit = selectRunningWorkspacesLimit(getState());
-        if (runningWorkspaces.length >= runningLimit) {
-          const message = `You can only have ${runningLimit} running workspace${
-            runningLimit > 1 ? 's' : ''
-          } at a time.`;
-          throw new RunningWorkspacesExceededError(message);
-        }
+        checkRunningWorkspacesLimit(getState());
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
         const workspaceUID = workspace.metadata.uid;
@@ -745,6 +736,23 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
       return state;
   }
 };
+
+export function checkRunningWorkspacesLimit(state: AppState) {
+  const runningLimitExceeded = selectRunningDevWorkspacesLimitExceeded(state);
+  if (runningLimitExceeded === false) {
+    return;
+  }
+
+  const runningLimit = selectRunningWorkspacesLimit(state);
+  throwRunningWorkspacesExceededError(runningLimit);
+}
+
+export function throwRunningWorkspacesExceededError(runningLimit: number): never {
+  const message = `You can only have ${runningLimit} running workspace${
+    runningLimit > 1 ? 's' : ''
+  } at a time.`;
+  throw new RunningWorkspacesExceededError(message);
+}
 
 async function onStatusUpdateReceived(
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,

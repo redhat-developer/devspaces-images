@@ -11,16 +11,18 @@
  */
 
 import React from 'react';
+import { History } from 'history';
 import { Cancellation, pseudoCancellable } from 'real-cancellable-promise';
 import { List, LoaderStep } from '../../components/Loader/Step';
 import { DisposableCollection } from '../../services/helpers/disposable';
 
 export type LoaderStepProps = {
   currentStepIndex: number;
+  history: History;
   loaderSteps: Readonly<List<LoaderStep>>;
   tabParam: string | undefined;
   onNextStep: () => void;
-  onRestart: () => void;
+  onRestart: (tabName?: string) => void;
 };
 export type LoaderStepState = {
   lastError?: unknown;

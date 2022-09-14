@@ -33,7 +33,7 @@
 }
 
 .devfileEditor .monaco .devfileEditorDecoration {
-  background-color: rgba(241, 192, 80, 0.5);
+  background-color: rgb(241 192 80 / 50%);
 }
 
 .devfileEditor .error {

@@ -17,14 +17,13 @@ import Header from '../../../components/Header';
 import { LoaderStep } from '../../../components/Loader/Step';
 import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../services/helpers/types';
 import { LoaderProgress } from '../../../components/Loader/Progress';
-import { ActionCallback, LoaderAlert } from '../../../components/Loader/Alert';
+import { LoaderAlert } from '../../../components/Loader/Alert';
 import WorkspaceLogs from '../../../components/WorkspaceLogs';
 import { Workspace } from '../../../services/workspace-adapter';
 
 import styles from './index.module.css';
 
 export type Props = {
-  actionCallbacks: ActionCallback[];
   activeTabKey: LoaderTab;
   alertItem: AlertItem | undefined;
   currentStepId: number;
@@ -39,8 +38,7 @@ export class CommonLoaderPage extends React.PureComponent<Props> {
   }
 
   render(): React.ReactNode {
-    const { activeTabKey, alertItem, currentStepId, steps, workspace, actionCallbacks } =
-      this.props;
+    const { activeTabKey, alertItem, currentStepId, steps, workspace } = this.props;
 
     const pageTitle = workspace ? `Starting workspace ${workspace.name}` : 'Creating a workspace';
     const workspaceStatus = workspace?.status || DevWorkspaceStatus.STOPPED;
@@ -69,11 +67,7 @@ export class CommonLoaderPage extends React.PureComponent<Props> {
               id="loader-progress-tab"
             >
               <PageSection>
-                <LoaderAlert
-                  isToast={isToastAlert}
-                  alertItem={alertItem}
-                  actionCallbacks={actionCallbacks}
-                />
+                <LoaderAlert isToast={isToastAlert} alertItem={alertItem} />
                 <LoaderProgress steps={wizardSteps} currentStepId={currentStepId} />
               </PageSection>
             </Tab>

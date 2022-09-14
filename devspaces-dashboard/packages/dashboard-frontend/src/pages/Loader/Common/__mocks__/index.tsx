@@ -16,8 +16,7 @@ import { LoaderTab } from '../../../../services/helpers/types';
 
 export class CommonLoaderPage extends React.PureComponent<Props> {
   render(): React.ReactNode {
-    const { alertItem, currentStepId, steps, actionCallbacks, activeTabKey, onTabChange } =
-      this.props;
+    const { alertItem, currentStepId, steps, activeTabKey, onTabChange } = this.props;
     const wizardSteps = steps.map(step => (
       <div key={step.id} data-testid={step.id}>
         <div data-testid="hasError">{step.hasError ? 'true' : 'false'}</div>
@@ -25,7 +24,7 @@ export class CommonLoaderPage extends React.PureComponent<Props> {
         <div data-testid="title">{step.title}</div>
       </div>
     ));
-    const actions = actionCallbacks.map(actionCallback => (
+    const actions = alertItem?.actionCallbacks?.map(actionCallback => (
       <div key={actionCallback.title} data-testid="action-callback">
         <button onClick={() => actionCallback.callback()}>{actionCallback.title}</button>
       </div>

@@ -29,7 +29,7 @@ describe('PreloadIssuesAlert component', () => {
 
   it('should show preload alerts', () => {
     const store = new FakeStoreBuilder()
-      .withCheWorkspaces({}, false, 'expected error 1')
+      .withDevWorkspaces({}, false, 'expected error 1')
       .withDevfileRegistries({
         registries: {
           'registry-location': {

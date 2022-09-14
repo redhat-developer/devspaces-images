@@ -22,10 +22,10 @@ import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_GET_URL_SEC } from '../../../const';
-import findTargetWorkspace from '../../findTargetWorkspace';
+import findTargetWorkspace from '../../../findTargetWorkspace';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
-import { RunningWorkspacesExceededError } from '../../../../../store/Workspaces/devWorkspaces';
+import { AlertItem, LoaderTab } from '../../../../../services/helpers/types';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -82,9 +82,9 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
     this.toDispose.dispose();
   }
 
-  protected handleRestart(): void {
+  protected handleRestart(tabName?: string): void {
     this.clearStepError();
-    this.props.onRestart();
+    this.props.onRestart(tabName);
   }
 
   protected async runStep(): Promise<boolean> {
@@ -135,6 +135,28 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
     return findTargetWorkspace(props.allWorkspaces, props.matchParams);
   }
 
+  private getAlertItem(error: unknown): AlertItem | undefined {
+    if (!error) {
+      return;
+    }
+    return {
+      key: 'ide-loader-start-workspace',
+      title: 'Failed to open the workspace',
+      variant: AlertVariant.danger,
+      children: common.helpers.errors.getMessage(error),
+      actionCallbacks: [
+        {
+          title: 'Restart',
+          callback: () => this.handleRestart(),
+        },
+        {
+          title: 'Open in Verbose mode',
+          callback: () => this.handleRestart(LoaderTab[LoaderTab.Logs]),
+        },
+      ],
+    };
+  }
+
   render(): React.ReactNode {
     const { currentStepIndex, loaderSteps, tabParam } = this.props;
     const { lastError } = this.state;
@@ -143,18 +165,7 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
     const steps = loaderSteps.values;
     const currentStepId = loaderSteps.get(currentStepIndex).value.id;
 
-    const alertItem =
-      lastError === undefined
-        ? undefined
-        : {
-            key: 'ide-loader-open-ide',
-            title: 'Failed to open the workspace',
-            variant:
-              lastError instanceof RunningWorkspacesExceededError
-                ? AlertVariant.warning
-                : AlertVariant.danger,
-            children: common.helpers.errors.getMessage(lastError),
-          };
+    const alertItem = this.getAlertItem(lastError);
 
     return (
       <WorkspaceLoaderPage
@@ -163,7 +174,6 @@ class StepOpenWorkspace extends AbstractLoaderStep<Props, State> {
         steps={steps}
         tabParam={tabParam}
         workspace={workspace}
-        onRestart={() => this.handleRestart()}
       />
     );
   }

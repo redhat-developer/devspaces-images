@@ -145,6 +145,25 @@ exports[`Loader Progress Step INITIALIZATION snapshot 1`] = `
                 className=""
                 data-testid="step-title"
               >
+                Checking for the limit of running workspaces
+              </span>
+            </button>
+          </li>
+          <li
+            className="pf-c-wizard__nav-item"
+          >
+            <button
+              aria-current={false}
+              aria-disabled={true}
+              className="pf-c-wizard__nav-link pf-m-disabled"
+              disabled={true}
+              onClick={[Function]}
+            >
+              
+              <span
+                className=""
+                data-testid="step-title"
+              >
                 Waiting for workspace to start
               </span>
             </button>

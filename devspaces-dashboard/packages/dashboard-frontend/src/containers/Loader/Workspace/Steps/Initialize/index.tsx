@@ -20,11 +20,11 @@ import { selectAllWorkspaces } from '../../../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../../../store/Workspaces';
 import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
 import { Workspace } from '../../../../../services/workspace-adapter';
-import { DevWorkspaceStatus } from '../../../../../services/helpers/types';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../../services/helpers/types';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_STOP_SEC } from '../../../const';
-import findTargetWorkspace from '../../findTargetWorkspace';
+import findTargetWorkspace from '../../../findTargetWorkspace';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
 
 export type Props = MappedProps &
@@ -85,9 +85,9 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     return statuses.some(status => status === workspace.status);
   }
 
-  protected handleRestart(): void {
+  protected handleRestart(tabName?: string): void {
     this.clearStepError();
-    this.props.onRestart();
+    this.props.onRestart(tabName);
   }
 
   /**
@@ -106,11 +106,11 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     }
 
     if (workspace.isDeprecated) {
-      throw new Error(`The workspace is deprecated. Convert the workspace and try again.`);
+      throw new Error('The workspace is deprecated. Convert the workspace and try again.');
     }
 
     if (this.isWorkspaceStatus(workspace, DevWorkspaceStatus.TERMINATING)) {
-      throw new Error(`The workspace is terminating and cannot be open.`);
+      throw new Error('The workspace is terminating and cannot be open.');
     }
 
     // if stopping / failing
@@ -148,6 +148,28 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     return findTargetWorkspace(props.allWorkspaces, props.matchParams);
   }
 
+  private getAlertItem(error: unknown): AlertItem | undefined {
+    if (!error) {
+      return;
+    }
+    return {
+      key: 'ide-loader-initialize',
+      title: 'Failed to open the workspace',
+      variant: AlertVariant.danger,
+      children: helpers.errors.getMessage(error),
+      actionCallbacks: [
+        {
+          title: 'Restart',
+          callback: () => this.handleRestart(),
+        },
+        {
+          title: 'Open in Verbose mode',
+          callback: () => this.handleRestart(LoaderTab[LoaderTab.Logs]),
+        },
+      ],
+    };
+  }
+
   render(): React.ReactNode {
     const { currentStepIndex, loaderSteps, tabParam } = this.props;
     const { lastError } = this.state;
@@ -156,16 +178,8 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
     const steps = loaderSteps.values;
     const currentStepId = loaderSteps.get(currentStepIndex).value.id;
 
-    const alertItem =
-      lastError === undefined
-        ? undefined
-        : {
-            key: 'ide-loader-initialize',
-            title: 'Failed to open the workspace',
-            variant: AlertVariant.danger,
-            children: helpers.errors.getMessage(lastError),
-            error: lastError,
-          };
+    const alertItem = this.getAlertItem(lastError);
+
     return (
       <WorkspaceLoaderPage
         alertItem={alertItem}
@@ -173,7 +187,6 @@ class StepInitialize extends AbstractLoaderStep<Props, State> {
         steps={steps}
         tabParam={tabParam}
         workspace={workspace}
-        onRestart={() => this.handleRestart()}
       />
     );
   }
@@ -183,6 +196,9 @@ const mapStateToProps = (state: AppState) => ({
   allWorkspaces: selectAllWorkspaces(state),
 });
 
-const connector = connect(mapStateToProps, WorkspaceStore.actionCreators);
+const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {
+  // forwardRef is mandatory for using `@react-mock/state` in unit tests
+  forwardRef: true,
+});
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(StepInitialize);

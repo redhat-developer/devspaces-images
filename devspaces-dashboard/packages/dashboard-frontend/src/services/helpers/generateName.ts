@@ -13,5 +13,9 @@
 import getRandomString from './random';
 
 export function generateWorkspaceName(generateName: string): string {
-  return generateName + '-' + getRandomString(4).toLowerCase();
+  return generateName + generateSuffix();
+}
+
+export function generateSuffix(): string {
+  return '-' + getRandomString(4).toLowerCase();
 }

@@ -13,6 +13,7 @@
 import React from 'react';
 import { Action, Store } from 'redux';
 import { Provider } from 'react-redux';
+import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor, within } from '@testing-library/react';
 import { WorkspaceParams } from '../../../../../../Routes/routes';
@@ -27,7 +28,8 @@ import {
 } from '../../../../../../components/Loader/Step/buildSteps';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RUN_SEC } from '../../../../const';
 import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
-import StepStartWorkspace from '..';
+import StepStartWorkspace, { State } from '..';
+import { StateMock } from '@react-mock/state';
 
 jest.mock('../../../../../../pages/Loader/Workspace');
 
@@ -57,7 +59,7 @@ const matchParams: WorkspaceParams = {
 };
 
 const stepId = LoadingStep.START_WORKSPACE.toString();
-const currentStepIndex = 1;
+const currentStepIndex = 2;
 const loadingSteps = getWorkspaceLoadingSteps();
 
 describe('Workspace Loader, step START_WORKSPACE', () => {
@@ -704,6 +706,10 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
   });
 
   test('restart flow', async () => {
+    const localState: Partial<State> = {
+      shouldStart: false,
+      lastError: new Error('The workspace failed to start.'),
+    };
     const store = new FakeStoreBuilder()
       .withDevWorkspaces({
         workspaces: [
@@ -716,13 +722,14 @@ describe('Workspace Loader, step START_WORKSPACE', () => {
       })
       .build();
 
-    renderComponent(store, loaderSteps);
+    renderComponent(store, loaderSteps, matchParams, localState);
 
     jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
-    const restartButton = screen.getByRole('button', {
+    const restartButton = await screen.findByRole('button', {
       name: 'Restart',
     });
+    expect(restartButton).toBeDefined();
     userEvent.click(restartButton);
 
     expect(mockOnRestart).toHaveBeenCalled();
@@ -733,17 +740,27 @@ function getComponent(
   store: Store,
   loaderSteps: List<LoaderStep>,
   params: { namespace: string; workspaceName: string } = matchParams,
+  localState?: Partial<State>,
 ): React.ReactElement {
-  return (
-    <Provider store={store}>
-      <StepStartWorkspace
-        currentStepIndex={currentStepIndex}
-        loaderSteps={loaderSteps}
-        matchParams={params}
-        tabParam={undefined}
-        onNextStep={mockOnNextStep}
-        onRestart={mockOnRestart}
-      />
-    </Provider>
+  const history = createMemoryHistory();
+  const component = (
+    <StepStartWorkspace
+      currentStepIndex={currentStepIndex}
+      history={history}
+      loaderSteps={loaderSteps}
+      matchParams={params}
+      tabParam={undefined}
+      onNextStep={mockOnNextStep}
+      onRestart={mockOnRestart}
+    />
   );
+  if (localState) {
+    return (
+      <Provider store={store}>
+        <StateMock state={localState}>{component}</StateMock>
+      </Provider>
+    );
+  } else {
+    return <Provider store={store}>{component}</Provider>;
+  }
 }

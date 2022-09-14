@@ -14,12 +14,18 @@ import { AlertVariant } from '@patternfly/react-core';
 import * as React from 'react';
 import { Devfile } from '../workspace-adapter';
 
+export type ActionCallback = {
+  title: string;
+  callback: () => void;
+};
+
 export interface AlertItem {
   key: string;
   title: string;
   variant: AlertVariant;
   children?: React.ReactNode;
-  error?: unknown;
+  actionCallbacks?: ActionCallback[];
+  error?: never;
 }
 
 export interface FactoryResolver {

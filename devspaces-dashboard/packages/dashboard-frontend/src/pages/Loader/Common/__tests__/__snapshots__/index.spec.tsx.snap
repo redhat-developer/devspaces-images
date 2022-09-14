@@ -23,6 +23,7 @@ Array [
           >
             <li
               className="pf-c-breadcrumb__item"
+              onClick={[Function]}
             >
               <a
                 className="pf-c-breadcrumb__link"
@@ -291,6 +292,7 @@ Array [
           >
             <li
               className="pf-c-breadcrumb__item"
+              onClick={[Function]}
             >
               <a
                 className="pf-c-breadcrumb__link"

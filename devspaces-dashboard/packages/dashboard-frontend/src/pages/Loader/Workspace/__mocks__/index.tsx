@@ -11,11 +11,11 @@
  */
 
 import React from 'react';
-import { Props, State } from '..';
+import { Props } from '..';
 
-export default class WorkspaceLoaderPage extends React.PureComponent<Props, State> {
+export default class WorkspaceLoaderPage extends React.PureComponent<Props> {
   render(): React.ReactNode {
-    const { alertItem, currentStepId, steps, onRestart } = this.props;
+    const { alertItem, currentStepId, steps } = this.props;
     const wizardSteps = steps.map(step => (
       <div key={step.id} data-testid={step.id}>
         <div data-testid="hasError">{step.hasError ? 'true' : 'false'}</div>
@@ -23,15 +23,18 @@ export default class WorkspaceLoaderPage extends React.PureComponent<Props, Stat
         <div data-testid="title">{step.title}</div>
       </div>
     ));
+    const alertActionLinks = alertItem?.actionCallbacks?.map(action => (
+      <button onClick={() => action.callback()} key={action.title}>
+        {action.title}
+      </button>
+    ));
     return (
       <div data-testid="ide-loader-page">
-        <button data-testid="reload-button" onClick={() => onRestart()}>
-          Restart
-        </button>
         <div data-testid="current-step-id">{currentStepId}</div>
         <div data-testid="alert">
           <span data-testid="alert-title">{alertItem?.title}</span>
           <span data-testid="alert-body">{alertItem?.children}</span>
+          <div>{alertActionLinks}</div>
         </div>
         <div>{wizardSteps}</div>
       </div>

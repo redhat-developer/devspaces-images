@@ -17,6 +17,10 @@ import { Workspace } from '../workspace-adapter';
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+export function buildHomeLocation(): Location {
+  return _buildLocationObject(ROUTE.HOME);
+}
+
 export function buildIdeLoaderLocation(workspace: Workspace, tab?: LoaderTab): Location {
   let pathAndQuery: string;
   if (!tab) {

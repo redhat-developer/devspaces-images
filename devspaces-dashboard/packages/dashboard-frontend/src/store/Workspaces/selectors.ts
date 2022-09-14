@@ -14,20 +14,15 @@ import { createSelector } from 'reselect';
 import { AppState } from '..';
 import { constructWorkspace, Workspace, WorkspaceAdapter } from '../../services/workspace-adapter';
 import { selectCheWorkspacesError } from './cheWorkspaces/selectors';
-import { selectDevWorkspacesError } from './devWorkspaces/selectors';
-import { selectDevworkspacesEnabled } from './Settings/selectors';
+import { selectDevWorkspacesError, selectRunningDevWorkspaces } from './devWorkspaces/selectors';
 
 const selectState = (state: AppState) => state.workspaces;
 const selectCheWorkspacesState = (state: AppState) => state.cheWorkspaces;
 const selectDevWorkspacesState = (state: AppState) => state.devWorkspaces;
 
-export const selectIsLoading = createSelector(
-  selectCheWorkspacesState,
-  selectDevWorkspacesState,
-  (cheWorkspacesState, devWorkspacesState) => {
-    return cheWorkspacesState.isLoading || devWorkspacesState.isLoading;
-  },
-);
+export const selectIsLoading = createSelector(selectDevWorkspacesState, devWorkspacesState => {
+  return devWorkspacesState.isLoading;
+});
 
 export const selectLogs = createSelector(
   selectCheWorkspacesState,
@@ -42,11 +37,7 @@ export const selectLogs = createSelector(
  */
 export const selectDeprecatedWorkspacesUIDs = createSelector(
   selectCheWorkspacesState,
-  selectDevworkspacesEnabled,
-  (cheWorkspacesState, devworkspacesEnabled) => {
-    if (devworkspacesEnabled === false) {
-      return [];
-    }
+  cheWorkspacesState => {
     return cheWorkspacesState.workspaces.map(workspace => WorkspaceAdapter.getUID(workspace));
   },
 );
@@ -141,5 +132,12 @@ export const selectWorkspacesError = createSelector(
       return devWorkspacesError;
     }
     return cheWorkspacesError;
+  },
+);
+
+export const selectRunningWorkspaces = createSelector(
+  selectRunningDevWorkspaces,
+  runningDevWorkspaces => {
+    return runningDevWorkspaces.map(constructWorkspace);
   },
 );

@@ -41,6 +41,11 @@ type Props = {
 };
 
 class Header extends React.PureComponent<Props> {
+  private handleClick(): void {
+    // clear browsing attribute
+    window.name = '';
+  }
+
   public render(): React.ReactElement {
     const { title, status, hideBreadcrumbs } = this.props;
 
@@ -50,7 +55,9 @@ class Header extends React.PureComponent<Props> {
           {!hideBreadcrumbs && (
             <StackItem>
               <Breadcrumb className={styles.breadcrumb}>
-                <BreadcrumbItem to={'/dashboard/'}>Workspaces</BreadcrumbItem>
+                <BreadcrumbItem to={'/dashboard/'} onClick={() => this.handleClick()}>
+                  Workspaces
+                </BreadcrumbItem>
                 <BreadcrumbItem isActive>{title}</BreadcrumbItem>
               </Breadcrumb>
             </StackItem>

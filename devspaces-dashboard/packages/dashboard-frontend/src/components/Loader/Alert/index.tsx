@@ -14,15 +14,9 @@ import React from 'react';
 import { AlertGroup, Alert, AlertActionCloseButton, AlertActionLink } from '@patternfly/react-core';
 import { AlertItem } from '../../../services/helpers/types';
 
-export type ActionCallback = {
-  title: string;
-  callback: () => void;
-};
-
 export type Props = {
   isToast: boolean;
   alertItem?: AlertItem;
-  actionCallbacks: Array<ActionCallback>;
 };
 
 export type State = {
@@ -58,7 +52,7 @@ export class LoaderAlert extends React.PureComponent<Props, State> {
   }
 
   render(): React.ReactElement {
-    const { alertItem, isToast, actionCallbacks } = this.props;
+    const { alertItem, isToast } = this.props;
     const { hidden } = this.state;
 
     if (hidden || alertItem === undefined) {
@@ -66,7 +60,7 @@ export class LoaderAlert extends React.PureComponent<Props, State> {
     }
 
     const isInline = !isToast;
-    const alertActionLinks = actionCallbacks.map(entry => {
+    const alertActionLinks = alertItem.actionCallbacks?.map(entry => {
       return (
         <AlertActionLink key={entry.title} onClick={() => entry.callback()}>
           {entry.title}

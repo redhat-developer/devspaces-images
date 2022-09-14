@@ -16,11 +16,11 @@ import { helpers } from '@eclipse-che/common';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { FactoryLoaderPage } from '../../../../../pages/Loader/Factory';
-import getRandomString from '../../../../../services/helpers/random';
 import { MIN_STEP_DURATION_MS } from '../../../const';
 import { FactoryParams } from '../../types';
 import buildFactoryParams from '../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
+import { AlertItem } from '../../../../../services/helpers/types';
 
 export type Props = LoaderStepProps & {
   searchParams: URLSearchParams;
@@ -58,6 +58,24 @@ export default class StepCreateWorkspace extends AbstractLoaderStep<Props, State
     return true;
   }
 
+  private getAlertItem(error: unknown): AlertItem | undefined {
+    if (!error) {
+      return;
+    }
+    return {
+      key: 'factory-loader-initialize',
+      title: 'Failed to create the workspace',
+      variant: AlertVariant.danger,
+      children: helpers.errors.getMessage(error),
+      actionCallbacks: [
+        {
+          title: 'Click to try again',
+          callback: () => this.handleRestart(),
+        },
+      ],
+    };
+  }
+
   render(): React.ReactElement {
     const { currentStepIndex, loaderSteps, tabParam } = this.props;
     const { lastError } = this.state;
@@ -65,15 +83,7 @@ export default class StepCreateWorkspace extends AbstractLoaderStep<Props, State
     const steps = loaderSteps.values;
     const currentStepId = loaderSteps.get(currentStepIndex).value.id;
 
-    const alertItem =
-      lastError === undefined
-        ? undefined
-        : {
-            key: 'factory-loader-' + getRandomString(4),
-            title: 'Failed to create the workspace',
-            variant: AlertVariant.danger,
-            children: helpers.errors.getMessage(lastError),
-          };
+    const alertItem = this.getAlertItem(lastError);
 
     return (
       <FactoryLoaderPage
@@ -81,7 +91,6 @@ export default class StepCreateWorkspace extends AbstractLoaderStep<Props, State
         currentStepId={currentStepId}
         steps={steps}
         tabParam={tabParam}
-        onRestart={() => this.handleRestart()}
       />
     );
   }

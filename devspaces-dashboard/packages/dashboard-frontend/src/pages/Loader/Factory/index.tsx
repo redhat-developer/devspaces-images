@@ -14,8 +14,6 @@ import React from 'react';
 import { AlertItem, LoaderTab } from '../../../services/helpers/types';
 import { LoaderStep } from '../../../components/Loader/Step';
 import { Workspace } from '../../../services/workspace-adapter';
-import { ActionCallback } from '../../../components/Loader/Alert';
-
 import { CommonLoaderPage } from '../Common';
 
 export type Props = {
@@ -24,11 +22,9 @@ export type Props = {
   steps: LoaderStep[];
   tabParam: string | undefined;
   workspace?: Workspace;
-  onRestart: () => void;
 };
 
 export type State = {
-  isPopupAlertVisible: boolean;
   activeTabKey: LoaderTab;
 };
 
@@ -41,12 +37,7 @@ export class FactoryLoaderPage extends React.PureComponent<Props, State> {
 
     this.state = {
       activeTabKey,
-      isPopupAlertVisible: false,
     };
-  }
-
-  private handleRestart(): void {
-    this.props.onRestart();
   }
 
   private handleTabChange(tabKey: LoaderTab): void {
@@ -59,16 +50,8 @@ export class FactoryLoaderPage extends React.PureComponent<Props, State> {
     const { alertItem, currentStepId, steps, workspace } = this.props;
     const { activeTabKey } = this.state;
 
-    const actionCallbacks: ActionCallback[] = [
-      {
-        title: 'Click to try again',
-        callback: () => this.handleRestart(),
-      },
-    ];
-
     return (
       <CommonLoaderPage
-        actionCallbacks={actionCallbacks}
         activeTabKey={activeTabKey}
         alertItem={alertItem}
         currentStepId={currentStepId}

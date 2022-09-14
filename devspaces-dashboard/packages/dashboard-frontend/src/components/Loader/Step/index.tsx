@@ -21,9 +21,11 @@ export enum LoadingStep {
   INITIALIZE = 1,
   CREATE_WORKSPACE,
   CREATE_WORKSPACE__FETCH_DEVFILE,
-  CREATE_WORKSPACE__APPLY_DEVFILE,
   CREATE_WORKSPACE__FETCH_RESOURCES,
+  CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES,
+  CREATE_WORKSPACE__APPLY_DEVFILE,
   CREATE_WORKSPACE__APPLY_RESOURCES,
+  CHECK_RUNNING_WORKSPACES_LIMIT,
   START_WORKSPACE,
   OPEN_WORKSPACE,
 }
@@ -40,12 +42,16 @@ function getStepTitle(id: LoadingStep): string {
       return 'Creating a workspace';
     case LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE:
       return 'Looking for devfile';
-    case LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE:
-      return 'Applying devfile';
     case LoadingStep.CREATE_WORKSPACE__FETCH_RESOURCES:
       return 'Fetching pre-built resources';
+    case LoadingStep.CREATE_WORKSPACE__CHECK_EXISTING_WORKSPACES:
+      return 'Checking existing workspaces';
+    case LoadingStep.CREATE_WORKSPACE__APPLY_DEVFILE:
+      return 'Applying devfile';
     case LoadingStep.CREATE_WORKSPACE__APPLY_RESOURCES:
       return 'Applying resources';
+    case LoadingStep.CHECK_RUNNING_WORKSPACES_LIMIT:
+      return 'Checking for the limit of running workspaces';
     case LoadingStep.START_WORKSPACE:
       return 'Waiting for workspace to start';
     case LoadingStep.OPEN_WORKSPACE:

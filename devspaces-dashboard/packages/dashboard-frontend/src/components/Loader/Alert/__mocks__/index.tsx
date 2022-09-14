@@ -15,11 +15,11 @@ import { Props, State } from '..';
 
 export class LoaderAlert extends React.PureComponent<Props, State> {
   render(): React.ReactNode {
-    const { alertItem, actionCallbacks } = this.props;
+    const { alertItem } = this.props;
     if (alertItem === undefined) {
       return <></>;
     }
-    const actionLinks = actionCallbacks.map(entry => {
+    const actionLinks = alertItem.actionCallbacks?.map(entry => {
       return (
         <button key={entry.title} onClick={() => entry.callback()}>
           {entry.title}

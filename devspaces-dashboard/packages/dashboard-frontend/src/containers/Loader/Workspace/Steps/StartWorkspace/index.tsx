@@ -19,16 +19,15 @@ import { AppState } from '../../../../../store';
 import { selectAllWorkspaces, selectLogs } from '../../../../../store/Workspaces/selectors';
 import * as WorkspaceStore from '../../../../../store/Workspaces';
 import WorkspaceLoaderPage from '../../../../../pages/Loader/Workspace';
-import { DevWorkspaceStatus } from '../../../../../services/helpers/types';
+import { AlertItem, DevWorkspaceStatus, LoaderTab } from '../../../../../services/helpers/types';
 import { DisposableCollection } from '../../../../../services/helpers/disposable';
 import { delay } from '../../../../../services/helpers/delay';
 import { filterErrorLogs } from '../../../../../services/helpers/filterErrorLogs';
 import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RUN_SEC } from '../../../const';
-import findTargetWorkspace from '../../findTargetWorkspace';
+import findTargetWorkspace from '../../../findTargetWorkspace';
 import workspaceStatusIs from '../workspaceStatusIs';
 import { Workspace } from '../../../../../services/workspace-adapter';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../AbstractStep';
-import { RunningWorkspacesExceededError } from '../../../../../store/Workspaces/devWorkspaces';
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -101,10 +100,10 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
     this.prepareAndRun();
   }
 
-  protected handleRestart(): void {
+  protected handleRestart(tabName?: string): void {
     this.setState({ shouldStart: true });
     this.clearStepError();
-    this.props.onRestart();
+    this.props.onRestart(tabName);
   }
 
   /**
@@ -180,6 +179,28 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
     return findTargetWorkspace(props.allWorkspaces, props.matchParams);
   }
 
+  private getAlertItem(error: unknown): AlertItem | undefined {
+    if (!error) {
+      return;
+    }
+    return {
+      key: 'ide-loader-start-workspace',
+      title: 'Failed to open the workspace',
+      variant: AlertVariant.danger,
+      children: common.helpers.errors.getMessage(error),
+      actionCallbacks: [
+        {
+          title: 'Restart',
+          callback: () => this.handleRestart(),
+        },
+        {
+          title: 'Open in Verbose mode',
+          callback: () => this.handleRestart(LoaderTab[LoaderTab.Logs]),
+        },
+      ],
+    };
+  }
+
   render(): React.ReactNode {
     const { currentStepIndex, loaderSteps, tabParam } = this.props;
     const { lastError } = this.state;
@@ -188,19 +209,7 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
     const steps = loaderSteps.values;
     const currentStepId = loaderSteps.get(currentStepIndex).value.id;
 
-    const alertItem =
-      lastError === undefined
-        ? undefined
-        : {
-            key: 'ide-loader-start-workspace',
-            title: 'Failed to open the workspace',
-            variant:
-              lastError instanceof RunningWorkspacesExceededError
-                ? AlertVariant.warning
-                : AlertVariant.danger,
-            children: common.helpers.errors.getMessage(lastError),
-            error: lastError,
-          };
+    const alertItem = this.getAlertItem(lastError);
 
     return (
       <WorkspaceLoaderPage
@@ -209,7 +218,6 @@ class StepStartWorkspace extends AbstractLoaderStep<Props, State> {
         steps={steps}
         tabParam={tabParam}
         workspace={workspace}
-        onRestart={() => this.handleRestart()}
       />
     );
   }
@@ -220,6 +228,9 @@ const mapStateToProps = (state: AppState) => ({
   workspacesLogs: selectLogs(state),
 });
 
-const connector = connect(mapStateToProps, WorkspaceStore.actionCreators);
+const connector = connect(mapStateToProps, WorkspaceStore.actionCreators, null, {
+  // forwardRef is mandatory for using `@react-mock/state` in unit tests
+  forwardRef: true,
+});
 type MappedProps = ConnectedProps<typeof connector>;
 export default connector(StepStartWorkspace);

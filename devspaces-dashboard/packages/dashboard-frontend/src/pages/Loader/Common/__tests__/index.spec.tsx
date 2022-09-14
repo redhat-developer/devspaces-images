@@ -24,10 +24,14 @@ import {
 } from '../../../../components/Loader/Step/buildSteps';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
-import { AlertItem, LoaderTab, DevWorkspaceStatus } from '../../../../services/helpers/types';
+import {
+  AlertItem,
+  LoaderTab,
+  DevWorkspaceStatus,
+  ActionCallback,
+} from '../../../../services/helpers/types';
 import devfileApi from '../../../../services/devfileApi';
 import { constructWorkspace, Workspace } from '../../../../services/workspace-adapter';
-import { ActionCallback } from '../../../../components/Loader/Alert';
 import getComponentRenderer from '../../../../services/__mocks__/getComponentRenderer';
 
 jest.mock('react-tooltip', () => {
@@ -85,7 +89,6 @@ describe('Loader page', () => {
   test('component snapshot: creating a workspace', () => {
     const emptyStore = new FakeStoreBuilder().build();
     const snapshot = createSnapshot(emptyStore, {
-      actionCallbacks,
       activeTab,
       steps: steps.values,
       workspace: undefined,
@@ -95,7 +98,6 @@ describe('Loader page', () => {
 
   test('component snapshot: starting a workspace', () => {
     const snapshot = createSnapshot(store, {
-      actionCallbacks,
       activeTab,
       steps: steps.values,
       workspace,
@@ -105,7 +107,6 @@ describe('Loader page', () => {
 
   it('should handle tab click', () => {
     renderComponent(store, {
-      actionCallbacks,
       activeTab,
       steps: steps.values,
       workspace,
@@ -122,9 +123,9 @@ describe('Loader page', () => {
       key: 'alert-id',
       title: 'Failed to start the workspace',
       variant: AlertVariant.danger,
+      actionCallbacks,
     };
     renderComponent(store, {
-      actionCallbacks,
       activeTab,
       steps: steps.values,
       alertItem,
@@ -139,7 +140,6 @@ describe('Loader page', () => {
 
   it('should render Progress tab active by default', () => {
     renderComponent(store, {
-      actionCallbacks,
       activeTab,
       steps: steps.values,
       workspace,
@@ -156,7 +156,6 @@ describe('Loader page', () => {
 
   it('should render Logs tab active', () => {
     renderComponent(store, {
-      actionCallbacks,
       activeTab: LoaderTab.Logs,
       steps: steps.values,
       workspace,
@@ -177,7 +176,6 @@ function getComponent(
   props: {
     steps: LoaderStep[];
     activeTab: LoaderTab;
-    actionCallbacks: ActionCallback[];
     alertItem?: AlertItem;
     workspace?: Workspace;
   },
@@ -186,7 +184,6 @@ function getComponent(
     <Provider store={store}>
       <CommonLoaderPage
         alertItem={props.alertItem}
-        actionCallbacks={props.actionCallbacks}
         activeTabKey={props.activeTab}
         currentStepId={currentStepId}
         steps={props.steps}

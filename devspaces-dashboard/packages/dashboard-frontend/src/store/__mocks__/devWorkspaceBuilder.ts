@@ -70,6 +70,11 @@ export class DevWorkspaceBuilder {
     return this;
   }
 
+  withSpec(spec: Partial<devfileApi.DevWorkspaceSpec>): DevWorkspaceBuilder {
+    Object.assign(this.workspace.spec, spec);
+    return this;
+  }
+
   withTemplate(template: V1alpha2DevWorkspaceSpecTemplate): DevWorkspaceBuilder {
     this.workspace.spec.template = template;
     return this;

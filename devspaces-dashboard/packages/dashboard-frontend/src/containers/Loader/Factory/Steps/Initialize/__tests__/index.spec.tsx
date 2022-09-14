@@ -13,6 +13,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Store } from 'redux';
+import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor, within } from '@testing-library/react';
 import { FakeStoreBuilder } from '../../../../../../store/__mocks__/storeBuilder';
@@ -21,7 +22,7 @@ import {
   buildLoaderSteps,
   getFactoryLoadingSteps,
 } from '../../../../../../components/Loader/Step/buildSteps';
-import StepInitialize from '..';
+import StepInitialize, { State } from '..';
 import getComponentRenderer from '../../../../../../services/__mocks__/getComponentRenderer';
 import {
   DEV_WORKSPACE_ATTR,
@@ -30,6 +31,8 @@ import {
   MIN_STEP_DURATION_MS,
   POLICIES_CREATE_ATTR,
 } from '../../../../const';
+import { StateMock } from '@react-mock/state';
+import buildFactoryParams from '../../../buildFactoryParams';
 
 jest.mock('../../../../../../pages/Loader/Factory');
 
@@ -223,14 +226,19 @@ describe('Factory Loader, step INITIALIZE', () => {
     const searchParams = new URLSearchParams({
       [FACTORY_URL_ATTR]: factoryUrl,
     });
+    const localState: Partial<State> = {
+      factoryParams: buildFactoryParams(searchParams),
+      lastError: new Error('Unexpected error'),
+    };
 
-    renderComponent(store, loaderSteps, searchParams);
+    renderComponent(store, loaderSteps, searchParams, localState);
 
     jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
-    const restartButton = screen.getByRole('button', {
-      name: 'Restart',
+    const restartButton = await screen.findByRole('button', {
+      name: 'Click to try again',
     });
+    expect(restartButton).toBeDefined();
     userEvent.click(restartButton);
 
     expect(mockOnRestart).toHaveBeenCalled();
@@ -241,17 +249,27 @@ function getComponent(
   store: Store,
   loaderSteps: List<LoaderStep>,
   searchParams: URLSearchParams,
+  localState?: Partial<State>,
 ): React.ReactElement {
-  return (
-    <Provider store={store}>
-      <StepInitialize
-        currentStepIndex={currentStepIndex}
-        loaderSteps={loaderSteps}
-        searchParams={searchParams}
-        tabParam={undefined}
-        onNextStep={mockOnNextStep}
-        onRestart={mockOnRestart}
-      />
-    </Provider>
+  const history = createMemoryHistory();
+  const component = (
+    <StepInitialize
+      currentStepIndex={currentStepIndex}
+      history={history}
+      loaderSteps={loaderSteps}
+      searchParams={searchParams}
+      tabParam={undefined}
+      onNextStep={mockOnNextStep}
+      onRestart={mockOnRestart}
+    />
   );
+  if (localState) {
+    return (
+      <Provider store={store}>
+        <StateMock state={localState}>{component}</StateMock>
+      </Provider>
+    );
+  } else {
+    return <Provider store={store}>{component}</Provider>;
+  }
 }

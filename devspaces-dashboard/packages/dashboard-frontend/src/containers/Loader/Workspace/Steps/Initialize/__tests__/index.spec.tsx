@@ -13,6 +13,7 @@
 import React from 'react';
 import { Store } from 'redux';
 import { Provider } from 'react-redux';
+import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor, within } from '@testing-library/react';
 import { WorkspaceParams } from '../../../../../../Routes/routes';
@@ -496,9 +497,10 @@ describe('Workspace Loader, step INITIALIZE', () => {
 
     jest.advanceTimersByTime(MIN_STEP_DURATION_MS);
 
-    const restartButton = screen.getByRole('button', {
+    const restartButton = await screen.findByRole('button', {
       name: 'Restart',
     });
+    expect(restartButton).toBeDefined();
     userEvent.click(restartButton);
 
     expect(mockOnRestart).toHaveBeenCalled();
@@ -510,10 +512,12 @@ function getComponent(
   loaderSteps: List<LoaderStep>,
   params: { namespace: string; workspaceName: string } = matchParams,
 ): React.ReactElement {
+  const history = createMemoryHistory();
   return (
     <Provider store={store}>
       <StepInitialize
         currentStepIndex={currentStepIndex}
+        history={history}
         loaderSteps={loaderSteps}
         matchParams={params}
         tabParam={undefined}

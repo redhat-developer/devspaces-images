@@ -22,6 +22,7 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
         >
           <li
             className="pf-c-breadcrumb__item"
+            onClick={[Function]}
           >
             <a
               className="pf-c-breadcrumb__link"
@@ -149,6 +150,7 @@ exports[`The header component for IDE-loader and Factory-loader pages should ren
         >
           <li
             className="pf-c-breadcrumb__item"
+            onClick={[Function]}
           >
             <a
               className="pf-c-breadcrumb__link"
