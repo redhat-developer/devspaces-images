@@ -93,3 +93,26 @@ function _buildLocationObject(pathAndQuery: string): Location {
 export function toHref(history: History, location: Location): string {
   return history.createHref(location);
 }
+
+const oauthParams = ['state', 'session_state', 'code'];
+/**
+ * Removes oauth params.
+ */
+export function sanitizeLocation(location: Location, removeParams: string[] = []): Location {
+  const toRemove = [...oauthParams, ...removeParams];
+  // clear search params
+  if (location.search) {
+    const searchParams = new window.URLSearchParams(location.search);
+    toRemove.forEach(val => searchParams.delete(val));
+    location.search = '?' + searchParams.toString();
+  }
+
+  // clear pathname
+  toRemove.forEach(param => {
+    const re = new RegExp('&' + param + '=[^&]+', 'i');
+    const newPathname = location.pathname.replace(re, '');
+    location.pathname = newPathname;
+  });
+
+  return location;
+}
