@@ -1,4 +1,5 @@
 wheel
 setuptools
 setuptools-scm
+flit_core
 pip==22.2.2

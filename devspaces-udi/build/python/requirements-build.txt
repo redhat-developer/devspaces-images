@@ -4,6 +4,8 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements-build.txt requirements-build.in
 #
+flit-core==3.7.1
+    # via -r requirements-build.in
 packaging==21.3
     # via setuptools-scm
 pyparsing==3.0.9
