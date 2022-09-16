@@ -42,7 +42,7 @@ import {
   V1alpha2DevWorkspaceTemplateSpecComponents,
   V220DevfileComponentsItemsContainer,
 } from '@devfile/api';
-import { isEqual } from 'lodash';
+import { cloneDeep, isEqual } from 'lodash';
 import { fetchData } from '../../registry/fetchData';
 import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
@@ -803,6 +803,24 @@ export class DevWorkspaceClient extends WorkspaceClient {
           path: '/spec/template/attributes',
           value: { 'controller.devfile.io/storage-type': currentPvcStrategy },
         });
+      }
+    }
+
+    const openVSXURL = config.pluginRegistry.openVSXURL;
+    const components = cloneDeep(workspace.spec.template.components);
+    if (components) {
+      let shouldUpdate = false;
+      components.forEach(component => {
+        const envs = component.container?.env || [];
+        envs.forEach(env => {
+          if (env.name === this.openVSXUrlEnvName && env.value !== openVSXURL) {
+            shouldUpdate = true;
+            env.value = openVSXURL;
+          }
+        });
+      });
+      if (shouldUpdate) {
+        patch.push({ op: 'replace', path: '/spec/template/components', value: components });
       }
     }
 
