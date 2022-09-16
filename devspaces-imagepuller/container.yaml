@@ -14,3 +14,16 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-imagepuller
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 3a3c47d98ebf5ddc2dd53bf837d68d0a3d52f0cc
+    pkg_managers: [gomod]
+    flags: [gomod-vendor-check]
+    packages: 
+      gomod: 
+        - path: devspaces-imagepuller
+        
