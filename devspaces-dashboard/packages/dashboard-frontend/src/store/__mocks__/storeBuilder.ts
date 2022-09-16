@@ -46,6 +46,7 @@ export class FakeStoreBuilder {
           editor: undefined,
           components: [],
           plugins: [],
+          pvcStrategy: '',
         },
         pluginRegistry: {
           openVSXURL: '',
@@ -54,6 +55,7 @@ export class FakeStoreBuilder {
           inactivityTimeout: -1,
           runTimeout: -1,
         },
+        cheNamespace: '',
       } as dashboardBackendApi.IServerConfig,
     },
     clusterInfo: {

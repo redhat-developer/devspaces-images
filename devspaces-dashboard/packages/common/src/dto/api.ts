@@ -33,6 +33,7 @@ export interface IServerConfig {
     editor: string | undefined;
     components: V220DevfileComponents[];
     plugins: IWorkspacesDefaultPlugins[];
+    pvcStrategy: string | undefined;
   };
   pluginRegistry: {
     openVSXURL: string;
@@ -41,4 +42,5 @@ export interface IServerConfig {
     inactivityTimeout: number;
     runTimeout: number;
   };
+  cheNamespace: string;
 }

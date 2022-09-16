@@ -31,4 +31,9 @@ export const selectOpenVSXUrl = createSelector(
   state => state.config.pluginRegistry.openVSXURL,
 );
 
+export const selectPvcStrategy = createSelector(
+  selectState,
+  state => state.config.defaults.pvcStrategy,
+);
+
 export const selectServerConfigError = createSelector(selectState, state => state.error);

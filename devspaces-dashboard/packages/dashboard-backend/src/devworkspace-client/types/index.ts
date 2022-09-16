@@ -112,9 +112,13 @@ export interface IServerConfigApi {
    */
   getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[];
   /**
-   * Returns the openVSX URL if it is defined.
+   * Returns the openVSX URL.
    */
   getOpenVSXURL(cheCustomResource: { [key: string]: any }): string;
+  /**
+   * Returns the PVC strategy if it is defined.
+   */
+  getPvcStrategy(cheCustomResource: { [key: string]: any }): string | undefined;
   /**
    * Returns a maintenance warning.
    */

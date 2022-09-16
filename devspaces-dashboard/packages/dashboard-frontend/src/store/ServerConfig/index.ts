@@ -75,6 +75,7 @@ const unloadedState: State = {
       editor: undefined,
       components: [],
       plugins: [],
+      pvcStrategy: '',
     },
     pluginRegistry: {
       openVSXURL: '',
@@ -83,6 +84,7 @@ const unloadedState: State = {
       inactivityTimeout: -1,
       runTimeout: -1,
     },
+    cheNamespace: '',
   },
   error: undefined,
 };

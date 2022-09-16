@@ -74,6 +74,10 @@ export class ServerConfigApi implements IServerConfigApi {
     return cheCustomResource.spec.components.pluginRegistry?.openVSXURL || '';
   }
 
+  getPvcStrategy(cheCustomResource: { [key: string]: any }): string | undefined {
+    return cheCustomResource.spec.devEnvironments.storage.pvcStrategy;
+  }
+
   getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined {
     if (!cheCustomResource.spec.components.dashboard.headerMessage?.show) {
       return undefined;

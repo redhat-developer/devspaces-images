@@ -316,6 +316,7 @@ describe('dwPlugins store', () => {
                 plugins: ['https://test.com/devfile.yaml'],
               },
             ],
+            pvcStrategy: 'per-workspace',
           },
           pluginRegistry: {
             openVSXURL: '',
@@ -324,6 +325,7 @@ describe('dwPlugins store', () => {
             inactivityTimeout: -1,
             runTimeout: -1,
           },
+          cheNamespace: 'eclipse-che',
         })
         .build() as MockStoreEnhanced<
         AppState,

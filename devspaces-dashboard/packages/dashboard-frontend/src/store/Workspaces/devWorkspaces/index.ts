@@ -41,6 +41,7 @@ import { cloneDeep } from 'lodash';
 import { delay } from '../../../services/helpers/delay';
 import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
 import { selectRunningDevWorkspacesLimitExceeded } from './selectors';
+import * as DwServerConfigStore from '../../ServerConfig';
 
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
@@ -295,6 +296,9 @@ export const actionCreators: ActionCreators = {
       try {
         checkRunningWorkspacesLimit(getState());
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
+        await dispatch(DwServerConfigStore.actionCreators.requestServerConfig());
+        const config = getState().dwServerConfig.config;
+        await devWorkspaceClient.updateConfigData(workspace, config);
         let updatedWorkspace: devfileApi.DevWorkspace;
         const workspaceUID = workspace.metadata.uid;
         dispatch({
