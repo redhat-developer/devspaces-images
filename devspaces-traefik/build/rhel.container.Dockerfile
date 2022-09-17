@@ -1,5 +1,5 @@
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM registry.access.redhat.com/ubi8-minimal:8.6-902.1661794353 
+FROM registry.access.redhat.com/ubi8-minimal:8.6-941 
 
 COPY asset-*.tar.gz /tmp/assets/ 
 COPY script/ca-certificates.crt /etc/ssl/certs/

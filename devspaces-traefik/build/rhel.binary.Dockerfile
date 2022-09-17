@@ -1,6 +1,6 @@
 # WEBUI
 # https://registry.access.redhat.com/ubi8/nodejs-14
-FROM registry.redhat.io/ubi8/nodejs-14:1-83 as webui 
+FROM registry.redhat.io/ubi8/nodejs-14:1-86 as webui 
 USER root 
 RUN yum install -y python2
 
@@ -15,7 +15,7 @@ RUN npm install --unsafe-perm=true && npm -g i yarn && npm run build
 
 # BUILD
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.redhat.io/ubi8/go-toolset:1.17.12-3
+FROM registry.redhat.io/ubi8/go-toolset:1.17.12-7
 USER root 
 
 ARG TRAEFIK_SHA="c9520"
