@@ -1,0 +1,469 @@
+======= BOOTSTRAP DOCKERFILE =======>
+# Copyright (c) 2020 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+# https://registry.access.redhat.com/rhel8/go-toolset
+FROM registry.redhat.io/rhel8/go-toolset:1.17.12-7 as builder
+ENV GOPATH=/go/ \
+    GO111MODULE=on
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+
+USER root
+
+WORKDIR /kubernetes-image-puller
+COPY go.mod .
+COPY go.sum .
+# built in Brew, use tarball in lookaside cache; built locally, comment this out
+# COPY resources.tgz /tmp/resources.tgz
+# build locally, fetch mods
+RUN if [[ ${BOOTSTRAP} != "false" ]]; then \
+      go mod download; \
+    elif [[ -f /tmp/resources.tgz ]]; then \
+      tar xvf /tmp/resources.tgz -C /; \
+      rm -f /tmp/resources.tgz; \
+    fi
+
+COPY . .
+
+RUN adduser appuser && \
+    make build 
+
+# https://registry.access.redhat.com/ubi8-minimal
+FROM registry.redhat.io/ubi8-minimal:8.6-941
+USER root
+RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+# CRW-528 copy actual cert
+COPY --from=builder /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/pki/ca-trust/extracted/pem/
+# CRW-528 copy symlink to the above cert
+COPY --from=builder /etc/pki/tls/certs/ca-bundle.crt                  /etc/pki/tls/certs/
+COPY --from=builder /etc/passwd /etc/passwd
+
+USER appuser
+COPY --from=builder /kubernetes-image-puller/bin/kubernetes-image-puller /
+COPY --from=builder /kubernetes-image-puller/bin/sleep /bin/sleep
+# NOTE: To use this container, need a configmap. See example at ./deploy/openshift/configmap.yaml
+# See also https://github.com/che-incubator/kubernetes-image-puller#configuration
+CMD ["/kubernetes-image-puller"]
+
+# append Brew metadata here
+
+ENV SUMMARY="Red Hat OpenShift Dev Spaces imagepuller container" \
+    DESCRIPTION="Red Hat OpenShift Dev Spaces imagepuller container" \
+    PRODNAME="devspaces" \
+    COMPNAME="imagepuller-rhel8"
+LABEL summary="$SUMMARY" \
+      description="$DESCRIPTION" \
+      io.k8s.description="$DESCRIPTION" \
+      io.k8s.display-name="$DESCRIPTION" \
+      io.openshift.tags="$PRODNAME,$COMPNAME" \
+      com.redhat.component="$PRODNAME-$COMPNAME-container" \
+      name="$PRODNAME/$COMPNAME" \
+      version="3.3" \
+      license="EPLv2" \
+      maintainer="Ilya Buziuk <ibuziuk@redhat.com>, Nick Boldt <nboldt@redhat.com>" \
+      io.openshift.expose-services="" \
+      usage=""
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/11: FROM registry.redhat.io/rhel8/go-toolset:1.17.12-7 AS builder
+STEP 2/11: ENV GOPATH=/go/     GO111MODULE=on
+--> 35dd1aa8c85
+STEP 3/11: ARG BOOTSTRAP=true
+--> fafd9c8a613
+STEP 4/11: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 51e075bfc28
+STEP 5/11: USER root
+--> aa2a7c51eb5
+STEP 6/11: WORKDIR /kubernetes-image-puller
+--> b951a16f91d
+STEP 7/11: COPY go.mod .
+--> f98b6e5752a
+STEP 8/11: COPY go.sum .
+--> ddeaf5954a8
+STEP 9/11: RUN if [[ ${BOOTSTRAP} != "false" ]]; then       go mod download;     elif [[ -f /tmp/resources.tgz ]]; then       tar xvf /tmp/resources.tgz -C /;       rm -f /tmp/resources.tgz;     fi
+--> 35e7eae1474
+STEP 10/11: COPY . .
+--> 72737fa8e1f
+STEP 11/11: RUN adduser appuser &&     make build 
+go test -v ./cfg... ./pkg... ./sleep... ./utils...
+=== RUN   TestEnvVars
+=== RUN   TestEnvVars/default
+2022/09/18 08:50:45 No value found for DAEMONSET_NAME. Using default value of kubernetes-image-puller
+2022/09/18 08:50:45 No value found for NAMESPACE. Using default value of k8s-image-puller
+2022/09/18 08:50:45 Processing images from configuration...
+2022/09/18 08:50:45 Image: che-theia=quay.io/eclipse/che-theia:nightly
+2022/09/18 08:50:45 No value found for CACHING_MEMORY_REQUEST. Using default value of 1Mi
+2022/09/18 08:50:45 No value found for CACHING_MEMORY_LIMIT. Using default value of 5Mi
+2022/09/18 08:50:45 No value found for CACHING_CPU_REQUEST. Using default value of .05
+2022/09/18 08:50:45 No value found for CACHING_CPU_LIMIT. Using default value of .2
+2022/09/18 08:50:45 No value found for NODE_SELECTOR. Using default value of {}
+2022/09/18 08:50:45 No value found for IMAGE_PULL_SECRETS. Using default value of 
+2022/09/18 08:50:45 No value found for AFFINITY. Using default value of {}
+2022/09/18 08:50:45 No value found for KIP_IMAGE. Using default value of quay.io/eclipse/kubernetes-image-puller:next
+=== RUN   TestEnvVars/overrides
+2022/09/18 08:50:45 Processing images from configuration...
+2022/09/18 08:50:45 Image: che-theia=quay.io/eclipse/che-theia:nightly
+2022/09/18 08:50:45 No value found for CACHING_MEMORY_REQUEST. Using default value of 1Mi
+2022/09/18 08:50:45 No value found for CACHING_MEMORY_LIMIT. Using default value of 5Mi
+2022/09/18 08:50:45 No value found for CACHING_CPU_LIMIT. Using default value of .2
+--- PASS: TestEnvVars (0.00s)
+    --- PASS: TestEnvVars/default (0.00s)
+    --- PASS: TestEnvVars/overrides (0.00s)
+=== RUN   TestProcessImagesEnvVar
+=== RUN   TestProcessImagesEnvVar/one_image
+2022/09/18 08:50:45 Processing images from configuration...
+2022/09/18 08:50:45 Image: che-theia=quay.io/eclipse/che-theia:nightly
+=== RUN   TestProcessImagesEnvVar/three_images
+2022/09/18 08:50:45 Processing images from configuration...
+2022/09/18 08:50:45 Image: image1=my/image1:dev
+2022/09/18 08:50:45 Image: image2=my/image2:next
+2022/09/18 08:50:45 Image: image3=my/image3:stage
+--- PASS: TestProcessImagesEnvVar (0.00s)
+    --- PASS: TestProcessImagesEnvVar/one_image (0.00s)
+    --- PASS: TestProcessImagesEnvVar/three_images (0.00s)
+=== RUN   TestProcessNodeSElectorEnvVar
+=== RUN   TestProcessNodeSElectorEnvVar/default_node_selector,_NODE_SELECTOR_set
+=== RUN   TestProcessNodeSElectorEnvVar/compute_type,_NODE_SELECTOR_set
+=== RUN   TestProcessNodeSElectorEnvVar/default_env_var,_NODE_SELECTOR_not_set
+2022/09/18 08:50:45 No value found for NODE_SELECTOR. Using default value of {}
+--- PASS: TestProcessNodeSElectorEnvVar (0.00s)
+    --- PASS: TestProcessNodeSElectorEnvVar/default_node_selector,_NODE_SELECTOR_set (0.00s)
+    --- PASS: TestProcessNodeSElectorEnvVar/compute_type,_NODE_SELECTOR_set (0.00s)
+    --- PASS: TestProcessNodeSElectorEnvVar/default_env_var,_NODE_SELECTOR_not_set (0.00s)
+=== RUN   TestGetEnvVarOrDefaultBool
+--- PASS: TestGetEnvVarOrDefaultBool (0.00s)
+=== RUN   TestGetEnvVarOrDefault
+2022/09/18 08:50:45 No value found for UNDEFINED_ENV_VAR. Using default value of bar
+--- PASS: TestGetEnvVarOrDefault (0.00s)
+=== RUN   Test_processAffinityEnvVar
+=== RUN   Test_processAffinityEnvVar/default_affinity,_AFFINITY_set
+=== RUN   Test_processAffinityEnvVar/requiredDuringSchedulingIgnoredDuringExecution,_AFFINITY_set
+=== RUN   Test_processAffinityEnvVar/default_env_var,_AFFINITY_not_set
+2022/09/18 08:50:45 No value found for AFFINITY. Using default value of {}
+--- PASS: Test_processAffinityEnvVar (0.00s)
+    --- PASS: Test_processAffinityEnvVar/default_affinity,_AFFINITY_set (0.00s)
+    --- PASS: Test_processAffinityEnvVar/requiredDuringSchedulingIgnoredDuringExecution,_AFFINITY_set (0.00s)
+    --- PASS: Test_processAffinityEnvVar/default_env_var,_AFFINITY_not_set (0.00s)
+PASS
+ok  	github.com/che-incubator/kubernetes-image-puller/cfg	0.044s
+?   	github.com/che-incubator/kubernetes-image-puller/pkg/single-cluster	[no test files]
+=== RUN   TestArguments
+--- PASS: TestArguments (1.40s)
+PASS
+ok  	github.com/che-incubator/kubernetes-image-puller/sleep	1.406s
+=== RUN   TestGetContainers
+=== RUN   TestGetContainers/two_containers
+2022/09/18 08:50:52 No value found for DAEMONSET_NAME. Using default value of kubernetes-image-puller
+2022/09/18 08:50:52 No value found for NAMESPACE. Using default value of k8s-image-puller
+2022/09/18 08:50:52 Processing images from configuration...
+2022/09/18 08:50:52 Image: che-theia=eclipse/che-theia:nightly
+2022/09/18 08:50:52 Image: che-plugin-registry=quay.io/eclipse/che-plugin-registry:nightly
+2022/09/18 08:50:52 No value found for CACHING_MEMORY_REQUEST. Using default value of 1Mi
+2022/09/18 08:50:52 No value found for CACHING_MEMORY_LIMIT. Using default value of 5Mi
+2022/09/18 08:50:52 No value found for CACHING_CPU_REQUEST. Using default value of .05
+2022/09/18 08:50:52 No value found for CACHING_CPU_LIMIT. Using default value of .2
+2022/09/18 08:50:52 No value found for NODE_SELECTOR. Using default value of {}
+2022/09/18 08:50:52 No value found for IMAGE_PULL_SECRETS. Using default value of 
+2022/09/18 08:50:52 No value found for AFFINITY. Using default value of {}
+2022/09/18 08:50:52 No value found for KIP_IMAGE. Using default value of quay.io/eclipse/kubernetes-image-puller:next
+=== RUN   TestGetContainers/four_containers
+2022/09/18 08:50:52 No value found for DAEMONSET_NAME. Using default value of kubernetes-image-puller
+2022/09/18 08:50:52 No value found for NAMESPACE. Using default value of k8s-image-puller
+2022/09/18 08:50:52 Processing images from configuration...
+2022/09/18 08:50:52 Image: che-sidecar-java=quay.io/eclipse/che-sidecar-java:nightly
+2022/09/18 08:50:52 Image: che-plugin-registry=quay.io/eclipse/che-plugin-registry:nightly
+2022/09/18 08:50:52 Image: che-devfile-registry=quay.io/eclipse/che-devfile-registry:nightly
+2022/09/18 08:50:52 Image: che-theia=quay.io/eclipse/che-theia:nightly
+2022/09/18 08:50:52 No value found for CACHING_MEMORY_REQUEST. Using default value of 1Mi
+2022/09/18 08:50:52 No value found for CACHING_MEMORY_LIMIT. Using default value of 5Mi
+2022/09/18 08:50:52 No value found for CACHING_CPU_REQUEST. Using default value of .05
+2022/09/18 08:50:52 No value found for CACHING_CPU_LIMIT. Using default value of .2
+2022/09/18 08:50:52 No value found for NODE_SELECTOR. Using default value of {}
+2022/09/18 08:50:52 No value found for IMAGE_PULL_SECRETS. Using default value of 
+2022/09/18 08:50:52 No value found for AFFINITY. Using default value of {}
+2022/09/18 08:50:52 No value found for KIP_IMAGE. Using default value of quay.io/eclipse/kubernetes-image-puller:next
+--- PASS: TestGetContainers (0.00s)
+    --- PASS: TestGetContainers/two_containers (0.00s)
+    --- PASS: TestGetContainers/four_containers (0.00s)
+PASS
+ok  	github.com/che-incubator/kubernetes-image-puller/utils	0.017s
+GOOS=linux go build -v -o ./bin/kubernetes-image-puller ./cmd/main.go
+CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-w -s' -a -installsuffix cgo -o ./bin/sleep ./sleep/sleep.go
+COMMIT imagepuller:tmp
+--> 1b9f4e68b59
+Successfully tagged localhost/imagepuller:tmp
+1b9f4e68b5979e228e1654aea9e46efa9b2e3a219fb88ffc303d740487c30d57
+<======= END BOOTSTRAP BUILD =======
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/emicklei/go-restful@v0.0.0-20170410110728-ff4f55a20633 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/emicklei/go-restful@v0.0.0-20170410110728-ff4f55a20633
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/emicklei/go-restful@v0.0.0-20170410110728-ff4f55a20633	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/emicklei/go-restful@v0.0.0-20170410110728-ff4f55a20633	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/emicklei/go-restful v0.0.0-20170410110728-ff4f55a20633/go.mod h1:otzb+WCGbkyDHkqmQmT5YD2WR4BBwUdeQoFo8l/7tVs=
+ 
+ go.sum database tree
+-12264013
+-rgalkGrypv7W/pn66lrmxcSydpkDqC4zJenTRgEPhbA=
++12910365
++Fqcgg3Ms2q8HxFV3SN7ySFy0EU5UndS2KoEGc+zPg1c=
+ 
+-— sum.golang.org Az3grnOd26M9MX0ATYcNxj4apgC0An9TyhVpny3+83SPaN3g2/4wORe6yjVDpXdNc25h5xCdq6g9MWgQbSfPz61DhQA=
++— sum.golang.org Az3gruSVHL4hVhmV0InTUjweskaCW2/vxshIHCk50IW8Qh8xn6roVsSG1LkbWEVR1HkljgX1JvoHeS1Usbm5kef7WQo=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/ghodss/yaml@v0.0.0-20150909031657-73d445a93680 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/ghodss/yaml@v0.0.0-20150909031657-73d445a93680
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/ghodss/yaml@v0.0.0-20150909031657-73d445a93680	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/ghodss/yaml@v0.0.0-20150909031657-73d445a93680	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
+ 
+ go.sum database tree
+-12263469
+-HtxgUecAXVjBk8Z26VsEP2HsKdRtlEgJbmbJ6sx9Z50=
++12917059
++EoTuu4uonKAxJC9bhQsqvG4eC1gz6VZcOklf5zxLwcY=
+ 
+-— sum.golang.org Az3griSftLHN65P1BRjzNitRGxFTFP/ZBKM84SCKwOCKrxVvclGwNfPlgkOL6rfNfGFk8wBtoIzV+oFITZaSgOtkpAk=
++— sum.golang.org Az3grmRNXVIdOSs0vcb+xwJob+MWbjEPrU8XGnJkZuz7G2zHNZYPjMzWe8/NN/w0e3nx5cLEqBvYGnlIExiR+4/XWwI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonpointer@v0.0.0-20160704185906-46af16f9f7b1 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonpointer@v0.0.0-20160704185906-46af16f9f7b1
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonpointer@v0.0.0-20160704185906-46af16f9f7b1	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonpointer@v0.0.0-20160704185906-46af16f9f7b1	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/go-openapi/jsonpointer v0.0.0-20160704185906-46af16f9f7b1/go.mod h1:+35s3my2LFTysnkMfxsJBAMHj/DoqoB9knIWoYG/Vk0=
+ 
+ go.sum database tree
+-12263675
+-zPgOyVw8jI75/Y0z8nw0uq0k2D4/OMvykwQ+a0ZjhhU=
++12920017
++Y4r9/dgH1egq/fRzbofaZsT4698riLVvWlOfCR1tQbw=
+ 
+-— sum.golang.org Az3grncc3jW7mNdWMgVZ4a+E4lCijqgXWS4jTUcnCD2vuoT4nmGLKfAoOlIqZNwPB40N9otK/wr2AmDlxxdYFIgbOAs=
++— sum.golang.org Az3grlSOZrnFeygl2JQJ7uMcFut1hO4GBu15+crdiPKgywmom4IHIadjmN3LgsNaoqenaY39XmJWS7FpECImJH7daw4=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonreference@v0.0.0-20160704190145-13c6e3589ad9 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonreference@v0.0.0-20160704190145-13c6e3589ad9
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonreference@v0.0.0-20160704190145-13c6e3589ad9	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/jsonreference@v0.0.0-20160704190145-13c6e3589ad9	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/go-openapi/jsonreference v0.0.0-20160704190145-13c6e3589ad9/go.mod h1:W3Z9FmVs9qj+KR4zFKmDPGiLdk1D9Rlm7cyMvf57TTg=
+ 
+ go.sum database tree
+-12263476
+-ZdNmkmd6rdaE/12tKvMtzgmvdw7N+Pqo4ufsTVDqhI8=
++12917059
++EoTuu4uonKAxJC9bhQsqvG4eC1gz6VZcOklf5zxLwcY=
+ 
+-— sum.golang.org Az3grkEQKAATk0JQ+2ByEDoYg76i+DEaTR1QJ3nzID4IbbQFOP0vHs7Y7bY/16fM9VcqESt3t6jj1D5Mqc7VoHpUsw8=
++— sum.golang.org Az3grmRNXVIdOSs0vcb+xwJob+MWbjEPrU8XGnJkZuz7G2zHNZYPjMzWe8/NN/w0e3nx5cLEqBvYGnlIExiR+4/XWwI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/spec@v0.0.0-20160808142527-6aced65f8501 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/spec@v0.0.0-20160808142527-6aced65f8501
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/spec@v0.0.0-20160808142527-6aced65f8501	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/spec@v0.0.0-20160808142527-6aced65f8501	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/go-openapi/spec v0.0.0-20160808142527-6aced65f8501/go.mod h1:J8+jY1nAiCcj+friV/PDoE1/3eeccG9LYBs0tYvLOWc=
+ 
+ go.sum database tree
+-12263476
+-ZdNmkmd6rdaE/12tKvMtzgmvdw7N+Pqo4ufsTVDqhI8=
++12917059
++EoTuu4uonKAxJC9bhQsqvG4eC1gz6VZcOklf5zxLwcY=
+ 
+-— sum.golang.org Az3grkEQKAATk0JQ+2ByEDoYg76i+DEaTR1QJ3nzID4IbbQFOP0vHs7Y7bY/16fM9VcqESt3t6jj1D5Mqc7VoHpUsw8=
++— sum.golang.org Az3grmRNXVIdOSs0vcb+xwJob+MWbjEPrU8XGnJkZuz7G2zHNZYPjMzWe8/NN/w0e3nx5cLEqBvYGnlIExiR+4/XWwI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/swag@v0.0.0-20160704191624-1d0bd113de87 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/swag@v0.0.0-20160704191624-1d0bd113de87
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/swag@v0.0.0-20160704191624-1d0bd113de87	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/go-openapi/swag@v0.0.0-20160704191624-1d0bd113de87	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/go-openapi/swag v0.0.0-20160704191624-1d0bd113de87/go.mod h1:DXUve3Dpr1UfpPtxFw+EFuQ41HhCWZfha5jSVRG7C7I=
+ 
+ go.sum database tree
+-12263634
+-Ew4pMRQ23YOCzWlWWJSV3CPXFXzUIcMni2A6pxO5oxk=
++12918839
++LZBKwEUiIflDdIS0gRqvA3JP0Utx3Mb7/YsJRQA5BSI=
+ 
+-— sum.golang.org Az3grkZmWjFSxzpjcBKOD+ew4Qn+6Z/ZVPRmlxFTbilkQQGJsBNyQ1zfF66VoAMSc9QeByN1IA0o/HSqUD+OmLyVVAA=
++— sum.golang.org Az3grpCTnTKb+dFNG+Pv3tqwsHv621gDU/zaYsNBxrOHLCFyFriVonlQL8ICwSIcG66x1p/pyxZvTz6hABIN7oyifQY=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/mailru/easyjson@v0.0.0-20160728113105-d5b7844b561a /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/mailru/easyjson@v0.0.0-20160728113105-d5b7844b561a
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/mailru/easyjson@v0.0.0-20160728113105-d5b7844b561a	2022-09-11 04:54:43.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/mailru/easyjson@v0.0.0-20160728113105-d5b7844b561a	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/mailru/easyjson v0.0.0-20160728113105-d5b7844b561a/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
+ 
+ go.sum database tree
+-12263803
+-yzDtx2IWyVuXDkDtD6w++nKXk0M6aDBQQqssyb7Ncxs=
++12904200
++OpQi4b3pH2Ym70QHvcfDIjqhKU8/TfSPWkW4uzHEHrE=
+ 
+-— sum.golang.org Az3grnNfpquc4DKtKAcm/zHCtL+fMbqANE4irgg7YWB5LZ4T4V610jMvOlPvf940OEs1/j3FavqUqDDAGCgvXG3zuAg=
++— sum.golang.org Az3grnwX3wrIiFkcfkNRZZb1msUSthWGkAwowStO8Ec2ZLl8eY68DqC1scPFcKfJ3UgbJ5+/rhaJ26Tj84YL+cj3UQI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/munnerz/goautoneg@v0.0.0-20120707110453-a547fc61f48d /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/munnerz/goautoneg@v0.0.0-20120707110453-a547fc61f48d
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/munnerz/goautoneg@v0.0.0-20120707110453-a547fc61f48d	2022-09-11 04:54:43.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/munnerz/goautoneg@v0.0.0-20120707110453-a547fc61f48d	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/munnerz/goautoneg v0.0.0-20120707110453-a547fc61f48d/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
+ 
+ go.sum database tree
+-12263941
+-m801TG0BAGSNZpUqipsgetXAZFxo0gj1H8K13gVub74=
++12907793
++0SXqFKDFK3PsurOKfIGaPei2OhM6V4hep8EWQD1fo3A=
+ 
+-— sum.golang.org Az3grrpu/+TgRolm6g0CV5CukQviWxdctgZCT0/QqxRuplM9Kvak8SutWebgW4GrW5WxmWZpuZHbo7G58SJqVB5LngI=
++— sum.golang.org Az3grrVVWS8MwaJvpWhm6da86MaRM3SkhxJyGPsqj9KbvdCHj88o0ehT+iTdgH2HKCsy9/6X8is6Zto/NMAhOPGGBAM=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!n!y!times/gziphandler@v0.0.0-20170623195520-56545f4a5d46 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!n!y!times/gziphandler@v0.0.0-20170623195520-56545f4a5d46
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!n!y!times/gziphandler@v0.0.0-20170623195520-56545f4a5d46	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!n!y!times/gziphandler@v0.0.0-20170623195520-56545f4a5d46	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
+ 
+ go.sum database tree
+-12263913
+-32apVV87VgQQlODbrIc90sf1k8IOSQYacaZpQDA3pVM=
++12904903
++wEiL2MmuY186pvwFV1ya3FYxpnQeU7C6VnMAk/QGdak=
+ 
+-— sum.golang.org Az3grvHuxgVT8noZMKwyB2znGkouvxUDsTZT/1KD9mrvSadu9TE4ks6Rgm9OzDASn2SjxKBEEkYNL8QveHWqsBuVqwg=
++— sum.golang.org Az3grps6r4al36T1AfETiemaayJlCWMKgsTIkf4n5Y+FEHFADaNl88PiU/klAXg7hnlgWMiSQoonxM06IdhwSQhnRgI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/ginkgo@v0.0.0-20170829012221-11459a886d9c /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/ginkgo@v0.0.0-20170829012221-11459a886d9c
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/ginkgo@v0.0.0-20170829012221-11459a886d9c	2022-09-11 04:54:43.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/ginkgo@v0.0.0-20170829012221-11459a886d9c	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/onsi/ginkgo v0.0.0-20170829012221-11459a886d9c/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
+ 
+ go.sum database tree
+-12263586
+-YS6Qz+T5ZMi84rRQ8eF7Ln3vpq7k4Ho8gPxBkTw4fJI=
++12906317
++zPF5MH+bmNxdMTRIQYt3pVHstAddzQGuoEJUkFRIlSc=
+ 
+-— sum.golang.org Az3grmiAhe4VNgch6ShCGQXu5x0sRH/AwAXem7h9yesiHppSmwx4K70GuJuMBWdZjWXgXkLoOfP0vhxm6ociB2Q+mwg=
++— sum.golang.org Az3grs1eYkOrGan8YPDYF68AKxx64mBxLKo7mbcj6XKw2ptBYJjFbT83AwpmpQVsqeY+kG7zNJqsPN3V5e8ClLlCjQI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/gomega@v0.0.0-20170829124025-dcabb60a477c /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/gomega@v0.0.0-20170829124025-dcabb60a477c
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/gomega@v0.0.0-20170829124025-dcabb60a477c	2022-09-11 04:54:43.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/onsi/gomega@v0.0.0-20170829124025-dcabb60a477c	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/onsi/gomega v0.0.0-20170829124025-dcabb60a477c/go.mod h1:C1qb7wdrVGGVU+Z6iS04AVkA3Q65CEZX59MT0QO5uiA=
+ 
+ go.sum database tree
+-12263797
+-2t7qe4ceOXGi4nKkWrMvqL16T4S2TbC8gyaeZxpUV4U=
++12907793
++0SXqFKDFK3PsurOKfIGaPei2OhM6V4hep8EWQD1fo3A=
+ 
+-— sum.golang.org Az3groX5KjMN+cusxzFPZocP/6K4fcTxCezJZ/LiuqFZAhkZz1DzzhVhHe1fhbftIwsGI861br82Sv42TptudMOTkQs=
++— sum.golang.org Az3grrVVWS8MwaJvpWhm6da86MaRM3SkhxJyGPsqj9KbvdCHj88o0ehT+iTdgH2HKCsy9/6X8is6Zto/NMAhOPGGBAM=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/purell@v1.0.0 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/purell@v1.0.0
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/purell@v1.0.0	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/purell@v1.0.0	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
+ 
+ go.sum database tree
+-12263928
+-tg5HSiAgES1wmPLfdEbAecGEo9JwVOI18OuZCoPw3pw=
++12908313
++RO6XrQZaYrUS6iWYbX5GH3pfClX6+/cqoSZ7haxAc98=
+ 
+-— sum.golang.org Az3grvhiQKC2H8Z5Bw82vYXMIpZXaaUZwgTCv0d3VUAE2yRUTPOjAuFXp75zLlsKem+DGwqs16BmrgsnbgmNJsCl6As=
++— sum.golang.org Az3grgZ0H0t1XmVwF3tYvsaU5DoD39A8UjJC5JMAH9eZf8Euf6lu0IetRn4MXiLo6c0JEzFNIcWAxdnbk80y1WTD4wI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/urlesc@v0.0.0-20160726150825-5bd2802263f2 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/urlesc@v0.0.0-20160726150825-5bd2802263f2
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/urlesc@v0.0.0-20160726150825-5bd2802263f2	2022-09-11 04:54:42.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/github.com/!puerkito!bio/urlesc@v0.0.0-20160726150825-5bd2802263f2	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ github.com/PuerkitoBio/urlesc v0.0.0-20160726150825-5bd2802263f2/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
+ 
+ go.sum database tree
+-12263675
+-zPgOyVw8jI75/Y0z8nw0uq0k2D4/OMvykwQ+a0ZjhhU=
++12920017
++Y4r9/dgH1egq/fRzbofaZsT4698riLVvWlOfCR1tQbw=
+ 
+-— sum.golang.org Az3grncc3jW7mNdWMgVZ4a+E4lCijqgXWS4jTUcnCD2vuoT4nmGLKfAoOlIqZNwPB40N9otK/wr2AmDlxxdYFIgbOAs=
++— sum.golang.org Az3grlSOZrnFeygl2JQJ7uMcFut1hO4GBu15+crdiPKgywmom4IHIadjmN3LgsNaoqenaY39XmJWS7FpECImJH7daw4=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/tools@v0.0.0-20181011042414-1f849cf54d09 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/tools@v0.0.0-20181011042414-1f849cf54d09
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/tools@v0.0.0-20181011042414-1f849cf54d09	2022-09-11 04:54:43.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/tools@v0.0.0-20181011042414-1f849cf54d09	2022-09-18 04:50:18.000000000 -0400
+@@ -3,7 +3,7 @@
+ golang.org/x/tools v0.0.0-20181011042414-1f849cf54d09/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
+ 
+ go.sum database tree
+-12263594
+-yMmYKfEiBF61MyNFSZfO+4X7qzSIfqpS5sBWZzaPraQ=
++12908313
++RO6XrQZaYrUS6iWYbX5GH3pfClX6+/cqoSZ7haxAc98=
+ 
+-— sum.golang.org Az3grnT5wWn7wUBBystZeh23l7/FI9v1Z7Zk9WEfDFN4VPJvpRp+yRF5X8oRsdWLpcnMP37rsOrTcVc1PWzQCIbeZgU=
++— sum.golang.org Az3grgZ0H0t1XmVwF3tYvsaU5DoD39A8UjJC5JMAH9eZf8Euf6lu0IetRn4MXiLo6c0JEzFNIcWAxdnbk80y1WTD4wI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/xerrors@v0.0.0-20191204190536-9bdfabe68543 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/xerrors@v0.0.0-20191204190536-9bdfabe68543
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/xerrors@v0.0.0-20191204190536-9bdfabe68543	2022-09-11 04:54:43.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/golang.org/x/xerrors@v0.0.0-20191204190536-9bdfabe68543	2022-09-18 04:50:17.000000000 -0400
+@@ -3,7 +3,7 @@
+ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=
+ 
+ go.sum database tree
+-12263800
+-tBYwNgy1Gg9vgfM0rc7CdwEKerWSYEvDL9iivgIvSRU=
++12915269
++iAMTB2iG0mmGhvAifTBiyh0KxTQsR2NoSAvrxeOgnuk=
+ 
+-— sum.golang.org Az3grs6jdRTFzYin6GWVWHUVTJDTZQ42+FnuKeU9h0THA9hoEHM2rgpRs7cgaiG39f9uLCfAJWgSnjNNvZ0fSOMOGQY=
++— sum.golang.org Az3groiImUpgm01Z/KDGoKR3lqCqha5noPWrc9V1QtFHWGUO2+DHn0Fp0uVfPBjCpD4kZ8o6e/VUlzL6hixLbGwwFAk=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/k8s.io/gengo@v0.0.0-20190128074634-0689ccc1d7d6 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/k8s.io/gengo@v0.0.0-20190128074634-0689ccc1d7d6
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/k8s.io/gengo@v0.0.0-20190128074634-0689ccc1d7d6	2022-09-11 04:54:44.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/k8s.io/gengo@v0.0.0-20190128074634-0689ccc1d7d6	2022-09-18 04:50:18.000000000 -0400
+@@ -3,7 +3,7 @@
+ k8s.io/gengo v0.0.0-20190128074634-0689ccc1d7d6/go.mod h1:ezvh/TsK7cY6rbqRK0oQQ8IAqLxYwwyPxAX1Pzy0ii0=
+ 
+ go.sum database tree
+-12263592
+-STzIDylYXnCPDevNjaqSOeqyMWunxaTcmtWzHiMdpuw=
++12908313
++RO6XrQZaYrUS6iWYbX5GH3pfClX6+/cqoSZ7haxAc98=
+ 
+-— sum.golang.org Az3gri47RJx0OozaLobsjKnm4TgTtc4Br3xlGgFUWfUmFO2LR6R7WdajLMjkgAaR4a5HP8KuxfYZoXF8RlcHDeBrDQo=
++— sum.golang.org Az3grgZ0H0t1XmVwF3tYvsaU5DoD39A8UjJC5JMAH9eZf8Euf6lu0IetRn4MXiLo6c0JEzFNIcWAxdnbk80y1WTD4wI=
+diff --suppress-common-lines -u -r /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/sigs.k8s.io/structured-merge-diff/v3@v3.0.0-20200116222232-67a7b8c61874 /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/sigs.k8s.io/structured-merge-diff/v3@v3.0.0-20200116222232-67a7b8c61874
+--- /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/sigs.k8s.io/structured-merge-diff/v3@v3.0.0-20200116222232-67a7b8c61874	2022-09-11 04:54:44.000000000 -0400
++++ /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/lookup/sigs.k8s.io/structured-merge-diff/v3@v3.0.0-20200116222232-67a7b8c61874	2022-09-18 04:50:18.000000000 -0400
+@@ -3,7 +3,7 @@
+ sigs.k8s.io/structured-merge-diff/v3 v3.0.0-20200116222232-67a7b8c61874/go.mod h1:PlARxl6Hbt/+BC80dRLi1qAmnMqwqDg62YvvVkZjemw=
+ 
+ go.sum database tree
+-12264083
+-ePw4EUj8xeAuX78r43ET9uQnZHflAwNwtWbtyW8d30o=
++12908319
++FgyiD0e9xngNiZmec5s6dXUBBJlYCa696+q/wmweRK0=
+ 
+-— sum.golang.org Az3grs1trFBp1rXX8zch2MM1qrpDWgwT5qtmlCBnnz2GCrBMx9XsR/DA5gtYSrkA7lKZWFLMv81EsVirDq36Syg3VAw=
++— sum.golang.org Az3grjBKKoHbOJbRHCkdTbrypYLQqxFuWoVsC4z7loXjG8/t0d03H65Mk509Fhnp3FFTweQ8cq5dnftjY+SBFXNd9QU=
+Only in /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/0: x047
+Only in /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/0: x050
+Only in /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/1: 187.p
+Only in /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/1: 196
+Only in /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/1: 196.p
+Only in /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/1: 197.p
+Only in /tmp/tmp.ldAVQ1ms9D/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/2/000.p: 187
+Only in /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/2/000.p: 196
+Only in /tmp/tmp.D9EW7jRJZx/go/pkg/mod/cache/download/sumdb/sum.golang.org/tile/8/2/000.p: 197
+***** END DIFF
+Untagged: localhost/imagepuller:tmp
+Deleted: 1b9f4e68b5979e228e1654aea9e46efa9b2e3a219fb88ffc303d740487c30d57
+Deleted: 72737fa8e1fcb57fd18dcbef4513cdbd06fc188682f4675f43f05911abae137d
+Deleted: 35e7eae1474c9c89f06475e8c4994639834f5cc1e155169dabf209a379de2f34
+Deleted: ddeaf5954a8e394ae74e87a02298d01d25d18f4eb4c9544385060b71676c3c10
+Deleted: f98b6e5752a082fff0ade757f7088972d59ff6ad8e7945f7c0443142c2ce11cf
+Deleted: b951a16f91d21c98559a045d7cdf56c5d898f0712671efdf077607927662d8f7
+Deleted: aa2a7c51eb59363375de49e2386a0da7ac4836bf24b7ee5db30cdd2341532307
+Deleted: 51e075bfc28ecb3762eab4a80ce9e634ae6f89dd532e24de7652273ef35915e1
+Deleted: fafd9c8a613da858f4065f1def14f4924fec889df457dc1ec4aad811ca353844
+Deleted: 35dd1aa8c85ccc4a5b62b3800f44401ea1a704e688cd13d00ec5982906d15d9f
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
