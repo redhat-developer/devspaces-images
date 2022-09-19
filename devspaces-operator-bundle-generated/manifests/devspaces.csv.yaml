@@ -67,8 +67,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c8e6bd0eb33c058bf82540b94c60c2810b32f43ec25e009c2f898c008fb928fd
-    createdAt: "2022-09-17T04:45:07+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:9382e19d7deb71c5534dd65e3653079f9f106bfbda23f09cd52bfa1d9e7d7546
+    createdAt: "2022-09-19T12:56:44+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -1142,7 +1142,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c8e6bd0eb33c058bf82540b94c60c2810b32f43ec25e009c2f898c008fb928fd
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:9382e19d7deb71c5534dd65e3653079f9f106bfbda23f09cd52bfa1d9e7d7546
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1397,6 +1397,27 @@ spec:
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
+    - v1beta1
+    containerPort: 443
+    deploymentName: devspaces-operator
+    failurePolicy: Fail
+    generateName: vchecluster.kb.io
+    rules:
+    - apiGroups:
+      - org.eclipse.che
+      apiVersions:
+      - v2
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - checlusters
+    sideEffects: None
+    targetPort: 9443
+    type: ValidatingAdmissionWebhook
+    webhookPath: /validate-org-eclipse-che-v2-checluster
+  - admissionReviewVersions:
+    - v1
     - v2
     containerPort: 443
     conversionCRDs:
@@ -1409,10 +1430,10 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.1.0
   relatedImages:
-  - name: devspaces-rhel8-operator-c8e6bd0eb33c058bf82540b94c60c2810b32f43ec25e009c2f898c008fb928fd-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c8e6bd0eb33c058bf82540b94c60c2810b32f43ec25e009c2f898c008fb928fd
+  - name: devspaces-rhel8-operator-9382e19d7deb71c5534dd65e3653079f9f106bfbda23f09cd52bfa1d9e7d7546-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:9382e19d7deb71c5534dd65e3653079f9f106bfbda23f09cd52bfa1d9e7d7546
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:c8e6bd0eb33c058bf82540b94c60c2810b32f43ec25e009c2f898c008fb928fd
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:9382e19d7deb71c5534dd65e3653079f9f106bfbda23f09cd52bfa1d9e7d7546
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:36d7cf3af86f8e9ed4f8b15542fb0278cbf59536827c828a530351f4278fbe74
   - name: dashboard
