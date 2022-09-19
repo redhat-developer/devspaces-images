@@ -18,7 +18,6 @@ COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 ENV \
     HOME=/home/user \
     KAMEL_VERSION="" \
-    ODO_VERSION="v2.5.0" \
     NODEJS_VERSION="16" \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
@@ -59,15 +58,18 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e
     ########################################################################
 RUN \
     microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo tree \
-    # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
+    # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8.ppc64le.rpm
-    buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8 && \
+    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.x86_64.rpm
+    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.s390x.rpm
+    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.ppc64le.rpm
+    buildah odo-2.5.1-1.el8 helm-3.7.1-7.el8 openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8 && \
     mkdir -p /opt && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
@@ -147,14 +149,13 @@ RUN \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     echo "<== Create python symlinks (or display existing ones)"
+
 RUN \
     ########################################################################
-    # Kamel, ODO
+    # Kamel
     ########################################################################
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
-    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/assets/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/assets/asset-odo.tgz
+    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi
 RUN \
     ########################################################################
     # C/C++ (Tech Preview)
