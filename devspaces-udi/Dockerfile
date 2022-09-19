@@ -63,9 +63,9 @@ RUN \
     # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.x86_64.rpm
     # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.s390x.rpm
     # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/h/helm-3.7.1-7.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp-tools/4.10/os/Packages/h/helm-3.7.1-7.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp-tools/4.10/os/Packages/h/helm-3.7.1-7.el8.ppc64le.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.ppc64le.rpm
