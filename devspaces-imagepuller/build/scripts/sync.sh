@@ -71,8 +71,6 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-# use upstream dockerfile as bootstrap one (to retrieve dependencies for offline build)
-cp ${SOURCEDIR}/docker/Dockerfile ${TARGETDIR}/bootstrap.Dockerfile
 # transform Dockerfile
 sed -r "${SOURCEDIR}/docker/Dockerfile" \
   `# Remove registry so build works in Brew` \
