@@ -22,7 +22,7 @@ ENV \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
     LOMBOK_VERSION="1.18.22" \
-    PYTHON_VERSION="3.8" \
+    PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
     E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
@@ -131,7 +131,7 @@ RUN \
     # BEGIN update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     dnf -y -q module reset python39 && \
     dnf -y -q module enable python39:${PYTHON_VERSION} && \
-    dnf -y -q install python39 python38-devel python38-setuptools python38-pip && \
+    dnf -y -q install python39 python39-devel python39-setuptools python39-pip && \
     # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     # python lang server
     mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
