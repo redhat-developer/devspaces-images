@@ -231,8 +231,8 @@ RUN \
     # Cleanup and Summaries
     ########################################################################
 RUN \
-    # fetch CVE updates
-    dnf -y -q update && \
+    # fetch CVE updates (but don't update odo 2.x to 3.x)
+    dnf -y -q update --exclude=odo && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     rm -fr /tmp/assets/ && \
