@@ -717,7 +717,7 @@
 | [`object-copy@0.1.0`](https://github.com/jonschlinkert/object-copy.git) | MIT | clearlydefined |
 | [`object-keys@1.1.1`](git://github.com/ljharb/object-keys.git) | MIT | clearlydefined |
 | [`object-visit@1.0.1`](https://github.com/jonschlinkert/object-visit.git) | MIT | clearlydefined |
-| [`object.assign@4.1.2`](git://github.com/ljharb/object.assign.git) | MIT | clearlydefined |
+| [`object.assign@4.1.2`](git://github.com/ljharb/object.assign.git) | MIT | #3232 |
 | [`object.entries@1.1.5`](git://github.com/es-shims/Object.entries.git) | MIT | clearlydefined |
 | [`object.fromentries@2.0.5`](git://github.com/es-shims/Object.fromEntries.git) | MIT | clearlydefined |
 | [`object.hasown@1.1.0`](https://github.com/es-shims/Object.hasOwn.git) | MIT | clearlydefined |
