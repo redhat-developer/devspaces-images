@@ -21,7 +21,6 @@ ENV \
     NODEJS_VERSION="16" \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
-    LOMBOK_VERSION="1.18.22" \
     PYTHON_VERSION="3.8" \
     PHP_VERSION="7.3" \
     E2FSPROGS_VERSION="1.46.5" \
@@ -46,7 +45,8 @@ RUN mkdir -p /home/user /projects
 
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
-COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
+# see fetch-artifacts-pnc.yaml
+COPY artifacts/lombok.jar /lombok.jar
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com

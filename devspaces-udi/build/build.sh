@@ -32,4 +32,3 @@ done
 ./build/build_python.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 ./build/build_kamel.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 ./build/build_php.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
-./build/build_lombok.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
