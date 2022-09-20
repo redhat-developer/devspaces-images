@@ -18,9 +18,20 @@ ENV BOOTSTRAP=${BOOTSTRAP}
 
 USER root
 
-COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
-RUN source $REMOTE_SOURCES_DIR/devspaces-images-imagepuller/cachito.env
-WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-imagepuller/app/devspaces-imagepuller
+WORKDIR /kubernetes-image-puller
+COPY go.mod .
+COPY go.sum .
+# built in Brew, use tarball in lookaside cache; built locally, comment this out
+COPY resources.tgz /tmp/resources.tgz
+# build locally, fetch mods
+RUN if [[ ${BOOTSTRAP} != "false" ]]; then \
+      go mod download; \
+    elif [[ -f /tmp/resources.tgz ]]; then \
+      tar xvf /tmp/resources.tgz -C /; \
+      rm -f /tmp/resources.tgz; \
+    fi
+
+COPY . .
 
 RUN adduser appuser && \
     make build 
@@ -29,7 +40,6 @@ RUN adduser appuser && \
 FROM ubi8-minimal:8.6-941
 USER root
 RUN microdnf -y update && microdnf clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
-
 # CRW-528 copy actual cert
 COPY --from=builder /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /etc/pki/ca-trust/extracted/pem/
 # CRW-528 copy symlink to the above cert
@@ -37,9 +47,8 @@ COPY --from=builder /etc/pki/tls/certs/ca-bundle.crt                  /etc/pki/t
 COPY --from=builder /etc/passwd /etc/passwd
 
 USER appuser
-COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-imagepuller/app/devspaces-imagepuller/bin/kubernetes-image-puller /
-COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-imagepuller/app/devspaces-imagepuller/bin/sleep /bin/sleep
-
+COPY --from=builder /kubernetes-image-puller/bin/kubernetes-image-puller /
+COPY --from=builder /kubernetes-image-puller/bin/sleep /bin/sleep
 # NOTE: To use this container, need a configmap. See example at ./deploy/openshift/configmap.yaml
 # See also https://github.com/che-incubator/kubernetes-image-puller#configuration
 CMD ["/kubernetes-image-puller"]
