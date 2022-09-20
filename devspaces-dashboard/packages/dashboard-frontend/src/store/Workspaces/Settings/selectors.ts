@@ -24,10 +24,6 @@ export const selectAvailableStorageTypes = createSelector(selectWorkspacesSettin
   storageTypesService.getAvailable(settings),
 );
 
-export const selectPreferredStorageType = createSelector(selectWorkspacesSettings, settings =>
-  storageTypesService.getPreferred(settings),
-);
-
 export const selectWorkspacesSettingsError = createSelector(selectState, state => state.error);
 
 export const selectDevworkspacesEnabled = createSelector(selectState, state =>

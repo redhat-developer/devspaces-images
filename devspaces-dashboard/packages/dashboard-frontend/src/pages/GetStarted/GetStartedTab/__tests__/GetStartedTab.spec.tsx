@@ -16,12 +16,11 @@ import { RenderResult, render, screen } from '@testing-library/react';
 import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 import { SamplesListTab } from '..';
 import { selectIsLoading } from '../../../../store/Workspaces/selectors';
-import {
-  selectPreferredStorageType,
-  selectWorkspacesSettings,
-} from '../../../../store/Workspaces/Settings/selectors';
+import { selectWorkspacesSettings } from '../../../../store/Workspaces/Settings/selectors';
 import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 import { Devfile } from '../../../../services/workspace-adapter';
+import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
+import { api as dashboardBackendApi } from '@eclipse-che/common';
 
 const onDevfileMock: (
   devfileContent: string,
@@ -68,6 +67,11 @@ describe('Samples list tab', () => {
       },
     } as BrandingData;
     const store = new FakeStoreBuilder()
+      .withDwServerConfig({
+        defaults: {
+          pvcStrategy: preferredStorageType,
+        },
+      } as dashboardBackendApi.IServerConfig)
       .withWorkspacesSettings({
         'che.workspace.storage.preferred_type': preferredStorageType,
       } as che.WorkspaceSettings)
@@ -85,7 +89,7 @@ describe('Samples list tab', () => {
           onDevfile={onDevfileMock}
           isLoading={selectIsLoading(state)}
           workspacesSettings={selectWorkspacesSettings(state)}
-          preferredStorageType={selectPreferredStorageType(state)}
+          preferredStorageType={selectPvcStrategy(state)}
           dispatch={jest.fn()}
         />
       </Provider>,

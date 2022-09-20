@@ -17,6 +17,8 @@ export enum StorageTypeTitle {
   async = 'Asynchronous',
   ephemeral = 'Ephemeral',
   persistent = 'Persistent',
+  'per-user' = 'Per-user',
+  'per-workspace' = 'Per-workspace',
 }
 
 export function toTitle(type: che.WorkspaceStorageType): string {
@@ -26,22 +28,9 @@ export function toTitle(type: che.WorkspaceStorageType): string {
   return StorageTypeTitle[type];
 }
 
-export function fromTitle(title: string): che.WorkspaceStorageType {
-  switch (title) {
-    case StorageTypeTitle.async:
-      return 'async';
-    case StorageTypeTitle.ephemeral:
-      return 'ephemeral';
-    case StorageTypeTitle.persistent:
-      return 'persistent';
-    default:
-      throw new Error(`Cannot get storage type for given title: "${title}"`);
-  }
-}
-
 export function getAvailable(settings: che.WorkspaceSettings): che.WorkspaceStorageType[] {
   if (isDevworkspacesEnabled(settings)) {
-    return ['persistent', 'ephemeral'];
+    return ['per-user', 'per-workspace', 'ephemeral'];
   }
   if (!settings['che.workspace.storage.available_types']) {
     const env = getEnvironment();
@@ -53,10 +42,6 @@ export function getAvailable(settings: che.WorkspaceSettings): che.WorkspaceStor
   }
   const availableTypes = settings['che.workspace.storage.available_types'];
   return availableTypes.split(',') as che.WorkspaceStorageType[];
-}
-
-export function getPreferred(settings: che.WorkspaceSettings): che.WorkspaceStorageType {
-  return settings['che.workspace.storage.preferred_type'] as che.WorkspaceStorageType;
 }
 
 export function typeToAttributes(
