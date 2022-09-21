@@ -56,8 +56,9 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e
     ########################################################################
     # Common Installations and Configuration
     ########################################################################
+
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo tree \
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng tree \
     # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.x86_64.rpm
@@ -69,7 +70,7 @@ RUN \
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.ppc64le.rpm
-    buildah odo-2.5.1-1.el8 helm-3.7.1-7.el8 openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8 && \
+    odo-2.5.1-1.el8 helm-3.7.1-7.el8 openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8 && \
     mkdir -p /opt && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
@@ -85,6 +86,38 @@ RUN \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template
+
+## Rootless podman install #1: install podman buildah skopeo
+RUN dnf -y module enable container-tools:rhel8 && \ 
+    dnf -y -q update --exclude=odo && \
+    dnf -y reinstall shadow-utils && \
+    dnf -y install podman buildah skopeo fuse-overlayfs
+
+## Rootless podman install #2
+# Set up environment variables to note that this is
+# not starting with usernamespace and default to
+# isolate the filesystem with chroot.
+ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
+
+## Rootless podman install #3
+# Tweaks to make rootless buildah work
+RUN touch /etc/subgid /etc/subuid  && \
+    chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
+    echo user:10000:65536 > /etc/subuid  && \
+    echo user:10000:65536 > /etc/subgid
+
+## Rootless podman install #4
+# Adjust storage.conf to enable Fuse storage.
+RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
+RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
+    touch /var/lib/shared/overlay-images/images.lock; \
+    touch /var/lib/shared/overlay-layers/layers.lock
+
+## Rootless podman install #5
+# But use VFS since we were not able to make Fuse work yet...
+RUN mkdir -p "${HOME}"/.config/containers && \
+   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
+
 RUN \
     ########################################################################
     # Java 8 11 17
