@@ -59,7 +59,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
 	# update tarballs - step 2 - check old sources' tarballs
-	TARGZs="root-local.tgz resources.tgz"
+	TARGZs="root-local.tgz resources.tgz openvsx-server.tar.gz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 	rhpkg sources || true
 
@@ -94,6 +94,14 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} rm -f pluginregistryBuilder
 
 	${BUILDER} rmi ${tmpContainer}
+
+	OPENVSX_BUILDER_IMAGE=che-openvsx:latest
+	${BUILDER} build --progress=plain -f build/dockerfiles/openvsx-builder.Dockerfile \
+		-t "$OPENVSX_BUILDER_IMAGE" . --target builder
+	${BUILDER} create --name openvsxBuilder ${OPENVSX_BUILDER_IMAGE}
+	${BUILDER} cp openvsxBuilder:/openvsx-server.tar.gz .
+	${BUILDER} rm -f openvsxBuilder
+	${BUILDER} rmi ${OPENVSX_BUILDER_IMAGE}
 fi
 
 # update tarballs - step 4 - commit changes if diff different
