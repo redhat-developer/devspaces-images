@@ -14,7 +14,7 @@
 # shellcheck disable=SC2155
 export SCRIPT_DIR=$(cd "$(dirname "$0")" || exit; pwd)
 export PYTHON_LS_VERSION=0.36.1
-export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-38:1"
+export PYTHON_IMAGE="registry.access.redhat.com/ubi8/python-39:1"
 
 usage () {
     echo "
