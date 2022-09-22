@@ -12,7 +12,6 @@
 # https://registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.17.12-7 as builder
 ENV GOPATH=/go/
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.13.0"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 ARG SKIP_TESTS="false"
 USER root
@@ -20,10 +19,6 @@ USER root
 COPY asset-* /tmp/
 
 WORKDIR /che-operator
-
-RUN unzip /tmp/asset-devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
-    mkdir -p /tmp/devworkspace-operator/templates/ && \
-    mv /tmp/devfile-devworkspace-operator-*/deploy/* /tmp/devworkspace-operator/templates/
 
 RUN unzip /tmp/asset-header-rewrite-traefik-plugin.zip -d /tmp && \
     mkdir -p /tmp/header-rewrite-traefik-plugin && \
@@ -50,7 +45,6 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.6-941
 
-COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
 COPY --from=builder /che-operator/che-operator /manager
 
