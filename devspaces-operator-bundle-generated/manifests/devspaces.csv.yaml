@@ -68,8 +68,8 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Developer Tools
     certified: "true"
-    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:be16705ac57969d8c1d5db8e43b6b87b641e445dcf6e68800bc1a016b2c9c79c
-    createdAt: "2022-09-12T18:36:08+00:00"
+    containerImage: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:39163ae9d8caecb87f39b329f97354eac530e030bd2cb9f2dade04d363881c2f
+    createdAt: "2022-09-22T09:47:22+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
     operatorframework.io/cluster-monitoring: "true"
@@ -505,22 +505,14 @@ spec:
           resources:
           - clusterrolebindings
           - clusterroles
+          - roles
+          - rolebindings
           verbs:
           - list
           - create
           - watch
           - update
           - get
-          - delete
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - roles
-          - rolebindings
-          verbs:
-          - get
-          - create
-          - update
           - delete
         - apiGroups:
           - authorization.openshift.io
@@ -733,26 +725,7 @@ spec:
           - get
           - update
           - watch
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings
-          verbs:
-          - '*'
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings/status
-          verbs:
-          - get
-          - patch
-          - update
+          - list
         - apiGroups:
           - monitoring.coreos.com
           resources:
@@ -795,64 +768,37 @@ spec:
           - get
           - list
           - watch
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings
-          - components
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - workspace.devfile.io
-          resources:
-          - devworkspaces
-          - devworkspacetemplates
-          verbs:
           - create
           - delete
-          - deletecollection
           - patch
           - update
         - apiGroups:
           - controller.devfile.io
           resources:
           - devworkspaceroutings
-          - components
-          verbs:
-          - create
-          - delete
-          - deletecollection
-          - patch
-          - update
-        - apiGroups:
-          - ""
-          resources:
-          - configmaps
+          - devworkspaceoperatorconfigs
           verbs:
           - get
           - list
           - watch
           - create
-          - update
-          - patch
           - delete
+          - patch
+          - update
         - apiGroups:
-          - ""
+          - controller.devfile.io
           resources:
-          - configmaps/status
+          - devworkspaceroutings/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - controller.devfile.io
+          resources:
+          - devworkspaceroutings/status
           verbs:
           - get
+          - patch
           - update
-          - patch
-        - apiGroups:
-          - ""
-          resources:
-          - events
-          verbs:
-          - create
-          - patch
         - apiGroups:
           - authentication.k8s.io
           resources:
@@ -865,230 +811,6 @@ spec:
           - subjectaccessreviews
           verbs:
           - create
-        - apiGroups:
-          - ""
-          resourceNames:
-          - workspace-preferences-configmap
-          resources:
-          - configmaps
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-        - apiGroups:
-          - ""
-          resources:
-          - configmaps
-          - persistentvolumeclaims
-          - pods
-          - secrets
-          - serviceaccounts
-          verbs:
-          - '*'
-        - apiGroups:
-          - ""
-          resources:
-          - events
-          - namespaces
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - ""
-          resources:
-          - pods/exec
-          verbs:
-          - create
-        - apiGroups:
-          - ""
-          resourceNames:
-          - workspace-credentials-secret
-          resources:
-          - secrets
-          verbs:
-          - create
-          - delete
-          - get
-          - patch
-        - apiGroups:
-          - ""
-          resources:
-          - services
-          verbs:
-          - '*'
-        - apiGroups:
-          - admissionregistration.k8s.io
-          resources:
-          - mutatingwebhookconfigurations
-          - validatingwebhookconfigurations
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resourceNames:
-          - devworkspace-controller
-          resources:
-          - deployments/finalizers
-          verbs:
-          - update
-        - apiGroups:
-          - apps
-          - extensions
-          resources:
-          - deployments
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - apps
-          - extensions
-          resources:
-          - deployments
-          - replicasets
-          verbs:
-          - '*'
-        - apiGroups:
-          - apps
-          - extensions
-          resources:
-          - replicasets
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - authorization.k8s.io
-          resources:
-          - localsubjectaccessreviews
-          - subjectaccessreviews
-          verbs:
-          - create
-        - apiGroups:
-          - batch
-          resources:
-          - jobs
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - config.openshift.io
-          resourceNames:
-          - cluster
-          resources:
-          - proxies
-          verbs:
-          - get
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - '*'
-          verbs:
-          - '*'
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings
-          verbs:
-          - '*'
-        - apiGroups:
-          - controller.devfile.io
-          resources:
-          - devworkspaceroutings/status
-          verbs:
-          - get
-          - patch
-          - update
-        - apiGroups:
-          - coordination.k8s.io
-          resources:
-          - leases
-          verbs:
-          - create
-          - get
-          - update
-        - apiGroups:
-          - metrics.k8s.io
-          resources:
-          - pods
-          verbs:
-          - get
-          - list
-          - watch
-        - apiGroups:
-          - monitoring.coreos.com
-          resources:
-          - servicemonitors
-          verbs:
-          - create
-          - get
-        - apiGroups:
-          - networking.k8s.io
-          resources:
-          - ingresses
-          verbs:
-          - '*'
-        - apiGroups:
-          - oauth.openshift.io
-          resources:
-          - oauthclients
-          verbs:
-          - create
-          - delete
-          - deletecollection
-          - get
-          - list
-          - patch
-          - update
-          - watch
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
-          - clusterrolebindings
-          - clusterroles
-          - rolebindings
-          - roles
-          verbs:
-          - create
-          - get
-          - list
-          - update
-          - watch
-        - apiGroups:
-          - route.openshift.io
-          resources:
-          - routes
-          verbs:
-          - '*'
-        - apiGroups:
-          - route.openshift.io
-          resources:
-          - routes/custom-host
-          verbs:
-          - create
-        - apiGroups:
-          - workspace.devfile.io
-          resources:
-          - '*'
-          verbs:
-          - '*'
-        - nonResourceURLs:
-          - /metrics
-          verbs:
-          - get
         serviceAccountName: devspaces-operator
       deployments:
       - name: devspaces-operator
@@ -1140,7 +862,7 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:2f43655f77f1bca406f25985edc5c25e7176f2eefdb856728bf31fefa7ee3650
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:2317fa82709a2508c14928d1c2cbf7145eadfb1d572e25b99044376bc831292c
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:82978c046f0d6d3d5186ea2a949894d72dd85e8459e2160943b0e4408e3cc530
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:58aebc7dc5953a791a890ff01d6db47077e6d9ce5927e0c6faf8767b5d2e9896
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDGCQ_
@@ -1201,7 +923,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.annotations['olm.targetNamespaces']
-                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:be16705ac57969d8c1d5db8e43b6b87b641e445dcf6e68800bc1a016b2c9c79c
+                image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:39163ae9d8caecb87f39b329f97354eac530e030bd2cb9f2dade04d363881c2f
                 imagePullPolicy: Always
                 livenessProbe:
                   failureThreshold: 10
@@ -1276,7 +998,12 @@ spec:
           resources:
           - jobs
           verbs:
-          - '*'
+          - create
+          - delete
+          - get
+          - update
+          - watch
+          - list
         - apiGroups:
           - route.openshift.io
           resources:
@@ -1289,15 +1016,15 @@ spec:
           resources:
           - roles
           - rolebindings
-          verbs:
-          - '*'
-        - apiGroups:
-          - rbac.authorization.k8s.io
-          resources:
           - clusterroles
           - clusterrolebindings
           verbs:
-          - '*'
+          - list
+          - create
+          - watch
+          - update
+          - get
+          - delete
         - apiGroups:
           - ""
           resources:
@@ -1421,6 +1148,37 @@ spec:
           - patch
           - update
           - watch
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+          - patch
         serviceAccountName: devspaces-operator
     strategy: deployment
   installModes:
@@ -1489,14 +1247,14 @@ spec:
     webhookPath: /convert
   replaces: devspacesoperator.v3.1.0
   relatedImages:
-  - name: devspaces-rhel8-operator-be16705ac57969d8c1d5db8e43b6b87b641e445dcf6e68800bc1a016b2c9c79c-annotation
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:be16705ac57969d8c1d5db8e43b6b87b641e445dcf6e68800bc1a016b2c9c79c
+  - name: devspaces-rhel8-operator-39163ae9d8caecb87f39b329f97354eac530e030bd2cb9f2dade04d363881c2f-annotation
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:39163ae9d8caecb87f39b329f97354eac530e030bd2cb9f2dade04d363881c2f
   - name: devspaces-operator
-    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:be16705ac57969d8c1d5db8e43b6b87b641e445dcf6e68800bc1a016b2c9c79c
+    image: registry.redhat.io/devspaces/devspaces-rhel8-operator@sha256:39163ae9d8caecb87f39b329f97354eac530e030bd2cb9f2dade04d363881c2f
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:2f43655f77f1bca406f25985edc5c25e7176f2eefdb856728bf31fefa7ee3650
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:2317fa82709a2508c14928d1c2cbf7145eadfb1d572e25b99044376bc831292c
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:82978c046f0d6d3d5186ea2a949894d72dd85e8459e2160943b0e4408e3cc530
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:58aebc7dc5953a791a890ff01d6db47077e6d9ce5927e0c6faf8767b5d2e9896
   - name: devspaces_code_devfile_registry_image_gmxdgcq_
