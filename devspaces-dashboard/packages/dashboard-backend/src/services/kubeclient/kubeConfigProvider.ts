@@ -36,7 +36,13 @@ export class KubeConfigProvider {
       throw 'base kubeconfig is not a valid: no cluster exists specified in the current context';
     }
 
-    const name = getUserName(token);
+    let name: string;
+    try {
+      name = getUserName(token);
+    } catch (error) {
+      name = 'developer';
+    }
+
     const user: User = {
       name,
       token: token,

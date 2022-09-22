@@ -42,11 +42,6 @@ async function findApi(apisApi: k8s.ApisApi, apiName: string, version?: string):
 export function getUserName(token: string): string {
   const tokenPayload = token.split('.')[1];
   const decodedTokenPayload = Buffer.from(tokenPayload, 'base64').toString();
-  try {
-    const parsedTokenPayload = JSON.parse(decodedTokenPayload + '[');
-    return parsedTokenPayload.name;
-  } catch (e) {
-    console.warn(`[WARN] Can't get the user name from the token payload, use "developer" instead.`);
-    return 'developer';
-  }
+  const parsedTokenPayload = JSON.parse(decodedTokenPayload);
+  return parsedTokenPayload.name;
 }

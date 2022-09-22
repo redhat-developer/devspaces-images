@@ -25,27 +25,23 @@ async function handler(connection: SocketStream, request: FastifyRequest) {
   const pubSubManager = new SubscribeManager(socket);
 
   socket.on('message', message => {
-    try {
-      const { request, params, channel } = JSON.parse(message.toString());
-      if (!request || !channel) {
-        return;
-      }
-      if (params && bearerAuthenticationToken) {
-        params.token = bearerAuthenticationToken;
-      }
-      switch (request) {
-        case 'UNSUBSCRIBE':
-          pubSubManager.unsubscribe(channel);
-          break;
-        case 'SUBSCRIBE':
-          pubSubManager.subscribe(
-            channel,
-            params as { token: string; namespace: string; resourceVersion: string },
-          );
-          break;
-      }
-    } catch (e) {
-      console.warn(`[WARN] Can't parse the WS message:`, message.toString());
+    const { request, params, channel } = JSON.parse(message.toString());
+    if (!request || !channel) {
+      return;
+    }
+    if (params && bearerAuthenticationToken) {
+      params.token = bearerAuthenticationToken;
+    }
+    switch (request) {
+      case 'UNSUBSCRIBE':
+        pubSubManager.unsubscribe(channel);
+        break;
+      case 'SUBSCRIBE':
+        pubSubManager.subscribe(
+          channel,
+          params as { token: string; namespace: string; resourceVersion: string },
+        );
+        break;
     }
   });
 }
