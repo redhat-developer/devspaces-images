@@ -7,8 +7,34 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
-
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM registry-proxy.engineering.redhat.com/rh-osbs/rhel8-go-toolset:1.16.12-2 as go-builder
+
+USER root
+
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+
+RUN \
+    ########################################################################
+    # Build all Golang projects fetched from Cachito
+    ########################################################################
+    dnf -y -q install golang make gzip which dnf openshift-clients && \
+    # BEGIN Gopls
+    mkdir /home/user/go/bin -p && \
+    cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
+    # gopls must refer to tools as local dependency, which is located one dir above in the project
+    echo 'replace golang.org/x/tools => ../' >> go.mod && \
+    # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
+    source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
+    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
+    /home/user/go/bin/gopls version && \
+    # END Gopls
+    # BEGIN Kamel
+    cd $REMOTE_SOURCES_DIR/camelk/app && \
+    source $REMOTE_SOURCES_DIR/camelk/cachito.env && \
+    make build-kamel
+    # END Kamel
+
 FROM ubi8-minimal:8.6-941
 
 USER root
@@ -171,7 +197,12 @@ RUN \
     for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
     for d in bin lib lib64; do cp -R /tmp/py-unpack/${d}/* /usr/${d}; done; \
     cp -R /tmp/py-unpack/.venv ${HOME} && chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
-    rm -fr /tmp/py-unpack
+    rm -fr /tmp/py-unpack && \
+    # update pip & other dependencies, that came with Cachito repository
+    cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
+    source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest && \
+    python${PYTHON_VERSION} -m pytest -V
 RUN \
     # python/pip/pylint symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
@@ -182,7 +213,6 @@ RUN \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     echo "<== Create python symlinks (or display existing ones)"
-
 RUN \
     ########################################################################
     # Kamel
@@ -212,18 +242,12 @@ RUN \
     fi
 RUN \
     ########################################################################
-    # Golang (Tech Preview)
+    # Golang (Tech Preview) + Kamel
     ########################################################################
     dnf -y -q install golang && \
-    mkdir /home/user/go/bin -p && \
-    cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
-    # gopls must refer to tools as local dependency, which is located one dir above in the project
-    echo 'replace golang.org/x/tools => ../' >> go.mod && \
-    # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
-    source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
-    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
-    /home/user/go/bin/gopls version && \
-    rm -fr $REMOTE_SOURCES_DIR
+    mkdir /home/user/go/bin -p
+COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /home/user/go/bin/kamel
+COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls /home/user/go/bin/gopls
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
@@ -291,7 +315,7 @@ RUN \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \
-    echo "python venv install:"; python${PYTHON_VERSION} -m venv .venv && . .venv/bin/activate; python -V; \
+    echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \
