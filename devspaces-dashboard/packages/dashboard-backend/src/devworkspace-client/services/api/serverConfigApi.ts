@@ -70,6 +70,10 @@ export class ServerConfigApi implements IServerConfigApi {
     return cheCustomResource.spec.server.workspaceDefaultComponents || [];
   }
 
+  getPvcStrategy(cheCustomResource: { [key: string]: any }): string | undefined {
+    return cheCustomResource.spec.storage?.pvcStrategy;
+  }
+
   getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined {
     return cheCustomResource.spec.dashboard?.warning;
   }

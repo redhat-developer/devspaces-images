@@ -316,11 +316,13 @@ describe('dwPlugins store', () => {
                 plugins: ['https://test.com/devfile.yaml'],
               },
             ],
+            pvcStrategy: 'per-workspace',
           },
           timeouts: {
             inactivityTimeout: -1,
             runTimeout: -1,
           },
+          cheNamespace: 'eclipse-che',
         })
         .build() as MockStoreEnhanced<
         AppState,

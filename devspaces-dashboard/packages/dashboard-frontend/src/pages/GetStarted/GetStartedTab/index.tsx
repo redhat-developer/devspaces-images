@@ -19,15 +19,13 @@ import { SamplesListHeader } from './SamplesListHeader';
 import SamplesListToolbar from './SamplesListToolbar';
 import SamplesListGallery from './SamplesListGallery';
 import { selectIsLoading } from '../../../store/Workspaces/selectors';
-import {
-  selectPreferredStorageType,
-  selectWorkspacesSettings,
-} from '../../../store/Workspaces/Settings/selectors';
+import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import { load } from 'js-yaml';
 import stringify from '../../../services/helpers/editor';
 import ImportFromGit from './ImportFromGit';
 import { ResolverState } from '../../../store/FactoryResolver';
 import { DevfileAdapter } from '../../../services/devfile/adapter';
+import { selectPvcStrategy } from '../../../store/ServerConfig/selectors';
 
 // At runtime, Redux will merge together...
 type Props = {
@@ -67,7 +65,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 
   private getStorageType(): che.WorkspaceStorageType {
     if (this.state.temporary === undefined) {
-      return this.props.preferredStorageType;
+      return this.props.preferredStorageType as che.WorkspaceStorageType;
     }
     if (this.props.preferredStorageType === 'async') {
       return this.state.temporary ? 'ephemeral' : this.props.preferredStorageType;
@@ -100,7 +98,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 
   private handleDevfileResolver(resolverState: ResolverState, stackName: string): Promise<void> {
     const devfileAdapter = new DevfileAdapter(resolverState.devfile);
-    devfileAdapter.storageType = this.props.preferredStorageType;
+    devfileAdapter.storageType = this.props.preferredStorageType as che.WorkspaceStorageType;
     const devfileContent = stringify(devfileAdapter.devfile);
 
     return this.props.onDevfile(
@@ -158,7 +156,7 @@ export class SamplesListTab extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   isLoading: selectIsLoading(state),
   workspacesSettings: selectWorkspacesSettings(state),
-  preferredStorageType: selectPreferredStorageType(state),
+  preferredStorageType: selectPvcStrategy(state),
 });
 
 const connector = connect(mapStateToProps);

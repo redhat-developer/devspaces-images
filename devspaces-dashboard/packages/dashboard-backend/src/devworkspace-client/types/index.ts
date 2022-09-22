@@ -111,8 +111,13 @@ export interface IServerConfigApi {
    * These default components are meant to be used when a Devfile does not contain any components.
    */
   getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[];
+
   /**
-   * Returns a maintenance warning
+   * Returns the PVC strategy if it is defined.
+   */
+  getPvcStrategy(cheCustomResource: { [key: string]: any }): string | undefined;
+  /**
+   * Returns a maintenance warning.
    */
   getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined;
 

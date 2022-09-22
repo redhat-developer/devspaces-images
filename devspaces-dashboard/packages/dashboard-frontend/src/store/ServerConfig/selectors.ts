@@ -26,4 +26,8 @@ export const selectDefaultPlugins = createSelector(
   state => state.config.defaults?.plugins || [],
 );
 
+export const selectPvcStrategy = createSelector(
+  selectState,
+  state => (state.config.defaults.pvcStrategy || 'per-workspace') as che.WorkspaceStorageType,
+);
 export const selectServerConfigError = createSelector(selectState, state => state.error);

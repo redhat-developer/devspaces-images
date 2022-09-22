@@ -182,19 +182,6 @@ export class GetStarted extends React.PureComponent<Props, State> {
     }
   }
 
-  private handleDevfile(
-    devfile: Devfile,
-    attrs: { stackName?: string; infrastructureNamespace?: string },
-    optionalFilesContent: { [fileName: string]: string } | undefined,
-  ): Promise<void> {
-    return this.createWorkspace(
-      devfile,
-      attrs.stackName,
-      attrs.infrastructureNamespace,
-      optionalFilesContent || {},
-    );
-  }
-
   private handleDevfileContent(
     devfileContent: string,
     attrs: { stackName?: string; infrastructureNamespace?: string },

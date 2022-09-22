@@ -111,6 +111,10 @@ export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cf
 
 export const DEVWORKSPACE_DEBUG_START_ANNOTATION = 'controller.devfile.io/debug-start';
 
+export const DEVWORKSPACE_CONFIG_ANNOTATION = 'controller.devfile.io/devworkspace-config';
+
+export const DEVWORKSPACE_STORAGE_TYPE = 'controller.devfile.io/storage-type';
+
 export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
 
 export const DEVWORKSPACE_METADATA_ANNOTATION = 'dw.metadata.annotations';
@@ -719,6 +723,65 @@ export class DevWorkspaceClient extends WorkspaceClient {
 
   getDebugMode(workspace: devfileApi.DevWorkspace): boolean {
     return workspace.metadata.annotations?.[DEVWORKSPACE_DEBUG_START_ANNOTATION] === 'true';
+  }
+
+  async updateConfigData(
+    workspace: devfileApi.DevWorkspace,
+    config: api.IServerConfig,
+  ): Promise<void> {
+    const patch: api.IPatch[] = [];
+    if (workspace.spec.started) {
+      return;
+    }
+    const cheNamespace = config.cheNamespace;
+    if (cheNamespace) {
+      const devworkspaceConfig = { name: 'devworkspace-config', namespace: cheNamespace };
+      const devworkspaceConfigPath = `/spec/template/attributes/${this.escape(
+        DEVWORKSPACE_CONFIG_ANNOTATION,
+      )}`;
+      if (workspace.spec.template.attributes) {
+        if (workspace.spec.template.attributes[DEVWORKSPACE_CONFIG_ANNOTATION]) {
+          if (
+            workspace.spec.template.attributes[DEVWORKSPACE_CONFIG_ANNOTATION] !==
+            devworkspaceConfig
+          ) {
+            patch.push({ op: 'replace', path: devworkspaceConfigPath, value: devworkspaceConfig });
+          }
+        } else {
+          patch.push({ op: 'add', path: devworkspaceConfigPath, value: devworkspaceConfig });
+        }
+      } else {
+        patch.push({
+          op: 'add',
+          path: '/spec/template/attributes',
+          value: { 'controller.devfile.io/devworkspace-config': devworkspaceConfig },
+        });
+      }
+    }
+
+    const currentPvcStrategy = config.defaults.pvcStrategy;
+    if (currentPvcStrategy) {
+      const devworkspaceStorageTypePath = `/spec/template/attributes/${this.escape(
+        DEVWORKSPACE_STORAGE_TYPE,
+      )}`;
+
+      if (workspace.spec.template.attributes) {
+        if (!workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE]) {
+          patch.push({ op: 'add', path: devworkspaceStorageTypePath, value: currentPvcStrategy });
+        }
+      } else {
+        patch.push({
+          op: 'add',
+          path: '/spec/template/attributes',
+          value: { 'controller.devfile.io/storage-type': currentPvcStrategy },
+        });
+      }
+    }
+
+    if (patch.length > 0) {
+      await DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+      await delay(800);
+    }
   }
 
   async updateDebugMode(
