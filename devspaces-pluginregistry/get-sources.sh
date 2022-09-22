@@ -59,7 +59,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
 	# update tarballs - step 2 - check old sources' tarballs
-	TARGZs="root-local.tgz resources.tgz openvsx-server.tar.gz"
+	TARGZs="root-local.tgz resources.tgz openvsx-server.tar.gz nodejs.tar.gz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 	rhpkg sources || true
 
@@ -92,9 +92,9 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} create --name pluginregistryBuilder ${tmpContainer}
 	${BUILDER} cp pluginregistryBuilder:/tmp/resources/resources.tgz .
 	${BUILDER} rm -f pluginregistryBuilder
-
 	${BUILDER} rmi ${tmpContainer}
 
+	rm -f ./openvsx-server.tar.gz
 	OPENVSX_BUILDER_IMAGE=che-openvsx:latest
 	${BUILDER} build --progress=plain -f build/dockerfiles/openvsx-builder.Dockerfile \
 		-t "$OPENVSX_BUILDER_IMAGE" . --target builder
@@ -102,6 +102,15 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} cp openvsxBuilder:/openvsx-server.tar.gz .
 	${BUILDER} rm -f openvsxBuilder
 	${BUILDER} rmi ${OPENVSX_BUILDER_IMAGE}
+
+	rm -f ./nodejs.tar.gz
+	OVSX_BUILDER_IMAGE=che-ovsx:latest
+	${BUILDER} build --progress=plain -f build/dockerfiles/ovsx-installer.Dockerfile \
+		-t "$OVSX_BUILDER_IMAGE" .
+	${BUILDER} create --name ovsxBuilder ${OVSX_BUILDER_IMAGE}
+	${BUILDER} cp ovsxBuilder:ovsx/nodejs.tar.gz .
+	${BUILDER} rm -f ovsxBuilder
+	${BUILDER} rmi ${OVSX_BUILDER_IMAGE}
 fi
 
 # update tarballs - step 4 - commit changes if diff different
