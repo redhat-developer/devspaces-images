@@ -22,6 +22,14 @@ remote_sources:
     pkg_managers:
       - gomod
     packages: {"gomod": [{"path": "."}, {"path": "gopls"}]}
+- name: camelk
+  remote_source:
+    repo: https://github.com/apache/camel-k
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 706c85dc9e94f38a22c0d4f840ec3646ccb23c40
+    pkg_managers:
+      - gomod
+    packages: {"gomod": [ "path": "." ]}
 - name: python-deps
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
