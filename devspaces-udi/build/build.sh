@@ -30,5 +30,4 @@ while [[ "$#" -gt 0 ]]; do
   shift 1
 done
 ./build/build_python.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
-./build/build_kamel.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
 ./build/build_php.sh -v ${CSV_VERSION} -n ${ASSET_NAME}
