@@ -13,7 +13,7 @@
 
 # UBI Builder
 # https://registry.access.redhat.com/ubi8/ubi
-FROM ubi8:8.6-903.1661794351 as ubi-builder
+FROM ubi8:8.6 as ubi-builder
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
@@ -98,7 +98,7 @@ COPY /build/dockerfiles/entrypoint.sh /mnt/rootfs/usr/local/bin/
 RUN chmod g+rwx -R /mnt/rootfs/var/www/html/v3
 
 # Use ubi8-minimal image and then copy ubi fs
-FROM ubi8/ubi-minimal:8.6-941
+FROM ubi8-minimal:8.6
 COPY --from=ubi-builder /mnt/rootfs/ /
 # Add UTF-8 for the database
 RUN localedef -f UTF-8 -i en_US en_US.UTF-8 && \
