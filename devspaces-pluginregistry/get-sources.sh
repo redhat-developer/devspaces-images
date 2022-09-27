@@ -31,6 +31,28 @@ function log()
 	fi
 }
 
+function buildTarball() {
+	local TARBALL="$1"
+	local BUILDER_IMAGE="$2"
+	local DOCKERFILE="$3"
+	local DOCKERCMD="$4"
+	# remove the file without its path
+	rm -f ./${t##*/} || true
+	# delete any existing images / references
+	${BUILDER} rm -f thisBuilder || true
+	${BUILDER} rmi ${BUILDER_IMAGE} || true
+	# build
+	${BUILDER} build --progress=plain -f "${DOCKERFILE}" \
+		-t "$BUILDER_IMAGE" . $DOCKERCMD
+	# rename
+	${BUILDER} create --name thisBuilder ${BUILDER_IMAGE}
+	# extract
+	${BUILDER} cp thisBuilder:/${TARBALL} . || exit 3
+	# cleanup
+	${BUILDER} rm -f thisBuilder
+	${BUILDER} rmi ${BUILDER_IMAGE}
+}
+
 if [[ ${PULL_ASSETS} -eq 1 ]]; then 
 	BUILDER=$(command -v podman || true)
 	if [[ ! -x $BUILDER ]]; then
@@ -100,27 +122,6 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	buildTarball "/postgresql13.tar.gz" "postgresql13:latest" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
 fi
 
-function buildTarball() {
-	local TARBALL="$1"
-	local BUILDER_IMAGE="$2"
-	local DOCKERFILE="$3"
-	local DOCKERCMD="$4"
-	# remove the file without its path
-	rm -f ./${t##*/} || true
-	# delete any existing images / references
-	${BUILDER} rm -f thisBuilder || true
-	${BUILDER} rmi ${BUILDER_IMAGE} || true
-	# build
-	${BUILDER} build --progress=plain -f "${DOCKERFILE}" \
-		-t "$BUILDER_IMAGE" . $DOCKERCMD
-	# rename
-	${BUILDER} create --name thisBuilder ${BUILDER_IMAGE}
-	# extract
-	${BUILDER} cp thisBuilder:/${TARBALL} . || exit 3
-	# cleanup
-	${BUILDER} rm -f thisBuilder
-	${BUILDER} rmi ${BUILDER_IMAGE}
-}
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Commit new sources"
