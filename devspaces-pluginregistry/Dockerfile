@@ -18,6 +18,10 @@ FROM ubi8:8.6-903.1661794351 as ubi-builder
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
 
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
 RUN mkdir -p /mnt/rootfs
 
 RUN yum install --installroot /mnt/rootfs \
