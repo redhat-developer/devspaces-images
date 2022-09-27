@@ -108,7 +108,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} build --progress=plain -f build/dockerfiles/ovsx-installer.Dockerfile \
 		-t "$OVSX_BUILDER_IMAGE" .
 	${BUILDER} create --name ovsxBuilder ${OVSX_BUILDER_IMAGE}
-	${BUILDER} cp ovsxBuilder:ovsx/nodejs.tar.gz .
+	${BUILDER} cp ovsxBuilder:opt/app-root/src/nodejs.tar.gz .
 	${BUILDER} rm -f ovsxBuilder
 	${BUILDER} rmi ${OVSX_BUILDER_IMAGE}
 
