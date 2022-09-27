@@ -106,7 +106,11 @@ COPY --from=ubi-builder /mnt/rootfs/ /
 # Add UTF-8 for the database
 RUN localedef -f UTF-8 -i en_US en_US.UTF-8 && \
     useradd apache && \
-    usermod -a -G apache,root,postgres postgres
+    usermod -a -G apache,root,postgres postgres && \
+    microdnf -y update && \
+    microdnf -y clean all && rm -rf /var/cache/yum && \
+    echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages"
+
 USER postgres
 ENV LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
