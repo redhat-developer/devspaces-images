@@ -55,7 +55,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	cat bootstrap.Dockerfile
 	echo "<======= BOOTSTRAP DOCKERFILE ======="
 	echo "======= START BOOTSTRAP BUILD =======>"
-	${BUILDER} build -t ${tmpContainer} . --progress=plain --no-cache -f bootstrap.Dockerfile \
+	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
 		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
 	# update tarballs - step 2 - check old sources' tarballs
