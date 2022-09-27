@@ -37,7 +37,7 @@ function buildTarball() {
 	local DOCKERFILE="$3"
 	local DOCKERCMD="$4"
 	# remove the file without its path
-	rm -f ./${t##*/} || true
+	rm -f ./${TARBALL##*/} || true
 	# delete any existing images / references
 	${BUILDER} rm -f thisBuilder || true
 	${BUILDER} rmi ${BUILDER_IMAGE} || true
