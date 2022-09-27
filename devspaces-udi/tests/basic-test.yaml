@@ -47,27 +47,6 @@
           register: go_php_python_cmd_run
         - debug:
             msg: "{{ go_php_python_cmd_run.stdout }}"
-        # start php lang server, then kill it
-        - name: 1/4 Start up PHP Language Server
-          shell: oc exec {{ pod_name.stdout }} -- php /home/jboss/che/ls-php/php-language-server/bin/php-language-server.php 2>&1 &
-          register: phpls_cmd_run
-        - debug:
-            msg: "{{ phpls_cmd_run.stdout }}"
-        - name: 2/4 Verify Zend Debugger is loaded
-          shell: if [[ $(echo '{{ phpls_cmd_run.stdout }}' | grep -E 'later version of Zend Debugger|which is installed, is newer') ]]; then echo '{{ phpls_cmd_run.stdout }}'; exit 1; fi
-          register: phpls_read_startup
-        - debug:
-            msg: "{{ phpls_read_startup.stdout }}"
-        - name: 3/4 Check PHP Language Server is running / get processid
-          shell: oc exec {{ pod_name.stdout }} -- pgrep -f 'PHP Language Server' | tr "\n\r" "  "
-          register: phpls_processid
-        - debug:
-            msg: "{{ phpls_processid.stdout }}"
-        - name: 4/4 Kill PHP Language Server processid
-          shell: oc exec {{ pod_name.stdout }} -- kill -9 {{ phpls_processid.stdout }} || true
-          register: phpls_kill
-        - debug:
-            msg: "{{ phpls_kill.stdout }}"
         # start ts lang server, then kill it
         - name: 1/3 start language server
           shell: oc exec {{ pod_name.stdout }} -- /opt/app-root/src/.npm-global/bin/tsserver 2>&1 &
