@@ -95,34 +95,32 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} rm -f pluginregistryBuilder
 	${BUILDER} rmi ${tmpContainer}
 
-	rm -f ./openvsx-server.tar.gz
-	OPENVSX_BUILDER_IMAGE=che-openvsx:latest
-	${BUILDER} build --progress=plain -f build/dockerfiles/openvsx-builder.Dockerfile \
-		-t "$OPENVSX_BUILDER_IMAGE" . --target builder
-	${BUILDER} create --name openvsxBuilder ${OPENVSX_BUILDER_IMAGE}
-	${BUILDER} cp openvsxBuilder:/openvsx-server.tar.gz .
-	${BUILDER} rm -f openvsxBuilder
-	${BUILDER} rmi ${OPENVSX_BUILDER_IMAGE}
-
-	rm -f ./nodejs.tar.gz
-	OVSX_BUILDER_IMAGE=che-ovsx:latest
-	${BUILDER} build --progress=plain -f build/dockerfiles/ovsx-installer.Dockerfile \
-		-t "$OVSX_BUILDER_IMAGE" .
-	${BUILDER} create --name ovsxBuilder ${OVSX_BUILDER_IMAGE}
-	${BUILDER} cp ovsxBuilder:opt/app-root/src/nodejs.tar.gz .
-	${BUILDER} rm -f ovsxBuilder
-	${BUILDER} rmi ${OVSX_BUILDER_IMAGE}
-
-	rm -f ./postgresql13.tar.gz
-	POSTGRESQL_BUILDER_IMAGE=postgresql13:latest
-	${BUILDER} build --progress=plain -f build/dockerfiles/postgresql.Dockerfile \
-		-t "$POSTGRESQL_BUILDER_IMAGE" . --target builder
-	${BUILDER} create --name postgresqlBuilder ${POSTGRESQL_BUILDER_IMAGE}
-	${BUILDER} cp postgresqlBuilder:/postgresql13.tar.gz .
-	${BUILDER} rm -f postgresqlBuilder
-	${BUILDER} rmi ${POSTGRESQL_BUILDER_IMAGE}
+	buildTarball "/openvsx-server.tar.gz" "che-openvsx:latest" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
+	buildTarball "opt/app-root/src/nodejs.tar.gz" "che-ovsx:latest" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
+	buildTarball "/postgresql13.tar.gz" "postgresql13:latest" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
 fi
 
+function buildTarball() {
+	local TARBALL="$1"
+	local BUILDER_IMAGE="$2"
+	local DOCKERFILE="$3"
+	local DOCKERCMD="$4"
+	# remove the file without its path
+	rm -f ./${t##*/} || true
+	# delete any existing images / references
+	${BUILDER} rm -f thisBuilder || true
+	${BUILDER} rmi ${BUILDER_IMAGE} || true
+	# build
+	${BUILDER} build --progress=plain -f "${DOCKERFILE}" \
+		-t "$BUILDER_IMAGE" . $DOCKERCMD
+	# rename
+	${BUILDER} create --name thisBuilder ${BUILDER_IMAGE}
+	# extract
+	${BUILDER} cp thisBuilder:/${TARBALL} . || exit 3
+	# cleanup
+	${BUILDER} rm -f thisBuilder
+	${BUILDER} rmi ${BUILDER_IMAGE}
+}
 # update tarballs - step 4 - commit changes if diff different
 if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Commit new sources"
