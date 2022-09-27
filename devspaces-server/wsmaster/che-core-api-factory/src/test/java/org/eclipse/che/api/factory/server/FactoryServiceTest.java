@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2021 Red Hat, Inc.
+ * Copyright (c) 2012-2022 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -24,9 +24,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,6 +55,8 @@ import org.eclipse.che.api.factory.server.builder.FactoryBuilder;
 import org.eclipse.che.api.factory.server.impl.SourceStorageParametersValidator;
 import org.eclipse.che.api.factory.server.model.impl.AuthorImpl;
 import org.eclipse.che.api.factory.server.model.impl.FactoryImpl;
+import org.eclipse.che.api.factory.server.scm.PersonalAccessTokenManager;
+import org.eclipse.che.api.factory.server.urlfactory.RemoteFactoryUrl;
 import org.eclipse.che.api.factory.shared.dto.FactoryDto;
 import org.eclipse.che.api.user.server.PreferenceManager;
 import org.eclipse.che.api.user.server.UserManager;
@@ -104,6 +108,7 @@ public class FactoryServiceTest {
   @Mock private UserManager userManager;
   @Mock private AdditionalFilenamesProvider additionalFilenamesProvider;
   @Mock private DefaultFactoryParameterResolver defaultFactoryParameterResolver;
+  @Mock private PersonalAccessTokenManager personalAccessTokenManager;
 
   @InjectMocks private FactoryParametersResolverHolder factoryParametersResolverHolder;
 
@@ -134,7 +139,8 @@ public class FactoryServiceTest {
             userManager,
             acceptValidator,
             factoryParametersResolverHolder,
-            additionalFilenamesProvider);
+            additionalFilenamesProvider,
+            personalAccessTokenManager);
   }
 
   @Filter
@@ -154,7 +160,12 @@ public class FactoryServiceTest {
         .getFactoryParametersResolver(anyMap());
     // service instance with dummy holder
     service =
-        new FactoryService(userManager, acceptValidator, dummyHolder, additionalFilenamesProvider);
+        new FactoryService(
+            userManager,
+            acceptValidator,
+            dummyHolder,
+            additionalFilenamesProvider,
+            personalAccessTokenManager);
 
     // when
     final Map<String, String> map = new HashMap<>();
@@ -180,7 +191,12 @@ public class FactoryServiceTest {
         .getFactoryParametersResolver(anyMap());
     // service instance with dummy holder
     service =
-        new FactoryService(userManager, acceptValidator, dummyHolder, additionalFilenamesProvider);
+        new FactoryService(
+            userManager,
+            acceptValidator,
+            dummyHolder,
+            additionalFilenamesProvider,
+            personalAccessTokenManager);
 
     // invalid factory
     final String invalidFactoryMessage = "invalid factory";
@@ -215,6 +231,54 @@ public class FactoryServiceTest {
 
     // check we call validator
     verify(acceptValidator).validateOnAccept(any());
+  }
+
+  @Test
+  public void checkRefreshToken() throws Exception {
+    // given
+    final FactoryParametersResolverHolder dummyHolder = spy(factoryParametersResolverHolder);
+    FactoryParametersResolver factoryParametersResolver = mock(FactoryParametersResolver.class);
+    RemoteFactoryUrl remoteFactoryUrl = mock(RemoteFactoryUrl.class);
+    when(factoryParametersResolver.parseFactoryUrl(eq("someUrl"))).thenReturn(remoteFactoryUrl);
+    when(remoteFactoryUrl.getHostName()).thenReturn("hostName");
+    doReturn(factoryParametersResolver).when(dummyHolder).getFactoryParametersResolver(anyMap());
+    service =
+        new FactoryService(
+            userManager,
+            acceptValidator,
+            dummyHolder,
+            additionalFilenamesProvider,
+            personalAccessTokenManager);
+
+    // when
+    given()
+        .contentType(ContentType.JSON)
+        .when()
+        .queryParam("url", "someUrl")
+        .post(SERVICE_PATH + "/token/refresh");
+
+    // then
+    verify(personalAccessTokenManager).getAndStore(eq("hostName"));
+  }
+
+  @Test
+  public void shouldThrowBadRequestWhenRefreshTokenWithoutUrl() throws Exception {
+    service =
+        new FactoryService(
+            userManager,
+            acceptValidator,
+            factoryParametersResolverHolder,
+            additionalFilenamesProvider,
+            personalAccessTokenManager);
+
+    // when
+    final Response response =
+        given().contentType(ContentType.JSON).when().post(SERVICE_PATH + "/token/refresh");
+
+    assertEquals(response.getStatusCode(), 400);
+    assertEquals(
+        DTO.createDtoFromJson(response.getBody().asString(), ServiceError.class).getMessage(),
+        "Factory url required");
   }
 
   private FactoryImpl createFactory() {

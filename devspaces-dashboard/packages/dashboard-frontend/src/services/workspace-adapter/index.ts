@@ -290,10 +290,10 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
       return attributesToType(this.workspace.devfile.attributes);
     } else {
       const type = this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
-      if (type === 'ephemeral') {
+      if (type) {
         return type;
       }
-      return 'persistent';
+      return 'per-workspace';
     }
   }
 
@@ -313,7 +313,7 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         delete this.workspace.devfile.attributes;
       }
     } else {
-      if (type === 'ephemeral') {
+      if (type) {
         if (!this.workspace.spec.template.attributes) {
           this.workspace.spec.template.attributes = {};
         }

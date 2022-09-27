@@ -28,7 +28,13 @@ declare namespace che {
     usedResources?: string;
   }
 
-  export type WorkspaceStorageType = 'async' | 'ephemeral' | 'persistent';
+  export type WorkspaceStorageType =
+    | 'async'
+    | 'ephemeral'
+    | 'persistent'
+    | 'per-workspace'
+    | 'per-user'
+    | 'common';
 
   export interface WorkspaceSettings {
     cheWorkspaceDevfileRegistryUrl?: string;

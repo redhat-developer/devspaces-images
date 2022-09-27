@@ -26,15 +26,13 @@ import {
 import { AppState } from '../../../../store';
 import { connect, ConnectedProps } from 'react-redux';
 import { OutlinedQuestionCircleIcon, PencilAltIcon } from '@patternfly/react-icons';
-import {
-  selectAvailableStorageTypes,
-  selectPreferredStorageType,
-} from '../../../../store/Workspaces/Settings/selectors';
+import { selectAvailableStorageTypes } from '../../../../store/Workspaces/Settings/selectors';
 import * as storageTypeService from '../../../../services/storageTypes';
 import { selectBranding } from '../../../../store/Branding/selectors';
 
 import overviewStyles from '../index.module.css';
 import styles from './index.module.css';
+import { selectPvcStrategy } from '../../../../store/ServerConfig/selectors';
 
 export type Props = MappedProps & {
   readonly: boolean;
@@ -66,7 +64,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
       this.storageTypes = availableTypes;
       this.storageTypes.forEach(type => this.options.push(storageTypeService.toTitle(type)));
     }
-    const preferredType = this.props.preferredStorageType;
+    const preferredType = this.props.preferredStorageType as che.WorkspaceStorageType;
     if (preferredType) {
       this.preferredType = preferredType;
     }
@@ -94,16 +92,25 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     }));
   }
 
-  private getExistingTypes(): { hasAsync: boolean; hasPersistent: boolean; hasEphemeral: boolean } {
+  private getExistingTypes(): {
+    hasAsync: boolean;
+    hasPersistent: boolean;
+    hasEphemeral: boolean;
+    hasPerUser: boolean;
+    hasPerWorkspace: boolean;
+  } {
     const hasAsync = this.storageTypes.some(type => type === 'async');
     const hasPersistent = this.storageTypes.some(type => type === 'persistent');
     const hasEphemeral = this.storageTypes.some(type => type === 'ephemeral');
+    const hasPerUser = this.storageTypes.some(type => type === 'per-user');
+    const hasPerWorkspace = this.storageTypes.some(type => type === 'per-workspace');
 
-    return { hasAsync, hasPersistent, hasEphemeral };
+    return { hasAsync, hasPersistent, hasEphemeral, hasPerUser, hasPerWorkspace };
   }
 
   private getInfoModalContent(): React.ReactNode {
-    const { hasAsync, hasPersistent, hasEphemeral } = this.getExistingTypes();
+    const { hasAsync, hasPersistent, hasEphemeral, hasPerUser, hasPerWorkspace } =
+      this.getExistingTypes();
 
     const asyncTypeDescr = hasAsync ? (
       <Text>
@@ -131,13 +138,33 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     ) : (
       ''
     );
+    const perUserTypeDescr = hasPerUser ? (
+      <Text>
+        <b>Per-user Storage</b> one PVC is provisioned per namespace. All of the workspace&apos;s
+        storage (volume mounts) mounted in it on subpaths according to devworkspace ID.
+      </Text>
+    ) : (
+      ''
+    );
+    const perWorkspaceTypeDescr = hasPerWorkspace ? (
+      <Text>
+        <b>Per-workspace Storage</b> a PVC is provisioned for each workspace within the namespace.
+        All of the workspace&apos;s storage (volume mounts) are mounted on subpaths within the
+        workspace&apos;s PVC.
+      </Text>
+    ) : (
+      ''
+    );
+
     const href = this.props.branding.docs.storageTypes;
 
     return (
       <TextContent>
         {persistentTypeDescr}
+        {perWorkspaceTypeDescr}
         {ephemeralTypeDescr}
         {asyncTypeDescr}
+        {perUserTypeDescr}
         <Text>
           <a rel="noreferrer" target="_blank" href={href}>
             Open documentation page
@@ -148,7 +175,9 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
   }
 
   private getSelectorModal(): React.ReactNode {
-    const { hasAsync, hasPersistent, hasEphemeral } = this.getExistingTypes();
+    const { hasAsync, hasPersistent, hasEphemeral, hasPerUser, hasPerWorkspace } =
+      this.getExistingTypes();
+
     const { isSelectorOpen, selected } = this.state;
     const originSelection = this.props.storageType ? this.props.storageType : this.preferredType;
 
@@ -195,6 +224,36 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     ) : (
       ''
     );
+    const perUserTypeDescr = hasPerUser ? (
+      <Text component={TextVariants.h6}>
+        <Radio
+          label="Per-user"
+          name="per-user"
+          id="per-user-type-radio"
+          description="Per-workspace Storage. A PVC is provisioned for each workspace within the namespace.
+        All of the workspace's storage are mounted on subpaths within the workspace's PVC."
+          isChecked={selected === 'per-user'}
+          onChange={() => this.setState({ selected: 'per-user' })}
+        />
+      </Text>
+    ) : (
+      ''
+    );
+    const perWorkspaceTypeDescr = hasPerWorkspace ? (
+      <Text component={TextVariants.h6}>
+        <Radio
+          label="Per-workspace"
+          name="per-workspace"
+          id="per-workspace-type-radio"
+          description="Per-workspace Storage. One PVC is provisioned for each workspace within the namespace.
+        All of the workspace's storage are mounted on subpaths within the workspace's PVC."
+          isChecked={selected === 'per-workspace'}
+          onChange={() => this.setState({ selected: 'per-workspace' })}
+        />
+      </Text>
+    ) : (
+      ''
+    );
 
     return (
       <Modal
@@ -226,8 +285,10 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
           />
           <Text component={TextVariants.h6}>Select the storage type</Text>
           {persistentTypeDescr}
+          {perWorkspaceTypeDescr}
           {ephemeralTypeDescr}
           {asyncTypeDescr}
+          {perUserTypeDescr}
         </TextContent>
       </Modal>
     );
@@ -300,7 +361,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
   availableStorageTypes: selectAvailableStorageTypes(state),
-  preferredStorageType: selectPreferredStorageType(state),
+  preferredStorageType: selectPvcStrategy(state),
 });
 
 const connector = connect(mapStateToProps);

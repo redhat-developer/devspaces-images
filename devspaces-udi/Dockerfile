@@ -7,8 +7,34 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
-
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
+FROM registry-proxy.engineering.redhat.com/rh-osbs/rhel8-go-toolset:1.16.12-2 as go-builder
+
+USER root
+
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+
+RUN \
+    ########################################################################
+    # Build all Golang projects fetched from Cachito
+    ########################################################################
+    dnf -y -q install golang make gzip which dnf openshift-clients && \
+    # BEGIN Gopls
+    mkdir /home/user/go/bin -p && \
+    cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
+    # gopls must refer to tools as local dependency, which is located one dir above in the project
+    echo 'replace golang.org/x/tools => ../' >> go.mod && \
+    # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
+    source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
+    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
+    /home/user/go/bin/gopls version && \
+    # END Gopls
+    # BEGIN Kamel
+    cd $REMOTE_SOURCES_DIR/camelk/app && \
+    source $REMOTE_SOURCES_DIR/camelk/cachito.env && \
+    make build-kamel
+    # END Kamel
+
 FROM ubi8-minimal:8.6-941
 
 USER root
@@ -18,12 +44,10 @@ COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 ENV \
     HOME=/home/user \
     KAMEL_VERSION="" \
-    ODO_VERSION="v2.5.0" \
     NODEJS_VERSION="16" \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
-    LOMBOK_VERSION="1.18.22" \
-    PYTHON_VERSION="3.8" \
+    PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
     E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
@@ -47,7 +71,8 @@ RUN mkdir -p /home/user /projects
 
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
-COPY lombok-${LOMBOK_VERSION}.jar /lombok.jar
+# see fetch-artifacts-pnc.yaml
+COPY artifacts/lombok.jar /lombok.jar
 COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
@@ -57,17 +82,21 @@ COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e
     ########################################################################
     # Common Installations and Configuration
     ########################################################################
+
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng podman skopeo tree \
-    # For OpenShift Client 4 (oc): rhocp-4.9-for-rhel-8-x86_64-rpms
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng tree \
+    # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.8/os/Packages/h/helm-3.6.2-5.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.9/os/Packages/o/openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8.ppc64le.rpm
-    buildah helm-3.6.2-5.el8 openshift-clients-4.9.0-202208012005.p0.gb49c285.assembly.stream.el8 && \
+    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.x86_64.rpm
+    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.s390x.rpm
+    # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-2.5.1-1.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.10/os/Packages/h/helm-3.7.1-7.el8.ppc64le.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8.ppc64le.rpm
+    odo-2.5.1-1.el8 helm-3.7.1-7.el8 openshift-clients-4.11.0-202208241135.p0.g5e53738.assembly.stream.el8 && \
     mkdir -p /opt && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
@@ -83,6 +112,38 @@ RUN \
     cat /etc/group | \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template
+
+## Rootless podman install #1: install podman buildah skopeo
+RUN dnf -y module enable container-tools:rhel8 && \ 
+    dnf -y -q update --exclude=odo && \
+    dnf -y reinstall shadow-utils && \
+    dnf -y install podman buildah skopeo fuse-overlayfs
+
+## Rootless podman install #2
+# Set up environment variables to note that this is
+# not starting with usernamespace and default to
+# isolate the filesystem with chroot.
+ENV _BUILDAH_STARTED_IN_USERNS="" BUILDAH_ISOLATION=chroot
+
+## Rootless podman install #3
+# Tweaks to make rootless buildah work
+RUN touch /etc/subgid /etc/subuid  && \
+    chmod g=u /etc/subgid /etc/subuid /etc/passwd  && \
+    echo user:10000:65536 > /etc/subuid  && \
+    echo user:10000:65536 > /etc/subgid
+
+## Rootless podman install #4
+# Adjust storage.conf to enable Fuse storage.
+RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var/lib/shared",' /etc/containers/storage.conf
+RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
+    touch /var/lib/shared/overlay-images/images.lock; \
+    touch /var/lib/shared/overlay-layers/layers.lock
+
+## Rootless podman install #5
+# But use VFS since we were not able to make Fuse work yet...
+RUN mkdir -p "${HOME}"/.config/containers && \
+   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
+
 RUN \
     ########################################################################
     # Java 8 11 17
@@ -129,32 +190,37 @@ RUN \
     # BEGIN update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     dnf -y -q module reset python39 && \
     dnf -y -q module enable python39:${PYTHON_VERSION} && \
-    dnf -y -q install python39 python38-devel python38-setuptools python38-pip && \
+    dnf -y -q install python39 python39-devel python39-setuptools python39-pip && \
     # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     # python lang server
     mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
     for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
     for d in bin lib lib64; do cp -R /tmp/py-unpack/${d}/* /usr/${d}; done; \
     cp -R /tmp/py-unpack/.venv ${HOME} && chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
-    rm -fr /tmp/py-unpack
+    rm -fr /tmp/py-unpack && \
+    # update pip & other dependencies, that came with Cachito repository
+    cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
+    source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest && \
+    python${PYTHON_VERSION} -m pytest -V
 RUN \
     # python/pip/pylint symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint${PYTHON_VERSION} && \
-    chmod +x /usr/bin/pylint* && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip${PYTHON_VERSION} && \
+    chmod +x /usr/bin/pylint* /usr/bin/pip* && \
     SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     echo "<== Create python symlinks (or display existing ones)"
 RUN \
     ########################################################################
-    # Kamel, ODO
+    # Kamel
     ########################################################################
     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi; \
-    if [[ -f /usr/local/bin/odo ]]; then rm -f /usr/local/bin/odo; fi; \
-    tar xzf /tmp/assets/asset-odo.tgz --strip=1 -C /usr/local/bin $(uname -m)/odo && rm -fr /tmp/assets/asset-odo.tgz
+    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi
 RUN \
     ########################################################################
     # C/C++ (Tech Preview)
@@ -178,18 +244,12 @@ RUN \
     fi
 RUN \
     ########################################################################
-    # Golang (Tech Preview)
+    # Golang (Tech Preview) + Kamel
     ########################################################################
     dnf -y -q install golang && \
-    mkdir /home/user/go/bin -p && \
-    cd $REMOTE_SOURCES_DIR/gopls/app/gopls && \
-    # gopls must refer to tools as local dependency, which is located one dir above in the project
-    echo 'replace golang.org/x/tools => ../' >> go.mod && \
-    # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
-    source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
-    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
-    /home/user/go/bin/gopls version && \
-    rm -fr $REMOTE_SOURCES_DIR
+    mkdir /home/user/go/bin -p
+COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /home/user/go/bin/kamel
+COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls /home/user/go/bin/gopls
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
@@ -230,8 +290,8 @@ RUN \
     # Cleanup and Summaries
     ########################################################################
 RUN \
-    # fetch CVE updates
-    dnf -y -q update && \
+    # fetch CVE updates (but don't update odo 2.x to 3.x)
+    dnf -y -q update --exclude=odo && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
     rm -fr /tmp/assets/ && \
@@ -257,7 +317,7 @@ RUN \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \
-    echo "python venv install:"; python${PYTHON_VERSION} -m venv .venv && . .venv/bin/activate; python -V; \
+    echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \

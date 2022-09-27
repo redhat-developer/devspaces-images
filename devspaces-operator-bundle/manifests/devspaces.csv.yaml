@@ -69,7 +69,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.3
-    createdAt: "2022-09-12T18:36:08+00:00"
+    createdAt: "2022-09-22T09:47:22+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -563,22 +563,14 @@ spec:
               resources:
                 - clusterrolebindings
                 - clusterroles
+                - roles
+                - rolebindings
               verbs:
                 - list
                 - create
                 - watch
                 - update
                 - get
-                - delete
-            - apiGroups:
-                - rbac.authorization.k8s.io
-              resources:
-                - roles
-                - rolebindings
-              verbs:
-                - get
-                - create
-                - update
                 - delete
             - apiGroups:
                 - authorization.openshift.io
@@ -791,26 +783,7 @@ spec:
                 - get
                 - update
                 - watch
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings
-              verbs:
-                - '*'
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings/finalizers
-              verbs:
-                - update
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings/status
-              verbs:
-                - get
-                - patch
-                - update
+                - list
             - apiGroups:
                 - monitoring.coreos.com
               resources:
@@ -853,64 +826,37 @@ spec:
                 - get
                 - list
                 - watch
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings
-                - components
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - workspace.devfile.io
-              resources:
-                - devworkspaces
-                - devworkspacetemplates
-              verbs:
                 - create
                 - delete
-                - deletecollection
                 - patch
                 - update
             - apiGroups:
                 - controller.devfile.io
               resources:
                 - devworkspaceroutings
-                - components
-              verbs:
-                - create
-                - delete
-                - deletecollection
-                - patch
-                - update
-            - apiGroups:
-                - ""
-              resources:
-                - configmaps
+                - devworkspaceoperatorconfigs
               verbs:
                 - get
                 - list
                 - watch
                 - create
-                - update
-                - patch
                 - delete
+                - patch
+                - update
             - apiGroups:
-                - ""
+                - controller.devfile.io
               resources:
-                - configmaps/status
+                - devworkspaceroutings/finalizers
+              verbs:
+                - update
+            - apiGroups:
+                - controller.devfile.io
+              resources:
+                - devworkspaceroutings/status
               verbs:
                 - get
+                - patch
                 - update
-                - patch
-            - apiGroups:
-                - ""
-              resources:
-                - events
-              verbs:
-                - create
-                - patch
             - apiGroups:
                 - authentication.k8s.io
               resources:
@@ -923,230 +869,6 @@ spec:
                 - subjectaccessreviews
               verbs:
                 - create
-            - apiGroups:
-                - ""
-              resourceNames:
-                - workspace-preferences-configmap
-              resources:
-                - configmaps
-              verbs:
-                - create
-                - delete
-                - get
-                - patch
-            - apiGroups:
-                - ""
-              resources:
-                - configmaps
-                - persistentvolumeclaims
-                - pods
-                - secrets
-                - serviceaccounts
-              verbs:
-                - '*'
-            - apiGroups:
-                - ""
-              resources:
-                - events
-                - namespaces
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - ""
-              resources:
-                - pods/exec
-              verbs:
-                - create
-            - apiGroups:
-                - ""
-              resourceNames:
-                - workspace-credentials-secret
-              resources:
-                - secrets
-              verbs:
-                - create
-                - delete
-                - get
-                - patch
-            - apiGroups:
-                - ""
-              resources:
-                - services
-              verbs:
-                - '*'
-            - apiGroups:
-                - admissionregistration.k8s.io
-              resources:
-                - mutatingwebhookconfigurations
-                - validatingwebhookconfigurations
-              verbs:
-                - create
-                - delete
-                - get
-                - list
-                - patch
-                - update
-                - watch
-            - apiGroups:
-                - apps
-              resourceNames:
-                - devworkspace-controller
-              resources:
-                - deployments/finalizers
-              verbs:
-                - update
-            - apiGroups:
-                - apps
-                - extensions
-              resources:
-                - deployments
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - apps
-                - extensions
-              resources:
-                - deployments
-                - replicasets
-              verbs:
-                - '*'
-            - apiGroups:
-                - apps
-                - extensions
-              resources:
-                - replicasets
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - authorization.k8s.io
-              resources:
-                - localsubjectaccessreviews
-                - subjectaccessreviews
-              verbs:
-                - create
-            - apiGroups:
-                - batch
-              resources:
-                - jobs
-              verbs:
-                - create
-                - delete
-                - get
-                - list
-                - patch
-                - update
-                - watch
-            - apiGroups:
-                - config.openshift.io
-              resourceNames:
-                - cluster
-              resources:
-                - proxies
-              verbs:
-                - get
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - '*'
-              verbs:
-                - '*'
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings
-              verbs:
-                - '*'
-            - apiGroups:
-                - controller.devfile.io
-              resources:
-                - devworkspaceroutings/status
-              verbs:
-                - get
-                - patch
-                - update
-            - apiGroups:
-                - coordination.k8s.io
-              resources:
-                - leases
-              verbs:
-                - create
-                - get
-                - update
-            - apiGroups:
-                - metrics.k8s.io
-              resources:
-                - pods
-              verbs:
-                - get
-                - list
-                - watch
-            - apiGroups:
-                - monitoring.coreos.com
-              resources:
-                - servicemonitors
-              verbs:
-                - create
-                - get
-            - apiGroups:
-                - networking.k8s.io
-              resources:
-                - ingresses
-              verbs:
-                - '*'
-            - apiGroups:
-                - oauth.openshift.io
-              resources:
-                - oauthclients
-              verbs:
-                - create
-                - delete
-                - deletecollection
-                - get
-                - list
-                - patch
-                - update
-                - watch
-            - apiGroups:
-                - rbac.authorization.k8s.io
-              resources:
-                - clusterrolebindings
-                - clusterroles
-                - rolebindings
-                - roles
-              verbs:
-                - create
-                - get
-                - list
-                - update
-                - watch
-            - apiGroups:
-                - route.openshift.io
-              resources:
-                - routes
-              verbs:
-                - '*'
-            - apiGroups:
-                - route.openshift.io
-              resources:
-                - routes/custom-host
-              verbs:
-                - create
-            - apiGroups:
-                - workspace.devfile.io
-              resources:
-                - '*'
-              verbs:
-                - '*'
-            - nonResourceURLs:
-                - /metrics
-              verbs:
-                - get
           serviceAccountName: devspaces-operator
       deployments:
         - name: devspaces-operator
@@ -1334,7 +1056,12 @@ spec:
               resources:
                 - jobs
               verbs:
-                - '*'
+                - create
+                - delete
+                - get
+                - update
+                - watch
+                - list
             - apiGroups:
                 - route.openshift.io
               resources:
@@ -1347,15 +1074,15 @@ spec:
               resources:
                 - roles
                 - rolebindings
-              verbs:
-                - '*'
-            - apiGroups:
-                - rbac.authorization.k8s.io
-              resources:
                 - clusterroles
                 - clusterrolebindings
               verbs:
-                - '*'
+                - list
+                - create
+                - watch
+                - update
+                - get
+                - delete
             - apiGroups:
                 - ""
               resources:
@@ -1479,6 +1206,37 @@ spec:
                 - patch
                 - update
                 - watch
+            - apiGroups:
+                - ""
+              resources:
+                - configmaps
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - coordination.k8s.io
+              resources:
+                - leases
+              verbs:
+                - get
+                - list
+                - watch
+                - create
+                - update
+                - patch
+                - delete
+            - apiGroups:
+                - ""
+              resources:
+                - events
+              verbs:
+                - create
+                - patch
           serviceAccountName: devspaces-operator
     strategy: deployment
   installModes:

@@ -161,12 +161,17 @@ timeout(600) {
                 script: '''
 curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
                 ''', returnStdout: true).trim()
-              if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null")) {
+              def OCP_TOOLS_CONTENT_SET_VERSION = sh( 
+                script: '''
+curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OCP_TOOLS_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
+                ''', returnStdout: true).trim() // @since 3.2
+              if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null") && 
+                  OCP_TOOLS_CONTENT_SET_VERSION?.trim() && !OCP_TOOLS_CONTENT_SET_VERSION.equals("null")) {
                 util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
-                // TODO this should be aligned to OPENSHIFT_CONTENT_SET_VERSION once there's a newer release
-                if (REPOS.contains("-udi")) { util.updateHelmRpms("4.8"); }
+                util.updateOdoRpms(OCP_TOOLS_CONTENT_SET_VERSION); // @since 3.2
+                util.updateHelmRpms(OCP_TOOLS_CONTENT_SET_VERSION);
               } else {
-                println("[WARN] Could not update OC or Helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION not defined for DS_VERSION = " + DS_VERSION)
+                println("[WARN] Could not update oc, odo, or helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION and/or OCP_TOOLS_CONTENT_SET_VERSION not defined for DS_VERSION = " + DS_VERSION)
               }
             }
 

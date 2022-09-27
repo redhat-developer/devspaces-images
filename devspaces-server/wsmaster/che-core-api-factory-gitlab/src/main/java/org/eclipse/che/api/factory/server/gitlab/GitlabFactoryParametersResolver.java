@@ -22,8 +22,8 @@ import javax.inject.Singleton;
 import org.eclipse.che.api.core.ApiException;
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.factory.server.DefaultFactoryParameterResolver;
-import org.eclipse.che.api.factory.server.scm.GitCredentialManager;
 import org.eclipse.che.api.factory.server.scm.PersonalAccessTokenManager;
+import org.eclipse.che.api.factory.server.urlfactory.RemoteFactoryUrl;
 import org.eclipse.che.api.factory.server.urlfactory.URLFactoryBuilder;
 import org.eclipse.che.api.factory.shared.dto.FactoryDevfileV2Dto;
 import org.eclipse.che.api.factory.shared.dto.FactoryDto;
@@ -43,8 +43,6 @@ import org.eclipse.che.api.workspace.shared.dto.devfile.SourceDto;
 public class GitlabFactoryParametersResolver extends DefaultFactoryParameterResolver {
 
   private final GitlabUrlParser gitlabURLParser;
-
-  private final GitCredentialManager gitCredentialManager;
   private final PersonalAccessTokenManager personalAccessTokenManager;
 
   @Inject
@@ -52,11 +50,9 @@ public class GitlabFactoryParametersResolver extends DefaultFactoryParameterReso
       URLFactoryBuilder urlFactoryBuilder,
       URLFetcher urlFetcher,
       GitlabUrlParser gitlabURLParser,
-      GitCredentialManager gitCredentialManager,
       PersonalAccessTokenManager personalAccessTokenManager) {
     super(urlFactoryBuilder, urlFetcher);
     this.gitlabURLParser = gitlabURLParser;
-    this.gitCredentialManager = gitCredentialManager;
     this.personalAccessTokenManager = personalAccessTokenManager;
   }
 
@@ -90,7 +86,7 @@ public class GitlabFactoryParametersResolver extends DefaultFactoryParameterReso
         .createFactoryFromDevfile(
             gitlabUrl,
             new GitlabAuthorizingFileContentProvider(
-                gitlabUrl, urlFetcher, gitCredentialManager, personalAccessTokenManager),
+                gitlabUrl, urlFetcher, personalAccessTokenManager),
             extractOverrideParams(factoryParameters),
             false)
         .orElseGet(() -> newDto(FactoryDto.class).withV(CURRENT_VERSION).withSource("repo"))
@@ -149,5 +145,10 @@ public class GitlabFactoryParametersResolver extends DefaultFactoryParameterReso
 
       return factory;
     }
+  }
+
+  @Override
+  public RemoteFactoryUrl parseFactoryUrl(String factoryUrl) throws ApiException {
+    return gitlabURLParser.parse(factoryUrl);
   }
 }

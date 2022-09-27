@@ -18,8 +18,7 @@ import { container } from '../../inversify.config';
 import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
 import { AppThunk } from '../index';
 import { createObject } from '../helpers';
-import { selectPreferredStorageType } from '../Workspaces/Settings/selectors';
-import { selectDefaultComponents } from '../ServerConfig/selectors';
+import { selectDefaultComponents, selectPvcStrategy } from '../ServerConfig/selectors';
 import { Devfile } from '../../services/workspace-adapter';
 import devfileApi, { isDevfileV2 } from '../../services/devfileApi';
 import { convertDevfileV1toDevfileV2 } from '../../services/devfile/converters';
@@ -173,7 +172,7 @@ export const actionCreators: ActionCreators = {
         if (!data.devfile) {
           throw new Error('The specified link does not contain a valid Devfile.');
         }
-        const preferredStorageType = selectPreferredStorageType(state);
+        const preferredStorageType = selectPvcStrategy(state) as che.WorkspaceStorageType;
         const isResolvedDevfileV2 = isDevfileV2(data.devfile);
         let devfileV2: devfileApi.Devfile;
         const defaultComponents = selectDefaultComponents(state);

@@ -12,5 +12,4 @@ gradle/
 /gradle-*-bin.zip
 graalvm/
 /apache-maven-*-bin.tar.gz
-/lombok-*.jar
 /e2fsprogs-1.46.5.tar.gz

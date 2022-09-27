@@ -29,7 +29,7 @@ export class DevfileAdapter {
 
   set storageType(type: che.WorkspaceStorageType) {
     if (isDevfileV2(this._devfile)) {
-      if (type === 'ephemeral') {
+      if (type && type !== 'persistent') {
         if (this._devfile.schemaVersion === '2.0.0') {
           if (!this._devfile.metadata.attributes) {
             this._devfile.metadata.attributes = {};
@@ -94,11 +94,11 @@ export class DevfileAdapter {
   get storageType(): che.WorkspaceStorageType {
     if (isDevfileV2(this._devfile)) {
       let type = this._devfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
-      if (type === 'ephemeral') {
+      if (type) {
         return type;
       }
       type = this._devfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
-      if (type === 'ephemeral') {
+      if (type) {
         return type;
       }
       return 'persistent';

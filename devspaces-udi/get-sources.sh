@@ -12,8 +12,6 @@ PUBLISH_ASSETS=0
 GRADLE_VERSION="6.1"
 # maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
 MAVEN_VERSION="3.6.3"
-LOMBOK_VERSION="1.18.22"
-ODO_VERSION="v2.5.0"
 E2FSPROGS_VERSION="1.46.5"
 ASSET_NAME="udi"
 
@@ -59,10 +57,8 @@ echo "Using KAMEL_VERSION = ${KAMEL_VERSION}"
 
 # update Dockerfile to record versions we expect
 sed Dockerfile \
-		-e "s#ODO_VERSION=\"\([^\"]\+\)\"#ODO_VERSION=\"${ODO_VERSION}\"#" \
-        -e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
+		-e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
 		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
-		-e "s#LOMBOK_VERSION=\"\([^\"]\+\)\"#LOMBOK_VERSION=\"${LOMBOK_VERSION}\"#" \
 		-e "s#GRADLE_VERSION=\"\([^\"]\+\)\"#GRADLE_VERSION=\"${GRADLE_VERSION}\"#" \
 		> Dockerfile.2
 
@@ -77,23 +73,12 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	# pull asset-*.tar.gz files
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 
-	# pull odo for all arches
-	mkdir -p x86_64 s390x ppc64le
-	curl -sSLo x86_64/odo https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-amd64 && chmod +x x86_64/odo
-	# s390x
-	curl -sSLo s390x/odo https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-s390x && chmod +x s390x/odo
-	# ppc64le
-	curl -sSLo ppc64le/odo https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/odo/${ODO_VERSION}/odo-linux-ppc64le && chmod +x ppc64le/odo
-	tar czf asset-odo.tgz s390x x86_64 ppc64le
-	rm -Rf s390x x86_64 ppc64le
-
-	# pull gradle, lombok, and maven
+	# pull gradle, maven, and e2fsprogs
 	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-	curl -sSL -O https://github.com/redhat-developer/devspaces-images/releases/download/${CSV_VERSION}-${ASSET_NAME}-assets/lombok-${LOMBOK_VERSION}.jar
 	curl -sSL -O https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 	curl -sSL -O https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz
 
-    outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip lombok-${LOMBOK_VERSION}.jar apache-maven-${MAVEN_VERSION}-bin.tar.gz asset-odo.tgz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
+    outputFiles="$(ls asset-*.tar.gz) gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
 
 	# cleanup
 	rm -f Dockerfile.2 uploadAssetsToGHRelease.sh
@@ -101,7 +86,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	log "[INFO] Upload new sources: ${outputFiles}"
 	rhpkg new-sources ${outputFiles}
 	log "[INFO] Commit new sources from: ${outputFiles}"
-	COMMIT_MSG="ci: GH ${ASSET_NAME} assets :: ${outputFiles} ${ODO_VERSION}"
+	COMMIT_MSG="ci: GH ${ASSET_NAME} assets :: ${outputFiles}"
 
 	if [[ $(git commit -s -m "${COMMIT_MSG}" sources Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
