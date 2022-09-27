@@ -43,6 +43,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 
 	#
 	# create/update sources tarballs (needed for offline Brew builds)
+	# TODO replace this with cachito
 	#
 
 	# transform Brew friendly bootstrap.Dockerfile so we can use it in Jenkins where base images need full registry path

@@ -112,6 +112,8 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
+    `# Enable offline build - copy in built binaries` \
+    -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
     -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
   > "${TARGETDIR}/Dockerfile"
