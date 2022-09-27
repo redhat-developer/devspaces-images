@@ -103,10 +103,10 @@ popd >/dev/null || exit
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-  `# Update ubi8 image name` \
-  -e "s#ubi8/ubi:#ubi8:#g" \
-  `# Remove registry so build works in Brew` \
-  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+    `# Update ubi8 image name` \
+    -e "s#ubi8/ubi:#ubi8:#g" \
+    `# Remove registry so build works in Brew` \
+    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
     `# trim off version so we get the latest from internal registry` \

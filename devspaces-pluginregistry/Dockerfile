@@ -13,26 +13,23 @@
 
 # UBI Builder
 # https://registry.access.redhat.com/ubi8/ubi
-FROM ubi8/ubi:8.6-903.1661794351 as ubi-builder
+FROM ubi8:8.6-903.1661794351 as ubi-builder
 
 ARG BOOTSTRAP=false
 ENV BOOTSTRAP=${BOOTSTRAP}
 
-# NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
-# enable rhel 7 or 8 content sets (from Brew) to resolve jq as rpm
-COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
-COPY ./build/dockerfiles/rhel.install.sh /tmp
-RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
-
 RUN mkdir -p /mnt/rootfs
-# Install httpd and postgresql
-RUN yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-RUN yum install --installroot /mnt/rootfs postgresql13-libs postgresql13 postgresql13-server \
+
+RUN yum install --installroot /mnt/rootfs \
     java-11-openjdk coreutils-single glibc-minimal-langpack glibc-langpack-en langpacks-en glibc-locale-source httpd nc \
-    net-tools procps vi curl wget tar gzip jq\
+    net-tools procps vi curl wget tar gzip jq \
     --releasever 8 --nodocs -y && \
     yum --installroot /mnt/rootfs clean all && \
     rm -rf /mnt/rootfs/var/cache/* /mnt/rootfs/var/log/dnf* /mnt/rootfs/var/log/yum.*
+
+# Add postgresql
+COPY --chown=0:0 /postgresql13.tar.gz /
+RUN tar -xf postgresql13.tar.gz && rm /postgresql13.tar.gz
 
 # Use the final root filesystem as default directory
 WORKDIR /mnt/rootfs
@@ -80,9 +77,7 @@ COPY /build/dockerfiles/openvsx.conf /mnt/rootfs/etc/httpd/conf.d/
 
 COPY README.md .htaccess /mnt/rootfs/var/www/html/
 
-COPY ./build/scripts/*.sh /build/
-COPY che-*.yaml /build/
-COPY resources.tgz /build/
+COPY /build/scripts/*.sh resources.tgz che-*.yaml /build/
 
 RUN tar -xvf /build/resources.tgz -C /build/
 RUN rm -rf /build/output/v3/che-theia-plugins.yaml /build/output/v3/che-editors.yaml /build/output/v3/che-plugins.yaml
@@ -93,7 +88,7 @@ RUN chmod -R g+rwX /build
 RUN cp -r /build/output/v3 /mnt/rootfs/var/www/html/
 COPY v3/plugins/ /mnt/rootfs/var/www/html/v3/plugins/
 COPY v3/images/*.png /mnt/rootfs/var/www/html/v3/images/
-COPY ./build/dockerfiles/rhel.entrypoint.sh ./build/dockerfiles/entrypoint.sh /mnt/rootfs/usr/local/bin/
+COPY /build/dockerfiles/entrypoint.sh /mnt/rootfs/usr/local/bin/
 
 # Apply permissions to later change these files (entrypoint update_extension_vsx_references)
 RUN chmod g+rwx -R /mnt/rootfs/var/www/html/v3
@@ -103,6 +98,7 @@ FROM ubi8/ubi-minimal:8.6-941
 COPY --from=ubi-builder /mnt/rootfs/ /
 # Add UTF-8 for the database
 RUN localedef -f UTF-8 -i en_US en_US.UTF-8 && \
+    useradd apache && \
     usermod -a -G apache,root,postgres postgres
 USER postgres
 ENV LC_ALL=en_US.UTF-8 \

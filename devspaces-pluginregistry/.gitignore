@@ -23,7 +23,6 @@ v3/**/latest/
 resources/
 /root-local.tgz
 /resources.tgz
-openvsx-server.tar.gz
 airgap.Dockerfile
 
 node_modules/

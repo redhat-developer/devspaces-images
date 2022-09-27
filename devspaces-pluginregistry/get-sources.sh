@@ -55,11 +55,11 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	cat bootstrap.Dockerfile
 	echo "<======= BOOTSTRAP DOCKERFILE ======="
 	echo "======= START BOOTSTRAP BUILD =======>"
-	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
+	${BUILDER} build -t ${tmpContainer} . --progress=plain --no-cache -f bootstrap.Dockerfile \
 		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
 	# update tarballs - step 2 - check old sources' tarballs
-	TARGZs="root-local.tgz resources.tgz openvsx-server.tar.gz nodejs.tar.gz"
+	TARGZs="root-local.tgz resources.tgz openvsx-server.tar.gz nodejs.tar.gz postgresql13.tar.gz"
 	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
 	rhpkg sources || true
 
@@ -111,6 +111,15 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} cp ovsxBuilder:ovsx/nodejs.tar.gz .
 	${BUILDER} rm -f ovsxBuilder
 	${BUILDER} rmi ${OVSX_BUILDER_IMAGE}
+
+	rm -f ./postgresql13.tar.gz
+	POSTGRESQL_BUILDER_IMAGE=postgresql13:latest
+	${BUILDER} build --progress=plain -f build/dockerfiles/postgresql.Dockerfile \
+		-t "$POSTGRESQL_BUILDER_IMAGE" . --target builder
+	${BUILDER} create --name postgresqlBuilder ${POSTGRESQL_BUILDER_IMAGE}
+	${BUILDER} cp postgresqlBuilder:/postgresql13.tar.gz .
+	${BUILDER} rm -f postgresqlBuilder
+	${BUILDER} rmi ${POSTGRESQL_BUILDER_IMAGE}
 fi
 
 # update tarballs - step 4 - commit changes if diff different
