@@ -103,19 +103,17 @@ popd >/dev/null || exit
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    `# Strip registry from image references` \
+    `# Update ubi8 image name` \
+    -e "s#ubi8/ubi:#ubi8:#g" \
+    `# Remove registry so build works in Brew` \
+    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
-    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
-    -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
     `# trim off version so we get the latest from internal registry` \
-    -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
+    -e 's|ubi8/ubi:([0-9]+)(-[0-9.]+)|ubi8/ubi:\1|g' \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
-    `# Enable offline build - copy in built binaries` \
-    -e 's|# (COPY root-local.tgz)|\1|' \
     `# only enable rhel8 here -- don't want centos or epel ` \
     -e 's|^ *(COPY .*)/content_set.*repo (.+)|\1/content_sets_rhel8.repo \2|' \
   > "${TARGETDIR}/Dockerfile"
