@@ -109,6 +109,8 @@ sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
     -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
+    `# trim off version so we get the latest from internal registry` \
+    -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \

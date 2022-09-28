@@ -13,7 +13,7 @@
 
 # UBI Builder
 # https://registry.access.redhat.com/ubi8/ubi
-FROM ubi8/python-38:1-107 as ubi-builder
+FROM ubi8/python-38:1 as ubi-builder
 USER 0
 WORKDIR /
 
