@@ -228,8 +228,10 @@ RUN \
     ########################################################################
     # Kamel
     ########################################################################
-    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi
+    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi;
+
+COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /usr/local/bin/kamel
+
 RUN \
     ########################################################################
     # C/C++ (Tech Preview)
@@ -257,7 +259,6 @@ RUN \
     ########################################################################
     dnf -y -q install golang && \
     mkdir /home/user/go/bin -p
-COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /home/user/go/bin/kamel
 COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls /home/user/go/bin/gopls
 COPY --from=go-builder $REMOTE_SOURCES_DIR/golangci-lint/app/golangci-lint /home/user/go/bin/golangci-lint
 RUN \
