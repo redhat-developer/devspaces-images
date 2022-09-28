@@ -289,11 +289,7 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     if (isCheWorkspace(this.workspace)) {
       return attributesToType(this.workspace.devfile.attributes);
     } else {
-      const type = this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
-      if (type) {
-        return type;
-      }
-      return 'per-workspace';
+      return this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE] || '';
     }
   }
 

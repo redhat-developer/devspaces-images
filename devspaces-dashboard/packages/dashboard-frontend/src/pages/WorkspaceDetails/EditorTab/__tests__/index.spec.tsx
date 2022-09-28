@@ -361,6 +361,7 @@ function getComponent(store: Store, workspace: Workspace): React.ReactElement {
         workspace={workspace}
         onSave={workspace => mockOnSave(workspace)}
         onDevWorkspaceWarning={() => mockOnWorkspaceWarning()}
+        isRunning={workspace.isRunning}
       />
     </Provider>
   );

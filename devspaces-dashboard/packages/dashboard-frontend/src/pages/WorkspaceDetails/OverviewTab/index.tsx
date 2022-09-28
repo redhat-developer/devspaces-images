@@ -19,6 +19,7 @@ import ProjectsFormGroup from './Projects';
 import { constructWorkspace, Workspace } from '../../../services/workspace-adapter';
 import { cloneDeep } from 'lodash';
 import { DevWorkspaceStatus } from '../../../services/helpers/types';
+import { StorageTypeTitle } from '../../../services/storageTypes';
 
 type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
@@ -110,7 +111,7 @@ export class OverviewTab extends React.Component<Props, State> {
             <InfrastructureNamespaceFormGroup namespace={namespace} />
             <StorageTypeFormGroup
               readonly={isDeprecated || workspace.status === DevWorkspaceStatus.TERMINATING}
-              storageType={storageType}
+              storageType={StorageTypeTitle[storageType as che.WorkspaceStorageType] || storageType}
               onSave={_storageType => this.handleStorageSave(_storageType)}
             />
             <ProjectsFormGroup projects={projects} />

@@ -22,7 +22,6 @@ import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/dev
 import { DevWorkspaceStatus } from '../../helpers/types';
 import { StorageTypeTitle } from '../../storageTypes';
 import { DEVWORKSPACE_STORAGE_TYPE } from '../../workspace-client/devworkspace/devWorkspaceClient';
-import devfileApi from '../../devfileApi';
 
 /**
  * @jest-environment node
@@ -344,10 +343,37 @@ describe('Workspace adapter', () => {
       expect(workspace.ideUrl).toEqual(ideUrl);
     });
 
-    it('should return storage type', () => {
+    it('should return Not Defined storage type', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
       const workspace = constructWorkspace(devWorkspace);
-      expect(workspace.storageType).toEqual(StorageTypeTitle['per-workspace'].toLowerCase());
+      expect(StorageTypeTitle[workspace.storageType as '']).toEqual('Not defined');
+    });
+
+    it('should return Ephemeral storage type', () => {
+      const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.spec.template.attributes = {
+        'controller.devfile.io/storage-type': 'ephemeral',
+      };
+      const workspace = constructWorkspace(devWorkspace);
+      expect(StorageTypeTitle[workspace.storageType as 'ephemeral']).toEqual('Ephemeral');
+    });
+
+    it('should return Per-user storage type', () => {
+      const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.spec.template.attributes = {
+        'controller.devfile.io/storage-type': 'per-user',
+      };
+      const workspace = constructWorkspace(devWorkspace);
+      expect(StorageTypeTitle[workspace.storageType as 'per-user']).toEqual('Per-user');
+    });
+
+    it('should return Per-workspace storage type', () => {
+      const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.spec.template.attributes = {
+        'controller.devfile.io/storage-type': 'per-workspace',
+      };
+      const workspace = constructWorkspace(devWorkspace);
+      expect(StorageTypeTitle[workspace.storageType as 'per-workspace']).toEqual('Per-workspace');
     });
 
     it('should return devfile', () => {

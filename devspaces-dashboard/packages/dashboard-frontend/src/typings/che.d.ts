@@ -34,7 +34,8 @@ declare namespace che {
     | 'persistent'
     | 'per-workspace'
     | 'per-user'
-    | 'common';
+    | 'common'
+    | '';
 
   export interface WorkspaceSettings {
     cheWorkspaceDevfileRegistryUrl?: string;
