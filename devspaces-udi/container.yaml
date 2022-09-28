@@ -38,3 +38,10 @@ remote_sources:
     pkg_managers:
       - pip
     packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
+- name: golangci-lint
+  remote_source:
+    repo: https://github.com/golangci/golangci-lint
+    ref: 617470fa9e2c54dd91ab91c14e0d20030e183c20
+    pkg_managers:
+      - gomod
+    packages: {"gomod": [ "path": "." ]}

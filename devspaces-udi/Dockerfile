@@ -26,14 +26,24 @@ RUN \
     echo 'replace golang.org/x/tools => ../' >> go.mod && \
     # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
     source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
-    GO111MODULE=on go build -o /home/user/go/bin/gopls && \
-    /home/user/go/bin/gopls version && \
+    GO111MODULE=on go build -o gopls && \
+    ./gopls version && \
     # END Gopls
     # BEGIN Kamel
     cd $REMOTE_SOURCES_DIR/camelk/app && \
     source $REMOTE_SOURCES_DIR/camelk/cachito.env && \
-    make build-kamel
+    make build-kamel && \
+    ./kamel version && \
     # END Kamel
+    # BEGIN golangci-lint
+    cd $REMOTE_SOURCES_DIR/golangci-lint/app && \
+    source $REMOTE_SOURCES_DIR/golangci-lint/cachito.env && \
+    GOLANGCI_BUILD_TAG="1.44.0" && \
+    GOLANGCI_BUILD_SHA="617470fa9e2c54dd91ab91c14e0d20030e183c20"&& \
+    GOLANGCI_BUILD_DATE=$(date '+%Y-%m-%dT%H:%M:%SZ') && \
+    CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=$GOLANGCI_BUILD_TAG -X main.commit=$GOLANGCI_BUILD_SHA -X main.date=$GOLANGCI_BUILD_DATE" -o golangci-lint ./cmd/golangci-lint && \
+    ./golangci-lint version
+    # END golangci-lint
 
 FROM ubi8-minimal:8.6-941
 
@@ -218,8 +228,10 @@ RUN \
     ########################################################################
     # Kamel
     ########################################################################
-    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi; \
-    if [[ -f /tmp/assets/asset-kamel-$(uname -m).tar.gz ]]; then tar xzf /tmp/assets/asset-kamel-$(uname -m).tar.gz -C /usr/local/bin/; fi
+    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi;
+
+COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /usr/local/bin/kamel
+
 RUN \
     ########################################################################
     # C/C++ (Tech Preview)
@@ -247,8 +259,8 @@ RUN \
     ########################################################################
     dnf -y -q install golang && \
     mkdir /home/user/go/bin -p
-COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /home/user/go/bin/kamel
-COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls /home/user/go/bin/gopls
+COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls /home/user/go/bin/gopls
+COPY --from=go-builder $REMOTE_SOURCES_DIR/golangci-lint/app/golangci-lint /home/user/go/bin/golangci-lint
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
