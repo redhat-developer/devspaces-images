@@ -20,7 +20,7 @@ ENV \
     NODEJS_VERSION="16" \
     GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
-    PYTHON_VERSION="3.8" \
+    PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
     E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
@@ -160,17 +160,22 @@ RUN \
     ########################################################################
     # Python
     ########################################################################
-    # BEGIN update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
-    dnf -y -q module reset python38 && \
-    dnf -y -q module enable python38:${PYTHON_VERSION} && \
-    dnf -y -q install python38 python38-devel python38-setuptools python38-pip && \
-    # END update to python 3.8 per https://catalog.redhat.com/software/containers/ubi8/python-38/5dde9cacbed8bd164a0af24a?container-tabs=dockerfile
+    # BEGIN update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
+    dnf -y -q module reset python39 && \
+    dnf -y -q module enable python39:${PYTHON_VERSION} && \
+    dnf -y -q install python39 python39-devel python39-setuptools python39-pip && \
+    # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     # python lang server
     mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
     for f in /tmp/py-unpack; do chgrp -R 0 ${f}; chmod -R g+rwX ${f}; done; \
     for d in bin lib lib64; do cp -R /tmp/py-unpack/${d}/* /usr/${d}; done; \
     cp -R /tmp/py-unpack/.venv ${HOME} && chgrp -R 0 ${HOME}/.venv && chmod -R g+rwX ${HOME}/.venv && \
-    rm -fr /tmp/py-unpack
+    rm -fr /tmp/py-unpack && \
+    # update pip & other dependencies, that came with Cachito repository
+    cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
+    source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest && \
+    python${PYTHON_VERSION} -m pytest -V
 RUN \
     # python/pip/pylint symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
@@ -291,7 +296,7 @@ RUN \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \
-    echo "python venv install:"; python${PYTHON_VERSION} -m venv .venv && . .venv/bin/activate && python -V; \
+    echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
     echo -n "pip:   "; pip -V; \
     echo -n "pylint:    "; pylint --version; \
     echo "========" && \
