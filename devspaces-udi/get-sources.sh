@@ -51,13 +51,8 @@ if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	exit 0
 fi
 
-# see https://github.com/redhat-developer/devspaces-images/blob/devspaces-3-rhel-8/devspaces-udi/build/build_kamel.sh#L17 or https://github.com/apache/camel-k/releases
-$(curl -sSL https://raw.githubusercontent.com/redhat-developer/devspaces-images/$(git rev-parse --abbrev-ref HEAD)/devspaces-udi/build/build_kamel.sh | grep KAMEL_VERSION=)
-echo "Using KAMEL_VERSION = ${KAMEL_VERSION}"
-
 # update Dockerfile to record versions we expect
 sed Dockerfile \
-		-e "s#KAMEL_VERSION=\"\([^\"]\+\)\"#KAMEL_VERSION=\"${KAMEL_VERSION}\"#" \
 		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
 		-e "s#GRADLE_VERSION=\"\([^\"]\+\)\"#GRADLE_VERSION=\"${GRADLE_VERSION}\"#" \
 		> Dockerfile.2
