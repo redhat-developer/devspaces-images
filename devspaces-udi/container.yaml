@@ -22,3 +22,11 @@ remote_sources:
     pkg_managers:
       - gomod
     packages: {"gomod": [{"path": "."}, {"path": "gopls"}]}
+- name: python-deps
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
+    ref: 85bdaa0b4047b5bab897be97b72fb8f685edcfc8
+    pkg_managers:
+      - pip
+    packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
