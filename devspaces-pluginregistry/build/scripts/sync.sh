@@ -103,14 +103,13 @@ popd >/dev/null || exit
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    `# Update ubi8 image name; trim off version so we get the latest from internal registry` \
-    -e 's|(ubi8)/ubi(\|-minimal):([0-9.]+)(-[0-9.]+)|\1\2:\3|g' \
+    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
+    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
+    -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
     `# Remove registry so build works in Brew` \
     -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
     -e 's|FROM registry.redhat.io/|FROM |' \
-    `# trim off version so we get the latest from internal registry` \
-    -e 's|ubi8/python-38:([0-9]+)(-[0-9.]+)|ubi8/python-38:\1|g' \
     `# Set arg options: disable BOOTSTRAP; update DS_BRANCH to correct value` \
     -e 's|ARG BOOTSTRAP=.*|ARG BOOTSTRAP=false|' \
     -e "s|ARG DS_BRANCH=.*|ARG DS_BRANCH=${DS_BRANCH}|" \
