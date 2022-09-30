@@ -32,12 +32,14 @@ function log()
 }
 
 function buildTarball() {
-	local TARBALL="$1"
+	local TARBALLS="$1"
 	local BUILDER_IMAGE="$2"
 	local DOCKERFILE="$3"
 	local DOCKERCMD="$4"
-	# remove the file without its path
-	rm -f ./${TARBALL##*/} || true
+	for TARBALL in $TARBALLS; do
+		# remove the file without its path
+		rm -f ./${TARBALL##*/} || true
+	done
 	# delete any existing images / references
 	${BUILDER} rm -f thisBuilder || true
 	${BUILDER} rmi ${BUILDER_IMAGE} || true
@@ -46,8 +48,12 @@ function buildTarball() {
 		-t "$BUILDER_IMAGE" . $DOCKERCMD
 	# rename
 	${BUILDER} create --name thisBuilder ${BUILDER_IMAGE}
-	# extract
-	${BUILDER} cp thisBuilder:/${TARBALL} . || exit 3
+	for TARBALL in $TARBALLS; do
+		# extract
+		${BUILDER} cp thisBuilder:/${TARBALL} . || exit 3
+		# add to TARGZs list
+		TARGZs="${TARGZs} ${TARBALL}"
+	done
 	# cleanup
 	${BUILDER} rm -f thisBuilder
 	${BUILDER} rmi ${BUILDER_IMAGE}
@@ -81,9 +87,9 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	${BUILDER} build -t ${tmpContainer} . --no-cache -f bootstrap.Dockerfile \
 		--target builder --build-arg BOOTSTRAP=true
 	echo "<======= END BOOTSTRAP BUILD ======="
+
 	# update tarballs - step 2 - check old sources' tarballs
-	TARGZs="root-local.tgz resources.tgz openvsx-server.tar.gz nodejs.tar.gz postgresql13.tar.gz"
-	git rm -f $TARGZs 2>/dev/null || rm -f $TARGZs || true
+	git rm -f *.tar.gz *.tgz 2>/dev/null || rm -f *.tar.gz *.tgz || true
 	rhpkg sources || true
 
 	# update tarballs - step 3 - create new tarballs
@@ -99,6 +105,8 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 		tar xzf root-local.tgz -C ${BEFORE_DIR}
 		TAR_DIFF=$(diff --suppress-common-lines -u -r ${BEFORE_DIR} ${tmpDir} -x "*.pyc" -x "installed-files.txt") || true
 		sudo rm -fr ${BEFORE_DIR}
+		# add to TARGZs list
+		TARGZs="${TARGZs} root-local.tgz"
 	else
 		TAR_DIFF="No such file root-local.tgz -- could not fetch from 'rhpkg sources'"
 	fi
@@ -111,19 +119,24 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	sudo rm -fr ${tmpDir}
 
 	# we always need a fresh resources.tgz to guarantee proper timestamps and latest vsix files
-	rm -f ./resources.tgz
+	rm -f ./resources.tgz || true
 	${BUILDER} create --name pluginregistryBuilder ${tmpContainer}
 	${BUILDER} cp pluginregistryBuilder:/tmp/resources/resources.tgz .
 	${BUILDER} rm -f pluginregistryBuilder
 	${BUILDER} rmi ${tmpContainer}
+	# add to TARGZs list
+	TARGZs="${TARGZs} resources.tgz"
 
+	# build 5 new tarballs (postgresql is arch-specific)
 	buildTarball "/openvsx-server.tar.gz" "che-openvsx:latest" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
 	buildTarball "opt/app-root/src/nodejs.tar.gz" "che-ovsx:latest" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
-	buildTarball "/postgresql13.tar.gz" "postgresql13:latest" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
+	# build once, extract 3 tarballs (1 per arch)
+	buildTarball "/postgresql13-x86_64.tar.gz /postgresql13-ppc64le.tar.gz /postgresql13-s390x.tar.gz" \
+		"postgresql13:latest" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
 fi
 
 # update tarballs - step 4 - commit changes if diff different
-if [[ ${TAR_DIFF} ]] || [[ ${TAR_DIFF2} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
+if [[ ${TAR_DIFF} ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
 	log "[INFO] Commit new sources"
 	rhpkg new-sources ${TARGZs}
 	COMMIT_MSG="ci: ${TARGZs}"
@@ -170,4 +183,3 @@ $ERRORS
 		log "[INFO] No new sources, so nothing to build."
 	fi
 fi
-
