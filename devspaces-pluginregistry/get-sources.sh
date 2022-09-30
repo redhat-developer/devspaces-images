@@ -41,22 +41,22 @@ function buildTarball() {
 		rm -f ./${TARBALL##*/} || true
 	done
 	# delete any existing images / references
-	${BUILDER} rm -f thisBuilder || true
-	${BUILDER} rmi ${BUILDER_IMAGE} || true
+	${BUILDER} rm -f "${BUILDER_IMAGE}_tmp" || true
+	${BUILDER} rmi -f "${BUILDER_IMAGE}:tmp" || true
 	# build
 	${BUILDER} build --progress=plain -f "${DOCKERFILE}" \
-		-t "$BUILDER_IMAGE" . $DOCKERCMD
+		-t "${BUILDER_IMAGE}:tmp" . $DOCKERCMD || exit 3
 	# rename
-	${BUILDER} create --name thisBuilder ${BUILDER_IMAGE}
+	${BUILDER} create --name "${BUILDER_IMAGE}_tmp" "${BUILDER_IMAGE}:tmp"
 	for TARBALL in $TARBALLS; do
 		# extract
-		${BUILDER} cp thisBuilder:/${TARBALL} . || exit 3
+		${BUILDER} cp "${BUILDER_IMAGE}_tmp":/${TARBALL} . || exit 4
 		# add to TARGZs list
-		TARGZs="${TARGZs} ${TARBALL}"
+		TARGZs="${TARGZs} ${TARBALL##*/}"
 	done
 	# cleanup
-	${BUILDER} rm -f thisBuilder
-	${BUILDER} rmi ${BUILDER_IMAGE}
+	${BUILDER} rm -f "${BUILDER_IMAGE}_tmp" || true
+	${BUILDER} rmi -f "${BUILDER_IMAGE}:tmp" || true
 }
 
 if [[ ${PULL_ASSETS} -eq 1 ]]; then 
@@ -128,11 +128,11 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	TARGZs="${TARGZs} resources.tgz"
 
 	# build 5 new tarballs (postgresql is arch-specific)
-	buildTarball "/openvsx-server.tar.gz" "che-openvsx:latest" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
-	buildTarball "opt/app-root/src/nodejs.tar.gz" "che-ovsx:latest" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
+	buildTarball "/openvsx-server.tar.gz" "che-openvsx" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
+	buildTarball "opt/app-root/src/nodejs.tar.gz" "che-ovsx" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
 	# build once, extract 3 tarballs (1 per arch)
 	buildTarball "/postgresql13-x86_64.tar.gz /postgresql13-ppc64le.tar.gz /postgresql13-s390x.tar.gz" \
-		"postgresql13:latest" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
+		"postgresql13" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
 fi
 
 # update tarballs - step 4 - commit changes if diff different
