@@ -29,3 +29,8 @@ node_modules/
 .eslintcache
 coverage
 output
+/openvsx-server.tar.gz
+/nodejs.tar.gz
+/postgresql13-x86_64.tar.gz
+/postgresql13-ppc64le.tar.gz
+/postgresql13-s390x.tar.gz
