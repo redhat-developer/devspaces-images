@@ -127,12 +127,9 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 	# add to TARGZs list
 	TARGZs="${TARGZs} resources.tgz"
 
-	# build 5 new tarballs (postgresql is arch-specific)
+	# build 2 new tarballs
 	buildTarball "/openvsx-server.tar.gz" "che-openvsx" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
 	buildTarball "opt/app-root/src/nodejs.tar.gz" "che-ovsx" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
-	# build once, extract 3 tarballs (1 per arch)
-	buildTarball "/postgresql13-x86_64.tar.gz /postgresql13-ppc64le.tar.gz /postgresql13-s390x.tar.gz" \
-		"postgresql13" "build/dockerfiles/postgresql.Dockerfile" "--target builder"
 fi
 
 # update tarballs - step 4 - commit changes if diff different
