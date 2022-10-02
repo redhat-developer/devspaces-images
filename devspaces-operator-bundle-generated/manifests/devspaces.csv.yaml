@@ -916,7 +916,7 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:87dcc3935476d5e8dcf9a3fb88e5828293d3cc2b89943592f75c3fdbfc00bf01
+                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:ac76f74f0e4b3d2ca5e929b2b49632a98cb28a6c94a48b7775423805343ed057
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                   value: registry.redhat.io/devspaces/configbump-rhel8@sha256:5729eb1c37210e82a569a63791d2efbc97476650846bf45473886fb0b4a8150d
                 - name: WATCH_NAMESPACE
@@ -1308,6 +1308,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_plugin_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:87dcc3935476d5e8dcf9a3fb88e5828293d3cc2b89943592f75c3fdbfc00bf01
+    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:ac76f74f0e4b3d2ca5e929b2b49632a98cb28a6c94a48b7775423805343ed057
   - name: single_host_gateway_config_sidecar
     image: registry.redhat.io/devspaces/configbump-rhel8@sha256:5729eb1c37210e82a569a63791d2efbc97476650846bf45473886fb0b4a8150d
