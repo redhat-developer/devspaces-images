@@ -103,9 +103,7 @@ popd >/dev/null || exit
 # transform Dockerfile
 # shellcheck disable=SC1004
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
-    `# CRW-2448 switch from ubi8 to rhel8 for OSBS` \
-    -e 's|ubi8/httpd-24:([0-9]+)(-[0-9.]+)|rhel8/httpd-24:\1|g' \
-    -e 's|ubi8/httpd-24$|rhel8/httpd-24|g' \
+    -e 's|rhel8/postgresql-13:([0-9]+)(-[0-9.]+)|rhel8/postgresql-13:\1|g' \
     `# Remove registry so build works in Brew` \
     -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
     -e 's|FROM registry.access.redhat.com/|FROM |' \
