@@ -17,7 +17,9 @@
   "license": "EPL-2.0",
   "scripts": {
     "build": "lerna run build --scope=@eclipse-che/dashboard-*",
+    "build:dev": "lerna run build:dev --scope=@eclipse-che/dashboard-*",
     "prebuild": "lerna run build --scope=@eclipse-che/common",
+    "prebuild:dev": "yarn prebuild",
     "frontend:start": "yarn workspace @eclipse-che/dashboard-frontend start",
     "start": "${PWD}/run/local-run.sh $@",
     "start:prepare": "${PWD}/run/prepare-local-run.sh",

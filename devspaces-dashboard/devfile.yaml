@@ -2,8 +2,6 @@ schemaVersion: 2.1.0
 metadata:
   name: che-dashboard
   generateName: che-dashboard-
-attributes:
-  controller.devfile.io/scc: container-build
 components:
   - name: tools
     container:
@@ -21,7 +19,7 @@ commands:
     exec:
       label: "[UD] install dependencies"
       component: tools
-      workingDir: ${PROJECTS_ROOT}/che-dashboard
+      workingDir: ${PROJECT_SOURCE}
       commandLine: "yarn install --non-interactive"
       group:
         kind: build
@@ -30,15 +28,39 @@ commands:
     exec:
       label: "[UD] build"
       component: tools
-      workingDir: ${PROJECTS_ROOT}/che-dashboard
-      commandLine: "yarn build"
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn build:dev"
+      group:
+        kind: build
+  - id: watchfrontend
+    exec:
+      label: "[UD] watch frontend"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn --cwd packages/dashboard-frontend build:watch"
+      group:
+        kind: build
+  - id: watchbackend
+    exec:
+      label: "[UD] watch backend"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn --cwd packages/dashboard-backend build:watch"
+      group:
+        kind: build
+  - id: start
+    exec:
+      label: "[UD] start"
+      component: tools
+      workingDir: ${PROJECT_SOURCE}
+      commandLine: "yarn start:prepare && yarn start"
       group:
         kind: build
   - id: runtests
     exec:
       label: "[UD] test"
       component: tools
-      workingDir: ${PROJECTS_ROOT}/che-dashboard
+      workingDir: ${PROJECT_SOURCE}
       commandLine: "yarn test"
       group:
         kind: test
