@@ -33,7 +33,6 @@ export const enum TestItemEventOp {
 	RemoveChild,
 	SetProp,
 	Bulk,
-	DocumentSynced,
 }
 
 export interface ITestItemUpsertChild {
@@ -66,18 +65,13 @@ export interface ITestItemBulkReplace {
 	ops: (ITestItemUpsertChild | ITestItemRemoveChild)[];
 }
 
-export interface ITestItemDocumentSynced {
-	op: TestItemEventOp.DocumentSynced;
-}
-
 export type ExtHostTestItemEvent =
 	| ITestItemSetTags
 	| ITestItemUpsertChild
 	| ITestItemRemoveChild
 	| ITestItemUpdateCanResolveChildren
 	| ITestItemSetProp
-	| ITestItemBulkReplace
-	| ITestItemDocumentSynced;
+	| ITestItemBulkReplace;
 
 export interface ITestItemApi<T> {
 	controllerId: string;
@@ -207,32 +201,17 @@ export class TestItemCollection<T extends ITestItemLike> extends Disposable {
 	 * Pushes a new diff entry onto the collected diff list.
 	 */
 	public pushDiff(diff: TestsDiffOp) {
-		switch (diff.op) {
-			case TestDiffOpType.DocumentSynced: {
-				for (const existing of this.diff) {
-					if (existing.op === TestDiffOpType.DocumentSynced && existing.uri === diff.uri) {
-						existing.docv = diff.docv;
-						return;
-					}
-				}
-
-				break;
+		// Try to merge updates, since they're invoked per-property
+		const last = this.diff[this.diff.length - 1];
+		if (last && diff.op === TestDiffOpType.Update) {
+			if (last.op === TestDiffOpType.Update && last.item.extId === diff.item.extId) {
+				applyTestItemUpdate(last.item, diff.item);
+				return;
 			}
-			case TestDiffOpType.Update: {
-				// Try to merge updates, since they're invoked per-property
-				const last = this.diff[this.diff.length - 1];
-				if (last) {
-					if (last.op === TestDiffOpType.Update && last.item.extId === diff.item.extId) {
-						applyTestItemUpdate(last.item, diff.item);
-						return;
-					}
 
-					if (last.op === TestDiffOpType.Add && last.item.item.extId === diff.item.extId) {
-						applyTestItemUpdate(last.item, diff.item);
-						return;
-					}
-				}
-				break;
+			if (last.op === TestDiffOpType.Add && last.item.item.extId === diff.item.extId) {
+				applyTestItemUpdate(last.item, diff.item);
+				return;
 			}
 		}
 
@@ -312,26 +291,12 @@ export class TestItemCollection<T extends ITestItemLike> extends Disposable {
 					item: {
 						extId: internal.fullId.toString(),
 						item: evt.update,
+						docv: this.options.getDocumentVersion(internal.actual.uri),
 					}
 				});
 				break;
-
-			case TestItemEventOp.DocumentSynced:
-				this.documentSynced(internal.actual.uri);
-				break;
-
 			default:
 				assertNever(evt);
-		}
-	}
-
-	private documentSynced(uri: URI | undefined) {
-		if (uri) {
-			this.pushDiff({
-				op: TestDiffOpType.DocumentSynced,
-				uri,
-				docv: this.options.getDocumentVersion(uri)
-			});
 		}
 	}
 
@@ -405,9 +370,6 @@ export class TestItemCollection<T extends ITestItemLike> extends Disposable {
 				this.removeItem(TestId.joinToString(fullId, child.id));
 			}
 		}
-
-		// Mark ranges in the document as synced (#161320)
-		this.documentSynced(internal.actual.uri);
 	}
 
 	private diffTagRefs(newTags: readonly ITestTag[], oldTags: readonly ITestTag[], extId: string) {

@@ -51,7 +51,6 @@ import { IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
 import { MockContextKeyService } from 'vs/platform/keybinding/test/common/mockKeybindingService';
 import { platform } from 'vs/base/common/platform';
 import { arch } from 'vs/base/common/process';
-import { IExtensionService } from 'vs/workbench/services/extensions/common/extensions';
 
 suite('ExtensionsWorkbenchServiceTest', () => {
 
@@ -122,12 +121,6 @@ suite('ExtensionsWorkbenchServiceTest', () => {
 		instantiationService.stub(IExtensionRecommendationsService, {});
 
 		instantiationService.stub(INotificationService, { prompt: () => null! });
-
-		instantiationService.stub(IExtensionService, <Partial<IExtensionService>>{
-			onDidChangeExtensions: Event.None,
-			extensions: [],
-			async whenInstalledExtensionsRegistered() { return true; }
-		});
 	});
 
 	setup(async () => {
@@ -446,7 +439,7 @@ suite('ExtensionsWorkbenchServiceTest', () => {
 		testObject = await aWorkbenchService();
 		const target = testObject.local[0];
 
-		await eventToPromise(Event.filter(testObject.onChange, e => !!e?.gallery));
+		await eventToPromise(testObject.onChange);
 		assert.ok(await testObject.canInstall(target));
 	});
 

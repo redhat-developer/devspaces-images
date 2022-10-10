@@ -58,8 +58,8 @@ KERNEL_RECOMMENDATIONS.get(IPYNB_VIEW_TYPE)?.set('python', {
 });
 
 export interface INotebookExtensionRecommendation {
-	readonly extensionId: string;
-	readonly displayName?: string;
+	extensionId: string;
+	displayName?: string;
 }
 
 //#endregion
@@ -77,16 +77,16 @@ export const enum RenderOutputType {
 }
 
 export interface IRenderPlainHtmlOutput {
-	readonly type: RenderOutputType.Html;
-	readonly source: IDisplayOutputViewModel;
-	readonly htmlContent: string;
+	type: RenderOutputType.Html;
+	source: IDisplayOutputViewModel;
+	htmlContent: string;
 }
 
 export interface IRenderOutputViaExtension {
-	readonly type: RenderOutputType.Extension;
-	readonly source: IDisplayOutputViewModel;
-	readonly mimeType: string;
-	readonly renderer: INotebookRendererInfo;
+	type: RenderOutputType.Extension;
+	source: IDisplayOutputViewModel;
+	mimeType: string;
+	renderer: INotebookRendererInfo;
 }
 
 export type IInsetRenderOutput = IRenderPlainHtmlOutput | IRenderOutputViaExtension;
@@ -135,9 +135,9 @@ export interface IDisplayOutputLayoutUpdateRequest {
 }
 
 export interface ICommonCellInfo {
-	readonly cellId: string;
-	readonly cellHandle: number;
-	readonly cellUri: URI;
+	cellId: string;
+	cellHandle: number;
+	cellUri: URI;
 }
 
 export interface IFocusNotebookCellOptions {
@@ -173,14 +173,14 @@ export interface CodeCellLayoutInfo {
 }
 
 export interface CodeCellLayoutChangeEvent {
-	readonly source?: string;
-	readonly editorHeight?: boolean;
-	readonly commentHeight?: boolean;
-	readonly outputHeight?: boolean;
-	readonly outputShowMoreContainerHeight?: number;
-	readonly totalHeight?: boolean;
-	readonly outerWidth?: number;
-	readonly font?: FontInfo;
+	source?: string;
+	editorHeight?: boolean;
+	commentHeight?: boolean;
+	outputHeight?: boolean;
+	outputShowMoreContainerHeight?: number;
+	totalHeight?: boolean;
+	outerWidth?: number;
+	font?: FontInfo;
 }
 
 export interface MarkupCellLayoutInfo {
@@ -200,18 +200,18 @@ export enum CellLayoutContext {
 }
 
 export interface MarkupCellLayoutChangeEvent {
-	readonly font?: FontInfo;
-	readonly outerWidth?: number;
-	readonly editorHeight?: number;
-	readonly previewHeight?: number;
+	font?: FontInfo;
+	outerWidth?: number;
+	editorHeight?: number;
+	previewHeight?: number;
 	totalHeight?: number;
-	readonly context?: CellLayoutContext;
+	context?: CellLayoutContext;
 }
 
 export interface ICommonCellViewModelLayoutChangeInfo {
-	readonly totalHeight?: boolean | number;
-	readonly outerWidth?: number;
-	readonly context?: CellLayoutContext;
+	totalHeight?: boolean | number;
+	outerWidth?: number;
+	context?: CellLayoutContext;
 }
 export interface ICellViewModel extends IGenericCellViewModel {
 	readonly model: NotebookCellTextModel;
@@ -248,7 +248,7 @@ export interface ICellViewModel extends IGenericCellViewModel {
 	getCellStatusBarItems(): INotebookCellStatusBarItem[];
 	getEditState(): CellEditState;
 	updateEditState(state: CellEditState, source: string): void;
-	deltaModelDecorations(oldDecorations: readonly string[], newDecorations: readonly IModelDeltaDecoration[]): string[];
+	deltaModelDecorations(oldDecorations: string[], newDecorations: IModelDeltaDecoration[]): string[];
 	getCellDecorationRange(id: string): Range | null;
 }
 
@@ -289,13 +289,13 @@ export interface INotebookCellDecorationOptions {
 }
 
 export interface INotebookDeltaDecoration {
-	readonly handle: number;
-	readonly options: INotebookCellDecorationOptions;
+	handle: number;
+	options: INotebookCellDecorationOptions;
 }
 
 export interface INotebookDeltaCellStatusBarItems {
-	readonly handle: number;
-	readonly items: readonly INotebookCellStatusBarItem[];
+	handle: number;
+	items: INotebookCellStatusBarItem[];
 }
 
 
@@ -338,7 +338,7 @@ export interface INotebookEditorCreationOptions {
 }
 
 export interface INotebookWebviewMessage {
-	readonly message: unknown;
+	message: unknown;
 }
 
 //#region Notebook View Model
@@ -357,13 +357,13 @@ export interface INotebookEditorViewState {
 }
 
 export interface ICellModelDecorations {
-	readonly ownerId: number;
-	readonly decorations: readonly string[];
+	ownerId: number;
+	decorations: string[];
 }
 
 export interface ICellModelDeltaDecorations {
-	readonly ownerId: number;
-	readonly decorations: readonly IModelDeltaDecoration[];
+	ownerId: number;
+	decorations: IModelDeltaDecoration[];
 }
 
 export interface IModelDecorationsChangeAccessor {
@@ -378,8 +378,8 @@ export type NotebookViewCellsSplice = [
 ];
 
 export interface INotebookViewCellsUpdateEvent {
-	readonly synchronous: boolean;
-	readonly splices: readonly NotebookViewCellsSplice[];
+	synchronous: boolean;
+	splices: NotebookViewCellsSplice[];
 }
 
 export interface INotebookViewModel {

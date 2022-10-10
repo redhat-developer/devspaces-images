@@ -16,7 +16,6 @@ export type IMergeResult = Required<IRelaxedMergeResult>;
 interface IUserDataProfileInfo {
 	readonly id: string;
 	readonly name: string;
-	readonly shortName?: string;
 }
 
 export function merge(local: IUserDataProfile[], remote: ISyncUserDataProfile[] | null, lastSync: ISyncUserDataProfile[] | null, ignored: string[]): IMergeResult {
@@ -120,14 +119,13 @@ function compare(from: IUserDataProfileInfo[] | null, to: IUserDataProfileInfo[]
 	const removed = fromKeys.filter(key => toKeys.indexOf(key) === -1);
 	const updated: string[] = [];
 
-	for (const { id, name, shortName } of from) {
+	for (const { id, name } of from) {
 		if (removed.includes(id)) {
 			continue;
 		}
 		const toProfile = to.find(p => p.id === id);
 		if (!toProfile
 			|| toProfile.name !== name
-			|| toProfile.shortName !== shortName
 		) {
 			updated.push(id);
 		}

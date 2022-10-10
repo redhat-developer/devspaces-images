@@ -27,7 +27,6 @@ export class MergeEditorViewModel extends Disposable {
 		public readonly inputCodeEditorView2: InputCodeEditorView,
 		public readonly resultCodeEditorView: ResultCodeEditorView,
 		public readonly baseCodeEditorView: IObservable<BaseCodeEditorView | undefined>,
-		public readonly showNonConflictingChanges: IObservable<boolean>,
 	) {
 		super();
 

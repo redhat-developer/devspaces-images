@@ -11,7 +11,7 @@ import { IConfigurationService } from 'vs/platform/configuration/common/configur
 import { ILanguageService } from 'vs/editor/common/languages/language';
 import { URI } from 'vs/base/common/uri';
 import { isWeb } from 'vs/base/common/platform';
-import { InstantiationType, registerSingleton } from 'vs/platform/instantiation/common/extensions';
+import { registerSingleton } from 'vs/platform/instantiation/common/extensions';
 import { LanguageDetectionSimpleWorker } from 'vs/workbench/services/languageDetection/browser/languageDetectionSimpleWorker';
 import { IModelService } from 'vs/editor/common/services/model';
 import { SimpleWorkerClient } from 'vs/base/common/worker/simpleWorker';
@@ -149,9 +149,6 @@ export class LanguageDetectionService extends Disposable implements ILanguageDet
 		return this._languageDetectionWorkerClient.detectLanguage(resource, biases, preferHistory, supportedLangs);
 	}
 
-	// TODO: explore using the history service or something similar to provide this list of opened editors
-	// so this service can support delayed instantiation. This may be tricky since it seems the IHistoryService
-	// only gives history for a workspace... where this takes advantage of history at a global level as well.
 	private initEditorOpenedListeners(storageService: IStorageService) {
 		try {
 			const globalLangHistroyData = JSON.parse(storageService.get(LanguageDetectionService.globalOpenedLanguagesStorageKey, StorageScope.PROFILE, '[]'));
@@ -357,5 +354,4 @@ export class LanguageDetectionWorkerClient extends EditorWorkerClient {
 	}
 }
 
-// For now we use Eager until we handle keeping track of history better.
-registerSingleton(ILanguageDetectionService, LanguageDetectionService, InstantiationType.Eager);
+registerSingleton(ILanguageDetectionService, LanguageDetectionService, false);

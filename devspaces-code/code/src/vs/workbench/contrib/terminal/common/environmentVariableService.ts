@@ -102,7 +102,8 @@ export class EnvironmentVariableService implements IEnvironmentVariableService {
 
 	private async _invalidateExtensionCollections(): Promise<void> {
 		await this._extensionService.whenInstalledExtensionsRegistered();
-		const registeredExtensions = this._extensionService.extensions;
+
+		const registeredExtensions = await this._extensionService.getExtensions();
 		let changes = false;
 		this.collections.forEach((_, extensionIdentifier) => {
 			const isExtensionRegistered = registeredExtensions.some(r => r.identifier.value === extensionIdentifier);

@@ -33,7 +33,6 @@ suite('StorageMainService', function () {
 	const inMemoryProfile: IUserDataProfile = {
 		id: 'id',
 		name: 'inMemory',
-		shortName: 'inMemory',
 		isDefault: false,
 		location: inMemoryProfileRoot,
 		globalStorageHome: joinPath(inMemoryProfileRoot, 'globalStorageHome'),

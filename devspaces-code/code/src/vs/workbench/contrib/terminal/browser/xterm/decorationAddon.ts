@@ -28,7 +28,22 @@ import { IQuickInputService, IQuickPickItem } from 'vs/platform/quickinput/commo
 import { ILifecycleService } from 'vs/workbench/services/lifecycle/common/lifecycle';
 import { terminalDecorationError, terminalDecorationIncomplete, terminalDecorationMark, terminalDecorationSuccess } from 'vs/workbench/contrib/terminal/browser/terminalIcons';
 import { TaskSettingId } from 'vs/workbench/contrib/tasks/common/tasks';
-import { DecorationSelector, updateLayout } from 'vs/workbench/contrib/terminal/browser/xterm/decorationStyles';
+
+const enum DecorationSelector {
+	CommandDecoration = 'terminal-command-decoration',
+	Hide = 'hide',
+	ErrorColor = 'error',
+	DefaultColor = 'default-color',
+	Default = 'default',
+	Codicon = 'codicon',
+	XtermDecoration = 'xterm-decoration',
+	OverviewRuler = '.xterm-decoration-overview-ruler'
+}
+
+const enum DecorationStyles {
+	DefaultDimension = 16,
+	MarginLeft = -17,
+}
 
 interface IDisposableDecoration { decoration: IDecoration; disposables: IDisposable[]; exitCode?: number; markProperties?: IMarkProperties }
 
@@ -155,9 +170,9 @@ export class DecorationAddon extends Disposable implements ITerminalAddon {
 	}
 
 	public refreshLayouts(): void {
-		updateLayout(this._configurationService, this._placeholderDecoration?.element);
+		this._updateLayout(this._placeholderDecoration?.element);
 		for (const decoration of this._decorations) {
-			updateLayout(this._configurationService, decoration[1].decoration.element);
+			this._updateLayout(decoration[1].decoration.element);
 		}
 	}
 
@@ -298,7 +313,7 @@ export class DecorationAddon extends Disposable implements ITerminalAddon {
 			}
 			if (!element.classList.contains(DecorationSelector.Codicon) || command?.marker?.line === 0) {
 				// first render or buffer was cleared
-				updateLayout(this._configurationService, element);
+				this._updateLayout(element);
 				this._updateClasses(element, command?.exitCode, command?.markProperties || markProperties);
 			}
 		});
@@ -312,6 +327,23 @@ export class DecorationAddon extends Disposable implements ITerminalAddon {
 			return [...this._createHover(element, command || markProperties?.hoverMessage)];
 		}
 		return [this._createContextMenu(element, command), ...this._createHover(element, command)];
+	}
+
+	private _updateLayout(element?: HTMLElement): void {
+		if (!element) {
+			return;
+		}
+		const fontSize = this._configurationService.inspect(TerminalSettingId.FontSize).value;
+		const defaultFontSize = this._configurationService.inspect(TerminalSettingId.FontSize).defaultValue;
+		const lineHeight = this._configurationService.inspect(TerminalSettingId.LineHeight).value;
+		if (typeof fontSize === 'number' && typeof defaultFontSize === 'number' && typeof lineHeight === 'number') {
+			const scalar = (fontSize / defaultFontSize) <= 1 ? (fontSize / defaultFontSize) : 1;
+			// must be inlined to override the inlined styles from xterm
+			element.style.width = `${scalar * DecorationStyles.DefaultDimension}px`;
+			element.style.height = `${scalar * DecorationStyles.DefaultDimension * lineHeight}px`;
+			element.style.fontSize = `${scalar * DecorationStyles.DefaultDimension}px`;
+			element.style.marginLeft = `${scalar * DecorationStyles.MarginLeft}px`;
+		}
 	}
 
 	private _updateClasses(element?: HTMLElement, exitCode?: number, markProperties?: IMarkProperties): void {
@@ -412,12 +444,7 @@ export class DecorationAddon extends Disposable implements ITerminalAddon {
 			const labelText = localize("terminal.copyOutput", 'Copy Output');
 			actions.push({
 				class: undefined, tooltip: labelText, id: 'terminal.copyOutput', label: labelText, enabled: true,
-				run: () => {
-					const text = command.getOutput();
-					if (typeof text === 'string') {
-						this._clipboardService.writeText(text);
-					}
-				}
+				run: () => this._clipboardService.writeText(command.getOutput()!)
 			});
 			const labelHtml = localize("terminal.copyOutputAsHtml", 'Copy Output as HTML');
 			actions.push({

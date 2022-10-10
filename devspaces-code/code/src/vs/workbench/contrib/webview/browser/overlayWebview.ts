@@ -42,8 +42,6 @@ export class OverlayWebview extends Disposable implements IOverlayWebview {
 	private readonly _scopedContextKeyService = this._register(new MutableDisposable<IContextKeyService>());
 	private _findWidgetVisible: IContextKey<boolean> | undefined;
 	private _findWidgetEnabled: IContextKey<boolean> | undefined;
-	// This isn't associated with an editor action so doesn't need to be a context key
-	private _findActiveWhenHidden: boolean | undefined = false;
 
 	public readonly id: string;
 	public readonly providedViewType?: string;
@@ -149,11 +147,7 @@ export class OverlayWebview extends Disposable implements IOverlayWebview {
 		if (this._container) {
 			this._container.style.visibility = 'hidden';
 		}
-		if (this._options.retainContextWhenHidden) {
-			// https://github.com/microsoft/vscode/issues/157424
-			// We need to record the current state when retaining context so we can try to showFind() when showing webview again
-			this.hideFind();
-		} else {
+		if (!this._options.retainContextWhenHidden) {
 			this._webview.clear();
 			this._webviewEvents.clear();
 		}
@@ -212,9 +206,6 @@ export class OverlayWebview extends Disposable implements IOverlayWebview {
 			if (this._scopedContextKeyService.value) {
 				this._webview.value.setContextKeyService(this._scopedContextKeyService.value);
 			}
-
-			// https://github.com/microsoft/vscode/issues/157424
-			this.tryShowFind();
 
 			if (this._html) {
 				webview.html = this._html;
@@ -345,20 +336,6 @@ export class OverlayWebview extends Disposable implements IOverlayWebview {
 	undo(): void { this._webview.value?.undo(); }
 	redo(): void { this._webview.value?.redo(); }
 
-	/**
-	 * Only meant to be used when we're showing webview as an attempt to reload the previously hidden
-	 * find widget when retaining context
-	 */
-	tryShowFind() {
-		const shouldShowFind: boolean | undefined = (
-			(this.options.retainContextWhenHidden && this._findActiveWhenHidden)
-		);
-
-		if (shouldShowFind) {
-			this.showFind();
-		}
-	}
-
 	showFind() {
 		if (this._webview.value) {
 			this._webview.value.showFind();
@@ -367,7 +344,6 @@ export class OverlayWebview extends Disposable implements IOverlayWebview {
 	}
 
 	hideFind() {
-		this._findActiveWhenHidden = this._findWidgetVisible?.get();
 		this._findWidgetVisible?.reset();
 		this._webview.value?.hideFind();
 	}

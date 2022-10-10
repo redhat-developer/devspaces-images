@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Action, IAction, SubmenuAction } from 'vs/base/common/actions';
+import { Action, IAction, Separator, SubmenuAction } from 'vs/base/common/actions';
 import { CSSIcon } from 'vs/base/common/codicons';
 import { Event, MicrotaskEmitter } from 'vs/base/common/event';
 import { DisposableStore, IDisposable, toDisposable } from 'vs/base/common/lifecycle';
@@ -199,15 +199,8 @@ export interface IMenuActionOptions {
 	renderShortTitle?: boolean;
 }
 
-export interface IMenuChangeEvent {
-	readonly menu: IMenu;
-	readonly isStructuralChange: boolean;
-	readonly isToggleChange: boolean;
-	readonly isEnablementChange: boolean;
-}
-
 export interface IMenu extends IDisposable {
-	readonly onDidChange: Event<IMenuChangeEvent>;
+	readonly onDidChange: Event<IMenu>;
 	getActions(options?: IMenuActionOptions): [string, Array<MenuItemAction | SubmenuItemAction>][];
 }
 
@@ -381,9 +374,28 @@ export class SubmenuItemAction extends SubmenuAction {
 	constructor(
 		readonly item: ISubmenuItem,
 		readonly hideActions: IMenuItemHide | undefined,
-		actions: IAction[],
+		private readonly _menuService: IMenuService,
+		private readonly _contextKeyService: IContextKeyService,
+		private readonly _options?: IMenuActionOptions
 	) {
-		super(`submenuitem.${item.submenu.id}`, typeof item.title === 'string' ? item.title : item.title.value, actions, 'submenu');
+		super(`submenuitem.${item.submenu.id}`, typeof item.title === 'string' ? item.title : item.title.value, [], 'submenu');
+	}
+
+	override get actions(): readonly IAction[] {
+		const result: IAction[] = [];
+		const menu = this._menuService.createMenu(this.item.submenu, this._contextKeyService);
+		const groups = menu.getActions(this._options);
+		menu.dispose();
+		for (const [, actions] of groups) {
+			if (actions.length > 0) {
+				result.push(...actions);
+				result.push(new Separator());
+			}
+		}
+		if (result.length) {
+			result.pop(); // remove last separator
+		}
+		return result;
 	}
 }
 

@@ -10,7 +10,6 @@ const vfs = require('vinyl-fs');
 const path = require('path');
 const fs = require('fs');
 const pall = require('p-all');
-
 const { all, copyrightFilter, unicodeFilter, indentationFilter, tsFormattingFilter, eslintFilter } = require('./filters');
 
 const copyrightHeaderLines = [
@@ -300,7 +299,7 @@ if (require.main === module) {
 						.then(
 							(vinyls) =>
 								new Promise((c, e) =>
-									hygiene(es.readArray(vinyls).pipe(filter(all)))
+									hygiene(es.readArray(vinyls))
 										.on('end', () => c())
 										.on('error', e)
 								)

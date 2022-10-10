@@ -293,9 +293,7 @@ class MergeModelInterface extends Disposable {
 			resultTextModel,
 			diffComputer,
 			diffComputer,
-			{
-				resetResult: false
-			}
+			{ resetUnknownOnInitialization: false }
 		));
 	}
 

@@ -89,9 +89,7 @@ class ManagedCodeActionSet extends Disposable implements CodeActionSet {
 		disposables: DisposableStore,
 	) {
 		super();
-
 		this._register(disposables);
-
 		this.allActions = [...actions].sort(ManagedCodeActionSet.codeActionsComparator);
 		this.validActions = this.allActions.filter(({ action }) => !action.disabled);
 	}
@@ -136,7 +134,7 @@ export async function getCodeActions(
 			}
 
 			const filteredActions = (providedCodeActions?.actions || []).filter(action => action && filtersAction(filter, action));
-			const documentation = getDocumentationFromProvider(provider, filteredActions, filter.include);
+			const documentation = getDocumentation(provider, filteredActions, filter.include);
 			return {
 				actions: filteredActions.map(action => new CodeActionItem(action, provider)),
 				documentation
@@ -160,10 +158,7 @@ export async function getCodeActions(
 	try {
 		const actions = await Promise.all(promises);
 		const allActions = actions.map(x => x.actions).flat();
-		const allDocumentation = [
-			...coalesce(actions.map(x => x.documentation)),
-			...getAdditionalDocumentationForShowingActions(registry, model, trigger, allActions)
-		];
+		const allDocumentation = coalesce(actions.map(x => x.documentation));
 		return new ManagedCodeActionSet(allActions, allDocumentation, disposables);
 	} finally {
 		listener.dispose();
@@ -187,22 +182,7 @@ function getCodeActionProviders(
 		});
 }
 
-function* getAdditionalDocumentationForShowingActions(
-	registry: LanguageFeatureRegistry<languages.CodeActionProvider>,
-	model: ITextModel,
-	trigger: CodeActionTrigger,
-	actionsToShow: readonly CodeActionItem[],
-): Iterable<languages.Command> {
-	if (model && actionsToShow.length) {
-		for (const provider of registry.all(model)) {
-			if (provider._getAdditionalMenuItems) {
-				yield* provider._getAdditionalMenuItems?.({ trigger: trigger.type, only: trigger.filter?.include?.value }, actionsToShow.map(item => item.action));
-			}
-		}
-	}
-}
-
-function getDocumentationFromProvider(
+function getDocumentation(
 	provider: languages.CodeActionProvider,
 	providedCodeActions: readonly languages.CodeAction[],
 	only?: CodeActionKind

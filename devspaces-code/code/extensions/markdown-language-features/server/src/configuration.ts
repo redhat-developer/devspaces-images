@@ -16,19 +16,21 @@ interface Settings {
 			};
 		};
 
-		readonly validate: {
-			readonly enabled: true;
-			readonly referenceLinks: {
-				readonly enabled: ValidateEnabled;
+		readonly experimental: {
+			readonly validate: {
+				readonly enabled: true;
+				readonly referenceLinks: {
+					readonly enabled: ValidateEnabled;
+				};
+				readonly fragmentLinks: {
+					readonly enabled: ValidateEnabled;
+				};
+				readonly fileLinks: {
+					readonly enabled: ValidateEnabled;
+					readonly markdownFragmentLinks: ValidateEnabled;
+				};
+				readonly ignoreLinks: readonly string[];
 			};
-			readonly fragmentLinks: {
-				readonly enabled: ValidateEnabled;
-			};
-			readonly fileLinks: {
-				readonly enabled: ValidateEnabled;
-				readonly markdownFragmentLinks: ValidateEnabled;
-			};
-			readonly ignoredLinks: readonly string[];
 		};
 	};
 }

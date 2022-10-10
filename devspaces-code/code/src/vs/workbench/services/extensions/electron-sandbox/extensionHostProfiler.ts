@@ -28,14 +28,13 @@ export class ExtensionHostProfiler {
 		return {
 			stop: once(async () => {
 				const profile = await this._profilingService.stopProfiling(id);
-				await this._extensionService.whenInstalledExtensionsRegistered();
-				const extensions = this._extensionService.extensions;
+				const extensions = await this._extensionService.getExtensions();
 				return this._distill(profile, extensions);
 			})
 		};
 	}
 
-	private _distill(profile: IV8Profile, extensions: readonly IExtensionDescription[]): IExtensionHostProfile {
+	private _distill(profile: IV8Profile, extensions: IExtensionDescription[]): IExtensionHostProfile {
 		const searchTree = TernarySearchTree.forUris<IExtensionDescription>();
 		for (const extension of extensions) {
 			if (extension.extensionLocation.scheme === Schemas.file) {

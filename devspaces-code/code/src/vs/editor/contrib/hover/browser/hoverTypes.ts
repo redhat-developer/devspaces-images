@@ -41,9 +41,7 @@ export class HoverRangeAnchor {
 	public readonly type = HoverAnchorType.Range;
 	constructor(
 		public readonly priority: number,
-		public readonly range: Range,
-		public readonly initialMousePosX: number | undefined,
-		public readonly initialMousePosY: number | undefined,
+		public readonly range: Range
 	) {
 	}
 	public equals(other: HoverAnchor) {
@@ -59,9 +57,7 @@ export class HoverForeignElementAnchor {
 	constructor(
 		public readonly priority: number,
 		public readonly owner: IEditorHoverParticipant,
-		public readonly range: Range,
-		public readonly initialMousePosX: number | undefined,
-		public readonly initialMousePosY: number | undefined,
+		public readonly range: Range
 	) {
 	}
 	public equals(other: HoverAnchor) {

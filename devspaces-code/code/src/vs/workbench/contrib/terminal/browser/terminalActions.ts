@@ -143,26 +143,6 @@ export function registerTerminalActions() {
 		}
 	});
 
-	registerAction2(class extends Action2 {
-		constructor() {
-			super({
-				id: TerminalCommandId.QuickFix,
-				title: { value: localize('workbench.action.terminal.quickFix', "Quick Fix"), original: 'Quick Fix' },
-				f1: true,
-				category,
-				precondition: TerminalContextKeys.processSupported,
-				keybinding: {
-					primary: KeyMod.CtrlCmd | KeyCode.Period,
-					when: TerminalContextKeys.focus,
-					weight: KeybindingWeight.WorkbenchContrib
-				},
-			});
-		}
-		async run(accessor: ServicesAccessor) {
-			accessor.get(ITerminalService).activeInstance?.contextualActions?.showQuickFixMenu();
-		}
-	});
-
 	// Register new with profile command
 	refreshTerminalActions([]);
 
@@ -370,7 +350,7 @@ export function registerTerminalActions() {
 				return;
 			}
 			const output = command.getOutput();
-			if (output && typeof output === 'string') {
+			if (output) {
 				await accessor.get(IClipboardService).writeText(output);
 			}
 		}
@@ -1329,7 +1309,7 @@ export function registerTerminalActions() {
 				title: { value: localize('workbench.action.terminal.toggleEscapeSequenceLogging', "Toggle Escape Sequence Logging"), original: 'Toggle Escape Sequence Logging' },
 				f1: true,
 				category,
-				precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated)
+				precondition: TerminalContextKeys.processSupported
 			});
 		}
 		async run(accessor: ServicesAccessor) {

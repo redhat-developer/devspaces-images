@@ -70,8 +70,7 @@ class DefaultFormatter extends Disposable implements IWorkbenchContribution {
 	}
 
 	private async _updateConfigValues(): Promise<void> {
-		await this._extensionService.whenInstalledExtensionsRegistered();
-		let extensions = [...this._extensionService.extensions];
+		let extensions = await this._extensionService.getExtensions();
 
 		extensions = extensions.sort((a, b) => {
 			const boostA = a.categories?.find(cat => cat === 'Formatters' || cat === 'Programming Languages');

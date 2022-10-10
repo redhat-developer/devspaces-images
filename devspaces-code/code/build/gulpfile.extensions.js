@@ -20,6 +20,7 @@ const root = path.dirname(__dirname);
 const commit = util.getVersion(root);
 const plumber = require('gulp-plumber');
 const ext = require('./lib/extensions');
+const product = require('../product.json');
 
 const extensionsPath = path.join(path.dirname(__dirname), 'extensions');
 
@@ -36,6 +37,7 @@ const compilations = [
 	'che-on-start/tsconfig.json',
 	'che-remote/tsconfig.json',
 	'che-resource-monitor/tsconfig.json',
+	'che-terminal/tsconfig.json',
 	'che-github-authentication/tsconfig.json',
 	'configuration-editing/build/tsconfig.json',
 	'configuration-editing/tsconfig.json',

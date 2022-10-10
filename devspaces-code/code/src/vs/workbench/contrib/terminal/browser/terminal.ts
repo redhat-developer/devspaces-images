@@ -4,7 +4,6 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Orientation } from 'vs/base/browser/ui/splitview/splitview';
-import { IAction } from 'vs/base/common/actions';
 import { Event } from 'vs/base/common/event';
 import { IDisposable } from 'vs/base/common/lifecycle';
 import { OperatingSystem } from 'vs/base/common/platform';
@@ -18,7 +17,6 @@ import { EditorInput } from 'vs/workbench/common/editor/editorInput';
 import { IEditableData } from 'vs/workbench/common/views';
 import { TerminalFindWidget } from 'vs/workbench/contrib/terminal/browser/terminalFindWidget';
 import { ITerminalStatusList } from 'vs/workbench/contrib/terminal/browser/terminalStatusList';
-import { IContextualAction } from 'vs/workbench/contrib/terminal/browser/xterm/contextualActionAddon';
 import { INavigationMode, IRegisterContributedProfileArgs, IRemoteTerminalAttachTarget, IStartExtensionTerminalRequest, ITerminalBackend, ITerminalConfigHelper, ITerminalFont, ITerminalProcessExtHostProxy } from 'vs/workbench/contrib/terminal/common/terminal';
 import { EditorGroupColumn } from 'vs/workbench/services/editor/common/editorGroupColumn';
 import { IMarker } from 'xterm';
@@ -457,8 +455,6 @@ export interface ITerminalInstance {
 	readonly capabilities: ITerminalCapabilityStore;
 
 	readonly statusList: ITerminalStatusList;
-
-	contextualActions: IContextualAction | undefined;
 
 	readonly findWidget: TerminalFindWidget;
 
@@ -907,36 +903,6 @@ export interface ITerminalInstance {
 	 * Activates the most recent link of the given type.
 	 */
 	openRecentLink(type: 'localFile' | 'url'): Promise<void>;
-
-	/**
-	 * Registers contextual action listeners
-	 */
-	registerContextualActions(...options: ITerminalContextualActionOptions[]): void;
-
-	freePortKillProcess(port: string): Promise<void>;
-}
-
-export interface ITerminalContextualActionOptions {
-	actionName: string | DynamicActionName;
-	commandLineMatcher: string | RegExp;
-	outputMatcher?: ITerminalOutputMatcher;
-	getActions: ContextualActionCallback;
-	exitCode?: number;
-}
-export type ContextualMatchResult = { commandLineMatch: RegExpMatchArray; outputMatch?: RegExpMatchArray | null };
-export type DynamicActionName = (matchResult: ContextualMatchResult) => string;
-export type ContextualActionCallback = (matchResult: ContextualMatchResult, command: ITerminalCommand) => ICommandAction[] | undefined;
-
-export interface ICommandAction extends IAction {
-	commandToRunInTerminal?: string;
-	addNewLine?: boolean;
-}
-
-export interface ITerminalOutputMatcher {
-	lineMatcher: string | RegExp;
-	anchor?: 'top' | 'bottom';
-	offset?: number;
-	length?: number;
 }
 
 export interface IXtermTerminal {

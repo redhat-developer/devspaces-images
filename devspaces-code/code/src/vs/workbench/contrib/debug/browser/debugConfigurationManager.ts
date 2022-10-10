@@ -164,9 +164,9 @@ export class ConfigurationManager implements IConfigurationManager {
 	}
 
 	async getDynamicProviders(): Promise<{ label: string; type: string; getProvider: () => Promise<IDebugConfigurationProvider | undefined>; pick: () => Promise<{ launch: ILaunch; config: IConfig } | undefined> }[]> {
-		await this.extensionService.whenInstalledExtensionsRegistered();
+		const extensions = await this.extensionService.getExtensions();
 		const onDebugDynamicConfigurationsName = 'onDebugDynamicConfigurations';
-		const debugDynamicExtensionsTypes = this.extensionService.extensions.reduce((acc, e) => {
+		const debugDynamicExtensionsTypes = extensions.reduce((acc, e) => {
 			if (!e.activationEvents) {
 				return acc;
 			}

@@ -160,7 +160,6 @@ export namespace workspace {
 	 */
 	export async function openTunnel(tunnelOptions: ITunnelOptions): Promise<ITunnel> {
 		const workbench = await workbenchPromise.p;
-
 		return workbench.workspace.openTunnel(tunnelOptions);
 	}
 }

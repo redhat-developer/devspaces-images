@@ -33,7 +33,7 @@ class AddToIgnoreLinksQuickFixProvider implements vscode.CodeActionProvider {
 		const commandReg = commandManager.register({
 			id: AddToIgnoreLinksQuickFixProvider._addToIgnoreLinksCommandId,
 			execute(resource: vscode.Uri, path: string) {
-				const settingId = 'validate.ignoredLinks';
+				const settingId = 'experimental.validate.ignoreLinks';
 				const config = vscode.workspace.getConfiguration('markdown', resource);
 				const paths = new Set(config.get<string[]>(settingId, []));
 				paths.add(path);

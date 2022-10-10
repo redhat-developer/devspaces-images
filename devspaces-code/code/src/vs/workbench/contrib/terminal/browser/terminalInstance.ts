@@ -59,9 +59,8 @@ import { AudioCue, IAudioCueService } from 'vs/workbench/contrib/audioCues/brows
 import { TaskSettingId } from 'vs/workbench/contrib/tasks/common/tasks';
 import { IDetectedLinks, TerminalLinkManager } from 'vs/workbench/contrib/terminal/browser/links/terminalLinkManager';
 import { TerminalLinkQuickpick } from 'vs/workbench/contrib/terminal/browser/links/terminalLinkQuickpick';
-import { IRequestAddInstanceToGroupEvent, ITerminalContextualActionOptions, ITerminalExternalLinkProvider, ITerminalInstance, TerminalDataTransfers } from 'vs/workbench/contrib/terminal/browser/terminal';
+import { IRequestAddInstanceToGroupEvent, ITerminalExternalLinkProvider, ITerminalInstance, TerminalDataTransfers } from 'vs/workbench/contrib/terminal/browser/terminal';
 import { TerminalLaunchHelpAction } from 'vs/workbench/contrib/terminal/browser/terminalActions';
-import { gitSimilarCommand, gitCreatePr, gitPushSetUpstream, freePort } from 'vs/workbench/contrib/terminal/browser/terminalBaseContextualActions';
 import { TerminalConfigHelper } from 'vs/workbench/contrib/terminal/browser/terminalConfigHelper';
 import { TerminalEditorInput } from 'vs/workbench/contrib/terminal/browser/terminalEditorInput';
 import { TerminalFindWidget } from 'vs/workbench/contrib/terminal/browser/terminalFindWidget';
@@ -73,7 +72,6 @@ import { TypeAheadAddon } from 'vs/workbench/contrib/terminal/browser/terminalTy
 import { getTerminalResourcesFromDragEvent, getTerminalUri } from 'vs/workbench/contrib/terminal/browser/terminalUri';
 import { EnvironmentVariableInfoWidget } from 'vs/workbench/contrib/terminal/browser/widgets/environmentVariableInfoWidget';
 import { TerminalWidgetManager } from 'vs/workbench/contrib/terminal/browser/widgets/widgetManager';
-import { ContextualActionAddon, IContextualAction } from 'vs/workbench/contrib/terminal/browser/xterm/contextualActionAddon';
 import { LineDataEventAddon } from 'vs/workbench/contrib/terminal/browser/xterm/lineDataEventAddon';
 import { NavigationModeAddon } from 'vs/workbench/contrib/terminal/browser/xterm/navigationModeAddon';
 import { XtermTerminal } from 'vs/workbench/contrib/terminal/browser/xterm/xtermTerminal';
@@ -140,10 +138,10 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 	private readonly _scopedInstantiationService: IInstantiationService;
 
-	readonly _processManager: ITerminalProcessManager;
+	private readonly _processManager: ITerminalProcessManager;
 	private readonly _resource: URI;
 	private _shutdownPersistentProcessId: number | undefined;
-	protected get processManager() { return this._processManager; }
+
 	// Enables disposal of the xterm onKey
 	// event when the CwdDetection capability
 	// is added
@@ -207,16 +205,9 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 	private _target?: TerminalLocation | undefined;
 	private _disableShellIntegrationReporting: boolean | undefined;
 	private _usedShellIntegrationInjection: boolean = false;
-	private _contextualActionAddon: ContextualActionAddon | undefined;
 
 	readonly capabilities = new TerminalCapabilityStoreMultiplexer();
 	readonly statusList: ITerminalStatusList;
-
-	/**
-	 * Enables opening the contextual actions, if any, that are available
-	 * and registering of command finished listeners
-	 */
-	get contextualActions(): IContextualAction | undefined { return this._contextualActionAddon; }
 
 	readonly findWidget: TerminalFindWidget;
 
@@ -459,8 +450,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 					this._scopedInstantiationService.invokeFunction(getDirectoryHistory)?.add(e, { remoteAuthority: this.remoteAuthority });
 				});
 			} else if (e === TerminalCapability.CommandDetection) {
-				const commandCapability = this.capabilities.get(TerminalCapability.CommandDetection);
-				commandCapability?.onCommandFinished(e => {
+				this.capabilities.get(TerminalCapability.CommandDetection)?.onCommandFinished(e => {
 					if (e.command.trim().length > 0) {
 						this._scopedInstantiationService.invokeFunction(getCommandHistory)?.add(e.command, { shellType: this._shellType });
 					}
@@ -600,12 +590,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		return undefined;
 	}
 
-	registerContextualActions(...actionOptions: ITerminalContextualActionOptions[]): void {
-		for (const actionOption of actionOptions) {
-			this.contextualActions?.registerCommandFinishedListener(actionOption);
-		}
-	}
-
 	private _initDimensions(): void {
 		// The terminal panel needs to have been created to get the real view dimensions
 		if (!this._container) {
@@ -718,10 +702,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 		const xterm = this._scopedInstantiationService.createInstance(XtermTerminal, Terminal, this._configHelper, this._cols, this._rows, this.target || TerminalLocation.Panel, this.capabilities, this.disableShellIntegrationReporting);
 		this.xterm = xterm;
-		this._contextualActionAddon = this._scopedInstantiationService.createInstance(ContextualActionAddon, this.capabilities);
-		this.xterm?.raw.loadAddon(this._contextualActionAddon);
-		this.registerContextualActions(gitSimilarCommand(), gitCreatePr(this._openerService), gitPushSetUpstream(), freePort(this));
-		this._register(this._contextualActionAddon.onDidRequestRerunCommand((e) => this.sendText(e.command, e.addNewLine || false)));
 		const lineDataEventAddon = new LineDataEventAddon();
 		this.xterm.raw.loadAddon(lineDataEventAddon);
 		this.updateAccessibilitySupport();
@@ -729,7 +709,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			if (e.copyAsHtml) {
 				this.copySelection(true, e.command);
 			} else {
-				this.sendText(e.command.command, e.noNewLine ? false : true);
+				this.sendText(e.command.command, true);
 			}
 		});
 		// Write initial text, deferring onLineFeed listener when applicable to avoid firing
@@ -1501,10 +1481,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 	public scrollToMark(startMarkId: string, endMarkId?: string, highlight?: boolean): void {
 		this.xterm?.markTracker.scrollToClosestMarker(startMarkId, endMarkId, highlight);
-	}
-
-	public async freePortKillProcess(port: string): Promise<void> {
-		await this._processManager?.freePortKillProcess(port);
 	}
 
 	private _onProcessData(ev: IProcessDataEvent): void {

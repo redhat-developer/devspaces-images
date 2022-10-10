@@ -549,9 +549,7 @@ export class InteractiveEditor extends EditorPane {
 
 		if (notebook && textModel) {
 			const info = this.#notebookKernelService.getMatchingKernel(notebook);
-			const selectedOrSuggested = info.selected
-				?? (info.suggestions.length === 1 ? info.suggestions[0] : undefined)
-				?? (info.all.length === 1 ? info.all[0] : undefined);
+			const selectedOrSuggested = info.selected ?? info.suggestions[0];
 
 			if (selectedOrSuggested) {
 				const language = selectedOrSuggested.supportedLanguages[0];

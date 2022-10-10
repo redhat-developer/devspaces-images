@@ -8,27 +8,21 @@ import MarkdownIt from 'markdown-it';
 import type * as MarkdownItToken from 'markdown-it/lib/token';
 import type { ActivationFunction } from 'vscode-notebook-renderer';
 
-const allowedHtmlTags = Object.freeze(['a',
-	'abbr',
+const allowedHtmlTags = Object.freeze([
+	'a',
 	'b',
-	'bdo',
 	'blockquote',
 	'br',
+	'button',
 	'caption',
-	'cite',
+	'center',
 	'code',
 	'col',
 	'colgroup',
-	'dd',
-	'del',
 	'details',
-	'dfn',
 	'div',
-	'dl',
-	'dt',
 	'em',
-	'figcaption',
-	'figure',
+	'font',
 	'h1',
 	'h2',
 	'h3',
@@ -38,23 +32,16 @@ const allowedHtmlTags = Object.freeze(['a',
 	'hr',
 	'i',
 	'img',
-	'ins',
+	'input',
 	'kbd',
 	'label',
 	'li',
-	'mark',
 	'ol',
 	'p',
 	'pre',
-	'q',
-	'rp',
-	'rt',
-	'ruby',
-	'samp',
-	'small',
+	'select',
 	'small',
 	'span',
-	'strike',
 	'strong',
 	'sub',
 	'summary',
@@ -62,17 +49,15 @@ const allowedHtmlTags = Object.freeze(['a',
 	'table',
 	'tbody',
 	'td',
+	'textarea',
 	'tfoot',
 	'th',
 	'thead',
-	'time',
 	'tr',
 	'tt',
 	'u',
 	'ul',
-	'var',
 	'video',
-	'wbr',
 ]);
 
 const allowedSvgTags = Object.freeze([
@@ -392,7 +377,7 @@ function slugify(text: string): string {
 			.toLowerCase()
 			.replace(/\s+/g, '-') // Replace whitespace with -
 			// allow-any-unicode-next-line
-			.replace(/[\]\[\!\/\'\"\#\$\%\&\(\)\*\+\,\.\/\:\;\<\=\>\?\@\\\^\{\|\}\~\`。，、；：？！…—·ˉ¨‘’“”々～‖∶＂＇｀｜〃〔〕〈〉《》「」『』．〖〗【】（）［］｛｝]/g, '') // Remove known punctuators
+			.replace(/[\]\[\!\'\#\$\%\&\(\)\*\+\,\.\/\:\;\<\=\>\?\@\\\^\_\{\|\}\~\`。，、；：？！…—·ˉ¨‘’“”々～‖∶＂＇｀｜〃〔〕〈〉《》「」『』．〖〗【】（）［］｛｝]/g, '') // Remove known punctuators
 			.replace(/^\-+/, '') // Remove leading -
 			.replace(/\-+$/, '') // Remove trailing -
 	);

@@ -348,11 +348,6 @@ export class OneLineRange extends SearchRange {
 	}
 }
 
-export const enum ViewMode {
-	List = 'list',
-	Tree = 'tree'
-}
-
 export const enum SearchSortOrder {
 	Default = 'default',
 	FileNames = 'fileNames',
@@ -398,7 +393,6 @@ export interface ISearchConfigurationProperties {
 		colors: boolean;
 		badges: boolean;
 	};
-	defaultViewMode: ViewMode;
 }
 
 export interface ISearchConfiguration extends IFilesConfiguration {

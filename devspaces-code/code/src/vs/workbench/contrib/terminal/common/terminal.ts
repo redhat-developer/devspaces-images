@@ -96,13 +96,6 @@ export interface IShellLaunchConfigResolveOptions {
 	allowAutomationShell?: boolean;
 }
 
-export interface ITerminalOutputMatcher {
-	lineMatcher: string | RegExp;
-	anchor?: 'top' | 'bottom';
-	offset?: number;
-	length?: number;
-}
-
 export interface ITerminalBackend {
 	readonly remoteAuthority: string | undefined;
 
@@ -354,7 +347,6 @@ export interface ITerminalCommand {
 	markProperties?: IMarkProperties;
 	hasOutput(): boolean;
 	getOutput(): string | undefined;
-	getOutputMatch(outputMatcher: ITerminalOutputMatcher): RegExpMatchArray | undefined;
 }
 
 export interface INavigationMode {
@@ -421,7 +413,6 @@ export interface ITerminalProcessManager extends IDisposable {
 	refreshProperty<T extends ProcessPropertyType>(type: T): Promise<IProcessPropertyMap[T]>;
 	updateProperty<T extends ProcessPropertyType>(property: T, value: IProcessPropertyMap[T]): void;
 	getBackendOS(): Promise<OperatingSystem>;
-	freePortKillProcess(port: string): void;
 }
 
 export const enum ProcessState {
@@ -519,7 +510,7 @@ export const enum TerminalCommandId {
 	ResizePaneLeft = 'workbench.action.terminal.resizePaneLeft',
 	ResizePaneRight = 'workbench.action.terminal.resizePaneRight',
 	ResizePaneUp = 'workbench.action.terminal.resizePaneUp',
-	CreateWithProfileButton = 'workbench.action.terminal.gitCreateProfileButton',
+	CreateWithProfileButton = 'workbench.action.terminal.createProfileButton',
 	SizeToContentWidth = 'workbench.action.terminal.sizeToContentWidth',
 	SizeToContentWidthInstance = 'workbench.action.terminal.sizeToContentWidthInstance',
 	ResizePaneDown = 'workbench.action.terminal.resizePaneDown',
@@ -561,7 +552,6 @@ export const enum TerminalCommandId {
 	SelectToNextLine = 'workbench.action.terminal.selectToNextLine',
 	ToggleEscapeSequenceLogging = 'toggleEscapeSequenceLogging',
 	SendSequence = 'workbench.action.terminal.sendSequence',
-	QuickFix = 'workbench.action.terminal.quickFix',
 	ToggleFindRegex = 'workbench.action.terminal.toggleFindRegex',
 	ToggleFindWholeWord = 'workbench.action.terminal.toggleFindWholeWord',
 	ToggleFindCaseSensitive = 'workbench.action.terminal.toggleFindCaseSensitive',

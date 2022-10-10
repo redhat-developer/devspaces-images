@@ -49,4 +49,3 @@ export const ViewHasSearchPatternKey = new RawContextKey<boolean>('viewHasSearch
 export const ViewHasReplacePatternKey = new RawContextKey<boolean>('viewHasReplacePattern', false);
 export const ViewHasFilePatternKey = new RawContextKey<boolean>('viewHasFilePattern', false);
 export const ViewHasSomeCollapsibleKey = new RawContextKey<boolean>('viewHasSomeCollapsibleResult', false);
-export const InTreeViewKey = new RawContextKey<boolean>('inTreeView', false);

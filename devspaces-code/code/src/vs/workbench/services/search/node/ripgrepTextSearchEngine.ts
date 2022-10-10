@@ -301,15 +301,11 @@ export class RipgrepParser extends EventEmitter {
 			}
 
 			const matchText = bytesOrTextToString(match.match);
-
-			const inBetweenText = fullTextBytes.slice(prevMatchEnd, match.start).toString();
-			const inBetweenStats = getNumLinesAndLastNewlineLength(inBetweenText);
-			const startCol = inBetweenStats.numLines > 0 ?
-				inBetweenStats.lastLineLength :
-				inBetweenStats.lastLineLength + prevMatchEndCol;
+			const inBetweenChars = fullTextBytes.slice(prevMatchEnd, match.start).toString().length;
+			const startCol = prevMatchEndCol + inBetweenChars;
 
 			const stats = getNumLinesAndLastNewlineLength(matchText);
-			const startLineNumber = inBetweenStats.numLines + prevMatchEndLine;
+			const startLineNumber = prevMatchEndLine;
 			const endLineNumber = stats.numLines + startLineNumber;
 			const endCol = stats.numLines > 0 ?
 				stats.lastLineLength :

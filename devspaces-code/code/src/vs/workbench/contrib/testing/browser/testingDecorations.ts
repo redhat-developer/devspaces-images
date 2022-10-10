@@ -115,13 +115,14 @@ export class TestingDecorationService extends Disposable implements ITestingDeco
 		// is up to date. This prevents issues, as in #138632, #138835, #138922.
 		this._register(this.testService.onWillProcessDiff(diff => {
 			for (const entry of diff) {
-				if (entry.op !== TestDiffOpType.DocumentSynced) {
+				if (entry.op !== TestDiffOpType.Update || entry.item.docv === undefined || entry.item.item?.range === undefined) {
 					continue;
 				}
 
-				const rec = this.decorationCache.get(entry.uri);
+				const uri = this.testService.collection.getNodeById(entry.item.extId)?.item.uri;
+				const rec = uri && this.decorationCache.get(uri);
 				if (rec) {
-					rec.rangeUpdateVersionId = entry.docv;
+					rec.rangeUpdateVersionId = entry.item.docv;
 				}
 			}
 
@@ -192,7 +193,7 @@ export class TestingDecorationService extends Disposable implements ITestingDeco
 		const uriStr = model.uri.toString();
 		const cached = this.decorationCache.get(model.uri);
 		const testRangesUpdated = cached?.rangeUpdateVersionId === model.getVersionId();
-		const lastDecorations = cached?.value ?? new TestDecorations<ITestDecoration>();
+		const lastDecorations = cached?.value ?? new TestDecorations();
 		const newDecorations = new TestDecorations<ITestDecoration>();
 
 		model.changeDecorations(accessor => {
@@ -209,7 +210,7 @@ export class TestingDecorationService extends Disposable implements ITestingDeco
 
 			for (const [line, tests] of runDecorations.lines()) {
 				const multi = tests.length > 1;
-				let existing = lastDecorations.value.find(d => d instanceof RunTestDecoration && d.exactlyContainsTests(tests)) as RunTestDecoration | undefined;
+				let existing = lastDecorations.findOnLine(line, d => multi ? d instanceof MultiRunTestDecoration : d instanceof RunSingleTestDecoration) as RunTestDecoration | undefined;
 
 				// see comment in the constructor for what's going on here
 				if (existing && testRangesUpdated && model.getDecorationRange(existing.id)?.startLineNumber !== line) {
@@ -646,27 +647,6 @@ abstract class RunTestDecoration {
 			default:
 				this.defaultRun();
 				break;
-		}
-
-		return true;
-	}
-
-	public exactlyContainsTests(tests: readonly { test: IncrementalTestCollectionItem }[]): boolean {
-		if (tests.length !== this.tests.length) {
-			return false;
-		}
-		if (tests.length === 1) {
-			return tests[0].test.item.extId === this.tests[0].test.item.extId;
-		}
-
-		const ownTests = new Set();
-		for (const t of this.tests) {
-			ownTests.add(t.test.item.extId);
-		}
-		for (const t of tests) {
-			if (!ownTests.delete(t.test.item.extId)) {
-				return false;
-			}
 		}
 
 		return true;

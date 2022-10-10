@@ -36,7 +36,6 @@ export class CommentGlyphWidget {
 				color: themeColorFromId(overviewRulerCommentingRangeForeground),
 				position: OverviewRulerLane.Center
 			},
-			collapseOnReplaceEdit: true,
 			linesDecorationsClassName: `comment-range-glyph comment-thread`
 		};
 

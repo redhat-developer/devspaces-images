@@ -434,63 +434,81 @@
             "experimental"
           ]
         },
-        "markdown.validate.enabled": {
+        "markdown.experimental.validate.enabled": {
           "type": "boolean",
           "scope": "resource",
-          "description": "%configuration.markdown.validate.enabled.description%",
-          "default": false
+          "description": "%configuration.markdown.experimental.validate.enabled.description%",
+          "default": false,
+          "tags": [
+            "experimental"
+          ]
         },
-        "markdown.validate.referenceLinks.enabled": {
+        "markdown.experimental.validate.referenceLinks.enabled": {
           "type": "string",
           "scope": "resource",
-          "markdownDescription": "%configuration.markdown.validate.referenceLinks.enabled.description%",
+          "markdownDescription": "%configuration.markdown.experimental.validate.referenceLinks.enabled.description%",
           "default": "warning",
           "enum": [
             "ignore",
             "warning",
             "error"
+          ],
+          "tags": [
+            "experimental"
           ]
         },
-        "markdown.validate.fragmentLinks.enabled": {
+        "markdown.experimental.validate.fragmentLinks.enabled": {
           "type": "string",
           "scope": "resource",
-          "markdownDescription": "%configuration.markdown.validate.fragmentLinks.enabled.description%",
+          "markdownDescription": "%configuration.markdown.experimental.validate.fragmentLinks.enabled.description%",
           "default": "warning",
           "enum": [
             "ignore",
             "warning",
             "error"
+          ],
+          "tags": [
+            "experimental"
           ]
         },
-        "markdown.validate.fileLinks.enabled": {
+        "markdown.experimental.validate.fileLinks.enabled": {
           "type": "string",
           "scope": "resource",
-          "markdownDescription": "%configuration.markdown.validate.fileLinks.enabled.description%",
+          "markdownDescription": "%configuration.markdown.experimental.validate.fileLinks.enabled.description%",
           "default": "warning",
           "enum": [
             "ignore",
             "warning",
             "error"
+          ],
+          "tags": [
+            "experimental"
           ]
         },
-        "markdown.validate.fileLinks.markdownFragmentLinks": {
+        "markdown.experimental.validate.fileLinks.markdownFragmentLinks": {
           "type": "string",
           "scope": "resource",
-          "markdownDescription": "%configuration.markdown.validate.fileLinks.markdownFragmentLinks.description%",
+          "markdownDescription": "%configuration.markdown.experimental.validate.fileLinks.markdownFragmentLinks.description%",
           "default": "ignore",
           "enum": [
             "ignore",
             "warning",
             "error"
+          ],
+          "tags": [
+            "experimental"
           ]
         },
-        "markdown.validate.ignoredLinks": {
+        "markdown.experimental.validate.ignoreLinks": {
           "type": "array",
           "scope": "resource",
-          "markdownDescription": "%configuration.markdown.validate.ignoredLinks.description%",
+          "markdownDescription": "%configuration.markdown.experimental.validate.ignoreLinks.description%",
           "items": {
             "type": "string"
-          }
+          },
+          "tags": [
+            "experimental"
+          ]
         },
         "markdown.experimental.updateLinksOnFileMove.enabled": {
           "type": "string",

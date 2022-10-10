@@ -24,10 +24,8 @@ import { NotebookLayoutInfo } from 'vs/workbench/contrib/notebook/browser/notebo
 
 export class CodeCellViewModel extends BaseCellViewModel implements ICellViewModel {
 	readonly cellKind = CellKind.Code;
-
 	protected readonly _onLayoutInfoRead = this._register(new Emitter<void>());
 	readonly onLayoutInfoRead = this._onLayoutInfoRead.event;
-
 	protected readonly _onDidChangeOutputs = this._register(new Emitter<NotebookCellOutputsSplice>());
 	readonly onDidChangeOutputs = this._onDidChangeOutputs.event;
 
@@ -290,11 +288,10 @@ export class CodeCellViewModel extends BaseCellViewModel implements ICellViewMod
 			};
 		}
 
-		this._fireOnDidChangeLayout({
-			...state,
-			totalHeight: this.layoutInfo.totalHeight !== originalLayout.totalHeight,
-			source,
-		});
+		state.totalHeight = this.layoutInfo.totalHeight !== originalLayout.totalHeight;
+		state.source = source;
+
+		this._fireOnDidChangeLayout(state);
 	}
 
 	private _fireOnDidChangeLayout(state: CodeCellLayoutChangeEvent) {
