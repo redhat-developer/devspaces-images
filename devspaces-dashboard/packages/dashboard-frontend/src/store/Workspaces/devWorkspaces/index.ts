@@ -89,6 +89,7 @@ interface UpdateWorkspaceStatusAction extends Action {
   status: string;
   message: string;
   mainUrl?: string;
+  started: boolean;
 }
 
 interface UpdateWorkspacesLogsAction extends Action {
@@ -288,24 +289,34 @@ export const actionCreators: ActionCreators = {
 
   startWorkspace:
     (
-      workspace: devfileApi.DevWorkspace,
+      _workspace: devfileApi.DevWorkspace,
       debugWorkspace = false,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
+      const workspace = getState().devWorkspaces.workspaces.find(
+        w => w.metadata.uid === _workspace.metadata.uid,
+      );
+      if (workspace === undefined) {
+        console.warn(`Can't find the target workspace ${_workspace.metadata.name}`);
+        return;
+      }
+      if (workspace.spec.started) {
+        console.warn(`Workspace ${_workspace.metadata.name} already started`);
+        return;
+      }
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
       try {
         checkRunningWorkspacesLimit(getState());
-        await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         await dispatch(DwServerConfigStore.actionCreators.requestServerConfig());
         const config = getState().dwServerConfig.config;
         await devWorkspaceClient.updateConfigData(workspace, config);
+        await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
         let updatedWorkspace: devfileApi.DevWorkspace;
         const workspaceUID = workspace.metadata.uid;
         dispatch({
           type: 'DELETE_DEVWORKSPACE_LOGS',
           workspaceUID,
         });
-
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
           const storedDevWorkspace = JSON.parse(
             workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
@@ -693,6 +704,7 @@ export const reducer: Reducer<State> = (state: State | undefined, action: KnownA
           nextWorkspace.status.phase = action.status;
           nextWorkspace.status.message = action.message;
           nextWorkspace.status.mainUrl = action.mainUrl;
+          nextWorkspace.spec.started = action.started;
           return nextWorkspace;
         }),
       });
@@ -762,12 +774,12 @@ async function onStatusUpdateReceived(
   dispatch: ThunkDispatch<AppState, unknown, KnownAction>,
   statusUpdate: IStatusUpdate,
 ) {
-  const { status, message, prevStatus, workspaceUID, namespace, workspaceId, mainUrl } =
+  const { status, message, prevStatus, workspaceUID, namespace, workspaceId, mainUrl, started } =
     statusUpdate;
 
   if (status !== prevStatus) {
     const type = 'UPDATE_DEVWORKSPACE_STATUS';
-    dispatch({ type, workspaceUID, message, status, mainUrl });
+    dispatch({ type, workspaceUID, message, status, mainUrl, started });
 
     const onChangeCallback = onStatusChangeCallbacks.get(workspaceUID);
     if (onChangeCallback) {
