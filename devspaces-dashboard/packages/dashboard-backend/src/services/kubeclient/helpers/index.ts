@@ -42,6 +42,11 @@ async function findApi(apisApi: k8s.ApisApi, apiName: string, version?: string):
 export function getUserName(token: string): string {
   const tokenPayload = token.split('.')[1];
   const decodedTokenPayload = Buffer.from(tokenPayload, 'base64').toString();
-  const parsedTokenPayload = JSON.parse(decodedTokenPayload);
-  return parsedTokenPayload.name;
+  try {
+    const parsedTokenPayload = JSON.parse(decodedTokenPayload);
+    return parsedTokenPayload.name;
+  } catch (e) {
+    console.warn(`[WARN] Can't parse the token payload.`);
+    throw e;
+  }
 }

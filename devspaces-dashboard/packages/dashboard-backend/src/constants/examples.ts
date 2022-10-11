@@ -15,8 +15,8 @@ export const dockerConfigExample = {
     const registry = 'https://index.docker.io/v1/';
     const username = 'janedoe';
     const password = 'xxxxxxxxxxxxxxxxxxxxxxx';
-    const auth = new Buffer(`${username}:${password}`).toString('base64');
-    const buff = new Buffer(
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
+    return Buffer.from(
       JSON.stringify({
         auths: {
           [registry]: {
@@ -26,7 +26,6 @@ export const dockerConfigExample = {
           },
         },
       }),
-    );
-    return buff.toString('base64');
+    ).toString('base64');
   },
 };

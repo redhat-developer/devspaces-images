@@ -15,9 +15,16 @@ import { IDevWorkspaceCallbacks } from '../devworkspace-client';
 import WebSocket from 'ws';
 import { V1alpha2DevWorkspace } from '@devfile/api';
 
+export type Channel = string;
+export type Parameters = {
+  token: string;
+  namespace: string;
+  resourceVersion: string;
+};
+
 class SubscriptionManager {
   private readonly subscriber: WebSocket;
-  private readonly channels: string[];
+  private readonly channels: Channel[];
   private readonly callbacks: IDevWorkspaceCallbacks;
   private namespaceData: DevWorkspaceWatcher | undefined;
 
@@ -43,7 +50,7 @@ class SubscriptionManager {
     };
   }
 
-  unsubscribe(channel: string): void {
+  unsubscribe(channel: Channel): void {
     const index = this.channels.indexOf(channel);
     if (index !== -1) {
       this.channels.splice(index, 1);
@@ -53,29 +60,26 @@ class SubscriptionManager {
     }
   }
 
-  subscribe(
-    channel: string,
-    data: { token: string; namespace: string; resourceVersion: string },
-  ): void {
+  subscribe(channel: Channel, params: Parameters): void {
     if (this.channels.indexOf(channel) === -1) {
       this.channels.push(channel);
     }
     if (this.namespaceData) {
-      if (this.namespaceData.getNamespace() === data.namespace) {
-        this.namespaceData.setParams(data.token, data.resourceVersion);
+      if (this.namespaceData.getNamespace() === params.namespace) {
+        this.namespaceData.setParams(params.token, params.resourceVersion);
       }
     } else {
       this.namespaceData = new DevWorkspaceWatcher({
         callbacks: this.callbacks,
-        token: data.token,
-        namespace: data.namespace,
-        resourceVersion: data.resourceVersion,
+        token: params.token,
+        namespace: params.namespace,
+        resourceVersion: params.resourceVersion,
       });
       this.namespaceData.subscribe();
     }
   }
 
-  publish(channel: string, message: any): void {
+  publish(channel: Channel, message: unknown): void {
     if (this.channels.indexOf(channel) !== -1) {
       this.subscriber.send(JSON.stringify({ message, channel }));
     }

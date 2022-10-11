@@ -62,6 +62,7 @@ server.addContentTypeParser(
       done(null, json);
     } catch (e) {
       const error = new Error(helpers.errors.getMessage(e));
+      console.warn(`[WARN] Can't parse the JSON payload:`, body);
       done(error, undefined);
     }
   },
