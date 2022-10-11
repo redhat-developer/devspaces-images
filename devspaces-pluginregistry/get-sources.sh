@@ -129,7 +129,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 
 	# build 2 new tarballs
 	buildTarball "/openvsx-server.tar.gz" "che-openvsx" "build/dockerfiles/openvsx-builder.Dockerfile" "--target builder"
-	buildTarball "opt/app-root/src/nodejs.tar.gz" "che-ovsx" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
+	buildTarball "opt/app-root/src/ovsx.tar.gz" "che-ovsx" "build/dockerfiles/ovsx-installer.Dockerfile" "--target builder"
 fi
 
 # update tarballs - step 4 - commit changes if diff different
