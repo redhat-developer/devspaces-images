@@ -323,9 +323,10 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 done
 
 # https://issues.redhat.com/browse/CRW-3312 replace upstream UDI image with downstream one for the current DS version (tag :3.yy)
-sed -r -e "s#quay.io/devfile/universal-developer-image.+#registry.redhat.io/devspaces/udi-rhel8:${DS_VERSION}#g" -i \
+# https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
+DIGEST=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.Digest')
+sed -r -e "s#quay.io/devfile/universal-developer-image.+#registry.redhat.io/devspaces/udi-rhel8@${DIGEST}#g" -i \
 	"${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml"
-
 cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
 
 popd >/dev/null || exit

@@ -70,8 +70,8 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
     if [[ -z "${CSV_VERSION_PREV}" ]]; then
         #get from json
         CSV_VERSION_PREV="$(echo "$configjson" | jq -r '.CSVs["'${MIDSTM_NAME}'"]."'${DS_VERSION}'".CSV_VERSION_PREV')"
-        DS_VERSION_PREV="${CSV_VERSION_PREV%.*}"
-        echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$DS_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}"
+        DS_VERSION_PREV="${CSV_VERSION_PREV%-*}"; DS_VERSION_PREV="${DS_VERSION_PREV%.*}"
+        echo "[INFO] config.json#.CSVs[${MIDSTM_NAME}][$DS_VERSION][CSV_VERSION_PREV] = ${CSV_VERSION_PREV}  (DS_VERSION_PREV = ${DS_VERSION_PREV})"
         
         # check if image exists for that tag (doesn't work with CVE respins, only manual releases)
         # CRW-2725 also check quay, so we can check update path from 3.y.0.RC -> 3.y+1.0.CI (need to resolve against pre-GA content, not just RHEC GA)
@@ -85,7 +85,8 @@ if [[ -z "${CSV_VERSION_PREV}" ]]; then
             fi
             chmod +x /tmp/containerExtract.sh
             # NOTE: for CVE respins, container tag != CSV version, so we have to extract the container to get the CSV version, then replace + with -
-            /tmp/containerExtract.sh registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:latest
+            rm -fr /tmp/registry.redhat.io-devspaces-devspaces-${MIDSTM_NAME}-latest-*
+            /tmp/containerExtract.sh --delete-before --delete-after registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:latest
             CSV_VERSION_PREV="$(yq -r '.spec.version' /tmp/registry.redhat.io-devspaces-devspaces-${MIDSTM_NAME}-latest-*/manifests/devspaces.csv.yaml | tr "+" "-")"
             echo "[INFO] registry.redhat.io/devspaces/devspaces-${MIDSTM_NAME}:latest#.spec.version = ${CSV_VERSION_PREV}"
             rm -fr /tmp/registry.redhat.io-devspaces-devspaces-${MIDSTM_NAME}-latest-*
