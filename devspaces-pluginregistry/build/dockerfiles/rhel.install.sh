@@ -66,7 +66,7 @@ if [[ -f /tmp/root-local.tgz ]] || [[ ${BOOTSTRAP} == "true" ]]; then
         tar xf /tmp/root-local.tgz -C /var/lib/pgsql/.local
         rm -fr /tmp/root-local.tgz
     fi
-    /usr/bin/python -m pip install --user yq argcomplete
+    /usr/bin/"${PYTHON_BIN}" -m pip install --user yq argcomplete
     # NOTE: used to be in /root/.local but now can be found in ~/.local
     # shellcheck disable=SC2043
     for d in /var/lib/pgsql/.local; do
