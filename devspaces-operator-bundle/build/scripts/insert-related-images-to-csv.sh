@@ -60,8 +60,24 @@ tmpdir=$(mktemp -d); mkdir -p $tmpdir; pushd $tmpdir >/dev/null
     ./containerExtract.sh quay.io/devspaces/pluginregistry-rhel8:${DS_VERSION} --tar-flags var/www/html/*/external_images.txt --delete-before &
     wait
 
-    # sort & uniquify
-    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | sort -uV)
+    # CRW-3432 fail if we can't find the external_images.txt files
+    if [[ ! $(cat /tmp/quay.io-devspaces-devfileregistry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt) ]]; then
+      echo "[ERROR] Cannot resolve devfileregistry external_images.txt!"
+      exit 2
+    fi
+    if [[ ! $(cat /tmp/quay.io-devspaces-pluginregistry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt) ]]; then
+      echo "[ERROR] Cannot resolve pluginregistry external_images.txt!"
+      exit 3
+    fi
+
+    # CRW-3177, CRW-3178 sort uniquely; replace quay refs with RHEC refs
+    EXTERNAL_IMAGES=$(cat /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/var/www/html/*/external_images.txt | \
+      sed -r -e "s#quay.io/devspaces/#registry.redhat.io/devspaces/#g" | sort -uV)
+
+    # CRW-3432 fail if we don't get a list of images
+    if [[ ! $EXTERNAL_IMAGES ]]; then exit 4; fi
+    echo EXTERNAL_IMAGES=
+    echo "${EXTERNAL_IMAGES[@]}"
 popd >/dev/null
 # cleanup
 rm -fr $tmpdir /tmp/quay.io-devspaces-{devfile,plugin}registry-rhel8-${DS_VERSION}*/
