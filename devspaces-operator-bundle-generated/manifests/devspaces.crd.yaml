@@ -2281,7 +2281,7 @@ spec:
                     workspaceDefaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8:3.3
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:fa227c49878da15ac2d2f87717a9d71cf3572a49c59aa6f918d1607934b3a8a2
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile does
@@ -5401,7 +5401,7 @@ spec:
                   default:
                     defaultComponents:
                       - container:
-                          image: registry.redhat.io/devspaces/udi-rhel8:3.3
+                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:fa227c49878da15ac2d2f87717a9d71cf3572a49c59aa6f918d1607934b3a8a2
                         name: universal-developer-image
                     defaultEditor: eclipse/che-theia/latest
                     defaultNamespace:
@@ -5416,7 +5416,7 @@ spec:
                     defaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8:3.3
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:fa227c49878da15ac2d2f87717a9d71cf3572a49c59aa6f918d1607934b3a8a2
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile, that
@@ -6960,6 +6960,10 @@ spec:
                             type: array
                         type: object
                       type: array
+                    disableContainerBuildCapabilities:
+                      default: false
+                      description: Disables the container build capabilities.
+                      type: boolean
                     nodeSelector:
                       additionalProperties:
                         type: string
