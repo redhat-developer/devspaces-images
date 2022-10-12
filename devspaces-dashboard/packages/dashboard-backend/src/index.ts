@@ -37,6 +37,7 @@ import {
 import { registerFactory } from './factory';
 import { namespaceApi } from './api/namespaceApi';
 import { registerYamlResolverApi } from './api/yamlResolverApi';
+import { registerWorkspace } from './workspace';
 
 const CHE_HOST = process.env.CHE_HOST as string;
 
@@ -87,6 +88,8 @@ registerCors(isLocalRun, server);
 registerStaticServer(publicFolder, server);
 
 registerFactory(server);
+
+registerWorkspace(server);
 
 registerDevworkspaceWebsocketWatcher(server);
 

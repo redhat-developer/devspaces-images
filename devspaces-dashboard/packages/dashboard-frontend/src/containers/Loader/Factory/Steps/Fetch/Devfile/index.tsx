@@ -21,7 +21,6 @@ import { DisposableCollection } from '../../../../../../services/helpers/disposa
 import { selectAllWorkspaces } from '../../../../../../store/Workspaces/selectors';
 import { delay } from '../../../../../../services/helpers/delay';
 import { FactoryLoaderPage } from '../../../../../../pages/Loader/Factory';
-import { isOAuthResponse } from '../../../../../../store/FactoryResolver';
 import { getEnvironment, isDevEnvironment } from '../../../../../../services/helpers/environment';
 import SessionStorageService, {
   SessionStorageKey,
@@ -36,6 +35,7 @@ import { MIN_STEP_DURATION_MS, TIMEOUT_TO_RESOLVE_SEC } from '../../../../const'
 import buildFactoryParams from '../../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../../AbstractStep';
 import { AlertItem } from '../../../../../../services/helpers/types';
+import OAuthService, { isOAuthResponse } from '../../../../../../services/oauth';
 
 const RELOADS_LIMIT = 2;
 type ReloadsInfo = {
@@ -186,6 +186,7 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
     });
 
     try {
+      OAuthService.setOauthStartedState();
       await this.props.requestFactoryResolver(factoryUrl, params);
       this.clearNumberOfTries();
       return true;
@@ -195,31 +196,19 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
         this.increaseNumberOfTries(factoryUrl);
 
         // open authentication page
-        this.openAuthPage(e.attributes.oauth_authentication_url, factoryUrl);
+        const env = getEnvironment();
+        // build redirect URL
+        let redirectHost = window.location.protocol + '//' + window.location.host;
+        if (isDevEnvironment(env)) {
+          redirectHost = env.server;
+        }
+        const redirectUrl = new URL('/f', redirectHost);
+        redirectUrl.searchParams.set('url', factoryUrl);
+        OAuthService.openOAuthPage(e.attributes.oauth_authentication_url, redirectUrl.toString());
         return false;
       }
 
       throw e;
-    }
-  }
-
-  private openAuthPage(oauthUrl: string, factoryUrl: string): void {
-    try {
-      const env = getEnvironment();
-      // build redirect URL
-      let redirectHost = window.location.protocol + '//' + window.location.host;
-      if (isDevEnvironment(env)) {
-        redirectHost = env.server;
-      }
-      const redirectUrl = new URL('/f', redirectHost);
-      redirectUrl.searchParams.set('url', factoryUrl);
-
-      const oauthUrlTmp = new window.URL(oauthUrl);
-      const fullOauthUrl =
-        oauthUrlTmp.toString() + '&redirect_after_login=' + redirectUrl.toString();
-      window.location.href = fullOauthUrl;
-    } catch (e) {
-      throw new Error(`Failed to open authentication page. ${helpers.errors.getMessage(e)}`);
     }
   }
 
