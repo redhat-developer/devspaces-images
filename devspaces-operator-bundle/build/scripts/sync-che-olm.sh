@@ -308,7 +308,9 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 	echo "Converted (yq #3) ${CSVFILE}"
 
 	# add more RELATED_IMAGE_ fields for the images referenced by the registries
-	"${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
+	bash -e "${SCRIPTS_DIR}/insert-related-images-to-csv.sh" -v "${CSV_VERSION}" -t "${TARGETDIR}" --ds-branch "${MIDSTM_BRANCH}"
+	RETURN_CODE=$?
+	if [[ $RETURN_CODE -gt 0 ]]; then echo "[ERROR] Problem occurred inserting related images into CSV: exit code: $RETURN_CODE"; exit $RETURN_CODE; fi
 
 	# echo "    ${0##*/} :: Sort env var in ${CSVFILE}:"
 	yq -Y '.spec.install.spec.deployments[].spec.template.spec.containers[0].env |= sort_by(.name)' "${CSVFILE}" > "${CSVFILE}2"
