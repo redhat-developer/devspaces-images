@@ -29,12 +29,13 @@ RUN \
     GO111MODULE=on go build -o gopls && \
     ./gopls version && \
     # END Gopls
-    # BEGIN Kamel
-    cd $REMOTE_SOURCES_DIR/camelk/app && \
-    source $REMOTE_SOURCES_DIR/camelk/cachito.env && \
-    make build-kamel && \
-    ./kamel version && \
-    # END Kamel
+    # CRW-3193 disable until we have a camel-k sample again
+    # # BEGIN Kamel
+    # cd $REMOTE_SOURCES_DIR/camelk/app && \
+    # source $REMOTE_SOURCES_DIR/camelk/cachito.env && \
+    # make build-kamel && \
+    # ./kamel version && \
+    # # END Kamel
     # BEGIN golangci-lint
     cd $REMOTE_SOURCES_DIR/golangci-lint/app && \
     source $REMOTE_SOURCES_DIR/golangci-lint/cachito.env && \
@@ -224,13 +225,15 @@ RUN \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     echo "<== Create python symlinks (or display existing ones)"
-RUN \
-    ########################################################################
-    # Kamel
-    ########################################################################
-    if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi;
 
-COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /usr/local/bin/kamel
+# CRW-3193 disable until we have a camel-k sample again
+# RUN \
+#     ########################################################################
+#     # Kamel
+#     ########################################################################
+#     if [[ -f /usr/local/bin/kamel ]]; then rm -f /usr/local/bin/kamel; fi;
+
+# COPY --from=go-builder $REMOTE_SOURCES_DIR/camelk/app/kamel /usr/local/bin/kamel
 
 RUN \
     ########################################################################
@@ -255,7 +258,7 @@ RUN \
     fi
 RUN \
     ########################################################################
-    # Golang (Tech Preview) + Kamel
+    # Golang (Tech Preview)
     ########################################################################
     dnf -y -q install golang && \
     mkdir /home/user/go/bin -p
@@ -336,11 +339,12 @@ RUN \
     echo -n "odo:    "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
     echo -n "kubectl: "; kubectl version --short --client=true; \
-    if [[ -f /usr/local/bin/kamel ]]; then \
-      echo -n "kamel:   "; kamel version; \
-    else \
-      echo "kamel: not available on $(uname -m)"; \
-    fi; \
+    # CRW-3193 disable until we have a camel-k sample again
+    # if [[ -f /usr/local/bin/kamel ]]; then \
+    #   echo -n "kamel:   "; kamel version; \
+    # else \
+    #   echo "kamel: not available on $(uname -m)"; \
+    # fi; \
     echo "========" && \
     echo -n "clangd:    "; clangd --version; \
     if [[ -f /usr/bin/dotnet ]]; then \
