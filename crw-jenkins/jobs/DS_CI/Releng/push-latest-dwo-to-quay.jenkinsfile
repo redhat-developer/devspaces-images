@@ -1,0 +1,43 @@
+#!/usr/bin/env groovy
+
+// PARAMETERS for this pipeline:
+//   DWO_VERSION
+//   EXTRA_FLAGS
+
+def MIDSTM_REPO = "redhat-developer/devspaces"
+def MIDSTM_BRANCH = "devspaces-3-rhel-8"
+
+def buildNode = "x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8" 
+timeout(120) {
+    node("${buildNode}"){ 
+        stage ("Copy DWO to Quay") {
+            wrap([$class: 'TimestamperBuildWrapper']) {
+                withCredentials([string(credentialsId: 'quay.io-devworkspaceci_user_token', variable: 'QUAY_TOKEN_DWO')]) {
+                    cleanWs()
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
+                    util.cloneRepo("https://github.com/${MIDSTM_REPO}.git", "targetmid", MIDSTM_BRANCH, false)
+                    currentBuild.description="Copying DWO ${DWO_VERSION} ..."
+                    sh(script: '''
+#!/bin/bash -xe
+cd ${WORKSPACE}/targetmid/product
+echo "${QUAY_TOKEN_DWO}" | podman login --authfile=~/.docker/config.json -u="devworkspace+devworkspaceci" --password-stdin quay.io
+
+./copyDWOToQuay.sh -t ${DWO_VERSION} ${EXTRA_FLAGS}
+''')
+                    currentBuild.description="copyDWOToQuay.sh -t ${DWO_VERSION} ${EXTRA_FLAGS}"
+                }
+            }
+            cleanWs(
+                cleanWhenSuccess: true,
+                cleanWhenUnstable: true,
+                cleanWhenNotBuilt: false,
+                cleanWhenFailure: true,
+                cleanWhenAborted: true,
+                deleteDirs: true,
+                disableDeferredWipeout: true,
+                notFailBuild: true
+            )
+        } // stage
+    } // node
+} //timeout

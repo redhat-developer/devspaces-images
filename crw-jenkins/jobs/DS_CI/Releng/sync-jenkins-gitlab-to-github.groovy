@@ -1,11 +1,9 @@
-def JOB_BRANCHES = [ "3.x" : "" ] 
-def JOB_DISABLED = ["3.x":false]
-for (JB in JOB_BRANCHES) {
-    JOB_BRANCH=""+JB.key
-    MIDSTM_BRANCH="devspaces-" + JOB_BRANCH.replaceAll(".x","") + "-rhel-8"
-    jobPath="${FOLDER_PATH}/${ITEM_NAME}_" + JOB_BRANCH
+def JOB_BRANCHES = ["3.x"] // only one job
+for (String JOB_BRANCH : JOB_BRANCHES) {
+    MIDSTM_BRANCH="devspaces-3-rhel-8"
+    jobPath="${FOLDER_PATH}/${ITEM_NAME}"
     pipelineJob(jobPath){
-        disabled(JOB_DISABLED[JB.key]) // on reload of job, disable to avoid churn
+        disabled(false)
         description('''
 Sync DS_CI jobs in gitlab repo to github.
         ''')

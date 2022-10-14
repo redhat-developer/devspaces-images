@@ -7,7 +7,7 @@
 def MIDSTM_REPO = "redhat-developer/devspaces"
 def MIDSTM_BRANCH = "devspaces-3-rhel-8"
 
-def buildNode = "x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8" // requires rhpkg, cannot run on x86_64-rhel8
+def buildNode = "x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8"
 timeout(120) {
     node("${buildNode}"){ 
         stage ("update versions/tags; disable ${DS_VERSION} jobs") {
