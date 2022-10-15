@@ -12,7 +12,8 @@ timeout(120) {
     node("${buildNode}"){ 
         stage ("Copy DWO to Quay") {
             wrap([$class: 'TimestamperBuildWrapper']) {
-                withCredentials([string(credentialsId: 'quay.io-devworkspaceci_user_token', variable: 'QUAY_TOKEN_DWO')]) {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN'),
+                        string(credentialsId: 'quay.io-devworkspaceci_user_token', variable: 'QUAY_TOKEN_DWO')]) {
                     cleanWs()
                     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
                     def util = load "${WORKSPACE}/util2.groovy"
@@ -21,8 +22,7 @@ timeout(120) {
                     sh(script: '''
 #!/bin/bash -xe
 cd ${WORKSPACE}/targetmid/product
-echo "${QUAY_TOKEN_DWO}" | podman login --authfile=~/.docker/config.json -u="devworkspace+devworkspaceci" --password-stdin quay.io
-
+skopeo login quay.io/devworkspace -u "devworkspace+devworkspaceci" -p "${QUAY_TOKEN_DWO}" -v 
 ./copyDWOToQuay.sh -t ${DWO_VERSION} ${EXTRA_FLAGS}
 ''')
                     currentBuild.description="copyDWOToQuay.sh -t ${DWO_VERSION} ${EXTRA_FLAGS}"
