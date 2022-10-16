@@ -28,8 +28,8 @@
       },
       "3.3": {
         "upstream_branch": [
-          "7.54.x",
-          "7.54.x"
+          "devspaces-3.3-rhel-8",
+          "devspaces-3.3-rhel-8"
         ],
         "disabled": false
       },
@@ -1022,6 +1022,9 @@
       "3.2": "v0.1.2",
       "3.3": "v0.1.2",
       "3.x": "v0.1.2"
+    },
+    "DEV_WORKSPACE_OPERATOR_TAG": {
+      "3.x": "0.16"
     },
     "@eclipse-che/plugin-registry-generator": {
       "2.15": "7.42.0",
