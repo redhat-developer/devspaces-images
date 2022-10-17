@@ -21,8 +21,15 @@ timeout(120) {
                     currentBuild.description="Copying DWO ${DWO_VERSION} ..."
                     sh(script: '''
 #!/bin/bash -xe
-cd ${WORKSPACE}/targetmid/product
+# set up permissions to pull/push signatures
+sudo mkdir /var/lib/containers/sigstore -p || true
+sudo chown $USER:$USER -R /var/lib/containers/sigstore || true
+
+# login to quay.io
 skopeo login quay.io/devworkspace -u "devworkspace+devworkspaceci" -p "${QUAY_TOKEN_DWO}" -v 
+
+# copy DWO images to quay
+cd ${WORKSPACE}/targetmid/product
 ./copyDWOToQuay.sh -t ${DWO_VERSION} ${EXTRA_FLAGS}
 ''')
                     currentBuild.description="copyDWOToQuay.sh -t ${DWO_VERSION} ${EXTRA_FLAGS}"
