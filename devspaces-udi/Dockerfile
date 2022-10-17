@@ -7,6 +7,8 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
+
+# NOTE: this is pinned to 1.16 because golangci-lint 1.44.0 requires go 1.16; newer versions need 1.18 which is not avail in RHEC
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM registry-proxy.engineering.redhat.com/rh-osbs/rhel8-go-toolset:1.16.12-2 as go-builder
 
@@ -127,7 +129,9 @@ RUN \
 RUN dnf -y module enable container-tools:rhel8 && \ 
     dnf -y -q update --exclude=odo && \
     dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs
+    # CRW-3397 ensure fuse-overlayfs is installed BEFORE podman - https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md#ensure-fuse-overlayfs-is-installed
+    dnf -y install fuse-overlayfs && fuse-overlayfs -V && \
+    dnf -y install podman buildah skopeo
 
 ## Rootless podman install #2
 # Set up environment variables to note that this is
@@ -148,11 +152,6 @@ RUN sed -i -e 's|^#mount_program|mount_program|g' -e '/additionalimage.*/a "/var
 RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
     touch /var/lib/shared/overlay-images/images.lock; \
     touch /var/lib/shared/overlay-layers/layers.lock
-
-## Rootless podman install #5
-# But use VFS since we were not able to make Fuse work yet...
-RUN mkdir -p "${HOME}"/.config/containers && \
-   (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
 RUN \
     ########################################################################
