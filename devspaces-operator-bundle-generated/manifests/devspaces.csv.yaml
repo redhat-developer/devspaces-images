@@ -892,9 +892,9 @@ spec:
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:bfb424eb64eef3f61a277910af1202afaae9cd6741d9926c947023cfcf38ef9f
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
-                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4758738bbac1c626e3d86010575328e4f39762e3e55a90594ceed7ad7a4a0e88
+                  value: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:69d86e049dfcee45515b6e8f0c8712bc3e329149b4bde1d18341fdbe381395f2
                 - name: RELATED_IMAGE_gateway_authorization_sidecar
-                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:ef2c41fb899228a64cf2f61d7606a980a5f8fcae820da246d25c4f17faa0da3d
+                  value: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c27a7c01e5968aff16b6bb6670423f992d1a1de1a16e7e260d12908d3322431c
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_G4XDILRUBI______
                   value: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
                 - name: RELATED_IMAGE_jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_G4XDILRUBI______
@@ -904,7 +904,7 @@ spec:
                 - name: RELATED_IMAGE_jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_GMXDACQ_
                   value: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:ede8f51e311a129c877a227841ececd63a1b0c4d04fb4ec01f9e81d491737287
                 - name: RELATED_IMAGE_plugin_registry
-                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:f967b5f8c8a7a87016514e0487889753c41efeb4a3df9179e6c6eae82b520d29
+                  value: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:19f6506de9d71b2b855166cb005eea64d44e98331370e765c48f3071406ef34e
                 - name: RELATED_IMAGE_postgres
                   value: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
                 - name: RELATED_IMAGE_postgres_13_3
@@ -1284,9 +1284,9 @@ spec:
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:bfb424eb64eef3f61a277910af1202afaae9cd6741d9926c947023cfcf38ef9f
   - name: gateway_authentication_sidecar
-    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:4758738bbac1c626e3d86010575328e4f39762e3e55a90594ceed7ad7a4a0e88
+    image: registry.redhat.io/openshift4/ose-oauth-proxy@sha256:69d86e049dfcee45515b6e8f0c8712bc3e329149b4bde1d18341fdbe381395f2
   - name: gateway_authorization_sidecar
-    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:ef2c41fb899228a64cf2f61d7606a980a5f8fcae820da246d25c4f17faa0da3d
+    image: registry.redhat.io/openshift4/ose-kube-rbac-proxy@sha256:c27a7c01e5968aff16b6bb6670423f992d1a1de1a16e7e260d12908d3322431c
   - name: jboss_eap_7_eap74_openjdk11_openshift_devfile_registry_image_g4xdilrubi______
     image: registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8@sha256:ccd43d785e346bd9e88fc8a312ad148a7605ae587df9ed7560b3c6c0ceb8dd01
   - name: jboss_eap_7_eap74_openjdk11_openshift_plugin_registry_image_g4xdilrubi______
@@ -1296,7 +1296,7 @@ spec:
   - name: jboss_eap_7_eap_xp3_openjdk11_openshift_plugin_registry_image_gmxdacq_
     image: registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8@sha256:ede8f51e311a129c877a227841ececd63a1b0c4d04fb4ec01f9e81d491737287
   - name: plugin_registry
-    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:f967b5f8c8a7a87016514e0487889753c41efeb4a3df9179e6c6eae82b520d29
+    image: registry.redhat.io/devspaces/pluginregistry-rhel8@sha256:19f6506de9d71b2b855166cb005eea64d44e98331370e765c48f3071406ef34e
   - name: postgres
     image: registry.redhat.io/rhel8/postgresql-96@sha256:314747a4a64ac16c33ead6a34479dccf16b9a07abf440ea7eeef7cda4cd19e32
   - name: postgres_13_3
