@@ -7,7 +7,6 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
-
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM registry-proxy.engineering.redhat.com/rh-osbs/rhel8-go-toolset:1.16.12-2 as go-builder
 
