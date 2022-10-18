@@ -8,7 +8,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-# NOTE: this is pinned to 1.16 because golangci-lint 1.44.0 requires go 1.16; newer versions need 1.18 which is not avail in RHEC
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM registry-proxy.engineering.redhat.com/rh-osbs/rhel8-go-toolset:1.16.12-2 as go-builder
 
