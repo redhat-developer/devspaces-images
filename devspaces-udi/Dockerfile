@@ -36,15 +36,6 @@ RUN \
     # make build-kamel && \
     # ./kamel version && \
     # # END Kamel
-    # BEGIN golangci-lint
-    cd $REMOTE_SOURCES_DIR/golangci-lint/app && \
-    source $REMOTE_SOURCES_DIR/golangci-lint/cachito.env && \
-    GOLANGCI_BUILD_TAG="1.44.0" && \
-    GOLANGCI_BUILD_SHA="617470fa9e2c54dd91ab91c14e0d20030e183c20"&& \
-    GOLANGCI_BUILD_DATE=$(date '+%Y-%m-%dT%H:%M:%SZ') && \
-    CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=$GOLANGCI_BUILD_TAG -X main.commit=$GOLANGCI_BUILD_SHA -X main.date=$GOLANGCI_BUILD_DATE" -o golangci-lint ./cmd/golangci-lint && \
-    ./golangci-lint version
-    # END golangci-lint
 
 FROM ubi8-minimal:8.6-941
 
@@ -263,7 +254,6 @@ RUN \
     dnf -y -q install golang && \
     mkdir /home/user/go/bin -p
 COPY --from=go-builder $REMOTE_SOURCES_DIR/gopls/app/gopls/gopls /home/user/go/bin/gopls
-COPY --from=go-builder $REMOTE_SOURCES_DIR/golangci-lint/app/golangci-lint /home/user/go/bin/golangci-lint
 RUN \
     ########################################################################
     # PHP (Tech Preview) - see https://catalog.redhat.com/software/containers/ubi8/php-73/5d400891bed8bd38099104e0
