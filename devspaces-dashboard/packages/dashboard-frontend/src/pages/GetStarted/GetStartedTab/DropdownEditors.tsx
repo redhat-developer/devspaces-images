@@ -16,6 +16,8 @@ import { CheckIcon } from '@patternfly/react-icons';
 import { DropdownGroup, DropdownItem } from '@patternfly/react-core';
 import TagLabel from '../../../components/TagLabel';
 
+import styles from './dropdown-editors.module.css';
+
 type Props = {
   targetEditors: TargetEditor[];
   onClick: (editorId: string) => void;
@@ -26,7 +28,7 @@ class DropdownEditors extends React.PureComponent<Props> {
     const { targetEditors, onClick } = this.props;
 
     return (
-      <DropdownGroup style={{ whiteSpace: 'nowrap' }} label="Choose an editor">
+      <DropdownGroup className={styles.dropdownEditorGroup} label="Choose an editor">
         {targetEditors.map(editor => {
           return (
             <DropdownItem
@@ -34,17 +36,10 @@ class DropdownEditors extends React.PureComponent<Props> {
               tooltip={editor.tooltip}
               onClick={() => onClick(editor.id)}
             >
-              <span style={{ textTransform: 'capitalize' }}>{editor.name}</span>
+              <span className={styles.editorTitle}>{editor.name}</span>
               <TagLabel version={editor.version} />
               {editor.isDefault && (
-                <CheckIcon
-                  data-testid="checkmark"
-                  style={{
-                    float: 'right',
-                    opacity: '0.6',
-                    marginTop: '3px',
-                  }}
-                />
+                <CheckIcon data-testid="checkmark" className={styles.checkIcon} />
               )}
             </DropdownItem>
           );
