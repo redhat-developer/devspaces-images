@@ -10,24 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import * as k8s from '@kubernetes/client-node';
-import { DevWorkspaceClient } from '../../devworkspace-client';
-import * as helper from './helpers';
+import { DevWorkspaceClient } from '../../devworkspaceClient';
 import { KubeConfigProvider } from './kubeConfigProvider';
 
 export class DwClientProvider {
   private kubeconfigProvider: KubeConfigProvider;
-  private readonly isOpenShift: Promise<boolean>;
 
   constructor() {
     this.kubeconfigProvider = new KubeConfigProvider();
-
-    const kc: any = this.kubeconfigProvider.getSAKubeConfig();
-    const apiClient = kc.makeApiClient(k8s.ApisApi);
-    this.isOpenShift = helper.isOpenShift(apiClient);
   }
 
-  async getDWClient(token: string) {
+  getDWClient(token: string) {
     const contextKc = this.kubeconfigProvider.getKubeConfig(token);
 
     return new DevWorkspaceClient(contextKc);

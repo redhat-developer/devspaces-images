@@ -10,16 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { helpers } from '@eclipse-che/common';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import * as k8s from '@kubernetes/client-node';
-import { findApi } from '../../../helpers/findApi';
 
-const projectApiGroup = 'project.openshift.io';
+const { KubeConfig } = k8s;
+const config = new KubeConfig();
+config.makeApiClient = jest.fn();
 
-export async function isOpenShift(apisApi: k8s.ApisApi): Promise<boolean> {
-  try {
-    return findApi(apisApi, projectApiGroup);
-  } catch (e) {
-    throw new Error(`Can't evaluate target platform: ${helpers.errors.getMessage(e)}`);
-  }
+export function KubeConfigProvider() {
+  return {
+    getSAKubeConfig: () => config,
+    getKubeConfig: (_token: string) => {
+      return new KubeConfig();
+    },
+    inClusterKubeConfig: config,
+  };
 }

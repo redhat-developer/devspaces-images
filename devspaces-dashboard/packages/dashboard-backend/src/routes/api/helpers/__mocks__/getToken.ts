@@ -10,13 +10,10 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
+import { FastifyRequest } from 'fastify';
 
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
-};
+export const stubToken = 'authorization token';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getToken(request: FastifyRequest): string {
+  return stubToken;
+}

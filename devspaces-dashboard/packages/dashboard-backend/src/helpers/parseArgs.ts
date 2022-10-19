@@ -10,13 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
+import args from 'args';
 
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
+export type AppArgs = {
+  publicFolder: string;
 };
+
+export default function parseArgs(): AppArgs {
+  args.option('publicFolder', 'The public folder to serve', './public');
+
+  return args.parse(process.argv) as AppArgs;
+}

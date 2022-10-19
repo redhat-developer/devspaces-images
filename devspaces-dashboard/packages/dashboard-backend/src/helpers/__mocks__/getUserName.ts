@@ -10,13 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
-
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
-};
+export const stubUserName = 'user1';
+export function getUserName() {
+  return stubUserName;
+}

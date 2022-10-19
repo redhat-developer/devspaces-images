@@ -10,13 +10,14 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
+import args from 'args';
+import path from 'path';
 
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
-};
+const mockArgs = jest.genMockFromModule('args');
+(mockArgs as typeof args).parse = jest.fn(() => {
+  return {
+    publicFolder: path.join(__dirname, 'src/__mocks__/dashboard'),
+  };
+});
+
+export default mockArgs;

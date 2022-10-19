@@ -10,13 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
+import { getServiceAccountToken as helper } from '../getServiceAccountToken';
 
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
-};
+export const stubToken = 'SA token';
+export function getServiceAccountToken(): ReturnType<typeof helper> {
+  return stubToken;
+}

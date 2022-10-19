@@ -10,13 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
+import * as nodeFetch from 'node-fetch';
 
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
-};
+const mockNodeFetch = jest.genMockFromModule<typeof nodeFetch>('node-fetch');
+
+export default mockNodeFetch;

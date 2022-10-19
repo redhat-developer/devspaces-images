@@ -10,13 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-const base = require('../../jest.config.base');
+import fastifyWebsocket from '@fastify/websocket';
+import { FastifyInstance } from 'fastify';
 
-module.exports = {
-  ...base,
-  name: 'dashboard-backend',
-  displayName: 'Dashboard backend',
-  moduleDirectories: [
-    'node_modules',
-  ],
-};
+export async function registerWebSocket(server: FastifyInstance): Promise<void> {
+  await server.register(fastifyWebsocket);
+}
