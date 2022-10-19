@@ -161,10 +161,10 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
     return (
       <TextContent>
         {persistentTypeDescr}
+        {perUserTypeDescr}
         {perWorkspaceTypeDescr}
         {ephemeralTypeDescr}
         {asyncTypeDescr}
-        {perUserTypeDescr}
         <Text>
           <a rel="noreferrer" target="_blank" href={href}>
             Open documentation page
@@ -230,8 +230,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
           label="Per-user"
           name="per-user"
           id="per-user-type-radio"
-          description="Per-workspace Storage. A PVC is provisioned for each workspace within the namespace.
-        All of the workspace's storage are mounted on subpaths within the workspace's PVC."
+          description="Per-user Storage. One PVC is provisioned per user namespace and used by all workspaces of a given user"
           isChecked={selected === 'per-user'}
           onChange={() => this.setState({ selected: 'per-user' })}
         />
@@ -245,8 +244,7 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
           label="Per-workspace"
           name="per-workspace"
           id="per-workspace-type-radio"
-          description="Per-workspace Storage. One PVC is provisioned for each workspace within the namespace.
-        All of the workspace's storage are mounted on subpaths within the workspace's PVC."
+          description="Per-workspace Storage. One PVC is provisioned for each workspace within the namespace."
           isChecked={selected === 'per-workspace'}
           onChange={() => this.setState({ selected: 'per-workspace' })}
         />
@@ -285,10 +283,10 @@ export class StorageTypeFormGroup extends React.PureComponent<Props, State> {
           />
           <Text component={TextVariants.h6}>Select the storage type</Text>
           {persistentTypeDescr}
+          {perUserTypeDescr}
           {perWorkspaceTypeDescr}
           {ephemeralTypeDescr}
           {asyncTypeDescr}
-          {perUserTypeDescr}
         </TextContent>
       </Modal>
     );
