@@ -1,0 +1,389 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> 348560e9eab
+STEP 3/23: ARG BOOTSTRAP=true
+--> 344dbd17998
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> a7e51803327
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> 8e0c2fa9304
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 01189d4e651
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 668a79a2416
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 37e8bdd6c56
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 1fcec79d6cd
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 86d872ef3c5
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-4.el8_6.ppc64le                                                   
+  nodejs-1:14.20.0-2.module+el8.6.0+16231+7c1b33d9.ppc64le                      
+  nodejs-docs-1:14.20.0-2.module+el8.6.0+16231+7c1b33d9.noarch                  
+  nodejs-full-i18n-1:14.20.0-2.module+el8.6.0+16231+7c1b33d9.ppc64le            
+  npm-1:6.14.17-1.14.20.0.2.module+el8.6.0+16231+7c1b33d9.ppc64le               
+Installed:
+  containers-common-2:1-35.module+el8.6.0+15917+093ca6f8.ppc64le                
+  criu-3.15-3.module+el8.6.0+15875+dc9a2b96.ppc64le                             
+  fuse-common-3.3.0-15.el8.ppc64le                                              
+  fuse-overlayfs-1.9-1.module+el8.6.0+15917+093ca6f8.ppc64le                    
+  fuse3-3.3.0-15.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-15.el8.ppc64le                                               
+  iptables-libs-1.8.4-22.el8.ppc64le                                            
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-3.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-37.2-1.el8.ppc64le                                                 
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.6.0+15875+dc9a2b96.ppc64le                        
+  nftables-1:0.9.3-25.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  runc-1:1.1.3-2.module+el8.6.0+15917+093ca6f8.ppc64le                          
+  skopeo-2:1.8.0-2.module+el8.6.0+15917+093ca6f8.ppc64le                        
+  slirp4netns-1.2.0-2.module+el8.6.0+15917+093ca6f8.ppc64le                     
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/36/2b/61d51a2c4f25ef062ae3f74576b01638bebad5e045f747ff12643df63844/PyYAML-6.0.tar.gz (124kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+    Preparing wheel metadata: started
+    Preparing wheel metadata: finished with status 'done'
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (PEP 517): started
+  Building wheel for PyYAML (PEP 517): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0-cp38-cp38-linux_ppc64le.whl size=45334 sha256=028708d841ed3c95bd30c7d3bd33691309af690cdc791eac2835dac67c9460a1
+  Stored in directory: /tmp/pip-ephem-wheel-cache-sx12oxn4/wheels/95/84/67/ebeac632c63797cfbeb90128ca41073117721540dad526d213
+Successfully built PyYAML
+Installing collected packages: xmltodict, toml, argcomplete, PyYAML, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.12
+yq: yq 3.1.0
+jq: jq-1.6
+--> 1b7b7d9a3f7
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 28476cd8c69
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> f4af622be76
+STEP 14/23: COPY ./VERSION /
+--> 8d61ada784c
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> e53353bbe2d
+STEP 16/23: WORKDIR /build/
+--> 7ec1b07c151
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
+added 120 packages from 182 contributors and audited 120 packages in 10.073s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
++ @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
+added 2 packages from 1 contributor and audited 239 packages in 2.591s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+--> 3c2f9b1fefe
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> a1cdb745ddd
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + quay.io/devspaces/code-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/machineexec-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/theia-endpoint-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/theia-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/udi-rhel8:3.3 PASS - 3.3 allowed
+ = registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8:7.4.4 PASS
+ = registry.redhat.io/jboss-eap-7/eap-xp3-openjdk11-openshift-rhel8:3.0 PASS
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 6ab21ae865b
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/00_java11-maven-eap/meta.yaml'
+Checking devfile 'devfiles/00_java11-maven-microprofile-xp3/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-gradle/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-lombok/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-quarkus/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-mongo/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-simple/meta.yaml'
+Checking devfile 'devfiles/04_python/meta.yaml'
+Checking devfile 'devfiles/05_cpp/meta.yaml'
+Checking devfile 'devfiles/05_go/meta.yaml'
+Checking devfile 'devfiles/05_php-cake/meta.yaml'
+--> 9df9f0ddb64
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 888a8487e14
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> eff8b085cfa
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> c9a3d2cc5ed
+Successfully tagged localhost/devfileregistry:tmp
+c9a3d2cc5ed46e9abe8cd9fb03a005ab67fc09625626e6dbc78047db6a08ea9c
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.VHM4nmcF0Z/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
+--- /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-09-28 03:57:03.000000000 +0000
++++ /tmp/tmp.VHM4nmcF0Z/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-10-20 21:36:18.443622763 +0000
+@@ -3,10 +3,10 @@
+ Version: 6.0
+ Summary: YAML parser and emitter for Python
+ Home-page: https://pyyaml.org/
++Download-URL: https://pypi.org/project/PyYAML/
+ Author: Kirill Simonov
+ Author-email: xi@resolvent.net
+ License: MIT
+-Download-URL: https://pypi.org/project/PyYAML/
+ Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
+ Project-URL: CI, https://github.com/yaml/pyyaml/actions
+ Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
+@@ -43,4 +43,3 @@
+ 
+ PyYAML is applicable for a broad range of tasks from complex
+ configuration files to object serialization and persistence.
+-
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.VHM4nmcF0Z/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
+--- /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-09-28 03:57:03.000000000 +0000
++++ /tmp/tmp.VHM4nmcF0Z/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-10-20 21:36:18.443622763 +0000
+@@ -1,8 +1,8 @@
+ PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+-PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
++PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
+ PyYAML-6.0.dist-info/RECORD,,
+-PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
++PyYAML-6.0.dist-info/WHEEL,sha256=0E6tLuz5Fy5PwxaTgvYcGmf1IBF7Q1sb8uzRJWGoT54,104
+ PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-38.pyc,,
+@@ -24,7 +24,6 @@
+ yaml/__pycache__/scanner.cpython-38.pyc,,
+ yaml/__pycache__/serializer.cpython-38.pyc,,
+ yaml/__pycache__/tokens.cpython-38.pyc,,
+-yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.VHM4nmcF0Z/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
+--- /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-09-28 03:57:03.000000000 +0000
++++ /tmp/tmp.VHM4nmcF0Z/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-10-20 21:36:18.443622763 +0000
+@@ -1,8 +1,5 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.37.0)
++Generator: bdist_wheel (0.38.0)
+ Root-Is-Purelib: false
+-Tag: cp38-cp38-manylinux_2_5_x86_64
+-Tag: cp38-cp38-manylinux1_x86_64
+-Tag: cp38-cp38-manylinux_2_12_x86_64
+-Tag: cp38-cp38-manylinux2010_x86_64
++Tag: cp38-cp38-linux_ppc64le
+ 
+Only in /tmp/tmp.ffbGPe8IeZ/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
+***** END DIFF
+DIFF START *****
+Only in /tmp/tmp.KBJJzvseh8/devfiles: 05_php-di
+diff --suppress-common-lines -u -r /tmp/tmp.KBJJzvseh8/devfiles/external_images_by_devfile.txt /tmp/tmp.W9uddx7cns/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.KBJJzvseh8/devfiles/external_images_by_devfile.txt	2022-10-14 15:28:50.000000000 +0000
++++ /tmp/tmp.W9uddx7cns/devfiles/external_images_by_devfile.txt	2022-10-20 21:36:20.023583930 +0000
+@@ -1,6 +1,5 @@
+ quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/jboss-eap-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+@@ -12,7 +11,6 @@
+ quay.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/jboss-eap-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+@@ -24,7 +22,6 @@
+ quay.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/jboss-eap-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+@@ -36,7 +33,6 @@
+ quay.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-quay.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/jboss-eap-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+@@ -50,8 +46,6 @@
+ quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ quay.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.KBJJzvseh8/devfiles/index.json /tmp/tmp.W9uddx7cns/devfiles/index.json
+--- /tmp/tmp.KBJJzvseh8/devfiles/index.json	2022-10-14 15:28:50.000000000 +0000
++++ /tmp/tmp.W9uddx7cns/devfiles/index.json	2022-10-20 21:36:20.023583930 +0000
+@@ -211,24 +211,5 @@
+         "che-incubator/che-code/insiders": "/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml"
+       }
+     }
+-  },
+-  {
+-    "displayName": "PHP-DI",
+-    "description": "PHP Stack with PHP, Apache Web Server and Composer",
+-    "tags": [
+-      "Tech-Preview",
+-      "PHP",
+-      "Apache",
+-      "Composer",
+-      "UBI8"
+-    ],
+-    "icon": "/images/type-php.svg",
+-    "links": {
+-      "v2": "https://github.com/devspaces-samples/demo/tree/devspaces-3-rhel-8",
+-      "devWorkspaces": {
+-        "eclipse/che-theia/latest": "/devfiles/05_php-di/devworkspace-che-theia-latest.yaml",
+-        "che-incubator/che-code/insiders": "/devfiles/05_php-di/devworkspace-che-code-insiders.yaml"
+-      }
+-    }
+   }
+ ]
+Only in /tmp/tmp.KBJJzvseh8/resources/v2: demo.zip
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: c9a3d2cc5ed46e9abe8cd9fb03a005ab67fc09625626e6dbc78047db6a08ea9c
+Deleted: eff8b085cfa11b7d07dbf250e8054c687706a3854cd39b97d5510c692f3d3cb6
+Deleted: 888a8487e14082cb0ed2c0697172338cb545a2142b8f99de2f0019cc9794d6bb
+Deleted: 9df9f0ddb6479c3d6cde90c9ab9413efd83f1c98973a16c94bbc9e11146827b1
+Deleted: 6ab21ae865bff8c17c2637a2b79281a24dfaef755042fec755af98d4f71cafdd
+Deleted: a1cdb745dddfed4f14988ab2187a1dade9ac52064fd318ac18070b03f542deb8
+Deleted: 3c2f9b1fefe6669dca0c122fe39c7591230b2e595e2e3a3d064b0778d3a8f86c
+Deleted: 7ec1b07c15143a47332ed4c38164dc82c3826add28359434093f8ab67276b933
+Deleted: e53353bbe2da8a5ffd8f227c2dcdb85b81be3565932f4e08fc2d8844bbd8e76b
+Deleted: 8d61ada784cf55212614f5702d60a1f60ff3cb217bc80c86c4594a4ea38afdd1
+Deleted: f4af622be768cfe6a06b019c0994504e4a3fe65d94d67584124bbaa171ce3a6b
+Deleted: 28476cd8c694db398e385f7fc465c2e925452a4d2ad7c439e49a863be27e9a11
+Deleted: 1b7b7d9a3f7dacc35c7c60ae7ddac3a5cee690a4239ed0f2496205917d0d8b47
+Deleted: 86d872ef3c5ae660ae970188844b8f9bce6921abac994ef7d4b887d08ca0d4d6
+Deleted: 1fcec79d6cd3e121aaf31e1cefb46b9296350eb87a0124ad86e53e7b232fbe04
+Deleted: 37e8bdd6c56d43a45c54fda8090e1e368c1963832621ff7101b262b124bb4d0e
+Deleted: 668a79a2416d32d41219ed834925eeb6e23627c6a9267757d3b78e078873ba2a
+Deleted: 01189d4e6510201dec09128916387153b4d685b339d37d385e47529e3db6ec63
+Deleted: 8e0c2fa9304e103f58792ff3605f610407a013a42362b1a1f88e5c79a3fd53c5
+Deleted: a7e51803327dcca83c8ed4d3e1cdafe8b93c466a84720b1e8b8a48f70c33f242
+Deleted: 344dbd17998da9148437768a7b768140216a0b11255ec6f54e4e1dec508225cb
+Deleted: 348560e9eabd93dd43dbc7df794fc7ea71064d1997a1cf2c80e27c525fa70167
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
