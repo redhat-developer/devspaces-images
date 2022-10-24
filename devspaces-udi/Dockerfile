@@ -71,13 +71,15 @@ RUN \
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202209201358.p0.g262ac9c.assembly.stream.el8.ppc64le.rpm
     odo-2.5.1-1.el8 helm-3.7.1-7.el8 openshift-clients-4.11.0-202209201358.p0.g262ac9c.assembly.stream.el8 && \
     mkdir -p /opt && \
+    # add user and configure it
+    useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
+    # Setup $PS1 for a consistent and reasonable prompt
+    if [[ ! -f "${HOME}"/.bashrc ]]; then echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc; fi && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
         chmod -R g+rwX ${f}; \
     done && \
-    # add user and configure it
-    useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
     # Generate passwd.template
     cat /etc/passwd | \
     sed s#user:x.*#user:x:\${USER_ID}:\${GROUP_ID}::\${HOME}:/bin/bash#g \
