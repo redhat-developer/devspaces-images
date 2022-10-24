@@ -15,6 +15,9 @@ compose:
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
 remote_sources:
+
+# https://issues.redhat.com/browse/CRW-3103 use gopls 0.7.2 as that's the latest version that can be built with go 1.17
+# https://github.com/golang/tools/releases?q=v0.7.2&expanded=true ==> https://github.com/golang/tools/commit/fd02dfae644ce04dfd4bb3828cf576b9d8717f79
 - name: gopls
   remote_source:
     repo: https://github.com/golang/tools

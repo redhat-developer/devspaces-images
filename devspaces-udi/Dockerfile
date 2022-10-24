@@ -7,8 +7,11 @@
 #
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
-# https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
-FROM registry-proxy.engineering.redhat.com/rh-osbs/rhel8-go-toolset:1.16.12-2 as go-builder
+
+# use rhel8/ for Brew, not ubi8/
+# can pin to specific tag filter using rhel8/go-toolset#^1.17
+# https://registry.access.redhat.com/rhel8/go-toolset
+FROM rhel8/go-toolset:1.17.12-7 as go-builder
 
 USER root
 
@@ -37,6 +40,7 @@ RUN \
     # ./kamel version && \
     # # END Kamel
 
+# https://registry.access.redhat.com/ubi8-minimal 
 FROM ubi8-minimal:8.6-941
 
 USER root
