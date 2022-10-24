@@ -25,7 +25,11 @@ export async function createWorkspace(
     );
     return response.data;
   } catch (e) {
-    throw `Failed to create a new workspace. ${helpers.errors.getMessage(e)}`;
+    const errorMessage = helpers.errors.getMessage(e);
+    if (errorMessage.startsWith('Unable to create devworkspace')) {
+      throw errorMessage;
+    }
+    throw `Failed to create a new workspace. ${errorMessage}`;
   }
 }
 

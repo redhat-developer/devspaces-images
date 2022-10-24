@@ -42,6 +42,7 @@ import { buildDetailsLocation, buildIdeLoaderLocation } from '../helpers/locatio
 import { Workspace } from '../workspace-adapter';
 import { WorkspaceRunningError, WorkspaceStoppedDetector } from './workspaceStoppedDetector';
 import { selectOpenVSXUrl } from '../../store/ServerConfig/selectors';
+import { selectEmptyWorkspaceUrl } from '../../store/DevfileRegistries/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -88,7 +89,7 @@ export default class Bootstrap {
       this.fetchPlugins().then(() => this.fetchDevfileSchema()),
       this.fetchDwPlugins(),
       this.fetchDefaultDwPlugins(),
-      this.fetchRegistriesMetadata(),
+      this.fetchRegistriesMetadata().then(() => this.fetchEmptyWorkspace()),
       this.watchNamespaces(),
       this.updateDevWorkspaceTemplates(),
       this.fetchWorkspaces().then(() => this.checkWorkspaceStopped()),
@@ -285,6 +286,15 @@ export default class Bootstrap {
       this.store.getState,
       undefined,
     );
+  }
+
+  private async fetchEmptyWorkspace(): Promise<void> {
+    const { requestDevfile } = DevfileRegistriesStore.actionCreators;
+    const state = this.store.getState();
+    const emptyWorkspaceUrl = selectEmptyWorkspaceUrl(state);
+    if (emptyWorkspaceUrl) {
+      await requestDevfile(emptyWorkspaceUrl)(this.store.dispatch, this.store.getState, undefined);
+    }
   }
 
   private async fetchDevfileSchema(): Promise<void> {

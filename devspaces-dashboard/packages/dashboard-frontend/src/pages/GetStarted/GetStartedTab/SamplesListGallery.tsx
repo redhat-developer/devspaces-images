@@ -31,7 +31,10 @@ import { AppState } from '../../../store';
 import * as DevfileRegistriesStore from '../../../store/DevfileRegistries';
 import { SampleCard } from './SampleCard';
 import { AlertItem } from '../../../services/helpers/types';
-import { selectMetadataFiltered } from '../../../store/DevfileRegistries/selectors';
+import {
+  EMPTY_WORKSPACE_TAG,
+  selectMetadataFiltered,
+} from '../../../store/DevfileRegistries/selectors';
 import { selectWorkspacesSettings } from '../../../store/Workspaces/Settings/selectors';
 import * as FactoryResolverStore from '../../../store/FactoryResolver';
 import { isDevworkspacesEnabled } from '../../../services/helpers/devworkspace';
@@ -60,7 +63,6 @@ type State = {
 };
 
 export const VISIBLE_TAGS = ['Community', 'Tech-Preview'];
-export const EMPTY_WORKSPACE_TAG = 'Empty';
 
 const EXCLUDED_TARGET_EDITOR_NAMES = ['dirigible', 'jupyter', 'eclipseide', 'code-server'];
 

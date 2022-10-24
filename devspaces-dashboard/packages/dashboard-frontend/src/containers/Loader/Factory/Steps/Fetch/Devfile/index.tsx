@@ -13,7 +13,7 @@
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { isEqual } from 'lodash';
-import { helpers } from '@eclipse-che/common';
+import common, { helpers } from '@eclipse-che/common';
 import { AlertVariant } from '@patternfly/react-core';
 import { AppState } from '../../../../../../store';
 import * as FactoryResolverStore from '../../../../../../store/FactoryResolver';
@@ -36,6 +36,14 @@ import buildFactoryParams from '../../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../../AbstractStep';
 import { AlertItem } from '../../../../../../services/helpers/types';
 import OAuthService, { isOAuthResponse } from '../../../../../../services/oauth';
+import ExpandableWarning from '../../../../../../components/ExpandableWarning';
+
+export class ApplyingDevfileError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ApplyingDevfileError';
+  }
+}
 
 const RELOADS_LIMIT = 2;
 type ReloadsInfo = {
@@ -49,6 +57,7 @@ export type Props = MappedProps &
 export type State = LoaderStepState & {
   factoryParams: FactoryParams;
   shouldResolve: boolean;
+  useDefaultDevfile: boolean;
 };
 
 class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
@@ -60,6 +69,7 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
     this.state = {
       factoryParams: buildFactoryParams(props.searchParams),
       shouldResolve: true,
+      useDefaultDevfile: false,
     };
   }
 
@@ -106,9 +116,9 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
 
   private init() {
     const { factoryResolver } = this.props;
-    const { factoryParams } = this.state;
+    const { factoryParams, useDefaultDevfile } = this.state;
     const { sourceUrl } = factoryParams;
-    if (sourceUrl && sourceUrl === factoryResolver?.location) {
+    if (sourceUrl && (useDefaultDevfile || sourceUrl === factoryResolver?.location)) {
       // prevent a resource being fetched one more time
       this.setState({
         shouldResolve: false,
@@ -129,7 +139,7 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
   protected async runStep(): Promise<boolean> {
     await delay(MIN_STEP_DURATION_MS);
 
-    const { factoryParams, shouldResolve } = this.state;
+    const { factoryParams, shouldResolve, useDefaultDevfile } = this.state;
     const { currentStepIndex, factoryResolver, factoryResolverConverted, loaderSteps } = this.props;
     const { sourceUrl } = factoryParams;
 
@@ -151,15 +161,30 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
     }
 
     if (shouldResolve === false) {
+      if (useDefaultDevfile) {
+        // go to the next step
+        return true;
+      }
+
       if (this.state.lastError instanceof Error) {
         throw this.state.lastError;
       }
       throw new Error('Failed to resolve the devfile.');
     }
 
-    // start resolving the devfile
-    const resolveDone = await this.resolveDevfile(sourceUrl);
-    if (resolveDone === false) {
+    let resolveDone = false;
+    try {
+      // start resolving the devfile
+      resolveDone = await this.resolveDevfile(sourceUrl);
+    } catch (e) {
+      const errorMessage = common.helpers.errors.getMessage(e);
+      // check if it is a scheme validation error
+      if (errorMessage.includes('schema validation failed')) {
+        throw new ApplyingDevfileError(errorMessage);
+      }
+      throw e;
+    }
+    if (!resolveDone) {
       return false;
     }
 
@@ -174,6 +199,13 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
         `Devfile hasn't been resolved in the last ${TIMEOUT_TO_RESOLVE_SEC} seconds.`,
       );
     }
+  }
+
+  private handleDevfileError(): void {
+    this.setState({
+      useDefaultDevfile: true,
+    });
+    this.clearStepError();
   }
 
   /**
@@ -261,6 +293,31 @@ class StepFetchDevfile extends AbstractLoaderStep<Props, State> {
   }
 
   private getAlertItem(error: unknown): AlertItem | undefined {
+    if (error instanceof ApplyingDevfileError) {
+      return {
+        key: 'factory-loader-devfile-error',
+        title: 'Warning',
+        variant: AlertVariant.warning,
+        children: (
+          <ExpandableWarning
+            textBefore="The Devfile in the git repository is invalid:"
+            errorMessage={helpers.errors.getMessage(error)}
+            textAfter="If you continue it will be ignored and a regular workspace will be created.
+            You will have a chance to fix the Devfile from the IDE once it is started."
+          />
+        ),
+        actionCallbacks: [
+          {
+            title: 'Continue with the default devfile',
+            callback: () => this.handleDevfileError(),
+          },
+          {
+            title: 'Reload',
+            callback: () => this.clearStepError(),
+          },
+        ],
+      };
+    }
     if (!error) {
       return;
     }

@@ -38,7 +38,7 @@ export type OAuthResponse = {
     oauth_authentication_url: string;
   };
   errorCode: number;
-  message: string;
+  message: string | undefined;
 };
 
 export interface ResolverState extends FactoryResolver {
@@ -72,7 +72,7 @@ interface ReceiveFactoryResolverAction {
 
 interface ReceiveFactoryResolverErrorAction {
   type: 'RECEIVE_FACTORY_RESOLVER_ERROR';
-  error: string;
+  error: string | undefined;
 }
 
 export type KnownAction =
@@ -212,8 +212,7 @@ export const actionCreators: ActionCreators = {
             throw response.data;
           }
         }
-        const errorMessage =
-          'Failed to request factory resolver: ' + common.helpers.errors.getMessage(e);
+        const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
           error: errorMessage,
