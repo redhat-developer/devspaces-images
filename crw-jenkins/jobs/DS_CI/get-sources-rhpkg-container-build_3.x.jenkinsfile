@@ -135,6 +135,9 @@ wait
           final jobResult = build(
             job: jobPath.replaceAll("/job/","/"),
             // DO NOT propagate status here as we could get misleading results (eg., unstable = problem in the push-latest-container-to-quay)
+            // push-latest job now includes searching for IIBs (which can take a while) and 
+            // creating multi-arch IIBs (which can take a while); may want to set wait: false to avoid timeouts
+            // or can increase/disable timeouts in downstream job
             wait: true,
             propagate: false,
             quietPeriod: 0,
@@ -166,10 +169,16 @@ wait
               ]
             ]
           )
+          // if wait = true, can get a link to the downstream build
           jobLink=jobPath + "/" +  jobResult?.number?.toString()
           println("waiting for runJob(" + jobPath + ")")
           println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
           currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
+
+          // if wait == false, can only get a link to the downstream job (no build #)
+          // println("triggered build(" + jobPath + ") [no wait]")
+          // println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+          // currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
         }
       } catch (e) {
         currentBuild.result = "UNSTABLE"

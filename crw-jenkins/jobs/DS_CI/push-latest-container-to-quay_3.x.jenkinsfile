@@ -32,8 +32,12 @@ def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
 def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
+
+def copyIIBsToQuayTimeout=120
+def copyContainersToQuayTimeout=120
+
 currentBuild.description="Copying " + CONTAINERS + "..."
-timeout(90) {
+timeout(copyContainersToQuayTimeout) {
     node(nodeLabel) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
@@ -168,7 +172,7 @@ Brew NVRs:
 // requires opm binary to filter & copy IIB images to quay, which publishes for a single arch
 // TODO https://issues.redhat.com/browse/CRW-3287 make this a loop so we can assemble a multiarch IIB?
 node("x86_64-rhel8"){ 
-  stage ("Update registries and metadata") {
+  stage ("Update metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
     echo "currentBuild.result = " + currentBuild.result
@@ -295,7 +299,7 @@ curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/
                     def String thisArch=nodeLabelLoop
                     // copy & filter IIB for this arch
                     tasks[whichBundle + " " + thisArch] = { ->
-                    timeout(60) {
+                    timeout(copyIIBsToQuayTimeout) {
                         node(thisArch){
                         stage("Copy IIBs: " + whichBundle + " " + thisArch) {
                             sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
