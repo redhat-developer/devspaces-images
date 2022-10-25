@@ -254,21 +254,30 @@ chmod +x updateGeneratedOperatorMetadata.sh
 
             // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
             // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
-            def latestBundleImage = sh(script: '''#!/bin/bash
+            // if a value found, echo "-i registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75" 
+            // and pass that to the next step as a filter for the getLatestIIBs.sh query
+            def latestBundleImageFilter = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
-./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+latestBundleImageFilter=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-)
+if [[ $latestBundleImageFilter ]]; then echo "-i $latestBundleImageFilter"; fi
 ''', returnStdout: true).trim()
+            // -i registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
 
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10) 
+            if (!latestBundleImageFilter?.trim()) {
+                println "####################################################################################################################WARNING\n\
+## WARNING: could not determine latest registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle image!\n\
+####################################################################################################################WARNING\n"
+            }
+
             def IIBs = sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
 for OCP_VER in ''' + OCP_VERSIONS + '''; do
-    ./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -i ''' + latestBundleImage + ''' | sed -r \
-        -e "s#''' + latestBundleImage + '''\\t+##" \
-        -e "s#(.+)\\t(.+)#\\1 (\\2)#"
+    index_and_ocp_version="$(./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -qi ''' + latestBundleImageFilter + ''') (${OCP_VER})"
+    echo $index_and_ocp_version
 done
 ''', returnStdout: true)
+            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
+            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10)
 
             // if we got the right number of values (matching number of OCP versions)
             if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 

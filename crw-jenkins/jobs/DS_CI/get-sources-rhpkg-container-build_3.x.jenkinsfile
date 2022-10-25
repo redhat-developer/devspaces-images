@@ -52,10 +52,10 @@ set -x
             // compute BUILD_RESULT from output of rhpkg-container-build.sh, after BUILD_RESULT=
             BUILD_RESULT=sh(returnStdout:true,script:'''sed -n '/BUILD_RESULT=/{:loop;n;p;b loop;}' ${WORKSPACE}/rhpkg-container-build.txt''').trim()
             // compute the new tag (eg., 3.y-zz)
-            NEW_TAG=sh(returnStdout:true,script:'''grep 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
+            NEW_TAG=sh(returnStdout:true,script:'''grep --text 'TAGs=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TAGs=##"''').trim()
             // Task info: https://brewweb.engineering.redhat.com/brew/taskinfo?taskID=33850006
-            TASK_URL=sh(returnStdout:true,script:'''grep 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
-            BUILD_DESC=sh(returnStdout:true,script:'''grep 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
+            TASK_URL=sh(returnStdout:true,script:'''grep --text 'TASK_URL=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#TASK_URL=##"''').trim()
+            BUILD_DESC=sh(returnStdout:true,script:'''grep --text 'BUILD_DESC=' ${WORKSPACE}/rhpkg-container-build.txt | sed -r -e "s#BUILD_DESC=##"''').trim()
 
             if (util.hasSuccessfullyBuiltAllArches("${WORKSPACE}/sources/container.yaml", "${WORKSPACE}/rhpkg-container-build.txt")) {
               currentBuild.result = "SUCCESS"
@@ -87,6 +87,7 @@ set -x
               CONTAINERS=QUAY_REPO_PATHs.trim()
 
               withCredentials([string(credentialsId: 'quay.io-devspacesci_user_token', variable: 'QUAY_TOKEN_devspaces')]) {
+                // CRW-3463 can use podman login --tls-verify=false to work around 'certificate signed by unknown authority'
                 sh(script: '''#!/bin/bash -xe
 echo "${QUAY_TOKEN_devspaces}" | podman login --authfile=~/.docker/config.json -u="devspaces+devspacesci" --password-stdin quay.io
 
