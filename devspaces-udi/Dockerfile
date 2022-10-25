@@ -30,15 +30,16 @@ RUN \
     # build gopls application with dependencies resolved by Cachito (which are also resolved for 'tools' dependency)
     source $REMOTE_SOURCES_DIR/gopls/cachito.env && \
     GO111MODULE=on go build -o gopls && \
-    ./gopls version && \
+    ./gopls version
     # END Gopls
+
     # CRW-3193 disable until we have a camel-k sample again
-    # # BEGIN Kamel
+    # BEGIN Kamel
     # cd $REMOTE_SOURCES_DIR/camelk/app && \
     # source $REMOTE_SOURCES_DIR/camelk/cachito.env && \
     # make build-kamel && \
     # ./kamel version && \
-    # # END Kamel
+    # END Kamel
 
 # https://registry.access.redhat.com/ubi8-minimal 
 FROM ubi8-minimal:8.6-941
