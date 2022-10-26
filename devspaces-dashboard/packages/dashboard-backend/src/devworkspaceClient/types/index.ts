@@ -10,9 +10,13 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { V1alpha2DevWorkspace, V1alpha2DevWorkspaceTemplate } from '@devfile/api';
+import {
+  V1alpha2DevWorkspace,
+  V1alpha2DevWorkspaceTemplate,
+  V220DevfileComponents,
+} from '@devfile/api';
 import { api } from '@eclipse-che/common';
-import { V220DevfileComponents } from '@devfile/api';
+import * as k8s from '@kubernetes/client-node';
 
 /**
  * Holds the methods for working with dockerconfig for devworkspace
@@ -93,51 +97,101 @@ export interface IDevWorkspaceTemplateApi {
   create(template: V1alpha2DevWorkspaceTemplate): Promise<V1alpha2DevWorkspaceTemplate>;
 }
 
+export type CustomResourceDefinitionList = k8s.V1CustomResourceDefinitionList & {
+  items?: CustomResourceDefinition[];
+};
+
+export type CustomResourceDefinition = k8s.V1CustomResourceDefinition & {
+  spec: {
+    devEnvironments?: CustomResourceDefinitionSpecDevEnvironments;
+    components?: CustomResourceDefinitionSpecComponents;
+  };
+};
+
+export type CustomResourceDefinitionSpecDevEnvironments = {
+  containerBuildConfiguration?: {
+    openShiftSecurityContextConstraint?: string;
+  };
+  defaultComponents?: V220DevfileComponents[];
+  defaultEditor?: string;
+  defaultPlugins?: api.IWorkspacesDefaultPlugins[];
+  disableContainerBuildCapabilities?: boolean;
+  secondsOfInactivityBeforeIdling?: number;
+  secondsOfRunBeforeIdling?: number;
+  storage?: {
+    pvcStrategy?: string;
+  };
+};
+
+export type CustomResourceDefinitionSpecComponents = {
+  dashboard?: {
+    headerMessage?: {
+      show?: boolean;
+      text?: string;
+    };
+  };
+  devWorkspace?: {
+    runningLimit?: number;
+  };
+  pluginRegistry?: {
+    openVSXURL?: string;
+  };
+};
+
 export interface IServerConfigApi {
   /**
    * Returns custom resource
    */
-  getCheCustomResource(): Promise<{ [key: string]: any }>;
+  fetchCheCustomResource(): Promise<CustomResourceDefinition>;
+  /**
+   * Returns the container build capabilities and configuration.
+   */
+  getContainerBuild(
+    cheCustomResource: CustomResourceDefinition,
+  ): Pick<
+    CustomResourceDefinitionSpecDevEnvironments,
+    'containerBuildConfiguration' | 'disableContainerBuildCapabilities'
+  >;
   /**
    * Returns default plugins
    */
-  getDefaultPlugins(cheCustomResource: { [key: string]: any }): api.IWorkspacesDefaultPlugins[];
+  getDefaultPlugins(cheCustomResource: CustomResourceDefinition): api.IWorkspacesDefaultPlugins[];
   /**
    * Returns the default editor to workspace create with. It could be a plugin ID or a URI.
    */
-  getDefaultEditor(cheCustomResource: { [key: string]: any }): string | undefined;
+  getDefaultEditor(cheCustomResource: CustomResourceDefinition): string | undefined;
   /**
    * Returns the default components applied to DevWorkspaces.
    * These default components are meant to be used when a Devfile does not contain any components.
    */
-  getDefaultComponents(cheCustomResource: { [key: string]: any }): V220DevfileComponents[];
+  getDefaultComponents(cheCustomResource: CustomResourceDefinition): V220DevfileComponents[];
   /**
    * Returns the openVSX URL.
    */
-  getOpenVSXURL(cheCustomResource: { [key: string]: any }): string;
+  getOpenVSXURL(cheCustomResource: CustomResourceDefinition): string;
   /**
    * Returns the PVC strategy if it is defined.
    */
-  getPvcStrategy(cheCustomResource: { [key: string]: any }): string | undefined;
+  getPvcStrategy(cheCustomResource: CustomResourceDefinition): string | undefined;
   /**
    * Returns a maintenance warning.
    */
-  getDashboardWarning(cheCustomResource: { [key: string]: any }): string | undefined;
+  getDashboardWarning(cheCustomResource: CustomResourceDefinition): string | undefined;
 
   /**
    * Returns limit of running workspaces per user.
    */
-  getRunningWorkspacesLimit(cheCustomResource: { [key: string]: any }): number;
+  getRunningWorkspacesLimit(cheCustomResource: CustomResourceDefinition): number;
 
   /**
    * Returns the workspace inactivity timeout
    */
-  getWorkspaceInactivityTimeout(cheCustomResource: { [key: string]: any }): number;
+  getWorkspaceInactivityTimeout(cheCustomResource: CustomResourceDefinition): number;
 
   /**
    * Returns the workspace run timeout
    */
-  getWorkspaceRunTimeout(cheCustomResource: { [key: string]: any }): number;
+  getWorkspaceRunTimeout(cheCustomResource: CustomResourceDefinition): number;
 }
 
 export interface IKubeConfigApi {

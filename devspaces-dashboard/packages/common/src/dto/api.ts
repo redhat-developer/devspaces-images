@@ -29,6 +29,12 @@ export interface IWorkspacesDefaultPlugins {
 }
 
 export interface IServerConfig {
+  containerBuild: {
+    containerBuildConfiguration?: {
+      openShiftSecurityContextConstraint?: string;
+    };
+    disableContainerBuildCapabilities?: boolean;
+  };
   defaults: {
     editor: string | undefined;
     components: V220DevfileComponents[];

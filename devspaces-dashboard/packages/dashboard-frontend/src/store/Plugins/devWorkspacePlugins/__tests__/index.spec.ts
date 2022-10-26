@@ -300,6 +300,7 @@ describe('dwPlugins store', () => {
     it('should create REQUEST_DW_DEFAULT_EDITOR and RECEIVE_DW_DEFAULT_EDITOR when fetching default plugins', async () => {
       const store = new FakeStoreBuilder()
         .withDwServerConfig({
+          containerBuild: {},
           defaults: {
             editor: 'eclipse/theia/next',
             components: [

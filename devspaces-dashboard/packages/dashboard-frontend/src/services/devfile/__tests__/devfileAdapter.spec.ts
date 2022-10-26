@@ -11,9 +11,9 @@
  */
 
 import { DevfileBuilder } from '../../../store/__mocks__/devfile';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../devfileApi/devWorkspace/spec/template';
 import { DevfileAdapter } from '../adapter';
 import { convertDevfileV1toDevfileV2 } from '../converters';
-import { DEVWORKSPACE_STORAGE_TYPE } from '../../devfileApi/devWorkspace/spec';
 
 describe('DevfileAdapter Service', () => {
   describe('update storageType', () => {
@@ -25,14 +25,14 @@ describe('DevfileAdapter Service', () => {
 
           expect(devfileAdapter.storageType).toEqual('persistent');
           expect(devfileAdapter.devfile.attributes).not.toEqual(
-            expect.objectContaining({ [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral' }),
+            expect.objectContaining({ [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral' }),
           );
 
           devfileAdapter.storageType = 'ephemeral';
 
           expect(devfileAdapter.devfile.attributes).toEqual(
             expect.objectContaining({
-              [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+              [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
               'che-theia.eclipse.org/sidecar-policy': 'mergeImage',
             }),
           );
@@ -47,7 +47,7 @@ describe('DevfileAdapter Service', () => {
           expect(devfileAdapter.storageType).toEqual('ephemeral');
           expect(devfileAdapter.devfile.attributes).toEqual(
             expect.objectContaining({
-              [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+              [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
             }),
           );
 
@@ -55,7 +55,7 @@ describe('DevfileAdapter Service', () => {
 
           expect(devfileAdapter.devfile.attributes).not.toEqual(
             expect.objectContaining({
-              [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+              [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
             }),
           );
           expect(devfileAdapter.storageType).toEqual('per-workspace');

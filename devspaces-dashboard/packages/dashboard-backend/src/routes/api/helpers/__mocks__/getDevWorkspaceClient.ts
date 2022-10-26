@@ -30,6 +30,9 @@ import {
 } from '../../../../devworkspaceClient';
 import { getDevWorkspaceClient as helper } from '../getDevWorkspaceClient';
 
+export const stubContainerBuild = {
+  disableContainerBuildCapabilities: true,
+};
 export const stubDashboardWarning = 'Dashboard warning';
 export const stubDefaultComponents: V220DevfileComponents[] = [];
 export const stubDefaultEditor = undefined;
@@ -71,8 +74,9 @@ export const stubNamespaces = ['user-che'];
 export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnType<typeof helper> {
   return {
     serverConfigApi: {
-      getCheCustomResource: () => ({}),
+      fetchCheCustomResource: () => ({}),
       getDashboardWarning: _cheCustomResource => stubDashboardWarning,
+      getContainerBuild: _cheCustomResource => stubContainerBuild,
       getDefaultComponents: _cheCustomResource => stubDefaultComponents,
       getDefaultEditor: _cheCustomResource => stubDefaultEditor,
       getDefaultPlugins: _cheCustomResource => stubDefaultPlugins,

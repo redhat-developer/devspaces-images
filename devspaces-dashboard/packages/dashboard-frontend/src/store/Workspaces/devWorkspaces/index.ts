@@ -10,38 +10,39 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import common, { api } from '@eclipse-che/common';
+import { cloneDeep } from 'lodash';
 import { Action, Reducer } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import common from '@eclipse-che/common';
 import { AppState, AppThunk } from '../..';
 import { container } from '../../../inversify.config';
+import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
+import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
+import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
+import {
+  DEVWORKSPACE_CHE_EDITOR,
+  DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
+} from '../../../services/devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_CONTAINER_BUILD_ATTR } from '../../../services/devfileApi/devWorkspace/spec/template';
+import { getDefer, IDeferred } from '../../../services/helpers/deferred';
+import { delay } from '../../../services/helpers/delay';
+import { DisposableCollection } from '../../../services/helpers/disposable';
 import { DevWorkspaceStatus, WorkspacesLogs } from '../../../services/helpers/types';
-import { createObject } from '../../helpers';
+import { WorkspaceAdapter } from '../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_NEXT_START_ANNOTATION,
   IStatusUpdate,
 } from '../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import devfileApi, { isDevWorkspace } from '../../../services/devfileApi';
-import { deleteLogs, mergeLogs } from '../logs';
-import { getDefer, IDeferred } from '../../../services/helpers/deferred';
-import { DisposableCollection } from '../../../services/helpers/disposable';
-import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
-import { devWorkspaceKind } from '../../../services/devfileApi/devWorkspace';
-import { WorkspaceAdapter } from '../../../services/workspace-adapter';
-import {
-  DEVWORKSPACE_CHE_EDITOR,
-  DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
-} from '../../../services/devfileApi/devWorkspace/metadata';
-import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
-import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
-import { injectKubeConfig } from '../../../services/dashboard-backend-client/devWorkspaceApi';
 import { selectRunningWorkspacesLimit } from '../../ClusterConfig/selectors';
-import { cloneDeep } from 'lodash';
-import { delay } from '../../../services/helpers/delay';
-import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
-import { selectRunningDevWorkspacesLimitExceeded } from './selectors';
+import { createObject } from '../../helpers';
+import { selectDefaultNamespace } from '../../InfrastructureNamespaces/selectors';
+import * as DwPluginsStore from '../../Plugins/devWorkspacePlugins';
+import { selectDwEditorsPluginsList } from '../../Plugins/devWorkspacePlugins/selectors';
 import * as DwServerConfigStore from '../../ServerConfig';
+import { selectOpenVSXUrl } from '../../ServerConfig/selectors';
+import { deleteLogs, mergeLogs } from '../logs';
+import { selectRunningDevWorkspacesLimitExceeded } from './selectors';
 
 const devWorkspaceClient = container.get(DevWorkspaceClient);
 
@@ -57,7 +58,7 @@ export interface State {
 }
 
 export class RunningWorkspacesExceededError extends Error {
-  constructor(message) {
+  constructor(message: string) {
     super(message);
     this.name = 'RunningWorkspacesExceededError';
   }
@@ -311,12 +312,12 @@ export const actionCreators: ActionCreators = {
         const config = getState().dwServerConfig.config;
         await devWorkspaceClient.updateConfigData(workspace, config);
         await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
-        let updatedWorkspace: devfileApi.DevWorkspace;
         const workspaceUID = workspace.metadata.uid;
         dispatch({
           type: 'DELETE_DEVWORKSPACE_LOGS',
           workspaceUID,
         });
+
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
           const storedDevWorkspace = JSON.parse(
             workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION],
@@ -333,11 +334,14 @@ export const actionCreators: ActionCreators = {
 
           delete workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION];
           workspace.spec.template = storedDevWorkspace.spec.template;
-          workspace.spec.started = true;
-          updatedWorkspace = await devWorkspaceClient.update(workspace);
-        } else {
-          updatedWorkspace = await devWorkspaceClient.changeWorkspaceStatus(workspace, true, true);
         }
+
+        // inject or remove the container build attribute
+        manageContainerBuildAttribute(workspace, config);
+
+        // update and start the workspace
+        workspace.spec.started = true;
+        const updatedWorkspace = await devWorkspaceClient.update(workspace);
 
         const editor = updatedWorkspace.metadata.annotations
           ? updatedWorkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
@@ -810,5 +814,40 @@ async function onStatusUpdateReceived(
     } catch (e) {
       console.error(e);
     }
+  }
+}
+
+/**
+ * Injects or removes the container build attribute depending on the CR `disableContainerBuildCapabilities` field value.
+ */
+export function manageContainerBuildAttribute(
+  workspace: devfileApi.DevWorkspace,
+  config: api.IServerConfig,
+) {
+  const { disableContainerBuildCapabilities, containerBuildConfiguration } = config.containerBuild;
+
+  if (
+    disableContainerBuildCapabilities === true &&
+    workspace.spec.template.attributes !== undefined
+  ) {
+    // remove the attribute
+    delete workspace.spec.template.attributes?.[DEVWORKSPACE_CONTAINER_BUILD_ATTR];
+    if (Object.keys(workspace.spec.template.attributes).length === 0) {
+      delete workspace.spec.template.attributes;
+    }
+    return;
+  }
+
+  // add the attribute
+  if (containerBuildConfiguration?.openShiftSecurityContextConstraint === undefined) {
+    console.warn(
+      'Skip injecting the container build attribute: "openShiftSecurityContextConstraint" is undefined',
+    );
+  } else {
+    if (workspace.spec.template.attributes === undefined) {
+      workspace.spec.template.attributes = {};
+    }
+    workspace.spec.template.attributes[DEVWORKSPACE_CONTAINER_BUILD_ATTR] =
+      containerBuildConfiguration.openShiftSecurityContextConstraint;
   }
 }

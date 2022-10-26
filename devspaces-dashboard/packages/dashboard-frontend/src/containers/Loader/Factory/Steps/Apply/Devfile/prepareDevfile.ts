@@ -12,13 +12,13 @@
 
 import { safeDump, safeLoad } from 'js-yaml';
 import { cloneDeep } from 'lodash';
+import devfileApi from '../../../../../../services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../../services/devfileApi/devWorkspace/spec/template';
+import { generateWorkspaceName } from '../../../../../../services/helpers/generateName';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../../../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { DEVWORKSPACE_STORAGE_TYPE } from '../../../../../../services/devfileApi/devWorkspace/spec';
-import devfileApi from '../../../../../../services/devfileApi';
-import { generateWorkspaceName } from '../../../../../../services/helpers/generateName';
 
 export type FactorySource = { factory?: { params: string } };
 
@@ -61,13 +61,13 @@ export function prepareDevfile(
   // propagate storage type
   if (storageType === 'ephemeral') {
     if (devfile.schemaVersion === '2.0.0') {
-      devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE] = 'ephemeral';
+      devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = 'ephemeral';
     } else {
       // for devfiles version 2.1.0 and above
       if (!devfile.attributes) {
         devfile.attributes = {};
       }
-      devfile.attributes[DEVWORKSPACE_STORAGE_TYPE] = 'ephemeral';
+      devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = 'ephemeral';
     }
   }
 

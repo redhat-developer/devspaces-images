@@ -14,11 +14,8 @@
 
 import * as mockClient from '@kubernetes/client-node';
 import { CustomObjectsApi } from '@kubernetes/client-node';
-import {
-  CustomResourceDefinition,
-  CustomResourceDefinitionList,
-  ServerConfigApiService,
-} from '../serverConfigApi';
+import { CustomResourceDefinition, CustomResourceDefinitionList } from '../..';
+import { ServerConfigApiService } from '../serverConfigApi';
 
 jest.mock('../../../helpers/getUserName.ts');
 
@@ -52,9 +49,19 @@ describe('Server Config API Service', () => {
     jest.clearAllMocks();
   });
 
-  test('getting custom resource definition', async () => {
-    const res = await serverConfigService.getCheCustomResource();
+  test('fetching custom resource definition', async () => {
+    const res = await serverConfigService.fetchCheCustomResource();
     expect(res).toEqual(buildCustomResource());
+  });
+
+  test('getting container build options', () => {
+    const res = serverConfigService.getContainerBuild(buildCustomResource());
+    expect(res.containerBuildConfiguration).toEqual(
+      expect.objectContaining({
+        openShiftSecurityContextConstraint: 'container-build',
+      }),
+    );
+    expect(res.disableContainerBuildCapabilities).toEqual(false);
   });
 
   test('getting default plugins', () => {
@@ -133,6 +140,10 @@ function buildCustomResource(): CustomResourceDefinition {
         pluginRegistry: { openVSXURL: 'https://open-vsx.org' },
       },
       devEnvironments: {
+        disableContainerBuildCapabilities: false,
+        containerBuildConfiguration: {
+          openShiftSecurityContextConstraint: 'container-build',
+        },
         defaultComponents: [
           {
             container: {

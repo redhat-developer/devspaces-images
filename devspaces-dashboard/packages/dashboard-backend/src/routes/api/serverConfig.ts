@@ -23,8 +23,9 @@ export function registerServerConfigRoute(server: FastifyInstance) {
   server.get(`${baseApiPath}/server-config`, getSchema({ tags }), async function () {
     const token = getServiceAccountToken();
     const { serverConfigApi } = getDevWorkspaceClient(token);
-    const cheCustomResource = await serverConfigApi.getCheCustomResource();
+    const cheCustomResource = await serverConfigApi.fetchCheCustomResource();
 
+    const containerBuild = serverConfigApi.getContainerBuild(cheCustomResource);
     const plugins = serverConfigApi.getDefaultPlugins(cheCustomResource);
     const editor = serverConfigApi.getDefaultEditor(cheCustomResource);
     const components = serverConfigApi.getDefaultComponents(cheCustomResource);
@@ -36,6 +37,7 @@ export function registerServerConfigRoute(server: FastifyInstance) {
     const CheClusterCRNamespace = process.env.CHECLUSTER_CR_NAMESPACE as string;
 
     const serverConfig: api.IServerConfig = {
+      containerBuild,
       defaults: {
         editor,
         plugins,

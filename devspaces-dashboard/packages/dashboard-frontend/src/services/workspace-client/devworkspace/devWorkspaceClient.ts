@@ -10,42 +10,46 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { inject, injectable, multiInject } from 'inversify';
-import { isWebTerminal } from '../../helpers/devworkspace';
-import { WorkspaceClient } from '../index';
-import devfileApi, { isDevWorkspace } from '../../devfileApi';
-import { api } from '@eclipse-che/common';
-import {
-  devfileToDevWorkspace,
-  devWorkspaceApiGroup,
-  devWorkspaceSingularSubresource,
-  devWorkspaceVersion,
-} from './converters';
-import { AlertItem, DevWorkspaceStatus, isDevWorkspaceStatus } from '../../helpers/types';
-import { delay } from '../../helpers/delay';
-import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
-import * as DwtApi from '../../dashboard-backend-client/devWorkspaceTemplateApi';
-import { WebsocketClient, SubscribeMessage } from '../../dashboard-backend-client/websocketClient';
-import { EventEmitter } from 'events';
-import { AppAlerts } from '../../alerts/appAlerts';
-import { AlertVariant } from '@patternfly/react-core';
-import { WorkspaceAdapter } from '../../workspace-adapter';
-import { safeLoad } from 'js-yaml';
-import {
-  DEVWORKSPACE_CHE_EDITOR,
-  DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
-} from '../../devfileApi/devWorkspace/metadata';
-import { AxiosInstance } from 'axios';
 import {
   V1alpha2DevWorkspaceSpecTemplateComponents,
   V1alpha2DevWorkspaceTemplateSpec,
   V1alpha2DevWorkspaceTemplateSpecComponents,
   V220DevfileComponentsItemsContainer,
 } from '@devfile/api';
-import { cloneDeep, isEqual } from 'lodash';
-import { fetchData } from '../../registry/fetchData';
-import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
+import { api } from '@eclipse-che/common';
+import { AlertVariant } from '@patternfly/react-core';
+import { AxiosInstance } from 'axios';
 import { WorkspacesDefaultPlugins } from 'dashboard-frontend/src/store/Plugins/devWorkspacePlugins';
+import { EventEmitter } from 'events';
+import { inject, injectable, multiInject } from 'inversify';
+import { safeLoad } from 'js-yaml';
+import { cloneDeep, isEqual } from 'lodash';
+import { AppAlerts } from '../../alerts/appAlerts';
+import * as DwApi from '../../dashboard-backend-client/devWorkspaceApi';
+import * as DwtApi from '../../dashboard-backend-client/devWorkspaceTemplateApi';
+import { SubscribeMessage, WebsocketClient } from '../../dashboard-backend-client/websocketClient';
+import devfileApi, { isDevWorkspace } from '../../devfileApi';
+import {
+  DEVWORKSPACE_CHE_EDITOR,
+  DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
+} from '../../devfileApi/devWorkspace/metadata';
+import {
+  DEVWORKSPACE_CONFIG_ATTR,
+  DEVWORKSPACE_STORAGE_TYPE_ATTR,
+} from '../../devfileApi/devWorkspace/spec/template';
+import { delay } from '../../helpers/delay';
+import { isWebTerminal } from '../../helpers/devworkspace';
+import { AlertItem, DevWorkspaceStatus, isDevWorkspaceStatus } from '../../helpers/types';
+import { fetchData } from '../../registry/fetchData';
+import { WorkspaceAdapter } from '../../workspace-adapter';
+import { WorkspaceClient } from '../index';
+import {
+  devfileToDevWorkspace,
+  devWorkspaceApiGroup,
+  devWorkspaceSingularSubresource,
+  devWorkspaceVersion,
+} from './converters';
+import { DevWorkspaceDefaultPluginsHandler } from './DevWorkspaceDefaultPluginsHandler';
 
 export interface IStatusUpdate {
   status: DevWorkspaceStatus;
@@ -111,10 +115,6 @@ export interface IDevWorkspaceEditorProcess {
 export const DEVWORKSPACE_NEXT_START_ANNOTATION = 'che.eclipse.org/next-start-cfg';
 
 export const DEVWORKSPACE_DEBUG_START_ANNOTATION = 'controller.devfile.io/debug-start';
-
-export const DEVWORKSPACE_CONFIG_ANNOTATION = 'controller.devfile.io/devworkspace-config';
-
-export const DEVWORKSPACE_STORAGE_TYPE = 'controller.devfile.io/storage-type';
 
 export const DEVWORKSPACE_DEVFILE_SOURCE = 'che.eclipse.org/devfile-source';
 
@@ -760,11 +760,11 @@ export class DevWorkspaceClient extends WorkspaceClient {
     if (cheNamespace) {
       const devworkspaceConfig = { name: 'devworkspace-config', namespace: cheNamespace };
       const devworkspaceConfigPath = `/spec/template/attributes/${this.escape(
-        DEVWORKSPACE_CONFIG_ANNOTATION,
+        DEVWORKSPACE_CONFIG_ATTR,
       )}`;
       if (attributes) {
-        if (attributes[DEVWORKSPACE_CONFIG_ANNOTATION]) {
-          if (attributes[DEVWORKSPACE_CONFIG_ANNOTATION] !== devworkspaceConfig) {
+        if (attributes[DEVWORKSPACE_CONFIG_ATTR]) {
+          if (attributes[DEVWORKSPACE_CONFIG_ATTR] !== devworkspaceConfig) {
             patch.push({ op: 'replace', path: devworkspaceConfigPath, value: devworkspaceConfig });
           }
         } else {
@@ -774,7 +774,7 @@ export class DevWorkspaceClient extends WorkspaceClient {
         patch.push({
           op: 'add',
           path: '/spec/template/attributes',
-          value: { 'controller.devfile.io/devworkspace-config': devworkspaceConfig },
+          value: { [DEVWORKSPACE_CONFIG_ATTR]: devworkspaceConfig },
         });
         attributes = {};
       }
@@ -783,18 +783,18 @@ export class DevWorkspaceClient extends WorkspaceClient {
     const currentPvcStrategy = config.defaults.pvcStrategy;
     if (currentPvcStrategy) {
       const devworkspaceStorageTypePath = `/spec/template/attributes/${this.escape(
-        DEVWORKSPACE_STORAGE_TYPE,
+        DEVWORKSPACE_STORAGE_TYPE_ATTR,
       )}`;
 
       if (attributes) {
-        if (!attributes[DEVWORKSPACE_STORAGE_TYPE]) {
+        if (!attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
           patch.push({ op: 'add', path: devworkspaceStorageTypePath, value: currentPvcStrategy });
         }
       } else {
         patch.push({
           op: 'add',
           path: '/spec/template/attributes',
-          value: { 'controller.devfile.io/storage-type': currentPvcStrategy },
+          value: { [DEVWORKSPACE_STORAGE_TYPE_ATTR]: currentPvcStrategy },
         });
         attributes = {};
       }

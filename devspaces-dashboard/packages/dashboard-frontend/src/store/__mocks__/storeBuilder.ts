@@ -42,6 +42,7 @@ export class FakeStoreBuilder {
     dwServerConfig: {
       isLoading: false,
       config: {
+        containerBuild: {},
         defaults: {
           editor: undefined,
           components: [],

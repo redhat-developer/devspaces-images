@@ -71,6 +71,7 @@ export const actionCreators: ActionCreators = {
 const unloadedState: State = {
   isLoading: false,
   config: {
+    containerBuild: {},
     defaults: {
       editor: undefined,
       components: [],

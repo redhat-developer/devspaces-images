@@ -34,6 +34,9 @@ describe('Server Config Route', () => {
 
     expect(res.statusCode).toEqual(200);
     expect(res.json()).toEqual({
+      containerBuild: {
+        disableContainerBuildCapabilities: true,
+      },
       defaults: { components: [], plugins: [], pvcStrategy: '' },
       pluginRegistry: { openVSXURL: 'openvsx-url' },
       timeouts: { inactivityTimeout: 0, runTimeout: 0 },

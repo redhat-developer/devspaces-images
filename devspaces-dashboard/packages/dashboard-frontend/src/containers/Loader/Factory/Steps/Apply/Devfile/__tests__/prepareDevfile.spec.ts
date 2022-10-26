@@ -12,13 +12,13 @@
 
 import { dump } from 'js-yaml';
 import devfileApi from '../../../../../../../services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../../../services/devfileApi/devWorkspace/spec/template';
+import { generateWorkspaceName } from '../../../../../../../services/helpers/generateName';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../../../../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { prepareDevfile } from '../prepareDevfile';
-import { generateWorkspaceName } from '../../../../../../../services/helpers/generateName';
-import { DEVWORKSPACE_STORAGE_TYPE } from '../../../../../../../services/devfileApi/devWorkspace/spec';
 
 jest.mock('../../../../../../../services/helpers/generateName');
 (generateWorkspaceName as jest.Mock).mockImplementation(name => name + '1234');
@@ -73,10 +73,10 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
 
       const newDevfile = prepareDevfile(devfile, factoryId, undefined, false);
 
-      expect((newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
         expect.objectContaining(customAnnotation),
       );
-      expect((newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
         expect.objectContaining(factorySource),
       );
     });
@@ -104,10 +104,10 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
 
       const newDevfile = prepareDevfile(devfile, factoryId, undefined, false);
 
-      expect(
-        (newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_METADATA_ANNOTATION],
-      ).not.toContain(badMetadataAnnotation);
-      expect((newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]).not.toContain(
+        badMetadataAnnotation,
+      );
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
         factorySource,
       );
     });
@@ -137,10 +137,10 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
 
       const newDevfile = prepareDevfile(devfile, factoryId, undefined, false);
 
-      expect(
-        (newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_METADATA_ANNOTATION],
-      ).not.toContain(expect.objectContaining(badDevworkspaceDevfileSource));
-      expect((newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]).not.toContain(
+        expect.objectContaining(badDevworkspaceDevfileSource),
+      );
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_METADATA_ANNOTATION]).toEqual(
         factorySource,
       );
     });
@@ -212,15 +212,15 @@ describe('FactoryLoaderContainer/prepareDevfile', () => {
     test('default storage type', () => {
       const newDevfile = prepareDevfile(devfile, factoryId, undefined, false);
 
-      expect((newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_STORAGE_TYPE]).toBeUndefined();
-      expect((newDevfile.attributes as any)?.[DEVWORKSPACE_STORAGE_TYPE]).toBeUndefined();
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]).toBeUndefined();
+      expect(newDevfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]).toBeUndefined();
     });
 
     test('non-default storage type', () => {
       const newDevfile = prepareDevfile(devfile, factoryId, 'ephemeral', false);
 
-      expect((newDevfile.metadata.attributes as any)?.[DEVWORKSPACE_STORAGE_TYPE]).toBeUndefined();
-      expect((newDevfile.attributes as any)?.[DEVWORKSPACE_STORAGE_TYPE]).toEqual('ephemeral');
+      expect(newDevfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]).toBeUndefined();
+      expect(newDevfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]).toEqual('ephemeral');
     });
   });
 });
