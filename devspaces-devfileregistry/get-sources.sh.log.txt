@@ -1,0 +1,760 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> f8faafa64c9
+STEP 3/23: ARG BOOTSTRAP=true
+--> 6423918bc64
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> 96fddd2d676
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> f36234abe98
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 8041923a61a
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> 4751e519128
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> 3ac0fe99f38
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 831fbb1d4c6
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 089493b5a1c
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-4.el8_6.ppc64le                                                   
+  nodejs-1:14.20.0-2.module+el8.6.0+16231+7c1b33d9.ppc64le                      
+  nodejs-docs-1:14.20.0-2.module+el8.6.0+16231+7c1b33d9.noarch                  
+  nodejs-full-i18n-1:14.20.0-2.module+el8.6.0+16231+7c1b33d9.ppc64le            
+  npm-1:6.14.17-1.14.20.0.2.module+el8.6.0+16231+7c1b33d9.ppc64le               
+Installed:
+  containers-common-2:1-39.module+el8.6.0+16891+aaa3bd4c.ppc64le                
+  criu-3.15-3.module+el8.6.0+16771+28dfca77.ppc64le                             
+  fuse-common-3.3.0-15.el8.ppc64le                                              
+  fuse-overlayfs-1.9-1.module+el8.6.0+16771+28dfca77.ppc64le                    
+  fuse3-3.3.0-15.el8.ppc64le                                                    
+  fuse3-libs-3.3.0-15.el8.ppc64le                                               
+  iptables-libs-1.8.4-22.el8.ppc64le                                            
+  jansson-2.14-1.el8.ppc64le                                                    
+  jq-1.6-3.el8.ppc64le                                                          
+  kmod-25-19.el8.ppc64le                                                        
+  libibverbs-37.2-1.el8.ppc64le                                                 
+  libmnl-1.0.4-6.el8.ppc64le                                                    
+  libnet-1.1.6-15.el8.ppc64le                                                   
+  libnftnl-1.1.5-5.el8.ppc64le                                                  
+  libpcap-14:1.9.1-5.el8.ppc64le                                                
+  libslirp-4.4.0-1.module+el8.6.0+16771+28dfca77.ppc64le                        
+  nftables-1:0.9.3-25.el8.ppc64le                                               
+  oniguruma-6.8.2-2.el8.ppc64le                                                 
+  protobuf-c-1.3.0-6.el8.ppc64le                                                
+  runc-1:1.1.3-2.module+el8.6.0+16771+28dfca77.ppc64le                          
+  skopeo-2:1.9.1-1.module+el8.6.0+16771+28dfca77.ppc64le                        
+  slirp4netns-1.2.0-2.module+el8.6.0+16771+28dfca77.ppc64le                     
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/36/2b/61d51a2c4f25ef062ae3f74576b01638bebad5e045f747ff12643df63844/PyYAML-6.0.tar.gz (124kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+    Preparing wheel metadata: started
+    Preparing wheel metadata: finished with status 'done'
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Building wheels for collected packages: PyYAML
+  Building wheel for PyYAML (PEP 517): started
+  Building wheel for PyYAML (PEP 517): finished with status 'done'
+  Created wheel for PyYAML: filename=PyYAML-6.0-cp38-cp38-linux_ppc64le.whl size=45333 sha256=f0e98a974f928f1097ac2e357710a821e304bd2de863e83a7d61a1eeb89d966b
+  Stored in directory: /tmp/pip-ephem-wheel-cache-adr2z171/wheels/95/84/67/ebeac632c63797cfbeb90128ca41073117721540dad526d213
+Successfully built PyYAML
+Installing collected packages: PyYAML, argcomplete, toml, xmltodict, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.12
+yq: yq 3.1.0
+jq: jq-1.6
+--> 4dabd5e782c
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> c2f7ec75cf7
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 8298521b65d
+STEP 14/23: COPY ./VERSION /
+--> 43cc8ab4c4f
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 9312c0f1d0c
+STEP 16/23: WORKDIR /build/
+--> 951bf2973ff
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
+added 120 packages from 182 contributors and audited 120 packages in 15.375s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
++ @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
+added 2 packages from 1 contributor and audited 239 packages in 2.729s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+--> ad9e2e62d1a
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> ce76b500318
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + quay.io/devspaces/code-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/machineexec-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/theia-endpoint-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/theia-rhel8:3.3 PASS - 3.3 allowed
+ + quay.io/devspaces/udi-rhel8:3.3 PASS - 3.3 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 9ddff08df58
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/03_java11-maven-gradle/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-lombok/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-quarkus/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-mongo/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-simple/meta.yaml'
+Checking devfile 'devfiles/04_python/meta.yaml'
+Checking devfile 'devfiles/05_cpp/meta.yaml'
+Checking devfile 'devfiles/05_go/meta.yaml'
+Checking devfile 'devfiles/05_php-cake/meta.yaml'
+--> 37c651c61ab
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> 534c250f58d
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 8cc50babe34
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> 29d9aa38d60
+Successfully tagged localhost/devfileregistry:tmp
+29d9aa38d60c488b3fda43ee2f59e3ba068053d13ac4b6a533a802f41d196c92
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA /tmp/tmp.OM1ofqLgvs/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA
+--- /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.OM1ofqLgvs/lib/python3.8/site-packages/PyYAML-6.0.dist-info/METADATA	2022-10-26 09:07:11.122160062 +0000
+@@ -3,10 +3,10 @@
+ Version: 6.0
+ Summary: YAML parser and emitter for Python
+ Home-page: https://pyyaml.org/
++Download-URL: https://pypi.org/project/PyYAML/
+ Author: Kirill Simonov
+ Author-email: xi@resolvent.net
+ License: MIT
+-Download-URL: https://pypi.org/project/PyYAML/
+ Project-URL: Bug Tracker, https://github.com/yaml/pyyaml/issues
+ Project-URL: CI, https://github.com/yaml/pyyaml/actions
+ Project-URL: Documentation, https://pyyaml.org/wiki/PyYAMLDocumentation
+@@ -43,4 +43,3 @@
+ 
+ PyYAML is applicable for a broad range of tasks from complex
+ configuration files to object serialization and persistence.
+-
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD /tmp/tmp.OM1ofqLgvs/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD
+--- /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.OM1ofqLgvs/lib/python3.8/site-packages/PyYAML-6.0.dist-info/RECORD	2022-10-26 09:07:11.122160062 +0000
+@@ -1,8 +1,8 @@
+ PyYAML-6.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ PyYAML-6.0.dist-info/LICENSE,sha256=jTko-dxEkP1jVwfLiOsmvXZBAqcoKVQwfT5RZ6V36KQ,1101
+-PyYAML-6.0.dist-info/METADATA,sha256=QmHx9kGp_0yezQCXYaft4eEFeJ6W4oyFfYwHDLP1kdg,2006
++PyYAML-6.0.dist-info/METADATA,sha256=Q56A1jQxEnzMMCyqgYkqM5Egvr9y18VExGF3ciGLjlY,2005
+ PyYAML-6.0.dist-info/RECORD,,
+-PyYAML-6.0.dist-info/WHEEL,sha256=RiwktpmF40OphKd3_aIG01PzIOQlJ7dpBn3cFSc9vak,217
++PyYAML-6.0.dist-info/WHEEL,sha256=VXb7H8_fWiBJHbEvxuDSYbC9VxfKWz2_woH0TyHF8yQ,104
+ PyYAML-6.0.dist-info/top_level.txt,sha256=rpj0IVMTisAjh_1vG3Ccf9v5jpCQwAz6cD1IVU5ZdhQ,11
+ _yaml/__init__.py,sha256=04Ae_5osxahpJHa3XBZUAf4wi6XX32gR8D6X6p64GEA,1402
+ _yaml/__pycache__/__init__.cpython-38.pyc,,
+@@ -24,7 +24,6 @@
+ yaml/__pycache__/scanner.cpython-38.pyc,,
+ yaml/__pycache__/serializer.cpython-38.pyc,,
+ yaml/__pycache__/tokens.cpython-38.pyc,,
+-yaml/_yaml.cpython-38-x86_64-linux-gnu.so,sha256=lMaKSmQZy3WNZSmmU0Wg5Y5ZAs-HR5vItyGVUIsp8Rg,2847784
+ yaml/composer.py,sha256=_Ko30Wr6eDWUeUpauUGT3Lcg9QPBnOPVlTnIMRGJ9FM,4883
+ yaml/constructor.py,sha256=kNgkfaeLUkwQYY_Q6Ff1Tz2XVw_pG1xVE9Ak7z-viLA,28639
+ yaml/cyaml.py,sha256=6ZrAG9fAYvdVe2FK_w0hmXoG7ZYsoYUwapG8CiC72H0,3851
+diff --suppress-common-lines -u -r -x '*.pyc' -x installed-files.txt /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL /tmp/tmp.OM1ofqLgvs/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL
+--- /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.OM1ofqLgvs/lib/python3.8/site-packages/PyYAML-6.0.dist-info/WHEEL	2022-10-26 09:07:11.122160062 +0000
+@@ -1,8 +1,5 @@
+ Wheel-Version: 1.0
+-Generator: bdist_wheel (0.37.0)
++Generator: bdist_wheel (0.37.1)
+ Root-Is-Purelib: false
+-Tag: cp38-cp38-manylinux_2_5_x86_64
+-Tag: cp38-cp38-manylinux1_x86_64
+-Tag: cp38-cp38-manylinux_2_12_x86_64
+-Tag: cp38-cp38-manylinux2010_x86_64
++Tag: cp38-cp38-linux_ppc64le
+ 
+Only in /tmp/tmp.s5VyKIkBVC/lib/python3.8/site-packages/yaml: _yaml.cpython-38-x86_64-linux-gnu.so
+***** END DIFF
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-java-gradle
++  name: che-code-java-gradle
+ spec:
+   commands:
+     - id: init-container-command
+@@ -116,10 +116,10 @@
+       - name: gradle
+         volume:
+           size: 1G
+-      - name: vscode-java-gradle
++      - name: che-code-java-gradle
+         plugin:
+           kubernetes:
+-            name: vscode-java-gradle
++            name: che-code-java-gradle
+     commands:
+       - id: 1-build
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-java-gradle
++  name: che-theia-java-gradle
+ spec:
+   commands:
+     - id: init-container-command
+@@ -203,10 +203,10 @@
+       - name: gradle
+         volume:
+           size: 1G
+-      - name: theia-java-gradle
++      - name: che-theia-java-gradle
+         plugin:
+           kubernetes:
+-            name: theia-java-gradle
++            name: che-theia-java-gradle
+     commands:
+       - id: 1-build
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-java-lombok
++  name: che-code-java-lombok
+ spec:
+   commands:
+     - id: init-container-command
+@@ -105,10 +105,10 @@
+       - name: m2
+         volume:
+           size: 1G
+-      - name: vscode-java-lombok
++      - name: che-code-java-lombok
+         plugin:
+           kubernetes:
+-            name: vscode-java-lombok
++            name: che-code-java-lombok
+     commands:
+       - id: build
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-java-lombok
++  name: che-theia-java-lombok
+ spec:
+   commands:
+     - id: init-container-command
+@@ -192,10 +192,10 @@
+       - name: m2
+         volume:
+           size: 1G
+-      - name: theia-java-lombok
++      - name: che-theia-java-lombok
+         plugin:
+           kubernetes:
+-            name: theia-java-lombok
++            name: che-theia-java-lombok
+     commands:
+       - id: build
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-quarkus-quickstart
++  name: che-code-quarkus-quickstart
+ spec:
+   commands:
+     - id: init-container-command
+@@ -114,10 +114,10 @@
+       - name: m2
+         volume:
+           size: 1G
+-      - name: vscode-quarkus-quickstart
++      - name: che-code-quarkus-quickstart
+         plugin:
+           kubernetes:
+-            name: vscode-quarkus-quickstart
++            name: che-code-quarkus-quickstart
+     commands:
+       - id: 1-package
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-quarkus-quickstart
++  name: che-theia-quarkus-quickstart
+ spec:
+   commands:
+     - id: init-container-command
+@@ -203,10 +203,10 @@
+       - name: m2
+         volume:
+           size: 1G
+-      - name: theia-quarkus-quickstart
++      - name: che-theia-quarkus-quickstart
+         plugin:
+           kubernetes:
+-            name: theia-quarkus-quickstart
++            name: che-theia-quarkus-quickstart
+     commands:
+       - id: 1-package
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-nodejs-mongodb
++  name: che-code-nodejs-mongodb
+ spec:
+   commands:
+     - id: init-container-command
+@@ -134,10 +134,10 @@
+       - name: mongo-storage
+         volume:
+           size: 1G
+-      - name: vscode-nodejs-mongodb
++      - name: che-code-nodejs-mongodb
+         plugin:
+           kubernetes:
+-            name: vscode-nodejs-mongodb
++            name: che-code-nodejs-mongodb
+     commands:
+       - id: 1-run
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-nodejs-mongodb
++  name: che-theia-nodejs-mongodb
+ spec:
+   commands:
+     - id: init-container-command
+@@ -215,10 +215,10 @@
+       - name: mongo-storage
+         volume:
+           size: 1G
+-      - name: theia-nodejs-mongodb
++      - name: che-theia-nodejs-mongodb
+         plugin:
+           kubernetes:
+-            name: theia-nodejs-mongodb
++            name: che-theia-nodejs-mongodb
+     commands:
+       - id: 1-run
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-nodejs-web-app
++  name: che-code-nodejs-web-app
+ spec:
+   commands:
+     - id: init-container-command
+@@ -106,10 +106,10 @@
+       - name: npm
+         volume:
+           size: 1G
+-      - name: vscode-nodejs-web-app
++      - name: che-code-nodejs-web-app
+         plugin:
+           kubernetes:
+-            name: vscode-nodejs-web-app
++            name: che-code-nodejs-web-app
+     commands:
+       - id: 1-dependencies
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-nodejs-web-app
++  name: che-theia-nodejs-web-app
+ spec:
+   commands:
+     - id: init-container-command
+@@ -188,10 +188,10 @@
+       - name: npm
+         volume:
+           size: 1G
+-      - name: theia-nodejs-web-app
++      - name: che-theia-nodejs-web-app
+         plugin:
+           kubernetes:
+-            name: theia-nodejs-web-app
++            name: che-theia-nodejs-web-app
+     commands:
+       - id: 1-dependencies
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/04_python/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/04_python/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/04_python/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/04_python/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-python-hello-world
++  name: che-code-python-hello-world
+ spec:
+   commands:
+     - id: init-container-command
+@@ -102,10 +102,10 @@
+       - name: venv
+         volume:
+           size: 1G
+-      - name: vscode-python-hello-world
++      - name: che-code-python-hello-world
+         plugin:
+           kubernetes:
+-            name: vscode-python-hello-world
++            name: che-code-python-hello-world
+     commands:
+       - id: run
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/04_python/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/04_python/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/04_python/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/04_python/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-python-hello-world
++  name: che-theia-python-hello-world
+ spec:
+   commands:
+     - id: init-container-command
+@@ -183,10 +183,10 @@
+       - name: venv
+         volume:
+           size: 1G
+-      - name: theia-python-hello-world
++      - name: che-theia-python-hello-world
+         plugin:
+           kubernetes:
+-            name: theia-python-hello-world
++            name: che-theia-python-hello-world
+     commands:
+       - id: run
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/05_cpp/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/05_cpp/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/05_cpp/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/05_cpp/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-cpp
++  name: che-code-cpp
+ spec:
+   commands:
+     - id: init-container-command
+@@ -97,10 +97,10 @@
+           che-code.eclipse.org/contribute-cpuLimit: true
+           che-code.eclipse.org/contribute-cpuRequest: true
+           che-code.eclipse.org/contributed-container: tools
+-      - name: vscode-cpp
++      - name: che-code-cpp
+         plugin:
+           kubernetes:
+-            name: vscode-cpp
++            name: che-code-cpp
+     commands:
+       - id: build-current-algorithm
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/05_cpp/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/05_cpp/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/05_cpp/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/05_cpp/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-cpp
++  name: che-theia-cpp
+ spec:
+   commands:
+     - id: init-container-command
+@@ -181,10 +181,10 @@
+             clangd.path: /usr/bin/clangd
+             cdt.clangd.binaries.enable: false
+           app.kubernetes.io/name: tools
+-      - name: theia-cpp
++      - name: che-theia-cpp
+         plugin:
+           kubernetes:
+-            name: theia-cpp
++            name: che-theia-cpp
+     commands:
+       - id: build-current-algorithm
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/05_go/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/05_go/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/05_go/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/05_go/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-golang
++  name: che-code-golang
+ spec:
+   commands:
+     - id: init-container-command
+@@ -104,10 +104,10 @@
+           che-code.eclipse.org/contribute-cpuLimit: true
+           che-code.eclipse.org/contribute-cpuRequest: true
+           che-code.eclipse.org/contributed-container: tools
+-      - name: vscode-golang
++      - name: che-code-golang
+         plugin:
+           kubernetes:
+-            name: vscode-golang
++            name: che-code-golang
+     commands:
+       - id: build
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/05_go/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/05_go/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/05_go/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/05_go/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-golang
++  name: che-theia-golang
+ spec:
+   commands:
+     - id: init-container-command
+@@ -186,10 +186,10 @@
+             go.lintTool: golangci-lint
+             go.lintFlags: '--fast'
+           app.kubernetes.io/name: tools
+-      - name: theia-golang
++      - name: che-theia-golang
+         plugin:
+           kubernetes:
+-            name: theia-golang
++            name: che-theia-golang
+     commands:
+       - id: build
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml /tmp/tmp.4xb94yv7mt/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: vscode-cakephp-ex
++  name: che-code-cakephp-ex
+ spec:
+   commands:
+     - id: init-container-command
+@@ -105,10 +105,10 @@
+       - name: composer
+         volume:
+           size: 1G
+-      - name: vscode-cakephp-ex
++      - name: che-code-cakephp-ex
+         plugin:
+           kubernetes:
+-            name: vscode-cakephp-ex
++            name: che-code-cakephp-ex
+     commands:
+       - id: 1-install-dependencies
+         exec:
+diff --suppress-common-lines -u -r /tmp/tmp.p8We1upzmN/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml /tmp/tmp.4xb94yv7mt/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.p8We1upzmN/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml	2022-10-24 14:13:28.000000000 +0000
++++ /tmp/tmp.4xb94yv7mt/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml	2022-10-26 09:07:12.522125695 +0000
+@@ -1,7 +1,7 @@
+ apiVersion: workspace.devfile.io/v1alpha2
+ kind: DevWorkspaceTemplate
+ metadata:
+-  name: theia-cakephp-ex
++  name: che-theia-cakephp-ex
+ spec:
+   commands:
+     - id: init-container-command
+@@ -185,10 +185,10 @@
+       - name: composer
+         volume:
+           size: 1G
+-      - name: theia-cakephp-ex
++      - name: che-theia-cakephp-ex
+         plugin:
+           kubernetes:
+-            name: theia-cakephp-ex
++            name: che-theia-cakephp-ex
+     commands:
+       - id: 1-install-dependencies
+         exec:
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: 29d9aa38d60c488b3fda43ee2f59e3ba068053d13ac4b6a533a802f41d196c92
+Deleted: 8cc50babe34d00f63fadd4fa342ec1b8f648b0b133a47c31a7f893f70eed0e1b
+Deleted: 534c250f58d9241683441bb0d18010710f90fd82cb57ddab89109dae670e2209
+Deleted: 37c651c61ab3d7957c7941d61852dea1c390f22d712124ec7b1a713a05a89c03
+Deleted: 9ddff08df5859c27bcb082fe68b485567a024e36b324ffac956cb86784629d78
+Deleted: ce76b50031804ef7f76b018b692839c0d6962a93b407aea0e629e1e31a75d67e
+Deleted: ad9e2e62d1a2f9735edd9fc53abe4ad7d2c13f5ab91aa01068436335aa94c5f4
+Deleted: 951bf2973ff6d1647a5974e80417f124a37a21a3df54e34b8095639c755dc284
+Deleted: 9312c0f1d0cb7ec4770b116aa047bda407b13c8cef286ef87fe27a79286ff0b7
+Deleted: 43cc8ab4c4fa4fe9af47edb3efdbe6620892d9bb3d91a64e65c144db46ecdeec
+Deleted: 8298521b65d5c5e93080c0e4cb310d36760d3dbb7b552db71334e375121b9950
+Deleted: c2f7ec75cf71f357a60202aba8ae64be4e6c14d1414fef9a3481409239fb4b28
+Deleted: 4dabd5e782c8690420f47b61eafc64394b623630c9918a494783532091d6054e
+Deleted: 089493b5a1c3e5ee23a7aa3a1591d18664862d15c1aee1504f128862aa408117
+Deleted: 831fbb1d4c6132daa90c9d3c377ac55b329c2bcef31bb7be0649b5e19fbeb785
+Deleted: 3ac0fe99f38ee2c819dc33db37030519ec3845a3e81ae06562f361a659c82efb
+Deleted: 4751e519128168ff64686c9e9298288e39567f945b8d4c197b962f56d7f08969
+Deleted: 8041923a61a1322a909071f6703324677f099aab0b579b1962961383cbf7e3f3
+Deleted: f36234abe98028d68d99ca384e77a82da6896a1393d738a4a5eaf223e254cd9d
+Deleted: 96fddd2d67684516ff5e97bc5607dc94bb23c056293cccc7234a23e7ef5d76a9
+Deleted: 6423918bc64c1959ee929e733f313d5c07f3b516d5ad8153fb35a4f1dfdd5baf
+Deleted: f8faafa64c9ccb56fe333da28b746796e20a542b66f8c660c31c59a516e025ca
+Uploading: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
