@@ -119,20 +119,20 @@ wait
       } // wrap
 
       // trigger push-latest-container-to-quay job (does more than just copy to quay)
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      def util = load "${WORKSPACE}/util2.groovy"
+      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+      jobPath='/job/DS_CI/job/push-latest-container-to-quay_' + JOB_BRANCH
       try {
         CONTAINERS=QUAY_REPO_PATHs.trim()
         println "########################################################################################################"
         println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
         println "########################################################################################################"
-        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-        def util = load "${WORKSPACE}/util2.groovy"
         echo "currentBuild.result = " + currentBuild.result
         if (!currentBuild.result.equals("ABORTED") && 
             !currentBuild.result.equals("FAILURE") && 
             !SCRATCH.equals("true") && SCRATCH!=true && 
             QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
-          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-          jobPath='/job/DS_CI/job/push-latest-container-to-quay_' + JOB_BRANCH
           final jobResult = build(
             job: jobPath.replaceAll("/job/","/"),
             // DO NOT propagate status here as we could get misleading results (eg., unstable = problem in the push-latest-container-to-quay)
@@ -183,7 +183,7 @@ wait
         }
       } catch (e) {
         currentBuild.result = "UNSTABLE"
-        currentBuild.description+="; <b style='color:orange'>Warning: <a href=${jobLink}/console>" + (jobLink.replaceAll("/job/","/")) + "</a></b>"
+        currentBuild.description+="; <b style='color:orange'>Warning: <a href=${jobPath}/>" + (jobPath.replaceAll("/job/","/")) + "</a></b>"
       } // try push-latest-container-to-quay job trigger
 
       cleanWs(
