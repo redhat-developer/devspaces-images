@@ -40,7 +40,7 @@ ENV \
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
 
-RUN mkdir -p /home/user /projects
+RUN mkdir -p /projects
 
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
@@ -74,7 +74,7 @@ RUN \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
     # Setup $PS1 for a consistent and reasonable prompt
-    if [[ ! -f "${HOME}"/.bashrc ]]; then echo "PS1='[\u@\h \W]\$ '" > "${HOME}"/.bashrc; fi && \
+    echo "export PS1='\W \`git branch --show-current 2>/dev/null | sed -r -e \"s@^(.+)@\(\1\) @\"\`$ '" >> "${HOME}"/.bashrc && \
     # Change permissions to let any arbitrary user
     for f in "${HOME}" "/etc/passwd" "/etc/group" "/projects"; do \
         echo "Changing permissions on ${f}" && chgrp -R 0 ${f} && \
