@@ -12,15 +12,15 @@ const nodeUtil = require('util');
 const es = require('event-stream');
 const filter = require('gulp-filter');
 const util = require('./lib/util');
+const { getVersion } = require('./lib/getVersion');
 const task = require('./lib/task');
 const watcher = require('./lib/watch');
 const createReporter = require('./lib/reporter').createReporter;
 const glob = require('glob');
 const root = path.dirname(__dirname);
-const commit = util.getVersion(root);
+const commit = getVersion(root);
 const plumber = require('gulp-plumber');
 const ext = require('./lib/extensions');
-const product = require('../product.json');
 
 const extensionsPath = path.join(path.dirname(__dirname), 'extensions');
 
@@ -31,13 +31,14 @@ const extensionsPath = path.join(path.dirname(__dirname), 'extensions');
 // });
 const compilations = [
 	'authentication-proxy/tsconfig.json',
+	'che-activity-tracker/tsconfig.json',
 	'che-api/tsconfig.json',
 	'che-commands/tsconfig.json',
 	'che-port/tsconfig.json',
-	'che-on-start/tsconfig.json',
 	'che-remote/tsconfig.json',
 	'che-resource-monitor/tsconfig.json',
 	'che-terminal/tsconfig.json',
+	'che-telemetry/tsconfig.json',
 	'che-github-authentication/tsconfig.json',
 	'configuration-editing/build/tsconfig.json',
 	'configuration-editing/tsconfig.json',
@@ -55,7 +56,6 @@ const compilations = [
 	'gulp/tsconfig.json',
 	'html-language-features/client/tsconfig.json',
 	'html-language-features/server/tsconfig.json',
-	'image-preview/tsconfig.json',
 	'ipynb/tsconfig.json',
 	'jake/tsconfig.json',
 	'json-language-features/client/tsconfig.json',
@@ -64,6 +64,7 @@ const compilations = [
 	'markdown-language-features/server/tsconfig.json',
 	'markdown-language-features/tsconfig.json',
 	'markdown-math/tsconfig.json',
+	'media-preview/tsconfig.json',
 	'merge-conflict/tsconfig.json',
 	'microsoft-authentication/tsconfig.json',
 	'npm/tsconfig.json',

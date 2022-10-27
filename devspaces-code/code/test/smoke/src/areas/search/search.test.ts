@@ -27,19 +27,21 @@ export function setup(logger: Logger) {
 			await app.workbench.search.waitForResultText('6 results in 3 files');
 		});
 
-		it.skip('searches only for *.js files & checks for correct result number', async function () { // https://github.com/microsoft/vscode/issues/161651
+		it('searches only for *.js files & checks for correct result number', async function () {
 			const app = this.app as Application;
-			await app.workbench.search.searchFor('body');
-			await app.workbench.search.showQueryDetails();
-			await app.workbench.search.setFilesToIncludeText('*.js');
-			await app.workbench.search.submitSearch();
+			try {
+				await app.workbench.search.setFilesToIncludeText('*.js');
+				await app.workbench.search.searchFor('body');
+				await app.workbench.search.showQueryDetails();
 
-			await app.workbench.search.waitForResultText('4 results in 1 file');
-			await app.workbench.search.setFilesToIncludeText('');
-			await app.workbench.search.hideQueryDetails();
+				await app.workbench.search.waitForResultText('4 results in 1 file');
+			} finally {
+				await app.workbench.search.setFilesToIncludeText('');
+				await app.workbench.search.hideQueryDetails();
+			}
 		});
 
-		it.skip('dismisses result & checks for correct result number', async function () { // https://github.com/microsoft/vscode/issues/161651
+		it('dismisses result & checks for correct result number', async function () {
 			const app = this.app as Application;
 			await app.workbench.search.searchFor('body');
 			await app.workbench.search.waitForResultText('6 results in 3 files');

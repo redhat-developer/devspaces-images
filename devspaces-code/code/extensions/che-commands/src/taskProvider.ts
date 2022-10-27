@@ -37,7 +37,7 @@ export class CheTaskProvider implements vscode.TaskProvider {
 
 		const cheTasks: vscode.Task[] = devfileCommands!
 			.filter(command => command.exec?.commandLine)
-			.map(command => this.createCheTask(command.id, command.exec?.commandLine!, command.exec?.workingDir || '${PROJECT_SOURCE}', command.exec?.component!));
+			.map(command => this.createCheTask(command.exec?.label || command.id, command.exec?.commandLine!, command.exec?.workingDir || '${PROJECT_SOURCE}', command.exec?.component!));
 		return cheTasks;
 	}
 
@@ -76,7 +76,7 @@ export class CheTaskProvider implements vscode.TaskProvider {
 		const execution = new vscode.CustomExecution(async (): Promise<vscode.Pseudoterminal> => {
 			return this.terminalExtAPI.getMachineExecPTY(component, command, expandEnvVariables(workdir));
 		});
-		const task = new vscode.Task(kind, vscode.TaskScope.Workspace, name, 'che', execution);
+		const task = new vscode.Task(kind, vscode.TaskScope.Workspace, name, 'che', execution, []);
 		return task;
 	}
 }
