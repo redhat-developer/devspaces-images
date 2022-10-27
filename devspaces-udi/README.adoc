@@ -1,7 +1,7 @@
 To build this locally, run this script to fetch the latest tarball and trigger an OSBS build in Brew:
 
 ```
-./get-sources-jenkins.sh --scratch
+./get-sources.sh --scratch
 ```
 
 See also:
