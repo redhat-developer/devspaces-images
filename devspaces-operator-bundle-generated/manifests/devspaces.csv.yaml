@@ -79,7 +79,7 @@ metadata:
     repository: https://github.com/redhat-developer/devspaces-images/
     support: Red Hat
     skipRange: '>=3.0.0 <=3.2.0'
-  name: devspacesoperator.v3.2.0
+  name: devspacesoperator.v3.2.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -1059,7 +1059,7 @@ spec:
                 - name: CHE_FLAVOR
                   value: devspaces
                 - name: CHE_VERSION
-                  value: 3.2.0
+                  value: 3.2.1
                 - name: CONSOLE_LINK_DISPLAY_NAME
                   value: Red Hat OpenShift Dev Spaces
                 - name: CONSOLE_LINK_IMAGE
@@ -1393,7 +1393,7 @@ spec:
   maturity: stable
   provider:
     name: Red Hat
-  version: 3.2.0
+  version: 3.2.1
   webhookdefinitions:
   - admissionReviewVersions:
     - v1
