@@ -151,7 +151,7 @@ Brew NVRs (for use in ''' + errataURL + ''' / ''' + epicURL + '''):
                     whichBundle="operator-bundle"
 
                     // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-                    // NOTE: similar code in send-email-qe-build-list_3.*.jenkinsfile and push-latest-container-to-quay_3.*.jenkinsfile
+                    // NOTE: similar code in send-email-qe-build-list*.jenkinsfile and copyIIBsToQuay*.jenkinsfile
                     // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
                     println "####################################################################################################################"
                     println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"

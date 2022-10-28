@@ -1,0 +1,99 @@
+#!/usr/bin/env groovy
+import groovy.transform.Field
+
+// PARAMETERS for this pipeline:
+//   MIDSTM_BRANCH
+//   OCP_VERSIONS
+
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
+def copyIIBsToQuayTimeout=120
+node(nodeLabel){ 
+  stage ("Update metadata") {
+    // sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+    // def util = load "${WORKSPACE}/util2.groovy"
+    // DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+    // println "DS_VERSION = '" + DS_VERSION + "'"
+    // util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "sources", MIDSTM_BRANCH, false)
+
+    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+    // NOTE: similar code in send-email-qe-build-list*.jenkinsfile
+    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+
+    whichBundle="operator-bundle"
+
+    nodeLabelString = sh(script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/devspaces-''' + whichBundle + '''/container.yaml | yq -r '.platforms.only[]' 
+''', returnStdout: true).trim()
+    currentBuild.description="arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
+
+    def List nodeLabels = nodeLabelString.tokenize("\n")
+    def nodeLabelLoop = ""
+    def Map tasks = [failFast: false]
+    for (int j=0; j < nodeLabels.size(); j++) {
+        nodeLabelLoop=nodeLabels[j]+"-rhel8"
+        print "[" + (j+1) + "/" + nodeLabels.size() + "] Create task to copy IIBs: " + whichBundle + " " + nodeLabel
+        def String thisArch=nodeLabelLoop
+        // copy & filter IIB for this arch
+        tasks[whichBundle + " " + thisArch] = { ->
+          timeout(copyIIBsToQuayTimeout) {
+            node(thisArch){
+              stage("Copy IIBs: " + whichBundle + " " + thisArch) {
+                // sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                // util = load "${WORKSPACE}/util2.groovy"
+                cleanWs()
+
+                println("Filtering and copying images to quay. This may take ~3 mins per OCP version per arch.")
+                def IIBsToQuay = sh(script: '''#!/bin/bash -xe
+curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
+./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''"
+''', returnStdout: true)
+
+                // in console, echo all errors and warnings
+                println "####################################################################################################################COPIED\n\
+##  IIB(s) copied:\n\
+## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
+####################################################################################################################COPIED\n"
+
+                currentBuild.description+="<br/>+ ${thisArch} IIB(s) copied: "
+                // for build description, collect the lines that start with [IMG]; ignore all other output
+                def IIBsToQuay_matches = null
+                IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
+                (0..<IIBsToQuay_matches.count).each { 
+                    currentBuild.description+="<br/>&nbsp;&nbsp;+ " + IIBsToQuay_matches[it][1] 
+                }
+                // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
+                // https://stackoverflow.com/questions/40454558/jenkins-pipeline-java-io-notserializableexception-java-util-regex-matcher-error
+                IIBsToQuay_matches = null
+                cleanWs(
+                    cleanWhenSuccess: true,
+                    cleanWhenUnstable: true,
+                    cleanWhenNotBuilt: false,
+                    cleanWhenFailure: true,
+                    cleanWhenAborted: true,
+                    deleteDirs: true,
+                    disableDeferredWipeout: true,
+                    notFailBuild: true
+                )
+              }//stage
+            }//node
+          }//timeout
+        }// tasks
+    }// for
+    stage("Copy IIBs for each arch") {
+        println "########################################################################################################"
+        println "##  Copy IIBs for arches " + nodeLabelString
+        println "########################################################################################################"
+        parallel(tasks)
+    }
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: true,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  } // stage
+} //node

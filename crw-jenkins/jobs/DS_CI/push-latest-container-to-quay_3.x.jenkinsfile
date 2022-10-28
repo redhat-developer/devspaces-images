@@ -33,7 +33,6 @@ def errorOccurred = ""
 
 def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
 
-def copyIIBsToQuayTimeout=120
 def copyContainersToQuayTimeout=120
 
 currentBuild.description="Copying " + CONTAINERS + "..."
@@ -168,10 +167,7 @@ Brew NVRs:
     } // node
 } // timeout
 
-// trigger update_digests job if we have pushed new images that appear in the registry or metadata
-// requires opm binary to filter & copy IIB images to quay, which publishes for a single arch
-// TODO https://issues.redhat.com/browse/CRW-3287 make this a loop so we can assemble a multiarch IIB?
-node("x86_64-rhel8"){ 
+node(nodeLabel){ 
   stage ("Update metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
@@ -244,128 +240,52 @@ chmod +x updateGeneratedOperatorMetadata.sh
 ''')
             }
             currentBuild.description+="; " + whichBundle.replaceAll("operator-","") + "-generated updated"
-
-            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-            // NOTE: similar code in send-email-qe-build-list_3.*.jenkinsfile and push-latest-container-to-quay_3.*.jenkinsfile
-            // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-            println "####################################################################################################################"
-            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for " + whichBundle + " ${DS_VERSION}, for OCP ${OCP_VERSIONS}"
-            println "####################################################################################################################"
-
-            // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
-            // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
-            // if a value found, echo "-i registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75" 
-            // and pass that to the next step as a filter for the getLatestIIBs.sh query
-            def latestBundleImageFilter = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
-latestBundleImageFilter=$(./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-)
-if [[ $latestBundleImageFilter ]]; then echo "-i $latestBundleImageFilter"; fi
+            def OCP_VERSIONS = sh(script: '''
+curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
+    | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "
 ''', returnStdout: true).trim()
-            // -i registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
+            println "####################################################################################################################"
+            println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
+            println "####################################################################################################################"
+            jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
+            // trigger copyIIBsToQuay job
+            final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
+                wait: false,
+                propagate: false,
+                quietPeriod: 0,
+                parameters: [
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "filter+and+copy+IIBs+to+quay"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'MIDSTM_BRANCH',
+                        value: MIDSTM_BRANCH
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'DS_VERSION',
+                        value: DS_VERSION
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'OCP_VERSIONS',
+                        value: OCP_VERSIONS
 
-            if (!latestBundleImageFilter?.trim()) {
-                println "####################################################################################################################WARNING\n\
-## WARNING: could not determine latest registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle image!\n\
-####################################################################################################################WARNING\n"
-            }
-
-            def IIBs = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
-for OCP_VER in ''' + OCP_VERSIONS + '''; do
-    index_and_ocp_version="$(./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -o ${OCP_VER} -qi ''' + latestBundleImageFilter + ''') (${OCP_VER})"
-    echo $index_and_ocp_version
-done
-''', returnStdout: true)
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277491 (v4.11)
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:277488 (v4.10)
-
-            // if we got the right number of values (matching number of OCP versions)
-            if (IIBs?.trim() && OCP_VERSIONS?.trim() && IIBs?.trim().split("\n").length == OCP_VERSIONS?.trim().split(" ").length) { 
-                println "####################################################################################################################FOUND\n\
-##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}:\n\
-## " + IIBs.trim().replaceAll("\n", "\n## ")+"\n\
-####################################################################################################################FOUND\n"
-                currentBuild.description+="; " + IIBs?.trim().split("\n").length + " IIB(s) found: "
-                currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
-
-                // // // // // // // // // // // // // // // // // // // // // 
-                // CRW-3219 copy IIBs to Quay, CI builds only (3 tags per IIB per OCP version)
-                // // // // // // // // // // // // // // // // // // // // // 
-                // requires opm binary to filter & copy IIB images to quay, running on all arches
-
-                nodeLabelString = sh( 
-                script: '''
-curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/devspaces-''' + whichBundle + '''/container.yaml | yq -r '.platforms.only[]' 
-                ''', returnStdout: true).trim()
-                currentBuild.description+="<br/>arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
-
-                def List nodeLabels = nodeLabelString.tokenize("\n")
-                def nodeLabelLoop = ""
-                def Map tasks = [failFast: false]
-                for (int j=0; j < nodeLabels.size(); j++) {
-                    nodeLabelLoop=nodeLabels[j]+"-rhel8"
-                    print "[" + (j+1) + "/" + nodeLabels.size() + "] Create task to copy IIBs: " + whichBundle + " " + nodeLabel
-                    def String thisArch=nodeLabelLoop
-                    // copy & filter IIB for this arch
-                    tasks[whichBundle + " " + thisArch] = { ->
-                    timeout(copyIIBsToQuayTimeout) {
-                        node(thisArch){
-                        stage("Copy IIBs: " + whichBundle + " " + thisArch) {
-                            sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-                            util = load "${WORKSPACE}/util2.groovy"
-                            cleanWs()
-
-                            println("Filtering and copying images to quay. This may take ~3 mins per OCP version per arch.")
-                            def IIBsToQuay = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/copyIIBsToQuay.sh && chmod +x copyIIBsToQuay.sh
-./copyIIBsToQuay.sh -v --push -t ''' + DS_VERSION + ''' -o "''' + OCP_VERSIONS + '''"
-''', returnStdout: true)
-
-                            // in console, echo all errors and warnings
-                            println "####################################################################################################################COPIED\n\
-##  IIB(s) copied:\n\
-## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
-####################################################################################################################COPIED\n"
-
-                            currentBuild.description+="<br/>+ ${thisArch} IIB(s) copied: "
-                            // for build description, collect the lines that start with [IMG]; ignore all other output
-                            def IIBsToQuay_matches = null
-                            IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
-                            (0..<IIBsToQuay_matches.count).each { 
-                                currentBuild.description+="<br/>&nbsp;&nbsp;+ " + IIBsToQuay_matches[it][1] 
-                            }
-                            // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
-                            // https://stackoverflow.com/questions/40454558/jenkins-pipeline-java-io-notserializableexception-java-util-regex-matcher-error
-                            IIBsToQuay_matches = null
-                            cleanWs(
-                                cleanWhenSuccess: true,
-                                cleanWhenUnstable: true,
-                                cleanWhenNotBuilt: false,
-                                cleanWhenFailure: CLEAN_ON_FAILURE,
-                                cleanWhenAborted: true,
-                                deleteDirs: true,
-                                disableDeferredWipeout: true,
-                                notFailBuild: true
-                            )
-                        }//stage
-                        }//node
-                    }//timeout
-                    }// tasks
-                }// for
-                stage("Copy IIBs for each arch") {
-                    println "########################################################################################################"
-                    println "##  Copy IIBs for arches " + nodeLabelString
-                    println "########################################################################################################"
-                    parallel(tasks)
-                }
-            } else { // could not find the correct number of published IIBs in rh-osbs registry
-                currentBuild.description+="; ERROR: missing rh-osbs/iib for " + latestBundleImage
-                if (IIBs?.trim().split("\n").length > 0) { 
-                    currentBuild.description+=" - " + IIBs?.trim().split("\n").length + " of " + OCP_VERSIONS?.trim().split(" ").length + " found: "
-                    currentBuild.description+="<br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
-                }
-                currentBuild.result = 'FAILURE'
-            }
+                    ]
+                ]
+            )            
+            println("triggered build(" + jobPath + ") [no wait]")
+            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+            currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
         } // if bundle
     } // if
     cleanWs(
