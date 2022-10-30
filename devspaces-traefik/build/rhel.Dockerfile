@@ -1,5 +1,5 @@
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM registry.access.redhat.com/ubi8-minimal:8.6-985 as builder
+FROM registry.access.redhat.com/ubi8-minimal:8.6-994 as builder
 USER 0
 
 # cachito
@@ -32,7 +32,7 @@ RUN go generate && \
     go build ./cmd/traefik
 
 # https://registry.access.redhat.com/ubi8-minimal 
-FROM registry.access.redhat.com/ubi8-minimal:8.6-985 
+FROM registry.access.redhat.com/ubi8-minimal:8.6-994 
 
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/script/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik/traefik /traefik
