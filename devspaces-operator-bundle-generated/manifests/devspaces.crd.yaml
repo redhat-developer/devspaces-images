@@ -2281,7 +2281,7 @@ spec:
                     workspaceDefaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:b49831ce43d80613676cda89d40e0e22ddeb8e2a8f281fd064c0c61c641fe48f
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:04435bb72d5906cc70435860641acfa6af3aac10eece8bffe9b1c488d55588b2
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile does
@@ -5401,7 +5401,7 @@ spec:
                   default:
                     defaultComponents:
                       - container:
-                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:b49831ce43d80613676cda89d40e0e22ddeb8e2a8f281fd064c0c61c641fe48f
+                          image: registry.redhat.io/devspaces/udi-rhel8@sha256:04435bb72d5906cc70435860641acfa6af3aac10eece8bffe9b1c488d55588b2
                         name: universal-developer-image
                     defaultEditor: eclipse/che-theia/latest
                     defaultNamespace:
@@ -5426,7 +5426,7 @@ spec:
                     defaultComponents:
                       default:
                         - container:
-                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:b49831ce43d80613676cda89d40e0e22ddeb8e2a8f281fd064c0c61c641fe48f
+                            image: registry.redhat.io/devspaces/udi-rhel8@sha256:04435bb72d5906cc70435860641acfa6af3aac10eece8bffe9b1c488d55588b2
                           name: universal-developer-image
                       description: Default components applied to DevWorkspaces. These
                         default components are meant to be used when a Devfile, that
