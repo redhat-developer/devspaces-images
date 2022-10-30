@@ -9,7 +9,7 @@
 #   Red Hat, Inc. - initial API and implementation
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM ubi8/nodejs-16:1-68 as builder
+FROM ubi8/nodejs-16:1-68.1666660386 as builder
 USER 0
 RUN dnf -y -q update --exclude=unbound-libs 
 
@@ -36,7 +36,7 @@ RUN yarn build
 # RUN rm -rf $REMOTE_SOURCES_DIR
 
 # https://registry.access.redhat.com/ubi8/nodejs-16
-FROM ubi8/nodejs-16:1-68
+FROM ubi8/nodejs-16:1-68.1666660386
 USER 0
 
 RUN \
