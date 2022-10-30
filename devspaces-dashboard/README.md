@@ -226,6 +226,18 @@ kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
 
 **Note**: This way to configure dashboard is experimental and may be changed.
 
-## License
+# Builds
+
+This repo contains several [actions](https://github.com/eclipse-che/che-dashboard/actions), including:
+* ![release latest stable](https://github.com/eclipse-che/che-dashboard/actions/workflows/release.yml/badge.svg)
+* ![next builds](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml/badge.svg)
+* ![PR](https://github.com/eclipse-che/che-dashboard/actions/workflows/pr.yml/badge.svg)
+
+Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
+
+* [dashboard_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/dashboard_3.x/)
+
+
+# License
 
 Che is open sourced under the Eclipse Public License 2.0.
