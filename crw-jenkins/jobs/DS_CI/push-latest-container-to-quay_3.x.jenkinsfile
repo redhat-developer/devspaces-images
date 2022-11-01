@@ -167,6 +167,55 @@ Brew NVRs:
     } // node
 } // timeout
 
+
+node(nodeLabel){ 
+  stage ("Update plugin registry GH page + rebuild devfile registry") {
+    // echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && CONTAINERS.trim().contains("pluginregistry")) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+
+        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+        println "DS_VERSION = '" + DS_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+        // trigger GH action plugin-registry-build-publish-content-gh-pages.yaml, which will 
+        // publish new plugin registry GH page content and rebuild the devfile registry
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            sh('''#!/bin/bash -e
+this_repo="redhat-developer/devspaces"
+this_action_name="Plugin Registry - GH Pages - Publish Registry Content"
+workflow_id="18838921" # see https://github.com/eclipse-che/che-release/blob/main/utils/util.sh#L9-L17
+this_github_token="''' + GITHUB_TOKEN + '''"
+workflow_ref="''' + MIDSTM_BRANCH + '''"
+if [[ "''' + MIDSTM_BRANCH + '''" == "devspaces-3-rhel-8" ]]; then
+    inputsJson="{\\"TAG\\": \\"next\\"}"
+else
+    inputsJson="{\\"TAG\\": \\"''' + JOB_BRANCH + '''\\"}"
+fi
+actionURL="https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml"
+echo "[INFO] Invoking $actionURL with branch=$workflow_ref and $inputsJson ..."
+
+curl -sSL "https://api.github.com/repos/${this_repo}/actions/workflows/${workflow_id}/dispatches" \
+    -X POST -H "Authorization: token ${this_github_token}" -H "Accept: application/vnd.github.v3+json" \
+    -d "{\\"ref\\":\\"${workflow_ref}\\",\\"inputs\\": ${inputsJson} }" || \
+    die_with "[ERROR] Problem invoking $actionURL with branch=$workflow_ref and $inputsJson"
+''')
+        }
+    } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  }
+}
+
 node(nodeLabel){ 
   stage ("Update metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
@@ -309,7 +358,7 @@ node(nodeLabel){
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
         // if CONTAINERS contains theia
-        println "Containers: " + CONTAINERS.trim()
+        // println "Containers: " + CONTAINERS.trim()
         if (CONTAINERS.trim().equals("theia") || CONTAINERS.trim().matches(".*theia .*")) {
             DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
             println "DS_VERSION = '" + DS_VERSION + "'"
