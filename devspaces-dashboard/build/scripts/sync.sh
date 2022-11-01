@@ -181,5 +181,13 @@ while IFS= read -r -d '' d; do
   fi
 done <   <(find ${TARGETDIR}/ -name "*.json" -type f -print0)
 
+# https://issues.redhat.com/browse/CRW-3485 - disable IDEA from DS 3.3+ as we don't want to show tech preview editors in the dashboard
+# TODO https://issues.redhat.com/browse/CRW-3489 - disable Theia from DS 3.4+ as it's deprecated / removed.
+while IFS= read -r -d '' d; do
+  sed -r -e "s@EXCLUDED_TARGET_EDITOR_NAMES = .+@EXCLUDED_TARGET_EDITOR_NAMES = ['idea'];@" \
+  -i "${d}"
+  echo "Updated EXCLUDED_TARGET_EDITOR_NAMES in ${d}"
+done <   <(find ${TARGETDIR}/ -name "SamplesListGallery.tsx" -type f -print0)
+
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
