@@ -14,3 +14,23 @@ compose:
 
 # instead of docker_api, use imagebuilder for multistage builds
 image_build_method: imagebuilder
+
+remote_sources:
+- name: devspaces-images-operator
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: a12ada6151bb93da78dba38487a238bcb6355bec
+    pkg_managers: [gomod]
+    flags: [gomod-vendor-check]
+    packages: 
+      gomod: 
+        - path: devspaces-operator
+- name: che-incubator-header-rewrite-traefik-plugin
+  remote_source: 
+    repo: https://github.com/che-incubator/header-rewrite-traefik-plugin.git
+    ref: 5ece3dcd7a1c82f3d05999623bd3607b56437cd1
+- name: devfile-devworkspace-operator
+  remote_source: 
+    repo: https://github.com/devfile/devworkspace-operator.git
+    ref: 6fa250c0f78fb64c34d95dfefa0f6b889480b0aa
+      
