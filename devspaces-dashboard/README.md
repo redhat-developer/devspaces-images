@@ -229,9 +229,9 @@ kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
 # Builds
 
 This repo contains several [actions](https://github.com/eclipse-che/che-dashboard/actions), including:
-* ![release latest stable](https://github.com/eclipse-che/che-dashboard/actions/workflows/release.yml/badge.svg)
-* ![next builds](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml/badge.svg)
-* ![PR](https://github.com/eclipse-che/che-dashboard/actions/workflows/pr.yml/badge.svg)
+* [![release latest stable](https://github.com/eclipse-che/che-dashboard/actions/workflows/release.yml/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/release.yml)
+* [![next builds](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml)
+* [![PR](https://github.com/eclipse-che/che-dashboard/actions/workflows/pr.yml/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/pr.yml)
 
 Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
 
