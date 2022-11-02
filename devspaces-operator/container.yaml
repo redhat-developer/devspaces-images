@@ -25,11 +25,11 @@ remote_sources:
     packages: 
       gomod: 
         - path: devspaces-operator
-- name: che-incubator-header-rewrite-traefik-plugin
+- name: DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
   remote_source: 
     repo: https://github.com/che-incubator/header-rewrite-traefik-plugin.git
     ref: 5ece3dcd7a1c82f3d05999623bd3607b56437cd1
-- name: devfile-devworkspace-operator
+- name: DEV_WORKSPACE_CONTROLLER
   remote_source: 
     repo: https://github.com/devfile/devworkspace-operator.git
     ref: 6fa250c0f78fb64c34d95dfefa0f6b889480b0aa
