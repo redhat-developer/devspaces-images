@@ -12,7 +12,6 @@
 package org.eclipse.che.workspace.infrastructure.openshift;
 
 import com.google.inject.assistedinject.Assisted;
-import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.openshift.api.model.Route;
@@ -59,7 +58,6 @@ public class OpenShiftInternalRuntime extends KubernetesInternalRuntime<OpenShif
 
   @Inject
   public OpenShiftInternalRuntime(
-      @Named("che.infra.kubernetes.workspace_start_timeout_min") int workspaceStartTimeout,
       @Named("che.infra.kubernetes.ingress_start_timeout_min") int ingressStartTimeout,
       NoOpURLRewriter urlRewriter,
       UnrecoverablePodEventListenerFactory unrecoverablePodEventListenerFactory,
@@ -85,7 +83,6 @@ public class OpenShiftInternalRuntime extends KubernetesInternalRuntime<OpenShif
       @Assisted OpenShiftRuntimeContext context,
       @Assisted OpenShiftProject project) {
     super(
-        workspaceStartTimeout,
         ingressStartTimeout,
         urlRewriter,
         unrecoverablePodEventListenerFactory,
@@ -111,22 +108,6 @@ public class OpenShiftInternalRuntime extends KubernetesInternalRuntime<OpenShif
         project);
     this.project = project;
     this.serverResolverFactory = serverResolverFactory;
-  }
-
-  @Override
-  @Traced
-  protected void startMachines() throws InfrastructureException {
-    OpenShiftEnvironment osEnv = getContext().getEnvironment();
-    String workspaceId = getContext().getIdentity().getWorkspaceId();
-
-    createSecrets(osEnv, workspaceId);
-    List<ConfigMap> createdConfigMaps = createConfigMaps(osEnv, getContext().getIdentity());
-    List<Service> createdServices = createServices(osEnv, workspaceId);
-    List<Route> createdRoutes = createRoutes(osEnv, workspaceId);
-
-    listenEvents();
-
-    doStartMachine(serverResolverFactory.create(createdServices, createdRoutes, createdConfigMaps));
   }
 
   @Traced
