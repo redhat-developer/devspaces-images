@@ -15,6 +15,7 @@ import { cloneDeep } from 'lodash';
 import devfileApi from '../../../../../../services/devfileApi';
 import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../../services/devfileApi/devWorkspace/spec/template';
 import { generateWorkspaceName } from '../../../../../../services/helpers/generateName';
+import sanitizeName from '../../../../../../services/helpers/sanitizeName';
 import {
   DEVWORKSPACE_DEVFILE_SOURCE,
   DEVWORKSPACE_METADATA_ANNOTATION,
@@ -57,6 +58,8 @@ export function prepareDevfile(
   } else if (appendSuffix) {
     devfile.metadata.name = generateWorkspaceName(devfile.metadata.name);
   }
+  // sanitize the workspace name
+  devfile.metadata.name = sanitizeName(devfile.metadata.name);
 
   // propagate storage type
   if (storageType === 'ephemeral') {
