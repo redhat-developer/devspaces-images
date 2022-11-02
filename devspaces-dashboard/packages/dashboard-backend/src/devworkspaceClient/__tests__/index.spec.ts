@@ -19,6 +19,7 @@ import { DockerConfigApiService } from '../services/dockerConfigApi';
 import { KubeConfigApiService } from '../services/kubeConfigApi';
 import { NamespaceApiService } from '../services/namespaceApi';
 import { ServerConfigApiService } from '../services/serverConfigApi';
+import { UserProfileApiService } from '../services/userProfileApi';
 
 jest.mock('../services/devWorkspaceApi.ts');
 
@@ -43,5 +44,6 @@ describe('DevWorkspace client', () => {
     expect(client.namespaceApi).toBeInstanceOf(NamespaceApiService);
     expect(client.serverConfigApi).toBeInstanceOf(ServerConfigApiService);
     expect(client.devWorkspaceTemplateApi).toBeInstanceOf(DevWorkspaceTemplateApiService);
+    expect(client.userProfileApi).toBeInstanceOf(UserProfileApiService);
   });
 });

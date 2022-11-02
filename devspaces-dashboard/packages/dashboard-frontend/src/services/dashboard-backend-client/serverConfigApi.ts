@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import axios from 'axios';
-import common, { api } from '@eclipse-che/common';
 import { prefix } from './const';
 
 /**

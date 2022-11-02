@@ -14,67 +14,64 @@ import { Action } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import * as BannerAlertStore from './BannerAlert';
 import * as BrandingStore from './Branding';
-import * as ClusterInfo from './ClusterInfo';
 import * as ClusterConfig from './ClusterConfig';
+import * as ClusterInfo from './ClusterInfo';
 import * as DevfileRegistriesStore from './DevfileRegistries';
+import * as CheDockerConfigStore from './DockerConfig/che';
+import * as DwDockerConfigStore from './DockerConfig/dw';
 import * as FactoryResolverStore from './FactoryResolver';
 import * as InfrastructureNamespacesStore from './InfrastructureNamespaces';
 import * as PluginsStore from './Plugins/chePlugins';
+import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
+import * as DwServerConfigStore from './ServerConfig';
 import * as UserPreferences from './UserPreferences';
+import * as UserProfileStore from './UserProfile';
 import * as WorkspacesStore from './Workspaces';
 import * as CheWorkspacesStore from './Workspaces/cheWorkspaces';
 import * as DevWorkspacesStore from './Workspaces/devWorkspaces';
-import * as UserStore from './User';
-import * as UserProfileStore from './UserProfile';
-import * as DwPluginsStore from './Plugins/devWorkspacePlugins';
 import * as WorkspacesSettingsStore from './Workspaces/Settings';
-import * as CheDockerConfigStore from './DockerConfig/che';
-import * as DwDockerConfigStore from './DockerConfig/dw';
-import * as DwServerConfigStore from './ServerConfig';
 
 // the top-level state object
 export interface AppState {
   bannerAlert: BannerAlertStore.State;
   branding: BrandingStore.State;
-  clusterInfo: ClusterInfo.State;
+  cheDockerConfig: CheDockerConfigStore.State;
+  cheWorkspaces: CheWorkspacesStore.State;
   clusterConfig: ClusterConfig.State;
+  clusterInfo: ClusterInfo.State;
+  devWorkspaces: DevWorkspacesStore.State;
   devfileRegistries: DevfileRegistriesStore.State;
+  dwDockerConfig: DwDockerConfigStore.State;
+  dwPlugins: DwPluginsStore.State;
+  dwServerConfig: DwServerConfigStore.State;
+  factoryResolver: FactoryResolverStore.State;
   infrastructureNamespaces: InfrastructureNamespacesStore.State;
-  user: UserStore.State;
+  plugins: PluginsStore.State;
+  userPreferences: UserPreferences.State;
   userProfile: UserProfileStore.State;
   workspaces: WorkspacesStore.State;
-  cheWorkspaces: CheWorkspacesStore.State;
-  devWorkspaces: DevWorkspacesStore.State;
-  plugins: PluginsStore.State;
-  factoryResolver: FactoryResolverStore.State;
-  userPreferences: UserPreferences.State;
-  dwPlugins: DwPluginsStore.State;
   workspacesSettings: WorkspacesSettingsStore.State;
-  cheDockerConfig: CheDockerConfigStore.State;
-  dwDockerConfig: DwDockerConfigStore.State;
-  dwServerConfig: DwServerConfigStore.State;
 }
 
 export const reducers = {
   bannerAlert: BannerAlertStore.reducer,
-  workspaces: WorkspacesStore.reducer,
+  branding: BrandingStore.reducer,
+  cheDockerConfig: CheDockerConfigStore.reducer,
   cheWorkspaces: CheWorkspacesStore.reducer,
+  clusterConfig: ClusterConfig.reducer,
+  clusterInfo: ClusterInfo.reducer,
   devWorkspaces: DevWorkspacesStore.reducer,
   devfileRegistries: DevfileRegistriesStore.reducer,
-  branding: BrandingStore.reducer,
-  clusterInfo: ClusterInfo.reducer,
-  clusterConfig: ClusterConfig.reducer,
-  user: UserStore.reducer,
-  userProfile: UserProfileStore.reducer,
+  dwDockerConfig: DwDockerConfigStore.reducer,
+  dwPlugins: DwPluginsStore.reducer,
+  dwServerConfig: DwServerConfigStore.reducer,
+  factoryResolver: FactoryResolverStore.reducer,
   infrastructureNamespaces: InfrastructureNamespacesStore.reducer,
   plugins: PluginsStore.reducer,
-  factoryResolver: FactoryResolverStore.reducer,
   userPreferences: UserPreferences.reducer,
-  dwPlugins: DwPluginsStore.reducer,
+  userProfile: UserProfileStore.reducer,
+  workspaces: WorkspacesStore.reducer,
   workspacesSettings: WorkspacesSettingsStore.reducer,
-  cheDockerConfig: CheDockerConfigStore.reducer,
-  dwDockerConfig: DwDockerConfigStore.reducer,
-  dwServerConfig: DwServerConfigStore.reducer,
 };
 
 export type AppThunk<ActionType extends Action, ReturnType = void> = ThunkAction<

@@ -10,22 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { fireEvent, render, screen } from '@testing-library/react';
 import { createHashHistory } from 'history';
 import React from 'react';
 import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
-import { fireEvent, render, screen } from '@testing-library/react';
 import { Action, Store } from 'redux';
 import UserMenu from '..';
-import { AppThunk } from '../../../../../store';
-import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 import {
   BrandingData,
   BRANDING_DEFAULT,
 } from '../../../../../services/bootstrap/branding.constant';
-import * as InfrastructureNamespacesStore from '../../../../../store/InfrastructureNamespaces';
+import { AppThunk } from '../../../../../store';
 import { selectBranding } from '../../../../../store/Branding/selectors';
-import { selectUserProfile } from '../../../../../store/UserProfile/selectors';
+import * as InfrastructureNamespacesStore from '../../../../../store/InfrastructureNamespaces';
+import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 
 jest.mock('../../../../../store/InfrastructureNamespaces', () => {
   return {
@@ -44,27 +43,14 @@ describe('User Menu', () => {
   global.open = jest.fn();
 
   const email = 'johndoe@example.com';
-  const name = 'John Doe';
-  const store = createStore(name, email);
+  const username = 'John Doe';
+  const store = createStore(username, email);
   const history = createHashHistory();
-  const user = {
-    id: 'test-id',
-    name: name,
-    email: email,
-    links: [],
-  };
   const branding = selectBranding(store.getState());
-  const userProfile = selectUserProfile(store.getState());
 
   const component = (
     <Provider store={store}>
-      <UserMenu
-        branding={branding}
-        history={history}
-        user={user}
-        userProfile={userProfile}
-        logout={mockLogout}
-      />
+      <UserMenu branding={branding} history={history} username={username} logout={mockLogout} />
     </Provider>
   );
 
@@ -79,17 +65,17 @@ describe('User Menu', () => {
   it('should open the dropdown', () => {
     render(component);
 
-    const menuButton = screen.getByRole('button', { name });
+    const menuButton = screen.getByRole('button', { name: username });
     fireEvent.click(menuButton);
 
     const items = screen.getAllByRole('menuitem');
-    expect(items.length).toEqual(3);
+    expect(items.length).toEqual(2);
   });
 
   it('should fire the logout event', () => {
     render(component);
 
-    const menuButton = screen.getByRole('button', { name });
+    const menuButton = screen.getByRole('button', { name: username });
     fireEvent.click(menuButton);
 
     const logoutItem = screen.getByRole('menuitem', { name: /logout/i });

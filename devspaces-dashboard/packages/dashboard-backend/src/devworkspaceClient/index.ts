@@ -11,66 +11,58 @@
  */
 
 import * as k8s from '@kubernetes/client-node';
+import { DevWorkspaceApiService } from './services/devWorkspaceApi';
+import { DevWorkspaceTemplateApiService } from './services/devWorkspaceTemplateApi';
+import { DockerConfigApiService } from './services/dockerConfigApi';
+import { KubeConfigApiService } from './services/kubeConfigApi';
+import { NamespaceApiService } from './services/namespaceApi';
+import { ServerConfigApiService } from './services/serverConfigApi';
+import { UserProfileApiService } from './services/userProfileApi';
 import {
-  IServerConfigApi,
   IDevWorkspaceApi,
   IDevWorkspaceClient,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
   IKubeConfigApi,
   INamespaceApi,
+  IServerConfigApi,
+  IUserProfileApi,
 } from './types';
-import { DevWorkspaceTemplateApiService } from './services/devWorkspaceTemplateApi';
-import { DevWorkspaceApiService } from './services/devWorkspaceApi';
-import { DockerConfigApiService } from './services/dockerConfigApi';
-import { ServerConfigApiService } from './services/serverConfigApi';
-import { KubeConfigApiService } from './services/kubeConfigApi';
-import { NamespaceApiService } from './services/namespaceApi';
 
 export * from './types';
 
 export class DevWorkspaceClient implements IDevWorkspaceClient {
-  private apiEnabled: boolean | undefined;
-
-  private readonly _apisApi: k8s.ApisApi;
-  private readonly _devWorkspaceTemplateApi: IDevWorkspaceTemplateApi;
-  private readonly _devworkspaceApi: IDevWorkspaceApi;
-  private readonly _dockerConfigApi: IDockerConfigApi;
-  private readonly _serverConfigApi: IServerConfigApi;
-  private readonly _kubeConfigApi: IKubeConfigApi;
-  private readonly _namespaceApi: INamespaceApi;
+  private readonly kubeConfig: k8s.KubeConfig;
 
   constructor(kc: k8s.KubeConfig) {
-    this._devWorkspaceTemplateApi = new DevWorkspaceTemplateApiService(kc);
-    this._devworkspaceApi = new DevWorkspaceApiService(kc);
-    this._dockerConfigApi = new DockerConfigApiService(kc);
-    this._serverConfigApi = new ServerConfigApiService(kc);
-    this._kubeConfigApi = new KubeConfigApiService(kc);
-    this._namespaceApi = new NamespaceApiService(kc);
-    this._apisApi = kc.makeApiClient(k8s.ApisApi);
+    this.kubeConfig = kc;
   }
 
   get devWorkspaceTemplateApi(): IDevWorkspaceTemplateApi {
-    return this._devWorkspaceTemplateApi;
+    return new DevWorkspaceTemplateApiService(this.kubeConfig);
   }
 
   get devworkspaceApi(): IDevWorkspaceApi {
-    return this._devworkspaceApi;
+    return new DevWorkspaceApiService(this.kubeConfig);
   }
 
   get dockerConfigApi(): IDockerConfigApi {
-    return this._dockerConfigApi;
+    return new DockerConfigApiService(this.kubeConfig);
   }
 
   get serverConfigApi(): IServerConfigApi {
-    return this._serverConfigApi;
+    return new ServerConfigApiService(this.kubeConfig);
   }
 
   get kubeConfigApi(): IKubeConfigApi {
-    return this._kubeConfigApi;
+    return new KubeConfigApiService(this.kubeConfig);
   }
 
   get namespaceApi(): INamespaceApi {
-    return this._namespaceApi;
+    return new NamespaceApiService(this.kubeConfig);
+  }
+
+  get userProfileApi(): IUserProfileApi {
+    return new UserProfileApiService(this.kubeConfig);
   }
 }

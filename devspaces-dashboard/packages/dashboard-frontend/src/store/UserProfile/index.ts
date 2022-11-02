@@ -12,71 +12,78 @@
 
 // This state defines the type of data maintained in the Redux store.
 
+import common, { api } from '@eclipse-che/common';
 import { Action, Reducer } from 'redux';
-import common from '@eclipse-che/common';
+import { fetchUserProfile } from '../../services/dashboard-backend-client/userProfileApi';
 import { createObject } from '../helpers';
 import { AppThunk } from '../index';
-import { container } from '../../inversify.config';
-import { CheWorkspaceClient } from '../../services/workspace-client/cheworkspace/cheWorkspaceClient';
-import { che as cheApi } from '@eclipse-che/api';
-
-const WorkspaceClient = container.get(CheWorkspaceClient);
 
 export interface State {
-  profile: cheApi.user.Profile;
+  userProfile: api.IUserProfile;
   error?: string;
   isLoading: boolean;
 }
 
-interface RequestUserProfileAction {
-  type: 'REQUEST_USER_PROFILE';
+export enum Type {
+  REQUEST_USER_PROFILE = 'REQUEST_USER_PROFILE',
+  RECEIVE_USER_PROFILE = 'RECEIVE_USER_PROFILE',
+  RECEIVE_USER_PROFILE_ERROR = 'RECEIVE_USER_PROFILE_ERROR',
 }
 
-interface ReceiveUserProfileAction {
-  type: 'RECEIVE_USER_PROFILE';
-  profile: api.che.user.Profile;
+export interface RequestUserProfileAction {
+  type: Type.REQUEST_USER_PROFILE;
 }
 
-interface ReceiveUserProfileErrorAction {
-  type: 'RECEIVE_USER_PROFILE_ERROR';
+export interface ReceiveUserProfileAction {
+  type: Type.RECEIVE_USER_PROFILE;
+  userProfile: api.IUserProfile;
+}
+
+export interface ReceiveUserProfileErrorAction {
+  type: Type.RECEIVE_USER_PROFILE_ERROR;
   error: string;
 }
 
-type KnownAction =
+export type KnownAction =
   | RequestUserProfileAction
   | ReceiveUserProfileAction
   | ReceiveUserProfileErrorAction;
 
 export type ActionCreators = {
-  requestUserProfile: () => AppThunk<KnownAction, Promise<void>>;
+  requestUserProfile: (namespace: string) => AppThunk<KnownAction, Promise<void>>;
 };
 
 export const actionCreators: ActionCreators = {
   requestUserProfile:
-    (): AppThunk<KnownAction, Promise<void>> =>
+    (namespace: string): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch): Promise<void> => {
-      dispatch({ type: 'REQUEST_USER_PROFILE' });
+      dispatch({ type: Type.REQUEST_USER_PROFILE });
 
       try {
-        const profile = await WorkspaceClient.restApiClient.getCurrentUserProfile();
+        const userProfile = await fetchUserProfile(namespace);
         dispatch({
-          type: 'RECEIVE_USER_PROFILE',
-          profile: profile ? profile : unloadedState.profile,
+          type: Type.RECEIVE_USER_PROFILE,
+          userProfile,
         });
       } catch (e) {
-        const errorMessage =
-          'Failed to fetch the user profile, reason: ' + common.helpers.errors.getMessage(e);
+        const errorMessage = common.helpers.errors.getMessage(e);
         dispatch({
-          type: 'RECEIVE_USER_PROFILE_ERROR',
+          type: Type.RECEIVE_USER_PROFILE_ERROR,
           error: errorMessage,
         });
-        throw errorMessage;
+        if (common.helpers.errors.isError(e)) {
+          throw e;
+        }
+        throw new Error(errorMessage);
       }
     },
 };
 
 const unloadedState: State = {
-  profile: { email: '' },
+  userProfile: {
+    email: '',
+    username: 'unknown',
+  },
   isLoading: false,
 };
 
@@ -90,17 +97,17 @@ export const reducer: Reducer<State> = (
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case 'REQUEST_USER_PROFILE':
+    case Type.REQUEST_USER_PROFILE:
       return createObject(state, {
         isLoading: true,
         error: undefined,
       });
-    case 'RECEIVE_USER_PROFILE':
+    case Type.RECEIVE_USER_PROFILE:
       return createObject(state, {
         isLoading: false,
-        profile: action.profile,
+        userProfile: action.userProfile,
       });
-    case 'RECEIVE_USER_PROFILE_ERROR':
+    case Type.RECEIVE_USER_PROFILE_ERROR:
       return createObject(state, {
         isLoading: false,
         error: action.error,

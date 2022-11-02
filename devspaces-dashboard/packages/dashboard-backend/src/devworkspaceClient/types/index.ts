@@ -201,6 +201,13 @@ export interface IKubeConfigApi {
   injectKubeConfig(namespace: string, devworkspaceId: string): Promise<void>;
 }
 
+export interface IUserProfileApi {
+  /**
+   * Returns user profile object that contains username and email.
+   */
+  getUserProfile(namespace: string): Promise<api.IUserProfile | undefined>;
+}
+
 export type IDevWorkspaceCallbacks = {
   onModified: (workspace: V1alpha2DevWorkspace) => void;
   onDeleted: (workspaceId: string) => void;
@@ -215,6 +222,7 @@ export interface IDevWorkspaceClient {
   serverConfigApi: IServerConfigApi;
   kubeConfigApi: IKubeConfigApi;
   namespaceApi: INamespaceApi;
+  userProfileApi: IUserProfileApi;
 }
 
 export interface IDevWorkspaceList {

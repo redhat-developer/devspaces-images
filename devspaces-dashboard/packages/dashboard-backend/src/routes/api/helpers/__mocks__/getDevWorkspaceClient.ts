@@ -71,6 +71,11 @@ export const stubDockerConfig = {};
 
 export const stubNamespaces = ['user-che'];
 
+export const stubUserProfile: api.IUserProfile = {
+  email: 'user1@che',
+  username: 'user1',
+};
+
 export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnType<typeof helper> {
   return {
     serverConfigApi: {
@@ -108,5 +113,8 @@ export function getDevWorkspaceClient(_args: Parameters<typeof helper>): ReturnT
       listInNamespace: _namespace => Promise.resolve(stubDevWorkspaceTemplatesList),
       patch: (_namespace, _name, _patches) => Promise.resolve(stubDevWorkspaceTemplate),
     } as IDevWorkspaceTemplateApi,
+    userProfileApi: {
+      getUserProfile: _namespace => Promise.resolve(stubUserProfile),
+    },
   } as DevWorkspaceClient;
 }

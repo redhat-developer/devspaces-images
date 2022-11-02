@@ -20,7 +20,8 @@ const WorkspacesListContainer = React.lazy(() => import('../containers/Workspace
 const WorkspaceDetailsContainer = React.lazy(() => import('../containers/WorkspaceDetails'));
 const LoaderContainer = React.lazy(() => import('../containers/Loader'));
 const UserPreferences = React.lazy(() => import('../pages/UserPreferences'));
-const UserAccount = React.lazy(() => import('../pages/UserAccount'));
+// temporary hidden, https://github.com/eclipse/che/issues/21595
+// const UserAccount = React.lazy(() => import('../pages/UserAccount'));
 
 export interface RouteItem {
   to: ROUTE;
@@ -35,7 +36,8 @@ const items: RouteItem[] = [
   { to: ROUTE.IDE_LOADER, component: LoaderContainer },
   { to: ROUTE.FACTORY_LOADER, component: LoaderContainer },
   { to: ROUTE.USER_PREFERENCES, component: UserPreferences },
-  { to: ROUTE.USER_ACCOUNT, component: UserAccount },
+  // temporary hidden, https://github.com/eclipse/che/issues/21595
+  // { to: ROUTE.USER_ACCOUNT, component: UserAccount },
 ];
 
 function Routes(): React.ReactElement {

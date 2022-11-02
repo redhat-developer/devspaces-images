@@ -50,3 +50,8 @@ export interface IServerConfig {
   };
   cheNamespace: string;
 }
+
+export interface IUserProfile {
+  email: string;
+  username: string;
+}

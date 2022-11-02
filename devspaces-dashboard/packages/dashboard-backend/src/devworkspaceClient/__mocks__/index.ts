@@ -15,9 +15,10 @@ import {
   IDevWorkspaceApi,
   IDevWorkspaceTemplateApi,
   IDockerConfigApi,
-  IServerConfigApi,
   IKubeConfigApi,
   INamespaceApi,
+  IServerConfigApi,
+  IUserProfileApi,
 } from '../types';
 
 export class DevWorkspaceClient implements IDevWorkspaceClient {
@@ -37,6 +38,9 @@ export class DevWorkspaceClient implements IDevWorkspaceClient {
     throw new Error('Method not implemented.');
   }
   get namespaceApi(): INamespaceApi {
+    throw new Error('Method not implemented.');
+  }
+  get userProfileApi(): IUserProfileApi {
     throw new Error('Method not implemented.');
   }
 }

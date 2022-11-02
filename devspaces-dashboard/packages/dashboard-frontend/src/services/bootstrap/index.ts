@@ -24,7 +24,6 @@ import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamesp
 import * as PluginsStore from '../../store/Plugins/chePlugins';
 import * as DwPluginsStore from '../../store/Plugins/devWorkspacePlugins';
 import * as UserProfileStore from '../../store/UserProfile';
-import * as UserStore from '../../store/User';
 import * as WorkspacesStore from '../../store/Workspaces';
 import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
@@ -84,7 +83,6 @@ export default class Bootstrap {
     ]);
 
     const results = await Promise.allSettled([
-      this.fetchCurrentUser(),
       this.fetchUserProfile(),
       this.fetchPlugins().then(() => this.fetchDevfileSchema()),
       this.fetchDwPlugins(),
@@ -164,11 +162,6 @@ export default class Bootstrap {
     };
 
     return await this.devWorkspaceClient.subscribeToNamespace({ namespace, callbacks });
-  }
-
-  private async fetchCurrentUser(): Promise<void> {
-    const { requestUser } = UserStore.actionCreators;
-    await requestUser()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchWorkspaces(): Promise<void> {
@@ -303,8 +296,15 @@ export default class Bootstrap {
   }
 
   private async fetchUserProfile(): Promise<void> {
+    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
+    const defaultNamespace = defaultKubernetesNamespace.name;
+
     const { requestUserProfile } = UserProfileStore.actionCreators;
-    return requestUserProfile()(this.store.dispatch, this.store.getState, undefined);
+    return requestUserProfile(defaultNamespace)(
+      this.store.dispatch,
+      this.store.getState,
+      undefined,
+    );
   }
 
   private checkWorkspaceStopped() {

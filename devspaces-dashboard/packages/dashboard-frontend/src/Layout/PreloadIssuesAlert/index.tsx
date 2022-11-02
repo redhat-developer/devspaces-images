@@ -23,7 +23,6 @@ import { selectInfrastructureNamespacesError } from '../../store/InfrastructureN
 import { selectUserProfileError } from '../../store/UserProfile/selectors';
 import { selectWorkspacesSettingsError } from '../../store/Workspaces/Settings/selectors';
 import { selectWorkspacesError } from '../../store/Workspaces/selectors';
-import { selectUserError } from '../../store/User/selectors';
 import { AlertVariant } from '@patternfly/react-core';
 import { lazyInject } from '../../inversify.config';
 import { AppAlerts } from '../../services/alerts/appAlerts';
@@ -51,14 +50,6 @@ export class PreloadIssuesAlert extends React.PureComponent<Props> {
           title: error.errorMessage,
           variant: AlertVariant.danger,
         });
-      });
-    }
-    // user info error
-    if (this.props.userError) {
-      this.appAlerts.showAlert({
-        key: 'user-error',
-        title: this.props.userError,
-        variant: AlertVariant.danger,
       });
     }
     // plugins error
@@ -117,7 +108,6 @@ export class PreloadIssuesAlert extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: AppState) => ({
-  userError: selectUserError(state),
   registriesErrors: selectRegistriesErrors(state),
   pluginsError: selectPluginsError(state),
   dwDefaultEditorError: selectDwDefaultEditorError(state),
