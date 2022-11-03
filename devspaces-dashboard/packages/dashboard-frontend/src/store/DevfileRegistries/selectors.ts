@@ -17,6 +17,7 @@ import { selectWorkspacesSettingsState } from '../Workspaces/Settings/selectors'
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import { load } from 'js-yaml';
 import devfileApi from '../../services/devfileApi';
+import { selectDefaultComponents } from '../ServerConfig/selectors';
 
 export const EMPTY_WORKSPACE_TAG = 'Empty';
 
@@ -79,15 +80,21 @@ export const selectEmptyWorkspaceUrl = createSelector(
 
 export const selectDefaultDevfile = createSelector(
   selectState,
+  selectDefaultComponents,
   selectEmptyWorkspaceUrl,
-  (state, devfileLocation) => {
+  (state, defaultComponents, devfileLocation) => {
     if (!devfileLocation) {
       return undefined;
     }
     const devfileContent = state.devfiles[devfileLocation]?.content;
     if (devfileContent) {
       try {
-        return load(devfileContent) as devfileApi.Devfile;
+        const devfile = load(devfileContent) as devfileApi.Devfile;
+        // propagate default components
+        if (!devfile.components || devfile.components.length === 0) {
+          devfile.components = defaultComponents;
+        }
+        return devfile;
       } catch (e) {
         console.error(e);
       }

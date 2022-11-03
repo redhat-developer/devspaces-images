@@ -14,6 +14,8 @@ import React from 'react';
 import { AlertGroup, Alert, AlertActionCloseButton, AlertActionLink } from '@patternfly/react-core';
 import { AlertItem } from '../../../services/helpers/types';
 
+import styles from './index.module.css';
+
 export type Props = {
   isToast: boolean;
   alertItem?: AlertItem;
@@ -74,6 +76,7 @@ export class LoaderAlert extends React.PureComponent<Props, State> {
         isToast={isToast}
       >
         <Alert
+          className={styles.fixOverflow}
           data-testid="loader-alert"
           aria-label="Loader Alert"
           isInline={isInline}
