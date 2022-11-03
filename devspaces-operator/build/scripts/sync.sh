@@ -75,7 +75,6 @@ tests/basic-test.yaml
 sources
 make-release.sh
 build/scripts/insert-related-images-to-csv.sh
-build/scripts/util.sh
 helmcharts/
 bundle/next/eclipse-che-preview-kubernetes
 " > /tmp/rsync-excludes
@@ -85,10 +84,6 @@ rm -f /tmp/rsync-excludes
 
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
-
-if [[ -x "${SCRIPT_DIR}"/util.sh ]]; then                source "${SCRIPT_DIR}"/util.sh;
-elif [[ -x "${TARGETDIR}"/build/scripts/util.sh ]]; then source "${TARGETDIR}"/build/scripts/util.sh;
-else echo "Error: can't find util.sh in ${SCRIPT_DIR} or ${TARGETDIR}"; exit 1; fi
 
 sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
   `# Replace ubi8 with rhel8 version` \
