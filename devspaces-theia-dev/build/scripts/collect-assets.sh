@@ -12,7 +12,7 @@
 # script to collect assets from theia-dev, theia, and theia-endpoint builder + runtime container images
 # create tarballs & other files from those containers, which can then be committed to pkgs.devel repo
 
-nodeVersion="12.22.5" # version of node to use for theia containers (aligned to version in ubi base images)
+nodeVersion="14.18.2" # version of node to use for theia containers (aligned to version in ubi base images)
 PLATFORMS="s390x, ppc64le, x86_64"
 BUILD_TYPE="tmp" # use "tmp" prefix for temporary build tags in Quay, but if we're building based on a PR, set "pr" prefix
 
