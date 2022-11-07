@@ -25,10 +25,12 @@ remote_sources:
     packages: 
       gomod: 
         - path: devspaces-operator
+# see tag or branch in https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/job-config.json
 - name: DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
   remote_source: 
     repo: https://github.com/che-incubator/header-rewrite-traefik-plugin.git
     ref: 5ece3dcd7a1c82f3d05999623bd3607b56437cd1
+# see tag or branch in https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/job-config.json
 - name: DEV_WORKSPACE_CONTROLLER
   remote_source: 
     repo: https://github.com/devfile/devworkspace-operator.git
