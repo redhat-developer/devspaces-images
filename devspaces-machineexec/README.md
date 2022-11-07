@@ -204,3 +204,17 @@ Eclipse Che 7.x workspaces that use the Che-Theia IDE include che-theia-task-plu
 ```
 echo hello
 ```
+## Builds
+
+- [![Che Machine Exec](https://github.com/eclipse-che/che-machine-exec/actions/workflows/license.yaml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/license.yaml)
+- [![Code Coverage Report](https://github.com/eclipse-che/che-machine-exec/actions/workflows/codecov.yml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/codecov.yml)
+- [![DEPENDENCIES.md file validation](https://github.com/eclipse-che/che-machine-exec/actions/workflows/dependencies-md-check.yaml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/dependencies-md-check.yaml)
+- [![Docker Build PR](https://github.com/eclipse-che/che-machine-exec/actions/workflows/gh_actions_pr.yaml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/gh_actions_pr.yaml)
+- [![Machine Exec Next Build](https://github.com/eclipse-che/che-machine-exec/actions/workflows/next-build.yaml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/next-build.yaml)
+- [![Release Che Machine Exec](https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml)
+- [![Try in Web IDE](https://github.com/eclipse-che/che-machine-exec/actions/workflows/try-in-web-ide.yaml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/try-in-web-ide.yaml)
+- [![Unit Tests](https://github.com/eclipse-che/che-machine-exec/actions/workflows/gh_actions_unit.yaml/badge.svg)](https://github.com/eclipse-che/che-machine-exec/actions/workflows/gh_actions_unit.yaml)
+
+Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2. 
+
+- [machineexec_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/machineexec_3.x/)
