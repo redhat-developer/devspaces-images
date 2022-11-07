@@ -96,6 +96,21 @@ popd
                   // might be already defined by the referring job
                   CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
+
+
+                  // enable python 3.10 for theia builds, 3.11 for all others
+                  def pyver = REPOS.contains("theia") ? "3.10" : "3.11"
+                  sh(script: '''#!/bin/bash
+pyver="'''+pyver+'''"
+pyenv install ${pyver} -s
+pyenv global ${pyver} || true
+pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
+$HOME/.pyenv/shims/python --version
+export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
+echo $PATH
+python --version
+''', returnStdout: true)
+
                   util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
                     pushd sources/''' + SYNC_REPOi + '''
@@ -214,17 +229,40 @@ rm -f /tmp/rsync-excludes
                 ''')
 
                 // CRW-3292 if container.yaml has a cachito reference to the devspaces-images repo, update it to latest SOURCE_SHA in the source repo
-                // sed replacement (match a line, move *N*ext 2 lines and *S*ubstitute it) will only work for this 3-line pattern:
+                // sed replacement (match a line, move *N*ext line and *S*ubstitute it) will only work for this 2-line pattern:
                 //    repo: https://github.com/redhat-developer/devspaces-images.git
-                //    # must be full 40 char sha, matching regex u'^[0-9a-z]{40}$'
                 //    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
                 sh('''#!/bin/bash -x
-if [[ $(grep 'repo: https://github.com/redhat-developer/devspaces-images.git' ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml) ]]; then
-  sed -r -e '/.+repo: .+devspaces-images.git.*/{n;n;s/ref: .*/ref: ''' + SOURCE_SHA + '''/}' \
-    ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml > \
+yaml=${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+
+if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
+  repos=$(cat ${yaml} | yq -r '.remote_sources[].remote_source.repo')
+
+  for repo in $repos 
+  do
+    #remove " " so repo can be used
+    repo=$(echo $repo | sed 's/"//g')
+
+    if [[ $(echo $repo | grep 'devspaces-images') ]]; then
+      SHA=''' + SOURCE_SHA + '''
+    else
+      name=$(cat ${yaml} | yq ".remote_sources[]|select(.remote_source.repo==\"$repo\")" | yq ".name")
+      branchOrTag=$(curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r ".Other[$name].\"''' + JOB_BRANCH + '''\"")
+      #Try branch first
+      SHA=$(git ls-remote $repo refs/heads/$branchOrTag | sed -r -e "s@(.+)\\t.+@\\1@g")
+
+      if [[ ! $SHA ]]; then
+        #Use tag
+        SHA=$(git ls-remote $repo refs/tags/$branchOrTag | sed -r -e "s@(.+)\\t.+@\\1@g")
+      fi
+    fi
+
+    sed -r -i -e "/.+repo: .+${repo##*/}.*/{n;s/ref: .*/ref: $SHA/}" \
     ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+  done
 fi
                 ''')
+
                 // NOTE: if container.yaml has cachito reference(s) to OTHER repo(s), 
                 // MUST handle that separately in another sync.sh or get-sources.sh script
                 // See https://issues.redhat.com/browse/CRW-2619
