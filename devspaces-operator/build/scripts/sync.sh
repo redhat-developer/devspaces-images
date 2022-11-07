@@ -75,7 +75,6 @@ tests/basic-test.yaml
 sources
 make-release.sh
 build/scripts/insert-related-images-to-csv.sh
-build/scripts/util.sh
 helmcharts/
 bundle/next/eclipse-che-preview-kubernetes
 " > /tmp/rsync-excludes
@@ -86,49 +85,12 @@ rm -f /tmp/rsync-excludes
 # ensure shell scripts are executable
 find "${TARGETDIR}"/ -name "*.sh" -exec chmod +x {} \;
 
-sed_in_place() {
-    SHORT_UNAME=$(uname -s)
-  if [ "$(uname)" == "Darwin" ]; then
-    sed -i '' "$@"
-  elif [ "${SHORT_UNAME:0:5}" == "Linux" ]; then
-    sed -i "$@"
-  fi
-}
-
-if [[ -x "${SCRIPT_DIR}"/util.sh ]]; then                source "${SCRIPT_DIR}"/util.sh;
-elif [[ -x "${TARGETDIR}"/build/scripts/util.sh ]]; then source "${TARGETDIR}"/build/scripts/util.sh;
-else echo "Error: can't find util.sh in ${SCRIPT_DIR} or ${TARGETDIR}"; exit 1; fi
-updateDockerfileArgs "${TARGETDIR}"/Dockerfile "${TARGETDIR}"/bootstrap.Dockerfile
-
-cp "${TARGETDIR}"/bootstrap.Dockerfile "${TARGETDIR}"/Dockerfile
-# CRW-1956 when bootstrapping, get vendor sources (if applicable); then stop builder stage steps as we have all we need (and will fetch zips separately)
-#shellcheck disable=SC2016
-sed_in_place -r \
-    -e "/.+upstream.+/d" \
-    -e "/.+downstream.+/d" \
-    `# make go builds multiarch` \
-    -e 's@GOARCH=amd64@GOARCH=\${ARCH}@g' \
-    `# remote curl lines that we'll do later with get-sources.sh` \
-    -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
-    -e 's@(go mod vendor) \&\& \\@\1@' \
-    `# remove all lines starting with WORKDIR` \
-    -e '/WORKDIR.+/,$d' \
-    "${TARGETDIR}"/bootstrap.Dockerfile
-
-# shellcheck disable=SC2086 disable=SC2016
-sed_in_place -r \
-    `# Replace ubi8 with rhel8 version` \
-    -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
-    `# Remove registry so build works in Brew` \
-    -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
-    `# CRW-1655, CRW-1956 use local zips instead of fetching from the internet` \
-    -e "/.+upstream.+/d" \
-    -e "s@# downstream.+@COPY asset-* /tmp/@g" \
-    -e "/ +curl .+\/tmp\/asset.+.zip.+/d" \
-    -e "/.+go mod vendor.+/d" \
-    `# make go builds multiarch` \
-    -e 's@GOARCH=amd64@GOARCH=\${ARCH}@g' \
-    "${TARGETDIR}"/Dockerfile
+sed "${TARGETDIR}/build/dockerfiles/Dockerfile" --regexp-extended \
+  `# Replace ubi8 with rhel8 version` \
+  -e "s#ubi8/go-toolset#rhel8/go-toolset#g" \
+  `# Remove registry so build works in Brew` \
+  -e "s#FROM (registry.access.redhat.com|registry.redhat.io)/#FROM #g" \
+  > "${TARGETDIR}/Dockerfile"
 
 cat << EOT >> "${TARGETDIR}"/Dockerfile
 ENV SUMMARY="Red Hat OpenShift Dev Spaces ${MIDSTM_NAME} container" \\
@@ -150,11 +112,5 @@ LABEL com.redhat.delivery.appregistry="false" \\
       usage=""
 EOT
 echo "Converted Dockerfile"
-
-# shellcheck disable=SC2086
-sed_in_place -r \
-  -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
-  "${TARGETDIR}"/get-sources.sh
-echo "Updated get-sources.sh"
 
 "${TARGETDIR}"/build/scripts/sync-che-operator.sh -v "${CSV_VERSION}" -s "${SOURCEDIR}/" -t "${TARGETDIR}/"
