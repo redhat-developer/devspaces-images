@@ -37,8 +37,8 @@ import buildFactoryParams from '../../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../../AbstractStep';
 import { AlertItem } from '../../../../../../services/helpers/types';
 import { selectDefaultDevfile } from '../../../../../../store/DevfileRegistries/selectors';
-import { getProjectName } from '../../../../../../services/helpers/getProjectName';
 import ExpandableWarning from '../../../../../../components/ExpandableWarning';
+import { getProjectFromUrl } from './getProjectFromUrl';
 
 export class CreateWorkspaceError extends Error {
   constructor(message: string) {
@@ -147,15 +147,11 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
       }
       if (devfile.projects.length === 0) {
         // adds a default project from the source URL
-        const sourceUrl = new URL(factoryParams.sourceUrl);
-        const name = getProjectName(factoryParams.sourceUrl);
-        const origin = sourceUrl.pathname.endsWith('.git')
-          ? `${sourceUrl.origin}${sourceUrl.pathname}`
-          : `${sourceUrl.origin}${sourceUrl.pathname}.git`;
-        devfile.projects[0] = { git: { remotes: { origin } }, name };
+        const project = getProjectFromUrl(factoryParams.sourceUrl);
+        devfile.projects[0] = project;
         // change default name
-        devfile.metadata.name = name;
-        devfile.metadata.generateName = name;
+        devfile.metadata.name = project.name;
+        devfile.metadata.generateName = project.name;
       }
     }
     // test the devfile name to decide if we need to append a suffix to is
