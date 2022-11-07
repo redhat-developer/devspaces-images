@@ -12,17 +12,20 @@
 # https://registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.17.12-11 as builder
 ENV GOPATH=/go/
-ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 ARG SKIP_TESTS="false"
 USER root
 
-COPY asset-* /tmp/
+# cachito
+COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
+RUN source $REMOTE_SOURCES_DIR/devspaces-images-operator/cachito.env
+WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator
 
-WORKDIR /che-operator
+RUN mkdir -p /tmp/devworkspace-operator/templates/ && \
+    mv $REMOTE_SOURCES_DIR/devfile-devworkspace-operator/app/deploy/deployment/* /tmp/devworkspace-operator/templates/
 
-RUN unzip /tmp/asset-header-rewrite-traefik-plugin.zip -d /tmp && \
-    mkdir -p /tmp/header-rewrite-traefik-plugin && \
-    mv /tmp/*-header-rewrite-traefik-plugin-*/headerRewrite.go /tmp/*-header-rewrite-traefik-plugin-*/.traefik.yml /tmp/header-rewrite-traefik-plugin
+RUN mkdir -p /tmp/header-rewrite-traefik-plugin && \
+    mv $REMOTE_SOURCES_DIR/che-incubator-header-rewrite-traefik-plugin/app/headerRewrite.go /tmp/header-rewrite-traefik-plugin
+    mv $REMOTE_SOURCES_DIR/che-incubator-header-rewrite-traefik-plugin/app/.traefik.yml /tmp/header-rewrite-traefik-plugin
 
 # Copy the Go Modules manifests
 COPY go.mod go.mod
@@ -45,8 +48,9 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
 # https://registry.access.redhat.com/ubi8-minimal
 FROM ubi8-minimal:8.6-994
 
+COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
-COPY --from=builder /che-operator/che-operator /manager
+COPY --from=builder $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator/che-operator /manager
 
 ENTRYPOINT ["/manager"]
 
