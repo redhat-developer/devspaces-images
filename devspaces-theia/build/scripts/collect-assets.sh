@@ -12,6 +12,10 @@
 # script to collect assets from theia-dev, theia, and theia-endpoint builder + runtime container images
 # create tarballs & other files from those containers, which can then be committed to pkgs.devel repo
 
+# CRW-3493 this script requires python 3.10 (fails with 3.11)
+pythonVersion="3.10.8"
+
+# note that the GHA and upstream builds use node 14, but THIS script still uses node 12 (*shrug*)
 nodeVersion="12.22.5" # version of node to use for theia containers (aligned to version in ubi base images)
 PLATFORMS="s390x, ppc64le, x86_64"
 BUILD_TYPE="tmp" # use "tmp" prefix for temporary build tags in Quay, but if we're building based on a PR, set "pr" prefix
@@ -262,6 +266,16 @@ collect_arch_assets_ds_theia_dev() {
 }
 
 collect_noarch_assets_ds_theia_dev() {
+  # CRW-3493 install and activate python 3.10
+  local pyver=${pythonVersion}
+  pyenv install ${pyver} -s
+  pyenv global ${pyver} || true
+  pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
+  $HOME/.pyenv/shims/python --version
+  export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
+  echo $PATH
+  python --version
+
   # build generator tarball
   export "$(cat BUILD_PARAMS | grep -E "^SOURCE_BRANCH")" && SOURCE_BRANCH=${SOURCE_BRANCH//\"/}
   cheTheiaSourcesDir="$(mktemp -d)"
