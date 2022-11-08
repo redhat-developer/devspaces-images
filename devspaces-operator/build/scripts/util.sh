@@ -3,16 +3,16 @@
 #   and get-sources.sh (to set up correct values in downstream)
 function updateDockerfileArgs() 
 {
-	# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
+	# if not set via commandline, compute DEV_WORKSPACE_CONTROLLER and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
 	# from https://raw.githubusercontent.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json
 	# shellcheck disable=SC2086
-	if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]] || [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
+	if [[ -z "${DEV_WORKSPACE_CONTROLLER}" ]] || [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
 		MIDSTM_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "devspaces-3-rhel-8")
 		if [[ ${MIDSTM_BRANCH} != "devspaces-"*"-rhel-"* ]]; then MIDSTM_BRANCH="devspaces-3-rhel-8"; fi
 		configjson="$(curl -sSLo- "https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json")"
 		if [[ $configjson == *"404"* ]] || [[ $configjson == *"Not Found"* ]]; then 
 			echo "[ERROR] Could not load https://raw.githubusercontent.com/redhat-developer/devspaces/${MIDSTM_BRANCH}/dependencies/job-config.json"
-			echo "[ERROR] Please use --dwob flag to set DEV_WORKSPACE_CONTROLLER_VERSION"
+			echo "[ERROR] Please use --dwob flag to set DEV_WORKSPACE_CONTROLLER"
 			echo "[ERROR] Please use --hrtpb flag to set DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"
 			exit 1
 		fi
@@ -21,9 +21,9 @@ function updateDockerfileArgs()
 		else 
 			DS_VERSION=${MIDSTM_BRANCH/devspaces-/}; DS_VERSION=${DS_VERSION//-rhel-8}
 		fi
-		if [[ -z "${DEV_WORKSPACE_CONTROLLER_VERSION}" ]]; then
-	        DEV_WORKSPACE_CONTROLLER_VERSION="$(echo "$configjson" | jq -r '.Other["DEV_WORKSPACE_CONTROLLER_VERSION"]["'${DS_VERSION}'"]')"
-			if [[ ${DEV_WORKSPACE_CONTROLLER_VERSION} == "null" ]]; then DEV_WORKSPACE_CONTROLLER_VERSION="main"; fi
+		if [[ -z "${DEV_WORKSPACE_CONTROLLER}" ]]; then
+	        DEV_WORKSPACE_CONTROLLER="$(echo "$configjson" | jq -r '.Other["DEV_WORKSPACE_CONTROLLER"]["'${DS_VERSION}'"]')"
+			if [[ ${DEV_WORKSPACE_CONTROLLER} == "null" ]]; then DEV_WORKSPACE_CONTROLLER="main"; fi
 		fi
 		if [[ -z "${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}" ]]; then
 			DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$(echo "$configjson" | jq -r '.Other["DEV_HEADER_REWRITE_TRAEFIK_PLUGIN"]["'${DS_VERSION}'"]')"
@@ -31,12 +31,12 @@ function updateDockerfileArgs()
 		fi
 	fi
 	echo "[INFO] For ${DS_VERSION} / ${MIDSTM_BRANCH}:"
-	echo "[INFO]   DEV_WORKSPACE_CONTROLLER_VERSION   = ${DEV_WORKSPACE_CONTROLLER_VERSION}"
+	echo "[INFO]   DEV_WORKSPACE_CONTROLLER   = ${DEV_WORKSPACE_CONTROLLER}"
 	echo "[INFO]   DEV_HEADER_REWRITE_TRAEFIK_PLUGIN  = ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 
-	# update Dockerfile to record version we expect for DEV_WORKSPACE_CONTROLLER_VERSION and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
+	# update Dockerfile to record version we expect for DEV_WORKSPACE_CONTROLLER and DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
 	sed $1 -r \
-		-e 's#DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+		-e 's#DEV_WORKSPACE_CONTROLLER="([^"]+)"#DEV_WORKSPACE_CONTROLLER="'${DEV_WORKSPACE_CONTROLLER}'"#' \
 		-e 's#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="([^"]+)"#DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="'${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}'"#' \
 		> $2
 }
