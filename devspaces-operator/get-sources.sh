@@ -12,7 +12,7 @@ PULL_ASSETS=0
 
 SCRIPT_DIR=$(dirname $(readlink -f "${BASH_SOURCE[0]}"))
 
-DEV_WORKSPACE_CONTROLLER_VERSION="" # main or 0.y.x
+DEV_WORKSPACE_CONTROLLER="" # main or 0.y.x
 DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 
 while [[ "$#" -gt 0 ]]; do
@@ -23,7 +23,7 @@ while [[ "$#" -gt 0 ]]; do
 		'-n'|'--nobuild') doRhpkgContainerBuild=0; shift 0;;
 		'-f'|'--force-build') forceBuild=1; shift 0;;
 		'-s'|'--scratch') scratchFlag="--scratch"; shift 0;;
-		'--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
+		'--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER="$2"; shift 1;;
 		'--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
 		'-v') CSV_VERSION="$2"; shift 1;;
 	esac
@@ -50,7 +50,7 @@ if [[ ${PULL_ASSETS} -eq 1 ]]; then
 
 	set -x
 	# step 1 - get zips & repack them
-	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION}
+	curl -sSLo asset-devworkspace-operator.zip	 	https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER}
 	# repack asset-devworkspace-operator.zip - only need /deploy/deployment/ folders
 	thisdir=$(pwd)
 	dwozip=asset-devworkspace-operator.zip
@@ -91,10 +91,10 @@ if [[ $(git diff-index HEAD --) ]] || [[ $(diff -U 0 --suppress-common-lines -b 
 
 	git add bootstrap.Dockerfile || true
 	
-	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
+	log "[INFO] Upload new template source zips: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 	rhpkg new-sources asset-devworkspace-operator.zip asset-header-rewrite-traefik-plugin.zip
 	log "[INFO] Commit new source zips"
-	COMMIT_MSG="ci: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER_VERSION}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
+	COMMIT_MSG="ci: devworkspace-operator ${DEV_WORKSPACE_CONTROLLER}, header-rewrite-traefik-plugin ${DEV_HEADER_REWRITE_TRAEFIK_PLUGIN}"
 	if [[ $(git commit -s -m "${COMMIT_MSG}" sources bootstrap.Dockerfile Dockerfile .gitignore) == *"nothing to commit, working tree clean"* ]]; then
 		log "[INFO] No new sources, so nothing to build."
 	elif [[ ${doRhpkgContainerBuild} -eq 1 ]]; then

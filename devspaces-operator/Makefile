@@ -79,7 +79,7 @@ ECLIPSE_CHE_PACKAGE_NAME="eclipse-che-preview-openshift"
 CHECLUSTER_CR_PATH="$(PROJECT_DIR)/config/samples/org_v2_checluster.yaml"
 CHECLUSTER_CRD_PATH="$(PROJECT_DIR)/config/crd/bases/org.eclipse.che_checlusters.yaml"
 
-DEV_WORKSPACE_CONTROLLER_VERSION="v0.15.2"
+DEV_WORKSPACE_CONTROLLER="v0.15.2"
 DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="main"
 
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
@@ -135,12 +135,12 @@ update-dev-resources: validate-requirements ## Update all resources
 update-rbac: SHELL := /bin/bash
 update-rbac:
 	CLUSTER_ROLES=(
-		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER_VERSION}/deploy/deployment/openshift/objects/devworkspace-controller-view-workspaces.ClusterRole.yaml
-		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER_VERSION}/deploy/deployment/openshift/objects/devworkspace-controller-edit-workspaces.ClusterRole.yaml
-		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER_VERSION}/deploy/deployment/openshift/objects/devworkspace-controller-leader-election-role.Role.yaml
-		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER_VERSION}/deploy/deployment/openshift/objects/devworkspace-controller-proxy-role.ClusterRole.yaml
-		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER_VERSION}/deploy/deployment/openshift/objects/devworkspace-controller-role.ClusterRole.yaml
-		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER_VERSION}/deploy/deployment/openshift/objects/devworkspace-controller-metrics-reader.ClusterRole.yaml
+		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER}/deploy/deployment/openshift/objects/devworkspace-controller-view-workspaces.ClusterRole.yaml
+		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER}/deploy/deployment/openshift/objects/devworkspace-controller-edit-workspaces.ClusterRole.yaml
+		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER}/deploy/deployment/openshift/objects/devworkspace-controller-leader-election-role.Role.yaml
+		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER}/deploy/deployment/openshift/objects/devworkspace-controller-proxy-role.ClusterRole.yaml
+		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER}/deploy/deployment/openshift/objects/devworkspace-controller-role.ClusterRole.yaml
+		https://raw.githubusercontent.com/devfile/devworkspace-operator/${DEV_WORKSPACE_CONTROLLER}/deploy/deployment/openshift/objects/devworkspace-controller-metrics-reader.ClusterRole.yaml
 	)
 
 	# Updates cluster_role.yaml based on DW roles
@@ -439,7 +439,7 @@ download-devworkspace-resources: ## Downloads Dev Workspace resources
 
 	rm -rf /tmp/devworkspace-operator.zip /tmp/devfile-devworkspace-operator-* $${DEVWORKSPACE_RESOURCES}
 	mkdir -p $${DEVWORKSPACE_RESOURCES}
-	curl -sL https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION} > /tmp/devworkspace-operator.zip
+	curl -sL https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER} > /tmp/devworkspace-operator.zip
 	unzip -q /tmp/devworkspace-operator.zip '*/deploy/deployment/*' -d /tmp
 	cp -rf /tmp/devfile-devworkspace-operator*/deploy/* $${DEVWORKSPACE_RESOURCES}
 

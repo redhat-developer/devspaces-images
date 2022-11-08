@@ -23,12 +23,12 @@ DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 UPSTM_NAME="operator"
 MIDSTM_NAME="operator"
 
-DEV_WORKSPACE_CONTROLLER_VERSION="" # main or 0.y.x
+DEV_WORKSPACE_CONTROLLER="" # main or 0.y.x
 DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="" # main or v0.y.z
 
 usage () {
     echo "
-Usage:   $0 -v [DS CSV_VERSION] -s [/path/to/${UPSTM_NAME}] -t [/path/to/generated] [--dwob DEV_WORKSPACE_CONTROLLER_VERSION branch] [--hrtpb DEV_HEADER_REWRITE_TRAEFIK_PLUGIN branch]
+Usage:   $0 -v [DS CSV_VERSION] -s [/path/to/${UPSTM_NAME}] -t [/path/to/generated] [--dwob DEV_WORKSPACE_CONTROLLER branch] [--hrtpb DEV_HEADER_REWRITE_TRAEFIK_PLUGIN branch]
 Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob v0.13.0 --hrtpb v0.1.2
 Example: $0 -v 2.y.0 -s ${HOME}/projects/${UPSTM_NAME} -t /tmp/ds-${MIDSTM_NAME} --dwob main  --hrtpb main"
     exit
@@ -42,7 +42,7 @@ while [[ "$#" -gt 0 ]]; do
     # paths to use for input and output
     '-s') SOURCEDIR="$2"; SOURCEDIR="${SOURCEDIR%/}"; shift 1;;
     '-t') TARGETDIR="$2"; TARGETDIR="${TARGETDIR%/}"; shift 1;;
-    '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER_VERSION="$2"; shift 1;;
+    '--dwob'|'--dwcv') DEV_WORKSPACE_CONTROLLER="$2"; shift 1;;
     '--hrtpb'|'--hrtpv') DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="$2"; shift 1;;
     '--help'|'-h') usage;;
   esac
@@ -153,7 +153,7 @@ echo "Converted Dockerfile"
 
 # shellcheck disable=SC2086
 sed_in_place -r \
-  -e 's#^DEV_WORKSPACE_CONTROLLER_VERSION="([^"]+)"#DEV_WORKSPACE_CONTROLLER_VERSION="'${DEV_WORKSPACE_CONTROLLER_VERSION}'"#' \
+  -e 's#^DEV_WORKSPACE_CONTROLLER="([^"]+)"#DEV_WORKSPACE_CONTROLLER="'${DEV_WORKSPACE_CONTROLLER}'"#' \
   "${TARGETDIR}"/get-sources.sh
 echo "Updated get-sources.sh"
 

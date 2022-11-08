@@ -12,7 +12,7 @@
 # https://registry.access.redhat.com/rhel8/go-toolset
 FROM rhel8/go-toolset:1.17.12-7 as builder
 ENV GOPATH=/go/
-ARG DEV_WORKSPACE_CONTROLLER_VERSION="v0.13.0"
+ARG DEV_WORKSPACE_CONTROLLER="v0.13.0"
 ARG DEV_HEADER_REWRITE_TRAEFIK_PLUGIN="v0.1.2"
 ARG SKIP_TESTS="false"
 USER root
