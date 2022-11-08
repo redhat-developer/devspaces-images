@@ -13,7 +13,12 @@ for (String JOB_BRANCH : JOB_BRANCHES) {
         description('''
 This job is used to copy the latest DWO bundle + its operands to 
 <a href=https://quay.io/devworkspace/>https://quay.io/devworkspace/</a>.
-        ''')
+<ul>
+    <li><a href=https://quay.io/repository/devworkspace/devworkspace-project-clone-rhel8?tab=tags>devworkspace-project-clone-rhel8</a></li>
+    <li><a href=https://quay.io/repository/devworkspace/devworkspace-rhel8-operator?tab=tags>devworkspace-rhel8-operator</a></li>
+    <li><a href=https://quay.io/repository/devworkspace/devworkspace-operator-bundle?tab=tags>devworkspace-operator-bundle</a></li>
+</ul>
+''')
         
         properties {
             ownership {

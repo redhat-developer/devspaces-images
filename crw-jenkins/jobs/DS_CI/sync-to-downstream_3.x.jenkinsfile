@@ -99,7 +99,7 @@ popd
 
 
                   // enable python 3.10 for theia builds, 3.11 for all others
-                  def pyver = REPOS.contains("theia") ? "3.10" : "3.11"
+                  def pyver = REPOS.contains("theia") ? "3.10.8" : "3.11.0"
                   sh(script: '''#!/bin/bash
 pyver="'''+pyver+'''"
 pyenv install ${pyver} -s
@@ -233,21 +233,21 @@ rm -f /tmp/rsync-excludes
                 //    repo: https://github.com/redhat-developer/devspaces-images.git
                 //    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
                 sh('''#!/bin/bash -x
-yaml=${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+yaml=${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
 
 if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
+  sed -i '/# must be full 40 char sha, matching regex/d' $yaml
+
   repos=$(cat ${yaml} | yq -r '.remote_sources[].remote_source.repo')
 
   for repo in $repos 
   do
-    #remove " " so repo can be used
-    repo=$(echo $repo | sed 's/"//g')
 
     if [[ $(echo $repo | grep 'devspaces-images') ]]; then
       SHA=''' + SOURCE_SHA + '''
     else
-      name=$(cat ${yaml} | yq ".remote_sources[]|select(.remote_source.repo==\"$repo\")" | yq ".name")
-      branchOrTag=$(curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r ".Other[$name].\"''' + JOB_BRANCH + '''\"")
+      name=$(cat ${yaml} | yq ".remote_sources[]|select(.remote_source.repo==\\"$repo\\")" | yq ".name")
+      branchOrTag=$(curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r ".Other[$name].\\"''' + JOB_BRANCH + '''\\"")
       #Try branch first
       SHA=$(git ls-remote $repo refs/heads/$branchOrTag | sed -r -e "s@(.+)\\t.+@\\1@g")
 
@@ -257,8 +257,7 @@ if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
       fi
     fi
 
-    sed -r -i -e "/.+repo: .+${repo##*/}.*/{n;s/ref: .*/ref: $SHA/}" \
-    ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+    sed -r -i -e "/.+repo: .+${repo##*/}.*/{n;s/ref: .*/ref: $SHA/}" $yaml
   done
 fi
                 ''')

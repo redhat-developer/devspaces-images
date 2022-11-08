@@ -141,7 +141,7 @@ for (int i=0; i < nodeLabels.size(); i++) {
 
                 // CRW-2493 enable python 3.10 for theia builds
                 sh(script: '''#!/bin/bash
-pyver=3.10
+pyver=3.10.8
 pyenv install ${pyver} -s
 pyenv global ${pyver} || true
 pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
@@ -208,9 +208,9 @@ popd >/dev/null
                   echo "currentBuild.result = " + currentBuild.result
                 } // ansiColor
 
-                // CRW-2493 enable python 3.11 for other builds
+                // CRW-2493 enable python 3.11.0 for other builds
                 sh(script: '''#!/bin/bash
-pyver=3.11
+pyver=3.11.0
 pyenv install ${pyver} -s
 pyenv global ${pyver} || true
 pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
