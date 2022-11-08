@@ -24,7 +24,7 @@ RUN mkdir -p /tmp/devworkspace-operator/templates/ && \
     mv $REMOTE_SOURCES_DIR/DEV_WORKSPACE_CONTROLLER/app/deploy/deployment/* /tmp/devworkspace-operator/templates/
 
 RUN mkdir -p /tmp/header-rewrite-traefik-plugin && \
-    mv $REMOTE_SOURCES_DIR/DEV_HEADER_REWRITE_TRAEFIK_PLUGIN/app/headerRewrite.go /tmp/header-rewrite-traefik-plugin
+    mv $REMOTE_SOURCES_DIR/DEV_HEADER_REWRITE_TRAEFIK_PLUGIN/app/headerRewrite.go /tmp/header-rewrite-traefik-plugin && \
     mv $REMOTE_SOURCES_DIR/DEV_HEADER_REWRITE_TRAEFIK_PLUGIN/app/.traefik.yml /tmp/header-rewrite-traefik-plugin
 
 # Copy the Go Modules manifests
