@@ -21,11 +21,11 @@ RUN source $REMOTE_SOURCES_DIR/devspaces-images-operator/cachito.env
 WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-operator/app/devspaces-operator
 
 RUN mkdir -p /tmp/devworkspace-operator/templates/ && \
-    mv $REMOTE_SOURCES_DIR/devfile-devworkspace-operator/app/deploy/deployment/* /tmp/devworkspace-operator/templates/
+    mv $REMOTE_SOURCES_DIR/DEV_WORKSPACE_CONTROLLER/app/deploy/deployment/* /tmp/devworkspace-operator/templates/
 
 RUN mkdir -p /tmp/header-rewrite-traefik-plugin && \
-    mv $REMOTE_SOURCES_DIR/che-incubator-header-rewrite-traefik-plugin/app/headerRewrite.go /tmp/header-rewrite-traefik-plugin
-    mv $REMOTE_SOURCES_DIR/che-incubator-header-rewrite-traefik-plugin/app/.traefik.yml /tmp/header-rewrite-traefik-plugin
+    mv $REMOTE_SOURCES_DIR/DEV_HEADER_REWRITE_TRAEFIK_PLUGIN/app/headerRewrite.go /tmp/header-rewrite-traefik-plugin
+    mv $REMOTE_SOURCES_DIR/DEV_HEADER_REWRITE_TRAEFIK_PLUGIN/app/.traefik.yml /tmp/header-rewrite-traefik-plugin
 
 # Copy the Go Modules manifests
 COPY go.mod go.mod
