@@ -163,7 +163,7 @@
 | [`@testing-library/jest-dom@5.16.2`](https://github.com/testing-library/jest-dom) | MIT | clearlydefined |
 | [`@testing-library/react@10.4.9`](https://github.com/testing-library/react-testing-library) | MIT | clearlydefined |
 | [`@testing-library/user-event@12.8.3`](https://github.com/testing-library/user-event) | MIT | clearlydefined |
-| [`@tootallnate/once@1.1.2`](git://github.com/TooTallNate/once.git) | MIT | clearlydefined |
+| [`@tootallnate/once@1.1.2`](git://github.com/TooTallNate/once.git) | MIT | iot.diafanis |
 | [`@types/args@5.0.0`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/aria-query@4.2.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/axios@0.14.0`](https://github.com/mzabriskie/axios) | MIT | clearlydefined |
@@ -194,7 +194,7 @@
 | [`@types/js-yaml@3.12.7`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/json-schema@7.0.9`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/less@3.0.3`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/lodash@4.14.180`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/lodash@4.14.180`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #4131 |
 | [`@types/mime@1.3.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minimatch@3.0.5`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/minimist@1.2.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -673,6 +673,7 @@
 | [`metric-lcs@0.1.2`](https://github.com/nickdeis/metric-lcs) | MIT | clearlydefined |
 | [`micromatch@4.0.4`](https://github.com/micromatch/micromatch.git) | MIT | clearlydefined |
 | [`min-indent@1.0.1`](https://github.com/thejameskyle/min-indent) | MIT | clearlydefined |
+| [`mini-css-extract-plugin@2.6.1`](https://github.com/webpack-contrib/mini-css-extract-plugin.git) | MIT | clearlydefined |
 | [`minimist-options@4.1.0`](https://github.com/vadimdemedes/minimist-options.git) | MIT | clearlydefined |
 | `minipass-collect@1.0.2` | ISC | clearlydefined |
 | [`minipass-fetch@1.4.1`](git+https://github.com/npm/minipass-fetch.git) | MIT | clearlydefined |

@@ -2,17 +2,7 @@
 
 exports[`TagLabel component should render latest latest correctly 1`] = `
 <span
-  className="pf-c-label pf-m-blue pf-m-outline"
-  style={
-    Object {
-      "backgroundColor": "inherit",
-      "fontSize": "x-small",
-      "lineHeight": "12px",
-      "marginLeft": "5px",
-      "padding": "0 5px",
-      "verticalAlign": "top",
-    }
-  }
+  className="pf-c-label pf-m-blue pf-m-outline versionLabel"
 >
   <span
     className="pf-c-label__content"
@@ -24,17 +14,7 @@ exports[`TagLabel component should render latest latest correctly 1`] = `
 
 exports[`TagLabel component should render next tag correctly 1`] = `
 <span
-  className="pf-c-label pf-m-blue pf-m-outline"
-  style={
-    Object {
-      "backgroundColor": "inherit",
-      "fontSize": "x-small",
-      "lineHeight": "12px",
-      "marginLeft": "5px",
-      "padding": "0 5px",
-      "verticalAlign": "top",
-    }
-  }
+  className="pf-c-label pf-m-blue pf-m-outline versionLabel"
 >
   <span
     className="pf-c-label__content"

@@ -13,6 +13,8 @@
 import React from 'react';
 import { Label } from '@patternfly/react-core';
 
+import styles from './index.module.css';
+
 type Props = {
   version: string;
 };
@@ -22,18 +24,7 @@ class TagLabel extends React.PureComponent<Props> {
     const { version } = this.props;
 
     return (
-      <Label
-        variant="outline"
-        color="blue"
-        style={{
-          backgroundColor: 'inherit',
-          verticalAlign: 'top',
-          fontSize: 'x-small',
-          lineHeight: '12px',
-          marginLeft: '5px',
-          padding: '0 5px',
-        }}
-      >
+      <Label className={styles.versionLabel} variant="outline" color="blue">
         {version}
       </Label>
     );

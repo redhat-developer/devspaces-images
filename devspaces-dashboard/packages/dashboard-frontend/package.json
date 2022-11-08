@@ -132,6 +132,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.0.1",
     "loader-utils": "^3.2.0",
+    "mini-css-extract-plugin": "^2.6.1",
     "null-loader": "^4.0.1",
     "prettier": "^2.4.1",
     "react-test-renderer": "^16.14.0",
@@ -150,5 +151,8 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.2.0",
     "webpack-merge": "^4.2.2"
-  }
+  },
+  "sideEffects": [
+    "*.css"
+  ]
 }

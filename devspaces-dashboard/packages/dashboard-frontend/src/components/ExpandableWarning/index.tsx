@@ -22,7 +22,7 @@ import {
   TextVariants,
 } from '@patternfly/react-core';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { CopyIcon } from '@patternfly/react-icons/dist/js/icons';
+import { CopyIcon } from '@patternfly/react-icons';
 import styles from './index.module.css';
 
 export const ERROR_MESSAGE_ID = 'expandable-warning-error-message';

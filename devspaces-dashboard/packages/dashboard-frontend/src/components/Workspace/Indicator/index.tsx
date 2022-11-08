@@ -15,7 +15,7 @@ import {
   InProgressIcon,
   ResourcesFullIcon,
   ExclamationTriangleIcon,
-} from '@patternfly/react-icons/dist/js/icons';
+} from '@patternfly/react-icons';
 import React from 'react';
 import ReactTooltip from 'react-tooltip';
 import {

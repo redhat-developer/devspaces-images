@@ -11,12 +11,12 @@
  */
 
 import React from 'react';
-import { TargetEditor } from './SamplesListGallery';
+import { TargetEditor } from '../SamplesListGallery';
 import { CheckIcon } from '@patternfly/react-icons';
 import { DropdownGroup, DropdownItem } from '@patternfly/react-core';
-import TagLabel from '../../../components/TagLabel';
+import TagLabel from '../../../../components/TagLabel';
 
-import styles from './dropdown-editors.module.css';
+import styles from './index.module.css';
 
 type Props = {
   targetEditors: TargetEditor[];

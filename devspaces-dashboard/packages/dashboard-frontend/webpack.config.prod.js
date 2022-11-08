@@ -16,6 +16,7 @@ const merge = require('webpack-merge');
 const path = require('path');
 const webpack = require('webpack');
 const loaderUtils = require('loader-utils');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const common = require('./webpack.config.common.js');
 
@@ -25,8 +26,9 @@ const config = {
     rules: [
       {
         test: /\.css$/,
+        sideEffects: true,
         use: [
-          'style-loader',
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: {
@@ -34,9 +36,7 @@ const config = {
                 auto: true,
                 localIdentName: '[local]_[hash]',
                 getLocalIdent: (context, localIdentName, localName) => {
-                  if (localName.startsWith('pf-') ||
-                    localName.startsWith('monaco')
-                  ) {
+                  if (localName.startsWith('pf-') || localName.startsWith('monaco')) {
                     // preserve PatternFly class names
                     return localName;
                   }
@@ -52,6 +52,9 @@ const config = {
     ],
   },
   plugins: [
+    new MiniCssExtractPlugin({
+      filename: '[name].[hash].css',
+    }),
     new webpack.DefinePlugin({
       __isBrowser__: 'true',
       'process.env.ENVIRONMENT': JSON.stringify('production'),

@@ -23,9 +23,11 @@ import {
   KebabToggle,
   DropdownPosition,
 } from '@patternfly/react-core';
-import './sample-card.css';
-import { TargetEditor, VISIBLE_TAGS } from './SamplesListGallery';
-import DropdownEditors from './DropdownEditors';
+import { TargetEditor, VISIBLE_TAGS } from '../SamplesListGallery';
+import DropdownEditors from '../DropdownEditors';
+import { CubesIcon } from '@patternfly/react-icons';
+
+import styles from './index.module.css';
 
 type Props = {
   metadata: che.DevfileMetaData;
@@ -148,12 +150,13 @@ export class SampleCard extends React.PureComponent<Props, State> {
   }
 
   private buildIcon(metadata: che.DevfileMetaData): React.ReactElement {
-    return metadata.icon ? (
-      <Brand src={metadata.icon} alt={metadata.displayName} style={{ height: '64px' }} />
-    ) : (
-      <div className="blank-icon">
-        <div className="codicon codicon-symbol-method"></div>
-      </div>
-    );
+    const props = {
+      className: styles.sampleCardIcon,
+      alt: metadata.displayName,
+      'aria-label': metadata.displayName,
+      'data-testid': 'sample-card-icon',
+    };
+
+    return metadata.icon ? <Brand src={metadata.icon} {...props} /> : <CubesIcon {...props} />;
   }
 }

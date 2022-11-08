@@ -10,21 +10,20 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import {
-  ExclamationCircleIcon,
-  InProgressIcon,
-  ResourcesFullIcon,
-} from '@patternfly/react-icons/dist/js/icons';
-import React from 'react';
 import { Label } from '@patternfly/react-core';
 import {
+  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  InProgressIcon,
+  ResourcesFullIcon,
+} from '@patternfly/react-icons';
+import React from 'react';
+import ReactTooltip from 'react-tooltip';
+import {
+  DeprecatedWorkspaceStatus,
   DevWorkspaceStatus,
   WorkspaceStatus,
-  DeprecatedWorkspaceStatus,
 } from '../../services/helpers/types';
-import ReactTooltip from 'react-tooltip';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-
 import styles from './index.module.css';
 
 // stopped icon color

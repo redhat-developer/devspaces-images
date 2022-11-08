@@ -10,16 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import 'reflect-metadata';
+import '@patternfly/react-core/dist/styles/base.css';
+import { createHashHistory } from 'history';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { createHashHistory } from 'history';
-import '@patternfly/react-core/dist/styles/base.css';
-import 'monaco-editor-core/esm/vs/base/browser/ui/codiconLabel/codicon/codicon.css';
-import configureStore from './store/configureStore';
+import 'reflect-metadata';
 import App from './App';
 import PreloadData from './services/bootstrap';
+import configureStore from './store/configureStore';
 
 import './overrides.css';
 

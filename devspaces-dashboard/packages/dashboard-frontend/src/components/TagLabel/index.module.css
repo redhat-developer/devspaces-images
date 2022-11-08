@@ -10,19 +10,15 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-.sample-card .blank-icon {
-  width: 64px;
-  font-size: 64px;
-  line-height: 64px;
-  text-align: center;
-  filter: grayscale(100%) opacity(50%);
+.versionLabel {
+  background-color: var(--pf-global--BackgroundColor--100);
+  vertical-align: top;
+  font-size: x-small;
+  line-height: 12px;
+  margin-left: 5px;
+  padding: 0 5px;
 }
 
-.sample-card .blank-icon .codicon-symbol-method {
-  width: 100%;
-  font-size: 50px;
-}
-
-.sample-card .pf-c-card__actions span.pf-c-label__content::before {
-  border-color: inherit;
+.versionLabel .pf-c-label__content::before {
+  border-color: var(--pf-global--link--Color);
 }
