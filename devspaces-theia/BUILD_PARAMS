@@ -1,5 +1,5 @@
-nodeVersion=14.18.2
-yarnVersion=1.22.18
+nodeVersion=14.20.0
+yarnVersion=1.22.19
 DS_VERSION=3.3
 SOURCE_BRANCH=main
 THEIA_BRANCH=master
