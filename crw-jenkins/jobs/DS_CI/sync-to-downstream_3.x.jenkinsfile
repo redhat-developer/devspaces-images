@@ -98,18 +98,19 @@ popd
                   println("[INFO] Using CSV version = " + CSV_VERSION)
 
 
-                  // enable python 3.10 for theia builds, 3.11 for all others
-                  def pyver = REPOS.contains("theia") ? "3.10.8" : "3.11.0"
-                  sh(script: '''#!/bin/bash
-pyver="'''+pyver+'''"
-pyenv install ${pyver} -s
-pyenv global ${pyver} || true
-pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
-$HOME/.pyenv/shims/python --version
-export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
-echo $PATH
-python --version
-''', returnStdout: true)
+// CRW-3493 hack no longer needed as jenkins builders ONLY have python 3.10 (3.11 doesn't work with node-gyp)
+// enable python 3.10 for theia builds, 3.11 for all others
+//                   def pyver = REPOS.contains("theia") ? "3.10.8" : "3.11.0"
+//                   sh(script: '''#!/bin/bash
+// pyver="'''+pyver+'''"
+// pyenv install ${pyver} -s
+// pyenv global ${pyver} || true
+// pyver=$($HOME/.pyenv/shims/python --version | sed -r -e "s@Python @@")
+// $HOME/.pyenv/shims/python --version
+// export PATH=$(echo $PATH | sed -r -e "s@:/home/hudson/.pyenv/versions/[0-9.]+/bin@:/home/hudson/.pyenv/versions/${pyver}/bin@")
+// echo $PATH
+// python --version
+// ''', returnStdout: true)
 
                   util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                   sh('''#!/bin/bash -xe
