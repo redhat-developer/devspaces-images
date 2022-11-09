@@ -357,9 +357,9 @@ node(nodeLabel){
     def util = load "${WORKSPACE}/util2.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-        // if CONTAINERS contains theia
+        // if CONTAINERS contains theia-endpoint
         // println "Containers: " + CONTAINERS.trim()
-        if (CONTAINERS.trim().equals("theia") || CONTAINERS.trim().matches(".*theia .*")) {
+        if (CONTAINERS.trim().matches(".*theia-endpoint.*")) {
             DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
             println "DS_VERSION = '" + DS_VERSION + "'"
             println "Scheduling theia-akamai"

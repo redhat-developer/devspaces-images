@@ -70,11 +70,17 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
   
   to get latest from osbs and push to quay.</p>
 
-  <p>After this job runs:
-  <ul>
-    <li><a href=../update-digests_''' + JOB_BRANCH + '''>update-digests</a> will be triggered to check if those containers need a respin, and
-    <li><a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> will be triggered if we're publishing a <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build.
-  </ul>
+  <p>After this job runs, these events will occur:
+  <ol>
+    <li><a href=https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml>Update plugin registry GH page + rebuild devfile registry</a></li>
+
+    <li>Trigger <a href=../update-digests_''' + JOB_BRANCH + '''>update-digests</a> to rebuild operator-bundle</li>
+
+    <li><a href=../Releng/job/copyIIBsToQuay/>Copy IIBs</a> to <a href=https://quay.io/devspaces/iib>quay.io/devspaces/iib</a></li>
+
+    <li>Trigger <a href=../theia-akamai_''' + JOB_BRANCH + '''>theia-akamai</a> after a successful push of a 
+    <a href=../theia-sources_''' + JOB_BRANCH + '''>theia</a> build of <a href=https://quay.io/repository/devspaces/theia-endpoint-rhel8?tab=tags>theia-endpoint</a></li>
+  </ol>
 ''')
 
             properties {

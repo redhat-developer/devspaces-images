@@ -54,16 +54,33 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
 ## " + IIBsToQuay.trim().replaceAll("\n", "\n## ")+"\n\
 ####################################################################################################################COPIED\n"
 
+                // extract bundles to job desc
+                def IIBsToQuay_matches = null
+                IIBsToQuay_matches = ( IIBsToQuay =~ /.+(LATEST DS +OPERATOR BUNDLE) = (.+)/ )
+                (0..<IIBsToQuay_matches.count).each { 
+                  if (!currentBuild.description.contains(IIBsToQuay_matches[it][2])) {
+                    currentBuild.description+="<br/>&nbsp;&nbsp;* " + IIBsToQuay_matches[it][1] + " = <a href=https://quay.io/repository/devspaces/devspaces-operator-bundle?tab=tags>" + IIBsToQuay_matches[it][2] + "</a>"
+                  }
+                }
+                IIBsToQuay_matches = null
+
+                IIBsToQuay_matches = ( IIBsToQuay =~ /.+(LATEST DWO OPERATOR BUNDLE) = (.+)/ )
+                (0..<IIBsToQuay_matches.count).each { 
+                  if (!currentBuild.description.contains(IIBsToQuay_matches[it][2])) {
+                    currentBuild.description+="<br/>&nbsp;&nbsp;* " + IIBsToQuay_matches[it][1] + " = <a href=https://quay.io/repository/devworkspace/devworkspace-operator-bundle?tab=tags>" + IIBsToQuay_matches[it][2] + "</a>"
+                  }
+                }
+                IIBsToQuay_matches = null
+
                 currentBuild.description+="<br/>+ ${thisArch} IIB(s) copied: "
                 // for build description, collect the lines that start with [IMG]; ignore all other output
-                def IIBsToQuay_matches = null
                 IIBsToQuay_matches = ( IIBsToQuay =~ /\[IMG\] (quay.io.+)/ )
                 (0..<IIBsToQuay_matches.count).each { 
-                    currentBuild.description+="<br/>&nbsp;&nbsp;+ " + IIBsToQuay_matches[it][1] 
+                    currentBuild.description+="<br/>&nbsp;&nbsp;+ <a href=https://" + IIBsToQuay_matches[it][1] + ">" + IIBsToQuay_matches[it][1] + "</a>"
                 }
+                IIBsToQuay_matches = null
                 // return to the nullspace from whence it came (to avoid java.io.NotSerializableException java.util.regex.Matcher)
                 // https://stackoverflow.com/questions/40454558/jenkins-pipeline-java-io-notserializableexception-java-util-regex-matcher-error
-                IIBsToQuay_matches = null
                 cleanWs(
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
