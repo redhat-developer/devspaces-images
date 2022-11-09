@@ -198,7 +198,7 @@ RUN \
     # BEGIN update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     dnf -y -q module reset python39 && \
     dnf -y -q module enable python39:${PYTHON_VERSION} && \
-    dnf -y -q install python39 python39-devel python39-setuptools python39-pip && \
+    dnf -y -q install python39 python39-devel python39-setuptools python39-pip jq && \
     # End update to python 3.9 per https://catalog.redhat.com/software/containers/ubi8/python-39/6065b24eb92fbda3a4c65d8f?container-tabs=dockerfile
     # python lang server
     mkdir -p /tmp/py-unpack && tar -xf /tmp/assets/asset-python-ls-$(uname -m).tar.gz -C /tmp/py-unpack && \
@@ -209,7 +209,7 @@ RUN \
     # update pip & other dependencies, that came with Cachito repository
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq jq && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq && \
     python${PYTHON_VERSION} -m pytest -V
 RUN \
     # python/pip/pylint symlinks
