@@ -33,8 +33,8 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@eclipse-che/che-code-devworkspace-handler": "1.64.0-dev-210b722",
-    "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1642670698",
+    "@eclipse-che/che-code-devworkspace-handler": "1.74.0-dev-e701cae",
+    "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1667484092",
     "@eclipse-che/devfile-converter": "0.0.1-d624e3e",
     "@eclipse-che/workspace-client": "0.0.1-1663851810",
     "@patternfly/react-core": "4.120.0",
