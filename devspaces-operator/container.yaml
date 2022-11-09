@@ -29,9 +29,9 @@ remote_sources:
 - name: DEV_HEADER_REWRITE_TRAEFIK_PLUGIN
   remote_source: 
     repo: https://github.com/che-incubator/header-rewrite-traefik-plugin.git
-    ref: 5ece3dcd7a1c82f3d05999623bd3607b56437cd1
+    ref: 7ad71324ab075ad9e00ac38c7d0673844809b6f9
 # see tag or branch in https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/job-config.json
 - name: DEV_WORKSPACE_CONTROLLER
   remote_source: 
     repo: https://github.com/devfile/devworkspace-operator.git
-    ref: 6fa250c0f78fb64c34d95dfefa0f6b889480b0aa
+    ref: aaa430987417c980001c7ae19932f78991fe9707
