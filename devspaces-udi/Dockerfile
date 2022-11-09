@@ -99,10 +99,10 @@ RUN \
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.x86_64.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.s390x.rpm
     # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/ocp/tools/4.10/os/Packages/h/helm-3.9.0-3.el8.ppc64le.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202209201358.p0.g262ac9c.assembly.stream.el8.x86_64.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202209201358.p0.g262ac9c.assembly.stream.el8.s390x.rpm
-    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202209201358.p0.g262ac9c.assembly.stream.el8.ppc64le.rpm
-    odo-3.2.0-2.el8 helm-3.9.0-3.el8 openshift-clients-4.11.0-202209201358.p0.g262ac9c.assembly.stream.el8 && \
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202210262118.p0.g142cb44.assembly.stream.el8.x86_64.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/s390x/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202210262118.p0.g142cb44.assembly.stream.el8.s390x.rpm
+    # http://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/ppc64le/rhocp/4.11/os/Packages/o/openshift-clients-4.11.0-202210262118.p0.g142cb44.assembly.stream.el8.ppc64le.rpm
+    odo-3.2.0-2.el8 helm-3.9.0-3.el8 openshift-clients-4.11.0-202210262118.p0.g142cb44.assembly.stream.el8 && \
     mkdir -p /opt && \
     # add user and configure it
     useradd -u 1000 -G wheel,root -d /home/user --shell /bin/bash -m user && \
