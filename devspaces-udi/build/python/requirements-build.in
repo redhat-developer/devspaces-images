@@ -9,9 +9,10 @@ pip==22.2.2
 pytest==7.1.3
 flit_core==3.7.1
 
-# for yq
-yq==3.1.0
-argcomplete==2.0.0
-PyYAML==6.0
-toml==0.10.2
-xmltodict==0.13.0
+# https://issues.redhat.com/browse/CRW-3504 for yq / not working as Cachito can't resolve Cython
+# yq==3.1.0
+# argcomplete==2.0.0
+# PyYAML==6.0
+# toml==0.10.2
+# xmltodict==0.13.0
+# Cython==0.29.32
