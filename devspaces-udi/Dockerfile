@@ -209,7 +209,8 @@ RUN \
     # update pip & other dependencies, that came with Cachito repository
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq && \
+    # TODO CRW-3504 add yq
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest && \
     python${PYTHON_VERSION} -m pytest -V
 RUN \
     # python/pip/pylint symlinks
