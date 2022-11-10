@@ -10,7 +10,7 @@
 ###
 # Builder Image
 #
-FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-dev-rhel8:3.4 as builder
+FROM registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-dev-rhel8:3.3 as builder
 
 WORKDIR ${HOME}
 
@@ -166,7 +166,7 @@ RUN if [ "$UNPACK_CHE_THEIA_PLUGINS" = "true" ]; then cd plugins && ./unpack_che
 
 # Use node image
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8/nodejs-14
-FROM ubi8/nodejs-14:1-93 as build-result
+FROM ubi8/nodejs-14:1-92.1666660398 as build-result
 USER root
 
 COPY --from=builder /home/theia-dev/theia-source-code/production /che-theia-build
