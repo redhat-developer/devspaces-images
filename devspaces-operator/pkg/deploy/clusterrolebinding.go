@@ -24,7 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-var crbDiffOpts = cmp.Options{
+var ClusterRoleBindingDiffOpts = cmp.Options{
 	cmpopts.IgnoreFields(rbac.ClusterRoleBinding{}, "TypeMeta", "ObjectMeta"),
 }
 
@@ -34,8 +34,8 @@ func SyncClusterRoleBindingToCluster(
 	serviceAccountName string,
 	clusterRoleName string) (bool, error) {
 
-	crbSpec := getClusterRoleBindingSpec(deployContext, name, serviceAccountName, clusterRoleName)
-	return Sync(deployContext, crbSpec, crbDiffOpts)
+	crbSpec := getClusterRoleBindingSpec(deployContext, name, serviceAccountName, deployContext.CheCluster.Namespace, clusterRoleName)
+	return Sync(deployContext, crbSpec, ClusterRoleBindingDiffOpts)
 }
 
 func SyncClusterRoleBindingAndAddFinalizerToCluster(
@@ -45,8 +45,8 @@ func SyncClusterRoleBindingAndAddFinalizerToCluster(
 	clusterRoleName string) (bool, error) {
 
 	finalizer := GetFinalizerName(strings.ToLower(name) + ".crb")
-	crbSpec := getClusterRoleBindingSpec(deployContext, name, serviceAccountName, clusterRoleName)
-	return SyncAndAddFinalizer(deployContext, crbSpec, crbDiffOpts, finalizer)
+	crbSpec := getClusterRoleBindingSpec(deployContext, name, serviceAccountName, deployContext.CheCluster.Namespace, clusterRoleName)
+	return SyncAndAddFinalizer(deployContext, crbSpec, ClusterRoleBindingDiffOpts, finalizer)
 }
 
 func ReconcileClusterRoleBindingFinalizer(deployContext *chetypes.DeployContext, name string) error {
@@ -75,7 +75,8 @@ func getClusterRoleBindingSpec(
 	deployContext *chetypes.DeployContext,
 	name string,
 	serviceAccountName string,
-	roleName string) *rbac.ClusterRoleBinding {
+	serviceAccountNamespace string,
+	clusterRoleName string) *rbac.ClusterRoleBinding {
 
 	labels := GetLabels(defaults.GetCheFlavor())
 	clusterRoleBinding := &rbac.ClusterRoleBinding{
@@ -94,11 +95,11 @@ func getClusterRoleBindingSpec(
 			{
 				Kind:      rbac.ServiceAccountKind,
 				Name:      serviceAccountName,
-				Namespace: deployContext.CheCluster.Namespace,
+				Namespace: serviceAccountNamespace,
 			},
 		},
 		RoleRef: rbac.RoleRef{
-			Name:     roleName,
+			Name:     clusterRoleName,
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
 		},

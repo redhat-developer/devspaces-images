@@ -12,6 +12,8 @@
 package server
 
 import (
+	"strconv"
+
 	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/eclipse-che/che-operator/pkg/common/constants"
 	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
@@ -19,7 +21,6 @@ import (
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/postgres"
 	"github.com/eclipse-che/che-operator/pkg/deploy/tls"
-
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -318,8 +319,12 @@ func MountBitBucketOAuthConfig(ctx *chetypes.DeployContext, deployment *appsv1.D
 	mountEnv(deployment, "CHE_OAUTH1_BITBUCKET_CONSUMERKEYPATH", constants.BitBucketOAuthConfigMountPath+"/"+constants.BitBucketOAuthConfigConsumerKeyFileName)
 	mountEnv(deployment, "CHE_OAUTH1_BITBUCKET_PRIVATEKEYPATH", constants.BitBucketOAuthConfigMountPath+"/"+constants.BitBucketOAuthConfigPrivateKeyFileName)
 
-	mountEnv(deployment, "CHE_OAUTH2_BITBUCKET_CLIENTID__FILEPATH", constants.BitBucketOAuthConfigMountPath+"/"+constants.BitBucketOAuthConfigClientIdFileName)
-	mountEnv(deployment, "CHE_OAUTH2_BITBUCKET_CLIENTSECRET__FILEPATH", constants.BitBucketOAuthConfigMountPath+"/"+constants.BitBucketOAuthConfigClientSecretFileName)
+	if secret.Data["id"] != nil {
+		mountEnv(deployment, "CHE_OAUTH2_BITBUCKET_CLIENTID__FILEPATH", constants.BitBucketOAuthConfigMountPath+"/"+constants.BitBucketOAuthConfigClientIdFileName)
+	}
+	if secret.Data["secret"] != nil {
+		mountEnv(deployment, "CHE_OAUTH2_BITBUCKET_CLIENTSECRET__FILEPATH", constants.BitBucketOAuthConfigMountPath+"/"+constants.BitBucketOAuthConfigClientSecretFileName)
+	}
 
 	oauthEndpoint := secret.Annotations[constants.CheEclipseOrgScmServerEndpoint]
 	if oauthEndpoint != "" {
@@ -342,6 +347,15 @@ func MountGitHubOAuthConfig(ctx *chetypes.DeployContext, deployment *appsv1.Depl
 	if oauthEndpoint != "" {
 		mountEnv(deployment, "CHE_INTEGRATION_GITHUB_OAUTH__ENDPOINT", oauthEndpoint)
 	}
+
+	for _, gitHubService := range ctx.CheCluster.Spec.GitServices.GitHub {
+		if gitHubService.SecretName == secret.Name {
+			if gitHubService.DisableSubdomainIsolation != nil {
+				mountEnv(deployment, "CHE_INTEGRATION_GITHUB_DISABLE__SUBDOMAIN__ISOLATION", strconv.FormatBool(*gitHubService.DisableSubdomainIsolation))
+			}
+		}
+	}
+
 	return nil
 }
 

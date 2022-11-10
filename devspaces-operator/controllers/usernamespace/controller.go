@@ -15,7 +15,11 @@ package usernamespace
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
+
+	containerbuild "github.com/eclipse-che/che-operator/pkg/deploy/container-build"
+	rbacv1 "k8s.io/api/rbac/v1"
 
 	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
 	"github.com/eclipse-che/che-operator/pkg/common/constants"
@@ -249,6 +253,11 @@ func (r *CheUserNamespaceReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	if err = r.reconcileSCCPrivileges(info.Username, req.Name, checluster, deployContext); err != nil {
+		logrus.Errorf("Failed to reconcile the SCC privileges in namespace '%s': %v", req.Name, err)
+		return ctrl.Result{}, err
+	}
+
 	return ctrl.Result{}, nil
 }
 
@@ -325,7 +334,7 @@ func (r *CheUserNamespaceReconciler) reconcileSelfSignedCert(ctx context.Context
 		Immutable: cheCert.Immutable,
 	}
 
-	_, err := deploy.DoSync(deployContext, targetCert, deploy.SecretDiffOpts)
+	_, err := deploy.Sync(deployContext, targetCert, deploy.SecretDiffOpts)
 	return err
 }
 
@@ -369,7 +378,7 @@ func (r *CheUserNamespaceReconciler) reconcileTrustedCerts(ctx context.Context, 
 		Data: sourceMap.Data,
 	}
 
-	_, err := deploy.DoSync(deployContext, targetMap, deploy.ConfigMapDiffOpts)
+	_, err := deploy.Sync(deployContext, targetMap, deploy.ConfigMapDiffOpts)
 	return err
 }
 
@@ -450,7 +459,7 @@ func (r *CheUserNamespaceReconciler) reconcileProxySettings(ctx context.Context,
 		Data: proxySettings,
 	}
 
-	_, err = deploy.DoSync(deployContext, cfg, deploy.ConfigMapDiffOpts)
+	_, err = deploy.Sync(deployContext, cfg, deploy.ConfigMapDiffOpts)
 	return err
 }
 
@@ -493,7 +502,7 @@ func (r *CheUserNamespaceReconciler) reconcileIdleSettings(ctx context.Context, 
 		},
 		Data: data,
 	}
-	_, err := deploy.DoSync(deployContext, cfg, deploy.ConfigMapDiffOpts)
+	_, err := deploy.Sync(deployContext, cfg, deploy.ConfigMapDiffOpts)
 	return err
 }
 
@@ -520,6 +529,10 @@ func (r *CheUserNamespaceReconciler) reconcileGitTlsCertificate(ctx context.Cont
 		return delConfigMap()
 	}
 
+	if gitCert.Data["ca.crt"] == "" {
+		return delConfigMap()
+	}
+
 	target := corev1.ConfigMap{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "ConfigMap",
@@ -535,12 +548,15 @@ func (r *CheUserNamespaceReconciler) reconcileGitTlsCertificate(ctx context.Cont
 			}),
 		},
 		Data: map[string]string{
-			"host":        gitCert.Data["githost"],
 			"certificate": gitCert.Data["ca.crt"],
 		},
 	}
 
-	_, err := deploy.DoSync(deployContext, &target, deploy.ConfigMapDiffOpts)
+	if gitCert.Data["githost"] != "" {
+		target.Data["host"] = gitCert.Data["githost"]
+	}
+
+	_, err := deploy.Sync(deployContext, &target, deploy.ConfigMapDiffOpts)
 	return err
 }
 
@@ -591,6 +607,55 @@ func (r *CheUserNamespaceReconciler) reconcileNodeSelectorAndTolerations(ctx con
 	ns.SetAnnotations(annos)
 
 	return r.client.Update(ctx, ns)
+}
+
+func (r *CheUserNamespaceReconciler) reconcileSCCPrivileges(username string, targetNs string, checluster *chev2.CheCluster, deployContext *chetypes.DeployContext) error {
+	delRoleBinding := func() error {
+		_, err := deploy.Delete(
+			deployContext,
+			types.NamespacedName{Name: containerbuild.GetUserSccRbacResourcesName(), Namespace: targetNs},
+			&rbacv1.RoleBinding{})
+		return err
+	}
+
+	if !checluster.IsContainerBuildCapabilitiesEnabled() {
+		return delRoleBinding()
+	}
+
+	if username == "" {
+		_ = delRoleBinding()
+		return fmt.Errorf("unknown user for %s namespace", targetNs)
+	}
+
+	rb := &rbacv1.RoleBinding{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "RoleBinding",
+			APIVersion: rbacv1.SchemeGroupVersion.String(),
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      containerbuild.GetUserSccRbacResourcesName(),
+			Namespace: targetNs,
+			Labels:    map[string]string{constants.KubernetesPartOfLabelKey: constants.CheEclipseOrg},
+		},
+		RoleRef: rbacv1.RoleRef{
+			Name:     containerbuild.GetUserSccRbacResourcesName(),
+			Kind:     "ClusterRole",
+			APIGroup: "rbac.authorization.k8s.io",
+		},
+		Subjects: []rbacv1.Subject{
+			{
+				Kind:     rbacv1.UserKind,
+				APIGroup: "rbac.authorization.k8s.io",
+				Name:     username,
+			},
+		},
+	}
+
+	if _, err := deploy.Sync(deployContext, rb, deploy.RollBindingDiffOpts); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func prefixedName(name string) string {

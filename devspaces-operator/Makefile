@@ -29,10 +29,12 @@ else
 endif
 
 # Detect image tool
+ifeq ($(IMAGE_TOOL),)
 ifneq (,$(shell which docker))
 	IMAGE_TOOL := docker
 else
 	IMAGE_TOOL := podman
+endif
 endif
 
 ifndef VERBOSE
@@ -73,7 +75,18 @@ VSCODE_ENV_FILE=$(INTERNAL_TMP_DIR)/vscode.env
 
 DEPLOYMENT_DIR=$(PROJECT_DIR)/deploy/deployment
 
-ECLIPSE_CHE_NAMESPACE="eclipse-che"
+ifneq (,$(shell $(K8S_CLI) get checluster -A 2>/dev/null))
+  ECLIPSE_CHE_NAMESPACE := $(shell $(K8S_CLI) get checluster -A -o "jsonpath={.items[0].metadata.namespace}")
+else
+  ECLIPSE_CHE_NAMESPACE ?= "eclipse-che"
+endif
+
+ifneq (,$(shell $(K8S_CLI) get deployment -l app.kubernetes.io/component=che-operator -A 2>/dev/null))
+  OPERATOR_NAMESPACE := $(shell $(K8S_CLI) get deployment -l app.kubernetes.io/component=che-operator -A -o "jsonpath={.items[0].metadata.namespace}")
+else
+  OPERATOR_NAMESPACE ?= "eclipse-che"
+endif
+
 ECLIPSE_CHE_PACKAGE_NAME="eclipse-che-preview-openshift"
 
 CHECLUSTER_CR_PATH="$(PROJECT_DIR)/config/samples/org_v2_checluster.yaml"
@@ -262,6 +275,9 @@ gen-chectl-tmpl: ## Generate Eclipse Che k8s deployment resources used by chectl
 	if [[ -f $${src}/org.eclipse.che.ValidatingWebhookConfiguration.yaml ]]; then
 	  cp $${src}/org.eclipse.che.ValidatingWebhookConfiguration.yaml $${cheOperatorDst}/org.eclipse.che.ValidatingWebhookConfiguration.yaml
 	fi
+	if [[ -f $${src}/org.eclipse.che.MutatingWebhookConfiguration.yaml ]]; then
+	  cp $${src}/org.eclipse.che.MutatingWebhookConfiguration.yaml $${cheOperatorDst}/org.eclipse.che.MutatingWebhookConfiguration.yaml
+	fi
 	cp $${src}/che-operator-serving-cert.Certificate.yaml $${cheOperatorDst}/serving-cert.yaml
 	cp $${src}/che-operator-selfsigned-issuer.Issuer.yaml $${cheOperatorDst}/selfsigned-issuer.yaml
 
@@ -306,6 +322,10 @@ ENVTEST_ASSETS_DIR=$(shell pwd)/testbin
 test: download-gateway-resources ## Run tests.
 	export MOCK_API=true; go test -mod=vendor ./... -coverprofile cover.out
 
+update-go-dependencies: update-go-dependencies ## Update golang dependencies
+	go mod tidy
+	go mod vendor
+
 license: ## Add license to the files
 	FILES=$$(echo $(filter-out $@,$(MAKECMDGOALS)))
 	$(ADD_LICENSE) -f hack/license-header.txt $${FILES}
@@ -340,15 +360,20 @@ genenerate-env:
 install-che-operands: SHELL := /bin/bash
 install-che-operands: generate manifests download-kustomize download-gateway-resources
 	echo "[INFO] Running on $(PLATFORM)"
-	if [[ ! $(SKIP_CHE_OPERANDS_INSTALLATION) == "true" ]]; then
+	if [[ ! "$$($(K8S_CLI) get checluster eclipse-che -n $(ECLIPSE_CHE_NAMESPACE) || false )" ]]; then
 		[[ $(PLATFORM) == "kubernetes" ]] && $(MAKE) install-certmgr
-		[[ $(PLATFORM) == "openshift" ]] && $(MAKE) install-devworkspace CHANNEL=next
-
+		$(MAKE) install-devworkspace CHANNEL="next"
 		$(KUSTOMIZE) build config/$(PLATFORM) | $(K8S_CLI) apply -f -
 		$(MAKE) wait-pod-running SELECTOR="app.kubernetes.io/component=che-operator" NAMESPACE=$(ECLIPSE_CHE_NAMESPACE)
 	fi
 
-	$(K8S_CLI) scale deploy che-operator -n $(ECLIPSE_CHE_NAMESPACE) --replicas=0
+	$(K8S_CLI) scale deploy che-operator -n $(OPERATOR_NAMESPACE) --replicas=0
+
+	# Disable Webhooks since che operator pod is scaled down
+	$(K8S_CLI) delete validatingwebhookconfiguration org.eclipse.che
+	$(K8S_CLI) delete mutatingwebhookconfiguration org.eclipse.che
+	$(K8S_CLI) patch crd checlusters.org.eclipse.che --patch '{"spec": {"conversion": null}}' --type=merge
+
 	$(MAKE) store_tls_cert
 	$(MAKE) create-checluster-cr
 
@@ -397,9 +422,6 @@ bundle: generate manifests download-kustomize download-operator-sdk ## Generate 
 	--output-dir $${BUNDLE_PATH} \
 	--channels $(CHANNEL) \
 	--default-channel $(CHANNEL)
-
-	# Remove service from the bundle since OLM create that itself
-	rm $${BUNDLE_PATH}/manifests/che-operator-service_v1_service.yaml
 
 	# Rename clusterserviceversion file
 	mv $${BUNDLE_PATH}/manifests/$(ECLIPSE_CHE_PACKAGE_NAME).clusterserviceversion.yaml $${CSV_PATH}
@@ -699,27 +721,43 @@ install-devworkspace: SHELL := /bin/bash
 install-devworkspace: ## Install Dev Workspace operator, available channels: next, fast
 	[[ -z "$(CHANNEL)" ]] && { echo [ERROR] CHANNEL not defined; exit 1; }
 
-	if [[ $(CHANNEL) == "fast" ]]; then
-		IMAGE="quay.io/devfile/devworkspace-operator-index:release"
-	else
-		IMAGE="quay.io/devfile/devworkspace-operator-index:next"
-	fi
+	if [[ $(PLATFORM) == "kubernetes" ]]; then
+		$(MAKE) create-namespace NAMESPACE="devworkspace-controller"
+		if [[ $(CHANNEL) == "fast" ]]; then
+			rm -rf /tmp/dwo
+			git clone --quiet https://github.com/devfile/devworkspace-operator ${OPERATOR_REPO}/tmp/dwo
+			pushd ${OPERATOR_REPO}/tmp/dwo
+			DWO_STABLE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))
+			popd
 
-	$(MAKE) create-catalogsource IMAGE="$${IMAGE}" NAME="devworkspace-operator"
-	$(MAKE) create-subscription \
-		NAME="devworkspace-operator" \
- 		NAMESPACE="openshift-operators" \
- 		PACKAGE_NAME="devworkspace-operator" \
- 		CHANNEL="$(CHANNEL)" \
- 		SOURCE="devworkspace-operator" \
- 		SOURCE_NAMESPACE="openshift-marketplace" \
- 		INSTALL_PLAN_APPROVAL="Auto"
-	$(MAKE) wait-devworkspace-running NAMESPACE="openshift-operators"
+			$(K8S_CLI) apply -f https://raw.githubusercontent.com/devfile/devworkspace-operator/$${DWO_STABLE_VERSION}/deploy/deployment/kubernetes/combined.yaml
+	  	else
+			$(K8S_CLI) apply -f https://raw.githubusercontent.com/devfile/devworkspace-operator/main/deploy/deployment/kubernetes/combined.yaml
+	  	fi
+		$(MAKE) wait-devworkspace-running NAMESPACE="devworkspace-controller"
+	else
+		if [[ $(CHANNEL) == "fast" ]]; then
+			IMAGE="quay.io/devfile/devworkspace-operator-index:release"
+		else
+			IMAGE="quay.io/devfile/devworkspace-operator-index:next"
+		fi
+
+		$(MAKE) create-catalogsource IMAGE="$${IMAGE}" NAME="devworkspace-operator"
+		$(MAKE) create-subscription \
+			NAME="devworkspace-operator" \
+			NAMESPACE="openshift-operators" \
+			PACKAGE_NAME="devworkspace-operator" \
+			CHANNEL="$(CHANNEL)" \
+			SOURCE="devworkspace-operator" \
+			SOURCE_NAMESPACE="openshift-marketplace" \
+			INSTALL_PLAN_APPROVAL="Auto"
+		$(MAKE) wait-devworkspace-running NAMESPACE="openshift-operators"
+	fi
 
 wait-devworkspace-running: SHELL := /bin/bash
 wait-devworkspace-running: ## Wait until Dev Workspace operator is up and running
-	$(MAKE) wait-pod-running SELECTOR="app.kubernetes.io/name=devworkspace-controller,app.kubernetes.io/part-of=devworkspace-operator"
-	$(MAKE) wait-pod-running SELECTOR="app.kubernetes.io/name=devworkspace-webhook-server,app.kubernetes.io/part-of=devworkspace-operator"
+	$(MAKE) wait-pod-running SELECTOR="app.kubernetes.io/name=devworkspace-controller"
+	$(MAKE) wait-pod-running SELECTOR="app.kubernetes.io/name=devworkspace-webhook-server"
 
 setup-checluster: create-namespace create-checluster-crd create-checluster-cr ## Setup CheCluster (creates namespace, CRD and CheCluster CR)
 

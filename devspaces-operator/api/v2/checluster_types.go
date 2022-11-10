@@ -37,7 +37,7 @@ type CheClusterSpec struct {
 	// +optional
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,order=1
 	// +operator-sdk:csv:customresourcedefinitions:type=spec,displayName="Development environments"
-	// +kubebuilder:default:={defaultComponents: {{name: universal-developer-image, container: {image: "quay.io/devfile/universal-developer-image:ubi8-38da5c2"}}}, defaultEditor: eclipse/che-theia/latest, storage: {pvcStrategy: per-user}, defaultNamespace: {template: <username>-devspaces, autoProvision: true}, secondsOfInactivityBeforeIdling:1800, secondsOfRunBeforeIdling:-1}
+	// +kubebuilder:default:={disableContainerBuildCapabilities: true, defaultComponents: {{name: universal-developer-image, container: {image: "quay.io/devfile/universal-developer-image:ubi8-38da5c2"}}}, defaultEditor: che-incubator/che-code/insiders, storage: {pvcStrategy: per-user}, defaultNamespace: {template: <username>-devspaces, autoProvision: true}, secondsOfInactivityBeforeIdling:1800, secondsOfRunBeforeIdling:-1}
 	DevEnvironments CheClusterDevEnvironments `json:"devEnvironments"`
 	// Che components configuration.
 	// +optional
@@ -90,7 +90,7 @@ type CheClusterDevEnvironments struct {
 	// The plugin ID must have `publisher/plugin/version` format.
 	// The URI must start from `http://` or `https://`.
 	// +optional
-	// +kubebuilder:default:=eclipse/che-theia/latest
+	// +kubebuilder:default:=che-incubator/che-code/insiders
 	DefaultEditor string `json:"defaultEditor,omitempty"`
 	// Default components applied to DevWorkspaces.
 	// These default components are meant to be used when a Devfile, that does not contain any components.
@@ -107,6 +107,13 @@ type CheClusterDevEnvironments struct {
 	// To disable workspace run timeout, set this value to -1.
 	// +kubebuilder:default:=-1
 	SecondsOfRunBeforeIdling *int32 `json:"secondsOfRunBeforeIdling,omitempty"`
+	// Disables the container build capabilities.
+	// +optional
+	// +kubebuilder:default:=true
+	DisableContainerBuildCapabilities *bool `json:"disableContainerBuildCapabilities,omitempty"`
+	// Container build configuration.
+	// +optional
+	ContainerBuildConfiguration *ContainerBuildConfiguration `json:"containerBuildConfiguration,omitempty"`
 }
 
 // Che components configuration.
@@ -251,7 +258,7 @@ type PluginRegistry struct {
 	ExternalPluginRegistries []ExternalPluginRegistry `json:"externalPluginRegistries,omitempty"`
 	// Open VSX registry URL. If omitted an embedded instance will be used.
 	// +optional
-	OpenVSXURL string `json:"openVSXURL,omitempty"`
+	OpenVSXURL *string `json:"openVSXURL,omitempty"`
 }
 
 // Configuration settings related to the devfile registry used by the Che installation.
@@ -587,6 +594,9 @@ type GitHubService struct {
 	// +kubebuilder:validation:Required
 	// +kubebuilder:default:="https://github.com"
 	Endpoint string `json:"endpoint"`
+	// Disables subdomain isolation.
+	// +optional
+	DisableSubdomainIsolation *bool `json:"disableSubdomainIsolation,omitempty"`
 }
 
 // GitLabService enables users to work with repositories hosted on GitLab (gitlab.com or self-hosted).
@@ -619,6 +629,14 @@ type BitBucketService struct {
 	// +kubebuilder:validation:Required
 	// +kubebuilder:default:="https://bitbucket.org"
 	Endpoint string `json:"endpoint,omitempty"`
+}
+
+// Container build configuration.
+type ContainerBuildConfiguration struct {
+	// OpenShift security context constraint to build containers.
+	// +kubebuilder:validation:Required
+	// +kubebuilder:default:=container-build
+	OpenShiftSecurityContextConstraint string `json:"openShiftSecurityContextConstraint,omitempty"`
 }
 
 // GatewayPhase describes the different phases of the Che gateway lifecycle.
@@ -749,10 +767,6 @@ func (c *CheCluster) IsImagePullerSpecEmpty() bool {
 	return c.Spec.Components.ImagePuller.Spec == (imagepullerv1alpha1.KubernetesImagePullerSpec{})
 }
 
-func (c *CheCluster) IsImagePullerImagesEmpty() bool {
-	return len(c.Spec.Components.ImagePuller.Spec.Images) == 0
-}
-
 func (c *CheCluster) GetCheHost() string {
 	if c.Status.CheURL != "" {
 		return strings.TrimPrefix(c.Status.CheURL, "https://")
@@ -789,4 +803,20 @@ func (c *CheCluster) GetIdentityToken() string {
 
 func (c *CheCluster) IsAccessTokenConfigured() bool {
 	return c.GetIdentityToken() == constants.AccessToken
+}
+
+func (c *CheCluster) IsContainerBuildCapabilitiesEnabled() bool {
+	return c.Spec.DevEnvironments.DisableContainerBuildCapabilities != nil && !*c.Spec.DevEnvironments.DisableContainerBuildCapabilities
+}
+
+func (c *CheCluster) IsOpenShiftSecurityContextConstraintSet() bool {
+	return c.Spec.DevEnvironments.ContainerBuildConfiguration != nil && c.Spec.DevEnvironments.ContainerBuildConfiguration.OpenShiftSecurityContextConstraint != ""
+}
+
+func (c *CheCluster) IsCheFlavor() bool {
+	return os.Getenv("CHE_FLAVOR") == constants.CheFlavor
+}
+
+func (c *CheCluster) IsOpenVSXURLEmpty() bool {
+	return c.Spec.Components.PluginRegistry.OpenVSXURL == nil || *c.Spec.Components.PluginRegistry.OpenVSXURL == ""
 }

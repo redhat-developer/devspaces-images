@@ -15,9 +15,11 @@ package che
 import (
 	"context"
 
+	"github.com/eclipse-che/che-operator/pkg/common/test"
+	containerbuild "github.com/eclipse-che/che-operator/pkg/deploy/container-build"
+
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
-	"github.com/eclipse-che/che-operator/pkg/common/test"
 	"github.com/eclipse-che/che-operator/pkg/common/utils"
 	"github.com/eclipse-che/che-operator/pkg/deploy"
 	"github.com/eclipse-che/che-operator/pkg/deploy/consolelink"
@@ -109,13 +111,13 @@ func NewReconciler(
 		reconcileManager.RegisterReconciler(identityprovider.NewIdentityProviderReconciler())
 	}
 	reconcileManager.RegisterReconciler(devfileregistry.NewDevfileRegistryReconciler())
-	reconcileManager.RegisterReconciler(pluginregistry.NewOpenVSXUrlReconciler())
 	reconcileManager.RegisterReconciler(pluginregistry.NewPluginRegistryReconciler())
 	reconcileManager.RegisterReconciler(dashboard.NewDashboardReconciler())
 	reconcileManager.RegisterReconciler(gateway.NewGatewayReconciler())
 	reconcileManager.RegisterReconciler(server.NewCheServerReconciler())
 
 	if infrastructure.IsOpenShift() {
+		reconcileManager.RegisterReconciler(containerbuild.NewContainerBuildReconciler())
 		reconcileManager.RegisterReconciler(consolelink.NewConsoleLinkReconciler())
 	}
 

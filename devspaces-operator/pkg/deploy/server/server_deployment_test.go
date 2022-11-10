@@ -14,6 +14,8 @@ package server
 import (
 	"os"
 
+	"k8s.io/utils/pointer"
+
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/eclipse-che/che-operator/pkg/common/chetypes"
@@ -131,7 +133,7 @@ func TestDeployment(t *testing.T) {
 	}
 }
 
-func TestMountBitBucketOAuthEnvVar(t *testing.T) {
+func TestMountBitBucketServerOAuthEnvVar(t *testing.T) {
 	type testCase struct {
 		name                    string
 		initObjects             []runtime.Object
@@ -152,7 +154,7 @@ func TestMountBitBucketOAuthEnvVar(t *testing.T) {
 						APIVersion: "v1",
 					},
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      "github-oauth-config",
+						Name:      "bitbucket-oauth-config",
 						Namespace: "eclipse-che",
 						Labels: map[string]string{
 							"app.kubernetes.io/part-of":   "che.eclipse.org",
@@ -173,15 +175,15 @@ func TestMountBitBucketOAuthEnvVar(t *testing.T) {
 			expectedPrivateKeyPath:  "/che-conf/oauth/bitbucket/private.key",
 			expectedOAuthEndpoint:   "endpoint_1",
 			expectedVolume: corev1.Volume{
-				Name: "github-oauth-config",
+				Name: "bitbucket-oauth-config",
 				VolumeSource: corev1.VolumeSource{
 					Secret: &corev1.SecretVolumeSource{
-						SecretName: "github-oauth-config",
+						SecretName: "bitbucket-oauth-config",
 					},
 				},
 			},
 			expectedVolumeMount: corev1.VolumeMount{
-				Name:      "github-oauth-config",
+				Name:      "bitbucket-oauth-config",
 				MountPath: "/che-conf/oauth/bitbucket",
 			},
 		},
@@ -206,11 +208,93 @@ func TestMountBitBucketOAuthEnvVar(t *testing.T) {
 			value = utils.GetEnvByName("CHE_OAUTH1_BITBUCKET_ENDPOINT", container.Env)
 			assert.Equal(t, testCase.expectedOAuthEndpoint, value)
 
-			volume := test.FindVolume(deployment.Spec.Template.Spec.Volumes, "github-oauth-config")
+			volume := test.FindVolume(deployment.Spec.Template.Spec.Volumes, "bitbucket-oauth-config")
 			assert.NotNil(t, volume)
 			assert.Equal(t, testCase.expectedVolume, volume)
 
-			volumeMount := test.FindVolumeMount(container.VolumeMounts, "github-oauth-config")
+			volumeMount := test.FindVolumeMount(container.VolumeMounts, "bitbucket-oauth-config")
+			assert.NotNil(t, volumeMount)
+			assert.Equal(t, testCase.expectedVolumeMount, volumeMount)
+		})
+	}
+}
+
+func TestMountBitbucketOAuthEnvVar(t *testing.T) {
+	type testCase struct {
+		name                  string
+		initObjects           []runtime.Object
+		expectedIdKeyPath     string
+		expectedSecretKeyPath string
+		expectedOAuthEndpoint string
+		expectedVolume        corev1.Volume
+		expectedVolumeMount   corev1.VolumeMount
+	}
+
+	testCases := []testCase{
+		{
+			name: "Test",
+			initObjects: []runtime.Object{
+				&corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "bitbucket-oauth-config",
+						Namespace: "eclipse-che",
+						Labels: map[string]string{
+							"app.kubernetes.io/part-of":   "che.eclipse.org",
+							"app.kubernetes.io/component": "oauth-scm-configuration",
+						},
+						Annotations: map[string]string{
+							"che.eclipse.org/oauth-scm-server":    "bitbucket",
+							"che.eclipse.org/scm-server-endpoint": "endpoint_1",
+						},
+					},
+					Data: map[string][]byte{
+						"id":     []byte("some_id"),
+						"secret": []byte("some_secret"),
+					},
+				},
+			},
+			expectedIdKeyPath:     "/che-conf/oauth/bitbucket/id",
+			expectedSecretKeyPath: "/che-conf/oauth/bitbucket/secret",
+			expectedVolume: corev1.Volume{
+				Name: "bitbucket-oauth-config",
+				VolumeSource: corev1.VolumeSource{
+					Secret: &corev1.SecretVolumeSource{
+						SecretName: "bitbucket-oauth-config",
+					},
+				},
+			},
+			expectedVolumeMount: corev1.VolumeMount{
+				Name:      "bitbucket-oauth-config",
+				MountPath: "/che-conf/oauth/bitbucket",
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctx := test.GetDeployContext(nil, testCase.initObjects)
+
+			server := NewCheServerReconciler()
+			deployment, err := server.getDeploymentSpec(ctx)
+			assert.Nil(t, err, "Unexpected error %v", err)
+
+			container := &deployment.Spec.Template.Spec.Containers[0]
+
+			value := utils.GetEnvByName("CHE_OAUTH2_BITBUCKET_CLIENTID__FILEPATH", container.Env)
+			assert.Equal(t, testCase.expectedIdKeyPath, value)
+
+			value = utils.GetEnvByName("CHE_OAUTH2_BITBUCKET_CLIENTSECRET__FILEPATH", container.Env)
+			assert.Equal(t, testCase.expectedSecretKeyPath, value)
+
+			volume := test.FindVolume(deployment.Spec.Template.Spec.Volumes, "bitbucket-oauth-config")
+			assert.NotNil(t, volume)
+			assert.Equal(t, testCase.expectedVolume, volume)
+
+			volumeMount := test.FindVolumeMount(container.VolumeMounts, "bitbucket-oauth-config")
 			assert.NotNil(t, volumeMount)
 			assert.Equal(t, testCase.expectedVolumeMount, volumeMount)
 		})
@@ -385,6 +469,188 @@ func TestMountGitLabOAuthEnvVar(t *testing.T) {
 			volumeMount := test.FindVolumeMount(container.VolumeMounts, "gitlab-oauth-config")
 			assert.NotNil(t, volumeMount)
 			assert.Equal(t, testCase.expectedVolumeMount, volumeMount)
+		})
+	}
+}
+
+func TestMountGitHubDisableSubdomainIsolationEnvVar(t *testing.T) {
+	type testCase struct {
+		name                              string
+		cheCluster                        *chev2.CheCluster
+		initObjects                       []runtime.Object
+		expectedDisableSubdomainIsolation string
+	}
+
+	testCases := []testCase{
+		{
+			name: "Test #1",
+			cheCluster: &chev2.CheCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "eclipse-che",
+					Namespace: "eclipse-che",
+				},
+				Spec: chev2.CheClusterSpec{
+					GitServices: chev2.CheClusterGitServices{
+						GitHub: []chev2.GitHubService{
+							{
+								DisableSubdomainIsolation: pointer.BoolPtr(true),
+								SecretName:                "github-oauth-config",
+							},
+						},
+					},
+				},
+			},
+			initObjects: []runtime.Object{
+				&corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "github-oauth-config",
+						Namespace: "eclipse-che",
+						Labels: map[string]string{
+							"app.kubernetes.io/part-of":   "che.eclipse.org",
+							"app.kubernetes.io/component": "oauth-scm-configuration",
+						},
+						Annotations: map[string]string{
+							"che.eclipse.org/oauth-scm-server": "github",
+						},
+					},
+				},
+			},
+			expectedDisableSubdomainIsolation: "true",
+		},
+		{
+			name: "Test #2",
+			cheCluster: &chev2.CheCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "eclipse-che",
+					Namespace: "eclipse-che",
+				},
+				Spec: chev2.CheClusterSpec{
+					GitServices: chev2.CheClusterGitServices{
+						GitHub: []chev2.GitHubService{
+							{
+								DisableSubdomainIsolation: pointer.BoolPtr(false),
+								SecretName:                "github-oauth-config",
+							},
+						},
+					},
+				},
+			},
+			initObjects: []runtime.Object{
+				&corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "github-oauth-config",
+						Namespace: "eclipse-che",
+						Labels: map[string]string{
+							"app.kubernetes.io/part-of":   "che.eclipse.org",
+							"app.kubernetes.io/component": "oauth-scm-configuration",
+						},
+						Annotations: map[string]string{
+							"che.eclipse.org/oauth-scm-server": "github",
+						},
+					},
+				},
+			},
+			expectedDisableSubdomainIsolation: "false",
+		},
+		{
+			name: "Test #3",
+			cheCluster: &chev2.CheCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "eclipse-che",
+					Namespace: "eclipse-che",
+				},
+				Spec: chev2.CheClusterSpec{
+					GitServices: chev2.CheClusterGitServices{
+						GitHub: []chev2.GitHubService{
+							{
+								SecretName: "github-oauth-config",
+							},
+						},
+					},
+				},
+			},
+			initObjects: []runtime.Object{
+				&corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "github-oauth-config",
+						Namespace: "eclipse-che",
+						Labels: map[string]string{
+							"app.kubernetes.io/part-of":   "che.eclipse.org",
+							"app.kubernetes.io/component": "oauth-scm-configuration",
+						},
+						Annotations: map[string]string{
+							"che.eclipse.org/oauth-scm-server": "github",
+						},
+					},
+				},
+			},
+			expectedDisableSubdomainIsolation: "",
+		},
+		{
+			name: "Test #4",
+			cheCluster: &chev2.CheCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "eclipse-che",
+					Namespace: "eclipse-che",
+				},
+				Spec: chev2.CheClusterSpec{
+					GitServices: chev2.CheClusterGitServices{
+						GitHub: []chev2.GitHubService{
+							{
+								SecretName:                "NOT-FOUND-SECRET",
+								DisableSubdomainIsolation: pointer.BoolPtr(true),
+							},
+						},
+					},
+				},
+			},
+			initObjects: []runtime.Object{
+				&corev1.Secret{
+					TypeMeta: metav1.TypeMeta{
+						Kind:       "Secret",
+						APIVersion: "v1",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "github-oauth-config",
+						Namespace: "eclipse-che",
+						Labels: map[string]string{
+							"app.kubernetes.io/part-of":   "che.eclipse.org",
+							"app.kubernetes.io/component": "oauth-scm-configuration",
+						},
+						Annotations: map[string]string{
+							"che.eclipse.org/oauth-scm-server": "github",
+						},
+					},
+				},
+			},
+			expectedDisableSubdomainIsolation: "",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctx := test.GetDeployContext(testCase.cheCluster, testCase.initObjects)
+
+			server := NewCheServerReconciler()
+			deployment, err := server.getDeploymentSpec(ctx)
+			assert.Nil(t, err, "Unexpected error %v", err)
+
+			container := &deployment.Spec.Template.Spec.Containers[0]
+
+			value := utils.GetEnvByName("CHE_INTEGRATION_GITHUB_DISABLE__SUBDOMAIN__ISOLATION", container.Env)
+			assert.Equal(t, testCase.expectedDisableSubdomainIsolation, value)
 		})
 	}
 }
