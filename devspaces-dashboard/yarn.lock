@@ -343,10 +343,10 @@
   resolved "https://registry.npmjs.org/@eclipse-che/api/-/api-7.44.0.tgz"
   integrity sha512-X2vawP2Pm+WD8HswYhXU9lC1WqsRe0g0mibPSN3hYzbmKMSKuPaJG/hBtGDtdp0NI35iIoinoAfFaAtdWBko3Q==
 
-"@eclipse-che/che-code-devworkspace-handler@1.74.0-dev-e701cae":
-  version "1.74.0-dev-e701cae"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.74.0-dev-e701cae.tgz#965f2962fa27a87142180e62e8c776299a49ac16"
-  integrity sha512-qj8GvTPKh7n6JQB0gR9bcvGnEjsSqx2jFEZszynf7uY46MnzAsufYZZIK3MbYTV9wtY/MOhaHQVnb65TBQV6mw==
+"@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722":
+  version "1.64.0-dev-210b722"
+  resolved "https://registry.npmjs.org/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.64.0-dev-210b722.tgz"
+  integrity sha512-QGDwuXZwxgt68dStE0JTMGB/GBnp6Q7EsDLuUZMR3yTswc44ZxAafvBS3K3pWtenErGManCwNJ+6FM8yP0Q7/A==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
@@ -356,10 +356,10 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1667484092":
-  version "0.0.1-1667484092"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1667484092.tgz#6bb21998a4e27090a26b17db9d97395f78887071"
-  integrity sha512-kIkG/boT3XpgFyD9ck1liQdNli5sMDARqlxiP5hxzAtZ3l90PxZ8LNEGtd7sO3XMvpL+Zz4f+zfBLOVDBwiCWw==
+"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698":
+  version "0.0.1-1642670698"
+  resolved "https://registry.npmjs.org/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1642670698.tgz"
+  integrity sha512-nRS7n/X+PV7S6o/KjPbI/OH35eUArQ4MBiBX7+SvlwEqyVk/8Fac+/zg1h/A3mT23DN6X47ooBT+eYNLGNSitg==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
@@ -381,10 +381,10 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/workspace-client@0.0.1-1663851810":
-  version "0.0.1-1663851810"
-  resolved "https://registry.yarnpkg.com/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1663851810.tgz#575c6e9c359a536ec3b1f359d7142bcd6b59d735"
-  integrity sha512-oV+zTmsrMcV+SvnZBuHWbrwYimqUqWil2BHGjQYpK1TroEMHiOgfs0Xjh7FxdrgcYUc05Rnb7yvwe4QSjw7iTQ==
+"@eclipse-che/workspace-client@0.0.1-1632305737":
+  version "0.0.1-1632305737"
+  resolved "https://registry.npmjs.org/@eclipse-che/workspace-client/-/workspace-client-0.0.1-1632305737.tgz"
+  integrity sha512-wIzrfAJI4unTFMeaqWBKyhLZkwrV3o5BeFHLXIw4/dhKwJwuZQ46PQB6orDejxrAErktq6pX8L1UXlJkMdLG+A==
   dependencies:
     "@eclipse-che/api" "^7.0.0-beta-4.0"
     axios "^0.21.1"
@@ -8631,13 +8631,6 @@ mini-create-react-context@^0.4.0:
     "@babel/runtime" "^7.12.1"
     tiny-warning "^1.0.3"
 
-mini-css-extract-plugin@^2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-2.6.1.tgz#9a1251d15f2035c342d99a468ab9da7a0451b71e"
-  integrity sha512-wd+SD57/K6DiV7jIR34P+s3uckTRuQvx0tKPcvjFlrEylk6P4mQ2KSWk1hblj1Kxaqok7LogKOieygXqBczNlg==
-  dependencies:
-    schema-utils "^4.0.0"
-
 minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/minimalistic-assert/-/minimalistic-assert-1.0.1.tgz"
@@ -10177,9 +10170,9 @@ raw-body@2.5.1:
     iconv-lite "0.4.24"
     unpipe "1.0.0"
 
-react-copy-to-clipboard@^5.1.0:
+react-copy-to-clipboard@^5.0.2:
   version "5.1.0"
-  resolved "https://registry.yarnpkg.com/react-copy-to-clipboard/-/react-copy-to-clipboard-5.1.0.tgz#09aae5ec4c62750ccb2e6421a58725eabc41255c"
+  resolved "https://registry.npmjs.org/react-copy-to-clipboard/-/react-copy-to-clipboard-5.1.0.tgz"
   integrity sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==
   dependencies:
     copy-to-clipboard "^3.3.1"

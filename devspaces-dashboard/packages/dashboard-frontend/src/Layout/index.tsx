@@ -29,6 +29,7 @@ import { BannerAlert } from '../components/BannerAlert';
 import { ErrorBoundary } from './ErrorBoundary';
 import { DisposableCollection } from '../services/helpers/disposable';
 import { ROUTE } from '../Routes/routes';
+import { selectUser } from '../store/User/selectors';
 import { selectBranding } from '../store/Branding/selectors';
 import { ToggleBarsContext } from '../contexts/ToggleBars';
 import { signOut } from '../services/helpers/login';
@@ -170,7 +171,7 @@ export class Layout extends React.PureComponent<Props, State> {
     }
 
     const { isHeaderVisible, isSidebarVisible, theme } = this.state;
-    const { history } = this.props;
+    const { history, user } = this.props;
 
     const logoUrl = this.props.branding.logoFile;
 
@@ -187,6 +188,7 @@ export class Layout extends React.PureComponent<Props, State> {
               history={history}
               isVisible={isHeaderVisible}
               logoUrl={logoUrl}
+              user={user}
               logout={() => signOut()}
               toggleNav={() => this.toggleNav()}
               changeTheme={theme => this.changeTheme(theme)}
@@ -215,6 +217,7 @@ export class Layout extends React.PureComponent<Props, State> {
 
 const mapStateToProps = (state: AppState) => ({
   branding: selectBranding(state),
+  user: selectUser(state),
 });
 
 const connector = connect(mapStateToProps);

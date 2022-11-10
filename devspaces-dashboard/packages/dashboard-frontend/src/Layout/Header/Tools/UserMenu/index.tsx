@@ -23,7 +23,8 @@ import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 type Props = MappedProps & {
   branding: BrandingData;
   history: History;
-  username: string;
+  user: che.User | undefined;
+  userProfile: api.che.user.Profile | undefined;
   logout: () => void;
 };
 type State = {
@@ -53,16 +54,35 @@ export class UserMenu extends React.PureComponent<Props, State> {
     });
   }
 
+  private getUsername(): string {
+    const { userProfile, user } = this.props;
+
+    let username = '';
+
+    if (userProfile && userProfile.attributes) {
+      if (userProfile.attributes.firstName) {
+        username += userProfile.attributes.firstName;
+      }
+      if (userProfile.attributes.lastName) {
+        username += ' ' + userProfile.attributes.lastName;
+      }
+    }
+    if (!username && user && user.name) {
+      username += user.name;
+    }
+
+    return username;
+  }
+
   private buildUserDropdownItems(): Array<React.ReactElement> {
     return [
-      // temporary hidden, https://github.com/eclipse/che/issues/21595
-      // <DropdownItem
-      //   key="user-account"
-      //   component="button"
-      //   onClick={() => this.props.history.push(ROUTE.USER_ACCOUNT)}
-      // >
-      //   Account
-      // </DropdownItem>,
+      <DropdownItem
+        key="user-account"
+        component="button"
+        onClick={() => this.props.history.push(ROUTE.USER_ACCOUNT)}
+      >
+        Account
+      </DropdownItem>,
       <DropdownItem
         key="user-preferences"
         component="button"
@@ -77,7 +97,7 @@ export class UserMenu extends React.PureComponent<Props, State> {
   }
 
   private buildUserToggleButton(): React.ReactElement {
-    const username = this.props.username;
+    const username = this.getUsername();
     return (
       <DropdownToggle onToggle={isOpen => this.onUsernameButtonToggle(isOpen)}>
         {username}

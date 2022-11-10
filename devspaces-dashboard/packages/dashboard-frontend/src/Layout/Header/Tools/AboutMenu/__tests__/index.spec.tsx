@@ -10,20 +10,21 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { Provider } from 'react-redux';
 import renderer from 'react-test-renderer';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Action, Store } from 'redux';
 import { AboutMenu } from '..';
+import { AppThunk } from '../../../../../store';
+import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
 import {
   BrandingData,
   BRANDING_DEFAULT,
 } from '../../../../../services/bootstrap/branding.constant';
-import { AppThunk } from '../../../../../store';
-import { selectBranding } from '../../../../../store/Branding/selectors';
 import * as InfrastructureNamespacesStore from '../../../../../store/InfrastructureNamespaces';
-import { FakeStoreBuilder } from '../../../../../store/__mocks__/storeBuilder';
+import { selectBranding } from '../../../../../store/Branding/selectors';
+import { selectUserProfile } from '../../../../../store/UserProfile/selectors';
 
 jest.mock('gravatar-url', () => {
   return function () {
@@ -48,13 +49,20 @@ describe('About Menu', () => {
 
   const productCli = 'crwctl';
   const email = 'johndoe@example.com';
-  const username = 'John Doe';
-  const store = createStore(productCli, username, email);
+  const name = 'John Doe';
+  const store = createStore(productCli, name, email);
+  const user = {
+    id: 'test-id',
+    name: name,
+    email: email,
+    links: [],
+  };
   const branding = selectBranding(store.getState());
+  const userProfile = selectUserProfile(store.getState());
 
   const component = (
     <Provider store={store}>
-      <AboutMenu branding={branding} username={username} />
+      <AboutMenu branding={branding} user={user} userProfile={userProfile} />
     </Provider>
   );
 

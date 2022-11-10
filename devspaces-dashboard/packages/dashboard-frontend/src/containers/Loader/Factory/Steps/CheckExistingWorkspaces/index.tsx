@@ -147,17 +147,13 @@ class StepCheckExistingWorkspaces extends AbstractLoaderStep<Props, State> {
     let newWorkspaceName: string;
     if (prevLoaderStep.id === LoadingStep.CREATE_WORKSPACE__FETCH_DEVFILE) {
       if (
-        factoryResolver?.location === factoryParams.sourceUrl &&
-        factoryResolverConverted?.devfileV2 !== undefined
+        factoryResolver?.location !== factoryParams.sourceUrl ||
+        factoryResolverConverted?.devfileV2 === undefined
       ) {
-        const devfile = factoryResolverConverted.devfileV2;
-        newWorkspaceName = devfile.metadata.name;
-      } else {
-        if (factoryResolver === undefined) {
-          return true;
-        }
         throw new Error('Failed to resolve the devfile.');
       }
+      const devfile = factoryResolverConverted.devfileV2;
+      newWorkspaceName = devfile.metadata.name;
     } else {
       const resources = devWorkspaceResources[factoryParams.sourceUrl]?.resources;
       if (resources === undefined) {

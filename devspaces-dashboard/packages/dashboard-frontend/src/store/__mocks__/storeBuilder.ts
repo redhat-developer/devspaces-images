@@ -10,22 +10,23 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { api, ClusterConfig, ClusterInfo } from '@eclipse-che/common';
 import { Store } from 'redux';
 import createMockStore from 'redux-mock-store';
-import { AppState } from '..';
 import { BrandingData } from '../../services/bootstrap/branding.constant';
-import devfileApi from '../../services/devfileApi';
-import { WorkspacesLogs } from '../../services/helpers/types';
-import { State as BrandingState } from '../Branding';
+import { AppState } from '..';
 import { DevWorkspaceResources, State as DevfileRegistriesState } from '../DevfileRegistries/index';
 import { RegistryEntry } from '../DockerConfig/types';
+import { State as WorkspacesState } from '../Workspaces/index';
+import { State as BrandingState } from '../Branding';
 import { ConvertedState, ResolverState, State as FactoryResolverState } from '../FactoryResolver';
 import { State as InfrastructureNamespaceState } from '../InfrastructureNamespaces';
 import { State as PluginsState } from '../Plugins/chePlugins';
+import { State as UserState } from '../User';
 import { State as UserProfileState } from '../UserProfile';
-import { State as WorkspacesState } from '../Workspaces/index';
 import mockThunk from './thunk';
+import devfileApi from '../../services/devfileApi';
+import { api as dashboardBackendApi, ClusterConfig, ClusterInfo } from '@eclipse-che/common';
+import { WorkspacesLogs } from '../../services/helpers/types';
 
 export class FakeStoreBuilder {
   private state: AppState = {
@@ -41,7 +42,6 @@ export class FakeStoreBuilder {
     dwServerConfig: {
       isLoading: false,
       config: {
-        containerBuild: {},
         defaults: {
           editor: undefined,
           components: [],
@@ -56,7 +56,7 @@ export class FakeStoreBuilder {
           runTimeout: -1,
         },
         cheNamespace: '',
-      } as api.IServerConfig,
+      } as dashboardBackendApi.IServerConfig,
     },
     clusterInfo: {
       isLoading: false,
@@ -105,9 +105,13 @@ export class FakeStoreBuilder {
       devWorkspaceResources: {},
       schema: {},
     } as DevfileRegistriesState,
+    user: {
+      isLoading: false,
+      user: {},
+    } as UserState,
     userProfile: {
       isLoading: false,
-      userProfile: {},
+      profile: {},
     } as UserProfileState,
     infrastructureNamespaces: {
       isLoading: false,
@@ -135,7 +139,7 @@ export class FakeStoreBuilder {
     },
   };
 
-  public withDwServerConfig(config: api.IServerConfig): FakeStoreBuilder {
+  public withDwServerConfig(config: dashboardBackendApi.IServerConfig): FakeStoreBuilder {
     this.state.dwServerConfig = {
       isLoading: false,
       config,
@@ -245,8 +249,14 @@ export class FakeStoreBuilder {
     return this;
   }
 
-  public withUserProfile(profile: api.IUserProfile, error?: string): FakeStoreBuilder {
-    this.state.userProfile.userProfile = Object.assign({}, profile);
+  public withUser(user: che.User, error?: string): FakeStoreBuilder {
+    this.state.user.user = Object.assign({}, user);
+    this.state.user.error = error;
+    return this;
+  }
+
+  public withUserProfile(profile: api.che.user.Profile, error?: string): FakeStoreBuilder {
+    this.state.userProfile.profile = Object.assign({}, profile);
     this.state.userProfile.error = error;
     return this;
   }

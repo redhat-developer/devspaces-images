@@ -269,7 +269,6 @@ export class WorkspaceDetails extends React.PureComponent<Props, State> {
               <EditorTab
                 ref={this.editorTabPageRef}
                 workspace={workspace}
-                isRunning={workspace.isRunning}
                 onSave={workspace => this.handleOnSave(workspace)}
                 onDevWorkspaceWarning={() => this.handleRestartWarning()}
               />

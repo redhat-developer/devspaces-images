@@ -12,7 +12,7 @@
 
 import React from 'react';
 import { Flex, FlexItem, Button, Divider } from '@patternfly/react-core';
-import { CompressIcon, DownloadIcon, ExpandIcon } from '@patternfly/react-icons';
+import { CompressIcon, DownloadIcon, ExpandIcon } from '@patternfly/react-icons/dist/js/icons';
 import { getBlobUrl } from '../../../services/helpers/tools';
 
 import styles from './index.module.css';

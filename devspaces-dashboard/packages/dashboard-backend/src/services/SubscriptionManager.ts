@@ -11,7 +11,7 @@
  */
 
 import DevWorkspaceWatcher from './DevWorkspaceWatcher';
-import { IDevWorkspaceCallbacks } from '../devworkspaceClient';
+import { IDevWorkspaceCallbacks } from '../devworkspace-client';
 import WebSocket from 'ws';
 import { V1alpha2DevWorkspace } from '@devfile/api';
 

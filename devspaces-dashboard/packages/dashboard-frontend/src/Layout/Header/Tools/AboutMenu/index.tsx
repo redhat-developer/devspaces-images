@@ -22,7 +22,8 @@ import { BrandingData } from '../../../../services/bootstrap/branding.constant';
 
 type Props = {
   branding: BrandingData;
-  username: string;
+  user: che.User | undefined;
+  userProfile: api.che.user.Profile | undefined;
 };
 type State = {
   isLauncherOpen: boolean;
@@ -37,6 +38,26 @@ export class AboutMenu extends React.PureComponent<Props, State> {
       isLauncherOpen: false,
       isModalOpen: false,
     };
+  }
+
+  private getUsername(): string {
+    const { userProfile, user } = this.props;
+
+    let username = '';
+
+    if (userProfile && userProfile.attributes) {
+      if (userProfile.attributes.firstName) {
+        username += userProfile.attributes.firstName;
+      }
+      if (userProfile.attributes.lastName) {
+        username += ' ' + userProfile.attributes.lastName;
+      }
+    }
+    if (!username && user && user.name) {
+      username += user.name;
+    }
+
+    return username;
   }
 
   private buildLauncherItems(): React.ReactNode[] {
@@ -88,9 +109,9 @@ export class AboutMenu extends React.PureComponent<Props, State> {
   }
 
   public render(): React.ReactElement {
-    const { username } = this.props;
     const { isLauncherOpen, isModalOpen } = this.state;
 
+    const username = this.getUsername();
     const { logoFile, name, productVersion } = this.props.branding;
 
     return (

@@ -25,6 +25,10 @@ export type DevWorkspaceLike = V1alpha2DevWorkspace &
   };
 
 type DevWorkspaceRequired = Pick<DevWorkspaceLike, 'apiVersion' | 'kind' | 'metadata' | 'spec'>;
+type DevWorkspaceRequiredField = keyof DevWorkspaceRequired;
+
+export const devWorkspaceRequiredFields: `${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField} | ${DevWorkspaceRequiredField}` =
+  'apiVersion | kind | metadata | spec';
 
 export type DevWorkspace = DevWorkspaceLike &
   Required<DevWorkspaceRequired> & {

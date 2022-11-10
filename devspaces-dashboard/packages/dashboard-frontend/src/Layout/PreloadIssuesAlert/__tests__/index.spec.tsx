@@ -39,13 +39,8 @@ describe('PreloadIssuesAlert component', () => {
       })
       .withInfrastructureNamespace([], false, 'expected error 3')
       .withPlugins([], false, 'expected error 4')
-      .withUserProfile(
-        {
-          email: 'user1@che',
-          username: 'user1',
-        },
-        'expected error 6',
-      )
+      .withUser({} as che.User, 'expected error 5')
+      .withUserProfile({}, 'expected error 6')
       .withWorkspacesSettings({} as che.WorkspaceSettings, false, 'expected error 7')
       .build();
     renderComponent(store);
@@ -63,6 +58,9 @@ describe('PreloadIssuesAlert component', () => {
 
     const pluginsAlert = screen.queryByRole('heading', { name: /expected error 4/i });
     expect(pluginsAlert).toBeTruthy();
+
+    const userInfoAlert = screen.queryByRole('heading', { name: /expected error 5/i });
+    expect(userInfoAlert).toBeTruthy();
 
     const userProfileAlert = screen.queryByRole('heading', { name: /expected error 6/i });
     expect(userProfileAlert).toBeTruthy();

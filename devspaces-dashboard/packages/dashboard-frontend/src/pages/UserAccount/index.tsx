@@ -11,16 +11,16 @@
  */
 
 import {
-  Form,
-  FormGroup,
+  Title,
   PageSection,
-  PageSectionVariants,
-  Stack,
-  StackItem,
   Text,
   TextInput,
+  Form,
+  FormGroup,
+  StackItem,
+  Stack,
+  PageSectionVariants,
   TextVariants,
-  Title,
 } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
@@ -34,10 +34,30 @@ type Props = {
   history: History;
 } & MappedProps;
 
-export class UserAccount extends React.PureComponent<Props> {
+type State = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  login: string;
+};
+
+export class UserAccount extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    const { userProfile } = this.props;
+
+    const email = userProfile.email || '';
+    const login = userProfile.attributes?.preferred_username || '';
+    const firstName = userProfile.attributes?.firstName || '';
+    const lastName = userProfile.attributes?.lastName || '';
+
+    this.state = { login, email, lastName, firstName };
+  }
+
   render(): React.ReactNode {
     const productName = this.props.branding.name;
-    const { userProfile } = this.props;
+    const { firstName, lastName, email, login } = this.state;
 
     return (
       <React.Fragment>
@@ -53,10 +73,16 @@ export class UserAccount extends React.PureComponent<Props> {
             <StackItem isFilled>
               <Form isWidthLimited>
                 <FormGroup label="Login" fieldId="form-group-login">
-                  <TextInput aria-label="readonly login" value={userProfile.username} isDisabled />
+                  <TextInput aria-label="readonly login" value={login} isDisabled />
                 </FormGroup>
                 <FormGroup label="Email" fieldId="form-group-email">
-                  <TextInput aria-label="readonly email" value={userProfile.email} isDisabled />
+                  <TextInput aria-label="readonly email" value={email} isDisabled />
+                </FormGroup>
+                <FormGroup label="First Name" fieldId="form-group-first-name">
+                  <TextInput aria-label="readonly first name" value={firstName} isDisabled />
+                </FormGroup>
+                <FormGroup label="Last Name" fieldId="form-group-last-name">
+                  <TextInput aria-label="readonly last name" value={lastName} isDisabled />
                 </FormGroup>
               </Form>
             </StackItem>

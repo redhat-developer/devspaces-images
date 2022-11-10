@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { IDevWorkspaceTemplate } from '../devworkspaceClient';
+import { IDevWorkspaceTemplate } from '../devworkspace-client';
 import { V1alpha2DevWorkspace } from '@devfile/api';
 
 declare namespace restParams {

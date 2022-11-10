@@ -30,6 +30,7 @@ import { selectApplications } from '../../../store/ClusterInfo/selectors';
 
 type Props = MappedProps & {
   history: History;
+  user: che.User | undefined;
   logout: () => void;
 };
 export class HeaderTools extends React.PureComponent<Props> {
@@ -39,10 +40,9 @@ export class HeaderTools extends React.PureComponent<Props> {
 
   public render(): React.ReactElement {
     const { applications, userProfile } = this.props;
-
-    const { email, username } = userProfile;
-    const imageUrl = email ? gravatarUrl(email, { default: 'retro' }) : '';
-    const isUserAuthenticated = !!email;
+    const userEmail = userProfile.email || '';
+    const imageUrl = userEmail ? gravatarUrl(userEmail, { default: 'retro' }) : '';
+    const isUserAuthenticated = !!userEmail;
 
     return (
       <>
@@ -50,14 +50,19 @@ export class HeaderTools extends React.PureComponent<Props> {
           <PageHeaderToolsGroup>
             {applications.length !== 0 && <ApplicationsMenu applications={applications} />}
             <PageHeaderToolsItem>
-              <AboutMenu branding={this.props.branding} username={username} />
+              <AboutMenu
+                branding={this.props.branding}
+                user={this.props.user}
+                userProfile={this.props.userProfile}
+              />
             </PageHeaderToolsItem>
             {isUserAuthenticated && (
               <PageHeaderToolsItem>
                 <UserMenu
                   branding={this.props.branding}
                   history={this.props.history}
-                  username={username}
+                  user={this.props.user}
+                  userProfile={this.props.userProfile}
                   logout={() => this.props.logout()}
                 />
               </PageHeaderToolsItem>

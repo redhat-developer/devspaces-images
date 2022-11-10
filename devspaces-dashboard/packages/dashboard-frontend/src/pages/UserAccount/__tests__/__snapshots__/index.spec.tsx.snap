@@ -61,7 +61,7 @@ exports[`UserAccount page should correctly render the component which contains p
               readOnly={false}
               required={false}
               type="text"
-              value="john-doe"
+              value="Johnny"
             />
             
           </div>
@@ -99,6 +99,80 @@ exports[`UserAccount page should correctly render the component which contains p
               required={false}
               type="text"
               value="johndoe@test.com"
+            />
+            
+          </div>
+        </div>
+        <div
+          className="pf-c-form__group"
+        >
+          <div
+            className="pf-c-form__group-label"
+          >
+            <label
+              className="pf-c-form__label"
+              htmlFor="form-group-first-name"
+            >
+              <span
+                className="pf-c-form__label-text"
+              >
+                First Name
+              </span>
+            </label>
+             
+          </div>
+          <div
+            className="pf-c-form__group-control"
+          >
+            <input
+              aria-invalid={false}
+              aria-label="readonly first name"
+              className="pf-c-form-control"
+              disabled={true}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              readOnly={false}
+              required={false}
+              type="text"
+              value="John"
+            />
+            
+          </div>
+        </div>
+        <div
+          className="pf-c-form__group"
+        >
+          <div
+            className="pf-c-form__group-label"
+          >
+            <label
+              className="pf-c-form__label"
+              htmlFor="form-group-last-name"
+            >
+              <span
+                className="pf-c-form__label-text"
+              >
+                Last Name
+              </span>
+            </label>
+             
+          </div>
+          <div
+            className="pf-c-form__group-control"
+          >
+            <input
+              aria-invalid={false}
+              aria-label="readonly last name"
+              className="pf-c-form-control"
+              disabled={true}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              readOnly={false}
+              required={false}
+              type="text"
+              value="Doe"
             />
             
           </div>
@@ -170,6 +244,7 @@ exports[`UserAccount page should correctly render the component without profile 
               readOnly={false}
               required={false}
               type="text"
+              value=""
             />
             
           </div>
@@ -206,6 +281,81 @@ exports[`UserAccount page should correctly render the component without profile 
               readOnly={false}
               required={false}
               type="text"
+              value=""
+            />
+            
+          </div>
+        </div>
+        <div
+          className="pf-c-form__group"
+        >
+          <div
+            className="pf-c-form__group-label"
+          >
+            <label
+              className="pf-c-form__label"
+              htmlFor="form-group-first-name"
+            >
+              <span
+                className="pf-c-form__label-text"
+              >
+                First Name
+              </span>
+            </label>
+             
+          </div>
+          <div
+            className="pf-c-form__group-control"
+          >
+            <input
+              aria-invalid={false}
+              aria-label="readonly first name"
+              className="pf-c-form-control"
+              disabled={true}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              readOnly={false}
+              required={false}
+              type="text"
+              value=""
+            />
+            
+          </div>
+        </div>
+        <div
+          className="pf-c-form__group"
+        >
+          <div
+            className="pf-c-form__group-label"
+          >
+            <label
+              className="pf-c-form__label"
+              htmlFor="form-group-last-name"
+            >
+              <span
+                className="pf-c-form__label-text"
+              >
+                Last Name
+              </span>
+            </label>
+             
+          </div>
+          <div
+            className="pf-c-form__group-control"
+          >
+            <input
+              aria-invalid={false}
+              aria-label="readonly last name"
+              className="pf-c-form-control"
+              disabled={true}
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              readOnly={false}
+              required={false}
+              type="text"
+              value=""
             />
             
           </div>

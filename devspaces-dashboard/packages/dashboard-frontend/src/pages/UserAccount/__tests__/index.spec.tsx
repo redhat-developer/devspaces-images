@@ -59,8 +59,13 @@ describe('UserAccount page', () => {
         name: 'Product name',
       } as BrandingData)
       .withUserProfile({
+        attributes: {
+          firstName: 'John',
+          lastName: 'Doe',
+          preferred_username: 'Johnny',
+        },
         email: 'johndoe@test.com',
-        username: 'john-doe',
+        userId: 'john-doe-id',
       })
       .build();
     const component = getComponent(store);

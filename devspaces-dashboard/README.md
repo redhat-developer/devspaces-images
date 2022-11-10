@@ -1,6 +1,5 @@
 [![CI](https://github.com/eclipse/che-dashboard/workflows/CI/badge.svg)](https://github.com/eclipse/che-dashboard/actions/workflows/ci.yaml)
 [![codecov](https://codecov.io/gh/eclipse-che/che-dashboard/branch/main/graph/badge.svg?token=ao9sqdlXeT)](https://codecov.io/gh/eclipse-che/che-dashboard)
-[![Contribute (nightly)](https://img.shields.io/static/v1?label=nightly%20Che&message=for%20maintainers&logo=eclipseche&color=FDB940&labelColor=525C86)](https://che-dogfooding.apps.che-dev.x6e0.p1.openshiftapps.com#https://github.com/eclipse-che/che-dashboard&storageType=persistent)
 
 ## About Eclipse Che
 
@@ -89,72 +88,6 @@ To generate dependencies info:
 yarn license:generate
 ```
 
-## Developing within Eclipse Che
-
-This project contains a [devfile v2](https://github.com/eclipse-che/che-dashboard/blob/main/devfile.yaml) in the root of the project which specifies development dependencies and commands needed to develop the Eclipse Che Dashboard.
-
-Within Eclipse Che, you are able to:
-* download yarn dependencies and build the project
-* work within a rich development environment like VS Code
-* test your changes by starting a dashboard instance on a cluster (ex. your personal cluster)
-* debug the project within the editor
-* push changes to GitHub
-
-###  Starting a workspace within Eclipse Che
-
-Navigate to the following URL to start a new workspace within Eclipse Che:
-```
-{CHE-HOST}/#https://github.com/eclipse-che/che-dashboard
-```
-
-### Running devfile tasks to download yarn dependencies and build the project
-
-For Che-theia and VS Code, tasks defined in the devfile can be ran by following these steps:
-1. Open the command palette (Ctrl/Cmd + Shift + P)
-2. Run the `Tasks: Run Tasks` command
-3. Select the `installdependencies` task to install dependencies
-4. Follow steps 1-2 again and select the `build` task to build the project
-
-### Running the project locally against a remote Eclipse Che installation in a seperate cluster
-
-To run the Dashboard against a remote Eclipse Che installation, provide your cluster credentials to the `tools` development container.
-
-NOTE: You must have permissions to get/patch resources in the namespace in which the CheCluster CR was created.
-
-1. Open the `tools` container within the editor.
-2. For an OpenShift cluster, run the `oc login` command with the cluster credentials. For a Kubernetes cluster, configure the `~/.kube/config` file.
-3. Run the `start` task defined in the devfile by following the steps 1 and 2 from [Running devfile tasks to download yarn dependencies and build the project](#running-devfile-tasks-to-download-yarn-dependencies-and-build-the-project) to start the dashboard instance.
-4. Wait for the Che-Theia / VS Code notification stating that local-server is now listening on port 8080. Click on `Open in New Tab`. This opens a new tab running the latest Dashboard changes.
-
-### Debugging
-
-To start the Dashboard for debugging, run the `build` and `start` tasks by following the steps 1 and 2 from  [Running devfile tasks to download yarn dependencies and build the project](#running-devfile-tasks-to-download-yarn-dependencies-and-build-the-project).
-
-Debugging the dashboard-frontend and dashboard-backend can be done with your browser's developer tools. For Chrome DevTools, this can be done from the `Sources` tab. For debugging the backend, open the dedicated Chrome DevTools for Node.js.
-
-To debug the backend within the editor, after running the `build` and `start` tasks, run the `Attach to Remote` debug launch configuration defined in `.vscode/launch.json`.
-
-### Pushing to GitHub and making a PR
-
-For PRs against the `eclipse-che/che-dashboard` repository, the PR source branch should also be located in `eclipse-che/che-dashboard` to allow all PR checks to run.
-For this reason, if your Che instance has the GitHub oAuth app set up, you must follow [these steps to request access](https://github.com/eclipse/che/issues/21627#issuecomment-1216592765) to push to `eclipse-che/che-dashboard`.
-
-To make a commit and push to remote, open a terminal in the `tools` container and run Git commands such as `git add` and `git push`.
-You may choose to add a remote with `git add remote` and push to a personal fork rather than the upstream `eclipse-che/che-dashboard` repository.
-
-### Building an image
-
-For building an image within a Che workspace on an OpenShift cluster, the cluster and OpenShift user must be configured to allow with rootless builds. In addition, the following attribute must be added to the devfile:
-```
-attributes:
-  controller.devfile.io/scc: container-build 
-```
-
-To build, run:
-```
-podman build . -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-dashboard:next
-```
-
 ## Branding
 
 Default branding data for the User Dashboard is located in [branding.constant.ts](/packages/dashboard-frontend/src/services/bootstrap/branding.constant.ts)#BRANDING_DEFAULT. It can be overridden without re-building the project in [product.json](/packages/dashboard-frontend/assets/branding/product.json) file which should contain only values that should overwrite default ones.
@@ -226,18 +159,6 @@ kubectl rollout restart deployment/che-operator -n $CHE_NAMESPACE
 
 **Note**: This way to configure dashboard is experimental and may be changed.
 
-# Builds
-
-This repo contains several [actions](https://github.com/eclipse-che/che-dashboard/actions), including:
-* [![release latest stable](https://github.com/eclipse-che/che-dashboard/actions/workflows/release.yml/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/release.yml)
-* [![next builds](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/next-build-multiarch.yml)
-* [![PR](https://github.com/eclipse-che/che-dashboard/actions/workflows/pr.yml/badge.svg)](https://github.com/eclipse-che/che-dashboard/actions/workflows/pr.yml)
-
-Downstream builds can be found at the link below, which is _internal to Red Hat_. Stable builds can be found by replacing the 3.x with a specific version like 3.2.  
-
-* [dashboard_3.x](https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/dashboard_3.x/)
-
-
-# License
+## License
 
 Che is open sourced under the Eclipse Public License 2.0.

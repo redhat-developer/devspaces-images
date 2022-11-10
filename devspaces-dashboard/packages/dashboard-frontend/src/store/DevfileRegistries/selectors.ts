@@ -15,11 +15,6 @@ import { AppState } from '..';
 import match from '../../services/helpers/filter';
 import { selectWorkspacesSettingsState } from '../Workspaces/Settings/selectors';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
-import { load } from 'js-yaml';
-import devfileApi from '../../services/devfileApi';
-import { selectDefaultComponents } from '../ServerConfig/selectors';
-
-export const EMPTY_WORKSPACE_TAG = 'Empty';
 
 const selectState = (state: AppState) => state.devfileRegistries;
 
@@ -65,41 +60,6 @@ export const selectMetadataFiltered = createSelector(
       return metadata;
     }
     return metadata.filter(meta => matches(meta, filterValue));
-  },
-);
-
-export const selectEmptyWorkspaceUrl = createSelector(
-  selectState,
-  selectRegistriesMetadata,
-  (state, metadata) => {
-    const v2Metadata = filterDevfileV2Metadata(metadata);
-    const emptyWorkspaceMetadata = v2Metadata.find(meta => meta.tags.includes(EMPTY_WORKSPACE_TAG));
-    return emptyWorkspaceMetadata?.links?.v2;
-  },
-);
-
-export const selectDefaultDevfile = createSelector(
-  selectState,
-  selectDefaultComponents,
-  selectEmptyWorkspaceUrl,
-  (state, defaultComponents, devfileLocation) => {
-    if (!devfileLocation) {
-      return undefined;
-    }
-    const devfileContent = state.devfiles[devfileLocation]?.content;
-    if (devfileContent) {
-      try {
-        const devfile = load(devfileContent) as devfileApi.Devfile;
-        // propagate default components
-        if (!devfile.components || devfile.components.length === 0) {
-          devfile.components = defaultComponents;
-        }
-        return devfile;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return undefined;
   },
 );
 

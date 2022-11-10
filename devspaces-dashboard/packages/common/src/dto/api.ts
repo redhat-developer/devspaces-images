@@ -29,12 +29,6 @@ export interface IWorkspacesDefaultPlugins {
 }
 
 export interface IServerConfig {
-  containerBuild: {
-    containerBuildConfiguration?: {
-      openShiftSecurityContextConstraint?: string;
-    };
-    disableContainerBuildCapabilities?: boolean;
-  };
   defaults: {
     editor: string | undefined;
     components: V220DevfileComponents[];
@@ -49,9 +43,4 @@ export interface IServerConfig {
     runTimeout: number;
   };
   cheNamespace: string;
-}
-
-export interface IUserProfile {
-  email: string;
-  username: string;
 }

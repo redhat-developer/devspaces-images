@@ -47,10 +47,16 @@ describe('Page header tools', () => {
   const name = 'John Doe';
   const store = createStore(productCli, name, email);
   const history = createHashHistory();
+  const user = {
+    id: 'test-id',
+    name: name,
+    email: email,
+    links: [],
+  };
 
   const component = (
     <Provider store={store}>
-      <HeaderTools history={history} logout={mockLogout} />
+      <HeaderTools history={history} user={user} logout={mockLogout} />
     </Provider>
   );
 

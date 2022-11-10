@@ -54,6 +54,11 @@ jest.mock('../../pages/UserPreferences', () => {
     return <span>User Preferences</span>;
   };
 });
+jest.mock('../../pages/UserAccount', () => {
+  return function UserPreferences() {
+    return <span>User Account</span>;
+  };
+});
 
 describe('Routes', () => {
   afterEach(() => {
@@ -189,6 +194,17 @@ describe('Routes', () => {
       render(getComponent(path));
 
       await waitFor(() => expect(screen.queryByText('User Preferences')).toBeTruthy());
+
+      expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('User Account route', () => {
+    it('should handle "/user-account"', async () => {
+      const path = ROUTE.USER_ACCOUNT;
+      render(getComponent(path));
+
+      await waitFor(() => expect(screen.queryByText('User Account')).toBeTruthy());
 
       expect(screen.queryByTestId('fallback-spinner')).not.toBeInTheDocument();
     });

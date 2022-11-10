@@ -11,7 +11,7 @@
  */
 
 import { helpers } from '@eclipse-che/common';
-import { IDevWorkspaceCallbacks } from '../devworkspaceClient';
+import { IDevWorkspaceCallbacks } from '../devworkspace-client';
 import { DwClientProvider } from './kubeclient/dwClientProvider';
 
 class DevWorkspaceWatcher {

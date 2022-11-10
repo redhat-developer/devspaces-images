@@ -27,7 +27,6 @@ import normalizeDevfileV1 from './normalizeDevfileV1';
 import { selectDefaultNamespace } from '../InfrastructureNamespaces/selectors';
 import { getYamlResolver } from '../../services/dashboard-backend-client/yamlResolverApi';
 import { DEFAULT_REGISTRY } from '../DevfileRegistries';
-import { isOAuthResponse } from '../../services/oauth';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 
@@ -38,9 +37,18 @@ export type OAuthResponse = {
     oauth_authentication_url: string;
   };
   errorCode: number;
-  message: string | undefined;
+  message: string;
 };
 
+export function isOAuthResponse(responseData: any): responseData is OAuthResponse {
+  if (
+    responseData?.attributes?.oauth_provider &&
+    responseData?.attributes?.oauth_authentication_url
+  ) {
+    return true;
+  }
+  return false;
+}
 export interface ResolverState extends FactoryResolver {
   optionalFilesContent?: {
     [fileName: string]: string;
@@ -72,7 +80,7 @@ interface ReceiveFactoryResolverAction {
 
 interface ReceiveFactoryResolverErrorAction {
   type: 'RECEIVE_FACTORY_RESOLVER_ERROR';
-  error: string | undefined;
+  error: string;
 }
 
 export type KnownAction =
@@ -212,7 +220,8 @@ export const actionCreators: ActionCreators = {
             throw response.data;
           }
         }
-        const errorMessage = common.helpers.errors.getMessage(e);
+        const errorMessage =
+          'Failed to request factory resolver: ' + common.helpers.errors.getMessage(e);
         dispatch({
           type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
           error: errorMessage,

@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2018-2021 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+
+.sample-card .blank-icon {
+  width: 64px;
+  font-size: 64px;
+  line-height: 64px;
+  text-align: center;
+  filter: grayscale(100%) opacity(50%);
+}
+
+.sample-card .blank-icon .codicon-symbol-method {
+  width: 100%;
+  font-size: 50px;
+}
+
+.sample-card .pf-c-card__actions span.pf-c-label__content::before {
+  border-color: inherit;
+}

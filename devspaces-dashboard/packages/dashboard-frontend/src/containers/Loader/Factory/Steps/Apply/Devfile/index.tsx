@@ -14,7 +14,7 @@ import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { isEqual } from 'lodash';
 import { AlertVariant } from '@patternfly/react-core';
-import common, { helpers } from '@eclipse-che/common';
+import { helpers } from '@eclipse-che/common';
 import { AppState } from '../../../../../../store';
 import * as WorkspacesStore from '../../../../../../store/Workspaces';
 import { DisposableCollection } from '../../../../../../services/helpers/disposable';
@@ -36,16 +36,6 @@ import { FactoryParams } from '../../../types';
 import buildFactoryParams from '../../../buildFactoryParams';
 import { AbstractLoaderStep, LoaderStepProps, LoaderStepState } from '../../../../AbstractStep';
 import { AlertItem } from '../../../../../../services/helpers/types';
-import { selectDefaultDevfile } from '../../../../../../store/DevfileRegistries/selectors';
-import ExpandableWarning from '../../../../../../components/ExpandableWarning';
-import { getProjectFromUrl } from './getProjectFromUrl';
-
-export class CreateWorkspaceError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'CreateWorkspaceError';
-  }
-}
 
 export type Props = MappedProps &
   LoaderStepProps & {
@@ -136,41 +126,12 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     this.props.onRestart();
   }
 
-  private updateCurrentDevfile(devfile: devfileApi.Devfile): void {
-    const { factoryResolver, allWorkspaces, defaultDevfile } = this.props;
-    const { factoryParams } = this.state;
-    const { factoryId, policiesCreate, storageType } = factoryParams;
-    // when using the default devfile instead of a user devfile
-    if (factoryResolver === undefined && isEqual(devfile, defaultDevfile)) {
-      if (devfile.projects === undefined) {
-        devfile.projects = [];
-      }
-      if (devfile.projects.length === 0) {
-        // adds a default project from the source URL
-        const project = getProjectFromUrl(factoryParams.sourceUrl);
-        devfile.projects[0] = project;
-        // change default name
-        devfile.metadata.name = project.name;
-        devfile.metadata.generateName = project.name;
-      }
-    }
-    // test the devfile name to decide if we need to append a suffix to is
-    const nameConflict = allWorkspaces.some(w => devfile.metadata.name === w.name);
-    const appendSuffix = policiesCreate === 'perclick' || nameConflict;
-
-    const updatedDevfile = prepareDevfile(devfile, factoryId, storageType, appendSuffix);
-
-    this.setState({
-      devfile: updatedDevfile,
-      newWorkspaceName: updatedDevfile.metadata.name,
-    });
-  }
-
   protected async runStep(): Promise<boolean> {
     await delay(MIN_STEP_DURATION_MS);
 
-    const { factoryResolverConverted, factoryResolver, defaultDevfile } = this.props;
-    const { shouldCreate, devfile } = this.state;
+    const { factoryResolverConverted } = this.props;
+    const { shouldCreate, factoryParams, devfile } = this.state;
+    const { factoryId, policiesCreate, storageType } = factoryParams;
 
     const workspace = this.findTargetWorkspace(this.props, this.state);
     if (workspace !== undefined) {
@@ -189,28 +150,25 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     }
 
     if (devfile === undefined) {
-      if (factoryResolver === undefined) {
-        const _devfile = defaultDevfile;
-        if (_devfile === undefined) {
-          throw new Error('Failed to resolve the default devfile.');
-        }
-        this.updateCurrentDevfile(_devfile);
-        return false;
-      }
       const _devfile = factoryResolverConverted?.devfileV2;
       if (_devfile === undefined) {
         throw new Error('Failed to resolve the devfile.');
       }
-      this.updateCurrentDevfile(_devfile);
+
+      // test the devfile name to decide if we need to append a suffix to is
+      const nameConflict = this.props.allWorkspaces.some(w => _devfile.metadata.name === w.name);
+      const appendSuffix = policiesCreate === 'perclick' || nameConflict;
+
+      const updatedDevfile = prepareDevfile(_devfile, factoryId, storageType, appendSuffix);
+
+      this.setState({
+        devfile: updatedDevfile,
+        newWorkspaceName: updatedDevfile.metadata.name,
+      });
       return false;
     }
 
-    try {
-      await this.createWorkspaceFromDevfile(devfile);
-    } catch (e) {
-      const errorMessage = common.helpers.errors.getMessage(e);
-      throw new CreateWorkspaceError(errorMessage);
-    }
+    await this.createWorkspaceFromDevfile(devfile);
 
     // wait for the workspace creation to complete
     try {
@@ -248,45 +206,7 @@ class StepApplyDevfile extends AbstractLoaderStep<Props, State> {
     );
   }
 
-  private handleCreateWorkspaceError(): void {
-    const { defaultDevfile } = this.props;
-    const { devfile } = this.state;
-    const _devfile = defaultDevfile;
-    if (_devfile && devfile) {
-      _devfile.projects = devfile.projects;
-      _devfile.metadata.name = devfile.metadata.name;
-      _devfile.metadata.generateName = devfile.metadata.generateName;
-      this.updateCurrentDevfile(_devfile);
-    }
-    this.clearStepError();
-  }
-
   private getAlertItem(error: unknown): AlertItem | undefined {
-    if (error instanceof CreateWorkspaceError) {
-      return {
-        key: 'factory-loader-create-workspace-error',
-        title: 'Warning',
-        variant: AlertVariant.warning,
-        children: (
-          <ExpandableWarning
-            textBefore="The new Workspace couldn't be created from the Devfile in the git repository:"
-            errorMessage={helpers.errors.getMessage(error)}
-            textAfter="If you continue it will be ignored and a regular workspace will be created.
-            You will have a chance to fix the Devfile from the IDE once it is started."
-          />
-        ),
-        actionCallbacks: [
-          {
-            title: 'Continue with the default devfile',
-            callback: () => this.handleCreateWorkspaceError(),
-          },
-          {
-            title: 'Reload',
-            callback: () => this.clearStepError(),
-          },
-        ],
-      };
-    }
     if (!error) {
       return;
     }
@@ -329,7 +249,6 @@ const mapStateToProps = (state: AppState) => ({
   defaultNamespace: selectDefaultNamespace(state),
   factoryResolver: selectFactoryResolver(state),
   factoryResolverConverted: selectFactoryResolverConverted(state),
-  defaultDevfile: selectDefaultDevfile(state),
 });
 
 const connector = connect(

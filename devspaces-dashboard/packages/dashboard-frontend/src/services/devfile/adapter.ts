@@ -11,7 +11,7 @@
  */
 
 import devfileApi, { isDevfileV2 } from '../devfileApi';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../devfileApi/devWorkspace/spec/template';
+import { DEVWORKSPACE_STORAGE_TYPE } from '../devfileApi/devWorkspace/spec';
 import { attributesToType } from '../storageTypes';
 
 export type Devfile = che.WorkspaceDevfile | devfileApi.Devfile;
@@ -34,23 +34,23 @@ export class DevfileAdapter {
           if (!this._devfile.metadata.attributes) {
             this._devfile.metadata.attributes = {};
           }
-          this._devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = type;
+          this._devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE] = type;
         } else {
           // for devfiles version 2.1.0 and above
           if (!this._devfile.attributes) {
             this._devfile.attributes = {};
           }
-          this._devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = type;
+          this._devfile.attributes[DEVWORKSPACE_STORAGE_TYPE] = type;
         }
       } else {
-        if (this._devfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
-          delete this._devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR];
+        if (this._devfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE]) {
+          delete this._devfile.metadata.attributes[DEVWORKSPACE_STORAGE_TYPE];
           if (Object.keys(this._devfile.metadata.attributes).length === 0) {
             delete this._devfile.metadata.attributes;
           }
         }
-        if (this._devfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
-          delete this._devfile.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR];
+        if (this._devfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE]) {
+          delete this._devfile.attributes[DEVWORKSPACE_STORAGE_TYPE];
           if (Object.keys(this._devfile.attributes).length === 0) {
             delete this._devfile.attributes;
           }
@@ -93,11 +93,11 @@ export class DevfileAdapter {
 
   get storageType(): che.WorkspaceStorageType {
     if (isDevfileV2(this._devfile)) {
-      let type = this._devfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR];
+      let type = this._devfile.metadata.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
       if (type) {
         return type;
       }
-      type = this._devfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR];
+      type = this._devfile.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
       if (type) {
         return type;
       }

@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.57.0",
+  "version": "7.54.1",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
@@ -33,10 +33,10 @@
     "test:watch": "yarn test --watch"
   },
   "dependencies": {
-    "@eclipse-che/che-code-devworkspace-handler": "1.74.0-dev-e701cae",
-    "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1667484092",
+    "@eclipse-che/che-code-devworkspace-handler": "1.64.0-dev-210b722",
+    "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1642670698",
     "@eclipse-che/devfile-converter": "0.0.1-d624e3e",
-    "@eclipse-che/workspace-client": "0.0.1-1663851810",
+    "@eclipse-che/workspace-client": "0.0.1-1632305737",
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",
     "@patternfly/react-table": "^4.5.7",
@@ -59,7 +59,7 @@
     "process": "^0.11.10",
     "qs": "^6.9.4",
     "react": "^16.14.0",
-    "react-copy-to-clipboard": "^5.1.0",
+    "react-copy-to-clipboard": "^5.0.2",
     "react-dom": "^16.12.0",
     "react-helmet": "^6.1.0",
     "react-pluralize": "^1.6.3",
@@ -132,7 +132,6 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^26.0.1",
     "loader-utils": "^3.2.0",
-    "mini-css-extract-plugin": "^2.6.1",
     "null-loader": "^4.0.1",
     "prettier": "^2.4.1",
     "react-test-renderer": "^16.14.0",
@@ -151,8 +150,5 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.2.0",
     "webpack-merge": "^4.2.2"
-  },
-  "sideEffects": [
-    "*.css"
-  ]
+  }
 }

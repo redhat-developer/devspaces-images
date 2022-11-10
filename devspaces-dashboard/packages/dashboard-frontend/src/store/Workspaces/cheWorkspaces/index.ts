@@ -420,7 +420,9 @@ export const actionCreators: ActionCreators = {
           workspace,
         });
       } catch (e) {
-        const errorMessage = common.helpers.errors.getMessage(e);
+        const errorMessage =
+          'Failed to create a new workspace from the devfile, reason: ' +
+          common.helpers.errors.getMessage(e);
         dispatch({
           type: 'CHE_RECEIVE_ERROR',
           error: errorMessage,

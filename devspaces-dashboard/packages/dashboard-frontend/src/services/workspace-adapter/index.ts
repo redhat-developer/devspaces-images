@@ -10,17 +10,17 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import devfileApi, { isDevfileV2, isDevWorkspace } from '../devfileApi';
-import { devWorkspaceKind } from '../devfileApi/devWorkspace';
-import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../devfileApi/devWorkspace/metadata';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../devfileApi/devWorkspace/spec/template';
-import { DeprecatedWorkspaceStatus, DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
-import { attributesToType, typeToAttributes } from '../storageTypes';
 import {
   devfileToDevWorkspace,
   devWorkspaceToDevfile,
 } from '../workspace-client/devworkspace/converters';
+import { attributesToType, typeToAttributes } from '../storageTypes';
+import { DeprecatedWorkspaceStatus, DevWorkspaceStatus, WorkspaceStatus } from '../helpers/types';
 import { DEVWORKSPACE_NEXT_START_ANNOTATION } from '../workspace-client/devworkspace/devWorkspaceClient';
+import devfileApi, { isDevfileV2, isDevWorkspace } from '../devfileApi';
+import { devWorkspaceKind } from '../devfileApi/devWorkspace';
+import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_STORAGE_TYPE } from '../devfileApi/devWorkspace/spec';
 
 export type Devfile = che.WorkspaceDevfile | devfileApi.Devfile;
 
@@ -289,8 +289,11 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     if (isCheWorkspace(this.workspace)) {
       return attributesToType(this.workspace.devfile.attributes);
     } else {
-      return (this.workspace.spec.template?.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR] ||
-        '') as che.WorkspaceStorageType;
+      const type = this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE];
+      if (type) {
+        return type;
+      }
+      return 'per-workspace';
     }
   }
 
@@ -314,10 +317,10 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         if (!this.workspace.spec.template.attributes) {
           this.workspace.spec.template.attributes = {};
         }
-        this.workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR] = type;
+        this.workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE] = type;
       } else {
-        if (this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]) {
-          delete this.workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE_ATTR];
+        if (this.workspace.spec.template.attributes?.[DEVWORKSPACE_STORAGE_TYPE]) {
+          delete this.workspace.spec.template.attributes[DEVWORKSPACE_STORAGE_TYPE];
           if (Object.keys(this.workspace.spec.template.attributes).length === 0) {
             delete this.workspace.spec.template.attributes;
           }

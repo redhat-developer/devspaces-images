@@ -10,13 +10,12 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import { api } from '@eclipse-che/common';
 import mockAxios from 'axios';
 import { MockStoreEnhanced } from 'redux-mock-store';
 import { ThunkDispatch } from 'redux-thunk';
-import { AppState } from '../..';
-import * as dwServerConfigStore from '../../ServerConfig';
 import { FakeStoreBuilder } from '../../__mocks__/storeBuilder';
+import * as dwServerConfigStore from '../../ServerConfig';
+import { AppState } from '../..';
 
 // mute the outputs
 console.error = jest.fn();
@@ -27,44 +26,36 @@ describe('dwPlugins store', () => {
   });
 
   describe('actions', () => {
-    const serverConfig: api.IServerConfig = {
-      containerBuild: {
-        disableContainerBuildCapabilities: false,
-        containerBuildConfiguration: {
-          openShiftSecurityContextConstraint: 'container-build',
-        },
-      },
-      defaults: {
-        editor: 'eclipse/theia/next',
-        components: [
-          {
-            name: 'universal-developer-image',
-            container: {
-              image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
-            },
-          },
-        ],
-        plugins: [
-          {
-            editor: 'eclipse/theia/next',
-            plugins: ['https://test.com/devfile.yaml'],
-          },
-        ],
-        pvcStrategy: 'per-workspace',
-      },
-      pluginRegistry: {
-        openVSXURL: '',
-      },
-      timeouts: {
-        inactivityTimeout: -1,
-        runTimeout: -1,
-      },
-      cheNamespace: 'eclipse-che',
-    };
-
     it('should create RECEIVE_DW_SERVER_CONFIG when fetching server config', async () => {
       (mockAxios.get as jest.Mock).mockResolvedValueOnce({
-        data: serverConfig,
+        data: {
+          defaults: {
+            editor: 'eclipse/theia/next',
+            components: [
+              {
+                name: 'universal-developer-image',
+                container: {
+                  image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+                },
+              },
+            ],
+            plugins: [
+              {
+                editor: 'eclipse/theia/next',
+                plugins: ['https://test.com/devfile.yaml'],
+              },
+            ],
+            pvcStrategy: 'per-workspace',
+          },
+          pluginRegistry: {
+            openVSXURL: '',
+          },
+          timeouts: {
+            inactivityTimeout: -1,
+            runTimeout: -1,
+          },
+          cheNamespace: 'eclipse-che',
+        },
       });
 
       const store = new FakeStoreBuilder().build() as MockStoreEnhanced<
@@ -82,7 +73,34 @@ describe('dwPlugins store', () => {
         },
         {
           type: 'RECEIVE_DW_SERVER_CONFIG',
-          config: serverConfig,
+          config: {
+            defaults: {
+              editor: 'eclipse/theia/next',
+              components: [
+                {
+                  name: 'universal-developer-image',
+                  container: {
+                    image: 'quay.io/devfile/universal-developer-image:ubi8-latest',
+                  },
+                },
+              ],
+              plugins: [
+                {
+                  editor: 'eclipse/theia/next',
+                  plugins: ['https://test.com/devfile.yaml'],
+                },
+              ],
+              pvcStrategy: 'per-workspace',
+            },
+            pluginRegistry: {
+              openVSXURL: '',
+            },
+            timeouts: {
+              inactivityTimeout: -1,
+              runTimeout: -1,
+            },
+            cheNamespace: 'eclipse-che',
+          },
         },
       ];
       expect(actions).toEqual(expectedActions);
@@ -111,7 +129,7 @@ describe('dwPlugins store', () => {
       },
       {
         type: 'RECEIVE_DW_SERVER_CONFIG_ERROR',
-        error: 'Test error',
+        error: 'Failed to fetch default plugins. Test error',
       },
     ];
     expect(actions).toEqual(expectedActions);

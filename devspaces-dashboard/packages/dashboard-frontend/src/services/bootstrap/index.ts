@@ -24,6 +24,7 @@ import * as InfrastructureNamespacesStore from '../../store/InfrastructureNamesp
 import * as PluginsStore from '../../store/Plugins/chePlugins';
 import * as DwPluginsStore from '../../store/Plugins/devWorkspacePlugins';
 import * as UserProfileStore from '../../store/UserProfile';
+import * as UserStore from '../../store/User';
 import * as WorkspacesStore from '../../store/Workspaces';
 import * as DevWorkspacesStore from '../../store/Workspaces/devWorkspaces';
 import * as WorkspacesSettingsStore from '../../store/Workspaces/Settings';
@@ -41,7 +42,6 @@ import { buildDetailsLocation, buildIdeLoaderLocation } from '../helpers/locatio
 import { Workspace } from '../workspace-adapter';
 import { WorkspaceRunningError, WorkspaceStoppedDetector } from './workspaceStoppedDetector';
 import { selectOpenVSXUrl } from '../../store/ServerConfig/selectors';
-import { selectEmptyWorkspaceUrl } from '../../store/DevfileRegistries/selectors';
 
 /**
  * This class executes a few initial instructions
@@ -83,11 +83,12 @@ export default class Bootstrap {
     ]);
 
     const results = await Promise.allSettled([
+      this.fetchCurrentUser(),
       this.fetchUserProfile(),
       this.fetchPlugins().then(() => this.fetchDevfileSchema()),
       this.fetchDwPlugins(),
       this.fetchDefaultDwPlugins(),
-      this.fetchRegistriesMetadata().then(() => this.fetchEmptyWorkspace()),
+      this.fetchRegistriesMetadata(),
       this.watchNamespaces(),
       this.updateDevWorkspaceTemplates(),
       this.fetchWorkspaces().then(() => this.checkWorkspaceStopped()),
@@ -162,6 +163,11 @@ export default class Bootstrap {
     };
 
     return await this.devWorkspaceClient.subscribeToNamespace({ namespace, callbacks });
+  }
+
+  private async fetchCurrentUser(): Promise<void> {
+    const { requestUser } = UserStore.actionCreators;
+    await requestUser()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchWorkspaces(): Promise<void> {
@@ -281,30 +287,14 @@ export default class Bootstrap {
     );
   }
 
-  private async fetchEmptyWorkspace(): Promise<void> {
-    const { requestDevfile } = DevfileRegistriesStore.actionCreators;
-    const state = this.store.getState();
-    const emptyWorkspaceUrl = selectEmptyWorkspaceUrl(state);
-    if (emptyWorkspaceUrl) {
-      await requestDevfile(emptyWorkspaceUrl)(this.store.dispatch, this.store.getState, undefined);
-    }
-  }
-
   private async fetchDevfileSchema(): Promise<void> {
     const { requestJsonSchema } = DevfileRegistriesStore.actionCreators;
     return requestJsonSchema()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private async fetchUserProfile(): Promise<void> {
-    const defaultKubernetesNamespace = selectDefaultNamespace(this.store.getState());
-    const defaultNamespace = defaultKubernetesNamespace.name;
-
     const { requestUserProfile } = UserProfileStore.actionCreators;
-    return requestUserProfile(defaultNamespace)(
-      this.store.dispatch,
-      this.store.getState,
-      undefined,
-    );
+    return requestUserProfile()(this.store.dispatch, this.store.getState, undefined);
   }
 
   private checkWorkspaceStopped() {

@@ -11,7 +11,7 @@
  */
 
 import { V1alpha2DevWorkspace } from '@devfile/api';
-import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../../../../services/devfileApi/devWorkspace/spec/template';
+import { DEVWORKSPACE_STORAGE_TYPE } from '../../../../../../../services/devfileApi/devWorkspace/spec';
 import { generateSuffix } from '../../../../../../../services/helpers/generateName';
 import { DEVWORKSPACE_DEVFILE_SOURCE } from '../../../../../../../services/workspace-client/devworkspace/devWorkspaceClient';
 import { DevWorkspaceResources } from '../../../../../../../store/DevfileRegistries';
@@ -74,7 +74,7 @@ describe('FactoryLoaderContainer/prepareResources', () => {
 
   test('custom DEVWORKSPACE_STORAGE_TYPE value', () => {
     const result = prepareResources(resources, factoryId, 'ephemeral', false);
-    expect((result[0].spec.template.attributes as any)?.[DEVWORKSPACE_STORAGE_TYPE_ATTR]).toEqual(
+    expect((result[0].spec.template.attributes as any)?.[DEVWORKSPACE_STORAGE_TYPE]).toEqual(
       'ephemeral',
     );
   });

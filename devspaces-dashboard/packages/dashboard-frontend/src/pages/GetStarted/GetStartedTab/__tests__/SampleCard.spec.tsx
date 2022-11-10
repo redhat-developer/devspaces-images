@@ -52,7 +52,7 @@ describe('Devfile Metadata Card', () => {
 
   it('should have an icon', () => {
     renderCard();
-    const cardIcon = screen.queryByTestId('sample-card-icon');
+    const cardIcon = screen.queryByAltText(metadata.displayName);
     expect(cardIcon).toBeTruthy();
   });
 
@@ -63,7 +63,7 @@ describe('Devfile Metadata Card', () => {
     const cardIcon = screen.queryByAltText(metadata.displayName);
     expect(cardIcon).toBeFalsy();
 
-    const blankIcon = container.querySelector('.sampleCardIcon');
+    const blankIcon = container.querySelector('.codicon-symbol-method');
     expect(blankIcon).toBeTruthy();
   });
 
