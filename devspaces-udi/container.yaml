@@ -36,7 +36,7 @@ remote_sources:
 - name: python-deps
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: d86674ad2d459458f1db6727b5dbf5c05a4b0ee2
+    ref: a1ba7da8f6a2e1c01a78945cbea847e95fad9462
     pkg_managers:
       - pip
     packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
