@@ -69,7 +69,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.4
-    createdAt: "2022-11-09T21:26:50+00:00"
+    createdAt: "2022-11-10T02:33:36+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -869,16 +869,6 @@ spec:
                 - subjectaccessreviews
               verbs:
                 - create
-            - apiGroups:
-                - security.openshift.io
-              resources:
-                - securitycontextconstraints
-              verbs:
-                - get
-                - create
-                - delete
-                - update
-                - use
           serviceAccountName: devspaces-operator
       deployments:
         - name: devspaces-operator
@@ -1315,27 +1305,6 @@ spec:
       webhookPath: /validate-org-eclipse-che-v2-checluster
     - admissionReviewVersions:
         - v1
-        - v1beta1
-      containerPort: 443
-      deploymentName: devspaces-operator
-      failurePolicy: Fail
-      generateName: mchecluster.kb.io
-      rules:
-        - apiGroups:
-            - org.eclipse.che
-          apiVersions:
-            - v2
-          operations:
-            - CREATE
-            - UPDATE
-          resources:
-            - checlusters
-      sideEffects: None
-      targetPort: 9443
-      type: MutatingAdmissionWebhook
-      webhookPath: /mutate-org-eclipse-che-v2-checluster
-    - admissionReviewVersions:
-        - v1
         - v2
       containerPort: 443
       conversionCRDs:
@@ -1346,4 +1315,4 @@ spec:
       targetPort: 9443
       type: ConversionWebhook
       webhookPath: /convert
-  replaces: devspacesoperator.v3.2.0-0.1667820512.p
+  replaces: devspacesoperator.v3.2.0
