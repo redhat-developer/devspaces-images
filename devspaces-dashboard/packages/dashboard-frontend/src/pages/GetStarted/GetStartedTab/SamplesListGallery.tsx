@@ -64,7 +64,7 @@ type State = {
 
 export const VISIBLE_TAGS = ['Community', 'Tech-Preview'];
 
-const EXCLUDED_TARGET_EDITOR_NAMES = ['che-idea','IntelliJ IDEA Community'];
+const EXCLUDED_TARGET_EDITOR_NAMES = ['che-idea'];
 
 export class SamplesListGallery extends React.PureComponent<Props, State> {
   private static sortByName(a: TargetEditor, b: TargetEditor): number {
