@@ -213,6 +213,7 @@ public class GitlabUrl implements RemoteFactoryUrl {
     if (branch != null) {
       resultUrl = resultUrl + "?ref=" + branch;
     }
+
     return resultUrl;
   }
 

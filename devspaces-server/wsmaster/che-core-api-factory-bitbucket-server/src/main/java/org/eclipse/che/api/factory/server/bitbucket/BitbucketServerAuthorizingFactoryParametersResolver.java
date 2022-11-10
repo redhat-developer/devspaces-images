@@ -23,6 +23,7 @@ import org.eclipse.che.api.core.ApiException;
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.factory.server.DefaultFactoryParameterResolver;
 import org.eclipse.che.api.factory.server.scm.PersonalAccessTokenManager;
+import org.eclipse.che.api.factory.server.urlfactory.RemoteFactoryUrl;
 import org.eclipse.che.api.factory.server.urlfactory.URLFactoryBuilder;
 import org.eclipse.che.api.factory.shared.dto.FactoryDevfileV2Dto;
 import org.eclipse.che.api.factory.shared.dto.FactoryDto;
@@ -120,7 +121,11 @@ public class BitbucketServerAuthorizingFactoryParametersResolver
               .withScmProviderName(bitbucketServerUrl.getProviderName())
               .withRepositoryUrl(bitbucketServerUrl.repositoryLocation());
       if (bitbucketServerUrl.getBranch() != null) {
-        scmInfo.withBranch(bitbucketServerUrl.getBranch());
+        String branch = bitbucketServerUrl.getBranch();
+        scmInfo.withBranch(
+            branch.startsWith("refs%2Fheads%2F")
+                ? branch.substring(branch.lastIndexOf("%2F") + 3)
+                : branch);
       }
       return factoryDto.withScmInfo(scmInfo);
     }
@@ -152,5 +157,10 @@ public class BitbucketServerAuthorizingFactoryParametersResolver
 
       return factory;
     }
+  }
+
+  @Override
+  public RemoteFactoryUrl parseFactoryUrl(String factoryUrl) throws ApiException {
+    return bitbucketURLParser.parse(factoryUrl);
   }
 }

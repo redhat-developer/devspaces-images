@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2021 Red Hat, Inc.
+ * Copyright (c) 2012-2022 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -67,8 +67,6 @@ import org.testng.annotations.Test;
 @Listeners(MockitoTestNGListener.class)
 public class DockerimageComponentToWorkspaceApplierTest {
 
-  private static final String PROJECTS_MOUNT_PATH = "/projects";
-
   private WorkspaceConfigImpl workspaceConfig;
 
   private DockerimageComponentToWorkspaceApplier dockerimageComponentApplier;
@@ -81,8 +79,7 @@ public class DockerimageComponentToWorkspaceApplierTest {
   @BeforeMethod
   public void setUp() throws Exception {
     dockerimageComponentApplier =
-        new DockerimageComponentToWorkspaceApplier(
-            PROJECTS_MOUNT_PATH, "Always", MULTI_HOST_STRATEGY, k8sEnvProvisioner);
+        new DockerimageComponentToWorkspaceApplier(MULTI_HOST_STRATEGY, k8sEnvProvisioner);
     workspaceConfig = new WorkspaceConfigImpl();
   }
 
@@ -125,7 +122,6 @@ public class DockerimageComponentToWorkspaceApplierTest {
     Container container = podTemplate.getSpec().getContainers().get(0);
     assertEquals(container.getName(), "jdk");
     assertEquals(container.getImage(), "eclipse/ubuntu_jdk8:latest");
-    assertEquals(container.getImagePullPolicy(), "Always");
 
     assertEquals(Names.machineName(podMeta, container), "jdk");
   }
@@ -137,8 +133,7 @@ public class DockerimageComponentToWorkspaceApplierTest {
     dockerimageComponent.setImage("eclipse/ubuntu_jdk8:latest");
     dockerimageComponent.setMemoryLimit("1G");
     dockerimageComponentApplier =
-        new DockerimageComponentToWorkspaceApplier(
-            PROJECTS_MOUNT_PATH, "Never", MULTI_HOST_STRATEGY, k8sEnvProvisioner);
+        new DockerimageComponentToWorkspaceApplier(MULTI_HOST_STRATEGY, k8sEnvProvisioner);
 
     // when
     dockerimageComponentApplier.apply(workspaceConfig, dockerimageComponent, null);
@@ -167,7 +162,6 @@ public class DockerimageComponentToWorkspaceApplierTest {
 
     Container container = podTemplate.getSpec().getContainers().get(0);
     assertEquals(container.getName(), "eclipse-ubuntu_jdk8-latest");
-    assertEquals(container.getImagePullPolicy(), "Never");
   }
 
   @Test
@@ -484,10 +478,6 @@ public class DockerimageComponentToWorkspaceApplierTest {
             machinesCaptor.capture());
     MachineConfigImpl machineConfig = machinesCaptor.getValue().get("jdk");
     assertNotNull(machineConfig);
-    org.eclipse.che.api.workspace.server.model.impl.VolumeImpl projectsVolume =
-        machineConfig.getVolumes().get(PROJECTS_VOLUME_NAME);
-    assertNotNull(projectsVolume);
-    assertEquals(projectsVolume.getPath(), PROJECTS_MOUNT_PATH);
   }
 
   @Test
@@ -577,11 +567,9 @@ public class DockerimageComponentToWorkspaceApplierTest {
   public void serverMustHaveRequireSubdomainWhenNonSinglehostDevfileExpose()
       throws DevfileException {
     dockerimageComponentApplier =
-        new DockerimageComponentToWorkspaceApplier(
-            PROJECTS_MOUNT_PATH, "Always", MULTI_HOST_STRATEGY, k8sEnvProvisioner);
+        new DockerimageComponentToWorkspaceApplier(MULTI_HOST_STRATEGY, k8sEnvProvisioner);
 
     // given
-    EndpointImpl endpoint = new EndpointImpl("jdk-ls", 4923, emptyMap());
     ComponentImpl dockerimageComponent = new ComponentImpl();
     dockerimageComponent.setAlias("jdk");
     dockerimageComponent.setType(DOCKERIMAGE_COMPONENT_TYPE);
@@ -613,11 +601,9 @@ public class DockerimageComponentToWorkspaceApplierTest {
   @Test
   public void serverCantHaveRequireSubdomainWhenSinglehostDevfileExpose() throws DevfileException {
     dockerimageComponentApplier =
-        new DockerimageComponentToWorkspaceApplier(
-            PROJECTS_MOUNT_PATH, "Always", SINGLE_HOST_STRATEGY, k8sEnvProvisioner);
+        new DockerimageComponentToWorkspaceApplier(SINGLE_HOST_STRATEGY, k8sEnvProvisioner);
 
     // given
-    EndpointImpl endpoint = new EndpointImpl("jdk-ls", 4923, emptyMap());
     ComponentImpl dockerimageComponent = new ComponentImpl();
     dockerimageComponent.setAlias("jdk");
     dockerimageComponent.setType(DOCKERIMAGE_COMPONENT_TYPE);
