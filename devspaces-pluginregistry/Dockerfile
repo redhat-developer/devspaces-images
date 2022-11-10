@@ -127,7 +127,7 @@ RUN \
     echo "======================"
 RUN chmod 777 /var/run/postgresql
 
-ARG DS_BRANCH=devspaces-3-rhel-8
+ARG DS_BRANCH=devspaces-3.3-rhel-8
 ENV DS_BRANCH=${DS_BRANCH}
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
