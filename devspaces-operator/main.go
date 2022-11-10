@@ -17,8 +17,6 @@ import (
 	"os"
 	"time"
 
-	securityv1 "github.com/openshift/api/security/v1"
-
 	"github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	devworkspaceinfra "github.com/devfile/devworkspace-operator/pkg/infrastructure"
 	"github.com/eclipse-che/che-operator/pkg/common/constants"
@@ -89,6 +87,7 @@ import (
 var (
 	scheme               = runtime.NewScheme()
 	setupLog             = ctrl.Log.WithName("setup")
+	defaultsPath         string
 	metricsAddr          string
 	enableLeaderElection bool
 	probeAddr            string
@@ -102,6 +101,7 @@ const (
 )
 
 func init() {
+	flag.StringVar(&defaultsPath, "defaults-path", "", "Path to file with operator deployment defaults. This option is useful for local development.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":60000", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":6789", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -123,7 +123,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	defaults.Initialize()
+	defaults.Initialize(defaultsPath)
 
 	printVersion(logger)
 
@@ -149,7 +149,6 @@ func init() {
 		utilruntime.Must(corev1.AddToScheme(scheme))
 		utilruntime.Must(consolev1.AddToScheme(scheme))
 		utilruntime.Must(projectv1.AddToScheme(scheme))
-		utilruntime.Must(securityv1.Install(scheme))
 	}
 }
 

@@ -22,12 +22,8 @@ func GetLabels(component string) map[string]string {
 		constants.KubernetesInstanceLabelKey:  defaults.GetCheFlavor(),
 		constants.KubernetesPartOfLabelKey:    constants.CheEclipseOrg,
 		constants.KubernetesComponentLabelKey: component,
-		constants.KubernetesManagedByLabelKey: GetManagedByLabel(),
+		constants.KubernetesManagedByLabelKey: defaults.GetCheFlavor() + "-operator",
 	}
-}
-
-func GetManagedByLabel() string {
-	return defaults.GetCheFlavor() + "-operator"
 }
 
 func GetLabelsAndSelector(component string) (map[string]string, map[string]string) {

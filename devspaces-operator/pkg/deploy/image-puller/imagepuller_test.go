@@ -14,10 +14,9 @@ package imagepuller
 import (
 	"context"
 	"os"
+	"sort"
 	"strings"
 	"unicode/utf8"
-
-	"github.com/stretchr/testify/assert"
 
 	"reflect"
 	"time"
@@ -27,6 +26,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 
 	"github.com/eclipse-che/che-operator/pkg/common/constants"
+	defaults "github.com/eclipse-che/che-operator/pkg/common/operator-defaults"
 	"github.com/eclipse-che/che-operator/pkg/common/test"
 	"github.com/eclipse-che/che-operator/pkg/common/utils"
 
@@ -68,15 +68,6 @@ func TestImagePullerConfiguration(t *testing.T) {
 		shouldDelete          bool
 	}
 
-	// unset RELATED_IMAGE environment variables, set them back after tests complete
-	matches := utils.GetEnvsByRegExp("^RELATED_IMAGE_.*")
-	for _, match := range matches {
-		if originalValue, exists := os.LookupEnv(match.Name); exists {
-			os.Unsetenv(match.Name)
-			defer os.Setenv(match.Name, originalValue)
-		}
-	}
-
 	testCases := []testCase{
 		{
 			name:   "image puller enabled, no operatorgroup, should create an operatorgroup",
@@ -98,7 +89,7 @@ func TestImagePullerConfiguration(t *testing.T) {
 		{
 			name:       "image puller enabled, subscription created, should add finalizer",
 			initCR:     InitCheCRWithImagePullerEnabled(),
-			expectedCR: ExpectedCheCRWithImagePullerEnabled(),
+			expectedCR: ExpectedCheCRWithImagePullerFinalizer(),
 			initObjects: []runtime.Object{
 				getPackageManifest(),
 				getOperatorGroup(),
@@ -106,9 +97,29 @@ func TestImagePullerConfiguration(t *testing.T) {
 			},
 		},
 		{
-			name:       "image puller enabled with finalizer but default values are empty, subscription exists, should update the CR",
-			initCR:     InitCheCRWithImagePullerFinalizer(),
-			expectedCR: ExpectedCheCRWithImagePullerEnabled(),
+			name:   "image puller enabled with finalizer but default values are empty, subscription exists, should update the CR",
+			initCR: InitCheCRWithImagePullerFinalizer(),
+			expectedCR: &chev2.CheCluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:            "eclipse-che",
+					Namespace:       namespace,
+					ResourceVersion: "1",
+					Finalizers: []string{
+						"kubernetesimagepullers.finalizers.che.eclipse.org",
+					},
+				},
+				Spec: chev2.CheClusterSpec{
+					Components: chev2.CheClusterComponents{
+						ImagePuller: chev2.ImagePuller{
+							Enable: true,
+							Spec: chev1alpha1.KubernetesImagePullerSpec{
+								DeploymentName: "kubernetes-image-puller",
+								ConfigMapName:  "k8s-image-puller",
+							},
+						},
+					},
+				},
+			},
 			initObjects: []runtime.Object{
 				getPackageManifest(),
 				getOperatorGroup(),
@@ -127,13 +138,13 @@ func TestImagePullerConfiguration(t *testing.T) {
 		},
 		{
 			name:   "image puller enabled, user images set, subscription exists, should create a KubernetesImagePuller with user images",
-			initCR: InitCheCRWithImagePullerEnabledAndImagesSet("image=image_url;"),
+			initCR: InitCheCRWithImagePullerEnabledAndImagesSet("image=image_url"),
 			initObjects: []runtime.Object{
 				getPackageManifest(),
 				getOperatorGroup(),
 				getSubscription(),
 			},
-			expectedImagePuller: InitImagePuller(ImagePullerOptions{SpecImages: "image=image_url;", ObjectMetaResourceVersion: "1"}),
+			expectedImagePuller: InitImagePuller(ImagePullerOptions{SpecImages: "image=image_url", ObjectMetaResourceVersion: "1"}),
 		},
 		{
 			name:   "image puller enabled, latest default images set, subscription exists, should not update KubernetesImagePuller default images",
@@ -169,11 +180,13 @@ func TestImagePullerConfiguration(t *testing.T) {
 			expectedImagePuller: &chev1alpha1.KubernetesImagePuller{
 				TypeMeta: metav1.TypeMeta{Kind: "KubernetesImagePuller", APIVersion: "che.eclipse.org/v1alpha1"},
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "eclipse-che-image-puller",
-					Namespace: namespace,
+					ResourceVersion: "2",
+					Name:            "eclipse-che-image-puller",
+					Namespace:       namespace,
 					Labels: map[string]string{
-						constants.KubernetesPartOfLabelKey:    constants.CheEclipseOrg,
-						constants.KubernetesComponentLabelKey: componentName,
+						"app":                       defaults.GetCheFlavor(),
+						"component":                 "kubernetes-image-puller",
+						"app.kubernetes.io/part-of": constants.CheEclipseOrg,
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						{
@@ -186,9 +199,8 @@ func TestImagePullerConfiguration(t *testing.T) {
 					},
 				},
 				Spec: chev1alpha1.KubernetesImagePullerSpec{
-					ConfigMapName:    "k8s-image-puller-trigger-update",
-					DeploymentName:   "kubernetes-image-puller-trigger-update",
-					ImagePullerImage: "quay.io/eclipse/kubernetes-image-puller:next",
+					ConfigMapName:  "k8s-image-puller-trigger-update",
+					DeploymentName: "kubernetes-image-puller-trigger-update",
 				},
 			},
 		},
@@ -267,13 +279,12 @@ func TestImagePullerConfiguration(t *testing.T) {
 			}
 
 			var err error
-			ip := NewImagePuller()
 			if testCase.shouldDelete {
-				if done, _ := ip.uninstallImagePullerOperator(deployContext); !done {
+				if done := DeleteImagePullerOperatorAndFinalizer(deployContext); !done {
 					t.Fatal("Error reconciling: failed to delete Image Puller")
 				}
 			} else {
-				_, _, err = ip.Reconcile(deployContext)
+				_, _, err = ReconcileImagePuller(deployContext)
 				if err != nil {
 					t.Fatalf("Error reconciling: %v", err)
 				}
@@ -285,7 +296,9 @@ func TestImagePullerConfiguration(t *testing.T) {
 				if err != nil {
 					t.Errorf("Error getting OperatorGroup: %v", err)
 				}
-				assert.Empty(t, gotOperatorGroup.Spec.TargetNamespaces)
+				if !reflect.DeepEqual(testCase.expectedOperatorGroup.Spec.TargetNamespaces, gotOperatorGroup.Spec.TargetNamespaces) {
+					t.Errorf("Error expected target namespace %v but got %v", testCase.expectedOperatorGroup.Spec.TargetNamespaces, gotOperatorGroup.Spec.TargetNamespaces)
+				}
 			}
 			if testCase.expectedSubscription != nil {
 				gotSubscription := &operatorsv1alpha1.Subscription{}
@@ -304,10 +317,8 @@ func TestImagePullerConfiguration(t *testing.T) {
 				if err != nil {
 					t.Errorf("Error getting CheCluster: %v", err)
 				}
-
-				diff := cmp.Diff(testCase.expectedCR, gotCR, cmp.Options{cmpopts.IgnoreFields(chev2.CheCluster{}, "TypeMeta", "ObjectMeta")})
-				if diff != "" {
-					t.Errorf("Expected CR and CR returned from API server are different (-want +got): %s", diff)
+				if !reflect.DeepEqual(testCase.expectedCR, gotCR) {
+					t.Errorf("Expected CR and CR returned from API server are different (-want +got): %v", cmp.Diff(testCase.expectedCR, gotCR))
 				}
 			}
 			if testCase.expectedImagePuller != nil {
@@ -317,7 +328,7 @@ func TestImagePullerConfiguration(t *testing.T) {
 					t.Errorf("Error getting KubernetesImagePuller: %v", err)
 				}
 
-				diff := cmp.Diff(testCase.expectedImagePuller, gotImagePuller, cmpopts.IgnoreFields(chev1alpha1.KubernetesImagePuller{}, "ObjectMeta"))
+				diff := cmp.Diff(testCase.expectedImagePuller, gotImagePuller, cmpopts.IgnoreFields(chev1alpha1.KubernetesImagePullerSpec{}, "Images"))
 				if diff != "" {
 					t.Errorf("Expected KubernetesImagePuller and KubernetesImagePuller returned from API server differ (-want, +got): %v", diff)
 				}
@@ -370,66 +381,15 @@ func TestImagePullerConfiguration(t *testing.T) {
 	}
 }
 
-func TestSyncImages(t *testing.T) {
-	type testcase struct {
-		name                   string
-		env                    map[string]string
-		expectedImagesAsString string
-	}
-
-	// unset RELATED_IMAGE environment variables, set them back after tests complete
-	matches := utils.GetEnvsByRegExp("^RELATED_IMAGE_.*")
-	for _, match := range matches {
-		if originalValue, exists := os.LookupEnv(match.Name); exists {
-			os.Unsetenv(match.Name)
-			defer os.Setenv(match.Name, originalValue)
-		}
-	}
-
-	testCases := []testcase{
-		{
-			name: "detect devfile registry images",
-			env: map[string]string{
-				"RELATED_IMAGE_universal_developer_image_devfile_registry_image_1": "quay.io/devfile/universal-developer-image@sha256:test1",
-				"RELATED_IMAGE_universal_developer_image_devfile_registry_image_2": "quay.io/devfile/universal-developer-image@sha256:test2",
-			},
-			expectedImagesAsString: "universal-developer-image-devfile-registry-image-1=quay.io/devfile/universal-developer-image@sha256:test1;universal-developer-image-devfile-registry-image-2=quay.io/devfile/universal-developer-image@sha256:test2;",
-		},
-	}
-
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			ctx := test.GetDeployContext(nil, []runtime.Object{})
-
-			for k, v := range testCase.env {
-				os.Setenv(k, v)
-				defer os.Unsetenv(k)
-			}
-
-			ip := NewImagePuller()
-			done, err := ip.syncDefaultImages(ctx)
-			assert.Nil(t, err)
-			assert.True(t, done)
-			assert.Equal(t, testCase.expectedImagesAsString, ctx.CheCluster.Spec.Components.ImagePuller.Spec.Images)
-
-			// sync twice to ensure images are the same
-			done, err = ip.syncDefaultImages(ctx)
-			assert.Nil(t, err)
-			assert.True(t, done)
-			assert.Equal(t, testCase.expectedImagesAsString, ctx.CheCluster.Spec.Components.ImagePuller.Spec.Images)
-		})
-	}
-}
-
 func TestEnvVars(t *testing.T) {
 	type testcase struct {
-		name                   string
-		env                    map[string]string
-		expected               Images2Pull
-		expectedImagesAsString string
+		name     string
+		env      map[string]string
+		expected []ImageAndName
 	}
 
-	// unset RELATED_IMAGE environment variables, set them back after tests complete
+	// unset RELATED_IMAGE environment variables, set them back
+	// after tests complete
 	matches := utils.GetEnvsByRegExp("^RELATED_IMAGE_.*")
 	for _, match := range matches {
 		if originalValue, exists := os.LookupEnv(match.Name); exists {
@@ -445,9 +405,9 @@ func TestEnvVars(t *testing.T) {
 				"RELATED_IMAGE_che_theia_plugin_registry_image_IBZWQYJ":                         "quay.io/eclipse/che-theia",
 				"RELATED_IMAGE_che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJ": "quay.io/eclipse/che-theia-endpoint-runtime-binary",
 			},
-			expected: map[string]string{
-				"che_theia_plugin_registry_image_IBZWQYJ":                         "quay.io/eclipse/che-theia",
-				"che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJ": "quay.io/eclipse/che-theia-endpoint-runtime-binary",
+			expected: []ImageAndName{
+				{Name: "che_theia_plugin_registry_image_IBZWQYJ", Image: "quay.io/eclipse/che-theia"},
+				{Name: "che_theia_endpoint_runtime_binary_plugin_registry_image_IBZWQYJ", Image: "quay.io/eclipse/che-theia-endpoint-runtime-binary"},
 			},
 		},
 		{
@@ -456,9 +416,9 @@ func TestEnvVars(t *testing.T) {
 				"RELATED_IMAGE_che_machine_exec_plugin_registry_image_IBZWQYJ":                  "quay.io/eclipse/che-machine-exec",
 				"RELATED_IMAGE_codeready_workspaces_machineexec_plugin_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/machineexec-rhel8",
 			},
-			expected: map[string]string{
-				"che_machine_exec_plugin_registry_image_IBZWQYJ":                  "quay.io/eclipse/che-machine-exec",
-				"codeready_workspaces_machineexec_plugin_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/machineexec-rhel8",
+			expected: []ImageAndName{
+				{Name: "che_machine_exec_plugin_registry_image_IBZWQYJ", Image: "quay.io/eclipse/che-machine-exec"},
+				{Name: "codeready_workspaces_machineexec_plugin_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/machineexec-rhel8"},
 			},
 		},
 		{
@@ -467,9 +427,9 @@ func TestEnvVars(t *testing.T) {
 				"RELATED_IMAGE_che_openshift_plugin_registry_image_IBZWQYJ":                          "index.docker.io/dirigiblelabs/dirigible-openshift",
 				"RELATED_IMAGE_codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8",
 			},
-			expected: map[string]string{
-				"che_openshift_plugin_registry_image_IBZWQYJ":                          "index.docker.io/dirigiblelabs/dirigible-openshift",
-				"codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK": "registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8",
+			expected: []ImageAndName{
+				{Name: "che_openshift_plugin_registry_image_IBZWQYJ", Image: "index.docker.io/dirigiblelabs/dirigible-openshift"},
+				{Name: "codeready_workspaces_plugin_openshift_plugin_registry_image_GIXDCMQK", Image: "registry.redhat.io/codeready-workspaces/plugin-openshift-rhel8"},
 			},
 		},
 		{
@@ -477,8 +437,8 @@ func TestEnvVars(t *testing.T) {
 			env: map[string]string{
 				"RELATED_IMAGE_universal_developer_image_devfile_registry_image_OVRGSOBNGBSTCOBZMQ4Q____": "quay.io/devfile/universal-developer-image:ubi8-38da5c2",
 			},
-			expected: map[string]string{
-				"universal_developer_image_devfile_registry_image_OVRGSOBNGBSTCOBZMQ4Q____": "quay.io/devfile/universal-developer-image:ubi8-38da5c2",
+			expected: []ImageAndName{
+				{Name: "universal_developer_image_devfile_registry_image_OVRGSOBNGBSTCOBZMQ4Q____", Image: "quay.io/devfile/universal-developer-image:ubi8-38da5c2"},
 			},
 		},
 	}
@@ -489,19 +449,29 @@ func TestEnvVars(t *testing.T) {
 				os.Setenv(k, v)
 				defer os.Unsetenv(k)
 			}
-			actual := getDefaultImages()
-			if d := cmp.Diff(c.expected, actual); d != "" {
+			actual := GetDefaultImages()
+			if d := cmp.Diff(sortImages(c.expected), sortImages(actual)); d != "" {
 				t.Errorf("Error, collected images differ (-want, +got): %v", d)
 			}
 		})
 	}
 }
 
+func sortImages(images []ImageAndName) []ImageAndName {
+	imagesCopy := make([]ImageAndName, len(images))
+	copy(imagesCopy, images)
+	sort.Slice(imagesCopy, func(i, j int) bool {
+		return imagesCopy[i].Name < imagesCopy[j].Name
+	})
+	return imagesCopy
+}
+
 func InitCheCRWithImagePullerEnabled() *chev2.CheCluster {
 	return &chev2.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "eclipse-che",
-			Namespace: namespace,
+			Name:            "eclipse-che",
+			Namespace:       namespace,
+			ResourceVersion: "0",
 		},
 		Spec: chev2.CheClusterSpec{
 			Components: chev2.CheClusterComponents{
@@ -521,6 +491,7 @@ func InitCheCRWithImagePullerFinalizer() *chev2.CheCluster {
 			Finalizers: []string{
 				"kubernetesimagepullers.finalizers.che.eclipse.org",
 			},
+			ResourceVersion: "0",
 		},
 		Spec: chev2.CheClusterSpec{
 			Components: chev2.CheClusterComponents{
@@ -552,7 +523,7 @@ func InitCheCRWithImagePullerFinalizerAndDeletionTimestamp() *chev2.CheCluster {
 	}
 }
 
-func ExpectedCheCRWithImagePullerEnabled() *chev2.CheCluster {
+func ExpectedCheCRWithImagePullerFinalizer() *chev2.CheCluster {
 	return &chev2.CheCluster{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "org.eclipse.che/v2",
@@ -564,6 +535,7 @@ func ExpectedCheCRWithImagePullerEnabled() *chev2.CheCluster {
 			Finalizers: []string{
 				"kubernetesimagepullers.finalizers.che.eclipse.org",
 			},
+			ResourceVersion: "1",
 		},
 		Spec: chev2.CheClusterSpec{
 			Components: chev2.CheClusterComponents{
@@ -577,13 +549,10 @@ func ExpectedCheCRWithImagePullerEnabled() *chev2.CheCluster {
 
 func InitCheCRWithImagePullerDisabled() *chev2.CheCluster {
 	return &chev2.CheCluster{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "org.eclipse.che/v2",
-			Kind:       "CheCluster",
-		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "eclipse-che",
-			Namespace: namespace,
+			Name:            "eclipse-che",
+			Namespace:       namespace,
+			ResourceVersion: "0",
 		},
 		Spec: chev2.CheClusterSpec{
 			Components: chev2.CheClusterComponents{
@@ -614,8 +583,8 @@ func InitCheCRWithImagePullerEnabledAndDefaultValuesSet() *chev2.CheCluster {
 				ImagePuller: chev2.ImagePuller{
 					Enable: true,
 					Spec: chev1alpha1.KubernetesImagePullerSpec{
-						DeploymentName: "deployment",
-						ConfigMapName:  "configmap",
+						DeploymentName: "kubernetes-image-puller",
+						ConfigMapName:  "k8s-image-puller",
 					},
 				},
 			},
@@ -641,8 +610,8 @@ func InitCheCRWithImagePullerEnabledAndImagesSet(images string) *chev2.CheCluste
 				ImagePuller: chev2.ImagePuller{
 					Enable: true,
 					Spec: chev1alpha1.KubernetesImagePullerSpec{
-						DeploymentName: "deployment",
-						ConfigMapName:  "configmap",
+						DeploymentName: "kubernetes-image-puller",
+						ConfigMapName:  "k8s-image-puller",
 						Images:         images,
 					},
 				},
@@ -690,8 +659,9 @@ func InitImagePuller(options ImagePullerOptions) *chev1alpha1.KubernetesImagePul
 			Namespace:       namespace,
 			ResourceVersion: options.ObjectMetaResourceVersion,
 			Labels: map[string]string{
-				constants.KubernetesPartOfLabelKey:    constants.CheEclipseOrg,
-				constants.KubernetesComponentLabelKey: componentName,
+				"app":                       defaults.GetCheFlavor(),
+				"app.kubernetes.io/part-of": constants.CheEclipseOrg,
+				"component":                 "kubernetes-image-puller",
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				{
@@ -704,10 +674,9 @@ func InitImagePuller(options ImagePullerOptions) *chev1alpha1.KubernetesImagePul
 			},
 		},
 		Spec: chev1alpha1.KubernetesImagePullerSpec{
-			DeploymentName:   "deployment",
-			ConfigMapName:    "configmap",
-			Images:           options.SpecImages,
-			ImagePullerImage: "quay.io/eclipse/kubernetes-image-puller:next",
+			DeploymentName: "kubernetes-image-puller",
+			ConfigMapName:  "k8s-image-puller",
+			Images:         options.SpecImages,
 		},
 	}
 }
@@ -722,8 +691,9 @@ func getDefaultImagePuller() *chev1alpha1.KubernetesImagePuller {
 			Name:      "eclipse-che-image-puller",
 			Namespace: namespace,
 			Labels: map[string]string{
-				constants.KubernetesPartOfLabelKey:    constants.CheEclipseOrg,
-				constants.KubernetesComponentLabelKey: componentName,
+				"app":                       defaults.GetCheFlavor(),
+				"app.kubernetes.io/part-of": constants.CheEclipseOrg,
+				"component":                 "kubernetes-image-puller",
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				{
@@ -736,8 +706,8 @@ func getDefaultImagePuller() *chev1alpha1.KubernetesImagePuller {
 			},
 		},
 		Spec: chev1alpha1.KubernetesImagePullerSpec{
-			DeploymentName: "deployment",
-			ConfigMapName:  "configmap",
+			DeploymentName: "kubernetes-image-puller",
+			ConfigMapName:  "k8s-image-puller",
 			Images:         defaultImagePullerImages,
 		},
 	}
@@ -774,7 +744,9 @@ func getOperatorGroup() *operatorsv1.OperatorGroup {
 			Namespace: namespace,
 		},
 		Spec: operatorsv1.OperatorGroupSpec{
-			TargetNamespaces: []string{},
+			TargetNamespaces: []string{
+				namespace,
+			},
 		},
 	}
 }
@@ -790,9 +762,6 @@ func getSubscription() *operatorsv1alpha1.Subscription {
 			CatalogSourceNamespace: "olm",
 			InstallPlanApproval:    operatorsv1alpha1.ApprovalAutomatic,
 			Package:                "kubernetes-imagepuller-operator",
-		},
-		Status: operatorsv1alpha1.SubscriptionStatus{
-			InstalledCSV: csvName,
 		},
 	}
 }

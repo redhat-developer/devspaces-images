@@ -3670,7 +3670,7 @@ spec:
                       type: object
                     type: array
                   workspaceDefaultEditor:
-                    default: che-incubator/che-code/insiders
+                    default: eclipse/che-theia/latest
                     description: The default editor to workspace create with. It could
                       be a plugin ID or a URI. The plugin ID must have `publisher/plugin/version`.
                       The URI must start from `http`.
@@ -5264,26 +5264,16 @@ spec:
                   - container:
                       image: quay.io/devfile/universal-developer-image:ubi8-38da5c2
                     name: universal-developer-image
-                  defaultEditor: che-incubator/che-code/insiders
+                  defaultEditor: eclipse/che-theia/latest
                   defaultNamespace:
                     autoProvision: true
                     template: <username>-devspaces
-                  disableContainerBuildCapabilities: true
                   secondsOfInactivityBeforeIdling: 1800
                   secondsOfRunBeforeIdling: -1
                   storage:
                     pvcStrategy: per-user
                 description: Development environment default configuration options.
                 properties:
-                  containerBuildConfiguration:
-                    description: Container build configuration.
-                    properties:
-                      openShiftSecurityContextConstraint:
-                        default: container-build
-                        description: OpenShift security context constraint to build
-                          containers.
-                        type: string
-                    type: object
                   defaultComponents:
                     default:
                     - container:
@@ -6740,7 +6730,7 @@ spec:
                       type: object
                     type: array
                   defaultEditor:
-                    default: che-incubator/che-code/insiders
+                    default: eclipse/che-theia/latest
                     description: The default editor to workspace create with. It could
                       be a plugin ID or a URI. The plugin ID must have `publisher/plugin/version`
                       format. The URI must start from `http://` or `https://`.
@@ -6780,10 +6770,6 @@ spec:
                           type: array
                       type: object
                     type: array
-                  disableContainerBuildCapabilities:
-                    default: true
-                    description: Disables the container build capabilities.
-                    type: boolean
                   nodeSelector:
                     additionalProperties:
                       type: string
@@ -6942,9 +6928,6 @@ spec:
                       description: GitHubService enables users to work with repositories
                         hosted on GitHub (GitHub.com or GitHub Enterprise).
                       properties:
-                        disableSubdomainIsolation:
-                          description: Disables subdomain isolation.
-                          type: boolean
                         endpoint:
                           default: https://github.com
                           description: GitHub server endpoint URL.

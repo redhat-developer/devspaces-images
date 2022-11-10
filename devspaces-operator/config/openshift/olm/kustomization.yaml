@@ -21,7 +21,6 @@ resources:
 
 patchesStrategicMerge:
   - patches/extralabels_in_checlusters.yaml
-  - patches/extralabels_in_service.yaml
 
 patchesJson6902:
   - target:

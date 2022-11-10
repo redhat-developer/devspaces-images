@@ -20,7 +20,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-var RollBindingDiffOpts = cmp.Options{
+var rolebindingDiffOpts = cmp.Options{
 	cmpopts.IgnoreFields(rbac.RoleBinding{}, "TypeMeta", "ObjectMeta"),
 }
 
@@ -32,7 +32,7 @@ func SyncRoleBindingToCluster(
 	roleKind string) (bool, error) {
 
 	rbSpec := getRoleBindingSpec(deployContext, name, serviceAccountName, roleName, roleKind)
-	return Sync(deployContext, rbSpec, RollBindingDiffOpts)
+	return Sync(deployContext, rbSpec, rolebindingDiffOpts)
 }
 
 func getRoleBindingSpec(
