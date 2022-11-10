@@ -29,6 +29,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     currentQuayImageTheia=""
                     currentQuayImageTheiaEndpoint=""
                     if (PHASE_LIST.contains("1")) {
+                        // 3 jobs
                         // theia assets (sources) + theia-containers and akamai update too - start early since it's long running
                         currentJob="theia-sources_" + JOB_BRANCH
                         currentQuayImageTheiaDev = util.getLatestImageAndTag("devspaces/theia-dev-rhel8", "quay")
@@ -41,7 +42,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     }
 
                     if (PHASE_LIST.contains("2")) {
-                        // 14 jobs
+                        // 10 jobs
                         def jobsList = [
                             "configbump",
                             "dashboard",
@@ -85,7 +86,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     }
 
                     if (PHASE_LIST.contains("3")) {
-                        // 14 jobs
+                        // 2 jobs
                         def jobsList = [
                             "code",                     // @since 3.1
                             "idea"                      // @since 2.11; depends on machineexec
@@ -156,6 +157,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 
                         // trigger update-digests job (to rebuild bundle image)
+                        // 1 job
                         currentJob="update-digests_" + JOB_BRANCH
                         def int lastBuildId4 = util.runJob(jenkinsPath + currentJob, false) // don't wait for this to finish
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJob}/${lastBuildId4}>update-digests#${lastBuildId4}</a> triggered"

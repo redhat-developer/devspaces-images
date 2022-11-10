@@ -172,7 +172,7 @@ wait
           )
           // if wait = true, can get a link to the downstream build
           jobLink=jobPath + "/" +  jobResult?.number?.toString()
-          println("waiting for runJob(" + jobPath + ")")
+          println("waiting for build(" + jobPath + ")")
           println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
           currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
 

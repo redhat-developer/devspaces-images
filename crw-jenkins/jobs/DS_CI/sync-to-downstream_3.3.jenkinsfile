@@ -227,7 +227,7 @@ sources
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}/ ${TARGETDIR}/
 rm -f /tmp/rsync-excludes
-                ''')
+''')
 
                 // CRW-3292 if container.yaml has a cachito reference to the devspaces-images repo, update it to latest SOURCE_SHA in the source repo
                 // sed replacement (match a line, move *N*ext line and *S*ubstitute it) will only work for this 2-line pattern:
@@ -241,9 +241,7 @@ if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
 
   repos=$(cat ${yaml} | yq -r '.remote_sources[].remote_source.repo')
 
-  for repo in $repos 
-  do
-
+  for repo in $repos; do
     if [[ $(echo $repo | grep 'devspaces-images') ]]; then
       SHA=''' + SOURCE_SHA + '''
     else
@@ -261,7 +259,10 @@ if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
     sed -r -i -e "/.+repo: .+${repo##*/}.*/{n;s/ref: .*/ref: $SHA/}" $yaml
   done
 fi
-                ''')
+
+# update container.yaml in /sources/ so the same digests are in both mid and downstream
+cp ${yaml} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
+''')
 
                 // NOTE: if container.yaml has cachito reference(s) to OTHER repo(s), 
                 // MUST handle that separately in another sync.sh or get-sources.sh script
@@ -283,7 +284,8 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
   git add . -A -f
   git commit -s -m "ci: [mid2dwn] Sync from ''' + SOURCE_REPO + ''' @ ''' + SOURCE_SHA + '''"
   git push origin ''' + MIDSTM_BRANCH + ''' || true
-fi''')
+fi
+''')
 
                 // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
                 sh('''#!/bin/bash -xe
@@ -314,7 +316,8 @@ if [ ! -z "$COMMIT_SHA" ] ; then
   git commit -m "$COMMIT_MSG" || true
   git pull origin ''' + MIDSTM_BRANCH + ''' || true
   git push origin ''' + MIDSTM_BRANCH + ''' || true
-fi''')
+fi
+''')
 
                 NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
                 println "Got NEW_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + NEW_SHA
