@@ -43,11 +43,9 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                     if (PHASE_LIST.contains("2")) {
                         // 14 jobs
                         def jobsList = [
-                            "code",                     // @since 3.1
                             "configbump",
                             "dashboard",
                             "devfileregistry",
-                            "idea",                     // @since 2.11
                             "imagepuller",
                             "machineexec",
                             "operator",                 // special case: "devspaces-rhel8-operator"
@@ -55,6 +53,42 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                             "server",
                             "traefik",
                             "udi"                       // @since 2.16
+                        ]
+
+                        def Map tasks = [failFast: false]
+                        // must define all vars before closure, per https://www.jenkins.io/doc/pipeline/examples/#parallel-from-list
+                        for (job in jobsList) {
+                            def job_name="${job}"// job name
+                            def image_name=job.toString().trim().equals("operator") ? "devspaces-rhel8-operator" : "${job_name}-rhel8" // image name
+                            def currentJobLoc=job_name + "_" + JOB_BRANCH
+                            if (!util.checkURL(jenkinsURL + currentJobLoc)) { 
+                                println("[WARNING] No such job " + jenkinsURL + currentJobLoc + " : skip!"); 
+                                    currentBuild.description+="<br/>* SKIP: <a href=${jenkinsPath}${currentJobLoc}>${currentJobLoc}</a>"
+                            } else {
+                                def currentQuayImageLoc = util.getLatestImageAndTag("devspaces/" + image_name, "quay")
+                                tasks[currentJobLoc] = { ->
+                                    println ("Got currentQuayImageLoc (" + image_name + " / " + job_name + ") = " + currentQuayImageLoc)
+                                    def lastBuildId3 = " <- util.runJob("+jenkinsPath + currentJobLoc+", true)"
+                                    lastBuildId3 = util.runJob(jenkinsPath + currentJobLoc, true, true, JENKINS_URL, 
+                                        util.globalVar({TIMEOUT})?.trim() ? util.globalVar({TIMEOUT}) : 180) // DO wait for these to finish
+                                    println ("Started job for " + job_name + ": " + jenkinsURL + currentJobLoc + "/" + lastBuildId3)
+                                    if (!util.waitForNewQuayImage("devspaces/" + image_name, currentQuayImageLoc)) {
+                                        currentBuild.result = 'FAILED'
+                                        util.notifyBuildFailed()
+                                    }
+                                    currentBuild.description+="<br/>* <a href=${jenkinsPath}${currentJobLoc}/${lastBuildId3}>${currentJobLoc}#${lastBuildId3}</a>"
+                                }
+                            }
+                        }
+                        // wait in parallel
+                        parallel(tasks)
+                    }
+
+                    if (PHASE_LIST.contains("3")) {
+                        // 14 jobs
+                        def jobsList = [
+                            "code",                     // @since 3.1
+                            "idea"                      // @since 2.11; depends on machineexec
                         ]
 
                         def Map tasks = [failFast: false]
@@ -117,7 +151,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 600) {
                         currentBuild.description+="<br/>* <a href=${jenkinsPath}devspaces-theia-endpoint-rhel8_${JOB_BRANCH}/${lastBuildId2te}>devspaces-theia-endpoint-rhel8_${JOB_BRANCH}#${lastBuildId2te}</a>"
                     }
 
-                    if (PHASE_LIST.contains("3")) {
+                    if (PHASE_LIST.contains("4")) {
                         currentQuayImageBundle = util.getLatestImageAndTag("devspaces/devspaces-operator-bundle", "quay")
                         println ("Got currentQuayImageBundle = " + currentQuayImageBundle)
 

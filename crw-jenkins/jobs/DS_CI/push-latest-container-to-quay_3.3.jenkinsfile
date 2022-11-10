@@ -6,6 +6,7 @@ import groovy.transform.Field
 //   CONTAINERS
 //   MIDSTM_BRANCH
 //   FLOATING_QUAY_TAGS
+//   OCP_VERSIONS
 //   CLEAN_ON_FAILURE = "true"
 
 def checkFailureQuay(arrayLines,errorOccurred)
@@ -30,10 +31,12 @@ def checkFailureQuay(arrayLines,errorOccurred)
 def errorOccurred = ""
 @Field String DIFF_LATEST_IMAGES_QUAY_V_STORED = "trigger-update"
 
-// TODO: for some reason, running getLatestImageTags.sh often returns null on cpt-ppc-006; so exclude 
-def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)&&!cpt-ppc-006'
+def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
+
+def copyContainersToQuayTimeout=120
+
 currentBuild.description="Copying " + CONTAINERS + "..."
-timeout(90) {
+timeout(copyContainersToQuayTimeout) {
     node(nodeLabel) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
@@ -164,9 +167,57 @@ Brew NVRs:
     } // node
 } // timeout
 
-// trigger update_digests job if we have pushed new images that appear in the registry or metadata
+
 node(nodeLabel){ 
-  stage ("Update registries and metadata") {
+  stage ("Update plugin registry GH page + rebuild devfile registry") {
+    // echo "currentBuild.result = " + currentBuild.result
+    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && CONTAINERS.trim().contains("pluginregistry")) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+
+        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+        println "DS_VERSION = '" + DS_VERSION + "'"
+        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+        // trigger GH action plugin-registry-build-publish-content-gh-pages.yaml, which will 
+        // publish new plugin registry GH page content and rebuild the devfile registry
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+            sh('''#!/bin/bash -e
+this_repo="redhat-developer/devspaces"
+this_action_name="Plugin Registry - GH Pages - Publish Registry Content"
+workflow_id="18838921" # see https://github.com/eclipse-che/che-release/blob/main/utils/util.sh#L9-L17
+this_github_token="''' + GITHUB_TOKEN + '''"
+workflow_ref="''' + MIDSTM_BRANCH + '''"
+if [[ "''' + MIDSTM_BRANCH + '''" == "devspaces-3-rhel-8" ]]; then
+    inputsJson="{\\"TAG\\": \\"next\\"}"
+else
+    inputsJson="{\\"TAG\\": \\"''' + JOB_BRANCH + '''\\"}"
+fi
+actionURL="https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml"
+echo "[INFO] Invoking $actionURL with branch=$workflow_ref and $inputsJson ..."
+
+curl -sSL "https://api.github.com/repos/${this_repo}/actions/workflows/${workflow_id}/dispatches" \
+    -X POST -H "Authorization: token ${this_github_token}" -H "Accept: application/vnd.github.v3+json" \
+    -d "{\\"ref\\":\\"${workflow_ref}\\",\\"inputs\\": ${inputsJson} }" || \
+    die_with "[ERROR] Problem invoking $actionURL with branch=$workflow_ref and $inputsJson"
+''')
+        }
+    } // if
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
+  }
+}
+
+node(nodeLabel){ 
+  stage ("Update metadata") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
     echo "currentBuild.result = " + currentBuild.result
@@ -225,10 +276,11 @@ node(nodeLabel){
             println "####################################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
             println "####################################################################################################################"
+
+            whichBundle="operator-bundle"
+
             withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                 util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
-
-                whichBundle="operator-bundle"
                 sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
@@ -237,37 +289,53 @@ chmod +x updateGeneratedOperatorMetadata.sh
 ''')
             }
             currentBuild.description+="; " + whichBundle.replaceAll("operator-","") + "-generated updated"
-
-            println "####################################################################################################################"
-            println "##  Check registry-proxy.engineering.redhat.com/rh-osbs/iib for latest " + whichBundle + " ${DS_VERSION}"
-            println "####################################################################################################################"
-
-            // $➔ ./getLatestImageTags.sh -b devspaces-3.0-rhel-8 --osbs --hide -c devspaces-operator-bundle --tag 3.0-
-            // registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator-bundle:3.0-75
-            def latestBundleImage = sh(script: '''#!/bin/bash
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestImageTags.sh && chmod +x getLatestImageTags.sh
-./getLatestImageTags.sh -b ${MIDSTM_BRANCH} --osbs --hide -c devspaces-''' + whichBundle + ''' --tag ''' + DS_VERSION + '''-
+            def OCP_VERSIONS = sh(script: '''
+curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
+    | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "
 ''', returnStdout: true).trim()
+            println "####################################################################################################################"
+            println "##  Trigger copyIIBsToQuay for DS "+DS_VERSION+" and OCP '"+OCP_VERSIONS+"'"
+            println "####################################################################################################################"
+            jobPath='/job/DS_CI/job/Releng/job/copyIIBsToQuay'
+            // trigger copyIIBsToQuay job
+            final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
+                wait: false,
+                propagate: false,
+                quietPeriod: 0,
+                parameters: [
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: "filter+and+copy+IIBs+to+quay"
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'MIDSTM_BRANCH',
+                        value: MIDSTM_BRANCH
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'DS_VERSION',
+                        value: DS_VERSION
+                    ],
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'OCP_VERSIONS',
+                        value: OCP_VERSIONS
 
-            // registry-proxy.engineering.redhat.com/rh-osbs/iib:235331 (v4.10) registry-proxy.engineering.redhat.com/rh-osbs/iib:235333 (v4.11)
-            def IIBs = sh(script: '''#!/bin/bash -xe
-curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MIDSTM_BRANCH + '''/product/getLatestIIBs.sh && chmod +x getLatestIIBs.sh
-./getLatestIIBs.sh --ds -t ''' + DS_VERSION + ''' -i ''' + latestBundleImage + ''' | sed -r -e "s#''' + latestBundleImage + '''\\t+##" -e "s#(.+)\\t(.+)#\\1 (\\2)#"
-''', returnStdout: true)
-
-            // if we got a value, we can proceed. 
-            if (IIBs?.trim().replaceAll("\n", " ")) { 
-                println "####################################################################################################################"
-                println "##  IIB(s) found for latest " + whichBundle + " ${DS_VERSION}"
-                println "## " + IIBs.trim().replaceAll("\n", "\n## ")
-                println "####################################################################################################################"
-                currentBuild.description+="; IIBs found: <br/>* " + IIBs.trim().replaceAll("\n", "<br/>* ")
-            } else {
-                // TODO: wait 5 mins and try again?
-                currentBuild.description+="; ERROR: no rh-osbs/iib available for " + latestBundleImage
-                currentBuild.result = 'FAILURE'
-            }
-        } // if metadata or bundle
+                    ]
+                ]
+            )            
+            println("triggered build(" + jobPath + ") [no wait]")
+            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+            currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
+        } // if bundle
     } // if
     cleanWs(
         cleanWhenSuccess: true,
@@ -289,9 +357,9 @@ node(nodeLabel){
     def util = load "${WORKSPACE}/util2.groovy"
     echo "currentBuild.result = " + currentBuild.result
     if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-        // if CONTAINERS contains theia
-        println "Containers: " + CONTAINERS.trim()
-        if (CONTAINERS.trim().equals("theia") || CONTAINERS.trim().matches(".*theia .*")) {
+        // if CONTAINERS contains theia-endpoint
+        // println "Containers: " + CONTAINERS.trim()
+        if (CONTAINERS.trim().matches(".*theia-endpoint.*")) {
             DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
             println "DS_VERSION = '" + DS_VERSION + "'"
             println "Scheduling theia-akamai"
