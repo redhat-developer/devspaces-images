@@ -23,12 +23,16 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.provision.GatewayRout
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.GitConfigProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.ImagePullSecretProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.KubernetesTrustedCAProvisioner;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.LogsVolumeMachineProvisioner;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.NodeSelectorProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.PodTerminationGracePeriodProvisioner;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.ProxySettingsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.SecurityContextProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.ServiceAccountProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.SshKeysProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TlsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TlsProvisionerProvider;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TolerationsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.UniqueNamesProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.VcsSslCertificateProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.env.EnvVarsConverter;
@@ -58,6 +62,7 @@ public class KubernetesEnvironmentProvisionerTest {
   @Mock private ServersConverter<KubernetesEnvironment> serversProvisioner;
   @Mock private RestartPolicyRewriter restartPolicyRewriter;
   @Mock private ContainerResourceProvisioner ramLimitProvisioner;
+  @Mock private LogsVolumeMachineProvisioner logsVolumeMachineProvisioner;
   @Mock private SecurityContextProvisioner securityContextProvisioner;
   @Mock private PodTerminationGracePeriodProvisioner podTerminationGracePeriodProvisioner;
 
@@ -66,12 +71,15 @@ public class KubernetesEnvironmentProvisionerTest {
 
   @Mock private TlsProvisioner<KubernetesEnvironment> externalServerIngressTlsProvisioner;
   @Mock private ImagePullSecretProvisioner imagePullSecretProvisioner;
+  @Mock private ProxySettingsProvisioner proxySettingsProvisioner;
   @Mock private ServiceAccountProvisioner serviceAccountProvisioner;
   @Mock private CertificateProvisioner certificateProvisioner;
   @Mock private SshKeysProvisioner sshKeysProvisioner;
   @Mock private GitConfigProvisioner gitConfigProvisioner;
   @Mock private PreviewUrlExposer previewUrlExposer;
   @Mock private VcsSslCertificateProvisioner vcsSslCertificateProvisioner;
+  @Mock private NodeSelectorProvisioner nodeSelectorProvisioner;
+  @Mock private TolerationsProvisioner tolerationsProvisioner;
   @Mock private KubernetesTrustedCAProvisioner trustedCAProvisioner;
   @Mock private GatewayRouterProvisioner gatewayRouterProvisioner;
 
@@ -94,6 +102,9 @@ public class KubernetesEnvironmentProvisionerTest {
             podTerminationGracePeriodProvisioner,
             externalServerIngressTlsProvisionerProvider,
             imagePullSecretProvisioner,
+            proxySettingsProvisioner,
+            nodeSelectorProvisioner,
+            tolerationsProvisioner,
             serviceAccountProvisioner,
             certificateProvisioner,
             sshKeysProvisioner,
@@ -109,10 +120,13 @@ public class KubernetesEnvironmentProvisionerTest {
             envVarsProvisioner,
             restartPolicyRewriter,
             ramLimitProvisioner,
+            nodeSelectorProvisioner,
+            tolerationsProvisioner,
             securityContextProvisioner,
             podTerminationGracePeriodProvisioner,
             externalServerIngressTlsProvisioner,
             imagePullSecretProvisioner,
+            proxySettingsProvisioner,
             serviceAccountProvisioner,
             certificateProvisioner,
             gitConfigProvisioner,
@@ -130,6 +144,8 @@ public class KubernetesEnvironmentProvisionerTest {
     provisionOrder.verify(restartPolicyRewriter).provision(eq(k8sEnv), eq(runtimeIdentity));
 
     provisionOrder.verify(ramLimitProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
+    provisionOrder.verify(nodeSelectorProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
+    provisionOrder.verify(tolerationsProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
     provisionOrder
         .verify(externalServerIngressTlsProvisioner)
         .provision(eq(k8sEnv), eq(runtimeIdentity));
@@ -138,6 +154,7 @@ public class KubernetesEnvironmentProvisionerTest {
         .verify(podTerminationGracePeriodProvisioner)
         .provision(eq(k8sEnv), eq(runtimeIdentity));
     provisionOrder.verify(imagePullSecretProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
+    provisionOrder.verify(proxySettingsProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
     provisionOrder.verify(serviceAccountProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
     provisionOrder.verify(certificateProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));
     provisionOrder.verify(gitConfigProvisioner).provision(eq(k8sEnv), eq(runtimeIdentity));

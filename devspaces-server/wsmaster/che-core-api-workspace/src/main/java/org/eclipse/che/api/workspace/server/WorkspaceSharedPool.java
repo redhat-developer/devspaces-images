@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,6 +11,7 @@
  */
 package org.eclipse.che.api.workspace.server;
 
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.inject.Inject;
 import java.util.concurrent.Callable;
@@ -20,7 +21,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Named;
 import javax.inject.Singleton;
+import org.eclipse.che.commons.annotation.Nullable;
 import org.eclipse.che.commons.lang.concurrent.LoggingUncaughtExceptionHandler;
 import org.eclipse.che.commons.lang.concurrent.ThreadLocalPropagateContext;
 import org.eclipse.che.commons.observability.ExecutorServiceWrapper;
@@ -38,7 +41,11 @@ public class WorkspaceSharedPool {
   private final ExecutorService executor;
 
   @Inject
-  public WorkspaceSharedPool(ExecutorServiceWrapper wrapper) {
+  public WorkspaceSharedPool(
+      @Named("che.workspace.pool.type") String poolType,
+      @Named("che.workspace.pool.exact_size") @Nullable String exactSizeProp,
+      @Named("che.workspace.pool.cores_multiplier") @Nullable String coresMultiplierProp,
+      ExecutorServiceWrapper wrapper) {
 
     ThreadFactory factory =
         new ThreadFactoryBuilder()
@@ -46,12 +53,33 @@ public class WorkspaceSharedPool {
             .setUncaughtExceptionHandler(LoggingUncaughtExceptionHandler.getInstance())
             .setDaemon(false)
             .build();
-
-    int size = Runtime.getRuntime().availableProcessors();
-
-    executor =
-        wrapper.wrap(
-            Executors.newFixedThreadPool(size, factory), WorkspaceSharedPool.class.getName());
+    switch (poolType.toLowerCase()) {
+      case "cached":
+        executor =
+            wrapper.wrap(
+                Executors.newCachedThreadPool(factory), WorkspaceSharedPool.class.getName());
+        break;
+      case "fixed":
+        Integer exactSize = exactSizeProp == null ? null : Ints.tryParse(exactSizeProp);
+        int size;
+        if (exactSize != null && exactSize > 0) {
+          size = exactSize;
+        } else {
+          size = Runtime.getRuntime().availableProcessors();
+          Integer coresMultiplier =
+              coresMultiplierProp == null ? null : Ints.tryParse(coresMultiplierProp);
+          if (coresMultiplier != null && coresMultiplier > 0) {
+            size *= coresMultiplier;
+          }
+        }
+        executor =
+            wrapper.wrap(
+                Executors.newFixedThreadPool(size, factory), WorkspaceSharedPool.class.getName());
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "The type of the pool '" + poolType + "' is not supported");
+    }
   }
 
   /**

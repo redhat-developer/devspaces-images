@@ -31,7 +31,6 @@ import javax.inject.Singleton;
 import org.eclipse.che.api.core.ApiException;
 import org.eclipse.che.api.core.BadRequestException;
 import org.eclipse.che.api.factory.server.urlfactory.DefaultFactoryUrl;
-import org.eclipse.che.api.factory.server.urlfactory.RemoteFactoryUrl;
 import org.eclipse.che.api.factory.server.urlfactory.URLFactoryBuilder;
 import org.eclipse.che.api.factory.shared.dto.FactoryMetaDto;
 import org.eclipse.che.api.workspace.server.devfile.URLFetcher;
@@ -93,11 +92,6 @@ public class DefaultFactoryParameterResolver implements FactoryParametersResolve
             extractOverrideParams(factoryParameters),
             false)
         .orElse(null);
-  }
-
-  @Override
-  public RemoteFactoryUrl parseFactoryUrl(String factoryUrl) throws ApiException {
-    throw new ApiException("Operation is not supported");
   }
 
   /**

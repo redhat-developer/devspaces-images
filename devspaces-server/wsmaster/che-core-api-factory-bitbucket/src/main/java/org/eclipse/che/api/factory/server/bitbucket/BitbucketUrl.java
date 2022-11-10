@@ -133,10 +133,10 @@ public class BitbucketUrl implements RemoteFactoryUrl {
 
   public String rawFileLocation(String fileName) {
     return new StringJoiner("/")
-        .add("https://bitbucket.org")
+        .add("https://api.bitbucket.org/2.0/repositories")
         .add(workspaceId)
         .add(repository)
-        .add("raw")
+        .add("src")
         .add(firstNonNull(branch, "HEAD"))
         .add(fileName)
         .toString();

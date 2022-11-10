@@ -88,9 +88,7 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
 
   @Override
   public boolean isConnected(String bitbucketServerUrl) {
-    return serverUri.equals(
-        URI.create(
-            bitbucketServerUrl.endsWith("/") ? bitbucketServerUrl : bitbucketServerUrl + "/"));
+    return serverUri.equals(URI.create(bitbucketServerUrl));
   }
 
   @Override
@@ -227,8 +225,7 @@ public class HttpBitbucketServerApiClient implements BitbucketServerApiClient {
               .PUT(
                   HttpRequest.BodyPublishers.ofString(
                       OM.writeValueAsString(
-                          // set maximum allowed expiryDays to 90
-                          new BitbucketPersonalAccessToken(tokenName, permissions, 90))))
+                          new BitbucketPersonalAccessToken(tokenName, permissions))))
               .headers(
                   HttpHeaders.AUTHORIZATION,
                   computeAuthorizationHeader("PUT", uri.toString()),

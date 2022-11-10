@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -21,6 +21,7 @@ import static org.eclipse.che.api.workspace.shared.Constants.TOOL_CONTAINER_SOUR
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Sets;
 import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -29,6 +30,7 @@ import io.fabric8.kubernetes.api.model.Service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -42,6 +44,7 @@ import org.eclipse.che.api.workspace.server.model.impl.devfile.ComponentImpl;
 import org.eclipse.che.api.workspace.server.spi.InfrastructureException;
 import org.eclipse.che.api.workspace.server.spi.environment.InternalEnvironment;
 import org.eclipse.che.api.workspace.server.spi.environment.InternalMachineConfig;
+import org.eclipse.che.api.workspace.server.spi.provision.env.ProjectsRootEnvVariableProvider;
 import org.eclipse.che.api.workspace.server.wsplugins.ChePluginsApplier;
 import org.eclipse.che.api.workspace.server.wsplugins.model.CheContainer;
 import org.eclipse.che.api.workspace.server.wsplugins.model.ChePlugin;
@@ -64,24 +67,30 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.util.KubernetesSize;
 @Singleton
 public class KubernetesPluginsToolingApplier implements ChePluginsApplier {
 
+  private static final Set<String> validImagePullPolicies =
+      Sets.newHashSet("Always", "Never", "IfNotPresent");
   private static final String CHE_WORKSPACE_POD = "che-workspace-pod";
 
   private final String defaultSidecarMemoryLimitBytes;
   private final String defaultSidecarMemoryRequestBytes;
+  private final String sidecarImagePullPolicy;
   private final String defaultSidecarCpuLimitCores;
   private final String defaultSidecarCpuRequestCores;
   private final boolean isAuthEnabled;
+  private final ProjectsRootEnvVariableProvider projectsRootEnvVariableProvider;
   private final ChePluginsVolumeApplier chePluginsVolumeApplier;
   private final EnvVars envVars;
 
   @Inject
   public KubernetesPluginsToolingApplier(
+      @Named("che.workspace.sidecar.image_pull_policy") String sidecarImagePullPolicy,
       @Named("che.workspace.sidecar.default_memory_limit_mb") long defaultSidecarMemoryLimitMB,
       @Named("che.workspace.sidecar.default_memory_request_mb") long defaultSidecarMemoryRequestMB,
       @Named("che.workspace.sidecar.default_cpu_limit_cores") String defaultSidecarCpuLimitCores,
       @Named("che.workspace.sidecar.default_cpu_request_cores")
           String defaultSidecarCpuRequestCores,
       @Named("che.agents.auth_enabled") boolean isAuthEnabled,
+      ProjectsRootEnvVariableProvider projectsRootEnvVariableProvider,
       ChePluginsVolumeApplier chePluginsVolumeApplier,
       EnvVars envVars) {
     this.defaultSidecarMemoryLimitBytes = toBytesString(defaultSidecarMemoryLimitMB);
@@ -91,6 +100,9 @@ public class KubernetesPluginsToolingApplier implements ChePluginsApplier {
     this.defaultSidecarCpuRequestCores =
         Float.toString(KubernetesSize.toCores(defaultSidecarCpuRequestCores));
     this.isAuthEnabled = isAuthEnabled;
+    this.sidecarImagePullPolicy =
+        validImagePullPolicies.contains(sidecarImagePullPolicy) ? sidecarImagePullPolicy : null;
+    this.projectsRootEnvVariableProvider = projectsRootEnvVariableProvider;
     this.chePluginsVolumeApplier = chePluginsVolumeApplier;
     this.envVars = envVars;
   }
@@ -200,6 +212,7 @@ public class KubernetesPluginsToolingApplier implements ChePluginsApplier {
       CheContainer container, List<ChePluginEndpoint> endpoints) {
     return new K8sContainerResolverBuilder()
         .setContainer(container)
+        .setImagePullPolicy(sidecarImagePullPolicy)
         .setPluginEndpoints(endpoints)
         .build();
   }
@@ -244,6 +257,7 @@ public class KubernetesPluginsToolingApplier implements ChePluginsApplier {
             .setDefaultSidecarMemoryRequestAttribute(defaultSidecarMemoryRequestBytes)
             .setDefaultSidecarCpuLimitAttribute(defaultSidecarCpuLimitCores)
             .setDefaultSidecarCpuRequestAttribute(defaultSidecarCpuRequestCores)
+            .setProjectsRootPathEnvVar(projectsRootEnvVariableProvider.get(runtimeIdentity))
             .setComponent(pluginRelatedComponent)
             .build();
 

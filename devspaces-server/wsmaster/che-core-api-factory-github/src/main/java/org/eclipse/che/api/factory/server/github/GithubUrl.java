@@ -49,8 +49,6 @@ public class GithubUrl implements RemoteFactoryUrl {
 
   private String serverUrl;
 
-  private boolean disableSubdomainIsolation;
-
   /** Devfile filenames list */
   private final List<String> devfileFilenames = new ArrayList<>();
 
@@ -145,11 +143,6 @@ public class GithubUrl implements RemoteFactoryUrl {
     return this;
   }
 
-  public GithubUrl withDisableSubdomainIsolation(boolean disableSubdomainIsolation) {
-    this.disableSubdomainIsolation = disableSubdomainIsolation;
-    return this;
-  }
-
   /**
    * Provides list of configured devfile filenames with locations
    *
@@ -181,14 +174,7 @@ public class GithubUrl implements RemoteFactoryUrl {
    */
   public String rawFileLocation(String fileName) {
     return new StringJoiner("/")
-        .add(
-            isNullOrEmpty(serverUrl)
-                ? "https://raw.githubusercontent.com"
-                : disableSubdomainIsolation
-                    ? serverUrl + "/raw"
-                    : serverUrl.substring(0, serverUrl.indexOf("://") + 3)
-                        + "raw."
-                        + serverUrl.substring(serverUrl.indexOf("://") + 3))
+        .add(isNullOrEmpty(serverUrl) ? "https://raw.githubusercontent.com" : serverUrl + "/raw")
         .add(username)
         .add(repository)
         .add(firstNonNull(branch, "HEAD"))

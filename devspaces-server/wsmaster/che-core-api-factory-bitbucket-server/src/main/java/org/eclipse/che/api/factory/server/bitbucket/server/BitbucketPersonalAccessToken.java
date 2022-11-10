@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -11,25 +11,23 @@
  */
 package org.eclipse.che.api.factory.server.bitbucket.server;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Objects;
 import java.util.Set;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class BitbucketPersonalAccessToken {
   private long id;
   private long createdDate;
   private long lastAuthenticated;
-  private int expiryDays;
   private String name;
   private String token;
   private BitbucketUser user;
   private Set<String> permissions;
 
-  public BitbucketPersonalAccessToken(String name, Set<String> permissions, int expiryDays) {
+  public BitbucketPersonalAccessToken(String name, Set<String> permissions) {
     this.name = name;
     this.permissions = permissions;
-    this.expiryDays = expiryDays;
   }
 
   public BitbucketPersonalAccessToken() {}
@@ -38,7 +36,6 @@ public class BitbucketPersonalAccessToken {
       long id,
       long createdDate,
       long lastAuthenticated,
-      int expiryDays,
       String name,
       String token,
       BitbucketUser user,
@@ -46,7 +43,6 @@ public class BitbucketPersonalAccessToken {
     this.id = id;
     this.createdDate = createdDate;
     this.lastAuthenticated = lastAuthenticated;
-    this.expiryDays = expiryDays;
     this.name = name;
     this.token = token;
     this.user = user;
@@ -109,14 +105,6 @@ public class BitbucketPersonalAccessToken {
     this.lastAuthenticated = lastAuthenticated;
   }
 
-  public long getExpiryDays() {
-    return expiryDays;
-  }
-
-  public void setExpiryDays(int expiryDays) {
-    this.expiryDays = expiryDays;
-  }
-
   @Override
   public String toString() {
     return "BitbucketPersonalAccessToken{"
@@ -126,8 +114,6 @@ public class BitbucketPersonalAccessToken {
         + createdDate
         + ", lastAuthenticated="
         + lastAuthenticated
-        + ", expiryDate="
-        + expiryDays
         + ", name='"
         + name
         + '\''
@@ -149,7 +135,6 @@ public class BitbucketPersonalAccessToken {
     return id == that.id
         && createdDate == that.createdDate
         && lastAuthenticated == that.lastAuthenticated
-        && expiryDays == that.expiryDays
         && Objects.equals(name, that.name)
         && Objects.equals(token, that.token)
         && Objects.equals(user, that.user)
@@ -158,7 +143,6 @@ public class BitbucketPersonalAccessToken {
 
   @Override
   public int hashCode() {
-    return Objects.hash(
-        id, createdDate, lastAuthenticated, expiryDays, name, token, user, permissions);
+    return Objects.hash(id, createdDate, lastAuthenticated, name, token, user, permissions);
   }
 }

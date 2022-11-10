@@ -33,6 +33,7 @@ import org.eclipse.che.api.workspace.server.spi.RuntimeInfrastructure;
 import org.eclipse.che.api.workspace.server.spi.environment.InternalEnvironmentFactory;
 import org.eclipse.che.api.workspace.server.spi.provision.env.CheApiExternalEnvVarProvider;
 import org.eclipse.che.api.workspace.server.spi.provision.env.CheApiInternalEnvVarProvider;
+import org.eclipse.che.api.workspace.server.spi.provision.env.EnvVarProvider;
 import org.eclipse.che.api.workspace.server.wsplugins.ChePluginsApplier;
 import org.eclipse.che.api.workspace.shared.Constants;
 import org.eclipse.che.workspace.infrastructure.kubernetes.api.server.KubernetesNamespaceService;
@@ -62,6 +63,7 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.provision.KubernetesT
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.PreviewUrlCommandProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TlsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TrustedCAProvisioner;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.env.LogsRootEnvVariableProvider;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.server.ServersConverter;
 import org.eclipse.che.workspace.infrastructure.kubernetes.server.IngressAnnotationsProvider;
 import org.eclipse.che.workspace.infrastructure.kubernetes.server.PreviewUrlExposer;
@@ -185,6 +187,10 @@ public class KubernetesInfraModule extends AbstractModule {
         .to(new TypeLiteral<PreviewUrlExposer<KubernetesEnvironment>>() {});
     bind(PreviewUrlCommandProvisioner.class)
         .to(new TypeLiteral<KubernetesPreviewUrlCommandProvisioner>() {});
+
+    Multibinder<EnvVarProvider> envVarProviders =
+        Multibinder.newSetBinder(binder(), EnvVarProvider.class);
+    envVarProviders.addBinding().to(LogsRootEnvVariableProvider.class);
 
     bind(new TypeLiteral<Map<String, String>>() {})
         .annotatedWith(named("infra.kubernetes.ingress.annotations"))

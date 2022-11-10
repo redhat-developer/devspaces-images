@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -262,7 +262,9 @@ public class JpaEntitiesCascadeRemovalTest {
                     .annotatedWith(Names.named("che.devworkspaces.enabled"))
                     .toInstance(false);
                 bind(WorkspaceSharedPool.class)
-                    .toInstance(new WorkspaceSharedPool(new NoopExecutorServiceWrapper()));
+                    .toInstance(
+                        new WorkspaceSharedPool(
+                            "cached", null, null, new NoopExecutorServiceWrapper()));
 
                 bind(String[].class)
                     .annotatedWith(Names.named("che.auth.reserved_user_names"))
@@ -296,6 +298,8 @@ public class JpaEntitiesCascadeRemovalTest {
                                     singletonList(
                                         new ResourceImpl(
                                             RamResourceType.ID, 1024, RamResourceType.UNIT)))));
+
+                bindConstant().annotatedWith(Names.named("che.workspace.probe_pool_size")).to(1);
 
                 // setup bindings for the devfile that would otherwise be read from the config
                 bindConstant()

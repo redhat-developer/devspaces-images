@@ -97,7 +97,7 @@ public class GithubFactoryParametersResolverTest {
   @BeforeMethod
   protected void init() {
     githubUrlParser =
-        new GithubURLParser(personalAccessTokenManager, devfileFilenamesProvider, null, false);
+        new GithubURLParser(personalAccessTokenManager, devfileFilenamesProvider, null);
     assertNotNull(this.githubUrlParser);
     githubFactoryParametersResolver =
         new GithubFactoryParametersResolver(

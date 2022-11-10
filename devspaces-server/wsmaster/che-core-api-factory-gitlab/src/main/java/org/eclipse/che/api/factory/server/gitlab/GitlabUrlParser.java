@@ -12,7 +12,6 @@
 package org.eclipse.che.api.factory.server.gitlab;
 
 import static java.lang.String.format;
-import static java.util.regex.Pattern.compile;
 
 import com.google.common.base.Splitter;
 import jakarta.validation.constraints.NotNull;
@@ -53,21 +52,19 @@ public class GitlabUrlParser {
 
   @Inject
   public GitlabUrlParser(
-      @Nullable @Named("che.integration.gitlab.server_endpoints") String gitlabEndpoints,
+      @Nullable @Named("che.integration.gitlab.server_endpoints") String bitbucketEndpoints,
       DevfileFilenamesProvider devfileFilenamesProvider,
       PersonalAccessTokenManager personalAccessTokenManager) {
     this.devfileFilenamesProvider = devfileFilenamesProvider;
     this.personalAccessTokenManager = personalAccessTokenManager;
-    if (gitlabEndpoints != null) {
-      for (String gitlabEndpoint : Splitter.on(",").split(gitlabEndpoints)) {
-        String trimmedEndpoint = StringUtils.trimEnd(gitlabEndpoint, '/');
+    if (bitbucketEndpoints != null) {
+      for (String bitbucketEndpoint : Splitter.on(",").split(bitbucketEndpoints)) {
+        String trimmedEndpoint = StringUtils.trimEnd(bitbucketEndpoint, '/');
         for (String gitlabUrlPatternTemplate : gitlabUrlPatternTemplates) {
-          gitlabUrlPatterns.add(compile(format(gitlabUrlPatternTemplate, trimmedEndpoint)));
+          this.gitlabUrlPatterns.add(
+              Pattern.compile(format(gitlabUrlPatternTemplate, trimmedEndpoint)));
         }
       }
-    } else {
-      gitlabUrlPatternTemplates.forEach(
-          t -> gitlabUrlPatterns.add(compile(format(t, "https://gitlab.com"))));
     }
   }
 
@@ -92,10 +89,13 @@ public class GitlabUrlParser {
   }
 
   public boolean isValid(@NotNull String url) {
-    // If Gitlab URL is not configured, try to find it in a manually added user namespace
-    // token.
-    return gitlabUrlPatterns.stream().anyMatch(pattern -> pattern.matcher(url).matches())
-        || isUserTokenPresent(url);
+    if (!gitlabUrlPatterns.isEmpty()) {
+      return gitlabUrlPatterns.stream().anyMatch(pattern -> pattern.matcher(url).matches());
+    } else {
+      // If Gitlab URL is not configured, try to find it in a manually added user namespace
+      // token.
+      return isUserTokenPresent(url);
+    }
   }
 
   private Optional<Matcher> getPatternMatcherByUrl(String url) {
@@ -103,7 +103,7 @@ public class GitlabUrlParser {
     if (serverUrlOptional.isPresent()) {
       String serverUrl = serverUrlOptional.get();
       return gitlabUrlPatternTemplates.stream()
-          .map(t -> compile(format(t, serverUrl)).matcher(url))
+          .map(t -> Pattern.compile(format(t, serverUrl)).matcher(url))
           .filter(Matcher::matches)
           .findAny();
     }
@@ -111,7 +111,7 @@ public class GitlabUrlParser {
   }
 
   private Optional<String> getServerUrl(String repositoryUrl) {
-    Matcher serverUrlMatcher = compile("[^/|:]/").matcher(repositoryUrl);
+    Matcher serverUrlMatcher = Pattern.compile("[^/|:]/").matcher(repositoryUrl);
     if (serverUrlMatcher.find()) {
       return Optional.of(
           repositoryUrl.substring(0, repositoryUrl.indexOf(serverUrlMatcher.group()) + 1));
@@ -125,19 +125,28 @@ public class GitlabUrlParser {
    */
   public GitlabUrl parse(String url) {
 
-    Optional<Matcher> matcherOptional =
-        gitlabUrlPatterns.stream()
-            .map(pattern -> pattern.matcher(url))
-            .filter(Matcher::matches)
-            .findFirst()
-            .or(() -> getPatternMatcherByUrl(url));
-    if (matcherOptional.isPresent()) {
-      return parse(matcherOptional.get());
-    } else {
+    if (gitlabUrlPatterns.isEmpty()) {
+      Optional<Matcher> optionalMatcher = getPatternMatcherByUrl(url);
+      if (optionalMatcher.isPresent()) {
+        return parse(optionalMatcher.get());
+      }
       throw new UnsupportedOperationException(
           "The gitlab integration is not configured properly and cannot be used at this moment."
               + "Please refer to docs to check the Gitlab integration instructions");
     }
+
+    Matcher matcher =
+        gitlabUrlPatterns.stream()
+            .map(pattern -> pattern.matcher(url))
+            .filter(Matcher::matches)
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        format(
+                            "The given url %s is not a valid Gitlab server URL. Check either URL or server configuration.",
+                            url)));
+    return parse(matcher);
   }
 
   private GitlabUrl parse(Matcher matcher) {

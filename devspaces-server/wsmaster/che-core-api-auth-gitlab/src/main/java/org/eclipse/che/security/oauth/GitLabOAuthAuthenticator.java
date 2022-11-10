@@ -12,7 +12,6 @@
 package org.eclipse.che.security.oauth;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.eclipse.che.commons.lang.StringUtils.trimEnd;
 
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import jakarta.mail.internet.AddressException;
@@ -43,15 +42,14 @@ public class GitLabOAuthAuthenticator extends OAuthAuthenticator {
   public GitLabOAuthAuthenticator(
       String clientId, String clientSecret, String gitlabEndpoint, String cheApiEndpoint)
       throws IOException {
-    String trimmedGitlabEndpoint = trimEnd(gitlabEndpoint, '/');
-    this.gitlabUserEndpoint = trimmedGitlabEndpoint + "/api/v4/user";
+    this.gitlabUserEndpoint = gitlabEndpoint + "/api/v4/user";
     this.cheApiEndpoint = cheApiEndpoint;
     configure(
         clientId,
         clientSecret,
         new String[] {},
-        trimmedGitlabEndpoint + "/oauth/authorize",
-        trimmedGitlabEndpoint + "/oauth/token",
+        gitlabEndpoint + "/oauth/authorize",
+        gitlabEndpoint + "/oauth/token",
         new MemoryDataStoreFactory());
   }
 

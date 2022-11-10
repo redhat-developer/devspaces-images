@@ -26,6 +26,7 @@ import static org.eclipse.che.api.workspace.shared.Constants.TOOL_CONTAINER_SOUR
 import static org.eclipse.che.commons.lang.NameGenerator.generate;
 import static org.eclipse.che.workspace.infrastructure.kubernetes.Constants.CHE_ORIGINAL_NAME_LABEL;
 import static org.eclipse.che.workspace.infrastructure.kubernetes.server.secure.SecureServerExposerFactoryProvider.SECURE_EXPOSER_IMPL_PROPERTY;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.spy;
@@ -67,6 +68,7 @@ import org.eclipse.che.api.workspace.server.model.impl.devfile.EnvImpl;
 import org.eclipse.che.api.workspace.server.spi.InfrastructureException;
 import org.eclipse.che.api.workspace.server.spi.environment.InternalEnvironment;
 import org.eclipse.che.api.workspace.server.spi.environment.InternalMachineConfig;
+import org.eclipse.che.api.workspace.server.spi.provision.env.ProjectsRootEnvVariableProvider;
 import org.eclipse.che.api.workspace.server.wsplugins.model.CheContainer;
 import org.eclipse.che.api.workspace.server.wsplugins.model.CheContainerPort;
 import org.eclipse.che.api.workspace.server.wsplugins.model.ChePlugin;
@@ -75,6 +77,7 @@ import org.eclipse.che.api.workspace.server.wsplugins.model.Command;
 import org.eclipse.che.api.workspace.server.wsplugins.model.EnvVar;
 import org.eclipse.che.api.workspace.server.wsplugins.model.Volume;
 import org.eclipse.che.commons.lang.NameGenerator;
+import org.eclipse.che.commons.lang.Pair;
 import org.eclipse.che.workspace.infrastructure.kubernetes.Warnings;
 import org.eclipse.che.workspace.infrastructure.kubernetes.environment.KubernetesEnvironment;
 import org.eclipse.che.workspace.infrastructure.kubernetes.environment.KubernetesEnvironment.PodData;
@@ -91,6 +94,7 @@ import org.testng.annotations.Test;
 public class KubernetesPluginsToolingApplierTest {
 
   private static final String TEST_IMAGE = "testImage/test/test";
+  private static final String TEST_IMAGE_POLICY = "IfNotPresent";
   private static final String ENV_VAR = "PLUGINS_ENV_VAR";
   private static final String ENV_VAR_VALUE = "PLUGINS_ENV_VAR_VALUE";
   private static final String POD_NAME = "pod12";
@@ -109,6 +113,7 @@ public class KubernetesPluginsToolingApplierTest {
   @Mock private Container userContainer;
   @Mock private InternalMachineConfig userMachineConfig;
   @Mock private RuntimeIdentity runtimeIdentity;
+  @Mock private ProjectsRootEnvVariableProvider projectsRootEnvVariableProvider;
   @Mock private ChePluginsVolumeApplier chePluginsVolumeApplier;
   @Mock private EnvVars envVars;
 
@@ -121,11 +126,13 @@ public class KubernetesPluginsToolingApplierTest {
     internalEnvironment.setDevfile(new DevfileImpl());
     applier =
         new KubernetesPluginsToolingApplier(
+            TEST_IMAGE_POLICY,
             MEMORY_LIMIT_MB,
             MEMORY_REQUEST_MB,
             CPU_LIMIT,
             CPU_REQUEST,
             false,
+            projectsRootEnvVariableProvider,
             chePluginsVolumeApplier,
             envVars);
 
@@ -140,6 +147,10 @@ public class KubernetesPluginsToolingApplierTest {
     lenient().when(meta.getName()).thenReturn(POD_NAME);
     internalEnvironment.addPod(pod);
     internalEnvironment.getMachines().putAll(machines);
+
+    lenient()
+        .when(projectsRootEnvVariableProvider.get(any()))
+        .thenReturn(new Pair<>("projects_root", "/somewhere/over/the/rainbow"));
   }
 
   @Test
@@ -711,11 +722,13 @@ public class KubernetesPluginsToolingApplierTest {
       throws Exception {
     applier =
         new KubernetesPluginsToolingApplier(
+            TEST_IMAGE_POLICY,
             MEMORY_LIMIT_MB,
             MEMORY_REQUEST_MB,
             CPU_LIMIT,
             CPU_REQUEST,
             true,
+            projectsRootEnvVariableProvider,
             chePluginsVolumeApplier,
             envVars);
     internalEnvironment.getAttributes().put(SECURE_EXPOSER_IMPL_PROPERTY, "somethingElse");
@@ -727,14 +740,45 @@ public class KubernetesPluginsToolingApplierTest {
   }
 
   @Test
-  public void shouldSetNullImagePullPolicyIfValueIsNotStandard() throws Exception {
+  public void shouldSetSpecifiedImagePullPolicy() throws Exception {
     applier =
         new KubernetesPluginsToolingApplier(
+            TEST_IMAGE_POLICY,
             MEMORY_LIMIT_MB,
             MEMORY_REQUEST_MB,
             CPU_LIMIT,
             CPU_REQUEST,
             true,
+            projectsRootEnvVariableProvider,
+            chePluginsVolumeApplier,
+            envVars);
+
+    applier.apply(runtimeIdentity, internalEnvironment, singletonList(createChePlugin()));
+
+    assertEquals(
+        internalEnvironment
+            .getPodsCopy()
+            .values()
+            .iterator()
+            .next()
+            .getSpec()
+            .getContainers()
+            .get(1)
+            .getImagePullPolicy(),
+        TEST_IMAGE_POLICY);
+  }
+
+  @Test
+  public void shouldSetNullImagePullPolicyIfValueIsNotStandard() throws Exception {
+    applier =
+        new KubernetesPluginsToolingApplier(
+            "None",
+            MEMORY_LIMIT_MB,
+            MEMORY_REQUEST_MB,
+            CPU_LIMIT,
+            CPU_REQUEST,
+            true,
+            projectsRootEnvVariableProvider,
             chePluginsVolumeApplier,
             envVars);
 

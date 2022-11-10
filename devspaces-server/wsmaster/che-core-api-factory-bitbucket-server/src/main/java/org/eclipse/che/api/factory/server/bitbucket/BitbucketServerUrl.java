@@ -11,9 +11,7 @@
  */
 package org.eclipse.che.api.factory.server.bitbucket;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.google.common.base.Strings.isNullOrEmpty;
-
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +29,6 @@ public class BitbucketServerUrl implements RemoteFactoryUrl {
 
   /** Project part of bitbucket URL */
   private String project;
-
-  private String user;
 
   /** Repository part of the URL. */
   private String repository;
@@ -117,15 +113,8 @@ public class BitbucketServerUrl implements RemoteFactoryUrl {
   }
 
   protected BitbucketServerUrl withBranch(String branch) {
-    if (!isNullOrEmpty(branch)) {
+    if (!Strings.isNullOrEmpty(branch)) {
       this.branch = branch;
-    }
-    return this;
-  }
-
-  protected BitbucketServerUrl withUser(String user) {
-    if (!isNullOrEmpty(user)) {
-      this.user = user;
     }
     return this;
   }
@@ -163,9 +152,8 @@ public class BitbucketServerUrl implements RemoteFactoryUrl {
     StringJoiner joiner =
         new StringJoiner("/")
             .add(hostName)
-            .add("rest/api/1.0")
-            .add(!isNullOrEmpty(user) && isNullOrEmpty(project) ? "users" : "projects")
-            .add(firstNonNull(user, project))
+            .add("rest/api/1.0/projects")
+            .add(project)
             .add("repos")
             .add(repository)
             .add("raw")
@@ -183,11 +171,6 @@ public class BitbucketServerUrl implements RemoteFactoryUrl {
    * @return location of the repository.
    */
   protected String repositoryLocation() {
-    return hostName
-        + "/scm/"
-        + (isNullOrEmpty(user) ? project : "~" + user)
-        + "/"
-        + this.repository
-        + ".git";
+    return hostName + "/scm/" + this.project + "/" + this.repository + ".git";
   }
 }

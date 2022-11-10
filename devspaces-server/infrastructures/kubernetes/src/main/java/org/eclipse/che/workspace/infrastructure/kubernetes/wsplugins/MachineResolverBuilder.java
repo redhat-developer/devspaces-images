@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat, Inc.
+ * Copyright (c) 2012-2021 Red Hat, Inc.
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.che.api.core.model.workspace.devfile.Component;
 import org.eclipse.che.api.workspace.server.wsplugins.model.CheContainer;
 import org.eclipse.che.api.workspace.server.wsplugins.model.ChePluginEndpoint;
+import org.eclipse.che.commons.lang.Pair;
 
 /** @author Alexander Garagatyi */
 public class MachineResolverBuilder {
@@ -27,6 +28,7 @@ public class MachineResolverBuilder {
   private String defaultSidecarCpuLimitAttribute;
   private String defaultSidecarCpuRequestAttribute;
   private List<ChePluginEndpoint> containerEndpoints;
+  private Pair<String, String> projectsRootPathEnvVar;
   private Component component;
 
   public MachineResolver build() {
@@ -36,12 +38,14 @@ public class MachineResolverBuilder {
         || defaultSidecarMemoryRequestAttribute == null
         || defaultSidecarCpuLimitAttribute == null
         || defaultSidecarCpuRequestAttribute == null
-        || containerEndpoints == null) {
+        || containerEndpoints == null
+        || projectsRootPathEnvVar == null) {
       throw new IllegalStateException(
           "Unable to build MachineResolver because some fields are null");
     }
 
     return new MachineResolver(
+        projectsRootPathEnvVar,
         container,
         cheContainer,
         defaultSidecarMemoryLimitAttribute,
@@ -88,6 +92,12 @@ public class MachineResolverBuilder {
 
   public MachineResolverBuilder setContainerEndpoints(List<ChePluginEndpoint> containerEndpoints) {
     this.containerEndpoints = containerEndpoints;
+    return this;
+  }
+
+  public MachineResolverBuilder setProjectsRootPathEnvVar(
+      Pair<String, String> projectsRootPathEnvVar) {
+    this.projectsRootPathEnvVar = projectsRootPathEnvVar;
     return this;
   }
 

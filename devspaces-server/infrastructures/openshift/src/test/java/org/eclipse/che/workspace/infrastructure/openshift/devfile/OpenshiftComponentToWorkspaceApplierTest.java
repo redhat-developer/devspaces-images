@@ -74,7 +74,13 @@ public class OpenshiftComponentToWorkspaceApplierTest {
     k8sBasedComponents.add(KUBERNETES_COMPONENT_TYPE);
     applier =
         new OpenshiftComponentToWorkspaceApplier(
-            k8sRecipeParser, k8sEnvProvisioner, envVars, MULTI_HOST_STRATEGY, k8sBasedComponents);
+            k8sRecipeParser,
+            k8sEnvProvisioner,
+            envVars,
+            "/projects",
+            "Always",
+            MULTI_HOST_STRATEGY,
+            k8sBasedComponents);
 
     workspaceConfig = new WorkspaceConfigImpl();
   }
@@ -108,6 +114,8 @@ public class OpenshiftComponentToWorkspaceApplierTest {
             k8sRecipeParser,
             k8sEnvProvisioner,
             envVars,
+            "/projects",
+            "Always",
             SINGLE_HOST_STRATEGY,
             openshiftBasedComponents);
 
@@ -158,6 +166,8 @@ public class OpenshiftComponentToWorkspaceApplierTest {
             k8sRecipeParser,
             k8sEnvProvisioner,
             envVars,
+            "/projects",
+            "Always",
             MULTI_HOST_STRATEGY,
             openshiftBasedComponents);
 

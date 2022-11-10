@@ -12,7 +12,6 @@
 package org.eclipse.che.api.factory.server.bitbucket;
 
 import static java.lang.String.format;
-import static java.util.regex.Pattern.compile;
 
 import com.google.common.base.Splitter;
 import jakarta.validation.constraints.NotNull;
@@ -44,12 +43,8 @@ public class BitbucketServerURLParser {
 
   private final DevfileFilenamesProvider devfileFilenamesProvider;
   private final PersonalAccessTokenManager personalAccessTokenManager;
-  private static final List<String> bitbucketUrlPatternTemplates =
-      List.of(
-          "^(?<host>%s)/scm/~(?<user>[^/]+)/(?<repo>.*).git$",
-          "^(?<host>%s)/users/(?<user>[^/]+)/repos/(?<repo>[^/]+)/browse(\\?at=(?<branch>.*))?",
-          "^(?<host>%s)/scm/(?<project>[^/~]+)/(?<repo>[^/]+).git",
-          "^(?<host>%s)/projects/(?<project>[^/]+)/repos/(?<repo>[^/]+)/browse(\\?at=(?<branch>.*))?");
+  private static final String bitbucketUrlPatternTemplate =
+      "^(?<host>%s)/scm/(?<project>[^/]++)/(?<repo>[^.]++).git(\\?at=)?(?<branch>[\\w\\d-_]*)";
   private final List<Pattern> bitbucketUrlPatterns = new ArrayList<>();
   private static final String OAUTH_PROVIDER_NAME = "bitbucket-server";
 
@@ -63,16 +58,17 @@ public class BitbucketServerURLParser {
     if (bitbucketEndpoints != null) {
       for (String bitbucketEndpoint : Splitter.on(",").split(bitbucketEndpoints)) {
         String trimmedEndpoint = StringUtils.trimEnd(bitbucketEndpoint, '/');
-        bitbucketUrlPatternTemplates.forEach(
-            t -> bitbucketUrlPatterns.add(Pattern.compile(format(t, trimmedEndpoint))));
+        this.bitbucketUrlPatterns.add(
+            Pattern.compile(format(bitbucketUrlPatternTemplate, trimmedEndpoint)));
       }
     }
   }
 
   private boolean isUserTokenPresent(String repositoryUrl) {
     String serverUrl = getServerUrl(repositoryUrl);
-    if (bitbucketUrlPatternTemplates.stream()
-        .anyMatch(t -> Pattern.compile(format(t, serverUrl)).matcher(repositoryUrl).matches())) {
+    if (Pattern.compile(format(bitbucketUrlPatternTemplate, serverUrl))
+        .matcher(repositoryUrl)
+        .matches()) {
       try {
         Optional<PersonalAccessToken> token =
             personalAccessTokenManager.get(EnvironmentContext.getCurrent().getSubject(), serverUrl);
@@ -102,11 +98,8 @@ public class BitbucketServerURLParser {
         repositoryUrl.indexOf("/scm") > 0 ? repositoryUrl.indexOf("/scm") : repositoryUrl.length());
   }
 
-  private Optional<Matcher> getPatternMatcherByUrl(String url) {
-    return bitbucketUrlPatternTemplates.stream()
-        .map(t -> compile(format(t, getServerUrl(url))).matcher(url))
-        .filter(Matcher::matches)
-        .findAny();
+  private Matcher getPatternMatcherByUrl(String url) {
+    return Pattern.compile(format(bitbucketUrlPatternTemplate, getServerUrl(url))).matcher(url);
   }
 
   /**
@@ -117,9 +110,9 @@ public class BitbucketServerURLParser {
   public BitbucketServerUrl parse(String url) {
 
     if (bitbucketUrlPatterns.isEmpty()) {
-      Optional<Matcher> matcherOptional = getPatternMatcherByUrl(url);
-      if (matcherOptional.isPresent()) {
-        return parse(matcherOptional.get());
+      Matcher patternMatcher = getPatternMatcherByUrl(url);
+      if (patternMatcher.matches()) {
+        return parse(patternMatcher);
       }
       throw new UnsupportedOperationException(
           "The Bitbucket integration is not configured properly and cannot be used at this moment."
@@ -142,25 +135,13 @@ public class BitbucketServerURLParser {
 
   private BitbucketServerUrl parse(Matcher matcher) {
     String host = matcher.group("host");
-    String user = null;
-    String project = null;
-    try {
-      user = matcher.group("user");
-    } catch (IllegalArgumentException e) {
-      project = matcher.group("project");
-    }
+    String project = matcher.group("project");
     String repoName = matcher.group("repo");
-    String branch = null;
-    try {
-      branch = matcher.group("branch");
-    } catch (IllegalArgumentException e) {
-      // keep branch with null, as the pattern doesn't have the branch group
-    }
+    String branch = matcher.group("branch");
 
     return new BitbucketServerUrl()
         .withHostName(host)
         .withProject(project)
-        .withUser(user)
         .withRepository(repoName)
         .withBranch(branch)
         .withDevfileFilenames(devfileFilenamesProvider.getConfiguredDevfileFilenames());

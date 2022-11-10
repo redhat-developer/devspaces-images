@@ -28,6 +28,8 @@ public class OpenshiftComponentToWorkspaceApplier extends KubernetesComponentToW
       KubernetesRecipeParser objectsParser,
       KubernetesEnvironmentProvisioner k8sEnvProvisioner,
       EnvVars envVars,
+      @Named("che.workspace.projects.storage") String projectFolderPath,
+      @Named("che.workspace.sidecar.image_pull_policy") String imagePullPolicy,
       @Named("che.infra.kubernetes.singlehost.workspace.devfile_endpoint_exposure")
           String devfileEndpointsExposure,
       @Named(KUBERNETES_BASED_COMPONENTS_KEY_NAME) Set<String> kubernetesBasedComponentTypes) {
@@ -36,6 +38,8 @@ public class OpenshiftComponentToWorkspaceApplier extends KubernetesComponentToW
         k8sEnvProvisioner,
         envVars,
         OpenShiftEnvironment.TYPE,
+        projectFolderPath,
+        imagePullPolicy,
         devfileEndpointsExposure,
         kubernetesBasedComponentTypes);
   }

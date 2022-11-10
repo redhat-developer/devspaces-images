@@ -12,8 +12,6 @@
 package org.eclipse.che.api.factory.server;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-import static java.util.Collections.singletonMap;
-import static org.eclipse.che.api.factory.server.ApiExceptionMapper.toApiException;
 import static org.eclipse.che.api.factory.server.FactoryLinksHelper.createLinks;
 import static org.eclipse.che.api.factory.shared.Constants.URL_PARAMETER_NAME;
 
@@ -146,18 +144,13 @@ public class FactoryService extends Service {
     requiredNotNull(url, "Factory url");
 
     try {
-      FactoryParametersResolver factoryParametersResolver =
-          factoryParametersResolverHolder.getFactoryParametersResolver(
-              singletonMap(URL_PARAMETER_NAME, url));
-      personalAccessTokenManager.getAndStore(
-          factoryParametersResolver.parseFactoryUrl(url).getHostName());
+      personalAccessTokenManager.getAndStore(url);
     } catch (ScmCommunicationException
         | ScmConfigurationPersistenceException
         | UnknownScmProviderException
-        | UnsatisfiedScmPreconditionException e) {
+        | UnsatisfiedScmPreconditionException
+        | ScmUnauthorizedException e) {
       throw new ApiException(e);
-    } catch (ScmUnauthorizedException e) {
-      throw toApiException(e);
     }
   }
 

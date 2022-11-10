@@ -61,21 +61,12 @@ public class GithubURLParser {
    */
   private final Pattern githubPattern;
 
-  private final boolean disableSubdomainIsolation;
-
   @Inject
   public GithubURLParser(
       PersonalAccessTokenManager tokenManager,
       DevfileFilenamesProvider devfileFilenamesProvider,
-      @Nullable @Named("che.integration.github.oauth_endpoint") String oauthEndpoint,
-      @Named("che.integration.github.disable_subdomain_isolation")
-          boolean disableSubdomainIsolation) {
-    this(
-        tokenManager,
-        devfileFilenamesProvider,
-        new GithubApiClient(oauthEndpoint),
-        oauthEndpoint,
-        disableSubdomainIsolation);
+      @Nullable @Named("che.integration.github.oauth_endpoint") String oauthEndpoint) {
+    this(tokenManager, devfileFilenamesProvider, new GithubApiClient(oauthEndpoint), oauthEndpoint);
   }
 
   /** Constructor used for testing only. */
@@ -83,8 +74,7 @@ public class GithubURLParser {
       PersonalAccessTokenManager tokenManager,
       DevfileFilenamesProvider devfileFilenamesProvider,
       GithubApiClient githubApiClient,
-      String oauthEndpoint,
-      boolean disableSubdomainIsolation) {
+      String oauthEndpoint) {
     this.tokenManager = tokenManager;
     this.devfileFilenamesProvider = devfileFilenamesProvider;
     this.apiClient = githubApiClient;
@@ -96,7 +86,6 @@ public class GithubURLParser {
             format(
                 "^%s/(?<repoUser>[^/]++)/(?<repoName>[^/]++)((/)|(?:/tree/(?<branchName>[^/]++)(?:/(?<subFolder>.*))?)|(/pull/(?<pullRequestId>[^/]++)))?$",
                 endpoint));
-    this.disableSubdomainIsolation = disableSubdomainIsolation;
   }
 
   public boolean isValid(@NotNull String url) {
@@ -178,7 +167,6 @@ public class GithubURLParser {
         .withUsername(repoUser)
         .withRepository(repoName)
         .withServerUrl(serverUrl)
-        .withDisableSubdomainIsolation(disableSubdomainIsolation)
         .withBranch(branchName)
         .withSubfolder(matcher.group("subFolder"))
         .withDevfileFilenames(devfileFilenamesProvider.getConfiguredDevfileFilenames());

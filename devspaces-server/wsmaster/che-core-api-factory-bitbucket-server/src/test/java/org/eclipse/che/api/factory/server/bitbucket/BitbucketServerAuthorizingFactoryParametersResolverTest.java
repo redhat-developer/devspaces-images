@@ -122,8 +122,7 @@ public class BitbucketServerAuthorizingFactoryParametersResolverTest {
   @Test
   public void shouldSetDefaultProjectIntoDevfileIfNotSpecified() throws Exception {
 
-    String bitbucketUrl =
-        "http://bitbucket.2mcl.com/users/test/repos/repo/browse?at=refs%2Fheads%2Ffoobar";
+    String bitbucketUrl = "http://bitbucket.2mcl.com/scm/test/repo.git?at=foobar";
 
     FactoryDto computedFactory = generateDevfileFactory();
 
@@ -138,15 +137,14 @@ public class BitbucketServerAuthorizingFactoryParametersResolverTest {
     // then
     assertNotNull(factory.getDevfile());
     SourceDto source = factory.getDevfile().getProjects().get(0).getSource();
-    assertEquals(source.getLocation(), "http://bitbucket.2mcl.com/scm/~test/repo.git");
-    assertEquals(source.getBranch(), "refs%2Fheads%2Ffoobar");
+    assertEquals(source.getLocation(), "http://bitbucket.2mcl.com/scm/test/repo.git");
+    assertEquals(source.getBranch(), "foobar");
   }
 
   @Test
   public void shouldSetScmInfoIntoDevfileV2() throws Exception {
 
-    String bitbucketUrl =
-        "http://bitbucket.2mcl.com/users/test/repos/repo/browse?at=refs%2Fheads%2Ffoobar";
+    String bitbucketUrl = "http://bitbucket.2mcl.com/scm/test/repo.git?at=foobar";
 
     FactoryDevfileV2Dto computedFactory = generateDevfileV2Factory();
 
@@ -162,7 +160,7 @@ public class BitbucketServerAuthorizingFactoryParametersResolverTest {
     ScmInfo scmInfo = factory.getScmInfo();
     assertNotNull(scmInfo);
     assertEquals(scmInfo.getScmProviderName(), "bitbucket");
-    assertEquals(scmInfo.getRepositoryUrl(), "http://bitbucket.2mcl.com/scm/~test/repo.git");
+    assertEquals(scmInfo.getRepositoryUrl(), "http://bitbucket.2mcl.com/scm/test/repo.git");
     assertEquals(scmInfo.getBranch(), "foobar");
   }
 

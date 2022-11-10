@@ -23,12 +23,15 @@ import org.eclipse.che.workspace.infrastructure.kubernetes.provision.GatewayRout
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.GitConfigProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.ImagePullSecretProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.KubernetesTrustedCAProvisioner;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.NodeSelectorProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.PodTerminationGracePeriodProvisioner;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.ProxySettingsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.SecurityContextProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.ServiceAccountProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.SshKeysProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TlsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TlsProvisionerProvider;
+import org.eclipse.che.workspace.infrastructure.kubernetes.provision.TolerationsProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.UniqueNamesProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.VcsSslCertificateProvisioner;
 import org.eclipse.che.workspace.infrastructure.kubernetes.provision.env.EnvVarsConverter;
@@ -66,6 +69,9 @@ public interface KubernetesEnvironmentProvisioner<T extends KubernetesEnvironmen
     private final PodTerminationGracePeriodProvisioner podTerminationGracePeriodProvisioner;
     private final TlsProvisioner<KubernetesEnvironment> externalServerTlsProvisioner;
     private final ImagePullSecretProvisioner imagePullSecretProvisioner;
+    private final ProxySettingsProvisioner proxySettingsProvisioner;
+    private final NodeSelectorProvisioner nodeSelectorProvisioner;
+    private final TolerationsProvisioner tolerationsProvisioner;
     private final ServiceAccountProvisioner serviceAccountProvisioner;
     private final CertificateProvisioner certificateProvisioner;
     private final SshKeysProvisioner sshKeysProvisioner;
@@ -86,6 +92,9 @@ public interface KubernetesEnvironmentProvisioner<T extends KubernetesEnvironmen
         PodTerminationGracePeriodProvisioner podTerminationGracePeriodProvisioner,
         TlsProvisionerProvider<KubernetesEnvironment> externalServerTlsProvisionerProvider,
         ImagePullSecretProvisioner imagePullSecretProvisioner,
+        ProxySettingsProvisioner proxySettingsProvisioner,
+        NodeSelectorProvisioner nodeSelectorProvisioner,
+        TolerationsProvisioner tolerationsProvisioner,
         ServiceAccountProvisioner serviceAccountProvisioner,
         CertificateProvisioner certificateProvisioner,
         SshKeysProvisioner sshKeysProvisioner,
@@ -103,6 +112,9 @@ public interface KubernetesEnvironmentProvisioner<T extends KubernetesEnvironmen
       this.podTerminationGracePeriodProvisioner = podTerminationGracePeriodProvisioner;
       this.externalServerTlsProvisioner = externalServerTlsProvisionerProvider.get();
       this.imagePullSecretProvisioner = imagePullSecretProvisioner;
+      this.proxySettingsProvisioner = proxySettingsProvisioner;
+      this.nodeSelectorProvisioner = nodeSelectorProvisioner;
+      this.tolerationsProvisioner = tolerationsProvisioner;
       this.serviceAccountProvisioner = serviceAccountProvisioner;
       this.certificateProvisioner = certificateProvisioner;
       this.sshKeysProvisioner = sshKeysProvisioner;
@@ -131,10 +143,13 @@ public interface KubernetesEnvironmentProvisioner<T extends KubernetesEnvironmen
       LOG.debug("Provisioning environment items for workspace '{}'", workspaceId);
       restartPolicyRewriter.provision(k8sEnv, identity);
       resourceLimitRequestProvisioner.provision(k8sEnv, identity);
+      nodeSelectorProvisioner.provision(k8sEnv, identity);
+      tolerationsProvisioner.provision(k8sEnv, identity);
       externalServerTlsProvisioner.provision(k8sEnv, identity);
       securityContextProvisioner.provision(k8sEnv, identity);
       podTerminationGracePeriodProvisioner.provision(k8sEnv, identity);
       imagePullSecretProvisioner.provision(k8sEnv, identity);
+      proxySettingsProvisioner.provision(k8sEnv, identity);
       serviceAccountProvisioner.provision(k8sEnv, identity);
       certificateProvisioner.provision(k8sEnv, identity);
       sshKeysProvisioner.provision(k8sEnv, identity);
