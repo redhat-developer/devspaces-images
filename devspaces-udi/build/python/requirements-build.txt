@@ -4,39 +4,75 @@
 #
 #    pip-compile --allow-unsafe --output-file=requirements-build.txt requirements-build.in
 #
+argcomplete==2.0.0
+    # via
+    #   -r requirements-build.in
+    #   yq
 attrs==22.1.0
-    # via pytest
-flit-core==3.7.1
+    # via
+    #   -r requirements-build.in
+    #   pytest
+cython==0.29.32
+    # via -r requirements-build.in
+exceptiongroup==1.0.1
+    # via
+    #   -r requirements-build.in
+    #   pytest
+flit-core==3.8.0
     # via -r requirements-build.in
 iniconfig==1.1.1
-    # via pytest
+    # via
+    #   -r requirements-build.in
+    #   pytest
 packaging==21.3
     # via
+    #   -r requirements-build.in
     #   pytest
     #   setuptools-scm
 pluggy==1.0.0
-    # via pytest
-py==1.11.0
-    # via pytest
+    # via
+    #   -r requirements-build.in
+    #   pytest
 pyparsing==3.0.9
-    # via packaging
-pytest==7.1.3
+    # via
+    #   -r requirements-build.in
+    #   packaging
+pytest==7.2.0
     # via -r requirements-build.in
+pyyaml==6.0
+    # via
+    #   -r requirements-build.in
+    #   yq
 setuptools-scm==7.0.5
     # via -r requirements-build.in
+six==1.16.0
+    # via -r requirements-build.in
+toml==0.10.2
+    # via
+    #   -r requirements-build.in
+    #   yq
 tomli==2.0.1
     # via
+    #   -r requirements-build.in
     #   pytest
     #   setuptools-scm
-typing-extensions==4.3.0
-    # via setuptools-scm
-wheel==0.37.1
+typing-extensions==4.4.0
+    # via
+    #   -r requirements-build.in
+    #   setuptools-scm
+wheel==0.38.4
+    # via -r requirements-build.in
+xmltodict==0.13.0
+    # via
+    #   -r requirements-build.in
+    #   yq
+yq==3.1.0
     # via -r requirements-build.in
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==22.2.2
+pip==22.3.1
     # via -r requirements-build.in
-setuptools==65.2.0
+setuptools==65.5.1
     # via
     #   -r requirements-build.in
     #   setuptools-scm
