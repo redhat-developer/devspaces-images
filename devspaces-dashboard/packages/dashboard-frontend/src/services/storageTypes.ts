@@ -19,6 +19,7 @@ export enum StorageTypeTitle {
   persistent = 'Persistent',
   'per-user' = 'Per-user',
   'per-workspace' = 'Per-workspace',
+  '' = 'Not defined',
 }
 
 export function toTitle(type: che.WorkspaceStorageType): string {

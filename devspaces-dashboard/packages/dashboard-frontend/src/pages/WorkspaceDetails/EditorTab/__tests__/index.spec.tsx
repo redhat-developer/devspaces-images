@@ -10,24 +10,24 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import React from 'react';
-import { Provider } from 'react-redux';
-import { Store } from 'redux';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import renderer, { ReactTestRenderer } from 'react-test-renderer';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { dump, load } from 'js-yaml';
-import devfileApi from '../../../../services/devfileApi';
+import React from 'react';
+import { Provider } from 'react-redux';
+import renderer, { ReactTestRenderer } from 'react-test-renderer';
+import { Store } from 'redux';
 import EditorTab from '..';
-import { Workspace, constructWorkspace } from '../../../../services/workspace-adapter';
-import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
-import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
+import { container } from '../../../../inversify.config';
+import devfileApi from '../../../../services/devfileApi';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../../../services/devfileApi/devWorkspace/spec/template';
+import { constructWorkspace, Workspace } from '../../../../services/workspace-adapter';
 import {
   DevWorkspaceClient,
   DEVWORKSPACE_METADATA_ANNOTATION,
 } from '../../../../services/workspace-client/devworkspace/devWorkspaceClient';
-import { container } from '../../../../inversify.config';
-import { DEVWORKSPACE_STORAGE_TYPE } from '../../../../services/devfileApi/devWorkspace/spec';
+import { DevWorkspaceBuilder } from '../../../../store/__mocks__/devWorkspaceBuilder';
+import { FakeStoreBuilder } from '../../../../store/__mocks__/storeBuilder';
 
 // uses the Devfile Editor mock
 jest.mock('../../../../components/DevfileEditor');
@@ -58,7 +58,7 @@ describe('Editor Tab', () => {
         .withNamespace(namespace)
         .withTemplate({
           attributes: {
-            [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+            [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
             [DEVWORKSPACE_METADATA_ANNOTATION]: initialMetadataAnnotationAttr,
           },
         })
@@ -361,6 +361,7 @@ function getComponent(store: Store, workspace: Workspace): React.ReactElement {
         workspace={workspace}
         onSave={workspace => mockOnSave(workspace)}
         onDevWorkspaceWarning={() => mockOnWorkspaceWarning()}
+        isRunning={workspace.isRunning}
       />
     </Provider>
   );

@@ -44,6 +44,7 @@ import { DevWorkspaceStatus } from '../../../services/helpers/types';
 export type Props = {
   onSave: (workspace: Workspace) => Promise<void>;
   workspace: Workspace;
+  isRunning: boolean;
   onDevWorkspaceWarning: () => void;
 };
 
@@ -378,6 +379,9 @@ export class EditorTab extends React.PureComponent<Props, State> {
         // We need to manually re-attach devworkspace id so that we can re-use it to re-add default plugins to the devworkspace custom resource
         const dw = this.props.workspace.ref as devfileApi.DevWorkspace;
         workspaceCopy.ref.status = dw.status;
+        if (!this.props.isRunning && workspaceCopy.ref.spec.started) {
+          workspaceCopy.ref.spec.started = false;
+        }
       }
       await this.props.onSave(workspaceCopy);
     } catch (e) {

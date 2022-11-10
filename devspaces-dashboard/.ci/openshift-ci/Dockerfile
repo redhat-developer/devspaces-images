@@ -7,16 +7,16 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-# Contributors:
-#   Red Hat, Inc. - initial API and implementation
-# Dockerfile to bootstrap build and test in openshift-ci
-FROM registry.ci.openshift.org/openshift/release:golang-1.15
+FROM registry.ci.openshift.org/openshift/release:golang-1.16
+
 SHELL ["/bin/bash", "-c"]
-# Install yq, kubectl, chectl tools
-RUN yum install --assumeyes -d1 python3-pip  httpd-tools && \
+
+# Install yq, kubectl, chectl cli.
+RUN yum install --assumeyes -d1 python3-pip  httpd-tools nodejs && \
     pip3 install --upgrade setuptools && \
     pip3 install yq && \
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && \
     chmod +x ./kubectl && \
     mv ./kubectl /usr/local/bin && \
     bash <(curl -sL https://www.eclipse.org/che/chectl/) --channel=next
+

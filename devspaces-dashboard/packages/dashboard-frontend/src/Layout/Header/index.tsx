@@ -10,19 +10,16 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { Brand, PageHeader } from '@patternfly/react-core';
 import { History } from 'history';
 import React from 'react';
-import { Brand, PageHeader } from '@patternfly/react-core';
-import { User } from 'che';
-
-import HeaderTools from './Tools';
 import { ThemeVariant } from '../themeVariant';
+import HeaderTools from './Tools';
 
 type Props = {
   history: History;
   isVisible: boolean;
   logoUrl: string;
-  user: User | undefined;
   logout: () => void;
   toggleNav: () => void;
   changeTheme: (theme: ThemeVariant) => void;
@@ -65,11 +62,7 @@ export default class Header extends React.PureComponent<Props, State> {
         showNavToggle={true}
         onNavToggle={() => this.toggleNav()}
         headerTools={
-          <HeaderTools
-            history={this.props.history}
-            user={this.props.user}
-            logout={() => this.props.logout()}
-          />
+          <HeaderTools history={this.props.history} logout={() => this.props.logout()} />
         }
       />
     );

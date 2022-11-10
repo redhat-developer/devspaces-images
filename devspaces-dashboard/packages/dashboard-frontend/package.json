@@ -1,6 +1,6 @@
 {
   "name": "@eclipse-che/dashboard-frontend",
-  "version": "7.54.1",
+  "version": "7.56.1",
   "description": "Dashboard frontend for Eclipse Che",
   "private": true,
   "repository": {
@@ -36,7 +36,7 @@
     "@eclipse-che/che-code-devworkspace-handler": "1.64.0-dev-210b722",
     "@eclipse-che/che-theia-devworkspace-handler": "0.0.1-1642670698",
     "@eclipse-che/devfile-converter": "0.0.1-d624e3e",
-    "@eclipse-che/workspace-client": "0.0.1-1632305737",
+    "@eclipse-che/workspace-client": "0.0.1-1663851810",
     "@patternfly/react-core": "4.120.0",
     "@patternfly/react-icons": "^4.3.5",
     "@patternfly/react-table": "^4.5.7",
@@ -59,7 +59,7 @@
     "process": "^0.11.10",
     "qs": "^6.9.4",
     "react": "^16.14.0",
-    "react-copy-to-clipboard": "^5.0.2",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^16.12.0",
     "react-helmet": "^6.1.0",
     "react-pluralize": "^1.6.3",

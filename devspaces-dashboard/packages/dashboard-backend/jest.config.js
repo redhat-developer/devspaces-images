@@ -19,10 +19,4 @@ module.exports = {
   moduleDirectories: [
     'node_modules',
   ],
-  collectCoverageFrom: [
-    'src/api/**/*.ts',
-    'src/services/**/*.ts',
-    'src/devworkspace-client/*.ts',
-    'src/devworkspace-client/services/**/*.ts',
-  ],
 };

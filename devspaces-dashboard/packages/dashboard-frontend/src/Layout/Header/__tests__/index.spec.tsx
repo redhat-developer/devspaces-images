@@ -32,10 +32,6 @@ describe('Page header', () => {
   const mockToggleNav = jest.fn();
   const mockChangeTheme = jest.fn();
 
-  const user = {
-    email: 'johndoe@example.com',
-    name: 'John Doe',
-  } as che.User;
   const logoUrl = 'branding/logo';
   const isHeaderVisible = true;
   const history = createHashHistory();
@@ -45,7 +41,6 @@ describe('Page header', () => {
       history={history}
       isVisible={isHeaderVisible}
       logoUrl={logoUrl}
-      user={user}
       logout={mockLogout}
       toggleNav={mockToggleNav}
       changeTheme={mockChangeTheme}

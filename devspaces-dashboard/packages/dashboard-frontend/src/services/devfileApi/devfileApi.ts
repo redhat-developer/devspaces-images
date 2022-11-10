@@ -18,13 +18,12 @@ export { DevWorkspace, DevWorkspaceKind, DevWorkspaceLike } from './devWorkspace
 
 export { DevWorkspaceSpec } from './devWorkspace/spec';
 
+export { DevWorkspaceSpecTemplate } from './devWorkspace/spec/template';
+
 export { DevWorkspaceMetadata } from './devWorkspace/metadata';
 
-export { DevWorkspaceTemplate, DevWorkspaceTemplateLike } from './devWorkspace/template';
+export { DevWorkspaceTemplate, DevWorkspaceTemplateLike } from './devWorkspaceTemplate';
 
-export { DevWorkspaceTemplateMetadata } from './devWorkspace/template/metadata';
+export { DevWorkspaceTemplateMetadata } from './devWorkspaceTemplate/metadata';
 
-export {
-  V1alpha2DevWorkspaceStatus as DevWorkspaceStatus,
-  V1alpha2DevWorkspaceSpecTemplate as DevWorkspaceSpecTemplate,
-} from '@devfile/api';
+export { V1alpha2DevWorkspaceStatus as DevWorkspaceStatus } from '@devfile/api';

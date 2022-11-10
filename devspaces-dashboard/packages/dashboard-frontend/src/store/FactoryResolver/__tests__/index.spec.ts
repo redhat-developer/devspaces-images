@@ -167,7 +167,7 @@ describe('FactoryResolver store', () => {
         },
         {
           type: 'RECEIVE_FACTORY_RESOLVER_ERROR',
-          error: expect.stringContaining('Failed to request factory resolver'),
+          error: expect.stringContaining('Unexpected error'),
         },
       ];
 
@@ -181,7 +181,7 @@ describe('FactoryResolver store', () => {
       const location = 'http://factory-link';
       await expect(
         store.dispatch(factoryResolverStore.actionCreators.requestFactoryResolver(location)),
-      ).rejects.toMatch('Failed to request factory resolver');
+      ).rejects.toMatch('Unexpected error');
       expect(actions).toEqual(expectedActions);
 
       isAxiosErrorMock.mockRestore();

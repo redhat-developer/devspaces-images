@@ -10,7 +10,9 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { V1alpha2DevWorkspaceSpecTemplateComponents } from '@devfile/api';
 import devfileApi from '../../../devfileApi';
+import { DevWorkspaceSpecTemplateAttribute } from '../../../devfileApi/devWorkspace/spec/template';
 import { DEVWORKSPACE_METADATA_ANNOTATION } from '../devWorkspaceClient';
 
 export const devWorkspaceVersion = 'v1alpha2';
@@ -28,12 +30,12 @@ export function devfileToDevWorkspace(
   }
   const devWorkspaceAnnotations = devfileAttributes[DEVWORKSPACE_METADATA_ANNOTATION] || {};
 
-  const devWorkspaceAttributes: { [key: string]: any } = {};
+  const devWorkspaceAttributes: DevWorkspaceSpecTemplateAttribute = {};
   Object.keys(devfileAttributes).forEach(key => {
     devWorkspaceAttributes[key] = devfileAttributes[key];
   });
 
-  const template: devfileApi.DevWorkspace = {
+  const devWorkspace: devfileApi.DevWorkspace = {
     apiVersion: `${devWorkspaceApiGroup}/${devWorkspaceVersion}`,
     kind: 'DevWorkspace',
     metadata: {
@@ -52,24 +54,24 @@ export function devfileToDevWorkspace(
     },
   };
   if (Object.keys(devWorkspaceAttributes).length > 0) {
-    template.spec.template.attributes = devWorkspaceAttributes;
+    devWorkspace.spec.template.attributes = devWorkspaceAttributes;
   }
   if (devfile.parent) {
-    template.spec.template.parent = devfile.parent;
+    devWorkspace.spec.template.parent = devfile.parent;
   }
   if (devfile.projects) {
-    template.spec.template.projects = devfile.projects;
+    devWorkspace.spec.template.projects = devfile.projects;
   }
   if (devfile.components) {
-    template.spec.template.components = devfile.components;
+    devWorkspace.spec.template.components = devfile.components;
   }
   if (devfile.commands) {
-    template.spec.template.commands = devfile.commands;
+    devWorkspace.spec.template.commands = devfile.commands;
   }
   if (devfile.events) {
-    template.spec.template.events = devfile.events;
+    devWorkspace.spec.template.events = devfile.events;
   }
-  return template;
+  return devWorkspace;
 }
 
 export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): devfileApi.Devfile {
@@ -97,7 +99,7 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
     template.events = devworkspace.spec.template.events;
   }
   if (devworkspace.spec.template.attributes) {
-    const devWorkspaceAttributes: { [key: string]: any } = {};
+    const devWorkspaceAttributes: DevWorkspaceSpecTemplateAttribute = {};
     Object.keys(devworkspace.spec.template.attributes).forEach(key => {
       devWorkspaceAttributes[key] = devworkspace.spec.template.attributes?.[key];
     });
@@ -109,6 +111,8 @@ export function devWorkspaceToDevfile(devworkspace: devfileApi.DevWorkspace): de
 }
 
 // Filter plugins from components
-function filterPluginComponents(components: any[]): any[] {
+function filterPluginComponents(
+  components: V1alpha2DevWorkspaceSpecTemplateComponents[],
+): V1alpha2DevWorkspaceSpecTemplateComponents[] {
   return components.filter(comp => !('plugin' in comp));
 }

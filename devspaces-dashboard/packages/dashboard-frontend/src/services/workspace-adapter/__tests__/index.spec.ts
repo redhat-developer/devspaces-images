@@ -19,10 +19,9 @@ import {
 } from '../../../store/__mocks__/cheWorkspaceBuilder';
 import { DevWorkspaceBuilder } from '../../../store/__mocks__/devWorkspaceBuilder';
 import { DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION } from '../../devfileApi/devWorkspace/metadata';
+import { DEVWORKSPACE_STORAGE_TYPE_ATTR } from '../../devfileApi/devWorkspace/spec/template';
 import { DevWorkspaceStatus } from '../../helpers/types';
 import { StorageTypeTitle } from '../../storageTypes';
-import { DEVWORKSPACE_STORAGE_TYPE } from '../../workspace-client/devworkspace/devWorkspaceClient';
-import devfileApi from '../../devfileApi';
 
 /**
  * @jest-environment node
@@ -211,60 +210,60 @@ describe('Workspace adapter', () => {
     it('should set "ephemeral" storage type', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
       devWorkspace.spec.template.attributes = {
-        [DEVWORKSPACE_STORAGE_TYPE]: 'per-workspace',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-workspace',
       };
       const workspace = constructWorkspace(devWorkspace);
 
       expect(workspace.storageType).toEqual('per-workspace');
       expect(workspace.devfile.attributes).toEqual({
-        [DEVWORKSPACE_STORAGE_TYPE]: 'per-workspace',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-workspace',
       });
 
       workspace.storageType = 'ephemeral';
 
       expect(workspace.storageType).toEqual('ephemeral');
       expect(workspace.devfile.attributes).toEqual({
-        [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
       });
     });
 
     it('should set "per-workspace" storage type', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
       devWorkspace.spec.template.attributes = {
-        [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
       };
       const workspace = constructWorkspace(devWorkspace);
 
       expect(workspace.storageType).toEqual('ephemeral');
       expect(workspace.devfile.attributes).toEqual({
-        [DEVWORKSPACE_STORAGE_TYPE]: 'ephemeral',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
       });
 
       workspace.storageType = 'per-workspace';
 
       expect(workspace.storageType).toEqual('per-workspace');
       expect(workspace.devfile.attributes).toEqual({
-        [DEVWORKSPACE_STORAGE_TYPE]: 'per-workspace',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-workspace',
       });
     });
 
     it('should set "per-user" storage type', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
       devWorkspace.spec.template.attributes = {
-        [DEVWORKSPACE_STORAGE_TYPE]: 'per-workspace',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-workspace',
       };
       const workspace = constructWorkspace(devWorkspace);
 
       expect(workspace.storageType).toEqual('per-workspace');
       expect(workspace.devfile.attributes).toEqual({
-        [DEVWORKSPACE_STORAGE_TYPE]: 'per-workspace',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-workspace',
       });
 
       workspace.storageType = 'per-user';
 
       expect(workspace.storageType).toEqual('per-user');
       expect(workspace.devfile.attributes).toEqual({
-        [DEVWORKSPACE_STORAGE_TYPE]: 'per-user',
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-user',
       });
     });
 
@@ -344,10 +343,37 @@ describe('Workspace adapter', () => {
       expect(workspace.ideUrl).toEqual(ideUrl);
     });
 
-    it('should return storage type', () => {
+    it('should return Not Defined storage type', () => {
       const devWorkspace = new DevWorkspaceBuilder().build();
       const workspace = constructWorkspace(devWorkspace);
-      expect(workspace.storageType).toEqual(StorageTypeTitle['per-workspace'].toLowerCase());
+      expect(StorageTypeTitle[workspace.storageType as '']).toEqual('Not defined');
+    });
+
+    it('should return Ephemeral storage type', () => {
+      const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.spec.template.attributes = {
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'ephemeral',
+      };
+      const workspace = constructWorkspace(devWorkspace);
+      expect(StorageTypeTitle[workspace.storageType as 'ephemeral']).toEqual('Ephemeral');
+    });
+
+    it('should return Per-user storage type', () => {
+      const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.spec.template.attributes = {
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-user',
+      };
+      const workspace = constructWorkspace(devWorkspace);
+      expect(StorageTypeTitle[workspace.storageType as 'per-user']).toEqual('Per-user');
+    });
+
+    it('should return Per-workspace storage type', () => {
+      const devWorkspace = new DevWorkspaceBuilder().build();
+      devWorkspace.spec.template.attributes = {
+        [DEVWORKSPACE_STORAGE_TYPE_ATTR]: 'per-workspace',
+      };
+      const workspace = constructWorkspace(devWorkspace);
+      expect(StorageTypeTitle[workspace.storageType as 'per-workspace']).toEqual('Per-workspace');
     });
 
     it('should return devfile', () => {

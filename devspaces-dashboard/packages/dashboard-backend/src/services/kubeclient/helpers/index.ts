@@ -12,6 +12,7 @@
 
 import { helpers } from '@eclipse-che/common';
 import * as k8s from '@kubernetes/client-node';
+import { findApi } from '../../../helpers/findApi';
 
 const projectApiGroup = 'project.openshift.io';
 
@@ -20,33 +21,5 @@ export async function isOpenShift(apisApi: k8s.ApisApi): Promise<boolean> {
     return findApi(apisApi, projectApiGroup);
   } catch (e) {
     throw new Error(`Can't evaluate target platform: ${helpers.errors.getMessage(e)}`);
-  }
-}
-
-async function findApi(apisApi: k8s.ApisApi, apiName: string, version?: string): Promise<boolean> {
-  const resp = await apisApi.getAPIVersions();
-  const groups = resp.body.groups;
-  const filtered = groups.some((apiGroup: k8s.V1APIGroup) => {
-    if (version) {
-      return (
-        apiGroup.name === apiName &&
-        apiGroup.versions.some(versionGroup => versionGroup.version === version)
-      );
-    }
-    return apiGroup.name === apiName;
-  });
-  return filtered;
-}
-
-// currently, it works on minikube only (decode from Base64 format)
-export function getUserName(token: string): string {
-  const tokenPayload = token.split('.')[1];
-  const decodedTokenPayload = Buffer.from(tokenPayload, 'base64').toString();
-  try {
-    const parsedTokenPayload = JSON.parse(decodedTokenPayload);
-    return parsedTokenPayload.name;
-  } catch (e) {
-    console.warn(`[WARN] Can't parse the token payload.`);
-    throw e;
   }
 }

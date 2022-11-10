@@ -16,7 +16,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = () => {
   return {
-    entry: path.join(__dirname, 'src/index.ts'),
+    entry: path.join(__dirname, 'src/server.ts'),
     output: {
       filename: path.join('server', 'backend.js'),
       path: path.join(__dirname, 'lib'),

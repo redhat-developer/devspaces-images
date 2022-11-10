@@ -79,11 +79,6 @@ exports[`Page header tools should correctly render the component 1`] = `
           type="button"
         >
           <span
-            className="pf-c-dropdown__toggle-text"
-          >
-            John Doe
-          </span>
-          <span
             className="pf-c-dropdown__toggle-icon"
           >
             <svg

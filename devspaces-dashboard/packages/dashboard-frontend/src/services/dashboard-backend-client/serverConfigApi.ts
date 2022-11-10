@@ -10,8 +10,8 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
+import { api } from '@eclipse-che/common';
 import axios from 'axios';
-import common, { api } from '@eclipse-che/common';
 import { prefix } from './const';
 
 /**
@@ -23,10 +23,6 @@ import { prefix } from './const';
  */
 export async function getServerConfig(): Promise<api.IServerConfig> {
   const url = `${prefix}/server-config`;
-  try {
-    const response = await axios.get(url);
-    return response.data ? response.data : [];
-  } catch (e) {
-    throw `Failed to fetch default plugins. ${common.helpers.errors.getMessage(e)}`;
-  }
+  const response = await axios.get(url);
+  return response.data ? response.data : [];
 }

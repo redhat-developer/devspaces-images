@@ -14,10 +14,12 @@ import { Reducer } from 'redux';
 import { AppThunk } from '..';
 import { createObject } from '../helpers';
 import devfileApi, { isDevfileV2, isDevWorkspace } from '../../services/devfileApi';
-import { Workspace, isCheWorkspace } from '../../services/workspace-adapter';
+import { isCheWorkspace, Workspace } from '../../services/workspace-adapter';
 import * as CheWorkspacesStore from './cheWorkspaces';
 import * as DevWorkspacesStore from './devWorkspaces';
 import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
+import common from '@eclipse-che/common';
+import OAuthService, { isOAuthResponse } from '../../services/oauth';
 
 // This state defines the type of data maintained in the Redux store.
 export interface State {
@@ -180,6 +182,7 @@ export const actionCreators: ActionCreators = {
       try {
         const state = getState();
         const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
+        await OAuthService.refreshTokenIfNeeded(workspace);
 
         if (cheDevworkspaceEnabled && isDevWorkspace(workspace.ref)) {
           const debugWorkspace = params && params['debug-workspace-start'];
@@ -196,6 +199,25 @@ export const actionCreators: ActionCreators = {
         }
         dispatch({ type: 'UPDATE_WORKSPACE' });
       } catch (e) {
+        if (common.helpers.errors.includesAxiosResponse(e)) {
+          const response = e.response;
+          if (response.status === 401 && isOAuthResponse(response.data)) {
+            // build redirect URL
+            const redirectUrl = new URL(
+              'dashboard/w',
+              window.location.protocol + '//' + window.location.host,
+            );
+            redirectUrl.searchParams.set(
+              'params',
+              `{"namespace":"${workspace.namespace}","workspace":"${workspace.name}"}`,
+            );
+            OAuthService.openOAuthPage(
+              response.data.attributes.oauth_authentication_url,
+              redirectUrl.toString(),
+            );
+            return;
+          }
+        }
         dispatch({ type: 'RECEIVE_ERROR' });
         throw e;
       }
