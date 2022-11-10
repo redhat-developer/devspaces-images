@@ -367,9 +367,11 @@ export function createApiFactoryAndRegisterActors(accessor: ServicesAccessor): I
 				return initData.uiKind;
 			},
 			get logLevel() {
+				checkProposedApiEnabled(extension, 'extensionLog');
 				return extHostLogService.getLevel();
 			},
 			get onDidChangeLogLevel() {
+				checkProposedApiEnabled(extension, 'extensionLog');
 				return extHostLogService.onDidChangeLogLevel;
 			}
 		};

@@ -49,7 +49,6 @@ import { ServiceCollection } from 'vs/platform/instantiation/common/serviceColle
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { KeybindingWeight } from 'vs/platform/keybinding/common/keybindingsRegistry';
 import { WorkbenchAsyncDataTree } from 'vs/platform/list/browser/listService';
-import { ILogService } from 'vs/platform/log/common/log';
 import { IOpenerService } from 'vs/platform/opener/common/opener';
 import { IStorageService, StorageScope, StorageTarget } from 'vs/platform/storage/common/storage';
 import { ITelemetryService } from 'vs/platform/telemetry/common/telemetry';
@@ -130,7 +129,6 @@ export class Repl extends FilterViewPane implements IHistoryNavigationWidget {
 		@ITelemetryService telemetryService: ITelemetryService,
 		@IMenuService menuService: IMenuService,
 		@ILanguageFeaturesService private readonly languageFeaturesService: ILanguageFeaturesService,
-		@ILogService private readonly logService: ILogService,
 	) {
 		const filterText = storageService.get(FILTER_VALUE_STORAGE_KEY, StorageScope.WORKSPACE, '');
 		super({
@@ -270,13 +268,12 @@ export class Repl extends FilterViewPane implements IHistoryNavigationWidget {
 
 							if (this.configurationService.getValue<IDebugConfiguration>('debug').console.historySuggestions) {
 								const history = this.history.getHistory();
-								const idxLength = String(history.length).length;
-								history.forEach((h, i) => suggestions.push({
+								history.forEach(h => suggestions.push({
 									label: h,
 									insertText: h,
 									kind: CompletionItemKind.Text,
 									range: computeRange(h.length),
-									sortText: 'ZZZ' + String(history.length - i).padStart(idxLength, '0')
+									sortText: 'ZZZ'
 								}));
 							}
 
@@ -404,13 +401,7 @@ export class Repl extends FilterViewPane implements IHistoryNavigationWidget {
 			});
 
 			if (this.tree && treeInput !== session) {
-				try {
-					await this.tree.setInput(session);
-				} catch (err) {
-					// Ignore error because this may happen multiple times while refreshing,
-					// then changing the root may fail. Log to help with debugging if needed.
-					this.logService.error(err);
-				}
+				await this.tree.setInput(session);
 				revealLastElement(this.tree);
 			}
 		}

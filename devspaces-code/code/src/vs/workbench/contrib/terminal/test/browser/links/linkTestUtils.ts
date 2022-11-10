@@ -46,7 +46,7 @@ export async function assertLinkHelper(
 	deepStrictEqual(actualLinks, expectedLinks);
 }
 
-export async function resolveLinkForTest(link: string, uri?: URI): Promise<ResolvedLink> {
+export async function resolveLinkForTest(link: string, uri?: URI): Promise<ResolvedLink | undefined> {
 	return {
 		link,
 		uri: URI.from({ scheme: Schemas.file, path: link }),

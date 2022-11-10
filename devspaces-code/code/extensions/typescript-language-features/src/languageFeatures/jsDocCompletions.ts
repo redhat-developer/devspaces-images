@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { ITypeScriptServiceClient } from '../typescriptService';
 import { DocumentSelector } from '../utils/documentSelector';
 import { LanguageDescription } from '../utils/languageDescription';
@@ -11,6 +12,7 @@ import * as typeConverters from '../utils/typeConverters';
 import FileConfigurationManager from './fileConfigurationManager';
 
 
+const localize = nls.loadMessageBundle();
 
 const defaultJsDoc = new vscode.SnippetString(`/**\n * $0\n */`);
 
@@ -20,7 +22,7 @@ class JsDocCompletionItem extends vscode.CompletionItem {
 		public readonly position: vscode.Position
 	) {
 		super('/** */', vscode.CompletionItemKind.Text);
-		this.detail = vscode.l10n.t("JSDoc comment");
+		this.detail = localize('typescript.jsDocCompletionItem.documentation', 'JSDoc comment');
 		this.sortText = '\0';
 
 		const line = document.lineAt(position.line).text;

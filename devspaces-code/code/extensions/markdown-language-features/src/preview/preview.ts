@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import * as uri from 'vscode-uri';
 import { ILogger } from '../logging';
 import { MarkdownContributionProvider } from '../markdownExtensions';
@@ -17,6 +18,7 @@ import { MarkdownPreviewConfigurationManager } from './previewConfig';
 import { scrollEditorToLine, StartingScrollFragment, StartingScrollLine, StartingScrollLocation } from './scrolling';
 import { getVisibleLine, LastScrollLocation, TopmostLineMonitor } from './topmostLineMonitor';
 
+const localize = nls.loadMessageBundle();
 
 interface WebviewMessage {
 	readonly source: string;
@@ -190,7 +192,9 @@ class MarkdownPreview extends Disposable implements WebviewResourceProvider {
 
 				case 'previewStyleLoadError':
 					vscode.window.showWarningMessage(
-						vscode.l10n.t("Could not load 'markdown.styles': {0}", e.body.unloadedStyles.join(', ')));
+						localize('onPreviewStyleLoadError',
+							"Could not load 'markdown.styles': {0}",
+							e.body.unloadedStyles.join(', ')));
 					break;
 			}
 		}));
@@ -368,7 +372,7 @@ class MarkdownPreview extends Disposable implements WebviewResourceProvider {
 			.then((editor) => {
 				revealLineInEditor(editor);
 			}, () => {
-				vscode.window.showErrorMessage(vscode.l10n.t('Could not open {0}', this._resource.toString()));
+				vscode.window.showErrorMessage(localize('preview.clickOpenFailed', 'Could not open {0}', this._resource.toString()));
 			});
 	}
 
@@ -769,8 +773,8 @@ export class DynamicMarkdownPreview extends Disposable implements IManagedMarkdo
 	private static _getPreviewTitle(resource: vscode.Uri, locked: boolean): string {
 		const resourceLabel = uri.Utils.basename(resource);
 		return locked
-			? vscode.l10n.t('[Preview] {0}', resourceLabel)
-			: vscode.l10n.t('Preview {0}', resourceLabel);
+			? localize('lockedPreviewTitle', '[Preview] {0}', resourceLabel)
+			: localize('previewTitle', 'Preview {0}', resourceLabel);
 	}
 
 	public get position(): vscode.ViewColumn | undefined {

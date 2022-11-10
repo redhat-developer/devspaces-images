@@ -66,9 +66,9 @@ suite('Task Terminal Status', () => {
 		taskService = new TestTaskService();
 		audioCueService = new TestAudioCueService();
 		taskTerminalStatus = new TaskTerminalStatus(taskService as any, audioCueService as any);
-		testTerminal = instantiationService.createInstance(TestTerminal) as any;
+		testTerminal = instantiationService.createInstance(TestTerminal);
 		testTask = instantiationService.createInstance(TestTask);
-		problemCollector = instantiationService.createInstance(TestProblemCollector) as any;
+		problemCollector = instantiationService.createInstance(TestProblemCollector);
 	});
 	test('Should add failed status when there is an exit code on task end', async () => {
 		taskTerminalStatus.addTerminal(testTask, testTerminal, problemCollector);

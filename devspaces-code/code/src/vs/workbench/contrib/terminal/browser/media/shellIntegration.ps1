@@ -17,10 +17,17 @@ $Global:__VSCodeOriginalPrompt = $function:Prompt
 
 $Global:__LastHistoryId = -1
 
+function Global:__VSCode-Get-LastExitCode {
+	if ($? -eq $True) {
+		return 0
+	}
+	# TODO: Should we just return a string instead?
+	return -1
+}
 
 function Global:Prompt() {
-	$FakeCode = [int]!$global:?
-	$LastHistoryEntry = Get-History -Count 1
+	$LastExitCode = $(__VSCode-Get-LastExitCode);
+	$LastHistoryEntry = $(Get-History -Count 1)
 	# Skip finishing the command if the first command has not yet started
 	if ($Global:__LastHistoryId -ne -1) {
 		if ($LastHistoryEntry.Id -eq $Global:__LastHistoryId) {
@@ -43,7 +50,7 @@ function Global:Prompt() {
 			$Result += "`a"
 			# Command finished exit code
 			# OSC 633 ; D [; <ExitCode>] ST
-			$Result += "`e]633;D;$FakeCode`a"
+			$Result += "`e]633;D;$LastExitCode`a"
 		}
 	}
 	# Prompt started
@@ -52,9 +59,7 @@ function Global:Prompt() {
 	# Current working directory
 	# OSC 633 ; <Property>=<Value> ST
 	$Result += if($pwd.Provider.Name -eq 'FileSystem'){"`e]633;P;Cwd=$($pwd.ProviderPath)`a"}
-	# Before running the original prompt, put $? back to what it was:
-	if ($FakeCode -ne 0) { Write-Error "failure" -ea ignore }
-	# Run the original prompt
+	# Write original prompt
 	$Result += $Global:__VSCodeOriginalPrompt.Invoke()
 	# Write command started
 	$Result += "`e]633;B`a"

@@ -38,7 +38,7 @@ const INFO_TASK_STATUS: ITerminalStatus = { id: TASK_TERMINAL_STATUS_ID, icon: C
 const INFO_INACTIVE_TASK_STATUS: ITerminalStatus = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.info, severity: Severity.Info, tooltip: nls.localize('taskTerminalStatus.infosInactive', "Task has infos and is waiting...") };
 
 export class TaskTerminalStatus extends Disposable {
-	private terminalMap: Map<number, ITerminalData> = new Map();
+	private terminalMap: Map<string, ITerminalData> = new Map();
 	private _marker: IMarker | undefined;
 	constructor(@ITaskService taskService: ITaskService, @IAudioCueService private readonly _audioCueService: IAudioCueService) {
 		super();
@@ -67,15 +67,15 @@ export class TaskTerminalStatus extends Disposable {
 			this._marker?.dispose();
 			this._marker = undefined;
 		});
-
-		this.terminalMap.set(terminal.instanceId, { terminal, task, status, problemMatcher, taskRunEnded: false });
+		this.terminalMap.set(task._id, { terminal, task, status, problemMatcher, taskRunEnded: false });
 	}
 
 	private terminalFromEvent(event: ITaskEvent): ITerminalData | undefined {
-		if (!event.terminalId) {
+		if (!event.__task) {
 			return undefined;
 		}
-		return this.terminalMap.get(event.terminalId);
+
+		return this.terminalMap.get(event.__task._id);
 	}
 
 	private eventEnd(event: ITaskEvent) {
@@ -130,10 +130,7 @@ export class TaskTerminalStatus extends Disposable {
 		}
 		if (!terminalData.disposeListener) {
 			terminalData.disposeListener = terminalData.terminal.onDisposed(() => {
-				if (!event.terminalId) {
-					return;
-				}
-				this.terminalMap.delete(event.terminalId);
+				this.terminalMap.delete(event.__task?._id!);
 				terminalData.disposeListener?.dispose();
 			});
 		}

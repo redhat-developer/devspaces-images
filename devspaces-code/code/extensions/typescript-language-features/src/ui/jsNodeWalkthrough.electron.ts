@@ -4,11 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import * as cp from 'child_process';
 
 import { Disposable } from '../utils/dispose';
 import { CommandManager } from '../commands/commandManager';
 
+const localize = nls.loadMessageBundle();
 
 export async function nodeWasResolvable(): Promise<boolean> {
 	let execStr: string;
@@ -86,12 +88,12 @@ async function createNewJSFile(walkthroughState: JsWalkthroughState) {
 async function debugJsFile(walkthroughState: JsWalkthroughState) {
 	const hasNode = await nodeWasResolvable();
 	if (!hasNode) {
-		const reloadResponse = vscode.l10n.t("Reload VS Code");
-		const debugAnywayResponse = vscode.l10n.t("Try Debugging Anyway");
-		const dismissResponse = vscode.l10n.t("Dismiss");
+		const reloadResponse = localize('reloadWindowForNode', 'Reload VS Code');
+		const debugAnywayResponse = localize('nodeNotFoundDebugAnyway', 'Try Debugging Anyway');
+		const dismissResponse = localize('nodeNotFoundDismissDialog', 'Dismiss');
 		const response = await vscode.window.showErrorMessage(
 			// The message
-			vscode.l10n.t("We couldn\'t find Node.js on this computer. If you just installed it, you might need to reload VS Code."),
+			localize('noNodeInstallFound', 'We couldn\'t find Node.js on this computer. If you just installed it, you might need to reload VS Code.'),
 			// The options
 			reloadResponse,
 			debugAnywayResponse,

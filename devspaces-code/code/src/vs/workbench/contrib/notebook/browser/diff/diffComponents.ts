@@ -94,7 +94,6 @@ export const fixedDiffEditorOptions: IDiffEditorConstructionOptions = {
 	glyphMargin: true,
 	enableSplitViewResizing: false,
 	renderIndicators: true,
-	renderMarginRevertIcon: false,
 	readOnly: false,
 	isInEmbeddedEditor: true,
 	renderOverviewRuler: false,

@@ -4,10 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { BinarySizeStatusBarEntry } from './binarySizeStatusBarEntry';
 import { MediaPreview, reopenAsText } from './mediaPreview';
 import { escapeAttribute, getNonce } from './util/dom';
 
+const localize = nls.loadMessageBundle();
 
 class VideoPreviewProvider implements vscode.CustomReadonlyEditorProvider {
 
@@ -80,8 +82,8 @@ class VideoPreview extends MediaPreview {
 <body class="loading">
 	<div class="loading-indicator"></div>
 	<div class="loading-error">
-		<p>${vscode.l10n.t("An error occurred while loading the video file.")}</p>
-		<a href="#" class="open-file-link">${vscode.l10n.t("Open file using VS Code's standard text/binary editor?")}</a>
+		<p>${localize('preview.videoLoadError', "An error occurred while loading the video file.")}</p>
+		<a href="#" class="open-file-link">${localize('preview.videoLoadErrorLink', "Open file using VS Code's standard text/binary editor?")}</a>
 	</div>
 	<script src="${escapeAttribute(this.extensionResource('media', 'videoPreview.js'))}" nonce="${nonce}"></script>
 </body>

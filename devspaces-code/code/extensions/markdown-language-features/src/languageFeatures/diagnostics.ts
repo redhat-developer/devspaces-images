@@ -4,8 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { CommandManager } from '../commandManager';
 
+const localize = nls.loadMessageBundle();
 
 // Copied from markdown language service
 export enum DiagnosticCode {
@@ -53,7 +55,7 @@ class AddToIgnoreLinksQuickFixProvider implements vscode.CodeActionProvider {
 					const hrefText = (diagnostic as any).data?.hrefText;
 					if (hrefText) {
 						const fix = new vscode.CodeAction(
-							vscode.l10n.t("Exclude '{0}' from link validation.", hrefText),
+							localize('ignoreLinksQuickFix.title', "Exclude '{0}' from link validation.", hrefText),
 							vscode.CodeActionKind.QuickFix);
 
 						fix.command = {

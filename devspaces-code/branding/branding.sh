@@ -38,32 +38,32 @@ WORKBENCH_CONFIG_FILE_KEY="workbenchConfigFilePath"
 CODICON_CSS_FILE_KEY="codiconCssFilePath"
 REMOTE_INDICATOR_COMMANDS_KEY="remoteIndicatorCommands"
 
-log_progress() {
+log:progress() {
 	# allow-any-unicode-next-line
 	echo "    ⚙️ ${1}"
 }
 
-log_success() {
+log:success() {
 	echo "      🎉  ${1}"
 }
 
-log_warning() {
+log:warning() {
 	echo "      ⚠️  ${1}"
 }
 
-log_error() {
+log:error() {
 	echo "      [ERROR] ${1}"
 }
 
 # Apply changes on code/product.json file
 apply_code_product_changes() {
-	log_progress "Reworking code/product.json..."
+	log:progress "Reworking code/product.json..."
 
 	local tmpFile="$PRODUCT_JSON_BRANDING.tmp"
 	jq "$JSON_INDENT" -s '.[0] * .[1]' "$PRODUCT_JSON_ORIGINAL" "$PRODUCT_JSON_BRANDING">"$tmpFile"
 	mv -f "$tmpFile" "$PRODUCT_JSON_ORIGINAL"
 
-	log_success "Successfully updated: $PRODUCT_JSON_ORIGINAL"
+	log:success "Successfully updated: $PRODUCT_JSON_ORIGINAL"
 }
 
 # Apply changes on workbench-config.json file
@@ -71,17 +71,17 @@ apply_workbench_config_changes() {
 	local workbenchConfigFile
 	workbenchConfigFile="$(jq --raw-output ".$WORKBENCH_CONFIG_FILE_KEY // empty" "$PRODUCT_JSON_BRANDING")"
 	if [[ -z "$workbenchConfigFile" ]]; then
-		log_warning "Ignoring branding operation for workbench configuration: product.json doesn't contain $WORKBENCH_CONFIG_FILE_KEY field"
+		log:warning "Ignoring branding operation for workbench configuration: product.json doesn't contain $WORKBENCH_CONFIG_FILE_KEY field"
 		exit 0
 	fi
 
 	local fileName
 	fileName=$(basename "$WORKBENCH_CONFIG_ORIGINAL")
-	log_progress "Reworking $fileName..."
+	log:progress "Reworking $fileName..."
 
 	local workbenchConfigBranding="$BRANDING_DIR/$workbenchConfigFile"
 	if [ ! -f "$workbenchConfigBranding" ]; then
-		log_error "Can not apply branding operation, the file does not exist: $workbenchConfigBranding"
+		log:error "Can not apply branding operation, the file does not exist: $workbenchConfigBranding"
 		exit 1
 	fi
 
@@ -89,7 +89,7 @@ apply_workbench_config_changes() {
 	jq "$JSON_INDENT" -s '.[0] * .[1]' "$WORKBENCH_CONFIG_ORIGINAL" "$workbenchConfigBranding">"$tmpFile"
 	mv -f "$tmpFile" "$WORKBENCH_CONFIG_ORIGINAL"
 
-	log_success "Successfully updated: $WORKBENCH_CONFIG_ORIGINAL"
+	log:success "Successfully updated: $WORKBENCH_CONFIG_ORIGINAL"
 }
 
 # Apply changes on codicon.css file
@@ -97,22 +97,22 @@ apply_codicon_css_file_changes() {
 	local codiconCssFile
 	codiconCssFile="$(jq --raw-output ".$CODICON_CSS_FILE_KEY // empty" "$PRODUCT_JSON_BRANDING")"
 	if [[ -z "$codiconCssFile" ]]; then
-		log_warning "Ignoring branding operation for codicon.css: product.json doesn't contain $CODICON_CSS_FILE_KEY field"
+		log:warning "Ignoring branding operation for codicon.css: product.json doesn't contain $CODICON_CSS_FILE_KEY field"
 		exit 0
 	fi
 
 	local fileName
 	fileName=$(basename "$CODICON_CSS_FILE_ORIGINAL")
-	log_progress "Reworking $fileName..."
+	log:progress "Reworking $fileName..."
 
 	local codiconCssBranding="$BRANDING_DIR/$codiconCssFile"
 	if [ ! -f "$codiconCssBranding" ]; then
-		log_error "Can not apply branding operation, the file does not exist: $codiconCssBranding"
+		log:error "Can not apply branding operation, the file does not exist: $codiconCssBranding"
 		exit 1
 	fi
 	cat "$codiconCssBranding" >> "$CODICON_CSS_FILE_ORIGINAL"
 
-	log_success "Successfully updated: $CODICON_CSS_FILE_ORIGINAL"
+	log:success "Successfully updated: $CODICON_CSS_FILE_ORIGINAL"
 }
 
 # Apply changes for remote indicator commands
@@ -120,13 +120,13 @@ apply_remote_indicator_commands() {
 	local remoteIndicatorCommandsBranding
 	remoteIndicatorCommandsBranding="$(jq --raw-output ".$REMOTE_INDICATOR_COMMANDS_KEY // empty" "$PRODUCT_JSON_BRANDING")"
 	if [[ -z "$remoteIndicatorCommandsBranding" ]]; then
-		log_warning "Ignoring branding operation for remote indicator commands: product.json doesn't contain $REMOTE_INDICATOR_COMMANDS_KEY field"
+		log:warning "Ignoring branding operation for remote indicator commands: product.json doesn't contain $REMOTE_INDICATOR_COMMANDS_KEY field"
 		exit 0
 	fi
 
 	local fileName
 	fileName=$(basename "$REMOTE_INDICATOR_JSON_ORIGINAL")
-	log_progress "Applying remote indicator commands, reworking $fileName..."
+	log:progress "Applying remote indicator commands, reworking $fileName..."
 
 	local tmpFile="tmpFile.tmp"
 	local remoteIndicatorCommandsBrandingFile="remoteIndicatorCommands.tmp"
@@ -137,7 +137,7 @@ apply_remote_indicator_commands() {
 	mv -f "$tmpFile" "$REMOTE_INDICATOR_JSON_ORIGINAL"
 	rm "$remoteIndicatorCommandsBrandingFile"
 
-	log_success "Successfully updated: $REMOTE_INDICATOR_JSON_ORIGINAL"
+	log:success "Successfully updated: $REMOTE_INDICATOR_JSON_ORIGINAL"
 }
 
 # $1 - is a key in the branding/product.json file to get the corresponding value, like: .icons.letterpress.light
@@ -153,12 +153,12 @@ apply_icon() {
 	if [ -f "$iconPath" ]; then
 		local iconName
 		iconName=$(basename "$iconPath")
-		log_progress " applying icon: $iconName..."
+		log:progress " applying icon: $iconName..."
 		cp -f "$iconPath" "$iconOriginalPath"
 
-		log_success "icon replacement done successfully for $iconOriginalPath"
+		log:success "icon replacement done successfully for $iconOriginalPath"
 	else
-		log_warning "icon not found by path: $iconPath"
+		log:warning "icon not found by path: $iconPath"
 	fi
 }
 

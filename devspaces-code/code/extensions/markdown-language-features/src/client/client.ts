@@ -5,6 +5,7 @@
 
 import * as vscode from 'vscode';
 import { BaseLanguageClient, LanguageClientOptions, NotebookDocumentSyncRegistrationType } from 'vscode-languageclient';
+import * as nls from 'vscode-nls';
 import { IMdParser } from '../markdownEngine';
 import * as proto from './protocol';
 import { looksLikeMarkdownPath, markdownFileExtensions } from '../util/file';
@@ -12,6 +13,7 @@ import { VsCodeMdWorkspace } from './workspace';
 import { FileWatcherManager } from './fileWatchingManager';
 import { IDisposable } from '../util/dispose';
 
+const localize = nls.loadMessageBundle();
 
 export type LanguageClientConstructor = (name: string, description: string, clientOptions: LanguageClientOptions) => BaseLanguageClient;
 
@@ -62,7 +64,7 @@ export async function startClient(factory: LanguageClientConstructor, parser: IM
 		},
 	};
 
-	const client = factory('markdown', vscode.l10n.t("Markdown Language Server"), clientOptions);
+	const client = factory('markdown', localize('markdownServer.name', 'Markdown Language Server'), clientOptions);
 
 	client.registerProposedFeatures();
 

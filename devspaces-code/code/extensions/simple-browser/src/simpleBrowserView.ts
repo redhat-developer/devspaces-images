@@ -4,8 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { Disposable } from './dispose';
 
+const localize = nls.loadMessageBundle();
 
 export interface ShowOptions {
 	readonly preserveFocus?: boolean;
@@ -15,7 +17,7 @@ export interface ShowOptions {
 export class SimpleBrowserView extends Disposable {
 
 	public static readonly viewType = 'simpleBrowser.view';
-	private static readonly title = vscode.l10n.t("Simple Browser");
+	private static readonly title = localize('view.title', "Simple Browser");
 
 	private readonly _webviewPanel: vscode.WebviewPanel;
 
@@ -132,15 +134,15 @@ export class SimpleBrowserView extends Disposable {
 				<header class="header">
 					<nav class="controls">
 						<button
-							title="${vscode.l10n.t("Back")}"
+							title="${localize('control.back.title', "Back")}"
 							class="back-button icon"><i class="codicon codicon-arrow-left"></i></button>
 
 						<button
-							title="${vscode.l10n.t("Forward")}"
+							title="${localize('control.forward.title', "Forward")}"
 							class="forward-button icon"><i class="codicon codicon-arrow-right"></i></button>
 
 						<button
-							title="${vscode.l10n.t("Reload")}"
+							title="${localize('control.reload.title', "Reload")}"
 							class="reload-button icon"><i class="codicon codicon-refresh"></i></button>
 					</nav>
 
@@ -148,12 +150,12 @@ export class SimpleBrowserView extends Disposable {
 
 					<nav class="controls">
 						<button
-							title="${vscode.l10n.t("Open in browser")}"
+							title="${localize('control.openExternal.title', "Open in browser")}"
 							class="open-external-button icon"><i class="codicon codicon-link-external"></i></button>
 					</nav>
 				</header>
 				<div class="content">
-					<div class="iframe-focused-alert">${vscode.l10n.t("Focus Lock")}</div>
+					<div class="iframe-focused-alert">${localize('view.iframe-focused', "Focus Lock")}</div>
 					<iframe sandbox="allow-scripts allow-forms allow-same-origin"></iframe>
 				</div>
 

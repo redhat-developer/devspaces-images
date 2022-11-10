@@ -65,12 +65,12 @@ suite('SearchResult', () => {
 	});
 
 	test('File Match', function () {
-		let fileMatch = aFileMatch('folder/file.txt', aSearchResult());
+		let fileMatch = aFileMatch('folder/file.txt');
 		assert.strictEqual(fileMatch.matches().length, 0);
 		assert.strictEqual(fileMatch.resource.toString(), 'file:///folder/file.txt');
 		assert.strictEqual(fileMatch.name(), 'file.txt');
 
-		fileMatch = aFileMatch('file.txt', aSearchResult());
+		fileMatch = aFileMatch('file.txt');
 		assert.strictEqual(fileMatch.matches().length, 0);
 		assert.strictEqual(fileMatch.resource.toString(), 'file:///file.txt');
 		assert.strictEqual(fileMatch.name(), 'file.txt');
@@ -147,14 +147,12 @@ suite('SearchResult', () => {
 	});
 
 	test('Match -> FileMatch -> SearchResult hierarchy exists', function () {
-
-		const searchModel = instantiationService.createInstance(SearchModel);
-		const searchResult = instantiationService.createInstance(SearchResult, searchModel);
+		const searchResult = instantiationService.createInstance(SearchResult, null);
 		const fileMatch = aFileMatch('far/boo', searchResult);
 		const lineMatch = new Match(fileMatch, ['foo bar'], new OneLineRange(0, 0, 3), new OneLineRange(1, 0, 3));
 
 		assert(lineMatch.parent() === fileMatch);
-		assert(fileMatch.parent() === searchResult.folderMatches()[0]);
+		assert(fileMatch.parent() === searchResult);
 	});
 
 	test('Adding a raw match will add a file match with line matches', function () {
@@ -469,24 +467,17 @@ suite('SearchResult', () => {
 
 	});
 
-	function aFileMatch(path: string, searchResult: SearchResult, ...lineMatches: ITextSearchMatch[]): FileMatch {
+	function aFileMatch(path: string, searchResult?: SearchResult, ...lineMatches: ITextSearchMatch[]): FileMatch {
 		const rawMatch: IFileMatch = {
 			resource: URI.file('/' + path),
 			results: lineMatches
 		};
-		const root = searchResult?.folderMatches()[0];
-		return instantiationService.createInstance(FileMatch, {
-			pattern: ''
-		}, undefined, undefined, root, rawMatch, null);
+		return instantiationService.createInstance(FileMatch, null, null, null, searchResult, rawMatch, searchResult);
 	}
 
 	function aSearchResult(): SearchResult {
 		const searchModel = instantiationService.createInstance(SearchModel);
-		searchModel.searchResult.query = {
-			type: 1, folderQueries: [{ folder: createFileUriFromPathFromRoot() }], contentPattern: {
-				pattern: ''
-			}
-		};
+		searchModel.searchResult.query = { type: 1, folderQueries: [{ folder: createFileUriFromPathFromRoot() }] };
 		return searchModel.searchResult;
 	}
 

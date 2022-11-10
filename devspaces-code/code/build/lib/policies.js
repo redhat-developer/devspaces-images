@@ -41,12 +41,6 @@ function renderADMLString(prefix, moduleName, nlsString, translations) {
     return `<string id="${prefix}_${nlsString.nlsKey}">${value}</string>`;
 }
 class BasePolicy {
-    policyType;
-    name;
-    category;
-    minimumVersion;
-    description;
-    moduleName;
     constructor(policyType, name, category, minimumVersion, description, moduleName) {
         this.policyType = policyType;
         this.name = name;
@@ -102,7 +96,6 @@ class BooleanPolicy extends BasePolicy {
     }
 }
 class IntPolicy extends BasePolicy {
-    defaultValue;
     static from(name, category, minimumVersion, description, moduleName, settingNode) {
         const type = getStringProperty(settingNode, 'type');
         if (type !== 'number') {
@@ -147,8 +140,6 @@ class StringPolicy extends BasePolicy {
     }
 }
 class StringEnumPolicy extends BasePolicy {
-    enum_;
-    enumDescriptions;
     static from(name, category, minimumVersion, description, moduleName, settingNode) {
         const type = getStringProperty(settingNode, 'type');
         if (type !== 'string') {

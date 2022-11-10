@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import * as uri from 'vscode-uri';
 import { ILogger } from '../logging';
 import { MarkdownItEngine } from '../markdownEngine';
@@ -13,6 +14,7 @@ import { WebviewResourceProvider } from '../util/resources';
 import { MarkdownPreviewConfiguration, MarkdownPreviewConfigurationManager } from './previewConfig';
 import { ContentSecurityPolicyArbiter, MarkdownPreviewSecurityLevel } from './security';
 
+const localize = nls.loadMessageBundle();
 
 /**
  * Strings used inside the markdown preview.
@@ -21,11 +23,17 @@ import { ContentSecurityPolicyArbiter, MarkdownPreviewSecurityLevel } from './se
  * can be localized using our normal localization process.
  */
 const previewStrings = {
-	cspAlertMessageText: vscode.l10n.t("Some content has been disabled in this document"),
+	cspAlertMessageText: localize(
+		'preview.securityMessage.text',
+		'Some content has been disabled in this document'),
 
-	cspAlertMessageTitle: vscode.l10n.t("Potentially unsafe or insecure content has been disabled in the Markdown preview. Change the Markdown preview security setting to allow insecure content or enable scripts"),
+	cspAlertMessageTitle: localize(
+		'preview.securityMessage.title',
+		'Potentially unsafe or insecure content has been disabled in the Markdown preview. Change the Markdown preview security setting to allow insecure content or enable scripts'),
 
-	cspAlertMessageLabel: vscode.l10n.t("Content Disabled Security Warning")
+	cspAlertMessageLabel: localize(
+		'preview.securityMessage.label',
+		'Content Disabled Security Warning')
 };
 
 export interface MarkdownContentProviderOutput {
@@ -122,7 +130,7 @@ export class MdDocumentRenderer {
 
 	public renderFileNotFoundDocument(resource: vscode.Uri): string {
 		const resourcePath = uri.Utils.basename(resource);
-		const body = vscode.l10n.t('{0} cannot be found', resourcePath);
+		const body = localize('preview.notFound', '{0} cannot be found', resourcePath);
 		return `<!DOCTYPE html>
 			<html>
 			<body class="vscode-body">

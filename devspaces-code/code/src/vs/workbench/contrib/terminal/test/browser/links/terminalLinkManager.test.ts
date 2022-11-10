@@ -89,7 +89,7 @@ suite('TerminalLinkManager', () => {
 			get<T extends TerminalCapability>(capability: T): ITerminalCapabilityImplMap[T] | undefined {
 				return undefined;
 			}
-		} as Partial<ITerminalCapabilityStore> as any);
+		} as Partial<ITerminalCapabilityStore>);
 	});
 
 	suite('getLinks and open recent link', () => {

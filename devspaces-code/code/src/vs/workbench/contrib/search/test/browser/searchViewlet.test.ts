@@ -40,7 +40,7 @@ suite('Search - Viewlet', () => {
 	});
 
 	test('Data Source', function () {
-		const result: SearchResult = aSearchResult();
+		const result: SearchResult = instantiation.createInstance(SearchResult, null);
 		result.query = {
 			type: QueryType.Text,
 			contentPattern: { pattern: 'foo' },
@@ -166,30 +166,20 @@ suite('Search - Viewlet', () => {
 
 	function aFileMatch(path: string, parentFolder?: FolderMatch, ...lineMatches: ITextSearchMatch[]): FileMatch {
 		const rawMatch: IFileMatch = {
-			resource: URI.file('/' + path),
+			resource: createFileUriFromPathFromRoot(path),
 			results: lineMatches
 		};
-		return instantiation.createInstance(FileMatch, {
-			pattern: ''
-		}, undefined, undefined, parentFolder ?? aFolderMatch('', 0), rawMatch, null);
+		return instantiation.createInstance(FileMatch, null, null, null, parentFolder, rawMatch, parentFolder);
 	}
 
 	function aFolderMatch(path: string, index: number, parent?: SearchResult): FolderMatch {
 		const searchModel = instantiation.createInstance(SearchModel);
-		return instantiation.createInstance(FolderMatch, createFileUriFromPathFromRoot(path), path, index, {
-			type: 1, folderQueries: [{ folder: createFileUriFromPathFromRoot() }], contentPattern: {
-				pattern: ''
-			}
-		}, parent ?? aSearchResult().folderMatches()[0], searchModel, null);
+		return instantiation.createInstance(FolderMatch, createFileUriFromPathFromRoot(path), path, index, null, parent, searchModel, parent);
 	}
 
 	function aSearchResult(): SearchResult {
 		const searchModel = instantiation.createInstance(SearchModel);
-		searchModel.searchResult.query = {
-			type: 1, folderQueries: [{ folder: createFileUriFromPathFromRoot() }], contentPattern: {
-				pattern: ''
-			}
-		};
+		searchModel.searchResult.query = { type: 1, folderQueries: [{ folder: createFileUriFromPathFromRoot() }] };
 		return searchModel.searchResult;
 	}
 

@@ -90,7 +90,6 @@ export interface IProductConfiguration {
 	readonly webExtensionTips?: readonly string[];
 	readonly languageExtensionTips?: readonly string[];
 	readonly trustedExtensionUrlPublicKeys?: { [id: string]: string[] };
-	readonly trustedExtensionAuthAccess?: readonly string[];
 
 	readonly crashReporter?: {
 		readonly companyName: string;

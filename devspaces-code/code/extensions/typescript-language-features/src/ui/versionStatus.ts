@@ -4,12 +4,14 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { SelectTypeScriptVersionCommand } from '../commands/selectTypeScriptVersion';
 import { TypeScriptVersion } from '../tsServer/versionProvider';
 import { ITypeScriptServiceClient } from '../typescriptService';
 import { Disposable } from '../utils/dispose';
 import { jsTsLanguageModes } from '../utils/languageIds';
 
+const localize = nls.loadMessageBundle();
 
 export class VersionStatus extends Disposable {
 
@@ -22,8 +24,8 @@ export class VersionStatus extends Disposable {
 
 		this._statusItem = this._register(vscode.languages.createLanguageStatusItem('typescript.version', jsTsLanguageModes));
 
-		this._statusItem.name = vscode.l10n.t("TypeScript Version");
-		this._statusItem.detail = vscode.l10n.t("TypeScript Version");
+		this._statusItem.name = localize('versionStatus.name', "TypeScript Version");
+		this._statusItem.detail = localize('versionStatus.detail', "TypeScript Version");
 
 		this._register(this._client.onTsServerStarted(({ version }) => this.onDidChangeTypeScriptVersion(version)));
 	}
@@ -32,7 +34,7 @@ export class VersionStatus extends Disposable {
 		this._statusItem.text = version.displayName;
 		this._statusItem.command = {
 			command: SelectTypeScriptVersionCommand.id,
-			title: vscode.l10n.t("Select Version"),
+			title: localize('versionStatus.command', "Select Version"),
 			tooltip: version.path
 		};
 	}

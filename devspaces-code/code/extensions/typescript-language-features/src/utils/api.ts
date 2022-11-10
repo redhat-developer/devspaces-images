@@ -4,8 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as semver from 'semver';
-import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 
+const localize = nls.loadMessageBundle();
 
 export default class API {
 	public static fromSimpleString(value: string): API {
@@ -45,7 +46,7 @@ export default class API {
 	public static fromVersionString(versionString: string): API {
 		let version = semver.valid(versionString);
 		if (!version) {
-			return new API(vscode.l10n.t("invalid version"), '1.0.0', '1.0.0');
+			return new API(localize('invalidVersion', 'invalid version'), '1.0.0', '1.0.0');
 		}
 
 		// Cut off any prerelease tag since we sometimes consume those on purpose.

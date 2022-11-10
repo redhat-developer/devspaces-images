@@ -37,10 +37,7 @@ export interface IAuthenticationService {
 	registerAuthenticationProvider(id: string, provider: IAuthenticationProvider): void;
 	unregisterAuthenticationProvider(id: string): void;
 	isAccessAllowed(providerId: string, accountName: string, extensionId: string): boolean | undefined;
-	updateAllowedExtension(providerId: string, accountName: string, extensionId: string, extensionName: string, isAllowed: boolean): void;
-	updateSessionPreference(providerId: string, extensionId: string, session: AuthenticationSession): void;
-	getSessionPreference(providerId: string, extensionId: string, scopes: string[]): string | undefined;
-	removeSessionPreference(providerId: string, extensionId: string, scopes: string[]): void;
+	updatedAllowedExtension(providerId: string, accountName: string, extensionId: string, extensionName: string, isAllowed: boolean): Promise<void>;
 	showGetSessionPrompt(providerId: string, accountName: string, extensionId: string, extensionName: string): Promise<boolean>;
 	selectSession(providerId: string, extensionId: string, extensionName: string, scopes: string[], possibleSessions: readonly AuthenticationSession[]): Promise<AuthenticationSession>;
 	requestSessionAccess(providerId: string, extensionId: string, extensionName: string, scopes: string[], possibleSessions: readonly AuthenticationSession[]): void;

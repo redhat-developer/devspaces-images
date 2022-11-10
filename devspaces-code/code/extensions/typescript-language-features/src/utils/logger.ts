@@ -4,8 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { memoize } from './memoize';
 
+const localize = nls.loadMessageBundle();
 
 type LogLevel = 'Trace' | 'Info' | 'Error';
 
@@ -13,7 +15,7 @@ export class Logger {
 
 	@memoize
 	private get output(): vscode.OutputChannel {
-		return vscode.window.createOutputChannel('TypeScript');
+		return vscode.window.createOutputChannel(localize('channelName', 'TypeScript'));
 	}
 
 	private data2String(data: any): string {

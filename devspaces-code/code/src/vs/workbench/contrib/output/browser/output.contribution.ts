@@ -140,8 +140,16 @@ class OutputContribution extends Disposable implements IWorkbenchContribution {
 		this._register(toDisposable(() => dispose(registeredChannels.values())));
 		const registerOutputChannels = (channels: IOutputChannelDescriptor[]) => {
 			for (const channel of channels) {
-				const title = channel.label;
-				const group = channel.extensionId ? '0_ext_outputchannels' : '1_core_outputchannels';
+				let group = '0_outputchannels';
+				let title = channel.label;
+				if (channel.log) {
+					title = nls.localize('logChannel', "Log ({0})", channel.label);
+					if (channel.extensionId) {
+						group = '2_extensionlogs';
+					} else {
+						group = '1_logs';
+					}
+				}
 				registeredChannels.set(channel.id, registerAction2(class extends Action2 {
 					constructor() {
 						super({

@@ -6,7 +6,7 @@
 import * as assert from 'assert';
 import { DebugModel, StackFrame, Thread } from 'vs/workbench/contrib/debug/common/debugModel';
 import * as sinon from 'sinon';
-import { createMockDebugModel, mockUriIdentityService } from 'vs/workbench/contrib/debug/test/browser/mockDebugModel';
+import { MockRawSession, createMockDebugModel, mockUriIdentityService } from 'vs/workbench/contrib/debug/test/browser/mockDebug';
 import { Source } from 'vs/workbench/contrib/debug/common/debugSource';
 import { DebugSession } from 'vs/workbench/contrib/debug/browser/debugSession';
 import { Range } from 'vs/editor/common/core/range';
@@ -20,7 +20,6 @@ import { debugStackframe, debugStackframeFocused } from 'vs/workbench/contrib/de
 import { ThemeIcon } from 'vs/platform/theme/common/themeService';
 import { TestConfigurationService } from 'vs/platform/configuration/test/common/testConfigurationService';
 import { TestInstantiationService } from 'vs/platform/instantiation/test/common/instantiationServiceMock';
-import { MockRawSession } from 'vs/workbench/contrib/debug/test/common/mockDebug';
 
 const mockWorkspaceContextService = {
 	getWorkspace: () => {
@@ -68,11 +67,11 @@ function createTwoStackFrames(session: DebugSession): { firstStackFrame: StackFr
 
 suite('Debug - CallStack', () => {
 	let model: DebugModel;
-	let mockRawSession: MockRawSession;
+	let rawSession: MockRawSession;
 
 	setup(() => {
 		model = createMockDebugModel();
-		mockRawSession = new MockRawSession();
+		rawSession = new MockRawSession();
 	});
 
 	// Threads
@@ -110,7 +109,7 @@ suite('Debug - CallStack', () => {
 		const session = createTestSession(model);
 		model.addSession(session);
 
-		session['raw'] = <any>mockRawSession;
+		session['raw'] = <any>rawSession;
 
 		model.rawUpdate({
 			sessionId: session.getId(),
@@ -190,7 +189,7 @@ suite('Debug - CallStack', () => {
 		const session = createTestSession(model);
 		model.addSession(session);
 
-		session['raw'] = <any>mockRawSession;
+		session['raw'] = <any>rawSession;
 
 		// Stopped event with all threads stopped
 		model.rawUpdate({
@@ -233,7 +232,7 @@ suite('Debug - CallStack', () => {
 	});
 
 	test('threads multiple without allThreadsStopped', async () => {
-		const sessionStub = sinon.spy(mockRawSession, 'stackTrace');
+		const sessionStub = sinon.spy(rawSession, 'stackTrace');
 
 		const stoppedThreadId = 1;
 		const stoppedThreadName = 'stoppedThread';
@@ -243,7 +242,7 @@ suite('Debug - CallStack', () => {
 		const session = createTestSession(model);
 		model.addSession(session);
 
-		session['raw'] = <any>mockRawSession;
+		session['raw'] = <any>rawSession;
 
 		// Add the threads
 		model.rawUpdate({
@@ -436,7 +435,7 @@ suite('Debug - CallStack', () => {
 		model.addSession(runningSession);
 		model.addSession(session);
 
-		session['raw'] = <any>mockRawSession;
+		session['raw'] = <any>rawSession;
 
 		model.rawUpdate({
 			sessionId: session.getId(),

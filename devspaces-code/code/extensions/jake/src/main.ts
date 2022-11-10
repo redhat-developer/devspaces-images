@@ -7,6 +7,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as cp from 'child_process';
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
+const localize = nls.loadMessageBundle();
 
 type AutoDetect = 'on' | 'off';
 
@@ -58,8 +60,8 @@ function getOutputChannel(): vscode.OutputChannel {
 }
 
 function showError() {
-	vscode.window.showWarningMessage(vscode.l10n.t("Problem finding jake tasks. See the output for more information."),
-		vscode.l10n.t("Go to output")).then(() => {
+	vscode.window.showWarningMessage(localize('jakeTaskDetectError', 'Problem finding jake tasks. See the output for more information.'),
+		localize('jakeShowOutput', 'Go to output')).then(() => {
 			getOutputChannel().show(true);
 		});
 }
@@ -187,7 +189,7 @@ class FolderDetector {
 			if (err.stdout) {
 				channel.appendLine(err.stdout);
 			}
-			channel.appendLine(vscode.l10n.t("Auto detecting Jake for folder {0} failed with error: {1}', this.workspaceFolder.name, err.error ? err.error.toString() : 'unknown"));
+			channel.appendLine(localize('execFailed', 'Auto detecting Jake for folder {0} failed with error: {1}', this.workspaceFolder.name, err.error ? err.error.toString() : 'unknown'));
 			showError();
 			return emptyTasks;
 		}

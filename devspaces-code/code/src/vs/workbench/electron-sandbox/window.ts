@@ -319,10 +319,10 @@ export class NativeWindow extends Disposable {
 				return; // do not indicate dirty of working copies that are auto saved after short delay
 			}
 
-			this.updateDocumentEdited(gotDirty ? true : undefined);
+			this.updateDocumentEdited(gotDirty);
 		}));
 
-		this.updateDocumentEdited(undefined);
+		this.updateDocumentEdited();
 
 		// Detect minimize / maximize
 		this._register(Event.any(
@@ -511,18 +511,11 @@ export class NativeWindow extends Disposable {
 		}
 	}
 
-	private updateDocumentEdited(documentEdited: true | undefined): void {
-		let setDocumentEdited: boolean;
-		if (typeof documentEdited === 'boolean') {
-			setDocumentEdited = documentEdited;
-		} else {
-			setDocumentEdited = this.workingCopyService.hasDirty;
-		}
+	private updateDocumentEdited(isDirty = this.workingCopyService.hasDirty): void {
+		if ((!this.isDocumentedEdited && isDirty) || (this.isDocumentedEdited && !isDirty)) {
+			this.isDocumentedEdited = isDirty;
 
-		if ((!this.isDocumentedEdited && setDocumentEdited) || (this.isDocumentedEdited && !setDocumentEdited)) {
-			this.isDocumentedEdited = setDocumentEdited;
-
-			this.nativeHostService.setDocumentEdited(setDocumentEdited);
+			this.nativeHostService.setDocumentEdited(isDirty);
 		}
 	}
 

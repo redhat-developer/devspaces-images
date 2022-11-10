@@ -306,8 +306,7 @@ export class DebugSession implements IDebugSession {
 				supportsProgressReporting: true, // #92253
 				supportsInvalidatedEvent: true, // #106745
 				supportsMemoryReferences: true, //#129684
-				supportsArgsCanBeInterpretedByShell: true, // #149910
-				supportsMemoryEvent: true
+				supportsArgsCanBeInterpretedByShell: true // #149910
 			});
 
 			this.initialized = true;

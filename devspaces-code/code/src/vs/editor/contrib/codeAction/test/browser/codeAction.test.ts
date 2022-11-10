@@ -80,13 +80,13 @@ suite('CodeAction', () => {
 		},
 		tsLint: {
 			abc: {
-				$ident: 'funny' + 57,
+				$ident: 57,
 				arguments: <IMarkerData[]>[],
 				id: '_internal_command_delegation',
 				title: 'abc'
 			},
 			bcd: {
-				$ident: 'funny' + 47,
+				$ident: 47,
 				arguments: <IMarkerData[]>[],
 				id: '_internal_command_delegation',
 				title: 'bcd'

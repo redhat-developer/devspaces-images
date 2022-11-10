@@ -1071,11 +1071,13 @@ export class CloseTestPeek extends EditorAction2 {
 			id: 'editor.closeTestPeek',
 			title: localize('close', 'Close'),
 			icon: Codicon.close,
-			precondition: ContextKeyExpr.or(TestingContextKeys.isInPeek, TestingContextKeys.isPeekVisible),
+			precondition: ContextKeyExpr.and(
+				ContextKeyExpr.or(TestingContextKeys.isInPeek, TestingContextKeys.isPeekVisible),
+				ContextKeyExpr.not('config.editor.stablePeek')
+			),
 			keybinding: {
 				weight: KeybindingWeight.EditorContrib - 101,
-				primary: KeyCode.Escape,
-				when: ContextKeyExpr.not('config.editor.stablePeek')
+				primary: KeyCode.Escape
 			}
 		});
 	}

@@ -42,7 +42,7 @@ class GrammarContributions implements IGrammarContributions {
 	}
 }
 
-interface IEmmetActionOptions extends IActionOptions {
+export interface IEmmetActionOptions extends IActionOptions {
 	actionName: string;
 }
 

@@ -17,6 +17,7 @@ import { IURLService } from 'vs/platform/url/common/url';
 import { ICodeWindow } from 'vs/platform/window/electron-main/window';
 import { IWindowSettings } from 'vs/platform/window/common/window';
 import { IOpenConfiguration, IWindowsMainService, OpenContext } from 'vs/platform/windows/electron-main/windows';
+import { IUserDataProfilesMainService } from 'vs/platform/userDataProfile/electron-main/userDataProfile';
 
 export const ID = 'launchMainService';
 export const ILaunchMainService = createDecorator<ILaunchMainService>(ID);
@@ -44,6 +45,7 @@ export class LaunchMainService implements ILaunchMainService {
 		@IWindowsMainService private readonly windowsMainService: IWindowsMainService,
 		@IURLService private readonly urlService: IURLService,
 		@IConfigurationService private readonly configurationService: IConfigurationService,
+		@IUserDataProfilesMainService private readonly userDataProfilesMainService: IUserDataProfilesMainService,
 	) { }
 
 	async start(args: NativeParsedArgs, userEnv: IProcessEnvironment): Promise<void> {
@@ -115,14 +117,16 @@ export class LaunchMainService implements ILaunchMainService {
 		const waitMarkerFileURI = args.wait && args.waitMarkerFilePath ? URI.file(args.waitMarkerFilePath) : undefined;
 		const remoteAuthority = args.remote || undefined;
 
+		// Ensure profile exists when passed in from CLI
+		const profile = await this.userDataProfilesMainService.checkAndCreateProfileFromCli(args);
+
 		const baseConfig: IOpenConfiguration = {
 			context,
 			cli: args,
 			userEnv,
 			waitMarkerFileURI,
 			remoteAuthority,
-			forceProfile: args.profile,
-			forceTempProfile: args['profile-temp']
+			profile
 		};
 
 		// Special case extension development
@@ -135,7 +139,7 @@ export class LaunchMainService implements ILaunchMainService {
 			let openNewWindow = false;
 
 			// Force new window
-			if (args['new-window'] || args['unity-launch'] || baseConfig.forceProfile || baseConfig.forceTempProfile) {
+			if (args['new-window'] || args['unity-launch'] || profile) {
 				openNewWindow = true;
 			}
 

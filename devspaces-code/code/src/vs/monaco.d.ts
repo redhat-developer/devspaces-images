@@ -4239,10 +4239,6 @@ declare namespace monaco.editor {
 		 */
 		shareSuggestSelections?: boolean;
 		/**
-		 * Select suggestions when triggered via quick suggest or trigger characters
-		 */
-		selectQuickSuggestions?: boolean;
-		/**
 		 * Enable or disable icons in suggestions. Defaults to true.
 		 */
 		showIcons?: boolean;

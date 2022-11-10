@@ -17,6 +17,7 @@ import { IInstantiationService } from 'vs/platform/instantiation/common/instanti
 import { IKeybindingService } from 'vs/platform/keybinding/common/keybinding';
 import { WorkbenchDataTree } from 'vs/platform/list/browser/listService';
 import { IStorageService } from 'vs/platform/storage/common/storage';
+import { attachProgressBarStyler } from 'vs/platform/theme/common/styler';
 import { IThemeService } from 'vs/platform/theme/common/themeService';
 import { ViewPane } from 'vs/workbench/browser/parts/views/viewPane';
 import { IViewletViewOptions } from 'vs/workbench/browser/parts/views/viewsViewlet';
@@ -35,7 +36,6 @@ import { ITreeSorter } from 'vs/base/browser/ui/tree/tree';
 import { AbstractTreeViewState, IAbstractTreeViewState, TreeFindMode } from 'vs/base/browser/ui/tree/abstractTree';
 import { URI } from 'vs/base/common/uri';
 import { ctxAllCollapsed, ctxFilterOnType, ctxFollowsCursor, ctxSortMode, IOutlinePane, OutlineSortOrder } from 'vs/workbench/contrib/outline/browser/outline';
-import { getProgressBarStyles } from 'vs/platform/theme/browser/defaultStyles';
 
 class OutlineTreeSorter<E> implements ITreeSorter<E> {
 
@@ -85,6 +85,7 @@ export class OutlinePane extends ViewPane implements IOutlinePane {
 		@IOutlineService private readonly _outlineService: IOutlineService,
 		@IInstantiationService private readonly _instantiationService: IInstantiationService,
 		@IViewDescriptorService viewDescriptorService: IViewDescriptorService,
+		@IThemeService private readonly _themeService: IThemeService,
 		@IStorageService private readonly _storageService: IStorageService,
 		@IEditorService private readonly _editorService: IEditorService,
 		@IConfigurationService configurationService: IConfigurationService,
@@ -136,7 +137,8 @@ export class OutlinePane extends ViewPane implements IOutlinePane {
 		const progressContainer = dom.$('.outline-progress');
 		this._message = dom.$('.outline-message');
 
-		this._progressBar = new ProgressBar(progressContainer, getProgressBarStyles());
+		this._progressBar = new ProgressBar(progressContainer);
+		this._disposables.add(attachProgressBarStyler(this._progressBar, this._themeService));
 
 		this._treeContainer = dom.$('.outline-tree');
 		dom.append(container, progressContainer, this._message, this._treeContainer);

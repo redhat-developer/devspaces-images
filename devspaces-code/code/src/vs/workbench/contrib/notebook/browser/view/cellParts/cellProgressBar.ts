@@ -4,14 +4,13 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { ProgressBar } from 'vs/base/browser/ui/progressbar/progressbar';
-import { getProgressBarStyles } from 'vs/platform/theme/browser/defaultStyles';
 import { ICellViewModel } from 'vs/workbench/contrib/notebook/browser/notebookBrowser';
 import { CellViewModelStateChangeEvent } from 'vs/workbench/contrib/notebook/browser/notebookViewEvents';
-import { CellContentPart } from 'vs/workbench/contrib/notebook/browser/view/cellPart';
+import { CellPart } from 'vs/workbench/contrib/notebook/browser/view/cellPart';
 import { NotebookCellExecutionState } from 'vs/workbench/contrib/notebook/common/notebookCommon';
 import { ICellExecutionStateChangedEvent, INotebookExecutionStateService } from 'vs/workbench/contrib/notebook/common/notebookExecutionStateService';
 
-export class CellProgressBar extends CellContentPart {
+export class CellProgressBar extends CellPart {
 	private readonly _progressBar: ProgressBar;
 	private readonly _collapsedProgressBar: ProgressBar;
 
@@ -21,10 +20,10 @@ export class CellProgressBar extends CellContentPart {
 		@INotebookExecutionStateService private readonly _notebookExecutionStateService: INotebookExecutionStateService) {
 		super();
 
-		this._progressBar = this._register(new ProgressBar(editorContainer, getProgressBarStyles()));
+		this._progressBar = this._register(new ProgressBar(editorContainer));
 		this._progressBar.hide();
 
-		this._collapsedProgressBar = this._register(new ProgressBar(collapsedInputContainer, getProgressBarStyles()));
+		this._collapsedProgressBar = this._register(new ProgressBar(collapsedInputContainer));
 		this._collapsedProgressBar.hide();
 	}
 

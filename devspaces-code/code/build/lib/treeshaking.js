@@ -163,10 +163,6 @@ function processLibFiles(ts, options) {
  * A TypeScript language service host
  */
 class TypeScriptLanguageServiceHost {
-    _ts;
-    _libs;
-    _files;
-    _compilerOptions;
     constructor(ts, libs, files, compilerOptions) {
         this._ts = ts;
         this._libs = libs;
@@ -751,8 +747,6 @@ function findSymbolFromHeritageType(ts, checker, type) {
     return null;
 }
 class SymbolImportTuple {
-    symbol;
-    symbolImportNode;
     constructor(symbol, symbolImportNode) {
         this.symbol = symbol;
         this.symbolImportNode = symbolImportNode;

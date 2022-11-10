@@ -5,6 +5,7 @@
 
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { IExperimentationTelemetryReporter } from './experimentTelemetryReporter';
 import { DiagnosticKind, DiagnosticsManager } from './languageFeatures/diagnostics';
 import * as Proto from './protocol';
@@ -30,6 +31,7 @@ import { TelemetryProperties, TelemetryReporter, VSCodeTelemetryReporter } from 
 import Tracer from './utils/tracer';
 import { inferredProjectCompilerOptions, ProjectType } from './utils/tsconfig';
 
+const localize = nls.loadMessageBundle();
 
 export interface TsDiagnostics {
 	readonly kind: DiagnosticKind;
@@ -370,7 +372,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 
 		let version = this._versionManager.currentVersion;
 		if (!version.isValid) {
-			vscode.window.showWarningMessage(vscode.l10n.t("The path {0} doesn't point to a valid tsserver install. Falling back to bundled TypeScript version.", version.path));
+			vscode.window.showWarningMessage(localize('noServerFound', 'The path {0} doesn\'t point to a valid tsserver install. Falling back to bundled TypeScript version.', version.path));
 
 			this._versionManager.reset();
 			version = this._versionManager.currentVersion;
@@ -408,7 +410,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 			}
 
 			if (err) {
-				vscode.window.showErrorMessage(vscode.l10n.t("TypeScript language server exited with error. Error message is: {0}", err.message || err.name));
+				vscode.window.showErrorMessage(localize('serverExitedWithError', 'TypeScript language server exited with error. Error message is: {0}', err.message || err.name));
 			}
 
 			this.serverState = new ServerState.Errored(err, handle.tsServerLogFile);
@@ -481,9 +483,13 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 	public async openTsServerLogFile(): Promise<boolean> {
 		if (this._configuration.tsServerLogLevel === TsServerLogLevel.Off) {
 			vscode.window.showErrorMessage<vscode.MessageItem>(
-				vscode.l10n.t("TS Server logging is off. Please set 'typescript.tsserver.log' and restart the TS server to enable logging"),
+				localize(
+					'typescript.openTsServerLog.loggingNotEnabled',
+					'TS Server logging is off. Please set `typescript.tsserver.log` and restart the TS server to enable logging'),
 				{
-					title: vscode.l10n.t("Enable logging and restart TS server"),
+					title: localize(
+						'typescript.openTsServerLog.enableAndReloadOption',
+						'Enable logging and restart TS server'),
 				})
 				.then(selection => {
 					if (selection) {
@@ -497,7 +503,9 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 		}
 
 		if (this.serverState.type !== ServerState.Type.Running || !this.serverState.server.tsServerLogFile) {
-			vscode.window.showWarningMessage(vscode.l10n.t("TS Server has not started logging."));
+			vscode.window.showWarningMessage(localize(
+				'typescript.openTsServerLog.noLogFile',
+				'TS Server has not started logging.'));
 			return false;
 		}
 
@@ -513,7 +521,9 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 			await vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(this.serverState.server.tsServerLogFile));
 			return true;
 		} catch {
-			vscode.window.showWarningMessage(vscode.l10n.t("Could not open TS Server log file"));
+			vscode.window.showWarningMessage(localize(
+				'openTsServerLog.openFileFailedFailed',
+				'Could not open TS Server log file'));
 			return false;
 		}
 	}
@@ -578,7 +588,7 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 
 			const pluginExtensionList = this.pluginManager.plugins.map(plugin => plugin.extension.id).join(', ');
 			const reportIssueItem: vscode.MessageItem = {
-				title: vscode.l10n.t("Report Issue"),
+				title: localize('serverDiedReportIssue', 'Report Issue'),
 			};
 			let prompt: Thenable<undefined | vscode.MessageItem> | undefined = undefined;
 
@@ -590,8 +600,8 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 					this.hasServerFatallyCrashedTooManyTimes = true;
 					prompt = vscode.window.showErrorMessage(
 						this.pluginManager.plugins.length
-							? vscode.l10n.t("The JS/TS language service immediately crashed 5 times. The service will not be restarted.\nThis may be caused by a plugin contributed by one of these extensions: {0}", pluginExtensionList)
-							: vscode.l10n.t("The JS/TS language service immediately crashed 5 times. The service will not be restarted."),
+							? localize('serverDiedImmediatelyWithPlugins', "The JS/TS language service immediately crashed 5 times. The service will not be restarted.\nThis may be caused by a plugin contributed by one of these extensions: {0}", pluginExtensionList)
+							: localize('serverDiedImmediately', "The JS/TS language service immediately crashed 5 times. The service will not be restarted."),
 						reportIssueItem);
 
 					/* __GDPR__
@@ -608,8 +618,8 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 					if (!this._isPromptingAfterCrash) {
 						prompt = vscode.window.showWarningMessage(
 							this.pluginManager.plugins.length
-								? vscode.l10n.t("The JS/TS language service crashed 5 times in the last 5 Minutes.\nThis may be caused by a plugin contributed by one of these extensions: {0}", pluginExtensionList)
-								: vscode.l10n.t("The JS/TS language service crashed 5 times in the last 5 Minutes."),
+								? localize('serverDiedFiveTimesWithPlugins', "The JS/TS language service crashed 5 times in the last 5 Minutes.\nThis may be caused by a plugin contributed by one of these extensions: {0}", pluginExtensionList)
+								: localize('serverDiedFiveTimes', "The JS/TS language service crashed 5 times in the last 5 Minutes."),
 							reportIssueItem);
 					}
 				}
@@ -619,8 +629,8 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 				if (!this._isPromptingAfterCrash) {
 					prompt = vscode.window.showWarningMessage(
 						this.pluginManager.plugins.length
-							? vscode.l10n.t("The JS/TS language service crashed.\nThis may be caused by a plugin contributed by one of these extensions: {0}", pluginExtensionList)
-							: vscode.l10n.t("The JS/TS language service crashed."),
+							? localize('serverDiedOnceWithPlugins', "The JS/TS language service crashed.\nThis may be caused by a plugin contributed by one of these extensions: {0}", pluginExtensionList)
+							: localize('serverDiedOnce', "The JS/TS language service crashed."),
 						reportIssueItem);
 				}
 			}
@@ -637,12 +647,13 @@ export default class TypeScriptServiceClient extends Disposable implements IType
 
 					if (minModernTsVersion && this.apiVersion.lt(minModernTsVersion)) {
 						vscode.window.showWarningMessage(
-							vscode.l10n.t("Please update your TypeScript version"),
+							localize('usingOldTsVersion.title', 'Please update your TypeScript version'),
 							{
 								modal: true,
-								detail: vscode.l10n.t(
-									"The workspace is using an old version of TypeScript ({0}).\n\nBefore reporting an issue, please update the workspace to use the latest stable TypeScript release to make sure the bug has not already been fixed.",
-									(previousState.type === ServerState.Type.Errored && previousState.error instanceof TypeScriptServerError ? previousState.error.version.apiVersion?.displayName : undefined) + ''),
+								detail: localize(
+									'usingOldTsVersion.detail',
+									'The workspace is using an old version of TypeScript ({0}).\n\nBefore reporting an issue, please update the workspace to use the latest stable TypeScript release to make sure the bug has not already been fixed.',
+									previousState.type === ServerState.Type.Errored && previousState.error instanceof TypeScriptServerError ? previousState.error.version.apiVersion?.displayName : undefined),
 								useCustom: true
 							});
 					} else {
@@ -1102,7 +1113,7 @@ class ServerInitializingIndicator extends Disposable {
 
 		vscode.window.withProgress({
 			location: vscode.ProgressLocation.Window,
-			title: vscode.l10n.t("Initializing JS/TS language features"),
+			title: localize('serverLoading.progress', "Initializing JS/TS language features"),
 		}, () => new Promise<void>(resolve => {
 			this._task = { project: projectName, resolve };
 		}));

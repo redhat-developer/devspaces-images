@@ -6,14 +6,13 @@
 import { groupBy } from 'vs/base/common/arrays';
 import { CancellationToken } from 'vs/base/common/cancellation';
 import { Codicon } from 'vs/base/common/codicons';
-import { Event } from 'vs/base/common/event';
 import { Disposable, DisposableStore, IDisposable, MutableDisposable } from 'vs/base/common/lifecycle';
 import { Schemas } from 'vs/base/common/network';
 import { compareIgnoreCase, uppercaseFirstLetter } from 'vs/base/common/strings';
 import { ILanguageFeaturesService } from 'vs/editor/common/services/languageFeatures';
 import * as nls from 'vs/nls';
 import { Action2, MenuId, registerAction2 } from 'vs/platform/actions/common/actions';
-import { ContextKeyExpr, IContextKeyService } from 'vs/platform/contextkey/common/contextkey';
+import { ContextKeyExpr } from 'vs/platform/contextkey/common/contextkey';
 import { ExtensionIdentifier } from 'vs/platform/extensions/common/extensions';
 import { IInstantiationService, ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
 import { ILabelService } from 'vs/platform/label/common/label';
@@ -33,22 +32,12 @@ import { selectKernelIcon } from 'vs/workbench/contrib/notebook/browser/notebook
 import { NotebookTextModel } from 'vs/workbench/contrib/notebook/common/model/notebookTextModel';
 import { NotebookCellsChangeType } from 'vs/workbench/contrib/notebook/common/notebookCommon';
 import { NOTEBOOK_IS_ACTIVE_EDITOR, NOTEBOOK_KERNEL_COUNT } from 'vs/workbench/contrib/notebook/common/notebookContextKeys';
-import { INotebookKernel, INotebookKernelMatchResult, INotebookKernelService, ISourceAction } from 'vs/workbench/contrib/notebook/common/notebookKernelService';
+import { INotebookKernel, INotebookKernelService, ISourceAction } from 'vs/workbench/contrib/notebook/common/notebookKernelService';
 import { IEditorService } from 'vs/workbench/services/editor/common/editorService';
 import { IExtensionService } from 'vs/workbench/services/extensions/common/extensions';
 import { LifecyclePhase } from 'vs/workbench/services/lifecycle/common/lifecycle';
 import { IPaneCompositePartService } from 'vs/workbench/services/panecomposite/browser/panecomposite';
 import { IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarService, StatusbarAlignment } from 'vs/workbench/services/statusbar/browser/statusbar';
-
-type KernelPick = IQuickPickItem & { kernel: INotebookKernel };
-function isKernelPick(item: QuickPickInput<IQuickPickItem>): item is KernelPick {
-	return 'kernel' in item;
-}
-type SourcePick = IQuickPickItem & { action: ISourceAction };
-function isSourcePick(item: QuickPickInput<IQuickPickItem>): item is SourcePick {
-	return 'action' in item;
-}
-type KernelQuickPickItem = IQuickPickItem | KernelPick | SourcePick;
 
 registerAction2(class extends Action2 {
 	constructor() {
@@ -149,9 +138,7 @@ registerAction2(class extends Action2 {
 		}
 
 		const notebook = editor.textModel;
-		const scopedContextKeyService = editor.scopedContextKeyService;
-		const matchResult = notebookKernelService.getMatchingKernel(notebook);
-		const { selected, all } = matchResult;
+		const { selected, all, suggestions, hidden } = notebookKernelService.getMatchingKernel(notebook);
 
 		if (selected && controllerId && selected.id === controllerId && ExtensionIdentifier.equals(selected.extension, extensionId)) {
 			// current kernel is wanted kernel -> done
@@ -178,109 +165,8 @@ registerAction2(class extends Action2 {
 			return true;
 		}
 
-		const quickPick = quickInputService.createQuickPick<KernelQuickPickItem>();
-		const quickPickItemSuggestions = this._getKernelPickerQuickPickItems(notebook, matchResult, notebookKernelService, scopedContextKeyService);
-		let suggestedExtension = quickPickItemSuggestions.suggestedExtension;
-		quickPick.items = quickPickItemSuggestions.quickPickItems;
-		quickPick.canSelectMany = false;
-		quickPick.placeholder = selected
-			? nls.localize('prompt.placeholder.change', "Change kernel for '{0}'", labelService.getUriLabel(notebook.uri, { relative: true }))
-			: nls.localize('prompt.placeholder.select', "Select kernel for '{0}'", labelService.getUriLabel(notebook.uri, { relative: true }));
-
-		const kernelChangeEventListener = Event.any(
-			notebookKernelService.onDidChangeSourceActions,
-			notebookKernelService.onDidAddKernel,
-			notebookKernelService.onDidRemoveKernel,
-			notebookKernelService.onDidChangeNotebookAffinity
-		)(() => {
-			const currentActiveItems = quickPick.activeItems;
-			const matchResult = notebookKernelService.getMatchingKernel(notebook);
-			const quickPickItemSuggestions = this._getKernelPickerQuickPickItems(notebook, matchResult, notebookKernelService, scopedContextKeyService);
-			suggestedExtension = quickPickItemSuggestions.suggestedExtension;
-			quickPick.keepScrollPosition = true;
-
-			// recalcuate active items
-			const activeItems: KernelQuickPickItem[] = [];
-			for (const item of currentActiveItems) {
-				if (isKernelPick(item)) {
-					const kernelId = item.kernel.id;
-					const sameItem = quickPickItemSuggestions.quickPickItems.find(pi => isKernelPick(pi) && pi.kernel.id === kernelId) as KernelPick | undefined;
-					if (sameItem) {
-						activeItems.push(sameItem);
-					}
-				} else if (isSourcePick(item)) {
-					const sameItem = quickPickItemSuggestions.quickPickItems.find(pi => isSourcePick(pi) && pi.action.action.id === item.action.action.id) as SourcePick | undefined;
-					if (sameItem) {
-						activeItems.push(sameItem);
-					}
-				}
-			}
-
-			quickPick.items = quickPickItemSuggestions.quickPickItems;
-			quickPick.activeItems = activeItems;
-		});
-
-		const pick = await new Promise<KernelQuickPickItem>((resolve, reject) => {
-			quickPick.onDidAccept(() => {
-				const item = quickPick.selectedItems[0];
-				if (item) {
-					resolve(item);
-				} else {
-					reject();
-				}
-
-				quickPick.hide();
-			});
-
-			quickPick.onDidHide(() => () => {
-				kernelChangeEventListener.dispose();
-				quickPick.dispose();
-				reject();
-			});
-			quickPick.show();
-		});
-
-		if (pick) {
-			if (isKernelPick(pick)) {
-				newKernel = pick.kernel;
-				notebookKernelService.selectKernelForNotebook(newKernel, notebook);
-				return true;
-			}
-
-			// actions
-			if (pick.id === 'install') {
-				await this._showKernelExtension(
-					paneCompositeService,
-					extensionWorkbenchService,
-					extensionHostService,
-					notebook.viewType
-				);
-				// suggestedExtension must be defined for this option to be shown, but still check to make TS happy
-			} else if (pick.id === 'installSuggested' && suggestedExtension) {
-				await this._showKernelExtension(
-					paneCompositeService,
-					extensionWorkbenchService,
-					extensionHostService,
-					notebook.viewType,
-					suggestedExtension.extensionId,
-					productService.quality !== 'stable'
-				);
-			} else if (isSourcePick(pick)) {
-				// selected explicilty, it should trigger the execution?
-				pick.action.runAction();
-			}
-		}
-
-		return false;
-	}
-
-	private _getKernelPickerQuickPickItems(
-		notebookTextModel: NotebookTextModel,
-		matchResult: INotebookKernelMatchResult,
-		notebookKernelService: INotebookKernelService,
-		scopedContextKeyService: IContextKeyService
-	): { quickPickItems: QuickPickInput<KernelQuickPickItem>[]; suggestedExtension: INotebookExtensionRecommendation | undefined } {
-		const { selected, all, suggestions, hidden } = matchResult;
+		type KernelPick = IQuickPickItem & { kernel: INotebookKernel };
+		type SourcePick = IQuickPickItem & { action: ISourceAction };
 
 		function toQuickPick(kernel: INotebookKernel) {
 			const res = <KernelPick>{
@@ -299,7 +185,7 @@ registerAction2(class extends Action2 {
 			}
 			return res;
 		}
-		const quickPickItems: QuickPickInput<KernelQuickPickItem>[] = [];
+		const quickPickItems: QuickPickInput<IQuickPickItem | KernelPick | SourcePick>[] = [];
 		if (all.length) {
 			// Always display suggested kernels on the top.
 			if (suggestions.length) {
@@ -323,7 +209,7 @@ registerAction2(class extends Action2 {
 			});
 		}
 
-		const sourceActions = notebookKernelService.getSourceActions(notebookTextModel, scopedContextKeyService);
+		const sourceActions = notebookKernelService.getSourceActions(notebook, editor.scopedContextKeyService);
 		if (sourceActions.length) {
 			quickPickItems.push({
 				type: 'separator',
@@ -343,8 +229,11 @@ registerAction2(class extends Action2 {
 
 		let suggestedExtension: INotebookExtensionRecommendation | undefined;
 		if (!all.length && !sourceActions.length) {
-			const language = this.getSuggestedLanguage(notebookTextModel);
-			suggestedExtension = language ? this.getSuggestedKernelFromLanguage(notebookTextModel.viewType, language) : undefined;
+			const activeNotebookModel = getNotebookEditorFromEditorPane(editorService.activeEditorPane)?.textModel;
+			if (activeNotebookModel) {
+				const language = this.getSuggestedLanguage(activeNotebookModel);
+				suggestedExtension = language ? this.getSuggestedKernelFromLanguage(activeNotebookModel.viewType, language) : undefined;
+			}
 			if (suggestedExtension) {
 				// We have a suggested kernel, show an option to install it
 				quickPickItems.push({
@@ -360,10 +249,45 @@ registerAction2(class extends Action2 {
 			});
 		}
 
-		return {
-			quickPickItems,
-			suggestedExtension
-		};
+		const pick = await quickInputService.pick(quickPickItems, {
+			placeHolder: selected
+				? nls.localize('prompt.placeholder.change', "Change kernel for '{0}'", labelService.getUriLabel(notebook.uri, { relative: true }))
+				: nls.localize('prompt.placeholder.select', "Select kernel for '{0}'", labelService.getUriLabel(notebook.uri, { relative: true }))
+		});
+
+		if (pick) {
+			if ('kernel' in pick) {
+				newKernel = pick.kernel;
+				notebookKernelService.selectKernelForNotebook(newKernel, notebook);
+				return true;
+			}
+
+			// actions
+
+			if (pick.id === 'install') {
+				await this._showKernelExtension(
+					paneCompositeService,
+					extensionWorkbenchService,
+					extensionHostService,
+					notebook.viewType
+				);
+				// suggestedExtension must be defined for this option to be shown, but still check to make TS happy
+			} else if (pick.id === 'installSuggested' && suggestedExtension) {
+				await this._showKernelExtension(
+					paneCompositeService,
+					extensionWorkbenchService,
+					extensionHostService,
+					notebook.viewType,
+					suggestedExtension.extensionId,
+					productService.quality !== 'stable'
+				);
+			} else if ('action' in pick) {
+				// selected explicilty, it should trigger the execution?
+				pick.action.runAction();
+			}
+		}
+
+		return false;
 	}
 
 	/**

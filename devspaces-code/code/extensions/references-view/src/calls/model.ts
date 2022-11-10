@@ -6,6 +6,8 @@
 import * as vscode from 'vscode';
 import { SymbolItemDragAndDrop, SymbolItemEditorHighlights, SymbolItemNavigation, SymbolTreeInput } from '../references-view';
 import { asResourceUrl, del, getThemeIcon, tail } from '../utils';
+import * as nls from 'vscode-nls';
+const localize = nls.loadMessageBundle();
 
 export class CallsTreeInput implements SymbolTreeInput<CallItem> {
 
@@ -17,8 +19,8 @@ export class CallsTreeInput implements SymbolTreeInput<CallItem> {
 		readonly direction: CallsDirection,
 	) {
 		this.title = direction === CallsDirection.Incoming
-			? vscode.l10n.t('Callers Of')
-			: vscode.l10n.t('Calls From');
+			? localize('title.callers', 'Callers Of')
+			: localize('title.calls', 'Calls From');
 	}
 
 	async resolve() {
@@ -33,7 +35,7 @@ export class CallsTreeInput implements SymbolTreeInput<CallItem> {
 
 		return {
 			provider,
-			get message() { return model.roots.length === 0 ? vscode.l10n.t('No results.') : undefined; },
+			get message() { return model.roots.length === 0 ? localize('noresult', 'No results.') : undefined; },
 			navigation: model,
 			highlights: model,
 			dnd: model,
@@ -182,7 +184,7 @@ class CallItemDataProvider implements vscode.TreeDataProvider<CallItem> {
 		item.iconPath = getThemeIcon(element.item.kind);
 		item.command = {
 			command: 'vscode.open',
-			title: vscode.l10n.t('Open Call'),
+			title: localize('open', 'Open Call'),
 			arguments: [
 				element.item.uri,
 				<vscode.TextDocumentShowOptions>{ selection: element.item.selectionRange.with({ end: element.item.selectionRange.start }) }

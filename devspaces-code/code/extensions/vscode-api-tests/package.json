@@ -43,7 +43,8 @@
     "treeItemCheckbox",
     "treeViewReveal",
     "workspaceTrust",
-    "telemetry"
+    "telemetry",
+    "extensionLog"
   ],
   "private": true,
   "activationEvents": [],

@@ -4,10 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import { loadMessageBundle } from 'vscode-nls';
 import { ITypeScriptServiceClient } from '../typescriptService';
 import { TelemetryReporter } from './telemetry';
 import { isImplicitProjectConfigFile, openOrCreateConfig, ProjectType } from './tsconfig';
 
+const localize = loadMessageBundle();
 
 interface Hint {
 	message: string;
@@ -22,7 +24,7 @@ class ExcludeHintItem {
 		private readonly telemetryReporter: TelemetryReporter
 	) {
 		this._item = vscode.window.createStatusBarItem('status.typescript.exclude', vscode.StatusBarAlignment.Right, 98 /* to the right of typescript version status (99) */);
-		this._item.name = vscode.l10n.t("TypeScript: Configure Excludes");
+		this._item.name = localize('statusExclude', "TypeScript: Configure Excludes");
 		this._item.command = 'js.projectStatus.command';
 	}
 
@@ -37,12 +39,12 @@ class ExcludeHintItem {
 	public show(largeRoots?: string) {
 		this._currentHint = {
 			message: largeRoots
-				? vscode.l10n.t("To enable project-wide JavaScript/TypeScript language features, exclude folders with many files, like: {0}", largeRoots)
-				: vscode.l10n.t("To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.")
+				? localize('hintExclude', "To enable project-wide JavaScript/TypeScript language features, exclude folders with many files, like: {0}", largeRoots)
+				: localize('hintExclude.generic', "To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.")
 		};
 		this._item.tooltip = this._currentHint.message;
-		this._item.text = vscode.l10n.t("Configure Excludes");
-		this._item.tooltip = vscode.l10n.t("To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.");
+		this._item.text = localize('large.label', "Configure Excludes");
+		this._item.tooltip = localize('hintExclude.tooltip', "To enable project-wide JavaScript/TypeScript language features, exclude large folders with source files that you do not work on.");
 		this._item.color = '#A5DF3B';
 		this._item.show();
 		/* __GDPR__
@@ -74,7 +76,7 @@ function createLargeProjectMonitorFromTypeScript(item: ExcludeHintItem, client: 
 				item.configFileName = configFileName;
 				vscode.window.showWarningMessage<LargeProjectMessageItem>(item.getCurrentHint().message,
 					{
-						title: vscode.l10n.t("Configure Excludes"),
+						title: localize('large.label', "Configure Excludes"),
 						index: 0
 					}).then(selected => {
 						if (selected && selected.index === 0) {

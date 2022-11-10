@@ -100,12 +100,7 @@ enum UpdateResult {
 
 export const RemoteFileDialogContext = new RawContextKey<boolean>('remoteFileDialogVisible', false);
 
-export interface ISimpleFileDialog {
-	showOpenDialog(options: IOpenDialogOptions): Promise<URI | undefined>;
-	showSaveDialog(options: ISaveDialogOptions): Promise<URI | undefined>;
-}
-
-export class SimpleFileDialog implements ISimpleFileDialog {
+export class SimpleFileDialog {
 	private options!: IOpenDialogOptions;
 	private currentFolder!: URI;
 	private filePickBox!: IQuickPick<FileQuickPickItem>;

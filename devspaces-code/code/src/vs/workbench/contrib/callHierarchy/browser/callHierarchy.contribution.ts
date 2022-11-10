@@ -284,11 +284,13 @@ registerAction2(class extends EditorAction2 {
 			id: 'editor.closeCallHierarchy',
 			title: localize('close', 'Close'),
 			icon: Codicon.close,
-			precondition: _ctxCallHierarchyVisible,
+			precondition: ContextKeyExpr.and(
+				_ctxCallHierarchyVisible,
+				ContextKeyExpr.not('config.editor.stablePeek')
+			),
 			keybinding: {
 				weight: KeybindingWeight.WorkbenchContrib + 10,
-				primary: KeyCode.Escape,
-				when: ContextKeyExpr.not('config.editor.stablePeek')
+				primary: KeyCode.Escape
 			},
 			menu: {
 				id: CallHierarchyTreePeekWidget.TitleMenu,

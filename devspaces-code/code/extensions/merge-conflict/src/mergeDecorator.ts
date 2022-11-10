@@ -4,7 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
 import * as interfaces from './interfaces';
-
+import { loadMessageBundle } from 'vscode-nls';
+const localize = loadMessageBundle();
 
 export default class MergeDecorator implements vscode.Disposable {
 
@@ -87,7 +88,7 @@ export default class MergeDecorator implements vscode.Disposable {
 				outlineWidth: '1pt',
 				outlineColor: new vscode.ThemeColor('merge.border'),
 				after: {
-					contentText: ' ' + vscode.l10n.t("(Current Change)"),
+					contentText: ' ' + localize('currentChange', '(Current Change)'),
 					color: new vscode.ThemeColor('descriptionForeground')
 				}
 			});
@@ -117,7 +118,7 @@ export default class MergeDecorator implements vscode.Disposable {
 				outlineColor: new vscode.ThemeColor('merge.border'),
 				isWholeLine: this.decorationUsesWholeLine,
 				after: {
-					contentText: ' ' + vscode.l10n.t("(Incoming Change)"),
+					contentText: ' ' + localize('incomingChange', '(Incoming Change)'),
 					color: new vscode.ThemeColor('descriptionForeground')
 				}
 			});

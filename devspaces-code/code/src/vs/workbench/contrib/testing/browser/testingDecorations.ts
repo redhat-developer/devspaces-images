@@ -356,25 +356,19 @@ export class TestingDecorations extends Disposable implements IEditorContributio
 				}
 			}
 		}));
-		this._register(Event.accumulate(this.editor.onDidChangeModelContent, 0, this._store)(evts => {
+		this._register(this.editor.onDidChangeModelContent(e => {
 			const model = editor.getModel();
 			if (!this.currentUri || !model) {
 				return;
 			}
 
 			const currentDecorations = decorations.syncDecorations(this.currentUri);
-			if (!currentDecorations.size) {
-				return;
-			}
-
-			for (const e of evts) {
-				for (const change of e.changes) {
-					const modelDecorations = model.getLinesDecorations(change.range.startLineNumber, change.range.endLineNumber);
-					for (const { id } of modelDecorations) {
-						const decoration = currentDecorations.get(id);
-						if (decoration instanceof TestMessageDecoration) {
-							decorations.invalidateResultMessage(decoration.testMessage);
-						}
+			for (const change of e.changes) {
+				const modelDecorations = model.getLinesDecorations(change.range.startLineNumber, change.range.endLineNumber);
+				for (const { id } of modelDecorations) {
+					const decoration = currentDecorations.get(id);
+					if (decoration instanceof TestMessageDecoration) {
+						decorations.invalidateResultMessage(decoration.testMessage);
 					}
 				}
 			}

@@ -4,6 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { Command, CommandManager } from '../commands/commandManager';
 import type * as Proto from '../protocol';
 import * as PConst from '../protocol.const';
@@ -22,6 +23,7 @@ import * as typeConverters from '../utils/typeConverters';
 import TypingsStatus from '../utils/typingsStatus';
 import FileConfigurationManager from './fileConfigurationManager';
 
+const localize = nls.loadMessageBundle();
 
 interface DotAccessorContext {
 	readonly range: vscode.Range;
@@ -620,7 +622,7 @@ class ApplyCompletionCodeActionCommand implements Command {
 				description: '',
 				action,
 			})), {
-			placeHolder: vscode.l10n.t("Select code action to apply")
+			placeHolder: localize('selectCodeAction', 'Select code action to apply')
 		});
 
 		if (selection) {
@@ -690,14 +692,12 @@ class TypeScriptCompletionItemProvider implements vscode.CompletionItemProvider<
 
 		if (this.typingsStatus.isAcquiringTypings) {
 			return Promise.reject<vscode.CompletionList<MyCompletionItem>>({
-				label: vscode.l10n.t({
-					message: "Acquiring typings...",
-					comment: ['Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'],
-				}),
-				detail: vscode.l10n.t({
-					message: "Acquiring typings definitions for IntelliSense.",
-					comment: ['Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'],
-				})
+				label: localize(
+					{ key: 'acquiringTypingsLabel', comment: ['Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'] },
+					'Acquiring typings...'),
+				detail: localize(
+					{ key: 'acquiringTypingsDetail', comment: ['Typings refers to the *.d.ts typings files that power our IntelliSense. It should not be localized'] },
+					'Acquiring typings definitions for IntelliSense.')
 			});
 		}
 

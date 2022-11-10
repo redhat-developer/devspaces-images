@@ -12,47 +12,43 @@ import { IModelDeltaDecoration } from 'vs/editor/common/model';
 import { IStorageService, StorageScope, StorageTarget } from 'vs/platform/storage/common/storage';
 
 export class ReentrancyBarrier {
-	private _isActive = false;
-
-	public get isActive() {
-		return this._isActive;
-	}
+	private isActive = false;
 
 	public makeExclusive<TFunction extends Function>(fn: TFunction): TFunction {
 		return ((...args: any[]) => {
-			if (this._isActive) {
+			if (this.isActive) {
 				return;
 			}
-			this._isActive = true;
+			this.isActive = true;
 			try {
 				return fn(...args);
 			} finally {
-				this._isActive = false;
+				this.isActive = false;
 			}
 		}) as any;
 	}
 
 	public runExclusively(fn: () => void): void {
-		if (this._isActive) {
+		if (this.isActive) {
 			return;
 		}
-		this._isActive = true;
+		this.isActive = true;
 		try {
 			fn();
 		} finally {
-			this._isActive = false;
+			this.isActive = false;
 		}
 	}
 
 	public runExclusivelyOrThrow(fn: () => void): void {
-		if (this._isActive) {
+		if (this.isActive) {
 			throw new BugIndicatingError();
 		}
-		this._isActive = true;
+		this.isActive = true;
 		try {
 			fn();
 		} finally {
-			this._isActive = false;
+			this.isActive = false;
 		}
 	}
 }

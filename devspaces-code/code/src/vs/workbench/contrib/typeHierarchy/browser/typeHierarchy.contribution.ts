@@ -276,11 +276,13 @@ registerAction2(class extends EditorAction2 {
 			id: 'editor.closeTypeHierarchy',
 			title: localize('close', 'Close'),
 			icon: Codicon.close,
-			precondition: _ctxTypeHierarchyVisible,
+			precondition: ContextKeyExpr.and(
+				_ctxTypeHierarchyVisible,
+				ContextKeyExpr.not('config.editor.stablePeek')
+			),
 			keybinding: {
 				weight: KeybindingWeight.WorkbenchContrib + 10,
-				primary: KeyCode.Escape,
-				when: ContextKeyExpr.not('config.editor.stablePeek')
+				primary: KeyCode.Escape
 			},
 			menu: {
 				id: TypeHierarchyTreePeekWidget.TitleMenu,

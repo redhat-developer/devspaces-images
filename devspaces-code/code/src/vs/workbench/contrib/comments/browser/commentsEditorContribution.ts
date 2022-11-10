@@ -51,9 +51,6 @@ import { commentThreadRangeActiveBackground, commentThreadRangeActiveBorder, com
 import { ICursorSelectionChangedEvent } from 'vs/editor/common/cursorEvents';
 import { CommentsPanel } from 'vs/workbench/contrib/comments/browser/commentsView';
 import { withNullAsUndefined, withUndefinedAsNull } from 'vs/base/common/types';
-import { DiffEditorInput } from 'vs/workbench/common/editor/diffEditorInput';
-import { EditorInput } from 'vs/workbench/common/editor/editorInput';
-import { URI } from 'vs/base/common/uri';
 
 export const ID = 'editor.contrib.review';
 
@@ -348,8 +345,7 @@ export class CommentController implements IEditorContribution {
 		@IQuickInputService private readonly quickInputService: IQuickInputService,
 		@IViewsService private readonly viewsService: IViewsService,
 		@IConfigurationService private readonly configurationService: IConfigurationService,
-		@IContextKeyService readonly contextKeyService: IContextKeyService,
-		@IEditorService private readonly editorService: IEditorService
+		@IContextKeyService readonly contextKeyService: IContextKeyService
 	) {
 		this._commentInfos = [];
 		this._commentWidgets = [];
@@ -460,13 +456,6 @@ export class CommentController implements IEditorContribution {
 			}
 		}
 		this._activeCursorHasCommentingRange.set(hasCommentingRange);
-	}
-
-	private isEditorInlineOriginal(editorURI: URI | undefined, activeEditor: EditorInput | undefined): activeEditor is DiffEditorInput {
-		if (editorURI && activeEditor instanceof DiffEditorInput && !this.configurationService.getValue('diffEditor.renderSideBySide')) {
-			return activeEditor.original.resource?.toString() === editorURI.toString();
-		}
-		return false;
 	}
 
 	private beginCompute(): Promise<void> {
@@ -732,10 +721,6 @@ export class CommentController implements IEditorContribution {
 
 	private displayCommentThread(owner: string, thread: languages.CommentThread, pendingComment: string | null): void {
 		if (!this.editor) {
-			return;
-		}
-		const activeEditor = this.editorService.activeEditor;
-		if (this.isEditorInlineOriginal(this.editor.getModel()?.uri, activeEditor)) {
 			return;
 		}
 		const zoneWidget = this.instantiationService.createInstance(ReviewZoneWidget, this.editor, owner, thread, pendingComment);

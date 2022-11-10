@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import * as nls from 'vscode-nls';
 import * as vscode from 'vscode';
 
 import {
@@ -12,6 +13,7 @@ import {
 	IFolderTaskItem
 } from './tasks';
 
+const localize = nls.loadMessageBundle();
 
 export function runSelectedScript(context: vscode.ExtensionContext) {
 	const editor = vscode.window.activeTextEditor;
@@ -24,7 +26,7 @@ export function runSelectedScript(context: vscode.ExtensionContext) {
 	if (script) {
 		runScript(context, script, document);
 	} else {
-		const message = vscode.l10n.t("Could not find a valid npm script at the selection.");
+		const message = localize('noScriptFound', 'Could not find a valid npm script at the selection.');
 		vscode.window.showErrorMessage(message);
 	}
 }
@@ -39,7 +41,8 @@ export async function selectAndRunScriptFromFolder(context: vscode.ExtensionCont
 
 	if (taskList && taskList.length > 0) {
 		const quickPick = vscode.window.createQuickPick<IFolderTaskItem>();
-		quickPick.placeholder = 'Select an npm script to run in folder';
+		quickPick.title = 'Run NPM script in Folder';
+		quickPick.placeholder = 'Select an npm script';
 		quickPick.items = taskList;
 
 		const toDispose: vscode.Disposable[] = [];

@@ -5,10 +5,10 @@
 
 import * as DOM from 'vs/base/browser/dom';
 import { INotebookEditor } from 'vs/workbench/contrib/notebook/browser/notebookBrowser';
-import { CellContentPart } from 'vs/workbench/contrib/notebook/browser/view/cellPart';
+import { CellPart } from 'vs/workbench/contrib/notebook/browser/view/cellPart';
 import { CodeCellViewModel } from 'vs/workbench/contrib/notebook/browser/viewModel/codeCellViewModel';
 
-export class CellFocusPart extends CellContentPart {
+export class CellFocusPart extends CellPart {
 	constructor(
 		containerElement: HTMLElement,
 		focusSinkElement: HTMLElement | undefined,

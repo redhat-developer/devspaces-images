@@ -40,13 +40,13 @@ export class TestColorTheme implements IColorTheme {
 	}
 }
 
-class TestFileIconTheme implements IFileIconTheme {
+export class TestFileIconTheme implements IFileIconTheme {
 	hasFileIcons = false;
 	hasFolderIcons = false;
 	hidesExplorerArrows = false;
 }
 
-class UnthemedProductIconTheme implements IProductIconTheme {
+export class UnthemedProductIconTheme implements IProductIconTheme {
 	getIcon(contribution: IconContribution) {
 		return undefined;
 	}

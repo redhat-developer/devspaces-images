@@ -140,7 +140,7 @@ export class InputCodeEditorView extends CodeEditorView {
 			}
 
 			const blockClassNames = ['merge-editor-block'];
-			const isHandled = model.isInputHandled(modifiedBaseRange, this.inputNumber).read(reader);
+			const isHandled = model.isHandled(modifiedBaseRange).read(reader);
 			if (isHandled) {
 				blockClassNames.push('handled');
 			}
@@ -261,8 +261,7 @@ export class ModifiedBaseRangeGutterItemModel implements IGutterItemInfo {
 				.getState(this.baseRange)
 				.get()
 				.withInputValue(this.inputNumber, value),
-			tx,
-			this.inputNumber
+			tx
 		);
 	}
 	public toggleBothSides(): void {
@@ -289,7 +288,7 @@ export class ModifiedBaseRangeGutterItemModel implements IGutterItemInfo {
 		const update = (newState: ModifiedBaseRangeState) => {
 			transaction(tx => {
 				/** @description Context Menu: Update Base Range State */
-				return this.viewModel.setState(this.baseRange, newState, tx, this.inputNumber);
+				return this.viewModel.setState(this.baseRange, newState, tx);
 			});
 		};
 

@@ -42,7 +42,6 @@ use super::server_bridge::{get_socket_rw_stream, FromServerMessage, ServerBridge
 
 type ServerBridgeList = Option<Vec<(u16, ServerBridge)>>;
 type ServerBridgeListLock = Arc<Mutex<ServerBridgeList>>;
-type CodeServerCell = Arc<Mutex<Option<SocketCodeServer>>>;
 
 struct HandlerContext {
 	/// Exit barrier for the socket.
@@ -56,7 +55,7 @@ struct HandlerContext {
 	/// Configured launcher paths.
 	launcher_paths: LauncherPaths,
 	/// Connected VS Code Server
-	code_server: CodeServerCell,
+	code_server: Option<SocketCodeServer>,
 	/// Potentially many "websocket" connections to client
 	server_bridges: ServerBridgeListLock,
 	// the cli arguments used to start the code server
@@ -297,7 +296,7 @@ async fn process_socket(
 			launcher_paths,
 			code_server_args,
 			rx_counter: rx_counter_ctx,
-			code_server: Arc::new(Mutex::new(None)),
+			code_server: None,
 			server_bridges: server_bridges_lock,
 			port_forwarding,
 			platform,
@@ -380,12 +379,9 @@ async fn handle_socket_read(
 	let mut did_update = false;
 
 	let result = loop {
-		match read_next(&mut socket_reader, ctx, &mut decode_buf).await {
-			Ok(None) => continue,
-			Ok(Some(m)) => {
-				dispatch_next(m, ctx, &mut did_update).await;
-			}
-			Err(e) if e.kind() == std::io::ErrorKind::UnexpectedEof => break Ok(()),
+		match read_next(&mut socket_reader, ctx, &mut decode_buf, &mut did_update).await {
+			Ok(false) => break Ok(()),
+			Ok(true) => { /* continue */ }
 			Err(e) => break Err(e),
 		}
 	};
@@ -398,16 +394,16 @@ async fn handle_socket_read(
 	result
 }
 
-/// Reads and handles the next data packet. Returns the next packet to dispatch,
-/// or an error (including EOF).
+/// Reads and handles the next data packet, returns true if the read loop should continue.
 async fn read_next(
 	socket_reader: &mut BufReader<impl AsyncRead + Unpin>,
 	ctx: &mut HandlerContext,
 	decode_buf: &mut Vec<u8>,
-) -> Result<Option<ToServerRequest>, std::io::Error> {
+	did_update: &mut bool,
+) -> Result<bool, std::io::Error> {
 	let msg_length = tokio::select! {
 		u = socket_reader.read_u32() => u? as usize,
-		_ = ctx.closer.wait() => return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "eof")),
+		_ = ctx.closer.wait() => return Ok(false),
 	};
 	decode_buf.resize(msg_length, 0);
 	ctx.rx_counter
@@ -415,21 +411,17 @@ async fn read_next(
 
 	tokio::select! {
 		r = socket_reader.read_exact(decode_buf) => r?,
-		_ = ctx.closer.wait() => return Err(std::io::Error::new(std::io::ErrorKind::UnexpectedEof, "eof")),
+		_ = ctx.closer.wait() => return Ok(false),
 	};
 
-	match rmp_serde::from_slice::<ToServerRequest>(decode_buf) {
-		Ok(req) => Ok(Some(req)),
+	let req = match rmp_serde::from_slice::<ToServerRequest>(decode_buf) {
+		Ok(req) => req,
 		Err(e) => {
 			warning!(ctx.log, "Error decoding message: {}", e);
-			Ok(None) // not fatal
+			return Ok(true); // not fatal
 		}
-	}
-}
+	};
 
-// Dispatches a server request. Returns `true` if the socket reading should
-// continue,
-async fn dispatch_next(req: ToServerRequest, ctx: &mut HandlerContext, did_update: &mut bool) {
 	let log = ctx.log.prefixed(
 		req.id
 			.map(|id| format!("[call.{}]", id))
@@ -437,137 +429,70 @@ async fn dispatch_next(req: ToServerRequest, ctx: &mut HandlerContext, did_updat
 			.unwrap_or("notify"),
 	);
 
-	macro_rules! send {
-		($tx:expr, $res:expr) => {
-			if let Some(Ok(res)) = $res {
-				$tx.send(SocketSignal::Send(res)).await.is_err()
-			} else {
-				false
-			}
-		};
-	}
-
 	macro_rules! success {
-		($tx:expr, $r:expr) => {
-			send!(
-				$tx,
-				req.id
-					.map(|id| rmp_serde::to_vec_named(&SuccessResponse { id, result: &$r }))
-			)
+		($r:expr) => {
+			req.id
+				.map(|id| rmp_serde::to_vec_named(&SuccessResponse { id, result: &$r }))
 		};
 	}
 
-	macro_rules! dispatch_raw {
-		($log:expr, $socket_tx:expr, $name:expr, $e:expr) => {
+	macro_rules! tj {
+		($name:expr, $e:expr) => {
 			match (spanf!(
-				$log,
-				$log.span(&format!("call.{}", $name))
+				log,
+				log.span(&format!("call.{}", $name))
 					.with_kind(opentelemetry::trace::SpanKind::Server),
 				$e
 			)) {
-				Ok(r) => success!($socket_tx, r),
+				Ok(r) => success!(r),
 				Err(e) => {
-					warning!($log, "error handling call: {:?}", e);
-					send!(
-						$socket_tx,
-						req.id.map(|id| {
-							rmp_serde::to_vec_named(&ErrorResponse {
-								id,
-								error: ResponseError {
-									code: -1,
-									message: format!("{:?}", e),
-								},
-							})
+					warning!(log, "error handling call: {:?}", e);
+					req.id.map(|id| {
+						rmp_serde::to_vec_named(&ErrorResponse {
+							id,
+							error: ResponseError {
+								code: -1,
+								message: format!("{:?}", e),
+							},
 						})
-					)
+					})
 				}
 			}
 		};
 	}
 
-	// Runs the $e expression synchronously, returning its Result to the socket.
-	// This should only be used for fast-returning functions, otherwise prefer
-	// dispatch_async.
-	macro_rules! dispatch_blocking {
-		($name:expr, $e:expr) => {
-			dispatch_raw!(ctx.log, ctx.socket_tx, $name, $e);
-		};
-	}
-
-	// Runs the $e expression asynchronously, returning its Result to the socket.
-	macro_rules! dispatch_async {
-		($name:expr, $e:expr) => {
-			let socket_tx = ctx.socket_tx.clone();
-			let span_logger = ctx.log.clone();
-			tokio::spawn(async move { dispatch_raw!(span_logger, socket_tx, $name, $e) })
-		};
-	}
-
-	match req.params {
-		ServerRequestMethod::ping(_) => {
-			success!(ctx.socket_tx, EmptyResult {});
-		}
-		ServerRequestMethod::serve(params) => {
-			let log = ctx.log.clone();
-			let server_bridges = ctx.server_bridges.clone();
-			let code_server_args = ctx.code_server_args.clone();
-			let code_server = ctx.code_server.clone();
-			let platform = ctx.platform;
-			let socket_tx = ctx.socket_tx.clone();
-			let paths = ctx.launcher_paths.clone();
-			dispatch_async!(
-				"serve",
-				handle_serve(
-					log,
-					server_bridges,
-					code_server_args,
-					platform,
-					code_server,
-					socket_tx,
-					paths,
-					params
-				)
-			);
-		}
-		ServerRequestMethod::prune => {
-			let paths = ctx.launcher_paths.clone();
-			dispatch_blocking!("prune", handle_prune(&paths));
-		}
-		ServerRequestMethod::gethostname(_) => {
-			dispatch_blocking!("gethostname", handle_get_hostname());
-		}
-		ServerRequestMethod::update(p) => {
-			dispatch_blocking!("update", async {
-				let r = handle_update(&ctx.log, &p).await;
-				if matches!(&r, Ok(u) if u.did_update) {
-					*did_update = true;
-				}
-				r
-			});
-		}
+	let response = match req.params {
+		ServerRequestMethod::ping(_) => success!(EmptyResult {}),
+		ServerRequestMethod::serve(p) => tj!("serve", handle_serve(ctx, &log, p)),
+		ServerRequestMethod::prune => tj!("prune", handle_prune(ctx)),
+		ServerRequestMethod::gethostname(_) => tj!("gethostname", handle_get_hostname()),
+		ServerRequestMethod::update(p) => tj!("update", async {
+			let r = handle_update(ctx, &p).await;
+			if matches!(&r, Ok(u) if u.did_update) {
+				*did_update = true;
+			}
+			r
+		}),
 		ServerRequestMethod::servermsg(m) => {
-			// It's important this this is not dispatch_async'd, since otherwise
-			// the order of servermsg's could be switched, which could lead to errors.
-			let bridges_lock = ctx.server_bridges.clone();
-			if let Err(e) = handle_server_message(bridges_lock, m).await {
+			if let Err(e) = handle_server_message(ctx, m).await {
 				warning!(log, "error handling call: {:?}", e);
 			}
+			None
 		}
 		ServerRequestMethod::callserverhttp(p) => {
-			let code_server = ctx.code_server.lock().await.clone();
-			dispatch_async!("callserverhttp", handle_call_server_http(code_server, p));
+			tj!("callserverhttp", handle_call_server_http(ctx, p))
 		}
-		ServerRequestMethod::forward(p) => {
-			let log = ctx.log.clone();
-			let port_forwarding = ctx.port_forwarding.clone();
-			dispatch_async!("forward", handle_forward(log, port_forwarding, p));
-		}
-		ServerRequestMethod::unforward(p) => {
-			let log = ctx.log.clone();
-			let port_forwarding = ctx.port_forwarding.clone();
-			dispatch_async!("unforward", handle_unforward(log, port_forwarding, p));
-		}
+		ServerRequestMethod::forward(p) => tj!("forward", handle_forward(ctx, p)),
+		ServerRequestMethod::unforward(p) => tj!("unforward", handle_unforward(ctx, p)),
 	};
+
+	if let Some(Ok(res)) = response {
+		if ctx.socket_tx.send(SocketSignal::Send(res)).await.is_err() {
+			return Ok(false);
+		}
+	}
+
+	Ok(true)
 }
 
 #[derive(Clone)]
@@ -591,17 +516,13 @@ impl log::LogSink for ServerOutputSink {
 	fn write_result(&self, _message: &str) {}
 }
 
-#[allow(clippy::too_many_arguments)]
 async fn handle_serve(
-	log: log::Logger,
-	server_bridges: ServerBridgeListLock,
-	mut code_server_args: CodeServerArgs,
-	platform: Platform,
-	code_server: CodeServerCell,
-	socket_tx: mpsc::Sender<SocketSignal>,
-	launcher_paths: LauncherPaths,
+	ctx: &mut HandlerContext,
+	log: &log::Logger,
 	params: ServeParams,
 ) -> Result<EmptyResult, AnyError> {
+	let mut code_server_args = ctx.code_server_args.clone();
+
 	// fill params.extensions into code_server_args.install_extensions
 	code_server_args
 		.install_extensions
@@ -612,55 +533,49 @@ async fn handle_serve(
 		quality: params.quality,
 		code_server_args,
 		headless: true,
-		platform,
+		platform: ctx.platform,
 	}
-	.resolve(&log)
+	.resolve(log)
 	.await?;
 
-	let mut server_ref = code_server.lock().await;
-	let server = match &*server_ref {
-		Some(o) => o.clone(),
-		None => {
-			let install_log = log.tee(ServerOutputSink {
-				tx: socket_tx.clone(),
-			});
-			let sb = ServerBuilder::new(&install_log, &resolved, &launcher_paths);
+	if ctx.code_server.is_none() {
+		let install_log = log.tee(ServerOutputSink {
+			tx: ctx.socket_tx.clone(),
+		});
+		let sb = ServerBuilder::new(&install_log, &resolved, &ctx.launcher_paths);
 
-			let server = match sb.get_running().await? {
-				Some(AnyCodeServer::Socket(s)) => s,
-				Some(_) => return Err(AnyError::from(MismatchedLaunchModeError())),
-				None => {
-					sb.setup().await?;
-					sb.listen_on_default_socket().await?
-				}
-			};
+		let server = match sb.get_running().await? {
+			Some(AnyCodeServer::Socket(s)) => s,
+			Some(_) => return Err(AnyError::from(MismatchedLaunchModeError())),
+			None => {
+				sb.setup().await?;
+				sb.listen_on_default_socket().await?
+			}
+		};
 
-			server_ref.replace(server.clone());
-			server
-		}
-	};
+		ctx.code_server = Some(server);
+	}
 
-	attach_server_bridge(&log, server, socket_tx, server_bridges, params.socket_id).await?;
+	attach_server_bridge(ctx, params.socket_id).await?;
 	Ok(EmptyResult {})
 }
 
-async fn attach_server_bridge(
-	log: &log::Logger,
-	code_server: SocketCodeServer,
-	socket_tx: mpsc::Sender<SocketSignal>,
-	server_bridges: ServerBridgeListLock,
-	socket_id: u16,
-) -> Result<u16, AnyError> {
-	let attached_fut = ServerBridge::new(&code_server.socket, socket_id, &socket_tx).await;
+async fn attach_server_bridge(ctx: &mut HandlerContext, socket_id: u16) -> Result<u16, AnyError> {
+	let attached_fut = ServerBridge::new(
+		&ctx.code_server.as_ref().unwrap().socket,
+		socket_id,
+		&ctx.socket_tx,
+	)
+	.await;
 
 	match attached_fut {
 		Ok(a) => {
-			let mut lock = server_bridges.lock().await;
+			let mut lock = ctx.server_bridges.lock().await;
 			match &mut *lock {
 				Some(server_bridges) => (*server_bridges).push((socket_id, a)),
 				None => *lock = Some(vec![(socket_id, a)]),
 			}
-			trace!(log, "Attached to server");
+			trace!(ctx.log, "Attached to server");
 			Ok(socket_id)
 		}
 		Err(e) => Err(e),
@@ -668,10 +583,10 @@ async fn attach_server_bridge(
 }
 
 async fn handle_server_message(
-	bridges_lock: ServerBridgeListLock,
+	ctx: &mut HandlerContext,
 	params: ServerMessageParams,
 ) -> Result<EmptyResult, AnyError> {
-	let mut lock = bridges_lock.lock().await;
+	let mut lock = ctx.server_bridges.lock().await;
 
 	match &mut *lock {
 		Some(server_bridges) => {
@@ -691,16 +606,19 @@ async fn handle_server_message(
 	Ok(EmptyResult {})
 }
 
-async fn handle_prune(paths: &LauncherPaths) -> Result<Vec<String>, AnyError> {
-	prune_stopped_servers(paths).map(|v| {
+async fn handle_prune(ctx: &HandlerContext) -> Result<Vec<String>, AnyError> {
+	prune_stopped_servers(&ctx.launcher_paths).map(|v| {
 		v.iter()
 			.map(|p| p.server_dir.display().to_string())
 			.collect()
 	})
 }
 
-async fn handle_update(log: &log::Logger, params: &UpdateParams) -> Result<UpdateResult, AnyError> {
-	let update_service = UpdateService::new(log.clone(), reqwest::Client::new());
+async fn handle_update(
+	ctx: &HandlerContext,
+	params: &UpdateParams,
+) -> Result<UpdateResult, AnyError> {
+	let update_service = UpdateService::new(ctx.log.clone(), reqwest::Client::new());
 	let updater = SelfUpdate::new(&update_service)?;
 	let latest_release = updater.get_current_release().await?;
 	let up_to_date = updater.is_up_to_date_with(&latest_release);
@@ -712,7 +630,7 @@ async fn handle_update(log: &log::Logger, params: &UpdateParams) -> Result<Updat
 		});
 	}
 
-	info!(log, "Updating CLI to {}", latest_release);
+	info!(ctx.log, "Updating CLI to {}", latest_release);
 
 	updater
 		.do_update(&latest_release, SilentCopyProgress())
@@ -731,27 +649,25 @@ async fn handle_get_hostname() -> Result<GetHostnameResponse, Infallible> {
 }
 
 async fn handle_forward(
-	log: log::Logger,
-	port_forwarding: PortForwarding,
+	ctx: &HandlerContext,
 	params: ForwardParams,
 ) -> Result<ForwardResult, AnyError> {
-	info!(log, "Forwarding port {}", params.port);
-	let uri = port_forwarding.forward(params.port).await?;
+	info!(ctx.log, "Forwarding port {}", params.port);
+	let uri = ctx.port_forwarding.forward(params.port).await?;
 	Ok(ForwardResult { uri })
 }
 
 async fn handle_unforward(
-	log: log::Logger,
-	port_forwarding: PortForwarding,
+	ctx: &HandlerContext,
 	params: UnforwardParams,
 ) -> Result<EmptyResult, AnyError> {
-	info!(log, "Unforwarding port {}", params.port);
-	port_forwarding.unforward(params.port).await?;
+	info!(ctx.log, "Unforwarding port {}", params.port);
+	ctx.port_forwarding.unforward(params.port).await?;
 	Ok(EmptyResult {})
 }
 
 async fn handle_call_server_http(
-	code_server: Option<SocketCodeServer>,
+	ctx: &HandlerContext,
 	params: CallServerHttpParams,
 ) -> Result<CallServerHttpResult, AnyError> {
 	use hyper::{body, client::conn::Builder, Body, Request};
@@ -759,7 +675,7 @@ async fn handle_call_server_http(
 	// We use Hyper directly here since reqwest doesn't support sockets/pipes.
 	// See https://github.com/seanmonstar/reqwest/issues/39
 
-	let socket = match &code_server {
+	let socket = match &ctx.code_server {
 		Some(cs) => &cs.socket,
 		None => return Err(AnyError::from(NoAttachedServerError())),
 	};

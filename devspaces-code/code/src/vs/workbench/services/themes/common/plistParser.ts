@@ -23,6 +23,11 @@ const enum State {
 	DICT_STATE = 1,
 	ARR_STATE = 2
 }
+
+export function parseWithLocation(content: string, filename: string, locationKeyName: string): any {
+	return _parse(content, filename, locationKeyName);
+}
+
 /**
  * A very fast plist parser
  */

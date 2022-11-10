@@ -71,10 +71,9 @@ var graph;
     }
     graph.newNode = newNode;
     class Graph {
-        _hashFn;
-        _nodes = {};
         constructor(_hashFn) {
             this._hashFn = _hashFn;
+            this._nodes = {};
             // empty
         }
         traverse(start, inwards, callback) {

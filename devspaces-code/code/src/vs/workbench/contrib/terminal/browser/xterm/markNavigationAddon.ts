@@ -9,7 +9,8 @@ import { IMarkTracker } from 'vs/workbench/contrib/terminal/browser/terminal';
 import { ITerminalCapabilityStore, TerminalCapability } from 'vs/platform/terminal/common/capabilities/capabilities';
 import type { Terminal, IMarker, ITerminalAddon, IDecoration } from 'xterm';
 import { timeout } from 'vs/base/common/async';
-import { IThemeService } from 'vs/platform/theme/common/themeService';
+import { IColorTheme, ICssStyleCollector, IThemeService, registerThemingParticipant } from 'vs/platform/theme/common/themeService';
+import { focusBorder } from 'vs/platform/theme/common/colorRegistry';
 import { TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR } from 'vs/workbench/contrib/terminal/common/terminalColorRegistry';
 
 enum Boundary {
@@ -435,6 +436,14 @@ export class MarkNavigationAddon extends Disposable implements IMarkTracker, ITe
 		return this._getMarkers(skipEmptyCommands).length;
 	}
 }
+
+registerThemingParticipant((theme: IColorTheme, collector: ICssStyleCollector) => {
+	const focusBorderColor = theme.getColor(focusBorder);
+
+	if (focusBorderColor) {
+		collector.addRule(`.terminal-scroll-highlight { border-color: ${focusBorderColor.toString()}; } `);
+	}
+});
 
 export function getLine(xterm: Terminal, marker: IMarker | Boundary): number {
 	// Use the _second last_ row as the last row is likely the prompt

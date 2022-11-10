@@ -4,6 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
+const localize = nls.loadMessageBundle();
 
 
 export async function provideInstalledExtensionProposals(existing: string[], additionalText: string, range: vscode.Range, includeBuiltinExtensions: boolean): Promise<vscode.CompletionItem[] | vscode.CompletionList> {
@@ -21,7 +23,7 @@ export async function provideInstalledExtensionProposals(existing: string[], add
 				return item;
 			});
 		} else {
-			const example = new vscode.CompletionItem(vscode.l10n.t("Example"));
+			const example = new vscode.CompletionItem(localize('exampleExtension', "Example"));
 			example.insertText = '"vscode.csharp"';
 			example.kind = vscode.CompletionItemKind.Value;
 			example.range = range;
@@ -46,7 +48,7 @@ export async function provideWorkspaceTrustExtensionProposals(existing: string[]
 				return item;
 			});
 		} else {
-			const example = new vscode.CompletionItem(vscode.l10n.t("Example"));
+			const example = new vscode.CompletionItem(localize('exampleExtension', "Example"));
 			example.insertText = '"vscode.csharp: {\n\t"supported": false,\n\t"version": "0.0.0"\n}`;"';
 			example.kind = vscode.CompletionItemKind.Value;
 			example.range = range;

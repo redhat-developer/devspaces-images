@@ -2672,7 +2672,7 @@ function getWorkspaceId(configPath: URI): string {
 	return hash(workspaceConfigPath).toString(16);
 }
 
-function getWorkspaceIdentifier(configPath: URI): IWorkspaceIdentifier {
+export function getWorkspaceIdentifier(configPath: URI): IWorkspaceIdentifier {
 	return {
 		configPath,
 		id: getWorkspaceId(configPath)

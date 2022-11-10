@@ -181,6 +181,12 @@ export interface ISemanticTokenColorizationSetting {
 	italic?: boolean;
 }
 
+export interface ExtensionVersion {
+	publisher: string;
+	name: string;
+	version: string;
+}
+
 export interface ExtensionData {
 	extensionId: string;
 	extensionPublisher: string;

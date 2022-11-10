@@ -4,8 +4,12 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
+import * as nls from 'vscode-nls';
 import { MarkdownPreviewManager } from './previewManager';
 
+
+
+const localize = nls.loadMessageBundle();
 
 export const enum MarkdownPreviewSecurityLevel {
 	Strict = 0,
@@ -104,33 +108,35 @@ export class PreviewSecuritySelector {
 			[
 				{
 					type: MarkdownPreviewSecurityLevel.Strict,
-					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.Strict) + vscode.l10n.t("Strict"),
-					description: vscode.l10n.t("Only load secure content"),
+					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.Strict) + localize('strict.title', 'Strict'),
+					description: localize('strict.description', 'Only load secure content'),
 				}, {
 					type: MarkdownPreviewSecurityLevel.AllowInsecureLocalContent,
-					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.AllowInsecureLocalContent) + vscode.l10n.t("Allow insecure local content"),
-					description: vscode.l10n.t("Enable loading content over http served from localhost"),
+					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.AllowInsecureLocalContent) + localize('insecureLocalContent.title', 'Allow insecure local content'),
+					description: localize('insecureLocalContent.description', 'Enable loading content over http served from localhost'),
 				}, {
 					type: MarkdownPreviewSecurityLevel.AllowInsecureContent,
-					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.AllowInsecureContent) + vscode.l10n.t("Allow insecure content"),
-					description: vscode.l10n.t("Enable loading content over http"),
+					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.AllowInsecureContent) + localize('insecureContent.title', 'Allow insecure content'),
+					description: localize('insecureContent.description', 'Enable loading content over http'),
 				}, {
 					type: MarkdownPreviewSecurityLevel.AllowScriptsAndAllContent,
-					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.AllowScriptsAndAllContent) + vscode.l10n.t("Disable"),
-					description: vscode.l10n.t("Allow all content and script execution. Not recommended"),
+					label: markActiveWhen(currentSecurityLevel === MarkdownPreviewSecurityLevel.AllowScriptsAndAllContent) + localize('disable.title', 'Disable'),
+					description: localize('disable.description', 'Allow all content and script execution. Not recommended'),
 				}, {
 					type: 'moreinfo',
-					label: vscode.l10n.t("More Information"),
+					label: localize('moreInfo.title', 'More Information'),
 					description: ''
 				}, {
 					type: 'toggle',
 					label: this._cspArbiter.shouldDisableSecurityWarnings()
-						? vscode.l10n.t("Enable preview security warnings in this workspace")
-						: vscode.l10n.t("Disable preview security warning in this workspace"),
-					description: vscode.l10n.t("Does not affect the content security level")
+						? localize('enableSecurityWarning.title', "Enable preview security warnings in this workspace")
+						: localize('disableSecurityWarning.title', "Disable preview security warning in this workspace"),
+					description: localize('toggleSecurityWarning.description', 'Does not affect the content security level')
 				},
 			], {
-			placeHolder: vscode.l10n.t("Select security settings for Markdown previews in this workspace"),
+			placeHolder: localize(
+				'preview.showPreviewSecuritySelector.title',
+				'Select security settings for Markdown previews in this workspace'),
 		});
 		if (!selection) {
 			return;

@@ -6,6 +6,8 @@
 import * as vscode from 'vscode';
 import { SymbolItemDragAndDrop, SymbolItemEditorHighlights, SymbolItemNavigation, SymbolTreeInput } from '../references-view';
 import { asResourceUrl, del, getThemeIcon, tail } from '../utils';
+import * as nls from 'vscode-nls';
+const localize = nls.loadMessageBundle();
 
 export class TypesTreeInput implements SymbolTreeInput<TypeItem> {
 
@@ -17,8 +19,8 @@ export class TypesTreeInput implements SymbolTreeInput<TypeItem> {
 		readonly direction: TypeHierarchyDirection,
 	) {
 		this.title = direction === TypeHierarchyDirection.Supertypes
-			? vscode.l10n.t('Supertypes Of')
-			: vscode.l10n.t('Subtypes Of');
+			? localize('title.sup', 'Supertypes Of')
+			: localize('title.sub', 'Subtypes Of');
 	}
 
 	async resolve() {
@@ -33,7 +35,7 @@ export class TypesTreeInput implements SymbolTreeInput<TypeItem> {
 
 		return {
 			provider,
-			get message() { return model.roots.length === 0 ? vscode.l10n.t('No results.') : undefined; },
+			get message() { return model.roots.length === 0 ? localize('noresult', 'No results.') : undefined; },
 			navigation: model,
 			highlights: model,
 			dnd: model,
@@ -174,7 +176,7 @@ class TypeItemDataProvider implements vscode.TreeDataProvider<TypeItem> {
 		item.iconPath = getThemeIcon(element.item.kind);
 		item.command = {
 			command: 'vscode.open',
-			title: vscode.l10n.t('Open Type'),
+			title: localize('title.openType', 'Open Type'),
 			arguments: [
 				element.item.uri,
 				<vscode.TextDocumentShowOptions>{ selection: element.item.selectionRange.with({ end: element.item.selectionRange.start }) }
