@@ -39,8 +39,9 @@ https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/ta
         }
 
         parameters{
+            stringParam("DS_VERSION","","leave blank to compute from MIDSTM_BRANCH")
             stringParam("MIDSTM_BRANCH",MIDSTM_BRANCH,"redhat-developer/devspaces branch to use as source of the new branches")
-            stringParam("FUTURE_BRANCH",FUTURE_BRANCH,"branch to create")
+            stringParam("FUTURE_BRANCH",FUTURE_BRANCH,"branches to create")
             booleanParam("CLEAN_ON_FAILURE", true, "If false, don't clean up workspace after the build so it can be used for debugging.")
         }
 

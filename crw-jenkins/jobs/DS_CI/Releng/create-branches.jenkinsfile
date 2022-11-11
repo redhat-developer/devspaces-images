@@ -19,20 +19,21 @@ timeout(120) {
             wrap([$class: 'TimestamperBuildWrapper']) {
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                 def util = load "${WORKSPACE}/util2.groovy"
+                // if set as job param, use that; else compute from MIDSTM_BRANCH
+                DS_VERSION = util.globalVar({DS_VERSION})?.trim() ? util.globalVar({DS_VERSION}) : util.getDsVersion(MIDSTM_BRANCH)
                 cleanWs()
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/tagRelease.sh && chmod +x tagRelease.sh')
                 sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/containerExtract.sh && chmod +x containerExtract.sh')
-                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')])
-                {
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                     for (int i=0; i < GH_REPOS.size(); i++) {
                         println "##  Clone github.com/redhat-developer/${GH_REPOS[i]}.git"
                         util.cloneRepo("https://github.com/redhat-developer/${GH_REPOS[i]}.git", "/tmp/tmp-checkouts/projects_${GH_REPOS[i]}", MIDSTM_BRANCH, false)
                     }
-                    currentBuild.description="Create ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} ..."
+                    currentBuild.description="Created/updated ${FUTURE_BRANCH} branch from ${MIDSTM_BRANCH} for ${DS_VERSION} ..."
                     sh ('''
-                    ./tagRelease.sh --clean --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
+                    ./tagRelease.sh --clean -t ''' + DS_VERSION + ''' --branchfrom ''' + MIDSTM_BRANCH + ''' -gh ''' + FUTURE_BRANCH + ''' -ghtoken ''' + GITHUB_TOKEN
                     )
-                    currentBuild.description="Created ${FUTURE_BRANCH} branches"
+                    currentBuild.description="Created/updated ${FUTURE_BRANCH} branches from ${MIDSTM_BRANCH} for ${DS_VERSION}"
                 } //with
             } // wrap
             cleanWs(
