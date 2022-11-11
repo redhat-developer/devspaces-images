@@ -343,10 +343,10 @@
   resolved "https://registry.npmjs.org/@eclipse-che/api/-/api-7.44.0.tgz"
   integrity sha512-X2vawP2Pm+WD8HswYhXU9lC1WqsRe0g0mibPSN3hYzbmKMSKuPaJG/hBtGDtdp0NI35iIoinoAfFaAtdWBko3Q==
 
-"@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722":
-  version "1.64.0-dev-210b722"
-  resolved "https://registry.npmjs.org/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.64.0-dev-210b722.tgz"
-  integrity sha512-QGDwuXZwxgt68dStE0JTMGB/GBnp6Q7EsDLuUZMR3yTswc44ZxAafvBS3K3pWtenErGManCwNJ+6FM8yP0Q7/A==
+"@eclipse-che/che-code-devworkspace-handler@1.74.0-dev-e701cae":
+  version "1.74.0-dev-e701cae"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-code-devworkspace-handler/-/che-code-devworkspace-handler-1.74.0-dev-e701cae.tgz#965f2962fa27a87142180e62e8c776299a49ac16"
+  integrity sha512-qj8GvTPKh7n6JQB0gR9bcvGnEjsSqx2jFEZszynf7uY46MnzAsufYZZIK3MbYTV9wtY/MOhaHQVnb65TBQV6mw==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
@@ -356,10 +356,10 @@
     jsonc-parser "^3.0.0"
     reflect-metadata "^0.1.13"
 
-"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698":
-  version "0.0.1-1642670698"
-  resolved "https://registry.npmjs.org/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1642670698.tgz"
-  integrity sha512-nRS7n/X+PV7S6o/KjPbI/OH35eUArQ4MBiBX7+SvlwEqyVk/8Fac+/zg1h/A3mT23DN6X47ooBT+eYNLGNSitg==
+"@eclipse-che/che-theia-devworkspace-handler@0.0.1-1667484092":
+  version "0.0.1-1667484092"
+  resolved "https://registry.yarnpkg.com/@eclipse-che/che-theia-devworkspace-handler/-/che-theia-devworkspace-handler-0.0.1-1667484092.tgz#6bb21998a4e27090a26b17db9d97395f78887071"
+  integrity sha512-kIkG/boT3XpgFyD9ck1liQdNli5sMDARqlxiP5hxzAtZ3l90PxZ8LNEGtd7sO3XMvpL+Zz4f+zfBLOVDBwiCWw==
   dependencies:
     "@devfile/api" latest
     axios "0.21.2"
