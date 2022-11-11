@@ -260,6 +260,8 @@ if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
   done
 fi
 
+# for builds (like udi.groovy) where the upstream repo is devspaces-images, must configure 
+# pipelineWebhookTrigger to prevent triggering on changes to container.yaml (avoid infinite builds)
 # update container.yaml in /sources/ so the same digests are in both mid and downstream
 cp ${yaml} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
 ''')

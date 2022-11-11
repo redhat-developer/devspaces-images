@@ -62,11 +62,14 @@ UDI image builder (including assets); triggers brew
 
                 githubProjectUrl("https://github.com/" + SOURCE_REPO)
 
-                // only watch devspaces-udi folder, but ignore sources file
+                // for builds where the upstream repo is devspaces-images, must configure 
+                // pipelineWebhookTrigger to prevent triggering on changes to container.yaml 
+                // (avoid infinite builds)
+                // only watch devspaces-udi folder, but ignore sources and container.yaml files
                 JobSharedUtils.enableDefaultPipelineWebhookTrigger(delegate, SOURCE_BRANCH, SOURCE_REPO, 
                     '$ref $files $name', 
                     'refs/heads/' + MIDSTM_BRANCH + ' ' + 
-                        '.*"(?!devspaces-' + MIDSTM_NAME + '/sources)' + "devspaces-" + MIDSTM_NAME + '/[^"]+?".*' + ' ' + 
+                        '.*"(?!devspaces-' + MIDSTM_NAME + '/(sources|container.yaml))' + "devspaces-" + MIDSTM_NAME + '/[^"]+?".*' + ' ' + 
                         SOURCE_REPO
                 )
 
