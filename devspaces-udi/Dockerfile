@@ -218,11 +218,14 @@ RUN \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pylint \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pylint${PYTHON_VERSION} && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest && \
+    echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pytest \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pytest${PYTHON_VERSION} && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m yq \$*" | sed -r -e "s@#@#\!@" > /usr/bin/yq && \
-    chmod +x /usr/bin/pip* /usr/bin/pylint* /usr/bin/yq && \
+    chmod +x /usr/bin/pip* /usr/bin/py* /usr/bin/yq && \
     SL=/usr/local/bin/python; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/python${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
+    SL=/usr/local/bin/pytest; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pytest${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
     chmod +x /usr/local/bin/* && \
     echo "<== Create python symlinks (or display existing ones)"
@@ -310,7 +313,7 @@ RUN \
     dnf -y -q update --exclude=odo && \
     dnf -y -q clean all --enablerepo='*' && \
     dnf -y -q clean all && rm -rf /var/cache/yum && \
-    rm -fr /tmp/assets/ && \
+    rm -fr /tmp/assets/ $REMOTE_SOURCES_DIR && \
     chmod 755 /usr/local/bin/* && \
     chmod -R g+rwX ${HOME} && \
     echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
@@ -332,12 +335,14 @@ RUN \
     echo "python basic install:"; python -V; \
     echo -n "pip:    "; pip -V; \
     echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "pytest: "; pytest --version; \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; jq --version; \
     echo "========" && \
     echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
     echo -n "pip:    "; pip -V; \
     echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "pytest: "; pytest --version; \
     echo -n "jq:     "; jq --version; \
     echo -n "yq:     "; jq --version; \
     echo "========" && \
