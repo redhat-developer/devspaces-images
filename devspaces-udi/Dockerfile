@@ -209,7 +209,8 @@ RUN \
     # update pip & other dependencies, that came with Cachito repository
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq && \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq
+
 RUN \
     # python/pip/pylint/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
@@ -223,11 +224,8 @@ RUN \
     SL=/usr/local/bin/pip; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pip${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/pylint; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/pylint${PYTHON_VERSION} ${SL}; else ls -la ${SL}; fi && \
     SL=/usr/local/bin/yq; if [[ ! -f ${SL} ]] && [[ ! -L ${SL} ]]; then ln -s /usr/bin/yq ${SL}; else ls -la ${SL}; fi && \
-    echo "<== Create python symlinks (or display existing ones)" && \
-    pip --version && \
-    pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@" && \
-    jq --version && \
-    yq --version 
+    chmod +x /usr/local/bin/* && \
+    echo "<== Create python symlinks (or display existing ones)"
 
 # CRW-3193 disable until we have a camel-k sample again
 # RUN \
@@ -325,22 +323,26 @@ RUN \
     echo "========" && \
     echo -n "Java 17:  "; /usr/lib/jvm/java-17-openjdk/bin/java -version; \
     echo "========" && \
-    echo -n "mvn:   "; mvn -version; \
-    echo -n "gradle:    "; gradle -v; \
+    echo -n "mvn:    "; mvn -version; \
+    echo -n "gradle: "; gradle -v; \
     echo "========" && \
     echo -n "node:  "; node --version; \
     echo -n "npm:   "; npm --version; \
     echo "========" && \
     echo "python basic install:"; python -V; \
-    echo -n "pip:   "; pip -V; \
-    echo -n "pylint:    "; pylint --version; \
+    echo -n "pip:    "; pip -V; \
+    echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "jq:     "; jq --version;
+    echo -n "yq:     "; jq --version;
     echo "========" && \
     echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
-    echo -n "pip:   "; pip -V; \
-    echo -n "pylint:    "; pylint --version; \
+    echo -n "pip:    "; pip -V; \
+    echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
+    echo -n "jq:     "; jq --version;
+    echo -n "yq:     "; jq --version;
     echo "========" && \
-    echo -n "oc:    "; oc version; \
-    echo -n "odo:    "; odo version; \
+    echo -n "oc:      "; oc version; \
+    echo -n "odo:     "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
     echo -n "kubectl: "; kubectl version --short --client=true; \
     # CRW-3193 disable until we have a camel-k sample again
