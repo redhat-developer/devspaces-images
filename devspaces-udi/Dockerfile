@@ -333,13 +333,13 @@ RUN \
     echo -n "pip:    "; pip -V; \
     echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "jq:     "; jq --version; \
-    echo -n "yq:     "; jq --version; \
+    echo -n "yq:     "; yq --version; \
     echo "========" && \
     echo "python venv install:"; source ~/.venv/bin/activate && python -V; \
     echo -n "pip:    "; pip -V; \
     echo -n "pylint: "; pylint --version | tr "\n" "," | sed -r -e "s@,\$@\n@"; \
     echo -n "jq:     "; jq --version; \
-    echo -n "yq:     "; jq --version; \
+    echo -n "yq:     "; yq --version; \
     echo "========" && \
     echo -n "oc:      "; oc version; \
     echo -n "odo:     "; odo version; \
