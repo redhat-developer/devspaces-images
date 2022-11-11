@@ -19,6 +19,10 @@ exceptiongroup==1.0.1
     #   -r requirements-build.in
     #   pytest
 flit-core==3.8.0
+    # via
+    #   -r requirements-build.in
+    #   flit-scm
+flit-scm==1.7.0
     # via -r requirements-build.in
 iniconfig==1.1.1
     # via
@@ -44,7 +48,9 @@ pyyaml==6.0
     #   -r requirements-build.in
     #   yq
 setuptools-scm==7.0.5
-    # via -r requirements-build.in
+    # via
+    #   -r requirements-build.in
+    #   flit-scm
 six==1.16.0
     # via -r requirements-build.in
 toml==0.10.2
@@ -54,6 +60,7 @@ toml==0.10.2
 tomli==2.0.1
     # via
     #   -r requirements-build.in
+    #   flit-scm
     #   pytest
     #   setuptools-scm
 typing-extensions==4.4.0
