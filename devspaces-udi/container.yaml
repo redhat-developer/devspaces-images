@@ -1,7 +1,10 @@
 ---
+####################################################################################
+#### NOTE: CHANGES TO THIS FILE ARE IGNORED BY WEBHOOK TRIGGER (see udi.groovy) ####
+####################################################################################
+
 platforms:
   # all these keys are optional - see https://osbs.readthedocs.io/en/latest/users.html#image-configuration for more info
-
   only:
   - x86_64
   - s390x
@@ -25,6 +28,16 @@ remote_sources:
     pkg_managers:
       - gomod
     packages: {"gomod": [{"path": "."}, {"path": "gopls"}]}
+
+# include python lang server and all other all pip requirements (yq) so they can be resolved by Cachito and installed via Dockerfile
+- name: python-deps
+  remote_source:
+    repo: https://github.com/redhat-developer/devspaces-images.git
+    ref: af62bddc8982d1766feb85e7540a05064c440cce
+    pkg_managers:
+      - pip
+    packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
+
 # CRW-3193 disable until we have a camel-k sample again
 # - name: camelk
 #   remote_source:
@@ -33,10 +46,3 @@ remote_sources:
 #     pkg_managers:
 #       - gomod
 #     packages: {"gomod": [ "path": "." ]}
-- name: python-deps
-  remote_source:
-    repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: af62bddc8982d1766feb85e7540a05064c440cce
-    pkg_managers:
-      - pip
-    packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
