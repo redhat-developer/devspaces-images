@@ -69,7 +69,7 @@ metadata:
     categories: Developer Tools
     certified: "true"
     containerImage: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-operator:3.4
-    createdAt: "2022-11-11T18:28:38+00:00"
+    createdAt: "2022-11-12T02:22:28+00:00"
     description: Devfile v2 and v1 development solution, 1 instance per cluster, for
       portable, collaborative k8s workspaces.
     operatorframework.io/suggested-namespace: openshift-operators
@@ -933,48 +933,28 @@ spec:
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-dashboard-rhel8:3.4
                       - name: RELATED_IMAGE_devfile_registry
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-devfileregistry-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_code_plugin_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-code-rhel8:3.4
                       - name: RELATED_IMAGE_devspaces_idea_devfile_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.4
                       - name: RELATED_IMAGE_devspaces_idea_plugin_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-idea-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_machineexec_devfile_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_machineexec_plugin_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-machineexec-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_theia_devfile_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_theia_endpoint_devfile_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_theia_endpoint_plugin_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-endpoint-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-theia-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.4
-                      - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDGCQ_
-                        value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.3
                       - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDICQ_
                         value: registry-proxy.engineering.redhat.com/rh-osbs/devspaces-udi-rhel8:3.4
                       - name: RELATED_IMAGE_devworkspace_controller
