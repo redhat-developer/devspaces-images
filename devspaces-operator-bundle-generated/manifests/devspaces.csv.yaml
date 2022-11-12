@@ -872,7 +872,7 @@ spec:
                 - name: RELATED_IMAGE_che_server
                   value: registry.redhat.io/devspaces/server-rhel8@sha256:5be17a8dd8adaa53e56b7549ce2abfb79e6b01e3acf88eff3d93bd9f16d032e5
                 - name: RELATED_IMAGE_dashboard
-                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:621aed791e6e0a573d508c3854a1aadb53568d147eb76ec54b760ffe2a9a1b98
+                  value: registry.redhat.io/devspaces/dashboard-rhel8@sha256:3dcf1543325df726a16d2469d9b9767849ca214d5b2cc0c2dcdb3a0635128547
                 - name: RELATED_IMAGE_devfile_registry
                   value: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:a0dc5b5b87da5e2d90ea015d6a0c703fe2d4e885d1b07f3e8817482485f754f6
                 - name: RELATED_IMAGE_devspaces_code_devfile_registry_image_GMXDGCQ_
@@ -912,11 +912,11 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDICQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:55fe0e58fdf992c65dd746a79879f5efb87f67b1872cb755f39c68e859e863b7
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:a12107928c12005b6416b6f5857bd4d5ec25f8a48a0d9a0b182eddcf47dc47fc
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:fed1784ff4948f68ee7706262e81b7fc2d89a7221de59ecd4e14e3c883a6a85c
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDICQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:04536af6756d53141a2e879af22d282030bb5dd237f18a538d270b4457f2b594
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:a12107928c12005b6416b6f5857bd4d5ec25f8a48a0d9a0b182eddcf47dc47fc
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:fed1784ff4948f68ee7706262e81b7fc2d89a7221de59ecd4e14e3c883a6a85c
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDICQ_
                   value: registry.redhat.io/devspaces/udi-rhel8@sha256:04536af6756d53141a2e879af22d282030bb5dd237f18a538d270b4457f2b594
                 - name: RELATED_IMAGE_devworkspace_controller
@@ -1297,7 +1297,7 @@ spec:
   - name: che_server
     image: registry.redhat.io/devspaces/server-rhel8@sha256:5be17a8dd8adaa53e56b7549ce2abfb79e6b01e3acf88eff3d93bd9f16d032e5
   - name: dashboard
-    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:621aed791e6e0a573d508c3854a1aadb53568d147eb76ec54b760ffe2a9a1b98
+    image: registry.redhat.io/devspaces/dashboard-rhel8@sha256:3dcf1543325df726a16d2469d9b9767849ca214d5b2cc0c2dcdb3a0635128547
   - name: devfile_registry
     image: registry.redhat.io/devspaces/devfileregistry-rhel8@sha256:a0dc5b5b87da5e2d90ea015d6a0c703fe2d4e885d1b07f3e8817482485f754f6
   - name: devspaces_code_devfile_registry_image_gmxdgcq_
@@ -1337,11 +1337,11 @@ spec:
   - name: devspaces_theia_plugin_registry_image_gmxdicq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:55fe0e58fdf992c65dd746a79879f5efb87f67b1872cb755f39c68e859e863b7
   - name: devspaces_udi_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:a12107928c12005b6416b6f5857bd4d5ec25f8a48a0d9a0b182eddcf47dc47fc
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:fed1784ff4948f68ee7706262e81b7fc2d89a7221de59ecd4e14e3c883a6a85c
   - name: devspaces_udi_devfile_registry_image_gmxdicq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:04536af6756d53141a2e879af22d282030bb5dd237f18a538d270b4457f2b594
   - name: devspaces_udi_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:a12107928c12005b6416b6f5857bd4d5ec25f8a48a0d9a0b182eddcf47dc47fc
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:fed1784ff4948f68ee7706262e81b7fc2d89a7221de59ecd4e14e3c883a6a85c
   - name: devspaces_udi_plugin_registry_image_gmxdicq_
     image: registry.redhat.io/devspaces/udi-rhel8@sha256:04536af6756d53141a2e879af22d282030bb5dd237f18a538d270b4457f2b594
   - name: devworkspace_controller
