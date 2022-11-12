@@ -42,7 +42,7 @@ LABEL operators.operatorframework.io.bundle.mediatype.v1=registry+v1 \
       maintainer="Anatolii Bazko <abazko@redhat.com>, Nick Boldt <nboldt@redhat.com>, Dmytro Nochevnov <dnochevn@redhat.com>" \
       io.openshift.expose-services="" \
       usage=""
-LABEL release=16
+LABEL release=17
 
-ADD devspaces-operator-bundle-container-3.4-16.json /root/buildinfo/content_manifests/devspaces-operator-bundle-container-3.4-16.json
-LABEL "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-11-12T01:25:33" "architecture"="ppc64le" "vcs-type"="git" "vcs-ref"="4f098bcce500c9d39c45157c726447da31156c7b" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/devspaces/operator-bundle/images/3.4-16"
+ADD devspaces-operator-bundle-container-3.4-17.json /root/buildinfo/content_manifests/devspaces-operator-bundle-container-3.4-17.json
+LABEL "com.redhat.license_terms"="https://www.redhat.com/agreements" "distribution-scope"="public" "vendor"="Red Hat, Inc." "build-date"="2022-11-12T02:26:16" "architecture"="x86_64" "vcs-type"="git" "vcs-ref"="5d2c3f709c1858b6c37dbe9cd18fffa26cbcaf7a" "url"="https://access.redhat.com/containers/#/registry.access.redhat.com/devspaces/operator-bundle/images/3.4-17"
