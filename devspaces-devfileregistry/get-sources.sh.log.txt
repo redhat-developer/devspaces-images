@@ -1,0 +1,926 @@
+======= BOOTSTRAP DOCKERFILE =======>
+#
+# Copyright (c) 2018-2022 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#   IBM Corporation - implementation
+#
+
+# Builder: check meta.yamls and create index.json
+# registry.access.redhat.com/ubi8/python-38
+FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 as builder
+USER 0
+
+ARG BOOTSTRAP=true
+ENV BOOTSTRAP=${BOOTSTRAP}
+# if not defined or string is null, allow all registries/tags in list_referenced_images
+# otherwise restrict to only those space-separated registries/tags; if others found, build will fail
+# useful for failing build if quay images in an RC, or wrong devspaces image tag (3.2 in 3.1 build)
+ARG ALLOWED_REGISTRIES=""
+ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+ARG ALLOWED_TAGS=""
+ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+
+COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+COPY ./build/dockerfiles/rhel.install.sh /tmp
+RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+COPY ./build/scripts ./versions.json /build/
+COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+COPY ./VERSION /
+COPY ./devfiles /build/devfiles
+WORKDIR /build/
+
+RUN ./generate_devworkspace_templates.sh
+RUN chmod -R g+rwX /build/resources
+
+# validate devfile content
+RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+RUN ./check_mandatory_fields.sh devfiles
+
+# Cache projects in DS 
+COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+
+# don't do swaps, or we end up with missing content if built on s390x or ppc64le worker
+# RUN ./swap_yamlfiles.sh devfiles
+# RUN ./swap_images.sh devfiles
+RUN ./index.sh > /build/devfiles/index.json && \
+    ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt && \
+    ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt && \
+    chmod -R g+rwX /build/devfiles
+
+<======= BOOTSTRAP DOCKERFILE =======
+======= START BOOTSTRAP BUILD =======>
+STEP 1/23: FROM registry-proxy.engineering.redhat.com/rh-osbs/ubi8-python-38:1-100 AS builder
+STEP 2/23: USER 0
+--> e39218ce94b
+STEP 3/23: ARG BOOTSTRAP=true
+--> bbe1a135980
+STEP 4/23: ENV BOOTSTRAP=${BOOTSTRAP}
+--> b9fe36e6628
+STEP 5/23: ARG ALLOWED_REGISTRIES=""
+--> acdf342da1b
+STEP 6/23: ENV ALLOWED_REGISTRIES=${ALLOWED_REGISTRIES}
+--> 147f8f0a594
+STEP 7/23: ARG ALLOWED_TAGS=""
+--> c877f8072ac
+STEP 8/23: ENV ALLOWED_TAGS=${ALLOWED_TAGS}
+--> aed02af1097
+STEP 9/23: COPY ./build/dockerfiles/content_sets_rhel8.repo /etc/yum.repos.d/
+--> 31f58beb92b
+STEP 10/23: COPY ./build/dockerfiles/rhel.install.sh /tmp
+--> 041d5e2028e
+STEP 11/23: RUN /tmp/rhel.install.sh && rm -f /tmp/rhel.install.sh
+
+Upgraded:
+  bash-4.4.20-4.el8_6.x86_64                                                    
+  dnf-4.7.0-11.el8.noarch                                                       
+  dnf-data-4.7.0-11.el8.noarch                                                  
+  nodejs-1:14.20.1-2.module+el8.7.0+16991+b0a68a3e.x86_64                       
+  nodejs-docs-1:14.20.1-2.module+el8.7.0+16991+b0a68a3e.noarch                  
+  nodejs-full-i18n-1:14.20.1-2.module+el8.7.0+16991+b0a68a3e.x86_64             
+  npm-1:6.14.17-1.14.20.1.2.module+el8.7.0+16991+b0a68a3e.x86_64                
+  python3-dnf-4.7.0-11.el8.noarch                                               
+  python38-3.8.13-1.module+el8.7.0+15641+2ece4388.x86_64                        
+  python38-devel-3.8.13-1.module+el8.7.0+15641+2ece4388.x86_64                  
+  python38-libs-3.8.13-1.module+el8.7.0+15641+2ece4388.x86_64                   
+  python38-pip-19.3.1-6.module+el8.7.0+15823+8950cfa7.noarch                    
+  tar-2:1.30-6.el8.x86_64                                                       
+  yum-4.7.0-11.el8.noarch                                                       
+Installed:
+  containers-common-2:1-43.module+el8.7.0+17064+3b31f55c.x86_64                 
+  criu-3.15-3.module+el8.7.0+17064+3b31f55c.x86_64                              
+  fuse-common-3.3.0-16.el8.x86_64                                               
+  fuse-overlayfs-1.9-1.module+el8.7.0+17064+3b31f55c.x86_64                     
+  fuse3-3.3.0-16.el8.x86_64                                                     
+  fuse3-libs-3.3.0-16.el8.x86_64                                                
+  iptables-libs-1.8.4-23.el8.x86_64                                             
+  jansson-2.14-1.el8.x86_64                                                     
+  jq-1.6-3.el8.x86_64                                                           
+  kmod-25-19.el8.x86_64                                                         
+  libibverbs-41.0-1.el8.x86_64                                                  
+  libmnl-1.0.4-6.el8.x86_64                                                     
+  libnet-1.1.6-15.el8.x86_64                                                    
+  libnftnl-1.1.5-5.el8.x86_64                                                   
+  libpcap-14:1.9.1-5.el8.x86_64                                                 
+  libslirp-4.4.0-1.module+el8.7.0+17064+3b31f55c.x86_64                         
+  nftables-1:0.9.3-26.el8.x86_64                                                
+  oniguruma-6.8.2-2.el8.x86_64                                                  
+  protobuf-c-1.3.0-6.el8.x86_64                                                 
+  runc-1:1.1.4-1.module+el8.7.0+17064+3b31f55c.x86_64                           
+  skopeo-2:1.9.3-1.module+el8.7.0+17064+3b31f55c.x86_64                         
+  slirp4netns-1.2.0-2.module+el8.7.0+17064+3b31f55c.x86_64                      
+
+Collecting yq
+  Downloading https://files.pythonhosted.org/packages/60/2c/ab35b5ec3b884b6e33b18ba3f6be6b94d607501fca1e5a8de22988690cdb/yq-3.1.0-py3-none-any.whl
+Collecting argcomplete
+  Downloading https://files.pythonhosted.org/packages/d3/e5/c5509683462e51b070df9e83e7f72c1ccfe3f733f328b4a0f06804c27278/argcomplete-2.0.0-py2.py3-none-any.whl
+Collecting PyYAML>=5.3.1
+  Downloading https://files.pythonhosted.org/packages/d7/42/7ad4b6d67a16229496d4f6e74201bdbebcf4bc1e87d5a70c9297d4961bd2/PyYAML-6.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_12_x86_64.manylinux2010_x86_64.whl (701kB)
+Collecting xmltodict>=0.11.0
+  Downloading https://files.pythonhosted.org/packages/94/db/fd0326e331726f07ff7f40675cd86aa804bfd2e5016c727fa761c934990e/xmltodict-0.13.0-py2.py3-none-any.whl
+Collecting toml>=0.10.0
+  Downloading https://files.pythonhosted.org/packages/44/6f/7120676b6d73228c96e17f1f794d8ab046fc910d781c8d151120c3f1569e/toml-0.10.2-py2.py3-none-any.whl
+Installing collected packages: PyYAML, xmltodict, toml, argcomplete, yq
+Successfully installed PyYAML-6.0 argcomplete-2.0.0 toml-0.10.2 xmltodict-0.13.0 yq-3.1.0
+python: Python 3.8.13
+yq: yq 3.1.0
+jq: jq-1.6
+--> aa72e344075
+STEP 12/23: COPY ./build/scripts ./versions.json /build/
+--> 3e6f14f450b
+STEP 13/23: COPY ./build/scripts/clone_and_zip.sh /build/build/scripts/
+--> 0ead8271cfb
+STEP 14/23: COPY ./VERSION /
+--> e64590d58a5
+STEP 15/23: COPY ./devfiles /build/devfiles
+--> 8b43c6015a0
+STEP 16/23: WORKDIR /build/
+--> cbf7693a7c6
+STEP 17/23: RUN ./generate_devworkspace_templates.sh
+
+> core-js@2.6.12 postinstall /build/node_modules/core-js
+> node -e "try{require('./postinstall')}catch(e){}"
+
+[96mThank you for using core-js ([94m https://github.com/zloirock/core-js [96m) for polyfilling JavaScript standard library![0m
+
+[96mThe project needs your help! Please consider supporting of core-js on Open Collective or Patreon: [0m
+[96m>[94m https://opencollective.com/core-js [0m
+[96m>[94m https://www.patreon.com/zloirock [0m
+
+[96mAlso, the author of core-js ([94m https://github.com/zloirock [96m) is looking for a good job -)[0m
+
++ @eclipse-che/che-theia-devworkspace-handler@0.0.1-1649678182
+added 120 packages from 182 contributors and audited 120 packages in 9.78s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
++ @eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722
+added 2 packages from 1 contributor and audited 239 packages in 2.752s
+
+5 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+No sidecar policy. Setting to useDevContainer
+--> 8e5576884c5
+STEP 18/23: RUN chmod -R g+rwX /build/resources
+--> d14d4726f78
+STEP 19/23: RUN ./check_referenced_images.sh devfiles --registries "${ALLOWED_REGISTRIES}" --tags "${ALLOWED_TAGS}"
+ + registry.redhat.io/devspaces/code-rhel8:3.4 PASS - 3.4 allowed
+ + registry.redhat.io/devspaces/machineexec-rhel8:3.4 PASS - 3.4 allowed
+ + registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4 PASS - 3.4 allowed
+ + registry.redhat.io/devspaces/theia-rhel8:3.4 PASS - 3.4 allowed
+ + registry.redhat.io/devspaces/udi-rhel8:3.4 PASS - 3.4 allowed
+ = registry.redhat.io/rhscl/mongodb-36-rhel7:1-50 PASS
+--> 6860ac04719
+STEP 20/23: RUN ./check_mandatory_fields.sh devfiles
+Checking devfile 'devfiles/03_java11-maven-gradle/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-lombok/meta.yaml'
+Checking devfile 'devfiles/03_java11-maven-quarkus/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-mongo/meta.yaml'
+Checking devfile 'devfiles/04_nodejs-simple/meta.yaml'
+Checking devfile 'devfiles/04_python/meta.yaml'
+Checking devfile 'devfiles/05_cpp/meta.yaml'
+Checking devfile 'devfiles/05_go/meta.yaml'
+Checking devfile 'devfiles/05_php-cake/meta.yaml'
+--> 8ad387894d1
+STEP 21/23: COPY ./build/dockerfiles/rhel.cache_projects.sh /tmp/ 
+--> d47ebc5a818
+STEP 22/23: RUN /tmp/rhel.cache_projects.sh /build/ && rm -rf /tmp/rhel.cache_projects.sh /tmp/resources.tgz 
+--> 09afe640f88
+STEP 23/23: RUN ./index.sh > /build/devfiles/index.json &&     ./list_referenced_images.sh devfiles > /build/devfiles/external_images.txt &&     ./list_referenced_images_by_file.sh devfiles > /build/devfiles/external_images_by_devfile.txt &&     chmod -R g+rwX /build/devfiles
+COMMIT devfileregistry:tmp
+--> d9d82a3f787
+Successfully tagged localhost/devfileregistry:tmp
+d9d82a3f7875514eb753de9725d4f8e7b9987d7d31066b4bb135620340782abe
+<======= END BOOTSTRAP BUILD =======
+Downloading root-local.tgz
+Downloading resources.tgz
+DIFF START *****
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-gradle/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 5Gi
+           endpoints:
+             - exposure: none
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-gradle/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 4Gi
+           endpoints:
+             - exposure: none
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-lombok/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 4Gi
+           endpoints:
+             - exposure: none
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-lombok/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 3Gi
+           endpoints:
+             - exposure: none
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-quarkus/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           env:
+             - name: QUARKUS_HTTP_HOST
+               value: 0.0.0.0
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/03_java11-maven-quarkus/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           env:
+             - name: QUARKUS_HTTP_HOST
+               value: 0.0.0.0
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-mongo/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: nodejs
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           env:
+             - name: SECRET
+               value: 220fd770-c028-480d-8f95-f84353c7d55a
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-mongo/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: nodejs
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           env:
+             - name: SECRET
+               value: 220fd770-c028-480d-8f95-f84353c7d55a
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-simple/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           endpoints:
+             - exposure: public
+               name: nodejs
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/04_nodejs-simple/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           endpoints:
+             - exposure: public
+               name: nodejs
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/04_python/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/04_python/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/04_python/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/04_python/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: python
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/04_python/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/04_python/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/04_python/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/04_python/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.698470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: python
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           volumeMounts:
+             - name: venv
+               path: /home/user/.venv
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/05_cpp/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/05_cpp/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/05_cpp/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/05_cpp/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.699470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 3Gi
+           mountSources: true
+           command:
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/05_cpp/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/05_cpp/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/05_cpp/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/05_cpp/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.699470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 2Gi
+           mountSources: true
+           env:
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/05_go/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/05_go/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/05_go/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/05_go/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.699470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 3Gi
+           mountSources: true
+           env:
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/05_go/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/05_go/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/05_go/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/05_go/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.699470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 2Gi
+           mountSources: true
+           env:
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml /tmp/tmp.NVomJGGI8K/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/05_php-cake/devworkspace-che-code-insiders.yaml	2022-11-11 20:24:02.699470828 -0500
+@@ -15,7 +15,7 @@
+       volume: {}
+     - name: che-code-injector
+       container:
+-        image: registry.redhat.io/devspaces/code-rhel8:3.3
++        image: registry.redhat.io/devspaces/code-rhel8:3.4
+         command:
+           - /entrypoint-init-container.sh
+         volumeMounts:
+@@ -36,7 +36,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 2Gi
+           endpoints:
+             - exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml /tmp/tmp.NVomJGGI8K/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml
+--- /tmp/tmp.92LUf8iyKW/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/05_php-cake/devworkspace-che-theia-latest.yaml	2022-11-11 20:24:02.699470828 -0500
+@@ -13,7 +13,7 @@
+   components:
+     - name: theia-ide
+       container:
+-        image: registry.redhat.io/devspaces/theia-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-rhel8:3.4
+         env:
+           - name: THEIA_PLUGINS
+             value: local-dir:///plugins
+@@ -111,7 +111,7 @@
+       volume: {}
+     - name: che-machine-exec
+       container:
+-        image: registry.redhat.io/devspaces/machineexec-rhel8:3.3
++        image: registry.redhat.io/devspaces/machineexec-rhel8:3.4
+         command:
+           - /go/bin/che-machine-exec
+           - '--url'
+@@ -123,7 +123,7 @@
+       attributes: {}
+     - name: remote-runtime-injector
+       container:
+-        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
++        image: registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
+         env:
+           - name: PLUGIN_REMOTE_ENDPOINT_EXECUTABLE
+             value: /remote-endpoint/plugin-remote-endpoint
+@@ -152,7 +152,7 @@
+     components:
+       - name: tools
+         container:
+-          image: registry.redhat.io/devspaces/udi-rhel8:3.3
++          image: registry.redhat.io/devspaces/udi-rhel8:3.4
+           memoryLimit: 1Gi
+           endpoints:
+             - exposure: public
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/external_images_by_devfile.txt /tmp/tmp.NVomJGGI8K/devfiles/external_images_by_devfile.txt
+--- /tmp/tmp.92LUf8iyKW/devfiles/external_images_by_devfile.txt	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/external_images_by_devfile.txt	2022-11-11 20:24:02.699470828 -0500
+@@ -1,56 +1,56 @@
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/code-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/theia-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+-registry.redhat.io/devspaces/udi-rhel8:3.3	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/code-rhel8:3.4	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/machineexec-rhel8:3.4	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/theia-rhel8:3.4	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/cakephp-ex/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/c-plus-plus/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/golang-health-check/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/gs-validating-form-input/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/lombok-project-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/python-hello-world/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/quarkus-quickstarts/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
++registry.redhat.io/devspaces/udi-rhel8:3.4	https://github.com/devspaces-samples/web-nodejs-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-code-insiders.yaml
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50	https://github.com/devspaces-samples/nodejs-mongodb-sample/tree/devspaces-3-rhel-8/devfile.yaml	devworkspace-che-theia-latest.yaml
+diff --suppress-common-lines -u -r /tmp/tmp.92LUf8iyKW/devfiles/external_images.txt /tmp/tmp.NVomJGGI8K/devfiles/external_images.txt
+--- /tmp/tmp.92LUf8iyKW/devfiles/external_images.txt	2022-11-01 16:12:47.000000000 -0400
++++ /tmp/tmp.NVomJGGI8K/devfiles/external_images.txt	2022-11-11 20:24:02.699470828 -0500
+@@ -1,6 +1,6 @@
+-registry.redhat.io/devspaces/code-rhel8:3.3
+-registry.redhat.io/devspaces/machineexec-rhel8:3.3
+-registry.redhat.io/devspaces/theia-endpoint-rhel8:3.3
+-registry.redhat.io/devspaces/theia-rhel8:3.3
+-registry.redhat.io/devspaces/udi-rhel8:3.3
++registry.redhat.io/devspaces/code-rhel8:3.4
++registry.redhat.io/devspaces/machineexec-rhel8:3.4
++registry.redhat.io/devspaces/theia-endpoint-rhel8:3.4
++registry.redhat.io/devspaces/theia-rhel8:3.4
++registry.redhat.io/devspaces/udi-rhel8:3.4
+ registry.redhat.io/rhscl/mongodb-36-rhel7:1-50
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/cakephp-ex.zip and /tmp/tmp.NVomJGGI8K/resources/v2/cakephp-ex.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/c-plus-plus.zip and /tmp/tmp.NVomJGGI8K/resources/v2/c-plus-plus.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/golang-health-check.zip and /tmp/tmp.NVomJGGI8K/resources/v2/golang-health-check.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/gs-validating-form-input.zip and /tmp/tmp.NVomJGGI8K/resources/v2/gs-validating-form-input.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/lombok-project-sample.zip and /tmp/tmp.NVomJGGI8K/resources/v2/lombok-project-sample.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/nodejs-mongodb-sample.zip and /tmp/tmp.NVomJGGI8K/resources/v2/nodejs-mongodb-sample.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/python-hello-world.zip and /tmp/tmp.NVomJGGI8K/resources/v2/python-hello-world.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/quarkus-quickstarts.zip and /tmp/tmp.NVomJGGI8K/resources/v2/quarkus-quickstarts.zip differ
+Binary files /tmp/tmp.92LUf8iyKW/resources/v2/web-nodejs-sample.zip and /tmp/tmp.NVomJGGI8K/resources/v2/web-nodejs-sample.zip differ
+***** END DIFF
+Untagged: localhost/devfileregistry:tmp
+Deleted: d9d82a3f7875514eb753de9725d4f8e7b9987d7d31066b4bb135620340782abe
+Deleted: 09afe640f8850a084a9853b72c0b2e421e2a70b26258424e33cf7efebb06138e
+Deleted: d47ebc5a818d5ec3bb5c04c54c8632dbf5272eecda8746244a8b912165285d0f
+Deleted: 8ad387894d11da2b96004cca23f84f8fd3eec32612f7e48ac5b18c360c48f271
+Deleted: 6860ac04719b428e0b4e6a75b0e8a42e3cfd823f3727e970ecf08f6102591a7a
+Deleted: d14d4726f78f34bd538bd98f0a3cabbaed366a82f6b0936d914310aabc16bf93
+Deleted: 8e5576884c54713d0cf82e83bbc1333d1ab02d4040f9dc90758a3140ec6f636b
+Deleted: cbf7693a7c6a81920fe6cdca073b74071de3fa6058f254d02774d7cf7e72cadf
+Deleted: 8b43c6015a00a84c304bda4a48fa7aa63c5df199892bf34e6157a92f8d8fe6ae
+Deleted: e64590d58a570fdbde615ab8c8ac87668e39d279dc0d7b90959d9a8652679356
+Deleted: 0ead8271cfb2fd9dc3514d4fd22d214bbed58593388222509ae8f3160a78e6f8
+Deleted: 3e6f14f450b130dc022446b46791efbd600682481f73da43e04c38223ad49d37
+Deleted: aa72e344075b6c088b5f7f6214e42a0b05d05ce1aec4d6b7eaf6e665b110b975
+Deleted: 041d5e2028e86cf50cd645a8aa0fe9575c9553d60b7a3afbdd26b4036122b6dd
+Deleted: 31f58beb92b6dd17b7bbe97257735595069f311d48ac39c42b2c27b2198e5531
+Deleted: aed02af109764c31e7f683de6f0ec8cc48de1780416efbe3cc23c6034da0f01c
+Deleted: c877f8072acf1004adffe6f3fdb13b32ff071af2b0ca5f12c759ec520cf44c08
+Deleted: 147f8f0a594d4314623befd001c739c5e9166441fb8861358392a336cc297c12
+Deleted: acdf342da1b5dde7a31e0a6225c1386f31043c40afb8efeb664bb8d8460c9258
+Deleted: b9fe36e66287f56b7a9c6f2b9cfb6a63e8e6549bf0e4119f7d9eca3ec02db7d2
+Deleted: bbe1a1359809341a53a52616b7cd23d4a07cb39b850a5ad3fe1b4c5d64b78a58
+Deleted: e39218ce94bf010705a23f2333592009a3534009b2f527aa62f14bc167e12c07
+File already uploaded: root-local.tgz
+Uploading: resources.tgz
+Source upload succeeded. Don't forget to commit the sources file
+rm 'resources.tgz'
+rm 'root-local.tgz'
