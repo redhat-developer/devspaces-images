@@ -48,6 +48,7 @@ Send an email to QE announcing an ER or RC build, including a list of images.
 
             parameters{
                 MMdd = ""+(new java.text.SimpleDateFormat("MM-dd")).format(new Date())
+                stringParam("mailSender", "@redhat.com", "Put your email address here as sender.")
                 stringParam("mailSubject","DS " + CSV_VERSION + ".tt-" + MMdd + " ready for QE",
 '''email subject should be one of two formats: <br/>
 * DS ''' + CSV_VERSION + '''.ER-''' + MMdd + ''' ready for QE<br/>
