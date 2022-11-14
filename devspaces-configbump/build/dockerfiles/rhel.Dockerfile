@@ -11,7 +11,7 @@
 # this container build creates configbump binary
 
 # https://registry.access.redhat.com/ubi8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.17.12-11 as builder
+FROM registry.access.redhat.com/ubi8/go-toolset:1.18.4-8 as builder
 ENV GOPATH=/go/ \
     CGO_ENABLED=0 \
     GOOS=linux
@@ -30,7 +30,7 @@ RUN adduser appuser && \
     CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} go build -a -ldflags '-w -s' -a -installsuffix cgo -o configbump cmd/configbump/main.go
     
 # https://registry.access.redhat.com/ubi8/ubi-micro
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.6-526
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-1
 COPY --from=builder /etc/passwd /etc/passwd
 USER appuser
 COPY --from=builder /app/configbump /usr/local/bin/configbump
