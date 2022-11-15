@@ -29,3 +29,5 @@ node_modules/
 .eslintcache
 coverage
 output
+/openvsx-server.tar.gz
+/ovsx.tar.gz
