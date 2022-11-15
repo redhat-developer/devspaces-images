@@ -30,7 +30,7 @@ Collect sources from pkgs.devel and vsix files and push to rcm-guest so they can
     If the <b>stage-mw-release</b> command fails, you can re-run it locally without having to re-run this whole job:
     <p><pre>
         kinit kinit -k -t /path/to/crw-build.keytab crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@REDHAT.COM
-        ssh crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@rcm-guest.app.eng.bos.redhat.com
+        ssh crw-build/codeready-workspaces-jenkins.rhev-ci-vms.eng.rdu2.redhat.com@rcm-guest.hosts.prod.psi.bos.redhat.com
 
         [crw-build@rcm-guest ~]$ /mnt/redhat/scripts/rel-eng/utility/bus-clients/stage-mw-release devspaces-3.yy.z
         Staged devspaces-3.yy.z in 0:04:30.158899
