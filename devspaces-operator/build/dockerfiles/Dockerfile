@@ -9,8 +9,8 @@
 #   Red Hat, Inc. - initial API and implementation
 #
 
-# https://registry.access.redhat.com/rhel8/go-toolset
-FROM registry.access.redhat.com/ubi8/go-toolset:1.17.12-7 as builder
+# https://registry.access.redhat.com/ubi8/go-toolset
+FROM registry.access.redhat.com/ubi8/go-toolset:1.18.4-8 as builder
 ENV GOPATH=/go/
 ARG SKIP_TESTS="false"
 USER root
@@ -46,7 +46,7 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
     CGO_ENABLED=0 GOOS=linux GOARCH=${ARCH} GO111MODULE=on go build -mod=vendor -a -o che-operator main.go
 
 # https://registry.access.redhat.com/ubi8-minimal
-FROM ubi8-minimal:8.6-941
+FROM ubi8-minimal:8.7-923
 
 COPY --from=builder /tmp/devworkspace-operator/templates /tmp/devworkspace-operator/templates
 COPY --from=builder /tmp/header-rewrite-traefik-plugin /tmp/header-rewrite-traefik-plugin
