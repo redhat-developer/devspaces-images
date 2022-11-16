@@ -81,7 +81,7 @@ cd ''' + TARGET_DIR + ''' && ./build/scripts/sync.sh -v ''' + CSV_VERSION + ''' 
             )
 
             // push changes to devspaces-images
-            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit -f \"*ockerfile\"" + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+            util.updateBaseImages(TARGET_DIR, MIDSTM_BRANCH, "--nocommit -maxdepth 3 -f \"*ockerfile\"" + util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
             sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn
 git add ''' + util.getDSLongName(SYNC_REPO) + '''
