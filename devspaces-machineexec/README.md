@@ -4,7 +4,7 @@
 
 A Golang server that creates machine-execs for Eclipse Che workspaces. It is used to spawn terminals or command processes. Che machine exec uses the JSON-RPC protocol to communicate with the client.
 
-## Building a container image
+## Building a container image 
 
 To build a container image with che-machine-exec manually:
 
