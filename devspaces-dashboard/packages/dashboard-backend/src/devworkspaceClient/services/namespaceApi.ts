@@ -14,14 +14,15 @@ import * as k8s from '@kubernetes/client-node';
 import { getUserName } from '../../helpers/getUserName';
 import { INamespaceApi } from '../types';
 import { createError } from './helpers/createError';
+import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
 
 const NAMESPACE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
 export class NamespaceApiService implements INamespaceApi {
-  private readonly coreV1API: k8s.CoreV1Api;
+  private readonly coreV1API: CoreV1API;
 
   constructor(kc: k8s.KubeConfig) {
-    this.coreV1API = kc.makeApiClient(k8s.CoreV1Api);
+    this.coreV1API = prepareCoreV1API(kc);
   }
 
   async getNamespaces(token: string): Promise<Array<string>> {

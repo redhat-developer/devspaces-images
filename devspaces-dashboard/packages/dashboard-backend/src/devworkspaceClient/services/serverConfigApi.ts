@@ -20,6 +20,7 @@ import {
   IServerConfigApi,
 } from '../types';
 import { createError } from './helpers/createError';
+import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
 
 const CUSTOM_RESOURCE_DEFINITIONS_API_ERROR_LABEL = 'CUSTOM_RESOURCE_DEFINITIONS_API_ERROR';
 
@@ -28,10 +29,10 @@ const VERSION = 'v2';
 const PLURAL = 'checlusters';
 
 export class ServerConfigApiService implements IServerConfigApi {
-  private readonly customObjectAPI: k8s.CustomObjectsApi;
+  private readonly customObjectAPI: CustomObjectAPI;
 
   constructor(kc: k8s.KubeConfig) {
-    this.customObjectAPI = kc.makeApiClient(k8s.CustomObjectsApi);
+    this.customObjectAPI = prepareCustomObjectAPI(kc);
   }
 
   private get env(): { NAME?: string; NAMESPACE?: string } {

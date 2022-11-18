@@ -20,6 +20,7 @@ import {
 import { IDevWorkspaceTemplateApi } from '../types';
 import { createError } from './helpers/createError';
 import { api } from '@eclipse-che/common';
+import { CustomObjectAPI, prepareCustomObjectAPI } from './helpers/prepareCustomObjectAPI';
 
 export type DevWorkspaceTemplateList = {
   items?: V1alpha2DevWorkspaceTemplate[];
@@ -29,10 +30,10 @@ export type DevWorkspaceTemplateList = {
 const DEW_WORKSPACE_TEMPLATE_API_ERROR_LABEL = 'CUSTOM_OBJECTS_API_ERROR';
 
 export class DevWorkspaceTemplateApiService implements IDevWorkspaceTemplateApi {
-  private readonly customObjectAPI: k8s.CustomObjectsApi;
+  private readonly customObjectAPI: CustomObjectAPI;
 
   constructor(kc: k8s.KubeConfig) {
-    this.customObjectAPI = kc.makeApiClient(k8s.CustomObjectsApi);
+    this.customObjectAPI = prepareCustomObjectAPI(kc);
   }
 
   async listInNamespace(namespace: string): Promise<V1alpha2DevWorkspaceTemplate[]> {

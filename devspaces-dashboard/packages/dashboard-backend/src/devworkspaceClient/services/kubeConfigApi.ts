@@ -14,16 +14,18 @@ import * as k8s from '@kubernetes/client-node';
 import { IKubeConfigApi } from '../types';
 import { helpers } from '@eclipse-che/common';
 import { exec, ServerConfig } from './helpers/exec';
+import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
 
 const EXCLUDED_CONTAINERS = ['che-gateway', 'che-machine-exec'];
 
 export class KubeConfigApiService implements IKubeConfigApi {
-  private readonly corev1API: k8s.CoreV1Api;
+  private readonly corev1API: CoreV1API;
   private readonly kubeConfig: string;
   private readonly getServerConfig: () => ServerConfig;
 
   constructor(kc: k8s.KubeConfig) {
-    this.corev1API = kc.makeApiClient(k8s.CoreV1Api);
+    this.corev1API = prepareCoreV1API(kc);
+
     this.kubeConfig = kc.exportConfig();
 
     const server = kc.getCurrentCluster()?.server || '';

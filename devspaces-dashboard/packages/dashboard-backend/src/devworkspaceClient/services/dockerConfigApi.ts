@@ -15,6 +15,7 @@ import * as k8s from '@kubernetes/client-node';
 import { V1Secret } from '@kubernetes/client-node/dist/gen/model/v1Secret';
 import { IDockerConfigApi } from '../types';
 import { createError } from './helpers/createError';
+import { CoreV1API, prepareCoreV1API } from './helpers/prepareCoreV1API';
 
 export const SECRET_KEY = '.dockerconfigjson';
 export const SECRET_NAME = 'devworkspace-container-registry-dockercfg';
@@ -25,10 +26,10 @@ const SECRET_LABELS = {
 const DOCKER_CONFIG_API_ERROR_LABEL = 'CORE_V1_API_ERROR';
 
 export class DockerConfigApiService implements IDockerConfigApi {
-  private readonly coreV1API: k8s.CoreV1Api;
+  private readonly coreV1API: CoreV1API;
 
   constructor(kc: k8s.KubeConfig) {
-    this.coreV1API = kc.makeApiClient(k8s.CoreV1Api);
+    this.coreV1API = prepareCoreV1API(kc);
   }
 
   async read(namespace: string): Promise<api.IDockerConfig> {
