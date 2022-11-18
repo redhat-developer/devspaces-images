@@ -38,8 +38,15 @@ def copyContainersToQuayTimeout=120
 currentBuild.description="Copying " + CONTAINERS + "..."
 timeout(copyContainersToQuayTimeout) {
     node(nodeLabel) {
+      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
+
+        // comment on the PR with links to this job
+        if (util.globalVar({comments_url})?.trim()) {
+            println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+        }
+
         try { 
             stage("Copy from OSBS to Quay") {
                 currentBuild.description="Copying: " + CONTAINERS.trim().replaceAll(" ",", ")
@@ -164,6 +171,7 @@ Brew NVRs:
             }
             throw e
         } // try
+      } // with
     } // node
 } // timeout
 
@@ -218,68 +226,73 @@ curl -sSL "https://api.github.com/repos/${this_repo}/actions/workflows/${workflo
 
 node(nodeLabel){ 
   stage ("Update metadata") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-    def util = load "${WORKSPACE}/util2.groovy"
-    echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-        println "DS_VERSION = '" + DS_VERSION + "'"
-        JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        echo "currentBuild.result = " + currentBuild.result
+        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+            DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+            println "DS_VERSION = '" + DS_VERSION + "'"
+            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
-        // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
-        // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
-        if (CONTAINERS.trim().contains("operator-bundle")) {
-            println "NOTE: Skip scheduling update-digests for this update, as we have just updated operator-bundle."
-            // currentBuild.description+="; update-digests NOT triggered"
-        } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
-            println "Scheduling update-digests for this update:"
-            println DIFF_LATEST_IMAGES_QUAY_V_STORED
-            jobPath='/job/DS_CI/job/update-digests_' + JOB_BRANCH
-            final jobResult = build(
-                job: jobPath.replaceAll("/job/","/"),
-                wait: false,
-                propagate: false,
-                quietPeriod: 0,
-                parameters: [
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'token',
-                        value: "CI_BUILD"
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'cause',
-                        value: "push-latest-containers-to-quay+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
-                    ],
-                    [
-                        $class: 'BooleanParameterValue',
-                        name: 'CLEAN_ON_FAILURE',
-                        value: CLEAN_ON_FAILURE
+            // check if ${WORKSPACE}/LATEST_IMAGES.quay is different from stored LATEST_IMAGES
+            // if LATEST_IMAGES files are different, run downstream job, if not, echo warning / set status yellow
+            if (CONTAINERS.trim().contains("operator-bundle")) {
+                println "NOTE: Skip scheduling update-digests for this update, as we have just updated operator-bundle."
+                // currentBuild.description+="; update-digests NOT triggered"
+            } else if (!DIFF_LATEST_IMAGES_QUAY_V_STORED.equals("")) {
+                println "Scheduling update-digests for this update:"
+                println DIFF_LATEST_IMAGES_QUAY_V_STORED
+                jobPath='/job/DS_CI/job/update-digests_' + JOB_BRANCH
+                final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: false,
+                    propagate: false,
+                    quietPeriod: 0,
+                    parameters: [
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'comments_url',
+                            value: comments_url
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'token',
+                            value: "CI_BUILD"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'cause',
+                            value: "push-latest-containers-to-quay+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                        ],
+                        [
+                            $class: 'BooleanParameterValue',
+                            name: 'CLEAN_ON_FAILURE',
+                            value: CLEAN_ON_FAILURE
+                        ]
                     ]
-                ]
-            )
-            println("triggered build(" + jobPath + ") [no wait]")
-            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-            currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
-        } else {
-            println "No changes to LATEST_IMAGES; no need to trigger update-digests " + DS_VERSION
-            currentBuild.result = 'UNSTABLE'
-            currentBuild.description+="; update-digests NOT triggered"
-        }
+                )
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+            } else {
+                println "No changes to LATEST_IMAGES; no need to trigger update-digests " + DS_VERSION
+                currentBuild.result = 'UNSTABLE'
+                currentBuild.description+="; update-digests NOT triggered"
+            }
 
-        // CRW-2095 publish operator-bundle-generated too
-        if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*")) {
-            // https://issues.redhat.com/browse/CRW-1564 if an update to operator-bundle, push new csv content into devspaces-images repo, 
-            // in devspaces-operator-bundle-generated folder (outside where we sync from up->mid->down, as this should NOT
-            // be synced to downstream or overwritten by upstream)
-            SOURCE_REPO="redhat-developer/devspaces-images"
-            println "####################################################################################################################"
-            println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
-            println "####################################################################################################################"
+            // CRW-2095 publish operator-bundle-generated too
+            if (CONTAINERS.trim().equals("operator-bundle") || CONTAINERS.trim().matches(".*operator-bundle.*")) {
+                // https://issues.redhat.com/browse/CRW-1564 if an update to operator-bundle, push new csv content into devspaces-images repo, 
+                // in devspaces-operator-bundle-generated folder (outside where we sync from up->mid->down, as this should NOT
+                // be synced to downstream or overwritten by upstream)
+                SOURCE_REPO="redhat-developer/devspaces-images"
+                println "####################################################################################################################"
+                println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
+                println "####################################################################################################################"
 
-            whichBundle="operator-bundle"
+                whichBundle="operator-bundle"
 
-            withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
                 util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                 sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
@@ -304,6 +317,11 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                 propagate: false,
                 quietPeriod: 0,
                 parameters: [
+                    [
+                        $class: 'StringParameterValue',
+                        name: 'comments_url',
+                        value: comments_url
+                    ],
                     [
                         $class: 'StringParameterValue',
                         name: 'token',
@@ -335,8 +353,15 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
             println("triggered build(" + jobPath + ") [no wait]")
             println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
             currentBuild.description+=";<br/><a href=${jobPath}/>" + jobPath + "</a> triggered for OCP "+OCP_VERSIONS
-        } // if bundle
-    } // if
+        } // if 
+
+        // TODO when theia is dead, enable util.commentOnPullRequestBuildDescription block here
+        // comment on the PR with this job's build description
+        // if (util.globalVar({comments_url})?.trim()) {
+        //     println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+        // }
+
+    } // with
     cleanWs(
         cleanWhenSuccess: true,
         cleanWhenUnstable: true,
@@ -353,46 +378,58 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
 // https://issues.redhat.com/browse/CRW-1011 trigger theia-akamai job 
 node(nodeLabel){ 
   stage ("Enable Akamai CDN support for DS Theia image") {
-    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-    def util = load "${WORKSPACE}/util2.groovy"
-    echo "currentBuild.result = " + currentBuild.result
-    if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
-        // if CONTAINERS contains theia-endpoint
-        // println "Containers: " + CONTAINERS.trim()
-        if (CONTAINERS.trim().matches(".*theia-endpoint.*")) {
-            DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-            println "DS_VERSION = '" + DS_VERSION + "'"
-            println "Scheduling theia-akamai"
-            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-            jobPath='/job/DS_CI/job/theia-akamai_' + JOB_BRANCH
-            final jobResult = build(
-                job: jobPath.replaceAll("/job/","/"),
-                wait: false,
-                propagate: false,
-                quietPeriod: 0,
-                parameters: [
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'token',
-                        value: "CI_BUILD"
-                    ],
-                    [
-                        $class: 'StringParameterValue',
-                        name: 'cause',
-                        value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
-                    ],
-                    [
-                        $class: 'BooleanParameterValue',
-                        name: 'CLEAN_ON_FAILURE',
-                        value: CLEAN_ON_FAILURE
+    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        echo "currentBuild.result = " + currentBuild.result
+        if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE")) {
+            // if CONTAINERS contains theia-endpoint
+            // println "Containers: " + CONTAINERS.trim()
+            if (CONTAINERS.trim().matches(".*theia-endpoint.*")) {
+                DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+                println "DS_VERSION = '" + DS_VERSION + "'"
+                println "Scheduling theia-akamai"
+                JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+                jobPath='/job/DS_CI/job/theia-akamai_' + JOB_BRANCH
+                final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: false,
+                    propagate: false,
+                    quietPeriod: 0,
+                    parameters: [
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'comments_url',
+                            value: comments_url
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'token',
+                            value: "CI_BUILD"
+                        ],
+                        [
+                            $class: 'StringParameterValue',
+                            name: 'cause',
+                            value: "theia-akamai+for+" + CONTAINERS.trim().replaceAll(" ","+") + "+by+${BUILD_TAG}"
+                        ],
+                        [
+                            $class: 'BooleanParameterValue',
+                            name: 'CLEAN_ON_FAILURE',
+                            value: CLEAN_ON_FAILURE
+                        ]
                     ]
-                ]
-            )
-            println("triggered build(" + jobPath + ") [no wait]")
-            println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-            currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
-        } // if 2
-    } // if
+                )
+                println("triggered build(" + jobPath + ") [no wait]")
+                println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+                currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+            } // if 2
+        } // if
+
+        // comment on the PR with this job's build description
+        if (util.globalVar({comments_url})?.trim()) {
+            println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+        }
+    }
     cleanWs(
         cleanWhenSuccess: true,
         cleanWhenUnstable: true,

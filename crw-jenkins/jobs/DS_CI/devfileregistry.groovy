@@ -45,8 +45,20 @@ Artifact builder + sync job; triggers brew after syncing
 <li>Upstream Dev Spaces: <a href=https://github.com/''' + SOURCE_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/dependencies/''' + UPSTM_NAME + '''/>''' + UPSTM_NAME + '''</a></li>
 <li>Midstream: <a href=https://github.com/''' + MIDSTM_REPO + '''/tree/''' + MIDSTM_BRANCH + '''/devspaces-''' + MIDSTM_NAME + '''/>devspaces-''' + MIDSTM_NAME + '''</a></li>
 <li>Downstream: <a href=http://pkgs.devel.redhat.com/cgit/containers/devspaces-''' + MIDSTM_NAME + '''?h=''' + MIDSTM_BRANCH + '''>''' + MIDSTM_NAME + '''</a></li>
-
 </ul>
+
+<p>This job will be <a href=https://issues.redhat.com/browse/CRW-3178>triggered</a>:
+<ul>
+<li>for changes to 
+    <a href=https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/dependencies/che-devfile-registry>devspaces/che-devfile-registry</a></li>
+<li>for 
+    <a href=https://github.com/devspaces-samples/nodejs-mongodb-sample/blob/devspaces-3-rhel-8/.github/workflows/rebuild-devfile-registry.yml>changes</a>
+    to the <a href=https://github.com/devspaces-samples/>devspaces-samples</a> repos 
+    used by the <a href=https://github.com/redhat-developer/devspaces/tree/devspaces-3-rhel-8/dependencies/che-devfile-registry/devfiles>devfile registry</a> (see <a href=https://github.com/redhat-developer/devspaces/commits/devspaces-3-rhel-8/dependencies/che-devfile-registry/webhook_trigger.txt>webhook_trigger.txt</a>)</li>
+<li>for every new <a href=../pluginregistry_''' + JOB_BRANCH + '''/>plugin registry</a> container <a href=https://quay.io/repository/devspaces/pluginregistry-rhel8?tab=tags>image</a> that is
+    <a href=https://main-jenkins-csb-crwqe.apps.ocp-c1.prod.psi.redhat.com/job/DS_CI/job/push-latest-container-to-quay_''' + JOB_BRANCH + '''/>pushed to 
+    quay</a> and the <a href=https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml>GH page update</a> for <a href=https://redhat-developer.github.io/devspaces/che-plugin-registry/next/x86_64/v3/plugins/>redhat-developer.github.io/devspaces/che-plugin-registry</a> (see <a href=https://github.com/redhat-developer/devspaces/commits/devspaces-3-rhel-8/dependencies/che-devfile-registry/webhook_trigger.txt>webhook_trigger.txt</a>)</li>
+</ul></p>
 
 <p>If <b style="color:green">downstream job fires</b>, see 
 <a href=../sync-to-downstream_''' + JOB_BRANCH + '''/>sync-to-downstream</a>, then
