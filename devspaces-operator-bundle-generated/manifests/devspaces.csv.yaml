@@ -896,9 +896,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDGCQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:589fc528a9356c840fb484c3a7f256236f47b65f1d0ced0cfd04c7face37098f
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:02dec566ee0537e7110c75c7f0371a538c37bd052670817c962d60b958e455d1
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:f2ea3a5c0ecdd48f973877305a57bcf6b0a9617cdbef4b37c600d5acfe12b22a
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDGCQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:02dec566ee0537e7110c75c7f0371a538c37bd052670817c962d60b958e455d1
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:f2ea3a5c0ecdd48f973877305a57bcf6b0a9617cdbef4b37c600d5acfe12b22a
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ff451e94d2f31812e266ab0d7e548afb2d0ec1d461e0f43262b58d69b5d08a8e
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -918,7 +918,7 @@ spec:
                 - name: RELATED_IMAGE_rhscl_mongodb_36_rhel7_plugin_registry_image_GEWTKMAK
                   value: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
                 - name: RELATED_IMAGE_single_host_gateway
-                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:c1d074acbdeebed8d8b97001d002d3382ba6ab401abcb7bdeccd771fb1729039
+                  value: registry.redhat.io/devspaces/traefik-rhel8@sha256:b4a493cb0b1102739856f5deb76742c27e2c025b335db8f1795ca1c60df40ea8
                 - name: RELATED_IMAGE_single_host_gateway_config_sidecar
                   value: registry.redhat.io/devspaces/configbump-rhel8@sha256:1806cef26f2fe0c82e724fa6d9cc0968e9950397cf446461c5bf4521d3663cf4
                 - name: WATCH_NAMESPACE
@@ -1301,9 +1301,9 @@ spec:
   - name: devspaces_theia_plugin_registry_image_gmxdgcq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:589fc528a9356c840fb484c3a7f256236f47b65f1d0ced0cfd04c7face37098f
   - name: devspaces_udi_devfile_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:02dec566ee0537e7110c75c7f0371a538c37bd052670817c962d60b958e455d1
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:f2ea3a5c0ecdd48f973877305a57bcf6b0a9617cdbef4b37c600d5acfe12b22a
   - name: devspaces_udi_plugin_registry_image_gmxdgcq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:02dec566ee0537e7110c75c7f0371a538c37bd052670817c962d60b958e455d1
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:f2ea3a5c0ecdd48f973877305a57bcf6b0a9617cdbef4b37c600d5acfe12b22a
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ff451e94d2f31812e266ab0d7e548afb2d0ec1d461e0f43262b58d69b5d08a8e
   - name: gateway_authentication_sidecar
@@ -1323,6 +1323,6 @@ spec:
   - name: rhscl_mongodb_36_rhel7_plugin_registry_image_gewtkmak
     image: registry.redhat.io/rhscl/mongodb-36-rhel7@sha256:9f799d356d7d2e442bde9d401b720600fd9059a3d8eefea6f3b2ffa721c0dc73
   - name: single_host_gateway
-    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:c1d074acbdeebed8d8b97001d002d3382ba6ab401abcb7bdeccd771fb1729039
+    image: registry.redhat.io/devspaces/traefik-rhel8@sha256:b4a493cb0b1102739856f5deb76742c27e2c025b335db8f1795ca1c60df40ea8
   - name: single_host_gateway_config_sidecar
     image: registry.redhat.io/devspaces/configbump-rhel8@sha256:1806cef26f2fe0c82e724fa6d9cc0968e9950397cf446461c5bf4521d3663cf4
