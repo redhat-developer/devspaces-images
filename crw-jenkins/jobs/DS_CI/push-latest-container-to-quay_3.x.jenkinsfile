@@ -291,17 +291,15 @@ node(nodeLabel){
                 println "##  Clone and update github.com/${SOURCE_REPO}.git with latest Brew-generated CSV content (including pinned digests)"
                 println "####################################################################################################################"
 
-                whichBundle="operator-bundle"
-
                 util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
                 sh(script: '''#!/bin/bash -xe
 curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'''+ MIDSTM_BRANCH + '''/product/updateGeneratedOperatorMetadata.sh
 chmod +x updateGeneratedOperatorMetadata.sh
 ./updateGeneratedOperatorMetadata.sh -b ''' + MIDSTM_BRANCH + ''' -t ''' + DS_VERSION + ''' \
-    -s ${WORKSPACE}/sources -d devspaces-''' + whichBundle + '''-generated -c quay.io/devspaces/devspaces-''' + whichBundle + '''
+    -s ${WORKSPACE}/sources -d devspaces-operator-bundle-generated -c quay.io/devspaces/devspaces-operator-bundle
 ''')
+                currentBuild.description+="; bundle-generated updated"
             }
-            currentBuild.description+="; " + whichBundle.replaceAll("operator-","") + "-generated updated"
             def OCP_VERSIONS = sh(script: '''
 curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json \
     | jq -r '.Other.OPENSHIFT_VERSIONS_SUPPORTED["''' + DS_VERSION + '''"][]' | tr "\\n" " "

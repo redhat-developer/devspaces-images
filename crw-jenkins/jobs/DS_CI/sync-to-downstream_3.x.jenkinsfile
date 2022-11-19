@@ -478,8 +478,8 @@ node(nodeLabelAnyArch){
   stage ("Build dsc on ${nodeLabelAnyArch}") {
     sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
     def util = load "${WORKSPACE}/util2.groovy"
-    if (REPOS.contains("-operator-")) { 
-      withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+    withCredentials([ string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN') ]) {
+      if (REPOS.contains("-operator-")) { 
         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
         println "########################################################################################################"
         println "##  Build dsc ${JOB_BRANCH}"
@@ -536,25 +536,24 @@ node(nodeLabelAnyArch){
         } else {
           util.notifyBuildFailed()
         } // if
-
-        if (comments_url_UDI?.trim()) {
-          // special case for UDI because it doesn't use template_3.x job
-          println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
-        } else if (util.globalVar({comments_url})?.trim()) {
-          // comment on the PR with this job's build description
-          println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
-        }
-      } // with
-      cleanWs(
-          cleanWhenSuccess: true,
-          cleanWhenUnstable: true,
-          cleanWhenNotBuilt: false,
-          cleanWhenFailure: CLEAN_ON_FAILURE,
-          cleanWhenAborted: true,
-          deleteDirs: true,
-          disableDeferredWipeout: true,
-          notFailBuild: true
-      )
-    } // if operator
+      } // if operator
+      if (comments_url_UDI?.trim()) {
+        // special case for UDI because it doesn't use template_3.x job
+        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_UDI))
+      } else if (util.globalVar({comments_url})?.trim()) {
+        // comment on the PR with this job's build description
+        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+      }
+    } // with
+    cleanWs(
+        cleanWhenSuccess: true,
+        cleanWhenUnstable: true,
+        cleanWhenNotBuilt: false,
+        cleanWhenFailure: CLEAN_ON_FAILURE,
+        cleanWhenAborted: true,
+        deleteDirs: true,
+        disableDeferredWipeout: true,
+        notFailBuild: true
+    )
   } // stage
 } //node
