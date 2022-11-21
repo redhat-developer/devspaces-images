@@ -37,8 +37,6 @@ for (JB in JOB_BRANCHES) {
                 SOURCE_BRANCH="devspaces-3-rhel-8"
             }
 
-            REPO_TO_SYNC=
-
             description('''
 UDI image builder (including assets); triggers brew
 
