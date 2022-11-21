@@ -166,7 +166,7 @@ ${field}' = ['${field}'[] | if (.name == $updateName) then (.value = $updateVal)
 
 pushd "${SOURCEDIR}" >/dev/null || exit
 
-SOURCE_CSVFILE="${SOURCEDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
+SOURCE_CSVFILE="${SOURCEDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/che-operator.clusterserviceversion.yaml"
 
 ICON="    - base64data: $(base64 "${SCRIPTS_DIR}/../icon.png" | tr -d '\n\r')" # echo $ICON
 for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
@@ -187,7 +187,7 @@ for CSVFILE in ${TARGETDIR}/manifests/devspaces.csv.yaml; do
 		-e "s|Eclipse Che|Red Hat OpenShift Dev Spaces|g" \
 		-e "s|Eclipse Foundation|Red Hat, Inc.|g" \
 		\
-		-e "s|name: .+preview-openshift.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
+		-e "s|name: eclipse-che.v.+|name: devspacesoperator.v${CSV_VERSION}|g" \
 		\
 		\
 		-e "s|    - base64data: .+|${ICON}|" \
@@ -328,7 +328,7 @@ done
 # https://issues.redhat.com/browse/CRW-3428 use digest instead of tag in CRD
 DIGEST=$(skopeo inspect docker://quay.io/devspaces/udi-rhel8:${DS_VERSION} | yq -r '.Digest')
 sed -r -e "s#quay.io/devfile/universal-developer-image.+#registry.redhat.io/devspaces/udi-rhel8@${DIGEST}#g" -i \
-	"${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml"
-cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
+	"${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml"
+cp "${TARGETDIR}/bundle/${OLM_CHANNEL}/eclipse-che/manifests/org.eclipse.che_checlusters.yaml" "${TARGETDIR}/manifests/devspaces.crd.yaml"
 
 popd >/dev/null || exit

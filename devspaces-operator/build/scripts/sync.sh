@@ -76,7 +76,6 @@ sources
 make-release.sh
 build/scripts/insert-related-images-to-csv.sh
 helmcharts/
-bundle/next/eclipse-che-preview-kubernetes
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
