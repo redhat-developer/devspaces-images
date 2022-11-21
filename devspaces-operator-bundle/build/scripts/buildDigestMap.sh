@@ -37,7 +37,7 @@ checkVersion 1.1 "$(skopeo --version | sed -e "s/skopeo version //")" skopeo
 
 usage () {
 	echo "Usage:   ${0##*/} [-w WORKDIR] -c [/path/to/csv.yaml] "
-	echo "Example: ${0##*/} -w $(pwd) -c  $(pwd)/generated/eclipse-che-preview-openshift/7.9.0/eclipse-che-preview-openshift.v7.9.0.clusterserviceversion.yaml -t 7.9.0"
+	echo "Example: ${0##*/} -w $(pwd) -c  $(pwd)/generated/eclipse-che/7.9.0/eclipse-che.v7.9.0.clusterserviceversion.yaml -t 7.9.0"
 	echo "Example: ${0##*/} -w $(pwd) -c  $(pwd)/generated/devspaces/v2.1.1/devspaces.csv.yaml -t 2.1"
 }
 
