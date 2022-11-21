@@ -12,7 +12,7 @@ RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.
 
 RUN microdnf -y install dnf && \
     dnf install -y golang python2 make gcc-c++ openssl-devel && \
-    dnf module install -y nodejs:12:8020020200326104117/development && \
+    dnf module install -y nodejs:16 && \
     yarn config set nodedir /usr
 
 #WEBUI
