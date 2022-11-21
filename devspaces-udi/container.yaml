@@ -24,7 +24,7 @@ remote_sources:
 - name: gopls
   remote_source:
     repo: https://github.com/golang/tools
-    ref: 8321f7bbcfd30300762661ed9188226b42e27ec1
+    ref: 52c42e1da769f237f1b28ff5a2db3242292f6afb
     pkg_managers:
       - gomod
     packages: {"gomod": [{"path": "."}, {"path": "gopls"}]}
@@ -33,7 +33,7 @@ remote_sources:
 - name: python-deps
   remote_source:
     repo: https://github.com/redhat-developer/devspaces-images.git
-    ref: e2f87b00ccfa163c2790f055e6d74b83e2519b56
+    ref: ae969d64ec33bc3bed070b4896962a7cfb75f5a4
     pkg_managers:
       - pip
     packages: {"pip": [{"path": "devspaces-udi/build/python", "requirements_build_files": ["requirements-build.txt"]}]}
