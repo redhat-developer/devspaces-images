@@ -71,7 +71,13 @@ README.md
 get-source*.sh
 tests/basic-test.yaml
 make-release.sh
-rhel.Dockerfile
+docs
+/rhel.Dockerfile
+/exp.Dockerfile
+/build.Dockerfile
+/script/codegen.Dockerfile
+/script/code-gen.sh
+/Makefile
 " > /tmp/rsync-excludes
 echo "Rsync ${SOURCEDIR} to ${TARGETDIR}"
 rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete "${SOURCEDIR}"/ "${TARGETDIR}"/
