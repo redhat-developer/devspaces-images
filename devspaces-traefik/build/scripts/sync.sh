@@ -71,7 +71,6 @@ README.md
 get-source*.sh
 tests/basic-test.yaml
 make-release.sh
-docs
 /rhel.Dockerfile
 /exp.Dockerfile
 /build.Dockerfile
