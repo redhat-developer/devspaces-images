@@ -19,12 +19,12 @@ compose:
 image_build_method: imagebuilder
 remote_sources:
 
-# https://issues.redhat.com/browse/CRW-3103 use gopls 0.7.2 as that's the latest version that can be built with go 1.17
-# https://github.com/golang/tools/releases?q=v0.7.2&expanded=true ==> https://github.com/golang/tools/commit/fd02dfae644ce04dfd4bb3828cf576b9d8717f79
+# https://issues.redhat.com/browse/CRW-3531 use gopls 0.10.1 as we can now build with go 1.18
+# https://github.com/golang/tools/releases/tag/gopls%2Fv0.10.1 ==> https://github.com/golang/tools/commit/8321f7bbcfd30300762661ed9188226b42e27ec1
 - name: gopls
   remote_source:
     repo: https://github.com/golang/tools
-    ref: 52c42e1da769f237f1b28ff5a2db3242292f6afb
+    ref: 8321f7bbcfd30300762661ed9188226b42e27ec1
     pkg_managers:
       - gomod
     packages: {"gomod": [{"path": "."}, {"path": "gopls"}]}
