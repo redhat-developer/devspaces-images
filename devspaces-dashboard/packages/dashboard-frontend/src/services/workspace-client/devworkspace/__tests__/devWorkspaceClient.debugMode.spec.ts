@@ -56,10 +56,10 @@ describe('DevWorkspaceClient debug mode', () => {
       const mockPatch = mockAxios.patch as jest.Mock;
       mockPatch.mockResolvedValue({ data: undefined });
 
-      let resultData = await devWorkspaceClient.updateDebugMode(devWorkspaceNoDebug, false);
+      let resultData = await devWorkspaceClient.manageDebugMode(devWorkspaceNoDebug, false);
       expect(resultData).toEqual(devWorkspaceNoDebug);
 
-      resultData = await devWorkspaceClient.updateDebugMode(devWorkspaceWithDebug, true);
+      resultData = await devWorkspaceClient.manageDebugMode(devWorkspaceWithDebug, true);
       expect(resultData).toEqual(devWorkspaceWithDebug);
 
       expect(mockPatch.mock.calls.length).toEqual(0);
@@ -71,7 +71,7 @@ describe('DevWorkspaceClient debug mode', () => {
 
       expect(devWorkspaceClient.getDebugMode(devWorkspaceNoDebug)).toEqual(false);
 
-      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(
+      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.manageDebugMode(
         devWorkspaceNoDebug,
         true,
       );
@@ -104,7 +104,7 @@ describe('DevWorkspaceClient debug mode', () => {
 
       expect(devWorkspaceClient.getDebugMode(devWorkspaceNoDebug)).toEqual(false);
 
-      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(
+      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.manageDebugMode(
         devWorkspaceNoDebug,
         true,
       );
@@ -127,7 +127,7 @@ describe('DevWorkspaceClient debug mode', () => {
 
       expect(devWorkspaceClient.getDebugMode(devWorkspaceWithDebug)).toEqual(true);
 
-      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.updateDebugMode(
+      const resultData: devfileApi.DevWorkspace = await devWorkspaceClient.manageDebugMode(
         devWorkspaceWithDebug,
         false,
       );

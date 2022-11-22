@@ -35,6 +35,7 @@ import {
 } from '../../devfileApi/devWorkspace/metadata';
 import {
   DEVWORKSPACE_CONFIG_ATTR,
+  DEVWORKSPACE_CONTAINER_BUILD_ATTR,
   DEVWORKSPACE_STORAGE_TYPE_ATTR,
 } from '../../devfileApi/devWorkspace/spec/template';
 import { delay } from '../../helpers/delay';
@@ -750,10 +751,10 @@ export class DevWorkspaceClient extends WorkspaceClient {
     return workspace.metadata.annotations?.[DEVWORKSPACE_DEBUG_START_ANNOTATION] === 'true';
   }
 
-  async updateConfigData(
+  async managePvcStrategy(
     workspace: devfileApi.DevWorkspace,
     config: api.IServerConfig,
-  ): Promise<void> {
+  ): Promise<devfileApi.DevWorkspace> {
     const patch: api.IPatch[] = [];
     const cheNamespace = config.cheNamespace;
     let attributes = workspace.spec.template.attributes;
@@ -818,35 +819,78 @@ export class DevWorkspaceClient extends WorkspaceClient {
       }
     }
 
-    if (patch.length > 0) {
-      await DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
-      await delay(800);
+    if (patch.length === 0) {
+      return workspace;
     }
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
   }
 
-  async updateDebugMode(
+  async manageDebugMode(
     workspace: devfileApi.DevWorkspace,
     debugMode: boolean,
   ): Promise<devfileApi.DevWorkspace> {
     const patch: api.IPatch[] = [];
     const currentDebugMode = this.getDebugMode(workspace);
-
-    if (currentDebugMode === debugMode) {
-      return workspace;
-    }
-
-    const path = `/metadata/annotations/${this.escape(DEVWORKSPACE_DEBUG_START_ANNOTATION)}`;
-    if (!debugMode) {
-      patch.push({ op: 'remove', path });
-    } else {
-      if (workspace.metadata.annotations?.[DEVWORKSPACE_DEBUG_START_ANNOTATION]) {
-        patch.push({ op: 'replace', path, value: 'true' });
+    if (currentDebugMode !== debugMode) {
+      const path = `/metadata/annotations/${this.escape(DEVWORKSPACE_DEBUG_START_ANNOTATION)}`;
+      if (!debugMode) {
+        patch.push({ op: 'remove', path });
       } else {
-        patch.push({ op: 'add', path, value: 'true' });
+        if (workspace.metadata.annotations?.[DEVWORKSPACE_DEBUG_START_ANNOTATION]) {
+          patch.push({ op: 'replace', path, value: 'true' });
+        } else {
+          patch.push({ op: 'add', path, value: 'true' });
+        }
       }
     }
 
-    return await DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+    if (patch.length === 0) {
+      return workspace;
+    }
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
+  }
+
+  /**
+   * Injects or removes the container build attribute depending on the CR `disableContainerBuildCapabilities` field value.
+   */
+  async manageContainerBuildAttribute(
+    workspace: devfileApi.DevWorkspace,
+    config: api.IServerConfig,
+  ): Promise<devfileApi.DevWorkspace> {
+    const patch: api.IPatch[] = [];
+    if (config.containerBuild.disableContainerBuildCapabilities) {
+      if (workspace.spec.template.attributes?.[DEVWORKSPACE_CONTAINER_BUILD_ATTR]) {
+        // remove the attribute
+        const path = `/spec/template/attributes/${this.escape(DEVWORKSPACE_CONTAINER_BUILD_ATTR)}`;
+        patch.push({ op: 'remove', path });
+      }
+    } else if (
+      !config.containerBuild.containerBuildConfiguration?.openShiftSecurityContextConstraint
+    ) {
+      console.warn(
+        'Skip injecting the container build attribute: "openShiftSecurityContextConstraint" is undefined',
+      );
+    } else {
+      // add the attribute
+      if (!workspace.spec.template.attributes) {
+        const path = '/spec/template/attributes';
+        const value = {
+          [DEVWORKSPACE_CONTAINER_BUILD_ATTR]:
+            config.containerBuild.containerBuildConfiguration.openShiftSecurityContextConstraint,
+        };
+        patch.push({ op: 'add', path, value });
+      } else {
+        const path = `/spec/template/attributes/${this.escape(DEVWORKSPACE_CONTAINER_BUILD_ATTR)}`;
+        const value =
+          config.containerBuild.containerBuildConfiguration.openShiftSecurityContextConstraint;
+        patch.push({ op: 'add', path, value });
+      }
+    }
+
+    if (patch.length === 0) {
+      return workspace;
+    }
+    return DwApi.patchWorkspace(workspace.metadata.namespace, workspace.metadata.name, patch);
   }
 
   async changeWorkspaceStatus(

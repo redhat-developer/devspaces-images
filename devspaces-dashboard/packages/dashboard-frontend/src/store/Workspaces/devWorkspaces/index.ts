@@ -10,7 +10,7 @@
  *   Red Hat, Inc. - initial API and implementation
  */
 
-import common, { api } from '@eclipse-che/common';
+import common from '@eclipse-che/common';
 import { cloneDeep } from 'lodash';
 import { Action, Reducer } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
@@ -23,7 +23,6 @@ import {
   DEVWORKSPACE_CHE_EDITOR,
   DEVWORKSPACE_UPDATING_TIMESTAMP_ANNOTATION,
 } from '../../../services/devfileApi/devWorkspace/metadata';
-import { DEVWORKSPACE_CONTAINER_BUILD_ATTR } from '../../../services/devfileApi/devWorkspace/spec/template';
 import { getDefer, IDeferred } from '../../../services/helpers/deferred';
 import { delay } from '../../../services/helpers/delay';
 import { DisposableCollection } from '../../../services/helpers/disposable';
@@ -294,7 +293,7 @@ export const actionCreators: ActionCreators = {
       debugWorkspace = false,
     ): AppThunk<KnownAction, Promise<void>> =>
     async (dispatch, getState): Promise<void> => {
-      const workspace = getState().devWorkspaces.workspaces.find(
+      let workspace = getState().devWorkspaces.workspaces.find(
         w => w.metadata.uid === _workspace.metadata.uid,
       );
       if (workspace === undefined) {
@@ -308,15 +307,6 @@ export const actionCreators: ActionCreators = {
       dispatch({ type: 'REQUEST_DEVWORKSPACE' });
       try {
         checkRunningWorkspacesLimit(getState());
-        await dispatch(DwServerConfigStore.actionCreators.requestServerConfig());
-        const config = getState().dwServerConfig.config;
-        await devWorkspaceClient.updateConfigData(workspace, config);
-        await devWorkspaceClient.updateDebugMode(workspace, debugWorkspace);
-        const workspaceUID = workspace.metadata.uid;
-        dispatch({
-          type: 'DELETE_DEVWORKSPACE_LOGS',
-          workspaceUID,
-        });
 
         if (workspace.metadata.annotations?.[DEVWORKSPACE_NEXT_START_ANNOTATION]) {
           const storedDevWorkspace = JSON.parse(
@@ -334,23 +324,38 @@ export const actionCreators: ActionCreators = {
 
           delete workspace.metadata.annotations[DEVWORKSPACE_NEXT_START_ANNOTATION];
           workspace.spec.template = storedDevWorkspace.spec.template;
+          workspace.spec.started = false;
+          workspace = await devWorkspaceClient.update(workspace);
         }
 
+        await dispatch(DwServerConfigStore.actionCreators.requestServerConfig());
+        const config = getState().dwServerConfig.config;
+        workspace = await devWorkspaceClient.managePvcStrategy(workspace, config);
+
         // inject or remove the container build attribute
-        manageContainerBuildAttribute(workspace, config);
+        workspace = await devWorkspaceClient.manageContainerBuildAttribute(workspace, config);
 
-        // update and start the workspace
-        workspace.spec.started = true;
-        const updatedWorkspace = await devWorkspaceClient.update(workspace);
+        workspace = await devWorkspaceClient.manageDebugMode(workspace, debugWorkspace);
 
-        const editor = updatedWorkspace.metadata.annotations
-          ? updatedWorkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
+        const workspaceUID = workspace.metadata.uid;
+        dispatch({
+          type: 'DELETE_DEVWORKSPACE_LOGS',
+          workspaceUID,
+        });
+
+        const startingWorkspace = await devWorkspaceClient.changeWorkspaceStatus(
+          workspace,
+          true,
+          true,
+        );
+        const editor = startingWorkspace.metadata.annotations
+          ? startingWorkspace.metadata.annotations[DEVWORKSPACE_CHE_EDITOR]
           : undefined;
         const defaultPlugins = getState().dwPlugins.defaultPlugins;
-        await devWorkspaceClient.onStart(updatedWorkspace, defaultPlugins, editor);
+        await devWorkspaceClient.onStart(startingWorkspace, defaultPlugins, editor);
         dispatch({
           type: 'UPDATE_DEVWORKSPACE',
-          workspace: updatedWorkspace,
+          workspace: startingWorkspace,
         });
 
         // sometimes workspace don't have enough time to change its status.
@@ -370,7 +375,7 @@ export const actionCreators: ActionCreators = {
         await Promise.race([defer.promise, delay(startingTimeout)]);
         toDispose.dispose();
 
-        devWorkspaceClient.checkForDevWorkspaceError(updatedWorkspace);
+        devWorkspaceClient.checkForDevWorkspaceError(startingWorkspace);
       } catch (e) {
         const errorMessage =
           `Failed to start the workspace ${workspace.metadata.name}, reason: ` +
@@ -814,40 +819,5 @@ async function onStatusUpdateReceived(
     } catch (e) {
       console.error(e);
     }
-  }
-}
-
-/**
- * Injects or removes the container build attribute depending on the CR `disableContainerBuildCapabilities` field value.
- */
-export function manageContainerBuildAttribute(
-  workspace: devfileApi.DevWorkspace,
-  config: api.IServerConfig,
-) {
-  const { disableContainerBuildCapabilities, containerBuildConfiguration } = config.containerBuild;
-
-  if (
-    disableContainerBuildCapabilities === true &&
-    workspace.spec.template.attributes !== undefined
-  ) {
-    // remove the attribute
-    delete workspace.spec.template.attributes?.[DEVWORKSPACE_CONTAINER_BUILD_ATTR];
-    if (Object.keys(workspace.spec.template.attributes).length === 0) {
-      delete workspace.spec.template.attributes;
-    }
-    return;
-  }
-
-  // add the attribute
-  if (containerBuildConfiguration?.openShiftSecurityContextConstraint === undefined) {
-    console.warn(
-      'Skip injecting the container build attribute: "openShiftSecurityContextConstraint" is undefined',
-    );
-  } else {
-    if (workspace.spec.template.attributes === undefined) {
-      workspace.spec.template.attributes = {};
-    }
-    workspace.spec.template.attributes[DEVWORKSPACE_CONTAINER_BUILD_ATTR] =
-      containerBuildConfiguration.openShiftSecurityContextConstraint;
   }
 }
