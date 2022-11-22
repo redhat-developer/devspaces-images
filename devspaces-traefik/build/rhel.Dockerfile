@@ -10,11 +10,9 @@ WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
 RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn 
 
-ENV \
-    NODEJS_VERSION="16" \
-    PYTHON_VERSION="3.9"
+# CRW-3531 note: build fails when run with python39 and nodejs:16; so stick with python2 and nodejs:12
+ENV NODEJS_VERSION="12:8020020200326104117/development"
 RUN microdnf -y install dnf && \
-    dnf -y -q module install python39:${PYTHON_VERSION} && \
     dnf -y -q install python2 golang make gcc-c++ openssl-devel && \
     dnf -y -q module install nodejs:$NODEJS_VERSION && \
     yarn config set nodedir /usr
