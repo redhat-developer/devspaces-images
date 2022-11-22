@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2018 Red Hat, Inc.
+# Copyright (c) 2012-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -9,8 +9,9 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 #
-
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.13-alpine3.12 as builder
+# Note: if we used a UBI image we could keep this current with
+# https://github.com/eclipse-che/che-release/blob/main/.github/workflows/update-base-images.yml
+FROM --platform=${BUILDPLATFORM:-linux/amd64} docker.io/golang:1.18-alpine as builder
 
 ARG BUILD_DATE
 ARG VCS_REF
