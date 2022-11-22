@@ -10,20 +10,9 @@ WORKDIR $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-traefik
 # cachito:yarn step 2: workaround for yarn not being installed in an executable path
 RUN ln -s $REMOTE_SOURCES_DIR/devspaces-images-traefik/app/devspaces-dashboard/.yarn/releases/yarn-*.js /usr/local/bin/yarn 
 
-ENV \
-    NODEJS_VERSION="16" \
-    PYTHON_VERSION="3.9" \
 RUN microdnf -y install dnf && \
-    dnf -y -q module reset python39 && \
-    dnf -y -q module enable python39:${PYTHON_VERSION} && \
-    dnf -y -q install python39 python39-devel python39-setuptools python39-pip python2 golang make gcc-c++ openssl-devel && \
-    dnf -y -q module enable nodejs:$NODEJS_VERSION && \
-    MODULE_DEPS="make gcc gcc-c++ libatomic_ops git openssl-devel" && \
-    INSTALL_PKGS="$MODULE_DEPS nodejs npm nodejs-nodemon nss_wrapper" && \
-    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
-    ln -s /usr/libexec/platform-python /usr/bin/python3 && \
-    dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && \
-    rpm -V $INSTALL_PKGS && \
+    dnf install -y golang python2 make gcc-c++ openssl-devel && \
+    dnf module install -y nodejs:16 && \
     yarn config set nodedir /usr
 
 #WEBUI
