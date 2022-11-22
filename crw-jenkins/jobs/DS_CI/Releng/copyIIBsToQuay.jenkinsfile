@@ -7,37 +7,42 @@ import groovy.transform.Field
 
 def String nodeLabel = '(x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8)'
 def copyIIBsToQuayTimeout=120
+def util = null
 node(nodeLabel){ 
   stage ("Update metadata") {
-    // sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-    // def util = load "${WORKSPACE}/util2.groovy"
-    // DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-    // println "DS_VERSION = '" + DS_VERSION + "'"
-    // util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "sources", MIDSTM_BRANCH, false)
+    withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+      util = load "${WORKSPACE}/util2.groovy"
+      // comment on the PR with links to this job
+      if (util.globalVar({comments_url})?.trim()) {
+        println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+      }
 
-    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
-    // NOTE: similar code in send-email-qe-build-list*.jenkinsfile
-    // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+      // DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+      // println "DS_VERSION = '" + DS_VERSION + "'"
+      // util.cloneRepo("https://github.com/redhat-developer/devspaces-images.git", "sources", MIDSTM_BRANCH, false)
 
-    whichBundle="operator-bundle"
+      // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+      // NOTE: similar code in send-email-qe-build-list*.jenkinsfile
+      // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 
-    nodeLabelString = sh(script: '''
-curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/devspaces-''' + whichBundle + '''/container.yaml | yq -r '.platforms.only[]' 
+      nodeLabelString = sh(script: '''
+curl -sSLo- https://raw.githubusercontent.com/redhat-developer/devspaces-images/''' + MIDSTM_BRANCH + '''/devspaces-operator-bundle/container.yaml | yq -r '.platforms.only[]' 
 ''', returnStdout: true).trim()
-    currentBuild.description="arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
+      currentBuild.description="arches = " + nodeLabelString.replaceAll("\n",", ") + "; "
 
-    def List nodeLabels = nodeLabelString.tokenize("\n")
-    def nodeLabelLoop = ""
-    def Map tasks = [failFast: false]
-    for (int j=0; j < nodeLabels.size(); j++) {
+      def List nodeLabels = nodeLabelString.tokenize("\n")
+      def nodeLabelLoop = ""
+      def Map tasks = [failFast: false]
+      for (int j=0; j < nodeLabels.size(); j++) {
         nodeLabelLoop=nodeLabels[j]+"-rhel8"
-        print "[" + (j+1) + "/" + nodeLabels.size() + "] Create task to copy IIBs: " + whichBundle + " " + nodeLabel
+        print "[" + (j+1) + "/" + nodeLabels.size() + "] Create task to copy IIBs: operator-bundle " + nodeLabel
         def String thisArch=nodeLabelLoop
         // copy & filter IIB for this arch
-        tasks[whichBundle + " " + thisArch] = { ->
+        tasks["operator-bundle " + thisArch] = { ->
           timeout(copyIIBsToQuayTimeout) {
             node(thisArch){
-              stage("Copy IIBs: " + whichBundle + " " + thisArch) {
+              stage("Copy IIBs: operator-bundle " + thisArch) {
                 // sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                 // util = load "${WORKSPACE}/util2.groovy"
                 cleanWs()
@@ -91,26 +96,35 @@ curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/''' + MI
                     disableDeferredWipeout: true,
                     notFailBuild: true
                 )
-              }//stage
+              }// inner stages 
             }//node
           }//timeout
         }// tasks
-    }// for
-    stage("Copy IIBs for each arch") {
-        println "########################################################################################################"
-        println "##  Copy IIBs for arches " + nodeLabelString
-        println "########################################################################################################"
-        parallel(tasks)
-    }
-    cleanWs(
-        cleanWhenSuccess: true,
-        cleanWhenUnstable: true,
-        cleanWhenNotBuilt: false,
-        cleanWhenFailure: true,
-        cleanWhenAborted: true,
-        deleteDirs: true,
-        disableDeferredWipeout: true,
-        notFailBuild: true
-    )
-  } // stage
+      }// for
+      stage("Copy IIBs for each arch") {
+          println "########################################################################################################"
+          println "##  Copy IIBs for arches " + nodeLabelString
+          println "########################################################################################################"
+          parallel(tasks)
+      }
+      stage ("Build Desc on Pull Request") {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+        util = load "${WORKSPACE}/util2.groovy"
+        // comment on the PR with this job's build description
+        if (util.globalVar({comments_url})?.trim()) {
+          println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+        }
+      }
+      cleanWs(
+          cleanWhenSuccess: true,
+          cleanWhenUnstable: true,
+          cleanWhenNotBuilt: false,
+          cleanWhenFailure: true,
+          cleanWhenAborted: true,
+          deleteDirs: true,
+          disableDeferredWipeout: true,
+          notFailBuild: true
+      )
+    } // with
+  } // outer stage
 } //node

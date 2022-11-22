@@ -18,31 +18,25 @@ def OLD_SOURCE_SHA=""
 def OLD_MID_SHA=""
 def NEW_MID_SHA=""
 
-// store the URL for comments on the associated PR for this latest build (if applicable)
-def comments_url=""
 
 def String nodeLabel = 'x86_64-rhel8||s390x-rhel8-perm||ppc64le-rhel8'
 timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
   node(nodeLabel) {
     stage ("Sync repos on ${nodeLabel}") {
       wrap([$class: 'TimestamperBuildWrapper']) {
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
-      def util = load "${WORKSPACE}/util2.groovy"
-      cleanWs()
-      DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-      println "DS_VERSION = '" + DS_VERSION + "'"
-      withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+        sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
+        def util = load "${WORKSPACE}/util2.groovy"
+        // store the URL for comments on the associated PR for this latest build (if applicable)
+        def comments_url = util.globalVar({comments_url})?.trim() ? util.globalVar({comments_url})?.trim() : ""
+        cleanWs()
+        DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+        println "DS_VERSION = '" + DS_VERSION + "'"
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
             println "########################################################################################################"
             println "##  Clone and update github.com/${SOURCE_REPO}.git"
             println "########################################################################################################"
             SOURCE_DIR="${WORKSPACE}/sources"
             util.cloneRepo("https://github.com/${SOURCE_REPO}.git", SOURCE_DIR, SOURCE_BRANCH, true)
-
-            // comment on the PR with links to this job
-            comments_url=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA(SOURCE_DIR,40))
-            println("Computed PR comment URL: " + comments_url)
-            comments_url=comments_url.replaceAll("#.+","")
-
             // fetch correct build tag if defined (eg., traefik)
             if (util.globalVar({SOURCE_TAG})?.trim()) { 
               sh('''#!/bin/bash
@@ -50,6 +44,16 @@ echo "Switch to SOURCE_TAG = ''' + util.globalVar({SOURCE_TAG}) + '''"
 git config advice.detachedHead false
 cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
               )
+            } else {
+              // do not comment if we're building from a tag, only a branch! (see https://github.com/redhat-developer/devspaces-images/issues/357 )
+              // comment on the PR with links to this job
+              if (comments_url?.trim()) {
+                println("Used PR comment URL: " + comments_url)
+              } else {
+                comments_url=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA(SOURCE_DIR,40))
+                println("Computed PR comment URL: " + comments_url)
+                comments_url=comments_url.replaceAll("#.+","")
+              } 
             }
 
             OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)

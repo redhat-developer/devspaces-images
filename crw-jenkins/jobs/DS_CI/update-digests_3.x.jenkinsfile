@@ -132,7 +132,28 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
                                 wait: true,
                                 propagate: true,
                                 quietPeriod: 0,
-                                parameters: [[$class: 'BooleanParameterValue', name: 'FORCE_BUILD', value: true]]
+                                parameters: [
+                                    [
+                                        $class: 'StringParameterValue',
+                                        name: 'comments_url',
+                                        value: util.globalVar({comments_url})
+                                    ],
+                                    [
+                                        $class: 'StringParameterValue',
+                                        name: 'token',
+                                        value: "CI_BUILD"
+                                    ],
+                                    [
+                                        $class: 'StringParameterValue',
+                                        name: 'cause',
+                                        value: "update+digests+for+"+DIFF_LATEST_IMAGES_ANY_BUT_BUNDLE.replaceAll("\n", "+").replaceAll(" ", "+")
+                                    ],
+                                    [
+                                        $class: 'BooleanParameterValue', 
+                                        name: 'FORCE_BUILD', 
+                                        value: true
+                                    ]
+                                ]
                             )
                             jobLink=jobPath + "/" +  jobResult?.number?.toString()
                             println("waiting for build(" + jobPath + ")")

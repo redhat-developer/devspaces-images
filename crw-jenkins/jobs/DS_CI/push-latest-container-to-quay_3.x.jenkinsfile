@@ -253,7 +253,7 @@ node(nodeLabel){
                         [
                             $class: 'StringParameterValue',
                             name: 'comments_url',
-                            value: comments_url
+                            value: util.globalVar({comments_url})
                         ],
                         [
                             $class: 'StringParameterValue',
@@ -318,7 +318,7 @@ curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8
                     [
                         $class: 'StringParameterValue',
                         name: 'comments_url',
-                        value: comments_url
+                        value: util.globalVar({comments_url})
                     ],
                     [
                         $class: 'StringParameterValue',
@@ -398,7 +398,7 @@ node(nodeLabel){
                         [
                             $class: 'StringParameterValue',
                             name: 'comments_url',
-                            value: comments_url
+                            value: util.globalVar({comments_url})
                         ],
                         [
                             $class: 'StringParameterValue',
