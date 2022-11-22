@@ -1,13 +1,15 @@
 #!/bin/bash
 #
-# Copyright (c) 2012-2020 Red Hat, Inc.
+# Copyright (c) 2012-2022 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
 #
 # SPDX-License-Identifier: EPL-2.0
 #
-FROM registry.ci.openshift.org/openshift/release:golang-1.16
+# Note: if we used a UBI image we could keep this current with
+# https://github.com/eclipse-che/che-release/blob/main/.github/workflows/update-base-images.yml
+FROM registry.ci.openshift.org/openshift/release:golang-1.18
 
 SHELL ["/bin/bash", "-c"]
 
@@ -19,4 +21,3 @@ RUN yum install --assumeyes -d1 python3-pip  httpd-tools nodejs && \
     chmod +x ./kubectl && \
     mv ./kubectl /usr/local/bin && \
     bash <(curl -sL https://www.eclipse.org/che/chectl/) --channel=next
-
