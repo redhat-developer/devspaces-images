@@ -20,7 +20,7 @@ DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 UBI_TAG=8.6
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
-OPENSHIFT_TAG="v4.11"
+OPENSHIFT_TAG="v4.11.0"
 
 usage () {
 	echo "Usage:   ${0##*/} -v [DS CSV_VERSION] [-s /path/to/sources] [-t /path/to/generated]"
