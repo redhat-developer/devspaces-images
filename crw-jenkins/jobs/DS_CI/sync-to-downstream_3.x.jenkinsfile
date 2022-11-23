@@ -18,6 +18,7 @@ def SOURCE_SHA=""
 
 // special case for UDI because it doesn't use template_3.x job
 def comments_url_UDI=""
+def commentedOnPullRequestBuildLinks="false"
 
 // CRW-2656 if a theia build, ONLY use dynamic rhel85 boxes so there's maximum disk space available
 // CRW-2736 if an idea build, must run on x64 only (fails on ppc64le)
@@ -61,6 +62,7 @@ for (int i=0; i < SYNC_REPOS.size(); i++) {
                   println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
                 }
               }
+              commentedOnPullRequestBuildLinks="true"
 
               nodeLabelString = sh( 
                 script: '''
@@ -183,9 +185,13 @@ timeout(600) {
             DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
             JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
 
-            // comment on the PR with links to this job
-            if (util.globalVar({comments_url})?.trim()) {
-              println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+            // TODO CRW-3080 remove all prebuilt binaries and switch to cachito
+            // don't comment again if we did so above
+            if (commentedOnPullRequestBuildLinks.equals("false")) {
+              // comment on the PR with links to this job
+              if (util.globalVar({comments_url})?.trim()) {
+                println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+              }
             }
 
             // ensure static Dockerfiles have the correct version encoded in them

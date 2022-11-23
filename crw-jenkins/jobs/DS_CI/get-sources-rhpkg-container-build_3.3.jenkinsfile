@@ -29,6 +29,12 @@ timeout(240) {
           DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
           CSV_VERSION = util.getCSVVersion(MIDSTM_BRANCH)
           cleanWs()
+
+          // comment on the PR with links to this job
+          if (util.globalVar({comments_url})?.trim()) {
+            println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+          }
+
           util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/${GIT_PATHs}", "sources", (util.globalVar({DWNSTM_BRANCH}) ? util.globalVar({DWNSTM_BRANCH}) : MIDSTM_BRANCH), false)
           currentBuild.description=QUAY_REPO_PATHs.replaceAll("devspaces-3-rhel8-","").replaceAll("-rhel8","").trim() + " : ${JOB_BRANCH}"
           try {
@@ -115,77 +121,83 @@ wait
             currentBuild.result = "UNSTABLE"
             currentBuild.description+="; <b style='color:red'>failed to copy to quay with getLatestImageTags.sh --pushtoquay</b>"
           } // try
+
+          // trigger push-latest-container-to-quay job (does more than just copy to quay)
+          jobPath='/job/DS_CI/job/push-latest-container-to-quay_' + JOB_BRANCH
+          try {
+            CONTAINERS=QUAY_REPO_PATHs.trim()
+            println "########################################################################################################"
+            println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
+            println "########################################################################################################"
+            echo "currentBuild.result = " + currentBuild.result
+            if (!currentBuild.result.equals("ABORTED") && 
+                !currentBuild.result.equals("FAILURE") && 
+                !SCRATCH.equals("true") && SCRATCH!=true && 
+                QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
+              final jobResult = build(
+                job: jobPath.replaceAll("/job/","/"),
+                // DO NOT propagate status here as we could get misleading results (eg., unstable = problem in the push-latest-container-to-quay)
+                // push-latest job now includes searching for IIBs (which can take a while) and 
+                // creating multi-arch IIBs (which can take a while); may want to set wait: false to avoid timeouts
+                // or can increase/disable timeouts in downstream job
+                wait: true,
+                propagate: false,
+                quietPeriod: 0,
+                parameters: [
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'comments_url',
+                    value: util.globalVar({comments_url})
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'token',
+                    value: "CI_BUILD"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'cause',
+                    value: "push+latest+${CONTAINERS}+to+quay"
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'CONTAINERS',
+                    value: CONTAINERS
+                  ],
+                  [
+                    $class: 'StringParameterValue',
+                    name: 'FLOATING_QUAY_TAGS',
+                    value: FLOATING_QUAY_TAGS
+                  ],
+                  [
+                    $class: 'BooleanParameterValue',
+                    name: 'CLEAN_ON_FAILURE',
+                    value: CLEAN_ON_FAILURE
+                  ]
+                ]
+              )
+              // if wait = true, can get a link to the downstream build
+              jobLink=jobPath + "/" +  jobResult?.number?.toString()
+              println("waiting for build(" + jobPath + ")")
+              println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+              currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
+
+              // if wait == false, can only get a link to the downstream job (no build #)
+              // println("triggered build(" + jobPath + ") [no wait]")
+              // println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
+              // currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
+            }
+          } catch (e) {
+            currentBuild.result = "UNSTABLE"
+            currentBuild.description+="; <b style='color:orange'>Warning: <a href=${jobPath}/>" + (jobPath.replaceAll("/job/","/")) + "</a></b>"
+          } // try push-latest-container-to-quay job trigger
+
+          // comment on the PR with this job's build description
+          if (util.globalVar({comments_url})?.trim()) {
+            println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+          }
         } // withCreds
       } // wrap
-
-      // trigger push-latest-container-to-quay job (does more than just copy to quay)
-      sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
-      def util = load "${WORKSPACE}/util2.groovy"
-      JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
-      jobPath='/job/DS_CI/job/push-latest-container-to-quay_' + JOB_BRANCH
-      try {
-        CONTAINERS=QUAY_REPO_PATHs.trim()
-        println "########################################################################################################"
-        println "##  Copy latest ${CONTAINERS} in OSBS to Quay"
-        println "########################################################################################################"
-        echo "currentBuild.result = " + currentBuild.result
-        if (!currentBuild.result.equals("ABORTED") && 
-            !currentBuild.result.equals("FAILURE") && 
-            !SCRATCH.equals("true") && SCRATCH!=true && 
-            QUAY_REPO_PATHs?.trim() && NEW_TAG?.trim()) {
-          final jobResult = build(
-            job: jobPath.replaceAll("/job/","/"),
-            // DO NOT propagate status here as we could get misleading results (eg., unstable = problem in the push-latest-container-to-quay)
-            // push-latest job now includes searching for IIBs (which can take a while) and 
-            // creating multi-arch IIBs (which can take a while); may want to set wait: false to avoid timeouts
-            // or can increase/disable timeouts in downstream job
-            wait: true,
-            propagate: false,
-            quietPeriod: 0,
-            parameters: [
-              [
-                $class: 'StringParameterValue',
-                name: 'token',
-                value: "CI_BUILD"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'cause',
-                value: "push+latest+${CONTAINERS}+to+quay"
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'CONTAINERS',
-                value: CONTAINERS
-              ],
-              [
-                $class: 'StringParameterValue',
-                name: 'FLOATING_QUAY_TAGS',
-                value: FLOATING_QUAY_TAGS
-              ],
-              [
-                $class: 'BooleanParameterValue',
-                name: 'CLEAN_ON_FAILURE',
-                value: CLEAN_ON_FAILURE
-              ]
-            ]
-          )
-          // if wait = true, can get a link to the downstream build
-          jobLink=jobPath + "/" +  jobResult?.number?.toString()
-          println("waiting for build(" + jobPath + ")")
-          println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
-          currentBuild.description+="; <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered" 
-
-          // if wait == false, can only get a link to the downstream job (no build #)
-          // println("triggered build(" + jobPath + ") [no wait]")
-          // println("=?> Job ${JENKINS_URL}${jobPath} triggered.")
-          // currentBuild.description+="; <a href=${jobPath}/>" + jobPath + "</a> triggered" 
-        }
-      } catch (e) {
-        currentBuild.result = "UNSTABLE"
-        currentBuild.description+="; <b style='color:orange'>Warning: <a href=${jobPath}/>" + (jobPath.replaceAll("/job/","/")) + "</a></b>"
-      } // try push-latest-container-to-quay job trigger
-
       cleanWs(
           cleanWhenSuccess: true,
           cleanWhenUnstable: true,
