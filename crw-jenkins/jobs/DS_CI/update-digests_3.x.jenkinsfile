@@ -17,6 +17,12 @@ timeout(120) {
                         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                         def util = load "${WORKSPACE}/util2.groovy"
                         cleanWs()
+
+                        // comment on the PR with links to this job
+                        if (util.globalVar({comments_url})?.trim()) {
+                            println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
+                        }
+
                         DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
                         println "DS_VERSION = '" + DS_VERSION + "'"
                         JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
@@ -176,6 +182,11 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
 
                             sh COMMITCHANGES
                         }
+
+                        // comment on the PR with this job's build description
+                        if (util.globalVar({comments_url})?.trim()) {
+                            println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+                        }
                     } // with
                 } // wrap
                 cleanWs(
@@ -191,7 +202,14 @@ sed -r -e "s@quay.io/devspaces/|:.+|-rhel8|\\n|\\r|^(-|\\+)@@g" | sort -uV || tr
             } // stage
         } catch (e) {
             if (errorOccurred) {
-                util.notifyBuildFailed()
+                withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+                    sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
+                    def util = load "${WORKSPACE}/util2.groovy"
+                    if (util.globalVar({comments_url})?.trim()) {
+                        println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(util.globalVar({comments_url})))
+                    }
+                    util.notifyBuildFailed()
+                }
                 return
             }
             throw e

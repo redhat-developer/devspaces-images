@@ -27,7 +27,7 @@ timeout(env.TIMEOUT?.trim() ? env.TIMEOUT.toInteger() : 180) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/' + MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
         // store the URL for comments on the associated PR for this latest build (if applicable)
-        def comments_url = util.globalVar({comments_url})?.trim() ? util.globalVar({comments_url})?.trim() : ""
+        def comments_url_this = util.globalVar({comments_url})?.trim() ? util.globalVar({comments_url})?.trim() : ""
         cleanWs()
         DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
         println "DS_VERSION = '" + DS_VERSION + "'"
@@ -47,13 +47,14 @@ cd ''' + SOURCE_DIR + ''' && git checkout ''' + util.globalVar({SOURCE_TAG})
             } else {
               // do not comment if we're building from a tag, only a branch! (see https://github.com/redhat-developer/devspaces-images/issues/357 )
               // comment on the PR with links to this job
-              if (comments_url?.trim()) {
-                println("Used PR comment URL: " + comments_url)
+              if (comments_url_this?.trim()) {
+                println("Used PR comment URL: " + comments_url_this)
+                comments_url_this=util.commentOnPullRequestBuildLinks(comments_url_this)
               } else {
-                comments_url=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA(SOURCE_DIR,40))
-                println("Computed PR comment URL: " + comments_url)
-                comments_url=comments_url.replaceAll("#.+","")
+                comments_url_this=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA(SOURCE_DIR,40))
+                println("Computed PR comment URL: " + comments_url_this)
               } 
+              comments_url_this=comments_url_this.replaceAll("#.+","")
             }
 
             OLD_SOURCE_SHA = util.getLastCommitSHA(SOURCE_DIR)
@@ -132,7 +133,7 @@ fi
                 [
                   $class: 'StringParameterValue',
                   name: 'comments_url',
-                  value: comments_url
+                  value: comments_url_this
                 ],
                 [
                   $class: 'StringParameterValue',
@@ -202,7 +203,7 @@ fi
           }
 
           // comment on the PR with this job's build description
-          println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url))
+          println("Used PR comment URL: " + util.commentOnPullRequestBuildDescription(comments_url_this))
         } // with
       } // wrap
       cleanWs(
