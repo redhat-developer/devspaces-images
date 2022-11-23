@@ -24,7 +24,7 @@ OLM_CHANNEL="next" # or "stable", see https://github.com/eclipse-che/che-operato
 UBI_TAG=8.6
 POSTGRES_TAG=1
 POSTGRES13_TAG=1 # use 1-26.1638356747 to pin to postgre 13.3, or 1 to use 13.x
-OPENSHIFT_TAG="v4.11.0"
+OPENSHIFT_TAG="v4.11"
 
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
 command -v skopeo >/dev/null 2>&1 || { echo "skopeo is not installed. Aborting."; exit 1; }
