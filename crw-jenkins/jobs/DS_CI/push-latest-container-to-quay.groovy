@@ -72,7 +72,9 @@ Triggered by  <a href=../get-sources-rhpkg-container-build_''' + JOB_BRANCH + ''
 
   <p>After this job runs, these events will occur:
   <ol>
-    <li><a href=https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml>Update plugin registry GH page + rebuild devfile registry</a></li>
+    <li>Trigger <a href=https://github.com/redhat-developer/devspaces/actions/workflows/plugin-registry-build-publish-content-gh-pages.yaml>Update plugin registry GH page + rebuild devfile registry</a> 
+    after a successful push of a 
+    <a href=../pluginregistry_''' + JOB_BRANCH + '''>pluginregistry</a> build of <a href=https://quay.io/repository/devspaces/pluginregistry-rhel8?tab=tags>pluginregistry</a></li>
 
     <li>Trigger <a href=../update-digests_''' + JOB_BRANCH + '''>update-digests</a> to rebuild operator-bundle</li>
 
