@@ -17,6 +17,22 @@ $Global:__VSCodeOriginalPrompt = $function:Prompt
 
 $Global:__LastHistoryId = -1
 
+function Global:__VSCode-Escape-Value([string]$value) {
+	# NOTE: In PowerShell v6.1+, this can be written `$value -replace '…', { … }` instead of `[regex]::Replace`.
+	# Replace any non-alphanumeric characters.
+	[regex]::Replace($value, '[^a-zA-Z0-9]', { param($match)
+		# Backslashes must be doubled.
+		if ($match.Value -eq '\') {
+			'\\'
+		} else {
+			# Any other characters are encoded as their UTF-8 hex values.
+			-Join (
+				[System.Text.Encoding]::UTF8.GetBytes($match.Value)
+				| ForEach-Object { '\x{0:x2}' -f $_ }
+			)
+		}
+	})
+}
 
 function Global:Prompt() {
 	$FakeCode = [int]!$global:?
@@ -39,7 +55,7 @@ function Global:Prompt() {
 			} else {
 				$CommandLine = ""
 			}
-			$Result += $CommandLine.Replace("\", "\\").Replace("`n", "\x0a").Replace(";", "\x3b")
+			$Result += $(__VSCode-Escape-Value $CommandLine)
 			$Result += "`a"
 			# Command finished exit code
 			# OSC 633 ; D [; <ExitCode>] ST
@@ -51,9 +67,11 @@ function Global:Prompt() {
 	$Result += "$([char]0x1b)]633;A`a"
 	# Current working directory
 	# OSC 633 ; <Property>=<Value> ST
-	$Result += if($pwd.Provider.Name -eq 'FileSystem'){"$([char]0x1b)]633;P;Cwd=$($pwd.ProviderPath)`a"}
+	$Result += if($pwd.Provider.Name -eq 'FileSystem'){"$([char]0x1b)]633;P;Cwd=$(__VSCode-Escape-Value $pwd.ProviderPath)`a"}
 	# Before running the original prompt, put $? back to what it was:
-	if ($FakeCode -ne 0) { Write-Error "failure" -ea ignore }
+	if ($FakeCode -ne 0) {
+		Write-Error "failure" -ea ignore
+	}
 	# Run the original prompt
 	$Result += $Global:__VSCodeOriginalPrompt.Invoke()
 	# Write command started
@@ -85,10 +103,12 @@ function Set-MappedKeyHandler {
 		Set-PSReadLineKeyHandler -Chord $Sequence -Function $Handler.Function
 	}
 }
+
 function Set-MappedKeyHandlers {
 	Set-MappedKeyHandler -Chord Ctrl+Spacebar -Sequence 'F12,a'
 	Set-MappedKeyHandler -Chord Alt+Spacebar -Sequence 'F12,b'
 	Set-MappedKeyHandler -Chord Shift+Enter -Sequence 'F12,c'
 	Set-MappedKeyHandler -Chord Shift+End -Sequence 'F12,d'
 }
+
 Set-MappedKeyHandlers
