@@ -5,11 +5,11 @@
 | [`@babel/runtime@7.17.7`](https://github.com/babel/babel.git) | MIT | #1946 |
 | [`@devfile/api@2.2.0-alpha-1646855991`](https://github.com/devfile/api.git) | EPL-2.0 | clearlydefined |
 | `@eclipse-che/api@7.44.0` | EPL-2.0 | ecd.che |
-| [`@eclipse-che/che-code-devworkspace-handler@1.64.0-dev-210b722`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1642670698`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/common@7.56.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-backend@7.56.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
-| [`@eclipse-che/dashboard-frontend@7.56.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/che-code-devworkspace-handler@1.74.0-dev-e701cae`](git+https://github.com/che-incubator/che-code.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/che-theia-devworkspace-handler@0.0.1-1667484092`](git+https://github.com/eclipse-che/che-theia.git) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/common@7.58.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-backend@7.58.0-next`](https://github.com/eclipse-che/che-dashboard) | EPL-2.0 | ecd.che |
+| [`@eclipse-che/dashboard-frontend@7.58.0-next`](git://github.com/eclipse/che-dashboard.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/devfile-converter@0.0.1-d624e3e`](git+https://github.com/che-incubator/devfile-converter.git) | EPL-2.0 | ecd.che |
 | [`@eclipse-che/workspace-client@0.0.1-1663851810`](https://github.com/eclipse/che-workspace-client) | EPL-2.0 | ecd.che |
 | [`@fastify/ajv-compiler@1.1.0`](git+https://github.com/fastify/ajv-compiler.git) | MIT | clearlydefined |
@@ -40,7 +40,7 @@
 | [`@sindresorhus/is@4.6.0`](https://github.com/sindresorhus/is.git) | MIT | clearlydefined |
 | [`@szmarczak/http-timer@4.0.6`](git+https://github.com/szmarczak/http-timer.git) | MIT | clearlydefined |
 | [`@types/bluebird@3.5.21`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
-| [`@types/cacheable-request@6.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
+| [`@types/cacheable-request@6.0.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | #4993 |
 | [`@types/caseless@0.12.2`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/hoist-non-react-statics@3.3.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
 | [`@types/http-cache-semantics@4.0.1`](https://github.com/DefinitelyTyped/DefinitelyTyped.git) | MIT | clearlydefined |
@@ -264,7 +264,7 @@
 | [`klona@2.0.5`](https://github.com/lukeed/klona.git) | MIT | clearlydefined |
 | [`leven@2.1.0`](https://github.com/sindresorhus/leven.git) | MIT | clearlydefined |
 | [`light-my-request@4.12.0`](https://github.com/fastify/light-my-request.git) | BSD-3-Clause | clearlydefined |
-| [`loader-utils@1.4.0`](https://github.com/webpack/loader-utils.git) | MIT | clearlydefined |
+| [`loader-utils@1.4.0`](https://github.com/webpack/loader-utils.git) | MIT | #4597 |
 | [`lodash.isequalwith@4.4.0`](https://github.com/lodash/lodash.git) | MIT | clearlydefined |
 | [`lodash@4.17.21`](https://github.com/lodash/lodash.git) | MIT | #2096 |
 | [`loose-envify@1.4.0`](git://github.com/zertosh/loose-envify.git) | MIT | clearlydefined |
@@ -365,7 +365,7 @@
 | [`redux-thunk@2.4.1`](https://github.com/reduxjs/redux-thunk.git) | MIT | clearlydefined |
 | [`redux@4.1.2`](https://github.com/reduxjs/redux.git) | MIT | clearlydefined |
 | [`reflect-metadata@0.1.13`](https://github.com/rbuckton/reflect-metadata.git) | Apache-2.0 | clearlydefined |
-| [`regenerator-runtime@0.13.9`](https://github.com/facebook/regenerator/tree/master/packages/runtime) | MIT | clearlydefined |
+| [`regenerator-runtime@0.13.9`](https://github.com/facebook/regenerator/tree/master/packages/runtime) | MIT | #4978 |
 | [`repeating@2.0.1`](https://github.com/sindresorhus/repeating.git) | MIT | clearlydefined |
 | [`request-light@0.2.5`](https://github.com/microsoft/node-request-light) | MIT | clearlydefined |
 | [`request@2.88.2`](https://github.com/request/request.git) | Apache-2.0 | #997 |
@@ -418,7 +418,7 @@
 | [`supports-color@5.5.0`](https://github.com/chalk/supports-color.git) | MIT | clearlydefined |
 | [`supports-preserve-symlinks-flag@1.0.0`](git+https://github.com/inspect-js/node-supports-preserve-symlinks-flag.git) | MIT | clearlydefined |
 | [`tabbable@5.2.1`](git+https://github.com/focus-trap/tabbable.git) | MIT | clearlydefined |
-| [`tar@6.1.11`](https://github.com/npm/node-tar.git) | ISC | clearlydefined |
+| [`tar@6.1.11`](https://github.com/npm/node-tar.git) | ISC | #4566 |
 | [`tiny-invariant@1.2.0`](https://github.com/alexreardon/tiny-invariant.git) | MIT | clearlydefined |
 | [`tiny-lru@8.0.2`](git://github.com/avoidwork/tiny-lru.git) | BSD-3-Clause | clearlydefined |
 | [`tiny-warning@1.0.3`](https://github.com/alexreardon/tiny-warning.git) | MIT | clearlydefined |

@@ -88,9 +88,11 @@ export default class Bootstrap {
       this.fetchDwPlugins(),
       this.fetchDefaultDwPlugins(),
       this.fetchRegistriesMetadata().then(() => this.fetchEmptyWorkspace()),
-      this.watchNamespaces(),
       this.updateDevWorkspaceTemplates(),
-      this.fetchWorkspaces().then(() => this.checkWorkspaceStopped()),
+      this.fetchWorkspaces().then(() => {
+        this.checkWorkspaceStopped();
+        return this.watchNamespaces();
+      }),
       this.fetchClusterInfo(),
       this.fetchClusterConfig(),
     ]);
@@ -307,7 +309,7 @@ export default class Bootstrap {
     );
   }
 
-  private checkWorkspaceStopped() {
+  private checkWorkspaceStopped(): void {
     let stoppedWorkspace: Workspace | undefined = undefined;
 
     try {

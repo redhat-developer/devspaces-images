@@ -132,17 +132,13 @@ export type ActionCreators = {
 export const actionCreators: ActionCreators = {
   requestWorkspaces:
     (): AppThunk<KnownAction, Promise<void>> =>
-    async (dispatch, getState): Promise<void> => {
+    async (dispatch): Promise<void> => {
       dispatch({ type: 'REQUEST_WORKSPACES' });
       try {
-        const state = getState();
-        const cheDevworkspaceEnabled = isDevworkspacesEnabled(state.workspacesSettings.settings);
-
-        const promises: Promise<unknown>[] = [];
-        if (cheDevworkspaceEnabled) {
-          promises.push(dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces()));
-        }
-        promises.push(dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces()));
+        const promises: Promise<unknown>[] = [
+          dispatch(DevWorkspacesStore.actionCreators.requestWorkspaces()),
+          dispatch(CheWorkspacesStore.actionCreators.requestWorkspaces()),
+        ];
 
         await Promise.allSettled(promises);
 
