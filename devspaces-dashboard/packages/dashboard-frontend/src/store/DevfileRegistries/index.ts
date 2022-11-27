@@ -22,6 +22,7 @@ import { isDevworkspacesEnabled } from '../../services/helpers/devworkspace';
 import fetchAndUpdateDevfileSchema from './fetchAndUpdateDevfileSchema';
 import devfileApi from '../../services/devfileApi';
 import { fetchResources, loadResourcesContent } from '../../services/registry/resources';
+import updateDevWorkspacePlugins from './updateDevWorkspacePlugins';
 
 const WorkspaceClient = container.get(CheWorkspaceClient);
 export const DEFAULT_REGISTRY = '/dashboard/devfile-registry/';
@@ -240,6 +241,7 @@ export const actionCreators: ActionCreators = {
         if (!devWorkspace) {
           throw new Error('Failed to find a devworkspace in prebuilt resources.');
         }
+        updateDevWorkspacePlugins(devWorkspace);
         const devWorkspaceTemplate = resources.find(
           resource => resource.kind === 'DevWorkspaceTemplate',
         ) as devfileApi.DevWorkspaceTemplate;

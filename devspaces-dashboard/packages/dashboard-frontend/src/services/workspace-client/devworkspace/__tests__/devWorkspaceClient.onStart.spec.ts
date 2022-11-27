@@ -46,12 +46,10 @@ describe('DevWorkspace client, start', () => {
 
     await client.onStart(testWorkspace, defaults, editor);
 
-    expect(testWorkspace.spec.template.components?.length).toBe(1);
-    expect(testWorkspace.spec.template.components![0].plugin!.uri!).toBe(defaultPluginUri);
+    expect(testWorkspace.spec.contributions?.length).toBe(1);
+    expect(testWorkspace.spec.contributions![0].uri!).toBe(defaultPluginUri);
     expect(
-      (testWorkspace.spec.template.components![0].attributes as any)[
-        'che.eclipse.org/default-plugin'
-      ],
+      (testWorkspace.spec.contributions![0].attributes as any)['che.eclipse.org/default-plugin'],
     ).toBe(true);
     expect(patchWorkspace).toHaveBeenCalled();
   });

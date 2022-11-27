@@ -950,22 +950,20 @@ export class DevWorkspaceClient extends WorkspaceClient {
    * @param namespace A namespace
    */
   private addPlugin(workspace: devfileApi.DevWorkspace, pluginName: string, namespace: string) {
-    if (!workspace.spec.template.components) {
-      workspace.spec.template.components = [];
+    if (!workspace.spec.contributions) {
+      workspace.spec.contributions = [];
     }
-    const components = workspace.spec.template.components.filter(
-      component => component.name !== pluginName,
+    const contributions = workspace.spec.contributions.filter(
+      contribution => contribution.name !== pluginName,
     );
-    components.push({
+    contributions.push({
       name: pluginName,
-      plugin: {
-        kubernetes: {
-          name: pluginName,
-          namespace,
-        },
+      kubernetes: {
+        name: pluginName,
+        namespace,
       },
     });
-    workspace.spec.template.components = components;
+    workspace.spec.contributions = contributions;
   }
 
   async subscribeToNamespace(subscriber: Subscriber): Promise<void> {

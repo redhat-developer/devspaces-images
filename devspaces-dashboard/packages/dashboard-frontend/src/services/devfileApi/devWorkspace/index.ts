@@ -15,6 +15,15 @@ import { DevWorkspaceMetadata } from './metadata';
 import { DevWorkspaceSpec } from './spec';
 
 export type DevWorkspaceKind = 'DevWorkspace';
+export type DevWorkspacePlugin = {
+  name: string;
+  attributes?: { [key: string]: string | boolean };
+  uri?: string;
+  kubernetes?: {
+    name: string;
+    namespace: string;
+  };
+};
 export const devWorkspaceKind: DevWorkspaceKind = 'DevWorkspace';
 
 type DevWorkspaceLikeRequired = Pick<V1alpha2DevWorkspace, 'apiVersion' | 'kind'>;
@@ -29,5 +38,5 @@ type DevWorkspaceRequired = Pick<DevWorkspaceLike, 'apiVersion' | 'kind' | 'meta
 export type DevWorkspace = DevWorkspaceLike &
   Required<DevWorkspaceRequired> & {
     metadata: DevWorkspaceMetadata;
-    spec: DevWorkspaceSpec;
+    spec: DevWorkspaceSpec & { contributions?: DevWorkspacePlugin[] };
   };

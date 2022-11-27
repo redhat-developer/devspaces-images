@@ -39,18 +39,18 @@ describe('FactoryLoaderContainer/prepareResources', () => {
           uid: '',
         },
         spec: {
+          contributions: [
+            {
+              name: devWorkspaceTemplateName,
+              kubernetes: {
+                name: devWorkspaceTemplateName,
+                namespace: 'user-che',
+              },
+            },
+          ],
           started: false,
           template: {
-            components: [
-              {
-                name: devWorkspaceTemplateName,
-                plugin: {
-                  kubernetes: {
-                    name: devWorkspaceTemplateName,
-                  },
-                },
-              },
-            ],
+            components: [],
           },
         },
       },
@@ -94,14 +94,13 @@ describe('FactoryLoaderContainer/prepareResources', () => {
       // DevWorkspace
       expect(result[0].metadata.generateName).toBeUndefined();
       expect(result[0].metadata.name).toEqual(generateName + suffix);
-      expect(result[0].spec.template.components).toEqual(
+      expect(result[0].spec.contributions).toEqual(
         expect.arrayContaining([
           {
             name: devWorkspaceTemplateName + suffix,
-            plugin: {
-              kubernetes: {
-                name: devWorkspaceTemplateName + suffix,
-              },
+            kubernetes: {
+              name: devWorkspaceTemplateName + suffix,
+              namespace: 'user-che',
             },
           },
         ]),
@@ -122,14 +121,13 @@ describe('FactoryLoaderContainer/prepareResources', () => {
       // DevWorkspace
       expect(result[0].metadata.generateName).toBeUndefined();
       expect(result[0].metadata.name).toEqual(generateName + suffix);
-      expect(result[0].spec.template.components).toEqual(
+      expect(result[0].spec.contributions).toEqual(
         expect.arrayContaining([
           {
             name: devWorkspaceTemplateName + suffix,
-            plugin: {
-              kubernetes: {
-                name: devWorkspaceTemplateName + suffix,
-              },
+            kubernetes: {
+              name: devWorkspaceTemplateName + suffix,
+              namespace: 'user-che',
             },
           },
         ]),
@@ -145,14 +143,13 @@ describe('FactoryLoaderContainer/prepareResources', () => {
       // DevWorkspace
       expect(result[0].metadata.generateName).toBeUndefined();
       expect(result[0].metadata.name).toEqual(devWorkspaceName);
-      expect(result[0].spec.template.components).toEqual(
+      expect(result[0].spec.contributions).toEqual(
         expect.arrayContaining([
           {
             name: devWorkspaceTemplateName,
-            plugin: {
-              kubernetes: {
-                name: devWorkspaceTemplateName,
-              },
+            kubernetes: {
+              name: devWorkspaceTemplateName,
+              namespace: 'user-che',
             },
           },
         ]),
@@ -168,14 +165,13 @@ describe('FactoryLoaderContainer/prepareResources', () => {
       // DevWorkspace
       expect(result[0].metadata.generateName).toBeUndefined();
       expect(result[0].metadata.name).toEqual(devWorkspaceName + suffix);
-      expect(result[0].spec.template.components).toEqual(
+      expect(result[0].spec.contributions).toEqual(
         expect.arrayContaining([
           {
             name: devWorkspaceTemplateName + suffix,
-            plugin: {
-              kubernetes: {
-                name: devWorkspaceTemplateName + suffix,
-              },
+            kubernetes: {
+              name: devWorkspaceTemplateName + suffix,
+              namespace: 'user-che',
             },
           },
         ]),

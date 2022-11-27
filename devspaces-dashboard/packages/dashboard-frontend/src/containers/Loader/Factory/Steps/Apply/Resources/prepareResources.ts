@@ -69,13 +69,13 @@ function addSuffix(devWorkspace: DevWorkspace, devWorkspaceTemplate: DevWorkspac
   }
 
   // update editor plugin name
-  const editorPlugin = devWorkspace.spec.template.components?.find(
+  const editorPlugin = devWorkspace.spec.contributions?.find(
     component => component.name === editorPluginName,
   );
   if (editorPlugin) {
     editorPlugin.name = editorPluginName + suffix;
-    if (editorPlugin.plugin?.kubernetes) {
-      editorPlugin.plugin.kubernetes.name = editorPluginName + suffix;
+    if (editorPlugin?.kubernetes) {
+      editorPlugin.kubernetes.name = editorPluginName + suffix;
     }
   }
 

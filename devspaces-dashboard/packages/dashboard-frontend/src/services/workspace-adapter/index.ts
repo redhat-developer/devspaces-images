@@ -351,9 +351,7 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
     if (isCheWorkspace(this.workspace)) {
       this.workspace.devfile = devfile as che.WorkspaceDevfile;
     } else {
-      const plugins = (this.workspace.spec.template.components || []).filter(component => {
-        return component.plugin !== undefined;
-      });
+      const plugins = this.workspace.spec.contributions || [];
       const converted = devfileToDevWorkspace(
         devfile as devfileApi.Devfile,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -361,10 +359,10 @@ export class WorkspaceAdapter<T extends che.Workspace | devfileApi.DevWorkspace>
         this.workspace.spec.started,
       );
       if (isDevWorkspace(converted)) {
-        if (converted.spec.template.components === undefined) {
-          converted.spec.template.components = [];
+        if (converted.spec.contributions === undefined) {
+          converted.spec.contributions = [];
         }
-        converted.spec.template.components.push(...plugins);
+        converted.spec.contributions.push(...plugins);
         (this.workspace as devfileApi.DevWorkspace) = converted;
       } else {
         console.error(

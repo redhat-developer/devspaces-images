@@ -128,19 +128,19 @@ export class DevWorkspaceDefaultPluginsHandler {
     pluginName: string,
     pluginUri: string,
   ): boolean {
-    if (!workspace.spec.template.components) {
-      workspace.spec.template.components = [];
+    if (!workspace.spec.contributions) {
+      workspace.spec.contributions = [];
     }
 
-    if (workspace.spec.template.components.find(component => component.name === pluginName)) {
+    if (workspace.spec.contributions.find(component => component.name === pluginName)) {
       // plugin already exists
       return false;
     }
 
-    workspace.spec.template.components.push({
+    workspace.spec.contributions.push({
       name: pluginName,
       attributes: { [DEFAULT_PLUGIN_ATTRIBUTE]: true },
-      plugin: { uri: pluginUri },
+      uri: pluginUri,
     });
     return true;
   }
