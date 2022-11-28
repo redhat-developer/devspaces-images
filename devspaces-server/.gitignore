@@ -102,4 +102,4 @@ tests/e2e/load-test-folder
 */.grunt
 */.lock-wscript
 */cypress-tests/dist
-/asset-server.tgz
+/assembly-main.tar.gz
