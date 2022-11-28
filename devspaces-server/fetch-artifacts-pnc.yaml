@@ -1,0 +1,8 @@
+# TODO CRW-3099 generate this file for CI builds
+builds:
+  # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/AVMHG3CJC3YAA
+  - build_id: '20221128-2146' # build id must be string
+    artifacts:
+      # https://orch.psi.redhat.com/pnc-web/#/artifacts/9377523 == org.eclipse.che:assembly-main:tar.gz:7.yy.0.redhat-0000z
+      - id : '9377523' # artifact id must be string; can rename it by setting a different target path/file
+        target: assembly-main.tar.gz
