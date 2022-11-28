@@ -21,9 +21,9 @@ RUN microdnf install java-11-openjdk-headless tar gzip shadow-utils findutils &&
 COPY entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-# NOTE: To build in Brew, use get-source*.sh to build new server.tgz
-COPY asset-server.tgz /tmp/asset-server.tgz
-RUN tar xzf /tmp/asset-server.tgz --strip-components=1 -C /home/user/devspaces; rm -f /tmp/asset-server.tgz
+# see fetch-artifacts-pnc.yaml
+COPY artifacts/assembly-main.tar.gz /tmp/assembly-main.tar.gz
+RUN tar xzf /tmp/assembly-main.tar.gz --strip-components=1 -C /home/user/devspaces; rm -f /tmp/assembly-main.tar.gz
 
 # this should fail if the startup script is not found in correct path /home/user/devspaces/tomcat/bin/catalina.sh
 RUN mkdir /logs /data && \
