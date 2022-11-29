@@ -1,0 +1,15 @@
+- url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/x86_64/e2fsprogs-1.46.5-3.el9.x86_64.rpm
+  md5: 8546ad17dd5a670e7edd30c49c6b07e0
+  source-url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/src/e2fsprogs-1.46.5-3.el9.src.rpm
+  # When source-url is specified, checksum must be provided
+  source-md5: 3cc67c469ea23772e77fc2cf3fbe77ac
+- url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/ppc64le/e2fsprogs-1.46.5-3.el9.ppc64le.rpm
+  md5: 26cd0664f5635cbfbd85a064c9f952e9
+  source-url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/src/e2fsprogs-1.46.5-3.el9.src.rpm
+  # When source-url is specified, checksum must be provided
+  source-md5: 3cc67c469ea23772e77fc2cf3fbe77ac
+- url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/s390x/e2fsprogs-1.46.5-3.el9.s390x.rpm
+  md5: 871f4d16df4b2415729168a0c4259e7f
+  source-url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/src/e2fsprogs-1.46.5-3.el9.src.rpm
+  # When source-url is specified, checksum must be provided
+  source-md5: 3cc67c469ea23772e77fc2cf3fbe77ac
