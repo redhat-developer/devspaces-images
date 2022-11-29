@@ -19,16 +19,17 @@ timeout(90) {
         sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
         def util = load "${WORKSPACE}/util2.groovy"
         def comments_url_dsc=util.globalVar({comments_url})?.trim()
+        def SOURCE_REPO="che-incubator/chectl"
         try {
           cleanWs()
           currentBuild.description="Check out code ..."
-          util.cloneRepo("https://github.com/che-incubator/chectl.git", "chectl", SOURCE_BRANCH, true)
+          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "chectl", SOURCE_BRANCH, true)
 
           // comment on the PR with links to this job
           if (comments_url_dsc?.trim()) {
             println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(comments_url_dsc))
           } else {
-            comments_url_dsc=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA(SOURCE_DIR,40))
+            comments_url_dsc=util.commentOnPullRequestBuildLinks(SOURCE_REPO,util.getLastCommitSHA("${WORKSPACE}/chectl",40))
             println("Computed PR comment URL: " + comments_url_dsc)
             comments_url_dsc=comments_url_dsc.replaceAll("#.+","")
           }
