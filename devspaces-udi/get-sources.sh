@@ -8,8 +8,6 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
-# maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
-MAVEN_VERSION="3.6.3"
 ASSET_NAME="udi"
 
 while [[ "$#" -gt 0 ]]; do
@@ -48,11 +46,6 @@ if [[ ${PUBLISH_ASSETS} -eq 1 ]]; then
 	exit 0
 fi
 
-# update Dockerfile to record versions we expect
-sed Dockerfile \
-		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
-		> Dockerfile.2
-
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
     rm -fr asset-*
 	mv -f Dockerfile.2 Dockerfile
@@ -64,10 +57,7 @@ if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ $
 	# pull asset-*.tar.gz files
 	./uploadAssetsToGHRelease.sh --pull-assets -v "${CSV_VERSION}" -n ${ASSET_NAME} ${REPO_PATH} --target "${TARGETDIR}"
 
-	# pull maven
-	curl -sSL -O http://mirror.csclub.uwaterloo.ca/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
-
-    outputFiles="$(ls asset-*.tar.gz) apache-maven-${MAVEN_VERSION}-bin.tar.gz"
+    outputFiles="$(ls asset-*.tar.gz)"
 
 	# cleanup
 	rm -f Dockerfile.2 uploadAssetsToGHRelease.sh
