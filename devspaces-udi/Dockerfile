@@ -115,11 +115,11 @@ RUN \
     sed s#root:x:0:#root:x:0:0,\${USER_ID}:#g \
     > ${HOME}/group.template
 
-## Rootless podman install #1: install podman buildah skopeo
-RUN dnf -y module enable container-tools:rhel8 && \ 
+## Rootless podman install #1: install podman buildah skopeo e2fsprogs
+RUN dnf -y module enable container-tools:rhel8 && \
     dnf -y -q update --exclude=odo && \
     dnf -y reinstall shadow-utils && \
-    dnf -y install podman buildah skopeo fuse-overlayfs
+    dnf -y install podman buildah skopeo fuse-overlayfs e2fsprogs
 
 ## Rootless podman install #2
 # Set up environment variables to note that this is
@@ -269,13 +269,6 @@ RUN \
     mkdir -p ${HOME}/che/ls-php/php-language-server && \
     tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
     cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
-
-########################################################################
-# e2fsprogs (Tech Preview)
-########################################################################
-# see fetch-artifacts-url.yaml
-COPY artifacts/e2fsprogs-* /tmp/
-RUN dnf install -y /tmp/e2fsprogs-*$(uname -m).rpm; rm -fr /tmp/e2fsprogs-*.rpm
 
     ########################################################################
     # Cleanup and Summaries
