@@ -22,23 +22,3 @@
   sha256: f4fd92e89e4fcd2e3b762cdff629e95f632c607c5b5e1cf40e00667091f73e51
   source-url: https://download.devel.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-1.45.6-5.el8.src.rpm
   source-sha256: 1c0771ea038777ecf84ba31cba0c3d221d39e351c1a6e7967857977c1949c792
-- url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/noarch/maven-3.8.5-3.module+el9.1.0+16330+91eb0817.noarch.rpm
-  sha256: 3739efe49501fa7628b27e35ae12b56bd21c6d941b2feef9bae8c99d06da47ba
-  source-url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/src/maven-3.8.5-3.module+el9.1.0+16330+91eb0817.src.rpm
-  source-sha256: 5e47970a3f6091cc933b6aac900acee3840abd079386b4867071256d132b2097
-- url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/noarch/maven-lib-3.8.5-3.module+el9.1.0+16330+91eb0817.noarch.rpm
-  sha256: fd1c55f134624ba5045db245a88b25c1b8344b9ef7d36231a88b860431a3d175
-  source-url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/src/maven-3.8.5-3.module+el9.1.0+16330+91eb0817.src.rpm
-  source-sha256: 5e47970a3f6091cc933b6aac900acee3840abd079386b4867071256d132b2097
-- url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/noarch/maven-openjdk8-3.8.5-3.module+el9.1.0+16330+91eb0817.noarch.rpm
-  sha256: 67948246dd6171203740bcc13e4a963782c93f71d94de832cea030d85598793e
-  source-url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/src/maven-3.8.5-3.module+el9.1.0+16330+91eb0817.src.rpm
-  source-sha256: 5e47970a3f6091cc933b6aac900acee3840abd079386b4867071256d132b2097
-- url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/noarch/maven-openjdk11-3.8.5-3.module+el9.1.0+16330+91eb0817.noarch.rpm
-  sha256: 5ff9d69d3576ba5036f90fd0aa894bfd55b24de77efd6bcd48701613d761f797
-  source-url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/src/maven-3.8.5-3.module+el9.1.0+16330+91eb0817.src.rpm
-  source-sha256: 5e47970a3f6091cc933b6aac900acee3840abd079386b4867071256d132b2097
-- url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/noarch/maven-openjdk17-3.8.5-3.module+el9.1.0+16330+91eb0817.noarch.rpm
-  sha256: dd979037ac70e6a64d6eebc2dcee5d03b2ebac0d02e46c0538cdb5743dfc727a
-  source-url: https://download.devel.redhat.com/brewroot/packages/maven/3.8.5/3.module+el9.1.0+16330+91eb0817/data/signed/fd431d51/src/maven-3.8.5-3.module+el9.1.0+16330+91eb0817.src.rpm
-  source-sha256: 5e47970a3f6091cc933b6aac900acee3840abd079386b4867071256d132b2097

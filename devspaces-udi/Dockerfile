@@ -51,7 +51,6 @@ COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 ENV \
     HOME=/home/user \
     NODEJS_VERSION="16" \
-    MAVEN_VERSION="3.6.3" \
     PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
@@ -61,12 +60,12 @@ ENV \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/user/.java/current" \
-    PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/usr/share/maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
     XDG_DATA_DIRS="/usr/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" \
-    M2_HOME="/opt/apache-maven" \
+    M2_HOME="/usr/share/maven" \
     PKG_CONFIG_PATH="/usr/lib64/pkgconfig${PKG_CONFIG_PATH:+:${PKG_CONFIG_PATH}}"
 
 ADD etc/storage.conf $HOME/.config/containers/storage.conf
@@ -160,6 +159,10 @@ RUN \
     rm -f /usr/bin/java && \
     ln -s /usr/lib/jvm/java-11-openjdk/* ${HOME}/.java/current && \
     ########################################################################
+    # Maven
+    ########################################################################
+    dnf module reset maven; dnf module install maven:3.6 -y -q && \
+    ########################################################################
     # nodejs
     ########################################################################
     # BEGIN copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
@@ -172,13 +175,6 @@ RUN \
     rpm -V $INSTALL_PKGS && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
     ########################################################################
-    # Maven
-    ########################################################################
-    tar xzf /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
-    mv /opt/apache-maven-${MAVEN_VERSION} /opt/apache-maven && \
-    rm -f /tmp/assets/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
-    # fix permissions in bin/* files
-    for d in $(find /opt/apache-maven -name bin -type d); do echo $d; chmod +x $d/*; done && \
     # additional node stuff
     mkdir -p /opt/app-root/src/.npm-global/bin && \
     ln -s /usr/bin/node /usr/bin/nodejs && \
@@ -200,9 +196,7 @@ RUN \
     # update pip & other dependencies, that came with Cachito repository
     cd $REMOTE_SOURCES_DIR/python-deps/app/devspaces-udi/build/python && \
     source $REMOTE_SOURCES_DIR/python-deps/cachito.env && \
-    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq
-
-RUN \
+    python${PYTHON_VERSION} -m pip install --user --no-cache-dir --upgrade pip setuptools pytest yq && \
     # python/pip/pylint/yq symlinks
     echo "Create python symlinks (or display existing ones) ==>" && \
     echo -e "#/usr/bin/bash\n/usr/bin/python${PYTHON_VERSION} -m pip \$*" | sed -r -e "s@#@#\!@" > /usr/bin/pip && \
@@ -277,7 +271,7 @@ RUN \
     cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
 
 ########################################################################
-# e2fsprogs
+# e2fsprogs (Tech Preview)
 ########################################################################
 # see fetch-artifacts-url.yaml
 COPY artifacts/e2fsprogs-* /tmp/
@@ -327,6 +321,9 @@ RUN \
     echo -n "odo:     "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
     echo -n "kubectl: "; kubectl version --short --client=true; \
+    echo "========" && \
+    echo -n "e2fsck: "; e2fsck -V; \
+    echo -n "fuse2fs: "; fuse2fs -V; \
     # CRW-3193 disable until we have a camel-k sample again
     # if [[ -f /usr/local/bin/kamel ]]; then \
     #   echo -n "kamel:   "; kamel version; \
