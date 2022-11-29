@@ -51,7 +51,6 @@ COPY $REMOTE_SOURCES $REMOTE_SOURCES_DIR
 ENV \
     HOME=/home/user \
     NODEJS_VERSION="16" \
-    GRADLE_VERSION="6.1" \
     MAVEN_VERSION="3.6.3" \
     PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
@@ -62,7 +61,7 @@ ENV \
     JAVA_HOME_11=/usr/lib/jvm/java-11-openjdk \
     JAVA_HOME_8=/usr/lib/jvm/java-1.8.0-openjdk \
     JAVA_HOME="/home/user/.java/current" \
-    PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/opt/gradle/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
+    PATH="/home/user/.java/current/bin:/home/user/node_modules/.bin/:/home/user/.npm-global/bin/:/opt/app-root/src/.npm-global/bin/:/opt/apache-maven/bin:/usr/bin:${PATH:-/bin:/usr/bin}" \
     MANPATH="/usr/share/man:${MANPATH}" \
     JAVACONFDIRS="/etc/java${JAVACONFDIRS:+:}${JAVACONFDIRS:-}" \
     XDG_CONFIG_DIRS="/etc/xdg:${XDG_CONFIG_DIRS:-/etc/xdg}" \
@@ -172,12 +171,6 @@ RUN \
     dnf -y -q install --setopt=tsflags=nodocs $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     # END copy from https://catalog.redhat.com/software/containers/ubi8/nodejs-16/615aee9fc739c0a4123a87e1?container-tabs=dockerfile
-    ########################################################################
-    # Gradle
-    ########################################################################
-    # unpack gradle into /opt/gradle/, and maven into /opt/apache-maven/
-    mkdir -p /opt; unzip -d /opt /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
-    mv /opt/gradle-${GRADLE_VERSION} /opt/gradle && rm -f /tmp/gradle-${GRADLE_VERSION}-bin.zip && \
     ########################################################################
     # Maven
     ########################################################################
@@ -312,7 +305,6 @@ RUN \
     echo -n "Java 17:  "; /usr/lib/jvm/java-17-openjdk/bin/java -version; \
     echo "========" && \
     echo -n "mvn:    "; mvn -version; \
-    echo -n "gradle: "; gradle -v; \
     echo "========" && \
     echo -n "node:  "; node --version; \
     echo -n "npm:   "; npm --version; \

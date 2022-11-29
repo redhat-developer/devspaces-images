@@ -7,9 +7,5 @@ Dockerfile.local
 /oc
 apache-maven/
 /maven.tgz
-gradle/
-/gradle.tgz
-/gradle-*-bin.zip
-graalvm/
 /apache-maven-*-bin.tar.gz
 /e2fsprogs-*.rpm

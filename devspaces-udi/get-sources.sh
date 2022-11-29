@@ -8,8 +8,6 @@ forceBuild=0
 PULL_ASSETS=0
 DELETE_ASSETS=0
 PUBLISH_ASSETS=0
-# Gradle from https://services.gradle.org/distributions/
-GRADLE_VERSION="6.1"
 # maven 3.5 rpm bundles JDK8 dependencies, so install 3.6 from https://maven.apache.org/download.cgi to avoid extras
 MAVEN_VERSION="3.6.3"
 ASSET_NAME="udi"
@@ -53,7 +51,6 @@ fi
 # update Dockerfile to record versions we expect
 sed Dockerfile \
 		-e "s#MAVEN_VERSION=\"\([^\"]\+\)\"#MAVEN_VERSION=\"${MAVEN_VERSION}\"#" \
-		-e "s#GRADLE_VERSION=\"\([^\"]\+\)\"#GRADLE_VERSION=\"${GRADLE_VERSION}\"#" \
 		> Dockerfile.2
 
 if [[ $(diff -U 0 --suppress-common-lines -b Dockerfile.2 Dockerfile) ]] || [[ ${PULL_ASSETS} -eq 1 ]]; then
