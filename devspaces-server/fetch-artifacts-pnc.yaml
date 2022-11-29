@@ -2,7 +2,7 @@
 builds:
   # https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/AVMHG3CJC3YAA
   # build id must be string
-  - build_id: 'AVMHG3CJC3YAA'
+  - build_id: '20221128-2146'
     artifacts:
       # https://orch.psi.redhat.com/pnc-web/#/artifacts/9377523 == org.eclipse.che:assembly-main:tar.gz:7.yy.0.redhat-0000z
       # artifact id must be string; rename it by setting a different target path/file
