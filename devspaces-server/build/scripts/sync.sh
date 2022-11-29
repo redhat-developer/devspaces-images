@@ -22,10 +22,11 @@ DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
 # TODO CRW-3099 compute these on the fly, rather than hardcoding
 
-# https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/AVMHG3CJC3YAA
-pnc_build_id="20221128-2146"
-# https://orch.psi.redhat.com/pnc-web/#/artifacts/9377523 == org.eclipse.che:assembly-main:tar.gz:7.yy.0.redhat-0000z
-pnc_artifact_id="9377523"
+# https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/AVMJGQH423YAA
+pnc_build_id="AVMJGQH423YAA"
+# https://orch.psi.redhat.com/pnc-web/#/artifacts/9378447
+# ==> org.eclipse.che:assembly-main:tar.gz:7.yy.0.redhat-0000z
+pnc_artifact_id="9378447"
 
 usage () {
     echo "
@@ -93,7 +94,13 @@ rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
 # CRW-3099 set builds.build_id and builds.build_id.artifacts.id in fetch-artifacts-pnc.yaml
-sed -i ${TARGETDIR}/fetch-artifacts-pnc.yaml -r -e "s@(- build_id: ).+@\1'${pnc_build_id}'@" -e "s@(- id: ).+@\1'${pnc_artifact_id}'@"
+pnc_build_id_url="https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/"
+pnc_artifact_id_url="https://orch.psi.redhat.com/pnc-web/#/artifacts/"
+sed -i ${TARGETDIR}/fetch-artifacts-pnc.yaml -r \
+    -e "s@${pnc_build_id_url}.+@${pnc_build_id_url}${pnc_build_id}@" \
+    -e "s@(- build_id: ).+@\1'${pnc_build_id}'@" \
+    -e "s@${pnc_artifact_id_url}.+@${pnc_artifact_id_url}${pnc_artifact_id}@" \
+    -e "s@(- id: ).+@\1'${pnc_artifact_id}'@" 
 
 # NOTE: upstream Dockerfile is in non-standard path (not build/dockerfiles/Dockerfile) because project has multiple container builds
 sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
