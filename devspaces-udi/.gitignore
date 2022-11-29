@@ -12,4 +12,4 @@ gradle/
 /gradle-*-bin.zip
 graalvm/
 /apache-maven-*-bin.tar.gz
-/e2fsprogs-1.46.5.tar.gz
+/e2fsprogs-*.rpm

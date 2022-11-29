@@ -55,7 +55,6 @@ ENV \
     MAVEN_VERSION="3.6.3" \
     PYTHON_VERSION="3.9" \
     PHP_VERSION="7.3" \
-    E2FSPROGS_VERSION="1.46.5" \
     LD_LIBRARY_PATH="/usr/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}" \
     CPATH="/usr/include${CPATH:+:${CPATH}}" \
     DOTNET_CLI_TELEMETRY_OPTOUT=1 \
@@ -77,9 +76,6 @@ RUN mkdir -p /projects
 
 COPY . /tmp/assets/
 COPY etc/docker.sh /usr/local/bin/docker
-# see fetch-artifacts-pnc.yaml
-COPY artifacts/lombok.jar /lombok.jar
-COPY gradle-${GRADLE_VERSION}-bin.zip apache-maven-${MAVEN_VERSION}-bin.tar.gz e2fsprogs-${E2FSPROGS_VERSION}.tar.gz /tmp/
 
 # NOTE: uncomment for local build. Must also set full registry path in FROM to registry.redhat.io or registry.access.redhat.com
 # enable rhel 8 content sets (from Brew) to resolve buildah
@@ -152,6 +148,8 @@ RUN mkdir -p /var/lib/shared/overlay-images /var/lib/shared/overlay-layers; \
 RUN mkdir -p "${HOME}"/.config/containers && \
    (echo '[storage]';echo 'driver = "vfs"') > "${HOME}"/.config/containers/storage.conf
 
+# see fetch-artifacts-pnc.yaml
+COPY artifacts/lombok.jar /lombok.jar
 RUN \
     ########################################################################
     # Java 8 11 17
@@ -284,27 +282,14 @@ RUN \
     mkdir -p ${HOME}/che/ls-php/php-language-server && \
     tar xzf /tmp/assets/asset-php-$(uname -m).tar.gz -C ${HOME}/che/ls-php/php-language-server/ && \
     cp ${HOME}/che/ls-php/php-language-server/composer/composer /usr/bin/composer
-RUN \
-    ########################################################################
-    # e2fsprogs (x64 only) (Tech Preview)
-    ########################################################################
-    if [[ "$(uname -m)" == 'x86_64' ]]; then \
-        TEMP_DIR="$(mktemp -d)" && \
-        cd "${TEMP_DIR}" && \
-        mv /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz . && \
-        tar -zxvf e2fsprogs-${E2FSPROGS_VERSION}.tar.gz && \
-        cd "e2fsprogs-${E2FSPROGS_VERSION}" && \
-        mkdir build && \
-        cd build && \
-        ../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs && \
-        make && \
-        make install && \
-        make install-libs && \
-        cd -- && \
-        rm -rf "${TEMP_DIR}"; \
-    else \
-        rm /tmp/e2fsprogs-${E2FSPROGS_VERSION}.tar.gz; \
-    fi
+
+########################################################################
+# e2fsprogs
+########################################################################
+# see fetch-artifacts-url.yaml
+COPY artifacts/e2fsprogs-* /tmp/
+RUN dnf install -y /tmp/e2fsprogs-*$(uname -m).rpm; rm -fr /tmp/e2fsprogs-*.rpm
+
     ########################################################################
     # Cleanup and Summaries
     ########################################################################
