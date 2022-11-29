@@ -1,30 +1,27 @@
 # generate this file with:
-# for d in e2fsprogs e2fsprogs-libs; do for a in x86_64 ppc64le s390x src; do \
-# curl -skO https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/${a}/${d}-1.45.6-5.el8.${a}.rpm; done; done
-# for d in e2fsprogs e2fsprogs-libs; do for a in x86_64 ppc64le s390x; do \
-# echo "- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/${a}/${d}-1.45.6-5.el8.${a}.rpm"; echo -n "  sha256: "; sha256sum $d-1.45.6-5.el8.${a}.rpm|cut -f 1 -d " "; echo "  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/${d}-1.45.6-5.el8.src.rpm"; echo -n "  source-sha256: "; sha256sum $d-1.45.6-5.el8.src.rpm|cut -f 1 -d " "; done; done
-
-- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/x86_64/e2fsprogs-1.45.6-5.el8.x86_64.rpm
-  sha256: 0000049152ac0eafced9d5144c1a15d7f11f5cd692fec5bc982f48d8776e0c82
-  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/e2fsprogs-1.45.6-5.el8.src.rpm
-  source-sha256: 565aaebd2e7cb8082aae9cabad702b4c2de65a4223ffd8c5e382068998c3784f
-- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/ppc64le/e2fsprogs-1.45.6-5.el8.ppc64le.rpm
-  sha256: 0e8995972be42d5e09fe8ec98ccb326f4a368fee175e4ffd7b157c2176409553
-  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/e2fsprogs-1.45.6-5.el8.src.rpm
-  source-sha256: 565aaebd2e7cb8082aae9cabad702b4c2de65a4223ffd8c5e382068998c3784f
-- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/s390x/e2fsprogs-1.45.6-5.el8.s390x.rpm
-  sha256: 7e06d305fe17276adfeff00a971e78a0dc317ccf324f10a152d7cb6a774962c8
-  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/e2fsprogs-1.45.6-5.el8.src.rpm
-  source-sha256: 565aaebd2e7cb8082aae9cabad702b4c2de65a4223ffd8c5e382068998c3784f
-- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/x86_64/e2fsprogs-libs-1.45.6-5.el8.x86_64.rpm
-  sha256: c2c8f63b02d381c1b712c905adbdf6e7f4f0abdf08ad91238152c7f724d656a8
-  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/e2fsprogs-libs-1.45.6-5.el8.src.rpm
-  source-sha256: 966efc9255a5ea97c8eab5acd606644980fdb6dbebfe34d353b3f66c3964c247
-- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/ppc64le/e2fsprogs-libs-1.45.6-5.el8.ppc64le.rpm
-  sha256: e86054d61b000d30576f4a513013694e7d2dcd19e68aa87784239f872adb38db
-  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/e2fsprogs-libs-1.45.6-5.el8.src.rpm
-  source-sha256: 966efc9255a5ea97c8eab5acd606644980fdb6dbebfe34d353b3f66c3964c247
-- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/s390x/e2fsprogs-libs-1.45.6-5.el8.s390x.rpm
-  sha256: 4b37f7f9dbe95308e3e04df53e03580fba8dfd8917347b3654a0ec3d92c1e8ed
-  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/src/e2fsprogs-libs-1.45.6-5.el8.src.rpm
-  source-sha256: 966efc9255a5ea97c8eab5acd606644980fdb6dbebfe34d353b3f66c3964c247
+# for d in e2fsprogs e2fsprogs-libs; do for a in x86_64 ppc64le s390x src; do curl -sSLkO https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/${a}/${d}-1.45.6-5.el8.${a}.rpm; done; done
+# for d in e2fsprogs e2fsprogs-libs; do for a in x86_64 ppc64le s390x; do echo "- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/${a}/${d}-1.45.6-5.el8.${a}.rpm"; echo -n "  sha256: "; sha256sum $d-1.45.6-5.el8.${a}.rpm|cut -f 1 -d " "; echo "  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/${d}-1.45.6-5.el8.src.rpm"; echo -n "  source-sha256: "; sha256sum $d-1.45.6-5.el8.src.rpm|cut -f 1 -d " "; done; done
+- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/x86_64/e2fsprogs-1.45.6-5.el8.x86_64.rpm
+  sha256: 7c49d34a15201878987049394397d688fd1895f8f8004f540ccef1e0366d4f5e
+  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-1.45.6-5.el8.src.rpm
+  source-sha256: 1c0771ea038777ecf84ba31cba0c3d221d39e351c1a6e7967857977c1949c792
+- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/ppc64le/e2fsprogs-1.45.6-5.el8.ppc64le.rpm
+  sha256: 90352ee8b0abbb687b95499d512de3b0f12778db376a2b0903b6563c0a791001
+  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-1.45.6-5.el8.src.rpm
+  source-sha256: 1c0771ea038777ecf84ba31cba0c3d221d39e351c1a6e7967857977c1949c792
+- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/s390x/e2fsprogs-1.45.6-5.el8.s390x.rpm
+  sha256: f60531c9edd62d4f2aa05a4b48cfd7daef2748f546879fee407781aa4967dea1
+  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-1.45.6-5.el8.src.rpm
+  source-sha256: 1c0771ea038777ecf84ba31cba0c3d221d39e351c1a6e7967857977c1949c792
+- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/x86_64/e2fsprogs-libs-1.45.6-5.el8.x86_64.rpm
+  sha256: 8e0e23d6a9399d9016d721467181d9abd3e888894149767b631889f1aeddf755
+  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-libs-1.45.6-5.el8.src.rpm
+  source-sha256: d201fbd4b3b3b49eddcb310fc62ad4ff6d558e13b85d315f6de4a607acca1064
+- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/ppc64le/e2fsprogs-libs-1.45.6-5.el8.ppc64le.rpm
+  sha256: 967fb4cbe639ffdc13c7cd8dffeea9b0b4d6f84dc9a56406564bb0a7fdbee6ef
+  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-libs-1.45.6-5.el8.src.rpm
+  source-sha256: d201fbd4b3b3b49eddcb310fc62ad4ff6d558e13b85d315f6de4a607acca1064
+- url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/s390x/e2fsprogs-libs-1.45.6-5.el8.s390x.rpm
+  sha256: f4fd92e89e4fcd2e3b762cdff629e95f632c607c5b5e1cf40e00667091f73e51
+  source-url: https://download.engineering.redhat.com/brewroot/packages/e2fsprogs/1.45.6/5.el8/data/signed/fd431d51/src/e2fsprogs-libs-1.45.6-5.el8.src.rpm
+  source-sha256: d201fbd4b3b3b49eddcb310fc62ad4ff6d558e13b85d315f6de4a607acca1064
