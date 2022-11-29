@@ -321,6 +321,9 @@ RUN \
     echo -n "odo:     "; odo version; \
     echo -n "helm:    "; helm version --short --client; \
     echo -n "kubectl: "; kubectl version --short --client=true; \
+    echo "========" && \
+    echo -n "e2fsck: "; e2fsck -V; \
+    echo -n "fuse2fs: "; fuse2fs -V; \
     # CRW-3193 disable until we have a camel-k sample again
     # if [[ -f /usr/local/bin/kamel ]]; then \
     #   echo -n "kamel:   "; kamel version; \
