@@ -1,15 +1,12 @@
 - url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/x86_64/e2fsprogs-1.46.5-3.el9.x86_64.rpm
-  md5: 8546ad17dd5a670e7edd30c49c6b07e0
+  sha256: 87955e4b998093a5edf3d0f3365bba49afab9588d062d14bd458b1a369301d19
   source-url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/src/e2fsprogs-1.46.5-3.el9.src.rpm
-  # When source-url is specified, checksum must be provided
-  source-md5: 3cc67c469ea23772e77fc2cf3fbe77ac
+  source-sha256: dad0a5fd47854beec6a800db214fa35e880904d363aa5c87c8d751de03509e45
 - url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/ppc64le/e2fsprogs-1.46.5-3.el9.ppc64le.rpm
-  md5: 26cd0664f5635cbfbd85a064c9f952e9
+  sha256: 518f074e1f3dc8ed704399bf457f96ba5c24770c4d53cddbb8622801bc64422b
   source-url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/src/e2fsprogs-1.46.5-3.el9.src.rpm
-  # When source-url is specified, checksum must be provided
-  source-md5: 3cc67c469ea23772e77fc2cf3fbe77ac
+  source-sha256: dad0a5fd47854beec6a800db214fa35e880904d363aa5c87c8d751de03509e45
 - url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/s390x/e2fsprogs-1.46.5-3.el9.s390x.rpm
-  md5: 871f4d16df4b2415729168a0c4259e7f
+  sha256: 9b7af5cee1eb43ad6b74bafdd0b498025d0c032a10a07c39373604a660634d4d
   source-url: https://download.eng.bos.redhat.com/brewroot/packages/e2fsprogs/1.46.5/3.el9/src/e2fsprogs-1.46.5-3.el9.src.rpm
-  # When source-url is specified, checksum must be provided
-  source-md5: 3cc67c469ea23772e77fc2cf3fbe77ac
+  source-sha256: dad0a5fd47854beec6a800db214fa35e880904d363aa5c87c8d751de03509e45
