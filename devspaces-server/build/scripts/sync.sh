@@ -128,5 +128,5 @@ EOT
 echo "Converted Dockerfile"
 
 # add ignore for the tarball in mid and downstream
-echo "/asset-server.tgz" >> ${TARGETDIR}/.gitignore
+echo "/assembly-main.tar.gz" >> ${TARGETDIR}/.gitignore
 echo "Adjusted .gitignore"
