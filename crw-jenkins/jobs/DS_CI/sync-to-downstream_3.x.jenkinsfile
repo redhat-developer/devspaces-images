@@ -20,11 +20,18 @@ def SOURCE_SHA=""
 def comments_url_UDI=""
 def commentedOnPullRequestBuildLinks="false"
 
-// CRW-2656 if a theia build, ONLY use dynamic rhel85 boxes so there's maximum disk space available
-// CRW-2736 if an idea build, must run on x64 only (fails on ppc64le)
-// NB 2022-01-14 remove s390x-rhel8-perm as it can be flaky with ssh connections
-def String nodeLabelAnyArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : ((REPOS.contains("pluginregistry")||REPOS.contains("idea")||REPOS.contains("code")) ? 'x86_64-rhel8' : 'x86_64-rhel8||ppc64le-rhel8')
-def String nodeLabelXArch = REPOS.contains("theia") ? 'x86_64-rhel8-dyn' : 'x86_64-rhel8' 
+def debugDiskUsage = true
+
+// CRW-2656, CRW-3565 if a theia or code build, ONLY use dynamic PSI builders so there's maximum disk space available
+// CRW-2736 if an idea build, must run on x64 only (single arch for now; failed when tested on ppc64le - missing support for that arch)
+// NB 2022-01-14 remove s390x-rhel8-perm as it can be flaky with ssh connections (maybe because of CRW-3281 - crwjen-1.s390 has only 4GB RAM?)
+def String nodeLabelAnyArch = (REPOS.contains("theia")) ?
+  'x86_64-rhel8-dyn' :
+  ((REPOS.contains("pluginregistry") || REPOS.contains("idea")) ?
+    'x86_64-rhel8' : 
+    'x86_64-rhel8||ppc64le-rhel8'
+  )
+def String nodeLabelXArch = (REPOS.contains("theia")||REPOS.contains("code")) ? 'x86_64-rhel8-dyn': 'x86_64-rhel8'
 
 currentBuild.description=""
 for (int i=0; i < SYNC_REPOS.size(); i++) {
@@ -111,6 +118,15 @@ popd
                   sh('curl -sSLO https://raw.githubusercontent.com/redhat-developer/devspaces/'+ MIDSTM_BRANCH + '/product/util2.groovy')
                   def util = load "${WORKSPACE}/util2.groovy"
                   cleanWs()
+
+                  if (debugDiskUsage) {
+                    sh(script: '''#!/bin/bash
+echo "############### df -h before building #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h before building #################"
+''', returnStatus: true)
+                  }
+
                   // might be already defined by the referring job
                   CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
                   println("[INFO] Using CSV version = " + CSV_VERSION)
@@ -142,6 +158,14 @@ popd
                   ''')
                   currentBuild.description+="${thisArch} built; "
                 }//creds
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after building assets #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after building assets #################"
+''', returnStatus: true)
+                }
+
                 cleanWs(
                     cleanWhenSuccess: true,
                     cleanWhenUnstable: true,
@@ -152,6 +176,26 @@ popd
                     disableDeferredWipeout: true,
                     notFailBuild: true
                 )
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after cleanWs() assets #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after cleanWs() assets #################"
+''', returnStatus: true)
+                }
+
+                // cleanup temp containers and gradle
+                sh(script: '''#!/bin/bash
+sudo rm -fr  /home/hudson/.local/share/containers /home/hudson/.gradle/
+''', returnStatus: true)
+
+                if (debugDiskUsage) {
+                  sh(script: '''#!/bin/bash
+echo "############### df -h after purging ~/.local/share/containers and ~/.gradle #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h after purging ~/.local/share/containers and ~/.gradle #################"
+''', returnStatus: true)
+                }
               }//stage
             }//node
           }//timeout
@@ -177,72 +221,80 @@ timeout(600) {
         def util = load "${WORKSPACE}/util2.groovy"
         cleanWs()
 
-          withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
-            println "########################################################################################################"
-            println "##  Clone and update github.com/${SOURCE_REPO}.git"
-            println "########################################################################################################"
-            util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
-            DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
-            JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+        if (debugDiskUsage) {
+          sh(script: '''#!/bin/bash
+echo "############### df -h start of sync repos #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h start of sync repos #################"
+''', returnStatus: true)
+        }
 
-            // TODO CRW-3080 remove all prebuilt binaries and switch to cachito
-            // don't comment again if we did so above
-            if (commentedOnPullRequestBuildLinks.equals("false")) {
-              // comment on the PR with links to this job
-              if (util.globalVar({comments_url})?.trim()) {
-                println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
-              }
+        withCredentials([string(credentialsId:'crw_devstudio-release-token', variable: 'GITHUB_TOKEN')]) {
+          println "########################################################################################################"
+          println "##  Clone and update github.com/${SOURCE_REPO}.git"
+          println "########################################################################################################"
+          util.cloneRepo("https://github.com/${SOURCE_REPO}.git", "sources", MIDSTM_BRANCH, false)
+          DS_VERSION = util.getDsVersion(MIDSTM_BRANCH)
+          JOB_BRANCH = util.getJobBranch(MIDSTM_BRANCH)
+
+          // TODO CRW-3080 remove all prebuilt binaries and switch to cachito
+          // don't comment again if we did so above
+          if (commentedOnPullRequestBuildLinks.equals("false")) {
+            // comment on the PR with links to this job
+            if (util.globalVar({comments_url})?.trim()) {
+              println("Used PR comment URL: " + util.commentOnPullRequestBuildLinks(util.globalVar({comments_url})))
             }
+          }
 
-            // ensure static Dockerfiles have the correct version encoded in them
-            util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, DS_VERSION)
+          // ensure static Dockerfiles have the correct version encoded in them
+          util.updateDockerfileVersions("${WORKSPACE}/sources", MIDSTM_BRANCH, DS_VERSION)
 
-            // ensure static Dockerfiles have the latest oc and helm rpms installed
-            if (REPOS.contains("-udi")) { 
-              def OPENSHIFT_CONTENT_SET_VERSION = sh( 
-                script: '''
+          // ensure static Dockerfiles have the latest oc and helm rpms installed
+          if (REPOS.contains("-udi")) { 
+            def OPENSHIFT_CONTENT_SET_VERSION = sh( 
+              script: '''
 curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OPENSHIFT_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
-                ''', returnStdout: true).trim()
-              def OCP_TOOLS_CONTENT_SET_VERSION = sh( 
-                script: '''
+''', returnStdout: true).trim()
+            def OCP_TOOLS_CONTENT_SET_VERSION = sh( 
+              script: '''
 curl -sSLo- https://raw.github.com/redhat-developer/devspaces/devspaces-3-rhel-8/dependencies/job-config.json | jq -r '.Other.OCP_TOOLS_CONTENT_SET_VERSION["''' + DS_VERSION + '''"]' 
-                ''', returnStdout: true).trim() // @since 3.2
-              if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null") && 
-                  OCP_TOOLS_CONTENT_SET_VERSION?.trim() && !OCP_TOOLS_CONTENT_SET_VERSION.equals("null")) {
-                util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
-                util.updateOdoRpms(OCP_TOOLS_CONTENT_SET_VERSION); // @since 3.2
-                util.updateHelmRpms(OCP_TOOLS_CONTENT_SET_VERSION);
-              } else {
-                println("[WARN] Could not update oc, odo, or helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION and/or OCP_TOOLS_CONTENT_SET_VERSION not defined for DS_VERSION = " + DS_VERSION)
-              }
+''', returnStdout: true).trim() // @since 3.2
+            if (OPENSHIFT_CONTENT_SET_VERSION?.trim() && !OPENSHIFT_CONTENT_SET_VERSION.equals("null") && 
+                OCP_TOOLS_CONTENT_SET_VERSION?.trim() && !OCP_TOOLS_CONTENT_SET_VERSION.equals("null")) {
+              util.updateOCRpms(OPENSHIFT_CONTENT_SET_VERSION);
+              util.updateOdoRpms(OCP_TOOLS_CONTENT_SET_VERSION); // @since 3.2
+              util.updateHelmRpms(OCP_TOOLS_CONTENT_SET_VERSION);
+            } else {
+              println("[WARN] Could not update oc, odo, or helm rpms versions - job-config.json#.Other.OPENSHIFT_CONTENT_SET_VERSION and/or OCP_TOOLS_CONTENT_SET_VERSION not defined for DS_VERSION = " + DS_VERSION)
             }
+          }
 
-            currentBuild.description=""
-            def QUAY_REPO_PATH=""
-            for (int i=0; i < SYNC_REPOS.size(); i++) {
-              if (SYNC_REPOS[i]?.trim()) { 
-                if (currentBuild.description?.trim()) { currentBuild.description+="<br/>" }
-                currentBuild.description+="Build container: ${SYNC_REPOS[i]}"
+          currentBuild.description=""
+          def QUAY_REPO_PATH=""
+          for (int i=0; i < SYNC_REPOS.size(); i++) {
+            if (SYNC_REPOS[i]?.trim()) {
+              if (currentBuild.description?.trim()) { currentBuild.description+="<br/>" }
+              currentBuild.description+="Build container: ${SYNC_REPOS[i]}"
 
-                // might be already defined by the referring job
-                CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
-                println("[INFO] Using CSV version = " + CSV_VERSION)
+              // might be already defined by the referring job
+              CSV_VERSION = util.globalVar({CSV_VERSION})?.trim() ? util.globalVar({CSV_VERSION}) : util.getCSVVersion(MIDSTM_BRANCH)
+              println("[INFO] Using CSV version = " + CSV_VERSION)
 
-                // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
-                // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
-                util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
-                // CRW-3292 get FULL LENGTH SHA for use in container.yaml
-                SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources",40)
-                println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
+              // only update individual subfolders so that optional UPDATE_BASE_IMAGES_FLAGS is respected
+              // (eg., for operator being locked to golang 1.13 instead of latest 1.14)
+              util.updateBaseImages("${WORKSPACE}/sources/" + "${SYNC_REPOS[i]}", MIDSTM_BRANCH, util.globalVar({UPDATE_BASE_IMAGES_FLAGS}))
+              // CRW-3292 get FULL LENGTH SHA for use in container.yaml
+              SOURCE_SHA = util.getLastCommitSHA("${WORKSPACE}/sources",40)
+              println "Got SOURCE_SHA in sources folder: " + SOURCE_SHA
 
-                println "########################################################################################################"
-                println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
-                println "########################################################################################################"
-                util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
+              println "########################################################################################################"
+              println "##  Sync [" + "${SYNC_REPOS[i]}" + "] to pkgs.devel"
+              println "########################################################################################################"
+              util.cloneRepo("ssh://crw-build@pkgs.devel.redhat.com/containers/${SYNC_REPOS[i]}", "targetdwn/${SYNC_REPOS[i]}", MIDSTM_BRANCH, false)
 
-                // Sync
-                // TODO CRW-3080 remove sources from the exclude list, so that we can delete it from downstream if it doesn't exist in midstream
-                sh('''
+              // Sync
+              // TODO CRW-3080 remove sources from the exclude list, so that we can delete it from downstream if it doesn't exist in midstream
+              sh('''
 SOURCEDIR="${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/"
 TARGETDIR="${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''"
 echo ".github/
@@ -255,11 +307,11 @@ rsync -azrlt --checksum --exclude-from /tmp/rsync-excludes --delete ${SOURCEDIR}
 rm -f /tmp/rsync-excludes
 ''')
 
-                // CRW-3292 if container.yaml has a cachito reference to the devspaces-images repo, update it to latest SOURCE_SHA in the source repo
-                // sed replacement (match a line, move *N*ext line and *S*ubstitute it) will only work for this 2-line pattern:
-                //    repo: https://github.com/redhat-developer/devspaces-images.git
-                //    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
-                sh('''#!/bin/bash -x
+              // CRW-3292 if container.yaml has a cachito reference to the devspaces-images repo, update it to latest SOURCE_SHA in the source repo
+              // sed replacement (match a line, move *N*ext line and *S*ubstitute it) will only work for this 2-line pattern:
+              //    repo: https://github.com/redhat-developer/devspaces-images.git
+              //    ref: e8b28394b00f6d320ec7a9b758875c674595ed58
+              sh('''#!/bin/bash -x
 yaml=${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
 
 if [[ $(grep 'remote_sources:' ${yaml}) ]]; then
@@ -292,18 +344,18 @@ fi
 cp ${yaml} ${WORKSPACE}/sources/''' + "${SYNC_REPOS[i]}" + '''/container.yaml
 ''')
 
-                // NOTE: if container.yaml has cachito reference(s) to OTHER repo(s), 
-                // MUST handle that separately in another sync.sh or get-sources.sh script
-                // See https://issues.redhat.com/browse/CRW-2619
-                // eg., https://pkgs.devel.redhat.com/cgit/containers/devspaces-udi/tree/container.yaml?h=private-mkuznets-cachito-2619#n21 
-                //     repo: https://github.com/golang/tools
-                //     ref: fd02dfae644ce04dfd4bb3828cf576b9d8717f79
+              // NOTE: if container.yaml has cachito reference(s) to OTHER repo(s), 
+              // MUST handle that separately in another sync.sh or get-sources.sh script
+              // See https://issues.redhat.com/browse/CRW-2619
+              // eg., https://pkgs.devel.redhat.com/cgit/containers/devspaces-udi/tree/container.yaml?h=private-mkuznets-cachito-2619#n21 
+              //     repo: https://github.com/golang/tools
+              //     ref: fd02dfae644ce04dfd4bb3828cf576b9d8717f79
 
-                OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
-                println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
+              OLD_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
+              println "Got OLD_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + OLD_SHA
 
-                // push to dist-git
-                sh('''#!/bin/bash -xe
+              // push to dist-git
+              sh('''#!/bin/bash -xe
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
 git add Dockerfile get-sources.sh container.yaml || true
 git update-index --refresh || true # ignore timestamp updates
@@ -315,8 +367,8 @@ if [[ \$(git diff-index HEAD --) ]]; then # file changed
 fi
 ''')
 
-                // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
-                sh('''#!/bin/bash -xe
+              // run get-sources to ensure we have the latest sources (in case we clobbered a previous run) and update source repo
+              sh('''#!/bin/bash -xe
 export KRB5CCNAME=/var/tmp/crw-build_ccache
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
 if [[ -f get-sources.sh ]]; then
@@ -347,133 +399,141 @@ if [ ! -z "$COMMIT_SHA" ] ; then
 fi
 ''')
 
-                NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
-                println "Got NEW_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + NEW_SHA
+              NEW_SHA = util.getLastCommitSHA("${WORKSPACE}/targetdwn/${SYNC_REPOS[i]}")
+              println "Got NEW_SHA in targetdwn/${SYNC_REPOS[i]} folder: " + NEW_SHA
 
-                // check for errors in log to add to the build desc
-                def buildLogErrors = sh(script: '''#!/bin/bash
+              // check for errors in log to add to the build desc
+              def buildLogErrors = sh(script: '''#!/bin/bash
 cd ${WORKSPACE}/targetdwn/''' + "${SYNC_REPOS[i]}" + '''
 if [[ -f get-sources.sh.log.txt ]]; then 
   grep -A1 -E "FAIL - not in allowed" get-sources.sh.log.txt
   rm -f get-sources.sh.log.txt
 fi
 ''', returnStdout: true)
-                if (buildLogErrors?.trim()) {
-                  currentBuild.description+=" failed:<br/>" + buildLogErrors.trim().replaceAll("\n","<br/>")
-                  currentBuild.result = "FAILURE"
-                  util.notifyBuildFailed()
-                } else {
-                  currentBuild.description+=" synced; "
+              if (buildLogErrors?.trim()) {
+                currentBuild.description+=" failed:<br/>" + buildLogErrors.trim().replaceAll("\n","<br/>")
+                currentBuild.result = "FAILURE"
+                util.notifyBuildFailed()
+              } else {
+                currentBuild.description+=" synced; "
+              }
+              if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
+                QUAY_REPO_PATH=util.getDSShortName("${SYNC_REPOS[i]}") + "-rhel8"
+                // special cases for operator and bundle
+                if ("${SYNC_REPOS[i]}".contains("-operator-bundle")) {
+                  // devspaces-operator-bundle
+                  QUAY_REPO_PATH="devspaces-" + util.getDSShortName("${SYNC_REPOS[i]}")
+                } else if ("${SYNC_REPOS[i]}".contains("-operator")) {
+                  // devspaces-rhel8-operator
+                  QUAY_REPO_PATH="devspaces-rhel8-" + util.getDSShortName("${SYNC_REPOS[i]}")
                 }
-                if (NEW_SHA != OLD_SHA || FORCE_BUILD == true || FORCE_BUILD.toString().equals("true")) {
-                  QUAY_REPO_PATH=util.getDSShortName("${SYNC_REPOS[i]}") + "-rhel8"
-                  // special cases for operator and bundle
-                  if ("${SYNC_REPOS[i]}".contains("-operator-bundle")) {
-                    // devspaces-operator-bundle
-                    QUAY_REPO_PATH="devspaces-" + util.getDSShortName("${SYNC_REPOS[i]}")
-                  } else if ("${SYNC_REPOS[i]}".contains("-operator")) {
-                    // devspaces-rhel8-operator
-                    QUAY_REPO_PATH="devspaces-rhel8-" + util.getDSShortName("${SYNC_REPOS[i]}")
-                  }
-                  if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && !currentBuild.result.equals("UNSTABLE")) {
-                    println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
-                    // kick off get-sources-rhpkg-container-build_2.y job
-                    jobPath='/job/DS_CI/job/get-sources-rhpkg-container-build_' + JOB_BRANCH
-                    final jobResult = build(
-                      job: jobPath.replaceAll("/job/","/"),
-                      wait: true,
-                      propagate: true,
-                      quietPeriod: 0,
-                      parameters: [
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'comments_url',
-                          value: comments_url_UDI ? comments_url_UDI : util.globalVar({comments_url})
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'token',
-                          value: "CI_BUILD"
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'cause',
-                          value: QUAY_REPO_PATH + "+respin+by+${BUILD_TAG}"
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'UPDATE_BASE_IMAGES_FLAGS',
-                          value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'nodeVersion',
-                          value: util.globalVar({nodeVersion})
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'yarnVersion',
-                          value: util.globalVar({yarnVersion})
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'MIDSTM_BRANCH',
-                          value: MIDSTM_BRANCH
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'GIT_PATHs',
-                          value: "containers/${SYNC_REPOS[i]}"
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'QUAY_REPO_PATHs',
-                          value: QUAY_REPO_PATH
-                        ],
-                        [
-                          $class: 'StringParameterValue',
-                          name: 'JOB_BRANCH',
-                          value: JOB_BRANCH
-                        ],
-                        [
-                          $class: 'BooleanParameterValue',
-                          name: 'FORCE_BUILD',
-                          value: true
-                        ],
-                        [
-                          $class: 'BooleanParameterValue',
-                          name: 'SCRATCH',
-                          value: false
-                        ],
-                        [
-                          $class: 'BooleanParameterValue',
-                          name: 'CLEAN_ON_FAILURE',
-                          value: CLEAN_ON_FAILURE
-                        ]
+                if (!currentBuild.result.equals("ABORTED") && !currentBuild.result.equals("FAILURE") && !currentBuild.result.equals("UNSTABLE")) {
+                  println ("Trigger get-sources-rhpkg-container-build_" + JOB_BRANCH + " for ${QUAY_REPO_PATH} from containers/${SYNC_REPOS[i]} branch ${MIDSTM_BRANCH}, job branch ${JOB_BRANCH} ...")
+                  // kick off get-sources-rhpkg-container-build_2.y job
+                  jobPath='/job/DS_CI/job/get-sources-rhpkg-container-build_' + JOB_BRANCH
+                  final jobResult = build(
+                    job: jobPath.replaceAll("/job/","/"),
+                    wait: true,
+                    propagate: true,
+                    quietPeriod: 0,
+                    parameters: [
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'comments_url',
+                        value: comments_url_UDI ? comments_url_UDI : util.globalVar({comments_url})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'token',
+                        value: "CI_BUILD"
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'cause',
+                        value: QUAY_REPO_PATH + "+respin+by+${BUILD_TAG}"
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'UPDATE_BASE_IMAGES_FLAGS',
+                        value: util.globalVar({UPDATE_BASE_IMAGES_FLAGS})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'nodeVersion',
+                        value: util.globalVar({nodeVersion})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'yarnVersion',
+                        value: util.globalVar({yarnVersion})
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'MIDSTM_BRANCH',
+                        value: MIDSTM_BRANCH
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'GIT_PATHs',
+                        value: "containers/${SYNC_REPOS[i]}"
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'QUAY_REPO_PATHs',
+                        value: QUAY_REPO_PATH
+                      ],
+                      [
+                        $class: 'StringParameterValue',
+                        name: 'JOB_BRANCH',
+                        value: JOB_BRANCH
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'FORCE_BUILD',
+                        value: true
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'SCRATCH',
+                        value: false
+                      ],
+                      [
+                        $class: 'BooleanParameterValue',
+                        name: 'CLEAN_ON_FAILURE',
+                        value: CLEAN_ON_FAILURE
                       ]
-                    )
-                    jobLink=jobPath + "/" +  jobResult?.number?.toString()
-                    println("waiting for build(" + jobPath + ")")
-                    println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
-                    currentBuild.description+=" <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered; " 
-                  }
-                } else {
-                  println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
-                  currentBuild.description+=" no changes; "
+                    ]
+                  )
+                  jobLink=jobPath + "/" +  jobResult?.number?.toString()
+                  println("waiting for build(" + jobPath + ")")
+                  println("++> Job ${JENKINS_URL}${jobLink}/console completed.")
+                  currentBuild.description+=" <a href=${jobLink}/>" + (jobLink.replaceAll("/job/","/")) + "</a> triggered; " 
                 }
-              } // if SYNC_REPO[i] is non-null
-            } // for
-          } // withCredentials
-          cleanWs(
-              cleanWhenSuccess: true,
-              cleanWhenUnstable: true,
-              cleanWhenNotBuilt: false,
-              cleanWhenFailure: CLEAN_ON_FAILURE,
-              cleanWhenAborted: true,
-              deleteDirs: true,
-              disableDeferredWipeout: true,
-              notFailBuild: true
-          )
+              } else {
+                println "No changes upstream, nothing to commit for ${SYNC_REPOS[i]}"
+                currentBuild.description+=" no changes; "
+              }
+            } // if SYNC_REPOS[i] is non-null
+          } // for
+        } // withCredentials
+        cleanWs(
+            cleanWhenSuccess: true,
+            cleanWhenUnstable: true,
+            cleanWhenNotBuilt: false,
+            cleanWhenFailure: CLEAN_ON_FAILURE,
+            cleanWhenAborted: true,
+            deleteDirs: true,
+            disableDeferredWipeout: true,
+            notFailBuild: true
+        )
+        if (debugDiskUsage) {
+          sh(script: '''#!/bin/bash
+echo "############### df -h end of sync repos #################>>>"
+df -h; sudo du -sch /home/hudson/.local/share/containers || true
+echo "<<<############### df -h end of sync repos #################"
+''', returnStatus: true)
+        }
+
       } // wrap
     } // stage
   } // node
