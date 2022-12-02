@@ -84,7 +84,7 @@ COPY etc/docker.sh /usr/local/bin/docker
     ########################################################################
 
 RUN \
-    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git procps-ng tree \
+    microdnf install -y dnf bash tar gzip unzip bzip2 which shadow-utils findutils wget curl sudo git git-lfs procps-ng tree \
     # For OpenShift Client 4 (oc): rhocp-4.11-for-rhel-8-x86_64-rpms
     # must hard code a version because otherwise CVP/Brew fails with: Failed component comparison for components: openshift-clients
     # https://rhsm-pulp.corp.redhat.com/content/dist/layered/rhel8/x86_64/ocp-tools/4.10/os/Packages/o/odo-3.3.0-1.el8.x86_64.rpm
