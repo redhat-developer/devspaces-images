@@ -896,9 +896,9 @@ spec:
                 - name: RELATED_IMAGE_devspaces_theia_plugin_registry_image_GMXDICQ_
                   value: registry.redhat.io/devspaces/theia-rhel8@sha256:2004ef6d0bdd358761a7bf46a79210fa9c8a98a88d339bd002bce0314812ea10
                 - name: RELATED_IMAGE_devspaces_udi_devfile_registry_image_GMXDICQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:7a50380138bbe295b954053d6c1c00d4b18eae010a1951b14228e0645b509b90
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:c7ab48d66fc71a03c84710ab293b85e535d5fef86b337de67d35eaa331140c1f
                 - name: RELATED_IMAGE_devspaces_udi_plugin_registry_image_GMXDICQ_
-                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:7a50380138bbe295b954053d6c1c00d4b18eae010a1951b14228e0645b509b90
+                  value: registry.redhat.io/devspaces/udi-rhel8@sha256:c7ab48d66fc71a03c84710ab293b85e535d5fef86b337de67d35eaa331140c1f
                 - name: RELATED_IMAGE_devworkspace_controller
                   value: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ff451e94d2f31812e266ab0d7e548afb2d0ec1d461e0f43262b58d69b5d08a8e
                 - name: RELATED_IMAGE_gateway_authentication_sidecar
@@ -1293,9 +1293,9 @@ spec:
   - name: devspaces_theia_plugin_registry_image_gmxdicq_
     image: registry.redhat.io/devspaces/theia-rhel8@sha256:2004ef6d0bdd358761a7bf46a79210fa9c8a98a88d339bd002bce0314812ea10
   - name: devspaces_udi_devfile_registry_image_gmxdicq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:7a50380138bbe295b954053d6c1c00d4b18eae010a1951b14228e0645b509b90
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:c7ab48d66fc71a03c84710ab293b85e535d5fef86b337de67d35eaa331140c1f
   - name: devspaces_udi_plugin_registry_image_gmxdicq_
-    image: registry.redhat.io/devspaces/udi-rhel8@sha256:7a50380138bbe295b954053d6c1c00d4b18eae010a1951b14228e0645b509b90
+    image: registry.redhat.io/devspaces/udi-rhel8@sha256:c7ab48d66fc71a03c84710ab293b85e535d5fef86b337de67d35eaa331140c1f
   - name: devworkspace_controller
     image: registry.redhat.io/devworkspace/devworkspace-rhel8-operator@sha256:ff451e94d2f31812e266ab0d7e548afb2d0ec1d461e0f43262b58d69b5d08a8e
   - name: gateway_authentication_sidecar
