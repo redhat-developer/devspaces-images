@@ -85,25 +85,36 @@ rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-# requires properly configured ~/.config/pnc-bacon/config.yaml w/ username + clientSecret set
-triggerPNCBuild () {
+pnc_build_id=""
+
+# pnc methods require properly configured ~/.config/pnc-bacon/config.yaml w/ username + clientSecret set
+getPNCIDs () {
     SOURCE_BRANCH=$(cd $SOURCEDIR; git branch --show-current)
 
     # 0. compute buildConfig ID, eg., main => 8937 or 7.56.x => 8936; also compute pnc_project_id = 1274
     pnc_buildconfig_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==${SOURCE_BRANCH}" | yq -r '.[].id')
-    pnc_project_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==main" | yq -r '.[].project.id')
+    pnc_project_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==${SOURCE_BRANCH}" | yq -r '.[].project.id')
+}
 
-    # 1. run a build, ~5-6mins
-    echo "Start a PNC build for project.name==devspaces-server;scmRevision==${SOURCE_BRANCH} (pnc_buildconfig_id=$pnc_buildconfig_id, pnc_project_id=$pnc_project_id) ..."
+getLastPNCBuild () {
+    # 1a. use latest build
+    echo "[INFO] Using latest PNC build for project.name==devspaces-server;scmRevision==${SOURCE_BRANCH} (pnc_buildconfig_id=$pnc_buildconfig_id, pnc_project_id=$pnc_project_id) ..."
+    pnc_build_id=$(pnc build-config list-builds ${pnc_buildconfig_id} --latest | yq -r '.[].id')
+    echo "[INFO] Latest PNC build ID: ${pnc_build_id}"
+}
+
+triggerPNCBuild () {
+    # 1b. run a new build, ~5-6mins
+    echo "[INFO] Start a new PNC build for project.name==devspaces-server;scmRevision==${SOURCE_BRANCH} (pnc_buildconfig_id=$pnc_buildconfig_id, pnc_project_id=$pnc_project_id) ..."
     logfile=$(mktemp)
-    # --rebuild-mode=FORCE
-    pnc build start --wait ${pnc_buildconfig_id} | tee ${logfile}
+    pnc build start --rebuild-mode=FORCE --wait ${pnc_buildconfig_id} | tee ${logfile}
     # running builds can be seen from https://orch.psi.redhat.com/pnc-web/#/projects/1274 
 
     # 2. find the build ID for the completed build, eg., AVN43G4HK3YAA
     pnc_build_id=$(cat ${logfile} | yq -r '.id' || echo "")
+    echo "[INFO] New PNC build ID: ${pnc_build_id}"
 
-    # cleanup
+    # 3. cleanup
     if [[ $pnc_build_id ]]; then 
         rm -f ${logfile}
     fi
@@ -136,8 +147,13 @@ generateFetchArtifactsPNCYaml () {
     fi
 }
 
+getPNCIDs
+if [[ $(cd ${TARGETDIR}; git status -s || true) ]]; then # dirty workspace, something changed upstream, need a new build
+    triggerPNCBuild
+else
+    getLastPNCBuild
+fi
 generateFetchArtifactsPNCYaml
-triggerPNCBuild
 
 # NOTE: upstream Dockerfile is in non-standard path (not build/dockerfiles/Dockerfile) because project has multiple container builds
 sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
