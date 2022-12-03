@@ -27,8 +27,8 @@ This job is used to copy the latest DWO bundle + its operands to
             pipelineTriggers {
                 triggers{
                     cron {
-                        // Sat at 19:HH
-                        spec("H 19 * * 6")
+                        // Every day at 19:HH
+                        spec("H 19 * * *")
                     }
                 }
             }
@@ -46,7 +46,7 @@ This job is used to copy the latest DWO bundle + its operands to
 
         parameters{
             stringParam("DWO_VERSION",DWO_VERSION,"version of DWO to use when searching for latest IIB or operator-bundle to copy to Quay.io")
-            stringParam("EXTRA_FLAGS","",'''Pass additional flags to 
+            stringParam("EXTRA_FLAGS","-v --next",'''Pass additional flags to 
             <a href=https://github.com/redhat-developer/devspaces/blob/devspaces-3-rhel-8/product/copyDWOToQuay.sh>product/copyDWOToQuay.sh</a>
             such as --next, --latest, or -v (verbose)''')
         }
