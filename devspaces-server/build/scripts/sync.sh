@@ -20,14 +20,6 @@ SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 CSV_VERSION=2.y.0 # csv 2.y.0
 DS_VERSION=${CSV_VERSION%.*} # tag 2.y
 
-# TODO CRW-3099 compute these on the fly, rather than hardcoding
-
-# https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/AVMJGQH423YAA
-pnc_build_id="AVMJGQH423YAA"
-# https://orch.psi.redhat.com/pnc-web/#/artifacts/9378447
-# ==> org.eclipse.che:assembly-main:tar.gz:7.yy.0.redhat-0000z
-pnc_artifact_id="9378447"
-
 usage () {
     echo "
 Usage:   $0 -v [DS CSV_VERSION] [-s /path/to/che-server] [-t /path/to/generated]
@@ -93,14 +85,59 @@ rsync -azrlt --checksum ${SOURCEDIR}/dockerfiles/che/entrypoint.sh ${TARGETDIR}
 # ensure shell scripts are executable
 find ${TARGETDIR}/ -name "*.sh" -exec chmod +x {} \;
 
-# CRW-3099 set builds.build_id and builds.build_id.artifacts.id in fetch-artifacts-pnc.yaml
-pnc_build_id_url="https://orch.psi.redhat.com/pnc-web/#/projects/1274/build-configs/8937/builds/"
-pnc_artifact_id_url="https://orch.psi.redhat.com/pnc-web/#/artifacts/"
-sed -i ${TARGETDIR}/fetch-artifacts-pnc.yaml -r \
-    -e "s@${pnc_build_id_url}.+@${pnc_build_id_url}${pnc_build_id}@" \
-    -e "s@(- build_id: ).+@\1'${pnc_build_id}'@" \
-    -e "s@${pnc_artifact_id_url}.+@${pnc_artifact_id_url}${pnc_artifact_id}@" \
-    -e "s@(- id: ).+@\1'${pnc_artifact_id}'@" 
+# requires properly configured ~/.config/pnc-bacon/config.yaml w/ username + clientSecret set
+triggerPNCBuild () {
+    SOURCE_BRANCH=$(cd $SOURCEDIR; git branch --show-current)
+
+    # 0. compute buildConfig ID, eg., main => 8937 or 7.56.x => 8936; also compute pnc_project_id = 1274
+    pnc_buildconfig_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==${SOURCE_BRANCH}" | yq -r '.[].id')
+    pnc_project_id=$(pnc build-config list --query "project.name==devspaces-server;scmRevision==main" | yq -r '.[].project.id')
+
+    # 1. run a build, ~5-6mins
+    echo "Start a PNC build for project.name==devspaces-server;scmRevision==${SOURCE_BRANCH} (pnc_buildconfig_id=$pnc_buildconfig_id, pnc_project_id=$pnc_project_id) ..."
+    logfile=$(mktemp)
+    # --rebuild-mode=FORCE
+    pnc build start --wait ${pnc_buildconfig_id} | tee ${logfile}
+    # running builds can be seen from https://orch.psi.redhat.com/pnc-web/#/projects/1274 
+
+    # 2. find the build ID for the completed build, eg., AVN43G4HK3YAA
+    pnc_build_id=$(cat ${logfile} | yq -r '.id' || echo "")
+
+    # cleanup
+    if [[ $pnc_build_id ]]; then 
+        rm -f ${logfile}
+    fi
+}
+
+# requires pnc_buildconfig_id, pnc_project_id, pnc_build_id
+generateFetchArtifactsPNCYaml () {
+    if [[ $pnc_build_id ]]; then 
+        # 1. use build ID to query for artifact version, eg., 7.58.0.redhat-00004
+        pnc_artifact_version=$(pnc build list --query "id==${pnc_build_id}" | yq -r '.[].attributes.BREW_BUILD_VERSION')
+
+        # 2. use artifact version to query for artifact ID, eg., 9401563
+        pnc_artifact_id=$(pnc build list-built-artifacts "${pnc_build_id}" --query "identifier==org.eclipse.che:assembly-main:tar.gz:${pnc_artifact_version}" | yq -r '.[].id')
+
+        # 3. generate new fetch-artifacts-pnc.yaml file
+        echo "builds:
+  # https://orch.psi.redhat.com/pnc-web/#/projects/${pnc_project_id}/build-configs/${pnc_buildconfig_id}/builds/${pnc_build_id}
+  # build id must be string
+  - build_id: '${pnc_build_id}'
+    artifacts:
+      # https://orch.psi.redhat.com/pnc-web/#/artifacts/${pnc_artifact_id}
+      # ==> org.eclipse.che:assembly-main:tar.gz:${pnc_artifact_version}
+      # artifact id must be string; rename it by setting a different target path/file
+      - id: '${pnc_artifact_id}'
+        target: assembly-main.tar.gz
+" > ${TARGETDIR}/fetch-artifacts-pnc.yaml
+        echo "Updated fetch-artifacts-pnc.yaml with build $pnc_build_id and artifact pnc_artifact_id"
+    else
+        echo "No change to fetch-artifacts-pnc.yaml"
+    fi
+}
+
+generateFetchArtifactsPNCYaml
+triggerPNCBuild
 
 # NOTE: upstream Dockerfile is in non-standard path (not build/dockerfiles/Dockerfile) because project has multiple container builds
 sed ${SOURCEDIR}/dockerfiles/che/Dockerfile -r \
