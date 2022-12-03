@@ -106,9 +106,12 @@ getLastPNCBuild () {
 triggerPNCBuild () {
     # 1b. run a new build, ~5-6mins
     echo "[INFO] Start a new PNC build for project.name==devspaces-server;scmRevision==${SOURCE_BRANCH} (pnc_buildconfig_id=$pnc_buildconfig_id, pnc_project_id=$pnc_project_id) ..."
+    echo "[INFO] See build in progress (~6mins) at:"
+    echo "[INFO] https://orch.psi.redhat.com/pnc-web/#/projects/${pnc_project_id}/build-configs/${pnc_buildconfig_id}"
+
     logfile=$(mktemp)
     pnc build start --rebuild-mode=FORCE --wait ${pnc_buildconfig_id} | tee ${logfile}
-    # running builds can be seen from https://orch.psi.redhat.com/pnc-web/#/projects/1274 
+    # running builds can be seen from https://orch.psi.redhat.com/pnc-web/#/projects/1274
 
     # 2. find the build ID for the completed build, eg., AVN43G4HK3YAA
     pnc_build_id=$(cat ${logfile} | yq -r '.id' || echo "")
