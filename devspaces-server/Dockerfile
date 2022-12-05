@@ -15,7 +15,7 @@ USER root
 ENV CHE_HOME=/home/user/devspaces
 ENV JAVA_HOME=/usr/lib/jvm/jre
 RUN microdnf install java-11-openjdk-headless tar gzip shadow-utils findutils && \
-    microdnf update -y gnutls && \
+    microdnf update -y && \
     microdnf -y clean all && rm -rf /var/cache/yum && echo "Installed Packages" && rpm -qa | sort -V && echo "End Of Installed Packages" && \
     adduser -G root user && mkdir -p /home/user/devspaces
 COPY entrypoint.sh /entrypoint.sh
@@ -50,8 +50,8 @@ LABEL summary="$SUMMARY" \
       com.redhat.component="$PRODNAME-$COMPNAME-container" \
       name="$PRODNAME/$COMPNAME" \
       version="3.4" \
-      pnc_artifact_id="9421840" \
-      pnc_build_id="AVPXU6IFK3YAA" \
+      pnc_artifact_id="9432710" \
+      pnc_build_id="AVQTLZVL23YAA" \
       license="EPLv2" \
       maintainer="Nick Boldt <nboldt@redhat.com>" \
       io.openshift.expose-services="" \
