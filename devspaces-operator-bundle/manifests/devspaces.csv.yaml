@@ -81,7 +81,7 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
     repository: https://github.com/redhat-developer/devspaces-images/
     support: Red Hat
-    skipRange: '>=3.0.0 <=3.2.0'
+    skipRange: '>=3.0.0 <3.2.1'
   name: devspacesoperator.v3.2.1
   namespace: placeholder
 spec:
